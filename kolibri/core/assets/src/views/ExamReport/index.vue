@@ -95,6 +95,7 @@
         :selectedQuestionNumber="questionNumber"
         :isSurvey="isSurvey"
         :sections="annotatedSections"
+        :currentSectionIndex="currentSectionIndex"
         @select="navigateToQuestion"
       />
     </template>
@@ -116,6 +117,7 @@
           :selectedQuestionNumber="questionNumber"
           :isSurvey="isSurvey"
           :sections="annotatedSections"
+          :currentSectionIndex="currentSectionIndex"
           @select="navigateToQuestion"
         />
         <div
@@ -125,6 +127,10 @@
           :style="{ backgroundColor: $themeTokens.surface }"
         >
           <h3 v-if="questionNumberInSectionLabel">{{ questionNumberInSectionLabel }}</h3>
+
+          <p v-if="currentSection && currentSection.description">
+            {{ currentSection.description }}
+          </p>
 
           <div
             v-if="!isSurvey"
@@ -198,6 +204,7 @@
   import { MasteryLogResource } from 'kolibri.resources';
   import { now } from 'kolibri.utils.serverClock';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
+  import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import AttemptLogList from '../AttemptLogList';
   import AttemptTextDiff from './AttemptTextDiff';
   import AttemptIconDiff from './AttemptIconDiff';
@@ -357,7 +364,7 @@
         if (!this.sections) {
           return [
             {
-              title: this.title,
+              title: '',
               questions: this.questions,
               startQuestionNumber: 0,
               endQuestionNumber: this.questions.length - 1,
@@ -375,19 +382,25 @@
           return annotatedSection;
         });
       },
+      currentSectionIndex() {
+        return this.annotatedSections.findIndex(
+          section =>
+            this.questionNumber >= section.startQuestionNumber &&
+            this.questionNumber <= section.endQuestionNumber,
+        );
+      },
+      currentSection() {
+        return this.annotatedSections[this.currentSectionIndex];
+      },
       questionNumberInSectionLabel() {
-        if (!this.sections) {
-          return '';
+        const questionLabel = this.coreString('questionNumberLabel', {
+          questionNumber: this.questionNumber + 1,
+        });
+        if (this.annotatedSections.length === 1) {
+          return questionLabel;
         }
-        for (let iSection = 0; iSection < this.sections.length; iSection++) {
-          const section = this.sections[iSection];
-          for (let iQuestion = 0; iQuestion < section.questions.length; iQuestion++) {
-            if (section.questions[iQuestion].item === this.itemId) {
-              return this.coreString('questionNumberLabel', { questionNumber: iQuestion + 1 });
-            }
-          }
-        }
-        return '';
+        const sectionLabel = displaySectionTitle(this.currentSection, this.currentSectionIndex);
+        return `${sectionLabel} - ${questionLabel}`;
       },
       attemptLogs() {
         if (this.isQuiz || this.isSurvey) {

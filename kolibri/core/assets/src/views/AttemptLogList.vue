@@ -72,6 +72,9 @@
           <h3
             v-if="title"
             class="accordion-header"
+            :style="{
+              backgroundColor: index === currentSectionIndex ? $themePalette.grey.v_100 : '',
+            }"
           >
             <KButton
               tabindex="0"
@@ -154,7 +157,7 @@
   import { coreStrings } from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
-  import { computed, watch } from 'kolibri.lib.vueCompositionApi';
+  import { computed, onMounted, watch } from 'kolibri.lib.vueCompositionApi';
   import { toRefs } from '@vueuse/core';
   import AttemptLogItem from './AttemptLogItem';
 
@@ -168,24 +171,14 @@
     setup(props, { emit }) {
       const { questionsLabel$, quizSectionsLabel$ } = enhancedQuizManagementStrings;
       const { questionNumberLabel$ } = coreStrings;
-      const { sections, selectedQuestionNumber } = toRefs(props);
+      const { currentSectionIndex, sections, selectedQuestionNumber } = toRefs(props);
 
       const { expand, isExpanded, toggle } = useAccordion(sections);
 
       /** Finds the section which the current attempt belongs to and expands it */
       function expandCurrentSectionIfNeeded() {
-        if (!sections.value || !sections.value.length) {
-          return;
-        }
-        let qCount = 0;
-        for (let i = 0; i < sections?.value?.length; i++) {
-          qCount += sections?.value[i]?.questions?.length;
-          if (qCount >= selectedQuestionNumber.value) {
-            if (!isExpanded(i)) {
-              expand(i);
-            }
-            break;
-          }
+        if (!isExpanded(currentSectionIndex.value)) {
+          expand(currentSectionIndex.value);
         }
       }
 
@@ -194,19 +187,6 @@
           value: index,
           label: displaySectionTitle(section, index),
         }));
-      });
-
-      const currentSectionIndex = computed(() => {
-        for (let i = 0; i < sections.value.length; i++) {
-          const section = sections.value[i];
-          if (
-            selectedQuestionNumber.value >= section.startQuestionNumber &&
-            selectedQuestionNumber.value <= section.endQuestionNumber
-          ) {
-            return i;
-          }
-        }
-        return 0;
       });
 
       const currentSection = computed(() => {
@@ -244,7 +224,7 @@
       }
 
       watch(selectedQuestionNumber, expandCurrentSectionIfNeeded);
-      expandCurrentSectionIfNeeded();
+      onMounted(expandCurrentSectionIfNeeded);
 
       return {
         handleSectionChange,
@@ -264,6 +244,10 @@
     props: {
       sections: {
         type: Array,
+        required: true,
+      },
+      currentSectionIndex: {
+        type: Number,
         required: true,
       },
       attemptLogs: {
