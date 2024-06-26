@@ -125,6 +125,7 @@
         try {
           await this.removeUser(userId);
           this.userIdToRemove = null;
+          this.$store.dispatch('createSnackbar', this.$tr('removeUserSuccess'));
           await this.fetchUsers({ force: true });
         } catch (error) {
           this.userIdToRemove = null;
@@ -148,6 +149,7 @@
       removeUserCallToAction:
         'Please ensure that all data you would like to keep has been synced before removing this user. You will permanently lose any data that has not been synced.',
       removeUserAction: 'Remove user',
+      removeUserSuccess: 'Successfully removed user',
       cannotRemoveUserTitle: 'Cannot remove user',
       cannotRemoveUserDescription:
         'This user is the only super admin on this device and cannot be removed. Give or transfer super admin permissions to another user on this device if you would like to remove this user.',
