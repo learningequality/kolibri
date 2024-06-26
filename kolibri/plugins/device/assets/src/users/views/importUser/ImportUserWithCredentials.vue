@@ -107,10 +107,9 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import { TaskResource } from 'kolibri.resources';
+  import { TaskResource, FacilityUserResource } from 'kolibri.resources';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import { FacilityImportResource } from '../../apiResources';
   import commonProfileStrings from '../../../../../../user_profile/assets/src/views/commonProfileStrings';
   import commonDeviceStrings from '../../../views/commonDeviceStrings';
 
@@ -310,7 +309,7 @@
           password: this.adminPassword,
           facility_id: this.facility.id,
         };
-        FacilityImportResource.listfacilitylearners(params)
+        FacilityUserResource.listRemoteFacilityLearners(params)
           .then(data => {
             this.importUserService.send({
               type: 'CONTINUEADMIN',
