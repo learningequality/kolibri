@@ -97,6 +97,7 @@
 <style lang="scss" scoped>
 
   .title {
+    position: relative;
     display: inline-block;
   }
 
@@ -120,22 +121,23 @@
     list-style-type: none;
   }
 
-  .item {
-    display: inline-block;
-    height: 24px;
+  h3.item {
+    margin-left: 1.5em;
   }
 
   .svg-item {
-    width: 32px;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 1em;
     height: auto;
-    margin-right: 8px;
-    vertical-align: middle;
+    transform: translateY(-50%);
   }
 
   .learner-item {
     display: block;
     min-width: 120px;
-    padding-left: 20px;
+    padding-left: 1em;
     clear: both;
   }
 
