@@ -513,7 +513,7 @@ class DeleteImportedUserView(views.APIView):
             user.delete_imported_user()
 
             return Response({"user_id": user_id})
-        except (Exception, FacilityUser.DoesNotExist):
+        except FacilityUser.DoesNotExist:
             raise Http404("User does not exist")
 
 

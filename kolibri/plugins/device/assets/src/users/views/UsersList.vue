@@ -59,7 +59,7 @@
           class="imported"
           :style="{ color: $themeTokens.annotation }"
         >
-          Imported
+          {{ $tr("imported") }}
         </p>
       </li>
     </ul>
@@ -125,6 +125,12 @@
     methods: {
       isSuperuser(user) {
         return user.kind === UserKinds.SUPERUSER;
+      },
+    },
+    $trs: {
+      imported: {
+        message: 'Imported',
+        context: 'Label indicating that a learner user account has already been imported.',
       },
     },
   };

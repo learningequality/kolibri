@@ -316,7 +316,7 @@ export const wizardMachine = createMachine(
         on: {
           ...importLodUsersDefinition.on,
           PREVIOUS_STATE: '#wizard.fullOrLearnOnlyDevice',
-          /** TODO Probably this two events could be refactored */
+          /** TODO Probably these two events could be refactored */
           SET_SUPERUSER: { actions: 'setSuperuser' },
           SET_SUPERADMIN: { actions: 'setSuperuserIfNull' },
           IMPORT_USER: { actions: 'setSuperuserIfNull' },
