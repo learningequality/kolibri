@@ -2096,13 +2096,13 @@ class CSRFProtectedAuthTestCase(APITestCase):
         cls.facility = FacilityFactory.create()
         cls.user = FacilityUserFactory.create(facility=cls.facility)
 
-    def test_csrf_protected_session_list(self):
+    def test_not_csrf_protected_session_list(self):
         response = self.client_csrf.post(
             reverse("kolibri:core:session-list"),
             data={"username": self.user.username, "password": DUMMY_PASSWORD},
             format="json",
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_csrf_protected_signup_list(self):
         response = self.client_csrf.post(

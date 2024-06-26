@@ -872,7 +872,7 @@ class SetNonSpecifiedPasswordView(views.APIView):
         return Response()
 
 
-@method_decorator([ensure_csrf_cookie, csrf_protect], name="dispatch")
+@method_decorator([ensure_csrf_cookie], name="dispatch")
 class SessionViewSet(viewsets.ViewSet):
     def _check_os_user(self, request, username):
         auth_token = request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
