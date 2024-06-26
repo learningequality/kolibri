@@ -24,13 +24,13 @@
               v-if="learner.noattempt"
               class="item svg-item"
               :style="{ fill: $themeTokens.annotation }"
-              icon="cancel"
+              icon="notStarted"
             />
             <KIcon
               v-else-if="!learner.correct"
               class="item svg-item"
               :style="{ fill: $themeTokens.incorrect }"
-              icon="cancel"
+              icon="incorrect"
             />
             <KIcon
               v-else-if="learner.hinted"
