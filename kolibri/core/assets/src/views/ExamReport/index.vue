@@ -203,6 +203,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { MasteryLogResource } from 'kolibri.resources';
   import { now } from 'kolibri.utils.serverClock';
+  import { annotateSections } from 'kolibri.utils.exams';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import AttemptLogList from '../AttemptLogList';
@@ -361,26 +362,7 @@
     },
     computed: {
       annotatedSections() {
-        if (!this.sections) {
-          return [
-            {
-              title: '',
-              questions: this.questions,
-              startQuestionNumber: 0,
-              endQuestionNumber: this.questions.length - 1,
-            },
-          ];
-        }
-        let startQuestionNumber = 0;
-        return this.sections.map(section => {
-          const annotatedSection = {
-            ...section,
-            startQuestionNumber,
-            endQuestionNumber: startQuestionNumber + section.questions.length - 1,
-          };
-          startQuestionNumber += section.questions.length;
-          return annotatedSection;
-        });
+        return annotateSections(this.sections, this.questions);
       },
       currentSectionIndex() {
         return this.annotatedSections.findIndex(

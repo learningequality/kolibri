@@ -254,3 +254,26 @@ export function getExamReport(examId, tryIndex = 0, questionNumber = 0, interact
     });
   });
 }
+
+export function annotateSections(sections, questions) {
+  if (!sections) {
+    return [
+      {
+        title: '',
+        questions: questions,
+        startQuestionNumber: 0,
+        endQuestionNumber: questions.length - 1,
+      },
+    ];
+  }
+  let startQuestionNumber = 0;
+  return sections.map(section => {
+    const annotatedSection = {
+      ...section,
+      startQuestionNumber,
+      endQuestionNumber: startQuestionNumber + section.questions.length - 1,
+    };
+    startQuestionNumber += section.questions.length;
+    return annotatedSection;
+  });
+}

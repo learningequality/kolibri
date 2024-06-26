@@ -154,7 +154,7 @@
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useAccordion from 'kolibri-common/components/useAccordion';
-  import { coreStrings } from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import coreStrings from 'kolibri.utils.coreStrings';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import { computed, onMounted, watch } from 'kolibri.lib.vueCompositionApi';
