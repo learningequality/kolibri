@@ -67,6 +67,7 @@
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { SelectDeviceModalGroup } from 'kolibri.coreVue.componentSets.sync';
+  import { LodTypePresets } from 'kolibri.coreVue.vuex.constants';
   import commonDeviceStrings from '../../views/commonDeviceStrings';
 
   import useUsers from '../composables/useUsers';
@@ -134,7 +135,7 @@
         this.importUserService.send({
           type: 'CONTINUE',
           value: {
-            importOrJoin: 'IMPORT',
+            importOrJoin: LodTypePresets.IMPORT,
             importDeviceId: device.id,
           },
         });

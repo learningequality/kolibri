@@ -1,7 +1,7 @@
 import { checkCapability } from 'kolibri.utils.appCapabilities';
 import { Presets } from 'kolibri.coreVue.vuex.constants';
 
-import { importLodUsersDefinition } from 'kolibri.machines.importLodUsersMachine';
+import { getImportLodUsersDefinition } from 'kolibri.machines.importLodUsersMachine';
 
 /**
  * __ Setting up the XState Visualizer __
@@ -49,6 +49,8 @@ import { DeviceTypePresets, FacilityTypePresets, UsePresets } from '../constants
 
 // NOTE: Uncomment the following function if you're using the visualizer
 // const checkCapability = capabilityToCheck => ["get_os_user"].includes(capabilityToCheck);
+
+const importLodUsersDefinition = getImportLodUsersDefinition();
 
 const initialContext = {
   ...importLodUsersDefinition.context,

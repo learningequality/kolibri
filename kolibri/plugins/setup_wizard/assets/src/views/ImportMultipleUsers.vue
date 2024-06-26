@@ -192,7 +192,7 @@
         const task_name = 'kolibri.core.auth.tasks.peeruserimport';
         const params = {
           type: task_name,
-          ...this.wizardService.state.context.lodAdmin,
+          ...this.wizardService.state.context.remoteAdmin,
           facility: this.facility.id,
           facility_name: this.facility.name,
           device_id: this.device.id,

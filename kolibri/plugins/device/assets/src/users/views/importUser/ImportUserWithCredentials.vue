@@ -254,6 +254,7 @@
               id: userId,
               full_name: username,
               username,
+              taskId: response.id,
             },
           });
           this.importUserService.send({

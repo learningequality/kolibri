@@ -5,23 +5,35 @@ import { LodTypePresets } from 'kolibri.coreVue.vuex.constants';
 
 // Will require a PREVIOUS_STEP event to go back to the previous step (if needed)
 
-const initialContext = {
+const getInitialContext = () => ({
   lodImportOrJoin: null,
   importDeviceId: null,
   selectedFacility: null,
   importDevice: null,
   facilitiesOnDeviceCount: null,
   remoteUsers: [],
-  lodAdmin: {},
+  remoteAdmin: {},
   importedUsers: [],
   usersBeingImported: [],
   firstImportedLodUser: null,
-};
+});
 
-export const importLodUsersDefinition = {
+/**
+ * Machine to handle the import of users in a LOD device.
+ * This machine could be used as a stand alone machine or as a sub-machine of another machine:
+ * * If you want to use it as a stand alone machine, please use the
+ *   `getImportLodUsersMachine` function.
+ * * If you want to use it as a sub-machine, please use the `getImportLodUsersDefinition` object.
+ *   And then map the `initial`, `state`, and `on` properties to the parent sub-state, the
+ *   `actions` and `context` properties to the parent machine actions and context properties.
+ *   As a sub-machine, this machine will send the following events to the parent machine:
+ *   * PREVIOUS_STATE: When the user wants to go back to state previous to this machine.
+ *   * IMPORT_USER: When an user is being imported.
+ */
+export const getImportLodUsersDefinition = () => ({
   id: 'importLodUsers',
   initial: 'selectLodSetupType',
-  context: initialContext,
+  context: getInitialContext(),
   predictableActionArguments: true,
   states: {
     selectLodSetupType: {
@@ -69,8 +81,9 @@ export const importLodUsersDefinition = {
         CONTINUE: { target: 'lodLoading', actions: 'importUser' },
         CONTINUEADMIN: {
           target: 'lodImportAsAdmin',
-          actions: ['setRemoteUsers', 'setLodAdmin'],
+          actions: ['setRemoteUsers', 'setRemoteAdmin'],
         },
+        ADD_USER_BEING_IMPORTED: { actions: 'addUserBeingImported' },
       },
     },
 
@@ -87,6 +100,7 @@ export const importLodUsersDefinition = {
       on: {
         BACK: 'lodImportUserAuth',
         LOADING: 'lodLoading',
+        ADD_USER_BEING_IMPORTED: { actions: 'addUserBeingImported' },
       },
     },
 
@@ -103,6 +117,7 @@ export const importLodUsersDefinition = {
       on: {
         BACK: 'selectLodSetupType',
         CONTINUE: 'lodJoinLoading',
+        ADD_USER_BEING_IMPORTED: { actions: 'addUserBeingImported' },
       },
     },
 
@@ -116,7 +131,6 @@ export const importLodUsersDefinition = {
     RESET_IMPORT: '#selectLodSetupType',
     ADD_IMPORTED_USER: { actions: 'addImportedUser' },
     SET_FIRST_LOD: { actions: 'setFirstLodUser' },
-    ADD_USER_BEING_IMPORTED: { actions: 'addUserBeingImported' },
     REMOVE_USER_BEING_IMPORTED: { actions: 'removeUserBeingImported' },
     FINISH: 'finish',
   },
@@ -129,6 +143,7 @@ export const importLodUsersDefinition = {
       selectedFacility: (_, event) => {
         return event.value.selectedFacility;
       },
+      // TODO: this importDevice and importDeviceId could be managed in a single state
       importDevice: (_, event) => {
         return event.value.importDevice;
       },
@@ -142,9 +157,9 @@ export const importLodUsersDefinition = {
     setRemoteUsers: assign({
       remoteUsers: (_, event) => event.value.users,
     }),
-    setLodAdmin: assign({
+    setRemoteAdmin: assign({
       // Used when setting the Admin user for multiple import
-      lodAdmin: (_, event) => {
+      remoteAdmin: (_, event) => {
         return {
           username: event.value.adminUsername,
           password: event.value.adminPassword,
@@ -163,6 +178,9 @@ export const importLodUsersDefinition = {
         return uniq(users);
       },
     }),
+    // TODO: There are a lot of logic and several actions of the original wizard machine
+    // that does pretty much the same thing. This could be refactored to abstract actions
+    // managed just in terms of "users being imported" and "imported users".
     setFirstLodUser: assign({
       firstImportedLodUser: (_, event) => event.value,
     }),
@@ -179,9 +197,9 @@ export const importLodUsersDefinition = {
       },
     }),
   },
-};
+});
 
 export const getImportLodUsersMachine = () => {
-  const { actions, ...machine } = importLodUsersDefinition;
+  const { actions, ...machine } = getImportLodUsersDefinition();
   return createMachine(machine, { actions });
 };
