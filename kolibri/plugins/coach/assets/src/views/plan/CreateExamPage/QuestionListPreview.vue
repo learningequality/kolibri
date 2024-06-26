@@ -52,7 +52,7 @@
         v-if="content && content.available"
         class="question-title"
       >
-        {{ currentQuestion.title }}
+        {{ displayQuestionTitle(currentQuestion, content.title) }}
       </h3>
       <ContentRenderer
         v-if="content && content.available && questionId"
