@@ -52,10 +52,10 @@
       />
     </div>
     <CardThumbnail
+      v-if="!windowIsSmall"
       class="thumbnail"
       :thumbnail="thumbnail"
       :kind="kind"
-      :isMobile="windowIsSmall"
     />
   </router-link>
 
@@ -160,7 +160,6 @@
     position: absolute;
     top: 0;
     right: 0;
-    width: $thumb-width;
     height: 100%;
     border-radius: 0 8px 8px 0;
   }
@@ -199,6 +198,13 @@
     width: 1.25em !important;
     height: 1.25em !important;
     padding-top: 1px;
+  }
+
+  /deep/ .mobile-thumbnail-wrapper {
+    position: absolute;
+    top: 0 !important;
+    right: 0 !important;
+    height: 125px;
   }
 
 </style>
