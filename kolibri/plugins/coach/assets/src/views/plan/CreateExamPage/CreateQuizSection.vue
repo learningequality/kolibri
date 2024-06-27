@@ -301,20 +301,22 @@
         </AccordionContainer>
       </div>
     </KTabsPanel>
-    <KModal
-      v-if="showDeleteConfirmation"
-      :title="deleteSectionLabel$()"
-      :submitText="coreString('deleteAction')"
-      :cancelText="coreString('cancelAction')"
-      @cancel="showDeleteConfirmation = true"
-      @submit="handleConfirmDelete"
-    >
-      {{
-        deleteConfirmation$({
-          section_title: displaySectionTitle(activeSection, activeSectionIndex),
-        })
-      }}
-    </KModal>
+    <FocusTrap>
+      <KModal
+        v-if="showDeleteConfirmation"
+        :title="deleteSectionLabel$()"
+        :submitText="coreString('deleteAction')"
+        :cancelText="coreString('cancelAction')"
+        @cancel="showDeleteConfirmation = false"
+        @submit="handleConfirmDelete"
+      >
+        {{
+          deleteConfirmation$({
+            section_title: displaySectionTitle(activeSection, activeSectionIndex),
+          })
+        }}
+      </KModal>
+    </FocusTrap>
   </div>
 
 </template>
@@ -338,6 +340,7 @@
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import useAccordion from 'kolibri-common/components/useAccordion';
+  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
@@ -355,6 +358,7 @@
       DragSortWidget,
       DragHandle,
       TabsWithOverflow,
+      FocusTrap,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
