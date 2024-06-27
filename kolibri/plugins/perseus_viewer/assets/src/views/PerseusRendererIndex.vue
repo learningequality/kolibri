@@ -542,13 +542,13 @@
           // it seems it is possible for us to have a serialized state with keys
           // that do not correspond to any widgets. We need to sanitize the state
           // before restoring it.
-          const sanitizedQuestions = {};
+          const sanitizedQuestion = {};
           for (const key of widgetIds) {
             if (answerState.question[key]) {
-              sanitizedQuestions[key] = answerState.question[key];
+              sanitizedQuestion[key] = answerState.question[key];
             }
           }
-          answerState.question = sanitizedQuestions;
+          answerState.question = sanitizedQuestion;
           this.itemRenderer.restoreSerializedState(answerState);
           widgetIds.forEach(id => {
             if (sorterWidgetRegex.test(id)) {
