@@ -1,22 +1,17 @@
 import logging
 
+import requests
 from django.db import connection
 from django.http import JsonResponse
+from requests.exceptions import ConnectionError
+from requests.exceptions import RequestException
+from requests.exceptions import Timeout
 
 from .models import ErrorReports
-from kolibri.core.discovery.utils.network.client import NetworkClient
-from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
-from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
-from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
 from kolibri.core.tasks.decorators import register_task
+from kolibri.core.utils.urls import join_url
 
 logger = logging.getLogger(__name__)
-
-DEFAULT_SERVER_URL = "https://telemetry.learningequality.org"
-
-DEFAULT_PING_JOB_ID = "10"  # Unsure about this value
-
-client = NetworkClient(DEFAULT_SERVER_URL)
 
 
 def serialize_error_reports_to_json_response(errors):
@@ -36,29 +31,30 @@ def serialize_error_reports_to_json_response(errors):
     return JsonResponse(errors_list, safe=False)
 
 
-def markErrorsAsSent(errors):
+def mark_errors_as_sent(errors):
     for error in errors:
         error.mark_as_sent()
 
 
-@register_task(job_id=DEFAULT_PING_JOB_ID)
-def ping_error_reports():
+@register_task
+def ping_error_reports(server):
     try:
         errors = ErrorReports.get_unsent_errors()
         errors_json = serialize_error_reports_to_json_response(errors)
-        client.post(
-            "/api/errorreports/",
+
+        requests.post(
+            join_url(server, "/api/v1/errors/"),
             data=errors_json.content,
             headers={"Content-Type": "application/json"},
         )
-        markErrorsAsSent(errors)
-    except NetworkLocationConnectionFailure:
+        mark_errors_as_sent(errors)
+    except ConnectionError:
         logger.warning("Reporting Error failed (could not connect).")
         raise
-    except NetworkLocationResponseTimeout:
+    except Timeout:
         logger.warning("Reporting Error failed (connection timed out).")
         raise
-    except NetworkLocationResponseFailure as e:
+    except RequestException as e:
         logger.warning("Reporting Error failed ({})!".format(e))
         raise
     finally:
