@@ -256,6 +256,10 @@ export function getExamReport(examId, tryIndex = 0, questionNumber = 0, interact
 }
 
 export function annotateSections(sections, questions) {
+  // Adding the additional startQuestionNumber and endQuestionNumber fields to each section
+  // allows to more easily identify the overall place in the quiz that a question is.
+  // This is useful for deciding which section is currently active based on the global
+  // question number, and also for displaying the global question number in the UI.
   if (!sections) {
     return [
       {
