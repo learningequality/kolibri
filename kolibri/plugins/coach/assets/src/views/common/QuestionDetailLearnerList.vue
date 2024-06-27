@@ -122,14 +122,14 @@
   }
 
   h3.item {
-    margin-left: 1.5em;
+    margin-left: 2em;
   }
 
   .svg-item {
     position: absolute;
     top: 50%;
     left: 0;
-    width: 1em;
+    width: 1.5em;
     height: auto;
     transform: translateY(-50%);
   }
