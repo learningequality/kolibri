@@ -27,9 +27,11 @@ def _ping(started, server, checkrate):
     try:
         ping_once(started, server=server)
         try:
-            ping_error_reports.enqueue()
+            ping_error_reports.enqueue(args=(server,))
         except JobRunning:
-            pass
+            logger.warning(
+                "Error reporting task already running. Cannot start another."
+            )
     except ConnectionError:
         logger.warning(
             "Ping failed (could not connect). Trying again in {} minutes.".format(

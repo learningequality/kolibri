@@ -1,63 +1,65 @@
 from unittest.mock import patch
 
 from django.test import TestCase
+from requests.exceptions import ConnectionError
+from requests.exceptions import RequestException
+from requests.exceptions import Timeout
 
-from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
-from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
-from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
 
-
-@patch("kolibri.core.errorreports.tasks.client.post")
+@patch("kolibri.core.errorreports.tasks.requests.post")
 @patch("kolibri.core.errorreports.tasks.ErrorReports.get_unsent_errors")
-@patch("kolibri.core.errorreports.tasks.markErrorsAsSent")
+@patch("kolibri.core.errorreports.tasks.mark_errors_as_sent")
 class PingErrorReportsTestCase(TestCase):
-    def test_ping_error_reports(self, markErrorsAsSent, get_unsent_errors, post):
+    def setUp(self):
+        self.server = "http://iamtest.in"
+
+    def test_ping_error_reports(self, mark_errors_as_sent, get_unsent_errors, post):
         from kolibri.core.errorreports.tasks import ping_error_reports
 
-        ping_error_reports()
+        ping_error_reports(self.server)
 
         self.assertTrue(get_unsent_errors.called)
         self.assertTrue(post.called)
-        self.assertTrue(markErrorsAsSent.called)
+        self.assertTrue(mark_errors_as_sent.called)
 
     def test_ping_error_reports_connection_error(
-        self, markErrorsAsSent, get_unsent_errors, post
+        self, mark_errors_as_sent, get_unsent_errors, post
     ):
         from kolibri.core.errorreports.tasks import ping_error_reports
 
-        get_unsent_errors.side_effect = NetworkLocationConnectionFailure
+        get_unsent_errors.side_effect = ConnectionError
 
-        with self.assertRaises(NetworkLocationConnectionFailure):
-            ping_error_reports()
+        with self.assertRaises(ConnectionError):
+            ping_error_reports(self.server)
 
         self.assertTrue(get_unsent_errors.called)
         self.assertFalse(post.called)
-        self.assertFalse(markErrorsAsSent.called)
+        self.assertFalse(mark_errors_as_sent.called)
 
     def test_ping_error_reports_timeout(
-        self, markErrorsAsSent, get_unsent_errors, post
+        self, mark_errors_as_sent, get_unsent_errors, post
     ):
         from kolibri.core.errorreports.tasks import ping_error_reports
 
-        get_unsent_errors.side_effect = NetworkLocationResponseTimeout
+        get_unsent_errors.side_effect = Timeout
 
-        with self.assertRaises(NetworkLocationResponseTimeout):
-            ping_error_reports()
+        with self.assertRaises(Timeout):
+            ping_error_reports(self.server)
 
         self.assertTrue(get_unsent_errors.called)
         self.assertFalse(post.called)
-        self.assertFalse(markErrorsAsSent.called)
+        self.assertFalse(mark_errors_as_sent.called)
 
     def test_ping_error_reports_response_failure(
-        self, markErrorsAsSent, get_unsent_errors, post
+        self, mark_errors_as_sent, get_unsent_errors, post
     ):
         from kolibri.core.errorreports.tasks import ping_error_reports
 
-        get_unsent_errors.side_effect = NetworkLocationResponseFailure
+        get_unsent_errors.side_effect = RequestException
 
-        with self.assertRaises(NetworkLocationResponseFailure):
-            ping_error_reports()
+        with self.assertRaises(RequestException):
+            ping_error_reports(self.server)
 
         self.assertTrue(get_unsent_errors.called)
         self.assertFalse(post.called)
-        self.assertFalse(markErrorsAsSent.called)
+        self.assertFalse(mark_errors_as_sent.called)
