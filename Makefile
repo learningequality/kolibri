@@ -170,6 +170,8 @@ staticdeps-cext:
 
 strip-staticdeps:
 	find kolibri/dist -name "*.so" -exec strip --strip-unneeded {} \;
+	find kolibri/dist -name "*.so" -exec aarch64-linux-gnu-strip --strip-unneeded {} \;
+	find kolibri/dist -name "*.so" -exec arm-linux-gnueabihf-strip --strip-unneeded {} \;
 
 staticdeps-compileall:
 	bash -c 'python --version'
