@@ -1,0 +1,12 @@
+{
+  "name": "kolibri-facility-plugin",
+  "description": "Facility",
+  "private": true,
+  "version": "0.0.1",
+  "workspaces": {
+    "nohoist": ["date-fns", "date-fns/*"]
+  },
+  "dependencies": {
+    "date-fns": "1.30.1"
+  }
+}
