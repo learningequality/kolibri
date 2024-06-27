@@ -5,13 +5,6 @@
     class="content-card"
     :style="{ backgroundColor: $themeTokens.surface }"
   >
-    <CardThumbnail
-      class="thumbnail"
-      :thumbnail="thumbnail"
-      :kind="kind"
-      :isMobile="windowIsSmall"
-    />
-
     <div
       :class="windowIsSmall ? 'mobile-text' : 'text'"
       :style="{ color: $themeTokens.text }"
@@ -21,41 +14,30 @@
         :style="{ color: $themeTokens.text }"
       >
         <h3
-          v-if="!windowIsSmall"
           class="title"
           dir="auto"
         >
-          <KLabeledIcon :label="title">
-            <template #icon>
-              <ContentIcon :kind="kind" />
-            </template>
-          </KLabeledIcon>
+          <KTextTruncator
+            :text="title"
+            :maxLines="2"
+          />
         </h3>
-        <h3
-          v-if="windowIsSmall"
-          dir="auto"
-        >
-          <KLabeledIcon :label="title">
-            <template #icon>
-              <ContentIcon :kind="kind" />
-            </template>
-          </KLabeledIcon>
-        </h3>
-        <div
-          v-if="message"
-          class="message"
-          :style="{ color: $themeTokens.text }"
-        >
-          {{ message }}
-        </div>
       </div>
       <KTextTruncator
         v-if="!windowIsSmall"
         :text="description"
         :maxLines="3"
         class="description"
+        :style="{ color: $themeTokens.annotation }"
       />
       <div>
+        <span
+          v-if="message"
+          class="message"
+          :style="{ color: $themeTokens.annotation }"
+        >
+          {{ message }}
+        </span>
         <CoachContentLabel
           class="coach-content-label"
           :value="numCoachContents"
@@ -63,7 +45,18 @@
         />
       </div>
       <slot name="notice"></slot>
+      <LearningActivityChip
+        v-if="isLeaf"
+        :kind="kind"
+        class="chip"
+      />
     </div>
+    <CardThumbnail
+      class="thumbnail"
+      :thumbnail="thumbnail"
+      :kind="kind"
+      :isMobile="windowIsSmall"
+    />
   </router-link>
 
 </template>
@@ -73,16 +66,16 @@
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import CardThumbnail from './CardThumbnail';
 
   export default {
     name: 'LessonContentCard',
     components: {
       CardThumbnail,
-      ContentIcon,
       CoachContentLabel,
+      LearningActivityChip,
     },
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
@@ -150,11 +143,11 @@
     position: relative;
     display: block;
     min-height: $thumb-height + 16;
-    padding: 16px;
+    padding: 24px;
     margin-bottom: 24px;
     text-align: left;
     text-decoration: none;
-    border-radius: 2px;
+    border-radius: 8px;
     transition: box-shadow $core-time ease;
 
     &:hover,
@@ -166,37 +159,46 @@
   .thumbnail {
     position: absolute;
     top: 0;
-    left: 0;
-    margin: 8px;
+    right: 0;
+    width: $thumb-width;
+    height: 100%;
+    border-radius: 0 8px 8px 0;
   }
 
   .text {
     flex-direction: column;
-    margin-left: $thumb-width + 8;
+    max-width: calc(100% - #{$thumb-width} - 8px);
   }
 
-  .mobile-text {
-    margin-left: $mobile-thumb-width + 8;
-  }
-
-  .title-message-wrapper {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-
-  .title,
-  .message {
-    margin-top: 0;
-    overflow: hidden;
+  .title {
+    margin-bottom: 0.5em;
   }
 
   .message {
-    text-align: right;
+    margin-bottom: 1.25em;
+    font-size: 0.75em;
+  }
+
+  .description {
+    margin-bottom: 0.5em;
+    font-size: 0.875em;
   }
 
   .coach-content-label {
-    margin: 8px 0;
+    width: 20%;
+    margin: 0 8px;
+  }
+
+  .chip {
+    padding: 0.5em;
+    margin: 0.75em 0;
+    font-size: 0.7em;
+  }
+
+  /deep/ .icon svg {
+    width: 1.25em !important;
+    height: 1.25em !important;
+    padding-top: 1px;
   }
 
 </style>

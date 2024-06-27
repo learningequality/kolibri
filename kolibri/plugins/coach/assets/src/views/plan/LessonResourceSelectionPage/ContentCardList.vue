@@ -45,7 +45,7 @@
           :title="content.title"
           :thumbnail="content.thumbnail"
           :description="content.description"
-          :kind="content.kind"
+          :kind="content.is_leaf ? content.learning_activities : 'folder'"
           :message="contentCardMessage(content)"
           :link="contentCardLink(content)"
           :numCoachContents="content.num_coach_contents"
