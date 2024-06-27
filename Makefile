@@ -59,7 +59,6 @@ clean: clean-build clean-pyc clean-assets clean-staticdeps
 
 clean-assets:
 	yarn run clean
-	rm -fr kolibri/core/content/static/hashi/
 
 clean-build:
 	rm -f kolibri/VERSION

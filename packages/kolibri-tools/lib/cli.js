@@ -451,6 +451,9 @@ program
     } else {
       const glob = require('./glob');
       const compressFile = require('./compress');
+      logger.warn(
+        'The compress command is a destructive operation and will truncate any source files that are compressed. Please ensure you have a backup of the files you are compressing.',
+      );
       Promise.all(
         files.map(file => {
           const matches = glob.sync(file);

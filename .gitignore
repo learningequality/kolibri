@@ -143,3 +143,5 @@ cext_cache
 
 # ignore gzipped files
 *.gz
+# Ignore our special file size cache
+*.file_size

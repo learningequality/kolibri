@@ -1,11 +1,21 @@
 import os
+import re
 import tempfile
+from gzip import GzipFile
 
+import pytest
 from mock import MagicMock
+from mock import mock_open
+from mock import patch
+from whitenoise.httpstatus_backport import HTTPStatus
+from whitenoise.responders import Response
 
+from kolibri.utils.kolibri_whitenoise import COMPRESSED_FILE_FOR_REGULAR_PATH
 from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise
+from kolibri.utils.kolibri_whitenoise import EndRangeStaticFile
 from kolibri.utils.kolibri_whitenoise import FileFinder
 from kolibri.utils.kolibri_whitenoise import NOT_FOUND
+from kolibri.utils.kolibri_whitenoise import SlicedFile
 
 
 def test_file_finder():
@@ -108,3 +118,79 @@ def test_dynamic_whitenoise_suspicious_file():
     )
     os.removedirs(tempdir11)
     os.removedirs(tempdir12)
+
+
+@pytest.fixture
+def mock_stat():
+    with patch("os.stat") as mock_stat:
+        mock_stat.return_value = MagicMock(st_size=1000, st_mode=33188)
+        yield mock_stat
+
+
+@pytest.fixture
+def mock_file():
+    with patch("builtins.open", new_callable=mock_open, read_data=b"data") as mock_file:
+        yield mock_file
+
+
+def test_get_response_non_gzipped_from_gzip(mock_stat, mock_file):
+    headers = [("Content-Length", "1000")]
+    static_file = EndRangeStaticFile("dummy_path", headers)
+    static_file.alternatives = [
+        (re.compile(r""), "dummy_path.gz" + COMPRESSED_FILE_FOR_REGULAR_PATH, headers)
+    ]
+
+    request_headers = {"HTTP_ACCEPT_ENCODING": ""}
+    response = static_file.get_response("GET", request_headers)
+
+    assert isinstance(response, Response)
+    assert response.status == HTTPStatus.OK
+
+    # Ensure GzipFile was used to read the file
+    assert isinstance(response.file, GzipFile)
+
+
+def test_get_response_gzipped(mock_stat, mock_file):
+    headers = [("Content-Length", "1000")]
+    static_file = EndRangeStaticFile("dummy_path", headers)
+    static_file.alternatives = [(re.compile("gz"), "dummy_path.gz", headers)]
+
+    request_headers = {"HTTP_ACCEPT_ENCODING": "gzip"}
+    response = static_file.get_response("GET", request_headers)
+
+    assert isinstance(response, Response)
+    assert response.status == HTTPStatus.OK
+    assert response.file is not None
+    assert not isinstance(response.file, GzipFile)
+
+
+def test_get_response_non_gzipped(mock_stat, mock_file):
+    headers = [("Content-Length", "1000")]
+    static_file = EndRangeStaticFile("dummy_path", headers)
+    static_file.alternatives = [(re.compile(""), "dummy_path", headers)]
+
+    request_headers = {"HTTP_ACCEPT_ENCODING": "*"}
+    response = static_file.get_response("GET", request_headers)
+
+    assert isinstance(response, Response)
+    assert response.status == HTTPStatus.OK
+    assert response.file is not None
+    assert not isinstance(response.file, GzipFile)
+
+
+def test_get_range_response(mock_stat, mock_file):
+    headers = [("Content-Length", "1000")]
+    static_file = EndRangeStaticFile("dummy_path", headers)
+    static_file.alternatives = [(re.compile(""), "dummy_path", headers)]
+
+    request_headers = {"HTTP_RANGE": "bytes=0-499"}
+    path, headers = static_file.get_path_and_headers(request_headers)
+    file_handle = open(path, "rb")
+    response = static_file.get_range_response("bytes=0-499", headers, file_handle)
+
+    assert isinstance(response, Response)
+    assert response.status == HTTPStatus.PARTIAL_CONTENT
+    assert "Content-Range" in dict(response.headers)
+    assert dict(response.headers)["Content-Range"] == "bytes 0-499/1000"
+    assert response.file is not None
+    assert isinstance(response.file, SlicedFile)
