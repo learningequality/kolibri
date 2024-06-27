@@ -39,5 +39,8 @@
     "vuex": "^3.6.2",
     "vuex-router-sync": "^5.0.0",
     "xstate": "^4.38.3"
+  },
+  "workspaces": {
+    "nohoist": ["date-fns", "date-fns/*"]
   }
 }
