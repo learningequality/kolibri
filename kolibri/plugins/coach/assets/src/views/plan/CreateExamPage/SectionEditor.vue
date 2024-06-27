@@ -1,6 +1,9 @@
 <template>
 
-  <div class="section-settings-content">
+  <div
+    v-if="activeSection"
+    class="section-settings-content"
+  >
     <h5
       class="section-settings-top-heading"
       :style="{ color: $themeTokens.text }"
@@ -284,11 +287,14 @@
 
       function handleConfirmDelete() {
         const section_title = displaySectionTitle(activeSection.value, activeSectionIndex.value);
+        const newIndex = this.activeSectionIndex > 0 ? this.activeSectionIndex - 1 : 0;
         removeSection(activeSectionIndex.value);
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
           params: {
-            ...this.$route.params,
+            classId: this.$route.params.classId,
+            quizId: this.$route.params.quizId,
+            sectionIndex: newIndex,
           },
         });
         this.$store.dispatch('createSnackbar', sectionDeletedNotification$({ section_title }));

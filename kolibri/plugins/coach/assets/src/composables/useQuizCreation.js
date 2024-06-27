@@ -348,11 +348,16 @@ export default function useQuizCreation() {
       .slice(0, get(activeSectionIndex))
       .concat(get(allSections).slice(get(activeSectionIndex) + 1)),
   );
+
+  /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `questions` property
+   *                                      those which are currently set to be used in the section */
+  const activeQuestions = computed(() => get(activeSection)?.questions || []);
+
   /** @type {ComputedRef<Object.<string, QuizExercise>>}
    * A map of exercise id to exercise for the currently active section */
   const activeResourceMap = computed(() => {
     const map = {};
-    for (const question of get(activeSection).questions) {
+    for (const question of get(activeQuestions)) {
       if (!map[question.exercise_id]) {
         map[question.exercise_id] = _exerciseMap[question.exercise_id];
       }
@@ -369,9 +374,6 @@ export default function useQuizCreation() {
   /** @type {ComputedRef<QuizExercise[]>}   The active section's exercises */
   const activeResourcePool = computed(() => Object.values(get(activeResourceMap)));
 
-  /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `questions` property
-   *                                      those which are currently set to be used in the section */
-  const activeQuestions = computed(() => get(activeSection).questions);
   /** @type {ComputedRef<String[]>}
    * All QuizQuestion.items the user selected for the active section */
   const selectedActiveQuestions = computed(() => get(_selectedQuestionIds));
