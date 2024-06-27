@@ -1,13 +1,13 @@
 # These are for testing
 beautifulsoup4==4.8.2
-factory-boy==2.7.0  # pyup: ignore - Needs an update, called 'faker' now
-fake-factory==0.5.7  # pyup: ignore Needs an update
-coverage==4.5.1
+factory-boy==2.7.0
+fake-factory==0.5.7
+coverage==6.2
 mock==2.0.0
 mixer==6.0.1
-pytest==6.2.5 # pyup: < 4.0.0
-pytest-cov==2.5.1
-pytest-django==3.6.0
+pytest-cov==3.0.0
+pytest==6.2.5
+pytest-django==4.5.2
 pytest-env==0.6.2
 pytest-pythonpath==0.7.2
 attrs==19.2.0
