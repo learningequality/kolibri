@@ -109,6 +109,11 @@ def test_fail_on_unknown_file():
         get_dtm_from_backup_name("this-file-has-no-time")
 
 
+def _clear_backups(folder):
+    for f in os.listdir(folder):
+        os.remove(os.path.join(folder, f))
+
+
 @pytest.mark.django_db
 @pytest.mark.filterwarnings("ignore:Overriding setting DATABASES")
 def test_restore_from_latest():
@@ -146,6 +151,7 @@ def test_restore_from_latest():
             assert (
                 Facility.objects.filter(name="test latest", kind=FACILITY).count() == 1
             )
+        _clear_backups(default_backup_folder())
 
 
 @pytest.mark.django_db
@@ -176,6 +182,7 @@ def test_restore_from_file_to_memory():
             call_command("dbrestore", backup)
             # Test that the user has been restored!
             assert Facility.objects.filter(name="test file", kind=FACILITY).count() == 1
+    _clear_backups(dest_folder)
 
 
 @pytest.mark.django_db
@@ -212,6 +219,7 @@ def test_restore_from_file_to_file():
             call_command("dbrestore", backup)
             # Test that the user has been restored!
             assert Facility.objects.filter(name="test file", kind=FACILITY).count() == 1
+    _clear_backups(dest_folder)
 
 
 def test_search_latest():
