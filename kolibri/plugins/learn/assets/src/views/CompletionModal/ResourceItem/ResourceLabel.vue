@@ -39,7 +39,7 @@
 <script>
 
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
-  import LearningActivityIcon from '../../LearningActivityIcon';
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
 
   /**
    * Renders learning activity/topic icon, title,

@@ -114,9 +114,9 @@
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
-  import LearningActivityIcon from './LearningActivityIcon.vue';
   import ProgressBar from './ProgressBar';
 
   export default {
