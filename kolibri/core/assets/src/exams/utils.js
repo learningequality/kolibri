@@ -233,8 +233,8 @@ export function getExamReport(examId, tryIndex = 0, questionNumber = 0, interact
         return exam;
       }
 
-      // TODO: Reports will eventually want to have the proper section-specific data to render
-      // the report page - but we are not updating the report UI yet.
+      // We need this array of questions to easily do questionNumber based indexing across
+      // all the sections.
       const questions = exam.question_sources.reduce((qs, sect) => {
         qs = [...qs, ...sect.questions];
         return qs;
@@ -252,5 +252,32 @@ export function getExamReport(examId, tryIndex = 0, questionNumber = 0, interact
         interactionIndex: Number(interactionIndex),
       };
     });
+  });
+}
+
+export function annotateSections(sections, questions) {
+  // Adding the additional startQuestionNumber and endQuestionNumber fields to each section
+  // allows to more easily identify the overall place in the quiz that a question is.
+  // This is useful for deciding which section is currently active based on the global
+  // question number, and also for displaying the global question number in the UI.
+  if (!sections) {
+    return [
+      {
+        title: '',
+        questions: questions,
+        startQuestionNumber: 0,
+        endQuestionNumber: questions.length - 1,
+      },
+    ];
+  }
+  let startQuestionNumber = 0;
+  return sections.map(section => {
+    const annotatedSection = {
+      ...section,
+      startQuestionNumber,
+      endQuestionNumber: startQuestionNumber + section.questions.length - 1,
+    };
+    startQuestionNumber += section.questions.length;
+    return annotatedSection;
   });
 }

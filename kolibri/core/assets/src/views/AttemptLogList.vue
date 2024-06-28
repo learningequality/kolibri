@@ -25,40 +25,38 @@
       >
         {{ selectedSection.label }}
       </h2>
+
+      <KSelect
+        class="history-select"
+        :value="selectedQuestion"
+        :label="questionsLabel$()"
+        :options="questionSelectOptions"
+        :disabled="$attrs.disabled"
+        @change="handleQuestionChange($event.value)"
+      >
+        <template #display>
+          <AttemptLogItem
+            class="attempt-selected"
+            :isSurvey="isSurvey"
+            :attemptLog="attemptLogs[selectedQuestionNumber]"
+            displayTag="span"
+          />
+        </template>
+        <template #option="{ index }">
+          <AttemptLogItem
+            class="attempt-option"
+            :isSurvey="isSurvey"
+            :attemptLog="attemptLogs[index]"
+            displayTag="span"
+          />
+        </template>
+      </KSelect>
     </div>
 
-    <KSelect
-      v-if="isMobile"
-      class="history-select"
-      :value="selectedQuestion"
-      :label="questionsLabel$()"
-      :options="questionSelectOptions"
-      :disabled="$attrs.disabled"
-      @change="handleQuestionChange($event.value)"
-    >
-      <template #display>
-        <AttemptLogItem
-          class="attempt-selected"
-          :isSurvey="isSurvey"
-          :attemptLog="attemptLogs[selectedQuestionNumber]"
-          displayTag="span"
-        />
-      </template>
-      <template #option="{ index }">
-        <AttemptLogItem
-          class="attempt-option"
-          :isSurvey="isSurvey"
-          :attemptLog="attemptLogs[index]"
-          displayTag="span"
-        />
-      </template>
-    </KSelect>
-
     <AccordionContainer
-      v-else-if="sections && sections.length"
+      v-else
       :hideTopActions="true"
       :items="sections"
-      :style="{ backgroundColor: $themeTokens.surface }"
     >
       <AccordionItem
         v-for="(section, index) in sections"
@@ -67,10 +65,16 @@
         :title="displaySectionTitle(section, index)"
         @focus="expand(index)"
       >
-        <template #heading="{ title }">
+        <template
+          v-if="sections.length > 1"
+          #heading="{ title }"
+        >
           <h3
             v-if="title"
             class="accordion-header"
+            :style="{
+              backgroundColor: index === currentSectionIndex ? $themePalette.grey.v_100 : '',
+            }"
           >
             <KButton
               tabindex="0"
@@ -90,12 +94,7 @@
           </h3>
         </template>
         <template #content>
-          <div
-            v-show="isExpanded(index)"
-            :style="{
-              backgroundColor: $themePalette.grey.v_100,
-            }"
-          >
+          <div v-show="sections.length === 1 || isExpanded(index)">
             <ul
               ref="attemptList"
               class="history-list"
@@ -114,22 +113,26 @@
                 :key="`attempt-item-${qIndex}`"
                 class="attempt-item"
                 :style="{
-                  backgroundColor: isSelected(qIndex) ? $themePalette.grey.v_100 : '',
+                  backgroundColor: isSelected(section.startQuestionNumber + qIndex)
+                    ? $themePalette.grey.v_100
+                    : '',
                 }"
               >
                 <a
                   ref="attemptListOption"
                   role="option"
                   class="attempt-item-anchor"
-                  :aria-selected="isSelected(qIndex).toString()"
-                  :tabindex="isSelected(qIndex) ? 0 : -1"
-                  @click.prevent="setSelectedAttemptLog(qIndex)"
-                  @keydown.enter="setSelectedAttemptLog(qIndex)"
-                  @keydown.space.prevent="setSelectedAttemptLog(qIndex)"
+                  :aria-selected="isSelected(section.startQuestionNumber + qIndex).toString()"
+                  :tabindex="isSelected(section.startQuestionNumber + qIndex) ? 0 : -1"
+                  @click.prevent="setSelectedAttemptLog(section.startQuestionNumber + qIndex)"
+                  @keydown.enter="setSelectedAttemptLog(section.startQuestionNumber + qIndex)"
+                  @keydown.space.prevent="
+                    setSelectedAttemptLog(section.startQuestionNumber + qIndex)
+                  "
                 >
                   <AttemptLogItem
                     :isSurvey="isSurvey"
-                    :attemptLog="attemptLogs[qIndex]"
+                    :attemptLog="attemptLogs[section.startQuestionNumber + qIndex]"
                     displayTag="p"
                   />
                 </a>
@@ -139,45 +142,6 @@
         </template>
       </AccordionItem>
     </AccordionContainer>
-
-    <ul
-      v-else
-      ref="attemptList"
-      class="history-list"
-      role="listbox"
-      @keydown.home="setSelectedAttemptLog(0)"
-      @keydown.end="setSelectedAttemptLog(attemptLogs.length - 1)"
-      @keydown.up.prevent="setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
-      @keydown.left.prevent="setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
-      @keydown.down.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
-      @keydown.right.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
-    >
-      <li
-        v-for="(question, qIndex) in attemptLogs"
-        :key="`attempt-item-${qIndex}`"
-        class="attempt-item"
-        :style="{
-          backgroundColor: isSelected(qIndex) ? $themePalette.grey.v_100 : '',
-        }"
-      >
-        <a
-          ref="attemptListOption"
-          role="option"
-          class="attempt-item-anchor"
-          :aria-selected="isSelected(qIndex).toString()"
-          :tabindex="isSelected(qIndex) ? 0 : -1"
-          @click.prevent="setSelectedAttemptLog(qIndex)"
-          @keydown.enter="setSelectedAttemptLog(qIndex)"
-          @keydown.space.prevent="setSelectedAttemptLog(qIndex)"
-        >
-          <AttemptLogItem
-            :isSurvey="isSurvey"
-            :attemptLog="attemptLogs[qIndex]"
-            displayTag="p"
-          />
-        </a>
-      </li>
-    </ul>
   </div>
 
 </template>
@@ -190,10 +154,10 @@
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useAccordion from 'kolibri-common/components/useAccordion';
-  import { coreStrings } from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import coreStrings from 'kolibri.utils.coreStrings';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
-  import { computed, watch } from 'kolibri.lib.vueCompositionApi';
+  import { computed, onMounted, watch } from 'kolibri.lib.vueCompositionApi';
   import { toRefs } from '@vueuse/core';
   import AttemptLogItem from './AttemptLogItem';
 
@@ -207,30 +171,16 @@
     setup(props, { emit }) {
       const { questionsLabel$, quizSectionsLabel$ } = enhancedQuizManagementStrings;
       const { questionNumberLabel$ } = coreStrings;
-      const { sections, selectedQuestionNumber } = toRefs(props);
+      const { currentSectionIndex, sections, selectedQuestionNumber } = toRefs(props);
 
       const { expand, isExpanded, toggle } = useAccordion(sections);
 
       /** Finds the section which the current attempt belongs to and expands it */
       function expandCurrentSectionIfNeeded() {
-        if (!sections.value || !sections.value.length) {
-          return;
-        }
-        let qCount = 0;
-        for (let i = 0; i < sections?.value?.length; i++) {
-          qCount += sections?.value[i]?.questions?.length;
-          if (qCount >= selectedQuestionNumber.value) {
-            if (!isExpanded(i)) {
-              expand(i);
-            }
-            break;
-          }
+        if (!isExpanded(currentSectionIndex.value)) {
+          expand(currentSectionIndex.value);
         }
       }
-
-      const allQuestionsInOrder = computed(() => {
-        return sections.value.reduce((a, s) => [...a, ...s.questions], []);
-      });
 
       const sectionSelectOptions = computed(() => {
         return sections.value.map((section, index) => ({
@@ -239,31 +189,15 @@
         }));
       });
 
-      const currentSectionIndex = computed(() => {
-        let qCount = 0;
-        for (let i = 0; i < sections.value.length; i++) {
-          qCount += sections.value[i].questions.length;
-          if (qCount >= selectedQuestionNumber.value) {
-            return i;
-          }
-        }
-        return 0;
-      });
-
       const currentSection = computed(() => {
         return sections.value[currentSectionIndex.value];
       });
 
       const questionSelectOptions = computed(() => {
         return currentSection.value.questions.map((question, index) => ({
-          value: question.item,
+          value: index,
           label: questionNumberLabel$({ questionNumber: index + 1 }),
         }));
-      });
-
-      // The question itself
-      const currentQuestion = computed(() => {
-        return allQuestionsInOrder.value[selectedQuestionNumber.value];
       });
 
       // The KSelect-shaped object for the current section
@@ -273,33 +207,24 @@
 
       // The KSelect-shaped object for the current question
       const selectedQuestion = computed(() => {
-        return questionSelectOptions.value.find(opt => opt.value === currentQuestion.value.item);
+        return questionSelectOptions.value[
+          selectedQuestionNumber.value - currentSection.value.startQuestionNumber
+        ];
       });
 
       function handleQuestionChange(item) {
-        const questionIndex = allQuestionsInOrder.value.findIndex(q => q.item === item);
-        if (questionIndex !== -1) {
-          emit('select', questionIndex);
-          expandCurrentSectionIfNeeded();
-        }
+        emit('select', item.value + currentSection.value.startQuestionNumber);
+        expandCurrentSectionIfNeeded();
       }
 
       function handleSectionChange(index) {
-        const questionIndex = sections.value.slice(0, index).reduce((acc, s, i) => {
-          if (i !== index) {
-            acc += s.questions.length;
-            return acc;
-          } else {
-            // This will always be the last iteration thanks to slice
-            return acc + 1;
-          }
-        }, 0);
+        const questionIndex = sections.value[index].startQuestionNumber;
         emit('select', questionIndex);
         expandCurrentSectionIfNeeded();
       }
 
       watch(selectedQuestionNumber, expandCurrentSectionIfNeeded);
-      expandCurrentSectionIfNeeded();
+      onMounted(expandCurrentSectionIfNeeded);
 
       return {
         handleSectionChange,
@@ -319,8 +244,11 @@
     props: {
       sections: {
         type: Array,
-        required: false,
-        default: () => [],
+        required: true,
+      },
+      currentSectionIndex: {
+        type: Number,
+        required: true,
       },
       attemptLogs: {
         type: Array,

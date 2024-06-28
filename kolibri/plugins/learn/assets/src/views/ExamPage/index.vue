@@ -20,11 +20,10 @@
               <AnswerHistory
                 :pastattempts="pastattempts"
                 :sections="sections"
+                :currentSectionIndex="currentSectionIndex"
                 :questionNumber="questionNumber"
-                :currentQuestion="currentQuestion"
                 :questionItem="attemptLogItemValue"
                 :wrapperComponentRefs="$refs"
-                :questionItemsList="questionItemsList"
                 @goToQuestion="goToQuestion"
               />
             </KPageContainer>
@@ -45,7 +44,7 @@
                   <h2 class="section-title">
                     {{ displaySectionTitle(currentSection, currentSectionIndex) }}
                   </h2>
-                  <p>{{ currentSection.description }}</p>
+                  <p v-if="currentSection.description">{{ currentSection.description }}</p>
                 </KGridItem>
                 <KGridItem :layout12="{ span: 4 }">
                   <div :style="{ margin: '2em auto 0', textAlign: 'center', width: '100%' }">
@@ -227,7 +226,7 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapState } from 'vuex';
   import isEqual from 'lodash/isEqual';
   import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import debounce from 'lodash/debounce';
@@ -236,6 +235,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import { annotateSections } from 'kolibri.utils.exams';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
   import { PageNames, ClassesPageNames } from '../../constants';
@@ -294,52 +294,45 @@
       ...mapState({
         loading: state => state.core.loading,
       }),
-      ...mapGetters('examViewer', [
-        'currentQuestion',
-        'currentSection',
-        'currentSectionIndex',
-        'sectionSelectOptions',
-        'currentSectionOption',
-        'currentQuestionOption',
-      ]),
       ...mapState('examViewer', ['exam', 'contentNodeMap', 'questions', 'questionNumber']),
       questionSelectOptions() {
-        if (!this.currentSection) return { questions: [] };
+        if (!this.currentSection) return [];
         return (
           this.currentSection.questions.map((question, i) => ({
             label: this.$tr('question', {
-              num: i + 1,
-              total: this.currentSection.questions.length,
+              num: this.currentSection.startQuestionNumber + i + 1,
+              total: this.exam.question_count,
             }),
-            value: question.item,
+            value: this.currentSection.startQuestionNumber + i,
           })) || []
         );
       },
       currentQuestionOption() {
-        if (!this.currentQuestion) return {};
-        return this.questionSelectOptions.find(opt => opt.value === this.currentQuestion.item);
+        return this.questionSelectOptions[
+          this.questionNumber - this.currentSection.startQuestionNumber
+        ];
       },
-      currentSection() {
-        return this.sections.find(section =>
-          section.questions.map(q => q.item).includes(this.currentQuestion.item),
+      currentSectionIndex() {
+        return this.sections.findIndex(
+          section =>
+            section.startQuestionNumber <= this.questionNumber &&
+            section.endQuestionNumber >= this.questionNumber,
         );
       },
+      currentSection() {
+        return this.sections[this.currentSectionIndex];
+      },
       sections() {
-        return this.exam.question_sources || [];
+        return annotateSections(this.exam.question_sources || [], this.questions);
       },
-      /**
-       * @returns {Array} List of all question "item" in the exam - item being a unique identifier
-       * for a question in the form of `exercise_id:question_id` **in order** that they appear in
-       * the exam across all sections.
-       */
-      questionItemsList() {
-        return this.questions.map(question => question.item);
+      sectionSelectOptions() {
+        return this.sections.map((section, i) => ({
+          label: this.displaySectionTitle(section, i),
+          value: i,
+        }));
       },
-      questionItemsMap() {
-        return this.questions.reduce((qs, question) => {
-          qs[question.item] = question;
-          return qs;
-        }, {});
+      currentSectionOption() {
+        return this.sectionSelectOptions[this.currentSectionIndex];
       },
       gridStyle() {
         if (!this.windowIsSmall) {
@@ -386,13 +379,7 @@
         );
       },
       currentQuestion() {
-        return this.questionItemsMap[
-          // We have the index of the question item, so we get the item using that, then we get
-          // the appropriate question from the questionItemsMap
-          // Overall, this can and should be refactored as there is a lot of unnecessary processing
-          // happening throughout this feature
-          this.questionItemsList[this.questionNumber]
-        ];
+        return this.questions[this.questionNumber];
       },
       nodeId() {
         return this.currentQuestion ? this.currentQuestion.exercise_id : null;
@@ -482,9 +469,17 @@
     },
     methods: {
       handleSectionOptionChange(opt) {
-        this.goToQuestion(this.sections[opt.value].questions[0].item);
+        const index = opt.value;
+        if (index === this.currentSectionIndex) {
+          return;
+        }
+        this.goToQuestion(this.sections.startQuestionNumber);
       },
       handleQuestionOptionChange(opt) {
+        const index = opt.value;
+        if (index === this.questionNumber) {
+          return;
+        }
         this.goToQuestion(opt.value);
       },
       setAndSaveCurrentExamAttemptLog({ close, interaction } = {}) {
@@ -559,7 +554,7 @@
         });
       },
       goToNextQuestion() {
-        if (this.questionNumber >= this.questionItemsList.length) {
+        if (this.questionNumber >= this.questions.length) {
           return;
         }
         const questionNumber = this.questionNumber + 1;
@@ -574,8 +569,7 @@
           });
         });
       },
-      goToQuestion(questionItem) {
-        const questionNumber = this.questionItemsList.indexOf(questionItem);
+      goToQuestion(questionNumber) {
         const promise = this.debouncedSetAndSaveCurrentExamAttemptLog.flush() || Promise.resolve();
         promise.then(() => {
           this.$router.push({
