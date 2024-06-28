@@ -128,22 +128,6 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
     });
   }
 
-  /** @returns {Boolean} Whether the given node should be displayed with a checkbox
-   *  @description Returns true for exercises and for topics that have no topic children and no
-   *  more children to load
-   */
-  function hasCheckbox(node) {
-    return (
-      node.kind === ContentNodeKinds.EXERCISE ||
-      // Has children, no more to load, and no children are topics
-      (!practiceQuiz &&
-        node.children &&
-        !node.children.more &&
-        !node.children.results.some(c => c.kind === ContentNodeKinds.TOPIC) &&
-        node.children.results.length <= 12)
-    );
-  }
-
   function setResources(r) {
     set(_resources, r);
   }
@@ -155,7 +139,6 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
     loadingMore: computed(() => get(_loadingMore)),
     fetchQuizResources,
     fetchMoreQuizResources,
-    hasCheckbox,
     hasMore,
     topic,
     annotateTopicsWithDescendantCounts,

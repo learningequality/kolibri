@@ -113,7 +113,7 @@
           backgroundColor: $themePalette.grey.v_100,
         }"
       >
-        {{ cannotSelectSomeTopicWarning$({ count: 500 }) }}
+        {{ cannotSelectSomeTopicWarning$({ count: maxSectionQuestionOptions }) }}
       </div>
 
       <ContentCardList
@@ -123,7 +123,9 @@
         :selectAllChecked="selectAllChecked"
         :selectAllIndeterminate="selectAllIndeterminate"
         :contentIsChecked="contentPresentInWorkingResourcePool"
-        :contentHasCheckbox="folderDoesNotHaveTooManyQuestions || hasCheckbox"
+        :contentIsIndeterminate="contentPartlyPresentInWorkingResourcePool"
+        :contentHasCheckbox="showCheckbox"
+        :contentCheckboxDisabled="c => !nodeIsSelectableOrUnselectable(c)"
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
         :loadingMoreState="loadingMore"
@@ -197,6 +199,7 @@
   import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
+  import { useMemoize } from '@vueuse/core';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
@@ -204,11 +207,7 @@
   import { computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
-  import {
-    ContentNodeKinds,
-    MAX_QUESTIONS_PER_QUIZ_SECTION,
-    MAX_QUESTION_OPTIONS_PER_QUIZ_SECTION,
-  } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { exerciseToQuestionArray } from '../../../utils/selectQuestions';
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
@@ -252,9 +251,13 @@
       const maxQuestions = computed(
         () => MAX_QUESTIONS_PER_QUIZ_SECTION - activeQuestions.value.length,
       );
-      const maxSectionQuestionOptions = computed(() => MAX_QUESTION_OPTIONS_PER_QUIZ_SECTION);
 
       const questionCount = ref(Math.min(10, maxQuestions.value));
+
+      // Make the maxSectionQuestionOptions a computed property based on the questionCount
+      // that the user has selected, so if they want to add 10 questions, only let them
+      // choose a total of 100 to select those from.
+      const maxSectionQuestionOptions = computed(() => questionCount.value * 10);
 
       const selectPracticeQuiz = computed(() => props.selectPracticeQuiz);
 
@@ -310,25 +313,6 @@
       }
 
       /**
-       * @description Returns the list of Exercises which can possibly be selected from the current
-       * contentList taking into consideration the logic for whether a topic can be selected or not.
-       * @returns {QuizExercise[]} - All contents which can be selected
-       */
-      function selectableContentList() {
-        return contentList.value.reduce((newList, content) => {
-          if (
-            content.kind === ContentNodeKinds.TOPIC &&
-            folderDoesNotHaveTooManyQuestions(content)
-          ) {
-            newList = [...newList, ...content.children.results];
-          } else {
-            newList.push(content);
-          }
-          return newList;
-        }, []);
-      }
-
-      /**
        * @param {QuizExercise} content
        * @affects workingResourcePool - Remove given quiz exercise from workingResourcePool
        */
@@ -343,16 +327,49 @@
         workingResourcePool.value = [];
       }
 
+      // Function to calculate the total number of questions currently selected for a node
+      // use this in order to do accurate counts for enabling/disabling checkboxes
+      function selectedQuestionsFromNode(content) {
+        if (content.kind === ContentNodeKinds.EXERCISE) {
+          return workingResourcePool.value.some(wr => wr.id === content.id)
+            ? unusedQuestionsCount(content)
+            : 0;
+        }
+        return workingResourcePool.value.reduce((acc, wr) => {
+          return (
+            acc +
+            (wr.ancestors.some(ancestor => ancestor.id === content.id)
+              ? unusedQuestionsCount(wr)
+              : 0)
+          );
+        }, 0);
+      }
+
       /**
        * @param {QuizExercise} content
        * Check if the content is present in workingResourcePool
        */
       function contentPresentInWorkingResourcePool(content) {
-        const workingResourceIds = workingResourcePool.value.map(wr => wr.id);
         if (content.kind === ContentNodeKinds.TOPIC) {
-          return content.children.results.every(child => workingResourceIds.includes(child.id));
+          const selectedQuestionsFromTopic = selectedQuestionsFromNode(content);
+          return selectedQuestionsFromTopic >= unusedQuestionsCount(content);
         }
-        return workingResourceIds.includes(content.id);
+        return workingResourcePool.value.some(wr => wr.id === content.id);
+      }
+
+      /**
+       * @param {QuizExercise} content
+       * Check if the content is partly present in workingResourcePool
+       * Only really useful for folders, as resources cannot be partially selected.
+       */
+      function contentPartlyPresentInWorkingResourcePool(content) {
+        if (content.kind !== ContentNodeKinds.TOPIC) {
+          return false;
+        }
+        const selectedQuestionsFromTopic = selectedQuestionsFromNode(content);
+        return (
+          selectedQuestionsFromTopic > 0 && selectedQuestionsFromTopic < content.num_assessments
+        );
       }
 
       function fetchSearchResults() {
@@ -382,45 +399,40 @@
         });
       }
 
+      const _selectAllState = computed(() => {
+        return contentList.value.map(contentPresentInWorkingResourcePool);
+      });
+
       const selectAllChecked = computed(() => {
-        // Returns true if all the resources in the topic are in the working resource pool
-        const workingResourceIds = workingResourcePool.value.map(wr => wr.id);
-        const selectableIds = selectableContentList().map(content => content.id);
-        return selectableIds.every(id => workingResourceIds.includes(id));
+        return _selectAllState.value.every(Boolean);
       });
 
       const selectAllIndeterminate = computed(() => {
-        // Returns true if some, but not all, of the resources in the topic are in the working
-        // resource
-        const workingResourceIds = workingResourcePool.value.map(wr => wr.id);
-        const selectableIds = selectableContentList().map(content => content.id);
-        return !selectAllChecked.value && selectableIds.some(id => workingResourceIds.includes(id));
+        return (
+          (!selectAllChecked.value && _selectAllState.value.some(Boolean)) ||
+          contentList.value.some(contentPartlyPresentInWorkingResourcePool)
+        );
       });
 
       const showSelectAll = computed(() => {
         return (
           !selectPracticeQuiz.value &&
-          contentList.value.every(content => folderDoesNotHaveTooManyQuestions(content))
+          contentList.value.every(content => nodeIsSelectableOrUnselectable(content)) &&
+          // We only show the select all button if both all the checkboxes are enabled,
+          // and adding all the currently unselected questions in resources/folders plus
+          // those that are already selected (both in this level of the topic tree and elsewhere)
+          // would not exceed the maxSectionQuestionOptions.
+          // Do this by taking away the selected questions from the total questions in the
+          // resource/folder and checking if the sum of all of these is less than or equal to
+          // the remaining number of questions that can be added.
+          contentList.value.reduce(
+            (acc, content) =>
+              unusedQuestionsCount(content) - selectedQuestionsFromNode(content) + acc,
+            0,
+          ) <=
+          maxSectionQuestionOptions.value - workingPoolUnusedQuestions.value
         );
       });
-
-      function handleSelectAll(isChecked) {
-        if (isChecked) {
-          addToWorkingResourcePool(selectableContentList());
-        } else {
-          contentList.value.forEach(content => {
-            var contentToRemove = [];
-            if (content.kind === ContentNodeKinds.TOPIC) {
-              contentToRemove = content.children.results;
-            } else {
-              contentToRemove.push(content);
-            }
-            contentToRemove.forEach(c => {
-              removeFromWorkingResourcePool(c);
-            });
-          });
-        }
-      }
 
       /**
        * @param {Object} param
@@ -428,11 +440,28 @@
        * @param {boolean} param.checked
        * @affects workingResourcePool - Adds or removes the content from the workingResourcePool
        * When given a topic, it adds or removes all the exercises in the topic from the
-       * workingResourcePool. This assumes that topics which should not be added are not able to
-       * be checked and does not do any additional checks.
+       * workingResourcePool.
        */
-      function toggleSelected({ content, checked }) {
-        content = content.kind === ContentNodeKinds.TOPIC ? content.children.results : [content];
+      async function toggleSelected({ content, checked }) {
+        if (content.is_leaf) {
+          content = [content];
+        } else {
+          // If we already have all of the children locally, and every child is a leaf, we can
+          // just add them all to the working resource pool
+          if (!content.children.more && !content.children.results.some(n => !n.is_leaf)) {
+            content = content.children.results;
+          } else {
+            // If we don't have all of the children locally, we need to fetch them
+            const children = await ContentNodeResource.fetchCollection({
+              getParams: {
+                descendant_of: content.id,
+                available: true,
+                kind: ContentNodeKinds.EXERCISE,
+              },
+            });
+            content = children;
+          }
+        }
         if (checked) {
           if (selectPracticeQuiz.value) {
             resetWorkingResourcePool();
@@ -446,7 +475,6 @@
       }
 
       const {
-        hasCheckbox,
         topic,
         resources,
         loading: quizResourcesLoading,
@@ -465,7 +493,7 @@
       const searchResults = ref([]);
       const moreSearchResults = ref(null);
 
-      function unusedQuestionsCount(content) {
+      const unusedQuestionsCount = useMemoize(content => {
         if (content.kind === ContentNodeKinds.EXERCISE) {
           const questionItems = content.assessmentmetadata.assessment_item_ids.map(
             aid => `${content.id}:${aid}`,
@@ -490,9 +518,43 @@
           return total - numberOfQuestionsSelected;
         }
         return -1;
+      });
+
+      /** @returns {Boolean} Whether the given node should be displayed with a checkbox
+       *  @description Returns true for exercises or folders that have more than 0 unused questions
+       *  and adding it would give us fewer than maxSectionQuestionOptions questions
+       */
+      function nodeIsSelectableOrUnselectable(node) {
+        // For practice quizzes, we only want to allow selection of resources, not folders.
+        if (selectPracticeQuiz.value && node.kind === ContentNodeKinds.EXERCISE) {
+          return true;
+        }
+        if (selectPracticeQuiz.value) {
+          return false;
+        }
+        if (
+          contentPresentInWorkingResourcePool(node) ||
+          contentPartlyPresentInWorkingResourcePool(node)
+        ) {
+          // If a node has been selected or partly selected, always allow it to be deselected.
+          return true;
+        }
+        // If a node has not been selected, only allow it to be selected if it has unused questions
+        // and adding it would not exceed the remaining maxSectionQuestionOptions.
+        const count = unusedQuestionsCount(node);
+        return (
+          count > 0 && count + workingPoolUnusedQuestions.value <= maxSectionQuestionOptions.value
+        );
       }
-      function folderDoesNotHaveTooManyQuestions(content) {
-        return content.kind == ContentNodeKinds.EXERCISE || content.num_assessments < 500;
+
+      function showCheckbox(node) {
+        // We only show checkboxes for exercises, not topics for practice quizzes
+        if (selectPracticeQuiz.value) {
+          return node.kind === ContentNodeKinds.EXERCISE;
+        }
+        // Otherwise we show checkboxes for exercises and topics
+        // but not channels.
+        return node.kind === ContentNodeKinds.EXERCISE || node.kind === ContentNodeKinds.TOPIC;
       }
 
       // Load up the channels
@@ -623,10 +685,18 @@
         );
       });
 
+      function handleSelectAll(isChecked) {
+        for (const content of contentList.value) {
+          if (nodeIsSelectableOrUnselectable(content)) {
+            toggleSelected({ content, checked: isChecked });
+          }
+        }
+      }
+
       return {
-        folderDoesNotHaveTooManyQuestions,
+        nodeIsSelectableOrUnselectable,
+        showCheckbox,
         displaySectionTitle,
-        hasCheckbox,
         unusedQuestionsCount,
         activeSection,
         activeSectionIndex,
@@ -653,6 +723,7 @@
         fetchMoreResources,
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
+        contentPartlyPresentInWorkingResourcePool,
         questionCount,
         maxQuestions,
         maxSectionQuestionOptions,
@@ -719,7 +790,10 @@
         };
       },
       showNumberOfQuestionsWarning() {
-        return this.contentList.some(this.showNumberOfQuestionsWarningCard);
+        if (this.selectPracticeQuiz) {
+          return false;
+        }
+        return !this.showSelectAll;
       },
       borderStyle() {
         return `border: 1px solid ${this.$themeTokens.fineLine}`;
@@ -749,9 +823,6 @@
       }
     },
     methods: {
-      showNumberOfQuestionsWarningCard(content) {
-        return !this.selectPracticeQuiz && content.num_assessments > 500;
-      },
       /** @public */
       focusFirstEl() {
         this.$refs.textbox.focus();
