@@ -5,12 +5,20 @@
 
 version: 2
 updates:
+  # Maintain dependencies for Python
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "00:00"
+
   # Maintain dependencies for Github Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "friday"
+      day: "wednesday"
       time: "00:00"
     groups:
       github:
