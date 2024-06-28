@@ -363,6 +363,12 @@
 
       watch(() => props.deviceId, showLibrary);
 
+      watch(displayingSearchResults, () => {
+        if (!displayingSearchResults.value && !rootNodes.value.length) {
+          showLibrary();
+        }
+      });
+
       showLibrary();
 
       return {
