@@ -30,7 +30,7 @@
           >
             <KTextbox
               ref="titleField"
-              v-model="title"
+              v-model.trim="title"
               :label="titleLabel$()"
               :maxlength="titleMaxLength"
               :autofocus="true"
@@ -257,7 +257,6 @@
     },
     watch: {
       title() {
-        this.title = this.title.trim();
         this.$emit('update', { title: this.title });
       },
       description() {
