@@ -391,7 +391,8 @@
             onFocusChange: this.dismissMessage,
             onInputError: logging.error,
             isMobile: this.isMobile,
-            customKeypad: true,
+            // Only show a keypad if we are in interactive mode.
+            customKeypad: this.interactive,
             readOnly: !this.interactive,
             hintProgressColor: this.$themeTokens.primary,
           },
