@@ -44,13 +44,13 @@
       </KSelect>
 
       <AccordionContainer
-        v-else-if="!windowIsSmall && sections && sections.length"
+        v-else-if="!windowIsSmall && annotatedSections && annotatedSections.length"
         :hideTopActions="true"
-        :items="sections"
+        :items="annotatedSections"
         :style="{ backgroundColor: $themeTokens.surface }"
       >
         <AccordionItem
-          v-for="(section, index) in sections"
+          v-for="(section, index) in annotatedSections"
           :id="`section-questions-${index}`"
           :key="`section-questions-${index}`"
           :title="displaySectionTitle(section, index)"
@@ -93,10 +93,14 @@
                     appearance="basic-link"
                     :class="{ selected: isSelected(question) }"
                     :style="accordionStyleOverrides"
-                    @click="handleQuestionChange(question.item)"
+                    @click="handleQuestionChange(i, index)"
                   >
                     <span class="text">
-                      {{ questionNumberLabel$({ questionNumber: i + 1 }) }}
+                      {{
+                        questionNumberLabel$({
+                          questionNumber: i + 1 + section.startQuestionNumber,
+                        })
+                      }}
                     </span>
                   </KButton>
                 </li>
@@ -151,6 +155,7 @@
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import coreStrings from 'kolibri.utils.coreStrings';
+  import { annotateSections } from 'kolibri.utils.exams';
   import {
     displayQuestionTitle,
     displaySectionTitle,
@@ -175,70 +180,53 @@
 
       const { sections, selectedExercises } = toRefs(props);
 
-      const { expand, isExpanded, toggle } = useAccordion(sections);
+      const annotatedSections = computed(() => annotateSections(sections.value));
+
+      const { expand, isExpanded, toggle } = useAccordion(annotatedSections);
 
       const questions = computed(() => {
-        return sections.value.reduce((acc, section) => [...acc, ...section.questions], []);
+        return annotatedSections.value.reduce((acc, section) => [...acc, ...section.questions], []);
       });
-
-      const sectionQuestionIndexOffsets = sections.value.reduce(
-        (acc, section) => {
-          acc.push(acc[acc.length - 1] + section.questions.length);
-          return acc;
-        },
-        [0],
-      );
 
       const currentQuestionIndex = ref(0);
 
+      const currentSectionIndex = computed(() => {
+        const idx = annotatedSections.value.findIndex(
+          section =>
+            section.startQuestionNumber <= currentQuestionIndex.value &&
+            section.endQuestionNumber >= currentQuestionIndex.value,
+        );
+        return idx === -1 ? 0 : idx;
+      });
+
+      const currentQuestion = computed(() => {
+        return questions.value[currentQuestionIndex.value];
+      });
+
+      /** Finds the section which the current attempt belongs to and expands it */
       function expandCurrentSectionIfNeeded() {
-        if (!sections.value || !sections.value.length) {
-          return;
-        }
-        let qCount = 0;
-        for (let i = 0; i < sections?.value?.length; i++) {
-          qCount += sections?.value[i]?.questions?.length;
-          if (qCount >= currentQuestionIndex.value) {
-            if (!isExpanded(i)) {
-              expand(i);
-            }
-            break;
-          }
+        if (!isExpanded(currentSectionIndex.value)) {
+          expand(currentSectionIndex.value);
         }
       }
 
       const sectionSelectOptions = computed(() => {
-        return sections.value.map((section, index) => ({
+        return annotatedSections.value.map((section, index) => ({
           value: index,
           label: displaySectionTitle(section, index),
         }));
       });
 
-      const currentSectionIndex = computed(() => {
-        let qCount = 0;
-        for (let i = 0; i <= sections.value.length; i++) {
-          console.log('qcount', qCount, currentQuestionIndex.value);
-          console.log(sections.value[i].questions.length);
-          qCount += sections.value[i].questions.length;
-          if (qCount > currentQuestionIndex.value) {
-            return i;
-          }
-        }
-        return 0;
-      });
-
-      const currentQuestion = computed(() => questions.value[currentQuestionIndex.value]);
-
-      const content = computed(() => selectedExercises.value[currentQuestion.value.exercise_id]);
-
       const currentSection = computed(() => {
-        return sections.value[currentSectionIndex.value];
+        return annotatedSections.value[currentSectionIndex.value];
       });
 
       const questionSelectOptions = computed(() => {
         return currentSection.value.questions.map((question, index) => ({
-          value: question.item,
-          label: questionNumberLabel$({ questionNumber: index + 1 }),
+          value: index,
+          label: questionNumberLabel$({
+            questionNumber: index + 1 + currentSection.value.startQuestionNumber,
+          }),
         }));
       });
 
@@ -249,35 +237,38 @@
 
       // The KSelect-shaped object for the current question
       const selectedQuestion = computed(() => {
-        return questionSelectOptions.value.find(opt => opt.value === currentQuestion.value.item);
+        return questionSelectOptions.value[
+          currentQuestionIndex.value - currentSection.value.startQuestionNumber
+        ];
       });
 
-      function handleQuestionChange(item) {
-        const questionIndex = questions.value.findIndex(q => q.item === item);
-        if (questionIndex !== -1) {
-          //expandCurrentSectionIfNeeded();
-          currentQuestionIndex.value = questionIndex || 0;
-          expandCurrentSectionIfNeeded();
+      function handleQuestionChange(questionIndex, sectionIndex = null) {
+        if (sectionIndex === null) {
+          // We're not in an accordion (ie, we only need to know the question index) as we're
+          // relying on `currentSection` to determine the section
+          currentQuestionIndex.value = questionIndex + currentSection.value.startQuestionNumber;
+        } else {
+          // otherwise, we're being given the specific section in which the question lives
+          currentQuestionIndex.value =
+            questionIndex + annotatedSections.value[sectionIndex].startQuestionNumber;
         }
+        expandCurrentSectionIfNeeded();
       }
 
       function handleSectionChange(index) {
-        const questionIndex = sections.value.slice(0, index).reduce((acc, s, i) => {
-          if (i < index) {
-            acc += s.questions.length;
-            return acc;
-          } else {
-            // This will always be the last iteration thanks to slice
-            return acc + 1;
-          }
-        }, 0);
+        const questionIndex = annotatedSections.value[index].startQuestionNumber;
         currentQuestionIndex.value = questionIndex;
         expandCurrentSectionIfNeeded();
       }
 
-      watch(currentQuestionIndex, () => {
-        expandCurrentSectionIfNeeded();
+      const content = computed(() => {
+        if (!currentQuestion.value) {
+          return {};
+        }
+        return selectedExercises.value[currentQuestion.value.exercise_id];
       });
+
+      watch(currentQuestionIndex, expandCurrentSectionIfNeeded);
 
       expandCurrentSectionIfNeeded();
 
@@ -285,6 +276,7 @@
         content,
         questions,
         currentQuestion,
+        annotatedSections,
 
         questionSelectOptions,
         sectionSelectOptions,
