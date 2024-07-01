@@ -172,7 +172,6 @@
       const { sections, selectedQuestionNumber } = toRefs(props);
       const { questionsLabel$, quizSectionsLabel$ } = enhancedQuizManagementStrings;
       const { questionNumberLabel$ } = coreStrings;
-      const { sections, selectedQuestionNumber } = toRefs(props);
 
       const { expand, isExpanded, toggle } = useAccordion(sections);
 
