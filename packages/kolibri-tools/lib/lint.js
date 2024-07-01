@@ -1,16 +1,12 @@
+const { readFile } = require('node:fs/promises');
+
 const fs = require('node:fs');
 const path = require('node:path');
 const prettier = require('prettier');
-const compiler = require('vue-template-compiler');
-const ESLintCLIEngine = require('eslint').CLIEngine;
-const HTMLHint = require('htmlhint').HTMLHint;
-const esLintFormatter = require('eslint/lib/cli-engine/formatters/stylish');
+const { ESLint } = require('eslint');
 const stylelint = require('stylelint');
 const chalk = require('chalk');
 const stylelintFormatter = require('stylelint').formatters.string;
-const { insertContent } = require('./vueTools');
-
-require('./htmlhint_custom');
 
 // check for host project's linting configs, otherwise use defaults
 const hostProjectDir = process.cwd();
@@ -29,13 +25,6 @@ try {
   stylelintConfig = require('../.stylelintrc.js');
 }
 
-let htmlHintConfig;
-try {
-  htmlHintConfig = require(`${hostProjectDir}/.htmlhintrc.js`);
-} catch (e) {
-  htmlHintConfig = require('../.htmlhintrc.js');
-}
-
 let prettierConfig;
 try {
   prettierConfig = require(`${hostProjectDir}/.prettierrc.js`);
@@ -47,255 +36,130 @@ const logger = require('./logging');
 
 const logging = logger.getLogger('Kolibri Linter');
 
-const esLinter = new ESLintCLIEngine({
+const esLinter = new ESLint({
   baseConfig: esLintConfig,
   fix: true,
 });
 
+let esLintFormatter;
+
 // Initialize a stylelint linter for each style file type that we support
 // Create them here so that we can reuse, rather than creating many many objects.
-const styleLangs = ['scss', 'css', 'less'];
-const styleLinters = {};
-styleLangs.forEach(lang => {
-  styleLinters[lang] = stylelint.createLinter({
-    config: stylelintConfig,
-    fix: true,
-    configBasedir: path.resolve(__dirname, '..'),
-  });
-});
+const styleLangs = ['scss', 'css', 'less', 'vue', 'html'];
 
 const errorOrChange = 1;
 const noChange = 0;
 
-function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(file, { encoding }, (err, buffer) => {
-      if (err) {
-        reject({ error: err.message, code: errorOrChange });
-        return;
-      }
-      const source = buffer.toString();
-      let formatted = source;
-      let messages = [];
-      // Array of promises that we need to let resolve before finishing up.
-      const promises = [];
-      // Array of callbacks to call to apply changes to style blocks.
-      // Store for application after linting has completed to prevent race conditions.
-      const styleCodeUpdates = [];
-      let notSoPretty = false;
-      let lineOffset;
-      function eslint(code) {
-        const esLintOutput = esLinter.executeOnText(code, file);
-        const result = esLintOutput.results[0];
-        if (result && result.messages.length) {
-          result.filePath = file;
-          messages.push(esLintFormatter([result]));
-        }
-        return (result && result.output) || code;
-      }
-      function prettierFormat(code, parser, vue = false) {
-        const options = Object.assign(
-          {
-            filepath: file,
-          },
-          prettierConfig,
-          {
-            parser,
-          }
-        );
-        if (vue) {
-          // Prettier strips the 2 space indentation that we enforce within script tags for vue
-          // components. So here we account for those 2 spaces that will be added.
-          options.printWidth -= 2;
-        }
-        let linted = code;
-        try {
-          linted = prettier.format(code, options);
-        } catch (e) {
-          messages.push(
-            `${chalk.underline(file)}\n${chalk.red('Parsing error during prettier formatting:')}\n${
-              e.message
-            }`
-          );
-        }
-        return linted;
-      }
-      function lintStyle(code, style, callback, { lineOffset = 0, vue = false } = {}) {
-        // Stylelint's `lint` method requires an absolute path for the codeFilename arg
-        const codeFilename = !path.isAbsolute(file) ? path.join(process.cwd(), file) : file;
-        promises.push(
-          stylelint
-            .lint({
-              code,
-              codeFilename,
-              config: stylelintConfig,
-              fix: true,
-              configBasedir: path.resolve(__dirname, '..'),
-            })
-            .then(output => {
-              let stylinted;
-              if (output.results && output.results.length) {
-                messages.push(
-                  stylelintFormatter(
-                    output.results.map(result => {
-                      result.warnings = result.warnings.map(message => {
-                        message.line += lineOffset;
-                        // Column offset for Vue template files is always 2 as we indent.
-                        message.column += vue ? 2 : 0;
-                        return message;
-                      });
-                      return result;
-                    })
-                  )
-                );
-                // There should only be one result, because we have only
-                // passed it a single file, this seems to be the only way
-                // to check if the `output` property of the output object has been set
-                // to valid style code, as opposed to a serialized copy of the formatted
-                // errors.
-                // We are doing a parallel of the check being done here:
-                // https://github.com/stylelint/stylelint/blob/master/lib/standalone.js#L159
-                if (
-                  output.results[0]._postcssResult &&
-                  !output.results[0]._postcssResult.stylelint.ignored
-                ) {
-                  stylinted = output.output;
-                }
-              }
-              const linted = prettierFormat(stylinted || code, style, vue);
+async function eslint(code, file, messages) {
+  const esLintOutput = await esLinter.lintText(code, { filePath: file });
+  const result = esLintOutput[0];
+  if (result && result.messages.length) {
+    if (!esLintFormatter) {
+      esLintFormatter = await esLinter.loadFormatter('stylish');
+    }
+    messages.push(esLintFormatter.format([result]));
+  }
+  return (result && result.output) || code;
+}
 
-              if (linted.trim() !== (stylinted || code).trim()) {
-                notSoPretty = true;
-              }
+async function prettierFormat(code, file, messages) {
+  const options = Object.assign(
+    {
+      filepath: file,
+    },
+    prettierConfig,
+  );
+  try {
+    return prettier.format(code, options);
+  } catch (e) {
+    messages.push(
+      `${chalk.underline(file)}\n${chalk.red('Parsing error during prettier formatting:')}\n${
+        e.message
+      }`,
+    );
+  }
+  return code;
+}
 
-              styleCodeUpdates.push(() => callback(linted));
-            })
-            .catch(err => {
-              messages.push(err.toString());
-            })
-        );
-      }
-      try {
-        let extension = path.extname(file);
-        if (extension.startsWith('.')) {
-          extension = extension.slice(1);
-        }
-        // Raw JS
-        if (extension === 'js') {
-          formatted = prettierFormat(source, 'babel');
-          if (formatted !== source) {
-            notSoPretty = true;
-          }
-          formatted = eslint(formatted);
-          // Recognized style file
-        } else if (styleLangs.some(lang => lang === extension)) {
-          lintStyle(source, extension, updatedCode => {
-            formatted = updatedCode;
-          });
-        } else if (extension === 'vue') {
-          let block;
-          // First lint the whole vue component with eslint
-          formatted = eslint(source);
-
-          let vueComponent = compiler.parseComponent(formatted);
-
-          // Format template block
-          if (vueComponent.template && vueComponent.template.content) {
-            formatted = insertContent(
-              formatted,
-              vueComponent.template,
-              vueComponent.template.content
-            );
-            vueComponent = compiler.parseComponent(formatted);
-          }
-
-          // Now run htmlhint on the whole vue component
-          const htmlMessages = HTMLHint.verify(formatted, htmlHintConfig);
-          if (htmlMessages.length) {
-            messages.push(...HTMLHint.format(htmlMessages, { colors: true }));
-          }
-
-          // Format script block
-          if (vueComponent.script) {
-            block = vueComponent.script;
-
-            const js = block.content;
-            const formattedJs = prettierFormat(js, 'babel', true);
-            formatted = insertContent(formatted, block, formattedJs);
-            if (formattedJs.trim() !== js.trim()) {
-              notSoPretty = true;
-            }
-          }
-
-          // Format style blocks
-          for (let i = 0; i < vueComponent.styles.length; i++) {
-            // Reparse to get updated line numbers
-            block = compiler.parseComponent(formatted).styles[i];
-
-            // Is a scss style block
-            if (block && styleLangs.some(lang => lang === block.lang)) {
-              // Is not an empty single line style block
-              if (block.content.trim().length > 0) {
-                const start = block.start;
-                lineOffset = formatted.slice(0, start).match(/\n/g || []).length;
-                const index = i;
-                const callback = updatedCode => {
-                  const block = compiler.parseComponent(formatted).styles[index];
-                  formatted = insertContent(formatted, block, updatedCode);
-                };
-                lintStyle(block.content, block.lang, callback, { lineOffset, vue: true });
-              }
-            }
-          }
-        }
-        if (notSoPretty) {
-          messages.push(chalk.yellow(`${file} did not conform to prettier standards`));
-        }
-      } catch (e) {
-        // Something went wrong, return the source to be safe.
-        reject({ error: e.message, code: errorOrChange });
-        return;
-      }
-      Promise.all(promises)
-        .then(() => {
-          // Get rid of any empty messages
-          messages = messages.filter(msg => msg.trim());
-          // Wait until any asynchronous tasks have finished
-          styleCodeUpdates.forEach(update => update());
-          if ((!formatted || formatted === source) && !messages.length) {
-            // Nothing to lint, return the source to be safe.
-            resolve({ code: noChange });
-            return;
-          }
-          const code = errorOrChange;
-          if (messages.length && !silent) {
-            logging.log('');
-            logging.info(`Linting errors for ${file}`);
-            messages.forEach(msg => {
-              logging.log(msg);
-            });
-          }
-          // Only write if the formatted file is different to the source file.
-          if (write && formatted !== source) {
-            try {
-              fs.writeFileSync(file, formatted, { encoding });
-              if (!silent) {
-                logging.info(`Rewriting a prettier version of ${file}`);
-              }
-            } catch (error) {
-              reject({ error: error.message, code: errorOrChange });
-              return;
-            }
-          }
-          resolve({ code });
-        })
-        .catch(err => {
-          // Something went wrong, return the source to be safe.
-          reject({ error: err, code: errorOrChange });
-          return;
-        });
-    });
+async function lintStyle(code, file, messages) {
+  // Stylelint's `lint` method requires an absolute path for the codeFilename arg
+  const codeFilename = !path.isAbsolute(file) ? path.join(hostProjectDir, file) : file;
+  const output = await stylelint.lint({
+    code,
+    codeFilename,
+    config: stylelintConfig,
+    fix: true,
+    configBasedir: hostProjectDir,
+    quietDeprecationWarnings: true,
   });
+  let stylinted = code;
+  if (output.results && output.results.length) {
+    messages.push(stylelintFormatter(output.results));
+    // There should only be one result, because we have only
+    // passed it a single file, this seems to be the only way
+    // to check if the `output` property of the output object has been set
+    // to valid style code, as opposed to a serialized copy of the formatted
+    // errors.
+    // We are doing a parallel of the check being done here:
+    // https://github.com/stylelint/stylelint/blob/master/lib/standalone.js#L159
+    if (output.results[0]._postcssResult && !output.results[0]._postcssResult.stylelint.ignored) {
+      stylinted = output.output;
+    }
+  }
+  return stylinted;
+}
+
+async function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
+  const source = await readFile(file, { encoding });
+  let formatted = source;
+  let messages = [];
+
+  let extension = path.extname(file);
+  if (extension.startsWith('.')) {
+    extension = extension.slice(1);
+  }
+
+  // Run prettier on everything first.
+  formatted = await prettierFormat(formatted, file, messages);
+
+  // Run eslint on JS files and vue files.
+  if (extension === 'js' || extension === 'vue') {
+    formatted = await eslint(formatted, file, messages);
+  }
+
+  // Run stylelint on any file that can contain styles
+  if (styleLangs.some(lang => lang === extension)) {
+    formatted = await lintStyle(formatted, file, messages);
+  }
+
+  if (formatted !== source) {
+    messages.push(chalk.yellow(`${file} did not conform to formatting standards`));
+  }
+
+  // Get rid of any empty messages
+  messages = messages.filter(msg => msg.trim());
+  if (!messages.length) {
+    // Nothing to lint, return noChange.
+    return noChange;
+  }
+  if (messages.length && !silent) {
+    logging.info(`Linting errors for ${file}`);
+    messages.forEach(msg => {
+      logging.log(msg);
+    });
+  }
+  // Only write if the formatted file is different to the source file.
+  if (write && formatted !== source) {
+    try {
+      fs.writeFileSync(file, formatted, { encoding });
+      if (!silent) {
+        logging.info(`Rewriting a reformatted version of ${file}`);
+      }
+    } catch (error) {
+      logging.error(error);
+    }
+  }
+  return errorOrChange;
 }
 
 module.exports = {

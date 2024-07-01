@@ -5,19 +5,18 @@
     data-test="mobile-header"
     :style="{ backgroundColor: $themeTokens.surface }"
   >
-    <KGridItem
-      :layout4="{ span: 3 }"
-    >
-      <h1 class="mobile-title" data-test="mobile-title">
-        <TextTruncatorCss
+    <KGridItem :layout4="{ span: 3 }">
+      <h1
+        class="mobile-title"
+        data-test="mobile-title"
+      >
+        <KTextTruncator
           :text="topic.title"
           :maxLines="2"
         />
       </h1>
     </KGridItem>
-    <KGridItem
-      :layout4="{ span: 1 }"
-    >
+    <KGridItem :layout4="{ span: 1 }">
       <img
         :src="topic.thumbnail"
         class="channel-logo"
@@ -30,11 +29,9 @@
 
 <script>
 
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
-
   export default {
     name: 'TopicsMobileHeader',
-    components: { TextTruncatorCss },
+    components: {},
     props: {
       topic: {
         type: Object,

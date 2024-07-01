@@ -41,7 +41,7 @@ export function useGroups() {
             FacilityUserResource.fetchCollection({
               getParams: { member_of: group.id },
               force: true,
-            })
+            }),
           );
 
           Promise.all(groupUsersPromises).then(
@@ -62,7 +62,7 @@ export function useGroups() {
             error =>
               shouldResolve()
                 ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
-                : null
+                : null,
           );
         }
       },
@@ -70,7 +70,7 @@ export function useGroups() {
         shouldResolve()
           ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
           : null;
-      }
+      },
     );
   }
 

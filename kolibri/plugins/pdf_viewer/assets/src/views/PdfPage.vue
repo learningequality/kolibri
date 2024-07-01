@@ -12,7 +12,10 @@
       background: $themeTokens.surface,
     }"
   >
-    <span class="loading" aria-hidden="true">{{ $formatNumber(pageNum) }}</span>
+    <span
+      class="loading"
+      aria-hidden="true"
+    >{{ $formatNumber(pageNum) }}</span>
     <canvas
       v-show="rendered"
       ref="canvas"
@@ -27,7 +30,7 @@
       class="text-layer"
       :style="{
         height: `${scaledHeight}px`,
-        width: `${scaledWidth}px`
+        width: `${scaledWidth}px`,
       }"
     ></div>
   </div>
@@ -160,7 +163,7 @@
             () => {
               delete this.renderTask;
               this.rendered = false;
-            }
+            },
           );
           this.eventBus.on('textlayerrendered', this.onTextLayerRendered);
         } else if (!this.pdfPage) {
@@ -247,8 +250,8 @@
   // Also defined in index.vue
   $page-margin: 8px;
 
-  @import url('../utils/text_layer_builder.scss');
-  @import url('../utils/annotation_layer_builder.scss');
+  @import '../utils/text_layer_builder.css';
+  @import '../utils/annotation_layer_builder.css';
 
   .pdf-page {
     position: relative;

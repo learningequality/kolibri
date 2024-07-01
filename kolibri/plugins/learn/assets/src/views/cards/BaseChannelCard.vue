@@ -6,7 +6,7 @@
     class="base-channel-card"
   >
     <h3 class="title">
-      <TextTruncatorCss
+      <KTextTruncator
         dir="auto"
         :text="channel.name"
         :maxLines="1"
@@ -34,7 +34,7 @@
         span="3"
         :style="{ textAlign: 'unset' }"
       >
-        <TextTruncatorCss
+        <KTextTruncator
           v-if="description"
           dir="auto"
           :text="description"
@@ -49,14 +49,12 @@
 
 <script>
 
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import ChannelThumbnail from '../thumbnails/ChannelThumbnail';
   import CardLink from './CardLink';
 
   export default {
     name: 'BaseChannelCard',
     components: {
-      TextTruncatorCss,
       ChannelThumbnail,
       CardLink,
     },

@@ -52,7 +52,7 @@ const create = context => {
       if (!hasTemplate) {
         utils.reportUseOfUndefinedTranslation(context, definitionNodes, usedStringNodes);
       }
-    })
+    }),
   );
 
   const templateVisitor = Object.assign(
@@ -70,13 +70,13 @@ const create = context => {
     },
     utils.executeOnRootTemplateEnd(() => {
       utils.reportUseOfUndefinedTranslation(context, definitionNodes, usedStringNodes);
-    })
+    }),
   );
 
   return Object.assign(
     {},
     initialize,
-    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor)
+    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor),
   );
 };
 

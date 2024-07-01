@@ -20,7 +20,7 @@ export function saveFacilityName(store, payload) {
     },
     error => {
       store.commit('FACILITY_NAME_NOT_SAVED', error);
-    }
+    },
   );
 }
 

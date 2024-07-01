@@ -62,7 +62,7 @@ describe('theme validator', () => {
       appBarColor: 'rgb(238, 238, 238)', // a light grey
     });
     expect(logWarn).toHaveBeenCalledWith(
-      "'textColor' and 'appBarColor' do not provide enough contrast and do not pass WCAG Level AA guidelines"
+      "'textColor' and 'appBarColor' do not provide enough contrast and do not pass WCAG Level AA guidelines",
     );
     expect(theme).toEqual({
       textColor: 'white',
@@ -84,9 +84,9 @@ describe('theme validator', () => {
         appBarColor,
       });
       expect(logError).toHaveBeenCalledWith(
-        `valid values for 'textColor' and 'appBarColor' must be provided`
+        `valid values for 'textColor' and 'appBarColor' must be provided`,
       );
       expect(theme).toEqual(defaultTheme);
-    }
+    },
   );
 });

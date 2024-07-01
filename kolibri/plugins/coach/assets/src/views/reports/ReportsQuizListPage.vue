@@ -1,8 +1,7 @@
 <template>
 
   <CoachAppBarPage>
-
-    <KPageContainer :class="{ 'print': $isPrint }">
+    <KPageContainer :class="{ print: $isPrint }">
       <ReportsHeader
         :activeTabId="ReportsTabs.QUIZZES"
         :title="$isPrint ? $tr('printLabel', { className }) : null"
@@ -21,12 +20,11 @@
             :options="filterOptions"
             :inline="true"
           />
-
         </ReportsControls>
         <CoreTable :emptyMessage="emptyMessage">
           <template #headers>
             <th>{{ coachString('titleLabel') }}</th>
-            <th style="position:relative;">
+            <th style="position: relative">
               {{ coachString('avgScoreLabel') }}
               <AverageScoreTooltip v-show="!$isPrint" />
             </th>
@@ -85,7 +83,10 @@
                     :text="coachString('openQuizLabel')"
                     appearance="flat-button"
                     class="table-left-aligned-button"
-                    @click="showOpenConfirmationModal = true; modalQuiz = tableRow"
+                    @click="
+                      showOpenConfirmationModal = true;
+                      modalQuiz = tableRow;
+                    "
                   />
                   <!-- Close quiz button -->
                   <KButton
@@ -93,7 +94,10 @@
                     :text="coachString('closeQuizLabel')"
                     appearance="flat-button"
                     class="table-left-aligned-button"
-                    @click="showCloseConfirmationModal = true; modalQuiz = tableRow;"
+                    @click="
+                      showCloseConfirmationModal = true;
+                      modalQuiz = tableRow;
+                    "
                   />
                   <div
                     v-if="tableRow.archive"
@@ -119,7 +123,8 @@
           <p
             v-if="
               modalQuiz.data_model_version === 3 &&
-                modalQuiz.question_sources.some(s => (!s.questions || s.questions.length === 0))"
+                modalQuiz.question_sources.some(s => !s.questions || s.questions.length === 0)
+            "
           >
             {{ coachString('openQuizModalEmptySections') }}
           </p>

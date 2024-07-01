@@ -1,6 +1,10 @@
 <template>
 
-  <router-link :to="to" class="card-link" :class="themeClasses.link">
+  <router-link
+    :to="to"
+    class="card-link"
+    :class="themeClasses.link"
+  >
     <slot></slot>
   </router-link>
 

@@ -1,12 +1,14 @@
 <template>
 
   <CoachAppBarPage>
-
     <KPageContainer>
       <p>
         <BackLink
-          :to="classRoute(group ?
-            'ReportsGroupReportLessonLearnerListPage' : 'ReportsLessonLearnerListPage')"
+          :to="
+            classRoute(
+              group ? 'ReportsGroupReportLessonLearnerListPage' : 'ReportsLessonLearnerListPage',
+            )
+          "
           :text="lesson.title"
         />
       </p>
@@ -54,11 +56,17 @@
                 </KLabeledIcon>
               </td>
               <td>
-                <StatusSimple v-if="tableRow.statusObj" :status="tableRow.statusObj.status" />
+                <StatusSimple
+                  v-if="tableRow.statusObj"
+                  :status="tableRow.statusObj.status"
+                />
                 <KEmptyPlaceholder v-else />
               </td>
               <td>
-                <TimeDuration v-if="tableRow.statusObj" :seconds="showTimeDuration(tableRow)" />
+                <TimeDuration
+                  v-if="tableRow.statusObj"
+                  :seconds="showTimeDuration(tableRow)"
+                />
                 <KEmptyPlaceholder v-else />
               </td>
             </tr>
@@ -122,7 +130,7 @@
           this.group
             ? PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT
             : PageNames.REPORTS_LESSON_LEARNER_EXERCISE_PAGE_ROOT,
-          { exerciseId }
+          { exerciseId },
         );
       },
       showLink(tableRow) {

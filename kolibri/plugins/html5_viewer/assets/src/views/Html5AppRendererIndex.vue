@@ -6,10 +6,9 @@
     :style="{ width: iframeWidth }"
     @changeFullscreen="isInFullscreen = $event"
   >
-
     <div
       class="fullscreen-header"
-      :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
+      :style="{ backgroundColor: $themePalette.grey.v_100 }"
     >
       <KButton
         :primary="false"
@@ -29,7 +28,10 @@
         {{ fullscreenText }}
       </KButton>
     </div>
-    <div class="iframe-container" :style="containerStyle">
+    <div
+      class="iframe-container"
+      :style="containerStyle"
+    >
       <iframe
         ref="iframe"
         class="iframe"
@@ -171,7 +173,7 @@
           this.defaultFile.checksum,
           this.defaultFile.extension,
           this.entry,
-          baseurl ? encodeURIComponent(baseurl) : undefined
+          baseurl ? encodeURIComponent(baseurl) : undefined,
         );
       }
 
@@ -179,7 +181,7 @@
         (this.extraFields && this.extraFields.contentState) || {},
         this.userData,
         storageUrl,
-        this.defaultFile.checksum
+        this.defaultFile.checksum,
       );
       this.$emit('startTracking');
       if (!this.isH5P) {

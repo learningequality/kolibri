@@ -22,11 +22,17 @@
     <div class="col-2">
       <div class="col-2-row-1">
         <div>
-          <h2 class="channel-name" dir="auto">
+          <h2
+            class="channel-name"
+            dir="auto"
+          >
             {{ channel.name }}
           </h2>
           <slot name="belowname"></slot>
-          <p class="version" :style="{ color: $themeTokens.annotation }">
+          <p
+            class="version"
+            :style="{ color: $themeTokens.annotation }"
+          >
             {{ $tr('versionNumber', { v: channelVersion || channel.version }) }}
           </p>
         </div>
@@ -34,9 +40,15 @@
 
       <div>
         <slot name="abovedescription"></slot>
-        <p class="description" dir="auto">
+        <p
+          class="description"
+          dir="auto"
+        >
           <span v-if="channel.description">{{ channel.description }}</span>
-          <span v-else :style="{ color: $themeTokens.annotation }">
+          <span
+            v-else
+            :style="{ color: $themeTokens.annotation }"
+          >
             {{ $tr('defaultDescription') }}
           </span>
         </p>

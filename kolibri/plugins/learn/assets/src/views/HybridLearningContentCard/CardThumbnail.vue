@@ -1,8 +1,6 @@
 <template>
 
-  <ContentNodeThumbnail
-    :contentNode="contentNode"
-  >
+  <ContentNodeThumbnail :contentNode="contentNode">
     <template #labels>
       <LearningActivityDuration
         v-if="displayDurationChip"

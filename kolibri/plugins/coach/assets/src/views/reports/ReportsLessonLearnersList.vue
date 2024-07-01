@@ -9,8 +9,14 @@
       </th>
     </template>
     <template #tbody>
-      <transition-group tag="tbody" name="list">
-        <tr v-for="tableRow in entries" :key="tableRow.id">
+      <transition-group
+        tag="tbody"
+        name="list"
+      >
+        <tr
+          v-for="tableRow in entries"
+          :key="tableRow.id"
+        >
           <td>
             <KRouterLink
               :text="tableRow.name"

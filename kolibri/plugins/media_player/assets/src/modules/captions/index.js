@@ -149,7 +149,7 @@ export default {
             player_,
           });
         },
-        { root: true }
+        { root: true },
       );
     },
     setTrackList(store, trackList) {
@@ -230,7 +230,7 @@ export default {
         trackUtils
           .listToArray(track.activeCues || [])
           .map(cue => cue.id)
-          .filter(Boolean)
+          .filter(Boolean),
       );
     },
     synchronizeTrackList(store) {

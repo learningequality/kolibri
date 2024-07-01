@@ -17,7 +17,6 @@
       />
     </KGridItem>
     <slot></slot>
-
   </KGrid>
 
 </template>

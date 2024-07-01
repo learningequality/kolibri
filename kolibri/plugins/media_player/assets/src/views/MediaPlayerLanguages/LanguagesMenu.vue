@@ -1,6 +1,9 @@
 <template>
 
-  <MediaPlayerMenu ref="menu" class="languages-menu">
+  <MediaPlayerMenu
+    ref="menu"
+    class="languages-menu"
+  >
     <!-- Languages get added dynamically through video.js -->
   </MediaPlayerMenu>
 

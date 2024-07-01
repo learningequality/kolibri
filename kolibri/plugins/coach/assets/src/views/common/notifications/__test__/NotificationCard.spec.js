@@ -118,7 +118,7 @@ describe('NotificationCard component', () => {
       });
       const icon = wrapper.findComponent({ name: 'CoachStatusIcon' });
       expect(icon.props().icon).toEqual(iconType);
-    }
+    },
   );
 
   const contentIconTestCases = [
@@ -142,7 +142,7 @@ describe('NotificationCard component', () => {
       });
       const contentIcon = wrapper.findComponent({ name: 'ContentIcon' });
       expect(contentIcon.props().kind).toEqual(iconKind);
-    }
+    },
   );
 
   const headerTestCases = [
@@ -169,6 +169,6 @@ describe('NotificationCard component', () => {
       });
       const header = wrapper.find('.context');
       expect(header.text()).toEqual(expected);
-    }
+    },
   );
 });

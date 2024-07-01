@@ -45,7 +45,7 @@ module.exports = (
     transpile = false,
     devServer = false,
     kdsPath = '',
-  } = {}
+  } = {},
 ) => {
   if (
     typeof data.name === 'undefined' ||
@@ -173,7 +173,7 @@ module.exports = (
   if (isCoreBundle && mode === 'production') {
     bundle.plugins.push(
       // requires >= v3.0.0, which is specified in the kolibri-core yarn workspace
-      new webpack.NormalModuleReplacementPlugin(/^vue-intl$/, 'vue-intl/dist/vue-intl.prod.min.js')
+      new webpack.NormalModuleReplacementPlugin(/^vue-intl$/, 'vue-intl/dist/vue-intl.prod.min.js'),
     );
   }
 

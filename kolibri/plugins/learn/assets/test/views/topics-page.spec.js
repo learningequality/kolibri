@@ -118,7 +118,7 @@ describe('TopicsPage', () => {
         searchLoading: false,
         searchError: null,
         currentRoute: jest.fn(() => ({ name: PageNames.TOPICS_TOPIC })),
-      })
+      }),
     );
 
     useChannels.mockImplementation(() =>
@@ -127,7 +127,7 @@ describe('TopicsPage', () => {
           [CHANNEL_ID]: CHANNEL,
         },
         fetchChannels: jest.fn(() => Promise.resolve([CHANNEL])),
-      })
+      }),
     );
 
     ContentNodeResource.fetchTree.mockResolvedValue(DEFAULT_TOPIC);
@@ -203,7 +203,7 @@ describe('TopicsPage', () => {
     });
     await flushPromises();
     expect(wrapper.find("[data-test='header-title']").element).toHaveTextContent(
-      DEFAULT_TOPIC.title
+      DEFAULT_TOPIC.title,
     );
   });
 
@@ -216,7 +216,7 @@ describe('TopicsPage', () => {
     });
     await flushPromises();
     expect(smallScreenWrapper.find("[data-test='mobile-title']").element).toHaveTextContent(
-      DEFAULT_TOPIC.title
+      DEFAULT_TOPIC.title,
     );
   });
 
@@ -283,7 +283,7 @@ describe('TopicsPage', () => {
             searchQuery: '',
             searchLoading: false,
             searchError: null,
-          })
+          }),
         );
 
         wrapper = mount(TopicsPage, {
@@ -317,7 +317,7 @@ describe('TopicsPage', () => {
             searchQuery: '',
             searchLoading: false,
             searchError: null,
-          })
+          }),
         );
         wrapper = mount(TopicsPage, {
           store: store,
@@ -397,7 +397,7 @@ describe('TopicsPage', () => {
             searchLoading: false,
             searchError: null,
             currentRoute: jest.fn(() => ({ name: PageNames.TOPICS_TOPIC_SEARCH })),
-          })
+          }),
         );
         const wrapper = mount(TopicsPage, {
           store: store,

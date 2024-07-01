@@ -15,7 +15,7 @@ export const logging = logger.getLogger(__filename);
 const baseClient = clientFactory();
 
 // Disconnection handler interceptor
-baseClient.interceptors.request.use(function(config) {
+baseClient.interceptors.request.use(function (config) {
   if (!store.getters.connected) {
     // If the vuex state records that we are not currently connected then cancel all
     // outgoing requests.
@@ -29,7 +29,7 @@ baseClient.interceptors.request.use(function(config) {
 // Login timeout detection interceptor and disconnection monitoring
 baseClient.interceptors.response.use(
   response => response,
-  function(error) {
+  function (error) {
     // If we receive a 403 response from the server, it is possible that the user
     // is attempting to access information they are not allowed to see.
     // However, more likely, it is because their login has timed out, but the frontend
@@ -55,7 +55,7 @@ baseClient.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 const client = options => {
@@ -80,14 +80,14 @@ const client = options => {
   if (typeof options === 'string') {
     options = { url: options };
     logging.warn(
-      'passing the URL as the only argument is deprecated, please use url option instead'
+      'passing the URL as the only argument is deprecated, please use url option instead',
     );
   }
 
   const headers = { ...(options.headers || {}), 'X-Requested-With': 'XMLHttpRequest' };
   if (options.multipart) {
     headers['Content-Type'] = 'multipart/form-data';
-    options.transformRequest = function(data) {
+    options.transformRequest = function (data) {
       const fd = new FormData();
       Object.keys(data).forEach(item => {
         fd.append(item, data[item]);
@@ -104,7 +104,7 @@ const client = options => {
       Object.defineProperty(response, 'entity', {
         get() {
           logging.warn(
-            'entity is deprecated for accessing response data, please use the data key instead'
+            'entity is deprecated for accessing response data, please use the data key instead',
           );
           return response.data;
         },

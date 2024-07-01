@@ -16,6 +16,7 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
 from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
+from kolibri.core.exams.constants import MAX_QUESTIONS_PER_QUIZ_SECTION
 from kolibri.core.exams.models import DraftExam
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
@@ -24,17 +25,19 @@ from kolibri.core.exams.models import ExamAssignment
 class QuestionSourceSerializer(Serializer):
     exercise_id = HexUUIDField(format="hex")
     question_id = HexUUIDField(format="hex")
-    title = CharField(default="")
+    title = CharField(default="", allow_blank=True)
     counter_in_exercise = IntegerField()
 
 
 class QuizSectionSerializer(Serializer):
-    section_id = HexUUIDField(format="hex")
     description = CharField(required=False, allow_blank=True)
     section_title = CharField(allow_blank=True, required=False)
-    question_count = IntegerField()
     learners_see_fixed_order = BooleanField(default=False)
-    questions = ListField(child=QuestionSourceSerializer(), required=False)
+    questions = ListField(
+        child=QuestionSourceSerializer(),
+        required=False,
+        max_length=MAX_QUESTIONS_PER_QUIZ_SECTION,
+    )
 
 
 class ExamSerializer(ModelSerializer):
@@ -169,12 +172,6 @@ class ExamSerializer(ModelSerializer):
                         code=error_constants.INVALID,
                     )
 
-        if "learners_see_fixed_order" in attrs and is_non_draft_exam:
-            raise ValidationError(
-                "Cannot update learners_see_fixed_order on an Exam object",
-                code=error_constants.INVALID,
-            )
-
         return attrs
 
     def create(self, validated_data):
@@ -270,6 +267,9 @@ class ExamSerializer(ModelSerializer):
                 instance_is_draft = False
             # Update the scalar fields
             instance.title = validated_data.pop("title", instance.title)
+            instance.learners_see_fixed_order = validated_data.pop(
+                "learners_see_fixed_order", instance.learners_see_fixed_order
+            )
             if not instance_is_draft:
                 # Update the non-draft specific fields
                 instance.active = validated_data.pop("active", instance.active)
@@ -282,9 +282,6 @@ class ExamSerializer(ModelSerializer):
                 # as by this point instance_is_draft is False if we are publishing a draft
                 instance.question_sources = validated_data.pop(
                     "question_sources", instance.question_sources
-                )
-                instance.learners_see_fixed_order = validated_data.pop(
-                    "learners_see_fixed_order", instance.learners_see_fixed_order
                 )
 
             # Add/delete any new/removed Assignments

@@ -128,7 +128,7 @@ describe('facility config page actions', () => {
           });
           expect(commitStub).toHaveBeenCalledWith(
             'facilityConfig/SET_STATE',
-            expect.objectContaining(expectedState)
+            expect.objectContaining(expectedState),
           );
         });
       });
@@ -145,7 +145,7 @@ describe('facility config page actions', () => {
           return showFacilityConfigPage(store, test.toRoute).then(() => {
             expect(commitStub).toHaveBeenCalledWith(
               'facilityConfig/SET_STATE',
-              expect.objectContaining(expectedState)
+              expect.objectContaining(expectedState),
             );
           });
         });
@@ -157,7 +157,7 @@ describe('facility config page actions', () => {
           await showFacilityConfigPage(store, test.toRoute);
           expect(commitStub).toHaveBeenCalledWith(
             'facilityConfig/SET_STATE',
-            expect.objectContaining(expectedState)
+            expect.objectContaining(expectedState),
           );
         });
       });
@@ -192,7 +192,7 @@ describe('facility config page actions', () => {
 
         return store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
           expect(saveStub).toHaveBeenCalledWith(
-            expect.objectContaining({ id: 1000, data: expectedRequest })
+            expect.objectContaining({ id: 1000, data: expectedRequest }),
           );
         });
       });

@@ -30,7 +30,10 @@
             @click="toggleBanner"
           />
         </KGridItem>
-        <KGridItem v-else class="button-grid-item">
+        <KGridItem
+          v-else
+          class="button-grid-item"
+        >
           <KButton
             ref="close_button"
             class="close-button"

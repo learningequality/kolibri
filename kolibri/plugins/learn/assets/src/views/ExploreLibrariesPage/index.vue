@@ -31,7 +31,10 @@
         :pinned="true"
         @togglePin="handlePinToggle"
       />
-      <div v-if="areMoreDevicesAvailable" key="moreDevices">
+      <div
+        v-if="areMoreDevicesAvailable"
+        key="moreDevices"
+      >
         <div
           v-if="pinnedDevicesExist"
           data-test="more-libraries"

@@ -20,7 +20,7 @@ describe('updateProgress', () => {
 
     expect(context.$emit.mock.calls[0][0]).toBe('updateProgress');
     expect(context.$emit.mock.calls[0][1]).toEqual(
-      Object.keys(context.savedVisitedSlides).length / context.slides.length
+      Object.keys(context.savedVisitedSlides).length / context.slides.length,
     );
     expect(context.$emit.mock.calls[0][1]).not.toBe(context.durationBasedProgress);
   });
@@ -32,7 +32,7 @@ describe('updateProgress', () => {
     expect(context.$emit.mock.calls[0][0]).toBe('updateProgress');
     expect(context.$emit.mock.calls[0][1]).toBe(0.1);
     expect(context.$emit.mock.calls[0][1]).not.toEqual(
-      Object.keys(context.savedVisitedSlides).length / context.slides.length
+      Object.keys(context.savedVisitedSlides).length / context.slides.length,
     );
   });
 });

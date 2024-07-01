@@ -3,13 +3,16 @@
   <div
     class="channel-list-item"
     :class="{ 'channel-list-item-sm': windowIsSmall }"
-    :style="[verticalPadding, { borderTop: `1px solid ${$themeTokens.fineLine}` } ]"
+    :style="[verticalPadding, { borderTop: `1px solid ${$themeTokens.fineLine}` }]"
   >
     <ChannelDetails
       :channel="channel"
       :channelVersion="versionNumber"
     >
-      <template v-if="multipleMode" #beforethumbnail>
+      <template
+        v-if="multipleMode"
+        #beforethumbnail
+      >
         <KCheckbox
           class="checkbox"
           :label="channel.name"
@@ -19,8 +22,15 @@
         />
       </template>
 
-      <template v-if="isUnlistedChannel" #belowname>
-        <KTooltip reference="lockicon" :refs="$refs" placement="top">
+      <template
+        v-if="isUnlistedChannel"
+        #belowname
+      >
+        <KTooltip
+          reference="lockicon"
+          :refs="$refs"
+          placement="top"
+        >
           {{ deviceString('unlistedChannelLabel') }}
         </KTooltip>
         <div class="private-icons">
@@ -45,9 +55,15 @@
             :style="{ fill: $themeTokens.primary }"
           />
           {{ $tr('newVersionMessage') }}
-          <KRouterLink :to="newChannelVersionPageRoute" :text="$tr('moreInformationLabel')" />
+          <KRouterLink
+            :to="newChannelVersionPageRoute"
+            :text="$tr('moreInformationLabel')"
+          />
         </div>
-        <div v-if="onDevice" class="on-device">
+        <div
+          v-if="onDevice"
+          class="on-device"
+        >
           <KIcon
             class="check-icon"
             icon="correct"
@@ -59,7 +75,10 @@
 
       <template #append>
         <div class="col-3">
-          <p v-if="multipleMode && $attrs.checked" class="selected-msg">
+          <p
+            v-if="multipleMode && $attrs.checked"
+            class="selected-msg"
+          >
             {{ channelSelectedMessage }}
           </p>
           <KRouterLink
@@ -71,8 +90,6 @@
         </div>
       </template>
     </ChannelDetails>
-
-
   </div>
 
 </template>

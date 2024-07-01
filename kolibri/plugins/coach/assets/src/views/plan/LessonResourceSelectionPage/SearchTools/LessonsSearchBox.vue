@@ -38,7 +38,10 @@
           :ariaLabel="coreString('clearAction')"
           @click="clearSearchTerm"
         />
-        <div class="submit-button-wrapper" :style="{ backgroundColor: $themeTokens.primary }">
+        <div
+          class="submit-button-wrapper"
+          :style="{ backgroundColor: $themeTokens.primary }"
+        >
           <KIconButton
             icon="search"
             :color="$themeTokens.textInverted"
@@ -51,7 +54,6 @@
         </div>
       </div>
     </div>
-
   </form>
 
 </template>
@@ -135,6 +137,10 @@
 
     // removes the IE clear button
     &::-ms-clear {
+      display: none;
+    }
+    // removes the webkit browsers clear button
+    &::-webkit-search-cancel-button {
       display: none;
     }
   }

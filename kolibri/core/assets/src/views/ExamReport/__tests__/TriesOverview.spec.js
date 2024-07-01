@@ -1,11 +1,15 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import TriesOverview from '../TriesOverview.vue';
-import * as tryValidatorModule from '../utils';
 
 // Mock the tryValidator namespace as the same is used in the component
-// eslint-disable-next-line import/namespace
-tryValidatorModule.tryValidator = jest.fn(() => true);
+jest.mock('../utils', () => {
+  const original = jest.requireActual('../utils');
+  return {
+    ...original,
+    tryValidator: jest.fn(() => true),
+  };
+});
 
 // Helper function to render the component with some default props
 const renderComponent = props => {

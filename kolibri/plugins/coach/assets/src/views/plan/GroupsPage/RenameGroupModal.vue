@@ -63,7 +63,7 @@
           return false;
         }
         const index = this.groups.findIndex(
-          group => group.name.toUpperCase() === this.name.toUpperCase()
+          group => group.name.toUpperCase() === this.name.toUpperCase(),
         );
         if (index === -1) {
           return false;

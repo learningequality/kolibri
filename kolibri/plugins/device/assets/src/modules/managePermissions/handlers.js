@@ -5,12 +5,12 @@ import mapValues from 'lodash/mapValues';
 import head from 'lodash/head';
 
 function fetchDevicePermissions() {
-  return DevicePermissionsResource.fetchCollection({ force: true }).then(function transform(
-    permissions
-  ) {
-    // returns object, where userid is the key
-    return mapValues(groupBy(permissions, 'user'), head);
-  });
+  return DevicePermissionsResource.fetchCollection({ force: true }).then(
+    function transform(permissions) {
+      // returns object, where userid is the key
+      return mapValues(groupBy(permissions, 'user'), head);
+    },
+  );
 }
 
 function fetchFacilityUsers() {

@@ -23,7 +23,7 @@ jest.mock(
       entry: 'test',
     },
   }),
-  { virtual: true }
+  { virtual: true },
 );
 
 const baseData = {
@@ -39,47 +39,47 @@ const baseData = {
   index: null,
 };
 
-describe('webpackConfigPlugin', function() {
+describe('webpackConfigPlugin', function () {
   let data;
-  beforeEach(function() {
+  beforeEach(function () {
     data = _.clone(baseData);
   });
-  describe('input is valid, bundles output', function() {
-    it('should have one entry', function() {
+  describe('input is valid, bundles output', function () {
+    it('should have one entry', function () {
       expect(Object.keys(webpackConfigPlugin(data).entry)).toHaveLength(1);
     });
-    it('should add plugin node modules to resolve paths', function() {
+    it('should add plugin node modules to resolve paths', function () {
       expect(webpackConfigPlugin(data).resolve.modules).toContain(
-        path.join(data.plugin_path, 'node_modules')
+        path.join(data.plugin_path, 'node_modules'),
       );
     });
-    it('should add plugin node modules first to resolve paths', function() {
+    it('should add plugin node modules first to resolve paths', function () {
       expect(webpackConfigPlugin(data).resolve.modules[0]).toEqual(
-        path.join(data.plugin_path, 'node_modules')
+        path.join(data.plugin_path, 'node_modules'),
       );
     });
-    it('should add plugin node modules to resolve loader paths', function() {
+    it('should add plugin node modules to resolve loader paths', function () {
       expect(webpackConfigPlugin(data).resolveLoader.modules).toContain(
-        path.join(data.plugin_path, 'node_modules')
+        path.join(data.plugin_path, 'node_modules'),
       );
     });
-    it('should add plugin node modules first to resolve loader paths', function() {
+    it('should add plugin node modules first to resolve loader paths', function () {
       expect(webpackConfigPlugin(data).resolveLoader.modules[0]).toEqual(
-        path.join(data.plugin_path, 'node_modules')
+        path.join(data.plugin_path, 'node_modules'),
       );
     });
-    it('should set the name to data.name', function() {
+    it('should set the name to data.name', function () {
       expect(webpackConfigPlugin(data).name).toEqual(data.name);
     });
-    it('should set the output path to the correct subdir in static', function() {
+    it('should set the output path to the correct subdir in static', function () {
       expect(webpackConfigPlugin(data).output.path).toEqual(
-        path.resolve(path.join(data.static_dir, data.name))
+        path.resolve(path.join(data.static_dir, data.name)),
       );
     });
-    it('should include the version in the output filename', function() {
+    it('should include the version in the output filename', function () {
       expect(webpackConfigPlugin(data).output.filename).toContain(data.version);
     });
-    it('should include the version in the output chunk filename', function() {
+    it('should include the version in the output chunk filename', function () {
       expect(webpackConfigPlugin(data).output.chunkFilename).toContain(data.version);
     });
   });
@@ -88,44 +88,44 @@ describe('webpackConfigPlugin', function() {
     expect(webpackConfigPlugin(data)).toBeUndefined();
   }
 
-  describe('input is missing name, bundles output', function() {
-    it('should be undefined', function() {
+  describe('input is missing name, bundles output', function () {
+    it('should be undefined', function () {
       delete data.name;
       expectParsedDataIsUndefined(data);
     });
   });
-  describe('input is missing config_path, bundles output', function() {
-    it('should be undefined', function() {
+  describe('input is missing config_path, bundles output', function () {
+    it('should be undefined', function () {
       delete data.config_path;
       expectParsedDataIsUndefined(data);
     });
   });
-  describe('input is missing stats_file, bundles output', function() {
-    it('should be undefined', function() {
+  describe('input is missing stats_file, bundles output', function () {
+    it('should be undefined', function () {
       delete data.stats_file;
       expectParsedDataIsUndefined(data);
     });
   });
-  describe('input is missing static_dir, bundles output', function() {
-    it('should be undefined', function() {
+  describe('input is missing static_dir, bundles output', function () {
+    it('should be undefined', function () {
       delete data.static_dir;
       expectParsedDataIsUndefined(data);
     });
   });
-  describe('input is missing locale_data_folder, bundles output', function() {
-    it('should be undefined', function() {
+  describe('input is missing locale_data_folder, bundles output', function () {
+    it('should be undefined', function () {
       delete data.locale_data_folder;
       expectParsedDataIsUndefined(data);
     });
   });
-  describe('input is missing plugin_path, bundles output', function() {
-    it('should be undefined', function() {
+  describe('input is missing plugin_path, bundles output', function () {
+    it('should be undefined', function () {
       delete data.plugin_path;
       expectParsedDataIsUndefined(data);
     });
   });
-  describe('input is missing version, bundles output', function() {
-    it('should be undefined', function() {
+  describe('input is missing version, bundles output', function () {
+    it('should be undefined', function () {
       delete data.version;
       expectParsedDataIsUndefined(data);
     });

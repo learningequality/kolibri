@@ -39,7 +39,7 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
       lesson_id: lessonId,
       group_id: groupId,
     }),
-    true
+    true,
   );
 
   return Promise.all([itemPromise, difficultiesPromise]).then(([item, stats]) => {
@@ -90,7 +90,7 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
         stats = stats.map(stat => {
           const questionNumber = Math.max(
             1,
-            item.assessmentmetadata.assessment_item_ids.indexOf(stat.item)
+            item.assessmentmetadata.assessment_item_ids.indexOf(stat.item),
           );
           const title = coachStrings.$tr('nthExerciseName', {
             name: item.title,

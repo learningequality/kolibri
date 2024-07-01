@@ -46,7 +46,7 @@ const create = context => {
     }),
     eslintPluginVueUtils.executeOnVue(context, obj => {
       unusedProperties = Array.from(
-        eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_METHODS]))
+        eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_METHODS])),
       );
 
       remove(unusedProperties, property => {
@@ -60,7 +60,7 @@ const create = context => {
       if (!hasTemplate && unusedProperties.length) {
         utils.reportUnusedProperties(context, unusedProperties, disabledLines);
       }
-    })
+    }),
   );
 
   const templateVisitor = Object.assign(
@@ -78,13 +78,13 @@ const create = context => {
       if (unusedProperties.length) {
         utils.reportUnusedProperties(context, unusedProperties, disabledLines);
       }
-    })
+    }),
   );
 
   return Object.assign(
     {},
     initialize,
-    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor)
+    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor),
   );
 };
 

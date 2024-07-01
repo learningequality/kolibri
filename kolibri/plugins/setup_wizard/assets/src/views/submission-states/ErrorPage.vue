@@ -1,7 +1,6 @@
 <template>
 
   <SubmissionStatePage :header="$tr('errorPageHeader')">
-
     <p class="error-page-subheader">
       {{ $tr('errorPageSubheader') }}
     </p>
@@ -13,11 +12,12 @@
       @click="refreshPage"
     />
 
-    <p class="error-page-subtext" :style="{ color: $themeTokens.annotation }">
+    <p
+      class="error-page-subtext"
+      :style="{ color: $themeTokens.annotation }"
+    >
       {{ $tr('errorPageAdditionalGuidance') }}
     </p>
-
-
   </SubmissionStatePage>
 
 </template>

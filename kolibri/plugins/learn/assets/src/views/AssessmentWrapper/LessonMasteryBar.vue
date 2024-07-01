@@ -1,9 +1,12 @@
 <template>
 
   <!-- z-index 7 - one beneath top menu bar for nested elevations -->
-  <BaseToolbar style="z-index: 7;">
-    <div class="container" :style="{ flexWrap: windowBreakpoint > 0 ? 'nowrap' : 'wrap' }">
-      <TextTruncatorCss
+  <BaseToolbar style="z-index: 7">
+    <div
+      class="container"
+      :style="{ flexWrap: windowBreakpoint > 0 ? 'nowrap' : 'wrap' }"
+    >
+      <KTextTruncator
         class="requirements"
         :text="coreString('shortExerciseGoalDescription', { count: requiredCorrectAnswers })"
       />
@@ -20,14 +23,12 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BaseToolbar from 'kolibri.coreVue.components.BaseToolbar';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {
     name: 'LessonMasteryBar',
     components: {
       BaseToolbar,
-      TextTruncatorCss,
     },
     mixins: [commonCoreStrings],
     setup() {

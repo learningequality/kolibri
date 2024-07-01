@@ -1,7 +1,6 @@
 <template>
 
   <section :style="{ backgroundColor: $themeTokens.surface }">
-
     <h2 class="header">
       {{ $tr('questionListHeader', { numOfQuestions: questions.length }) }}
     </h2>
@@ -19,11 +18,10 @@
           class="button"
           :text="questionLabel(index)"
           appearance="flat-button"
-          @click="$emit('select',index)"
+          @click="$emit('select', index)"
         />
       </li>
     </ul>
-
   </section>
 
 </template>

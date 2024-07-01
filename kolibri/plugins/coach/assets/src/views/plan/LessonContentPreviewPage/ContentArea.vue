@@ -1,7 +1,10 @@
 <template>
 
   <section>
-    <h2 v-if="isExercise" class="header">
+    <h2
+      v-if="isExercise"
+      class="header"
+    >
       {{ header }}
     </h2>
     <ContentRenderer
@@ -16,7 +19,10 @@
       :extraFields="content.extra_fields"
       :interactive="false"
     />
-    <MissingResourceAlert v-else :multiple="false" />
+    <MissingResourceAlert
+      v-else
+      :multiple="false"
+    />
   </section>
 
 </template>

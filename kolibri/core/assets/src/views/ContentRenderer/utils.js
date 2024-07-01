@@ -6,7 +6,7 @@ export const canRenderContent = preset => Boolean(Vue.options.components[preset 
 export const getRenderableFiles = files =>
   files.filter(
     file =>
-      !file.thumbnail && !file.supplementary && file.available && canRenderContent(file.preset)
+      !file.thumbnail && !file.supplementary && file.available && canRenderContent(file.preset),
   );
 
 export const getDefaultFile = files => (files && files.length ? files[0] : undefined);

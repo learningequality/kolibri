@@ -116,7 +116,7 @@
           this.facility.last_successful_sync &&
           this.facility.last_failed_sync &&
           new Date(this.facility.last_successful_sync).getTime() <
-            new Date(this.facility.last_failed_sync).getTime();
+          new Date(this.facility.last_failed_sync).getTime();
         return this.syncTaskHasFailed || lastSyncFailed;
       },
       neverSynced() {

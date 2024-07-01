@@ -32,8 +32,8 @@ describe('when there are nodes with progress that can be resumed', () => {
           { node: 12 },
         ],
         moreResumableContentNodes: { cursor: 'rogkor2', resume: true },
-      })
-    )
+      }),
+    ),
   );
   afterEach(() => jest.clearAllMocks());
   it('displays resumable content nodes string', () => {
@@ -62,7 +62,7 @@ describe('when there are nodes with progress that can be resumed', () => {
 
   it('displays button to "show more" when more items exist than currently shown', () => {
     const wrapper = shallowMount(ResumableContentGrid, {
-      data: function() {
+      data: function () {
         return { showMoreContentCards: false };
       },
       computed: { moreContentCards: () => true },
@@ -72,7 +72,7 @@ describe('when there are nodes with progress that can be resumed', () => {
 
   it('does not show a button to "show more" if button already pressed', () => {
     const wrapper = shallowMount(ResumableContentGrid, {
-      data: function() {
+      data: function () {
         return { showMoreContentCards: true };
       },
       computed: { moreContentCards: () => false },
@@ -82,7 +82,7 @@ describe('when there are nodes with progress that can be resumed', () => {
 
   it('does not show a button to "show more" if number of items does not exceed that displayed', () => {
     const wrapper = shallowMount(ResumableContentGrid, {
-      data: function() {
+      data: function () {
         return { showMoreContentCards: true };
       },
       computed: { moreContentCards: () => false },
@@ -92,7 +92,7 @@ describe('when there are nodes with progress that can be resumed', () => {
 
   it('displays button to view more resumableContentNodes when there are 13+ recent items & 12 are currently displayed', () => {
     const wrapper = shallowMount(ResumableContentGrid, {
-      data: function() {
+      data: function () {
         return { showMoreContentCards: true };
       },
       computed: { moreContentCards: () => true },
@@ -102,7 +102,7 @@ describe('when there are nodes with progress that can be resumed', () => {
 
   it('does not show a button to view more resumableContentNodes if "show more" has not been exhausted', () => {
     const wrapper = shallowMount(ResumableContentGrid, {
-      data: function() {
+      data: function () {
         return { showMoreContentCards: false };
       },
       computed: { moreContentCards: () => true },

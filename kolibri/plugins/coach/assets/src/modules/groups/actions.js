@@ -32,7 +32,7 @@ export function createGroup(store, { groupName, classId }) {
       // to get that back up to date!
       return store.dispatch('classSummary/refreshClassSummary', null, { root: true });
     },
-    error => store.dispatch('handleApiError', { error }, { root: true })
+    error => store.dispatch('handleApiError', { error }, { root: true }),
   );
 }
 
@@ -51,7 +51,7 @@ export function renameGroup(store, { groupId, newGroupName }) {
       store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
       store.commit('SET_GROUP_MODAL', '');
     },
-    error => store.dispatch('handleApiError', { error }, { root: true })
+    error => store.dispatch('handleApiError', { error }, { root: true }),
   );
 }
 
@@ -62,7 +62,7 @@ export function deleteGroup(store, groupId) {
       const updatedGroups = groups.filter(group => group.id !== groupId);
       store.commit('SET_GROUPS', updatedGroups);
     },
-    error => store.dispatch('handleApiError', { error }, { root: true })
+    error => store.dispatch('handleApiError', { error }, { root: true }),
   );
 }
 
@@ -92,7 +92,7 @@ function _addMultipleUsersToGroup(store, groupId, userIds) {
         store.commit('SET_GROUPS', groups);
         resolve();
       },
-      error => reject(error)
+      error => reject(error),
     );
   });
 }
@@ -107,7 +107,7 @@ function _removeMultipleUsersFromGroup(store, groupId, userIds) {
         const groups = Array(...store.state.groups);
         const groupIndex = groups.findIndex(group => group.id === groupId);
         groups[groupIndex].users = groups[groupIndex].users.filter(
-          user => !userIds.includes(user.id)
+          user => !userIds.includes(user.id),
         );
 
         // Clear cache for future fetches
@@ -116,7 +116,7 @@ function _removeMultipleUsersFromGroup(store, groupId, userIds) {
         store.commit('SET_GROUPS', groups);
         resolve();
       },
-      error => reject(error)
+      error => reject(error),
     );
   });
 }

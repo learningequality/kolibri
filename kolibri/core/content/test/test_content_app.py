@@ -1142,34 +1142,6 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         self.assertEqual(len(response.data), 0)
 
-    def test_contentnode_node_assessments_available(self):
-        content.ContentNode.objects.all().update(available=True)
-        root = content.ContentNode.objects.get(parent__isnull=True)
-        exercise_ids = (
-            root.get_descendants()
-            .filter(kind=content_kinds.EXERCISE)
-            .values_list("id", flat=True)
-        )
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-node-assessments"),
-            data={"ids": ",".join(exercise_ids)},
-        )
-        self.assertEqual(response.data, 1)
-
-    def test_contentnode_node_assessments_not_available(self):
-        content.ContentNode.objects.all().update(available=False)
-        root = content.ContentNode.objects.get(parent__isnull=True)
-        exercise_ids = (
-            root.get_descendants()
-            .filter(kind=content_kinds.EXERCISE)
-            .values_list("id", flat=True)
-        )
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-node-assessments"),
-            data={"ids": ",".join(exercise_ids)},
-        )
-        self.assertEqual(response.data, 0)
-
     def test_contentnode_recommendations(self):
         node_id = content.ContentNode.objects.get(title="c2c2").id
         response = self.client.get(
@@ -1302,7 +1274,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         response = self.client.get(reverse("kolibri:core:channel-list"))
         self.assertEqual(response.data[0]["available"], False)
 
-    def test_channelmetadata_has_exercises_filter(self):
+    def test_channelmetadata_contains_exercise_filter(self):
         # Has nothing else for that matter...
         no_exercise_channel = content.ContentNode.objects.create(
             pk="6a406ac66b224106aa2e93f73a94333d",
@@ -1319,7 +1291,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         no_filter_response = self.client.get(reverse("kolibri:core:channel-list"))
         self.assertEqual(len(no_filter_response.data), 2)
         with_filter_response = self.client.get(
-            reverse("kolibri:core:channel-list"), {"has_exercise": True}
+            reverse("kolibri:core:channel-list"), {"contains_exercise": True}
         )
         self.assertEqual(len(with_filter_response.data), 1)
         self.assertEqual(with_filter_response.data[0]["name"], "testing")

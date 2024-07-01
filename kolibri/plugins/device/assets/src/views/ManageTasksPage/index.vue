@@ -6,7 +6,10 @@
   >
     <KPageContainer class="device-container">
       <KGrid>
-        <KGridItem :layout8="{ span: 5 }" :layout12="{ span: 8 }">
+        <KGridItem
+          :layout8="{ span: 5 }"
+          :layout12="{ span: 8 }"
+        >
           <h1>
             {{ $tr('tasksHeader') }}
           </h1>
@@ -24,12 +27,22 @@
         </KGridItem>
       </KGrid>
 
-      <KLinearLoader v-if="loading" :delay="false" type="indeterminate" />
+      <KLinearLoader
+        v-if="loading"
+        :delay="false"
+        type="indeterminate"
+      />
 
-      <p v-if="!loading && managedTasks.length === 0" class="empty-tasks-message">
+      <p
+        v-if="!loading && managedTasks.length === 0"
+        class="empty-tasks-message"
+      >
         {{ deviceString('emptyTasksMessage') }}
       </p>
-      <transition-group name="fade" class="task-panels">
+      <transition-group
+        name="fade"
+        class="task-panels"
+      >
         <TaskPanel
           v-for="task in sortedTaskList"
           :key="task.id"
@@ -164,7 +177,7 @@
           } `;
         } else if (failedTasks.length > 1) {
           this.pageTitle = `${this.formattedNumber(failedTasks.length)} - ${this.deviceString(
-            'statusFailed'
+            'statusFailed',
           )}`;
         } else if (totalTasks === 1 && inProgressTasks.length === 1) {
           const inProgressTask = inProgressTasks[0];
@@ -179,7 +192,7 @@
             this.pageTitle = this.deviceString('statusComplete');
           } else {
             this.pageTitle = `${this.formattedPercentage(averageProgress)} - ${this.deviceString(
-              'statusInProgress'
+              'statusInProgress',
             )}`;
           }
         } else if (totalTasks > 0 && completedTasks.length === totalTasks) {
@@ -205,7 +218,7 @@
         this.$router.push(
           this.$router.getRoute(this.$route.query.last, {
             channel_id: this.$route.query.channel_id,
-          })
+          }),
         );
       },
     },

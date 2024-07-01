@@ -25,6 +25,10 @@ const downloadRequestsTranslator = createTranslator('DownloadRequests', {
     message: 'Resource removed from my library',
     context: 'A message shown when a user has removed a resource from their library',
   },
+  downloadComplete: {
+    message: 'Download complete',
+    context: 'A message shown to indicate that a download request has been completed',
+  },
 });
 
 // The reactive is defined in the outer scope so it can be used as a shared store
@@ -147,6 +151,17 @@ export default function useDownloadRequests(store) {
     return Promise.resolve();
   }
 
+  function showCompletedDownloadSnackbar() {
+    store.commit('CORE_CREATE_SNACKBAR', {
+      text: downloadRequestsTranslator.$tr('downloadComplete'),
+      actionText: downloadRequestsTranslator.$tr('goToDownloadsPage'),
+      actionCallback: navigateToDownloads,
+      backdrop: false,
+      forceReuse: true,
+      autoDismiss: true,
+    });
+  }
+
   function removeDownloadRequest(contentNodeId) {
     const contentRequest = downloadRequestMap[contentNodeId];
     if (!contentRequest) {
@@ -179,5 +194,6 @@ export default function useDownloadRequests(store) {
     loading,
     removeDownloadRequest,
     downloadRequestsTranslator,
+    showCompletedDownloadSnackbar,
   };
 }

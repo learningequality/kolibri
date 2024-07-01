@@ -6,7 +6,10 @@
     :showAllLink="table.length > 0"
   >
     <template #title>
-      <KLabeledIcon icon="lesson" :label="coreString('lessonsLabel')" />
+      <KLabeledIcon
+        icon="lesson"
+        :label="coreString('lessonsLabel')"
+      />
     </template>
 
     <p v-if="table.length === 0">

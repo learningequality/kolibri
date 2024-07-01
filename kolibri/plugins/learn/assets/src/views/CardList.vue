@@ -7,10 +7,7 @@
     <router-link
       :to="to"
       class="card card-link"
-      :class="[
-        isMobile ? 'mobile-card' : '',
-        $computedClass({ ':focus': $coreOutline })
-      ]"
+      :class="[isMobile ? 'mobile-card' : '', $computedClass({ ':focus': $coreOutline })]"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
       <div
@@ -18,13 +15,25 @@
         :style="{ backgroundColor: $themeTokens.surface }"
       >
         <KFixedGrid numCols="4">
-          <KFixedGridItem :span="isMobile ? 4 : 1" class="thumb-area">
-            <CardThumbnail :contentNode="contentNode" :hideDuration="!windowIsLarge" />
+          <KFixedGridItem
+            :span="isMobile ? 4 : 1"
+            class="thumb-area"
+          >
+            <CardThumbnail
+              :contentNode="contentNode"
+              :hideDuration="!windowIsLarge"
+            />
           </KFixedGridItem>
 
-          <KFixedGridItem :span="isMobile ? 4 : 3" class="text-area">
+          <KFixedGridItem
+            :span="isMobile ? 4 : 3"
+            class="text-area"
+          >
             <span :style="{ color: $themeTokens.text }">
-              <div class="metadata-info" :style="{ color: $themePalette.grey.v_800 }">
+              <div
+                class="metadata-info"
+                :style="{ color: $themePalette.grey.v_800 }"
+              >
                 <LearningActivityLabel
                   :contentNode="contentNode"
                   :hideDuration="true"
@@ -33,15 +42,24 @@
                 />
               </div>
               <h3 :style="{ marginTop: '4px', marginBottom: '4px' }">
-                <TextTruncatorCss :text="contentNode.title" :maxLines="1" />
+                <KTextTruncator
+                  :text="contentNode.title"
+                  :maxLines="1"
+                />
               </h3>
               <p
                 v-if="contentNode.description"
-                style="font-size: 14px; margin-top: 4px; margin-bottom: 4px;"
+                style="margin-top: 4px; margin-bottom: 4px; font-size: 14px"
               >
-                <TextTruncatorCss :text="contentNode.description" :maxLines="2" />
+                <KTextTruncator
+                  :text="contentNode.description"
+                  :maxLines="2"
+                />
               </p>
-              <div v-if="!isMobile" class="bottom-items">
+              <div
+                v-if="!isMobile"
+                class="bottom-items"
+              >
                 <LearningActivityDuration
                   v-if="!windowIsLarge"
                   :contentNode="contentNode"
@@ -53,7 +71,9 @@
                   v-if="categoryAndLevelString"
                   class="metadata-info"
                   :style="{ color: $themePalette.grey.v_800, marginTop: 0 }"
-                >{{ categoryAndLevelString }}</p>
+                >
+                  {{ categoryAndLevelString }}
+                </p>
                 <div>
                   <img
                     v-if="channelThumbnail"
@@ -66,7 +86,9 @@
                     v-else
                     class="metadata-info"
                     :style="{ color: $themePalette.grey.v_800, marginTop: 0 }"
-                  >{{ learnString('logo', { channelTitle: channelTitle }) }}</p>
+                  >
+                    {{ learnString('logo', { channelTitle: channelTitle }) }}
+                  </p>
                   <KButton
                     v-if="contentNode.copies"
                     appearance="basic-link"
@@ -98,7 +120,6 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { now } from 'kolibri.utils.serverClock';
   import { ContentLevels, Categories } from 'kolibri.coreVue.vuex.constants';
@@ -114,7 +135,6 @@
     name: 'CardList',
     components: {
       CardThumbnail,
-      TextTruncatorCss,
       LearningActivityLabel,
       LearningActivityDuration,
     },

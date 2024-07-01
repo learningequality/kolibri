@@ -54,7 +54,7 @@ export default {
     facilityIsSyncing() {
       return function isSyncing(facility) {
         const inProcessSyncTasks = this.activeFacilityTasks.filter(
-          t => isSyncTask(t) && !t.clearable
+          t => isSyncTask(t) && !t.clearable,
         );
         return Boolean(inProcessSyncTasks.find(task => taskFacilityMatch(task, facility)));
       };
@@ -66,8 +66,8 @@ export default {
             task =>
               task.type === TaskTypes.DELETEFACILITY &&
               taskFacilityMatch(task, facility) &&
-              !task.clearable
-          )
+              !task.clearable,
+          ),
         );
       };
     },

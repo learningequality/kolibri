@@ -51,18 +51,19 @@ export default {
         const taskIndex = findLastIndex(getters.managedTasks, task => {
           const isLatest = task => {
             const tasksWithSameChannelId = getters.managedTasks.filter(
-              t => t.extra_metadata.channel_id === channel.id && t.status === TaskStatuses.COMPLETED
+              t =>
+                t.extra_metadata.channel_id === channel.id && t.status === TaskStatuses.COMPLETED,
             );
             const maxScheduledDatetime = tasksWithSameChannelId.reduce(
               (max, current) =>
                 current.scheduled_datetime > max ? current.scheduled_datetime : max,
-              tasksWithSameChannelId[0].scheduled_datetime
+              tasksWithSameChannelId[0].scheduled_datetime,
             );
             return task.scheduled_datetime === maxScheduledDatetime;
           };
           return (
             ![TaskTypes.DISKCONTENTEXPORT, TaskTypes.DISKEXPORT, TaskTypes.DELETECHANNEL].includes(
-              task.type
+              task.type,
             ) &&
             task.extra_metadata.channel_id === channel.id &&
             task.status === TaskStatuses.COMPLETED &&
@@ -119,7 +120,7 @@ export default {
             TaskTypes.DISKCHANNELIMPORT,
             TaskTypes.REMOTECHANNELDIFFSTATS,
             TaskTypes.LOCALCHANNELDIFFSTATS,
-          ].includes(task.type)
+          ].includes(task.type),
       );
     },
   },

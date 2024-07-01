@@ -135,7 +135,7 @@ export function showAvailableChannelsPage(store, params) {
         store.commit('CORE_SET_PAGE_LOADING', false);
         return handleError(store, error);
       }
-    }
+    },
   );
 }
 
@@ -172,7 +172,7 @@ export function showSelectContentPage(store, params) {
       // metadata task will be triggered later for this situation)
       if (error.response && error.response.status === 404) {
         logging.error(
-          `^^^ 404 (Not Found) error returned while requesting "${error.response.config.url}..." is an expected response.`
+          `^^^ 404 (Not Found) error returned while requesting "${error.response.config.url}..." is an expected response.`,
         );
       }
     });
@@ -208,7 +208,7 @@ export function showSelectContentPage(store, params) {
             } else {
               reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE });
             }
-          }
+          },
         );
     });
   }
@@ -279,7 +279,7 @@ export function updateTreeViewTopic(store, topic) {
     .catch(() => {
       store.commit(
         'manageContent/wizard/SET_WIZARD_STATUS',
-        ContentWizardErrors.TREEVIEW_LOADING_ERROR
+        ContentWizardErrors.TREEVIEW_LOADING_ERROR,
       );
     });
 }

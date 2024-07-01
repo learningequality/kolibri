@@ -74,7 +74,7 @@ export function addNodeForTransfer(store, node) {
   }
   // remove nodes in "include" that would be made redundant by the new one
   const [notToIncluded, toInclude] = partition(included, includeNode =>
-    isDescendantOrSelf(includeNode, node)
+    isDescendantOrSelf(includeNode, node),
   );
   if (notToIncluded.length > 0) {
     store.commit('REPLACE_INCLUDE_LIST', toInclude);
@@ -94,14 +94,14 @@ export function removeNodeForTransfer(store, node) {
   const { included, omitted } = store.state.nodesForTransfer;
   // remove nodes in "include" that are either descendants of the removed node or the node itself
   const [notToInclude, toInclude] = partition(included, includeNode =>
-    isDescendantOrSelf(includeNode, node)
+    isDescendantOrSelf(includeNode, node),
   );
   if (notToInclude.length > 0) {
     store.commit('REPLACE_INCLUDE_LIST', toInclude);
   }
   // if the removed node's has ancestors that are selected, the removed node gets placed in "omit"
   const includedAncestors = included.filter(
-    includeNode => pluckIds(node.path).includes(includeNode.id) && node.id !== includeNode.id
+    includeNode => pluckIds(node.path).includes(includeNode.id) && node.id !== includeNode.id,
   );
   if (includedAncestors.length > 0) {
     // remove redundant nodes in "omit" that either descendants of the new node or the node itself
@@ -132,12 +132,12 @@ export function removeNodeForTransfer(store, node) {
           // remove the ancestor from "include"
           store.commit(
             'REPLACE_INCLUDE_LIST',
-            included.filter(n => n.id !== ancestor.id)
+            included.filter(n => n.id !== ancestor.id),
           );
           // remove all desceandants from "omit"
           store.commit(
             'REPLACE_OMIT_LIST',
-            omitted.filter(n => !pluckIds(n.path).includes(ancestor.id))
+            omitted.filter(n => !pluckIds(n.path).includes(ancestor.id)),
           );
         }
       });

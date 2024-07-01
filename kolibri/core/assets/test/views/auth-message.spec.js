@@ -99,8 +99,7 @@ describe('auth message component', () => {
       const wrapper = makeWrapper();
       const link = wrapper.find('kexternallink-stub');
       expect(link.attributes()).toMatchObject({
-        href:
-          'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Ftest_url',
+        href: 'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Ftest_url',
         text: 'Sign in to Kolibri',
       });
     });
@@ -110,8 +109,7 @@ describe('auth message component', () => {
       const wrapper = makeWrapper();
       const link = wrapper.find('kexternallink-stub');
       expect(link.attributes()).toMatchObject({
-        href:
-          'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Fsome_other_url',
+        href: 'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Fsome_other_url',
         text: 'Sign in to Kolibri',
       });
     });

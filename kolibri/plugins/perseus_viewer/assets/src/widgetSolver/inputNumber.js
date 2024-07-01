@@ -3,7 +3,7 @@ import { Fraction } from 'fractional';
 // Taken from https://github.com/ekg/fraction.js/blob/master/index.js
 // as not in released version of fractional.
 
-Fraction.prototype.snap = function(max, threshold) {
+Fraction.prototype.snap = function (max, threshold) {
   if (!threshold) threshold = 0.0001;
   if (!max) max = 100;
 

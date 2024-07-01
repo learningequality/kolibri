@@ -1,7 +1,10 @@
 <template>
 
-  <router-link :to="link" class="content-card" :style="{ backgroundColor: $themeTokens.surface }">
-
+  <router-link
+    :to="link"
+    class="content-card"
+    :style="{ backgroundColor: $themeTokens.surface }"
+  >
     <CardThumbnail
       class="thumbnail"
       :thumbnail="thumbnail"
@@ -9,7 +12,10 @@
       :isMobile="windowIsSmall"
     />
 
-    <div :class="windowIsSmall ? 'mobile-text' : 'text'" :style="{ color: $themeTokens.text }">
+    <div
+      :class="windowIsSmall ? 'mobile-text' : 'text'"
+      :style="{ color: $themeTokens.text }"
+    >
       <div
         :class="{ 'title-message-wrapper': Boolean(!windowIsSmall) }"
         :style="{ color: $themeTokens.text }"
@@ -35,11 +41,15 @@
             </template>
           </KLabeledIcon>
         </h3>
-        <div v-if="message" class="message" :style="{ color: $themeTokens.text }">
+        <div
+          v-if="message"
+          class="message"
+          :style="{ color: $themeTokens.text }"
+        >
           {{ message }}
         </div>
       </div>
-      <TextTruncatorCss
+      <KTextTruncator
         v-if="!windowIsSmall"
         :text="description"
         :maxLines="3"
@@ -54,7 +64,6 @@
       </div>
       <slot name="notice"></slot>
     </div>
-
   </router-link>
 
 </template>
@@ -66,7 +75,6 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import CardThumbnail from './CardThumbnail';
 
   export default {
@@ -74,7 +82,6 @@
     components: {
       CardThumbnail,
       ContentIcon,
-      TextTruncatorCss,
       CoachContentLabel,
     },
     setup() {

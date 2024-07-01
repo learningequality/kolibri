@@ -51,7 +51,7 @@ function sanitize(input, replacement) {
  * @param  {Object} [options] {replacement: String | Function }
  * @return {String}         Sanitized filename
  */
-export default function(input, options) {
+export default function (input, options) {
   const replacement = (options && options.replacement) || '';
   const output = sanitize(input, replacement);
   if (replacement === '') {

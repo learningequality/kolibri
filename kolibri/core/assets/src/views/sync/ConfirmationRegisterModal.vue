@@ -15,7 +15,6 @@
     <template v-else>
       {{ $tr('alreadyRegistered', { name: projectName }) }}
     </template>
-
   </KModal>
 
 </template>

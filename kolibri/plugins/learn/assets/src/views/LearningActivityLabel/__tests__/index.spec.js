@@ -36,7 +36,7 @@ describe(`LearningActivityLabel`, () => {
   });
 
   it.each(
-    Object.values(LearningActivities).filter(activity => activity !== LearningActivities.TOPIC)
+    Object.values(LearningActivities).filter(activity => activity !== LearningActivities.TOPIC),
   )(`displays a correct label for '%s' activity`, activity => {
     const wrapper = makeWrapper({
       contentNode: {

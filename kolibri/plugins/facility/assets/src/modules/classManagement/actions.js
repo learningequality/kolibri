@@ -16,6 +16,6 @@ export function createClass(store, name) {
     },
     error => {
       store.dispatch('handleApiError', { error }, { root: true });
-    }
+    },
   );
 }

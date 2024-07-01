@@ -59,13 +59,13 @@ const newContextDefs = parseCSVDefinitions(fixturePath + '/csv-new-context');
  * Actual Tests
  */
 
-describe('is$trs() during node traversal', function() {
+describe('is$trs() during node traversal', function () {
   const vueAst = recast.parse(vueScript1, recastOptions);
   let countVue$trs = 0;
   const jsAst = recast.parse(JS1, recastOptions);
   let countJS$trs = 0;
 
-  it('should return true when reaching a node with a property key called `$trs`', function() {
+  it('should return true when reaching a node with a property key called `$trs`', function () {
     traverse(vueAst, {
       pre: node => {
         if (is$trs(node)) {
@@ -77,7 +77,7 @@ describe('is$trs() during node traversal', function() {
     expect(countVue$trs).toEqual(1);
   });
 
-  it('should never return true if there is no object with an $trs property', function() {
+  it('should never return true if there is no object with an $trs property', function () {
     traverse(jsAst, {
       pre: node => {
         if (is$trs(node)) {
@@ -90,12 +90,12 @@ describe('is$trs() during node traversal', function() {
   });
 });
 
-describe('isCreateTranslator() during node traversal', function() {
+describe('isCreateTranslator() during node traversal', function () {
   // No calls to createTranslator in this Vue file.
   const vueAst1 = recast.parse(vueScript1, recastOptions);
   let countVue1 = 0;
 
-  it('should always return false for nodes that are not calling createTranslator', function() {
+  it('should always return false for nodes that are not calling createTranslator', function () {
     traverse(vueAst1, {
       pre: node => {
         if (isCreateTranslator(node)) {
@@ -110,7 +110,7 @@ describe('isCreateTranslator() during node traversal', function() {
   const vueAst2 = recast.parse(vueScript2, recastOptions);
   let countVue2 = 0;
 
-  it('should return true if found in a Vue file', function() {
+  it('should return true if found in a Vue file', function () {
     traverse(vueAst2, {
       pre: node => {
         if (isCreateTranslator(node)) {
@@ -125,7 +125,7 @@ describe('isCreateTranslator() during node traversal', function() {
   const jsAst1 = recast.parse(JS1, recastOptions);
   let countJS1 = 0;
 
-  it('should count multiple calls', function() {
+  it('should count multiple calls', function () {
     traverse(jsAst1, {
       pre: node => {
         if (isCreateTranslator(node)) {
@@ -140,7 +140,7 @@ describe('isCreateTranslator() during node traversal', function() {
   const jsAst2 = recast.parse(JS2, recastOptions);
   let countJS2 = 0;
 
-  it('should return true if found in a Vue file', function() {
+  it('should return true if found in a Vue file', function () {
     traverse(jsAst2, {
       pre: node => {
         if (isCreateTranslator(node)) {
@@ -152,8 +152,8 @@ describe('isCreateTranslator() during node traversal', function() {
   });
 });
 
-describe('processVueFiles', function() {
-  it('returns an empty array when no files change', function() {
+describe('processVueFiles', function () {
+  it('returns an empty array when no files change', function () {
     // Note: Passing [] for definitions means nothing ought to change.
     const unchanged = processVueFiles(VueFilePaths, []);
     expect(unchanged).toEqual([]);
@@ -165,17 +165,17 @@ describe('processVueFiles', function() {
   // that all right-side values in $trs are (String|Template)Literal nodes.
   const noContextUpdatedFiles = processVueFiles(VueFilePaths, noContextDefs);
 
-  it('returns an array of objects mapping filepaths (key) to changed files', function() {
+  it('returns an array of objects mapping filepaths (key) to changed files', function () {
     noContextUpdatedFiles.forEach(delta => {
       expect(fs.existsSync(Object.keys(delta)[0])).toEqual(true);
     });
   });
 
-  it('removes context that were previously defined if empty in definitions', function() {
+  it('removes context that were previously defined if empty in definitions', function () {
     // Ensure that context was removed from all of the files.
     const checkForNoContext = property => {
       expect(
-        property.value.type === 'StringLiteral' || property.value.type === 'TemplateLiteral'
+        property.value.type === 'StringLiteral' || property.value.type === 'TemplateLiteral',
       ).toEqual(true);
     };
     noContextUpdatedFiles.forEach(delta => {
@@ -190,7 +190,7 @@ describe('processVueFiles', function() {
   // Also - this ensures that old contexts are overwritten by new ones.
   const ADDED_CONTEXT = 'Added Context';
   const newContextUpdatedFiles = processVueFiles(VueFilePaths, newContextDefs);
-  it('updates context definitions to match the definitions given', function() {
+  it('updates context definitions to match the definitions given', function () {
     const checkForUpdatedContext = property => {
       // Ensure every property has an object assigned to it
       expect(property.value.type).toEqual('ObjectExpression');
@@ -212,8 +212,8 @@ describe('processVueFiles', function() {
   });
 });
 
-describe('processJSFiles', function() {
-  it('returns an empty array when no files change', function() {
+describe('processJSFiles', function () {
+  it('returns an empty array when no files change', function () {
     // Note: Passing [] for definitions means nothing ought to change.
     const unchanged = processJSFiles(JSFilePaths, []);
     expect(unchanged).toEqual([]);
@@ -225,17 +225,17 @@ describe('processJSFiles', function() {
   // that all right-side values in $trs are (String|Template)Literal nodes.
   const noContextUpdatedFiles = processJSFiles(JSFilePaths, noContextDefs);
 
-  it('returns an array of objects mapping filepaths (key) to changed files', function() {
+  it('returns an array of objects mapping filepaths (key) to changed files', function () {
     noContextUpdatedFiles.forEach(delta => {
       expect(fs.existsSync(Object.keys(delta)[0])).toEqual(true);
     });
   });
 
-  it('removes context that were previously defined if empty in definitions', function() {
+  it('removes context that were previously defined if empty in definitions', function () {
     // Ensure that context was removed from all of the files.
     const checkForNoContext = property => {
       expect(
-        property.value.type === 'StringLiteral' || property.value.type === 'TemplateLiteral'
+        property.value.type === 'StringLiteral' || property.value.type === 'TemplateLiteral',
       ).toEqual(true);
     };
     noContextUpdatedFiles.forEach(delta => {
@@ -250,7 +250,7 @@ describe('processJSFiles', function() {
   // Also - this ensures that old contexts are overwritten by new ones.
   const ADDED_CONTEXT = 'Added Context';
   const newContextUpdatedFiles = processJSFiles(JSFilePaths, newContextDefs);
-  it('updates context definitions to match the definitions given', function() {
+  it('updates context definitions to match the definitions given', function () {
     const checkForUpdatedContext = property => {
       // Ensure every property has an object assigned to it
       expect(property.value.type).toEqual('ObjectExpression');

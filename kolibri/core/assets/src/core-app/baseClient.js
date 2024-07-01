@@ -11,7 +11,7 @@ export default function clientFactory(options) {
     xsrfCookieName: 'kolibri_csrftoken',
     xsrfHeaderName: 'X-CSRFToken',
     paramsSerializer: {
-      serialize: function(params) {
+      serialize: function (params) {
         // Do custom querystring stingifying to comma separate array params
         return qs.stringify(params, { arrayFormat: 'comma' });
       },
@@ -20,7 +20,7 @@ export default function clientFactory(options) {
   });
   client.interceptors.response.use(
     response => response,
-    function(error) {
+    function (error) {
       if (!error) {
         error = {};
       }
@@ -30,7 +30,7 @@ export default function clientFactory(options) {
         };
       }
       return Promise.reject(error);
-    }
+    },
   );
   return client;
 }

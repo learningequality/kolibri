@@ -20,14 +20,20 @@
         </div>
       </template>
 
-      <template v-if="learners.length > 0" #aside>
+      <template
+        v-if="learners.length > 0"
+        #aside
+      >
         <QuestionDetailLearnerList
           :learners="learners"
           :selectedLearnerNumber="learnerIndex"
           @select="navigateToNewAttempt($event)"
         />
       </template>
-      <template v-if="learners.length > 0" #main>
+      <template
+        v-if="learners.length > 0"
+        #main
+      >
         <div
           class="exercise-section"
           :style="{ backgroundColor: $themeTokens.surface }"

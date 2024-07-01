@@ -13,13 +13,12 @@
         gutter="48"
         class="edit-sync-schedule"
       >
-
         <KGridItem>
           <h1>{{ $tr('editSyncScheduleTitle') }}</h1>
         </KGridItem>
 
         <KGridItem>
-          <p>{{ device.device_name }} </p>
+          <p>{{ device.device_name }}</p>
         </KGridItem>
 
         <KGrid class="align-kselects">
@@ -34,11 +33,8 @@
                 :label="$tr('frequency')"
               />
             </KGridItem>
-
           </KGrid>
-          <KGrid
-            v-if="dayRequired"
-          >
+          <KGrid v-if="dayRequired">
             <KGridItem>
               <KSelect
                 v-model="selectedDay"
@@ -48,9 +44,7 @@
                 :options="getDays"
                 :label="$tr('day')"
               />
-
             </KGridItem>
-
           </KGrid>
           <KGrid v-if="timeRequired">
             <KGridItem>
@@ -64,20 +58,18 @@
               />
             </KGridItem>
           </KGrid>
-
         </KGrid>
         <KGridItem>
-
           <p class="spacing">
             {{ $tr('serverTime') }}
             {{
               $formatTime(now, {
-                year: "numeric",
-                month: "numeric",
-                day: "numeric",
-                hour: "numeric",
-                minute: "numeric",
-                second: "numeric",
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
               })
             }}
           </p>
@@ -101,13 +93,9 @@
             >
               {{ $tr('removeDeviceLabel') }}
             </KButton>
-
           </p>
-
         </KGridItem>
-
       </KGrid>
-
     </KPageContainer>
 
     <BottomAppBar>
@@ -175,7 +163,7 @@
   const date = new Date(
     today.getFullYear(),
     today.getMonth(),
-    today.getDate() + (7 - today.getDay())
+    today.getDate() + (7 - today.getDay()),
   );
   for (let i = 0; i < 7; i++) {
     daysOfWeek.push({ value: i, date: new Date(date) });
@@ -426,7 +414,7 @@
               task.facility_id === this.facilityId &&
               task.type === this.taskType &&
               // Only show tasks that are repeating indefinitely
-              task.repeat === null
+              task.repeat === null,
           );
           this.$nextTick(() => {
             if (this.currentTask) {
@@ -550,16 +538,21 @@
 
 
 <style scoped>
-.spacing {
-  margin-top: 10px;
-}
-.loader {
-  margin-top: 5px;
-}
-.edit-sync-schedule {
-  margin-left: 20px;
-}
-.align-kselects {
-  margin-left: 16px;
-}
+
+  .spacing {
+    margin-top: 10px;
+  }
+
+  .loader {
+    margin-top: 5px;
+  }
+
+  .edit-sync-schedule {
+    margin-left: 20px;
+  }
+
+  .align-kselects {
+    margin-left: 16px;
+  }
+
 </style>

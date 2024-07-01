@@ -13,7 +13,7 @@ describe('File Path replacement', () => {
     });
     it('should resolve a more complex relative path', () => {
       expect(getAbsoluteFilePath('package/css/test.css', '../fonts/test.woff')).toEqual(
-        'package/fonts/test.woff'
+        'package/fonts/test.woff',
       );
     });
   });
@@ -59,7 +59,7 @@ describe('File Path replacement', () => {
         '../fonts/test.woff': 'different',
       };
       expect(replaceCSSPaths('url("../fonts/test.woff")', packageFiles)).toEqual(
-        'url("different")'
+        'url("different")',
       );
     });
     it('should replace paths that use single quotes', () => {
@@ -67,7 +67,7 @@ describe('File Path replacement', () => {
         '../fonts/test.woff': 'different',
       };
       expect(replaceCSSPaths("url('../fonts/test.woff')", packageFiles)).toEqual(
-        "url('different')"
+        "url('different')",
       );
     });
     it('should replace paths that use no quotes', () => {
@@ -81,7 +81,7 @@ describe('File Path replacement', () => {
         '../fonts/test.woff': 'different',
       };
       expect(replaceCSSPaths('url(../fonts/test.woff?iefix)', packageFiles)).toEqual(
-        'url(different)'
+        'url(different)',
       );
     });
     it('should not replace urls that are not a registered path', () => {
@@ -89,7 +89,7 @@ describe('File Path replacement', () => {
         '../../../../audio/test.mp3': 'different',
       };
       expect(replaceCSSPaths('url(../../../../fonts/test.woff)', packageFiles)).toEqual(
-        'url(../../../../fonts/test.woff)'
+        'url(../../../../fonts/test.woff)',
       );
     });
     it('should not replace urls that are not a valid path', () => {
@@ -98,7 +98,7 @@ describe('File Path replacement', () => {
         'package/audio/test.mp3': 'different',
       };
       expect(replaceCSSPaths('url(flob a dob dib dob)', packageFiles)).toEqual(
-        'url(flob a dob dib dob)'
+        'url(flob a dob dib dob)',
       );
     });
   });
@@ -117,7 +117,7 @@ describe('File Path replacement', () => {
     it('should find a more complex relative path with query parameters', () => {
       const packageFiles = ['../fonts/test.png'];
       expect(getDOMPaths(htmlTemplate(attr, '../fonts/test.png?iefix'), mimeType)).toEqual(
-        packageFiles
+        packageFiles,
       );
     });
   });
@@ -128,7 +128,7 @@ describe('File Path replacement', () => {
         './test.png': 'different',
       };
       expect(replaceDOMPaths(htmlTemplate(attr, './test.png'), packageFiles, mimeType)).toEqual(
-        htmlTemplate(attr, 'different')
+        htmlTemplate(attr, 'different'),
       );
     });
     it('should replace a more complex relative path', () => {
@@ -136,7 +136,7 @@ describe('File Path replacement', () => {
         '../fonts/test.png': 'different',
       };
       expect(
-        replaceDOMPaths(htmlTemplate(attr, '../fonts/test.png'), packageFiles, mimeType)
+        replaceDOMPaths(htmlTemplate(attr, '../fonts/test.png'), packageFiles, mimeType),
       ).toEqual(htmlTemplate(attr, 'different'));
     });
     it('should replace paths with query parameters', () => {
@@ -144,7 +144,7 @@ describe('File Path replacement', () => {
         '../fonts/test.png': 'different',
       };
       expect(
-        replaceDOMPaths(htmlTemplate(attr, '../fonts/test.png?iefix'), packageFiles, mimeType)
+        replaceDOMPaths(htmlTemplate(attr, '../fonts/test.png?iefix'), packageFiles, mimeType),
       ).toEqual(htmlTemplate(attr, 'different'));
     });
   });
@@ -163,7 +163,7 @@ describe('File Path replacement', () => {
     it('should find a more complex relative path with query parameters', () => {
       const packageFiles = ['../fonts/test.png'];
       expect(getDOMPaths(xmlTemplate(attr, '../fonts/test.png?iefix'), mimeType)).toEqual(
-        packageFiles
+        packageFiles,
       );
     });
   });
@@ -174,7 +174,7 @@ describe('File Path replacement', () => {
         './test.png': 'different',
       };
       expect(replaceDOMPaths(xmlTemplate(attr, './test.png'), packageFiles, mimeType)).toEqual(
-        xmlTemplate(attr, 'different')
+        xmlTemplate(attr, 'different'),
       );
     });
     it('should replace a more complex relative path', () => {
@@ -182,7 +182,7 @@ describe('File Path replacement', () => {
         '../fonts/test.png': 'different',
       };
       expect(
-        replaceDOMPaths(xmlTemplate(attr, '../fonts/test.png'), packageFiles, mimeType)
+        replaceDOMPaths(xmlTemplate(attr, '../fonts/test.png'), packageFiles, mimeType),
       ).toEqual(xmlTemplate(attr, 'different'));
     });
     it('should replace paths with query parameters', () => {
@@ -190,7 +190,7 @@ describe('File Path replacement', () => {
         '../fonts/test.png': 'different',
       };
       expect(
-        replaceDOMPaths(xmlTemplate(attr, '../fonts/test.png?iefix'), packageFiles, mimeType)
+        replaceDOMPaths(xmlTemplate(attr, '../fonts/test.png?iefix'), packageFiles, mimeType),
       ).toEqual(xmlTemplate(attr, 'different'));
     });
   });

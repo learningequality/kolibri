@@ -4,7 +4,6 @@
     v-show="!$isPrint"
     :style="{ backgroundColor: $themeTokens.appBar }"
   >
-
     <header>
       <SkipNavigationLink />
 
@@ -67,7 +66,10 @@
                 :ariaLabel="$tr('pointsAriaLabel')"
                 :color="$themeTokens.primary"
               />
-              <div v-if="!windowIsSmall" class="points-description">
+              <div
+                v-if="!windowIsSmall"
+                class="points-description"
+              >
                 {{ $formatNumber(totalPoints) }}
               </div>
               <div
@@ -100,7 +102,6 @@
                 {{ usernameForDisplay }}
               </span>
             </span>
-
           </div>
         </template>
       </UiToolbar>

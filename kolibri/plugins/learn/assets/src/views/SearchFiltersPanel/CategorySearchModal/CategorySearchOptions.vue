@@ -35,7 +35,6 @@
               @click="$emit('input', nestedObject.value)"
             />
           </h3>
-
         </div>
         <div
           v-for="(item, nestedKey) in nestedObject.nested"

@@ -6,9 +6,7 @@
         ref="tocList"
         class="toc-list"
       >
-        <template
-          v-for="(section, index) in toc"
-        >
+        <template v-for="(section, index) in toc">
           <TableOfContentsSection
             :key="`toc-section-${index}`"
             :section="section"

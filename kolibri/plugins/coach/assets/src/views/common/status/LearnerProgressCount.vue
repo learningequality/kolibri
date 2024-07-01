@@ -3,7 +3,10 @@
   <div>
     <KLabeledIcon nowrap>
       <template #icon>
-        <CoachStatusIcon ref="status" :icon="icon" />
+        <CoachStatusIcon
+          ref="status"
+          :icon="icon"
+        />
       </template>
       {{ text }}
     </KLabeledIcon>

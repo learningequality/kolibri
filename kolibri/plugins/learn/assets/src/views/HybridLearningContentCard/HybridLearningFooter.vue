@@ -68,7 +68,7 @@
       >
         <template #options>
           <CoreMenuOption
-            :style="{ 'cursor': 'pointer' }"
+            :style="{ cursor: 'pointer' }"
             @select="handleRemoveRequest"
           >
             {{ $tr('removeFromMyLibraryAction') }}
@@ -113,11 +113,8 @@
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
-      const {
-        addDownloadRequest,
-        downloadRequestMap,
-        removeDownloadRequest,
-      } = useDownloadRequests();
+      const { addDownloadRequest, downloadRequestMap, removeDownloadRequest } =
+        useDownloadRequests();
       return { addDownloadRequest, downloadRequestMap, removeDownloadRequest };
     },
     props: {

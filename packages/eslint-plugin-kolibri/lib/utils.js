@@ -46,7 +46,7 @@ module.exports = {
    */
   getWatchersNames(obj) {
     const watchers = Array.from(
-      eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_WATCH]))
+      eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_WATCH])),
     );
     return watchers.map(watcher => watcher.name);
   },
@@ -84,7 +84,7 @@ module.exports = {
   executeOnThisExpressionProperty(func) {
     return {
       'MemberExpression[object.type="ThisExpression"][property.type="Identifier"][property.name]'(
-        node
+        node,
       ) {
         func(node.property);
       },

@@ -1,15 +1,19 @@
 <template>
 
-  <LearnAppBarPage
-    :appBarTitle="learnString('learnLabel')"
-  >
-    <KBreadcrumbs :items="breadcrumbs" :ariaLabel="learnString('classesAndAssignmentsLabel')" />
+  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
+    <KBreadcrumbs
+      :items="breadcrumbs"
+      :ariaLabel="learnString('classesAndAssignmentsLabel')"
+    />
     <YourClasses
       v-if="isUserLoggedIn"
       :classes="classrooms"
       :loading="loading"
     />
-    <AuthMessage v-else authorizedRole="learner" />
+    <AuthMessage
+      v-else
+      authorizedRole="learner"
+    />
   </LearnAppBarPage>
 
 </template>

@@ -5,7 +5,10 @@
     class="backdrop"
     :style="backdropStyle"
   >
-    <div class="renderer" :style="bodyStyle">
+    <div
+      class="renderer"
+      :style="bodyStyle"
+    >
       <nav>
         <UiToolbar
           ref="toolbar"

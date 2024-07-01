@@ -4,7 +4,10 @@
     class="activity-chip"
     :style="{ backgroundColor: $themePalette.grey.v_100 }"
   >
-    <KLabeledIcon :label="coreString(kind)" class="activity-chip-label">
+    <KLabeledIcon
+      :label="coreString(kind)"
+      class="activity-chip-label"
+    >
       <template #icon>
         <LearningActivityIcon :kind="kind" />
       </template>

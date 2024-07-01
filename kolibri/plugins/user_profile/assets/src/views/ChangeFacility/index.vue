@@ -82,9 +82,9 @@
               this.internalNavigation = true;
               this.$router.push(
                 { name: newRoute, path: state.meta[stateID].path },
-                function() {
+                function () {
                   this.internalNavigation = false;
-                }.bind(this)
+                }.bind(this),
               );
             } else this.$router.push(newRoute);
           }
@@ -122,7 +122,7 @@
       onMachineError(machineState) {
         this.$store.commit(
           'CORE_SET_ERROR',
-          `An error occured in the '${this.previousMachineStateName}' state of the change facility machine`
+          `An error occured in the '${this.previousMachineStateName}' state of the change facility machine`,
         );
         this.service.send('RESET');
         this.previousMachineStateName = machineState.value;

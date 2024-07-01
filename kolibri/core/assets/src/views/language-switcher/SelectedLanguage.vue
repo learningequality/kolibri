@@ -8,7 +8,10 @@
       class="globe px-8"
       @click="$emit('click')"
     />
-    <span class="no-shrink px-8" :title="selectedLanguage.english_name">
+    <span
+      class="no-shrink px-8"
+      :title="selectedLanguage.english_name"
+    >
       {{ selectedLanguage.lang_name }}
     </span>
   </div>

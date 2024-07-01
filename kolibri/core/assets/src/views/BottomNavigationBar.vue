@@ -1,7 +1,13 @@
 <template>
 
-  <div class="bottom-bar" :style="{ backgroundColor: $themeTokens.textInverted }">
-    <span v-for="(routeDefinition, key) in routes" :key="key">
+  <div
+    class="bottom-bar"
+    :style="{ backgroundColor: $themeTokens.textInverted }"
+  >
+    <span
+      v-for="(routeDefinition, key) in routes"
+      :key="key"
+    >
       <a
         :href="generateNavRoute(routeDefinition.route)"
         tabindex="-1"
@@ -10,15 +16,15 @@
         @click="handleNav(routeDefinition.route)"
       >
         <div
-          :style="isActiveLink(routeDefinition.route) ?
-            bottomMenuActiveStyles :
-            bottomMenuInactiveStyles"
+          :style="
+            isActiveLink(routeDefinition.route) ? bottomMenuActiveStyles : bottomMenuInactiveStyles
+          "
         >
           <KIconButton
             :icon="routeDefinition.icon"
-            :color="isActiveLink(routeDefinition.route)
-              ? $themeTokens.primary
-              : $themeTokens.annotation"
+            :color="
+              isActiveLink(routeDefinition.route) ? $themeTokens.primary : $themeTokens.annotation
+            "
             :ariaLabel="routeDefinition.label"
             size="small"
           />
@@ -32,7 +38,10 @@
         </p>
       </a>
     </span>
-    <span class="nav-menu-item" :style="bottomMenuInactiveStyles">
+    <span
+      class="nav-menu-item"
+      :style="bottomMenuInactiveStyles"
+    >
       <KIconButton
         icon="menu"
         :ariaLabel="coreString('menuLabel')"

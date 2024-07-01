@@ -24,7 +24,7 @@
               v-for="(ancestor, index2) in copy.ancestors"
               :key="index2"
               class="ancestor"
-              :class="{ 'arrow': index2 < copy.ancestors.length - 1 }"
+              :class="{ arrow: index2 < copy.ancestors.length - 1 }"
             >
               {{ ancestor.title }}
             </li>

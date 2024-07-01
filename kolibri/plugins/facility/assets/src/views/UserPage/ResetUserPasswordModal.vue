@@ -9,7 +9,9 @@
     @submit="submitForm"
     @cancel="$emit('cancel')"
   >
-    <p>{{ $tr('username') }}<strong>{{ username }}</strong></p>
+    <p>
+      {{ $tr('username') }}<strong>{{ username }}</strong>
+    </p>
 
     <PasswordTextbox
       ref="passwordTextbox"

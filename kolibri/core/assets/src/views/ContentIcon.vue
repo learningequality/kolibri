@@ -7,63 +7,63 @@
         :icon="ContentNodeKinds.CHANNEL"
         :class="[colorClass]"
         :color="color"
-        style="top:0;"
+        style="top: 0"
       />
       <KIcon
         v-if="is(ContentNodeKinds.TOPIC)"
         :icon="ContentNodeKinds.TOPIC"
         :class="[colorClass]"
         :color="color"
-        style="top:0;"
+        style="top: 0"
       />
       <KIcon
         v-if="is(ContentNodeKinds.VIDEO)"
         :icon="ContentNodeKinds.VIDEO"
         :class="[colorClass]"
         :color="color"
-        style="top:0;"
+        style="top: 0"
       />
       <KIcon
         v-if="is(ContentNodeKinds.AUDIO)"
         :icon="ContentNodeKinds.AUDIO"
         :class="[colorClass]"
         :color="color"
-        style="top:0;"
+        style="top: 0"
       />
       <KIcon
         v-if="is(ContentNodeKinds.DOCUMENT)"
         :icon="ContentNodeKinds.DOCUMENT"
         :class="[colorClass]"
         :color="color"
-        style="top:0;"
+        style="top: 0"
       />
       <KIcon
         v-if="is(ContentNodeKinds.EXERCISE)"
         :icon="ContentNodeKinds.EXERCISE"
         :class="[colorClass, { 'rtl-icon': isRtl }]"
         :color="color"
-        style="top:0;"
+        style="top: 0"
       />
       <KIcon
         v-if="is(ContentNodeKinds.HTML5)"
         :icon="ContentNodeKinds.HTML5"
         :class="[colorClass]"
         :color="color"
-        style="top:0;"
+        style="top: 0"
       />
       <KIcon
         v-if="is(ContentNodeKinds.EXAM)"
         icon="quiz"
         :class="[colorClass]"
         :color="color"
-        style="top:0;"
+        style="top: 0"
       />
       <KIcon
         v-if="is(ContentNodeKinds.LESSON)"
         :icon="ContentNodeKinds.LESSON"
         :class="[colorClass]"
         :color="color"
-        style="top:0;"
+        style="top: 0"
       />
       <!-- Note that there is currently no `activity` icon token defined -->
       <!-- constant value comes all caps, but KIcon tokens are all lower case -->
@@ -72,21 +72,21 @@
         :icon="ContentNodeKinds.ACTIVITY.toLowerCase()"
         :class="[colorClass]"
         :color="color"
-        style="top:0;"
+        style="top: 0"
       />
       <KIcon
         v-if="is(ContentNodeKinds.SLIDESHOW)"
         :icon="ContentNodeKinds.SLIDESHOW"
         :class="[colorClass]"
         :color="color"
-        style="top:0;"
+        style="top: 0"
       />
       <KIcon
         v-if="is(USER)"
         :icon="USER"
         :class="[colorClass]"
         :color="color"
-        style="top:0;"
+        style="top: 0"
       />
       <!-- class icon uses a different token name than the constant's name -->
       <KIcon
@@ -94,7 +94,7 @@
         icon="classes"
         :class="[colorClass]"
         :color="color"
-        style="top:0;"
+        style="top: 0"
       />
     </UiIcon>
     <KTooltip

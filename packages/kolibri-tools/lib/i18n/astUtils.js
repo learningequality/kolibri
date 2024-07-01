@@ -110,11 +110,15 @@ function stringFromAnyLiteral(node) {
     return node.type === 'TemplateLiteral'
       ? get(node, 'quasis[0].value.raw')
       : get(node, 'value', null);
+  } else if (node.type === 'BinaryExpression') {
+    const left = stringFromAnyLiteral(node.left);
+    const right = stringFromAnyLiteral(node.right);
+    return left + right;
   } else {
     logging.error(
       'Tried to get string value from a node that is not a Literal, TemplateLiteral or a StringLiteral',
       '\n\n',
-      get(node, 'init.properties[0].key.name', '')
+      get(node, 'init.properties[0].key.name', ''),
     );
   }
 }
@@ -134,10 +138,10 @@ function getObjectifiedValue(nodePropertyValue) {
     context = '';
   } else {
     const contextNode = get(nodePropertyValue, 'properties', []).find(
-      n => n.key.name === 'context'
+      n => n.key.name === 'context',
     );
     const messageNode = get(nodePropertyValue, 'properties', []).find(
-      n => n.key.name === 'message'
+      n => n.key.name === 'message',
     );
 
     if (!messageNode) {
@@ -148,7 +152,7 @@ function getObjectifiedValue(nodePropertyValue) {
           'Available keys on the message object include:\n' +
           get(nodePropertyValue, 'properties', [])
             .map(p => p.key.name)
-            .join(', ')
+            .join(', '),
       );
     }
 
@@ -164,8 +168,10 @@ function getObjectifiedValue(nodePropertyValue) {
     // we should let the user know and just bail for now until it gets worked out
     throw new ReferenceError(
       'Trying to get the message from an object in $trs but did not find a `message` key.\n\n' +
-        'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing. Sorry.' +
-        nodePropertyValue.properties[0].value.value
+      'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing. Sorry.' +
+      nodePropertyValue.properties
+        ? nodePropertyValue.properties[0].value.value
+        : nodePropertyValue.value,
     );
   }
   return { message, context: `${CONTEXT_LINE}${context}` };
@@ -181,7 +187,7 @@ function getFileNameForImport(importPath, filePath) {
   ) {
     // Just throw up here if we don't have another worthy attempt
     throw new ReferenceError(
-      `Attempted to resolve an import in ${filePath} for module ${importPath} but could not be resolved as a Javascript or Vue file`
+      `Attempted to resolve an import in ${filePath} for module ${importPath} but could not be resolved as a Javascript or Vue file`,
     );
   }
   return resolveAttempt.path;
@@ -256,12 +262,12 @@ function getPropertyKey(node, ast, filePath) {
         ) {
           try {
             foundValue = stringFromAnyLiteral(
-              get(astNode, 'init.properties', []).find(p => get(p, 'key.name') === prop)
+              get(astNode, 'init.properties', []).find(p => get(p, 'key.name') === prop),
             );
           } catch (e) {
             logging.error(
               `Tried to get the value of ${obj}.${prop} from ${filePath} but failed.\n`,
-              'This is an unrecoverable error.'
+              'This is an unrecoverable error.',
             );
             logging.error(e);
             process.exit(1);
@@ -283,7 +289,7 @@ function getPropertyKey(node, ast, filePath) {
             targetFile = getFileNameForImport(fileImportedFrom, filePath);
           } catch (e) {
             logging.error(
-              "A message's key was defined using the value of a variable imported from a JS file."
+              "A message's key was defined using the value of a variable imported from a JS file.",
             );
             logging.error(e);
             process.exit(1);
@@ -308,12 +314,12 @@ function getPropertyKey(node, ast, filePath) {
                   foundValue = stringFromAnyLiteral(
                     // get the matching property's `value` (a node) to give to stringFromAnyLiteral
                     get(importedNode, 'init.properties', []).find(p => get(p, 'key.name') === prop)
-                      .value
+                      .value,
                   );
                 } catch (e) {
                   logging.error(
                     `Tried to get the value of ${obj}.${prop} from ${filePath} but failed.\n`,
-                    'This is an unrecoverable error.'
+                    'This is an unrecoverable error.',
                   );
                   logging.error(e);
                   process.exit(1);
@@ -326,7 +332,7 @@ function getPropertyKey(node, ast, filePath) {
           // show an error and leave
           if (!foundValue) {
             logging.error(
-              `Tried to import ${targetFile} to find ${obj}.${prop} but could not extract the value.`
+              `Tried to import ${targetFile} to find ${obj}.${prop} but could not extract the value.`,
             );
             process.exit(1);
           }
@@ -399,7 +405,7 @@ function extract$trs(ast, filePath) {
 
         if (!messageNamespace) {
           logging.error(
-            `I found $trs in ${filePath} but cannot get the name of the component. This is certainly a bug with the extraction.`
+            `I found $trs in ${filePath} but cannot get the name of the component. This is certainly a bug with the extraction.`,
           );
           process.exit(1);
         }
@@ -486,7 +492,7 @@ function extractCreateTranslator(ast, filePath) {
             logging.error(
               `Could not find variable called ${varToken} where strings for ${messageNamespace} should be defined.\n\n`,
               `This may be indicative of createTranslator's second argument being given as an empty object, which is pointless and therefore forbidden.`,
-              'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing that might be in this code or your code and I cannot give you much more information than that. Continuing would mean some strings will be missed which would be unacceptable. Sorry.'
+              'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing that might be in this code or your code and I cannot give you much more information than that. Continuing would mean some strings will be missed which would be unacceptable. Sorry.',
             );
             process.exit(1);
           }
@@ -497,7 +503,7 @@ function extractCreateTranslator(ast, filePath) {
       }
       Object.assign(
         results,
-        generateMessagesFromASTNode(messageNodeProperties, messageNamespace, ast, filePath)
+        generateMessagesFromASTNode(messageNodeProperties, messageNamespace, ast, filePath),
       );
     },
   });
@@ -633,7 +639,7 @@ function getMessagesFromFile(filePath, verbose = false) {
     return messages;
   } catch (_) {
     logging.error(
-      `Tried to find parsable Javascript in ${filePath} but could not. Will skip the file for now. This is a problem if you are expecting to translate any messages in that file - otherwise - you may ignore this message.`
+      `Tried to find parsable Javascript in ${filePath} but could not. Will skip the file for now. This is a problem if you are expecting to translate any messages in that file - otherwise - you may ignore this message.`,
     );
     return;
   }

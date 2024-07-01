@@ -488,7 +488,6 @@ class ContentAssignmentManagerIntegrationTestCase(TestCase):
         ]
         resources = [
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "questions": questions,
@@ -539,7 +538,6 @@ class ContentAssignmentManagerIntegrationTestCase(TestCase):
         ]
         resources = [
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "questions": questions,

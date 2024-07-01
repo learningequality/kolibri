@@ -8,7 +8,6 @@
     @submit="closeModal"
   >
     {{ $tr('privacyText') }}
-
   </KModal>
 
 </template>

@@ -8,14 +8,20 @@
       class="error-log"
       wrap="soft"
       aria-hidden="true"
-      :style="[dynamicHeightStyle, {
-        backgroundColor: $themePalette.grey.v_50,
-        border: $themePalette.grey.v_400,
-      }]"
+      :style="[
+        dynamicHeightStyle,
+        {
+          backgroundColor: $themePalette.grey.v_50,
+          border: $themePalette.grey.v_400,
+        },
+      ]"
     >
     </textarea>
     <!-- invisible text block for copying, visible to screenreaders -->
-    <pre ref="textBox" class="visuallyhidden">{{ text }}</pre>
+    <pre
+      ref="textBox"
+      class="visuallyhidden"
+    >{{ text }}</pre>
     <div>
       <KButton
         v-if="clipboardCapable"

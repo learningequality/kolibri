@@ -21,8 +21,15 @@
       </th>
     </template>
     <template #tbody>
-      <transition-group tag="tbody" name="list">
-        <tr v-for="tableRow in entries" :key="tableRow.id" data-test="entry">
+      <transition-group
+        tag="tbody"
+        name="list"
+      >
+        <tr
+          v-for="tableRow in entries"
+          :key="tableRow.id"
+          data-test="entry"
+        >
           <td>
             <KLabeledIcon icon="person">
               <KRouterLink
@@ -37,31 +44,30 @@
             </KLabeledIcon>
           </td>
           <td v-if="!showQuizStatus(tableRow)">
-            <StatusSimple
-              :status="tableRow.statusObj.status"
-            />
+            <StatusSimple :status="tableRow.statusObj.status" />
           </td>
           <td v-else-if="tableRow.statusObj.status !== STATUSES.started">
-            <StatusSimple
-              :status="tableRow.statusObj.status"
-            />
+            <StatusSimple :status="tableRow.statusObj.status" />
             <div
               class="small-answered-count"
               :style="answerCountColorStyles"
             >
-              {{
-                completedQuestionsCountLabel(tableRow.statusObj.num_answered, questionCount)
-              }}
+              {{ completedQuestionsCountLabel(tableRow.statusObj.num_answered, questionCount) }}
             </div>
           </td>
           <td v-else>
             <KLabeledIcon>
               <template #icon>
-                <KIcon :color="$themeTokens.progress" icon="inProgress" />
+                <KIcon
+                  :color="$themeTokens.progress"
+                  icon="inProgress"
+                />
               </template>
               {{
-                $tr('questionsCompletedRatioLabel',
-                    { count: tableRow.statusObj.num_answered || 0, total: questionCount })
+                $tr('questionsCompletedRatioLabel', {
+                  count: tableRow.statusObj.num_answered || 0,
+                  total: questionCount,
+                })
               }}
             </KLabeledIcon>
           </td>
