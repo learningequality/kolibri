@@ -31,10 +31,6 @@ def serialize_error_reports_to_json_response(errors):
     return json.dumps(errors_list, cls=DjangoJSONEncoder)
 
 
-def mark_errors_as_sent(errors):
-    errors.update(sent=True)
-
-
 @register_task
 def ping_error_reports(server):
     try:
@@ -45,7 +41,7 @@ def ping_error_reports(server):
             data=errors_json,
             headers={"Content-Type": "application/json"},
         )
-        mark_errors_as_sent(errors)
+        errors.update(sent=True)
     except ConnectionError:
         logger.warning("Reporting Error failed (could not connect).")
         raise
