@@ -18,6 +18,17 @@ def report(request):
     curl -X POST http://localhost:8000/api/errorreports/report/      -H "Content-Type: application/json"      -d '{
            "error_message": "An example error occurred",
            "traceback": "Traceback (most recent call last): ..."
+           "context": {
+                "browser":"",
+                    "component":"my component",
+                    "device":{
+                        "type": "desktop",
+                        "platform":"Windows",
+                        "screen": {
+                            "width":545,
+                            "height":858
+                    }
+            }
          }'
     """
     serializer = ErrorReportSerializer(data=request.data)
@@ -25,13 +36,15 @@ def report(request):
         data = serializer.validated_data
         try:
             error = ErrorReports.insert_or_update_error(
-                error_from=FRONTEND,
-                error_message=data["error_message"],
-                traceback=data["traceback"],
+                FRONTEND,
+                data["error_message"],
+                data["traceback"],
+                context_frontend=data["context"],
             )
             return Response(
                 {"error_id": error.id if error else None}, status=status.HTTP_200_OK
             )
+
         except (AttributeError, Exception) as e:
             logger.error("Error while saving error report: {}".format(e))
             return Response(
