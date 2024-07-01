@@ -56,7 +56,7 @@
 
   const keypadStyle = StyleSheet.create({
     keypadContainer: {
-      position: 'relative',
+      position: 'absolute',
     },
   });
 
@@ -426,14 +426,11 @@
           KeypadContext.Consumer,
           { key: 'keypadWithContext ' },
           ({ setKeypadElement, renderer }) =>
-            e('div', {
-              className: 'keypad-container',
-              children: e(MobileKeypad, {
-                style: keypadStyle.keypadContainer,
-                onElementMounted: setKeypadElement,
-                onDismiss: () => renderer && renderer.blur(),
-                onAnalyticsEvent: async () => {},
-              }),
+            e(MobileKeypad, {
+              style: keypadStyle.keypadContainer,
+              onElementMounted: setKeypadElement,
+              onDismiss: () => renderer && renderer.blur(),
+              onAnalyticsEvent: async () => {},
             }),
         );
         const statefulKeypadContextProviderElement = e(StatefulKeypadContextProvider, {
@@ -971,12 +968,6 @@
       border-radius: 3px;
       transition: box-shadow ease-in-out 0.15s;
     }
-  }
-
-  .keypad-container {
-    flex-shrink: 0; /* Prevent the keypad from shrinking */
-    justify-content: center; /* Center the keypad horizontally */
-    direction: ltr;
   }
 
 </style>
