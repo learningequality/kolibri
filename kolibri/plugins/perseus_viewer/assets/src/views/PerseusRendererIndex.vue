@@ -293,6 +293,7 @@
     },
     created() {
       this.itemRenderer = null;
+      this.keypadElement = null;
       // This is a local object for tracking image URLs
       // we use this to clean up image URLs just for this component
       this.imageUrls = {};
@@ -412,22 +413,24 @@
         const keypadContextConsumerElement = e(
           KeypadContext.Consumer,
           { key: 'keypadContextConsumer' },
-          ({ keypadElement }) =>
-            e(perseus.ServerItemRenderer, {
+          ({ keypadElement }) => {
+            this.keypadElement = keypadElement;
+            return e(perseus.ServerItemRenderer, {
               ...itemRenderData,
               keypadElement: keypadElement,
-            }),
+            });
+          },
         );
         const keypadWithContextElement = e(
           KeypadContext.Consumer,
           { key: 'keypadWithContext ' },
-          ({ setKeypadElement }) =>
+          ({ setKeypadElement, renderer }) =>
             e('div', {
               className: 'keypad-container',
               children: e(MobileKeypad, {
                 style: keypadStyle.keypadContainer,
                 onElementMounted: setKeypadElement,
-                onDismiss: () => {},
+                onDismiss: () => renderer && renderer.blur(),
                 onAnalyticsEvent: async () => {},
               }),
             }),
@@ -455,6 +458,10 @@
       renderNewItem() {
         // Clear any pending state reset calls
         this.$off('itemRendererUpdated');
+        // Dismiss the keypad
+        if (this.keypadElement) {
+          this.keypadElement.dismiss();
+        }
         this.$once('itemRendererUpdated', () => {
           // Blur any previously focused element once we have rendered a new item
           this.itemRenderer.blur();
