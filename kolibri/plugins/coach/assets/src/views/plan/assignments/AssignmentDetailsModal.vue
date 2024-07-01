@@ -30,7 +30,7 @@
           >
             <KTextbox
               ref="titleField"
-              v-model="title"
+              v-model.trim="title"
               :label="titleLabel$()"
               :maxlength="titleMaxLength"
               :autofocus="true"
@@ -317,7 +317,7 @@
         this.showTitleError = true;
         this.$refs.titleField.focus();
         // Scroll to the title field in case focus() didn't do that immediately
-        this.window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       },
     },
   };
