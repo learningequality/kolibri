@@ -410,7 +410,7 @@
   .bottom-navigation {
     position: absolute;
     right: 0;
-    bottom: 1.5em;
+    bottom: 0;
     left: 0;
     width: 100%;
     padding: 1em;
