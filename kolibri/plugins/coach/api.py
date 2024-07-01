@@ -192,7 +192,11 @@ class ClassroomNotificationsViewset(ValuesViewset):
         notifications_query = self.apply_group_filter(notifications_query)
         after = self.check_after()
         if after:
-            notifications_query = notifications_query.filter(id__gt=after)
+            # after is an id, so we need to get the notiication with that id, and filter by timestamp
+            after_timestamp = notifications_query.get(id=after).timestamp
+            notifications_query = notifications_query.filter(
+                timestamp__gt=after_timestamp
+            )
         before = self.check_before()
 
         if not after and not before:
@@ -212,12 +216,15 @@ class ClassroomNotificationsViewset(ValuesViewset):
         limit = self.check_limit()
         if before and limit:
             # Don't allow arbitrary backwards lookups
-            notifications_query = notifications_query.filter(id__lt=before)
+            before_timestamp = notifications_query.get(id=before).timestamp
+            notifications_query = notifications_query.filter(
+                timestamp__lt=before_timestamp
+            )
 
         return notifications_query
 
     def annotate_queryset(self, queryset):
-        queryset = queryset.order_by("-id")
+        queryset = queryset.order_by("-timestamp")
         limit = self.check_limit()
         if limit:
             return queryset[:limit]
@@ -257,7 +264,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
         limit = self.check_limit()
         if limit:
             # If we are limiting responses, check if more results are available
-            more_results = queryset.order_by("-id")[limit:].exists()
+            more_results = queryset.order_by("-timestamp")[limit:].exists()
 
         return Response(
             {
