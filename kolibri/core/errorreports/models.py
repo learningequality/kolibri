@@ -58,10 +58,6 @@ class ErrorReports(models.Model):
     def __str__(self):
         return f"{self.error_message} ({self.error_from})"
 
-    def mark_as_sent(self):
-        self.sent = True
-        self.save()
-
     @classmethod
     def insert_or_update_error(cls, error_from, error_message, traceback):
         if not getattr(settings, "DEVELOPER_MODE", None):
