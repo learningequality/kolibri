@@ -26,12 +26,7 @@ DEFAULT_PING_INTERVAL = 24 * 60
 def _ping(started, server, checkrate):
     try:
         ping_once(started, server=server)
-        try:
-            ping_error_reports.enqueue(args=(server,))
-        except JobRunning:
-            logger.warning(
-                "Error reporting task already running. Cannot start another."
-            )
+        ping_error_reports.enqueue(args=(server,))
     except ConnectionError:
         logger.warning(
             "Ping failed (could not connect). Trying again in {} minutes.".format(

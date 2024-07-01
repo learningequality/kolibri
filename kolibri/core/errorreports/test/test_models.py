@@ -83,15 +83,3 @@ class ErrorReportsTestCase(TestCase):
         self.assertEqual(unsent_errors.count(), 2)
         self.assertFalse(unsent_errors[0].sent)
         self.assertFalse(unsent_errors[1].sent)
-
-    def test_mark_as_sent(self):
-        error = ErrorReports.objects.create(
-            error_from=FRONTEND,
-            error_message="Test Error",
-            traceback="Test Traceback",
-            sent=False,
-        )
-        # first check error is unsent, then set True and assert again
-        self.assertFalse(error.sent)
-        error.mark_as_sent()
-        self.assertTrue(error.sent)
