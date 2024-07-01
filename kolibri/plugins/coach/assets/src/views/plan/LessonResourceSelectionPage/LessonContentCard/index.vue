@@ -18,14 +18,14 @@
           dir="auto"
         >
           <KTextTruncator
-            :text="title"
+            :text="content.title"
             :maxLines="2"
           />
         </h3>
       </div>
       <KTextTruncator
         v-if="!windowIsSmall"
-        :text="description"
+        :text="content.description"
         :maxLines="3"
         class="description"
         :style="{ color: $themeTokens.annotation }"
@@ -40,22 +40,23 @@
         </span>
         <CoachContentLabel
           class="coach-content-label"
-          :value="numCoachContents"
+          :value="content.numCoachContents"
           :isTopic="isTopic"
         />
       </div>
       <slot name="notice"></slot>
       <LearningActivityChip
-        v-if="isLeaf"
-        :kind="kind"
+        v-if="content.is_leaf"
+        :kind="content.learning_activities[0]"
         class="chip"
       />
     </div>
     <CardThumbnail
       v-if="!windowIsSmall"
+      :isMobile="windowIsSmall"
       class="thumbnail"
-      :thumbnail="thumbnail"
-      :kind="kind"
+      :thumbnail="content.thumbnail"
+      :kind="content.kind"
     />
   </router-link>
 
@@ -84,25 +85,8 @@
       };
     },
     props: {
-      title: {
-        type: String,
-        required: true,
-      },
-      description: {
-        type: String,
-        required: true,
-      },
-      thumbnail: {
-        type: String,
-        default: null,
-      },
-      kind: {
-        type: String,
-        required: true,
-        validator: validateContentNodeKind,
-      },
-      isLeaf: {
-        type: Boolean,
+      content: {
+        type: Object,
         required: true,
       },
       link: {
@@ -113,10 +97,6 @@
       // ContentNode.coach_content will be `0` if not a coach content leaf node,
       // or a topic without coach content. It will be a positive integer if a topic
       // with coach content, and `1` if a coach content leaf node.
-      numCoachContents: {
-        type: Number,
-        default: 0,
-      },
       message: {
         type: String,
         default: '',
@@ -124,7 +104,7 @@
     },
     computed: {
       isTopic() {
-        return !this.isLeaf;
+        return !this.content.isLeaf;
       },
     },
   };
