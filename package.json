@@ -28,7 +28,7 @@
     "devserver-hot": "concurrently --passthrough-arguments --kill-others \"yarn:watch-hot --watchonly {1}\" yarn:python-devserver yarn:hashi-dev --",
     "devserver-with-kds": "concurrently --passthrough-arguments --kill-others \"yarn:watch --watchonly={2} --require-kds-path --kds-path={1}\" yarn:python-devserver yarn:hashi-dev --",
     "bundle-stats": "kolibri-tools build stats --file ./build_tools/build_plugins.txt --transpile",
-    "clean": "kolibri-tools build clean --file ./build_tools/build_plugins.txt",
+    "clean": "rm -fr kolibri/core/content/static/hashi/ && kolibri-tools build clean --file ./build_tools/build_plugins.txt",
     "lint-frontend": "kolibri-tools lint --pattern '{kolibri*/**/assets,packages,build_tools}/**/*.{js,vue,scss,less,css}' --ignore '**/dist/**,**/node_modules/**,**/static/**,**/kolibri-core-for-export/**'",
     "lint-frontend:format": "yarn run lint-frontend --write",
     "lint-frontend:watch": "yarn run lint-frontend --monitor",
@@ -37,7 +37,7 @@
     "publish-packages": "node ./packages/publish.js",
     "hashi-dev": "yarn workspace hashi run dev",
     "hashi-build": "yarn workspace hashi run build",
-    "compress": "kolibri-tools compress 'kolibri/*/**/static/**/*.{html,js,css,ico,svg,map,eot,woff,ttf,woff2}'"
+    "compress": "kolibri-tools compress 'kolibri/*/**/static/**/*.{html,js,css,svg,map,eot,ttf}'"
   },
   "repository": {
     "type": "git",

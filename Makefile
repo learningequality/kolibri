@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
-.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release staticdeps staticdeps-cext writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-translations i18n-download-glossary i18n-upload-glossary docker-whl docker-demoserver docker-devserver docker-envlist
+.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release staticdeps staticdeps-cext strip-staticdeps writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-translations i18n-download-glossary i18n-upload-glossary docker-whl docker-demoserver docker-devserver docker-envlist
 
 
 help:
@@ -17,6 +17,7 @@ help:
 	@echo "assets: builds javascript assets"
 	@echo "staticdeps: downloads/updates all static Python dependencies bundled into the dist"
 	@echo "staticdeps-cext: downloads/updates Python C extensions for all supported platforms"
+	@echo "strip-staticdeps: strips debug symbols from C extensions"
 	@echo "clean: restores code tree to a clean state"
 	@echo "clean-build: remove build artifacts"
 	@echo "clean-pyc: remove Python file artifacts"
@@ -58,7 +59,6 @@ clean: clean-build clean-pyc clean-assets clean-staticdeps
 
 clean-assets:
 	yarn run clean
-	rm -fr kolibri/core/content/static/hashi/
 
 clean-build:
 	rm -f kolibri/VERSION
@@ -167,6 +167,11 @@ staticdeps-cext:
 	pip install -t kolibri/dist/cext -r "requirements/cext_noarch.txt" --no-deps
 	rm -rf kolibri/dist/*.egg-info
 
+strip-staticdeps:
+	find kolibri/dist -name "*.so" -exec strip --strip-unneeded {} \;
+	find kolibri/dist -name "*.so" -exec aarch64-linux-gnu-strip --strip-unneeded {} \;
+	find kolibri/dist -name "*.so" -exec arm-linux-gnueabihf-strip --strip-unneeded {} \;
+
 staticdeps-compileall:
 	bash -c 'python --version'
 	# Seems like the compileall module does not return a non-zero exit code when failing
@@ -190,7 +195,7 @@ buildconfig:
 	git checkout -- kolibri/utils/build_config # restore __init__.py
 	python build_tools/customize_build.py
 
-dist: setrequirements writeversion staticdeps staticdeps-cext buildconfig i18n-extract-frontend assets i18n-django-compilemessages preseeddb
+dist: setrequirements writeversion staticdeps staticdeps-cext strip-staticdeps buildconfig i18n-extract-frontend assets i18n-django-compilemessages preseeddb
 	python setup.py sdist --format=gztar > /dev/null # silence the sdist output! Too noisy!
 	python setup.py bdist_wheel
 	ls -l dist
