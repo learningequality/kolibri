@@ -153,8 +153,8 @@
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { coreStrings } from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useAccordion from 'kolibri-common/components/useAccordion';
+  import coreStrings from 'kolibri.utils.coreStrings';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import { computed, onMounted, watch } from 'kolibri.lib.vueCompositionApi';
@@ -169,9 +169,9 @@
       AccordionItem,
     },
     setup(props, { emit }) {
-      const { sections, selectedQuestionNumber } = toRefs(props);
       const { questionsLabel$, quizSectionsLabel$ } = enhancedQuizManagementStrings;
       const { questionNumberLabel$ } = coreStrings;
+      const { currentSectionIndex, sections, selectedQuestionNumber } = toRefs(props);
 
       const { expand, isExpanded, toggle } = useAccordion(sections);
 
@@ -187,17 +187,6 @@
           value: index,
           label: displaySectionTitle(section, index),
         }));
-      });
-
-      const currentSectionIndex = computed(() => {
-        let qCount = 0;
-        for (let i = 0; i <= sections.value.length; i++) {
-          qCount += sections.value[i].questions.length;
-          if (qCount > selectedQuestionNumber.value) {
-            return i;
-          }
-        }
-        return 0;
       });
 
       const currentSection = computed(() => {
@@ -241,7 +230,6 @@
         handleSectionChange,
         handleQuestionChange,
         displaySectionTitle,
-        questionNumberLabel$,
         quizSectionsLabel$,
         questionsLabel$,
         expand,
