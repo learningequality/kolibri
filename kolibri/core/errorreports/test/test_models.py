@@ -8,22 +8,68 @@ from kolibri.core.errorreports.models import ErrorReports
 
 
 class ErrorReportsTestCase(TestCase):
-    databases = "__all__"  # I am not sure about this, maybe a overkill but works
+    databases = "__all__"
+
+    def setUp(self):
+        self.category_frontend = FRONTEND
+        self.category_backend = BACKEND
+        self.error_message = "Test Error"
+        self.traceback = "Test Traceback"
+        self.context_frontend = {
+            "browser": "Chrome",
+            "component": "HeaderComponent",
+            "device": {
+                "type": "desktop",
+                "platform": "windows",
+                "screen": {"width": 1920, "height": 1080},
+            },
+        }
+        self.context_backend = {
+            "request_info": {
+                "url": "/api/test",
+                "method": "GET",
+                "headers": {"User-Agent": "TestAgent"},
+                "body": "",
+            },
+            "server": {"host": "localhost", "port": 8000},
+            "packages": {"django": "3.2", "kolibri": "0.15.8"},
+            "python_version": "3.9.1",
+        }
+
+    def create_error(
+        self,
+        category,
+        error_message,
+        traceback,
+        context_frontend,
+        context_backend,
+        reported=False,
+    ):
+        return ErrorReports.objects.create(
+            category=category,
+            error_message=error_message,
+            traceback=traceback,
+            context_frontend=context_frontend,
+            context_backend=context_backend,
+            reported=reported,
+        )
 
     @override_settings(DEVELOPER_MODE=False)
     def test_insert_or_update_error_prod_mode(self):
-        error_from = FRONTEND
-        error_message = "Test Error"
-        traceback = "Test Traceback"
-
         error = ErrorReports.insert_or_update_error(
-            error_from, error_message, traceback
+            self.category_frontend,
+            self.error_message,
+            self.traceback,
+            self.context_frontend,
+            self.context_backend,
         )
-        self.assertEqual(error.error_from, error_from)
-        self.assertEqual(error.error_message, error_message)
-        self.assertEqual(error.traceback, traceback)
-        self.assertEqual(error.no_of_errors, 1)
-        self.assertFalse(error.sent)
+        self.assertEqual(error.category, self.category_frontend)
+        self.assertEqual(error.error_message, self.error_message)
+        self.assertEqual(error.traceback, self.traceback)
+        self.assertEqual(error.context_frontend, self.context_frontend)
+        self.assertEqual(error.context_backend, self.context_backend)
+        self.assertEqual(error.events, 1)
+        self.assertFalse(error.reported)
         self.assertLess(
             timezone.now() - error.first_occurred, timezone.timedelta(seconds=1)
         )
@@ -31,15 +77,21 @@ class ErrorReportsTestCase(TestCase):
             timezone.now() - error.last_occurred, timezone.timedelta(seconds=1)
         )
 
-        # creating the error again, so this time it should update the error
+        # Creating the error again, so this time it should update the error
         error = ErrorReports.insert_or_update_error(
-            error_from, error_message, traceback
+            self.category_frontend,
+            self.error_message,
+            self.traceback,
+            self.context_frontend,
+            self.context_backend,
         )
-        self.assertEqual(error.error_from, error_from)
-        self.assertEqual(error.error_message, error_message)
-        self.assertEqual(error.traceback, traceback)
-        self.assertEqual(error.no_of_errors, 2)
-        self.assertFalse(error.sent)
+        self.assertEqual(error.category, self.category_frontend)
+        self.assertEqual(error.error_message, self.error_message)
+        self.assertEqual(error.traceback, self.traceback)
+        self.assertEqual(error.context_frontend, self.context_frontend)
+        self.assertEqual(error.context_backend, self.context_backend)
+        self.assertEqual(error.events, 2)
+        self.assertFalse(error.reported)
         self.assertLess(
             timezone.now() - error.first_occurred, timezone.timedelta(seconds=1)
         )
@@ -49,37 +101,57 @@ class ErrorReportsTestCase(TestCase):
 
     @override_settings(DEVELOPER_MODE=True)
     def test_insert_or_update_error_dev_mode(self):
-        error_from = FRONTEND
-        error_message = "Test Error"
-        traceback = "Test Traceback"
-
         error = ErrorReports.insert_or_update_error(
-            error_from, error_message, traceback
+            self.category_frontend,
+            self.error_message,
+            self.traceback,
+            self.context_frontend,
+            self.context_backend,
         )
         self.assertIsNone(error)
 
-    def test_get_unsent_errors(self):
-        ErrorReports.objects.create(
-            error_from=FRONTEND,
-            error_message="Error 1",
-            traceback="Traceback 1",
-            sent=False,
+    def test_get_unreported_errors(self):
+        self.create_error(
+            self.category_frontend,
+            "Error 1",
+            "Traceback 1",
+            self.context_frontend,
+            self.context_backend,
+            reported=False,
         )
-        ErrorReports.objects.create(
-            error_from=BACKEND,
-            error_message="Error 2",
-            traceback="Traceback 2",
-            sent=False,
+        self.create_error(
+            self.category_backend,
+            "Error 2",
+            "Traceback 2",
+            self.context_frontend,
+            self.context_backend,
+            reported=False,
         )
-        ErrorReports.objects.create(
-            error_from=BACKEND,
-            error_message="Error 3",
-            traceback="Traceback 3",
-            sent=True,
+        self.create_error(
+            self.category_backend,
+            "Error 3",
+            "Traceback 3",
+            self.context_frontend,
+            self.context_backend,
+            reported=True,
         )
 
-        # Get unsent errors, shall be only 2 as out of 3, 1 is sent
-        unsent_errors = ErrorReports.get_unsent_errors()
-        self.assertEqual(unsent_errors.count(), 2)
-        self.assertFalse(unsent_errors[0].sent)
-        self.assertFalse(unsent_errors[1].sent)
+        # Get unreported errors, should be only 2 as out of 3, 1 is reported
+        unreported_errors = ErrorReports.get_unreported_errors()
+        self.assertEqual(unreported_errors.count(), 2)
+        self.assertFalse(unreported_errors[0].reported)
+        self.assertFalse(unreported_errors[1].reported)
+
+    def test_mark_reported(self):
+        error = self.create_error(
+            self.category_frontend,
+            self.error_message,
+            self.traceback,
+            self.context_frontend,
+            self.context_backend,
+            reported=False,
+        )
+        # First check error is unreported, then set to True and assert again
+        self.assertFalse(error.reported)
+        error.mark_reported()
+        self.assertTrue(error.reported)
