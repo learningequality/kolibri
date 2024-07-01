@@ -197,9 +197,9 @@ class ClassroomNotificationsViewset(ValuesViewset):
 
         if not after and not before:
             try:
-                last_id_record = notifications_query.latest("id")
+                last_record = notifications_query.latest("timestamp")
                 # returns all the notifications 24 hours older than the latest
-                last_24h = last_id_record.timestamp - datetime.timedelta(days=1)
+                last_24h = last_record.timestamp - datetime.timedelta(days=1)
                 notifications_query = notifications_query.filter(
                     timestamp__gte=last_24h
                 )
