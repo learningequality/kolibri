@@ -263,7 +263,6 @@
         numberOfSelectedBookmarks$,
         selectResourcesDescription$,
         questionsFromResources$,
-        changesSavedSuccessfully$,
         cannotSelectSomeTopicWarning$,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
@@ -662,7 +661,6 @@
         cannotSelectSomeTopicWarning$,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
-        changesSavedSuccessfully$,
         sectionSettings$,
         numberOfQuestionsSelected$,
         tooManyQuestions$,
@@ -809,7 +807,6 @@
             ...this.$route.params,
           },
         });
-        this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
       },
       // The message put onto the content's card when listed
       selectionMetadata(content) {

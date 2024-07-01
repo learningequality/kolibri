@@ -378,7 +378,6 @@
         numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
-        changesSavedSuccessfully$,
         questionsDeletedNotification$,
         expandAll$,
         collapseAll$,
@@ -449,7 +448,6 @@
         numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
-        changesSavedSuccessfully$,
         questionsDeletedNotification$,
 
         toggleQuestionInSelection,
@@ -657,7 +655,6 @@
           questions: newArray,
         };
         this.updateSection(payload);
-        this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
         this.dragActive = false;
       },
       handleAddSection() {

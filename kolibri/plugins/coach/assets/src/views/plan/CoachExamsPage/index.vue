@@ -354,6 +354,11 @@
         return '--';
       },
     },
+    mounted() {
+      if (this.$route.query.snackbar) {
+        this.$store.dispatch('createSnackbar', this.$route.query.snackbar);
+      }
+    },
     methods: {
       handleOpenQuiz(quizId) {
         const promise = ExamResource.saveModel({
