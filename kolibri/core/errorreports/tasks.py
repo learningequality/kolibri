@@ -1,8 +1,9 @@
+import json
 import logging
 
 import requests
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection
-from django.http import JsonResponse
 from requests.exceptions import ConnectionError
 from requests.exceptions import RequestException
 from requests.exceptions import Timeout
@@ -24,16 +25,14 @@ def serialize_error_reports_to_json_response(errors):
                 "traceback": error.traceback,
                 "first_occurred": error.first_occurred,
                 "last_occurred": error.last_occurred,
-                "sent": error.sent,
                 "no_of_errors": error.no_of_errors,
             }
         )
-    return JsonResponse(errors_list, safe=False)
+    return json.dumps(errors_list, cls=DjangoJSONEncoder)
 
 
 def mark_errors_as_sent(errors):
-    for error in errors:
-        error.mark_as_sent()
+    errors.update(sent=True)
 
 
 @register_task
@@ -41,10 +40,9 @@ def ping_error_reports(server):
     try:
         errors = ErrorReports.get_unsent_errors()
         errors_json = serialize_error_reports_to_json_response(errors)
-
         requests.post(
             join_url(server, "/api/v1/errors/"),
-            data=errors_json.content,
+            data=errors_json,
             headers={"Content-Type": "application/json"},
         )
         mark_errors_as_sent(errors)
