@@ -47,7 +47,7 @@
     data() {
       return {
         Options,
-        selected: Options.JOIN,
+        selected: this.wizardService.state.context.lodImportOrJoin || Options.JOIN,
         showSelectAddressModal: false,
       };
     },
