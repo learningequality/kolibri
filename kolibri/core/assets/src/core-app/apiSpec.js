@@ -70,6 +70,7 @@ import PrivacyInfoModal from '../views/PrivacyInfoModal';
 import UserTypeDisplay from '../views/UserTypeDisplay';
 import Draggable from '../views/sortable/Draggable';
 import DragHandle from '../views/sortable/DragHandle';
+import useDrag from '../views/sortable/useDrag';
 import DragContainer from '../views/sortable/DragContainer';
 import DragSortWidget from '../views/sortable/DragSortWidget';
 import FocusTrap from '../views/FocusTrap';
@@ -205,6 +206,7 @@ export default {
       useMinimumKolibriVersion,
       useNow,
       useUser,
+      useDrag,
       useUserSyncStatus,
     },
   },
