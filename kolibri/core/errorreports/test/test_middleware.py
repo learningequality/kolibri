@@ -57,8 +57,8 @@ class ErrorReportingMiddlewareTestCase(TestCase):
                     "body": "",
                 },
                 "server": {"host": "testserver", "port": "80"},
-                "packages": {"Django": 1.1},
-                "python_version": "1.1.1",
+                "packages": {"Django": "3.2.25"},
+                "python_version": "3.9.9",
             },
         )
 

@@ -1,6 +1,8 @@
+import json
 import logging
 
 import requests
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection
 from requests.exceptions import ConnectionError
 from requests.exceptions import RequestException
@@ -23,7 +25,6 @@ def serialize_error_reports_to_json_response(errors):
                 "traceback": error.traceback,
                 "first_occurred": error.first_occurred,
                 "last_occurred": error.last_occurred,
-                "reported": error.reported,
                 "events": error.events,
                 "release_version": error.release_version,
                 "context_frontend": error.context_frontend,
@@ -37,13 +38,17 @@ def serialize_error_reports_to_json_response(errors):
 def ping_error_reports(server):
     try:
         errors = ErrorReports.get_unreported_errors()
+
         errors_json = serialize_error_reports_to_json_response(errors)
+
         requests.post(
             join_url(server, "/api/v1/errors/"),
             data=errors_json,
             headers={"Content-Type": "application/json"},
         )
-        errors.update(sent=True)
+
+        errors.update(reported=True)
+
     except ConnectionError:
         logger.warning("Reporting Error failed (could not connect).")
         raise
