@@ -310,7 +310,7 @@ def finish_lesson_resource(summarylog, contentnode_id, lesson_id):
         notifications = []
         # Now let's check completed resources and lessons:
         notification_completed = check_and_created_completed_resource(
-            lesson, summarylog.user_id, contentnode_id, summarylog.end_timestamp
+            lesson, summarylog.user_id, contentnode_id, summarylog.completion_timestamp
         )
         if notification_completed:
             notifications.append(notification_completed)
@@ -328,7 +328,7 @@ def finish_lesson_resource(summarylog, contentnode_id, lesson_id):
         ).count()
         if user_completed_resources == len(lesson_content_ids):
             notification_completed = check_and_created_completed_lesson(
-                lesson, summarylog.user_id, summarylog.end_timestamp
+                lesson, summarylog.user_id, summarylog.completion_timestamp
             )
             if notification_completed:
                 notifications.append(notification_completed)
@@ -424,7 +424,7 @@ def parse_summarylog(summarylog):
     for lesson, contentnode_id in lessons:
         # Now let's check completed resources and lessons:
         notification_completed = check_and_created_completed_resource(
-            lesson, summarylog.user_id, contentnode_id, summarylog.end_timestamp
+            lesson, summarylog.user_id, contentnode_id, summarylog.completion_timestamp
         )
         if notification_completed:
             notifications.append(notification_completed)
@@ -440,7 +440,7 @@ def parse_summarylog(summarylog):
         ).count()
         if user_completed == len(lesson_content_ids):
             notification_completed = check_and_created_completed_lesson(
-                lesson, summarylog.user_id, summarylog.end_timestamp
+                lesson, summarylog.user_id, summarylog.completion_timestamp
             )
             if notification_completed:
                 notifications.append(notification_completed)
