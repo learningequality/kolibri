@@ -243,8 +243,8 @@
                             :noDrag="true"
                             :isFirst="index === 0"
                             :isLast="index === activeQuestions.length - 1"
-                            @moveUp="shiftOne(index, -1)"
-                            @moveDown="shiftOne(index, +1)"
+                            @moveUp="() => handleKeyboardDragUp(index, activeQuestions)"
+                            @moveDown="() => handleKeyboardDragDown(index, activeQuestions)"
                           />
                         </div>
                       </DragHandle>
@@ -340,6 +340,7 @@
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import useAccordion from 'kolibri-common/components/useAccordion';
+  import useDrag from 'kolibri.coreVue.composables.useDrag';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
@@ -417,6 +418,7 @@
         canExpandAll,
       } = useAccordion(activeQuestions);
 
+      const { moveUpOne, moveDownOne } = useDrag();
       const dragActive = ref(false);
 
       return {
@@ -461,6 +463,9 @@
         updateQuiz,
         displaySectionTitle,
         displayQuestionTitle,
+
+        moveDownOne,
+        moveUpOne,
 
         // Computed
         allSections,
@@ -664,6 +669,14 @@
       handleDragStart() {
         // Used to mitigate the issue of text being selected while dragging
         this.dragActive = true;
+      },
+      handleKeyboardDragDown(oldIndex, array) {
+        const newArray = this.moveDownOne(oldIndex, array);
+        this.handleQuestionOrderChange({ newArray });
+      },
+      handleKeyboardDragUp(oldIndex, array) {
+        const newArray = this.moveUpOne(oldIndex, array);
+        this.handleQuestionOrderChange({ newArray });
       },
       openSelectResources() {
         this.$router.push({
