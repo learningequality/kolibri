@@ -861,33 +861,17 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
         return Response(self.serialize(queryset))
 
     @action(detail=False)
-    def descendants(self, request):
+    def descendant_counts(self, request):
         """
-        Returns a slim view all the descendants of a set of content nodes (as designated by the passed in ids).
-        In addition to id, title, kind, and content_id, each node is also annotated with the ancestor_id of one
-        of the ids that are passed into the request.
-        In the case where a node has more than one ancestor in the set of content nodes requested, duplicates of
-        that content node are returned, each annotated with one of the ancestor_ids for a node.
+        Return the number of descendants for each node in the queryset.
         """
-        ids = self.request.query_params.get("ids", None)
-        if not ids:
+        # Don't allow unfiltered queries
+        if not self.request.query_params:
             return Response([])
-        kind = self.request.query_params.get("descendant_kind", None)
-        nodes = self.filter_queryset(self.get_queryset())
-        data = []
-        for node in nodes:
+        queryset = self.filter_queryset(self.get_queryset())
 
-            def copy_node(new_node):
-                new_node["ancestor_id"] = node.id
-                new_node["is_leaf"] = new_node.get("kind") != content_kinds.TOPIC
-                return new_node
+        data = queryset.values("id", "on_device_resources")
 
-            node_data = node.get_descendants().filter(available=True)
-            if kind:
-                node_data = node_data.filter(kind=kind)
-            data += map(
-                copy_node, node_data.values("id", "title", "kind", "content_id")
-            )
         return Response(data)
 
     @action(detail=False)

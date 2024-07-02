@@ -5,7 +5,7 @@ import * as actions from './actions';
 function defaultState() {
   return {
     bookmarksList: [],
-    ancestorCounts: {},
+    descendantCounts: {},
     ancestors: [],
     contentList: [],
     searchResults: {
@@ -44,8 +44,8 @@ export default {
     SET_BOOKMARKS_LIST(state, bookmarks) {
       state.bookmarksList = bookmarks;
     },
-    SET_ANCESTOR_COUNTS(state, ancestorCountsObject) {
-      state.ancestorCounts = ancestorCountsObject;
+    SET_DESCENDANT_COUNTS(state, descendantCountsObject) {
+      state.descendantCounts = descendantCountsObject;
     },
     SET_CONTENT_LIST(state, contentList) {
       state.contentList = contentList;
