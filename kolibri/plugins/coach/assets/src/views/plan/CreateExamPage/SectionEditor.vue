@@ -476,6 +476,7 @@
             question_sources,
           });
         }
+        this.$emit('closePanel');
       },
     },
   };
