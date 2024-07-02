@@ -220,18 +220,16 @@
       },
     },
     beforeRouteEnter(to, from, next) {
-      if (!from.params?.quizId) {
-        if (to.name === PageNames.QUIZ_REPLACE_QUESTIONS) {
-          next({
-            name: PageNames.EXAM_CREATION_ROOT,
-            params: {
-              classId: to.params.classId,
-              quizId: to.params.quizId,
-            },
-          });
-        } else {
-          next();
-        }
+      // If we're coming from no quizId and going to replace questions, redirect to exam creation
+      // then we're coming from another page altogether OR we're coming back from a refresh
+      if (!from.params?.quizId && to.name === PageNames.QUIZ_REPLACE_QUESTIONS) {
+        next({
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: to.params.classId,
+            quizId: to.params.quizId,
+          },
+        });
       } else {
         next();
       }
