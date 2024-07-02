@@ -320,6 +320,13 @@
         // Scroll to the title field in case focus() didn't do that immediately
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
+      /**
+       * @public
+       */
+      handleSubmitSuccess() {
+        this.showTitleError = false;
+        this.showServerError = false;
+      },
     },
   };
 

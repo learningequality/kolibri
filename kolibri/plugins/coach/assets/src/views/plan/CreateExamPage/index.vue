@@ -240,6 +240,7 @@
       saveQuizAndRedirect(close = true) {
         this.saveQuiz()
           .then(exam => {
+            this.$refs.detailsModal.handleSubmitSuccess();
             this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
             if (close) {
               this.$router.replace({
