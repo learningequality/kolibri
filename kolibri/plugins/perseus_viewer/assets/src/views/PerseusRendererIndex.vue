@@ -37,7 +37,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { defer } from 'underscore';
   import { createElement as e } from 'react';
-  import { render, unmountComponentAtNode } from 'react-dom';
+  import { createPortal, render, unmountComponentAtNode } from 'react-dom';
   import * as perseus from '@khanacademy/perseus';
   import {
     MathInputI18nContextProvider,
@@ -56,7 +56,7 @@
 
   const keypadStyle = StyleSheet.create({
     keypadContainer: {
-      position: 'absolute',
+      zIndex: 20,
     },
   });
 
@@ -426,12 +426,15 @@
           KeypadContext.Consumer,
           { key: 'keypadWithContext ' },
           ({ setKeypadElement, renderer }) =>
-            e(MobileKeypad, {
-              style: keypadStyle.keypadContainer,
-              onElementMounted: setKeypadElement,
-              onDismiss: () => renderer && renderer.blur(),
-              onAnalyticsEvent: async () => {},
-            }),
+            createPortal(
+              e(MobileKeypad, {
+                style: keypadStyle.keypadContainer,
+                onElementMounted: setKeypadElement,
+                onDismiss: () => renderer && renderer.blur(),
+                onAnalyticsEvent: async () => {},
+              }),
+              document.body,
+            ),
         );
         const statefulKeypadContextProviderElement = e(StatefulKeypadContextProvider, {
           children: [keypadContextConsumerElement, keypadWithContextElement],
