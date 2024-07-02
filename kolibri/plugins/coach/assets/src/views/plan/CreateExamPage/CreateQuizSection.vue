@@ -572,10 +572,7 @@
         }
       },
       handleConfirmDelete() {
-        const section_title = displaySectionTitle(
-          this.activeSection.value,
-          this.activeSectionIndex.value,
-        );
+        const section_title = displaySectionTitle(this.activeSection, this.activeSectionIndex);
         const newIndex = this.activeSectionIndex > 0 ? this.activeSectionIndex - 1 : 0;
         this.setActiveSection(newIndex);
         this.removeSection(this.activeSectionIndex);
