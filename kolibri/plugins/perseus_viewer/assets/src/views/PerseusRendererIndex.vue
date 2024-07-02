@@ -391,8 +391,8 @@
             onFocusChange: this.dismissMessage,
             onInputError: logging.error,
             isMobile: this.isMobile,
-            // Only show a keypad if we are in interactive mode.
-            customKeypad: this.interactive,
+            // Always use our custom keypad implementation
+            customKeypad: true,
             readOnly: !this.interactive,
             hintProgressColor: this.$themeTokens.primary,
           },
@@ -418,7 +418,7 @@
             this.keypadElement = keypadElement;
             return e(perseus.ServerItemRenderer, {
               ...itemRenderData,
-              keypadElement: keypadElement,
+              keypadElement: this.interactive ? keypadElement : null,
             });
           },
         );
