@@ -5,13 +5,6 @@
     class="content-card"
     :style="{ backgroundColor: $themeTokens.surface }"
   >
-    <CardThumbnail
-      class="thumbnail"
-      :thumbnail="thumbnail"
-      :kind="kind"
-      :isMobile="windowIsSmall"
-    />
-
     <div
       :class="windowIsSmall ? 'mobile-text' : 'text'"
       :style="{ color: $themeTokens.text }"
@@ -21,49 +14,50 @@
         :style="{ color: $themeTokens.text }"
       >
         <h3
-          v-if="!windowIsSmall"
           class="title"
           dir="auto"
         >
-          <KLabeledIcon :label="title">
-            <template #icon>
-              <ContentIcon :kind="kind" />
-            </template>
-          </KLabeledIcon>
+          <KTextTruncator
+            :text="content.title"
+            :maxLines="2"
+          />
         </h3>
-        <h3
-          v-if="windowIsSmall"
-          dir="auto"
-        >
-          <KLabeledIcon :label="title">
-            <template #icon>
-              <ContentIcon :kind="kind" />
-            </template>
-          </KLabeledIcon>
-        </h3>
-        <div
-          v-if="message"
-          class="message"
-          :style="{ color: $themeTokens.text }"
-        >
-          {{ message }}
-        </div>
       </div>
       <KTextTruncator
         v-if="!windowIsSmall"
-        :text="description"
+        :text="content.description"
         :maxLines="3"
         class="description"
+        :style="{ color: $themeTokens.annotation }"
       />
       <div>
+        <span
+          v-if="message"
+          class="message"
+          :style="{ color: $themeTokens.annotation }"
+        >
+          {{ message }}
+        </span>
         <CoachContentLabel
           class="coach-content-label"
-          :value="numCoachContents"
+          :value="content.numCoachContents"
           :isTopic="isTopic"
         />
       </div>
       <slot name="notice"></slot>
+      <LearningActivityChip
+        v-if="content.is_leaf"
+        :kind="content.learning_activities[0]"
+        class="chip"
+      />
     </div>
+    <CardThumbnail
+      v-if="!windowIsSmall"
+      :isMobile="windowIsSmall"
+      class="thumbnail"
+      :thumbnail="content.thumbnail"
+      :kind="content.kind"
+    />
   </router-link>
 
 </template>
@@ -73,16 +67,16 @@
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
+  import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import CardThumbnail from './CardThumbnail';
 
   export default {
     name: 'LessonContentCard',
     components: {
       CardThumbnail,
-      ContentIcon,
       CoachContentLabel,
+      LearningActivityChip,
     },
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
@@ -91,25 +85,8 @@
       };
     },
     props: {
-      title: {
-        type: String,
-        required: true,
-      },
-      description: {
-        type: String,
-        required: true,
-      },
-      thumbnail: {
-        type: String,
-        default: null,
-      },
-      kind: {
-        type: String,
-        required: true,
-        validator: validateContentNodeKind,
-      },
-      isLeaf: {
-        type: Boolean,
+      content: {
+        type: Object,
         required: true,
       },
       link: {
@@ -120,10 +97,6 @@
       // ContentNode.coach_content will be `0` if not a coach content leaf node,
       // or a topic without coach content. It will be a positive integer if a topic
       // with coach content, and `1` if a coach content leaf node.
-      numCoachContents: {
-        type: Number,
-        default: 0,
-      },
       message: {
         type: String,
         default: '',
@@ -131,7 +104,7 @@
     },
     computed: {
       isTopic() {
-        return !this.isLeaf;
+        return !this.content.isLeaf;
       },
     },
   };
@@ -150,11 +123,11 @@
     position: relative;
     display: block;
     min-height: $thumb-height + 16;
-    padding: 16px;
+    padding: 24px;
     margin-bottom: 24px;
     text-align: left;
     text-decoration: none;
-    border-radius: 2px;
+    border-radius: 8px;
     transition: box-shadow $core-time ease;
 
     &:hover,
@@ -166,37 +139,52 @@
   .thumbnail {
     position: absolute;
     top: 0;
-    left: 0;
-    margin: 8px;
+    right: 0;
+    height: 100%;
+    border-radius: 0 8px 8px 0;
   }
 
   .text {
     flex-direction: column;
-    margin-left: $thumb-width + 8;
+    max-width: calc(100% - #{$thumb-width} - 8px);
   }
 
-  .mobile-text {
-    margin-left: $mobile-thumb-width + 8;
-  }
-
-  .title-message-wrapper {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-
-  .title,
-  .message {
-    margin-top: 0;
-    overflow: hidden;
+  .title {
+    margin-bottom: 0.5em;
   }
 
   .message {
-    text-align: right;
+    margin-bottom: 1.25em;
+    font-size: 0.75em;
+  }
+
+  .description {
+    margin-bottom: 0.5em;
+    font-size: 0.875em;
   }
 
   .coach-content-label {
-    margin: 8px 0;
+    width: 20%;
+    margin: 0 8px;
+  }
+
+  .chip {
+    padding: 0.5em;
+    margin: 0.75em 0;
+    font-size: 0.7em;
+  }
+
+  /deep/ .icon svg {
+    width: 1.25em !important;
+    height: 1.25em !important;
+    padding-top: 1px;
+  }
+
+  /deep/ .mobile-thumbnail-wrapper {
+    position: absolute;
+    top: 0 !important;
+    right: 0 !important;
+    height: 125px;
   }
 
 </style>

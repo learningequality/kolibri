@@ -42,14 +42,9 @@
           :disabled="content.is_leaf"
           :tabindex="content.is_leaf ? -1 : 0"
           :class="{ 'with-checkbox': needCheckboxes }"
-          :title="content.title"
-          :thumbnail="content.thumbnail"
-          :description="content.description"
-          :kind="content.kind"
+          :content="content"
           :message="contentCardMessage(content)"
           :link="contentCardLink(content)"
-          :numCoachContents="content.num_coach_contents"
-          :isLeaf="content.is_leaf"
         >
           <template #notice>
             <slot

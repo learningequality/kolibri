@@ -243,9 +243,9 @@
   } from 'kolibri.utils.licenseTranslations';
   import LearnerNeeds from 'kolibri-constants/labels/Needs';
   import { ContentNodeResource } from 'kolibri.resources';
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import useContentLink from '../composables/useContentLink';
   import commonLearnStrings from './commonLearnStrings';
-  import LearningActivityIcon from './LearningActivityIcon';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
 
   export default {

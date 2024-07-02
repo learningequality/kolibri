@@ -191,7 +191,7 @@
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
   import get from 'lodash/get';
-  import LearningActivityIcon from './LearningActivityIcon.vue';
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import commonLearnStrings from './commonLearnStrings';
   import DeviceConnectionStatus from './DeviceConnectionStatus.vue';
 
