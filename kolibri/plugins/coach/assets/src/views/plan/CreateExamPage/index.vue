@@ -219,6 +219,23 @@
         });
       },
     },
+    beforeRouteEnter(to, from, next) {
+      if (!from.params?.quizId) {
+        if (to.name === PageNames.QUIZ_REPLACE_QUESTIONS) {
+          next({
+            name: PageNames.EXAM_CREATION_ROOT,
+            params: {
+              classId: to.params.classId,
+              quizId: to.params.quizId,
+            },
+          });
+        } else {
+          next();
+        }
+      } else {
+        next();
+      }
+    },
     beforeRouteLeave(to, from, next) {
       if (this.quizHasChanged && !this.closeConfirmationToRoute) {
         this.closeConfirmationToRoute = to;
@@ -231,10 +248,27 @@
       this.$store.dispatch('notLoading');
     },
     async created() {
+      if (this.$route.name === PageNames.QUIZ_REPLACE_QUESTIONS) {
+        this.$router.replace({
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: this.$route.params.classId,
+            quizId: this.$route.params.quizId,
+          },
+        });
+      }
+      window.addEventListener('beforeunload', this.beforeUnload);
       await this.initializeQuiz(this.$route.params.classId, this.$route.params.quizId);
       this.quizInitialized = true;
     },
     methods: {
+      beforeUnload(e) {
+        if (this.quizHasChanged) {
+          if (!window.confirm(this.closeConfirmationTitle$())) {
+            e.preventDefault();
+          }
+        }
+      },
       saveQuizAndRedirect(close = true) {
         this.saveQuiz()
           .then(exam => {
