@@ -5,7 +5,8 @@
       <UiAlert
         v-if="showServerError"
         type="error"
-        :dismissible="false"
+        :dismissible="true"
+        @dismiss="showServerError = false"
       >
         {{ submitErrorMessage }}
       </UiAlert>
