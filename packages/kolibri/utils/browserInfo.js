@@ -70,6 +70,16 @@ export const isTouchDevice =
   window.navigator?.maxTouchPoints > 0 ||
   window.navigator?.msMaxTouchPoints > 0;
 
+const device = info.device;
+
+// this is better than undefined
+device.type = device.type || 'unknown';
+device.model = device.model || 'unknown';
+device.vendor = device.vendor || 'unknown';
+export const deviceWithTouch = {
+  ...device,
+  isTouchDevice,
+};
 function handlePointerDown(event) {
   if (event.pointerType === 'mouse') {
     localStorage.setItem('mouseUsed', 'true');

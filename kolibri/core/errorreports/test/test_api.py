@@ -15,12 +15,19 @@ class FrontendReportTestCase(TestCase):
         "error_message": "Something went wrong",
         "traceback": "Traceback information",
         "context": {
-            "browser": "",
-            "component": "my component",
+            "browser": {
+                "name": "Chrome",
+                "major": "1",
+                "minor": "2",
+                "patch": "3",
+            },
+            "component": "component",
             "device": {
-                "type": "desktop",
-                "platform": "Windows",
-                "screen": {"width": 303, "height": 230},
+                "model": "",
+                "type": "type",
+                "vendor": "vendor",
+                "is_touch_device": True,
+                "screen": {"width": 100, "height": 200},
             },
         },
     }
