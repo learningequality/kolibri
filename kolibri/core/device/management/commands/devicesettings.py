@@ -23,6 +23,7 @@ SCHEMA_TYPES = {
     "boolean": bool,
     "string": str,
     "integer": int,
+    "array": list,
 }
 DJANGO_FIELD_TYPES = {
     "BooleanField": bool,
