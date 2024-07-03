@@ -385,19 +385,21 @@ def _create_needs_help_notification(attemptlog, contentnode_id, lesson):
 
     # More than 3 errors in this mastery log:
     needs_help = len(failed_interactions) > 3
-    if (
-        needs_help
-        and not LearnerProgressNotification.objects.filter(
-            user_id=attemptlog.user_id,
-            notification_object=NotificationObjectType.Resource,
-            notification_event=NotificationEventType.Help,
-            lesson_id=lesson["id"],
-            classroom_id=lesson["classroom_id"],
-            contentnode_id=contentnode_id,
-        ).exists()
-    ):
-        # This Event should be triggered only once
-        # TODO: Decide if add a day interval filter, to trigger the event in different days
+    if not needs_help:
+        return
+
+    help_needed_notification = LearnerProgressNotification.objects.filter(
+        user_id=attemptlog.user_id,
+        notification_object=NotificationObjectType.Resource,
+        notification_event=NotificationEventType.Help,
+        lesson_id=lesson["id"],
+        classroom_id=lesson["classroom_id"],
+        contentnode_id=contentnode_id,
+    ).first()
+
+    # This Event should be triggered only once
+    # TODO: Decide if add a day interval filter, to trigger the event in different days
+    if not help_needed_notification:
         return create_notification(
             NotificationObjectType.Resource,
             NotificationEventType.Help,
@@ -409,6 +411,18 @@ def _create_needs_help_notification(attemptlog, contentnode_id, lesson):
             reason=HelpReason.Multiple,
             timestamp=attemptlog.end_timestamp,
         )
+
+    # If the current attempt is newer and the student keeps failing, update the timestamp
+    is_failed_attempt = attemptlog.interaction_history and sum(
+        1 if not interaction.get("correct", 0) == 0 else 0
+        for interaction in attemptlog.interaction_history
+    )
+    if (
+        is_failed_attempt
+        and help_needed_notification.timestamp < attemptlog.end_timestamp
+    ):
+        help_needed_notification.timestamp = attemptlog.end_timestamp
+        return help_needed_notification
 
 
 def start_lesson_assessment(attemptlog, contentnode_id, lesson_id):
