@@ -229,12 +229,16 @@
 
   .sync-status {
     display: flex;
-    justify-content: flex-end;
-    margin: 30px 0 10px;
-
+    position:absolute;
+    left:1%;
+    margin-top: 50px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    
     span {
       display: inline-flex;
       vertical-align: bottom;
+       
     }
   }
 
@@ -249,6 +253,8 @@
 
   .other-libraries-grid {
     margin-left: 0.75em;
+    padding-top: 20px;
+    
   }
 
 </style>
