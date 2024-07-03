@@ -90,4 +90,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    convert_svg_to_image(args.svg_file, args.image_file, final_size=args.size, padding=args.padding)
+    convert_svg_to_image(
+        args.svg_file, args.image_file, final_size=args.size, padding=args.padding
+    )
