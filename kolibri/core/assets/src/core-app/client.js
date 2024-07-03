@@ -36,15 +36,19 @@ baseClient.interceptors.response.use(
     // client code is still trying to access data that they would be allowed to see
     // if they were logged in.
     if (error.response) {
-      if (error.response.status === 403 || error.response.status === 401) {
-        if (!store.state.core.session.id) {
-          // Don't have any session information, so assume that this
-          // page has just been reopened and the session has expired.
-          // Redirect now!
+      if (error.response.status === 403) {
+        if (store.state.core.session.id && !store.state.core.session.user_id) {
+          // We have session information but no user_id, which means we are not logged in
+          // This is a sign that the user has been logged out due to inactivity
           heartbeat.signOutDueToInactivity();
         } else {
           // In this case, we should check right now if they are still logged in
-          heartbeat.pollSessionEndPoint();
+          heartbeat.pollSessionEndPoint().then(() => {
+            // If they are not, we should handle sign out
+            if (!store.state.core.session.user_id) {
+              heartbeat.signOutDueToInactivity();
+            }
+          });
         }
       }
       // On every error, check to see if the status code is one of our designated
