@@ -2,6 +2,7 @@ from django.db import transaction
 from django.db.models import Case
 from django.db.models import Count
 from django.db.models import F
+from django.db.models import Q
 from django.db.models import Sum
 from django.db.models import When
 from le_utils.constants import content_kinds
@@ -335,8 +336,9 @@ def finish_lesson_resource(summarylog, contentnode_id, lesson_id):
     Called to create resource completed notifications (and lesson completed notifications)
     when a resource is finished within the context of a lesson.
     """
-    if summarylog.progress < 1.0:
+    if summarylog.progress < 1.0 and not summarylog.completion_timestamp:
         return
+
     lesson = _get_lesson_dict(lesson_id)
     if lesson:
         notifications = []
@@ -355,9 +357,9 @@ def finish_lesson_resource(summarylog, contentnode_id, lesson_id):
 
         # Let's check if an LessonResourceIndividualCompletion needs to be created
         user_completed_resources = ContentSummaryLog.objects.filter(
+            Q(progress__gte=1.0) | Q(completion_timestamp__isnull=False),
             user_id=summarylog.user_id,
             content_id__in=lesson_content_ids,
-            progress__gte=1.0,
         ).count()
         if user_completed_resources == len(lesson_content_ids):
             notification_completed = check_and_created_completed_lesson(
@@ -449,7 +451,7 @@ def parse_summarylog(summarylog):
     Lesson Completed notification.
     """
 
-    if summarylog.progress < 1.0:
+    if summarylog.progress < 1.0 and not summarylog.completion_timestamp:
         return
 
     lessons = get_assignments(summarylog.user, summarylog)
@@ -470,7 +472,9 @@ def parse_summarylog(summarylog):
 
         # Let's check if an LessonResourceIndividualCompletion needs to be created
         user_completed = ContentSummaryLog.objects.filter(
-            user_id=summarylog.user_id, content_id__in=lesson_content_ids, progress=1.0
+            Q(progress__gte=1.0) | Q(completion_timestamp__isnull=False),
+            user_id=summarylog.user_id,
+            content_id__in=lesson_content_ids,
         ).count()
         if user_completed == len(lesson_content_ids):
             notification_completed = check_and_created_completed_lesson(
