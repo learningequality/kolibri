@@ -266,7 +266,7 @@ export class HeartBeat {
     Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, true);
     // Redirect the user to let the server sort out where they should
     // be now
-    redirectBrowser();
+    redirectBrowser(null, true);
   }
   _sessionUrl(id) {
     return urls['kolibri:core:session-detail'](id);

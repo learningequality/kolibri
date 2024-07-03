@@ -10,6 +10,7 @@ from django.urls import is_valid_path
 from django.urls import reverse
 from django.urls import translate_url
 from django.utils.decorators import method_decorator
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import check_for_language
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import LANGUAGE_SESSION_KEY
@@ -179,6 +180,16 @@ class RootURLRedirectView(View):
         else:
             url = get_url_by_role(user_kinds.ANONYMOUS)
         if url:
+            next_url = request.GET.get("next")
+            if next_url:
+                # Step 2: Validate the next_url
+                if url_has_allowed_host_and_scheme(
+                    next_url,
+                    allowed_hosts={request.get_host()},
+                    require_https=request.is_secure(),
+                ):
+                    # Step 3: Append next_url to the base url if it's valid
+                    url = f"{url}?next={next_url}"
             return HttpResponseRedirect(url)
         raise Http404(
             _(
