@@ -11,6 +11,15 @@ context_frontend_schema = {
             },
         },
         "component": {"type": "string", "optional": True},
+        "os": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "optional": True},
+                "major": {"type": "string", "optional": True},
+                "minor": {"type": "string", "optional": True},
+                "patch": {"type": "string", "optional": True},
+            },
+        },
         "device": {
             "type": "object",
             "properties": {

@@ -21,6 +21,12 @@ class FrontendReportTestCase(TestCase):
                 "minor": "2",
                 "patch": "3",
             },
+            "os": {
+                "name": "OS",
+                "major": "1",
+                "minor": "2",
+                "patch": "3",
+            },
             "component": "component",
             "device": {
                 "model": "",
