@@ -823,7 +823,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         summarylog = ContentSummaryLog.objects.get(
             content_id=sessionlog.content_id, user=user
         )
-        was_complete = summarylog.completion_timestamp is not None
+        was_complete = summarylog.progress >= 1
         update_fields = self._update_content_log(
             summarylog, end_timestamp, validated_data
         )

@@ -298,6 +298,19 @@ def start_lesson_resource(summarylog, contentnode_id, lesson_id):
         save_notifications(notifications_started)
 
 
+def _get_resource_completion_timestamp(summarylog):
+    mastery_first_completed = (
+        MasteryLog.objects.filter(summarylog_id=summarylog.id, complete=True)
+        .order_by("completion_timestamp")
+        .first()
+    )
+
+    if mastery_first_completed is None:
+        return summarylog.completion_timestamp
+
+    return mastery_first_completed.completion_timestamp
+
+
 def finish_lesson_resource(summarylog, contentnode_id, lesson_id):
     """
     Called to create resource completed notifications (and lesson completed notifications)
@@ -308,9 +321,10 @@ def finish_lesson_resource(summarylog, contentnode_id, lesson_id):
     lesson = _get_lesson_dict(lesson_id)
     if lesson:
         notifications = []
+        completion_timestamp = _get_resource_completion_timestamp(summarylog)
         # Now let's check completed resources and lessons:
         notification_completed = check_and_created_completed_resource(
-            lesson, summarylog.user_id, contentnode_id, summarylog.completion_timestamp
+            lesson, summarylog.user_id, contentnode_id, completion_timestamp
         )
         if notification_completed:
             notifications.append(notification_completed)
@@ -328,7 +342,7 @@ def finish_lesson_resource(summarylog, contentnode_id, lesson_id):
         ).count()
         if user_completed_resources == len(lesson_content_ids):
             notification_completed = check_and_created_completed_lesson(
-                lesson, summarylog.user_id, summarylog.completion_timestamp
+                lesson, summarylog.user_id, completion_timestamp
             )
             if notification_completed:
                 notifications.append(notification_completed)
@@ -420,11 +434,12 @@ def parse_summarylog(summarylog):
         return
 
     lessons = get_assignments(summarylog.user, summarylog)
+    completion_timestamp = _get_resource_completion_timestamp(summarylog)
     notifications = []
     for lesson, contentnode_id in lessons:
         # Now let's check completed resources and lessons:
         notification_completed = check_and_created_completed_resource(
-            lesson, summarylog.user_id, contentnode_id, summarylog.completion_timestamp
+            lesson, summarylog.user_id, contentnode_id, completion_timestamp
         )
         if notification_completed:
             notifications.append(notification_completed)
@@ -440,7 +455,7 @@ def parse_summarylog(summarylog):
         ).count()
         if user_completed == len(lesson_content_ids):
             notification_completed = check_and_created_completed_lesson(
-                lesson, summarylog.user_id, summarylog.completion_timestamp
+                lesson, summarylog.user_id, completion_timestamp
             )
             if notification_completed:
                 notifications.append(notification_completed)
