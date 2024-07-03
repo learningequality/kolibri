@@ -68,7 +68,24 @@
                     :value="currentSectionOption"
                     :options="sectionSelectOptions"
                     @select="handleSectionOptionChange"
-                  />
+                  >
+                    <template #display>
+                      <KIcon
+                        class="dot"
+                        :icon="sectionQuestionsIcon(currentSectionIndex)"
+                        :color="sectionQuestionsIconColor(currentSectionIndex)"
+                      />
+                      <span>{{ currentSectionOption.label }}</span>
+                    </template>
+                    <template #option="{ index, option }">
+                      <KIcon
+                        class="dot"
+                        :icon="sectionQuestionsIcon(index)"
+                        :color="sectionQuestionsIconColor(index)"
+                      />
+                      <span>{{ option.label }}</span>
+                    </template>
+                  </KSelect>
                   <h2
                     v-else-if="currentSectionOption.label"
                     class="section-select"
@@ -103,7 +120,52 @@
                 :value="currentQuestionOption"
                 :options="questionSelectOptions"
                 @select="handleQuestionOptionChange"
-              />
+              >
+                <template #display>
+                  <KIcon
+                    v-if="currentQuestionOption.disabled"
+                    class="dot"
+                    icon="warning"
+                    :color="$themePalette.yellow.v_1100"
+                  />
+                  <KIcon
+                    v-else
+                    class="dot"
+                    :icon="
+                      isAnswered(currentQuestionOption.value)
+                        ? 'unpublishedResource'
+                        : 'unpublishedChange'
+                    "
+                    :color="
+                      isAnswered(currentQuestionOption.value)
+                        ? $themeTokens.progress
+                        : $themeTokens.textDisabled
+                    "
+                  />
+                  <span>
+                    {{ currentQuestionOption.label }}
+                  </span>
+                </template>
+                <template #option="{ option }">
+                  <KIcon
+                    v-if="option.disabled"
+                    class="dot"
+                    icon="warning"
+                    :color="$themePalette.yellow.v_1100"
+                  />
+                  <KIcon
+                    v-else
+                    class="dot"
+                    :icon="isAnswered(option.value) ? 'unpublishedResource' : 'unpublishedChange'"
+                    :color="
+                      isAnswered(option.value) ? $themeTokens.progress : $themeTokens.textDisabled
+                    "
+                  />
+                  <span>
+                    {{ option.label }}
+                  </span>
+                </template>
+              </KSelect>
               <h2
                 v-else
                 class="number-of-questions"
@@ -318,6 +380,7 @@
               total: this.exam.question_count,
             }),
             value: this.currentSection.startQuestionNumber + i,
+            disabled: question.missing,
           })) || []
         );
       },
@@ -347,6 +410,16 @@
       },
       currentSectionOption() {
         return this.sectionSelectOptions[this.currentSectionIndex];
+      },
+      sectionCompletionMap() {
+        const answeredAttemptItems = this.pastattempts.filter(a => a.answer).map(a => a.item);
+        return this.sections.reduce((acc, { questions }, index) => {
+          acc[index] = questions
+            .filter(q => answeredAttemptItems.includes(q.item))
+            .map(q => q.item);
+
+          return acc;
+        }, {});
       },
       gridStyle() {
         if (!this.windowIsSmall) {
@@ -482,6 +555,31 @@
         });
     },
     methods: {
+      sectionQuestionsIconColor(index) {
+        const answered = this.sectionCompletionMap[index].length;
+        const total = this.sections[index].questions.length;
+        if (answered === total) {
+          return this.$themeTokens.progress;
+        } else if (answered > 0) {
+          return this.$themeTokens.progress;
+        }
+        return this.$themeTokens.textDisabled;
+      },
+      sectionQuestionsIcon(index) {
+        const answered = this.sectionCompletionMap[index].length;
+        const total = this.sections[index].questions.length;
+        if (answered === total) {
+          return 'unpublishedResource';
+        } else if (answered > 0) {
+          return 'unpublishedChange';
+        }
+        return 'unpublishedChange';
+      },
+      isAnswered(questionIndex) {
+        const question = this.questions[questionIndex];
+        const attempt = this.pastattempts.find(attempt => attempt.item === question.item);
+        return attempt && attempt.answer;
+      },
       handleSectionOptionChange(opt) {
         const index = opt.value;
         if (index === this.currentSectionIndex) {
@@ -772,6 +870,10 @@
     padding: 0;
     background-color: transparent;
     border: 0;
+  }
+
+  .dot {
+    margin-right: 5px;
   }
 
 </style>
