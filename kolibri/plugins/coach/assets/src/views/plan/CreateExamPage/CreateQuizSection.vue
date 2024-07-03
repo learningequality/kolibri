@@ -340,11 +340,11 @@
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import useAccordion from 'kolibri-common/components/useAccordion';
-  import useDrag from 'kolibri.coreVue.composables.useDrag';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
+  import useDrag from './useDrag.js';
   import TabsWithOverflow from './TabsWithOverflow';
 
   const logger = logging.getLogger(__filename);

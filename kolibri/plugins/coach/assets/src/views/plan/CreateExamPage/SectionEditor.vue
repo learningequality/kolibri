@@ -194,9 +194,9 @@
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
-  import useDrag from 'kolibri.coreVue.composables.useDrag';
   import { PageNames } from '../../../constants/index';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
+  import useDrag from './useDrag.js';
 
   export default {
     name: 'SectionEditor',
