@@ -14,11 +14,7 @@ sys.path = [os.path.abspath('kolibrisrc')] + sys.path
 import kolibri
 kolibri_version = kolibri.__version__
 
-
-import kolibri_app
-app_version = kolibri_app.__version__
-
-name = "Kolibri-{}-{}".format(kolibri_version, app_version)
+name = "Kolibri-{}".format(kolibri_version)
 
 locale_datas = [
     (mo_file, os.path.sep.join(os.path.dirname(mo_file).split(os.path.sep)[1:]))
@@ -136,7 +132,7 @@ if sys.platform == 'darwin':
                         'NSExceptionAllowsInsecureHTTPLoads': True
                     }
                 },
-                "CFBundleVersion": app_version,
+                "CFBundleVersion": kolibri_version,
             },
         }
     )
