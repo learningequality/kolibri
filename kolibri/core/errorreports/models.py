@@ -95,7 +95,7 @@ class ErrorReports(models.Model):
         context_frontend=None,
         context_backend=None,
     ):
-        if getattr(settings, "DEVELOPER_MODE", None):
+        if not getattr(settings, "DEVELOPER_MODE", None):
             error, created = cls.objects.get_or_create(
                 category=category,
                 error_message=error_message,
