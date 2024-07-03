@@ -77,7 +77,7 @@
                 >
                   <KIcon
                     v-if="question.missing"
-                    class="published"
+                    class="dot"
                     icon="warning"
                     :color="$themePalette.yellow.v_1100"
                   />
