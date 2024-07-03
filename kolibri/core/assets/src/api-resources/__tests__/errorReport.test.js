@@ -30,9 +30,8 @@ describe('Error Report', () => {
       error_message: 'Vue error',
       traceback: 'My stack trace',
       context: {
+        ...errorReport.getContext(),
         component: 'TestComponent',
-        browser: errorReport.getBrowserInfo(),
-        device: errorReport.getDeviceInfo(),
       },
     };
 
@@ -57,10 +56,7 @@ describe('Error Report', () => {
     const expectedData = {
       error_message: 'Javascript error',
       traceback: 'My stack trace',
-      context: {
-        browser: errorReport.getBrowserInfo(),
-        device: errorReport.getDeviceInfo(),
-      },
+      context: errorReport.getContext(),
     };
 
     Resource.client = jest.fn();
@@ -84,10 +80,7 @@ describe('Error Report', () => {
     const expectedData = {
       error_message: 'Unhandled rejection',
       traceback: 'My stack trace',
-      context: {
-        browser: errorReport.getBrowserInfo(),
-        device: errorReport.getDeviceInfo(),
-      },
+      context: errorReport.getContext(),
     };
 
     Resource.client = jest.fn();

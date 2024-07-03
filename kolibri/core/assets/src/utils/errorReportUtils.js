@@ -1,3 +1,5 @@
+import { browser, os, deviceWithTouch } from './browserInfo';
+
 class ErrorReport {
   constructor(e) {
     this.e = e;
@@ -6,18 +8,19 @@ class ErrorReport {
   getErrorReport() {
     throw new Error('getErrorReport() method must be implemented.');
   }
-  getDeviceInfo() {
+
+  getContext() {
     return {
-      type: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
-      platform: navigator.platform,
-      screen: {
-        width: window.innerWidth,
-        height: window.innerHeight,
+      browser: browser,
+      os: os,
+      device: {
+        ...deviceWithTouch,
+        screen: {
+          width: window.innerWidth,
+          height: window.innerHeight,
+        },
       },
     };
-  }
-  getBrowserInfo() {
-    return navigator.userAgent;
   }
 }
 
@@ -31,9 +34,8 @@ export class VueErrorReport extends ErrorReport {
       error_message: this.e.message,
       traceback: this.e.stack,
       context: {
+        ...this.getContext(),
         component: this.vm.$options.name || this.vm.$options._componentTag || 'Unknown Component',
-        browser: this.getBrowserInfo(),
-        device: this.getDeviceInfo(),
       },
     };
   }
@@ -44,10 +46,7 @@ export class JavascriptErrorReport extends ErrorReport {
     return {
       error_message: this.e.error.message,
       traceback: this.e.error.stack,
-      context: {
-        browser: this.getBrowserInfo(),
-        device: this.getDeviceInfo(),
-      },
+      context: this.getContext(),
     };
   }
 }
@@ -55,12 +54,9 @@ export class JavascriptErrorReport extends ErrorReport {
 export class UnhandledRejectionErrorReport extends ErrorReport {
   getErrorReport() {
     return {
-      error_message: this.e.reason ? this.e.reason.message : 'Unhandled Rejection',
-      traceback: this.e.reason ? this.e.reason.stack : 'No stack trace available',
-      context: {
-        browser: this.getBrowserInfo(),
-        device: this.getDeviceInfo(),
-      },
+      error_message: this.e.reason.message,
+      traceback: this.e.reason.stack,
+      context: this.getContext(),
     };
   }
 }
