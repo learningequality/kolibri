@@ -67,7 +67,7 @@ pyinstaller: clean
 	python3 -OO -m PyInstaller kolibri.spec
 
 build-dmg: needs-version
-	python3 -m dmgbuild -s build_config/dmgbuild_settings.py "Kolibri ${KOLIBRI_VERSION}-${APP_VERSION}" dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg
+	python3 -m dmgbuild -s build_config/dmgbuild_settings.py "Kolibri ${KOLIBRI_VERSION}" dist/kolibri-${KOLIBRI_VERSION}.dmg
 
 compile-mo:
 	find src/kolibri_app/locales -name LC_MESSAGES -exec msgfmt {}/wxapp.po -o {}/wxapp.mo \;
@@ -76,7 +76,7 @@ codesign-windows:
 	$(MAKE) guard-WIN_CODESIGN_PFX
 	$(MAKE) guard-WIN_CODESIGN_PWD
 	$(MAKE) guard-WIN_CODESIGN_CERT
-	C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe sign /f ${WIN_CODESIGN_PFX} /p ${WIN_CODESIGN_PWD} /ac ${WIN_CODESIGN_CERT} /tr http://timestamp.ssl.trustwave.com /td SHA256 /fd SHA256 dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.exe
+	C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe sign /f ${WIN_CODESIGN_PFX} /p ${WIN_CODESIGN_PWD} /ac ${WIN_CODESIGN_CERT} /tr http://timestamp.ssl.trustwave.com /td SHA256 /fd SHA256 dist/kolibri-${KOLIBRI_VERSION}.exe
 
 .PHONY: codesign-mac-app
 codesign-mac-app:
@@ -100,7 +100,7 @@ codesign-mac-app:
 .PHONY: codesign-dmg
 codesign-dmg: needs-version
 	$(MAKE) guard-MAC_CODESIGN_IDENTITY
-	xattr -cr dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg
+	xattr -cr dist/kolibri-${KOLIBRI_VERSION}.dmg
 	codesign \
 		--sign "Developer ID Application: $(MAC_CODESIGN_IDENTITY)" \
 		--verbose=3 \
@@ -110,14 +110,14 @@ codesign-dmg: needs-version
 		--strict \
 		--entitlements build_config/entitlements.plist \
 		-o runtime \
-		dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg
+		dist/kolibri-${KOLIBRI_VERSION}.dmg
 
 .PHONY: notarize-dmg
 notarize-dmg: needs-version
 	$(MAKE) guard-MAC_NOTARIZE_USERNAME
 	$(MAKE) guard-MAC_NOTARIZE_PASSWORD
 	$(MAKE) guard-MAC_NOTARIZE_TEAM_ID
-	./notarize-dmg.sh "./dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg"
+	./notarize-dmg.sh "./dist/kolibri-${KOLIBRI_VERSION}.dmg"
 
 
 run-dev:
