@@ -22,6 +22,7 @@
           :showLabel="false"
           :checked="contentIsChecked(content)"
           :indeterminate="contentIsIndeterminate(content)"
+          :disabled="contentCheckboxDisabled(content)"
           @change="handleCheckboxChange(content, $event)"
         />
         <KRadioButton
@@ -31,6 +32,7 @@
           :showLabel="false"
           :currentValue="contentIsChecked(content) ? content.id : 'none'"
           :buttonValue="content.id"
+          :disabled="contentCheckboxDisabled(content)"
           @change="handleCheckboxChange(content, true)"
         />
         <!--
@@ -143,6 +145,11 @@
       contentHasCheckbox: {
         type: Function, // ContentNode => Boolean
         required: true,
+      },
+      // Function that returns true if the content item is disabled
+      contentCheckboxDisabled: {
+        type: Function, // ContentNode => Boolean
+        default: () => false,
       },
       // Boolean to toggle on use of radio buttons instead of checkboxes
       showRadioButtons: {
