@@ -1,16 +1,23 @@
 context_frontend_schema = {
     "type": "object",
     "properties": {
-        "browser": {"type": "string"},
+        "browser": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "optional": True},
+                "major": {"type": "string", "optional": True},
+                "minor": {"type": "string", "optional": True},
+                "patch": {"type": "string", "optional": True},
+            },
+        },
         "component": {"type": "string", "optional": True},
         "device": {
             "type": "object",
             "properties": {
-                "type": {"type": "string"},  # "desktop", "tablet", "mobile"
-                "platform": {
-                    "type": "string",
-                    "optional": True,
-                },  # "windows", "mac", "linux", "android", "ios"
+                "model": {"type": "string", "optional": True},
+                "type": {"type": "string", "optional": True},
+                "vendor": {"type": "string", "optional": True},
+                "is_touch_device": {"type": "boolean", "optional": True},
                 "screen": {
                     "type": "object",
                     "properties": {
@@ -22,7 +29,7 @@ context_frontend_schema = {
         },
     },
 }
-default_context_frontend_schema = {"browser": "", "component": "N/A", "device": {}}
+default_context_frontend_schema = {"browser": {}, "component": "", "device": {}}
 context_backend_schema = {
     "type": "object",
     "properties": {

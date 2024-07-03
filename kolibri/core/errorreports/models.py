@@ -13,6 +13,7 @@ from kolibri import VERSION
 from kolibri.core.fields import JSONField
 from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.deployment.default.sqlite_db_names import ERROR_REPORTS
+from kolibri.utils.server import installation_type
 
 
 logger = logging.getLogger(__name__)
@@ -64,6 +65,7 @@ class ErrorReports(models.Model):
     release_version = models.CharField(
         max_length=64, default=".".join(map(str, VERSION[:2]))
     )
+    installation_type = models.CharField(max_length=64, blank=True)
     context_frontend = JSONField(
         null=True,
         blank=True,
@@ -93,13 +95,15 @@ class ErrorReports(models.Model):
         context_frontend=None,
         context_backend=None,
     ):
-        if not getattr(settings, "DEVELOPER_MODE", None):
+        if getattr(settings, "DEVELOPER_MODE", None):
             error, created = cls.objects.get_or_create(
                 category=category,
                 error_message=error_message,
                 traceback=traceback,
                 context_frontend=context_frontend,
                 context_backend=context_backend,
+                release_version=".".join(map(str, VERSION[:2])),
+                installation_type=installation_type(),
             )
             if not created:
                 error.events += 1
