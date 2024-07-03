@@ -32,7 +32,7 @@
           <div>
             <KTextbox
               ref="numQuest"
-              v-model="questionCount"
+              v-model.number="questionCount"
               type="number"
               :label="numberOfQuestionsLabel$()"
               :max="maxQuestions"
