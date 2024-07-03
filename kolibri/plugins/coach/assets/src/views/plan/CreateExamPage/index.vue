@@ -142,6 +142,7 @@
         allSectionsEmptyWarning$,
         closeConfirmationTitle$,
         closeConfirmationMessage$,
+        changesSavedSuccessfully$,
         sectionOrderLabel$,
         randomizedLabel$,
         fixedLabel$,
@@ -165,6 +166,7 @@
         allSectionsEmpty,
         allSectionsEmptyWarning$,
         saveAndClose$,
+        changesSavedSuccessfully$,
         sectionOrderLabel$,
         randomizedLabel$,
         fixedLabel$,
@@ -238,11 +240,16 @@
       saveQuizAndRedirect(close = true) {
         this.saveQuiz()
           .then(exam => {
+            this.$refs.detailsModal.handleSubmitSuccess();
+            this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
             if (close) {
               this.$router.replace({
                 name: PageNames.EXAMS,
                 params: {
                   classId: this.$route.params.classId,
+                },
+                query: {
+                  snackbar: this.changesSavedSuccessfully$(),
                 },
               });
             } else {

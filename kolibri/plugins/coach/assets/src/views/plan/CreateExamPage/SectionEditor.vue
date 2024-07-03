@@ -252,7 +252,6 @@
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         deleteConfirmation$,
-        changesSavedSuccessfully$,
         addQuestionsLabel$,
         addMoreQuestionsLabel$,
         sectionDeletedNotification$,
@@ -401,7 +400,6 @@
         currentSection$,
         deleteSectionLabel$,
         applySettings$,
-        changesSavedSuccessfully$,
         closeConfirmationTitle$,
         closeConfirmationMessage$,
         deleteConfirmation$,
@@ -478,7 +476,7 @@
             question_sources,
           });
         }
-        this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
+        this.$emit('closePanel');
       },
     },
   };
