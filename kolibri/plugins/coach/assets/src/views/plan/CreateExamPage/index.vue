@@ -246,15 +246,6 @@
       this.$store.dispatch('notLoading');
     },
     async created() {
-      if (this.$route.name === PageNames.QUIZ_REPLACE_QUESTIONS) {
-        this.$router.replace({
-          name: PageNames.EXAM_CREATION_ROOT,
-          params: {
-            classId: this.$route.params.classId,
-            quizId: this.$route.params.quizId,
-          },
-        });
-      }
       window.addEventListener('beforeunload', this.beforeUnload);
       await this.initializeQuiz(this.$route.params.classId, this.$route.params.quizId);
       this.quizInitialized = true;
