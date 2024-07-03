@@ -249,7 +249,7 @@
           params: {
             classId: to.params.classId,
             quizId: to.params.quizId,
-            sectionIndex: 0,
+            sectionIndex: '0',
           },
         });
       } else {
@@ -279,7 +279,7 @@
           params: {
             classId: this.$route.params.classId,
             quizId: this.$route.params.quizId,
-            sectionIndex: 0,
+            sectionIndex: '0',
           },
         });
       }
