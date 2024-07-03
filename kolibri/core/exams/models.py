@@ -158,8 +158,6 @@ class AbstractExam(models.Model):
     """
     data_model_version = models.SmallIntegerField(default=3)
 
-    date_created = models.DateTimeField(auto_now_add=True, null=True)
-
     def __str__(self):
         return self.title
 
@@ -195,6 +193,8 @@ class DraftExam(AbstractExam):
 
     assignments = JSONField(default=list, blank=True)
     learner_ids = JSONField(default=list, blank=True)
+
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     def to_exam(self):
         """
@@ -235,7 +235,7 @@ class Exam(AbstractExam, AbstractFacilityDataModel):
     # Is this exam currently active and visible to students to whom it is assigned?
     active = models.BooleanField(default=False)
 
-    date_created = models.DateTimeField(null=True)
+    date_created = models.DateTimeField(default=timezone.now)
 
     # To be set True when the quiz is first set to active=True
     date_activated = models.DateTimeField(default=None, null=True, blank=True)
