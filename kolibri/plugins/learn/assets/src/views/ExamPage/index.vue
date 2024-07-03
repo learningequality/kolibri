@@ -132,13 +132,12 @@
         </KGridItem>
       </KGrid>
       <BottomAppBar :maxWidth="null">
-        <component :is="windowIsSmall ? 'div' : 'KButtonGroup'">
+        <KButtonGroup :class="{ spread: !windowIsLarge }">
           <KButton
             :disabled="questionNumber === 0"
             :primary="true"
             :dir="layoutDirReset"
             :appearanceOverrides="navigationButtonStyle"
-            :class="{ 'left-align': windowIsSmall }"
             :aria-label="$tr('previousQuestion')"
             @click="goToPreviousQuestion"
           >
@@ -168,7 +167,22 @@
               />
             </template>
           </KButton>
-        </component>
+          <!-- below prev/next buttons in tab and DOM order -->
+          <KButton
+            v-if="!windowIsLarge && questionsUnanswered === 0"
+            :text="$tr('submitExam')"
+            :primary="true"
+            appearance="raised-button"
+            @click="finishExam"
+          />
+          <KButton
+            v-else-if="!windowIsLarge && !missingResources"
+            :text="$tr('submitExam')"
+            :primary="false"
+            appearance="flat-button"
+            @click="toggleModal"
+          />
+        </KButtonGroup>
 
         <!-- below prev/next buttons in tab and DOM order, in footer -->
         <div
@@ -679,6 +693,19 @@
 
   .bottom-block.windowIsSmall {
     text-align: center;
+  }
+
+  .spread {
+    display: flex;
+    justify-content: space-between;
+    // Swap the display order of the next and submit buttons
+    :nth-child(2) {
+      order: 3;
+    }
+
+    :nth-child(3) {
+      order: 2;
+    }
   }
 
   .left-align {
