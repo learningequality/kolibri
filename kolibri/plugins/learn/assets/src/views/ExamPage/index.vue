@@ -487,7 +487,7 @@
         if (index === this.currentSectionIndex) {
           return;
         }
-        this.goToQuestion(this.sections.startQuestionNumber);
+        this.goToQuestion(this.sections[index].startQuestionNumber);
       },
       handleQuestionOptionChange(opt) {
         const index = opt.value;
