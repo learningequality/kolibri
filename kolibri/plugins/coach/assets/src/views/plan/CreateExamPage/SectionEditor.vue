@@ -116,7 +116,7 @@
                 @moveDown="() => handleKeyboardDragDown(index, sectionOrderList)"
               />
               <span class="drag-title">
-                {{ displaySectionTitle(section, index).toUpperCase() }}
+                {{ sectionOrderingTitle(section) }}
               </span>
             </div>
           </DragHandle>
@@ -467,6 +467,12 @@
       handleKeyboardDragUp(oldIndex, array) {
         const newArray = this.moveUpOne(oldIndex, array);
         this.sectionOrderList = newArray;
+      },
+      sectionOrderingTitle(section) {
+        const sectionIndexOrder = this.allSections.findIndex(
+          s => s.section_id === section.section_id,
+        );
+        return displaySectionTitle(section, sectionIndexOrder).toUpperCase();
       },
     },
   };
