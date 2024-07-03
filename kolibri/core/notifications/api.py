@@ -160,15 +160,24 @@ def check_and_created_completed_resource(lesson, user_id, contentnode_id, timest
 
 def check_and_created_completed_lesson(lesson, user_id, timestamp):
     notification = None
-    # Check if the notification has been previously saved:
-    if not LearnerProgressNotification.objects.filter(
+
+    # Check if the notification has already been created:
+    lesson_completed_notification = LearnerProgressNotification.objects.filter(
         user_id=user_id,
         notification_object=NotificationObjectType.Lesson,
         notification_event=NotificationEventType.Completed,
         lesson_id=lesson["id"],
         classroom_id=lesson["classroom_id"],
-    ).exists():
-        # Let's create an Lesson Completion notification
+    ).first()
+
+    # if its notification timestamp is older than the current timestamp, keep the newer one
+    if (
+        lesson_completed_notification
+        and lesson_completed_notification.timestamp < timestamp
+    ):
+        lesson_completed_notification.timestamp = timestamp
+        notification = lesson_completed_notification
+    elif not lesson_completed_notification:
         notification = create_notification(
             NotificationObjectType.Lesson,
             NotificationEventType.Completed,
@@ -178,6 +187,7 @@ def check_and_created_completed_lesson(lesson, user_id, timestamp):
             lesson_id=lesson["id"],
             timestamp=timestamp,
         )
+
     return notification
 
 
@@ -231,15 +241,23 @@ def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
         )
     )
 
-    # Check if the Lesson started  has already been created:
-    if not LearnerProgressNotification.objects.filter(
+    # Check if the Lesson started has already been created:
+    lesson_started_notification = LearnerProgressNotification.objects.filter(
         user_id=user_id,
         notification_object=NotificationObjectType.Lesson,
         notification_event=NotificationEventType.Started,
         lesson_id=lesson["id"],
         classroom_id=lesson["classroom_id"],
-    ).exists():
-        # and create it if that's not the case
+    ).first()
+
+    # if its notification timestamp is greater than the current timestamp, keep the older one
+    if (
+        lesson_started_notification
+        and lesson_started_notification.timestamp > timestamp
+    ):
+        lesson_started_notification.timestamp = timestamp
+        notifications.append(lesson_started_notification)
+    elif not lesson_started_notification:
         notifications.append(
             create_notification(
                 NotificationObjectType.Lesson,
@@ -251,6 +269,7 @@ def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
                 timestamp=timestamp,
             )
         )
+
     return notifications
 
 
