@@ -34,10 +34,10 @@ jobs:
   dmg:
     name: Build DMG file
     needs: whl
-    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@v0.4.2
+    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@v0.4.3
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
-      ref: v0.4.2
+      ref: v0.4.3
   deb:
     name: Build DEB file
     needs: whl
