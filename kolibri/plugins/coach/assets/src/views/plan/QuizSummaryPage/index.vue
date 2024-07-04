@@ -46,8 +46,8 @@
             </p>
 
             <QuestionListPreview
+              :sections="quiz.question_sources || []"
               :fixedOrder="!quizIsRandomized"
-              :selectedQuestions="selectedQuestions"
               :selectedExercises="selectedExercises"
             />
           </section>
