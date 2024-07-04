@@ -1074,62 +1074,40 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             sibling_assessment_metadata.number_of_assessments,
         )
 
-    def test_contentnode_descendants_topic_siblings_ancestor_ids(self):
+    def test_contentnode_descendant_counts_topic_siblings_ancestor_ids(self):
         root = content.ContentNode.objects.get(parent__isnull=True)
         topics = content.ContentNode.objects.filter(
             parent=root, kind=content_kinds.TOPIC
         )
         topic_ids = topics.values_list("id", flat=True)
         response = self.client.get(
-            reverse("kolibri:core:contentnode-descendants"),
+            reverse("kolibri:core:contentnode-descendant-counts"),
             data={"ids": ",".join(topic_ids)},
         )
-        for datum in response.data:
-            topic = topics.get(id=datum["ancestor_id"])
-            self.assertTrue(topic.get_descendants().filter(id=datum["id"]).exists())
-
-    def test_contentnode_descendants_topic_siblings_kind_filter(self):
-        root = content.ContentNode.objects.get(parent__isnull=True)
-        topics = content.ContentNode.objects.filter(
-            parent=root, kind=content_kinds.TOPIC
-        )
-        topic_ids = topics.values_list("id", flat=True)
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-descendants"),
-            data={
-                "ids": ",".join(topic_ids),
-                "descendant_kind": content_kinds.EXERCISE,
-            },
-        )
-        for datum in response.data:
-            topic = topics.get(id=datum["ancestor_id"])
-            self.assertTrue(
-                topic.get_descendants()
-                .filter(id=datum["id"], kind=content_kinds.EXERCISE)
-                .exists()
+        lookup = {datum["id"]: datum for datum in response.data}
+        for topic in topics:
+            self.assertEqual(
+                lookup[topic.id]["on_device_resources"], topic.on_device_resources
             )
 
-    def test_contentnode_descendants_topic_parent_child_ancestor_ids(self):
+    def test_contentnode_descendant_counts_topic_parent_child_ancestor_ids(self):
         root = content.ContentNode.objects.get(parent__isnull=True)
         topic = content.ContentNode.objects.filter(
             parent=root, kind=content_kinds.TOPIC, children__isnull=False
         ).first()
         response = self.client.get(
-            reverse("kolibri:core:contentnode-descendants"),
+            reverse("kolibri:core:contentnode-descendant-counts"),
             data={"ids": ",".join((root.id, topic.id))},
         )
-        topic_items = [
-            datum for datum in response.data if datum["ancestor_id"] == topic.id
-        ]
-        for node in topic.get_descendants(include_self=False).filter(available=True):
-            self.assertTrue(next(item for item in topic_items if item["id"] == node.id))
-        root_items = [
-            datum for datum in response.data if datum["ancestor_id"] == root.id
-        ]
-        for node in root.get_descendants(include_self=False).filter(available=True):
-            self.assertTrue(next(item for item in root_items if item["id"] == node.id))
+        lookup = {datum["id"]: datum for datum in response.data}
+        self.assertEqual(
+            lookup[root.id]["on_device_resources"], root.on_device_resources
+        )
+        self.assertEqual(
+            lookup[topic.id]["on_device_resources"], topic.on_device_resources
+        )
 
-    def test_contentnode_descendants_availability(self):
+    def test_contentnode_descendant_counts_availability(self):
         content.ContentNode.objects.all().update(available=False)
         root = content.ContentNode.objects.get(parent__isnull=True)
         topics = content.ContentNode.objects.filter(
@@ -1137,7 +1115,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         topic_ids = topics.values_list("id", flat=True)
         response = self.client.get(
-            reverse("kolibri:core:contentnode-descendants"),
+            reverse("kolibri:core:contentnode-descendant-counts"),
             data={"ids": ",".join(topic_ids)},
         )
         self.assertEqual(len(response.data), 0)
