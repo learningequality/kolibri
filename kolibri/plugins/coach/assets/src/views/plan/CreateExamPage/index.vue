@@ -132,8 +132,15 @@
     setup() {
       const closeConfirmationToRoute = ref(null);
       const { classId, groups } = useCoreCoach();
-      const { quizHasChanged, quiz, updateQuiz, saveQuiz, initializeQuiz, allSectionsEmpty } =
-        useQuizCreation();
+      const {
+        quizHasChanged,
+        quiz,
+        updateQuiz,
+        saveQuiz,
+        initializeQuiz,
+        allSectionsEmpty,
+        allSections,
+      } = useQuizCreation();
       const showError = ref(false);
       const quizInitialized = ref(false);
 
@@ -163,6 +170,7 @@
         updateQuiz,
         initializeQuiz,
         quizInitialized,
+        allSections,
         allSectionsEmpty,
         allSectionsEmptyWarning$,
         saveAndClose$,
@@ -221,6 +229,35 @@
         });
       },
     },
+    beforeRouteEnter(to, from, next) {
+      // If we're coming from no quizId and going to replace questions, redirect to exam creation
+      // then we're coming from another page altogether OR we're coming back from a refresh
+      if (!from.params?.quizId && to.name === PageNames.QUIZ_REPLACE_QUESTIONS) {
+        next({
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: to.params.classId,
+            quizId: to.params.quizId,
+          },
+        });
+      } else {
+        next();
+      }
+    },
+    beforeRouteUpdate(to, from, next) {
+      if (to.params.sectionIndex >= this.allSections.length) {
+        next({
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: to.params.classId,
+            quizId: to.params.quizId,
+            sectionIndex: '0',
+          },
+        });
+      } else {
+        next();
+      }
+    },
     beforeRouteLeave(to, from, next) {
       if (this.quizHasChanged && !this.closeConfirmationToRoute) {
         this.closeConfirmationToRoute = to;
@@ -233,10 +270,31 @@
       this.$store.dispatch('notLoading');
     },
     async created() {
+      window.addEventListener('beforeunload', this.beforeUnload);
       await this.initializeQuiz(this.$route.params.classId, this.$route.params.quizId);
+      // If the section index doesn't exist, redirect to the first section; we also do this in
+      // beforeRouteUpdate. We do this here to avoid fully initializing the quiz if we're going to
+      // redirect anyway.
+      if (this.$route.params.sectionIndex >= this.allSections.length) {
+        this.$router.replace({
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: this.$route.params.classId,
+            quizId: this.$route.params.quizId,
+            sectionIndex: '0',
+          },
+        });
+      }
       this.quizInitialized = true;
     },
     methods: {
+      beforeUnload(e) {
+        if (this.quizHasChanged) {
+          if (!window.confirm(this.closeConfirmationTitle$())) {
+            e.preventDefault();
+          }
+        }
+      },
       saveQuizAndRedirect(close = true) {
         this.saveQuiz()
           .then(exam => {

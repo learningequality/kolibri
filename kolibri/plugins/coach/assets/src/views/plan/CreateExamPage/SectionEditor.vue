@@ -304,9 +304,9 @@
       }
 
       /* Note that the use of snake_case here is to map directly to the API */
-      const learners_see_fixed_order = ref(activeSection.value.learners_see_fixed_order);
-      const description = ref(activeSection.value.description);
-      const section_title = ref(activeSection.value.section_title.trim());
+      const learners_see_fixed_order = ref(activeSection?.value?.learners_see_fixed_order || false);
+      const description = ref(activeSection?.value?.description || '');
+      const section_title = ref(activeSection?.value?.section_title?.trim() || '');
 
       const sectionTitleInvalidText = computed(() => {
         if (section_title.value.trim() === '') {
