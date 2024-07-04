@@ -12,6 +12,9 @@ from django.http import Http404
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
+from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import DateTimeFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import LessonReportSerializer
 from kolibri.core.api import ValuesViewset
@@ -81,6 +84,20 @@ class ClassroomNotificationsPermissions(permissions.BasePermission):
             return False
 
 
+class ClassroomNotificationsFilter(FilterSet):
+    before = DateTimeFilter(field_name="timestamp", lookup_expr="lt", method="filter_before")
+    after = DateTimeFilter(field_name="timestamp", lookup_expr="gt")
+
+    class Meta:
+        model = LearnerProgressNotification
+        fields = ["before", "after"]
+
+    def filter_before(self, queryset, name, value):
+        # Don't allow arbitrary backwards lookups
+        if self.request.query_params.get("limit", None):
+            return queryset.filter(timestamp__lt=value)
+        return queryset
+
 @query_params_required(classroom_id=str)
 class ClassroomNotificationsViewset(ValuesViewset):
 
@@ -103,6 +120,9 @@ class ClassroomNotificationsViewset(ValuesViewset):
     )
 
     field_map = {"object": "notification_object", "event": "notification_event"}
+
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ClassroomNotificationsFilter
 
     def check_after(self):
         """
@@ -190,15 +210,8 @@ class ClassroomNotificationsViewset(ValuesViewset):
         )
         notifications_query = self.apply_learner_filter(notifications_query)
         notifications_query = self.apply_group_filter(notifications_query)
-        after = self.check_after()
-        if after:
-            # after is an id, so we need to get the notiication with that id, and filter by timestamp
-            after_timestamp = notifications_query.get(id=after).timestamp
-            notifications_query = notifications_query.filter(
-                timestamp__gt=after_timestamp
-            )
-        before = self.check_before()
-
+        after = self.request.query_params.get("after", None)
+        before = self.request.query_params.get("before", None)
         if not after and not before:
             try:
                 last_record = notifications_query.latest("timestamp")
@@ -212,14 +225,6 @@ class ClassroomNotificationsViewset(ValuesViewset):
             except DatabaseError:
                 repair_sqlite_db(connections[NOTIFICATIONS])
                 return LearnerProgressNotification.objects.none()
-
-        limit = self.check_limit()
-        if before and limit:
-            # Don't allow arbitrary backwards lookups
-            before_timestamp = notifications_query.get(id=before).timestamp
-            notifications_query = notifications_query.filter(
-                timestamp__lt=before_timestamp
-            )
 
         return notifications_query
 

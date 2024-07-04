@@ -28,9 +28,9 @@ export default {
   getters: {
     allNotifications,
     summarizedNotifications,
-    maxNotificationIndex(state) {
+    maxNotificationTimestamp(state) {
       if (state.notifications.length > 0) {
-        return maxBy(state.notifications, n => new Date(n.timestamp)).id;
+        return maxBy(state.notifications, n => new Date(n.timestamp)).timestamp;
       }
       return 0;
     },
@@ -101,7 +101,7 @@ export default {
         .fetchCollection({
           getParams: {
             classroom_id: classroomId,
-            before: lastNotification.id,
+            before: lastNotification.timestamp,
             limit,
             ...(params || {}),
           },
@@ -126,7 +126,7 @@ export default {
       setTimeout(() => {
         store.dispatch('updateNotificationsForClass', {
           classroomId: store.state.currentClassroomId,
-          after: store.getters.maxNotificationIndex,
+          after: store.getters.maxNotificationTimestamp,
         });
       }, timeout);
     },
