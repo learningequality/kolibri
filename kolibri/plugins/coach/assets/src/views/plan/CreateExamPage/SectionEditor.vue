@@ -287,6 +287,9 @@
       const description = ref(activeSection.value.description);
       const section_title = ref(activeSection.value.section_title.trim());
 
+      // This is used to track the section that was moved
+      const reorderedSectionIndex = ref(null);
+
       const sectionTitleInvalidText = computed(() => {
         if (section_title.value.trim() === '') {
           // Always allow empty section titles
@@ -339,6 +342,7 @@
       });
 
       return {
+        reorderedSectionIndex,
         sectionTitleInvalidText,
         sectionTitleInvalid: computed(() => Boolean(sectionTitleInvalidText.value)),
         formDataHasChanged,
@@ -435,6 +439,13 @@
     methods: {
       handleSectionSort(e) {
         this.sectionOrderList = e.newArray;
+        const reorderedId = this.allSections[this.activeSectionIndex].section_id;
+        const newIndex = this.sectionOrderList.findIndex((section, index) => {
+          if (section.section_id === reorderedId) {
+            return index;
+          }
+        });
+        newIndex > -1 ? (this.reorderedSectionIndex = newIndex) : (this.reorderedSectionIndex = 0);
       },
       applySettings() {
         if (this.sectionTitleInvalid) {
@@ -458,7 +469,16 @@
             question_sources,
           });
         }
+
         this.$emit('closePanel');
+        this.$router.replace({
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: this.$route.params.classId,
+            quizId: this.$route.params.quizId,
+            sectionIndex: this.reorderedSectionIndex,
+          },
+        });
       },
       handleKeyboardDragDown(oldIndex, array) {
         const newArray = this.moveDownOne(oldIndex, array);
