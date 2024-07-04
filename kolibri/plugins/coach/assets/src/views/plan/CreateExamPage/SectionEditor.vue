@@ -440,12 +440,9 @@
       handleSectionSort(e) {
         this.sectionOrderList = e.newArray;
         const reorderedId = this.allSections[this.activeSectionIndex].section_id;
-        const newIndex = this.sectionOrderList.findIndex((section, index) => {
-          if (section.section_id === reorderedId) {
-            return index;
-          }
-        });
-        newIndex > -1 ? (this.reorderedSectionIndex = newIndex) : (this.reorderedSectionIndex = 0);
+        this.reorderedSectionIndex = this.sectionOrderList.findIndex(
+          section => section.section_id === reorderedId,
+        );
       },
       applySettings() {
         if (this.sectionTitleInvalid) {
@@ -470,15 +467,21 @@
           });
         }
 
-        this.$emit('closePanel');
-        this.$router.replace({
-          name: PageNames.EXAM_CREATION_ROOT,
-          params: {
-            classId: this.$route.params.classId,
-            quizId: this.$route.params.quizId,
-            sectionIndex: this.reorderedSectionIndex,
-          },
-        });
+        if (
+          this.reorderedSectionIndex !== null &&
+          this.reorderedSectionIndex !== this.activeSectionIndex
+        ) {
+          this.$router.replace({
+            name: PageNames.EXAM_CREATION_ROOT,
+            params: {
+              classId: this.$route.params.classId,
+              quizId: this.$route.params.quizId,
+              sectionIndex: this.reorderedSectionIndex,
+            },
+          });
+        } else {
+          this.$emit('closePanel');
+        }
       },
       handleKeyboardDragDown(oldIndex, array) {
         const newArray = this.moveDownOne(oldIndex, array);
