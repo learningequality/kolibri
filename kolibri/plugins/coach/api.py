@@ -9,12 +9,14 @@ from django.db.models import Sum
 from django.db.utils import DatabaseError
 from django.db.utils import OperationalError
 from django.http import Http404
+from django_filters.rest_framework import CharFilter
+from django_filters.rest_framework import DateTimeFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import UUIDFilter
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
-from django_filters.rest_framework import FilterSet
-from django_filters.rest_framework import DateTimeFilter
-from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import LessonReportSerializer
 from kolibri.core.api import ValuesViewset
@@ -85,18 +87,24 @@ class ClassroomNotificationsPermissions(permissions.BasePermission):
 
 
 class ClassroomNotificationsFilter(FilterSet):
-    before = DateTimeFilter(field_name="timestamp", lookup_expr="lt", method="filter_before")
+    classroom_id = UUIDFilter(field_name="classroom_id")
     after = DateTimeFilter(field_name="timestamp", lookup_expr="gt")
+    before = DateTimeFilter(
+        field_name="timestamp", lookup_expr="lt", method="filter_before"
+    )
+    learner_id = UUIDFilter(field_name="user_id")
+    group_id = CharFilter(field_name="assignment_collections", lookup_expr="contains")
 
     class Meta:
         model = LearnerProgressNotification
-        fields = ["before", "after"]
+        fields = ["before", "after", "classroom_id", "learner_id", "group_id"]
 
     def filter_before(self, queryset, name, value):
         # Don't allow arbitrary backwards lookups
         if self.request.query_params.get("limit", None):
             return queryset.filter(timestamp__lt=value)
         return queryset
+
 
 @query_params_required(classroom_id=str)
 class ClassroomNotificationsViewset(ValuesViewset):
@@ -124,32 +132,6 @@ class ClassroomNotificationsViewset(ValuesViewset):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ClassroomNotificationsFilter
 
-    def check_after(self):
-        """
-        Check if after parameter must be used for the query
-        """
-        notifications_after = self.request.query_params.get("after", None)
-        after = None
-        if notifications_after:
-            try:
-                after = int(notifications_after)
-            except ValueError:
-                pass  # if after has not a valid format, let's not use it
-        return after
-
-    def check_before(self):
-        """
-        Check if before parameter must be used for the query
-        """
-        notifications_before = self.request.query_params.get("before", None)
-        before = None
-        if notifications_before:
-            try:
-                before = int(notifications_before)
-            except ValueError:
-                pass  # if before has not a valid format, let's not use it
-        return before
-
     def check_limit(self):
         """
         Check if limit parameter must be used for the query
@@ -163,70 +145,38 @@ class ClassroomNotificationsViewset(ValuesViewset):
                 pass  # if limit has not a valid format, let's not use it
         return limit
 
-    def apply_learner_filter(self, query):
-        """
-        Filter the notifications by learner_id if applicable
-        """
-        learner_id = self.request.query_params.get("learner_id", None)
-        if learner_id:
-            return query.filter(user_id=learner_id)
-        return query
-
-    def apply_group_filter(self, query):
-        """
-        Filter the notifications by group_id if applicable
-        """
-        group_id = self.request.query_params.get("group_id", None)
-        if group_id:
-            return query.filter(assignment_collections__contains=group_id)
-        return query
-
     def get_queryset(self):
-        """
-        Returns the notifications in reverse-chronological order, filtered by the query parameters.
-        By default it sends only notifications from the past day.
-        If a 'page_size' parameter is used, that sets a maximum number of results.
-        If a 'page' parameter is used, the past day limit is not applied.
-
-        Some url examples:
-        /coach/api/notifications/?classroom_id=9da65157a8603788fd3db890d2035a9f
-        /coach/api/notifications/?classroom_id=9da65157a8603788fd3db890d2035a9f&after=8&limit=10
-        /coach/api/notifications/?limit=5&classroom_id=9da65157a8603788fd3db890d2035a9f&learner_id=94117bb5868a1ef529b8be60f17ff41a
-        /coach/api/notifications/?classroom_id=9da65157a8603788fd3db890d2035a9f
-
-        :param: classroom_id uuid: classroom or learner group identifier (mandatory)
-        :param: learner_id uuid: user identifier
-        :param: group_id uuid: group identifier
-        :param: after integer: all the notifications after this id will be sent.
-        :param: limit integer: sets the number of notifications to provide
-        """
         classroom_id = self.kwargs.get("classroom_id", None)
 
         if classroom_id is None:
             return LearnerProgressNotification.objects.none()
 
-        notifications_query = LearnerProgressNotification.objects.filter(
-            classroom_id=classroom_id
-        )
-        notifications_query = self.apply_learner_filter(notifications_query)
-        notifications_query = self.apply_group_filter(notifications_query)
+        return LearnerProgressNotification.objects
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        classroom_id = self.kwargs.get("classroom_id", None)
+        if classroom_id is None:
+            return LearnerProgressNotification.objects.none()
+
+        limit = self.check_limit()
         after = self.request.query_params.get("after", None)
-        before = self.request.query_params.get("before", None)
+        before = self.request.query_params.get("before", None) if limit else None
+
         if not after and not before:
             try:
-                last_record = notifications_query.latest("timestamp")
+                last_record = queryset.latest("timestamp")
                 # returns all the notifications 24 hours older than the latest
                 last_24h = last_record.timestamp - datetime.timedelta(days=1)
-                notifications_query = notifications_query.filter(
-                    timestamp__gte=last_24h
-                )
+                queryset = queryset.filter(timestamp__gte=last_24h)
             except (LearnerProgressNotification.DoesNotExist):
                 return LearnerProgressNotification.objects.none()
             except DatabaseError:
                 repair_sqlite_db(connections[NOTIFICATIONS])
                 return LearnerProgressNotification.objects.none()
 
-        return notifications_query
+        return queryset
 
     def annotate_queryset(self, queryset):
         queryset = queryset.order_by("-timestamp")
