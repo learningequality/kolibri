@@ -30,7 +30,7 @@ export default {
     summarizedNotifications,
     maxNotificationTimestamp(state) {
       if (state.notifications.length > 0) {
-        return maxBy(state.notifications, n => new Date(n.timestamp)).timestamp;
+        return state.notifications[0].timestamp;
       }
       return 0;
     },
@@ -91,7 +91,7 @@ export default {
     },
     moreNotificationsForClass(store, params) {
       const classroomId = store.state.currentClassroomId;
-      const lastNotification = minBy(store.state.notifications, n => new Date(n.timestamp));
+      const lastNotification = store.state.notifications.slice(-1)[0];
       // don't fetch if no current classroom
       if (!classroomId || !lastNotification || lastNotification.id <= 1) {
         return Promise.resolve(false);
