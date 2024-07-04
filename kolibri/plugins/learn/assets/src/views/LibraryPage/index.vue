@@ -83,7 +83,6 @@
           />
           <h1>folder card</h1>
           <AccessibleFolderCard />
-
         </div>
 
         <SearchResultsGrid
@@ -223,7 +222,7 @@
       LearnAppBarPage,
       OtherLibraries,
       PostSetupModalGroup,
-      AccessibleFolderCard
+      AccessibleFolderCard,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {

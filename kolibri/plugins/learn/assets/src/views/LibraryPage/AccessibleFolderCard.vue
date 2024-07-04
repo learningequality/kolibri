@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <KGrid gutter="16" >
+    <KGrid gutter="16">
       <KGridItem
         v-for="(contentNode, idx) in resumableContentNodes"
         :key="idx"
@@ -13,9 +13,8 @@
           thumbnailDisplay="small"
           :thumbnailSrc="thumbnailUrl(contentNode)"
           :headingLevel="2"
-          style="margin-bottom:1em;"
+          style="margin-bottom: 1em"
         >
-        
           <template #aboveTitle>
             <div>
               <h4>Hello</h4>
@@ -33,9 +32,9 @@
             <div
               :style="{
                 'background-color': $themePalette.grey.v_100,
-                'padding': '2px', 
-                'width': '80px' 
-              }" 
+                padding: '2px',
+                width: '80px',
+              }"
             >
               <KIcon icon="topic" /> Folder
             </div>
@@ -43,7 +42,6 @@
         </KCard>
       </KGridItem>
     </KGrid>
-    
   </div>
 
 </template>
@@ -57,7 +55,6 @@
   import useCardLayoutSpan from '../../composables/useCardLayoutSpan';
   import useChannels from '../../composables/useChannels';
   import useLearnerResources from '../../composables/useLearnerResources';
-  
 
   export default {
     name: 'AccessibleFolderCard',
@@ -74,7 +71,7 @@
         windowIsSmall,
         layoutSpan,
         resumableContentNodes,
-        getChannelThumbnail
+        getChannelThumbnail,
       };
     },
     methods: {
@@ -88,8 +85,7 @@
         }
         return thumbnail;
       },
-    }
-
+    },
   };
 
 </script>
