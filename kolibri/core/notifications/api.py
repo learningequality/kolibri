@@ -171,7 +171,8 @@ def check_and_created_completed_lesson(lesson, user_id, timestamp):
         classroom_id=lesson["classroom_id"],
     ).first()
 
-    # if its notification timestamp is older than the current timestamp, keep the newer one
+    # if it exists, keep the most recent timestamp, as a lesson is completed
+    # when the last resource is completed
     if (
         lesson_completed_notification
         and lesson_completed_notification.timestamp < timestamp
@@ -251,7 +252,8 @@ def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
         classroom_id=lesson["classroom_id"],
     ).first()
 
-    # if its notification timestamp is greater than the current timestamp, keep the older one
+    # if it exists, keep the oldest timestamp, as a lesson is started
+    # when the first resource is started
     if (
         lesson_started_notification
         and lesson_started_notification.timestamp > timestamp
@@ -319,6 +321,10 @@ def start_lesson_resource(summarylog, contentnode_id, lesson_id):
 
 
 def _get_resource_completion_timestamp(summarylog):
+    """
+    If the resource has a mastery level, returns the completion time of
+    the first attempt. Otherwise, returns the completion time of the summarylog.
+    """
     mastery_first_completed = (
         MasteryLog.objects.filter(summarylog_id=summarylog.id, complete=True)
         .order_by("completion_timestamp")
@@ -331,63 +337,77 @@ def _get_resource_completion_timestamp(summarylog):
     return mastery_first_completed.completion_timestamp
 
 
+def _is_summary_log_incompleted(summarylog):
+    # We also check the completion_timestamp as the resource could have been completed
+    # but the user could have tried it again so the progress is 0.
+    return summarylog.progress < 1.0 and not summarylog.completion_timestamp
+
+
+def _get_lesson_resource_completed_notifications(
+    summarylog, contentnode_id, lesson, completion_timestamp
+):
+    notifications = []
+
+    resource_completed_notification = check_and_created_completed_resource(
+        lesson, summarylog.user_id, contentnode_id, completion_timestamp
+    )
+    if resource_completed_notification:
+        notifications.append(resource_completed_notification)
+    else:
+        return notifications
+
+    # Let's check if all resouces in the lesson are completed
+    lesson_content_ids = [resource["content_id"] for resource in lesson["resources"]]
+
+    # We also check the completion_timestamp as the resource could have been completed
+    # but the user could have tried it again so the progress is 0.
+    resource_completed_Q = Q(progress__gte=1.0) | Q(completion_timestamp__isnull=False)
+    lesson_resouces_completed = ContentSummaryLog.objects.filter(
+        resource_completed_Q,
+        user_id=summarylog.user_id,
+        content_id__in=lesson_content_ids,
+    ).count()
+
+    if lesson_resouces_completed == len(lesson_content_ids):
+        lesson_completed_notification = check_and_created_completed_lesson(
+            lesson, summarylog.user_id, completion_timestamp
+        )
+        if lesson_completed_notification:
+            notifications.append(lesson_completed_notification)
+
+    return notifications
+
+
 def finish_lesson_resource(summarylog, contentnode_id, lesson_id):
     """
     Called to create resource completed notifications (and lesson completed notifications)
     when a resource is finished within the context of a lesson.
     """
-    if summarylog.progress < 1.0 and not summarylog.completion_timestamp:
+    if _is_summary_log_incompleted(summarylog):
         return
 
     lesson = _get_lesson_dict(lesson_id)
     if lesson:
-        notifications = []
         completion_timestamp = _get_resource_completion_timestamp(summarylog)
-        # Now let's check completed resources and lessons:
-        notification_completed = check_and_created_completed_resource(
-            lesson, summarylog.user_id, contentnode_id, completion_timestamp
+        notifications = _get_lesson_resource_completed_notifications(
+            summarylog, contentnode_id, lesson, completion_timestamp
         )
-        if notification_completed:
-            notifications.append(notification_completed)
-        else:
-            return
-        lesson_content_ids = [
-            resource["content_id"] for resource in lesson["resources"]
-        ]
-
-        # Let's check if an LessonResourceIndividualCompletion needs to be created
-        user_completed_resources = ContentSummaryLog.objects.filter(
-            Q(progress__gte=1.0) | Q(completion_timestamp__isnull=False),
-            user_id=summarylog.user_id,
-            content_id__in=lesson_content_ids,
-        ).count()
-        if user_completed_resources == len(lesson_content_ids):
-            notification_completed = check_and_created_completed_lesson(
-                lesson, summarylog.user_id, completion_timestamp
-            )
-            if notification_completed:
-                notifications.append(notification_completed)
-
-    save_notifications(notifications)
+        save_notifications(notifications)
 
 
-def _create_needs_help_notification(attemptlog, contentnode_id, lesson):
-    # get all the attempt logs on this exercise:
-    failed_interactions = []
+def _get_user_needs_help(attemptlog):
     attempts = AttemptLog.objects.filter(masterylog_id=attemptlog.masterylog_id)
-
     failed_interactions = [
-        failed
+        interaction
         for attempt in attempts
-        for failed in attempt.interaction_history
-        if failed.get("correct", 0) == 0
+        for interaction in attempt.interaction_history
+        if interaction.get("correct", 0) == 0
     ]
 
-    # More than 3 errors in this mastery log:
-    needs_help = len(failed_interactions) > 3
-    if not needs_help:
-        return
+    return len(failed_interactions) > 3
 
+
+def _get_help_needed_notification(attemptlog, contentnode_id, lesson):
     help_needed_notification = LearnerProgressNotification.objects.filter(
         user_id=attemptlog.user_id,
         notification_object=NotificationObjectType.Resource,
@@ -397,7 +417,7 @@ def _create_needs_help_notification(attemptlog, contentnode_id, lesson):
         contentnode_id=contentnode_id,
     ).first()
 
-    # This Event should be triggered only once
+    # This Event should be triggered only once or updated if the user keeps failing
     # TODO: Decide if add a day interval filter, to trigger the event in different days
     if not help_needed_notification:
         return create_notification(
@@ -413,9 +433,13 @@ def _create_needs_help_notification(attemptlog, contentnode_id, lesson):
         )
 
     # If the current attempt is newer and the student keeps failing, update the timestamp
-    is_failed_attempt = attemptlog.interaction_history and sum(
-        1 if not interaction.get("correct", 0) == 0 else 0
-        for interaction in attemptlog.interaction_history
+    is_failed_attempt = (
+        attemptlog.interaction_history
+        and sum(
+            1 if not interaction.get("correct", 0) == 0 else 0
+            for interaction in attemptlog.interaction_history
+        )
+        > 0
     )
     if (
         is_failed_attempt
@@ -423,6 +447,14 @@ def _create_needs_help_notification(attemptlog, contentnode_id, lesson):
     ):
         help_needed_notification.timestamp = attemptlog.end_timestamp
         return help_needed_notification
+
+
+def _create_needs_help_notification(attemptlog, contentnode_id, lesson):
+    needs_help = _get_user_needs_help(attemptlog)
+    if not needs_help:
+        return
+
+    return _get_help_needed_notification(attemptlog, contentnode_id, lesson)
 
 
 def start_lesson_assessment(attemptlog, contentnode_id, lesson_id):
@@ -465,37 +497,18 @@ def parse_summarylog(summarylog):
     Lesson Completed notification.
     """
 
-    if summarylog.progress < 1.0 and not summarylog.completion_timestamp:
+    if _is_summary_log_incompleted(summarylog):
+        # We also check the completion_timestamp as the resource could have been completed
+        # but the user could have tried it again so the progress is 0.
         return
 
     lessons = get_assignments(summarylog.user, summarylog)
     completion_timestamp = _get_resource_completion_timestamp(summarylog)
     notifications = []
     for lesson, contentnode_id in lessons:
-        # Now let's check completed resources and lessons:
-        notification_completed = check_and_created_completed_resource(
-            lesson, summarylog.user_id, contentnode_id, completion_timestamp
+        notifications += _get_lesson_resource_completed_notifications(
+            summarylog, contentnode_id, lesson, completion_timestamp
         )
-        if notification_completed:
-            notifications.append(notification_completed)
-        else:
-            continue
-        lesson_content_ids = [
-            resource["content_id"] for resource in lesson["resources"]
-        ]
-
-        # Let's check if an LessonResourceIndividualCompletion needs to be created
-        user_completed = ContentSummaryLog.objects.filter(
-            Q(progress__gte=1.0) | Q(completion_timestamp__isnull=False),
-            user_id=summarylog.user_id,
-            content_id__in=lesson_content_ids,
-        ).count()
-        if user_completed == len(lesson_content_ids):
-            notification_completed = check_and_created_completed_lesson(
-                lesson, summarylog.user_id, completion_timestamp
-            )
-            if notification_completed:
-                notifications.append(notification_completed)
 
     save_notifications(notifications)
 
@@ -732,44 +745,15 @@ def parse_attemptslog(attemptlog):
     )
     if not lessons:
         return
-    # get all the attempt logs on this exercise:
-    failed_interactions = []
-    attempts = AttemptLog.objects.filter(masterylog_id=attemptlog.masterylog_id)
 
-    failed_interactions = [
-        failed
-        for attempt in attempts
-        for failed in attempt.interaction_history
-        if failed.get("correct", 0) == 0
-    ]
-
-    # More than 3 errors in this mastery log:
-    needs_help = len(failed_interactions) > 3
-
+    needs_help = _get_user_needs_help(attemptlog)
     notifications = []
     for lesson, contentnode_id in lessons:
         if needs_help:
-            # This Event should be triggered only once
-            # TODO: Decide if add a day interval filter, to trigger the event in different days
-            if not LearnerProgressNotification.objects.filter(
-                user_id=attemptlog.user_id,
-                notification_object=NotificationObjectType.Resource,
-                notification_event=NotificationEventType.Help,
-                lesson_id=lesson["id"],
-                classroom_id=lesson["classroom_id"],
-                contentnode_id=contentnode_id,
-            ).exists():
-                notification = create_notification(
-                    NotificationObjectType.Resource,
-                    NotificationEventType.Help,
-                    attemptlog.user_id,
-                    lesson["classroom_id"],
-                    assignment_collections=lesson["assignment_collections"],
-                    lesson_id=lesson["id"],
-                    contentnode_id=contentnode_id,
-                    reason=HelpReason.Multiple,
-                    timestamp=attemptlog.end_timestamp,
-                )
+            notification = _get_help_needed_notification(
+                attemptlog, contentnode_id, lesson
+            )
+            if notification:
                 notifications.append(notification)
 
         notifications_started = check_and_created_started(
