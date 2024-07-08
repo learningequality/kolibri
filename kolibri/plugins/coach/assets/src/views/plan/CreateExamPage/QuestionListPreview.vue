@@ -302,11 +302,6 @@
         type: Array,
         required: true,
       },
-      // If set to true, question buttons will be draggable
-      fixedOrder: {
-        type: Boolean,
-        required: true,
-      },
       selectedExercises: {
         type: Object,
         required: true,
