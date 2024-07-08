@@ -219,29 +219,40 @@ def check_and_created_answered_lesson(lesson, user_id, contentnode_id, timestamp
 
 
 def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
-    # If the Resource started notification exists, nothing to do here:
-    if LearnerProgressNotification.objects.filter(
+    notifications = []
+
+    resource_started_notification = LearnerProgressNotification.objects.filter(
         user_id=user_id,
         notification_object=NotificationObjectType.Resource,
         notification_event=NotificationEventType.Started,
         lesson_id=lesson["id"],
         contentnode_id=contentnode_id,
-    ).exists():
+    ).first()
+    # if it exists, keep the oldest timestamp, it means that there have been
+    # multiple attempts, so the first attempt is the one that counts
+    if (
+        resource_started_notification
+        and resource_started_notification.timestamp > timestamp
+    ):
+        resource_started_notification.timestamp = timestamp
+        notifications.append(resource_started_notification)
+    elif resource_started_notification:
+        # Notification already created
         return []
-    notifications = []
-    # Let's create an Resource Started notification
-    notifications.append(
-        create_notification(
-            NotificationObjectType.Resource,
-            NotificationEventType.Started,
-            user_id,
-            lesson["classroom_id"],
-            assignment_collections=lesson["assignment_collections"],
-            lesson_id=lesson["id"],
-            contentnode_id=contentnode_id,
-            timestamp=timestamp,
+    else:
+        # Let's create an Resource Started notification
+        notifications.append(
+            create_notification(
+                NotificationObjectType.Resource,
+                NotificationEventType.Started,
+                user_id,
+                lesson["classroom_id"],
+                assignment_collections=lesson["assignment_collections"],
+                lesson_id=lesson["id"],
+                contentnode_id=contentnode_id,
+                timestamp=timestamp,
+            )
         )
-    )
 
     # Check if the Lesson started has already been created:
     lesson_started_notification = LearnerProgressNotification.objects.filter(
@@ -282,15 +293,18 @@ def create_summarylog(summarylog):
     summarylog is created.
     It creates the Resource and, if needed, the Lesson Started event
     """
-    lessons = get_assignments(summarylog.user, summarylog)
-    notifications = []
-    for lesson, contentnode_id in lessons:
-        notifications_started = check_and_created_started(
-            lesson, summarylog.user_id, contentnode_id, summarylog.start_timestamp
-        )
-        notifications += notifications_started
+    # dont create notifications upon creating a summary log for an exercise
+    # notifications should only be triggered upon first attempting a question in the exercise
+    if summarylog.kind != content_kinds.EXERCISE:
+        lessons = get_assignments(summarylog.user, summarylog)
+        notifications = []
+        for lesson, contentnode_id in lessons:
+            notifications_started = check_and_created_started(
+                lesson, summarylog.user_id, contentnode_id, summarylog.start_timestamp
+            )
+            notifications += notifications_started
 
-    save_notifications(notifications)
+        save_notifications(notifications)
 
 
 @memoize
@@ -436,7 +450,7 @@ def _get_help_needed_notification(attemptlog, contentnode_id, lesson):
     is_failed_attempt = (
         attemptlog.interaction_history
         and sum(
-            1 if not interaction.get("correct", 0) == 0 else 0
+            1 if interaction.get("correct", 0) == 0 else 0
             for interaction in attemptlog.interaction_history
         )
         > 0
@@ -498,8 +512,6 @@ def parse_summarylog(summarylog):
     """
 
     if _is_summary_log_incompleted(summarylog):
-        # We also check the completion_timestamp as the resource could have been completed
-        # but the user could have tried it again so the progress is 0.
         return
 
     lessons = get_assignments(summarylog.user, summarylog)
