@@ -302,6 +302,8 @@
         type: Array,
         required: true,
       },
+      // `selectedExercises` is used in `setup`
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
       selectedExercises: {
         type: Object,
         required: true,
