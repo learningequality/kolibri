@@ -160,12 +160,10 @@
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import AssessmentQuestionListItem from './AssessmentQuestionListItem';
 
   export default {
     name: 'QuestionListPreview',
     components: {
-      AssessmentQuestionListItem,
       AccordionContainer,
       AccordionItem,
     },
