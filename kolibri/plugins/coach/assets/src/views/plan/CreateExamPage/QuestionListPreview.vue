@@ -296,6 +296,8 @@
       };
     },
     props: {
+      // `sections` is used in `setup`
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
       sections: {
         type: Array,
         required: true,
