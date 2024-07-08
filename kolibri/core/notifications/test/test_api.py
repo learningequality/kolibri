@@ -1163,7 +1163,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             id=cls.contentnode_ids[1],
             content_id=cls.content_ids[1],
             channel_id=cls.channel_id,
-            kind=content_kinds.EXERCISE,
+            kind=content_kinds.DOCUMENT,
         )
         cls.lesson = Lesson.objects.create(
             id=cls.lesson_id,
@@ -1241,7 +1241,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             user=cls.user1,
             content_id=cls.node_2.content_id,
             channel_id=cls.channel_id,
-            kind=content_kinds.EXERCISE,
+            kind=content_kinds.DOCUMENT,
         )
 
         cls.sessionlog = ContentSessionLogFactory(
