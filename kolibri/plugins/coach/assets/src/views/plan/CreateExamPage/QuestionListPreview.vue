@@ -81,7 +81,10 @@
           <template #content>
             <div v-show="isExpanded(index)">
               <ul class="question-list">
-                <li v-for="(question, i) in section.questions">
+                <li
+                  v-for="(question, i) in section.questions"
+                  :key="i"
+                >
                   <KButton
                     tabindex="0"
                     class="question-button"
