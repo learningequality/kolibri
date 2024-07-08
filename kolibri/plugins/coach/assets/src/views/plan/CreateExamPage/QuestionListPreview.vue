@@ -334,16 +334,6 @@
       },
     },
     methods: {
-      listKey(question) {
-        return question.exercise_id + question.question_id;
-      },
-      numCoachContents(exerciseId) {
-        // Do this to handle missing content
-        return Boolean((this.selectedExercises[exerciseId] || {}).num_coach_contents);
-      },
-      available(exerciseId) {
-        return Boolean(this.selectedExercises[exerciseId]);
-      },
       isSelected(question) {
         return (
           this.currentQuestion.question_id === question.question_id &&
