@@ -1,6 +1,4 @@
-import maxBy from 'lodash/maxBy';
-import minBy from 'lodash/minBy';
-import sortBy from 'lodash/sortBy';
+import orderBy from 'lodash/orderBy';
 import uniqBy from 'lodash/uniqBy';
 import notificationsResource from '../../apiResources/notifications';
 import { allNotifications, summarizedNotifications } from './getters';
@@ -13,11 +11,11 @@ export default {
   },
   mutations: {
     SET_NOTIFICATIONS(state, notifications) {
-      state.notifications = sortBy([...notifications], '-timestamp');
+      state.notifications = orderBy([...notifications], 'timestamp', ['desc']);
     },
     INSERT_NOTIFICATIONS(state, notifications) {
       state.notifications = uniqBy(
-        sortBy([...state.notifications, ...notifications], '-timestamp'),
+        orderBy([...state.notifications, ...notifications], 'timestamp', ['desc']),
         'id',
       );
     },
@@ -70,12 +68,15 @@ export default {
       if (!store.state.currentClassroomId) {
         return;
       }
+      const params = {
+        classroom_id: classroomId,
+      };
+      if (after) {
+        params.after = after;
+      }
       return notificationsResource
         .fetchCollection({
-          getParams: {
-            classroom_id: classroomId,
-            after,
-          },
+          getParams: params,
           force: true,
         })
         .then(data => {
