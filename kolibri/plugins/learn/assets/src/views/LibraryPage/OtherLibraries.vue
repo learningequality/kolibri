@@ -228,17 +228,16 @@
 <style lang="scss" scoped>
 
   .sync-status {
+    position: absolute;
+    left: 1%;
     display: flex;
-    position:absolute;
-    left:1%;
-    margin-top: 50px;
     padding-top: 20px;
     padding-bottom: 20px;
-    
+    margin-top: 50px;
+
     span {
       display: inline-flex;
       vertical-align: bottom;
-       
     }
   }
 
@@ -252,9 +251,8 @@
   }
 
   .other-libraries-grid {
-    margin-left: 0.75em;
     padding-top: 20px;
-    
+    margin-left: 0.75em;
   }
 
 </style>
