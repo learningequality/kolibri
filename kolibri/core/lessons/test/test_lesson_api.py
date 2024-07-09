@@ -529,3 +529,17 @@ class LessonAPITestCase(APITestCase):
         )
 
         self.assertEqual(response.status_code, 200)  # passing!
+
+    def test_can_update_lesson_active(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.patch(
+            reverse("kolibri:core:lesson-detail", kwargs={"pk": self.lesson.id}),
+            {
+                "active": False,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.lesson.refresh_from_db()
+        self.assertFalse(self.lesson.is_active)

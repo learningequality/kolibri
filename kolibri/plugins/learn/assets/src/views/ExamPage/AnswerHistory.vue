@@ -13,7 +13,14 @@
       @focus="expand(index)"
     >
       <template #heading="{ title }">
-        <h3 class="accordion-header">
+        <h3
+          class="accordion-header"
+          :style="
+            index === currentSectionIndex && !isExpanded(index)
+              ? { border: `2px solid ${$themeTokens.primary}` }
+              : {}
+          "
+        >
           <KButton
             tabindex="0"
             appearance="basic-link"
@@ -66,11 +73,11 @@
                   :class="buttonClass(question.item)"
                   :disabled="question.item === questionItem"
                   class="clickable"
-                  @click="$emit('goToQuestion', question.item)"
+                  @click="$emit('goToQuestion', section.startQuestionNumber + qIndex)"
                 >
                   <KIcon
                     v-if="question.missing"
-                    class="published"
+                    class="dot"
                     icon="warning"
                     :color="$themePalette.yellow.v_1100"
                   />
@@ -83,7 +90,7 @@
                     "
                   />
                   <div class="text">
-                    {{ questionText(qIndex + 1) }}
+                    {{ questionText(section.startQuestionNumber + qIndex + 1) }}
                   </div>
                 </button>
               </li>
@@ -99,6 +106,7 @@
 
 <script>
 
+  import coreStrings from 'kolibri.utils.coreStrings';
   import {
     enhancedQuizManagementStrings,
     displaySectionTitle,
@@ -127,6 +135,8 @@
 
       const { jumpToQuestion$ } = enhancedQuizManagementStrings;
 
+      const { questionNumberLabel$ } = coreStrings;
+
       return {
         displaySectionTitle,
         collapse,
@@ -134,17 +144,18 @@
         isExpanded,
         toggle,
         jumpToQuestion$,
+        questionNumberLabel$,
       };
     },
     props: {
-      currentQuestion: {
-        type: Object,
-        required: true,
-      },
       sections: {
         type: Array,
         required: true,
         validator: value => value.every(section => Boolean(section.questions)),
+      },
+      currentSectionIndex: {
+        type: Number,
+        required: true,
       },
       pastattempts: {
         type: Array,
@@ -165,11 +176,6 @@
       },
     },
     computed: {
-      currentSection() {
-        return this.sections.find(section =>
-          section.questions.map(q => q.item).includes(this.questionItem),
-        );
-      },
       sectionCompletionMap() {
         const answeredAttemptItems = this.pastattempts.filter(a => a.answer).map(a => a.item);
         return this.sections.reduce((acc, { questions }, index) => {
@@ -188,18 +194,11 @@
       },
     },
     watch: {
-      currentSection(newSection, oldSection) {
+      currentSectionIndex(newSectionIndex, oldSectionIndex) {
         // Expand the section that contains the current question if it's closed
-        if (!isEqual(newSection, oldSection)) {
-          const index = this.sections.indexOf(newSection);
-          this.expand(index);
-          const oldIndex = this.sections.indexOf(oldSection);
-          if (oldIndex !== -1) {
-            this.collapse(oldIndex);
-          } else {
-            this.collapse(index - 1);
-            this.collapse(index + 1);
-          }
+        if (!isEqual(newSectionIndex, newSectionIndex)) {
+          this.expand(newSectionIndex);
+          this.collapse(oldSectionIndex);
         }
       },
       questionNumber() {
@@ -215,15 +214,9 @@
         }
       },
     },
-    created() {
-      // This is done here because when I did it in setup() the linter said the prop was not
-      // being used... so I moved it here and it's happy now.
-      // Expand the section that contains the current question
-      this.expand(
-        this.sections.findIndex(section =>
-          section.questions.map(q => q.item).includes(this.currentQuestion.item),
-        ),
-      );
+    mounted() {
+      // Expand the section that contains the current question on mount
+      this.expand(this.currentSectionIndex);
     },
     methods: {
       sectionQuestionsIconColor(index) {
@@ -250,7 +243,7 @@
         return `answer-history-item-${item}`;
       },
       questionText(num) {
-        return this.$tr('question', { num });
+        return this.questionNumberLabel$({ questionNumber: num });
       },
       isAnswered(question) {
         const attempt = this.pastattempts.find(attempt => attempt.item === question.item);
@@ -270,13 +263,6 @@
             backgroundColor: this.$themePalette.grey.v_100,
           },
         });
-      },
-    },
-    $trs: {
-      question: {
-        message: 'Question { num, number, integer}',
-        context:
-          "In the report section, the 'Answer history' shows the learner if they have answered questions correctly or incorrectly.\n\nOnly translate 'Question'.",
       },
     },
   };

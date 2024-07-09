@@ -198,5 +198,3 @@ export const Presets = Object.freeze({
 // This should be kept in sync with the value in
 // kolibri/core/exams/constants.py
 export const MAX_QUESTIONS_PER_QUIZ_SECTION = 50;
-// this is not used for the actual exam model
-export const MAX_QUESTION_OPTIONS_PER_QUIZ_SECTION = 500;

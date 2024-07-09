@@ -37,7 +37,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { defer } from 'underscore';
   import { createElement as e } from 'react';
-  import { render, unmountComponentAtNode } from 'react-dom';
+  import { createPortal, render, unmountComponentAtNode } from 'react-dom';
   import * as perseus from '@khanacademy/perseus';
   import {
     MathInputI18nContextProvider,
@@ -56,7 +56,7 @@
 
   const keypadStyle = StyleSheet.create({
     keypadContainer: {
-      position: 'relative',
+      zIndex: 20,
     },
   });
 
@@ -293,6 +293,7 @@
     },
     created() {
       this.itemRenderer = null;
+      this.keypadElement = null;
       // This is a local object for tracking image URLs
       // we use this to clean up image URLs just for this component
       this.imageUrls = {};
@@ -390,6 +391,7 @@
             onFocusChange: this.dismissMessage,
             onInputError: logging.error,
             isMobile: this.isMobile,
+            // Always use our custom keypad implementation
             customKeypad: true,
             readOnly: !this.interactive,
             hintProgressColor: this.$themeTokens.primary,
@@ -412,25 +414,27 @@
         const keypadContextConsumerElement = e(
           KeypadContext.Consumer,
           { key: 'keypadContextConsumer' },
-          ({ keypadElement }) =>
-            e(perseus.ServerItemRenderer, {
+          ({ keypadElement }) => {
+            this.keypadElement = keypadElement;
+            return e(perseus.ServerItemRenderer, {
               ...itemRenderData,
-              keypadElement: keypadElement,
-            }),
+              keypadElement: this.interactive ? keypadElement : null,
+            });
+          },
         );
         const keypadWithContextElement = e(
           KeypadContext.Consumer,
           { key: 'keypadWithContext ' },
-          ({ setKeypadElement }) =>
-            e('div', {
-              className: 'keypad-container',
-              children: e(MobileKeypad, {
+          ({ setKeypadElement, renderer }) =>
+            createPortal(
+              e(MobileKeypad, {
                 style: keypadStyle.keypadContainer,
                 onElementMounted: setKeypadElement,
-                onDismiss: () => {},
+                onDismiss: () => renderer && renderer.blur(),
                 onAnalyticsEvent: async () => {},
               }),
-            }),
+              document.body,
+            ),
         );
         const statefulKeypadContextProviderElement = e(StatefulKeypadContextProvider, {
           children: [keypadContextConsumerElement, keypadWithContextElement],
@@ -453,9 +457,12 @@
         render(renderStateRootElement, this.$refs.perseus);
       },
       renderNewItem() {
-        this.renderItem();
         // Clear any pending state reset calls
         this.$off('itemRendererUpdated');
+        // Dismiss the keypad
+        if (this.keypadElement) {
+          this.keypadElement.dismiss();
+        }
         this.$once('itemRendererUpdated', () => {
           // Blur any previously focused element once we have rendered a new item
           this.itemRenderer.blur();
@@ -466,6 +473,7 @@
           // so we need to ensure that the itemRenderer is available and up to date first.
           this.setAnswer();
         });
+        this.renderItem();
       },
       _resetState(val) {
         if (!val) {
@@ -537,8 +545,20 @@
           answerState = JSON.parse(
             replaceImageUrls(JSON.stringify(answerState), this.perseusFileUrl),
           );
+          const widgetIds = this.itemRenderer.getWidgetIds();
+          // Because of a switch between the input-number and numeric-input widgets
+          // it seems it is possible for us to have a serialized state with keys
+          // that do not correspond to any widgets. We need to sanitize the state
+          // before restoring it.
+          const sanitizedQuestion = {};
+          for (const key of widgetIds) {
+            if (answerState.question[key]) {
+              sanitizedQuestion[key] = answerState.question[key];
+            }
+          }
+          answerState.question = sanitizedQuestion;
           this.itemRenderer.restoreSerializedState(answerState);
-          this.itemRenderer.getWidgetIds().forEach(id => {
+          widgetIds.forEach(id => {
             if (sorterWidgetRegex.test(id)) {
               if (answerState.question[id]) {
                 const sortableComponent =
@@ -951,12 +971,6 @@
       border-radius: 3px;
       transition: box-shadow ease-in-out 0.15s;
     }
-  }
-
-  .keypad-container {
-    flex-shrink: 0; /* Prevent the keypad from shrinking */
-    justify-content: center; /* Center the keypad horizontally */
-    direction: ltr;
   }
 
 </style>

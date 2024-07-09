@@ -172,6 +172,7 @@
   import { mapState, mapGetters } from 'vuex';
   import MeteredConnectionNotificationModal from 'kolibri-common/components/MeteredConnectionNotificationModal.vue';
   import appCapabilities, { checkCapability } from 'kolibri.utils.appCapabilities';
+  import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import SidePanelModal from '../SidePanelModal';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import { KolibriStudioId, PageNames } from '../../constants';
@@ -189,7 +190,6 @@
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import commonLearnStrings from '../commonLearnStrings';
   import ChannelCardGroupGrid from '../ChannelCardGroupGrid';
-  import LearningActivityChip from '../LearningActivityChip';
   import SearchResultsGrid from '../SearchResultsGrid';
   import LearnAppBarPage from '../LearnAppBarPage';
   import PostSetupModalGroup from '../../../../../device/assets/src/views/PostSetupModalGroup.vue';
@@ -362,6 +362,12 @@
       }
 
       watch(() => props.deviceId, showLibrary);
+
+      watch(displayingSearchResults, () => {
+        if (!displayingSearchResults.value && !rootNodes.value.length) {
+          showLibrary();
+        }
+      });
 
       showLibrary();
 

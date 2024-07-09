@@ -21,7 +21,7 @@
 
   import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import LearningActivityIcon from './LearningActivityIcon.vue';
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
 
   /**
    * Wraps LearningActivityIcon in KLabeledIcon

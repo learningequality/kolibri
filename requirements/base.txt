@@ -11,7 +11,7 @@ cheroot==8.6.0
 magicbus==4.1.2
 le-utils==0.2.2
 jsonfield==3.1.0
-morango==0.8.0
+morango==0.8.1
 tzlocal==2.1
 pytz==2022.1
 python-dateutil==2.8.2

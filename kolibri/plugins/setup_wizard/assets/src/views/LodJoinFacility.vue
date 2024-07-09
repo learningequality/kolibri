@@ -12,6 +12,7 @@
     :noBackAction="false"
     :errors.sync="caughtErrors"
     @submit="handleClickNext"
+    @signInInstead="goToSignIn"
   />
 
 </template>
@@ -24,7 +25,7 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { SetupWizardResource } from '../api';
-  import { FooterMessageTypes } from '../constants';
+  import { FooterMessageTypes, LodTypePresets as Options } from '../constants';
   import UserCredentialsForm from './onboarding-forms/UserCredentialsForm';
 
   export default {
@@ -88,6 +89,18 @@
             }
             this.loading = false;
           }
+        });
+      },
+      goToSignIn() {
+        this.wizardService.send({
+          type: 'SIGN_IN_INSTEAD',
+          value: {
+            importDeviceId: this.wizardService.state.context.importDeviceId,
+            importOrJoin: Options.IMPORT,
+            selectedFacility: this.facility,
+            importDevice: this.wizardService.state.context.importDevice,
+            facilitiesCount: this.wizardService.state.context.facilitiesOnDeviceCount,
+          },
         });
       },
     },

@@ -779,12 +779,13 @@ class LearnerGroupViewSet(ValuesViewset):
         return annotate_array_aggregate(queryset, user_ids="membership__user__id")
 
 
-@method_decorator(csrf_protect, name="dispatch")
-class SignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):
-
+class BaseSignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):
     serializer_class = FacilityUserSerializer
 
     def check_can_signup(self, serializer):
+        """
+        Check if the user can sign up to the specified facility.
+        """
         facility = serializer.validated_data["facility"]
         if (
             not facility.dataset.learner_can_sign_up
@@ -793,6 +794,9 @@ class SignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):
             raise PermissionDenied("Cannot sign up to this facility")
 
     def perform_create(self, serializer):
+        """
+        Handle the creation of a new user, including validation and logging in.
+        """
         self.check_can_signup(serializer)
         serializer.save()
         data = serializer.validated_data
@@ -804,8 +808,17 @@ class SignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):
         login(self.request, authenticated_user)
 
 
+@method_decorator(csrf_protect, name="dispatch")
+class SignUpViewSet(BaseSignUpViewSet):
+    """
+    Viewset for signing up a user with CSRF protection.
+    """
+
+    pass
+
+
 @method_decorator(csrf_exempt, name="dispatch")
-class PublicSignUpViewSet(SignUpViewSet):
+class PublicSignUpViewSet(BaseSignUpViewSet):
     """
     Identical to the SignUpViewset except that it does not login the user.
     This endpoint is intended to allow a FacilityUser in a different facility
@@ -872,7 +885,7 @@ class SetNonSpecifiedPasswordView(views.APIView):
         return Response()
 
 
-@method_decorator([ensure_csrf_cookie, csrf_protect], name="dispatch")
+@method_decorator([ensure_csrf_cookie], name="dispatch")
 class SessionViewSet(viewsets.ViewSet):
     def _check_os_user(self, request, username):
         auth_token = request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)

@@ -22,6 +22,7 @@
           :showLabel="false"
           :checked="contentIsChecked(content)"
           :indeterminate="contentIsIndeterminate(content)"
+          :disabled="contentCheckboxDisabled(content)"
           @change="handleCheckboxChange(content, $event)"
         />
         <KRadioButton
@@ -31,6 +32,7 @@
           :showLabel="false"
           :currentValue="contentIsChecked(content) ? content.id : 'none'"
           :buttonValue="content.id"
+          :disabled="contentCheckboxDisabled(content)"
           @change="handleCheckboxChange(content, true)"
         />
         <!--
@@ -42,14 +44,9 @@
           :disabled="content.is_leaf"
           :tabindex="content.is_leaf ? -1 : 0"
           :class="{ 'with-checkbox': needCheckboxes }"
-          :title="content.title"
-          :thumbnail="content.thumbnail"
-          :description="content.description"
-          :kind="content.kind"
+          :content="content"
           :message="contentCardMessage(content)"
           :link="contentCardLink(content)"
-          :numCoachContents="content.num_coach_contents"
-          :isLeaf="content.is_leaf"
         >
           <template #notice>
             <slot
@@ -148,6 +145,11 @@
       contentHasCheckbox: {
         type: Function, // ContentNode => Boolean
         required: true,
+      },
+      // Function that returns true if the content item is disabled
+      contentCheckboxDisabled: {
+        type: Function, // ContentNode => Boolean
+        default: () => false,
       },
       // Boolean to toggle on use of radio buttons instead of checkboxes
       showRadioButtons: {

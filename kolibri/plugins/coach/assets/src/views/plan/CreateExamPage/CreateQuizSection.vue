@@ -243,8 +243,8 @@
                             :noDrag="true"
                             :isFirst="index === 0"
                             :isLast="index === activeQuestions.length - 1"
-                            @moveUp="shiftOne(index, -1)"
-                            @moveDown="shiftOne(index, +1)"
+                            @moveUp="() => handleKeyboardDragUp(index, activeQuestions)"
+                            @moveDown="() => handleKeyboardDragDown(index, activeQuestions)"
                           />
                         </div>
                       </DragHandle>
@@ -301,18 +301,22 @@
         </AccordionContainer>
       </div>
     </KTabsPanel>
-    <KModal
-      v-if="showDeleteConfirmation"
-      :title="deleteSectionLabel$()"
-      :submitText="coreString('deleteAction')"
-      :cancelText="coreString('cancelAction')"
-      @cancel="showDeleteConfirmation = true"
-      @submit="handleConfirmDelete"
-    >
-      <!-- TODO Use `displaySectionTitle` here once #12274 is merged as that PR
-        changes how we handle section indexing, which is needed for displaySectionTitle -->
-      {{ deleteConfirmation$({ section_title: activeSection.section_title }) }}
-    </KModal>
+    <FocusTrap>
+      <KModal
+        v-if="showDeleteConfirmation"
+        :title="deleteSectionLabel$()"
+        :submitText="coreString('deleteAction')"
+        :cancelText="coreString('cancelAction')"
+        @cancel="showDeleteConfirmation = false"
+        @submit="handleConfirmDelete"
+      >
+        {{
+          deleteConfirmation$({
+            section_title: displaySectionTitle(activeSection, activeSectionIndex),
+          })
+        }}
+      </KModal>
+    </FocusTrap>
   </div>
 
 </template>
@@ -336,9 +340,11 @@
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import useAccordion from 'kolibri-common/components/useAccordion';
+  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
+  import useDrag from './useDrag.js';
   import TabsWithOverflow from './TabsWithOverflow';
 
   const logger = logging.getLogger(__filename);
@@ -353,6 +359,7 @@
       DragSortWidget,
       DragHandle,
       TabsWithOverflow,
+      FocusTrap,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
@@ -372,7 +379,6 @@
         numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
-        changesSavedSuccessfully$,
         questionsDeletedNotification$,
         expandAll$,
         collapseAll$,
@@ -412,6 +418,7 @@
         canExpandAll,
       } = useAccordion(activeQuestions);
 
+      const { moveUpOne, moveDownOne } = useDrag();
       const dragActive = ref(false);
 
       return {
@@ -443,7 +450,6 @@
         numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
-        changesSavedSuccessfully$,
         questionsDeletedNotification$,
 
         toggleQuestionInSelection,
@@ -457,6 +463,9 @@
         updateQuiz,
         displaySectionTitle,
         displayQuestionTitle,
+
+        moveDownOne,
+        moveUpOne,
 
         // Computed
         allSections,
@@ -568,15 +577,13 @@
         }
       },
       handleConfirmDelete() {
-        const { section_title } = this.activeSection;
+        const section_title = displaySectionTitle(this.activeSection, this.activeSectionIndex);
         const newIndex = this.activeSectionIndex > 0 ? this.activeSectionIndex - 1 : 0;
         this.setActiveSection(newIndex);
         this.removeSection(this.activeSectionIndex);
         this.$nextTick(() => {
           this.$store.dispatch(
             'createSnackbar',
-            // TODO Use `displaySectionTitle` here once #12274 is merged as that PR
-            // changes how we handle section indexing
             this.sectionDeletedNotification$({ section_title }),
           );
           this.focusActiveSectionTab();
@@ -650,7 +657,6 @@
           questions: newArray,
         };
         this.updateSection(payload);
-        this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
         this.dragActive = false;
       },
       handleAddSection() {
@@ -663,6 +669,14 @@
       handleDragStart() {
         // Used to mitigate the issue of text being selected while dragging
         this.dragActive = true;
+      },
+      handleKeyboardDragDown(oldIndex, array) {
+        const newArray = this.moveDownOne(oldIndex, array);
+        this.handleQuestionOrderChange({ newArray });
+      },
+      handleKeyboardDragUp(oldIndex, array) {
+        const newArray = this.moveUpOne(oldIndex, array);
+        this.handleQuestionOrderChange({ newArray });
       },
       openSelectResources() {
         this.$router.push({

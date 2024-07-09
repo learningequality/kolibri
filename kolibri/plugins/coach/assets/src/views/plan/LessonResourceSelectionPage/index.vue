@@ -171,9 +171,9 @@
     computed: {
       ...mapState(['pageName']),
       ...mapState('classSummary', { classId: 'id' }),
-      ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
+      ...mapState('lessonSummary', ['currentLesson', 'resourceCache', 'workingResources']),
       ...mapState('lessonSummary/resources', [
-        'ancestorCounts',
+        'descendantCounts',
         'contentList',
         'bookmarksList',
         'searchResults',
@@ -485,15 +485,16 @@
       },
       selectionMetadata(content) {
         let count = 0;
-        let total = 0;
-        if (this.ancestorCounts[content.id]) {
-          count = this.ancestorCounts[content.id].count;
-          total = this.ancestorCounts[content.id].total;
+        for (const wr of this.workingResources) {
+          const resource = this.resourceCache[wr.contentnode_id];
+          if (resource && resource.ancestors.find(ancestor => ancestor.id === content.id)) {
+            count += 1;
+          }
         }
         if (count) {
           return this.$tr('selectionInformation', {
             count,
-            total,
+            total: this.descendantCounts[content.id],
           });
         }
         return '';

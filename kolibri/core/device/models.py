@@ -24,6 +24,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.permissions.general import IsOwn
+from kolibri.core.content.utils.paths import using_remote_storage
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.fields import JSONField
@@ -117,7 +118,8 @@ extra_settings_schema = {
 
 extra_settings_default_values = {
     "allow_download_on_metered_connection": False,
-    "enable_automatic_download": True,
+    # Default to not automatically downloading content if using remote storage
+    "enable_automatic_download": not using_remote_storage(),
     "allow_learner_download_resources": False,
     "set_limit_for_autodownload": False,
     "limit_for_autodownload": 0,

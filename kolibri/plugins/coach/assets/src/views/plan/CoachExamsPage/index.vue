@@ -329,7 +329,10 @@
         return this.quizzes;
       },
       newExamRoute() {
-        return { name: PageNames.EXAM_CREATION_ROOT, params: { sectionIndex: 0 } };
+        return {
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: { classId: this.$route.params.classId, sectionIndex: 0, quizId: 'new' },
+        };
       },
       dropdownOptions() {
         return [
@@ -350,6 +353,11 @@
         }
         return '--';
       },
+    },
+    mounted() {
+      if (this.$route.query.snackbar) {
+        this.$store.dispatch('createSnackbar', this.$route.query.snackbar);
+      }
     },
     methods: {
       handleOpenQuiz(quizId) {
@@ -392,14 +400,12 @@
           });
       },
       handleSelect({ value }) {
+        const nextRoute = this.newExamRoute;
         const nextRouteName = {
           MAKE_NEW_QUIZ: PageNames.EXAM_CREATION_ROOT,
           SELECT_QUIZ: PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
         }[value];
-        const nextRoute = {
-          name: nextRouteName,
-          params: { ...this.$route.params, quizId: 'new', sectionIndex: 0 },
-        };
+        nextRoute.name = nextRouteName;
         this.$router.push(nextRoute);
       },
     },

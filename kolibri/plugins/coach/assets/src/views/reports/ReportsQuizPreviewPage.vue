@@ -20,7 +20,6 @@
       </p>
 
       <QuestionListPreview
-        :fixedOrder="!quizIsRandomized"
         :selectedQuestions="selectedQuestions"
         :selectedExercises="selectedExercises"
       />

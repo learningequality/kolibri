@@ -18,7 +18,7 @@
     "@babel/plugin-syntax-import-assertions": "^7.24.7",
     "@babel/plugin-transform-runtime": "^7.24.7",
     "@babel/preset-env": "^7.24.7",
-    "@rushstack/eslint-patch": "^1.10.2",
+    "@rushstack/eslint-patch": "^1.10.3",
     "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/user-event": "^14.5.2",
     "@testing-library/vue": "^5",
@@ -47,7 +47,7 @@
     "eslint-plugin-jest": "^28.6.0",
     "eslint-plugin-jest-dom": "^5.4.0",
     "eslint-plugin-kolibri": "0.16.1-dev.1",
-    "eslint-plugin-vue": "^9.26.0",
+    "eslint-plugin-vue": "^9.27.0",
     "espree": "10.1.0",
     "esquery": "^1.5.0",
     "express": "^4.19.2",
@@ -61,7 +61,7 @@
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.9.0",
     "node-sass": "9.0.0",
-    "postcss-html": "^1.5.0",
+    "postcss-html": "^1.7.0",
     "postcss-less": "^6.0.0",
     "postcss-loader": "^8.1.1",
     "postcss-sass": "^0.5.0",
@@ -98,7 +98,7 @@
     "webpack": "^5.92.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4",
-    "webpack-merge": "^5.10.0"
+    "webpack-merge": "^6.0.1"
   },
   "engines": {
     "node": "18.x",

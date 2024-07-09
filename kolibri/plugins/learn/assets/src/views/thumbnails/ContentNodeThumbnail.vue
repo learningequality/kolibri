@@ -27,7 +27,7 @@
 <script>
 
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
-  import LearningActivityIcon from '../LearningActivityIcon';
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import useChannels from '../../composables/useChannels';
   import Thumbnail from './Thumbnail';
 
