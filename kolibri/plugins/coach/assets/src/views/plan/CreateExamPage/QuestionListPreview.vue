@@ -79,19 +79,17 @@
             </h3>
           </template>
           <template #content>
-            <div
-              v-show="isExpanded(index)"
-              :style="{
-                backgroundColor: $themePalette.grey.v_100,
-              }"
-            >
+            <div v-show="isExpanded(index)">
               <ul class="question-list">
-                <li v-for="(question, i) in section.questions">
+                <li
+                  v-for="(question, i) in section.questions"
+                  :key="i"
+                >
                   <KButton
                     tabindex="0"
                     class="question-button"
                     appearance="basic-link"
-                    :class="{ selected: isSelected(question) }"
+                    :class="[listItemClass, isSelected(question) ? selectedListItemClass : '']"
                     :style="accordionStyleOverrides"
                     @click="handleQuestionChange(i, index)"
                   >
@@ -162,12 +160,10 @@
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import AssessmentQuestionListItem from './AssessmentQuestionListItem';
 
   export default {
     name: 'QuestionListPreview',
     components: {
-      AssessmentQuestionListItem,
       AccordionContainer,
       AccordionItem,
     },
@@ -300,15 +296,14 @@
       };
     },
     props: {
+      // `sections` is used in `setup`
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
       sections: {
         type: Array,
         required: true,
       },
-      // If set to true, question buttons will be draggable
-      fixedOrder: {
-        type: Boolean,
-        required: true,
-      },
+      // `selectedExercises` is used in `setup`
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
       selectedExercises: {
         type: Object,
         required: true,
@@ -321,21 +316,26 @@
           textDecoration: 'none',
         };
       },
+      listItemClass() {
+        return this.$computedClass({
+          ':hover': {
+            backgroundColor: this.$themePalette.grey.v_100,
+          },
+        });
+      },
+      selectedListItemClass() {
+        return this.$computedClass({
+          backgroundColor: this.$themePalette.grey.v_100,
+          ':hover': {
+            backgroundColor: this.$themePalette.grey.v_200,
+          },
+        });
+      },
       resourceMissingText() {
         return this.coreString('resourceNotFoundOnDevice');
       },
     },
     methods: {
-      listKey(question) {
-        return question.exercise_id + question.question_id;
-      },
-      numCoachContents(exerciseId) {
-        // Do this to handle missing content
-        return Boolean((this.selectedExercises[exerciseId] || {}).num_coach_contents);
-      },
-      available(exerciseId) {
-        return Boolean(this.selectedExercises[exerciseId]);
-      },
       isSelected(question) {
         return (
           this.currentQuestion.question_id === question.question_id &&
@@ -425,14 +425,6 @@
     width: 100%;
     height: 100%;
     padding: 0.5em;
-
-    &:hover {
-      background-color: white;
-    }
-
-    &.selected {
-      background-color: white;
-    }
   }
 
 </style>
