@@ -1,5 +1,3 @@
-import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-
 function defaultState() {
   return {
     contentNodeMap: {},
