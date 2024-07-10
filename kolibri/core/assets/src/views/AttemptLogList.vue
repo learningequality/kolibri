@@ -212,8 +212,8 @@
         ];
       });
 
-      function handleQuestionChange(item) {
-        emit('select', item.value + currentSection.value.startQuestionNumber);
+      function handleQuestionChange(index) {
+        emit('select', index + currentSection.value.startQuestionNumber);
         expandCurrentSectionIfNeeded();
       }
 
