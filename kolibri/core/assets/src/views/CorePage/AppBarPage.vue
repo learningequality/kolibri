@@ -28,6 +28,7 @@
     </ScrollingHeader>
 
     <div
+      id="main"
       class="main-wrapper"
       :style="wrapperStyles"
     >

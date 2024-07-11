@@ -3,7 +3,6 @@
   <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
     <div
       v-if="!loading"
-      id="main"
       role="main"
     >
       <ResourceSyncingUiAlert

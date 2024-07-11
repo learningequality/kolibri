@@ -4,7 +4,6 @@
     <KCircularLoader v-if="loading" />
     <div
       v-else
-      id="main"
       role="main"
     >
       <KBreadcrumbs

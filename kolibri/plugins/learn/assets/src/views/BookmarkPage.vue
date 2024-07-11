@@ -1,10 +1,7 @@
 <template>
 
   <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
-    <div
-      id="main"
-      role="main"
-    >
+    <div role="main">
       <h1>
         {{ $tr('bookmarksHeader') }}
       </h1>
