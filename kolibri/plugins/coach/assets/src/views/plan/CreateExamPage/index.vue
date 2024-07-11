@@ -245,6 +245,18 @@
       }
     },
     beforeRouteUpdate(to, from, next) {
+      if(to.name === PageNames.QUIZ_SELECT_PRACTICE_QUIZ &&
+        from.name === PageNames.EXAM_CREATION_ROOT){
+        this.closeConfirmationToRoute = to;
+        next({
+          name: PageNames.EXAMS,
+          params: {
+            classId: to.params.classId,
+          },
+        });
+      }
+
+
       if (to.params.sectionIndex >= this.allSections.length) {
         next({
           name: PageNames.EXAM_CREATION_ROOT,

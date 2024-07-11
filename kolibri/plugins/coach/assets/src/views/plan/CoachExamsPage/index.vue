@@ -406,7 +406,12 @@
           SELECT_QUIZ: PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
         }[value];
         nextRoute.name = nextRouteName;
-        this.$router.push(nextRoute);
+        if(nextRoute.name ===PageNames.EXAM_CREATION_ROOT){
+
+          this.$router.push(nextRoute);
+        }else{
+          this.$router.replace(nextRoute);
+        }
       },
     },
     $trs: {
