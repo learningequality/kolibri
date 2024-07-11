@@ -3,7 +3,6 @@
   <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
     <div
       v-if="!$store.state.core.loading"
-      id="main"
       role="main"
     >
       <KBreadcrumbs

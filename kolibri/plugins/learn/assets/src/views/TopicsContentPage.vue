@@ -51,7 +51,6 @@
 
     <div
       v-else-if="!loading && content"
-      id="main"
       role="main"
       tabindex="-1"
       class="main"

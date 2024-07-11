@@ -27,7 +27,6 @@
 
       <div
         v-else
-        id="main"
         role="main"
         tabindex="-1"
         class="main"
