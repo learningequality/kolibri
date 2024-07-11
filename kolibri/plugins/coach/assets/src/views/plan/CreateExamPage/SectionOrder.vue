@@ -4,9 +4,9 @@
     v-if="activeSection"
     class="section-settings-content"
   >
-    <h5 class="section-order-style section-settings-heading">
+    <h1>
       {{ sectionOrder$() }}
-    </h5>
+    </h1>
 
     <DragContainer
       v-if="sectionOrderList.length > 0"
@@ -352,14 +352,13 @@
 
   .section-settings-heading {
     margin-bottom: 0.5em;
-    font-size: 1em;
     font-weight: 600;
   }
 
   .section-settings-top-heading {
     margin-top: 0;
-    margin-bottom: 0.5em;
-    font-size: 18px;
+    margin-bottom: 1.125em;
+    font-size: 2em;
     font-weight: 600;
   }
 
@@ -398,6 +397,7 @@
     left: 0;
     padding: 1em;
     margin-top: 1em;
+    text-align: right;
     background-color: #ffffff;
     border-top: 1px solid black;
 

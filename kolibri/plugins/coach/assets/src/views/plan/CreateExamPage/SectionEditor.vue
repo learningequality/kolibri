@@ -4,12 +4,9 @@
     v-if="activeSection"
     class="section-settings-content"
   >
-    <h5
-      class="section-settings-top-heading"
-      :style="{ color: $themeTokens.text }"
-    >
+    <h1 :style="{ color: $themeTokens.text }">
       {{ sectionSettings$() }}
-    </h5>
+    </h1>
 
     <KTextbox
       ref="sectionTitle"

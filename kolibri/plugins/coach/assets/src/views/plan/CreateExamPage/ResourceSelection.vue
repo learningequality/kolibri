@@ -5,20 +5,20 @@
       <KCircularLoader />
     </div>
     <div v-else>
-      <h5
+      <h1
         v-if="selectPracticeQuiz"
         class="select-folder-style"
       >
         {{ selectPracticeQuizLabel$() }}
-      </h5>
+      </h1>
       <div v-else>
-        <h5 class="select-folder-style">
+        <h1 class="select-folder-style">
           {{
             selectResourcesDescription$({
               sectionTitle: displaySectionTitle(activeSection, activeSectionIndex),
             })
           }}
-        </h5>
+        </h1>
         <p>
           {{ numberOfQuestionsSelected$({ count: activeQuestions.length }) }}
           <span
@@ -999,7 +999,6 @@
   .select-folder-style {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
-    font-size: 18px;
   }
 
   .align-select-folder-style {
