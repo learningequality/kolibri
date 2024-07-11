@@ -1,6 +1,6 @@
 import logging
 import traceback
-from sys import version
+from sys import version_info
 
 import pkg_resources
 from django.db import IntegrityError
@@ -27,7 +27,9 @@ def get_packages():
 
 
 def get_python_version():
-    return version.split()[0]
+    return "{major}.{minor}.{micro}".format(
+        major=version_info.major, minor=version_info.minor, micro=version_info.micro
+    )
 
 
 class ErrorReportingMiddleware:
