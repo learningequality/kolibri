@@ -110,7 +110,7 @@
         return this.$route.params.groupId && this.groupMap[this.$route.params.groupId];
       },
       tabs() {
-        return [
+        const tabsList = [
           {
             id: QuizzesTabs.REPORT,
             label: this.coachString('reportLabel'),
@@ -118,14 +118,18 @@
               ? this.classRoute('ReportsGroupReportQuizLearnerListPage')
               : this.classRoute('ReportsQuizLearnerListPage'),
           },
-          {
+        ];
+        const isDraftExam = this.exam && this.exam.draft;
+        if (!isDraftExam) {
+          tabsList.push({
             id: QuizzesTabs.DIFFICULT_QUESTIONS,
             label: this.coachString('difficultQuestionsLabel'),
             to: this.group
               ? this.classRoute('ReportsGroupReportQuizQuestionListPage')
               : this.classRoute('ReportsQuizQuestionListPage'),
-          },
-        ];
+          });
+        }
+        return tabsList;
       },
     },
     mounted() {
