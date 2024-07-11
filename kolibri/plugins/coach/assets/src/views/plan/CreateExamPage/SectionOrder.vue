@@ -5,7 +5,7 @@
     class="section-settings-content"
   >
     <h1>
-      {{ sectionOrder$() }}
+      {{ coreString('editAction') + ' - ' + sectionOrderLabel$() }}
     </h1>
 
     <DragContainer
@@ -125,6 +125,7 @@
         deleteSectionLabel$,
         applySettings$,
         sectionOrder$,
+        sectionOrderLabel$,
         questionOrder$,
         randomizedLabel$,
         currentSection$,
@@ -236,6 +237,7 @@
         sectionDeletedNotification$,
         currentSection$,
         deleteSectionLabel$,
+        sectionOrderLabel$,
         applySettings$,
         closeConfirmationTitle$,
         closeConfirmationMessage$,

@@ -57,7 +57,7 @@
             />
             <KButton
               v-if="quiz.learners_see_fixed_order"
-              :text="sectionOrderLabel$() + ' ( ' + coreString('editAction') + ' )'"
+              :text="coreString('editAction') + ' - ' + sectionOrderLabel$()"
               style="margin-left: 2em"
               appearance="basic-link"
               @click="editSectionOrder"
