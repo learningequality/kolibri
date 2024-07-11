@@ -43,7 +43,7 @@ def ping_error_reports(server):
         errors_json = serialize_error_reports_to_json_response(errors)
 
         requests.post(
-            join_url(server, "/api/v1/errors/"),
+            join_url(server, "/api/v1/errors/report/"),
             data=errors_json,
             headers={"Content-Type": "application/json"},
         )
