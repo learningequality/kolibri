@@ -154,11 +154,11 @@
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useAccordion from 'kolibri-common/components/useAccordion';
-  import coreStrings from 'kolibri.utils.coreStrings';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import { computed, onMounted, watch } from 'kolibri.lib.vueCompositionApi';
   import { toRefs } from '@vueuse/core';
+  import { coreStrings } from '../mixins/commonCoreStrings';
   import AttemptLogItem from './AttemptLogItem';
 
   export default {
@@ -212,8 +212,8 @@
         ];
       });
 
-      function handleQuestionChange(item) {
-        emit('select', item.value + currentSection.value.startQuestionNumber);
+      function handleQuestionChange(index) {
+        emit('select', index + currentSection.value.startQuestionNumber);
         expandCurrentSectionIfNeeded();
       }
 
