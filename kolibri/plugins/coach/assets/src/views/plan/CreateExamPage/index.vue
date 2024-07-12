@@ -55,6 +55,13 @@
               :description="fixedSectionOptionDescription$()"
               @input="value => updateQuiz({ learners_see_fixed_order: value })"
             />
+            <KButton
+              v-if="quiz.learners_see_fixed_order"
+              :text="coreString('editAction') + ' - ' + sectionOrderLabel$()"
+              style="margin-left: 2em"
+              appearance="basic-link"
+              @click="editSectionOrder"
+            />
           </KGridItem>
         </KGrid>
       </div>
@@ -304,6 +311,16 @@
       window.removeEventListener('beforeunload', this.beforeUnload);
     },
     methods: {
+      editSectionOrder() {
+        this.$router.push({
+          name: PageNames.QUIZ_SECTION_ORDER,
+          params: {
+            classId: this.$route.params.classId,
+            quizId: this.$route.params.quizId,
+            sectionIndex: this.$route.params.sectionIndex,
+          },
+        });
+      },
       beforeUnload(e) {
         if (this.quizHasChanged) {
           if (!window.confirm(this.closeConfirmationTitle$())) {

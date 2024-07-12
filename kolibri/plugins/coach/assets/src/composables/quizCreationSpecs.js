@@ -117,7 +117,7 @@ export const QuizQuestion = {
 export const QuizSection = {
   section_id: {
     type: String,
-    default: () => String(performance.now()),
+    default: () => Math.random().toString(36).substring(7), // makes a random 7 digit string
   },
   section_title: {
     type: String,
