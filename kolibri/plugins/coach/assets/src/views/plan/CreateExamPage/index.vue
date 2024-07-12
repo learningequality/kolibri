@@ -245,8 +245,10 @@
       }
     },
     beforeRouteUpdate(to, from, next) {
-      if(to.name === PageNames.QUIZ_SELECT_PRACTICE_QUIZ &&
-        from.name === PageNames.EXAM_CREATION_ROOT){
+      if (
+        to.name === PageNames.QUIZ_SELECT_PRACTICE_QUIZ &&
+        from.name === PageNames.EXAM_CREATION_ROOT
+      ) {
         this.closeConfirmationToRoute = {
           name: PageNames.EXAMS,
           params: {
