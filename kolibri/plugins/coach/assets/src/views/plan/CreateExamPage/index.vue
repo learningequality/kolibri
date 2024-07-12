@@ -245,6 +245,19 @@
       }
     },
     beforeRouteUpdate(to, from, next) {
+      if (
+        to.name === PageNames.QUIZ_SELECT_PRACTICE_QUIZ &&
+        from.name === PageNames.EXAM_CREATION_ROOT
+      ) {
+        this.closeConfirmationToRoute = {
+          name: PageNames.EXAMS,
+          params: {
+            classId: to.params.classId,
+          },
+        };
+        next(false);
+        return;
+      }
       if (to.params.sectionIndex >= this.allSections.length) {
         next({
           name: PageNames.EXAM_CREATION_ROOT,
@@ -286,6 +299,9 @@
         });
       }
       this.quizInitialized = true;
+    },
+    destroy() {
+      window.removeEventListener('beforeunload', this.beforeUnload);
     },
     methods: {
       beforeUnload(e) {
