@@ -36,6 +36,7 @@ class CoachToolsModule extends KolibriApp {
         PageNames.EXAM_CREATION_ROOT,
         PageNames.QUIZ_SECTION_EDITOR,
         PageNames.QUIZ_REPLACE_QUESTIONS,
+        PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
         PageNames.QUIZ_SELECT_RESOURCES,
         PageNames.BOOK_MARKED_RESOURCES,
         pages.ReportsQuizLearnerPage.name,
