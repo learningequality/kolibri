@@ -301,7 +301,7 @@
       this.quizInitialized = true;
     },
     destroy() {
-      window.removeEventListener('beforeunload', this.onBeforeUnload)
+      window.removeEventListener('beforeunload', this.beforeUnload)
     },
     methods: {
       beforeUnload(e) {
