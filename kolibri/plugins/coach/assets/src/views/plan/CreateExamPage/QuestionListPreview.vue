@@ -79,17 +79,19 @@
             </h3>
           </template>
           <template #content>
-            <div v-show="isExpanded(index)">
+            <div
+              v-show="isExpanded(index)"
+              :style="{
+                backgroundColor: $themePalette.grey.v_100,
+              }"
+            >
               <ul class="question-list">
-                <li
-                  v-for="(question, i) in section.questions"
-                  :key="i"
-                >
+                <li v-for="(question, i) in section.questions">
                   <KButton
                     tabindex="0"
                     class="question-button"
                     appearance="basic-link"
-                    :class="[listItemClass, isSelected(question) ? selectedListItemClass : '']"
+                    :class="{ selected: isSelected(question) }"
                     :style="accordionStyleOverrides"
                     @click="handleQuestionChange(i, index)"
                   >
@@ -316,21 +318,6 @@
           textDecoration: 'none',
         };
       },
-      listItemClass() {
-        return this.$computedClass({
-          ':hover': {
-            backgroundColor: this.$themePalette.grey.v_100,
-          },
-        });
-      },
-      selectedListItemClass() {
-        return this.$computedClass({
-          backgroundColor: this.$themePalette.grey.v_100,
-          ':hover': {
-            backgroundColor: this.$themePalette.grey.v_200,
-          },
-        });
-      },
       resourceMissingText() {
         return this.coreString('resourceNotFoundOnDevice');
       },
@@ -425,6 +412,14 @@
     width: 100%;
     height: 100%;
     padding: 0.5em;
+
+    &:hover {
+      background-color: white;
+    }
+
+    &.selected {
+      background-color: white;
+    }
   }
 
 </style>
