@@ -300,6 +300,9 @@
       }
       this.quizInitialized = true;
     },
+    destroy() {
+      window.removeEventListener('beforeunload', this.onBeforeUnload)
+    },
     methods: {
       beforeUnload(e) {
         if (this.quizHasChanged) {
