@@ -1,12 +1,11 @@
 import json
 
-import requests
 from morango.api.serializers import CertificateSerializer
 from morango.constants.api_urls import NONCE
 from morango.models import Certificate
 
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
-from kolibri.core.utils.urls import join_url
+from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.utils import conf
 
 
@@ -14,8 +13,8 @@ def registerfacility(token, facility):
 
     # request the server for a one-time-use nonce
     PORTAL_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
-    response = requests.post(join_url(PORTAL_URL, NONCE))
-    response.raise_for_status()
+    client = NetworkClient(PORTAL_URL)
+    response = client.post(NONCE)
     server_nonce = response.json()["id"]
 
     # get owned certificate for this facility
@@ -46,8 +45,5 @@ def registerfacility(token, facility):
     data["signature"] = client_cert.sign(message)
 
     # attempt to claim the facility
-    response = requests.post(
-        join_url(PORTAL_URL, "portal/api/public/v1/registerfacility/"), data=data
-    )
-    response.raise_for_status()
+    response = client.post("portal/api/public/v1/registerfacility/", data=data)
     return response

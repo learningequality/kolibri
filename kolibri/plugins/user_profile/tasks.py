@@ -1,9 +1,7 @@
-import requests
 from django.core.management import call_command
 from morango.errors import MorangoError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.status import HTTP_201_CREATED
 
 from .utils import TokenGenerator
 from kolibri.core import error_constants
@@ -16,6 +14,8 @@ from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import set_device_settings
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import JobStatus
 from kolibri.core.tasks.job import Priority
@@ -24,7 +24,7 @@ from kolibri.core.tasks.permissions import IsSelf
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import PermissionsFromAny
 from kolibri.core.tasks.utils import get_current_job
-from kolibri.core.utils.urls import reverse_remote
+from kolibri.core.utils.urls import reverse_path
 from kolibri.utils.translation import gettext as _
 
 
@@ -76,10 +76,12 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
         for f in ["gender", "birth_year", "id_number", "full_name"]:
             if getattr(data["local_user_id"], f, "NOT_SPECIFIED") != "NOT_SPECIFIED":
                 user_data[f] = getattr(data["local_user_id"], f, None)
-        public_signup_url = reverse_remote(baseurl, "kolibri:core:publicsignup-list")
-        response = requests.post(public_signup_url, data=user_data)
-        if response.status_code != HTTP_201_CREATED:
-            raise serializers.ValidationError(response.json()[0]["id"])
+        client = NetworkClient.build_for_address(baseurl)
+        public_signup_url = reverse_path("kolibri:core:publicsignup-list")
+        try:
+            client.post(public_signup_url, data=user_data)
+        except NetworkLocationResponseFailure as e:
+            raise serializers.ValidationError(e.response.json()[0]["id"])
 
 
 def status_fn(job):

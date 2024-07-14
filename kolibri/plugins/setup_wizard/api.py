@@ -1,4 +1,3 @@
-import requests
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
@@ -17,6 +16,8 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.models import DevicePermissions
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 
 
 # Basic class that makes these endpoints unusable if device is provisioned
@@ -49,11 +50,8 @@ class SetupWizardResource(ViewSet):
         password = request.data.get("password", None)
         full_name = request.data.get("full_name", "")
         baseurl = request.data.get("baseurl", None)
-
+        client = NetworkClient.build_for_address(baseurl)
         api_url = reverse("kolibri:core:publicsignup-list")
-
-        url = "{}{}".format(baseurl, api_url)
-
         payload = {
             # N.B. facility is keyed by facility not facility_id on the signup
             # viewset serializer.
@@ -62,8 +60,10 @@ class SetupWizardResource(ViewSet):
             "password": password,
             "full_name": full_name,
         }
-
-        r = requests.post(url, data=payload)
+        try:
+            r = client.post(api_url, data=payload)
+        except NetworkLocationResponseFailure as e:
+            r = e.response
         return Response({"status": r.status_code, "data": r.content})
 
 

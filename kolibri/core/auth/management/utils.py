@@ -9,7 +9,6 @@ import sys
 from contextlib import contextmanager
 from functools import wraps
 
-import requests
 from django.core.management.base import CommandError
 from morango.models import Certificate
 from morango.models import InstanceIDModel
@@ -37,7 +36,7 @@ from kolibri.core.discovery.utils.network.errors import URLParseError
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.utils.lock import db_lock_sqlite_only
-from kolibri.core.utils.urls import reverse_remote
+from kolibri.core.utils.urls import reverse_path
 from kolibri.utils.data import bytes_for_humans
 
 
@@ -125,9 +124,9 @@ def get_facility(facility_id=None, noninteractive=False):
 
 def get_facility_dataset_id(baseurl, identifier=None, noninteractive=False):
     # get list of facilities and if more than 1, display all choices to user
-    facility_url = reverse_remote(baseurl, "kolibri:core:publicfacility-list")
-    response = requests.get(facility_url)
-    response.raise_for_status()
+    client = NetworkClient.build_for_address(baseurl)
+    facility_url = reverse_path("kolibri:core:publicfacility-list")
+    response = client.get(facility_url)
     facilities = response.json()
     if not facilities:
         raise CommandError("There are no facilities available at: {}".format(baseurl))
