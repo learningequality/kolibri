@@ -64,22 +64,19 @@ export const os = {
   patch: osVersion[2],
 };
 
+// Device info
+export const device = {
+  type: info.device.type || 'desktop',
+  model: info.device.model,
+  vendor: info.device.vendor,
+};
+
 // Check for presence of the touch event in DOM or multi-touch capabilities
 export const isTouchDevice =
   'ontouchstart' in window ||
   window.navigator?.maxTouchPoints > 0 ||
   window.navigator?.msMaxTouchPoints > 0;
 
-const device = info.device;
-
-// this is better than undefined
-device.type = device.type || 'unknown';
-device.model = device.model || 'unknown';
-device.vendor = device.vendor || 'unknown';
-export const deviceWithTouch = {
-  ...device,
-  isTouchDevice,
-};
 function handlePointerDown(event) {
   if (event.pointerType === 'mouse') {
     localStorage.setItem('mouseUsed', 'true');
