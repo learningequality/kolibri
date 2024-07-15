@@ -1,4 +1,4 @@
-import { browser, os, deviceWithTouch } from './browserInfo';
+import { browser, os, device, isTouchDevice } from './browserInfo';
 
 class ErrorReport {
   constructor(e) {
@@ -14,7 +14,8 @@ class ErrorReport {
       browser: browser,
       os: os,
       device: {
-        ...deviceWithTouch,
+        ...device,
+        is_touch_device: isTouchDevice,
         screen: {
           width: window.innerWidth,
           height: window.innerHeight,
