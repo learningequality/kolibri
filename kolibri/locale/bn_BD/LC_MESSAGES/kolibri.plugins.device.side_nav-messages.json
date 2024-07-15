@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "আপনার ডিভাইসে যথেষ্ট জায়গা নেই। ডিস্কে জায়গা খালি করুন অথবা কম সংখ্যক সংস্থান নির্বাচন করুন",
   "CommonDeviceStrings.permissionsLabel": "অনুমতি",
   "CommonDeviceStrings.primaryStorageLabel": "নতুন ডাউনলোড করা সংস্থানগুলো প্রাইমারি স্টোরেজ লোকেশনে যুক্ত করা হবে",
+  "CommonDeviceStrings.statusCanceled": "বাতিল করা হয়েছে",
+  "CommonDeviceStrings.statusCanceling": "বাতিল করা হচ্ছে",
+  "CommonDeviceStrings.statusComplete": "শেষ হয়েছে",
+  "CommonDeviceStrings.statusFailed": "ব্যর্থ হয়েছে",
+  "CommonDeviceStrings.statusInProgress": "চলছে",
+  "CommonDeviceStrings.statusInQueue": "অপেক্ষায় আছে",
   "CommonDeviceStrings.unlistedChannelLabel": "তালিকাবহির্ভূত চ্যানেল"
 }

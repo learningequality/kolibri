@@ -32,6 +32,7 @@
   "CommonLearnStrings.toggleLicenseDescription": "라이센스 설명",
   "CommonLearnStrings.viewResource": "자료 보기",
   "CommonLearnStrings.whatYouWillNeed": "필요 사항",
+  "DownloadRequests.downloadComplete": "다운로드 완료",
   "DownloadRequests.downloadStartedLabel": "요청한 다운로드",
   "DownloadRequests.goToDownloadsPage": "다운로드로 가기",
   "DownloadRequests.resourceRemoved": "나의 라이브러리에서 제거된 자료",

@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "기기에 공간이 충분하지 않습니다. 디스크 크기를 늘리거나 더 적은 자료를 선택하세요.",
   "CommonDeviceStrings.permissionsLabel": "권한",
   "CommonDeviceStrings.primaryStorageLabel": "새로 다운로드한 자료는 주요 저장 위치에 추가됩니다",
+  "CommonDeviceStrings.statusCanceled": "취소됨",
+  "CommonDeviceStrings.statusCanceling": "취소 중",
+  "CommonDeviceStrings.statusComplete": "완료",
+  "CommonDeviceStrings.statusFailed": "실패",
+  "CommonDeviceStrings.statusInProgress": "진행 중",
+  "CommonDeviceStrings.statusInQueue": "대기",
   "CommonDeviceStrings.unlistedChannelLabel": "공개되지 않은 채널"
 }

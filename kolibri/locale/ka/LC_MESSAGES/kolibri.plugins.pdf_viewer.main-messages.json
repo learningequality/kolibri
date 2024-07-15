@@ -1,7 +1,7 @@
 {
-  "BookmarkItem.expand": "",
-  "Bookmarks.bookmarksSection": "",
-  "PdfPage.numPage": "",
+  "BookmarkItem.expand": "სანიშნების გაშლა",
+  "Bookmarks.bookmarksSection": "სანიშნების განყოფილება. შეგიძლიათ pdf დოკუმენტებისა და სანიშნების განყოფილებას შორის გადართოთ shift + enter დაჭერით.",
+  "PdfPage.numPage": "{number} გვერდი {total}-დან",
   "PdfRendererIndex.enterFullscreen": "მთელ ეკრანზე გაშვება",
   "PdfRendererIndex.exitFullscreen": "მთელი ეკრანიდან გამოსვლა"
 }

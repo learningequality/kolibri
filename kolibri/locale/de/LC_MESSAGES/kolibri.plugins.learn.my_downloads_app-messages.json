@@ -32,6 +32,7 @@
   "CommonLearnStrings.toggleLicenseDescription": "Lizenzbeschreibung ein-/ausblenden",
   "CommonLearnStrings.viewResource": "Materialien ansehen",
   "CommonLearnStrings.whatYouWillNeed": "Voraussetzungen",
+  "DownloadRequests.downloadComplete": "Download abgeschlossen",
   "DownloadRequests.downloadStartedLabel": "Downloadanfrage gesendet",
   "DownloadRequests.goToDownloadsPage": "Zu den Downloads",
   "DownloadRequests.resourceRemoved": "Material aus 'Meine Bibliothek' entfernt",

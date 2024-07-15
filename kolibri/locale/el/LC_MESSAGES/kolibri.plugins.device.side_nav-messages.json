@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Δεν υπάρχει αρκετός διαθέσιμος χώρος στη συσκευή σας. Ελευθερώστε χώρο στο δίσκο ή επιλέξτε λιγότερες πηγές",
   "CommonDeviceStrings.permissionsLabel": "Δικαιώματα",
   "CommonDeviceStrings.primaryStorageLabel": "Πρόσφατα κατεβασμένες πηγές θα προστεθούν στην κύρια τοποθεσία αποθήκευσης",
+  "CommonDeviceStrings.statusCanceled": "Ακυρώθηκε",
+  "CommonDeviceStrings.statusCanceling": "Ακύρωση",
+  "CommonDeviceStrings.statusComplete": "Ολοκληρώθηκε",
+  "CommonDeviceStrings.statusFailed": "Απέτυχε",
+  "CommonDeviceStrings.statusInProgress": "Σε εξέλιξη",
+  "CommonDeviceStrings.statusInQueue": "Σε αναμονή",
   "CommonDeviceStrings.unlistedChannelLabel": "Μη εισηγμένο κανάλι"
 }

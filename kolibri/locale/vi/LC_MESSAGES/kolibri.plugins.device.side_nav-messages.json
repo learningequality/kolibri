@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Không đủ dung lượng trên thiết bị. Hãy giải phóng ổ đĩa hay chọn ít tài liệu hơn",
   "CommonDeviceStrings.permissionsLabel": "Quyền hạn",
   "CommonDeviceStrings.primaryStorageLabel": "Tài liệu mới tải xuống sẽ được thêm vào vị trí lưu trữ chính",
+  "CommonDeviceStrings.statusCanceled": "Đã hủy",
+  "CommonDeviceStrings.statusCanceling": "Đang hủy",
+  "CommonDeviceStrings.statusComplete": "Hoàn thành",
+  "CommonDeviceStrings.statusFailed": "Thất bại",
+  "CommonDeviceStrings.statusInProgress": "Đang tiến hành",
+  "CommonDeviceStrings.statusInQueue": "Đang chờ",
   "CommonDeviceStrings.unlistedChannelLabel": "Kênh chưa liệt kê"
 }

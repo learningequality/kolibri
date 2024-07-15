@@ -32,6 +32,7 @@
   "CommonLearnStrings.toggleLicenseDescription": "लाइसेंस विवरण टॉगल करें",
   "CommonLearnStrings.viewResource": "संसाधन को देखें",
   "CommonLearnStrings.whatYouWillNeed": "आपको किन चीजों की आवश्यकता होगी",
+  "DownloadRequests.downloadComplete": "डाउनलोड पूरा हो गया",
   "DownloadRequests.downloadStartedLabel": "डाउनलोड का अनुरोध किया",
   "DownloadRequests.goToDownloadsPage": "डाउनलोड पर जाएं",
   "DownloadRequests.resourceRemoved": "संसाधन को मेरी लाइब्रेरी से निकाल दिया गया है",

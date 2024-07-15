@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Phi chính quy",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Thiết bị sẽ là một máy chủ Kolibri với đầy đủ tính năng được quản trị viên, giáo viên và học viên sử dụng.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Thiết bị đầy đủ",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Thiết bị này sẽ có một tài khoản học viên trở lên được nhập từ một thiết bị đầy đủ tính năng đã có trước đó. Tài khoản học viên sẽ tự động đồng bộ hoá với thiết bị đầy đủ tính năng kia.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Thiết bị này sẽ chỉ có những tính năng do học viên sử dụng, và sẽ được tự động đồng bộ trên toàn thiết bị.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Thiết bị chỉ dùng để học",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "Đây là loại thiết bị gì?",
   "GuestAccessForm.changeLater": "Bạn có thể thay đổi điều này sau trong phần cài đặt thiết bị.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Sao chép vào bảng nhớ tạm",
   "UserCredentialsForm.adminAccountCreationHeader": "Tạo quản trị viên hệ thống",
   "UserCredentialsForm.learnerAccountCreationDescription": "Tài khoản mới cho địa điểm học tập '{facility}'",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Tạo tài khoản của bạn"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Tạo tài khoản của bạn",
+  "UserCredentialsForm.signInInstead": "Bạn muốn đăng nhập?"
 }

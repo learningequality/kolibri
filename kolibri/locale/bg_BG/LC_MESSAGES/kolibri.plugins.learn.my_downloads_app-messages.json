@@ -32,6 +32,7 @@
   "CommonLearnStrings.toggleLicenseDescription": "Покажи описанието на лиценза",
   "CommonLearnStrings.viewResource": "Виж съдържанието",
   "CommonLearnStrings.whatYouWillNeed": "Какво ще ти трябва",
+  "DownloadRequests.downloadComplete": "Свалянето е завършено",
   "DownloadRequests.downloadStartedLabel": "Изтеглянето е заявено",
   "DownloadRequests.goToDownloadsPage": "Отиди към изтегляния",
   "DownloadRequests.resourceRemoved": "Ресурсът е премахнат от моята библиотека",

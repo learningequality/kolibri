@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "অ-প্রথাগত",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "ডিভাইসটি একটি পূর্ণ-বৈশিষ্ট্যযুক্ত কোলিব্রি সার্ভার হবে যা অ্যাডমিন, প্রশিক্ষক এবং শিক্ষার্থীরা ব্যবহার করবেন।",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "পূর্ণ ডিভাইস",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "এই ডিভাইসটিতে ইতিমধ্যেই বিদ্যমান একটি পূর্ণ ডিভাইস থেকে ইমপোর্ট করা এক বা একাধিক শিক্ষার্থীর অ্যাকাউন্ট থাকবে। শিক্ষার্থী অ্যাকাউন্টগুলো পূর্ণ ডিভাইসের সাথে স্বয়ংক্রিয়ভাবে সিঙ্ক হবে।",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "এই ডিভাইসটিতে শুধুমাত্র শিক্ষার্থীদের ব্যবহৃত ফিচারগুলি থাকবে এবং এটি পূর্ণ ডিভাইসের সাথে আপনাআপনি সিঙ্ক হবে।",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "শুধু শেখার ডিভাইস",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "এটা কোন ধরনের ডিভাইস?",
   "GuestAccessForm.changeLater": "আপনি পরবর্তীতে আপনার ডিভাইসের সেটিংসে এটি পরিবর্তন করতে পারবেন।",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "ক্লিপবোর্ডে অনুলিপি করুন",
   "UserCredentialsForm.adminAccountCreationHeader": "সুপার অ্যাডমিন তৈরি করুন",
   "UserCredentialsForm.learnerAccountCreationDescription": "'{facility}' শিক্ষা কেন্দ্রের জন্য নতুন অ্যাকাউন্ট",
-  "UserCredentialsForm.learnerAccountCreationHeader": "আপনার অ্যাকাউন্ট তৈরী করুন"
+  "UserCredentialsForm.learnerAccountCreationHeader": "আপনার অ্যাকাউন্ট তৈরী করুন",
+  "UserCredentialsForm.signInInstead": "অথবা সাইন ইন করবেন?"
 }

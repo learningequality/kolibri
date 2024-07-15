@@ -32,6 +32,7 @@
   "CommonLearnStrings.toggleLicenseDescription": "切换许可证描述",
   "CommonLearnStrings.viewResource": "查看资源",
   "CommonLearnStrings.whatYouWillNeed": "您将需要的内容",
+  "DownloadRequests.downloadComplete": "下载完成",
   "DownloadRequests.downloadStartedLabel": "请求的下载",
   "DownloadRequests.goToDownloadsPage": "前往下载页面",
   "DownloadRequests.resourceRemoved": "已从我的库中移除资源",
