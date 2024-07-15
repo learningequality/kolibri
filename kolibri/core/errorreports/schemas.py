@@ -1,7 +1,7 @@
 context_frontend_schema = {
     "type": "object",
-    "properties": {
-        "browser": {
+    "definitions": {
+        "versionInfo": {
             "type": "object",
             "properties": {
                 "name": {"type": "string", "optional": True},
@@ -9,16 +9,15 @@ context_frontend_schema = {
                 "minor": {"type": "string", "optional": True},
                 "patch": {"type": "string", "optional": True},
             },
+        }
+    },
+    "properties": {
+        "browser": {
+            "$ref": "#/definitions/versionInfo",
         },
         "component": {"type": "string", "optional": True},
         "os": {
-            "type": "object",
-            "properties": {
-                "name": {"type": "string", "optional": True},
-                "major": {"type": "string", "optional": True},
-                "minor": {"type": "string", "optional": True},
-                "patch": {"type": "string", "optional": True},
-            },
+            "$ref": "#/definitions/versionInfo",
         },
         "device": {
             "type": "object",
@@ -38,7 +37,22 @@ context_frontend_schema = {
         },
     },
 }
-default_context_frontend_schema = {"browser": {}, "component": "", "device": {}}
+default_version_info = {"name": "", "major": "", "minor": "", "patch": ""}
+default_context_frontend_schema = {
+    "browser": default_version_info,
+    "component": "",
+    "os": default_version_info,
+    "device": {
+        "model": "",
+        "type": "",
+        "vendor": "",
+        "is_touch_device": False,
+        "screen": {
+            "width": 0,
+            "height": 0,
+        },
+    },
+}
 context_backend_schema = {
     "type": "object",
     "properties": {
@@ -63,8 +77,13 @@ context_backend_schema = {
     },
 }
 default_context_backend_schema = {
-    "request_info": {},
-    "server": {},
+    "request_info": {
+        "url": "",
+        "method": "",
+        "headers": {},
+        "body": "",
+    },
+    "server": {"host": "", "port": 0},
     "packages": {},
     "python_version": "",
 }
