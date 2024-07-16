@@ -3,9 +3,9 @@
   <div>
     <KGrid :style="tabsWrapperStyles">
       <KGridItem
-        :layout4="{ span: 2 }"
+        :layout4="{ span: 4 }"
         :layout8="{ span: 5 }"
-        :layout12="{ span: 10 }"
+        :layout12="{ span: 8 }"
       >
         <TabsWithOverflow
           tabsId="quizSectionTabs"
@@ -51,15 +51,14 @@
       </KGridItem>
 
       <KGridItem
-        style="position: relative; right: 0; padding: 0 0.5em 0 1em; text-align: right"
-        :layout4="{ span: 2 }"
+        :layout4="{ span: 4 }"
         :layout8="{ span: 3 }"
-        :layout12="{ span: 2 }"
+        :layout12="{ span: 4 }"
+        class="add-more-button"
       >
         <KButton
           appearance="flat-button"
           icon="plus"
-          style="position: relative; right: 0; height: 3rem; padding: 0"
           @click="handleAddSection"
         >
           {{ addSectionLabel$() }}
@@ -503,7 +502,8 @@
         return {
           paddingTop: '1rem',
           borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
-          flexWrap: 'nowrap',
+          justifyContent: 'space-between',
+          // flexWrap: 'nowrap',
         };
       },
       tabs() {
@@ -820,6 +820,14 @@
     height: 3.25em !important;
     margin: 0;
     border-radius: 0 !important;
+  }
+
+  .add-more-button {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    height: 3rem;
+    padding: 0;
   }
 
   /deep/ .ui-menu {
