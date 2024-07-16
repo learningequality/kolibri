@@ -116,7 +116,11 @@
           zIndex: '4',
         }"
       >
-        {{ cannotSelectSomeTopicWarning$({ count: maxSectionQuestionOptions }) }}
+        {{
+          cannotSelectSomeTopicWarning$({
+            count: Math.max(maxSectionQuestionOptions, workingPoolUnusedQuestions),
+          })
+        }}
       </div>
 
       <ContentCardList
