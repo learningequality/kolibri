@@ -200,11 +200,8 @@ dist: setrequirements writeversion staticdeps staticdeps-cext strip-staticdeps b
 	python setup.py bdist_wheel
 	ls -l dist
 
-read-whl-file-version:
-	python ./build_tools/read_whl_version.py ${whlfile} > kolibri/VERSION
-
 pex:
-	ls dist/*.whl | while read whlfile; do $(MAKE) read-whl-file-version whlfile=$$whlfile; pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python3; done
+	ls dist/*.whl | while read whlfile; do version=$$(python ./build_tools/read_whl_version.py $$whlfile); pex $$whlfile --disable-cache -o dist/kolibri-`echo $$version | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python3; done
 
 i18n-extract-backend:
 	cd kolibri && python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*' --all
