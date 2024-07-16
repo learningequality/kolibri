@@ -5,6 +5,25 @@ on:
     types: [published]
 
 jobs:
+  latest_release:
+    name: Check if this release is the latest release
+    runs-on: ubuntu-latest
+    outputs:
+      is_latest_release: ${{ steps.is_latest_release.outputs.result }}
+    steps:
+      - name: Check if the current release is the latest Kolibri release
+        id: is_latest_release
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+
+            const { data: latestRelease } = await github.rest.repos.getLatestRelease({
+              owner: 'learningequality',
+              repo: 'kolibri',
+            });
+
+            return latestRelease.tag_name === '${{ github.event.release.tag_name }}';
   whl:
     name: Build WHL file
     uses: ./.github/workflows/build_whl.yml
@@ -221,9 +240,9 @@ jobs:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
   bck_gcs_upload:
     name: Upload WHL file to Google Cloud Storage for BCK
-    if: ${{ !github.event.release.prerelease && github.event.release.name == 'latest'}}
+    needs: [block_release_step, whl, latest_release]
+    if: ${{ !github.event.release.prerelease && needs.latest_release.outputs.is_latest_release == 'true' }}
     runs-on: ubuntu-latest
-    needs: [block_release_step, whl]
     steps:
     - name: Download WHL artifact
       uses: actions/download-artifact@v4
