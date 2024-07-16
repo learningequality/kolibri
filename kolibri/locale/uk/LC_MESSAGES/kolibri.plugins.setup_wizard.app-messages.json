@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Неформальне",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Пристрій буде повнофункційним сервером Колібрі, який використовуватимуть адміністратори, інструктори, учні й учениці.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Повнофункційний пристрій",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "На цьому пристрої буде один або більше облікових записів учнів (учениць), які імпортовані з уже існуючого повнофункційного пристрою. Облікові записи учнів (учениць) синхронізуються з повнофункційним пристроєм автоматично.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Цей пристрій буде мати лише функції, які використовують учні, і він буде автоматично синхронізуватися з основним пристроєм.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Пристрій тільки для навчання",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "Що це за пристрій?",
   "GuestAccessForm.changeLater": "Ви можете змінити це в налаштуваннях свого пристрою пізніше.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Копіювати до буфера обміну",
   "UserCredentialsForm.adminAccountCreationHeader": "Створити суперадміністратора",
   "UserCredentialsForm.learnerAccountCreationDescription": "Новий обліковий запис для навчального закладу '{facility}'",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Створити обліковий запис"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Створити обліковий запис",
+  "UserCredentialsForm.signInInstead": "Увійти замість цього?"
 }

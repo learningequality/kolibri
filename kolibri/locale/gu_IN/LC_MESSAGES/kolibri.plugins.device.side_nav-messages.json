@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "તમારા ડિવાઇસ પર પૂરતી જગ્યા ઉપલબ્ધ નથી. ડિસ્ક સ્થાન ખાલી કરો અથવા ઓછા સંસાધનો પસંદ કરો",
   "CommonDeviceStrings.permissionsLabel": "પરવાનગીઓ",
   "CommonDeviceStrings.primaryStorageLabel": "નવા ડાઉનલોડ કરાયેલા સંસાધનોને પ્રાથમિક સંગ્રહ સ્થાનમાં ઉમેરવામાં આવશે",
+  "CommonDeviceStrings.statusCanceled": "રદ કર્યું",
+  "CommonDeviceStrings.statusCanceling": "રદ કરવામાં આવી રહ્યું છે",
+  "CommonDeviceStrings.statusComplete": "સમાપ્ત થઈ ગયું છે",
+  "CommonDeviceStrings.statusFailed": "નિષ્ફળ થયું",
+  "CommonDeviceStrings.statusInProgress": "પ્રગતિમાં છે",
+  "CommonDeviceStrings.statusInQueue": "કતારમાં છે",
   "CommonDeviceStrings.unlistedChannelLabel": "અસૂચિબદ્ધ ચૅનલ"
 }

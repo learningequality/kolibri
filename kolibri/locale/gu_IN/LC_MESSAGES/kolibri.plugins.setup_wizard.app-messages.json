@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "બિન-ઔપચારિક",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "આ ડિવાઇસ સંપૂર્ણપણે ફીચર્ડ Kolibri સર્વર હશે જેનો ઉપયોગ ઍડમિન, કોચ અને વિદ્યાર્થીઓ દ્વારા કરવામાં આવશે.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "પૂર્ણ ડિવાઇસ",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "આ ડિવાઇસ પાસે સંપૂર્ણ ડિવાઇસમાંથી આયાત કરાયેલ એક અથવા વધારે વિદ્યાર્થી એકાઉન્ટ હશે કે જે પહેલેથી અસ્તિત્વ ધરાવે છે. વિદ્યાર્થી એકાઉન્ટ સંપૂર્ણ ડિવાઇસ સાથે ઑટો-સિન્ક થશે.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "આ ડિવાઇસમાં ફક્ત શીખનારાઓ દ્વારા ઉપયોગમાં લેવાતી સુવિધાઓ હશે, અને તે સંપૂર્ણ ડિવાઇસ સાથે આપમેળે સિંક થશે.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "ફક્ત શીખવા માટેનું ડિવાઇસ",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "આ કેવા પ્રકારનું ડિવાઇસ છે?",
   "GuestAccessForm.changeLater": "તમે તમારા ડિવાઇસના સેટિંગ્સમાં આને પછીથી બદલી શકો છો.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "ક્લિપબોર્ડ પર કૉપિ કરો",
   "UserCredentialsForm.adminAccountCreationHeader": "સુપર ઍડમિન બનાવો",
   "UserCredentialsForm.learnerAccountCreationDescription": "'{facility}' લર્નિંગ સુવિધા માટે નવું એકાઉન્ટ",
-  "UserCredentialsForm.learnerAccountCreationHeader": "તમારું એકાઉન્ટ બનાવો"
+  "UserCredentialsForm.learnerAccountCreationHeader": "તમારું એકાઉન્ટ બનાવો",
+  "UserCredentialsForm.signInInstead": "તેને બદલે સાઇન ઇન કરવું છે?"
 }

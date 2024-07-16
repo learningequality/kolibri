@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Não há espaço suficiente para completar a operação. Libere espaço no seu disco ou selecione menos conteúdos",
   "CommonDeviceStrings.permissionsLabel": "Permissões",
   "CommonDeviceStrings.primaryStorageLabel": "Os recursos transferidos recentemente serão adicionados à localização de armazenamento primária.",
+  "CommonDeviceStrings.statusCanceled": "Cancelado",
+  "CommonDeviceStrings.statusCanceling": "Cancelando...",
+  "CommonDeviceStrings.statusComplete": "Concluído",
+  "CommonDeviceStrings.statusFailed": "Erro",
+  "CommonDeviceStrings.statusInProgress": "Em curso",
+  "CommonDeviceStrings.statusInQueue": "Aguardando",
   "CommonDeviceStrings.unlistedChannelLabel": "Canal privado"
 }

@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Non-formal",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "This device will be a fully-featured Kolibri server used by admins, coaches, and learners.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Full device",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "This device will have one or more learner accounts imported from a full device that already exists. Learner accounts will auto-sync with the full device.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "This device will only have the features used by learners, and it will auto-sync with the full device.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Learn-only device",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "What kind of device is this?",
   "GuestAccessForm.changeLater": "You can change this in your device settings later.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Copy to clipboard",
   "UserCredentialsForm.adminAccountCreationHeader": "Create super admin",
   "UserCredentialsForm.learnerAccountCreationDescription": "New account for '{facility}' learning facility",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Create your account"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Create your account",
+  "UserCredentialsForm.signInInstead": "Sign in instead?"
 }

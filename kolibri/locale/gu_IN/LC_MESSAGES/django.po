@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-12 04:17-0800\n"
-"PO-Revision-Date: 2024-02-12 16:21\n"
+"POT-Creation-Date: 2024-06-20 16:50-0400\n"
+"PO-Revision-Date: 2024-07-15 23:09\n"
 "Last-Translator: \n"
 "Language-Team: Gujarati\n"
 "Language: gu_IN\n"
@@ -14,8 +14,8 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: gu-IN\n"
-"X-Crowdin-File: /016-test/django.po\n"
-"X-Crowdin-File-ID: 4744\n"
+"X-Crowdin-File: /release-v0.17.x/django.po\n"
+"X-Crowdin-File-ID: 4782\n"
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
@@ -36,7 +36,7 @@ msgid "Duplicated username"
 msgstr "ડુપ્લિકેટ થયેલ વપરાશકર્તા નામ"
 
 #: core/auth/constants/commands_errors.py:28
-#: core/auth/management/commands/bulkimportusers.py:85
+#: core/auth/management/commands/bulkimportusers.py:84
 msgid "Username only can contain characters, numbers and underscores"
 msgstr "વપરાશકર્તા નામમાં માત્ર અક્ષરો, સંખ્યાઓ અને અન્ડરસ્કૉર હોઈ શકે છે"
 
@@ -53,12 +53,12 @@ msgid "No default facility exists. Make sure to set up a facility on the device 
 msgstr "કોઈ ડિફૉલ્ટ સુવિધા અસ્તિત્વમાં નથી. આ કમાન્ડ ચલાવતા પહેલાં ઉપકરણ પર સુવિધા ઇન્સ્ટૉલ કરેલી હોવાની ખાતરી કરો"
 
 #: core/auth/constants/commands_errors.py:35
-#: core/auth/management/commands/bulkimportusers.py:99
+#: core/auth/management/commands/bulkimportusers.py:98
 msgid "Error trying to read csv file: {}"
 msgstr "સીએસવી ફાઇલ વાંચવાનો પ્રયાસ કરતી વખતે ભૂલ: {}"
 
 #: core/auth/constants/commands_errors.py:36
-#: core/auth/management/commands/bulkimportusers.py:100
+#: core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to write csv file: {}"
 msgstr "સીએસવી ફાઇલ લખવાનો પ્રયાસ કરતી વખતે ભૂલ: {}"
 
@@ -127,48 +127,48 @@ msgctxt "CSV file header for the list of classrooms names where the tutor is goi
 msgid "Coach assignment ({})"
 msgstr "પ્રશિક્ષકને સોંપાયેલું કાર્ય ({})"
 
-#: core/auth/management/commands/bulkimportusers.py:76
+#: core/auth/management/commands/bulkimportusers.py:75
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
 msgstr "અનપેક્ષિત ભૂલ [{}]: {}"
 
-#: core/auth/management/commands/bulkimportusers.py:80
+#: core/auth/management/commands/bulkimportusers.py:79
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
 msgstr "કૉલમ '{}' માંના મૂલ્યમાં ઘણા બધા અક્ષરો છે"
 
-#: core/auth/management/commands/bulkimportusers.py:82
+#: core/auth/management/commands/bulkimportusers.py:81
 msgid "Value in column '{}' not valid"
 msgstr "કૉલમ '{}' માંનું મૂલ્ય માન્ય નથી"
 
-#: core/auth/management/commands/bulkimportusers.py:83
+#: core/auth/management/commands/bulkimportusers.py:82
 msgid "Username is duplicated"
 msgstr "વપરાશકર્તા નામ ડુપ્લિકેટ થયેલ છે"
 
-#: core/auth/management/commands/bulkimportusers.py:89
+#: core/auth/management/commands/bulkimportusers.py:88
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
 msgstr "કૉલમમાં '{}' આવશ્યક છે"
 
-#: core/auth/management/commands/bulkimportusers.py:93
+#: core/auth/management/commands/bulkimportusers.py:92
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
 msgstr "પ્રથમ હરોળમાં ખોટું હેડર લેબલ મળ્યું"
 
-#: core/auth/management/commands/bulkimportusers.py:97
+#: core/auth/management/commands/bulkimportusers.py:96
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
 msgstr "કોઈ ડિફૉલ્ટ સુવિધા અસ્તિત્વમાં નથી. વપરાશકર્તાઓ અને વર્ગો આયાત કરતા પહેલાં ઉપકરણ પર સુવિધા સેટ કરવાની ખાતરી કરો"
 
-#: core/auth/management/commands/bulkimportusers.py:102
+#: core/auth/management/commands/bulkimportusers.py:101
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
 msgstr "પાસવર્ડ ક્ષેત્ર જરૂરી છે. હાલના વપરાશકર્તાઓમાં પાસવર્ડને યથાવત રાખવા માટે, ફૂદડી (*) દાખલ કરો"
 
-#: core/auth/management/commands/bulkimportusers.py:105
+#: core/auth/management/commands/bulkimportusers.py:104
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
 msgstr "આઈડી : '{}' સાથે વપરાશકર્તાને અપડેટ કરી શકતા નથી કારણ કે તે ડેટાબેઝ આઈડી ધરાવતો કોઈ વપરાશકર્તા આ સુવિધામાં અસ્તિત્વમાં નથી"
 
-#: core/auth/management/commands/bulkimportusers.py:107
+#: core/auth/management/commands/bulkimportusers.py:106
 msgid "Database ID is not valid"
 msgstr "ડેટાબેઝ આઈડી માન્ય નથી"
 
@@ -183,15 +183,15 @@ msgstr "ડેટા સિંક કરવાની પ્રક્રિયા
 msgid "Do not disconnect your device from the network."
 msgstr "તમારા ડિવાઇસને નેટવર્કથી ડિસકનેક્ટ કરશો નહીં."
 
-#: core/content/api.py:418
+#: core/content/api.py:425
 msgid "Resource"
 msgstr "સંસાધનો"
 
-#: core/content/api.py:1780
+#: core/content/api.py:1773
 msgid "The requested channel does not exist on the content server"
 msgstr "વિનંતી કરેલ ચેનલ સામગ્રી સર્વર પર અસ્તિત્વમાં નથી"
 
-#: core/content/models.py:282
+#: core/content/models.py:278
 msgid "Unknown format"
 msgstr "અજ્ઞાત ફોર્મેટ"
 
@@ -278,28 +278,28 @@ msgid "Content kind"
 msgstr "સામગ્રીનો પ્રકાર"
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
-#: core/tasks/job.py:89
+#: core/tasks/job.py:86
 msgid "Complete"
 msgstr "પૂર્ણ"
 
 #. Translators: Message shown to indicate that a background process has failed.
-#: core/tasks/job.py:92
+#: core/tasks/job.py:89
 msgid "Failed"
 msgstr "નિષ્ફળ થયું"
 
 #. Translators: Message shown to indicate that a background process has been cancelled.
-#: core/tasks/job.py:95
+#: core/tasks/job.py:92
 msgid "Cancelled"
 msgstr "રદ કરાયેલ"
 
 #. Translators: Message shown to indicate the percentage completed of a background process.
-#: core/tasks/job.py:98
+#: core/tasks/job.py:95
 #, python-brace-format
 msgid "In progress - {percent}%"
 msgstr "ચાલુ છે - {percent}%"
 
 #. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
-#: core/tasks/job.py:102
+#: core/tasks/job.py:99
 msgid "Waiting"
 msgstr "કતારમાં છે"
 
@@ -339,64 +339,64 @@ msgstr "કોલિબ્રી ઉપયોગ કરવા માટે, અ�
 msgid "You can also try updating your current browser."
 msgstr "તમે તમારા વર્તમાન બ્રાઉઝરને અપડેટ કરવાનો પણ પ્રયાસ કરી શકો છો."
 
-#: core/templatetags/core_tags.py:84
+#: core/templatetags/core_tags.py:80
 msgid "Kolibri"
 msgstr "કોલિબ્રી"
 
-#: core/views.py:184
+#: core/views.py:185
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "કોઈ યોગ્ય રીડાયરેક્ટ પૃષ્ઠ મળ્યું નથી. શક્યતા એ છે કે કોલિબ્રીની ગોઠવણ યોગ્ય રીતે કરવામાં આવી નથી"
 
-#: plugins/coach/kolibri_plugin.py:27
+#: plugins/coach/kolibri_plugin.py:23
 msgid "Coach"
 msgstr "પ્રશિક્ષક"
 
-#: plugins/facility/kolibri_plugin.py:22
+#: plugins/facility/kolibri_plugin.py:18
 msgid "Facility"
 msgstr "સુવિધા"
 
-#: plugins/facility/views.py:151
+#: plugins/facility/views.py:147
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs_from_"
 msgstr "content_session_logs_from_"
 
-#: plugins/facility/views.py:158 plugins/facility/views.py:176
+#: plugins/facility/views.py:154 plugins/facility/views.py:172
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "to_"
 msgstr "to_"
 
-#: plugins/facility/views.py:169
+#: plugins/facility/views.py:165
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs_from_"
 msgstr "content_summary_logs_from_"
 
-#: plugins/facility/views.py:187
+#: plugins/facility/views.py:183
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users"
 msgstr "વપરાશકર્તા"
 
-#: plugins/learn/kolibri_plugin.py:35
+#: plugins/learn/kolibri_plugin.py:31
 msgid "Learn"
 msgstr "શીખવું"
 
-#: plugins/policies/kolibri_plugin.py:21
+#: plugins/policies/kolibri_plugin.py:17
 msgid "Policies"
 msgstr "નીતિઓ"
 
-#: plugins/setup_wizard/kolibri_plugin.py:23
+#: plugins/setup_wizard/kolibri_plugin.py:19
 msgid "Setup Wizard"
 msgstr "સેટઅપ વિઝાર્ડ"
 
-#: plugins/user_profile/kolibri_plugin.py:24
+#: plugins/user_profile/kolibri_plugin.py:20
 msgid "User Profile"
 msgstr "વપરાશકર્તા પ્રોફાઇલ"
 
 #. Translators: A notification title shown to users when their learner account is joining a new learning facility.
-#: plugins/user_profile/tasks.py:84
+#: plugins/user_profile/tasks.py:87
 msgid "Account transfer in progress"
 msgstr "એકાઉન્ટને ટ્રાન્સફર કરવાની પ્રક્રિયા ચાલુ છે"
 
-#: plugins/user_profile/tasks.py:87
+#: plugins/user_profile/tasks.py:90
 #, python-brace-format
 msgid "Moving {learner_name} to learning facility {facility_name}"
 msgstr "{learner_name}ને શિક્ષણ સુવિધા {facility_name}માં ખસેડી રહ્યા છીએ"

@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "तुमच्या उपकरणावर पुरेशी जागा उपलब्ध नाही. कृपया जागा रिकामी करा किंवा कमी संसाधने निवडा",
   "CommonDeviceStrings.permissionsLabel": "परवानग्या",
   "CommonDeviceStrings.primaryStorageLabel": "नवीन डाउनलोड केलेली संसाधने प्राथमिक स्टोरेज स्थानावर जोडली जातील",
+  "CommonDeviceStrings.statusCanceled": "रद्द झाले",
+  "CommonDeviceStrings.statusCanceling": "रद्द होत आहे",
+  "CommonDeviceStrings.statusComplete": "समाप्त",
+  "CommonDeviceStrings.statusFailed": "अयशस्वी झाले",
+  "CommonDeviceStrings.statusInProgress": "चालू आहे",
+  "CommonDeviceStrings.statusInQueue": "प्रतीक्षा करत आहे",
   "CommonDeviceStrings.unlistedChannelLabel": "यादीत नसलेली वाहिनी"
 }

@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "غیر رسمی",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "یہ ڈیوائس ایک مکمل خصوصیات والا کولیبری سرور ہوگا جسے منتظمین، کوچز اور سیکھنے والے استعمال کرتے ہیں۔",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "مکمل آلہ",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "اس ڈیوائس میں پہلے سے موجود ایک مکمل ڈیوائس سے درآمد شدہ ایک یا زیادہ سیکھنے والے اکاؤنٹس ہوں گے۔ سیکھنے والے اکاؤنٹس مکمل ڈیوائس کے ساتھ خودکار طور پر مطابقت پذیر ہوں گے۔",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "اس ڈیوائس میں صرف وہی خصوصیات ہوں گی جو طلبا کی طرف سے استعمال ہوتی ہیں، اور یہ مکمل ڈیوائس کے ساتھ آٹو سنک ہوجائے گی۔",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "صرف سیکھنے کا آلہ",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "یہ کس قسم کی ڈیوائس ہے؟",
   "GuestAccessForm.changeLater": "آپ اسے بعد میں اپنی ڈیوائس کی ترتیبات میں تبدیل کر سکتے ہیں۔",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "کلپ بورڈ پر کاپی کریں",
   "UserCredentialsForm.adminAccountCreationHeader": "سپر ایڈمن بنائیں",
   "UserCredentialsForm.learnerAccountCreationDescription": "'{facility}' سیکھنے کے ادارے کے لیے نیا اکاؤنٹ",
-  "UserCredentialsForm.learnerAccountCreationHeader": "اپنا اکاؤنٹ بناؤ"
+  "UserCredentialsForm.learnerAccountCreationHeader": "اپنا اکاؤنٹ بناؤ",
+  "UserCredentialsForm.signInInstead": "اس کے بجائے سائن ان کریں؟"
 }

@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Spazio insufficiente disponibile sul dispositivo. Liberare spazio su disco o selezionare meno risorse",
   "CommonDeviceStrings.permissionsLabel": "Autorizzazioni",
   "CommonDeviceStrings.primaryStorageLabel": "Le risorse appena scaricate verranno aggiunte alla posizione di archiviazione principale",
+  "CommonDeviceStrings.statusCanceled": "Annullato",
+  "CommonDeviceStrings.statusCanceling": "Annullando",
+  "CommonDeviceStrings.statusComplete": "Completata",
+  "CommonDeviceStrings.statusFailed": "Non riuscito",
+  "CommonDeviceStrings.statusInProgress": "In corso",
+  "CommonDeviceStrings.statusInQueue": "Aspettando",
   "CommonDeviceStrings.unlistedChannelLabel": "Canale privato"
 }

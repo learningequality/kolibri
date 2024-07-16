@@ -14,7 +14,7 @@
   "ConfirmChangeFacility.changeFacilityInfoLine1": "본인의 계정 및 진도 데이터를 '{target_facility}' 학습 기관으로 옮기려고 합니다. 이 학습 기관에서 본인의 현재 데이터를 계속 사용할 수 있으며 이 기관의 모든 운영자도 해당 데이터에 접근이 가능합니다.",
   "ConfirmChangeFacility.changeFacilityInfoLine2": "본인의 사용자 계정 유형이 '{role}'에서 학생으로 변경되어 이 기기에서 자료를 더 이상 관리할 수 없게 됩니다. '{role}' 역할로 본인의 계정 유형을 되돌리려면 '{facility}' 기관에서 운영 권한을 가진 사람이 필요합니다.",
   "ConfirmChangeFacility.changeFacilityInfoLine3": "통합하려는 계정을 '{target_facility}'에서도 검색할 수 있습니다. 두 계정의 진도 데이터는 하나의 계정으로 통합됩니다.",
-  "ConfirmMerge.confirmMergeInfoLine": "두 개의 계정과 진도 데이터를 통합하려고 합니다. 진도 데이터에는 본인과 자료 간의 상호작용, 소요 시간 및 포인트가 포함됩니다. 통합되면 취소 할 수 없습니다.",
+  "ConfirmMerge.confirmMergeInfoLine": "두 개의 계정과 진도 데이터를 통합하려고 합니다. 진도 데이터에는 본인과 자료 간의 상호작용, 소요 시간 및 포인트가 포함됩니다. 통합되면 취소할 수 없습니다.",
   "ConfirmMerge.consequences": "계정 통합시 발생하는 결과를 숙지했습니다.",
   "CreateAccount.description": "'{targetFacility}' 학습 기관에서 '{fullName}'의 새로운 계정",
   "CreatePassword.description": "‘{targetFacility}’ 기관은 계정에 비밀번호가 필요합니다. ‘{targetFacility}’에서 ‘{username}’ 아이디에 해당하는 비밀번호를 입력하세요.",

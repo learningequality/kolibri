@@ -133,7 +133,8 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   },
   loadingLibraries: {
     message: 'Loading Kolibri libraries around you',
-    context: '',
+    context:
+      "Status message displayed on the Library page while Kolibri on the user's device is searching the local network for other devices with Kolibri, in order to make their libraries available for browsing.",
   },
   cannotConnectToLibrary: {
     message:

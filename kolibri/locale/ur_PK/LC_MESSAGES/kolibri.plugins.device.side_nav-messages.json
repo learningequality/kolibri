@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "آپ کے آلے پر جگہ دستیاب نہیں ہے۔ ڈسک خالی کریں یا کم وسائل منتخب کریں",
   "CommonDeviceStrings.permissionsLabel": "اجازتیں",
   "CommonDeviceStrings.primaryStorageLabel": "نئے ڈاؤن لوڈ کردہ وسائل کو بنیادی اسٹوریج کے مقام میں شامل کیا جائے گا۔",
+  "CommonDeviceStrings.statusCanceled": "منسوخ",
+  "CommonDeviceStrings.statusCanceling": "منسوخ ہو رہا ہے",
+  "CommonDeviceStrings.statusComplete": "ختم",
+  "CommonDeviceStrings.statusFailed": "ناکام ہوگیا",
+  "CommonDeviceStrings.statusInProgress": "کام جاری ہے",
+  "CommonDeviceStrings.statusInQueue": "انتظار کر رہا ہے",
   "CommonDeviceStrings.unlistedChannelLabel": "غیر مندرج چینل"
 }

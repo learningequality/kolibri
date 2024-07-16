@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Pas assez d'espace disponible sur votre appareil. Libérer de l'espace disque ou sélectionner moins de contenus",
   "CommonDeviceStrings.permissionsLabel": "Autorisations",
   "CommonDeviceStrings.primaryStorageLabel": "Les ressources nouvellement téléchargées seront ajoutées à l'emplacement de stockage principal",
+  "CommonDeviceStrings.statusCanceled": "Annuler",
+  "CommonDeviceStrings.statusCanceling": "Annulation en cours",
+  "CommonDeviceStrings.statusComplete": "Terminé",
+  "CommonDeviceStrings.statusFailed": "Échec",
+  "CommonDeviceStrings.statusInProgress": "En cours",
+  "CommonDeviceStrings.statusInQueue": "En attente",
   "CommonDeviceStrings.unlistedChannelLabel": "Masquer la chaîne"
 }
