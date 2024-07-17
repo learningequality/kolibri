@@ -5,6 +5,7 @@ import tempfile
 import pytest
 from django.conf import settings
 from django.core.management import call_command
+from django.db import ConnectionHandler
 from django.test.utils import override_settings
 from mock import patch
 
@@ -174,14 +175,13 @@ def test_restore_from_file_to_memory():
 
         # Restore it into a new test database setting
         with override_settings(DATABASES=MOCK_DATABASES):
-            from django import db
-
-            # Destroy current connections and create new ones:
-            db.connections.close_all()
-            db.connections = db.ConnectionHandler()
-            call_command("dbrestore", backup)
-            # Test that the user has been restored!
-            assert Facility.objects.filter(name="test file", kind=FACILITY).count() == 1
+            with patch("django.db.connections", ConnectionHandler()):
+                call_command("dbrestore", backup)
+                # Test that the user has been restored!
+                assert (
+                    Facility.objects.filter(name="test file", kind=FACILITY).count()
+                    == 1
+                )
     _clear_backups(dest_folder)
 
 
@@ -210,15 +210,13 @@ def test_restore_from_file_to_file():
 
         # Restore it into a new test database setting
         with override_settings(DATABASES=MOCK_DATABASES_FILE):
-            # Destroy current connections and create new ones:
-            db.connections.close_all()
-            db.connections = db.ConnectionHandler()
-            # Purposefully destroy the connection pointer, which is the default
-            # state of an unopened connection
-            db.connections["default"].connection = None
-            call_command("dbrestore", backup)
-            # Test that the user has been restored!
-            assert Facility.objects.filter(name="test file", kind=FACILITY).count() == 1
+            with patch("django.db.connections", ConnectionHandler()):
+                call_command("dbrestore", backup)
+                # Test that the user has been restored!
+                assert (
+                    Facility.objects.filter(name="test file", kind=FACILITY).count()
+                    == 1
+                )
     _clear_backups(dest_folder)
 
 
