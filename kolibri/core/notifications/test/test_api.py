@@ -74,7 +74,6 @@ class NotificationsAPITestCase(APITestCase):
         self.contentnode_ids = [
             "25f32edcec565396a1840c5413c92451",
             "25f32edcec565396a1840c5413c92452",
-            "25f32edcec565396a1840c5413c92453",
         ]
         self.node_1 = ContentNode.objects.create(
             title="Node 1",
@@ -139,6 +138,38 @@ class NotificationsAPITestCase(APITestCase):
             kind=content_kinds.EXERCISE,
         )
 
+    def create_mock_attemptlog(self, sessionlog=None, masterylog=None):
+        if sessionlog is None:
+            sessionlog = ContentSessionLogFactory(
+                user=self.user1,
+                content_id=uuid.uuid4().hex,
+                channel_id=uuid.uuid4().hex,
+            )
+
+        now = local_now()
+        if masterylog is None:
+            masterylog = MasteryLog.objects.create(
+                summarylog=self.summarylog1,
+                user=self.user1,
+                start_timestamp=now,
+                mastery_level=1,
+                complete=True,
+            )
+
+        return AttemptLog.objects.create(
+            masterylog=masterylog,
+            sessionlog=sessionlog,
+            user=self.user1,
+            start_timestamp=now,
+            end_timestamp=now + timedelta(seconds=10),
+            time_spent=1.0,
+            complete=True,
+            correct=1,
+            hinted=False,
+            error=False,
+            interaction_history=[{"type": "answer", "correct": 0}],
+        )
+
     def test_get_assignments(self):
         # user2 has no classroom assigned, thus no lessons:
         summarylog = ContentSummaryLogFactory.create(
@@ -168,22 +199,42 @@ class NotificationsAPITestCase(APITestCase):
         assert notification.user_id == self.user1.id
 
     @patch("kolibri.core.notifications.api.save_notifications")
-    def test_parse_summarylog(self, save_notifications):
+    def test_parse_summarylog_doesnt_save_notifications(self, save_notifications):
+        # Test not save notifications if progress is less than 1
+        self.summarylog1.progress = 0
         parse_summarylog(self.summarylog1)
         assert save_notifications.called is False
+
+    @patch("kolibri.core.notifications.api.create_notification")
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_parse_summarylog_save_completed_resource_notification(
+        self, save_notifications, create_notification
+    ):
+        # Test save notifications if progress is 1
         self.summarylog1.progress = 1.0
         parse_summarylog(self.summarylog1)
         assert save_notifications.called
-        notification = save_notifications.call_args[0][0][0]
-        assert notification.notification_object == NotificationObjectType.Resource
-        assert notification.notification_event == NotificationEventType.Completed
-        assert notification.lesson_id == self.lesson.id
-        assert notification.contentnode_id == self.node_1.id
+        create_notification.assert_called_once_with(
+            NotificationObjectType.Resource,
+            NotificationEventType.Completed,
+            self.user1.id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            contentnode_id=self.node_1.id,
+            lesson_id=self.lesson.id,
+            timestamp=self.summarylog1.end_timestamp,
+        )
 
     @patch("kolibri.core.notifications.api.save_notifications")
-    def test_finish_lesson_resource(self, save_notifications):
+    def test_finish_lesson_resource_doesnt_save_notifications(self, save_notifications):
+        self.summarylog1.progress = 0
         finish_lesson_resource(self.summarylog1, self.node_1.id, self.lesson.id)
         assert save_notifications.called is False
+
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_finish_lesson_resource_save_completed_notifications(
+        self, save_notifications
+    ):
         self.summarylog1.progress = 1.0
         self.summarylog1.save()
         finish_lesson_resource(self.summarylog1, self.node_1.id, self.lesson.id)
@@ -195,11 +246,6 @@ class NotificationsAPITestCase(APITestCase):
         assert notification.contentnode_id == self.node_1.id
 
     @patch("kolibri.core.notifications.api.save_notifications")
-    def test_parse_summarylog_exercise(self, save_notifications):
-        parse_summarylog(self.summarylog2)
-        assert save_notifications.called is False
-
-    @patch("kolibri.core.notifications.api.save_notifications")
     def test_create_summarylog(self, save_notifications):
         create_summarylog(self.summarylog1)
         assert save_notifications.called is True
@@ -208,12 +254,28 @@ class NotificationsAPITestCase(APITestCase):
         assert notification.notification_event == NotificationEventType.Started
 
     @patch("kolibri.core.notifications.api.save_notifications")
+    def test_create_summarylog_dont_save_notifications(self, save_notifications):
+        # Dont save notifications if the summarylog is an exercise
+        self.summarylog2.kind = content_kinds.EXERCISE
+        create_summarylog(self.summarylog2)
+        assert save_notifications.called is False
+
+    @patch("kolibri.core.notifications.api.save_notifications")
     def test_start_lesson_resource(self, save_notifications):
         start_lesson_resource(self.summarylog1, self.node_1.id, self.lesson.id)
         assert save_notifications.called is True
+
+        # Check resource started
         notification = save_notifications.call_args[0][0][0]
         assert notification.notification_object == NotificationObjectType.Resource
         assert notification.notification_event == NotificationEventType.Started
+        assert notification.timestamp == self.summarylog1.start_timestamp
+
+        # As is the first started resource, it should create a lesson started notification
+        notification = save_notifications.call_args[0][0][1]
+        assert notification.notification_object == NotificationObjectType.Lesson
+        assert notification.notification_event == NotificationEventType.Started
+        assert notification.timestamp == self.summarylog1.start_timestamp
 
     @patch("kolibri.core.notifications.api.save_notifications")
     def test_parse_examlog(self, save_notifications):
@@ -335,31 +397,7 @@ class NotificationsAPITestCase(APITestCase):
     def test_start_lesson_assessment_with_no_notification(
         self, save_notifications, create_notification
     ):
-        log = ContentSessionLogFactory(
-            user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
-        )
-        now = local_now()
-        masterylog = MasteryLog.objects.create(
-            summarylog=self.summarylog1,
-            user=self.user1,
-            start_timestamp=now,
-            mastery_level=1,
-            complete=True,
-        )
-        interactions = [{"type": "answer", "correct": 0} for _ in range(3)]
-        attemptlog1 = AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=1,
-            hinted=False,
-            error=False,
-            interaction_history=[interactions[0]],
-        )
+        attemptlog1 = self.create_mock_attemptlog()
         start_lesson_assessment(attemptlog1, self.node_1.id, self.lesson_id)
         assert save_notifications.called
         create_notification.assert_any_call(
@@ -388,32 +426,10 @@ class NotificationsAPITestCase(APITestCase):
     def test_parse_attemptslog_create_on_new_attempt_with_no_notification(
         self, save_notifications, create_notification
     ):
-        log = ContentSessionLogFactory(
-            user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
-        )
-        now = local_now()
-        masterylog = MasteryLog.objects.create(
-            summarylog=self.summarylog1,
-            user=self.user1,
-            start_timestamp=now,
-            mastery_level=1,
-            complete=True,
-        )
-        interactions = [{"type": "answer", "correct": 0} for _ in range(3)]
-        attemptlog1 = AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=1,
-            hinted=False,
-            error=False,
-            interaction_history=[interactions[0]],
-        )
+        attemptlog1 = self.create_mock_attemptlog()
         parse_attemptslog(attemptlog1)
+        # If no notification has already been created, then create it with
+        # the first attempt
         assert save_notifications.called
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
@@ -441,31 +457,7 @@ class NotificationsAPITestCase(APITestCase):
     def test_start_lesson_assessment_with_notification(
         self, save_notifications, create_notification
     ):
-        log = ContentSessionLogFactory(
-            user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
-        )
-        now = local_now()
-        masterylog = MasteryLog.objects.create(
-            summarylog=self.summarylog1,
-            user=self.user1,
-            start_timestamp=now,
-            mastery_level=1,
-            complete=True,
-        )
-        interactions = [{"type": "answer", "correct": 0} for _ in range(3)]
-        attemptlog1 = AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=1,
-            hinted=False,
-            error=False,
-            interaction_history=[interactions[0]],
-        )
+        attemptlog1 = self.create_mock_attemptlog()
         LearnerProgressNotification.objects.create(
             notification_object=NotificationObjectType.Resource,
             notification_event=NotificationEventType.Started,
@@ -485,52 +477,17 @@ class NotificationsAPITestCase(APITestCase):
             timestamp=attemptlog1.start_timestamp,
         )
 
-        attemptlog2 = AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=1,
-            hinted=False,
-            error=False,
-            interaction_history=[interactions[0]],
+        attemptlog2 = self.create_mock_attemptlog(
+            sessionlog=attemptlog1.sessionlog, masterylog=attemptlog1.masterylog
         )
         start_lesson_assessment(attemptlog2, self.node_1.id, self.lesson_id)
         assert create_notification.called is False
 
     @patch("kolibri.core.notifications.api.create_notification")
-    @patch("kolibri.core.notifications.api.save_notifications")
     def test_parse_attemptslog_create_on_new_attempt_with_notification(
-        self, save_notifications, create_notification
+        self, create_notification
     ):
-        log = ContentSessionLogFactory(
-            user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
-        )
-        now = local_now()
-        masterylog = MasteryLog.objects.create(
-            summarylog=self.summarylog1,
-            user=self.user1,
-            start_timestamp=now,
-            mastery_level=1,
-            complete=True,
-        )
-        interactions = [{"type": "answer", "correct": 0} for _ in range(3)]
-        attemptlog1 = AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=1,
-            hinted=False,
-            error=False,
-            interaction_history=[interactions[0]],
-        )
+        attemptlog1 = self.create_mock_attemptlog()
         LearnerProgressNotification.objects.create(
             notification_object=NotificationObjectType.Resource,
             notification_event=NotificationEventType.Started,
@@ -550,82 +507,35 @@ class NotificationsAPITestCase(APITestCase):
             timestamp=attemptlog1.start_timestamp,
         )
 
-        attemptlog2 = AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=1,
-            hinted=False,
-            error=False,
-            interaction_history=[interactions[0]],
+        attemptlog2 = self.create_mock_attemptlog(
+            sessionlog=attemptlog1.sessionlog, masterylog=attemptlog1.masterylog
         )
         parse_attemptslog(attemptlog2)
-        assert save_notifications.called is False
-        assert create_notification.called is False
+        notifications = create_notification.call_args_list
+        assert not any(
+            [call[1] == NotificationEventType.Help for call in notifications]
+        )
 
     @patch("kolibri.core.notifications.api.create_notification")
     @patch("kolibri.core.notifications.api.save_notifications")
     def test_update_lesson_assessment_with_three_wrong_attempts(
         self, save_notifications, create_notification
     ):
-        log = ContentSessionLogFactory(
-            user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
-        )
-        now = local_now()
-        masterylog = MasteryLog.objects.create(
-            summarylog=self.summarylog1,
-            user=self.user1,
-            start_timestamp=now,
-            mastery_level=1,
-            complete=True,
-        )
-        interactions = [{"type": "answer", "correct": 0}]
-        AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=0,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
+        attemptlog1 = self.create_mock_attemptlog()
+
+        self.create_mock_attemptlog(
+            sessionlog=attemptlog1.sessionlog, masterylog=attemptlog1.masterylog
         )
 
-        AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=0,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
-        )
         # more than 3 attempts will trigger the help notification
-        interactions.append({"type": "answer", "correct": 0})
-        attemptlog3 = AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=0,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
+        attemptlog3 = self.create_mock_attemptlog(
+            sessionlog=attemptlog1.sessionlog, masterylog=attemptlog1.masterylog
         )
+        attemptlog3.interaction_history = [
+            {"type": "answer", "correct": 0} for _ in range(2)
+        ]
+        attemptlog3.save()
+
         LearnerProgressNotification.objects.create(
             notification_object=NotificationObjectType.Resource,
             notification_event=NotificationEventType.Started,
@@ -655,7 +565,7 @@ class NotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog3.end_timestamp,
         )
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
@@ -665,7 +575,7 @@ class NotificationsAPITestCase(APITestCase):
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog3.end_timestamp,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -673,60 +583,21 @@ class NotificationsAPITestCase(APITestCase):
     def test_parse_attemptslog_update_attempt_with_three_wrong_attempts(
         self, save_notifications, create_notification
     ):
-        log = ContentSessionLogFactory(
-            user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
-        )
-        now = local_now()
-        masterylog = MasteryLog.objects.create(
-            summarylog=self.summarylog1,
-            user=self.user1,
-            start_timestamp=now,
-            mastery_level=1,
-            complete=True,
-        )
-        interactions = [{"type": "answer", "correct": 0}]
-        AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=0,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
+        attemptlog1 = self.create_mock_attemptlog()
+
+        self.create_mock_attemptlog(
+            sessionlog=attemptlog1.sessionlog, masterylog=attemptlog1.masterylog
         )
 
-        AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=0,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
-        )
         # more than 3 attempts will trigger the help notification
-        interactions.append({"type": "answer", "correct": 0})
-        attemptlog3 = AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=0,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
+        attemptlog3 = self.create_mock_attemptlog(
+            sessionlog=attemptlog1.sessionlog, masterylog=attemptlog1.masterylog
         )
+        attemptlog3.interaction_history = [
+            {"type": "answer", "correct": 0} for _ in range(2)
+        ]
+        attemptlog3.save()
+
         LearnerProgressNotification.objects.create(
             notification_object=NotificationObjectType.Resource,
             notification_event=NotificationEventType.Started,
@@ -747,7 +618,7 @@ class NotificationsAPITestCase(APITestCase):
         )
         parse_attemptslog(attemptlog3)
         assert save_notifications.called
-        create_notification.assert_called_once_with(
+        create_notification.assert_any_call(
             NotificationObjectType.Resource,
             NotificationEventType.Help,
             attemptlog3.user_id,
@@ -756,109 +627,60 @@ class NotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog3.end_timestamp,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
     @patch("kolibri.core.notifications.api.save_notifications")
-    def test_update_lesson_assessment_with_three_wrong_attempts_on_same_attempt(
+    def test_update_lesson_assessment_with_four_wrong_interactions_on_same_attempt(
         self, save_notifications, create_notification
     ):
-        log = ContentSessionLogFactory(
-            user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
-        )
-        now = local_now()
-        masterylog = MasteryLog.objects.create(
-            summarylog=self.summarylog1,
-            user=self.user1,
-            start_timestamp=now,
-            mastery_level=1,
-            complete=True,
-        )
-        interactions = [{"type": "answer", "correct": 0} for _ in range(3)]
-        AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=1,
-            hinted=False,
-            error=False,
-            interaction_history=[interactions[0]],
-        )
+        attemptlog = self.create_mock_attemptlog()
+        interactions = [{"type": "answer", "correct": 0} for _ in range(4)]
+        attemptlog.interaction_history = interactions
+        attemptlog.save()
 
-        AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=1,
-            hinted=False,
-            error=False,
-            interaction_history=[interactions[0]],
-        )
-        # more than 3 attempts will trigger the help notification
-        interactions.append({"type": "answer", "correct": 0})
-        attemptlog3 = AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=1,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
-        )
         LearnerProgressNotification.objects.create(
             notification_object=NotificationObjectType.Resource,
             notification_event=NotificationEventType.Started,
-            user_id=attemptlog3.user_id,
+            user_id=attemptlog.user_id,
             classroom_id=self.classroom.id,
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog.start_timestamp,
         )
 
         LearnerProgressNotification.objects.create(
             notification_object=NotificationObjectType.Lesson,
             notification_event=NotificationEventType.Started,
-            user_id=attemptlog3.user_id,
+            user_id=attemptlog.user_id,
             classroom_id=self.classroom.id,
             lesson_id=self.lesson_id,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog.start_timestamp,
         )
-        update_lesson_assessment(attemptlog3, self.node_1.id, self.lesson_id)
+        update_lesson_assessment(attemptlog, self.node_1.id, self.lesson_id)
         assert save_notifications.called
 
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
             NotificationEventType.Help,
-            attemptlog3.user_id,
+            attemptlog.user_id,
             self.classroom.id,
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog.end_timestamp,
         )
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
             NotificationEventType.Answered,
-            attemptlog3.user_id,
+            attemptlog.user_id,
             self.classroom.id,
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog.end_timestamp,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -866,91 +688,42 @@ class NotificationsAPITestCase(APITestCase):
     def test_parse_attemptslog_update_attempt_with_three_wrong_attempts_on_same_attempt(
         self, save_notifications, create_notification
     ):
-        log = ContentSessionLogFactory(
-            user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
-        )
-        now = local_now()
-        masterylog = MasteryLog.objects.create(
-            summarylog=self.summarylog1,
-            user=self.user1,
-            start_timestamp=now,
-            mastery_level=1,
-            complete=True,
-        )
-        interactions = [{"type": "answer", "correct": 0} for _ in range(3)]
-        AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=1,
-            hinted=False,
-            error=False,
-            interaction_history=[interactions[0]],
-        )
+        attemptlog = self.create_mock_attemptlog()
+        interactions = [{"type": "answer", "correct": 0} for _ in range(4)]
+        attemptlog.interaction_history = interactions
+        attemptlog.save()
 
-        AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=1,
-            hinted=False,
-            error=False,
-            interaction_history=[interactions[0]],
-        )
-        # more than 3 attempts will trigger the help notification
-        interactions.append({"type": "answer", "correct": 0})
-        attemptlog3 = AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=1,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
-        )
         LearnerProgressNotification.objects.create(
             notification_object=NotificationObjectType.Resource,
             notification_event=NotificationEventType.Started,
-            user_id=attemptlog3.user_id,
+            user_id=attemptlog.user_id,
             classroom_id=self.classroom.id,
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog.start_timestamp,
         )
 
         LearnerProgressNotification.objects.create(
             notification_object=NotificationObjectType.Lesson,
             notification_event=NotificationEventType.Started,
-            user_id=attemptlog3.user_id,
+            user_id=attemptlog.user_id,
             classroom_id=self.classroom.id,
             lesson_id=self.lesson_id,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog.start_timestamp,
         )
-        parse_attemptslog(attemptlog3)
+        parse_attemptslog(attemptlog)
         assert save_notifications.called
 
-        create_notification.assert_called_once_with(
+        create_notification.assert_any_call(
             NotificationObjectType.Resource,
             NotificationEventType.Help,
-            attemptlog3.user_id,
+            attemptlog.user_id,
             self.classroom.id,
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog.end_timestamp,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -958,83 +731,34 @@ class NotificationsAPITestCase(APITestCase):
     def test_start_lesson_assessment_with_three_wrong_attempts_no_started(
         self, save_notifications, create_notification
     ):
-        log = ContentSessionLogFactory(
-            user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
-        )
-        now = local_now()
-        masterylog = MasteryLog.objects.create(
-            summarylog=self.summarylog1,
-            user=self.user1,
-            start_timestamp=now,
-            mastery_level=1,
-            complete=True,
-        )
-        interactions = [{"type": "answer", "correct": 0}]
-        AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=0,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
-        )
+        attemptlog = self.create_mock_attemptlog()
+        interactions = [{"type": "answer", "correct": 0} for _ in range(4)]
+        attemptlog.interaction_history = interactions
+        attemptlog.save()
 
-        AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=0,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
-        )
-        # more than 3 attempts will trigger the help notification
-        interactions.append({"type": "answer", "correct": 0})
-        attemptlog3 = AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=0,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
-        )
-        start_lesson_assessment(attemptlog3, self.node_1.id, self.lesson_id)
+        start_lesson_assessment(attemptlog, self.node_1.id, self.lesson_id)
         assert save_notifications.called
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
             NotificationEventType.Help,
-            attemptlog3.user_id,
+            attemptlog.user_id,
             self.classroom.id,
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog.end_timestamp,
         )
 
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
             NotificationEventType.Started,
-            attemptlog3.user_id,
+            attemptlog.user_id,
             self.classroom.id,
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog.start_timestamp,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -1042,84 +766,121 @@ class NotificationsAPITestCase(APITestCase):
     def test_parse_attemptslog_update_attempt_with_three_wrong_attempts_no_started(
         self, save_notifications, create_notification
     ):
-        log = ContentSessionLogFactory(
-            user=self.user1, content_id=uuid.uuid4().hex, channel_id=uuid.uuid4().hex
-        )
-        now = local_now()
-        masterylog = MasteryLog.objects.create(
-            summarylog=self.summarylog1,
-            user=self.user1,
-            start_timestamp=now,
-            mastery_level=1,
-            complete=True,
-        )
-        interactions = [{"type": "answer", "correct": 0}]
-        AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=0,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
-        )
+        attemptlog = self.create_mock_attemptlog()
+        interactions = [{"type": "answer", "correct": 0} for _ in range(4)]
+        attemptlog.interaction_history = interactions
+        attemptlog.save()
 
-        AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=0,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
-        )
-        # more than 3 attempts will trigger the help notification
-        interactions.append({"type": "answer", "correct": 0})
-        attemptlog3 = AttemptLog.objects.create(
-            masterylog=masterylog,
-            sessionlog=log,
-            user=self.user1,
-            start_timestamp=now,
-            end_timestamp=now,
-            time_spent=1.0,
-            complete=True,
-            correct=0,
-            hinted=False,
-            error=False,
-            interaction_history=interactions,
-        )
-        parse_attemptslog(attemptlog3)
+        parse_attemptslog(attemptlog)
         assert save_notifications.called
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
             NotificationEventType.Help,
-            attemptlog3.user_id,
+            attemptlog.user_id,
             self.classroom.id,
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog.end_timestamp,
         )
 
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
             NotificationEventType.Started,
-            attemptlog3.user_id,
+            attemptlog.user_id,
             self.classroom.id,
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog.start_timestamp,
         )
+
+    @patch("kolibri.core.notifications.api.create_notification")
+    def test_parse_attemptlog_with_two_wrong_interactions(self, create_notification):
+        attemptlog = self.create_mock_attemptlog()
+        interactions = [{"type": "answer", "correct": 0} for _ in range(2)]
+        attemptlog.interaction_history = interactions
+        attemptlog.save()
+
+        parse_attemptslog(attemptlog)
+
+        notifications = create_notification.call_args_list
+        assert not any(
+            [call[1] == NotificationEventType.Help for call in notifications]
+        )
+
+    def test_parse_attemptlog_updates_notification_if_user_keeps_failing(self):
+        attemptlog1 = self.create_mock_attemptlog()
+        interactions = [{"type": "answer", "correct": 0} for _ in range(4)]
+        attemptlog1.interaction_history = interactions
+        attemptlog1.save()
+
+        parse_attemptslog(attemptlog1)
+
+        notification1 = LearnerProgressNotification.objects.get(
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Help,
+            user_id=attemptlog1.user_id,
+            classroom_id=self.classroom.id,
+            lesson_id=self.lesson_id,
+            contentnode_id=self.node_1.id,
+        )
+        assert notification1.timestamp == attemptlog1.end_timestamp
+
+        attemptlog2 = self.create_mock_attemptlog(
+            sessionlog=attemptlog1.sessionlog, masterylog=attemptlog1.masterylog
+        )
+        interactions = [{"type": "answer", "correct": 0}]
+        attemptlog2.interaction_history = interactions
+        attemptlog2.end_timestamp = attemptlog1.end_timestamp + timedelta(seconds=10)
+        attemptlog2.save()
+
+        parse_attemptslog(attemptlog2)
+
+        notification2 = LearnerProgressNotification.objects.get(
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Help,
+            user_id=attemptlog2.user_id,
+            classroom_id=self.classroom.id,
+            lesson_id=self.lesson_id,
+            contentnode_id=self.node_1.id,
+        )
+
+        # Test that notification has updated with latest attemptlog
+        assert notification1.id == notification2.id
+        assert notification2.timestamp == attemptlog2.end_timestamp
+
+    def test_parse_attemptlog_doesnt_update_notification_if_user_didnt_fail_again(self):
+        attemptlog1 = self.create_mock_attemptlog()
+        interactions = [{"type": "answer", "correct": 0} for _ in range(4)]
+        attemptlog1.interaction_history = interactions
+        attemptlog1.save()
+
+        parse_attemptslog(attemptlog1)
+
+        attemptlog2 = self.create_mock_attemptlog(
+            sessionlog=attemptlog1.sessionlog, masterylog=attemptlog1.masterylog
+        )
+        # This time the student gets it right, so the notification shouldnt be updated
+        interactions = [{"type": "answer", "correct": 1}]
+        attemptlog2.interaction_history = interactions
+        attemptlog2.end_timestamp = attemptlog1.end_timestamp + timedelta(seconds=10)
+        attemptlog2.save()
+
+        parse_attemptslog(attemptlog2)
+
+        notification = LearnerProgressNotification.objects.get(
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Help,
+            user_id=attemptlog2.user_id,
+            classroom_id=self.classroom.id,
+            lesson_id=self.lesson_id,
+            contentnode_id=self.node_1.id,
+        )
+
+        # Keeps the timestamp of the first failed attempt
+        assert notification.timestamp == attemptlog1.end_timestamp
 
 
 class BulkNotificationsAPITestCase(APITestCase):
