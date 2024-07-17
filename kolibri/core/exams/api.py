@@ -116,14 +116,14 @@ class ExamViewset(ValuesViewset):
             exam_queryset = instantiated_backend.filter_queryset(
                 self.request, exam_queryset, self
             )
-            # Do some special handling if the backend has a get_filter_class method
-            # this is required, as the get_filter_class makes an assertion based on
+            # Do some special handling if the backend has a get_filterset_class method
+            # this is required, as the get_filterset_class makes an assertion based on
             # the model Meta of the FilterSet - which is set to Exam, so this will
             # fail if we try to use the ExamFilter on the DraftExam queryset
             # This is a workaround to allow the DraftExam queryset to be filtered
-            if hasattr(instantiated_backend, "get_filter_class"):
+            if hasattr(instantiated_backend, "get_filterset_class"):
                 # First get the filter class using the exam queryset
-                filter_class = instantiated_backend.get_filter_class(
+                filter_class = instantiated_backend.get_filterset_class(
                     self, exam_queryset
                 )
                 # If the filter class is not None, then we can use it to filter the draft_queryset
@@ -136,7 +136,7 @@ class ExamViewset(ValuesViewset):
                         request=self.request,
                     ).qs
             else:
-                # If the backend doesn't have a get_filter_class method, then we can just
+                # If the backend doesn't have a get_filterset_class method, then we can just
                 # filter the draft_queryset as normal
                 draft_queryset = instantiated_backend.filter_queryset(
                     self.request, draft_queryset, self
