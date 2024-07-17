@@ -133,22 +133,12 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import Draggable from 'kolibri.coreVue.components.Draggable';
-  import DragContainer from 'kolibri.coreVue.components.DragContainer';
-  import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import { PageNames } from '../../../constants/index';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import useDrag from './useDrag.js';
 
   export default {
     name: 'SectionEditor',
-    components: {
-      Draggable,
-      DragContainer,
-      DragHandle,
-      DragSortWidget,
-    },
     mixins: [commonCoreStrings],
     setup(_, context) {
       const router = getCurrentInstance().proxy.$router;
@@ -353,22 +343,8 @@
       };
     },
     computed: {
-      borderStyle() {
-        return `border: 1px solid ${this.$themeTokens.fineLine}`;
-      },
-      activeSectionStyles() {
-        return {
-          backgroundColor: this.$themePalette.grey.v_50,
-          border: `1px solid ${this.$themeTokens.fineLine}`,
-        };
-      },
       dividerStyle() {
         return `color : ${this.$themeTokens.fineLine}`;
-      },
-      draggableStyle() {
-        return {
-          backgroundColor: this.$themeTokens.surface,
-        };
       },
       selectResourcesRoute() {
         return { name: PageNames.QUIZ_SELECT_RESOURCES };
@@ -387,13 +363,6 @@
       next();
     },
     methods: {
-      handleSectionSort(e) {
-        this.sectionOrderList = e.newArray;
-        const reorderedId = this.allSections[this.activeSectionIndex].section_id;
-        this.reorderedSectionIndex = this.sectionOrderList.findIndex(
-          section => section.section_id === reorderedId,
-        );
-      },
       applySettings(nextRouteName = PageNames.EXAM_CREATION_ROOT) {
         if (this.sectionTitleInvalid) {
           this.$refs.sectionTitle.focus();
@@ -437,20 +406,6 @@
         } else {
           this.$emit('closePanel');
         }
-      },
-      handleKeyboardDragDown(oldIndex, array) {
-        const newArray = this.moveDownOne(oldIndex, array);
-        this.sectionOrderList = newArray;
-      },
-      handleKeyboardDragUp(oldIndex, array) {
-        const newArray = this.moveUpOne(oldIndex, array);
-        this.sectionOrderList = newArray;
-      },
-      sectionOrderingTitle(section) {
-        const sectionIndexOrder = this.allSections.findIndex(
-          s => s.section_id === section.section_id,
-        );
-        return displaySectionTitle(section, sectionIndexOrder).toUpperCase();
       },
     },
   };
