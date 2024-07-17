@@ -142,7 +142,7 @@ def test_plugin_with_no_plugin_class(plugins):
     assert installed_apps_before == plugins.config["INSTALLED_PLUGINS"]
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 def test_kolibri_listen_port_env(monkeypatch):
     """
     Starts and stops the server, mocking the actual server.start()

@@ -17,7 +17,7 @@ from kolibri.utils.version import truncate_version
 # from django.conf import settings
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 @patch("kolibri.plugins.registry.is_initialized", return_value=False)
 @patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main.get_version", return_value="")
@@ -40,7 +40,7 @@ def test_first_run(
     assert set(plugins.config["INSTALLED_PLUGINS"]) == set(plugins.DEFAULT_PLUGINS)
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 @patch("kolibri.plugins.registry.is_initialized", return_value=False)
 @patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main.get_version", return_value="0.0.1")
@@ -53,7 +53,7 @@ def test_update(update, get_version, upgrades_after_django_setup, is_initialized
     update.assert_called_once()
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 @patch("kolibri.plugins.registry.is_initialized", return_value=False)
 @patch("kolibri.utils.main.get_version", return_value="0.0.1")
 def test_update_exits_if_running(get_version, is_initialized):
@@ -68,7 +68,7 @@ def test_update_exits_if_running(get_version, is_initialized):
             pass
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 def test_version_updated():
     """
     Tests our db backup logic: version_updated gets any change, backup gets only non-dev changes
@@ -81,7 +81,7 @@ def test_version_updated():
     assert not main.should_back_up("0.10.0-dev0", "0.10.0-dev0")
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 @unittest.skipIf(
     True,
     # TODO: rtibbles - reinstate and fix test
@@ -132,7 +132,7 @@ def test_conditional_backup():
     assert higher_db_version in backups_after[0]
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 @patch("kolibri.plugins.registry.is_initialized", return_value=False)
 @patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main.get_version", return_value=kolibri.__version__)

@@ -4,12 +4,12 @@ from morango.sync.context import SessionContext
 from kolibri.core.auth.sync_operations import KolibriSyncOperations
 from kolibri.core.content.kolibri_plugin import ContentSyncHook
 from kolibri.core.content.test.utils.test_content_request import (
-    IncompleteDownloadsQuerysetTestCase,
+    BaseIncompleteDownloadsQuerysetTestCase,
 )
 from kolibri.core.device.models import DeviceStatus
 
 
-class KolibriContentSyncHookTestCase(IncompleteDownloadsQuerysetTestCase):
+class KolibriContentSyncHookTestCase(BaseIncompleteDownloadsQuerysetTestCase):
     def setUp(self):
         super(KolibriContentSyncHookTestCase, self).setUp()
         self.operation = KolibriSyncOperations()
