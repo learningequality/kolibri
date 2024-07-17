@@ -382,6 +382,7 @@ class NotificationsAPITestCase(APITestCase):
             complete=True,
         )
 
+        # Lesson completed with timestamp of summarylog2.completion_timestamp
         parse_summarylog(self.summarylog2)
 
         # User retried 2nd resource
@@ -442,13 +443,69 @@ class NotificationsAPITestCase(APITestCase):
         assert notification.notification_event == NotificationEventType.Started
 
     @patch("kolibri.core.notifications.api.save_notifications")
-    def test_create_summarylog_dont_save_notifications_if_exercise(
+    def test_create_summarylog_doesnt_save_notifications_if_exercise(
         self, save_notifications
     ):
         # Dont save notifications if the summarylog is an exercise
         self.summarylog2.kind = content_kinds.EXERCISE
+        self.summarylog2.save()
         create_summarylog(self.summarylog2)
         assert save_notifications.called is False
+
+    @patch("kolibri.core.notifications.api.create_notification")
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_create_1st_resource_summarylog_create_lesson_started_notification(
+        self, save_notifications, create_notification
+    ):
+        self.summarylog1.kind = content_kinds.DOCUMENT
+        create_summarylog(self.summarylog1)
+
+        assert save_notifications.called is True
+        create_notification.assert_any_call(
+            NotificationObjectType.Resource,
+            NotificationEventType.Started,
+            self.user1.id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            contentnode_id=self.node_1.id,
+            lesson_id=self.lesson.id,
+            timestamp=self.summarylog1.start_timestamp,
+        )
+        create_notification.assert_any_call(
+            NotificationObjectType.Lesson,
+            NotificationEventType.Started,
+            self.user1.id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            lesson_id=self.lesson.id,
+            timestamp=self.summarylog1.start_timestamp,
+        )
+
+    def test_create_2nd_resource_summarylog_doesnt_update_lesson_started_notification(
+        self,
+    ):
+        self.summarylog1.start_timestamp = local_now()
+        self.summarylog1.kind = content_kinds.DOCUMENT
+        self.summarylog1.save()
+        create_summarylog(self.summarylog1)
+
+        self.summarylog2.start_timestamp = local_now() + timedelta(seconds=20)
+        self.summarylog2.kind = content_kinds.DOCUMENT
+        self.summarylog2.save()
+        create_summarylog(self.summarylog2)
+
+        # Only one lesson started notification should be created
+        notifications = LearnerProgressNotification.objects.filter(
+            notification_object=NotificationObjectType.Lesson,
+            notification_event=NotificationEventType.Started,
+            user_id=self.user1.id,
+            classroom_id=self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            lesson_id=self.lesson.id,
+        )
+        assert notifications.count() == 1
+        # It should keep the timestamp of the first resource started
+        assert notifications[0].timestamp == self.summarylog1.start_timestamp
 
     @patch("kolibri.core.notifications.api.save_notifications")
     def test_start_lesson_resource(self, save_notifications):
