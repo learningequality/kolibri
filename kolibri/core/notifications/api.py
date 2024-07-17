@@ -516,6 +516,9 @@ def parse_summarylog(summarylog):
 
     lessons = get_assignments(summarylog.user, summarylog)
     completion_timestamp = _get_resource_completion_timestamp(summarylog)
+    if not completion_timestamp:
+        return
+
     notifications = []
     for lesson, contentnode_id in lessons:
         notifications += _get_lesson_resource_completed_notifications(
