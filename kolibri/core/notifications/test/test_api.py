@@ -213,6 +213,7 @@ class NotificationsAPITestCase(APITestCase):
     ):
         # Test save notifications if progress is 1
         self.summarylog1.progress = 1.0
+        self.summarylog1.completion_timestamp = local_now()
         parse_summarylog(self.summarylog1)
         assert save_notifications.called
         create_notification.assert_called_once_with(
@@ -223,7 +224,7 @@ class NotificationsAPITestCase(APITestCase):
             assignment_collections=[self.classroom.id],
             contentnode_id=self.node_1.id,
             lesson_id=self.lesson.id,
-            timestamp=self.summarylog1.end_timestamp,
+            timestamp=self.summarylog1.completion_timestamp,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -1421,10 +1422,13 @@ class BulkNotificationsAPITestCase(APITestCase):
         self.mlog.complete = False
         self.mlog.save()
 
+        self.summarylog1.progress = 1.0
         self.summarylog1.completion_timestamp = local_now() + timedelta(seconds=3)
         self.summarylog1.end_timestamp = local_now() + timedelta(seconds=1)
         self.summarylog1.kind = content_kinds.DOCUMENT
         self.summarylog1.save()
+
+        self.summarylog2.progress = 1.0
         self.summarylog2.completion_timestamp = local_now() + timedelta(seconds=5)
         self.summarylog2.end_timestamp = local_now() + timedelta(seconds=7)
         self.summarylog2.kind = content_kinds.DOCUMENT
@@ -1440,7 +1444,44 @@ class BulkNotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
         )
 
-        # It should keep the timestamp of the last resource completion_time independent of
+        # It should keep the timestamp of the last resource completion_timestamp independent of
+        # the order of the summarylogs
+        assert notifications.count() == 1
+        assert notifications[0].timestamp == self.summarylog2.completion_timestamp
+
+    def test_batch_summarylog_lesson_with_retries_completed_notifications_timestamp(
+        self,
+    ):
+        # ignore masterylog
+        self.mlog.complete = False
+        self.mlog.save()
+
+        self.summarylog1.progress = 1.0
+        self.summarylog1.completion_timestamp = local_now() + timedelta(seconds=3)
+        self.summarylog1.end_timestamp = local_now() + timedelta(seconds=1)
+        self.summarylog1.kind = content_kinds.DOCUMENT
+        self.summarylog1.save()
+
+        # User retried it
+        self.summarylog1.progress = 0
+        self.summarylog1.save()
+
+        self.summarylog2.completion_timestamp = local_now() + timedelta(seconds=5)
+        self.summarylog2.end_timestamp = local_now() + timedelta(seconds=7)
+        self.summarylog2.kind = content_kinds.DOCUMENT
+        self.summarylog2.save()
+
+        batch_process_summarylogs([self.summarylog1.id, self.summarylog2.id])
+
+        notifications = LearnerProgressNotification.objects.filter(
+            notification_object=NotificationObjectType.Lesson,
+            notification_event=NotificationEventType.Completed,
+            user_id=self.attemptlog1.user_id,
+            classroom_id=self.classroom.id,
+            lesson_id=self.lesson_id,
+        )
+
+        # It should keep the timestamp of the last resource completion_timestamp independent of
         # the order of the summarylogs
         assert notifications.count() == 1
         assert notifications[0].timestamp == self.summarylog2.completion_timestamp
@@ -1544,8 +1585,8 @@ class BulkNotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
         )
 
-        # It should keep the timestamp of the last resource completion_time, which should be
-        # the first completion_time of the masterylog related to that summarylog, independent of
+        # It should keep the timestamp of the last resource completion_timestamp, which should be
+        # the first completion_timestamp of the masterylog related to that summarylog, independent of
         # the order of the summarylogs
         assert notifications.count() == 1
         assert notifications[0].timestamp == masterylog2_1.completion_timestamp
@@ -1618,6 +1659,32 @@ class BulkNotificationsAPITestCase(APITestCase):
             timestamp=self.attemptlog2.end_timestamp,
         )
 
+    def test_batch_attemptlog_resource_started_notifications(self):
+        self.attemptlog1.start_timestamp = local_now() + timedelta(minutes=10)
+        self.attemptlog1.save()
+
+        attemptlog2 = self._create_mock_attemptlog(
+            sessionlog=self.attemptlog1.sessionlog,
+            masterylog=self.attemptlog1.masterylog,
+        )
+        attemptlog2.start_timestamp = local_now()
+        attemptlog2.save()
+
+        batch_process_attemptlogs([self.attemptlog1.id, attemptlog2.id])
+
+        notifications = LearnerProgressNotification.objects.filter(
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Started,
+            user_id=self.attemptlog1.user_id,
+            classroom_id=self.classroom.id,
+            lesson_id=self.lesson_id,
+            contentnode_id=self.node_1.id,
+        )
+
+        # It should keep the timestamp of the earliest attempt independent of the order of the attemptlogs
+        assert notifications.count() == 1
+        assert notifications[0].timestamp == attemptlog2.start_timestamp
+
     @patch("kolibri.core.notifications.api.create_notification")
     @patch("kolibri.core.notifications.api.save_notifications")
     def test_batch_attemptlog_needs_help(self, save_notifications, create_notification):
@@ -1662,6 +1729,44 @@ class BulkNotificationsAPITestCase(APITestCase):
             reason=HelpReason.Multiple,
             timestamp=attemptlog3.end_timestamp,
         )
+
+    def test_batch_attemptlog_needs_help_with_correct_attempts(self):
+        LearnerProgressNotification.objects.all().delete()
+        # more than 3 attempts will trigger the help notification
+        interactions = [{"type": "answer", "correct": 0}] * 4
+        attemptlog3 = self._create_mock_attemptlog(
+            sessionlog=self.attemptlog1.sessionlog,
+            masterylog=self.attemptlog1.masterylog,
+        )
+        attemptlog3.interaction_history = interactions
+        attemptlog3.end_timestamp = local_now() + timedelta(seconds=10)
+        attemptlog3.save()
+
+        interactions = [{"type": "answer", "correct": 1}]
+        attemptlog4 = self._create_mock_attemptlog(
+            sessionlog=attemptlog3.sessionlog, masterylog=attemptlog3.masterylog
+        )
+        attemptlog4.interaction_history = interactions
+        attemptlog4.end_timestamp = local_now() + timedelta(seconds=20)
+        attemptlog4.save()
+
+        batch_process_attemptlogs(
+            [self.attemptlog1.id, self.attemptlog2.id, attemptlog3.id]
+        )
+
+        # Even though there is an attempt 4, the notification should be created with the
+        # timestamp of the last attempt with failed interactions
+        notifications = LearnerProgressNotification.objects.filter(
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Help,
+            user_id=attemptlog3.user_id,
+            classroom_id=self.classroom.id,
+            lesson_id=self.lesson_id,
+            contentnode_id=self.node_1.id,
+            reason=HelpReason.Multiple,
+        )
+        assert notifications.count() == 1
+        assert notifications[0].timestamp == attemptlog3.end_timestamp
 
     @patch("kolibri.core.notifications.api.create_notification")
     @patch("kolibri.core.notifications.api.save_notifications")

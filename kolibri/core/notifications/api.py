@@ -345,7 +345,10 @@ def _get_resource_completion_timestamp(summarylog):
         .first()
     )
 
-    if mastery_first_completed is None:
+    if (
+        mastery_first_completed is None
+        or mastery_first_completed.completion_timestamp is None
+    ):
         return summarylog.completion_timestamp
 
     return mastery_first_completed.completion_timestamp
