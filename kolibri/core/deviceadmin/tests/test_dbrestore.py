@@ -114,7 +114,7 @@ def _clear_backups(folder):
         os.remove(os.path.join(folder, f))
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 @pytest.mark.filterwarnings("ignore:Overriding setting DATABASES")
 def test_restore_from_latest():
     """
@@ -154,7 +154,7 @@ def test_restore_from_latest():
         _clear_backups(default_backup_folder())
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 @pytest.mark.filterwarnings("ignore:Overriding setting DATABASES")
 def test_restore_from_file_to_memory():
     """
@@ -185,7 +185,7 @@ def test_restore_from_file_to_memory():
     _clear_backups(dest_folder)
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 @pytest.mark.filterwarnings("ignore:Overriding setting DATABASES")
 def test_restore_from_file_to_file():
     """

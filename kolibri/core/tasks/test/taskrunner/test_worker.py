@@ -108,7 +108,6 @@ def test_keyerror_prevention_multiple_jobs(worker):
     assert job2.state == "COMPLETED"
 
 
-@pytest.mark.django_db
 class TestWorker:
     def test_enqueue_job_runs_job(self, worker):
         job = Job(id, args=(9,))

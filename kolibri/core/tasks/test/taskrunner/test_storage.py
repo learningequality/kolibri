@@ -48,7 +48,6 @@ def simplejob(func):
     return Job(func)
 
 
-@pytest.mark.django_db
 class TestBackend:
     def test_can_enqueue_single_job(self, defaultbackend, simplejob, func):
         job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
