@@ -111,9 +111,16 @@
           marginTop: '2em',
           marginBottom: '2em',
           backgroundColor: $themePalette.grey.v_100,
+          position: 'sticky',
+          insetBlockStart: '0',
+          zIndex: '4',
         }"
       >
-        {{ cannotSelectSomeTopicWarning$({ count: maxSectionQuestionOptions }) }}
+        {{
+          cannotSelectSomeTopicWarning$({
+            count: Math.max(maxSectionQuestionOptions, workingPoolUnusedQuestions),
+          })
+        }}
       </div>
 
       <ContentCardList
@@ -125,7 +132,10 @@
         :contentIsChecked="contentPresentInWorkingResourcePool"
         :contentIsIndeterminate="contentPartlyPresentInWorkingResourcePool"
         :contentHasCheckbox="showCheckbox"
-        :contentCheckboxDisabled="c => !nodeIsSelectableOrUnselectable(c)"
+        :contentCheckboxDisabled="
+          c =>
+            !nodeIsSelectableOrUnselectable(c) && !(c.is_leaf && workingPoolUnusedQuestions === 0)
+        "
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
         :loadingMoreState="loadingMore"
@@ -143,7 +153,7 @@
             :layout4="{ span: 2 }"
           >
             <span v-if="!selectPracticeQuiz">
-              <span v-if="workingPoolUnusedQuestions > maxSectionQuestionOptions">
+              <span v-if="tooManyQuestions">
                 {{
                   tooManyQuestions$({
                     count: maxSectionQuestionOptions,
@@ -663,13 +673,23 @@
       }
 
       const workingPoolHasChanged = computed(() => {
-        return workingResourcePool.value.length;
+        return Boolean(workingResourcePool.value.length);
       });
 
       const workingPoolUnusedQuestions = computed(() => {
         return workingResourcePool.value.reduce((acc, content) => {
           return acc + unusedQuestionsCount(content);
         }, 0);
+      });
+
+      const tooManyQuestions = computed(() => {
+        // Always allow one resource to be selected, just in case
+        // the exercise a user wants to use exceeds the maxSectionQuestionOptions
+        // with only its own unused questions.
+        return (
+          workingResourcePool.value.length !== 1 &&
+          workingPoolUnusedQuestions.value > maxSectionQuestionOptions.value
+        );
       });
 
       const disableSave = computed(() => {
@@ -680,7 +700,7 @@
           !workingPoolHasChanged.value ||
           workingPoolUnusedQuestions.value < questionCount.value ||
           questionCount.value < 1 ||
-          workingPoolUnusedQuestions.value > maxSectionQuestionOptions.value
+          tooManyQuestions.value
         );
       });
 
@@ -709,6 +729,7 @@
         handleSelectAll,
         toggleSelected,
         workingPoolHasChanged,
+        tooManyQuestions,
         handleConfirmClose,
         handleCancelClose,
         topic,
