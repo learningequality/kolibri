@@ -9,6 +9,7 @@ from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import ClassroomFactory
 from kolibri.core.auth.test.test_api import FacilityFactory
+from kolibri.core.auth.test.test_utils import MasteryLogFactory
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
@@ -225,6 +226,193 @@ class NotificationsAPITestCase(APITestCase):
             timestamp=self.summarylog1.end_timestamp,
         )
 
+    @patch("kolibri.core.notifications.api.create_notification")
+    def test_parse_summarylog_not_save_completed_lesson_notification(
+        self, create_notification
+    ):
+        self.summarylog1.progress = 1.0
+        parse_summarylog(self.summarylog1)
+
+        # dont save completed lesson if there are more resources to complete
+        notifications = create_notification.call_args_list
+        assert not any(
+            [
+                (
+                    call[1] == NotificationEventType.Completed
+                    and call[0] == NotificationObjectType.Lesson
+                )
+                for call in notifications
+            ]
+        )
+
+    @patch("kolibri.core.notifications.api.create_notification")
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_parse_summarylog_save_completed_lesson_notification(
+        self, save_notifications, create_notification
+    ):
+        self.summarylog1.progress = 1.0
+        self.summarylog1.completion_timestamp = local_now() + timedelta(seconds=2)
+        self.summarylog1.end_timestamp = local_now() + timedelta(seconds=5)
+        self.summarylog1.save()
+        parse_summarylog(self.summarylog1)
+
+        self.summarylog2.progress = 1.0
+        self.summarylog2.completion_timestamp = local_now() + timedelta(seconds=7)
+        self.summarylog2.end_timestamp = local_now() + timedelta(seconds=10)
+        self.summarylog2.save()
+        parse_summarylog(self.summarylog2)
+
+        assert save_notifications.called
+        create_notification.assert_any_call(
+            NotificationObjectType.Lesson,
+            NotificationEventType.Completed,
+            self.user1.id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            lesson_id=self.lesson.id,
+            # End timestamp should be the latest completion time
+            timestamp=self.summarylog2.completion_timestamp,
+        )
+
+    @patch("kolibri.core.notifications.api.create_notification")
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_parse_summarylog_save_completed_lesson_notification_with_retry(
+        self, save_notifications, create_notification
+    ):
+        self.summarylog1.progress = 1.0
+        self.summarylog1.completion_timestamp = local_now() + timedelta(seconds=2)
+        self.summarylog1.end_timestamp = local_now() + timedelta(seconds=5)
+        self.summarylog1.save()
+        parse_summarylog(self.summarylog1)
+
+        # Student retried the exercise, and even with progress = 0, this should
+        # be considered as completed
+        self.summarylog1.progress = 0
+        self.summarylog1.save()
+
+        self.summarylog2.progress = 1.0
+        self.summarylog2.completion_timestamp = local_now() + timedelta(seconds=7)
+        self.summarylog2.end_timestamp = local_now() + timedelta(seconds=10)
+        self.summarylog2.save()
+        parse_summarylog(self.summarylog2)
+
+        assert save_notifications.called
+        create_notification.assert_any_call(
+            NotificationObjectType.Lesson,
+            NotificationEventType.Completed,
+            self.user1.id,
+            self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            lesson_id=self.lesson.id,
+            # End timestamp should be the latest completion time
+            timestamp=self.summarylog2.completion_timestamp,
+        )
+
+    def test_parse_retry_summarylog_dont_update_resource_completed_notification(self):
+        self.summarylog1.progress = 1.0
+        self.summarylog1.completion_timestamp = local_now() + timedelta(seconds=2)
+        self.summarylog1.end_timestamp = local_now() + timedelta(seconds=5)
+        self.summarylog1.save()
+        masteryLog_1 = MasteryLogFactory.create(
+            summarylog=self.summarylog1,
+            start_timestamp=self.summarylog1.start_timestamp,
+            completion_timestamp=self.summarylog1.completion_timestamp,
+            end_timestamp=self.summarylog1.end_timestamp,
+            user=self.user1,
+            complete=True,
+        )
+
+        parse_summarylog(self.summarylog1)
+
+        # User tried again
+        self.summarylog1.progress = 1.0
+        self.summarylog1.completion_timestamp = local_now() + timedelta(seconds=2)
+        self.summarylog1.end_timestamp = local_now() + timedelta(seconds=5)
+        self.summarylog1.save()
+        MasteryLogFactory.create(
+            summarylog=self.summarylog1,
+            start_timestamp=self.summarylog1.start_timestamp,
+            completion_timestamp=self.summarylog1.completion_timestamp,
+            end_timestamp=self.summarylog1.end_timestamp,
+            user=self.user1,
+            complete=True,
+        )
+
+        parse_summarylog(self.summarylog1)
+
+        # Only one notification should be created with the first masterylog completion timestamp
+        notifications = LearnerProgressNotification.objects.filter(
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Completed,
+            user_id=self.user1.id,
+            classroom_id=self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            contentnode_id=self.node_1.id,
+            lesson_id=self.lesson.id,
+        )
+        assert notifications.count() == 1
+        assert notifications[0].timestamp == masteryLog_1.completion_timestamp
+
+    def test_parse_retry_summarylog_dont_update_lesson_completed_notification(self):
+        self.summarylog1.progress = 1.0
+        self.summarylog1.completion_timestamp = local_now() + timedelta(seconds=2)
+        self.summarylog1.end_timestamp = local_now() + timedelta(seconds=5)
+        self.summarylog1.save()
+        MasteryLogFactory.create(
+            summarylog=self.summarylog1,
+            start_timestamp=self.summarylog1.start_timestamp,
+            completion_timestamp=self.summarylog1.completion_timestamp,
+            end_timestamp=self.summarylog1.end_timestamp,
+            user=self.user1,
+            complete=True,
+        )
+
+        parse_summarylog(self.summarylog1)
+
+        self.summarylog2.progress = 1.0
+        self.summarylog2.completion_timestamp = local_now() + timedelta(seconds=2)
+        self.summarylog2.end_timestamp = local_now() + timedelta(seconds=5)
+        self.summarylog2.save()
+        masteryLog_2 = MasteryLogFactory.create(
+            summarylog=self.summarylog2,
+            start_timestamp=self.summarylog2.start_timestamp,
+            completion_timestamp=self.summarylog2.completion_timestamp,
+            end_timestamp=self.summarylog2.end_timestamp,
+            user=self.user1,
+            complete=True,
+        )
+
+        parse_summarylog(self.summarylog2)
+
+        # User retried 2nd resource
+        self.summarylog2.progress = 1.0
+        self.summarylog2.completion_timestamp = local_now() + timedelta(seconds=2)
+        self.summarylog2.end_timestamp = local_now() + timedelta(seconds=5)
+        self.summarylog2.save()
+        MasteryLogFactory.create(
+            summarylog=self.summarylog2,
+            start_timestamp=self.summarylog2.start_timestamp,
+            completion_timestamp=self.summarylog2.completion_timestamp,
+            end_timestamp=self.summarylog2.end_timestamp,
+            user=self.user1,
+            complete=True,
+        )
+
+        parse_summarylog(self.summarylog2)
+
+        # Only one lesson completed notification should be created with the first masterylog completion timestamp
+        # of the last resource completed
+        notifications = LearnerProgressNotification.objects.filter(
+            notification_object=NotificationObjectType.Lesson,
+            notification_event=NotificationEventType.Completed,
+            user_id=self.user1.id,
+            classroom_id=self.classroom.id,
+            assignment_collections=[self.classroom.id],
+            lesson_id=self.lesson.id,
+        )
+        assert notifications.count() == 1
+        assert notifications[0].timestamp == masteryLog_2.completion_timestamp
+
     @patch("kolibri.core.notifications.api.save_notifications")
     def test_finish_lesson_resource_doesnt_save_notifications(self, save_notifications):
         self.summarylog1.progress = 0
@@ -254,7 +442,9 @@ class NotificationsAPITestCase(APITestCase):
         assert notification.notification_event == NotificationEventType.Started
 
     @patch("kolibri.core.notifications.api.save_notifications")
-    def test_create_summarylog_dont_save_notifications(self, save_notifications):
+    def test_create_summarylog_dont_save_notifications_if_exercise(
+        self, save_notifications
+    ):
         # Dont save notifications if the summarylog is an exercise
         self.summarylog2.kind = content_kinds.EXERCISE
         create_summarylog(self.summarylog2)
