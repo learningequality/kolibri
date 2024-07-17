@@ -3,7 +3,6 @@ from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from mock import patch
 from rest_framework.test import APITestCase
-from rest_framework.test import APITransactionTestCase
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.test.helpers import clear_process_cache
@@ -72,7 +71,7 @@ class KolibriTagNavigationTestCase(APITestCase):
         self._assert_location_reverse_url("kolibri:kolibri.plugins.coach:coach")
 
 
-class AllUrlsTest(APITransactionTestCase):
+class AllUrlsTest(APITestCase):
 
     databases = "__all__"
 

@@ -4,7 +4,7 @@ import zlib
 import mock
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TransactionTestCase
+from django.test import TestCase
 from requests.models import Response
 
 from .test_utils import BaseDeviceSetupMixin
@@ -36,7 +36,7 @@ def mocked_requests_post_wrapper(json_data, status_code):
     return mocked_requests_post
 
 
-class PingCommandTestCase(BaseDeviceSetupMixin, TransactionTestCase):
+class PingCommandTestCase(BaseDeviceSetupMixin, TestCase):
     @mock.patch(
         "kolibri.core.analytics.utils.requests.post",
         side_effect=mocked_requests_post_wrapper({"id": 17}, 200),

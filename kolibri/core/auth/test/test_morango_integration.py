@@ -63,6 +63,8 @@ class FacilityDatasetCertificateTestCase(TestCase):
             self.assertTrue(partition.startswith(dataset_id))
 
 
+# This needs to be a TransactionTestCase for Postgres, due to transaction
+# isolation requirements - but works fine otherwise in SQLite.
 class DateTimeTZFieldTestCase(TransactionTestCase):
     def setUp(self):
         self.controller = MorangoProfileController(PROFILE_FACILITY_DATA)
