@@ -249,7 +249,7 @@
                         </div>
                       </DragHandle>
                       <KCheckbox
-                        style="padding-left: 0.5em"
+                        class="accordion-item-checkbox"
                         :checked="selectedActiveQuestions.includes(question.item)"
                         @change="() => toggleQuestionInSelection(question.item)"
                       />
@@ -264,7 +264,7 @@
                       >
                         <span>{{ title }}</span>
                         <KIcon
-                          style="position: absolute; top: 0.92em; right: 0"
+                          class="chevron-icon"
                           :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
                         />
                       </KButton>
@@ -839,6 +839,16 @@
     align-items: center;
     padding: 0 0.5em !important;
     margin: 0.25em 0;
+
+    .accordion-item-checkbox {
+      margin-left: 0.5em;
+    }
+
+    .chevron-icon {
+      position: absolute;
+      top: 0.92em;
+      right: 0;
+    }
   }
 
   .accordion-header-label {
