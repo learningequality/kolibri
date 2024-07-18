@@ -4,12 +4,12 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
+from .constants import BACKEND
+from .constants import FRONTEND
 from .constants import POSSIBLE_ERRORS
 from .schemas import context_backend_schema
 from .schemas import context_frontend_schema
-from .schemas import default_context_backend_schema
-from .schemas import default_context_frontend_schema
-from kolibri import VERSION
+from kolibri import __version__
 from kolibri.core.fields import JSONField
 from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.deployment.default.sqlite_db_names import ERROR_REPORTS
@@ -62,47 +62,35 @@ class ErrorReports(models.Model):
     last_occurred = models.DateTimeField(default=timezone.now)
     reported = models.BooleanField(default=False)
     events = models.IntegerField(default=1)
-    release_version = models.CharField(
-        max_length=64, default=".".join(map(str, VERSION[:2]))
-    )
+    release_version = models.CharField(max_length=128, default=__version__, blank=True)
     installation_type = models.CharField(max_length=64, blank=True)
-    context_frontend = JSONField(
+    context = JSONField(
         null=True,
         blank=True,
-        validators=[JSON_Schema_Validator(context_frontend_schema)],
-        default=default_context_frontend_schema,
-    )
-    context_backend = JSONField(
-        null=True,
-        blank=True,
-        validators=[JSON_Schema_Validator(context_backend_schema)],
-        default=default_context_backend_schema,
     )
 
     def __str__(self):
         return f"{self.error_message} ({self.category})"
 
-    def mark_reported(self):
-        self.reported = True
-        self.save()
+    def clean(self):
+        if self.category == FRONTEND:
+            JSON_Schema_Validator(context_frontend_schema)(self.context)
+        elif self.category == BACKEND:
+            JSON_Schema_Validator(context_backend_schema)(self.context)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     @classmethod
-    def insert_or_update_error(
-        cls,
-        category,
-        error_message,
-        traceback,
-        context_frontend=None,
-        context_backend=None,
-    ):
+    def insert_or_update_error(cls, category, error_message, traceback, context):
         if not getattr(settings, "DEVELOPER_MODE", None):
             error, created = cls.objects.get_or_create(
                 category=category,
                 error_message=error_message,
                 traceback=traceback,
-                context_frontend=context_frontend,
-                context_backend=context_backend,
-                release_version=".".join(map(str, VERSION[:2])),
+                context=context,
+                release_version=__version__,
                 installation_type=installation_type(),
             )
             if not created:
