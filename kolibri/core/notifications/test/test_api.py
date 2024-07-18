@@ -33,6 +33,7 @@ from kolibri.core.notifications.api import create_notification
 from kolibri.core.notifications.api import create_summarylog
 from kolibri.core.notifications.api import finish_lesson_resource
 from kolibri.core.notifications.api import get_assignments
+from kolibri.core.notifications.api import NEEDS_HELP_NOTIFICATION_THRESHOLD
 from kolibri.core.notifications.api import parse_attemptslog
 from kolibri.core.notifications.api import parse_examlog
 from kolibri.core.notifications.api import parse_summarylog
@@ -52,12 +53,10 @@ class NotificationsAPITestCase(APITestCase):
     databases = "__all__"
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(self):
         provision_device()
-        cls.facility = FacilityFactory.create()
-        cls.superuser = create_superuser(cls.facility)
-
-    def setUp(self):
+        self.facility = FacilityFactory.create()
+        self.superuser = create_superuser(self.facility)
         _get_lesson_dict.cache_clear()
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.user2 = FacilityUserFactory.create(facility=self.facility)
@@ -70,7 +69,6 @@ class NotificationsAPITestCase(APITestCase):
         self.content_ids = [
             "15f32edcec565396a1840c5413c92451",
             "15f32edcec565396a1840c5413c92452",
-            "15f32edcec565396a1840c5413c92453",
         ]
         self.contentnode_ids = [
             "25f32edcec565396a1840c5413c92451",
@@ -284,11 +282,25 @@ class NotificationsAPITestCase(APITestCase):
         self.summarylog1.completion_timestamp = local_now() + timedelta(seconds=2)
         self.summarylog1.end_timestamp = local_now() + timedelta(seconds=5)
         self.summarylog1.save()
+        MasteryLogFactory.create(
+            summarylog=self.summarylog1,
+            start_timestamp=self.summarylog1.start_timestamp,
+            completion_timestamp=self.summarylog1.completion_timestamp,
+            end_timestamp=self.summarylog1.end_timestamp,
+            user=self.user1,
+            complete=True,
+        )
         parse_summarylog(self.summarylog1)
 
         # Student retried the exercise, and even with progress = 0, this should
         # be considered as completed
         self.summarylog1.progress = 0
+        MasteryLogFactory.create(
+            summarylog=self.summarylog1,
+            start_timestamp=self.summarylog1.start_timestamp,
+            user=self.user1,
+            complete=False,
+        )
         self.summarylog1.save()
 
         self.summarylog2.progress = 1.0
@@ -314,7 +326,7 @@ class NotificationsAPITestCase(APITestCase):
         self.summarylog1.completion_timestamp = local_now() + timedelta(seconds=2)
         self.summarylog1.end_timestamp = local_now() + timedelta(seconds=5)
         self.summarylog1.save()
-        masteryLog_1 = MasteryLogFactory.create(
+        masterylog1 = MasteryLogFactory.create(
             summarylog=self.summarylog1,
             start_timestamp=self.summarylog1.start_timestamp,
             completion_timestamp=self.summarylog1.completion_timestamp,
@@ -352,7 +364,7 @@ class NotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson.id,
         )
         assert notifications.count() == 1
-        assert notifications[0].timestamp == masteryLog_1.completion_timestamp
+        assert notifications[0].timestamp == masterylog1.completion_timestamp
 
     def test_parse_retry_summarylog_dont_update_lesson_completed_notification(self):
         self.summarylog1.progress = 1.0
@@ -374,7 +386,7 @@ class NotificationsAPITestCase(APITestCase):
         self.summarylog2.completion_timestamp = local_now() + timedelta(seconds=2)
         self.summarylog2.end_timestamp = local_now() + timedelta(seconds=5)
         self.summarylog2.save()
-        masteryLog_2 = MasteryLogFactory.create(
+        masterylog2 = MasteryLogFactory.create(
             id=uuid.uuid4().hex,
             summarylog=self.summarylog2,
             start_timestamp=self.summarylog2.start_timestamp,
@@ -414,7 +426,7 @@ class NotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson.id,
         )
         assert notifications.count() == 1
-        assert notifications[0].timestamp == masteryLog_2.completion_timestamp
+        assert notifications[0].timestamp == masterylog2.completion_timestamp
 
     @patch("kolibri.core.notifications.api.save_notifications")
     def test_finish_lesson_resource_doesnt_save_notifications(self, save_notifications):
@@ -767,125 +779,122 @@ class NotificationsAPITestCase(APITestCase):
 
     @patch("kolibri.core.notifications.api.create_notification")
     @patch("kolibri.core.notifications.api.save_notifications")
-    def test_update_lesson_assessment_with_three_wrong_attempts(
+    def test_update_lesson_assessment_with_needs_help(
         self, save_notifications, create_notification
     ):
+        # 1 wrong interaction til now
         attemptlog1 = self._create_mock_attemptlog()
 
-        self._create_mock_attemptlog(
+        attemptlog2 = self._create_mock_attemptlog(
             sessionlog=attemptlog1.sessionlog, masterylog=attemptlog1.masterylog
         )
-
-        # more than 3 attempts will trigger the help notification
-        attemptlog3 = self._create_mock_attemptlog(
-            sessionlog=attemptlog1.sessionlog, masterylog=attemptlog1.masterylog
-        )
-        attemptlog3.interaction_history = [
-            {"type": "answer", "correct": 0} for _ in range(2)
+        attemptlog2.interaction_history = [
+            {"type": "answer", "correct": 0}
+            for _ in range(NEEDS_HELP_NOTIFICATION_THRESHOLD - 1)
         ]
-        attemptlog3.save()
+        attemptlog2.save()
 
         LearnerProgressNotification.objects.create(
             notification_object=NotificationObjectType.Resource,
             notification_event=NotificationEventType.Started,
-            user_id=attemptlog3.user_id,
+            user_id=attemptlog2.user_id,
             classroom_id=self.classroom.id,
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog2.start_timestamp,
         )
 
         LearnerProgressNotification.objects.create(
             notification_object=NotificationObjectType.Lesson,
             notification_event=NotificationEventType.Started,
-            user_id=attemptlog3.user_id,
+            user_id=attemptlog2.user_id,
             classroom_id=self.classroom.id,
             lesson_id=self.lesson_id,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog2.start_timestamp,
         )
-        update_lesson_assessment(attemptlog3, self.node_1.id, self.lesson_id)
+        update_lesson_assessment(attemptlog2, self.node_1.id, self.lesson_id)
         assert save_notifications.called
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
             NotificationEventType.Help,
-            attemptlog3.user_id,
+            attemptlog2.user_id,
             self.classroom.id,
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
-            timestamp=attemptlog3.end_timestamp,
+            timestamp=attemptlog2.end_timestamp,
         )
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
             NotificationEventType.Answered,
-            attemptlog3.user_id,
+            attemptlog2.user_id,
             self.classroom.id,
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
-            timestamp=attemptlog3.end_timestamp,
+            timestamp=attemptlog2.end_timestamp,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
     @patch("kolibri.core.notifications.api.save_notifications")
-    def test_parse_attemptslog_update_attempt_with_three_wrong_attempts(
+    def test_parse_attemptslog_update_attempt_with_needs_help(
         self, save_notifications, create_notification
     ):
+        # 1 wrong interaction til now
         attemptlog1 = self._create_mock_attemptlog()
 
-        self._create_mock_attemptlog(
+        attemptlog2 = self._create_mock_attemptlog(
             sessionlog=attemptlog1.sessionlog, masterylog=attemptlog1.masterylog
         )
-
-        # more than 3 attempts will trigger the help notification
-        attemptlog3 = self._create_mock_attemptlog(
-            sessionlog=attemptlog1.sessionlog, masterylog=attemptlog1.masterylog
-        )
-        attemptlog3.interaction_history = [
-            {"type": "answer", "correct": 0} for _ in range(2)
+        attemptlog2.interaction_history = [
+            {"type": "answer", "correct": 0}
+            for _ in range(NEEDS_HELP_NOTIFICATION_THRESHOLD - 1)
         ]
-        attemptlog3.save()
+        attemptlog2.save()
 
         LearnerProgressNotification.objects.create(
             notification_object=NotificationObjectType.Resource,
             notification_event=NotificationEventType.Started,
-            user_id=attemptlog3.user_id,
+            user_id=attemptlog2.user_id,
             classroom_id=self.classroom.id,
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog2.start_timestamp,
         )
 
         LearnerProgressNotification.objects.create(
             notification_object=NotificationObjectType.Lesson,
             notification_event=NotificationEventType.Started,
-            user_id=attemptlog3.user_id,
+            user_id=attemptlog2.user_id,
             classroom_id=self.classroom.id,
             lesson_id=self.lesson_id,
-            timestamp=attemptlog3.start_timestamp,
+            timestamp=attemptlog2.start_timestamp,
         )
-        parse_attemptslog(attemptlog3)
+        parse_attemptslog(attemptlog2)
         assert save_notifications.called
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
             NotificationEventType.Help,
-            attemptlog3.user_id,
+            attemptlog2.user_id,
             self.classroom.id,
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
-            timestamp=attemptlog3.end_timestamp,
+            timestamp=attemptlog2.end_timestamp,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
     @patch("kolibri.core.notifications.api.save_notifications")
-    def test_update_lesson_assessment_with_four_wrong_interactions_on_same_attempt(
+    def test_update_lesson_assessment_with_needs_help_on_one_attempt(
         self, save_notifications, create_notification
     ):
         attemptlog = self._create_mock_attemptlog()
-        interactions = [{"type": "answer", "correct": 0} for _ in range(4)]
+        interactions = [
+            {"type": "answer", "correct": 0}
+            for _ in range(NEEDS_HELP_NOTIFICATION_THRESHOLD)
+        ]
         attemptlog.interaction_history = interactions
         attemptlog.save()
 
@@ -934,11 +943,14 @@ class NotificationsAPITestCase(APITestCase):
 
     @patch("kolibri.core.notifications.api.create_notification")
     @patch("kolibri.core.notifications.api.save_notifications")
-    def test_parse_attemptslog_update_attempt_with_three_wrong_attempts_on_same_attempt(
+    def test_parse_attemptslog_update_attempt_with_needs_help_on_one_attempt(
         self, save_notifications, create_notification
     ):
         attemptlog = self._create_mock_attemptlog()
-        interactions = [{"type": "answer", "correct": 0} for _ in range(4)]
+        interactions = [
+            {"type": "answer", "correct": 0}
+            for _ in range(NEEDS_HELP_NOTIFICATION_THRESHOLD)
+        ]
         attemptlog.interaction_history = interactions
         attemptlog.save()
 
@@ -977,11 +989,14 @@ class NotificationsAPITestCase(APITestCase):
 
     @patch("kolibri.core.notifications.api.create_notification")
     @patch("kolibri.core.notifications.api.save_notifications")
-    def test_start_lesson_assessment_with_three_wrong_attempts_no_started(
+    def test_start_lesson_assessment_with_needs_help_no_started(
         self, save_notifications, create_notification
     ):
         attemptlog = self._create_mock_attemptlog()
-        interactions = [{"type": "answer", "correct": 0} for _ in range(4)]
+        interactions = [
+            {"type": "answer", "correct": 0}
+            for _ in range(NEEDS_HELP_NOTIFICATION_THRESHOLD)
+        ]
         attemptlog.interaction_history = interactions
         attemptlog.save()
 
@@ -1012,11 +1027,14 @@ class NotificationsAPITestCase(APITestCase):
 
     @patch("kolibri.core.notifications.api.create_notification")
     @patch("kolibri.core.notifications.api.save_notifications")
-    def test_parse_attemptslog_update_attempt_with_three_wrong_attempts_no_started(
+    def test_parse_attemptslog_update_attempt_with_needs_help_no_started(
         self, save_notifications, create_notification
     ):
         attemptlog = self._create_mock_attemptlog()
-        interactions = [{"type": "answer", "correct": 0} for _ in range(4)]
+        interactions = [
+            {"type": "answer", "correct": 0}
+            for _ in range(NEEDS_HELP_NOTIFICATION_THRESHOLD)
+        ]
         attemptlog.interaction_history = interactions
         attemptlog.save()
 
@@ -1046,9 +1064,14 @@ class NotificationsAPITestCase(APITestCase):
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
-    def test_parse_attemptlog_with_two_wrong_interactions(self, create_notification):
+    def test_parse_attemptlog_with_wrong_interactions_without_needs_help(
+        self, create_notification
+    ):
         attemptlog = self._create_mock_attemptlog()
-        interactions = [{"type": "answer", "correct": 0} for _ in range(2)]
+        interactions = [
+            {"type": "answer", "correct": 0}
+            for _ in range(NEEDS_HELP_NOTIFICATION_THRESHOLD - 1)
+        ]
         attemptlog.interaction_history = interactions
         attemptlog.save()
 
@@ -1059,9 +1082,14 @@ class NotificationsAPITestCase(APITestCase):
             [call[1] == NotificationEventType.Help for call in notifications]
         )
 
-    def test_parse_attemptlog_updates_notification_if_user_keeps_failing(self):
+    def test_parse_attemptlog_updates_needs_help_notification_if_user_keeps_failing(
+        self,
+    ):
         attemptlog1 = self._create_mock_attemptlog()
-        interactions = [{"type": "answer", "correct": 0} for _ in range(4)]
+        interactions = [
+            {"type": "answer", "correct": 0}
+            for _ in range(NEEDS_HELP_NOTIFICATION_THRESHOLD)
+        ]
         attemptlog1.interaction_history = interactions
         attemptlog1.save()
 
@@ -1100,9 +1128,14 @@ class NotificationsAPITestCase(APITestCase):
         assert notification1.id == notification2.id
         assert notification2.timestamp == attemptlog2.end_timestamp
 
-    def test_parse_attemptlog_doesnt_update_notification_if_user_didnt_fail_again(self):
+    def test_parse_attemptlog_doesnt_update_needs_help_notification_if_user_didnt_fail_again(
+        self,
+    ):
         attemptlog1 = self._create_mock_attemptlog()
-        interactions = [{"type": "answer", "correct": 0} for _ in range(4)]
+        interactions = [
+            {"type": "answer", "correct": 0}
+            for _ in range(NEEDS_HELP_NOTIFICATION_THRESHOLD)
+        ]
         attemptlog1.interaction_history = interactions
         attemptlog1.save()
 
@@ -1141,86 +1174,81 @@ class BulkNotificationsAPITestCase(APITestCase):
         cls.facility = FacilityFactory.create()
         cls.superuser = create_superuser(cls.facility)
 
-    def setUp(self):
-        _get_lesson_dict.cache_clear()
-
-        self.user1 = FacilityUserFactory.create(facility=self.facility)
-        self.user2 = FacilityUserFactory.create(facility=self.facility)
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.user2 = FacilityUserFactory.create(facility=cls.facility)
         # create classroom, learner group, add user1
-        self.classroom = ClassroomFactory.create(parent=self.facility)
-        self.classroom.add_member(self.user1)
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.classroom.add_member(cls.user1)
 
-        self.channel_id = "15f32edcec565396a1840c5413c92450"
-        self.lesson_id = "15f32edcec565396a1840c5413c92452"
-        self.content_ids = [
+        cls.channel_id = "15f32edcec565396a1840c5413c92450"
+        cls.lesson_id = "15f32edcec565396a1840c5413c92452"
+        cls.content_ids = [
             "15f32edcec565396a1840c5413c92451",
             "15f32edcec565396a1840c5413c92452",
-            "15f32edcec565396a1840c5413c92453",
         ]
-        self.contentnode_ids = [
+        cls.contentnode_ids = [
             "25f32edcec565396a1840c5413c92451",
             "25f32edcec565396a1840c5413c92452",
-            "25f32edcec565396a1840c5413c92453",
         ]
-        self.node_1 = ContentNode.objects.create(
+        cls.node_1 = ContentNode.objects.create(
             title="Node 1",
             available=True,
-            id=self.contentnode_ids[0],
-            content_id=self.content_ids[0],
-            channel_id=self.channel_id,
+            id=cls.contentnode_ids[0],
+            content_id=cls.content_ids[0],
+            channel_id=cls.channel_id,
             kind=content_kinds.EXERCISE,
         )
-        self.node_2 = ContentNode.objects.create(
+        cls.node_2 = ContentNode.objects.create(
             title="Node 2",
             available=True,
-            id=self.contentnode_ids[1],
-            content_id=self.content_ids[1],
-            channel_id=self.channel_id,
+            id=cls.contentnode_ids[1],
+            content_id=cls.content_ids[1],
+            channel_id=cls.channel_id,
             kind=content_kinds.DOCUMENT,
         )
-        self.lesson = Lesson.objects.create(
-            id=self.lesson_id,
+        cls.lesson = Lesson.objects.create(
+            id=cls.lesson_id,
             title="My Lesson",
             is_active=True,
-            created_by=self.superuser,
-            collection=self.classroom,
+            created_by=cls.superuser,
+            collection=cls.classroom,
             resources=[
                 {
-                    "contentnode_id": self.node_1.id,
-                    "content_id": self.node_1.content_id,
-                    "channel_id": self.channel_id,
+                    "contentnode_id": cls.node_1.id,
+                    "content_id": cls.node_1.content_id,
+                    "channel_id": cls.channel_id,
                 },
                 {
-                    "contentnode_id": self.node_2.id,
-                    "content_id": self.node_2.content_id,
-                    "channel_id": self.channel_id,
+                    "contentnode_id": cls.node_2.id,
+                    "content_id": cls.node_2.content_id,
+                    "channel_id": cls.channel_id,
                 },
             ],
         )
 
-        self.lesson_assignment = LessonAssignment.objects.create(
-            lesson=self.lesson, assigned_by=self.superuser, collection=self.classroom
+        cls.lesson_assignment = LessonAssignment.objects.create(
+            lesson=cls.lesson, assigned_by=cls.superuser, collection=cls.classroom
         )
 
-        self.exam1 = Exam.objects.create(
+        cls.exam1 = Exam.objects.create(
             title="title1",
             question_count=1,
             active=True,
-            collection=self.classroom,
-            creator=self.superuser,
+            collection=cls.classroom,
+            creator=cls.superuser,
         )
-        self.exam1_assignment = ExamAssignment.objects.create(
-            exam=self.exam1, collection=self.classroom, assigned_by=self.superuser
+        cls.exam1_assignment = ExamAssignment.objects.create(
+            exam=cls.exam1, collection=cls.classroom, assigned_by=cls.superuser
         )
-        self.examlog1 = ExamLog.objects.create(
-            exam=self.exam1,
-            user=self.user1,
+        cls.examlog1 = ExamLog.objects.create(
+            exam=cls.exam1,
+            user=cls.user1,
             closed=True,
             completion_timestamp=local_now(),
         )
-        self.examattemptlog1 = ExamAttemptLog.objects.create(
-            examlog=self.examlog1,
-            user=self.user1,
+        cls.examattemptlog1 = ExamAttemptLog.objects.create(
+            examlog=cls.examlog1,
+            user=cls.user1,
             start_timestamp=local_now(),
             end_timestamp=local_now() + timedelta(seconds=10),
             complete=False,
@@ -1228,54 +1256,54 @@ class BulkNotificationsAPITestCase(APITestCase):
             content_id=uuid.uuid4(),
         )
 
-        self.exam2 = Exam.objects.create(
+        cls.exam2 = Exam.objects.create(
             title="title2",
             question_count=1,
             active=True,
-            collection=self.classroom,
-            creator=self.superuser,
+            collection=cls.classroom,
+            creator=cls.superuser,
         )
-        self.exam2_assignment = ExamAssignment.objects.create(
-            exam=self.exam2, collection=self.classroom, assigned_by=self.superuser
+        cls.exam2_assignment = ExamAssignment.objects.create(
+            exam=cls.exam2, collection=cls.classroom, assigned_by=cls.superuser
         )
-        self.examlog2 = ExamLog.objects.create(
-            exam=self.exam2,
-            user=self.user1,
+        cls.examlog2 = ExamLog.objects.create(
+            exam=cls.exam2,
+            user=cls.user1,
             closed=False,
         )
 
-        self.summarylog1 = ContentSummaryLogFactory.create(
-            user=self.user1,
-            content_id=self.node_1.content_id,
-            channel_id=self.channel_id,
+        cls.summarylog1 = ContentSummaryLogFactory.create(
+            user=cls.user1,
+            content_id=cls.node_1.content_id,
+            channel_id=cls.channel_id,
         )
 
-        self.summarylog2 = ContentSummaryLogFactory.create(
-            user=self.user1,
-            content_id=self.node_2.content_id,
-            channel_id=self.channel_id,
+        cls.summarylog2 = ContentSummaryLogFactory.create(
+            user=cls.user1,
+            content_id=cls.node_2.content_id,
+            channel_id=cls.channel_id,
             kind=content_kinds.DOCUMENT,
         )
 
-        self.sessionlog = ContentSessionLogFactory(
-            user=self.user1,
-            content_id=self.summarylog1.content_id,
-            channel_id=self.summarylog1.channel_id,
+        cls.sessionlog = ContentSessionLogFactory(
+            user=cls.user1,
+            content_id=cls.summarylog1.content_id,
+            channel_id=cls.summarylog1.channel_id,
         )
 
-        self.mlog = masterylog = MasteryLog.objects.create(
-            summarylog=self.summarylog1,
-            user=self.user1,
+        cls.mlog = masterylog = MasteryLog.objects.create(
+            summarylog=cls.summarylog1,
+            user=cls.user1,
             start_timestamp=local_now(),
             mastery_level=1,
             complete=True,
             completion_timestamp=local_now() + timedelta(seconds=1),
         )
         interactions = [{"type": "answer", "correct": 0}]
-        self.attemptlog1 = AttemptLog.objects.create(
+        cls.attemptlog1 = AttemptLog.objects.create(
             masterylog=masterylog,
-            sessionlog=self.sessionlog,
-            user=self.user1,
+            sessionlog=cls.sessionlog,
+            user=cls.user1,
             start_timestamp=local_now(),
             end_timestamp=local_now() + timedelta(seconds=10),
             time_spent=1.0,
@@ -1286,10 +1314,10 @@ class BulkNotificationsAPITestCase(APITestCase):
             interaction_history=interactions,
         )
 
-        self.attemptlog2 = AttemptLog.objects.create(
+        cls.attemptlog2 = AttemptLog.objects.create(
             masterylog=masterylog,
-            sessionlog=self.sessionlog,
-            user=self.user1,
+            sessionlog=cls.sessionlog,
+            user=cls.user1,
             start_timestamp=local_now(),
             end_timestamp=local_now() + timedelta(seconds=10),
             time_spent=1.0,
@@ -1687,10 +1715,19 @@ class BulkNotificationsAPITestCase(APITestCase):
 
     @patch("kolibri.core.notifications.api.create_notification")
     @patch("kolibri.core.notifications.api.save_notifications")
-    def test_batch_attemptlog_needs_help(self, save_notifications, create_notification):
+    def test_batch_attemptlog_with_needs_help_notification(
+        self, save_notifications, create_notification
+    ):
         LearnerProgressNotification.objects.all().delete()
-        # more than 3 attempts will trigger the help notification
-        interactions = [{"type": "answer", "correct": 0}] * 3
+        self.attemptlog1.interaction_history = [{"type": "answer", "correct": 0}]
+        self.attemptlog1.save()
+
+        self.attemptlog2.interaction_history = []
+        self.attemptlog2.save()
+
+        interactions = [{"type": "answer", "correct": 0}] * (
+            NEEDS_HELP_NOTIFICATION_THRESHOLD - 1
+        )
         attemptlog3 = AttemptLog.objects.create(
             masterylog=self.mlog,
             sessionlog=self.sessionlog,
@@ -1732,8 +1769,9 @@ class BulkNotificationsAPITestCase(APITestCase):
 
     def test_batch_attemptlog_needs_help_with_correct_attempts(self):
         LearnerProgressNotification.objects.all().delete()
-        # more than 3 attempts will trigger the help notification
-        interactions = [{"type": "answer", "correct": 0}] * 4
+        interactions = [
+            {"type": "answer", "correct": 0}
+        ] * NEEDS_HELP_NOTIFICATION_THRESHOLD
         attemptlog3 = self._create_mock_attemptlog(
             sessionlog=self.attemptlog1.sessionlog,
             masterylog=self.attemptlog1.masterylog,

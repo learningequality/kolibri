@@ -24,6 +24,8 @@ from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.utils.quiz import annotate_response_summary
 from kolibri.core.query import annotate_array_aggregate
 
+NEEDS_HELP_NOTIFICATION_THRESHOLD = 4
+
 
 @memoize
 def get_assignments(user, summarylog, attempt=False):
@@ -421,7 +423,7 @@ def _get_user_needs_help(attemptlog):
         if interaction.get("correct", 0) == 0
     ]
 
-    return len(failed_interactions) > 3
+    return len(failed_interactions) >= NEEDS_HELP_NOTIFICATION_THRESHOLD
 
 
 def _get_help_needed_notification(attemptlog, contentnode_id, lesson):
