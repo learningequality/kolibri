@@ -3,6 +3,7 @@ import { browser, os, device, isTouchDevice } from './browserInfo';
 class ErrorReport {
   constructor(e) {
     this.e = e;
+    this.context = this.getContext();
   }
 
   getErrorReport() {
@@ -17,8 +18,10 @@ class ErrorReport {
         ...device,
         is_touch_device: isTouchDevice,
         screen: {
-          width: window.innerWidth,
-          height: window.innerHeight,
+          width: window.screen.width,
+          height: window.screen.height,
+          available_width: window.screen.availWidth,
+          available_height: window.screen.availHeight,
         },
       },
     };
@@ -35,7 +38,7 @@ export class VueErrorReport extends ErrorReport {
       error_message: this.e.message,
       traceback: this.e.stack,
       context: {
-        ...this.getContext(),
+        ...this.context,
         component: this.vm.$options.name || this.vm.$options._componentTag || 'Unknown Component',
       },
     };
@@ -47,7 +50,7 @@ export class JavascriptErrorReport extends ErrorReport {
     return {
       error_message: this.e.error.message,
       traceback: this.e.error.stack,
-      context: this.getContext(),
+      context: this.context,
     };
   }
 }
@@ -57,7 +60,7 @@ export class UnhandledRejectionErrorReport extends ErrorReport {
     return {
       error_message: this.e.reason.message,
       traceback: this.e.reason.stack,
-      context: this.getContext(),
+      context: this.context,
     };
   }
 }
