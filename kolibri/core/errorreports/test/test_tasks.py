@@ -18,13 +18,18 @@ class TestPingErrorReports(TestCase):
             category="frontend",
             error_message="Test Error",
             traceback="Test Traceback",
-            context_frontend={
-                "browser": "Chrome",
+            context={
+                "browser": {},
+                "os": {},
                 "component": "HeaderComponent",
                 "device": {
-                    "type": "desktop",
-                    "platform": "windows",
-                    "screen": {"width": 1920, "height": 1080},
+                    "is_touch_device": True,
+                    "screen": {
+                        "width": 1920,
+                        "height": 1080,
+                        "available_width": 1920,
+                        "available_height": 1040,
+                    },
                 },
             },
         )
@@ -32,14 +37,14 @@ class TestPingErrorReports(TestCase):
             category="backend",
             error_message="Test Error",
             traceback="Test Traceback",
-            context_backend={
+            context={
                 "request_info": {
                     "url": "/api/test",
                     "method": "GET",
                     "headers": {"User-Agent": "TestAgent"},
                     "body": "",
                 },
-                "server": {"host": "localhost", "port": 8000},
+                "server": {"host": "localhost", "port": "8000"},
                 "packages": {"django": "3.2", "kolibri": "0.15.8"},
                 "python_version": "3.9.1",
             },
@@ -53,7 +58,7 @@ class TestPingErrorReports(TestCase):
     def test_ping_error_reports(self, mock_serializer, mock_post):
         ping_error_reports("http://testserver")
         mock_post.assert_called_with(
-            "http://testserver/api/v1/errors/",
+            "http://testserver/api/v1/errors/report/",
             data="[]",
             headers={"Content-Type": "application/json"},
         )

@@ -28,8 +28,7 @@ def serialize_error_reports_to_json_response(errors):
                 "events": error.events,
                 "release_version": error.release_version,
                 "installation_type": error.installation_type,
-                "context_frontend": error.context_frontend,
-                "context_backend": error.context_backend,
+                "context": error.context,
             }
         )
     return json.dumps(errors_list, cls=DjangoJSONEncoder)
