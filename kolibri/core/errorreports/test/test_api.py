@@ -33,7 +33,12 @@ class FrontendReportTestCase(TestCase):
                 "type": "type",
                 "vendor": "vendor",
                 "is_touch_device": True,
-                "screen": {"width": 100, "height": 200},
+                "screen": {
+                    "width": 100,
+                    "height": 200,
+                    "available_width": 100,
+                    "available_height": 200,
+                },
             },
         },
     }
