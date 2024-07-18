@@ -49,7 +49,7 @@ class ErrorReportingMiddlewareTestCase(TestCase):
             BACKEND,
             str(exception),
             expected_traceback_info,
-            context_backend={
+            {
                 "request_info": {
                     "url": "http://testserver/",
                     "method": "GET",

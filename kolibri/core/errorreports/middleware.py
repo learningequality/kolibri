@@ -1,8 +1,9 @@
+import importlib.metadata
 import logging
 import traceback
 from sys import version_info
 
-import pkg_resources
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
 from .constants import BACKEND
@@ -23,7 +24,10 @@ def get_server_info(request):
 
 
 def get_packages():
-    return {dist.project_name: dist.version for dist in pkg_resources.working_set}
+    return {
+        dist.metadata["Name"]: dist.version
+        for dist in importlib.metadata.distributions()
+    }
 
 
 def get_python_version():
@@ -54,15 +58,15 @@ class ErrorReportingMiddleware:
             "packages": get_packages(),
             "python_version": get_python_version(),
         }
-        self.logger.error("Unexpected Error: %s", error_message)
 
+        self.logger.error("Unexpected Error: %s", error_message)
         try:
             self.logger.error("Saving error report to the database.")
             ErrorReports.insert_or_update_error(
-                BACKEND, error_message, traceback_info, context_backend=context
+                BACKEND, error_message, traceback_info, context
             )
             self.logger.info("Error report saved to the database.")
-        except IntegrityError as e:
+        except (IntegrityError, ValidationError) as e:
             self.logger.error(
                 "Error occurred while saving error report to the database: %s", str(e)
             )
