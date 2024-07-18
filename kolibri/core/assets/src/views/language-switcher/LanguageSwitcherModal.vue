@@ -5,7 +5,7 @@
     @shouldFocusLastEl="focusLastEl"
   >
     <KModal
-      appendToBody
+      appendToRoot
       :title="coreString('changeLanguageOption')"
       :submitText="coreString('confirmAction')"
       :cancelText="coreString('cancelAction')"
