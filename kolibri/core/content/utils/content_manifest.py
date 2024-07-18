@@ -231,7 +231,8 @@ class ContentManifest(object):
         return channel_data
 
     def _set_channel_data(self, channel_data):
-        assert isinstance(channel_data, ContentManifestChannelData)
+        if not isinstance(channel_data, ContentManifestChannelData):
+            raise TypeError("channel_data must be a ContentManifestChannelData")
         self._channels_dict.setdefault(channel_data.channel_id, {})[
             channel_data.channel_version
         ] = channel_data
