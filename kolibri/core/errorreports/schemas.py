@@ -29,27 +29,13 @@ context_frontend_schema = {
                 "screen": {
                     "type": "object",
                     "properties": {
-                        "width": {"type": "integer"},
-                        "height": {"type": "integer"},
+                        "width": {"type": "integer", "optional": True},
+                        "height": {"type": "integer", "optional": True},
+                        "available_width": {"type": "integer", "optional": True},
+                        "available_height": {"type": "integer", "optional": True},
                     },
                 },
             },
-        },
-    },
-}
-default_version_info = {"name": "", "major": "", "minor": "", "patch": ""}
-default_context_frontend_schema = {
-    "browser": default_version_info,
-    "component": "",
-    "os": default_version_info,
-    "device": {
-        "model": "",
-        "type": "",
-        "vendor": "",
-        "is_touch_device": False,
-        "screen": {
-            "width": 0,
-            "height": 0,
         },
     },
 }
@@ -69,21 +55,10 @@ context_backend_schema = {
             "type": "object",
             "properties": {
                 "host": {"type": "string", "optional": True},
-                "port": {"type": "integer", "optional": True},
+                "port": {"type": "string", "optional": True},
             },
         },
         "packages": {"type": "object", "optional": True},
         "python_version": {"type": "string", "optional": True},
     },
-}
-default_context_backend_schema = {
-    "request_info": {
-        "url": "",
-        "method": "",
-        "headers": {},
-        "body": "",
-    },
-    "server": {"host": "", "port": 0},
-    "packages": {},
-    "python_version": "",
 }
