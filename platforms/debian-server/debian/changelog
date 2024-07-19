@@ -1,4 +1,4 @@
-kolibri-server (0.5.0~alpha-0ubuntu1) bionic; urgency=medium
+kolibri-server (0.5.0~beta1-0ubuntu1) jammy; urgency=medium
 
   * Bumped python minimum version to 3.6
   * Added kolibri build dependency to automate error pages creation (Closes: #96)
@@ -8,8 +8,9 @@ kolibri-server (0.5.0~alpha-0ubuntu1) bionic; urgency=medium
   * debian/compat bumped to version 10
   * Improved README.rst file (thanks to Shrenik Bhura)
   * nginx.conf takes into account new kolibri LISTEN_ADDRESS option (Closes: #95)
+  * kolibri_server_setup.py: removed unused code
 
- -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 19 Apr 2023 19:52:27 +0200
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Fri, 19 Jul 2024 18:54:57 +0200
 
 kolibri-server (0.4.0-0ubuntu2) bionic; urgency=high
 

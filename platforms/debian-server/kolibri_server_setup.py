@@ -11,7 +11,6 @@ from kolibri.core.utils.cache import process_cache
 from kolibri.utils.options import update_options_file
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.conf import KOLIBRI_HOME
-from six.moves.urllib.parse import urljoin
 
 # read the config file options
 port = OPTIONS["Deployment"]["HTTP_PORT"]
@@ -22,9 +21,6 @@ listen_address = OPTIONS["Deployment"]["LISTEN_ADDRESS"]
 
 if path_prefix != "/":
     path_prefix = "/" + path_prefix
-
-STATIC_URL = urljoin(path_prefix, "static/")
-STATIC_ROOT = os.path.join(KOLIBRI_HOME, "static")
 
 
 def start_debconf_dialog():
