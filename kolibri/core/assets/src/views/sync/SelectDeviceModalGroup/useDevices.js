@@ -5,7 +5,12 @@ import { ref, reactive, computed, onBeforeUnmount, watch } from 'kolibri.lib.vue
 import { get, set, useMemoize, useTimeoutPoll } from '@vueuse/core';
 
 import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
-import { fetchDevices, channelIsAvailableAtDevice, deviceHasMatchingFacility } from './api';
+import {
+  fetchDevices,
+  channelIsAvailableAtDevice,
+  deviceHasAnyFacilities,
+  deviceHasMatchingFacility,
+} from './api';
 
 const logging = logger.getLogger(__filename);
 
@@ -166,6 +171,14 @@ function useAsyncDeviceFilter(filterFunction) {
       return false;
     }
   };
+}
+
+/**
+ */
+export function useDeviceHasFacilitiesFilter() {
+  return useAsyncDeviceFilter(function deviceHasFacilitiesFilter(device) {
+    return deviceHasAnyFacilities(device);
+  });
 }
 
 /**

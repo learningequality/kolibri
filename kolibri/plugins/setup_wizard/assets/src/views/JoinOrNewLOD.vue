@@ -23,6 +23,7 @@
       v-if="showSelectAddressModal"
       :filterLODAvailable="true"
       :filterByFacilityCanSignUp="selected === Options.JOIN ? true : null"
+      :filterByHasFacilities="true"
       @cancel="showSelectAddressModal = false"
       @submit="handleContinueImport"
     />

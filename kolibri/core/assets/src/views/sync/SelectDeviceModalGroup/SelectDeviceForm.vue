@@ -145,6 +145,7 @@
     useDevicesWithFilter,
     useDeviceChannelFilter,
     useDeviceFacilityFilter,
+    useDeviceHasFacilitiesFilter,
     useDeviceMinimumVersionFilter,
   } from './useDevices.js';
   import useConnectionChecker from './useConnectionChecker.js';
@@ -166,9 +167,15 @@
       if (
         props.filterByFacilityId !== null ||
         props.filterByFacilityCanSignUp !== null ||
-        props.filterByOnMyOwnFacility !== null
+        props.filterByOnMyOwnFacility !== null ||
+        props.filterByHasFacilities !== null
       ) {
         apiParams.subset_of_users_device = false;
+
+        if (props.filterByHasFacilities === true) {
+          deviceFilters.push(useDeviceHasFacilitiesFilter());
+        }
+
         deviceFilters.push(
           useDeviceFacilityFilter({
             id: props.filterByFacilityId,
@@ -251,6 +258,12 @@
       // In the setup wizard, to exclude importiing facilities that are "On My Own"
       // eslint-disable-next-line kolibri/vue-no-unused-properties
       filterByOnMyOwnFacility: {
+        type: Boolean,
+        default: null,
+      },
+      // In the setup wizard, to exclude devices that do not have a facility
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      filterByHasFacilities: {
         type: Boolean,
         default: null,
       },
