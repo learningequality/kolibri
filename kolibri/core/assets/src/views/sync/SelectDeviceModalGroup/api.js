@@ -28,6 +28,7 @@ export function fetchDevices(params = {}) {
  * @typedef {Object} FacilityFilter
  * @property {string} [id]
  * @property {boolean} [learner_can_sign_up]
+ * @property {boolean} [on_my_own_setup]
  */
 
 /**
