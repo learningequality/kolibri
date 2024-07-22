@@ -118,7 +118,7 @@
           .then(data => {
             this.facilities = [...data.facilities];
             if (this.facilities.length === 0) {
-              this.errorMessage = 'No learning facilities found';
+              this.errorMessage = SelectFacilityStrings.$tr('noFacilitiesText');
               return;
             }
             this.device = {
