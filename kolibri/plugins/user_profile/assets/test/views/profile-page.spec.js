@@ -2,6 +2,7 @@ import { FacilityUserResource } from 'kolibri.resources';
 import { mount, RouterLinkStub, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import ProfilePage from '../../src/views/ProfilePage';
 import makeStore from '../makeStore';
 import useOnMyOwnSetup, {
@@ -12,6 +13,7 @@ import useOnMyOwnSetup, {
 jest.mock('kolibri.resources');
 jest.mock('../../src/composables/useOnMyOwnSetup');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
+jest.mock('kolibri.coreVue.composables.useUser');
 
 FacilityUserResource.fetchModel = jest.fn().mockResolvedValue({});
 
@@ -43,6 +45,7 @@ describe('profilePage component', () => {
     useKResponsiveWindow.mockImplementation(() => ({
       windowIsSmall: false,
     }));
+    useUser.mockImplementation(() => useUserMock());
   });
 
   it('smoke test', () => {

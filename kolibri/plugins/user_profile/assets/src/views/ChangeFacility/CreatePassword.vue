@@ -44,10 +44,10 @@
 <script>
 
   import get from 'lodash/get';
-  import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   export default {
     name: 'CreatePassword',
@@ -62,6 +62,10 @@
     },
     mixins: [commonCoreStrings],
     inject: ['changeFacilityService', 'state'],
+    setup() {
+      const { session } = useUser();
+      return { session };
+    },
     data() {
       return {
         formData: {
@@ -72,8 +76,6 @@
       };
     },
     computed: {
-      ...mapGetters(['session']),
-
       description() {
         return this.$tr('description', {
           username: get(this.session, 'username', ''),
