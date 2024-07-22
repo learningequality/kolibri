@@ -44,6 +44,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import cloneDeep from 'lodash/cloneDeep';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   export default {
     name: 'AllFacilitiesPage',
@@ -57,6 +58,10 @@
       CoreTable,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { userIsMultiFacilityAdmin } = useUser();
+      return { userIsMultiFacilityAdmin };
+    },
     props: {
       subtopicName: {
         type: String,
@@ -65,7 +70,7 @@
       },
     },
     computed: {
-      ...mapGetters(['facilityPageLinks', 'userIsMultiFacilityAdmin']),
+      ...mapGetters(['facilityPageLinks']),
       facilities() {
         return this.$store.state.core.facilities;
       },

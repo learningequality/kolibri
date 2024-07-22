@@ -236,6 +236,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
@@ -291,7 +292,13 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
-      return { windowIsSmall };
+      const { isAppContext, isSuperuser, userIsMultiFacilityAdmin } = useUser();
+      return {
+        windowIsSmall,
+        isAppContext,
+        isSuperuser,
+        userIsMultiFacilityAdmin,
+      };
     },
     data() {
       return {
@@ -312,12 +319,7 @@
         'facilityNameSaved',
         'facilityNameError',
       ]),
-      ...mapGetters([
-        'isAppContext',
-        'isSuperuser',
-        'userIsMultiFacilityAdmin',
-        'facilityPageLinks',
-      ]),
+      ...mapGetters(['facilityPageLinks']),
       ...mapGetters('facilityConfig', ['getFacilityDataLoading']),
       settingsList: () => settingsList,
       settingsHaveChanged() {

@@ -149,6 +149,7 @@
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import IdentifierTextbox from './IdentifierTextbox';
 
   export default {
@@ -169,6 +170,10 @@
       ExtraDemographics,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { currentUserId } = useUser();
+      return { currentUserId };
+    },
     data() {
       return {
         fullName: '',
@@ -190,7 +195,7 @@
       };
     },
     computed: {
-      ...mapGetters(['currentUserId', 'facilityConfig']),
+      ...mapGetters(['facilityConfig']),
       ...mapState('userManagement', ['facilityUsers']),
       formDisabled() {
         return this.status === 'BUSY';
