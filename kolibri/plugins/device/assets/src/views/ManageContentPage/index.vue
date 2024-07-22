@@ -90,6 +90,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import taskNotificationMixin from '../taskNotificationMixin';
   import useContentTasks from '../../composables/useContentTasks';
@@ -123,6 +124,8 @@
     mixins: [commonCoreStrings, taskNotificationMixin],
     setup() {
       useContentTasks();
+      const { isLearnerOnlyImport } = useUser();
+      return { isLearnerOnlyImport };
     },
     data() {
       return {
@@ -136,7 +139,6 @@
         'channelIsBeingDeleted',
         'managedTasks',
       ]),
-      ...mapGetters(['isLearnerOnlyImport']),
       ...mapState('manageContent/wizard', ['pageName']),
       ...mapState('manageContent', ['channelListLoading']),
       ...mapState({

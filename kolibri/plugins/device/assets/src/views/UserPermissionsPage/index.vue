@@ -122,6 +122,7 @@
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { PageNames } from '../../constants';
 
   export default {
@@ -137,6 +138,10 @@
       UserTypeDisplay,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { currentUserId } = useUser();
+      return { currentUserId };
+    },
     data() {
       return {
         devicePermissionsChecked: undefined,
@@ -146,7 +151,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isPageLoading', 'facilities', 'currentUserId']),
+      ...mapGetters(['isPageLoading', 'facilities']),
       ...mapState('userPermissions', ['user', 'permissions']),
       backRoute() {
         return { name: PageNames.MANAGE_PERMISSIONS_PAGE };

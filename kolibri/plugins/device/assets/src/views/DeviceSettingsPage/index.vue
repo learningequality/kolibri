@@ -378,6 +378,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { checkCapability } from 'kolibri.utils.appCapabilities';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import commonDeviceStrings from '../commonDeviceStrings';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
@@ -416,6 +417,7 @@
     },
     mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
+      const { isAppContext, isLearnerOnlyImport, isSuperuser } = useUser();
       const { canRestart, restart, restarting } = useDeviceRestart();
       const { plugins, fetchPlugins, togglePlugin } = usePlugins();
       const { windowIsSmall } = useKResponsiveWindow();
@@ -446,6 +448,9 @@
       }
 
       return {
+        isAppContext,
+        isLearnerOnlyImport,
+        isSuperuser,
         canRestart,
         restart,
         restarting,
@@ -492,7 +497,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAppContext', 'isPageLoading', 'snackbarIsVisible', 'isLearnerOnlyImport']),
+      ...mapGetters(['isPageLoading', 'snackbarIsVisible']),
       ...mapGetters('deviceInfo', ['isRemoteContent']),
       InfoDescriptionColor() {
         return {
@@ -506,7 +511,7 @@
         return this.$store.getters.facilities;
       },
       isMultiFacilitySuperuser() {
-        return this.$store.getters.isSuperuser && this.facilities.length > 1;
+        return this.isSuperuser && this.facilities.length > 1;
       },
       languageOptions() {
         const languages = sortLanguages(Object.values(availableLanguages), currentLanguage).map(

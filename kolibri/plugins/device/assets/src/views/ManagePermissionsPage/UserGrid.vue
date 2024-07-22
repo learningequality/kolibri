@@ -71,6 +71,7 @@
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   export default {
     name: 'UserGrid',
@@ -79,6 +80,10 @@
       CoreTable,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { currentUserId } = useUser();
+      return { currentUserId };
+    },
     props: {
       filterText: {
         type: String,
@@ -99,7 +104,7 @@
       },
     },
     computed: {
-      ...mapGetters(['facilities', 'currentUserId']),
+      ...mapGetters(['facilities']),
       emptyMessage() {
         return this.$tr('noUsersMatching', { searchFilter: this.filterText });
       },
