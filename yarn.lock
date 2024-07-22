@@ -7726,9 +7726,9 @@ kolibri-design-system@4.3.2:
     vue-intl "3.1.0"
     xstate "4.38.3"
 
-"kolibri-design-system@https://github.com/AlexVelezLl/kolibri-design-system.git#b7c4031c8447c9d06c635efd0e621174a063b2b9":
+"kolibri-design-system@https://github.com/AlexVelezLl/kolibri-design-system.git#9dbdbea6eb737df147b21247335bc7a6a26b7bf1":
   version "4.3.2"
-  resolved "https://github.com/AlexVelezLl/kolibri-design-system.git#b7c4031c8447c9d06c635efd0e621174a063b2b9"
+  resolved "https://github.com/AlexVelezLl/kolibri-design-system.git#9dbdbea6eb737df147b21247335bc7a6a26b7bf1"
   dependencies:
     "@vue/composition-api" "1.7.2"
     aphrodite "https://github.com/learningequality/aphrodite/"
@@ -7742,7 +7742,7 @@ kolibri-design-system@4.3.2:
     purecss "2.2.0"
     tippy.js "4.2.1"
     vue-intl "3.1.0"
-    vue2-teleport "^1.1.4"
+    vue2-teleport "1.1.4"
     xstate "4.38.3"
 
 launch-editor-middleware@^2.8.0:
@@ -11648,7 +11648,7 @@ vue-virtual-scroller@1.1.2:
     vue-observe-visibility "^0.4.4"
     vue-resize "^0.4.5"
 
-vue2-teleport@^1.1.4:
+vue2-teleport@1.1.4:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/vue2-teleport/-/vue2-teleport-1.1.4.tgz#30c84b1005bf9c208b1c05f4b6147300c54ee846"
   integrity sha512-mGTszyQP6k3sSSk7MBq+PZdVojHYLwg5772hl3UVpu5uaLBqWIZ5eNP6/TjkDrf1XUTTxybvpXC6inpjwO+i/Q==
