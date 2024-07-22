@@ -5,16 +5,13 @@ import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
 import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
 import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
 import MasteryModel from 'kolibri.coreVue.components.MasteryModel';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import CurrentTryOverview from '../../src/views/ExamReport/CurrentTryOverview';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-function storeWithUserId(id) {
-  return new Vuex.Store({
-    getters: { currentUserId: () => id },
-  });
-}
+jest.mock('kolibri.coreVue.composables.useUser');
 
 const translator = createTranslator('CurrentTryOverview', CurrentTryOverview.$trs);
 
@@ -74,6 +71,11 @@ function defaultPropsWith(propOverrides = {}, tryOverrides = {}) {
 const nonQuizValidMasteryCriterion = { type: 'm_of_n', m: 5, n: 7 };
 
 describe('ExamReport/CurrentTryOverview', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useUser.mockImplementation(() => useUserMock());
+  });
+
   describe('status', () => {
     it('shows a ProgressIcon when hideStatus is false', () => {
       const wrapper = shallowMount(CurrentTryOverview, { propsData: defaultProps });
@@ -235,10 +237,10 @@ describe('ExamReport/CurrentTryOverview', () => {
         describe('currentTry.diff.correct > 0 and user viewing own try', () => {
           /* This would be an $tr, at current 'practiceQuizReportImprovedLabelSecondPerson': */
           it('returns a string including currentTry.diff.correct in it', () => {
+            useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
             const wrapper = shallowMount(CurrentTryOverview, {
               propsData: defaultPropsWith({}, { diff: betterDiff }),
               localVue,
-              store: storeWithUserId(defaultProps.userId),
             });
 
             expect(wrapper.vm.questionsCorrectAnnotation).toEqual(
@@ -257,10 +259,12 @@ describe('ExamReport/CurrentTryOverview', () => {
         });
 
         it("returns null when the try is not the current user's try", () => {
+          useUser.mockImplementation(() =>
+            useUserMock({ currentUserId: defaultProps.userId + '-2-3' }),
+          );
           const wrapper = shallowMount(CurrentTryOverview, {
             propsData: defaultPropsWith({}, { diff: betterDiff }),
             localVue,
-            store: storeWithUserId(defaultProps.userId + '-2-3'),
           });
           expect(wrapper.vm.questionsCorrectAnnotation).toBeNull();
         });
@@ -275,10 +279,10 @@ describe('ExamReport/CurrentTryOverview', () => {
       });
 
       it('displays annotation string when diff.correct is set and viewed by owning user', () => {
+        useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
         const wrapper = shallowMount(CurrentTryOverview, {
           propsData: defaultPropsWith({}, { diff: betterDiff }),
           localVue,
-          store: storeWithUserId(defaultProps.userId),
         });
         expect(wrapper.find('[data-test="try-questions-correct"]').element).toHaveTextContent(
           translator.$tr('practiceQuizReportImprovedLabelSecondPerson', {
@@ -313,20 +317,20 @@ describe('ExamReport/CurrentTryOverview', () => {
 
     describe('showing the time spent annotation', () => {
       describe('computed diffTimeSpent', () => {
+        useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
         it('returns null when currentTry.diff.time_spent is falsy', () => {
           const wrapper = shallowMount(CurrentTryOverview, {
             localVue,
-            store: storeWithUserId(defaultProps.userId),
             propsData: defaultPropsWith({}, { diff: { time_spent: 0 } }),
           });
           expect(wrapper.vm.diffTimeSpent).toBeNull();
         });
 
         it('returns Math.floor of currentTry.diff.time_spent / 60', () => {
+          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
           const wrapper = shallowMount(CurrentTryOverview, {
             propsData: defaultPropsWith({}, { diff: betterDiff }),
             localVue,
-            store: storeWithUserId(defaultProps.userId),
           });
           expect(wrapper.vm.diffTimeSpent).toEqual(Math.floor(betterDiff.time_spent / 60));
         });
@@ -334,18 +338,18 @@ describe('ExamReport/CurrentTryOverview', () => {
 
       describe('computed timeSpentAnnotation', () => {
         it('returns null when currentTry.diff.time_spent is 0 < n < 60', () => {
+          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
           const wrapper = shallowMount(CurrentTryOverview, {
             localVue,
-            store: storeWithUserId(defaultProps.userId),
             propsData: defaultPropsWith({}, { diff: { time_spent: 40 } }),
           });
           expect(wrapper.vm.timeSpentAnnotation).toBeNull();
         });
 
         it('returns null when currentTry.diff.time_spent is falsy', () => {
+          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
           const wrapper = shallowMount(CurrentTryOverview, {
             localVue,
-            store: storeWithUserId(defaultProps.userId),
             propsData: defaultPropsWith({}, { diff: { time_spent: undefined } }),
           });
           expect(wrapper.vm.timeSpentAnnotation).toBeNull();
@@ -354,9 +358,9 @@ describe('ExamReport/CurrentTryOverview', () => {
 
       describe('diffTimeSpent < 0 - try is faster than last', () => {
         it('displays $trs.practiceQuizReportFasterTimeLabel with the abs value of diffTimeSpent', () => {
+          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
           const wrapper = shallowMount(CurrentTryOverview, {
             localVue,
-            store: storeWithUserId(defaultProps.userId),
             propsData: defaultPropsWith({}, { diff: betterDiff }),
           });
           expect(wrapper.find('[data-test="try-time-spent"]').element).toHaveTextContent(
@@ -369,9 +373,9 @@ describe('ExamReport/CurrentTryOverview', () => {
 
       describe('diffTimeSpent > 0 try is slower than last', () => {
         it('displays $trs.practiceQuizReportSlowerTimeLabel with the value of diffTimeSpent', () => {
+          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
           const wrapper = shallowMount(CurrentTryOverview, {
             localVue,
-            store: storeWithUserId(defaultProps.userId),
             propsData: defaultPropsWith({}, { diff: worseDiff }),
           });
           expect(wrapper.find('[data-test="try-time-spent"]').element).toHaveTextContent(

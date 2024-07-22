@@ -100,12 +100,12 @@
   import get from 'lodash/get';
   import isPlainObject from 'lodash/isPlainObject';
   import isUndefined from 'lodash/isUndefined';
-  import { mapGetters } from 'vuex';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import MasteryModel from 'kolibri.coreVue.components.MasteryModel';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { tryValidator } from './utils';
 
   export default {
@@ -117,6 +117,10 @@
       MasteryModel,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { currentUserId } = useUser();
+      return { currentUserId };
+    },
     props: {
       // This should be an object with the following properties:
       // id: the unique id for the mastery log for this try
@@ -160,7 +164,6 @@
       },
     },
     computed: {
-      ...mapGetters(['currentUserId']),
       currentTryDefined() {
         return isPlainObject(this.currentTry);
       },

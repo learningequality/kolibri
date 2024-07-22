@@ -42,7 +42,7 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState } from 'vuex';
   import Lockr from 'lockr';
   import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
@@ -50,6 +50,7 @@
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import AppError from 'kolibri-common/components/AppError';
   import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import UpdateNotification from './UpdateNotification.vue';
 
   export default {
@@ -60,6 +61,14 @@
       AuthMessage,
       GlobalSnackbar,
       UpdateNotification,
+    },
+    setup() {
+      const { isAdmin, isSuperuser } = useUser();
+
+      return {
+        isAdmin,
+        isSuperuser,
+      };
     },
     props: {
       authorized: {
@@ -90,7 +99,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isSuperuser']),
       ...mapState({
         error: state => state.core.error,
         notifications: state => state.core.notifications,
