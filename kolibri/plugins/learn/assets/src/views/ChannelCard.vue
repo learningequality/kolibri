@@ -78,10 +78,10 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import ChannelThumbnail from './ChannelThumbnail';
 
   export default {
@@ -92,8 +92,11 @@
     },
     setup() {
       const { windowGutter } = useKResponsiveWindow();
+      const { isUserLoggedIn, isLearner } = useUser();
       return {
         windowGutter,
+        isUserLoggedIn,
+        isLearner,
       };
     },
     props: {
@@ -142,7 +145,6 @@
       },
     },
     computed: {
-      ...mapGetters(['isLearner', 'isUserLoggedIn']),
       overallHeight() {
         return 270;
       },

@@ -94,11 +94,11 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import ProgressBar from '../ProgressBar';
   import commonLearnStrings from '../commonLearnStrings';
   import useDownloadRequests from '../../composables/useDownloadRequests';
@@ -115,7 +115,14 @@
     setup() {
       const { addDownloadRequest, downloadRequestMap, removeDownloadRequest } =
         useDownloadRequests();
-      return { addDownloadRequest, downloadRequestMap, removeDownloadRequest };
+      const { isLearner, isUserLoggedIn } = useUser();
+      return {
+        addDownloadRequest,
+        downloadRequestMap,
+        removeDownloadRequest,
+        isLearner,
+        isUserLoggedIn,
+      };
     },
     props: {
       contentNode: {
@@ -139,7 +146,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isLearner', 'isUserLoggedIn']),
       isTopic() {
         return !this.contentNode.is_leaf;
       },

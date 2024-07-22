@@ -24,8 +24,9 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
   import useProgressTracking from '../../composables/useProgressTracking';
   import AssessmentWrapper from '../AssessmentWrapper';
@@ -48,6 +49,7 @@
         startTrackingProgress,
         stopTrackingProgress,
       } = useProgressTracking();
+      const { currentUserId } = useUser();
       return {
         progress,
         time_spent,
@@ -59,6 +61,7 @@
         updateContentSession,
         startTracking: startTrackingProgress,
         stopTracking: stopTrackingProgress,
+        currentUserId,
       };
     },
     props: {
@@ -74,7 +77,6 @@
       };
     },
     computed: {
-      ...mapGetters(['currentUserId']),
       ...mapState({
         fullName: state => state.core.session.full_name,
       }),
