@@ -16,6 +16,7 @@
 import { DevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { createTranslator } from 'kolibri.utils.i18n';
+import useUser from 'kolibri.coreVue.composables.useUser';
 
 const translator = createTranslator('UserPermissionToolbarTitles', {
   loading: 'Loading user permissions…',
@@ -67,7 +68,7 @@ export function showUserPermissionsPage(store, userId) {
   const stopLoading = () => store.commit('CORE_SET_PAGE_LOADING', false);
 
   // Don't request any data if not an Admin
-  if (!store.getters.isSuperuser) {
+  if (!useUser().isSuperuser.value) {
     setUserPermissionsState({ user: null, permissions: {} });
     setAppBarTitle(translator.$tr('goBackTitle'));
     stopLoading();
