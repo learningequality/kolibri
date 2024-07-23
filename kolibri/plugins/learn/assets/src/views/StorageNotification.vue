@@ -144,6 +144,7 @@
           }
         },
         deep: true,
+        immediate: true,
       },
     },
     mounted() {
