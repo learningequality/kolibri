@@ -78,31 +78,16 @@
       {{ resourceButtonLabel }}
     </KRouterLink>
 
-    <div class="bottom-buttons-style">
-      <KGrid>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KButton
-            :text="deleteSectionLabel$()"
-            @click="handleDeleteSection()"
-          />
-        </KGridItem>
-        <KGridItem
-          style="text-align: right"
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KButton
-            :primary="true"
-            :text="applySettings$()"
-            @click="applySettings()"
-          />
-        </KGridItem>
-      </KGrid>
+    <div class="bottom-navigation">
+      <KButton
+        :text="deleteSectionLabel$()"
+        @click="handleDeleteSection()"
+      />
+      <KButton
+        :primary="true"
+        :text="applySettings$()"
+        @click="applySettings()"
+      />
     </div>
     <KModal
       v-if="showCloseConfirmation"
@@ -502,19 +487,17 @@
     padding: 8px;
   }
 
-  .bottom-buttons-style {
+  .bottom-navigation {
     position: absolute;
     right: 0;
     bottom: 0;
     left: 0;
+    display: flex;
+    justify-content: space-between;
     padding: 1em;
     margin-top: 1em;
     background-color: #ffffff;
     border-top: 1px solid black;
-
-    > div {
-      padding-right: 1em;
-    }
   }
 
   /deep/ .textbox {

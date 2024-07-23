@@ -58,7 +58,7 @@
             <KButton
               v-if="quiz.learners_see_fixed_order"
               :text="coreString('editAction') + ' - ' + sectionOrderLabel$()"
-              style="margin-left: 2em"
+              class="edit-section-order-btn"
               appearance="basic-link"
               @click="editSectionOrder"
             />
@@ -386,6 +386,10 @@
   .section-order-header {
     margin-top: 0;
     margin-bottom: 0.5em;
+  }
+
+  .edit-section-order-btn {
+    margin-left: 2em;
   }
 
 </style>

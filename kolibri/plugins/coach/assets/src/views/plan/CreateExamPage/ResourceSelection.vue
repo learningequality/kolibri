@@ -146,47 +146,34 @@
       />
 
       <div class="bottom-navigation">
-        <KGrid>
-          <KGridItem
-            :layout12="{ span: 8 }"
-            :layout8="{ span: 4 }"
-            :layout4="{ span: 2 }"
-          >
-            <span v-if="!selectPracticeQuiz">
-              <span v-if="tooManyQuestions">
-                {{
-                  tooManyQuestions$({
-                    count: maxSectionQuestionOptions,
-                  })
-                }}
-              </span>
-              <span v-else>
-                {{
-                  questionsFromResources$({
-                    questions: workingPoolUnusedQuestions,
-                  })
-                }}
-              </span>
+        <div>
+          <span v-if="!selectPracticeQuiz">
+            <span v-if="tooManyQuestions">
+              {{
+                tooManyQuestions$({
+                  count: maxSectionQuestionOptions,
+                })
+              }}
             </span>
-          </KGridItem>
-          <KGridItem
-            :layout12="{ span: 4 }"
-            :layout8="{ span: 4 }"
-            :layout4="{ span: 2 }"
-          >
-            <KButton
-              style="float: right"
-              :text="
-                selectPracticeQuiz
-                  ? selectQuiz$()
-                  : addNumberOfQuestions$({ count: Math.max(1, questionCount) })
-              "
-              :primary="true"
-              :disabled="disableSave"
-              @click="saveSelectedResource"
-            />
-          </KGridItem>
-        </KGrid>
+            <span v-else>
+              {{
+                questionsFromResources$({
+                  questions: workingPoolUnusedQuestions,
+                })
+              }}
+            </span>
+          </span>
+        </div>
+        <KButton
+          :text="
+            selectPracticeQuiz
+              ? selectQuiz$()
+              : addNumberOfQuestions$({ count: Math.max(1, questionCount) })
+          "
+          :primary="true"
+          :disabled="disableSave"
+          @click="saveSelectedResource"
+        />
       </div>
     </div>
     <KModal
@@ -1006,15 +993,14 @@
     right: 0;
     bottom: 0;
     left: 0;
+    display: flex;
+    justify-content: space-between;
     width: 100%;
     padding: 1em;
+    line-height: 2.5em;
     text-align: center;
     background-color: white;
     border-top: 1px solid black;
-
-    span {
-      line-height: 2.5em;
-    }
   }
 
   .select-folder-style {
