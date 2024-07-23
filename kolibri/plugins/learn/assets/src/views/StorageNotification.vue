@@ -13,7 +13,7 @@
         <!-- Grid Content -->
         <KGridItem :layout12="{ span: 12 }">
           <p>
-            {{ getMessage() }}
+            {{ message }}
           </p>
         </KGridItem>
 
@@ -61,6 +61,7 @@
   import { mapGetters } from 'vuex';
   import useUser from 'kolibri.coreVue.composables.useUser';
   import { useLocalStorage } from '@vueuse/core';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import urls from 'kolibri.urls';
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
@@ -93,6 +94,8 @@
         lastDownloadRemoved,
       } = useUserSyncStatus();
 
+      const { sendAssertiveMessage } = useKLiveRegion();
+
       return {
         lastSynced,
         status,
@@ -105,6 +108,7 @@
         local_storage_lastDownloadRemoved,
         setLastSyncedValue,
         setDownloadRemovedValue,
+        sendAssertiveMessage,
       };
     },
     data() {
@@ -114,6 +118,19 @@
     },
     computed: {
       ...mapGetters(['isLearner', 'isAdmin', 'canManageContent']),
+      message() {
+        let message = '';
+        if (this.isAdmin) {
+          message = this.$tr('superAdminMessage');
+        } else if (this.insufficientStorageNoDownloads) {
+          message = this.$tr('insufficientStorageNoDownloads');
+        } else if (this.learnOnlyRemovedResources) {
+          message = this.$tr('resourcesRemoved');
+        } else if (this.availableDownload) {
+          message = this.$tr('insufficientStorageAvailableDownloads');
+        }
+        return message;
+      },
       insufficientStorageNoDownloads() {
         return (
           (this.isLearner && this.insufficientStorage) ||
@@ -146,6 +163,14 @@
         deep: true,
         immediate: true,
       },
+      message: {
+        handler(newVal, oldVal) {
+          if (newVal !== oldVal) {
+            this.sendAssertiveMessage(this.message);
+          }
+        },
+        immediate: true,
+      },
     },
     mounted() {
       document.addEventListener('focusin', this.focusChange);
@@ -154,19 +179,6 @@
       document.removeEventListener('focusin', this.focusChange);
     },
     methods: {
-      getMessage() {
-        let message = '';
-        if (this.isAdmin) {
-          message = this.$tr('superAdminMessage');
-        } else if (this.insufficientStorageNoDownloads) {
-          message = this.$tr('insufficientStorageNoDownloads');
-        } else if (this.learnOnlyRemovedResources) {
-          message = this.$tr('resourcesRemoved');
-        } else if (this.availableDownload) {
-          message = this.$tr('insufficientStorageAvailableDownloads');
-        }
-        return message;
-      },
       closeBanner() {
         this.setLastSyncedValue(this.lastSynced);
         this.setDownloadRemovedValue(this.lastDownloadRemoved);
