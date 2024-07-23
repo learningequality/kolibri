@@ -81,8 +81,7 @@
             data-test="other-libraries"
             :injectedtr="injecttr"
           />
-          <h1>folder card</h1>
-          <AccessibleFolderCard />
+
         </div>
 
         <SearchResultsGrid
@@ -199,7 +198,6 @@
   import useChannels from './../../composables/useChannels';
   import ResumableContentGrid from './ResumableContentGrid';
   import OtherLibraries from './OtherLibraries';
-  import AccessibleFolderCard from './AccessibleFolderCard.vue';
 
   const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
@@ -222,7 +220,6 @@
       LearnAppBarPage,
       OtherLibraries,
       PostSetupModalGroup,
-      AccessibleFolderCard,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {

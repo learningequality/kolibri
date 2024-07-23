@@ -1,47 +1,77 @@
 <template>
 
   <div>
-    <KGrid gutter="16">
-      <KGridItem
-        v-for="(contentNode, idx) in resumableContentNodes"
-        :key="idx"
-        :layout="{ span: layoutSpan }"
+    <ul>
+      <KCard
+        class="card"
+        :to="to"
+        :headingLevel="2"
+        layout="horizontal"
+        thumbnailDisplay="large"
+        :title="contentNode.title"
       >
-        <KCard
-          :to="{ name: '/' }"
-          layout="horizontal"
-          thumbnailDisplay="small"
-          :thumbnailSrc="thumbnailUrl(contentNode)"
-          :headingLevel="2"
-          style="margin-bottom: 1em"
-        >
-          <template #aboveTitle>
-            <div>
-              <h4>Hello</h4>
-            </div>
-          </template>
-          <template #title>
-            <div>
-              <KTextTruncator
-                :text="contentNode.title"
-                :maxLines="1"
-              />
-            </div>
-          </template>
-          <template #belowTitle>
+        <template #thumbnailPlaceholder>
+          <div>
+            <CardThumbnail
+              class="thumbnail"
+              :contentNode="contentNode"
+            />
+          </div>
+        </template>
+
+        <template #aboveTitle>
+          <div>
             <div
-              :style="{
-                'background-color': $themePalette.grey.v_100,
-                padding: '2px',
-                width: '80px',
-              }"
+              class="header-bar"
+              :style="headerStyles"
             >
-              <KIcon icon="topic" /> Folder
+              <div v-if="!contentNode.is_leaf">
+                <KIcon
+                  icon="topic"
+                  :color="$themeTokens.text"
+                  class="folder-header-bar"
+                />
+                <p class="folder-header-text">
+                  {{ coreString('folder') }}
+                </p>
+              </div>
+              <LearningActivityLabel
+                v-if="contentNode.is_leaf"
+                :labelAfter="true"
+                :contentNode="contentNode"
+                :hideDuration="true"
+                class="learning-activity-label"
+                :style="{ color: $themeTokens.text }"
+              />
+              <img
+                v-if="contentNode.is_leaf && channelThumbnail.length > 0"
+                :src="channelThumbnail"
+                :alt="learnString('logo', { channelTitle: channelTitle })"
+                class="channel-logo"
+              >
             </div>
-          </template>
-        </KCard>
-      </KGridItem>
-    </KGrid>
+          </div>
+        </template>
+
+        <template #belowTitle>
+          <div class="">
+            <KButton
+              v-if="contentNode.copies && contentNode.copies.length"
+              appearance="basic-link"
+              class="copies"
+              :text="coreString('copies', { num: contentNode.copies.length })"
+              @click.prevent="$emit('openCopiesModal', contentNode.copies)"
+            />
+          </div>
+        </template>
+
+        <template #footer>
+          <div>
+            <slot name="footer"></slot>
+          </div>
+        </template>
+      </KCard>
+    </ul>
   </div>
 
 </template>
@@ -49,43 +79,122 @@
 
 <script>
 
-  import KCard from 'kolibri-design-system/lib/KCard';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
-  import useCardLayoutSpan from '../../composables/useCardLayoutSpan';
+  import { validateLinkObject } from 'kolibri.utils.validators';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useChannels from '../../composables/useChannels';
-  import useLearnerResources from '../../composables/useLearnerResources';
+  import LearningActivityLabel from '../LearningActivityLabel';
+  import commonLearnStrings from '../commonLearnStrings';
+  import CardThumbnail from './../HybridLearningContentCard/CardThumbnail.vue';
 
   export default {
     name: 'AccessibleFolderCard',
     components: {
-      KCard,
+      CardThumbnail,
+      LearningActivityLabel,
     },
+    mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
-      const { windowIsSmall } = useKResponsiveWindow();
-      const { layoutSpan } = useCardLayoutSpan();
-      const { resumableContentNodes } = useLearnerResources();
-      const { getChannelThumbnail } = useChannels();
-
+      const { getChannelThumbnail, getChannelTitle } = useChannels();
       return {
-        windowIsSmall,
-        layoutSpan,
-        resumableContentNodes,
         getChannelThumbnail,
+        getChannelTitle,
       };
     },
-    methods: {
-      thumbnailUrl(contentNode) {
-        const thumbnail = getContentNodeThumbnail(contentNode);
-        if (!thumbnail) {
-          const parent = contentNode.parent;
-          if (!parent) {
-            return this.getChannelThumbnail(contentNode && contentNode.channel_id);
-          }
+    props: {
+      to: {
+        type: Object,
+        required: true,
+        validator: validateLinkObject,
+      },
+      contentNode: {
+        type: Object,
+        required: true,
+      },
+    },
+    computed: {
+      headerStyles() {
+        let styles = {};
+        if (!this.contentNode.is_leaf) {
+          styles = {
+            borderRadius: '8px 8px 0 0',
+            color: this.$themeTokens.text,
+          };
         }
-        return thumbnail;
+        return styles;
+      },
+      channelThumbnail() {
+        return this.getChannelThumbnail(this.contentNode && this.contentNode.channel_id);
+      },
+      channelTitle() {
+        return this.getChannelTitle(this.contentNode && this.contentNode.channel_id);
       },
     },
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  @import '~kolibri-design-system/lib/styles/definitions';
+
+  .drop-shadow {
+    @extend %dropshadow-1dp;
+
+    &:hover {
+      @extend %dropshadow-8dp;
+    }
+  }
+
+  .card-link {
+    width: 100%;
+    text-decoration: none;
+  }
+
+  .copies {
+    display: inline-block;
+    font-size: 13px;
+    text-decoration: none;
+    vertical-align: top;
+  }
+
+  .header-bar {
+    display: flex;
+    justify-content: space-between;
+    height: 38px;
+    padding: 6px 8px;
+    font-size: 12px;
+
+    .channel-logo {
+      align-self: end;
+      height: 28px;
+      margin-bottom: 4px;
+    }
+  }
+
+  .folder-header-bar {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 16px;
+  }
+
+  .folder-header-text {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
+  }
+
+  .k-labeled-icon {
+    display: inline-block;
+    max-width: calc(100% - 50px);
+    height: 24px;
+    margin-bottom: 0;
+    vertical-align: top;
+  }
+
+  .learning-activity-label {
+    width: 60%;
+  }
+
+</style>
