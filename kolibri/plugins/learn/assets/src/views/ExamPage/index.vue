@@ -37,10 +37,11 @@
         >
           <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
             <KPageContainer
+              v-if="windowIsLarge"
               dir="auto"
               style="overflow-x: visible"
             >
-              <KGrid v-if="windowIsLarge">
+              <KGrid>
                 <KGridItem :layout12="{ span: 8 }">
                   <h2 class="section-title">
                     {{ displaySectionTitle(currentSection, currentSectionIndex) }}
@@ -59,9 +60,23 @@
                   </div>
                 </KGridItem>
               </KGrid>
-              <div
-                v-else
-                style="overflow-x: visible"
+            </KPageContainer>
+            <div v-else>
+              <KPageContainer
+                dir="auto"
+                class="quiz-container"
+              >
+                <span>{{ coreString('timeSpentLabel') }}:</span>
+                <TimeDuration
+                  class="timer"
+                  aria-live="polite"
+                  role="timer"
+                  :seconds="time_spent"
+                />
+              </KPageContainer>
+              <KPageContainer
+                dir="auto"
+                class="quiz-container"
               >
                 <div v-if="windowIsSmall || windowIsMedium">
                   <KSelect
@@ -94,26 +109,17 @@
                     {{ currentSectionOption.label }}
                   </h2>
                 </div>
-                <p>{{ currentSection.description }}</p>
+                <p v-if="currentSection.description">{{ currentSection.description }}</p>
                 <p v-if="content && content.duration">
                   {{ learnString('suggestedTime') }}
                 </p>
-                <div :style="{ margin: '0 auto', textAlign: 'center', width: '100%' }">
-                  <span>{{ coreString('timeSpentLabel') }}:</span>
-                  <TimeDuration
-                    class="timer"
-                    aria-live="polite"
-                    role="timer"
-                    :seconds="time_spent"
-                  />
-                </div>
                 <SuggestedTime
                   v-if="content && content.duration"
                   class="timer"
                   :seconds="content.duration"
                 />
-              </div>
-            </KPageContainer>
+              </KPageContainer>
+            </div>
             <KPageContainer style="overflow-x: visible">
               <KSelect
                 v-if="windowIsSmall || windowIsMedium"
@@ -878,6 +884,15 @@
 
   .dot {
     margin-right: 5px;
+  }
+
+  .section-select {
+    margin: 0;
+  }
+
+  .quiz-container {
+    padding: 1em !important;
+    overflow-x: visible;
   }
 
 </style>
