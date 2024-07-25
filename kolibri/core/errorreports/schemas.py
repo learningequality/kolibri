@@ -49,6 +49,7 @@ context_backend_schema = {
                 "method": {"type": "string", "optional": True},
                 "headers": {"type": "object", "optional": True},
                 "body": {"type": "string", "optional": True},
+                "query_params": {"type": "object", "optional": True},
             },
         },
         "server": {
@@ -58,7 +59,7 @@ context_backend_schema = {
                 "port": {"type": "string", "optional": True},
             },
         },
-        "packages": {"type": "object", "optional": True},
+        "packages": {"type": "array", "optional": True},
         "python_version": {"type": "string", "optional": True},
     },
 }

@@ -20,7 +20,7 @@ class ErrorReportingMiddlewareTestCase(TestCase):
     )
     @patch(
         "kolibri.core.errorreports.middleware.get_packages",
-        return_value={"Django": "3.2.25"},
+        return_value=["Django==3.2.25"],
     )
     @patch.object(ErrorReports, "insert_or_update_error")
     @patch.object(logging.Logger, "error")
@@ -55,9 +55,10 @@ class ErrorReportingMiddlewareTestCase(TestCase):
                     "method": "GET",
                     "headers": dict(request.headers),
                     "body": "",
+                    "query_params": {},
                 },
                 "server": {"host": "testserver", "port": "80"},
-                "packages": {"Django": "3.2.25"},
+                "packages": ["Django==3.2.25"],
                 "python_version": "3.9.9",
             },
         )

@@ -1,7 +1,11 @@
-import importlib.metadata
 import logging
 import traceback
 from sys import version_info
+
+if version_info < (3, 10):
+    from importlib_metadata import distributions
+else:
+    from importlib.metadata import distributions
 
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -16,6 +20,7 @@ def get_request_info(request):
         "method": request.method,
         "headers": dict(request.headers),
         "body": request.body.decode("utf-8"),
+        "query_params": dict(request.GET),
     }
 
 
@@ -24,10 +29,8 @@ def get_server_info(request):
 
 
 def get_packages():
-    return {
-        dist.metadata["Name"]: dist.version
-        for dist in importlib.metadata.distributions()
-    }
+    packages = [f"{dist.metadata['Name']}=={dist.version}" for dist in distributions()]
+    return packages
 
 
 def get_python_version():
