@@ -35,9 +35,10 @@ class ErrorReportsTestCase(TestCase):
                 "method": "GET",
                 "headers": {"User-Agent": "TestAgent"},
                 "body": "",
+                "query_params": {"test": "true"},
             },
             "server": {"host": "localhost", "port": "8000"},
-            "packages": {"django": "3.2", "kolibri": "0.15.8"},
+            "packages": ["django==3.2", "kolibri==0.15.8"],
             "python_version": "3.9.1",
         }
 
