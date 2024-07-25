@@ -82,6 +82,7 @@
                     v-if="sectionSelectOptions.length > 1"
                     :value="currentSectionOption"
                     :options="sectionSelectOptions"
+                    :label="quizSectionsLabel$()"
                     @select="handleSectionOptionChange"
                   >
                     <template #display>
@@ -125,6 +126,7 @@
                 style="margin-top: 1em"
                 :value="currentQuestionOption"
                 :options="questionSelectOptions"
+                :label="questionsLabel$()"
                 @select="handleQuestionOptionChange"
               >
                 <template #display>
@@ -310,7 +312,10 @@
 
   import { mapState } from 'vuex';
   import isEqual from 'lodash/isEqual';
-  import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import {
+    displaySectionTitle,
+    enhancedQuizManagementStrings,
+  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -350,7 +355,10 @@
       } = useProgressTracking();
       const { windowBreakpoint, windowIsMedium, windowIsLarge, windowIsSmall } =
         useKResponsiveWindow();
+      const { quizSectionsLabel$, questionsLabel$ } = enhancedQuizManagementStrings;
       return {
+        questionsLabel$,
+        quizSectionsLabel$,
         displaySectionTitle,
         pastattempts,
         time_spent,
