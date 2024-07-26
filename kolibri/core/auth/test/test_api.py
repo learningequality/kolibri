@@ -3,6 +3,7 @@ import collections
 import time
 import uuid
 from datetime import datetime
+from datetime import timedelta
 from importlib import import_module
 
 import factory
@@ -1180,9 +1181,21 @@ class FacilityUserOrderingTestCase(APITestCase):
         cls.facility = FacilityFactory.create()
         cls.superuser = create_superuser(cls.facility)
         cls.facility.add_admin(cls.superuser)
-        cls.user1 = FacilityUserFactory.create(facility=cls.facility, username="mario")
-        cls.user2 = FacilityUserFactory.create(facility=cls.facility, username="luigi")
-        cls.user3 = FacilityUserFactory.create(facility=cls.facility, username="batman")
+
+        base_time = datetime.now() - timedelta(days=3)
+        cls.user1 = FacilityUserFactory.create(
+            facility=cls.facility, username="mario", date_joined=base_time
+        )
+        cls.user2 = FacilityUserFactory.create(
+            facility=cls.facility,
+            username="luigi",
+            date_joined=base_time + timedelta(days=1),
+        )
+        cls.user3 = FacilityUserFactory.create(
+            facility=cls.facility,
+            username="batman",
+            date_joined=base_time + timedelta(days=4),
+        )
 
     def setUp(self):
         self.client.login(

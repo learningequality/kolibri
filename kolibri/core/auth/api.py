@@ -452,11 +452,10 @@ class FacilityUserViewSet(ValuesViewset):
             item["roles"] = roles
             output.append(item)
             if ordering_param.startswith("-"):
-                self.order_by_field = ordering_param[1:]
+                ordering_param = ordering_param[1:]
                 reverse = True
-            else:
-                self.order_by_field = ordering_param
-        output = sorted(output, key=lambda x: x[self.order_by_field], reverse=reverse)
+
+        output = sorted(output, key=lambda x: x[ordering_param], reverse=reverse)
         return output
 
     def perform_update(self, serializer):
