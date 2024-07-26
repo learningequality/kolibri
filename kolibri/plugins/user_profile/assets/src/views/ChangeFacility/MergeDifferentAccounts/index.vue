@@ -24,7 +24,7 @@
       autocomplete="off"
       :label="coreString('usernameLabel')"
       :invalid="userDoesNotExist"
-      showInvalidText="true"
+      :showInvalidText="true"
       :invalidText="$tr('userDoesNotExist')"
       @input="userDoesNotExist = false"
       @keydown.enter="handleContinue"
