@@ -44,16 +44,6 @@ export function deviceHasMatchingFacility(device, facility) {
 }
 
 /**
- * @param {NetworkLocation} device
- * @return {Promise<boolean>}
- */
-export function deviceHasAnyFacilities(device) {
-  return NetworkLocationResource.fetchFacilities(device.id).then(({ facilities }) => {
-    return Boolean(facilities.length);
-  });
-}
-
-/**
  * @param {string} channelId
  * @param {NetworkLocation} device
  * @return {Promise<boolean>}

@@ -174,14 +174,6 @@ function useAsyncDeviceFilter(filterFunction) {
 }
 
 /**
- */
-export function useDeviceHasFacilitiesFilter() {
-  return useAsyncDeviceFilter(function deviceHasFacilitiesFilter(device) {
-    return deviceHasAnyFacilities(device);
-  });
-}
-
-/**
  * Produces a function that resolves with a boolean for a device that has the specified facility
  * @param {string|null} [id]
  * @param {bool|null} [learner_can_sign_up]
@@ -206,10 +198,6 @@ export function useDeviceFacilityFilter({
 
   if (on_my_own_setup !== null) {
     filters.on_my_own_setup = on_my_own_setup;
-  }
-
-  if (Object.keys(filters).length === 0) {
-    return () => Promise.resolve(true);
   }
 
   return useAsyncDeviceFilter(function deviceFacilityFilter(device) {

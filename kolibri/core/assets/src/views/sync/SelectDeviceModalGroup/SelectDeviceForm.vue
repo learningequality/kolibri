@@ -139,13 +139,13 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import pickBy from 'lodash/pickBy';
   import { UnreachableConnectionStatuses } from './constants';
   import useDeviceDeletion from './useDeviceDeletion.js';
   import {
     useDevicesWithFilter,
     useDeviceChannelFilter,
     useDeviceFacilityFilter,
-    useDeviceHasFacilitiesFilter,
     useDeviceMinimumVersionFilter,
   } from './useDevices.js';
   import useConnectionChecker from './useConnectionChecker.js';
@@ -164,26 +164,24 @@
         deviceFilters.push(useDeviceChannelFilter({ id: props.filterByChannelId }));
       }
 
-      if (
-        props.filterByFacilityId !== null ||
-        props.filterByFacilityCanSignUp !== null ||
-        props.filterByOnMyOwnFacility !== null ||
-        props.filterByHasFacilities !== null
-      ) {
+      const pickNotNull = v => v !== null;
+      // Either we build a facility filter or an empty object.
+      // Passing the empty object to useDeviceFacilityFilter is asking "are there ANY facilities?"
+      const facilityFilter = pickBy(
+        {
+          id: props.filterByFacilityId,
+          learner_can_sign_up: props.filterByFacilityCanSignUp,
+          on_my_own_setup: props.filterByOnMyOwnFacility,
+        },
+        pickNotNull,
+      );
+
+      // If we're filtering a particular facility
+      if (Object.keys(facilityFilter).length > 0) {
         apiParams.subset_of_users_device = false;
-
-        if (props.filterByHasFacilities === true) {
-          deviceFilters.push(useDeviceHasFacilitiesFilter());
-        }
-
-        deviceFilters.push(
-          useDeviceFacilityFilter({
-            id: props.filterByFacilityId,
-            learner_can_sign_up: props.filterByFacilityCanSignUp,
-            on_my_own_setup: props.filterByOnMyOwnFacility,
-          }),
-        );
       }
+
+      deviceFilters.push(useDeviceFacilityFilter(facilityFilter));
 
       if (props.filterLODAvailable) {
         apiParams.subset_of_users_device = false;
