@@ -70,6 +70,7 @@
     </h5>
 
     <KRouterLink
+      v-if="showResourceButton"
       appearance="raised-button"
       :to="selectResourcesRoute"
       style="margin-bottom: 1em"
@@ -77,7 +78,9 @@
     >
       {{ resourceButtonLabel }}
     </KRouterLink>
-
+    <p v-else>
+      {{ maxQuestionsLabel }}
+    </p>
     <div class="bottom-navigation">
       <KButton
         :text="deleteSectionLabel$()"
@@ -128,6 +131,7 @@
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
@@ -170,6 +174,7 @@
         addQuestionsLabel$,
         addMoreQuestionsLabel$,
         sectionDeletedNotification$,
+        maxNumberOfQuestions$,
       } = enhancedQuizManagementStrings;
 
       const {
@@ -279,6 +284,14 @@
         }
       });
 
+      const showResourceButton = computed(() => {
+        return activeQuestions.value.length < MAX_QUESTIONS_PER_QUIZ_SECTION;
+      });
+
+      const maxQuestionsLabel = computed(() => {
+        return maxNumberOfQuestions$({ count: MAX_QUESTIONS_PER_QUIZ_SECTION });
+      });
+
       return {
         reorderedSectionIndex,
         sectionTitleInvalidText,
@@ -309,6 +322,8 @@
         description,
         section_title,
         resourceButtonLabel,
+        showResourceButton,
+        maxQuestionsLabel,
         // Responsiveness
         windowIsLarge,
         windowIsSmall,
