@@ -5,3 +5,4 @@ nginx.d_README etc/kolibri/nginx.d/
 uwsgi.d_README etc/kolibri/uwsgi.d/
 dist_README etc/kolibri/dist/
 kolibri_server_setup.py usr/share/kolibri-server/
+error_pages usr/share/kolibri

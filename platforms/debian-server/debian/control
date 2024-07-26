@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: José L. Redrejo Rodríguez <jredrejo@debian.org>
 Uploaders: José L. Redrejo Rodríguez <jredrejo@debian.org>
            Benjamin Bach <benjamin@learningequality.org>
-Build-Depends: debhelper (>=10), po-debconf, wget, unzip, kolibri (>=0.16)
+Build-Depends: debhelper (>=10), unzip, kolibri (>=0.16)
 Standards-Version: 4.3.0.1
 Homepage: https://learningequality.org/kolibri
 

@@ -1,3 +1,14 @@
+kolibri-server (0.5.0-0ubuntu1) jammy; urgency=medium
+
+  * kolibri_server_setup.py : local nginx conf error pages changes
+  * nginx.conf: error pages filenames changes
+  * debian/rules: removed unneeded error pages generation
+  * Makefile: 
+    - modified to automate error pages creation
+    - no need to download translations from crowdin
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 25 Jul 2024 20:29:59 +0200
+
 kolibri-server (0.5.0~beta1-0ubuntu1) jammy; urgency=medium
 
   * Bumped python minimum version to 3.6

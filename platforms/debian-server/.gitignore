@@ -4,3 +4,4 @@ debian/.debhelper
 debian/*debhelper*
 debian/kolibri-server.substvars
 debian/kolibri-server/
+error_pages/

@@ -9,8 +9,3 @@ override_dh_systemd_enable:
 
 override_dh_builddeb:
 	dh_builddeb -- -Zgzip
-
-override_dh_compress:
-	# Create nginx error pages
-	kolibri manage loadingpage --reload --output-dir $(CURDIR)/debian/kolibri-server/usr/share/kolibri/error_pages --version-text $(shell dpkg-parsechangelog -SVersion)
-	dh_compress
