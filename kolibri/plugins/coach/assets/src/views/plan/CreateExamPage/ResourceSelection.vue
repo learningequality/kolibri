@@ -687,7 +687,8 @@
           !workingPoolHasChanged.value ||
           workingPoolUnusedQuestions.value < questionCount.value ||
           questionCount.value < 1 ||
-          tooManyQuestions.value
+          tooManyQuestions.value ||
+          questionCount.value > maxQuestions.value
         );
       });
 
