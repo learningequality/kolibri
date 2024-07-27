@@ -198,7 +198,6 @@ def mergeuser(
         pass
 
     # check if current user should be set as superuser:
-    set_as_super_user = kwargs.get("set_as_super_user")
     if set_as_super_user and local_user.is_superuser:
         DevicePermissions.objects.create(
             user=remote_user, is_superuser=True, can_manage_content=True
