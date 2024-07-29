@@ -177,11 +177,10 @@
       );
 
       // If we're filtering a particular facility
-      if (Object.keys(facilityFilter).length > 0) {
+      if (Object.keys(facilityFilter).length > 0 || props.filterByHasFacilities) {
         apiParams.subset_of_users_device = false;
+        deviceFilters.push(useDeviceFacilityFilter(facilityFilter));
       }
-
-      deviceFilters.push(useDeviceFacilityFilter(facilityFilter));
 
       if (props.filterLODAvailable) {
         apiParams.subset_of_users_device = false;
