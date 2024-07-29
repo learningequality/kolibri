@@ -54,7 +54,7 @@
         :layout4="{ span: 4 }"
         :layout8="{ span: 3 }"
         :layout12="{ span: 4 }"
-        class="add-more-button"
+        class="add-more-button-container"
       >
         <KButton
           appearance="flat-button"
@@ -503,7 +503,6 @@
           paddingTop: '1rem',
           borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
           justifyContent: 'space-between',
-          // flexWrap: 'nowrap',
         };
       },
       tabs() {
@@ -822,7 +821,7 @@
     border-radius: 0 !important;
   }
 
-  .add-more-button {
+  .add-more-button-container {
     display: flex;
     flex-direction: row-reverse;
     align-items: center;
