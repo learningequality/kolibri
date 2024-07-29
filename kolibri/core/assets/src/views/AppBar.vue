@@ -8,7 +8,6 @@
       <SkipNavigationLink />
 
       <UiToolbar
-        :title="title"
         :removeNavIcon="showAppNavView"
         type="clear"
         textColor="black"
@@ -17,6 +16,10 @@
         :raised="false"
         :removeBrandDivider="true"
       >
+        <KTextTruncator
+          :text="windowIsSmall ? truncateText(title, 20) : truncateText(title, 50)"
+          :maxLines="1"
+        />
         <template
           v-if="!showAppNavView"
           #icon
@@ -235,6 +238,12 @@
         if ((event.key == 'Tab' || event.key == 'Escape') && this.pointsDisplayed) {
           this.pointsDisplayed = false;
         }
+      },
+      truncateText(value, maxLength) {
+        if (value && value.length > maxLength) {
+          return value.substring(0, maxLength) + '...';
+        }
+        return value;
       },
     },
     $trs: {
