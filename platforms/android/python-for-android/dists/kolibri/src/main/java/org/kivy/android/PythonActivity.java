@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
+import android.util.Base64;
 import android.view.ViewGroup;
 import android.view.KeyEvent;
 import android.app.Activity;
@@ -173,7 +174,9 @@ public class PythonActivity extends Activity {
             webViewSettings.setMediaPlaybackRequiresUserGesture(false);
             webViewSettings.setMediaPlaybackRequiresUserGesture(false);
 
-            mWebView.loadData(PythonActivity.mActivity.getString(R.string.loading_page_html), "text/html", "UTF-8");
+            String unencodedHtml = PythonActivity.mActivity.getString(R.string.loading_page_html);
+            String encodedHtml = Base64.encodeToString(unencodedHtml.getBytes(), Base64.NO_PADDING);
+            mWebView.loadData(encodedHtml, "text/html", "base64");
             mWebView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
             mWebView.setWebViewClient(new WebViewClient() {
                     @Override
