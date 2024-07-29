@@ -7,7 +7,7 @@
           v-if="userIsMultiFacilityAdmin"
           :to="{
             name: facilityPageLinks.AllFacilitiesPage.name,
-            params: { subtopicName: 'ManageClassPage' },
+            params: { subtopicName: 'ManageClassPage' }
           }"
           icon="back"
           :text="coreString('changeLearningFacility')"
@@ -35,70 +35,51 @@
         </KGridItem>
       </KGrid>
 
-      <CoreTable
-        :dataLoading="dataLoading"
-        :emptyMessage="$tr('noClassesExist')"
+      <KTable
+        :headers="tableHeaders"
+        :rows="tableRows"
+        :caption="$tr('tableCaption')"
+        :useLocalSorting="true"
       >
-        <caption class="visuallyhidden">
-          {{
-            $tr('tableCaption')
-          }}
-        </caption>
-        <template #headers>
-          <th>{{ coreString('classNameLabel') }}</th>
-          <th>{{ coreString('coachesLabel') }}</th>
-          <th>{{ coreString('learnersLabel') }}</th>
-          <th>
-            <span class="visuallyhidden">
-              {{ coreString('userActionsColumnHeader') }}
-            </span>
-          </th>
+        <template #header="{ header }">
+          {{ header.label }}
         </template>
-        <template #tbody>
-          <transition-group
-            tag="tbody"
-            name="list"
-          >
-            <tr
-              v-for="classroom in sortedClassrooms"
-              :key="classroom.id"
+        <template #cell="{ content, rowIndex, colIndex }">
+          <span v-if="colIndex === 0">
+            <KRouterLink
+              :text="content"
+              :to="$store.getters.facilityPageLinks.ClassEditPage(tableRows[rowIndex][3].id)"
+              icon="classes"
+            />
+          </span>
+          <span v-else-if="colIndex === 1">
+            <KOptionalText
+              :text="coachNames(tableRows[rowIndex][3]).length ? 
+                formattedCoachNames(tableRows[rowIndex][3]) : ''"
+            />
+            <KTooltip
+              v-if="formattedCoachNamesTooltip(tableRows[rowIndex][3])"
+              :reference="`coachNames${tableRows[rowIndex][3].id}`"
+              :refs="$refs"
             >
-              <td>
-                <KRouterLink
-                  :text="classroom.name"
-                  :to="$store.getters.facilityPageLinks.ClassEditPage(classroom.id)"
-                  icon="classes"
-                />
-              </td>
-              <td>
-                <span :ref="`coachNames${classroom.id}`">
-                  <KOptionalText
-                    :text="coachNames(classroom).length ? formattedCoachNames(classroom) : ''"
-                  />
-                </span>
-                <KTooltip
-                  v-if="formattedCoachNamesTooltip(classroom)"
-                  :reference="`coachNames${classroom.id}`"
-                  :refs="$refs"
-                >
-                  {{ formattedCoachNamesTooltip(classroom) }}
-                </KTooltip>
-              </td>
-
-              <td>
-                {{ $formatNumber(classroom.learner_count) }}
-              </td>
-              <td class="core-table-button-col">
-                <KButton
-                  appearance="flat-button"
-                  :text="$tr('deleteClass')"
-                  @click="selectClassToDelete(classroom)"
-                />
-              </td>
-            </tr>
-          </transition-group>
+              {{ formattedCoachNamesTooltip(tableRows[rowIndex][3]) }}
+            </KTooltip>
+          </span> 
+          <span v-else-if="colIndex === 2">
+            {{ content }}
+          </span>
+          <span
+            v-else-if="colIndex === 3"
+            class="core-table-button-col"
+          >
+            <KButton
+              appearance="flat-button"
+              :text="$tr('deleteClass')"
+              @click="selectClassToDelete(tableRows[rowIndex][3])"
+            />
+          </span>
         </template>
-      </CoreTable>
+      </KTable>
 
       <ClassDeleteModal
         v-if="Boolean(classToDelete)"
@@ -108,7 +89,7 @@
       />
       <ClassCreateModal
         v-if="modalShown === Modals.CREATE_CLASS"
-        :classes="sortedClassrooms"
+        :classes="classes"
         @cancel="closeModal"
         @success="handleCreateSuccess()"
       />
@@ -121,8 +102,6 @@
 <script>
 
   import { mapState, mapActions, mapGetters } from 'vuex';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import orderBy from 'lodash/orderBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
@@ -139,7 +118,6 @@
     },
     components: {
       FacilityAppBarPage,
-      CoreTable,
       ClassCreateModal,
       ClassDeleteModal,
     },
@@ -153,11 +131,24 @@
       };
     },
     computed: {
-      ...mapState('classManagement', ['modalShown', 'classes', 'dataLoading']),
+      ...mapState('classManagement', ['modalShown', 'classes']),
       ...mapGetters(['userIsMultiFacilityAdmin', 'facilityPageLinks']),
       Modals: () => Modals,
-      sortedClassrooms() {
-        return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
+      tableHeaders() {
+        return [
+          { label: this.coreString('classNameLabel'), dataType: 'string',minWidth: '150px', width: '20%'  },
+          { label: this.coreString('coachesLabel'), dataType: 'others',minWidth: '150px', width: '30%'  },
+          { label: this.coreString('learnersLabel'), dataType: 'numeric' ,minWidth: '150px', width: '20%' },
+          { label: '', dataType: 'others',minWidth: '150px', width: '30%'  },
+        ];
+      },
+      tableRows() {
+        return this.classes.map(classroom => [
+          classroom.name,
+          this.formattedCoachNames(classroom),
+          this.$formatNumber(classroom.learner_count),
+          classroom,
+        ]);
       },
     },
     methods: {
@@ -180,12 +171,13 @@
         }
       },
       // Duplicated in class-list-page
-      coachNames(classroom) {
-        const { coaches } = classroom;
+      coachNames(classes) {
+        const { coaches } = classes;
         return coaches.map(({ full_name }) => full_name);
       },
       formattedCoachNames(classroom) {
         const coach_names = this.coachNames(classroom);
+       
         if (coach_names.length === 1) {
           return coach_names[0];
         }
@@ -234,11 +226,6 @@
         message: '{name1}, {name2}… (+{numRemaining, number})',
         context: 'DO NOT TRANSLATE\nCopy the source string.',
       },
-      noClassesExist: {
-        message: 'No classes exist',
-        context:
-          'Message that displays when there are no classes created in the Facility > Classes section.',
-      },
     },
   };
 
@@ -247,9 +234,9 @@
 
 <style lang="scss" scoped>
 
-  .move-down {
-    position: relative;
-    margin-top: 24px;
-  }
+.move-down {
+  position: relative;
+  margin-top: 24px;
+}
 
 </style>
