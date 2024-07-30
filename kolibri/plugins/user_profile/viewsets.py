@@ -90,7 +90,7 @@ class LoginMergedUserViewset(APIView):
         pk = request.data.get("pk", None)
         token = request.data.get("token", None)
         new_user = FacilityUser.objects.get(pk=pk)
-        if not TokenGenerator().check_token(new_user, token):
+        if not TokenGenerator().check_token(new_user.id, token):
             return Response({"error": "Unauthorized"}, status=401)
         login(request, new_user)
         return Response({"success": True})
