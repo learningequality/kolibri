@@ -203,7 +203,6 @@
             :label="$tr('enableAutoDownload')"
             :checked="enableAutomaticDownload"
             :description="$tr('enableAutoDownloadDescription')"
-            :disabled="isRemoteContent"
             @change="handleCheckAutodownload('enableAutomaticDownload', $event)"
           />
           <div class="fieldset left-margin">
@@ -211,14 +210,12 @@
               :label="$tr('allowLearnersDownloadResources')"
               :checked="allowLearnerDownloadResources"
               :description="$tr('allowLearnersDownloadDescription')"
-              :disabled="isRemoteContent"
               @change="handleCheckAutodownload('allowLearnerDownloadResources', $event)"
             />
             <KCheckbox
               :label="$tr('setStorageLimit')"
               :checked="setLimitForAutodownload"
               :description="$tr('setStorageLimitDescription')"
-              :disabled="isRemoteContent"
               @change="handleCheckAutodownload('setLimitForAutodownload', $event)"
             />
             <div
