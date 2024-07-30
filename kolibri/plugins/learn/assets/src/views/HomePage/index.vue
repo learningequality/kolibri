@@ -63,7 +63,7 @@
 <script>
 
   import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
-  import { get } from '@vueuse/core';
+  import { get, set } from '@vueuse/core';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import useUser from 'kolibri.coreVue.composables.useUser';
@@ -75,6 +75,7 @@
     setResumableContentNodes,
   } from '../../composables/useLearnerResources';
   import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
+  import { inClasses } from '../../composables/useCoreLearn';
   import { PageNames } from '../../constants';
   import AssignedLessonsCards from '../classes/AssignedLessonsCards';
   import AssignedQuizzesCards from '../classes/AssignedQuizzesCards';
@@ -171,6 +172,9 @@
         return client({ url: urls['kolibri:kolibri.plugins.learn:homehydrate']() }).then(
           response => {
             setClasses(response.data.classrooms);
+            // Update our hydrated class membership boolean in case it has changed
+            // since the learn page was opened.
+            set(inClasses, Boolean(response.data.classrooms.length));
             setResumableContentNodes(
               response.data.resumable_resources.results || [],
               response.data.resumable_resources.more || null,
