@@ -131,7 +131,7 @@
   "EnhancedQuizManagementStrings.numberOfReplacementsAvailable": "{count, number, integer} {count, plural, one {replacement question available} other {replacement questions available}}",
   "EnhancedQuizManagementStrings.numberOfSelectedBookmarks": "{ count, number } { count, plural, one { bookmark } other { bookmarks }}",
   "EnhancedQuizManagementStrings.numberOfSelectedQuestions": "{count, number} {count, plural, one {question selected} other {questions selected}}",
-  "EnhancedQuizManagementStrings.numberOfSelectedReplacements": "{ count, number } کا {total, number } {total, plural, one {replacement selected} other {replacements selected}}",
+  "EnhancedQuizManagementStrings.numberOfSelectedReplacements": "{ count, number } کا {total, number } {total, plural, one {متبادل منتخب کردہ} other {متبادل منتخب کردہ}}",
   "EnhancedQuizManagementStrings.optionalDescriptionLabel": "تفصیل (اختیاری)",
   "EnhancedQuizManagementStrings.questionOrder": "سوالات کی ترتیب",
   "EnhancedQuizManagementStrings.questionsDeletedNotification": "{ count, number } { count, plural, one { question } other { questions }} deleted",
