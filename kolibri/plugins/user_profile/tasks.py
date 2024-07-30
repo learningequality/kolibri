@@ -8,6 +8,7 @@ from rest_framework.status import HTTP_201_CREATED
 from .utils import TokenGenerator
 from kolibri.core import error_constants
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.middleware import clear_user_cache_on_delete
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.tasks import PeerImportSingleSyncJobValidator
 from kolibri.core.auth.utils.delete import delete_facility
@@ -19,8 +20,8 @@ from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import JobStatus
 from kolibri.core.tasks.job import Priority
+from kolibri.core.tasks.permissions import BasePermission
 from kolibri.core.tasks.permissions import IsFacilityAdmin
-from kolibri.core.tasks.permissions import IsSelf
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import PermissionsFromAny
 from kolibri.core.tasks.utils import get_current_job
@@ -110,6 +111,18 @@ def start_soud_sync(user_id):
         soud.request_sync(soud.Context(user_id, instance_id))
     if instance_ids:
         enqueue_soud_sync_processing()
+
+
+class IsSelf(BasePermission):
+    def user_can_run_job(self, user, job):
+        return user.id == job.kwargs.get(
+            "local_user_id", None
+        ) or user.id == job.kwargs.get("remote_user_pk", None)
+
+    def user_can_read_job(self, user, job):
+        return user.id == job.kwargs.get(
+            "local_user_id", None
+        ) or user.id == job.kwargs.get("remote_user_pk", None)
 
 
 @register_task(
@@ -203,6 +216,10 @@ def mergeuser(
             user=remote_user, is_superuser=True, can_manage_content=True
         )
         delete_facility(local_user.facility)
+        # Because delete_facility disables post delete signals
+        # we have to manually call the clear_user_cache_on_delete signal
+        # to ensure we don't leave around references to the deleted user
+        clear_user_cache_on_delete(None, local_user)
         set_device_settings(default_facility=remote_user.facility)
     else:
         local_user.delete()
