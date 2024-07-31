@@ -16,6 +16,10 @@ class ErrorReportingMiddlewareTestCase(TestCase):
         self.factory = RequestFactory()
 
     @patch(
+        "kolibri.core.errorreports.middleware.get_request_time_to_error",
+        return_value=0.0,
+    )
+    @patch(
         "kolibri.core.errorreports.middleware.get_python_version", return_value="3.9.9"
     )
     @patch(
@@ -30,6 +34,7 @@ class ErrorReportingMiddlewareTestCase(TestCase):
         mock_insert_or_update_error,
         mock_get_packages,
         mock_get_python_version,
+        mock_get_request_time_to_error,
     ):
         middleware = ErrorReportingMiddleware(lambda r: None)
         request = self.factory.get("/")
@@ -61,6 +66,7 @@ class ErrorReportingMiddlewareTestCase(TestCase):
                 "packages": ["Django==3.2.25"],
                 "python_version": "3.9.9",
             },
+            request_time_to_error=0.0,
         )
 
     @patch.object(ErrorReports, "insert_or_update_error")
@@ -70,6 +76,7 @@ class ErrorReportingMiddlewareTestCase(TestCase):
     ):
         middleware = ErrorReportingMiddleware(lambda r: None)
         request = self.factory.get("/")
+        request.start_time = 0.0
         exception = Exception("Test Exception")
         mock_insert_or_update_error.side_effect = IntegrityError("Some Integrity Error")
         middleware.process_exception(request, exception)

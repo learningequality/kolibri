@@ -68,6 +68,7 @@ class ErrorReports(models.Model):
         null=True,
         blank=True,
     )
+    avg_request_time_to_error = models.FloatField(null=True, blank=True)  # in seconds
 
     def __str__(self):
         return f"{self.error_message} ({self.category})"
@@ -83,7 +84,9 @@ class ErrorReports(models.Model):
         super().save(*args, **kwargs)
 
     @classmethod
-    def insert_or_update_error(cls, category, error_message, traceback, context):
+    def insert_or_update_error(
+        cls, category, error_message, traceback, context, request_time_to_error=None
+    ):
         if not getattr(settings, "DEVELOPER_MODE", None):
             error, created = cls.objects.get_or_create(
                 category=category,
@@ -96,6 +99,14 @@ class ErrorReports(models.Model):
             if not created:
                 error.events += 1
                 error.last_occurred = timezone.now()
+                if error.avg_request_time_to_error is not None:
+                    # see the proof: https://math.stackexchange.com/a/106314
+                    error.avg_request_time_to_error = (
+                        error.avg_request_time_to_error * (error.events - 1)
+                        + request_time_to_error
+                    ) / error.events
+                else:
+                    error.avg_request_time_to_error = request_time_to_error
                 error.save()
             logger.error("ErrorReports: Database updated.")
             return error
