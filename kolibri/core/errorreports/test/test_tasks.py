@@ -57,7 +57,7 @@ class TestPingErrorReports(TestCase):
         return_value="[]",
     )
     def test_ping_error_reports(self, mock_serializer, mock_post):
-        ping_error_reports("http://testserver")
+        ping_error_reports("http://testserver", "test-pingback-id")
         mock_post.assert_called_with(
             "http://testserver/api/v1/errors/report/",
             data="[]",
@@ -68,13 +68,13 @@ class TestPingErrorReports(TestCase):
     @patch("kolibri.core.errorreports.tasks.requests.post", side_effect=ConnectionError)
     def test_ping_error_reports_connection_error(self, mock_post):
         with pytest.raises(ConnectionError):
-            ping_error_reports("http://testserver")
+            ping_error_reports("http://testserver", "test-pingback-id")
         self.assertEqual(ErrorReports.objects.filter(reported=True).count(), 0)
 
     @patch("kolibri.core.errorreports.tasks.requests.post", side_effect=Timeout)
     def test_ping_error_reports_timeout(self, mock_post):
         with pytest.raises(Timeout):
-            ping_error_reports("http://testserver")
+            ping_error_reports("http://testserver", "test-pingback-id")
         self.assertEqual(ErrorReports.objects.filter(reported=True).count(), 0)
 
     @patch(
@@ -82,5 +82,5 @@ class TestPingErrorReports(TestCase):
     )
     def test_ping_error_reports_request_exception(self, mock_post):
         with pytest.raises(RequestException):
-            ping_error_reports("http://testserver")
+            ping_error_reports("http://testserver", "test-pingback-id")
         self.assertEqual(ErrorReports.objects.filter(reported=True).count(), 0)

@@ -471,3 +471,4 @@ def ping_once(started, server=DEFAULT_SERVER_URL):
     if "id" in data:
         stat_data = perform_statistics(server, data["id"])
         create_and_update_notifications(stat_data, nutrition_endpoints.STATISTICS)
+        return data["id"]

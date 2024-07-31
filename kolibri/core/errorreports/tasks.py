@@ -15,7 +15,7 @@ from kolibri.core.utils.urls import join_url
 logger = logging.getLogger(__name__)
 
 
-def serialize_error_reports_to_json_response(errors):
+def serialize_error_reports_to_json_response(errors, pingback_id):
     errors_list = []
     for error in errors:
         errors_list.append(
@@ -29,17 +29,18 @@ def serialize_error_reports_to_json_response(errors):
                 "release_version": error.release_version,
                 "installation_type": error.installation_type,
                 "context": error.context,
+                "pingback_id": pingback_id,
             }
         )
     return json.dumps(errors_list, cls=DjangoJSONEncoder)
 
 
 @register_task
-def ping_error_reports(server):
+def ping_error_reports(server, pingback_id):
     try:
         errors = ErrorReports.get_unreported_errors()
 
-        errors_json = serialize_error_reports_to_json_response(errors)
+        errors_json = serialize_error_reports_to_json_response(errors, pingback_id)
 
         requests.post(
             join_url(server, "/api/v1/errors/report/"),

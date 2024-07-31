@@ -1,4 +1,5 @@
 import logging
+import time
 import traceback
 from sys import version_info
 
@@ -39,6 +40,10 @@ def get_python_version():
     )
 
 
+def get_request_time_to_error(request):
+    return time.time() - request.start_time
+
+
 class ErrorReportingMiddleware:
     """
     Middleware to log exceptions to the database.
@@ -55,21 +60,37 @@ class ErrorReportingMiddleware:
     def process_exception(self, request, exception):
         error_message = str(exception)
         traceback_info = traceback.format_exc()
+        request_time_to_error = get_request_time_to_error(request)
         context = {
             "request_info": get_request_info(request),
             "server": get_server_info(request),
             "packages": get_packages(),
             "python_version": get_python_version(),
         }
-
         self.logger.error("Unexpected Error: %s", error_message)
         try:
             self.logger.error("Saving error report to the database.")
             ErrorReports.insert_or_update_error(
-                BACKEND, error_message, traceback_info, context
+                BACKEND,
+                error_message,
+                traceback_info,
+                context,
+                request_time_to_error=request_time_to_error,
             )
             self.logger.info("Error report saved to the database.")
         except (IntegrityError, ValidationError) as e:
             self.logger.error(
                 "Error occurred while saving error report to the database: %s", str(e)
             )
+
+
+class PreRequestMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        return response
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        request.start_time = time.time()
