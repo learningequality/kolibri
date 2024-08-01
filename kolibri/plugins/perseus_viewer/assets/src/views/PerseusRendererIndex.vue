@@ -4,7 +4,7 @@
     v-if="itemId || itemData"
     class="bibliotron-exercise perseus-root"
     :class="{ 'perseus-mobile': isMobile }"
-    @keydown.enter="answerGiven"
+    @keydown.enter.prevent="answerGiven"
   >
     <div
       class="framework-perseus"
