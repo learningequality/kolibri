@@ -29,11 +29,11 @@ def report(request):
                 {"error_id": error.id if error else None}, status=status.HTTP_200_OK
             )
 
-        except (AttributeError, ValidationError, Exception) as e:
+        except (AttributeError, ValidationError) as e:
             logger.error("Error while saving error report: {}".format(e))
             return Response(
                 {"error": "Error while saving error report: {}".format(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_400_BAD_REQUEST,
             )
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
