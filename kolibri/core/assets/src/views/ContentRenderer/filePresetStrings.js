@@ -23,6 +23,7 @@ const filePresetStrings = {
   zim: 'ZIM Document ({fileSize})',
   slideshow_manifest: 'Slideshow ({fileSize})',
   slideshow_image: 'Slideshow image ({fileSize})',
+  bloompub: 'Bloom Pub Document ({fileSize})',
 };
 
 const filePresetTranslator = createTranslator('FilePresetStrings', filePresetStrings);

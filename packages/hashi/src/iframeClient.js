@@ -8,6 +8,7 @@ import patchIndexedDB from './patchIndexedDB';
 import { events, nameSpace } from './hashiBase';
 import H5P from './H5P/H5PInterface';
 import xAPI from './xAPI/xAPIInterface';
+import Bloom from './Bloom/BloomInterface';
 
 const logging = console; //eslint-disable-line no-console
 
@@ -35,6 +36,8 @@ export default class SandboxEnvironment {
     this.SCORM = new SCORM(this.mediator);
 
     this.H5P = new H5P(this.mediator);
+
+    this.Bloom = new Bloom(this.mediator);
 
     this.xAPI = new xAPI(this.mediator);
 
@@ -123,6 +126,8 @@ export default class SandboxEnvironment {
             event: events.ERROR,
             data: { message: error.getAttribute('content'), error: 'LOADING_ERROR' },
           });
+        } else if ([baseUrl.length - 7, baseUrl.length - 9].includes(baseUrl.indexOf('.bloom'))) {
+          this.Bloom.init(this.iframe, startUrl);
         } else {
           this.mediator.sendMessage({ nameSpace, event: events.LOADING, data: false });
         }
