@@ -12,4 +12,7 @@ export default new Resource({
   fetchFilterOptions(id) {
     return this.getListEndpoint('filter_options', { id });
   },
+  fetchThumbnail(url) {
+    return this.client({ url });
+  },
 });
