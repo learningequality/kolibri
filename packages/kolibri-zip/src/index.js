@@ -134,6 +134,12 @@ export default class ZipFile {
     }
     return this._getFiles(file => file.name.startsWith(path));
   }
+  filesFromExtension(extension) {
+    if (this._loadingError) {
+      return Promise.reject(this._loadingError);
+    }
+    return this._getFiles(file => file.name.endsWith(extension));
+  }
   close() {
     for (const file of Object.values(this._extractedFileCache)) {
       file.close();
