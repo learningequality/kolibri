@@ -41,7 +41,7 @@
     },
     computed: {
       customSchema() {
-        return this.facilityDatasetExtraFields.demographic_fields || [];
+        return this.facilityDatasetExtraFields?.demographic_fields || [];
       },
     },
     methods: {
