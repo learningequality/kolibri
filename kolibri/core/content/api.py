@@ -13,12 +13,15 @@ from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models.aggregates import Count
+from django.http import FileResponse
 from django.http import Http404
+from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
 from django.utils.encoding import iri_to_uri
 from django.utils.translation import gettext as _
+from django.views import View
 from django.views.decorators.cache import cache_page
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import etag
@@ -291,6 +294,14 @@ class ChannelMetadataFilter(FilterSet):
         return queryset.filter(root__available=value)
 
 
+class ChannelThumbnailView(View):
+    def get(self, request, channel_id):
+        channel = get_object_or_404(models.ChannelMetadata, id=channel_id)
+        thumbnail = channel.thumbnail
+        response = FileResponse(thumbnail)
+        return response
+
+
 class BaseChannelMetadataMixin(object):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ChannelMetadataFilter
@@ -375,7 +386,31 @@ class BaseChannelMetadataMixin(object):
 
 @method_decorator(remote_metadata_cache, name="dispatch")
 class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
-    pass
+    # Overriding to isolate Public API from internal API
+    values = tuple(
+        field for field in BaseChannelMetadataMixin.values if field != "thumbnail"
+    )
+
+    def consolidate(self, items, queryset):
+        included_languages = {}
+        for (
+            channel_id,
+            language_id,
+        ) in models.ChannelMetadata.included_languages.through.objects.filter(
+            channelmetadata__in=queryset
+        ).values_list(
+            "channelmetadata_id", "language_id"
+        ):
+            if channel_id not in included_languages:
+                included_languages[channel_id] = []
+            included_languages[channel_id].append(language_id)
+        for item in items:
+            item["included_languages"] = included_languages.get(item["id"], [])
+            item["last_published"] = item["last_updated"]
+            item["thumbnail"] = reverse(
+                "kolibri:core:channel-thumbnail", args=[item["id"]]
+            )
+        return items
 
 
 MODALITIES = set(["QUIZ"])
