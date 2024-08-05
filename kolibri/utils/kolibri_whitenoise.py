@@ -3,6 +3,7 @@ import re
 import stat
 from collections import OrderedDict
 from gzip import GzipFile
+from http import HTTPStatus
 from io import BufferedIOBase
 from urllib.parse import parse_qs
 from urllib.parse import urljoin
@@ -13,7 +14,6 @@ from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
 from django.utils._os import safe_join
 from whitenoise import WhiteNoise
-from whitenoise.httpstatus_backport import HTTPStatus
 from whitenoise.responders import FileEntry
 from whitenoise.responders import MissingFileError
 from whitenoise.responders import NOT_ALLOWED_RESPONSE
@@ -27,8 +27,6 @@ from kolibri.utils.urls import validator
 
 compressed_file_extensions = ("gz",)
 
-not_found_status = HTTPStatus(404, "Not Found")
-
 
 class NotFoundStaticFile(object):
     """
@@ -37,7 +35,7 @@ class NotFoundStaticFile(object):
     """
 
     def get_response(self, method, request_headers):
-        return Response(not_found_status, [], None)
+        return Response(status=HTTPStatus.NOT_FOUND, headers=[], file=None)
 
 
 NOT_FOUND = NotFoundStaticFile()
