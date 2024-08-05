@@ -298,6 +298,8 @@ class ChannelMetadataFilter(FilterSet):
 class ChannelThumbnailView(View):
     def get(self, request, channel_id):
         channel = get_object_or_404(models.ChannelMetadata, id=channel_id)
+        if not channel.thumbnail:
+            raise Http404("No thumbnail available")
         mimetype, b_64_thumbnail = channel.thumbnail.split(",", 1)
         thumbnail = urlsafe_b64decode(b_64_thumbnail)
         return HttpResponse(thumbnail, content_type=mimetype)
