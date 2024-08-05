@@ -19,7 +19,6 @@
 <script>
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import { ChannelResource } from 'kolibri.resources';
 
   export default {
     name: 'ChannelThumbnail',
@@ -36,36 +35,12 @@
         default: false,
       },
     },
-    data() {
-      return {
-        resolvedThumbnail: this.thumbnail,
-      };
-    },
     computed: {
       thumbnailBackground() {
         return {
           backgroundColor: this.$themeTokens.surface,
-          backgroundImage: this.resolvedThumbnail ? `url('${this.resolvedThumbnail}')` : '',
+          backgroundImage: this.thumbnail ? `url('${this.thumbnail}')` : '',
         };
-      },
-    },
-    watch: {
-      thumbnail: {
-        immediate: true,
-        handler(newThumbnail) {
-          this.resolveThumbnail(newThumbnail);
-        },
-      },
-    },
-    methods: {
-      resolveThumbnail(thumbnail) {
-        if (thumbnail && !thumbnail.startsWith('data:image')) {
-          ChannelResource.fetchThumbnail(thumbnail).then(response => {
-            this.resolvedThumbnail = response.data;
-          });
-        } else {
-          this.resolvedThumbnail = thumbnail;
-        }
       },
     },
   };

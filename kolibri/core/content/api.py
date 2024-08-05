@@ -1,6 +1,7 @@
 import hashlib
 import logging
 import re
+from base64 import urlsafe_b64decode
 from collections import OrderedDict
 from functools import reduce
 from random import sample
@@ -13,8 +14,8 @@ from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models.aggregates import Count
-from django.http import FileResponse
 from django.http import Http404
+from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
@@ -297,9 +298,9 @@ class ChannelMetadataFilter(FilterSet):
 class ChannelThumbnailView(View):
     def get(self, request, channel_id):
         channel = get_object_or_404(models.ChannelMetadata, id=channel_id)
-        thumbnail = channel.thumbnail
-        response = FileResponse(thumbnail)
-        return response
+        mimetype, b_64_thumbnail = channel.thumbnail.split(",", 1)
+        thumbnail = urlsafe_b64decode(b_64_thumbnail)
+        return HttpResponse(thumbnail, content_type=mimetype)
 
 
 class BaseChannelMetadataMixin(object):
@@ -384,33 +385,17 @@ class BaseChannelMetadataMixin(object):
         return Response(data)
 
 
+def _create_channel_thumbnail_url(item):
+    return reverse("kolibri:core:channel-thumbnail", args=[item["id"]])
+
+
 @method_decorator(remote_metadata_cache, name="dispatch")
 class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
-    # Overriding to isolate Public API from internal API
-    values = tuple(
-        field for field in BaseChannelMetadataMixin.values if field != "thumbnail"
-    )
+    field_map = {
+        "thumbnail": _create_channel_thumbnail_url,
+    }
 
-    def consolidate(self, items, queryset):
-        included_languages = {}
-        for (
-            channel_id,
-            language_id,
-        ) in models.ChannelMetadata.included_languages.through.objects.filter(
-            channelmetadata__in=queryset
-        ).values_list(
-            "channelmetadata_id", "language_id"
-        ):
-            if channel_id not in included_languages:
-                included_languages[channel_id] = []
-            included_languages[channel_id].append(language_id)
-        for item in items:
-            item["included_languages"] = included_languages.get(item["id"], [])
-            item["last_published"] = item["last_updated"]
-            item["thumbnail"] = reverse(
-                "kolibri:core:channel-thumbnail", args=[item["id"]]
-            )
-        return items
+    field_map.update(BaseChannelMetadataMixin.field_map)
 
 
 MODALITIES = set(["QUIZ"])
