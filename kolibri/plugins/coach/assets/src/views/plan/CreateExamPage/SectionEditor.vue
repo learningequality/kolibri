@@ -152,6 +152,8 @@
     mixins: [commonCoreStrings],
     setup(_, context) {
       const router = getCurrentInstance().proxy.$router;
+      const store = getCurrentInstance().proxy.$store;
+      const route = computed(() => store.state.route);
 
       const {
         sectionSettings$,
@@ -208,17 +210,17 @@
 
       function handleConfirmDelete() {
         const section_title = displaySectionTitle(activeSection.value, activeSectionIndex.value);
-        const newIndex = this.activeSectionIndex > 0 ? this.activeSectionIndex - 1 : 0;
+        const newIndex = activeSectionIndex.value > 0 ? activeSectionIndex.value - 1 : 0;
         removeSection(activeSectionIndex.value);
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
           params: {
-            classId: this.$route.params.classId,
-            quizId: this.$route.params.quizId,
+            classId: route.value.params.classId,
+            quizId: route.value.params.quizId,
             sectionIndex: newIndex,
           },
         });
-        this.$store.dispatch('createSnackbar', sectionDeletedNotification$({ section_title }));
+        store.dispatch('createSnackbar', sectionDeletedNotification$({ section_title }));
       }
 
       function handleDeleteSection() {
@@ -373,17 +375,16 @@
       },
     },
     beforeRouteLeave(to, __, next) {
-      if (this.formDataHasChanged) {
-        if (!this.showCloseConfirmation && !this.showDeleteConfirmation) {
-          this.applySettings(to.name);
+      if (this.formDataHasChanged && !this.showDeleteConfirmation) {
+        if (this.showCloseConfirmation) {
+          // The user should be confirming losing changes
           next(false);
         } else {
-          this.showCloseConfirmation = true;
-          next(false);
+          // The user needs to confirm they want to leave
+          return (this.showCloseConfirmation = true);
         }
-      } else {
-        next();
       }
+      next();
     },
     methods: {
       handleSectionSort(e) {
