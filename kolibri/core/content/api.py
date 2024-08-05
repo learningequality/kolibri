@@ -298,9 +298,10 @@ class ChannelMetadataFilter(FilterSet):
 class ChannelThumbnailView(View):
     def get(self, request, channel_id):
         channel = get_object_or_404(models.ChannelMetadata, id=channel_id)
-        if not channel.thumbnail:
+        try:
+            mimetype, b_64_thumbnail = channel.thumbnail.split(",", 1)
+        except ValueError:
             raise Http404("No thumbnail available")
-        mimetype, b_64_thumbnail = channel.thumbnail.split(",", 1)
         thumbnail = urlsafe_b64decode(b_64_thumbnail)
         return HttpResponse(thumbnail, content_type=mimetype)
 
@@ -388,7 +389,11 @@ class BaseChannelMetadataMixin(object):
 
 
 def _create_channel_thumbnail_url(item):
-    return reverse("kolibri:core:channel-thumbnail", args=[item["id"]])
+    return (
+        reverse("kolibri:core:channel-thumbnail", args=[item["id"]])
+        if item["thumbnail"]
+        else ""
+    )
 
 
 @method_decorator(remote_metadata_cache, name="dispatch")

@@ -2001,7 +2001,7 @@ class PrefixedProxyContentMetadataTestCase(ProxyContentMetadataTestCase):
         return self.live_server_url + "/test/"
 
 
-class ChannelThumbanilViewTestCase(APITestCase):
+class ChannelThumbnailViewTestCase(APITestCase):
     def setUp(self):
         self.content_node = content.ContentNode.objects.create(
             pk="6a406ac66b224106aa2e93f73a94333d",
