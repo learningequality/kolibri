@@ -204,10 +204,12 @@ jobs:
         parent: false
     - name: Unzip content static files from whl file
       run: |
-        unzip -j dist/${{ needs.whl.outputs.whl-file-name }} 'kolibri/core/content/static/*' -d static
-        rm static/*.file_size
+        unzip dist/${{ needs.whl.outputs.whl-file-name }} 'kolibri/core/content/static/*' -d static
+        mv static/kolibri/core/content/static/** static
+        rm -rf static/kolibri
+        rm static/**/*.file_size
         # Ungzip all .gz files in the static folder
-        for f in static/*.gz; do gunzip -f $f; done
+        for f in static/**/*.gz; do gunzip -f $f; done
     - name: Upload content static files to BCK bucket
       uses: 'google-github-actions/upload-cloud-storage@v2'
       with:
