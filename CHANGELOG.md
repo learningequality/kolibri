@@ -2,6 +2,266 @@
 
 List of the most important changes for each release.
 
+## 0.17.0
+
+### Added
+
+#### New Feature: Updates to quiz workflow with new sections and question replacement functionality
+
+Updates to our quizzes provide coaches more flexibility in creating quizzes by swapping out questions or removing questions to create the quiz they want. Coaches choose resources from which questions are selected. They can then review individual questions, and replace or remove individual questions, customising the quiz to learner needs. Coaches can also divide the quiz into sections of up to 25 questions each, allowing for longer quizzes.
+
+Noteworthy technical updates include updating to a third version of our Exam model data schema, the addtion of a new draft exam model to allow editing of quizzes before they are made active/syncable, introducing a new accordion component, and changing the quiz creation routing structure to use nested routes and a side-panel style UX.
+
+##### List of supporting PRs
+
+- Restore exam/utils.spec.js to previous version; tests pass by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11155
+- Enhanced Quizzes: Initial frontend state management API by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11088
+- adds the new Quiz Creation Component  by @AllanOXDi in https://github.com/learningequality/kolibri/pull/11077
+- Enhanced Quiz Management: Side panel and routing foundations by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11132
+- Build flexible and accessible accordion component by @AllanOXDi in https://github.com/learningequality/kolibri/pull/11087
+- Update Exam model with V3 question_sources, update relevant JS utils by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11025
+- Quiz creation DEBUG data improvements by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11662
+- Quiz rebase regression fixes by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11661
+- Quiz foundations & data connection by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11277
+- Section settings side panel by @AllanOXDi in https://github.com/learningequality/kolibri/pull/11314
+- Feature  quiz section tabs with overflow by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11382
+- Finishing up the Quiz Root Page by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11434
+- [Accordion] Add "collapse all"/ "expand all" logic into AccordionContainer by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/11565
+- Migrate quizForge object references to composition API standard by @ozer550 in https://github.com/learningequality/kolibri/pull/11562
+- Remove stray references to quizForge by @marcellamaki in https://github.com/learningequality/kolibri/pull/11633
+- Fix title validation error bug in quizSection by @ozer550 in https://github.com/learningequality/kolibri/pull/11642
+- Coach Quiz Exercise Resources by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11682
+- Question sources by @AllanOXDi in https://github.com/learningequality/kolibri/pull/11658
+- Update ExamSerializers according to v3 model by @ozer550 in https://github.com/learningequality/kolibri/pull/11674
+- useFetchTree specs by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11766
+- Synchronise user selections with Quiz Creation State  by @ozer550 in https://github.com/learningequality/kolibri/pull/11783
+- EQM clean up resouce selection by @AllanOXDi in https://github.com/learningequality/kolibri/pull/11764
+- Conditionalizes the loading action for quiz routes by @akolson in https://github.com/learningequality/kolibri/pull/11822
+- Quiz creation bookmark selection by @ozer550 in https://github.com/learningequality/kolibri/pull/11835
+- Questions randomly selected from resource pool by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11823
+- number of resources updates on selection by @AllanOXDi in https://github.com/learningequality/kolibri/pull/11825
+- Resource selection UX- Improvement  by @AllanOXDi in https://github.com/learningequality/kolibri/pull/11815
+- Quiz Creation Select Resources - Keyword search by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/11887
+- Quiz creation resource selection: Topic selection & "Select all"  by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11864
+- Fix: Side panel closing confirmation & logic in child component by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11862
+- Quiz creation: Question replacement & a bevy of misc fixes and polish by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11937
+- Move handleReplacement logic from ReplaceQuestions.vue to useQuizCreation.js by @KshitijThareja in https://github.com/learningequality/kolibri/pull/12099
+- Use router.replace for redirect. by @rtibbles in https://github.com/learningequality/kolibri/pull/12067
+- Quiz editing capability for not yet activated quizzes by @rtibbles in https://github.com/learningequality/kolibri/pull/12232
+- Move NotEnoughResourcesModal to CreateQuizSection by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/12249
+- Remove empty sections from quizzes on publish by @rtibbles in https://github.com/learningequality/kolibri/pull/12252
+- Revert change that prevented search redirect in all cases. by @rtibbles in https://github.com/learningequality/kolibri/pull/12236
+- Updates to sections in ExamPage by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12182
+- EQM: On first save, update the quiz's ID when redirecting by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12283
+- Use && instead of & for logical AND. by @rtibbles in https://github.com/learningequality/kolibri/pull/12254
+- Update to allow and implement randomization of sections. by @rtibbles in https://github.com/learningequality/kolibri/pull/12278
+- EQM Fix: Use can actually select topics by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12265
+- EQM: Validation improvements by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12281
+- Fix single quiz selection flow by @rtibbles in https://github.com/learningequality/kolibri/pull/12274
+- Improve messaging around question replacement requirements by @AllanOXDi in https://github.com/learningequality/kolibri/pull/12122
+- Exams: Create them, take them, view reports by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12111
+- Add "Update resources" option to Options dropdown by @AllanOXDi in https://github.com/learningequality/kolibri/pull/12137
+- Quiz creation: Snackbar improvements by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12080
+- Revert ExamPage BottomAppBar to previous version (0.16.x) by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12169
+- Fixes issue where activeTabId is not set when viewing quiz reports for a group by @nathanaelg16 in https://github.com/learningequality/kolibri/pull/12179
+- fixes user selection getting lost on closing the sidepanel by @AllanOXDi in https://github.com/learningequality/kolibri/pull/12160
+- Fixes progress indication bug by @nathanaelg16 in https://github.com/learningequality/kolibri/pull/12185
+- EQM Lesson regression fixes by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12354
+- EQM: Side panel back / close icon UX improvements by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12311
+- Link to new quiz creation properly. by @rtibbles in https://github.com/learningequality/kolibri/pull/12352
+- Display question titles with displayQuestionTitle by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/12369
+- EQM: Bookmarks not linking anywhere in resource selection by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12360
+- Prevents errors on section deletion by @rtibbles in https://github.com/learningequality/kolibri/pull/12363
+- EQM: Difficult questions reports fix by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12372
+- Fix mis-match condition in replacement question array by @marcellamaki in https://github.com/learningequality/kolibri/pull/12353
+- Wrap section deletion modal in focus trap by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/12373
+- Use useNow composable in ElapsedTime component by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12377
+- Load channel content on remove filter by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12379
+- Fix question listing and navigation in quiz reports by @rtibbles in https://github.com/learningequality/kolibri/pull/12359
+- Allow quiz level learners see fixed order to be edited after a quiz is opened. by @rtibbles in https://github.com/learningequality/kolibri/pull/12307
+- make sure the question count v-model uses .number by @marcellamaki in https://github.com/learningequality/kolibri/pull/12407
+- Update folder selection logic to handle deep folders. by @rtibbles in https://github.com/learningequality/kolibri/pull/12381
+- Add in submit quiz button for non-large screen sizes. by @rtibbles in https://github.com/learningequality/kolibri/pull/12412
+- Exam models date_created updates by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12413
+- EQM: Sections for quiz detail page by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12384
+- EQM: What happens when I refresh? by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12393
+- Count descendants not ancestors by @rtibbles in https://github.com/learningequality/kolibri/pull/12394
+- What a drag by @marcellamaki in https://github.com/learningequality/kolibri/pull/12396
+- Coach questions preview: Fix background and selection colors + resolve linter errors by @MisRob in https://github.com/learningequality/kolibri/pull/12427
+- Fix ordering of quizzes on plan page. by @rtibbles in https://github.com/learningequality/kolibri/pull/12426
+- EQM: Fix unlinted files by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12428
+- Hide Difficult questions tab if the quiz is still a draft by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12437
+- Fix quiz preview by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12436
+- EQM: Post-bash quickfixes by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12293
+- EQM: Side panel bottom nav by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12391
+- Card fixes by @marcellamaki in https://github.com/learningequality/kolibri/pull/12374
+- Adds modal before delete section by @akolson in https://github.com/learningequality/kolibri/pull/12101
+- Update exam.question_count calculation by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12196
+- Remove resource pool from exam serializer, don't send in API call by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12200
+- fixes quizzes not showing "File size for download" value properly by @AllanOXDi in https://github.com/learningequality/kolibri/pull/12202
+- Allow delete all questions by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12216
+- EQM: Notify not enough resources to replace questions by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12219
+- Fix replacements order by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12218
+- Remove browser search cancel button by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12329
+- Fix white space on top of tabs dividing line by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12380
+- EQM: Only show save success message when saving by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12389
+- Exam Page: Move smaller screen timer to top by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12485
+
+#### Github integrations, actions, dev workflow updates
+
+In 0.17, we have also improved many automated workflows to support the dev team, including increased use of dependabot, Slack integrations, and expanded use of Github actions for continuous integration and deployment.
+
+##### List of supporting PRs
+
+- Notify our slack on contributors' issue comments by @vkWeb in https://github.com/learningequality/kolibri/pull/11564
+- Use the official GH action for Slack by @vkWeb in https://github.com/learningequality/kolibri/pull/11623
+- Authors are pilots of kolibri by @vkWeb in https://github.com/learningequality/kolibri/pull/11805
+- Fixes the broken slack contributor notification gh action by @vkWeb in https://github.com/learningequality/kolibri/pull/11922
+- Introduce flake8-print as pre-commit hook with migration of print to logger by @thesujai in https://github.com/learningequality/kolibri/pull/11994
+- Try to fix Slack notifications actions failing when " character is in the issue title by @MisRob in https://github.com/learningequality/kolibri/pull/11902
+- Remove buildkite status check label from readme by @bjester in https://github.com/learningequality/kolibri/pull/11924
+- Install KDS patch and configure dependabot to run on Wednesday by @MisRob in https://github.com/learningequality/kolibri/pull/11918
+- Attempt to fix GH notification action by @MisRob in https://github.com/learningequality/kolibri/pull/11928
+- Add missing quotes to the notification GH action by @MisRob in https://github.com/learningequality/kolibri/pull/11935
+- Feature: GitHub Actions Workflow for Scheduled Morango Integration Tests by @GarvitSinghal47 in https://github.com/learningequality/kolibri/pull/11931
+- Increase number of dependabot PRs by @rtibbles in https://github.com/learningequality/kolibri/pull/11943
+- Add pre-commit-ci-lite action to automate PR lint fixes by @thesujai in https://github.com/learningequality/kolibri/pull/12034
+
+#### Additional features and improvements
+
+Additional updates include the ability to create a new facility on an existing Kolibri, and updating the tab title to include a realtime percentage of tasks. To help ensure robustness and reliability, we have expanded the range and coverage of our unit tests.
+
+##### List of supporting PRs
+
+- added functionality to create new facility on existing kolibri by @Jaspreet-singh-1032 in https://github.com/learningequality/kolibri/pull/11197
+- added test cases for create new facility feature by @Jaspreet-singh-1032 in https://github.com/learningequality/kolibri/pull/11303
+- Issue 10255 improve coach tabs accessibility by @muditchoudhary in https://github.com/learningequality/kolibri/pull/11501
+- Realtime percentage of tasks in the tab title by @GarvitSinghal47 in https://github.com/learningequality/kolibri/pull/11696
+- tests: Complete the test suite for `TriesOverview` Component by @EshaanAgg in https://github.com/learningequality/kolibri/pull/11906
+- Add regression testing for channel update deletion behaviour by @thesujai in https://github.com/learningequality/kolibri/pull/11896
+- tests: Add tests for some components by @EshaanAgg in https://github.com/learningequality/kolibri/pull/11910
+- test: Add complete test suite for `InteractionItem` by @EshaanAgg in https://github.com/learningequality/kolibri/pull/11920
+- tests: add initial test suite for `CoreMenu` by @EshaanAgg in https://github.com/learningequality/kolibri/pull/11934
+- tests: add test suites for `SelectSourceModal` and `ConfirmationRegisterModal` by @EshaanAgg in https://github.com/learningequality/kolibri/pull/12060
+- tests: add tests for some files in `ContentRenderer` by @EshaanAgg in https://github.com/learningequality/kolibri/pull/12056
+- Add write to disk options for build command by @thesujai in https://github.com/learningequality/kolibri/pull/12006
+- Added code for deletion of csv files in line #397 by @oge1ata in https://github.com/learningequality/kolibri/pull/12020
+- Update useUser mocks for updated API. by @rtibbles in https://github.com/learningequality/kolibri/pull/12051
+- tests: add tests for some components by @EshaanAgg in https://github.com/learningequality/kolibri/pull/12108
+- Add notification for downloaded content completion by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/12295
+- Update LOD description in FullOrLearnOnlyDeviceForm component by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/12285
+- Added another condition for TOPICS_TOPIC_SEARCH redirection by @Wck-iipi in https://github.com/learningequality/kolibri/pull/12019
+- Added neeeded values for BaseValuesViewset by @jredrejo in https://github.com/learningequality/kolibri/pull/12346
+- Add string prompt to log in with existing username or create an account by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/12310
+
+### Breaking Changes
+
+[Support for Python 2.7, deprecated in 0.16, has been dropped](https://github.com/learningequality/kolibri/pull/11654). Support for Internet Explorer 11, deprecated in 0.16, has been dropped.
+
+
+### Changed
+
+#### Dependencies and support
+
+Important technical changes include adding Python 3.12 support, upgrading Django to version 3.2, upgrading KDS to v4.4.0, and upgrading the Perseus exercise library to a recently released version, and changes to our linting tools to simplify and improve our developer experience. Support for Python 2.7, deprecated in 0.16, has been dropped. Support for Internet Explorer 11, deprecated in 0.16, has been dropped.
+
+##### List of supporting PRs
+
+- Remove Python 2.7 support by @rtibbles in https://github.com/learningequality/kolibri/pull/11654
+- Remove Python 2.7 deprecation warning. by @rtibbles in https://github.com/learningequality/kolibri/pull/11713
+- With 2.7 dropped, use shutil disk_usage function universally. by @rtibbles in https://github.com/learningequality/kolibri/pull/12041
+- Update Django to version 3.2 by @rtibbles in https://github.com/learningequality/kolibri/pull/11974
+- Reduce the size of the wheel file by @rtibbles in https://github.com/learningequality/kolibri/pull/12361
+- Consolidate browser compatibility data, drop IE11 support by @rtibbles in https://github.com/learningequality/kolibri/pull/11685
+- Upgrade to KDS v3.0.0 and reference npm package by @MisRob in https://github.com/learningequality/kolibri/pull/11873
+- Upgrade perseus to npm published version. by @rtibbles in (#9759, #12362)
+- Upgrade morango. by @rtibbles in https://github.com/learningequality/kolibri/pull/12408
+- Linting updates by @rtibbles in https://github.com/learningequality/kolibri/pull/9698
+- Upgrade the mac app. by @rtibbles in https://github.com/learningequality/kolibri/pull/12416
+- Introduce Vue Testing Library by @EshaanAgg in https://github.com/learningequality/kolibri/pull/11833
+- Create and use a standard utility library for handling zip files in the frontend by @rtibbles in https://github.com/learningequality/kolibri/pull/11539
+- updated use of entry_points according to importlib version >3.6.0 by @im-NL in https://github.com/learningequality/kolibri/pull/11417
+
+#### Updates to string processes (developer-facing)
+This release is the first time that Kolibri will be using "feature file" strings, where all new strings for a feature are introduced into one files. This reduces the overhead for both dev work and translation work.
+
+##### List of supporting PRs
+
+- Add enhanced quiz management strings - first draft for dev work by @marcellamaki in https://github.com/learningequality/kolibri/pull/11189
+- Composable translators by @rtibbles in https://github.com/learningequality/kolibri/pull/10960
+- Move jump to question string into enhanced quiz management strings. by @rtibbles in https://github.com/learningequality/kolibri/pull/12323
+- Additional strings by @marcellamaki in https://github.com/learningequality/kolibri/pull/12336
+- Correct strings that were manually edited on Crowdin by @radinamatic in https://github.com/learningequality/kolibri/pull/12347
+- Fix coreStrings import in AttemptLogList by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12429
+- First pass string updates following UX writing and ditto review by @marcellamaki in https://github.com/learningequality/kolibri/pull/12312
+- Add strings for post-setup onboarding guide component by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/12113
+
+#### Refactors
+Key refactors include replacing `KResponsiveWindow` with `useKResponsiveWindow` across Kolibri, work toward improving the router handler architecture in Coach, and continue work towards introducing more composables.
+
+##### List of supporting PRs
+
+- Replace KResponseWindow with useKResponseWindow (#11349, #11355, #11427, #11358, #11366, #11474, #11369, #11346, #11414, #11529, #11997)
+- Changed KContentRenderer to ContentRenderer. by @ShivangRawat30 in https://github.com/learningequality/kolibri/pull/11289
+- Replaced isEmbeddedWebView with isAppContext by @AllanOXDi in https://github.com/learningequality/kolibri/pull/11715
+- Improved router handlers architecture in Coach - part 1 by @ShivangRawat30 in (#11570, #11675, #11900)
+- Update condition to display new label for content imports by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/11695
+- Use consistent KDS imports across the whole Kolibri by @PR4NJ41 in https://github.com/learningequality/kolibri/pull/11742
+- Standardize ContentCardList Component and Introduce ViewMoreButtonStates by @GarvitSinghal47 in https://github.com/learningequality/kolibri/pull/11865
+- useUser can now get all states and getters by @Wck-iipi in https://github.com/learningequality/kolibri/pull/12027
+- Replace `TextTruncatorCss` with `KTextTruncator` by @jasonmokk in https://github.com/learningequality/kolibri/pull/12215
+- Refactor default_theme paths/structure by @marcellamaki in https://github.com/learningequality/kolibri/pull/12207
+- App navigation refactor by @rtibbles in https://github.com/learningequality/kolibri/pull/12084
+- Refactored HomePage route handler to fetch initClassInfo and getFacil… by @shubh1007 in https://github.com/learningequality/kolibri/pull/12358
+
+
+#### Docs related updates
+
+Updates to developer documentation builds and improved copywriting.
+
+##### List of supporting PRs
+
+- docs: add new documentation related to testing style guide and testing template by @EshaanAgg in https://github.com/learningequality/kolibri/pull/12083
+- Adds loose pinning of dev docs requirements to ensure correct builds … by @benjaoming in https://github.com/learningequality/kolibri/pull/12466
+- Docs: Fixed typos by @Mohamedkhaled81 in https://github.com/learningequality/kolibri/pull/11927
+- Update development documentation by @MisRob in https://github.com/learningequality/kolibri/pull/11917
+- Tweniee/Isssue:#11361 Updated Document for PR release  by @Tweniee in https://github.com/learningequality/kolibri/pull/11512
+
+### Fixed
+Fixes include accessibility updates, bug fixes, code cleanup, and UI improvements.
+
+##### List of supporting PRs
+
+- Maintain the zoom settings for the PDF viewer by @nikkuAg in https://github.com/learningequality/kolibri/pull/11165
+- Hide the table when data is loading by @muditchoudhary in https://github.com/learningequality/kolibri/pull/11238
+- Catch and redirect 401 errors when browsing remotely by @vkWeb in https://github.com/learningequality/kolibri/pull/11119
+- Adds connection error exception to handle redis connection failure by @akolson in https://github.com/learningequality/kolibri/pull/11296
+- Ensure Enter key works as continue button click on Setup Wizard by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/11537
+- Fix topic header tests by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11535
+- fix the position of the sidepanelmodal by @iskipu in https://github.com/learningequality/kolibri/pull/11607
+- Truncate long lesson title by @nikkuAg in https://github.com/learningequality/kolibri/pull/11874
+- Issue 10254: Improve coach tabs accessibility of Reports Lesson Tab by @muditchoudhary in https://github.com/learningequality/kolibri/pull/11606
+- Unnecessary kolibri store in tests by @nick2432 in https://github.com/learningequality/kolibri/pull/11852
+- Fix failing csv report generation api test in different timezones by @thesujai in https://github.com/learningequality/kolibri/pull/11933
+- Remove AssessmentMetadataState mapper and update to direct API access… by @AymanHammadi in https://github.com/learningequality/kolibri/pull/11940
+- Remove Banner for INSUFFICIENT_STORAGE while in device plugin by @iskipu in https://github.com/learningequality/kolibri/pull/11809
+- ENFORCE CSRF verification in API to be accessed by a browser strictly by @thesujai in https://github.com/learningequality/kolibri/pull/11978
+- fix: content_id access from wrong object by @himanshuc3 in https://github.com/learningequality/kolibri/pull/11993
+- Overrides prop default flipping behaviour by @kafukoM in https://github.com/learningequality/kolibri/pull/12015
+- Fix #9067: Redirect signed-out users to resource URL without lessonId or classId by @GSAprod in https://github.com/learningequality/kolibri/pull/12039
+- Properly redirect on authentication failure by @rtibbles in https://github.com/learningequality/kolibri/pull/12414
+- Fixing typo in useUser composable getter by @nathanaelg16 in https://github.com/learningequality/kolibri/pull/12231
+- Fix Vue Tesing Library routes bug by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12105
+- Fix language switcher responsiveness by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/11977
+- Fixing typo in useUser composable getter (again) by @nathanaelg16 in https://github.com/learningequality/kolibri/pull/12235
+- App script cleanup by @rtibbles in https://github.com/learningequality/kolibri/pull/12155
+- trying to fix integrity errors before migrating tables by @jredrejo in https://github.com/learningequality/kolibri/pull/12279
+- Fix pdf css import by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12348
+- Fix hitherto unnoticed regression in channel upgrade by @rtibbles in https://github.com/learningequality/kolibri/pull/12251
+- Don't put csrf protection on endpoint that we use to set csrf cookie. by @rtibbles in https://github.com/learningequality/kolibri/pull/12371
+- Ensure skip to main content logic is working by @marcellamaki in https://github.com/learningequality/kolibri/pull/12439
+  - Update automatic download setting default to False if running in a remote content context. by @rtibbles in https://github.com/learningequality/kolibri/pull/12395
+
 
 ## 0.16.0
 
