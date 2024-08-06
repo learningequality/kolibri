@@ -221,7 +221,7 @@ jobs:
   # unblocked and all the subsequent steps in this workflow will happen.
     name: Job to block publish of a release until it has been manually approved
     if: ${{ !github.event.release.prerelease }}
-    needs: [whl, pex, dmg, deb, exe, test_pypi_upload]
+    needs: [whl, pex, dmg, deb, exe, zip, apk, test_pypi_upload]
     runs-on: ubuntu-latest
     environment: release
     steps:
