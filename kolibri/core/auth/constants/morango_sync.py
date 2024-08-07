@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from kolibri import __version__
 from kolibri.utils import conf
 

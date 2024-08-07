@@ -7,8 +7,6 @@ performance problems due to the locks on the main database.
 
 None of these models will have Morango synchronization
 """
-from __future__ import unicode_literals
-
 from django.conf import settings
 from django.db import models
 from morango.models import UUIDField
