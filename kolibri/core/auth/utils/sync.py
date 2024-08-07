@@ -9,7 +9,6 @@ from django.db.models.expressions import When
 from morango.models import ScopeDefinition
 from morango.models import SyncSession
 from morango.sync.controller import MorangoProfileController
-from requests.exceptions import HTTPError
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import PermissionDenied
 
@@ -20,6 +19,7 @@ from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.auth.management.utils import get_facility_dataset_id
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 
 
 def find_soud_sync_sessions(using=None, **filters):
@@ -102,7 +102,7 @@ def validate_and_create_sync_credentials(
             facility_id=facility_id,
             noninteractive=True,
         )
-    except (CommandError, HTTPError) as e:
+    except (CommandError, NetworkLocationResponseFailure) as e:
         if not username and not password:
             raise PermissionDenied(
                 "Username and password required to validate sync credentials, and were not supplied"

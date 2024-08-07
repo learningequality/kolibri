@@ -7,7 +7,6 @@ import unittest
 import uuid
 
 import mock
-import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.test import LiveServerTestCase
@@ -28,6 +27,9 @@ from kolibri.core.content.test.test_channel_upgrade import ChannelBuilder
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSessionLog
@@ -1898,7 +1900,7 @@ def mock_patch_decorator(func):
     def wrapper(*args, **kwargs):
         mock_object = mock.Mock()
         mock_object.json.return_value = [{"id": 1, "name": "studio"}]
-        with mock.patch.object(requests, "get", return_value=mock_object):
+        with mock.patch.object(NetworkClient, "get", return_value=mock_object):
             return func(*args, **kwargs)
 
     return wrapper
@@ -1947,18 +1949,21 @@ class KolibriStudioAPITestCase(APITestCase):
         )
         self.assertEqual(response.data["name"], "studio")
 
-    @mock_patch_decorator
-    def test_channel_info_404(self):
-        mock_object = mock.Mock()
-        mock_object.status_code = 404
-        requests.get.return_value = mock_object
+    @mock.patch.object(
+        NetworkClient,
+        "get",
+        side_effect=NetworkLocationResponseFailure(response=mock.Mock(status_code=404)),
+    )
+    def test_channel_info_404(self, mock_get):
         response = self.client.get(
             reverse("kolibri:core:remotechannel-detail", kwargs={"pk": "abc"}),
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    @mock.patch.object(requests, "get", side_effect=requests.exceptions.ConnectionError)
+    @mock.patch.object(
+        NetworkClient, "get", side_effect=NetworkLocationConnectionFailure
+    )
     def test_channel_info_offline(self, mock_get):
         response = self.client.get(
             reverse("kolibri:core:remotechannel-detail", kwargs={"pk": "abc"}),
@@ -1967,7 +1972,9 @@ class KolibriStudioAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
         self.assertEqual(response.json()["status"], "offline")
 
-    @mock.patch.object(requests, "get", side_effect=requests.exceptions.ConnectionError)
+    @mock.patch.object(
+        NetworkClient, "get", side_effect=NetworkLocationConnectionFailure
+    )
     def test_channel_list_offline(self, mock_get):
         response = self.client.get(
             reverse("kolibri:core:remotechannel-list"), format="json"

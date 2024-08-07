@@ -1,7 +1,4 @@
-import requests
 from django.core.management.base import CommandError
-from requests.exceptions import ConnectionError
-from requests.exceptions import HTTPError
 from rest_framework.exceptions import AuthenticationFailed
 
 from kolibri.core import error_constants
@@ -9,7 +6,10 @@ from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Membership
-from kolibri.core.utils.urls import reverse_remote
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
+from kolibri.core.utils.urls import reverse_path
 
 
 def create_adhoc_group_for_learners(classroom, learners):
@@ -33,10 +33,11 @@ def get_remote_users_info(baseurl, facility_id, username, password):
     :return: Dict with two keys: 'user' containing info of the user that authenticated and
              'users' containing the list of users of the facility if the user had rights.
     """
-    user_info_url = reverse_remote(baseurl, "kolibri:core:publicuser-list")
+    client = NetworkClient.build_for_address(baseurl)
+    user_info_url = reverse_path("kolibri:core:publicuser-list")
     params = {"facility_id": facility_id}
     try:
-        response = requests.get(
+        response = client.get(
             user_info_url,
             params=params,
             auth=(
@@ -46,17 +47,22 @@ def get_remote_users_info(baseurl, facility_id, username, password):
                 password,
             ),
         )
-        response.raise_for_status()
-    except (CommandError, HTTPError, ConnectionError) as e:
+    except (
+        CommandError,
+        NetworkLocationResponseFailure,
+        NetworkLocationConnectionFailure,
+    ) as e:
         if password == NOT_SPECIFIED or not password:
-            facility_info_url = reverse_remote(
-                baseurl,
+            facility_info_url = reverse_path(
                 "kolibri:core:publicfacility-detail",
                 args=[
                     facility_id,
                 ],
             )
-            response = requests.get(facility_info_url)
+            try:
+                response = client.get(facility_info_url)
+            except NetworkLocationResponseFailure as e:
+                response = e.response
             if response.json()["learner_can_login_with_no_password"]:
                 raise AuthenticationFailed(
                     detail="The username can not be found",

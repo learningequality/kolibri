@@ -2,7 +2,6 @@ import logging
 from collections import namedtuple
 from datetime import timedelta
 
-import requests
 from django.contrib.sessions.models import Session
 from django.db import connection
 from django.db.models import Count
@@ -12,6 +11,8 @@ from django.utils import timezone
 
 from kolibri.core.analytics import SUPPORTED_OS
 from kolibri.core.content.models import ChannelMetadata
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.utils.server import NotRunning
@@ -112,27 +113,25 @@ def get_requests_info():
               - Kolibri channels list
     """
 
-    def format_url(url, base_url):
-        formatted = "{base_url}{url}".format(base_url=base_url, url=url)
-        return formatted
-
     _, port = get_kolibri_process_info()
-    if port:
+
+    def get_time(url):
         base_url = "http://localhost:{}".format(port)
-        homepage_time = "{:.2f} s".format(
-            requests.get(base_url).elapsed.total_seconds()
+        client = NetworkClient.build_for_address(base_url)
+        try:
+            response = client.get(url)
+            return response.elapsed.total_seconds()
+        except NetworkLocationResponseFailure as e:  # most probably a 404
+            return e.response.elapsed.total_seconds()
+
+    if port:
+        homepage_time = "{:.2f} s".format(get_time("/"))
+        recommended_url = (
+            "/api/content/contentnode_slim/popular/?include_coach_content=false"
         )
-        recommended_url = format_url(
-            "/api/content/contentnode_slim/popular/?include_coach_content=false",
-            base_url,
-        )
-        recommended_time = "{:.2f} s".format(
-            requests.get(recommended_url).elapsed.total_seconds()
-        )
-        channels_url = format_url("/api/content/channel/?available=true", base_url)
-        channels_time = "{:.2f} s".format(
-            requests.get(channels_url).elapsed.total_seconds()
-        )
+        recommended_time = "{:.2f} s".format(get_time(recommended_url))
+        channels_url = "/api/content/channel/?available=true"
+        channels_time = "{:.2f} s".format(get_time(channels_url))
     else:
         homepage_time = recommended_time = channels_time = None
 
