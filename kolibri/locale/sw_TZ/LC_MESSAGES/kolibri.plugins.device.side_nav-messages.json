@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Hakuna nafasi ya kutosha kwenye kifaa chako. Hifadhi nafasi ya diski au uchague nyenzo chache",
   "CommonDeviceStrings.permissionsLabel": "Ruhusa",
   "CommonDeviceStrings.primaryStorageLabel": "Nyenzo mpya zilizopakuliwa zitaongezwa kwenye eneo msingi la hifadhi",
+  "CommonDeviceStrings.statusCanceled": "Imeghairi",
+  "CommonDeviceStrings.statusCanceling": "Inaghairi",
+  "CommonDeviceStrings.statusComplete": "Imekamilika",
+  "CommonDeviceStrings.statusFailed": "Imeshindwa",
+  "CommonDeviceStrings.statusInProgress": "Inaendelea",
+  "CommonDeviceStrings.statusInQueue": "Inasubiri",
   "CommonDeviceStrings.unlistedChannelLabel": "Kituo kisichoorodheshwa"
 }

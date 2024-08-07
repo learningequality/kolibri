@@ -3,9 +3,9 @@
   <div>
     <KGrid :style="tabsWrapperStyles">
       <KGridItem
-        :layout4="{ span: 2 }"
+        :layout4="{ span: 4 }"
         :layout8="{ span: 5 }"
-        :layout12="{ span: 10 }"
+        :layout12="{ span: 8 }"
       >
         <TabsWithOverflow
           tabsId="quizSectionTabs"
@@ -51,15 +51,14 @@
       </KGridItem>
 
       <KGridItem
-        style="position: relative; right: 0; padding: 0 0.5em 0 1em; text-align: right"
-        :layout4="{ span: 2 }"
+        :layout4="{ span: 4 }"
         :layout8="{ span: 3 }"
-        :layout12="{ span: 2 }"
+        :layout12="{ span: 4 }"
+        class="add-more-button-container"
       >
         <KButton
           appearance="flat-button"
           icon="plus"
-          style="position: relative; right: 0; height: 3rem; padding: 0"
           @click="handleAddSection"
         >
           {{ addSectionLabel$() }}
@@ -249,7 +248,7 @@
                         </div>
                       </DragHandle>
                       <KCheckbox
-                        style="padding-left: 0.5em"
+                        class="accordion-item-checkbox"
                         :checked="selectedActiveQuestions.includes(question.item)"
                         @change="() => toggleQuestionInSelection(question.item)"
                       />
@@ -264,7 +263,7 @@
                       >
                         <span>{{ title }}</span>
                         <KIcon
-                          style="position: absolute; top: 0.92em; right: 0"
+                          class="chevron-icon"
                           :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
                         />
                       </KButton>
@@ -503,7 +502,7 @@
         return {
           paddingTop: '1rem',
           borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
-          flexWrap: 'nowrap',
+          justifyContent: 'space-between',
         };
       },
       tabs() {
@@ -822,6 +821,14 @@
     border-radius: 0 !important;
   }
 
+  .add-more-button-container {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    height: 3rem;
+    padding: 0;
+  }
+
   /deep/ .ui-menu {
     min-width: 17rem;
     max-width: 25rem;
@@ -839,6 +846,16 @@
     align-items: center;
     padding: 0 0.5em !important;
     margin: 0.25em 0;
+
+    .accordion-item-checkbox {
+      margin-left: 0.5em;
+    }
+
+    .chevron-icon {
+      position: absolute;
+      top: 0.92em;
+      right: 0;
+    }
   }
 
   .accordion-header-label {

@@ -195,6 +195,10 @@ def sqlite_check_foreign_keys():
     ]
 
     for name in DATABASE_NAMES:
+        # Don't inadvertently create the database if
+        # it doesn't exist
+        if not os.path.exists(name):
+            continue
         db_connection = sqlite3.connect(name)
         with sqlite3.connect(name) as db_connection:
             cursor = db_connection.cursor()

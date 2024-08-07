@@ -242,7 +242,7 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         self.broadcast.zeroconf = self.zeroconf
         self.assertTrue(self.broadcast.is_broadcasting)
 
-    @pytest.mark.skipIf(ZEROCONF_NEEDS_UPDATE, "Needs updated Zeroconf")
+    @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
     def test_addresses(self):
         self.assertEqual(set(), self.broadcast.addresses)
         self.broadcast.zeroconf = self.zeroconf
@@ -279,7 +279,7 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         self.assertEqual("abc-1", self.broadcast.instance.zeroconf_id)
         mock_renew.assert_called_once()
 
-    @pytest.mark.skipIf(ZEROCONF_NEEDS_UPDATE, "Needs updated Zeroconf")
+    @pytest.mark.skipif(ZEROCONF_NEEDS_UPDATE, reason="Needs updated Zeroconf")
     def test_update_broadcast__interfaces(self):
         new_interfaces = [MOCK_INTERFACE_IP]
         self.assertNotEqual(new_interfaces, self.broadcast.interfaces)

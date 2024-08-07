@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "మీ పరికరంలో సరిపడినంత ఖాళీ లేదు. డిస్క్‌ని కాస్త ఖాళీ చేయండి లేదా కొన్ని వనరులనే ఎంచుకోండి",
   "CommonDeviceStrings.permissionsLabel": "అనుమతులు",
   "CommonDeviceStrings.primaryStorageLabel": "కొత్తగా డౌన్‌లోడ్‌ అయిన వనరులు ప్రాథమిక నిల్వ స్థానానికి జోడించబడతాయి",
+  "CommonDeviceStrings.statusCanceled": "రద్దు చేయబడింది",
+  "CommonDeviceStrings.statusCanceling": "రద్దు చేయబడుతోంది",
+  "CommonDeviceStrings.statusComplete": "పూర్తయింది",
+  "CommonDeviceStrings.statusFailed": "విఫలమైంది",
+  "CommonDeviceStrings.statusInProgress": "పురోగతిలో ఉంది",
+  "CommonDeviceStrings.statusInQueue": "వేచి ఉంది",
   "CommonDeviceStrings.unlistedChannelLabel": "జాబితా చేయబడని ఛానెల్"
 }

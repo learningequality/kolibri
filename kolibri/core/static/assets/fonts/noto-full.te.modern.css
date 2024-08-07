@@ -253,6 +253,33 @@
 
 @font-face {
   font-family: 'noto-full';
+  src: url('noto-full.NotoSansGurmukhi.400.woff') format('woff');
+  font-style: normal;
+  font-weight: normal;
+  unicode-range: U+A01-A03,U+A05-A0A,U+A0F-A10,U+A13-A28,U+A2A-A30,U+A32-A33,U+A35-A36,U+A38-A39,U+A3C,U+A3E-A42,U+A47-A48,U+A4B-A4D,U+A51,U+A59-A5C,U+A5E,U+A66-A76,U+262C;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
+  src: url('noto-full.NotoSansGurmukhi.600.woff') format('woff');
+  font-style: normal;
+  font-weight: 600;
+  unicode-range: U+A01-A03,U+A05-A0A,U+A0F-A10,U+A13-A28,U+A2A-A30,U+A32-A33,U+A35-A36,U+A38-A39,U+A3C,U+A3E-A42,U+A47-A48,U+A4B-A4D,U+A51,U+A59-A5C,U+A5E,U+A66-A76,U+262C;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
+  src: url('noto-full.NotoSansGurmukhi.700.woff') format('woff');
+  font-style: normal;
+  font-weight: bold;
+  unicode-range: U+A01-A03,U+A05-A0A,U+A0F-A10,U+A13-A28,U+A2A-A30,U+A32-A33,U+A35-A36,U+A38-A39,U+A3C,U+A3E-A42,U+A47-A48,U+A4B-A4D,U+A51,U+A59-A5C,U+A5E,U+A66-A76,U+262C;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
   src: url('noto-full.NotoSansAdlam.400.woff') format('woff');
   font-style: normal;
   font-weight: normal;
@@ -518,33 +545,6 @@
   font-style: normal;
   font-weight: bold;
   unicode-range: U+11D60-11D65,U+11D67-11D68,U+11D6A-11D8E,U+11D90-11D91,U+11D93-11D98,U+11DA0-11DA9;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansGurmukhi.400.woff') format('woff');
-  font-style: normal;
-  font-weight: normal;
-  unicode-range: U+A01-A03,U+A05-A0A,U+A0F-A10,U+A13-A28,U+A2A-A30,U+A32-A33,U+A35-A36,U+A38-A39,U+A3C,U+A3E-A42,U+A47-A48,U+A4B-A4D,U+A51,U+A59-A5C,U+A5E,U+A66-A76,U+262C;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansGurmukhi.600.woff') format('woff');
-  font-style: normal;
-  font-weight: 600;
-  unicode-range: U+A01-A03,U+A05-A0A,U+A0F-A10,U+A13-A28,U+A2A-A30,U+A32-A33,U+A35-A36,U+A38-A39,U+A3C,U+A3E-A42,U+A47-A48,U+A4B-A4D,U+A51,U+A59-A5C,U+A5E,U+A66-A76,U+262C;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansGurmukhi.700.woff') format('woff');
-  font-style: normal;
-  font-weight: bold;
-  unicode-range: U+A01-A03,U+A05-A0A,U+A0F-A10,U+A13-A28,U+A2A-A30,U+A32-A33,U+A35-A36,U+A38-A39,U+A3C,U+A3E-A42,U+A47-A48,U+A4B-A4D,U+A51,U+A59-A5C,U+A5E,U+A66-A76,U+262C;
   font-display: swap;
 }
 

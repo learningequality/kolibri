@@ -10,7 +10,7 @@
       <KGrid :gridStyle="gridStyle">
         <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
         <KGridItem
-          v-if="windowIsLarge"
+          v-if="showQuestionsList"
           ref="questionListWrapper"
           :layout12="{ span: 4 }"
           class="column-pane"
@@ -33,6 +33,7 @@
         <KGridItem
           :layout12="{ span: 8 }"
           class="column-pane"
+          :style="!showQuestionsList ? { overflow: 'unset' } : {}"
         >
           <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
             <KPageContainer
@@ -540,6 +541,9 @@
         return this.displayNavigationButtonLabel
           ? { position: 'relative', top: '3px', left: '-4px' }
           : {};
+      },
+      showQuestionsList() {
+        return this.windowIsLarge;
       },
     },
     watch: {

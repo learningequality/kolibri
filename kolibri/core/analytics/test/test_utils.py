@@ -7,7 +7,7 @@ import os
 import random
 import uuid
 
-from django.test import TransactionTestCase
+from django.test import TestCase
 from le_utils.constants import content_kinds
 
 from kolibri.core.analytics.constants.nutrition_endpoints import PINGBACK
@@ -57,8 +57,9 @@ class BaseDeviceSetupMixin(object):
     min_timestamp = datetime.datetime(2018, 10, 11)
     max_timestamp = datetime.datetime(2019, 10, 11)
 
-    def setUp(self):
-        super(BaseDeviceSetupMixin, self).setUp()
+    @classmethod
+    def setUpTestData(cls):
+        super(BaseDeviceSetupMixin, cls).setUpTestData()
         clear_process_cache()
         # create dummy channel
         channel_id = uuid.uuid4().hex
@@ -68,8 +69,8 @@ class BaseDeviceSetupMixin(object):
             channel_id=channel_id,
             content_id=uuid.uuid4().hex,
         )
-        self.channel = ChannelMetadata.objects.create(
-            id=channel_id, name="channel", last_updated=self.min_timestamp, root=root
+        cls.channel = ChannelMetadata.objects.create(
+            id=channel_id, name="channel", last_updated=cls.min_timestamp, root=root
         )
         lf = LocalFile.objects.create(
             id=uuid.uuid4().hex, available=True, file_size=1048576  # 1 MB
@@ -81,23 +82,23 @@ class BaseDeviceSetupMixin(object):
         with io.open(data_path, mode="r", encoding="utf-8") as f:
             users = [data for data in csv.DictReader(f)]
 
-        self.facilities = user_data.get_or_create_facilities(
-            n_facilities=self.n_facilities
+        cls.facilities = user_data.get_or_create_facilities(
+            n_facilities=cls.n_facilities
         )
-        self.users = []
+        cls.users = []
 
-        for facility in self.facilities:
+        for facility in cls.facilities:
             dataset = facility.dataset
             # create superuser and login session
-            for i in range(self.n_superusers):
+            for i in range(cls.n_superusers):
                 superuser = create_superuser(
                     facility=facility, username="superuser{}".format(i)
                 )
                 facility.add_role(superuser, role_kinds.ADMIN)
                 UserSessionLog.objects.create(
                     user=superuser,
-                    start_timestamp=self.min_timestamp,
-                    last_interaction_timestamp=self.max_timestamp,
+                    start_timestamp=cls.min_timestamp,
+                    last_interaction_timestamp=cls.max_timestamp,
                 )
                 # create lesson and exam for facility
                 Lesson.objects.create(
@@ -114,42 +115,42 @@ class BaseDeviceSetupMixin(object):
                 exam_id = uuid.uuid4().hex
 
             classrooms = user_data.get_or_create_classrooms(
-                n_classes=self.n_classes, facility=facility
+                n_classes=cls.n_classes, facility=facility
             )
 
             # Get all the user data at once so that it is distinct across classrooms
-            facility_user_data = random.sample(users, self.n_classes * self.n_users)
+            facility_user_data = random.sample(users, cls.n_classes * cls.n_users)
 
             # create random content id for the session logs
-            self.content_id = uuid.uuid4().hex
+            cls.content_id = uuid.uuid4().hex
             for i, classroom in enumerate(classrooms):
                 classroom_user_data = facility_user_data[
-                    i * self.n_users : (i + 1) * self.n_users
+                    i * cls.n_users : (i + 1) * cls.n_users
                 ]
                 users = user_data.get_or_create_classroom_users(
-                    n_users=self.n_users,
+                    n_users=cls.n_users,
                     classroom=classroom,
                     user_data=classroom_user_data,
                     facility=facility,
                 )
-                self.users.extend(users)
+                cls.users.extend(users)
                 # create 1 of each type of log per user
                 for user in users:
                     for _ in range(1):
                         sessionlog = ContentSessionLog.objects.create(
                             user=user,
-                            start_timestamp=self.min_timestamp,
-                            end_timestamp=self.max_timestamp,
-                            content_id=self.content_id,
-                            channel_id=self.channel.id,
+                            start_timestamp=cls.min_timestamp,
+                            end_timestamp=cls.max_timestamp,
+                            content_id=cls.content_id,
+                            channel_id=cls.channel.id,
                             time_spent=60,  # 1 minute
                             kind=content_kinds.EXERCISE,
                         )
                         AttemptLog.objects.create(
                             item="item",
-                            start_timestamp=self.min_timestamp,
-                            end_timestamp=self.max_timestamp,
-                            completion_timestamp=self.max_timestamp,
+                            start_timestamp=cls.min_timestamp,
+                            end_timestamp=cls.max_timestamp,
+                            completion_timestamp=cls.max_timestamp,
                             correct=1,
                             sessionlog=sessionlog,
                         )
@@ -157,34 +158,34 @@ class BaseDeviceSetupMixin(object):
                         ContentSessionLog.objects.create(
                             dataset=dataset,
                             user=None,
-                            start_timestamp=self.min_timestamp,
-                            end_timestamp=self.max_timestamp,
-                            content_id=self.content_id,
-                            channel_id=self.channel.id,
+                            start_timestamp=cls.min_timestamp,
+                            end_timestamp=cls.max_timestamp,
+                            content_id=cls.content_id,
+                            channel_id=cls.channel.id,
                             time_spent=60,  # 1 minute,
                             kind=content_kinds.VIDEO,
                         )
                     for _ in range(1):
                         UserSessionLog.objects.create(
                             user=user,
-                            start_timestamp=self.min_timestamp,
-                            last_interaction_timestamp=self.max_timestamp,
+                            start_timestamp=cls.min_timestamp,
+                            last_interaction_timestamp=cls.max_timestamp,
                             device_info="Android,9/Chrome Mobile,86",
                         )
                     for _ in range(1):
                         ContentSummaryLog.objects.create(
                             user=user,
-                            start_timestamp=self.min_timestamp,
-                            end_timestamp=self.max_timestamp,
-                            completion_timestamp=self.max_timestamp,
+                            start_timestamp=cls.min_timestamp,
+                            end_timestamp=cls.max_timestamp,
+                            completion_timestamp=cls.max_timestamp,
                             content_id=uuid.uuid4().hex,
-                            channel_id=self.channel.id,
+                            channel_id=cls.channel.id,
                         )
                     for _ in range(1):
                         sl = ContentSessionLog.objects.create(
                             user=user,
-                            start_timestamp=self.min_timestamp,
-                            end_timestamp=self.max_timestamp,
+                            start_timestamp=cls.min_timestamp,
+                            end_timestamp=cls.max_timestamp,
                             content_id=exam_id,
                             channel_id=None,
                             time_spent=60,  # 1 minute
@@ -192,9 +193,9 @@ class BaseDeviceSetupMixin(object):
                         )
                         summarylog = ContentSummaryLog.objects.create(
                             user=user,
-                            start_timestamp=self.min_timestamp,
-                            end_timestamp=self.max_timestamp,
-                            completion_timestamp=self.max_timestamp,
+                            start_timestamp=cls.min_timestamp,
+                            end_timestamp=cls.max_timestamp,
+                            completion_timestamp=cls.max_timestamp,
                             content_id=exam_id,
                             channel_id=None,
                             kind=content_kinds.QUIZ,
@@ -209,9 +210,9 @@ class BaseDeviceSetupMixin(object):
                         AttemptLog.objects.create(
                             masterylog=masterylog,
                             sessionlog=sl,
-                            start_timestamp=self.min_timestamp,
-                            end_timestamp=self.max_timestamp,
-                            completion_timestamp=self.max_timestamp,
+                            start_timestamp=cls.min_timestamp,
+                            end_timestamp=cls.max_timestamp,
+                            completion_timestamp=cls.max_timestamp,
                             correct=1,
                             item="test:test",
                         )
@@ -221,7 +222,7 @@ class BaseDeviceSetupMixin(object):
         DeviceSettings.objects.delete()
 
 
-class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
+class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
     def test_extract_facility_statistics(self):
         provision_device(allow_guest_access=True)
         facility = self.facilities[0]
@@ -323,7 +324,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
         assert actual["l"] is None
 
 
-class SoudFacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
+class SoudFacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
     n_facilities = 1
     n_superusers = 0
     n_users = 2
@@ -340,7 +341,7 @@ class SoudFacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
         self.assertEqual(expected_soud_hash, actual.pop("sh"))
 
 
-class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
+class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
     def test_extract_channel_statistics(self):
         actual = extract_channel_statistics(self.channel)
         birth_year_list_learners = [
@@ -388,7 +389,7 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
         assert actual == expected
 
 
-class CreateUpdateNotificationsTestCase(TransactionTestCase):
+class CreateUpdateNotificationsTestCase(TestCase):
     def setUp(self):
         self.msg = {
             "i18n": {},
@@ -406,6 +407,7 @@ class CreateUpdateNotificationsTestCase(TransactionTestCase):
             "version_range": "<1.0.0",
             "source": PINGBACK,
         }
+
         PingbackNotification.objects.create(**self.data)
 
     def test_no_messages_still_updates(self):

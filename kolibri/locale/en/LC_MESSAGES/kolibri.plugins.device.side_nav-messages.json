@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Not enough space available on your device. Free up disk space or select fewer resources",
   "CommonDeviceStrings.permissionsLabel": "Permissions",
   "CommonDeviceStrings.primaryStorageLabel": "Newly downloaded resources will be added to the primary storage location",
+  "CommonDeviceStrings.statusCanceled": "Canceled",
+  "CommonDeviceStrings.statusCanceling": "Canceling",
+  "CommonDeviceStrings.statusComplete": "Finished",
+  "CommonDeviceStrings.statusFailed": "Failed",
+  "CommonDeviceStrings.statusInProgress": "In-progress",
+  "CommonDeviceStrings.statusInQueue": "Waiting",
   "CommonDeviceStrings.unlistedChannelLabel": "Unlisted channel"
 }

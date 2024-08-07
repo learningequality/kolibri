@@ -32,6 +32,7 @@
   "CommonLearnStrings.toggleLicenseDescription": "Εναλλαγή περιγραφής άδειας",
   "CommonLearnStrings.viewResource": "Προβολή πηγής",
   "CommonLearnStrings.whatYouWillNeed": "Τι θα χρειαστείτε",
+  "DownloadRequests.downloadComplete": "Η λήψη ολοκληρώθηκε",
   "DownloadRequests.downloadStartedLabel": "Ζητήθηκε λήψη",
   "DownloadRequests.goToDownloadsPage": "Μεταβείτε στις λήψεις",
   "DownloadRequests.resourceRemoved": "Η πηγή αφαιρέθηκε από τη βιβλιοθήκη μου",

@@ -4,7 +4,7 @@
     v-if="itemId || itemData"
     class="bibliotron-exercise perseus-root"
     :class="{ 'perseus-mobile': isMobile }"
-    @keydown.enter="answerGiven"
+    @keydown.enter.prevent="answerGiven"
   >
     <div
       class="framework-perseus"
@@ -57,6 +57,7 @@
   const keypadStyle = StyleSheet.create({
     keypadContainer: {
       zIndex: 20,
+      pointerEvents: 'none',
     },
   });
 
@@ -429,7 +430,16 @@
             createPortal(
               e(MobileKeypad, {
                 style: keypadStyle.keypadContainer,
-                onElementMounted: setKeypadElement,
+                onElementMounted: el => {
+                  // We need to add the class to the container element
+                  // but the MobileKeypad component does not pass through
+                  // React's className prop to the root element.
+                  const domNode = el.getDOMNode();
+                  if (domNode) {
+                    domNode.classList.add('perseus-keypad-container');
+                  }
+                  setKeypadElement(el);
+                },
                 onDismiss: () => renderer && renderer.blur(),
                 onAnalyticsEvent: async () => {},
               }),
@@ -971,6 +981,10 @@
       border-radius: 3px;
       transition: box-shadow ease-in-out 0.15s;
     }
+  }
+
+  .perseus-keypad-container > div > div {
+    pointer-events: auto;
   }
 
 </style>

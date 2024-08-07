@@ -4,7 +4,7 @@ import zlib
 import mock
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TransactionTestCase
+from django.test import TestCase
 from requests.models import Response
 
 from .test_utils import BaseDeviceSetupMixin
@@ -38,7 +38,7 @@ def mocked_network_client_post_wrapper(json_data, status_code):
     return mocked_network_client_post
 
 
-class PingCommandTestCase(BaseDeviceSetupMixin, TransactionTestCase):
+class PingCommandTestCase(BaseDeviceSetupMixin, TestCase):
     @mock.patch(
         "kolibri.core.discovery.utils.network.client.NetworkClient.post",
         side_effect=mocked_network_client_post_wrapper({"id": 17}, 200),

@@ -46,7 +46,7 @@
           <AttemptLogItem
             class="attempt-option"
             :isSurvey="isSurvey"
-            :attemptLog="attemptLogs[index]"
+            :attemptLog="attemptLogs[sections[currentSectionIndex].startQuestionNumber + index]"
             displayTag="span"
           />
         </template>

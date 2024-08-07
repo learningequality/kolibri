@@ -14,10 +14,21 @@ export default createTranslator('PerseusInternalMessages', {
   NEEDS_TO_BE_SIMPLFIED_ERROR: 'Your answer is almost correct, but it needs to be simplified.',
   MISSING_PERCENT_ERROR:
     'Your answer is almost correct, but it is missing a <code>\\\\%</code> at the end.',
-  MULTIPLICATION_SIGN_ERROR:
-    "I'm a computer. I only understand multiplication if you use an asterisk (*) as the multiplication sign.",
-  WRONG_CASE_ERROR: 'Your answer includes use of a variable with the wrong case.',
-  WRONG_LETTER_ERROR: 'Your answer includes a wrong variable letter.',
+  MULTIPLICATION_SIGN_ERROR: {
+    message:
+      "I'm a computer. I only understand multiplication if you use an asterisk (*) as the multiplication sign.",
+    context:
+      'Feel free to skip translating the first sentence, just make clear the necessity to use the asterisk (*) as the multiplication sign.',
+  },
+  WRONG_CASE_ERROR: {
+    message: 'Your answer includes use of a variable with the wrong case.',
+    context: 'Refers to capitalization of the variables.',
+  },
+  WRONG_LETTER_ERROR: {
+    message: 'Your answer includes a wrong variable letter.',
+    context:
+      "Refers to variables in algebra, and assumes that the variable name is always just one letter (like 'a' , 'b', etc.) ",
+  },
   invalidSelection: 'Make sure you select something for every row.',
   ERROR_TITLE: 'Oops!',
   ERROR_MESSAGE: "Sorry, I don't understand that!",
@@ -66,7 +77,11 @@ export default createTranslator('PerseusInternalMessages', {
   clickTiles: 'Click on the tiles to change the lights.',
   turnOffLights: 'You must turn on all of the lights to continue.',
   fillAllCells: 'Make sure you fill in all cells in the matrix.',
-  molecularDrawing: 'A molecular structure drawing. SMILES notation: { content }',
+  molecularDrawing: {
+    message: 'A molecular structure drawing. SMILES notation: { content }',
+    context:
+      'SMILES refer to https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system',
+  },
   switchDirection: 'Switch direction',
   circleOpen: 'Make circle open',
   circleFilled: 'Make circle filled',
@@ -110,10 +125,22 @@ export default createTranslator('PerseusInternalMessages', {
   choiceCrossedOut: '(Choice { letter }, Crossed out)',
   choice: '(Choice { letter })',
   crossOut: 'Cross out',
-  crossOutOption: 'Cross out option',
+  crossOutOption: {
+    message: 'Cross out option',
+    context:
+      'Tooltip that informs the user that they can cross-out one of the options in the multiple choice type of question.',
+  },
   crossOutChoice: 'Cross out Choice { letter }',
-  bringBack: 'Bring back',
-  openMenuForChoice: 'Open menu for Choice { letter }',
+  bringBack: {
+    message: 'Bring back',
+    context:
+      'Tooltip that informs the user that they can revert the crossing out they performed on an  options in the multiple choice type of question.',
+  },
+  openMenuForChoice: {
+    message: 'Open menu for Choice { letter }',
+    context:
+      "'Choice' refers to the option/answer the user has previously chosen in a multiple choice type of a question. Some of the answers may have a menu available and this string is the label indicating that the user can open that menu.",
+  },
   letters: {
     message: 'A B C D E F G H I J K L M N O P Q R S T U V W X Y Z',
     context:

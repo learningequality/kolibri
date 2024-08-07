@@ -12,6 +12,7 @@ Eventually, it may also store user feedback on the content and the software.
 """
 from __future__ import unicode_literals
 
+import logging
 from datetime import timedelta
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -19,6 +20,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinLengthValidator
 from django.core.validators import MinValueValidator
+from django.db import IntegrityError
 from django.db import models
 from django.utils import timezone
 from morango.models import SyncableModelQuerySet
@@ -35,6 +37,9 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.fields import JSONField
 from kolibri.utils.time_utils import local_now
+
+
+logger = logging.getLogger(__name__)
 
 
 class BaseLogQuerySet(SyncableModelQuerySet):
@@ -217,7 +222,14 @@ class UserSessionLog(BaseLogModel):
                 )
                 user_session_log = cls(user=user, device_info=device_info)
             user_session_log.last_interaction_timestamp = local_now()
-            user_session_log.save()
+            try:
+                user_session_log.save()
+            except IntegrityError:
+                logger.warning(
+                    "UserSessionLog save failed due to IntegrityError, for user {}".format(
+                        user.id
+                    )
+                )
 
 
 class MasteryLog(BaseLogModel):

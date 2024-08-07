@@ -126,9 +126,12 @@ def _user_is_admin_for_own_facility(user, obj=None):
     if obj:
         if not hasattr(obj, "dataset_id") or not user.dataset_id == obj.dataset_id:
             return False
-
-    facility = Facility.objects.get(dataset_id=user.dataset_id)
-    return user.has_role_for_collection(role_kinds.ADMIN, facility)
+    try:
+        facility = Facility.objects.get(dataset_id=user.dataset_id)
+        return user.has_role_for_collection(role_kinds.ADMIN, facility)
+    except Facility.DoesNotExist:
+        # Handle the edge case where a facility has been deleted
+        return False
 
 
 class IsAdminForOwnFacility(BasePermissions):

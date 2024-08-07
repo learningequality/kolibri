@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "მოწყობილობაზე არ გაქვთ საკმარისი თავისუფალი ადგილი. გაათავისუფლეთ დისკის მეხსიერება, ან ნაკლები რესურსი მონიშნეთ",
   "CommonDeviceStrings.permissionsLabel": "ნებართვები",
   "CommonDeviceStrings.primaryStorageLabel": "",
+  "CommonDeviceStrings.statusCanceled": "გაუქმებულია",
+  "CommonDeviceStrings.statusCanceling": "უქმდება",
+  "CommonDeviceStrings.statusComplete": "დასრულებულია",
+  "CommonDeviceStrings.statusFailed": "წარუმატებელი",
+  "CommonDeviceStrings.statusInProgress": "პროცესშია",
+  "CommonDeviceStrings.statusInQueue": "მოლოდინი",
   "CommonDeviceStrings.unlistedChannelLabel": "აღუნუსხავი არხი"
 }

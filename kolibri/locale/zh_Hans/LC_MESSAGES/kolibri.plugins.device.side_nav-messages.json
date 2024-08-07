@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "设备上没有足够的可用空间。释放磁盘空间或选择更少的资源",
   "CommonDeviceStrings.permissionsLabel": "权限",
   "CommonDeviceStrings.primaryStorageLabel": "新下载的资源将添加到主存储位置",
+  "CommonDeviceStrings.statusCanceled": "已取消",
+  "CommonDeviceStrings.statusCanceling": "取消中",
+  "CommonDeviceStrings.statusComplete": "已完成",
+  "CommonDeviceStrings.statusFailed": "失败",
+  "CommonDeviceStrings.statusInProgress": "进行中",
+  "CommonDeviceStrings.statusInQueue": "等待中",
   "CommonDeviceStrings.unlistedChannelLabel": "未列出的频道"
 }

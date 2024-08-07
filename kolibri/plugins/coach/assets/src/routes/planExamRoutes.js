@@ -5,6 +5,7 @@ import ResourceSelection from '../views/plan/CreateExamPage/ResourceSelection.vu
 import ReplaceQuestions from '../views/plan/CreateExamPage/ReplaceQuestions.vue';
 import CoachExamsPage from '../views/plan/CoachExamsPage';
 import QuizSummaryPage from '../views/plan/QuizSummaryPage';
+import SectionOrder from '../views/plan/CreateExamPage/SectionOrder';
 
 export default [
   {
@@ -34,6 +35,11 @@ export default [
         name: PageNames.QUIZ_SELECT_RESOURCES,
         path: 'select-resources/:topic_id?',
         component: ResourceSelection,
+      },
+      {
+        name: PageNames.QUIZ_SECTION_ORDER,
+        path: 'section-order',
+        component: SectionOrder,
       },
       {
         name: PageNames.QUIZ_SELECT_PRACTICE_QUIZ,

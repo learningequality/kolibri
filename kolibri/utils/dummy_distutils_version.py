@@ -1,0 +1,1 @@
+StrictVersion = None

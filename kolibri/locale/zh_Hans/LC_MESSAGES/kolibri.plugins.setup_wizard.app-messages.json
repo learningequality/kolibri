@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "非正式的",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "此设备将成为供管理员、助教和学生使用的全功能课励彼服务器。",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "完整设备",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "此设备将从已存在的全功能设备中导入一个或多个学生账户。学生账户将自动与该全功能设备同步。",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "此设备将仅有学习者使用的功能，它将自动与完整设备同步。",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "本设备仅供学习使用",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "这是什么类型的设备？",
   "GuestAccessForm.changeLater": "您可以稍后在设备设置中进行更改。",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "复制到剪切板",
   "UserCredentialsForm.adminAccountCreationHeader": "创建超级管理员",
   "UserCredentialsForm.learnerAccountCreationDescription": "'{facility}'学习设施的新账户",
-  "UserCredentialsForm.learnerAccountCreationHeader": "创建您的账户"
+  "UserCredentialsForm.learnerAccountCreationHeader": "创建您的账户",
+  "UserCredentialsForm.signInInstead": "改为登录？"
 }
