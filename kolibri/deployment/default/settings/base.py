@@ -105,6 +105,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "kolibri.core.auth.middleware.CustomAuthenticationMiddleware",
     "kolibri.core.errorreports.middleware.ErrorReportingMiddleware",
+    "kolibri.core.errorreports.middleware.PreRequestMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",

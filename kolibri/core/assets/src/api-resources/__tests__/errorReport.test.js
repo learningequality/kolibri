@@ -23,15 +23,19 @@ describe('Error Report', () => {
   it('should call api/core/report with VueErrorReport data', () => {
     const vueError = new Error('Vue error');
     vueError.stack = 'My stack trace';
-    const errorReport = new VueErrorReport(vueError);
+    const vm = { $options: { name: 'TestComponent' } };
+    const errorReport = new VueErrorReport(vueError, vm);
 
     const expectedData = {
       error_message: 'Vue error',
       traceback: 'My stack trace',
+      context: {
+        ...errorReport.getContext(),
+        component: 'TestComponent',
+      },
     };
 
     Resource.client = jest.fn();
-
     Resource.report(errorReport);
 
     expect(Resource.client).toHaveBeenCalledWith({
@@ -52,10 +56,10 @@ describe('Error Report', () => {
     const expectedData = {
       error_message: 'Javascript error',
       traceback: 'My stack trace',
+      context: errorReport.getContext(),
     };
 
     Resource.client = jest.fn();
-
     Resource.report(errorReport);
 
     expect(Resource.client).toHaveBeenCalledWith({
@@ -76,10 +80,10 @@ describe('Error Report', () => {
     const expectedData = {
       error_message: 'Unhandled rejection',
       traceback: 'My stack trace',
+      context: errorReport.getContext(),
     };
 
     Resource.client = jest.fn();
-
     Resource.report(errorReport);
 
     expect(Resource.client).toHaveBeenCalledWith({

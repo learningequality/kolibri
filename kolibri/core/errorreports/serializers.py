@@ -1,6 +1,11 @@
 from rest_framework import serializers
 
+from .models import ErrorReports
 
-class ErrorReportSerializer(serializers.Serializer):
-    error_message = serializers.CharField(max_length=255)
-    traceback = serializers.CharField()
+
+class ErrorReportSerializer(serializers.ModelSerializer):
+    context = serializers.JSONField()
+
+    class Meta:
+        model = ErrorReports
+        fields = ["error_message", "traceback", "context"]

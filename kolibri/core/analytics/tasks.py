@@ -25,8 +25,9 @@ DEFAULT_PING_INTERVAL = 24 * 60
 @register_task(job_id=DEFAULT_PING_JOB_ID)
 def _ping(started, server, checkrate):
     try:
-        ping_once(started, server=server)
-        ping_error_reports.enqueue(args=(server,))
+        pingback_id = ping_once(started, server=server)
+        if pingback_id:
+            ping_error_reports.enqueue(args=(server, pingback_id))
     except ConnectionError:
         logger.warning(
             "Ping failed (could not connect). Trying again in {} minutes.".format(

@@ -78,9 +78,9 @@ heartbeat.startPolling();
 i18nSetup().then(coreApp.ready);
 
 // these shall be responsibe for catching runtime errors
-Vue.config.errorHandler = function (err) {
+Vue.config.errorHandler = function(err, vm) {
   logging.error(`Unexpected Error: ${err}`);
-  const error = new VueErrorReport(err);
+  const error = new VueErrorReport(err, vm);
   ErrorReportResource.report(error);
 };
 

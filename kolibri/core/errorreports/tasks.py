@@ -15,33 +15,41 @@ from kolibri.core.utils.urls import join_url
 logger = logging.getLogger(__name__)
 
 
-def serialize_error_reports_to_json_response(errors):
+def serialize_error_reports_to_json_response(errors, pingback_id):
     errors_list = []
     for error in errors:
         errors_list.append(
             {
-                "error_from": error.error_from,
+                "category": error.category,
                 "error_message": error.error_message,
                 "traceback": error.traceback,
                 "first_occurred": error.first_occurred,
                 "last_occurred": error.last_occurred,
-                "no_of_errors": error.no_of_errors,
+                "events": error.events,
+                "release_version": error.release_version,
+                "installation_type": error.installation_type,
+                "context": error.context,
+                "pingback_id": pingback_id,
             }
         )
     return json.dumps(errors_list, cls=DjangoJSONEncoder)
 
 
 @register_task
-def ping_error_reports(server):
+def ping_error_reports(server, pingback_id):
     try:
-        errors = ErrorReports.get_unsent_errors()
-        errors_json = serialize_error_reports_to_json_response(errors)
+        errors = ErrorReports.get_unreported_errors()
+
+        errors_json = serialize_error_reports_to_json_response(errors, pingback_id)
+
         requests.post(
-            join_url(server, "/api/v1/errors/"),
+            join_url(server, "/api/v1/errors/report/"),
             data=errors_json,
             headers={"Content-Type": "application/json"},
         )
-        errors.update(sent=True)
+
+        errors.update(reported=True)
+
     except ConnectionError:
         logger.warning("Reporting Error failed (could not connect).")
         raise
