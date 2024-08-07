@@ -299,7 +299,8 @@ class ChannelThumbnailView(View):
     def get(self, request, channel_id):
         channel = get_object_or_404(models.ChannelMetadata, id=channel_id)
         try:
-            mimetype, b_64_thumbnail = channel.thumbnail.split(",", 1)
+            header, b_64_thumbnail = channel.thumbnail.split(",", 1)
+            mimetype = header.split(":")[1].split(";")[0]
         except ValueError:
             raise Http404("No thumbnail available")
         thumbnail = urlsafe_b64decode(b_64_thumbnail)

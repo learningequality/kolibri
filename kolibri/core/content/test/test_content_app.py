@@ -2021,7 +2021,7 @@ class ChannelThumbnailViewTestCase(APITestCase):
             reverse("kolibri:core:channel-thumbnail", args=[self.channel_metadata.id])
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response["Content-Type"], "data:image/png;base64")
+        self.assertEqual(response["Content-Type"], "image/png")
         self.assertEqual(
             response.content, urlsafe_b64decode(self.thumbnail.split(",")[1])
         )
