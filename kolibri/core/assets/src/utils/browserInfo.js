@@ -64,6 +64,13 @@ export const os = {
   patch: osVersion[2],
 };
 
+// Device info
+export const device = {
+  type: info.device.type || 'desktop',
+  model: info.device.model,
+  vendor: info.device.vendor,
+};
+
 // Check for presence of the touch event in DOM or multi-touch capabilities
 export const isTouchDevice =
   'ontouchstart' in window ||

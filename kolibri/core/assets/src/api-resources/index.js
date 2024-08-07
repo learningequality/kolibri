@@ -24,6 +24,7 @@ export { default as UserSyncStatusResource } from './userSyncStatus';
 export { default as ContentRequestResource } from './contentRequest';
 export { default as ContentNodeProgressResource } from './contentNodeProgress';
 export { default as DevicePermissionsResource } from './devicePermissions';
+export { default as ErrorReportResource } from './errorReport';
 export { default as RemoteChannelResource } from './remoteChannel';
 export { default as LessonResource } from './lesson';
 export { default as AttemptLogResource } from './attemptLog';

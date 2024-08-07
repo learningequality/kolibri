@@ -58,6 +58,9 @@ SECRET_KEY = "f@ey3)y^03r9^@mou97apom*+c1m#b1!cwbm50^s4yk72xce27"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = conf.OPTIONS["Server"]["DEBUG"]
 
+# Developer mode should be False instead of None in production mode
+DEVELOPER_MODE = False
+
 ALLOWED_HOSTS = ["*"]
 
 # Application definition
@@ -73,6 +76,7 @@ INSTALLED_APPS = [
     "kolibri.core.auth.apps.KolibriAuthConfig",
     "kolibri.core.bookmarks",
     "kolibri.core.content",
+    "kolibri.core.errorreports",
     "kolibri.core.logger",
     "kolibri.core.notifications.apps.KolibriNotificationsConfig",
     "kolibri.core.tasks.apps.KolibriTasksConfig",
@@ -100,6 +104,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "kolibri.core.auth.middleware.CustomAuthenticationMiddleware",
+    "kolibri.core.errorreports.middleware.ErrorReportingMiddleware",
+    "kolibri.core.errorreports.middleware.PreRequestMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -161,6 +167,7 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
         "kolibri.core.notifications.models.NotificationsRouter",
         "kolibri.core.device.models.SyncQueueRouter",
         "kolibri.core.discovery.models.NetworkLocationRouter",
+        "kolibri.core.errorreports.models.ErrorReportsRouter",
     )
 
 elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
