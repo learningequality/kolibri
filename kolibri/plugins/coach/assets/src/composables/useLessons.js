@@ -15,7 +15,7 @@ export function useLessons() {
   async function showLessonsRootPage(store, classId) {
     const initClassInfoPromise = store.dispatch('initClassInfo', classId);
     const getFacilitiesPromise =
-      useUser().isSuperuser && store.state.core.facilities.length === 0
+      useUser().isSuperuser.value && store.state.core.facilities.length === 0
         ? store.dispatch('getFacilities').catch(() => {})
         : Promise.resolve();
 

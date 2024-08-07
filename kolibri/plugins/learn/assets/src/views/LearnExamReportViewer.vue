@@ -58,13 +58,7 @@
     },
     setup() {
       const { full_name, user_id } = useUser();
-      return { full_name, user_id };
-    },
-    data() {
-      return {
-        userName: this.full_name,
-        userId: this.user_id,
-      };
+      return { userName: full_name, userId: user_id };
     },
     computed: {
       ...mapState('examReportViewer', [

@@ -11,7 +11,7 @@ export default function useContentTasks() {
   }, 1000);
 
   function startTaskPolling() {
-    if (canManageContent) {
+    if (canManageContent.value) {
       polling.resume();
     }
   }

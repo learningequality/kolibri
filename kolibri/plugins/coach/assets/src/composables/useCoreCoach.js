@@ -23,7 +23,7 @@ export default function useCoreCoach(store) {
     // Using coachStrings.$tr() here because mixins are not applied
     // prior to props being processed.
     const { facility_id, name } = store.state.classSummary;
-    if (facility_id && store.state.core.facilities.length > 1 && isSuperuser) {
+    if (facility_id && store.state.core.facilities.length > 1 && get(isSuperuser)) {
       const match = find(store.state.core.facilities, { id: facility_id }) || {};
       facilityName = match.name;
     }
