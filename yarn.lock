@@ -7691,17 +7691,17 @@ kolibri-design-system@4.3.2:
     vue-intl "3.1.0"
     xstate "4.38.3"
 
-launch-editor-middleware@^2.8.0:
-  version "2.8.0"
-  resolved "https://registry.yarnpkg.com/launch-editor-middleware/-/launch-editor-middleware-2.8.0.tgz#e6021d2ceb70830fddf8bbcee5730acb5aa2db58"
-  integrity sha512-0Az27jnPR2RgkUoZoLHluM5gg9zHeg7hPsUZESJxcTV8Rs6Fed+Nof7Lb2HmpsE8lN/3YzpU+mvK5exYWSftWw==
+launch-editor-middleware@^2.8.1:
+  version "2.8.1"
+  resolved "https://registry.yarnpkg.com/launch-editor-middleware/-/launch-editor-middleware-2.8.1.tgz#f571c289279e2ea6f7dcda8499ab84ff983e2cbe"
+  integrity sha512-GWhcsTuzgRQguiiei0BrbLX7rS5Pcj+6VyynZlS7zlnmUvVAUUBnJjILIhuIgWJXn1WSMtkfHAkXFSoQeJvwdQ==
   dependencies:
-    launch-editor "^2.8.0"
+    launch-editor "^2.8.1"
 
-launch-editor@^2.6.1, launch-editor@^2.8.0:
-  version "2.8.0"
-  resolved "https://registry.yarnpkg.com/launch-editor/-/launch-editor-2.8.0.tgz#7255d90bdba414448e2138faa770a74f28451305"
-  integrity sha512-vJranOAJrI/llyWGRQqiDM+adrw+k83fvmmx3+nV47g3+36xM15jE+zyZ6Ffel02+xSvuM0b2GDRosXZkbb6wA==
+launch-editor@^2.6.1, launch-editor@^2.8.1:
+  version "2.8.1"
+  resolved "https://registry.yarnpkg.com/launch-editor/-/launch-editor-2.8.1.tgz#3bda72af213ec9b46b170e39661916ec66c2f463"
+  integrity sha512-elBx2l/tp9z99X5H/qev8uyDywVh0VXAwEbjk8kJhnc5grOFkGh7aW6q55me9xnYbss261XtnUrysZ+XvGbhQA==
   dependencies:
     picocolors "^1.0.0"
     shell-quote "^1.8.1"
