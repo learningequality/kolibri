@@ -22,7 +22,7 @@
     <!-- This should be within the KTabsList to simplify rendering, but there is no slot.
       The absolute styling isn't as nice as if it were part of the flex container instead, but
       it ought to work -->
-    <div style="position: absolute; top: 5px; right: 0">
+    <div class="more-button">
       <slot
         name="overflow"
         :overflowTabs="overflowTabs"
@@ -142,6 +142,12 @@
   .container {
     position: relative;
     height: 3rem !important;
+  }
+
+  .more-button {
+    position: absolute;
+    top: 5px;
+    right: 0;
   }
 
 </style>

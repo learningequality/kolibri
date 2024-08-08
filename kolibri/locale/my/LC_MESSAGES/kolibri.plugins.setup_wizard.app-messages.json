@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "ထုံးတမ်းစဉ်လာမဟုတ်သော",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "ဤစက်ပစ္စည်းသည် စီမံခန့်ခွဲသူများ၊ နည်းပြများနှင့် သင်ယူသူများအသုံးပြုသော အပြည့်အဝအင်္ဂါရပ်ရှိသော Kolibri ဆာဗာတစ်ခုဖြစ်သည်။",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "စီမံခန့်ခွဲသူအက်ဒမင်များ၊ နည်းပြများ၊ သင်ယူသူများ၏ လုပ်ဆောင်ချက်အာလုံးလုပ်ဆောင်နိုင်သည့် စက်",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "ဤစက်ပစ္စည်းတွင် ရှိနှင့်ပြီးသား စက်အပြည့်အစုံမှ သင်ယူသူအကောင့်တစ်ခု သို့မဟုတ် တစ်ခုထက်ပိုသော သင်ယူသူအကောင့်များ ရှိပါမည်။ သင်ယူသူအကောင့်များသည် စက်အပြည့်အစုံဖြင့် အလိုအလျောက် စင့်ခ်လုပ်ပါမည်။",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "ဤစက်ပစ္စည်းတွင် သင်ယူသူများအသုံးပြုသည့် အင်္ဂါရပ်များသာ ပါရှိမည်ဖြစ်ပြီး ၎င်းသည် စက်အပြည့်အစုံနှင့် အလိုအလျောက် စင့်ခ်လုပ်မည်ဖြစ်သည်။",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "သင်ယူသူများအတွက် သီးသန့်စက်",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "ဒါက ဘယ်လိုစက်မျိုးလဲ။",
   "GuestAccessForm.changeLater": "၎င်းကို သင့်စက်ဆက်တင်များတွင် နောက်မှပြောင်းနိုင်သည်။",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "ကလစ်ဘုတ်သို့ ကော်ပီကူးပါ",
   "UserCredentialsForm.adminAccountCreationHeader": "အဆင့်မြင့်အက်ဒမင်အကောင့်ဖန်တီးမည်",
   "UserCredentialsForm.learnerAccountCreationDescription": "'{facility}' သင်ကြားရေးဌာနအတွက် အကောင့်အသစ်",
-  "UserCredentialsForm.learnerAccountCreationHeader": "သင့်အကောင့်ကိုဖန်တီးမည်"
+  "UserCredentialsForm.learnerAccountCreationHeader": "သင့်အကောင့်ကိုဖန်တီးမည်",
+  "UserCredentialsForm.signInInstead": "အကောင့်ဖြင့်တန်းဝင်မလား။"
 }

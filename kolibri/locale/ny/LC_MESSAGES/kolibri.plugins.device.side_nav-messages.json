@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Malo osungira zinthu ndiochepa. Fufutani zinthu zina kuti mukhale ndi malo osungira zinthu ambiri",
   "CommonDeviceStrings.permissionsLabel": "Zilolezo",
   "CommonDeviceStrings.primaryStorageLabel": "Zipangizo zomwe zangotsitsidwa kumene pa intaneti zidzayikidwa m'malo osungiramo oyambirira",
+  "CommonDeviceStrings.statusCanceled": "Yayimitsidwa",
+  "CommonDeviceStrings.statusCanceling": "Ikuyimitsidwa",
+  "CommonDeviceStrings.statusComplete": "Yamaliza",
+  "CommonDeviceStrings.statusFailed": "Yalephereka",
+  "CommonDeviceStrings.statusInProgress": "Zilimkati",
+  "CommonDeviceStrings.statusInQueue": "Dikirani",
   "CommonDeviceStrings.unlistedChannelLabel": "Matchanelo amene sali pa mndandanda"
 }

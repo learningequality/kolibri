@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "निरोपचारिक",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "डिवाइस सभी सुविधाओं वाला Kolibri सर्वर होगा जिसका उपयोग एडमिन, कोच और शिक्षार्थी करेंगे",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "पूर्ण डिवाइस",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "इस डिवाइस में पहले से मौजूद एक पूर्ण डिवाइस से आयात किए गए एक या अधिक शिक्षार्थी अकाउंट होंगे। शिक्षार्थी अकाउंट पूरी डिवाइस के साथ ऑटो-सिंक हो जाएंगे।",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "इस डिवाइस में केवल शिक्षार्थियों द्वारा उपयोग की जाने वाली सुविधाएं ही होंगी, तथा यह सम्पूर्ण डिवाइस के साथ ऑटो-सिंक हो जाएगी।",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "केवल-सीखने वाला डिवाइस",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "यह किस तरह का डिवाइस है?",
   "GuestAccessForm.changeLater": "आप इसे बाद में अपनी डिवाइस सेटिंग में बदल सकते हैं।",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "क्लिपबोर्ड पर कॉपी करें",
   "UserCredentialsForm.adminAccountCreationHeader": "सुपर एडमिन बनाएं",
   "UserCredentialsForm.learnerAccountCreationDescription": "शिक्षण सुविधा '{facility}' के लिए नया अकाउंट",
-  "UserCredentialsForm.learnerAccountCreationHeader": "अपना अकाउंट बनाएं"
+  "UserCredentialsForm.learnerAccountCreationHeader": "अपना अकाउंट बनाएं",
+  "UserCredentialsForm.signInInstead": "इसके बजाय साइन इन करें?"
 }

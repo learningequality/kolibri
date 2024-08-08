@@ -122,6 +122,7 @@ oriented data synchronization.
                 />
                 <KButton
                   v-else
+                  ref="nextButton"
                   appearance="raised-button"
                   :text="$tr('next')"
                   :primary="true"
@@ -418,6 +419,11 @@ oriented data synchronization.
         }
         this.complete = correct === 1;
         this.updateAttempt({ answerState, simpleAnswer });
+        if (this.complete) {
+          this.$nextTick(() => {
+            this.$refs.nextButton.$el.focus();
+          });
+        }
       },
       hintTaken({ answerState }) {
         this.hintWasTaken = true;

@@ -228,16 +228,33 @@
               isPolling = false;
             });
         } else {
-          TaskResource.fetchModel({ id: taskId.value, force: true }).then(startedTask => {
-            task.value = startedTask;
-            if (startedTask.status == TaskStatuses.COMPLETED) {
+          TaskResource.fetchModel({ id: taskId.value, force: true })
+            .then(startedTask => {
+              task.value = startedTask;
+              if (startedTask.status == TaskStatuses.COMPLETED) {
+                isPolling = false;
+              } else if (startedTask.status === TaskStatuses.FAILED) {
+                TaskResource.clear(taskId.value); // start a new one
+                isTaskRequested = false;
+                taskError.value = true;
+              }
+            })
+            .catch(err => {
+              if (err?.response?.status === 403 && task.value) {
+                // If we get a 403, it means that our currently logged in user
+                // does not have permission to access the task. This can happen
+                // if the user has been deleted by the task as intended, so assume
+                // the task has completed successfully.
+                task.value = {
+                  ...task.value,
+                  status: TaskStatuses.COMPLETED,
+                };
+              } else {
+                // if the request is bad, we can't do anything
+                taskError.value = true;
+              }
               isPolling = false;
-            } else if (startedTask.status === TaskStatuses.FAILED) {
-              TaskResource.clear(taskId.value); // start a new one
-              isTaskRequested = false;
-              taskError.value = true;
-            }
-          });
+            });
         }
 
         if (isPolling) {
@@ -265,7 +282,7 @@
           method: 'POST',
           data: params,
         }).then(() => {
-          redirectBrowser(urls['kolibri:kolibri.plugins.learn:learn']());
+          redirectBrowser();
         });
       }
 

@@ -162,7 +162,6 @@ def update_progress_cancelable_job():
             return
 
 
-@pytest.mark.django_db
 class TestJobStorage(object):
     def test_does_not_enqueue_a_function(self, storage_fixture):
         try:

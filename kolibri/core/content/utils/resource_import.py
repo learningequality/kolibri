@@ -43,20 +43,20 @@ def lookup_channel_listing_status(channel_id, baseurl=None):
     Look up the listing status of the channel from the remote, this is surfaced as a
     `public` boolean field.
     """
-    resp = requests.get(get_channel_lookup_url(identifier=channel_id, baseurl=baseurl))
-
-    # Raise here to prevent trying to fetch a channel from a remote that it is not
-    # available from.
+    client = NetworkClient.build_for_address(baseurl)
     try:
-        resp.raise_for_status()
-    except requests.exceptions.RequestException:
+        # prevent trying to fetch a channel from a remote that it is not
+        # available from.
+        resp = client.get(
+            get_channel_lookup_url(identifier=channel_id, baseurl=baseurl)
+        )
+
+    except NetworkLocationResponseFailure as e:
+        if e.response.status_code == 404:
+            return None
         raise LocationError(
             "Channel {} not found on remote {}".format(channel_id, baseurl)
         )
-
-    if resp.status_code != 200:
-        return None
-
     (channel_info,) = resp.json()
     return channel_info.get("public", None)
 

@@ -148,6 +148,12 @@ module.exports = function (locale) {
           resolve(() => require('kolibri-tools/lib/i18n/locale-data/intl/ny.js'));
         });
       });
+    case 'pa':
+      return new Promise(function (resolve) {
+        require.ensure(['intl/locale-data/jsonp/pa.js'], function (require) {
+          resolve(() => require('intl/locale-data/jsonp/pa.js'));
+        });
+      });
     case 'pt-br':
       return new Promise(function (resolve) {
         require.ensure(['intl/locale-data/jsonp/pt-BR.js'], function (require) {

@@ -7,7 +7,9 @@ from rest_framework.views import APIView
 
 from .utils import TokenGenerator
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.utils.urls import reverse_remote
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
+from kolibri.core.utils.urls import reverse_path
 from kolibri.utils.urls import validator
 
 
@@ -38,15 +40,15 @@ class RemoteFacilityUserViewset(APIView):
         facility = request.query_params.get("facility", None)
         if username is None or facility is None:
             raise ValidationError(detail="Both username and facility are required")
-        url = reverse_remote(baseurl, "kolibri:core:publicsearchuser-list")
+        client = NetworkClient.build_for_address(baseurl)
+        url = reverse_path("kolibri:core:publicsearchuser-list")
         try:
-            response = requests.get(
+            response = client.get(
                 url, params={"facility": facility, "search": username}
             )
-            if response.status_code == 200:
-                return Response(response.json())
-            else:
-                return Response({})
+            return Response(response.json())
+        except NetworkLocationResponseFailure:
+            return Response({})
         except Exception as e:
             raise ValidationError(detail=str(e))
 
@@ -63,7 +65,8 @@ class RemoteFacilityUserAuthenticatedViewset(APIView):
         password = request.data.get("password", None)
         if username is None or facility is None:
             raise ValidationError(detail="Both username and facility are required")
-        url = reverse_remote(baseurl, "kolibri:core:publicuser-list")
+        client = NetworkClient.build_for_address(baseurl)
+        url = reverse_path("kolibri:core:publicuser-list")
         params = {"facility": facility, "search": username}
 
         # adding facility so auth works when learners can login without password:
@@ -71,11 +74,11 @@ class RemoteFacilityUserAuthenticatedViewset(APIView):
 
         auth = requests.auth.HTTPBasicAuth(username, password)
         try:
-            response = requests.get(url, params=params, verify=False, auth=auth)
-            if response.status_code == 200:
-                return Response(response.json())
-            else:
-                return Response({"error": response.json()["detail"]})
+            response = client.get(url, params=params, verify=False, auth=auth)
+            return Response(response.json())
+        except NetworkLocationResponseFailure as e:
+            response = e.response
+            return Response({"error": response.json()["detail"]})
         except Exception as e:
             raise ValidationError(detail=str(e))
 
@@ -90,7 +93,7 @@ class LoginMergedUserViewset(APIView):
         pk = request.data.get("pk", None)
         token = request.data.get("token", None)
         new_user = FacilityUser.objects.get(pk=pk)
-        if not TokenGenerator().check_token(new_user, token):
+        if not TokenGenerator().check_token(new_user.id, token):
             return Response({"error": "Unauthorized"}, status=401)
         login(request, new_user)
         return Response({"success": True})

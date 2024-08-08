@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Tidak resmi",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Perangkat ini akan menjadi server Kolibri berfitur lengkap yang digunakan oleh admin, pelatih, dan pelajar.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Perangkat lengkap",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Perangkat ini akan memiliki satu atau lebih akun pelajar yang diimpor dari perangkat lengkap yang sudah ada. Akun pelajar akan disinkronkan otomatis dengan seluruh perangkat.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Perangkat ini hanya akan memiliki fitur yang digunakan pelajar dan akan otomatis tersinkronkan dengan perangkat lengkap.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Perangkat belajar saja",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "Apa jenis perangkat ini?",
   "GuestAccessForm.changeLater": "Anda dapat mengubah ini di pengaturan perangkat nanti.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Salin ke papan klip",
   "UserCredentialsForm.adminAccountCreationHeader": "Buat admin super",
   "UserCredentialsForm.learnerAccountCreationDescription": "Akun baru untuk fasilitas belajar '{facility}'",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Buat akun Anda"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Buat akun Anda",
+  "UserCredentialsForm.signInInstead": "Masuk saja?"
 }

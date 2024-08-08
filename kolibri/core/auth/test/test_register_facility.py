@@ -18,7 +18,7 @@ class RegisterFacilityTestCase(TestCase):
         self.token = "token"
         FacilityFactory()
 
-    @mock.patch("requests.post")
+    @mock.patch("kolibri.core.discovery.utils.network.client.NetworkClient.post")
     def test_no_owned_certificates(self, post_mock):
         post_mock.json.return_value = {"id": uuid.uuid4().hex}
         cert = Certificate.objects.first()

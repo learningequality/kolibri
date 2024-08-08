@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Maras tsari",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Wannan na'ura za a tsara ya isa tsarin Kolibri ma admins da masu horaswa da masu koyo",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Cikkaken na'ura",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Na'urar na iya samun sama da asusun masu koyo da yawa da aka dauko daga waya na'ura. Asusun masu koyo zasu jona kansu kai tsaye da cikakkiyar wayar.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Wannan na'urar za ta na da abubuwan da ɗalibai ke amfani da ita ne kaɗai, kuma za ta yi aiki ta atomatik tare da cikakkiyar na'urar.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Na'urar ɗalibai ce kawai",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "Wace irin na'ura ce wannan?",
   "GuestAccessForm.changeLater": "Kana iya canza saitin wayarka nan gaba.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Kwafa zuwa allo",
   "UserCredentialsForm.adminAccountCreationHeader": "Kirkira babban admin",
   "UserCredentialsForm.learnerAccountCreationDescription": "Sabon asusun '{facility}' cikin kayan karatun ''",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Ƙirƙiri asusu"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Ƙirƙiri asusu",
+  "UserCredentialsForm.signInInstead": "Maimakon haka shiga ciki"
 }

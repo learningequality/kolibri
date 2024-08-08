@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "غیر رسمی",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "این دستگاه یک سرور کلیبری کامل خواهد بود که توسط مدیرها، مربی‌ها و یادگیرنده‌ها استفاده خواهد شد.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "دستگاه با دسترسی کامل",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "این دستگاه، یک یا چند حساب یادگیرنده واردشده از دستگاهی کامل خواهد داشت که از پیش موجود است. حساب‌های یادگیرنده به‌طور خودکار با دستگاه کامل همگام‌سازی خواهند شد.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "این دستگاه تنها حاوی قابلیت‌های مورداستفاده یادگیرنده‌ها خواهد بود و با کل دستگاه به صورت خودکار همگام‌سازی خواهد شد.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "دستگاه مختص یادگیری",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "این چه نوع دستگاهی است؟",
   "GuestAccessForm.changeLater": "می‌توانید این را بعداً در قسمت تنظیمات دستگاه تغییر دهید.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "کپی به کلیپ‌بورد",
   "UserCredentialsForm.adminAccountCreationHeader": "مدیر ارشد ایجاد کنید",
   "UserCredentialsForm.learnerAccountCreationDescription": "حساب جدید برای مرکز یادگیری '{facility}'",
-  "UserCredentialsForm.learnerAccountCreationHeader": "حساب خودتان را ایجاد کنید"
+  "UserCredentialsForm.learnerAccountCreationHeader": "حساب خودتان را ایجاد کنید",
+  "UserCredentialsForm.signInInstead": "در عوض ورود شود؟"
 }

@@ -160,6 +160,7 @@
   .navbar-positioning {
     position: relative;
     display: flex;
+    align-items: center;
   }
 
 </style>

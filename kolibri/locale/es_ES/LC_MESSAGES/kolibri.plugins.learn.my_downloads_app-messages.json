@@ -32,6 +32,7 @@
   "CommonLearnStrings.toggleLicenseDescription": "Ver descripción de la licencia",
   "CommonLearnStrings.viewResource": "Ver el material",
   "CommonLearnStrings.whatYouWillNeed": "Lo que vas a necesitar",
+  "DownloadRequests.downloadComplete": "Descarga completa",
   "DownloadRequests.downloadStartedLabel": "Descarga solicitada",
   "DownloadRequests.goToDownloadsPage": "Ir a descargas",
   "DownloadRequests.resourceRemoved": "Material eliminado de mi biblioteca",

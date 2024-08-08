@@ -103,11 +103,7 @@
         req.open('GET', latest_url, true);
         req.timeout = 1000;
         req.onload = function() {
-          if (this.status >= 200 && this.status < 400) {
-            location.reload();
-          } else {
-            setTimeout(retry, 2000);
-          }
+          setTimeout(retry, 2000);
         }
         req.ontimeout = function() {
           setTimeout(retry, 2000);

@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "غير رسمي",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "سيكون هذا الجهاز خادم كوليبري يتمتع بكامل الميزات، وسيستخدمه المشرفون والمدربون والمتعلمون.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "جهاز كامل",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "سيكون لهذا الجهاز حساب متعلم واحد أو أكثر مستورد من جهاز كامل موجود بالفعل. سيتم مزامنة حسابات المتعلمين تلقائيًا مع الجهاز الكامل.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "سيتمتع هذا الجهاز فقط بالميزات التي يستخدمها المتعلّمون، وسيتم إجراء المزامنة التلقائية مع الجهاز الكامل.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "جهاز للتعلم فقط",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "ما هو نوع هذا الجهاز؟",
   "GuestAccessForm.changeLater": "يمكنك تغيير ذلك في إعدادات جهازك لاحقاً.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "نسخ إلى الحافظة",
   "UserCredentialsForm.adminAccountCreationHeader": "إنشاء مشرف رئيسي",
   "UserCredentialsForm.learnerAccountCreationDescription": "حساب جديد للمرفق التعليمي '{facility}'",
-  "UserCredentialsForm.learnerAccountCreationHeader": "أنشئ حسابك"
+  "UserCredentialsForm.learnerAccountCreationHeader": "أنشئ حسابك",
+  "UserCredentialsForm.signInInstead": "تسجيل الدخول بدلًا من ذلك؟"
 }

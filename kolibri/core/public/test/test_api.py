@@ -14,7 +14,6 @@ from morango.models import SyncSession
 from morango.models import TransferSession
 from rest_framework import status
 from rest_framework.test import APITestCase
-from rest_framework.test import APITransactionTestCase
 
 import kolibri
 from kolibri.core.auth.models import Facility
@@ -95,22 +94,23 @@ def create_mini_channel(
     )
 
 
-class PublicAPITestCase(APITransactionTestCase):
+class PublicAPITestCase(APITestCase):
     """
     IMPORTANT: These tests are to never be changed. They are enforcing a
     public API contract. If the tests fail, then the implementation needs
     to be changed, and not the tests themselves.
     """
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         provision_device()
         Language.objects.create(id="en", lang_code="en")
         Language.objects.create(id="es", lang_code="es")
-        self.channel_id1 = uuid.uuid4().hex
-        self.channel_id2 = uuid.uuid4().hex
-        create_mini_channel(channel_name="math", channel_id=self.channel_id1)
+        cls.channel_id1 = uuid.uuid4().hex
+        cls.channel_id2 = uuid.uuid4().hex
+        create_mini_channel(channel_name="math", channel_id=cls.channel_id1)
         channel2 = create_mini_channel(
-            channel_name="science", channel_id=self.channel_id2, root_lang="es"
+            channel_name="science", channel_id=cls.channel_id2, root_lang="es"
         )
         set_channel_metadata_fields(channel2.id, public=True)
 

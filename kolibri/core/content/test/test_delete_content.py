@@ -3,6 +3,7 @@ import os
 import uuid
 
 from django.core.management import call_command
+from django.test import TestCase
 from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
 from le_utils.constants import file_formats
@@ -23,8 +24,7 @@ def get_engine(connection_string):
 test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
 
-@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
-class UnavailableContentDeletion(TransactionTestCase):
+class UnavailableContentDeletion(TestCase):
     databases = "__all__"
 
     def setUp(self):
@@ -100,10 +100,6 @@ class UnavailableContentDeletion(TransactionTestCase):
         self.assertEqual(LocalFile.objects.get_unused_files().count(), 0)
         deleted = self.delete_content()
         self.assertEqual(deleted, 0)
-
-    def tearDown(self):
-        call_command("flush", interactive=False)
-        super(UnavailableContentDeletion, self).tearDown()
 
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)

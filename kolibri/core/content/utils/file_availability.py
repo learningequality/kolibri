@@ -3,7 +3,6 @@ import os
 import re
 from itertools import compress
 
-import requests
 from django.utils.text import compress_string
 
 from kolibri.core.content.models import LocalFile
@@ -11,6 +10,8 @@ from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.paths import get_content_storage_dir_path
 from kolibri.core.content.utils.paths import get_file_checksums_url
 from kolibri.core.discovery.models import NetworkLocation
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.utils.cache import process_cache
 
 checksum_regex = re.compile("^([a-f0-9]{32})$")
@@ -64,14 +65,17 @@ def get_available_checksums_from_remote(channel_id, peer_id):
             .values_list("id", flat=True)
             .distinct()
         )
-
-        response = requests.post(
-            get_file_checksums_url(channel_id, baseurl),
-            data=compress_string(
-                bytes(json.dumps(list(channel_checksums)).encode("utf-8"))
-            ),
-            headers={"content-type": "application/gzip"},
-        )
+        client = NetworkClient.build_for_address(baseurl)
+        try:
+            response = client.post(
+                get_file_checksums_url(channel_id, baseurl),
+                data=compress_string(
+                    bytes(json.dumps(list(channel_checksums)).encode("utf-8"))
+                ),
+                headers={"content-type": "application/gzip"},
+            )
+        except NetworkLocationResponseFailure as e:
+            response = e.response
 
         checksums = None
 

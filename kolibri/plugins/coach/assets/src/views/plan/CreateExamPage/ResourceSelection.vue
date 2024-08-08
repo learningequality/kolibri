@@ -5,20 +5,20 @@
       <KCircularLoader />
     </div>
     <div v-else>
-      <h5
+      <h1
         v-if="selectPracticeQuiz"
         class="select-folder-style"
       >
         {{ selectPracticeQuizLabel$() }}
-      </h5>
+      </h1>
       <div v-else>
-        <h5 class="select-folder-style">
+        <h1 class="select-folder-style">
           {{
             selectResourcesDescription$({
               sectionTitle: displaySectionTitle(activeSection, activeSectionIndex),
             })
           }}
-        </h5>
+        </h1>
         <p>
           {{ numberOfQuestionsSelected$({ count: activeQuestions.length }) }}
           <span
@@ -111,9 +111,16 @@
           marginTop: '2em',
           marginBottom: '2em',
           backgroundColor: $themePalette.grey.v_100,
+          position: 'sticky',
+          insetBlockStart: '0',
+          zIndex: '4',
         }"
       >
-        {{ cannotSelectSomeTopicWarning$({ count: maxSectionQuestionOptions }) }}
+        {{
+          cannotSelectSomeTopicWarning$({
+            count: Math.max(maxSectionQuestionOptions, workingPoolUnusedQuestions),
+          })
+        }}
       </div>
 
       <ContentCardList
@@ -125,7 +132,10 @@
         :contentIsChecked="contentPresentInWorkingResourcePool"
         :contentIsIndeterminate="contentPartlyPresentInWorkingResourcePool"
         :contentHasCheckbox="showCheckbox"
-        :contentCheckboxDisabled="c => !nodeIsSelectableOrUnselectable(c)"
+        :contentCheckboxDisabled="
+          c =>
+            !nodeIsSelectableOrUnselectable(c) && !(c.is_leaf && workingPoolUnusedQuestions === 0)
+        "
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
         :loadingMoreState="loadingMore"
@@ -136,47 +146,34 @@
       />
 
       <div class="bottom-navigation">
-        <KGrid>
-          <KGridItem
-            :layout12="{ span: 8 }"
-            :layout8="{ span: 4 }"
-            :layout4="{ span: 2 }"
-          >
-            <span v-if="!selectPracticeQuiz">
-              <span v-if="workingPoolUnusedQuestions > maxSectionQuestionOptions">
-                {{
-                  tooManyQuestions$({
-                    count: maxSectionQuestionOptions,
-                  })
-                }}
-              </span>
-              <span v-else>
-                {{
-                  questionsFromResources$({
-                    questions: workingPoolUnusedQuestions,
-                  })
-                }}
-              </span>
+        <div>
+          <span v-if="!selectPracticeQuiz">
+            <span v-if="tooManyQuestions">
+              {{
+                tooManyQuestions$({
+                  count: maxSectionQuestionOptions,
+                })
+              }}
             </span>
-          </KGridItem>
-          <KGridItem
-            :layout12="{ span: 4 }"
-            :layout8="{ span: 4 }"
-            :layout4="{ span: 2 }"
-          >
-            <KButton
-              style="float: right"
-              :text="
-                selectPracticeQuiz
-                  ? selectQuiz$()
-                  : addNumberOfQuestions$({ count: Math.max(1, questionCount) })
-              "
-              :primary="true"
-              :disabled="disableSave"
-              @click="saveSelectedResource"
-            />
-          </KGridItem>
-        </KGrid>
+            <span v-else>
+              {{
+                questionsFromResources$({
+                  questions: workingPoolUnusedQuestions,
+                })
+              }}
+            </span>
+          </span>
+        </div>
+        <KButton
+          :text="
+            selectPracticeQuiz
+              ? selectQuiz$()
+              : addNumberOfQuestions$({ count: Math.max(1, questionCount) })
+          "
+          :primary="true"
+          :disabled="disableSave"
+          @click="saveSelectedResource"
+        />
       </div>
     </div>
     <KModal
@@ -663,13 +660,23 @@
       }
 
       const workingPoolHasChanged = computed(() => {
-        return workingResourcePool.value.length;
+        return Boolean(workingResourcePool.value.length);
       });
 
       const workingPoolUnusedQuestions = computed(() => {
         return workingResourcePool.value.reduce((acc, content) => {
           return acc + unusedQuestionsCount(content);
         }, 0);
+      });
+
+      const tooManyQuestions = computed(() => {
+        // Always allow one resource to be selected, just in case
+        // the exercise a user wants to use exceeds the maxSectionQuestionOptions
+        // with only its own unused questions.
+        return (
+          workingResourcePool.value.length !== 1 &&
+          workingPoolUnusedQuestions.value > maxSectionQuestionOptions.value
+        );
       });
 
       const disableSave = computed(() => {
@@ -680,7 +687,8 @@
           !workingPoolHasChanged.value ||
           workingPoolUnusedQuestions.value < questionCount.value ||
           questionCount.value < 1 ||
-          workingPoolUnusedQuestions.value > maxSectionQuestionOptions.value
+          tooManyQuestions.value ||
+          questionCount.value > maxQuestions.value
         );
       });
 
@@ -709,6 +717,7 @@
         handleSelectAll,
         toggleSelected,
         workingPoolHasChanged,
+        tooManyQuestions,
         handleConfirmClose,
         handleCancelClose,
         topic,
@@ -985,21 +994,19 @@
     right: 0;
     bottom: 0;
     left: 0;
+    display: flex;
+    justify-content: space-between;
     width: 100%;
     padding: 1em;
+    line-height: 2.5em;
     text-align: center;
     background-color: white;
     border-top: 1px solid black;
-
-    span {
-      line-height: 2.5em;
-    }
   }
 
   .select-folder-style {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
-    font-size: 18px;
   }
 
   .align-select-folder-style {

@@ -66,7 +66,7 @@
             >
               <span>{{ title }}</span>
               <KIcon
-                style="position: absolute; top: 0.625em; right: 1em"
+                class="chevron-icon"
                 :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
               />
             </KButton>
@@ -100,29 +100,15 @@
     </AccordionContainer>
 
     <div class="bottom-navigation">
-      <KGrid>
-        <KGridItem
-          style="text-align: left"
-          :layout12="{ span: 8 }"
-          :layout8="{ span: 6 }"
-          :layout4="{ span: 3 }"
-        >
-          {{ replaceSelectedQuestionsString }}
-        </KGridItem>
-        <KGridItem
-          style="text-align: right"
-          :layout12="{ span: 4 }"
-          :layout8="{ span: 2 }"
-          :layout4="{ span: 1 }"
-        >
-          <KButton
-            :primary="true"
-            :text="replaceAction$()"
-            :disabled="!canProceedToReplace"
-            @click="confirmReplacement"
-          />
-        </KGridItem>
-      </KGrid>
+      <div>
+        {{ replaceSelectedQuestionsString }}
+      </div>
+      <KButton
+        :primary="true"
+        :text="replaceAction$()"
+        :disabled="!canProceedToReplace"
+        @click="confirmReplacement"
+      />
     </div>
     <KModal
       v-if="showReplacementConfirmation"
@@ -395,6 +381,12 @@
     cursor: pointer;
     user-select: none;
     transition: background-color 0.3s ease;
+
+    .chevron-icon {
+      position: absolute;
+      top: 0.625em;
+      right: 1em;
+    }
   }
 
   .accordion-header-label {
@@ -412,15 +404,14 @@
     right: 0;
     bottom: 0;
     left: 0;
+    display: flex;
+    justify-content: space-between;
     width: 100%;
     padding: 1em;
+    line-height: 2.5em;
     text-align: center;
     background-color: white;
     border-top: 1px solid black;
-
-    div {
-      line-height: 2.5em;
-    }
   }
 
   .accordion-checkbox {

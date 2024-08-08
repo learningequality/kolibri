@@ -9,7 +9,7 @@ django-mptt==0.14.0
 requests==2.27.1
 cheroot==8.6.0
 magicbus==4.1.2
-le-utils==0.2.2
+le-utils==0.2.6
 jsonfield==3.1.0
 morango==0.8.1
 tzlocal==2.1

@@ -55,6 +55,13 @@
               :description="fixedSectionOptionDescription$()"
               @input="value => updateQuiz({ learners_see_fixed_order: value })"
             />
+            <KButton
+              v-if="quiz.learners_see_fixed_order"
+              :text="coreString('editAction') + ' - ' + sectionOrderLabel$()"
+              class="edit-section-order-btn"
+              appearance="basic-link"
+              @click="editSectionOrder"
+            />
           </KGridItem>
         </KGrid>
       </div>
@@ -245,6 +252,19 @@
       }
     },
     beforeRouteUpdate(to, from, next) {
+      if (
+        to.name === PageNames.QUIZ_SELECT_PRACTICE_QUIZ &&
+        from.name === PageNames.EXAM_CREATION_ROOT
+      ) {
+        this.closeConfirmationToRoute = {
+          name: PageNames.EXAMS,
+          params: {
+            classId: to.params.classId,
+          },
+        };
+        next(false);
+        return;
+      }
       if (to.params.sectionIndex >= this.allSections.length) {
         next({
           name: PageNames.EXAM_CREATION_ROOT,
@@ -287,7 +307,20 @@
       }
       this.quizInitialized = true;
     },
+    destroy() {
+      window.removeEventListener('beforeunload', this.beforeUnload);
+    },
     methods: {
+      editSectionOrder() {
+        this.$router.push({
+          name: PageNames.QUIZ_SECTION_ORDER,
+          params: {
+            classId: this.$route.params.classId,
+            quizId: this.$route.params.quizId,
+            sectionIndex: this.$route.params.sectionIndex,
+          },
+        });
+      },
       beforeUnload(e) {
         if (this.quizHasChanged) {
           if (!window.confirm(this.closeConfirmationTitle$())) {
@@ -353,6 +386,10 @@
   .section-order-header {
     margin-top: 0;
     margin-bottom: 0.5em;
+  }
+
+  .edit-section-order-btn {
+    margin-left: 2em;
   }
 
 </style>

@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "فضای کافی بر روی دستگاه شما وجود ندارد. فضای دیسک را خالی کنید یا منابع کمتری را انتخاب کنید",
   "CommonDeviceStrings.permissionsLabel": "مجوزها و دسترسی‌ها",
   "CommonDeviceStrings.primaryStorageLabel": "منابع جدیداً دانلودشده به محل ذخیره‌سازی اصلی اضافه خواهد شد",
+  "CommonDeviceStrings.statusCanceled": "لغو شده",
+  "CommonDeviceStrings.statusCanceling": "در حال لغو",
+  "CommonDeviceStrings.statusComplete": "به پایان رسید",
+  "CommonDeviceStrings.statusFailed": "ناموفق",
+  "CommonDeviceStrings.statusInProgress": "در حال انجام",
+  "CommonDeviceStrings.statusInQueue": "در حال انتظار",
   "CommonDeviceStrings.unlistedChannelLabel": "کانال خارج از لیست"
 }

@@ -39,7 +39,7 @@
   "SignInPage.incorrectPasswordError": "პაროლი არასწორია",
   "SignInPage.nextLabel": "შემდეგი",
   "SignInPage.requiredForCoachesAdmins": "მწვრთნელებისა და ადმინებისთვის პაროლი საჭიროა",
-  "SignInPage.usernameNotFoundError": "",
+  "SignInPage.usernameNotFoundError": "მომხმარებლის სახელი არ მოიძებნა",
   "SignUpPage.createAccount": "ანგარიშის შექმნა",
   "SignUpPage.demographicInfoExplanation": "ხილული იქნება ადმინისტრატორებისთვის. ასევე, გამოყენებული იქნება სხვადასხვა საჭიროების მქონე მოსწავლისთვის რესურსებისა და პროგრამის გაუმჯობესებისთვის.",
   "SignUpPage.demographicInfoOptional": "ამ ინფორმაციის დაწერა აუცილები არ არის.",
