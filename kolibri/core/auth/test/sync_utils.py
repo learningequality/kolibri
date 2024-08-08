@@ -9,16 +9,16 @@ import tempfile
 import time
 import uuid
 
+import requests
 from django.conf import settings
 from django.db import connection
 from django.db import connections
 from django.utils.functional import wraps
 from morango.models.core import DatabaseIDModel
+from requests.exceptions import RequestException
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.discovery.utils.network.client import NetworkClient
-from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 
 # custom Morango instance info used in tests
 CUSTOM_INSTANCE_INFO = {"kolibri": "0.14.7"}
@@ -119,13 +119,12 @@ class KolibriServer(object):
         )
 
     def _wait_for_server_start(self, timeout=20):
-        client = NetworkClient.build_for_address(self.baseurl, timeout=3)
         for i in range(timeout * 2):
             try:
-                resp = client.get("api/public/info/")
+                resp = requests.get(self.baseurl + "api/public/info/", timeout=3)
                 if resp.status_code > 0:
                     return
-            except NetworkLocationResponseFailure:
+            except RequestException:
                 pass
             time.sleep(0.5)
 
