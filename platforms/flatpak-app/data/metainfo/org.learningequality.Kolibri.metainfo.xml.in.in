@@ -48,7 +48,7 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="3.6+next" date="2024-08-07" type="development">
+    <release version="3.7" date="2024-08-07" type="stable">
       <description>
         <p>Changes included in this release:</p>
 	<ul>
