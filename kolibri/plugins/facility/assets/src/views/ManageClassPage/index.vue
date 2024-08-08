@@ -124,6 +124,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import orderBy from 'lodash/orderBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassCreateModal from './ClassCreateModal';
@@ -146,15 +147,17 @@
     mixins: [commonCoreStrings],
     setup() {
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
+      const { userIsMultiFacilityAdmin } = useUser();
       return {
         classToDelete,
         selectClassToDelete,
         clearClassToDelete,
+        userIsMultiFacilityAdmin,
       };
     },
     computed: {
       ...mapState('classManagement', ['modalShown', 'classes', 'dataLoading']),
-      ...mapGetters(['userIsMultiFacilityAdmin', 'facilityPageLinks']),
+      ...mapGetters(['facilityPageLinks']),
       Modals: () => Modals,
       sortedClassrooms() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);

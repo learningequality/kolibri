@@ -324,6 +324,7 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import { annotateSections } from 'kolibri.utils.exams';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
   import { PageNames, ClassesPageNames } from '../../constants';
@@ -354,6 +355,7 @@
         startTrackingProgress,
         stopTrackingProgress,
       } = useProgressTracking();
+      const { currentUserId } = useUser();
       const { windowBreakpoint, windowIsMedium, windowIsLarge, windowIsSmall } =
         useKResponsiveWindow();
       const { quizSectionsLabel$, questionsLabel$ } = enhancedQuizManagementStrings;
@@ -371,6 +373,7 @@
         windowIsLarge,
         windowIsSmall,
         windowIsMedium,
+        currentUserId,
       };
     },
     data() {
@@ -562,7 +565,7 @@
             return this.router.replace({
               name: ClassesPageNames.EXAM_REPORT_VIEWER,
               params: {
-                userId: this.$store.getters.currentUserId,
+                userId: this.currentUserId,
                 examId: this.exam.id,
                 questionNumber: 0,
                 questionInteraction: 0,

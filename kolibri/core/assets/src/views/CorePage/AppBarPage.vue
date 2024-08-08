@@ -58,6 +58,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { isTouchDevice } from 'kolibri.utils.browserInfo';
   import useUserSyncStatus from 'kolibri.coreVue.composables.useUserSyncStatus';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import AppBar from '../AppBar';
   import SideNav from '../SideNav';
   import ScrollingHeader from '../ScrollingHeader';
@@ -73,10 +74,12 @@
     setup() {
       const userDeviceStatus = useUserSyncStatus().deviceStatus;
       const { windowBreakpoint, windowIsSmall } = useKResponsiveWindow();
+      const { isAppContext } = useUser();
       return {
         userDeviceStatus,
         windowBreakpoint,
         windowIsSmall,
+        isAppContext,
       };
     },
     props: {
@@ -110,7 +113,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAppContext', 'isPageLoading']),
+      ...mapGetters(['isPageLoading']),
       isAppContextAndTouchDevice() {
         return this.isAppContext && isTouchDevice;
       },

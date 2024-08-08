@@ -33,11 +33,16 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { mapGetters, mapActions, mapMutations } from 'vuex';
+  import { mapActions, mapMutations } from 'vuex';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   export default {
     name: 'UpdateNotification',
     mixins: [commonCoreStrings],
+    setup() {
+      const { isSuperuser } = useUser();
+      return { isSuperuser };
+    },
     props: {
       id: {
         type: String,
@@ -64,9 +69,6 @@
       return {
         dontShowNotificationAgain: false,
       };
-    },
-    computed: {
-      ...mapGetters(['isSuperuser']),
     },
     methods: {
       ...mapMutations({

@@ -22,7 +22,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { computed } from 'kolibri.lib.vueCompositionApi';
   import { interpret } from 'xstate';
-  import { mapGetters } from 'vuex';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { changeFacilityMachine } from '../../machines/changeFacilityMachine';
 
   export default {
@@ -34,6 +34,10 @@
     },
     components: { NotificationsRoot, ImmersivePage },
     mixins: [commonCoreStrings],
+    setup() {
+      const { session, getUserKind } = useUser();
+      return { session, getUserKind };
+    },
     data() {
       return {
         service: interpret(changeFacilityMachine),
@@ -52,7 +56,6 @@
     },
 
     computed: {
-      ...mapGetters(['session', 'getUserKind']),
       wrapperStyles() {
         return {
           maxWidth: '1064px',

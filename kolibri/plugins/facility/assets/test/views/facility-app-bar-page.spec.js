@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import FacilityAppBarPage from '../../src/views/FacilityAppBarPage';
 
 function makeWrapper({ propsData = {}, getters = {} }) {
@@ -16,8 +17,12 @@ function makeWrapper({ propsData = {}, getters = {} }) {
 }
 jest.mock('kolibri.urls');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
+jest.mock('kolibri.coreVue.composables.useUser');
 
 describe('FacilityAppBarPage', function () {
+  beforeEach(() => {
+    useUser.mockImplementation(() => useUserMock());
+  });
   beforeAll(() => {
     useKResponsiveWindow.mockImplementation(() => ({
       windowIsSmall: false,
@@ -35,10 +40,10 @@ describe('FacilityAppBarPage', function () {
     });
     describe('the user is an admin of multiple facilities, and a current facility name is defined', () => {
       it("should return the string 'Facility – ' with the current facility name", () => {
+        useUser.mockImplementation(() => useUserMock({ userIsMultiFacilityAdmin: true }));
         const wrapper = makeWrapper({
           propsData: { appBarTitle: null },
           getters: {
-            userIsMultiFacilityAdmin: true,
             currentFacilityName: 'currentFacilityName',
           },
         });
@@ -49,9 +54,9 @@ describe('FacilityAppBarPage', function () {
   });
   describe('the user is not an admin of multiple facilities', () => {
     it('should return the value of appBarTitle prop when provided', () => {
+      useUser.mockImplementation(() => useUserMock({ userIsMultiFacilityAdmin: false }));
       const wrapper = makeWrapper({
         getters: {
-          userIsMultiFacilityAdmin: false,
           currentFacilityName: 'currentFacilityName',
         },
       });

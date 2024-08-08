@@ -1,15 +1,13 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import AttemptTextDiff from '../AttemptTextDiff.vue';
+
+jest.mock('kolibri.coreVue.composables.useUser');
 
 const renderComponent = props => {
   return render(AttemptTextDiff, {
     props,
-    store: {
-      getters: {
-        currentUserId: () => 'mockUser1',
-      },
-    },
   });
 };
 
@@ -59,6 +57,10 @@ const testCases = [
 ];
 
 describe('AttemptTextDiff', () => {
+  beforeAll(() => {
+    useUser.mockImplementation(() => useUserMock({ currentUserId: 'mockUser1' }));
+  });
+
   testCases.forEach(({ caseName, correct, diff, userId, expectedMessage }) => {
     test(caseName, () => {
       renderComponent({ correct, diff, userId });

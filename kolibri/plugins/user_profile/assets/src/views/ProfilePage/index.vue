@@ -223,26 +223,32 @@
       const showPasswordModal = ref(false);
       const showLearnModal = ref(false);
       const { currentUser } = useCurrentUser();
-      const { isLearnerOnlyImport } = useUser();
+      const {
+        isLearnerOnlyImport,
+        getUserKind,
+        getUserPermissions,
+        isCoach,
+        isSuperuser,
+        userHasPermissions,
+        userFacilityId,
+      } = useUser();
       const { onMyOwnSetup } = useOnMyOwnSetup();
       return {
         currentUser,
         onMyOwnSetup,
         isLearnerOnlyImport,
+        getUserKind,
+        getUserPermissions,
+        isCoach,
+        isSuperuser,
+        userHasPermissions,
+        userFacilityId,
         showLearnModal,
         showPasswordModal,
       };
     },
     computed: {
-      ...mapGetters([
-        'facilityConfig',
-        'getUserKind',
-        'getUserPermissions',
-        'isCoach',
-        'isSuperuser',
-        'totalPoints',
-        'userHasPermissions',
-      ]),
+      ...mapGetters(['facilityConfig', 'totalPoints']),
       profileEditRoute() {
         return this.$router.getRoute(RoutesMap.PROFILE_EDIT);
       },
@@ -251,7 +257,7 @@
       },
       facilityName() {
         const match = find(this.$store.getters.facilities, {
-          id: this.$store.getters.userFacilityId,
+          id: this.userFacilityId,
         });
         return match ? match.name : '';
       },

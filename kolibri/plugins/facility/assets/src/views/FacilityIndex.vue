@@ -15,6 +15,7 @@
   import { mapGetters } from 'vuex';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { PageNames } from '../constants';
 
   export default {
@@ -23,8 +24,17 @@
       NotificationsRoot,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { isAdmin, isSuperuser, session } = useUser();
+
+      return {
+        isAdmin,
+        isSuperuser,
+        session,
+      };
+    },
     computed: {
-      ...mapGetters(['isAdmin', 'isSuperuser', 'activeFacilityId']),
+      ...mapGetters(['activeFacilityId']),
       pageName() {
         return this.$route.name;
       },
@@ -40,7 +50,7 @@
             return false;
           }
           // Admins can only see the facility they belong to
-          return this.$store.state.core.session.facility_id === this.activeFacilityId;
+          return this.session.facility_id === this.activeFacilityId;
         }
         return false;
       },

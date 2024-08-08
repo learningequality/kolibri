@@ -103,8 +103,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { isLearnerOnlyImport } = useUser();
-      return { isLearnerOnlyImport };
+      const { isLearnerOnlyImport, isLearner } = useUser();
+      return { isLearnerOnlyImport, isLearner };
     },
     data() {
       return {
@@ -121,7 +121,7 @@
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig', 'isLearner']),
+      ...mapGetters(['facilityConfig']),
       formDisabled() {
         return this.status === 'BUSY';
       },

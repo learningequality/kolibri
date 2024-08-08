@@ -10,6 +10,7 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import urls from 'kolibri.urls';
 import client from 'kolibri.client';
 import Vue from 'kolibri.lib.vue';
+import useUser from 'kolibri.coreVue.composables.useUser';
 import { currentDeviceData } from '../composables/useDevices';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {
@@ -127,7 +128,7 @@ export default function useDownloadRequests(store) {
     const data = {
       contentnode_id: contentNode.id,
       metadata,
-      source_id: store.getters.currentUserId,
+      source_id: useUser().currentUserId.value,
       source_instance_id: get(instanceId),
       reason: 'USER_INITIATED',
       facility: store.getters.currentFacilityId,

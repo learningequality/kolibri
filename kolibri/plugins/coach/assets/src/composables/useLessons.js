@@ -1,5 +1,6 @@
 import { ref } from 'kolibri.lib.vueCompositionApi';
 import { LearnerGroupResource } from 'kolibri.resources';
+import useUser from 'kolibri.coreVue.composables.useUser';
 import { LessonsPageNames } from '../constants/lessonsConstants';
 
 // Place outside the function to keep the state
@@ -14,7 +15,7 @@ export function useLessons() {
   async function showLessonsRootPage(store, classId) {
     const initClassInfoPromise = store.dispatch('initClassInfo', classId);
     const getFacilitiesPromise =
-      store.getters.isSuperuser && store.state.core.facilities.length === 0
+      useUser().isSuperuser.value && store.state.core.facilities.length === 0
         ? store.dispatch('getFacilities').catch(() => {})
         : Promise.resolve();
 

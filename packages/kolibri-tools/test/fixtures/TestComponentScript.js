@@ -12,16 +12,20 @@
 
 /* eslint-disable */
 
-import { mapGetters, mapState } from 'vuex';
+import { mapState } from 'vuex';
 import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 import urls from 'kolibri.urls';
 import commonCoach from './common';
+import useUser from 'kolibri.coreVue.composables.useUser';
 
 export default {
   name: 'TestComponent',
   mixins: [commonCoach, commonCoreStrings],
+  setup() {
+    const { isClassCoach, isFacilityCoach } = useUser();
+    return { isClassCoach, isFacilityCoach };
+  },
   computed: {
-    ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
     ...mapState(['classList']),
     // Message that shows up when state.classList is empty
     emptyStateDetails() {

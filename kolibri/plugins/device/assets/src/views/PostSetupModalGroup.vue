@@ -39,9 +39,9 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { SelectDeviceForm, AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { availableChannelsPageLink } from './ManageContentPage/manageContentLinks';
   import WelcomeModal from './WelcomeModal';
   import PermissionsChangeModal from './PermissionsChangeModal';
@@ -64,6 +64,10 @@
       SelectDeviceForm,
     },
     mixins: [commonSyncElements],
+    setup() {
+      const { isUserLoggedIn } = useUser();
+      return { isUserLoggedIn };
+    },
     props: {
       isOnMyOwnUser: {
         type: Boolean,
@@ -79,7 +83,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
       importedFacility() {
         const [facility] = this.$store.state.core.facilities;
         if (facility && window.sessionStorage.getItem(facilityImported) === 'true') {

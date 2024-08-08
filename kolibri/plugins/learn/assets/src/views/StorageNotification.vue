@@ -58,7 +58,6 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { mapGetters } from 'vuex';
   import useUser from 'kolibri.coreVue.composables.useUser';
   import { useLocalStorage } from '@vueuse/core';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
@@ -75,7 +74,7 @@
       const local_storage_last_synced = useLocalStorage('last_synced', '');
       const local_storage_lastDownloadRemoved = useLocalStorage('last_download_removed', '');
 
-      const { isLearnerOnlyImport } = useUser();
+      const { isAdmin, isLearner, isLearnerOnlyImport, canManageContent } = useUser();
 
       const setLastSyncedValue = newLastSyncValue => {
         local_storage_last_synced.value = newLastSyncValue;
@@ -103,7 +102,10 @@
         deviceStatusSentiment,
         hasDownloads,
         lastDownloadRemoved,
+        isAdmin,
+        isLearner,
         isLearnerOnlyImport,
+        canManageContent,
         local_storage_last_synced,
         local_storage_lastDownloadRemoved,
         setLastSyncedValue,
@@ -117,7 +119,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isLearner', 'isAdmin', 'canManageContent']),
       message() {
         let message = '';
         if (this.isAdmin) {

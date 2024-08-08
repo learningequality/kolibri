@@ -54,12 +54,12 @@
 <script>
 
   import get from 'lodash/get';
-  import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import commonProfileStrings from '../../commonProfileStrings';
 
   export default {
@@ -76,6 +76,10 @@
       PrivacyLinkAndModal,
     },
     mixins: [commonCoreStrings, commonProfileStrings],
+    setup() {
+      const { session } = useUser();
+      return { session };
+    },
     inject: ['changeFacilityService', 'state'],
     data() {
       return {
@@ -89,7 +93,6 @@
       };
     },
     computed: {
-      ...mapGetters(['session']),
       description() {
         return this.$tr('description', {
           fullName: get(this.session, 'full_name', ''),
