@@ -48,6 +48,14 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="3.6+next" date="2024-08-07" type="development">
+      <description>
+        <p>Changes included in this release:</p>
+	<ul>
+          <li>Kolibri has been updated to 0.17.0.</li>
+	</ul>
+      </description>
+    </release>
     <release version="3.6" date="2024-06-07" type="stable">
       <description>
         <p>Changes included in this release:</p>

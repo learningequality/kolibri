@@ -48,6 +48,7 @@
         ]
     },
     "cleanup-commands" : [
+	"mkdir -p /app/lib/ffmpeg",
         "find ${KOLIBRI_MODULE_PATH}/dist/cext -type d -name 'cp*' -not -path ${KOLIBRI_MODULE_PATH}/dist/cext/cp311 -exec rm -rf '{}' '+'",
         "rm -rf ${KOLIBRI_MODULE_PATH}/dist/cext/*/Windows",
         "find ${KOLIBRI_MODULE_PATH} -type d -name 'test*' -not -path ${KOLIBRI_MODULE_PATH}/dist/django/test -exec rm -rf '{}' '+'"

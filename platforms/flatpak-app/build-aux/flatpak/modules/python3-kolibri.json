@@ -8,15 +8,15 @@
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/72/65/d930065492ec1b33fb31a5631e0fcf2a77ac6cb0b5da570d50de86fd8e7b/kolibri-0.16.2-py2.py3-none-any.whl",
-            "sha256": "f87961553b62be71090f4d5c81027487bce55bd8210e769d625fcdd720788e1b",
+            "url": "https://files.pythonhosted.org/packages/06/82/7ed14766c5b89172eca3dc64bbd29a301038ccdbbd4fb4a0938c29e60fa8/kolibri-0.17.0-py2.py3-none-any.whl",
+            "sha256": "2d80deb4c3d50cbed0916810a67aa33ca2a3d85a8c656ce8bc6092bf4b8fb77c",
             "x-checker-data": {
                 "type": "pypi",
                 "name": "kolibri",
                 "packagetype": "bdist_wheel",
                 "versions": {
-                    ">=": "0.16.0",
-                    "<": "0.17.0"
+                    ">=": "0.17.0",
+                    "<": "0.18.0"
                 },
                 "stable-only": true
             }
