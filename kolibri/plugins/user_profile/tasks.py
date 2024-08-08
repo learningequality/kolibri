@@ -57,7 +57,7 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
                 # If we didn't break out of the loop, then we need to raise the original error
                 raise
 
-        job_data["kwargs"]["local_user_id"] = data["local_user_id"].id
+        job_data["args"].append(data["local_user_id"].id)
         job_data["extra_metadata"].update(user_fullname=data["local_user_id"].full_name)
         # create token to validate user in the new facility
         # after it's deleted in the current facility:
@@ -123,14 +123,15 @@ def start_soud_sync(user_id):
 
 class IsSelf(BasePermission):
     def user_can_run_job(self, user, job):
-        return user.id == job.kwargs.get(
-            "local_user_id", None
-        ) or user.id == job.kwargs.get("remote_user_pk", None)
+        # args[1] is the local_user_id argument
+        return user.id == job.args[1] or user.id == job.kwargs.get(
+            "remote_user_pk", None
+        )
 
     def user_can_read_job(self, user, job):
-        return user.id == job.kwargs.get(
-            "local_user_id", None
-        ) or user.id == job.kwargs.get("remote_user_pk", None)
+        return user.id == job.args[1] or user.id == job.kwargs.get(
+            "remote_user_pk", None
+        )
 
 
 @register_task(
@@ -145,11 +146,7 @@ class IsSelf(BasePermission):
     status_fn=status_fn,
 )
 def mergeuser(
-    command,
-    local_user_id=None,
-    new_superuser_id=None,
-    set_as_super_user=False,
-    **kwargs
+    command, local_user_id, new_superuser_id=None, set_as_super_user=False, **kwargs
 ):
     """
     This is an example of the POST payload to create this task:
