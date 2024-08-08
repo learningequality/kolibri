@@ -7659,7 +7659,7 @@ kolibri-constants@0.2.6:
   resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.2.6.tgz#d13762862505a3a6ec58a104870b21da96778656"
   integrity sha512-gQaY2wFNFrsB+9+xQNeEcLHixNuZEK+GHyKKr78s/hg8gFU3YVsnhlYp0u+du4XeVwewpyN1ajGb4UrrdF8rTA==
 
-"kolibri-design-system@5.0.0-rc1 ":
+kolibri-design-system@5.0.0-rc1:
   version "5.0.0-rc1"
   resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-5.0.0-rc1.tgz#4d9ba7e24c3c96462479a500c5fd2df95c9ecc3f"
   integrity sha512-W9OFtSDZNV0invXAW0he8dlj+m68BTjpsHXLQcO7GIwOpn0GZ5wjcPNGhQqCejLC0TefLCHPKNYiZFx+GIPCqw==
