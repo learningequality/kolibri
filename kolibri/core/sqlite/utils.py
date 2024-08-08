@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.management import call_command
 from django.db.utils import DatabaseError
 from sqlalchemy import exc
+from sqlalchemy import text
 
 from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 
@@ -61,7 +62,7 @@ def check_sqlite_integrity(connection):
         conn = connection.cursor()
 
     try:
-        result = conn.execute("PRAGMA integrity_check;").fetchall()
+        result = conn.execute(text("PRAGMA integrity_check;")).fetchall()
     except (DatabaseError, exc.DatabaseError):
         raise
     finally:
