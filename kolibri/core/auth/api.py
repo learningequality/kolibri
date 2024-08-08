@@ -6,7 +6,6 @@ from itertools import groupby
 from uuid import UUID
 from uuid import uuid4
 
-import requests
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth import logout
@@ -87,6 +86,8 @@ from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import is_full_facility_import
 from kolibri.core.device.utils import valid_app_key_on_request
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
@@ -94,7 +95,7 @@ from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
-from kolibri.core.utils.urls import reverse_remote
+from kolibri.core.utils.urls import reverse_path
 from kolibri.plugins.app.utils import interface
 from kolibri.utils.urls import validator
 
@@ -1086,15 +1087,15 @@ class RemoteFacilityUserViewset(views.APIView):
         facility = request.query_params.get("facility", None)
         if username is None or facility is None:
             raise RestValidationError(detail="Both username and facility are required")
-        url = reverse_remote(baseurl, "kolibri:core:publicsearchuser-list")
+        client = NetworkClient.build_for_address(baseurl)
+        url = reverse_path("kolibri:core:publicsearchuser-list")
         try:
-            response = requests.get(
+            response = client.get(
                 url, params={"facility": facility, "search": username}
             )
-            if response.status_code == 200:
-                return Response(response.json())
-            else:
-                return Response({})
+            return Response(response.json())
+        except NetworkLocationResponseFailure:
+            return Response({})
         except Exception as e:
             raise RestValidationError(detail=str(e))
 
