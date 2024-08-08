@@ -1,6 +1,7 @@
 import hashlib
 import logging
 import re
+from base64 import urlsafe_b64decode
 from collections import OrderedDict
 from functools import reduce
 from random import sample
@@ -14,11 +15,14 @@ from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models.aggregates import Count
 from django.http import Http404
+from django.http import HttpResponse
+from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
 from django.utils.encoding import iri_to_uri
 from django.utils.translation import gettext as _
+from django.views import View
 from django.views.decorators.cache import cache_page
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import etag
@@ -291,6 +295,18 @@ class ChannelMetadataFilter(FilterSet):
         return queryset.filter(root__available=value)
 
 
+class ChannelThumbnailView(View):
+    def get(self, request, channel_id):
+        channel = get_object_or_404(models.ChannelMetadata, id=channel_id)
+        try:
+            header, b_64_thumbnail = channel.thumbnail.split(",", 1)
+            mimetype = header.split(":")[1].split(";")[0]
+        except ValueError:
+            raise Http404("No thumbnail available")
+        thumbnail = urlsafe_b64decode(b_64_thumbnail)
+        return HttpResponse(thumbnail, content_type=mimetype)
+
+
 class BaseChannelMetadataMixin(object):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ChannelMetadataFilter
@@ -373,9 +389,21 @@ class BaseChannelMetadataMixin(object):
         return Response(data)
 
 
+def _create_channel_thumbnail_url(item):
+    return (
+        reverse("kolibri:core:channel-thumbnail", args=[item["id"]])
+        if item["thumbnail"]
+        else ""
+    )
+
+
 @method_decorator(remote_metadata_cache, name="dispatch")
 class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
-    pass
+    field_map = {
+        "thumbnail": _create_channel_thumbnail_url,
+    }
+
+    field_map.update(BaseChannelMetadataMixin.field_map)
 
 
 MODALITIES = set(["QUIZ"])
