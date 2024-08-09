@@ -1,3 +1,5 @@
+import client from 'kolibri.client';
+import urls from 'kolibri.urls';
 import { Resource } from 'kolibri.lib.apiResource';
 
 /**
@@ -41,9 +43,19 @@ export const FacilityImportResource = new Resource({
       return response.data;
     });
   },
-  listfacilitylearners(params) {
-    return this.postListEndpoint('listfacilitylearners', params).then(response => {
-      return response.data;
+  async listfacilitylearners(params) {
+    const { data } = await client({
+      url: urls['kolibri:core:remotefacilityauthenticateduserinfo'](),
+      method: 'POST',
+      data: params,
     });
+
+    const admin = data.find(user => user.username === params.username);
+    const students = data.filter(user => !user.roles || !user.roles.length);
+
+    return {
+      admin,
+      students,
+    };
   },
 });

@@ -123,14 +123,15 @@ def start_soud_sync(user_id):
 
 class IsSelf(BasePermission):
     def user_can_run_job(self, user, job):
-        return user.id == job.kwargs.get(
-            "local_user_id", None
-        ) or user.id == job.kwargs.get("remote_user_pk", None)
+        # args[1] is the local_user_id argument
+        return user.id == job.args[1] or user.id == job.kwargs.get(
+            "remote_user_pk", None
+        )
 
     def user_can_read_job(self, user, job):
-        return user.id == job.kwargs.get(
-            "local_user_id", None
-        ) or user.id == job.kwargs.get("remote_user_pk", None)
+        return user.id == job.args[1] or user.id == job.kwargs.get(
+            "remote_user_pk", None
+        )
 
 
 @register_task(

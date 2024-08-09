@@ -45,6 +45,8 @@ from rest_framework import serializers
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import ValidationError as RestValidationError
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -73,15 +75,19 @@ from kolibri.core import error_constants
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewset
 from kolibri.core.api import ValuesViewsetOrderingFilter
+from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.auth.permissions.general import DenyAll
+from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import is_full_facility_import
 from kolibri.core.device.utils import valid_app_key_on_request
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
@@ -89,7 +95,9 @@ from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
+from kolibri.core.utils.urls import reverse_path
 from kolibri.plugins.app.utils import interface
+from kolibri.utils.urls import validator
 
 logger = logging.getLogger(__name__)
 
@@ -1066,3 +1074,65 @@ class SessionViewSet(viewsets.ViewSet):
 
         response = Response(session)
         return response
+
+
+class RemoteFacilityUserViewset(views.APIView):
+    def get(self, request):
+        baseurl = request.query_params.get("baseurl", "")
+        try:
+            validator(baseurl)
+        except ValidationError as e:
+            raise RestValidationError(detail=str(e))
+        username = request.query_params.get("username", None)
+        facility = request.query_params.get("facility", None)
+        if username is None or facility is None:
+            raise RestValidationError(detail="Both username and facility are required")
+        client = NetworkClient.build_for_address(baseurl)
+        url = reverse_path("kolibri:core:publicsearchuser-list")
+        try:
+            response = client.get(
+                url, params={"facility": facility, "search": username}
+            )
+            return Response(response.json())
+        except NetworkLocationResponseFailure:
+            return Response({})
+        except Exception as e:
+            raise RestValidationError(detail=str(e))
+
+
+class RemoteFacilityUserAuthenticatedViewset(views.APIView):
+    def post(self, request):
+        """
+        If the request is done by an admin user  it will return a list of the users of the
+        facility
+
+        :param baseurl: First part of the url of the server that's going to be requested
+        :param facility_id: Id of the facility to authenticate and get the list of users
+        :param username: Username of the user that's going to authenticate
+        :param password: Password of the user that's going to authenticate
+        :return: List of the users of the facility.
+        """
+        baseurl = request.data.get("baseurl", "")
+        try:
+            validator(baseurl)
+        except ValidationError as e:
+            raise RestValidationError(detail=str(e))
+        username = request.data.get("username", None)
+        facility_id = request.data.get("facility_id", None)
+        password = request.data.get("password", None)
+        if username is None or facility_id is None:
+            raise RestValidationError(detail="Both username and facility are required")
+
+        try:
+            facility_info = get_remote_users_info(
+                baseurl, facility_id, username, password
+            )
+        except AuthenticationFailed:
+            raise PermissionDenied()
+
+        user_info = facility_info["user"]
+        roles = user_info["roles"]
+        admin_roles = (user_kinds.ADMIN, user_kinds.SUPERUSER)
+        if not any(role in roles for role in admin_roles):
+            return Response([user_info])
+        return Response(facility_info["users"])
