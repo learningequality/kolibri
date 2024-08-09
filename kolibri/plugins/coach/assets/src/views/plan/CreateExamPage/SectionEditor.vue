@@ -356,6 +356,12 @@
           // The user should be confirming losing changes
           next(false);
         } else {
+          if (to.name === this.selectResourcesRoute.name) {
+            // The user clicked "Add Questions" and we need to save the changes
+            // and redirect them
+            this.applySettings(to.name);
+            return next(false);
+          }
           // The user needs to confirm they want to leave
           return (this.showCloseConfirmation = true);
         }
