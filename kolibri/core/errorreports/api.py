@@ -32,7 +32,7 @@ def report(request):
         except (AttributeError, ValidationError) as e:
             logger.error("Error while saving error report: {}".format(e))
             return Response(
-                {"error": "An error occurred while saving reporting errors."},
+                {"error": "An error occurred while saving errors."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
     else:
