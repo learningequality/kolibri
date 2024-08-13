@@ -82,7 +82,7 @@ export default [
   {
     path: '/:classId/home/activity',
     component: HomeActivityPage,
-    handler: async (toRoute, fromRoute, next) => {
+    handler: async toRoute => {
       await showHomePage(toRoute);
       store.dispatch('notLoading');
     },
