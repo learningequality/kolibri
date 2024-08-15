@@ -74,7 +74,6 @@ class BackgroundJobOperationTestCase(BaseTestCase):
                     "id": "def456",
                     "target_stage": "other",
                     "capabilities": [],
-                    "start_stage": "dequeuing",
                 },
             },
         )
