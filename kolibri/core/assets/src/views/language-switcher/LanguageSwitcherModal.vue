@@ -43,8 +43,6 @@
 
 <script>
 
-  import KRadioButtonGroup from 'kolibri-design-system/lib/KRadioButtonGroup.vue';
-
   import { currentLanguage } from 'kolibri.utils.i18n';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -53,7 +51,7 @@
 
   export default {
     name: 'LanguageSwitcherModal',
-    components: { FocusTrap, KRadioButtonGroup },
+    components: { FocusTrap },
     mixins: [commonCoreStrings, languageSwitcherMixin],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
