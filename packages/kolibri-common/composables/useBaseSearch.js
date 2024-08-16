@@ -20,12 +20,8 @@ import {
   NoCategories,
   ResourcesNeededTypes,
 } from 'kolibri.coreVue.vuex.constants';
-/*
- * TBD #12517
+
 import { deduplicateResources } from '../utils/contentNode';
-import { currentDeviceData } from './useDevices';
-import useContentNodeProgress from './useContentNodeProgress';
-*/
 import { setLanguages } from './useLanguages';
 
 export const logging = logger.getLogger(__filename);
@@ -164,10 +160,13 @@ export const searchKeys = [
   'grade_levels',
 ];
 
-/*
- * TBD #12517
-const { fetchContentNodeProgress } = useContentNodeProgress();
-*/
+// const getBaseurl = () => {
+//   try {
+//     return inject("baseurl");
+//   } catch {
+//     return null;
+//   }
+// }
 
 export default function useBaseSearch(descendant, store, router) {
   // Get store and router references from the curent instance
@@ -183,10 +182,8 @@ export default function useBaseSearch(descendant, store, router) {
   const more = ref(null);
   const labels = ref(null);
 
-  /*
- * TBD #12517
-  const { baseurl } = currentDeviceData(store);
-  */
+  const baseurl = inject('baseurl', null);
+  const fetchContentNodeProgress = inject('fetchContentNodeProgress', null);
 
   const searchTerms = computed({
     get() {
@@ -246,7 +243,7 @@ export default function useBaseSearch(descendant, store, router) {
   }
 
   function search() {
-    const currentBaseUrl = get(baseurl);
+    const currentBaseUrl = baseurl && get(baseurl);
     const getParams = {
       include_coach_content:
         store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
@@ -284,7 +281,7 @@ export default function useBaseSearch(descendant, store, router) {
         getParams.keywords = terms.keywords;
       }
       if (store.getters.isUserLoggedIn) {
-        fetchContentNodeProgress(getParams);
+        fetchContentNodeProgress?.(getParams);
       }
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
         set(_results, data.results || []);
@@ -310,7 +307,7 @@ export default function useBaseSearch(descendant, store, router) {
     if (get(displayingSearchResults) && get(more) && !get(moreLoading)) {
       set(moreLoading, true);
       if (store.getters.isUserLoggedIn) {
-        fetchContentNodeProgress(get(more));
+        fetchContentNodeProgress?.(get(more));
       }
       return ContentNodeResource.fetchCollection({ getParams: get(more) }).then(data => {
         set(_results, [...get(_results), ...(data.results || [])]);
@@ -375,7 +372,7 @@ export default function useBaseSearch(descendant, store, router) {
 
   function ensureGlobalLabels() {
     set(globalLabelsLoading, true);
-    const currentBaseUrl = get(baseurl);
+    const currentBaseUrl = baseurl && get(baseurl);
     ContentNodeResource.fetchCollection({
       getParams: { max_results: 1, baseurl: currentBaseUrl },
     })
@@ -399,7 +396,9 @@ export default function useBaseSearch(descendant, store, router) {
   }
 
   ensureGlobalLabels();
-  watch(baseurl, ensureGlobalLabels);
+  if (baseurl) {
+    watch(baseurl, ensureGlobalLabels);
+  }
 
   function _getGlobalLabels(name, defaultValue) {
     const lookup = get(globalLabels);
@@ -467,7 +466,7 @@ export default function useBaseSearch(descendant, store, router) {
  * Helper function to retrieve references for provided properties
  * from an ancestor's use of useBaseSearch
  */
-export function injectSearch() {
+export function injectBaseSearch() {
   const availableLearningActivities = inject('availableLearningActivities');
   const availableLibraryCategories = inject('availableLibraryCategories');
   const availableResourcesNeeded = inject('availableResourcesNeeded');

@@ -163,7 +163,13 @@
 
   import { get, set } from '@vueuse/core';
 
-  import { onMounted, getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
+  import {
+    onMounted,
+    getCurrentInstance,
+    provide,
+    ref,
+    watch,
+  } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri.coreVue.composables.useUser';
@@ -173,6 +179,7 @@
   import MeteredConnectionNotificationModal from 'kolibri-common/components/MeteredConnectionNotificationModal.vue';
   import appCapabilities, { checkCapability } from 'kolibri.utils.appCapabilities';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
+  import useBaseSearch, { searchKeys } from 'kolibri-common/composables/useBaseSearch';
   import SidePanelModal from '../SidePanelModal';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import { KolibriStudioId, PageNames } from '../../constants';
@@ -185,7 +192,8 @@
     setCurrentDevice,
     StudioNotAllowedError,
   } from '../../composables/useDevices';
-  import useSearch, { searchKeys } from '../../composables/useSearch';
+  import useContentNodeProgress from '../../composables/useContentNodeProgress';
+
   import useLearnerResources from '../../composables/useLearnerResources';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import commonLearnStrings from '../commonLearnStrings';
@@ -234,6 +242,12 @@
         isLearnerOnlyImport,
       } = useUser();
       const { allowDownloadOnMeteredConnection } = useDeviceSettings();
+      const { baseurl, deviceName } = currentDeviceData();
+      const { fetchContentNodeProgress } = useContentNodeProgress();
+
+      provide('baseurl', baseurl);
+      provide('fetchContentNodeProgress', fetchContentNodeProgress);
+
       const {
         searchTerms,
         displayingSearchResults,
@@ -247,7 +261,7 @@
         clearSearch,
         setCategory,
         currentRoute,
-      } = useSearch();
+      } = useBaseSearch();
       const {
         resumableContentNodes,
         moreResumableContentNodes,
@@ -260,7 +274,6 @@
       const { canAddDownloads, canDownloadExternally } = useCoreLearn();
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
-      const { baseurl, deviceName } = currentDeviceData();
       const { fetchChannels } = useChannels();
 
       onMounted(() => {

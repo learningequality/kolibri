@@ -263,7 +263,7 @@
   import lodashSet from 'lodash/set';
   import lodashGet from 'lodash/get';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
-  import { getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
+  import { getCurrentInstance, ref, watch, provide } from 'kolibri.lib.vueCompositionApi';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri.coreVue.composables.useUser';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -274,14 +274,18 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
+  import useBaseSearch from 'kolibri-common/composables/useBaseSearch';
   import SidePanelModal from '../SidePanelModal';
   import { PageNames } from '../../constants';
   import useChannels from '../../composables/useChannels';
-  import useSearch from '../../composables/useSearch';
   import useContentLink from '../../composables/useContentLink';
   import useContentNodeProgress from '../../composables/useContentNodeProgress';
   import useCoreLearn from '../../composables/useCoreLearn';
-  import { setCurrentDevice, StudioNotAllowedError } from '../../composables/useDevices';
+  import {
+    setCurrentDevice,
+    StudioNotAllowedError,
+    currentDeviceData,
+  } from '../../composables/useDevices';
   import useDownloadRequests from '../../composables/useDownloadRequests';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
   import SearchFiltersPanel from '../SearchFiltersPanel';
@@ -363,6 +367,12 @@
       const store = currentInstance.$store;
       const router = currentInstance.$router;
       const topic = ref(null);
+      const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
+      const { baseurl } = currentDeviceData();
+
+      provide('fetchContentNodeProgress', fetchContentNodeProgress);
+      provide('baseurl', baseurl);
+
       const {
         searchTerms,
         displayingSearchResults,
@@ -375,11 +385,10 @@
         removeFilterTag,
         clearSearch,
         currentRoute,
-      } = useSearch(topic);
+      } = useBaseSearch(topic);
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
       const { windowBreakpoint, windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       const { channelsMap, fetchChannels } = useChannels();
-      const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
       const { isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
       const { fetchUserDownloadRequests } = useDownloadRequests(store);
 

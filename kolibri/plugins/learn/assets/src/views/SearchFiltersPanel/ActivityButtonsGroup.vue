@@ -36,13 +36,14 @@
   import camelCase from 'lodash/camelCase';
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { injectSearch } from '../../composables/useSearch';
+  import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
 
   export default {
     name: 'ActivityButtonsGroup',
     mixins: [commonCoreStrings],
     setup() {
-      const { availableLearningActivities, searchableLabels, activeSearchTerms } = injectSearch();
+      const { availableLearningActivities, searchableLabels, activeSearchTerms } =
+        injectBaseSearch();
       return {
         availableLearningActivities,
         searchableLabels,

@@ -11,7 +11,7 @@ import flatMap from 'lodash/flatMap';
 import flatMapDepth from 'lodash/flatMapDepth';
 
 import { ContentNodeResource } from 'kolibri.resources';
-import { deduplicateResources } from '../utils/contentNode';
+import { deduplicateResources } from 'kolibri-common/utils/contentNode';
 import { LearnerClassroomResource, LearnerLessonResource } from '../apiResources';
 import { ClassesPageNames } from '../constants';
 import useContentNodeProgress, { setContentNodeProgress } from './useContentNodeProgress';
