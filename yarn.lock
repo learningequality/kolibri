@@ -7740,9 +7740,9 @@ kolibri-constants@0.2.5:
   resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.2.5.tgz#2b9df4c477119d0ade2d66bf8aef8a4172f0418f"
   integrity sha512-ZoFZ83xgteZhFZtYjiOmITcZeSF+X42i12TOo87zmcdA78jj0dZbPYB+ttO855UxoKY8h4HHeDVZIUkE5TGa5g==
 
-"kolibri-design-system@https://github.com/muditchoudhary/kolibri-design-system#29f339adfe27476aa2d886e4651013714d73da5a":
-  version "5.0.0-rc0"
-  resolved "https://github.com/muditchoudhary/kolibri-design-system#29f339adfe27476aa2d886e4651013714d73da5a"
+"kolibri-design-system@https://github.com/muditchoudhary/kolibri-design-system#60d0b3d9b05df524111cf3dacc419cf958dddcaf":
+  version "5.0.0-rc1"
+  resolved "https://github.com/muditchoudhary/kolibri-design-system#60d0b3d9b05df524111cf3dacc419cf958dddcaf"
   dependencies:
     "@vue/composition-api" "1.7.2"
     aphrodite "https://github.com/learningequality/aphrodite/"
@@ -7756,6 +7756,7 @@ kolibri-constants@0.2.5:
     purecss "2.2.0"
     tippy.js "4.2.1"
     vue-intl "3.1.0"
+    vue2-teleport "1.1.4"
     xstate "4.38.3"
 
 launch-editor-middleware@^2.7.0:
@@ -11756,7 +11757,7 @@ vue-virtual-scroller@1.1.2:
     vue-observe-visibility "^0.4.4"
     vue-resize "^0.4.5"
 
-vue2-teleport@^1.1.4:
+vue2-teleport@1.1.4, vue2-teleport@^1.1.4:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/vue2-teleport/-/vue2-teleport-1.1.4.tgz#30c84b1005bf9c208b1c05f4b6147300c54ee846"
   integrity sha512-mGTszyQP6k3sSSk7MBq+PZdVojHYLwg5772hl3UVpu5uaLBqWIZ5eNP6/TjkDrf1XUTTxybvpXC6inpjwO+i/Q==
