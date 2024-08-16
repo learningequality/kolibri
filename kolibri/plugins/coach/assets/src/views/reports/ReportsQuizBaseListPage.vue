@@ -1,13 +1,16 @@
 <template>
 
   <CoachAppBarPage>
-
-    <KGrid v-if="exam" gutter="16">
+    <KGrid
+      v-if="exam"
+      gutter="16"
+    >
       <KGridItem>
         <QuizLessonDetailsHeader
           examOrLesson="exam"
           :backlink="
-            group ? classRoute('ReportsGroupReportPage') : classRoute('ReportsQuizListPage')"
+            group ? classRoute('ReportsGroupReportPage') : classRoute('ReportsQuizListPage')
+          "
           :backlinkLabel="group ? group.name : coachString('allQuizzesLabel')"
           optionsFor="report"
         >
@@ -107,7 +110,7 @@
         return this.$route.params.groupId && this.groupMap[this.$route.params.groupId];
       },
       tabs() {
-        return [
+        const tabsList = [
           {
             id: QuizzesTabs.REPORT,
             label: this.coachString('reportLabel'),
@@ -115,14 +118,18 @@
               ? this.classRoute('ReportsGroupReportQuizLearnerListPage')
               : this.classRoute('ReportsQuizLearnerListPage'),
           },
-          {
+        ];
+        const isDraftExam = this.exam && this.exam.draft;
+        if (!isDraftExam) {
+          tabsList.push({
             id: QuizzesTabs.DIFFICULT_QUESTIONS,
             label: this.coachString('difficultQuestionsLabel'),
             to: this.group
               ? this.classRoute('ReportsGroupReportQuizQuestionListPage')
               : this.classRoute('ReportsQuizQuestionListPage'),
-          },
-        ];
+          });
+        }
+        return tabsList;
       },
     },
     mounted() {
@@ -152,7 +159,7 @@
         }
         if (option === 'PREVIEW') {
           this.$router.push(
-            this.$router.getRoute('ReportsQuizPreviewPage', {}, this.defaultBackLinkQuery)
+            this.$router.getRoute('ReportsQuizPreviewPage', {}, this.defaultBackLinkQuery),
           );
         }
         if (option === 'PRINT_REPORT') {

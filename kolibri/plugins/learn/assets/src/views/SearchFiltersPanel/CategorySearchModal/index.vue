@@ -1,20 +1,20 @@
 <template>
 
   <div>
-    <Teleport v-if="windowIsLarge" to="body">
-      <KModal
-        :title="$tr('title')"
-        :cancelText="coreString('closeAction')"
-        size="large"
-        @cancel="$emit('cancel')"
-      >
-        <CategorySearchOptions
-          ref="searchOptions"
-          :selectedCategory="selectedCategory"
-          v-on="$listeners"
-        />
-      </KModal>
-    </Teleport>
+    <KModal
+      v-if="windowIsLarge"
+      appendToRoot
+      :title="$tr('title')"
+      :cancelText="coreString('closeAction')"
+      size="large"
+      @cancel="$emit('cancel')"
+    >
+      <CategorySearchOptions
+        ref="searchOptions"
+        :selectedCategory="selectedCategory"
+        v-on="$listeners"
+      />
+    </KModal>
     <div v-else>
       <h2>{{ $tr('title') }}</h2>
       <CategorySearchOptions
@@ -23,8 +23,6 @@
         v-on="$listeners"
       />
     </div>
-
-
   </div>
 
 </template>
@@ -32,7 +30,6 @@
 
 <script>
 
-  import Teleport from 'vue2-teleport';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CategorySearchOptions from './CategorySearchOptions';
@@ -41,7 +38,6 @@
     name: 'CategorySearchModal',
     components: {
       CategorySearchOptions,
-      Teleport,
     },
     mixins: [commonCoreStrings],
     setup() {

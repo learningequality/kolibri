@@ -5,7 +5,8 @@
       <UiAlert
         v-if="showServerError"
         type="error"
-        :dismissible="false"
+        :dismissible="true"
+        @dismiss="showServerError = false"
       >
         {{ submitErrorMessage }}
       </UiAlert>
@@ -30,7 +31,7 @@
           >
             <KTextbox
               ref="titleField"
-              v-model="title"
+              v-model.trim="title"
               :label="titleLabel$()"
               :maxlength="titleMaxLength"
               :autofocus="true"
@@ -62,7 +63,6 @@
             />
           </KGridItem>
         </KGrid>
-
       </fieldset>
 
       <fieldset>
@@ -84,10 +84,9 @@
           :classId="classId"
           :disabled="disabled || formIsSubmitted"
           :initialAdHocLearners="adHocLearners"
-          @updateLearners="learners => adHocLearners = learners"
+          @updateLearners="learners => (adHocLearners = learners)"
         />
       </fieldset>
-
     </form>
 
     <BottomAppBar v-if="!assignmentIsQuiz">
@@ -211,7 +210,7 @@
                 this.$store.getters['classSummary/quizTitleUnavailable']({
                   title: this.title,
                   excludeId: this.$route.params.quizId,
-                })
+                }),
               ) ||
               this.showTitleError
             ) {
@@ -319,7 +318,14 @@
         this.showTitleError = true;
         this.$refs.titleField.focus();
         // Scroll to the title field in case focus() didn't do that immediately
-        this.window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+      /**
+       * @public
+       */
+      handleSubmitSuccess() {
+        this.showTitleError = false;
+        this.showServerError = false;
       },
     },
   };

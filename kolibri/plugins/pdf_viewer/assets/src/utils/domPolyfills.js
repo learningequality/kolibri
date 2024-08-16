@@ -20,7 +20,7 @@ for (const item of toPolyfill) {
 
       for (const argItem of argArr) {
         docFrag.appendChild(
-          argItem instanceof Node ? argItem : document.createTextNode(String(argItem))
+          argItem instanceof Node ? argItem : document.createTextNode(String(argItem)),
         );
       }
 
@@ -44,7 +44,7 @@ for (const item of toPolyfill) {
 
       for (const argItem of argArr) {
         docFrag.appendChild(
-          argItem instanceof Node ? argItem : document.createTextNode(String(argItem))
+          argItem instanceof Node ? argItem : document.createTextNode(String(argItem)),
         );
       }
 

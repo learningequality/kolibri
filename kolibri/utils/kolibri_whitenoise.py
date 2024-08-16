@@ -2,6 +2,7 @@ import os
 import re
 import stat
 from collections import OrderedDict
+from gzip import GzipFile
 from io import BufferedIOBase
 from urllib.parse import parse_qs
 from urllib.parse import urljoin
@@ -13,6 +14,7 @@ from django.core.files.storage import FileSystemStorage
 from django.utils._os import safe_join
 from whitenoise import WhiteNoise
 from whitenoise.httpstatus_backport import HTTPStatus
+from whitenoise.responders import FileEntry
 from whitenoise.responders import MissingFileError
 from whitenoise.responders import NOT_ALLOWED_RESPONSE
 from whitenoise.responders import Response
@@ -120,7 +122,58 @@ class SlicedFile(BufferedIOBase):
         self.fileobj.close()
 
 
+COMPRESSED_FILE_FOR_REGULAR_PATH = ".compressed_file_for_regular_path"
+
+
+class TruncatableFileEntry(FileEntry):
+    def __init__(self, path, stat_cache=None):
+        super(TruncatableFileEntry, self).__init__(path, stat_cache)
+        if self.stat.st_size == 0:
+            stat_path = "{}.{}".format(path, "file_size")
+            if stat_cache is None or stat_path not in stat_cache:
+                if os.path.exists(stat_path):
+                    with open(stat_path, "r") as f:
+                        self.file_size = int(f.read())
+                    if stat_cache is not None:
+                        stat_cache[stat_path] = self.file_size
+            elif stat_cache is not None:
+                self.file_size = stat_cache[stat_path]
+
+
 class EndRangeStaticFile(StaticFile):
+    def get_response(self, method, request_headers):
+        """
+        Vendored from Whitenoise to handle serving truncated compressed files
+        streamed from their gzipped counterpart.
+        """
+        if method not in ("GET", "HEAD"):
+            return NOT_ALLOWED_RESPONSE
+        if self.is_not_modified(request_headers):
+            return self.not_modified_response
+        path, headers = self.get_path_and_headers(request_headers)
+        if method != "HEAD":
+            # This is the only modification - if we have a gzip compressed file
+            # but have a non compressed path, then we need to wrap the file handle
+            # in a GzipFile object to decompress it.
+            if path.endswith(COMPRESSED_FILE_FOR_REGULAR_PATH):
+                file_handle = GzipFile(
+                    fileobj=open(path[: -len(COMPRESSED_FILE_FOR_REGULAR_PATH)], "rb")
+                )
+            else:
+                file_handle = open(path, "rb")
+        else:
+            file_handle = None
+        range_header = request_headers.get("HTTP_RANGE")
+        if range_header:
+            try:
+                return self.get_range_response(range_header, headers, file_handle)
+            except ValueError:
+                # If we can't interpret the Range request for any reason then
+                # just ignore it and return the standard response (this
+                # behaviour is allowed by the spec)
+                pass
+        return Response(HTTPStatus.OK, headers, file_handle)
+
     def get_range_response(self, range_header, base_headers, file_handle):
         headers = []
         for item in base_headers:
@@ -136,6 +189,65 @@ class EndRangeStaticFile(StaticFile):
         headers.append(("Content-Range", "bytes {}-{}/{}".format(start, end, size)))
         headers.append(("Content-Length", str(end - start + 1)))
         return Response(HTTPStatus.PARTIAL_CONTENT, headers, file_handle)
+
+    @staticmethod
+    def get_alternatives(base_headers, files):
+        # Sort by size so that the smallest compressed alternative matches first
+        # but always put the uncompressed alternative last to allow for our truncation
+        # of uncompressed files in production distributions.
+        # The key in files is None for the uncompressed version.
+        alternatives = []
+        files_by_size = sorted(
+            files.items(), key=lambda i: (i[0] is None, i[1].stat.st_size)
+        )
+        gzipped_file = None
+        for encoding, file_entry in files_by_size:
+            path = file_entry.path
+            headers = Headers(base_headers.items())
+            headers["Content-Length"] = str(
+                getattr(file_entry, "file_size", file_entry.stat.st_size)
+            )
+            if encoding:
+                headers["Content-Encoding"] = encoding
+                encoding_re = re.compile(r"\b%s\b" % encoding)
+                if encoding == "gzip":
+                    gzipped_file = file_entry
+            else:
+                encoding_re = re.compile("")
+                if file_entry.stat.st_size == 0 and gzipped_file is not None:
+                    path = gzipped_file.path + COMPRESSED_FILE_FOR_REGULAR_PATH
+            alternatives.append((encoding_re, path, headers.items()))
+        return alternatives
+
+    @staticmethod
+    def get_file_stats(path, encodings, stat_cache):
+        """
+        Vendored from Whitenoise to handle our truncation of source files
+        when we compress them.
+        """
+        # Primary file has an encoding of None
+        files = {None: TruncatableFileEntry(path, stat_cache)}
+        if files[None].stat.st_size == 0:
+            stat_path = "{}.{}".format(path, "file_size")
+            if stat_cache is not None and stat_path in stat_cache:
+                setattr(files[None], "file_size", stat_cache[stat_path])
+        if encodings:
+            for encoding, alt_path in encodings.items():
+                try:
+                    files[encoding] = FileEntry(alt_path, stat_cache)
+                except MissingFileError:
+                    continue
+        return files
+
+    def get_path_and_headers(self, request_headers):
+        """
+        Vendored from Whitenoise to handle "*" and no Accept-Encoding header
+        """
+        accept_encoding = request_headers.get("HTTP_ACCEPT_ENCODING", "*")
+        # These are sorted by size so first match is the best
+        for encoding_re, path, headers in self.alternatives:
+            if accept_encoding == "*" or encoding_re.search(accept_encoding):
+                return path, headers
 
 
 class StreamingStaticFile(EndRangeStaticFile):
@@ -272,7 +384,7 @@ class DynamicWhiteNoise(WhiteNoise):
             file_stat = os.stat(path)
             # Only try to do matches for regular files.
             if stat.S_ISREG(file_stat.st_mode):
-                stat_cache = {path: os.stat(path)}
+                stat_cache = {path: file_stat}
                 for ext in compressed_file_extensions:
                     try:
                         comp_path = "{}.{}".format(path, ext)

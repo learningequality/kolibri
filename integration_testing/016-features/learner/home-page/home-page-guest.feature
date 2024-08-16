@@ -12,4 +12,4 @@ Feature: Guest Home Page
     Given there are imported resources
     When I click the *Explore without account* link on the sign-in page
     Then I see the section *Explore channels*
-      And I can click on a chanel to explore the available resources
+      And I can click on a channel to explore the available resources

@@ -1,16 +1,12 @@
 <template>
 
   <div class="wrapper">
-    <h1 class="section-header" :style="{ color: `${$themeTokens.annotation}` }">
-      {{ activeSectionTitle }}
-    </h1>
-    <span
-      class="divider"
-      :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
-    >
-    </span>
     <h1 class="section-header">
-      {{ replaceQuestions$() }}
+      {{
+        replaceQuestions$({
+          sectionTitle: displaySectionTitle(activeSection, activeSectionIndex),
+        })
+      }}
     </h1>
     <p>{{ replaceQuestionsHeading$() }}</p>
     <span
@@ -53,9 +49,7 @@
         "
       >
         <template #heading="{ title }">
-          <h3
-            class="accordion-header"
-          >
+          <h3 class="accordion-header">
             <KCheckbox
               class="accordion-checkbox"
               :checked="replacements.map(r => r.item).includes(question.item)"
@@ -72,9 +66,8 @@
             >
               <span>{{ title }}</span>
               <KIcon
-                style="position: absolute; right:1em; top: 0.625em;"
-                :icon="isExpanded(index) ?
-                  'chevronUp' : 'chevronRight'"
+                class="chevron-icon"
+                :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
               />
             </KButton>
           </h3>
@@ -107,40 +100,30 @@
     </AccordionContainer>
 
     <div class="bottom-navigation">
-      <KGrid>
-        <KGridItem
-          style="text-align: left;"
-          :layout12="{ span: 8 }"
-          :layout8="{ span: 6 }"
-          :layout4="{ span: 3 }"
-        >
-          {{ replaceSelectedQuestionsString }}
-        </KGridItem>
-        <KGridItem
-          style="text-align: right;"
-          :layout12="{ span: 4 }"
-          :layout8="{ span: 2 }"
-          :layout4="{ span: 1 }"
-        >
-          <KButton
-            :primary="true"
-            :text="replaceAction$()"
-            :disabled="!canProceedToReplace"
-            @click="confirmReplacement"
-          />
-        </KGridItem>
-      </KGrid>
+      <div>
+        {{ replaceSelectedQuestionsString }}
+      </div>
+      <KButton
+        :primary="true"
+        :text="replaceAction$()"
+        :disabled="!canProceedToReplace"
+        @click="confirmReplacement"
+      />
     </div>
     <KModal
       v-if="showReplacementConfirmation"
       :submitText="coreString('confirmAction')"
       :cancelText="coreString('cancelAction')"
-      :title="replaceQuestions$()"
+      :title="
+        replaceQuestions$({
+          sectionTitle: displaySectionTitle(activeSection, activeSectionIndex),
+        })
+      "
       @cancel="showReplacementConfirmation = false"
       @submit="submitReplacement"
     >
-      <div> {{ replaceQuestionsExplaination$() }} </div>
-      <div style="font-weight: bold;">
+      <div>{{ replaceQuestionsExplaination$() }}</div>
+      <div style="font-weight: bold">
         {{ noUndoWarning$() }}
       </div>
     </KModal>
@@ -198,7 +181,7 @@
         numberOfSelectedReplacements$,
         numberOfQuestionsReplaced$,
         noUndoWarning$,
-        selectMoreQuestion$,
+        selectQuestionsToContinue$,
         selectFewerQuestion$,
         collapseAll$,
         expandAll$,
@@ -207,6 +190,7 @@
       const {
         // Computed
         activeSection,
+        activeSectionIndex,
         selectedActiveQuestions,
         activeResourceMap,
         replacementQuestionPool,
@@ -219,7 +203,7 @@
 
       const activeSectionTitle = computed(() => {
         const activeSectionIndex = allSections.value.findIndex(section =>
-          isEqual(JSON.stringify(section), JSON.stringify(activeSection.value))
+          isEqual(JSON.stringify(section), JSON.stringify(activeSection.value)),
         );
         return displaySectionTitle(activeSection.value, activeSectionIndex);
       });
@@ -253,7 +237,7 @@
       }
 
       function toggleInReplacements(question) {
-        const replacementIds = replacements.value.map(q => q.id);
+        const replacementIds = replacements.value.map(q => q.item);
         if (replacementIds.includes(question.item)) {
           replacements.value = replacements.value.filter(q => q.item !== question.item);
         } else {
@@ -282,14 +266,8 @@
         }
       }
 
-      const {
-        toggle,
-        isExpanded,
-        collapseAll,
-        expandAll,
-        canCollapseAll,
-        canExpandAll,
-      } = useAccordion(replacementQuestionPool);
+      const { toggle, isExpanded, collapseAll, expandAll, canCollapseAll, canExpandAll } =
+        useAccordion(replacementQuestionPool);
 
       return {
         toggle,
@@ -301,6 +279,7 @@
 
         toggleInReplacements,
         activeSection,
+        activeSectionIndex,
         activeSectionTitle,
         selectAllReplacementQuestions,
         selectedActiveQuestions,
@@ -327,11 +306,12 @@
         noUndoWarning$,
         replaceQuestionsExplaination$,
         replaceQuestionsHeading$,
-        selectMoreQuestion$,
+        selectQuestionsToContinue$,
         selectFewerQuestion$,
         collapseAll$,
         expandAll$,
         displayQuestionTitle,
+        displaySectionTitle,
       };
     },
     computed: {
@@ -361,13 +341,9 @@
             count: this.replacements.length,
             total: this.selectedActiveQuestions.length,
           });
-        } else if (unreplacedCount > 0) {
-          return this.selectMoreQuestion$({
-            count: unreplacedCount,
-          });
         } else {
-          return this.selectFewerQuestion$({
-            count: Math.abs(unreplacedCount),
+          return this.selectQuestionsToContinue$({
+            count: this.selectedActiveQuestions.length,
           });
         }
       },
@@ -405,6 +381,12 @@
     cursor: pointer;
     user-select: none;
     transition: background-color 0.3s ease;
+
+    .chevron-icon {
+      position: absolute;
+      top: 0.625em;
+      right: 1em;
+    }
   }
 
   .accordion-header-label {
@@ -420,17 +402,16 @@
   .bottom-navigation {
     position: absolute;
     right: 0;
-    bottom: 1.5em;
+    bottom: 0;
     left: 0;
+    display: flex;
+    justify-content: space-between;
     width: 100%;
     padding: 1em;
+    line-height: 2.5em;
     text-align: center;
     background-color: white;
     border-top: 1px solid black;
-
-    div {
-      line-height: 2.5em;
-    }
   }
 
   .accordion-checkbox {

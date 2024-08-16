@@ -495,6 +495,14 @@ class BaseExamTest:
         response = self.post_new_exam(exam)
         self.assertEqual(response.status_code, 400)
 
+    def test_admin_can_update_learner_sees_fixed_order(self):
+        self.login_as_admin()
+        response = self.patch_updated_exam(
+            self.exam.id, {"learners_see_fixed_order": True}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertExamExists(id=self.exam.id, learners_see_fixed_order=True)
+
 
 class ExamAPITestCase(BaseExamTest, APITestCase):
     class_object = models.Exam
@@ -577,19 +585,6 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
         self.assertEqual(response.status_code, 400)
         self.exam.refresh_from_db()
         self.assertEqual(self.exam.question_sources, previous_sections)
-
-    def test_logged_in_admin_exam_update_cannot_update_learners_see_fixed_order(self):
-        self.login_as_admin()
-        previous_learners_see_fixed_order = self.exam.learners_see_fixed_order
-        response = self.patch_updated_exam(
-            self.exam.id,
-            {"learners_see_fixed_order": not previous_learners_see_fixed_order},
-        )
-        self.assertEqual(response.status_code, 400)
-        self.exam.refresh_from_db()
-        self.assertEqual(
-            self.exam.learners_see_fixed_order, previous_learners_see_fixed_order
-        )
 
     def test_logged_in_admin_exam_can_create_and_publish_remove_empty_sections(self):
         self.login_as_admin()

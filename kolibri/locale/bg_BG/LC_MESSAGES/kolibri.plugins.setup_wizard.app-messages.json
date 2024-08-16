@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "За неформално ползване",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Устройството ще бъде пълнофункционален сървър на Колибри, използван от администратори, учители и ученици.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Устройство с пълен достъп",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Това устройство ще има един или повече профили на ученици, импортирани от устройство с пълен достъп, което вече съществува. Профилите на учениците ще се синхронизират автоматично с устройството с пълен достъп.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Това устройство ще има само функциите, използвани от ученици, и ще се синхронизира автоматично с устройството с пълен достъп.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Устройство с достъп само за учащи",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "Какъв вид ще бъде устройството?",
   "GuestAccessForm.changeLater": "Можеш да промениш това по-късно от настройките на твоето устройство.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Копиране в клипборда",
   "UserCredentialsForm.adminAccountCreationHeader": "Създай суперадминистратор",
   "UserCredentialsForm.learnerAccountCreationDescription": "Нов профил за учебна институция '{facility}'",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Създай своя профил"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Създай своя профил",
+  "UserCredentialsForm.signInInstead": "Вписване с потребителско име?"
 }

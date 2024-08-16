@@ -1,7 +1,6 @@
 <template>
 
   <div class="onboarding">
-
     <ErrorPage
       v-if="error"
       class="body"
@@ -17,7 +16,6 @@
     <template v-else>
       <router-view />
     </template>
-
   </div>
 
 </template>

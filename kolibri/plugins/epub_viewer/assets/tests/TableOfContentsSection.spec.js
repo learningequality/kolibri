@@ -61,7 +61,7 @@ describe('Table of Contents Section', () => {
       depth: 0,
     });
     expect(
-      wrapper.find('ul.toc-list').findAll('[data-test="table-of-contents-section"]').length
+      wrapper.find('ul.toc-list').findAll('[data-test="table-of-contents-section"]').length,
     ).toBe(2);
   });
 
@@ -96,7 +96,7 @@ describe('Table of Contents Section', () => {
       currentSection: section,
     });
     expect(wrapper.findComponent({ name: 'KButton' }).classes()).toContain(
-      'toc-list-item-button-current'
+      'toc-list-item-button-current',
     );
   });
 
@@ -107,7 +107,7 @@ describe('Table of Contents Section', () => {
       currentSection: { label: 'Random section', href: 'href' },
     });
     expect(wrapper.findComponent({ name: 'KButton' }).classes()).not.toContain(
-      'toc-list-item-button-current'
+      'toc-list-item-button-current',
     );
   });
 

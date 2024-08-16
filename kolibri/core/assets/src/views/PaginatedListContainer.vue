@@ -21,7 +21,10 @@
     </div>
 
     <nav class="pagination-nav">
-      <span dir="auto" class="pagination-label">
+      <span
+        dir="auto"
+        class="pagination-label"
+      >
         {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
       </span>
       <KButtonGroup>
@@ -29,7 +32,6 @@
           :ariaLabel="$tr('previousResults')"
           :disabled="previousButtonDisabled"
           size="small"
-
           icon="back"
           @click="changePage(-1)"
         />
@@ -37,7 +39,6 @@
           :ariaLabel="$tr('nextResults')"
           :disabled="nextButtonDisabled"
           size="small"
-
           icon="forward"
           @click="changePage(+1)"
         />

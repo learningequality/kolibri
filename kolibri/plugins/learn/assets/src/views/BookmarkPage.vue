@@ -1,8 +1,7 @@
 <template>
 
   <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
-    <div id="main" role="main">
-
+    <div role="main">
       <h1>
         {{ $tr('bookmarksHeader') }}
       </h1>
@@ -58,14 +57,18 @@
           v-for="activity in sidePanelContent.learning_activities"
           :key="activity"
           class="side-panel-chips"
-          :class="$computedClass({ '::after': {
-            content: '',
-            flex: 'auto'
-          } })"
+          :class="
+            $computedClass({
+              '::after': {
+                content: '',
+                flex: 'auto',
+              },
+            })
+          "
         >
           <LearningActivityChip
             class="chip"
-            style="margin-left: 8px; margin-bottom: 8px;"
+            style="margin-bottom: 8px; margin-left: 8px"
             :kind="activity"
           />
         </div>
@@ -91,13 +94,13 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
+  import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
   import SidePanelModal from './SidePanelModal';
   import commonLearnStrings from './commonLearnStrings';
   import LearnAppBarPage from './LearnAppBarPage';
-  import LearningActivityChip from './LearningActivityChip';
   import CardList from './CardList';
   import HybridLearningFooter from './HybridLearningContentCard/HybridLearningFooter';
 

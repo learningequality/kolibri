@@ -1,12 +1,12 @@
 <template>
 
-  <div class="section-settings-content">
-    <h5
-      class="section-settings-top-heading"
-      :style="{ color: $themeTokens.text }"
-    >
+  <div
+    v-if="activeSection"
+    class="section-settings-content"
+  >
+    <h1 :style="{ color: $themeTokens.text }">
       {{ sectionSettings$() }}
-    </h5>
+    </h1>
 
     <KTextbox
       ref="sectionTitle"
@@ -25,12 +25,10 @@
       class="description-ktextbox-style"
     />
 
-    <hr :style="dividerStyle">
+    <hr :style="dividerStyle" >
 
     <div>
-      <h5
-        class="section-settings-heading"
-      >
+      <h5 class="section-settings-heading">
         {{ questionOrder$() }}
       </h5>
       <KGrid>
@@ -61,127 +59,38 @@
       </KGrid>
     </div>
 
-    <hr :style="dividerStyle">
+    <hr :style="dividerStyle" >
 
-    <h5
-      class="section-settings-heading"
-    >
+    <h5 class="section-settings-heading">
       {{
-        numberOfQuestionsSelected$(
-          {
-            count: activeQuestions.length,
-          }
-        )
+        numberOfQuestionsSelected$({
+          count: activeQuestions.length,
+        })
       }}
     </h5>
 
     <KRouterLink
+      v-if="showResourceButton"
       appearance="raised-button"
       :to="selectResourcesRoute"
-      style="margin-bottom: 1em;"
+      style="margin-bottom: 1em"
       iconAfter="forward"
     >
       {{ resourceButtonLabel }}
     </KRouterLink>
-
-    <hr :style="dividerStyle">
-
-    <h5
-      class="section-order-style section-settings-heading"
-    >
-      {{ sectionOrder$() }}
-    </h5>
-
-
-    <DragContainer
-      v-if="sectionOrderList.length > 0"
-      :items="sectionOrderList"
-      @sort="handleSectionSort"
-    >
-      <transition-group>
-        <Draggable
-          v-for="(section, index) in sectionOrderList"
-          :key="section.section_id"
-          :style="draggableStyle"
-        >
-          <DragHandle>
-            <div
-              :style="activeSection.section_id === section.section_id ?
-                activeSectionStyles : borderStyle"
-              class="section-order-list"
-            >
-              <KGrid>
-                <KGridItem
-                  :layout12="{ span: 1 }"
-                  :layout8="{ span: 1 }"
-                  :layout4="{ span: 1 }"
-                >
-                  <KIcon
-                    icon="dragVertical"
-                    class="space-content"
-                  />
-                </KGridItem>
-
-                <KGridItem
-                  :layout12="{ span: 6 }"
-                  :layout8="{ span: 4 }"
-                  :layout4="{ span: 2 }"
-                >
-                  <p class="space-content">
-                    {{ displaySectionTitle(section, index).toUpperCase() }}
-                  </p>
-                </KGridItem>
-
-                <!-- Perhaps this should be positioned absolutely to
-                     accommodate longer section titles -->
-                <KGridItem
-                  :layout12="{ span: 5 }"
-                  :layout8="{ span: 3 }"
-                  :layout4="{ span: 1 }"
-                  class="current-section-style"
-                  :style="{ color: $themePalette.grey.v_700 }"
-                >
-                  <p
-                    v-if="activeSection.section_id === section.section_id"
-                    class="current-section-text space-content"
-                  >
-                    {{ currentSection$() }}
-                  </p>
-                </KGridItem>
-              </KGrid>
-            </div>
-          </DragHandle>
-        </Draggable>
-      </transition-group>
-    </DragContainer>
-
-    <div class="bottom-buttons-style">
-      <KGrid>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KButton
-            :text="deleteSectionLabel$()"
-            @click="handleDeleteSection()"
-          />
-
-        </KGridItem>
-        <KGridItem
-          style="text-align: right;"
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KButton
-            :primary="true"
-            :text="applySettings$()"
-            @click="applySettings"
-          />
-
-        </KGridItem>
-      </KGrid>
+    <p v-else>
+      {{ maxQuestionsLabel }}
+    </p>
+    <div class="bottom-navigation">
+      <KButton
+        :text="deleteSectionLabel$()"
+        @click="handleDeleteSection()"
+      />
+      <KButton
+        :primary="true"
+        :text="applySettings$()"
+        @click="applySettings()"
+      />
     </div>
     <KModal
       v-if="showCloseConfirmation"
@@ -201,9 +110,11 @@
       @cancel="handleCancelDelete"
       @submit="handleConfirmDelete"
     >
-      {{ deleteConfirmation$(
-        { section_title: displaySectionTitle(activeSection, activeSectionIndex) }
-      ) }}
+      {{
+        deleteConfirmation$({
+          section_title: displaySectionTitle(activeSection, activeSectionIndex),
+        })
+      }}
     </KModal>
   </div>
 
@@ -220,12 +131,15 @@
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import { PageNames } from '../../../constants/index';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
+  import useDrag from './useDrag.js';
 
   export default {
     name: 'SectionEditor',
@@ -233,10 +147,13 @@
       Draggable,
       DragContainer,
       DragHandle,
+      DragSortWidget,
     },
     mixins: [commonCoreStrings],
     setup(_, context) {
       const router = getCurrentInstance().proxy.$router;
+      const store = getCurrentInstance().proxy.$store;
+      const route = computed(() => store.state.route);
 
       const {
         sectionSettings$,
@@ -245,7 +162,6 @@
         numberOfQuestionsLabel$,
         optionalDescriptionLabel$,
         numberOfQuestionsSelected$,
-        currentSection$,
         deleteSectionLabel$,
         applySettings$,
         sectionOrder$,
@@ -257,10 +173,10 @@
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         deleteConfirmation$,
-        changesSavedSuccessfully$,
         addQuestionsLabel$,
         addMoreQuestionsLabel$,
         sectionDeletedNotification$,
+        maxNumberOfQuestions$,
       } = enhancedQuizManagementStrings;
 
       const {
@@ -273,6 +189,8 @@
         updateQuiz,
         removeSection,
       } = injectQuizCreation();
+
+      const { moveDownOne, moveUpOne } = useDrag();
 
       const showCloseConfirmation = ref(false);
 
@@ -292,14 +210,17 @@
 
       function handleConfirmDelete() {
         const section_title = displaySectionTitle(activeSection.value, activeSectionIndex.value);
+        const newIndex = activeSectionIndex.value > 0 ? activeSectionIndex.value - 1 : 0;
         removeSection(activeSectionIndex.value);
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
           params: {
-            ...this.$route.params,
+            classId: route.value.params.classId,
+            quizId: route.value.params.quizId,
+            sectionIndex: newIndex,
           },
         });
-        this.$store.dispatch('createSnackbar', sectionDeletedNotification$({ section_title }));
+        store.dispatch('createSnackbar', sectionDeletedNotification$({ section_title }));
       }
 
       function handleDeleteSection() {
@@ -307,9 +228,12 @@
       }
 
       /* Note that the use of snake_case here is to map directly to the API */
-      const learners_see_fixed_order = ref(activeSection.value.learners_see_fixed_order);
-      const description = ref(activeSection.value.description);
-      const section_title = ref(activeSection.value.section_title.trim());
+      const learners_see_fixed_order = ref(activeSection?.value?.learners_see_fixed_order || false);
+      const description = ref(activeSection?.value?.description || '');
+      const section_title = ref(activeSection?.value?.section_title?.trim() || '');
+
+      // This is used to track the section that was moved
+      const reorderedSectionIndex = ref(null);
 
       const sectionTitleInvalidText = computed(() => {
         if (section_title.value.trim() === '') {
@@ -335,7 +259,7 @@
             description: description.value,
             section_title: section_title.value.trim(),
           },
-          pick(activeSection.value, ['learners_see_fixed_order', 'description', 'section_title'])
+          pick(activeSection.value, ['learners_see_fixed_order', 'description', 'section_title']),
         );
       });
 
@@ -344,7 +268,7 @@
       const sectionOrderChanged = computed(() => {
         return !isEqual(
           allSections.value.map(section => section.section_id),
-          sectionOrderList.value.map(section => section.section_id)
+          sectionOrderList.value.map(section => section.section_id),
         );
       });
 
@@ -362,7 +286,16 @@
         }
       });
 
+      const showResourceButton = computed(() => {
+        return activeQuestions.value.length < MAX_QUESTIONS_PER_QUIZ_SECTION;
+      });
+
+      const maxQuestionsLabel = computed(() => {
+        return maxNumberOfQuestions$({ count: MAX_QUESTIONS_PER_QUIZ_SECTION });
+      });
+
       return {
+        reorderedSectionIndex,
         sectionTitleInvalidText,
         sectionTitleInvalid: computed(() => Boolean(sectionTitleInvalidText.value)),
         formDataHasChanged,
@@ -383,11 +316,16 @@
         updateSection,
         updateQuiz,
         handleDeleteSection,
+        // dragging a11y
+        moveDownOne,
+        moveUpOne,
         // Form models
         learners_see_fixed_order,
         description,
         section_title,
         resourceButtonLabel,
+        showResourceButton,
+        maxQuestionsLabel,
         // Responsiveness
         windowIsLarge,
         windowIsSmall,
@@ -400,10 +338,8 @@
         optionalDescriptionLabel$,
         numberOfQuestionsSelected$,
         sectionDeletedNotification$,
-        currentSection$,
         deleteSectionLabel$,
         applySettings$,
-        changesSavedSuccessfully$,
         closeConfirmationTitle$,
         closeConfirmationMessage$,
         deleteConfirmation$,
@@ -439,36 +375,38 @@
       },
     },
     beforeRouteLeave(to, __, next) {
-      if (!this.showCloseConfirmation && this.formDataHasChanged && !this.showDeleteConfirmation) {
-        if (to.name === PageNames.QUIZ_SELECT_RESOURCES) {
-          // We're going from here to select resources so we'll save settings and move on without
-          // asking for confirmation.
-          // TODO This needs to be updated when/if "autosave" is implemented
-          this.applySettings();
-          next();
-        } else {
-          this.showCloseConfirmation = true;
+      if (this.formDataHasChanged && !this.showDeleteConfirmation) {
+        if (this.showCloseConfirmation) {
+          // The user should be confirming losing changes
           next(false);
+        } else {
+          // The user needs to confirm they want to leave
+          return (this.showCloseConfirmation = true);
         }
-      } else {
-        next();
       }
+      next();
     },
     methods: {
       handleSectionSort(e) {
         this.sectionOrderList = e.newArray;
+        const reorderedId = this.allSections[this.activeSectionIndex].section_id;
+        this.reorderedSectionIndex = this.sectionOrderList.findIndex(
+          section => section.section_id === reorderedId,
+        );
       },
-      applySettings() {
+      applySettings(nextRouteName = PageNames.EXAM_CREATION_ROOT) {
         if (this.sectionTitleInvalid) {
           this.$refs.sectionTitle.focus();
           return;
         }
+
         this.updateSection({
           sectionIndex: this.activeSectionIndex,
           section_title: this.section_title,
           description: this.description,
           learners_see_fixed_order: this.learners_see_fixed_order,
         });
+
         if (this.sectionOrderChanged) {
           // Apply the new sorting to the updated sections,
           // otherwise the edits we just made will be lost
@@ -480,7 +418,39 @@
             question_sources,
           });
         }
-        this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
+
+        if (nextRouteName) {
+          const sectionIndex =
+            this.reorderedSectionIndex !== null &&
+            this.reorderedSectionIndex !== this.activeSectionIndex
+              ? this.reorderedSectionIndex
+              : this.activeSectionIndex;
+
+          this.$router.push({
+            name: nextRouteName,
+            params: {
+              sectionIndex,
+              classId: this.$route.params.classId,
+              quizId: this.$route.params.quizId,
+            },
+          });
+        } else {
+          this.$emit('closePanel');
+        }
+      },
+      handleKeyboardDragDown(oldIndex, array) {
+        const newArray = this.moveDownOne(oldIndex, array);
+        this.sectionOrderList = newArray;
+      },
+      handleKeyboardDragUp(oldIndex, array) {
+        const newArray = this.moveUpOne(oldIndex, array);
+        this.sectionOrderList = newArray;
+      },
+      sectionOrderingTitle(section) {
+        const sectionIndexOrder = this.allSections.findIndex(
+          s => s.section_id === section.section_id,
+        );
+        return displaySectionTitle(section, sectionIndexOrder).toUpperCase();
       },
     },
   };
@@ -510,6 +480,9 @@
   }
 
   .section-order-list {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
     height: 2.5em;
     margin-top: 0.5em;
     border: 1px solid;
@@ -525,23 +498,22 @@
     font-size: 1em;
   }
 
-  .current-section-style {
-    font-size: 1em;
+  .drag-title {
+    display: inline-block;
+    padding: 8px;
   }
 
-  .bottom-buttons-style {
+  .bottom-navigation {
     position: absolute;
     right: 0;
-    bottom: 1.5em;
+    bottom: 0;
     left: 0;
+    display: flex;
+    justify-content: space-between;
     padding: 1em;
     margin-top: 1em;
     background-color: #ffffff;
     border-top: 1px solid black;
-
-    > div {
-      padding-right: 1em;
-    }
   }
 
   /deep/ .textbox {
@@ -550,10 +522,6 @@
 
   .description-ktextbox-style /deep/ .ui-textbox-label {
     width: 100%;
-  }
-
-  .current-section-text {
-    text-align: right;
   }
 
 </style>

@@ -1,8 +1,11 @@
 <template>
 
-  <AppBarPage :title="coreString('facilityLabel')" :showNavigation="false">
-    <KPageContainer style="max-width: 1000px; margin: 32px auto 0;">
-      <h1>{{ coreString('facilitiesLabel') }} </h1>
+  <AppBarPage
+    :title="coreString('facilityLabel')"
+    :showNavigation="false"
+  >
+    <KPageContainer style="max-width: 1000px; margin: 32px auto 0">
+      <h1>{{ coreString('facilitiesLabel') }}</h1>
       <CoreTable>
         <template #headers>
           <th>{{ coreString('nameLabel') }}</th>
@@ -10,7 +13,10 @@
         </template>
         <template #tbody>
           <tbody>
-            <tr v-for="facility in facilities" :key="facility.id">
+            <tr
+              v-for="facility in facilities"
+              :key="facility.id"
+            >
               <td>
                 <KRouterLink
                   :text="facility.name"
@@ -38,6 +44,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import cloneDeep from 'lodash/cloneDeep';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   export default {
     name: 'AllFacilitiesPage',
@@ -51,6 +58,10 @@
       CoreTable,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { userIsMultiFacilityAdmin } = useUser();
+      return { userIsMultiFacilityAdmin };
+    },
     props: {
       subtopicName: {
         type: String,
@@ -59,7 +70,7 @@
       },
     },
     computed: {
-      ...mapGetters(['facilityPageLinks', 'userIsMultiFacilityAdmin']),
+      ...mapGetters(['facilityPageLinks']),
       facilities() {
         return this.$store.state.core.facilities;
       },
@@ -74,7 +85,7 @@
     methods: {
       facilityLink(facility) {
         const link = cloneDeep(
-          this.facilityPageLinks[this.subtopicName] || this.facilityPageLinks.ManageClassPage
+          this.facilityPageLinks[this.subtopicName] || this.facilityPageLinks.ManageClassPage,
         );
 
         link.params.facility_id = facility.id;

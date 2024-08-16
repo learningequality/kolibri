@@ -1,7 +1,13 @@
 <template>
 
-  <ReportsQuizBaseListPage :activeTabId="QuizzesTabs.REPORT" @export="exportCSV">
-    <ReportsLearnersTable :entries="table" :questionCount="exam.question_count" />
+  <ReportsQuizBaseListPage
+    :activeTabId="QuizzesTabs.REPORT"
+    @export="exportCSV"
+  >
+    <ReportsLearnersTable
+      :entries="table"
+      :questionCount="exam.question_count"
+    />
   </ReportsQuizBaseListPage>
 
 </template>

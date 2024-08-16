@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import threading
 import time
 
 import pytest
@@ -56,17 +55,9 @@ def test_keyerror_prevention(worker):
     job = Job(id, args=(9,))
     worker.storage.enqueue_job(job, QUEUE)
 
-    # Simulate a race condition by having another thread try to delete the future
-    # while the job is running
-    def delete_future():
-        time.sleep(0.5)  # Wait for the job to start
-        del worker.future_job_mapping[job.job_id]
-
-    # Start the delete_future thread
-    delete_thread = threading.Thread(target=delete_future)
-    delete_thread.start()
-
     while job.state != "COMPLETED":
+        if job.job_id in worker.future_job_mapping:
+            del worker.future_job_mapping[job.job_id]
         job = worker.storage.get_job(job.job_id)
         time.sleep(0.1)
 
@@ -81,20 +72,12 @@ def test_keyerror_prevention_multiple_jobs(worker):
     # Enqueue the first job
     worker.storage.enqueue_job(job1, QUEUE)
 
-    # Simulate a race condition by having another thread try to delete the future
-    # while the first job is running
-    def delete_future():
-        time.sleep(0.5)  # Wait for the first job to start
-        del worker.future_job_mapping[job1.job_id]
-
-    # Start the delete_future thread
-    delete_thread = threading.Thread(target=delete_future)
-    delete_thread.start()
-
     # Enqueue the second job
     worker.storage.enqueue_job(job2, QUEUE)
 
     while job1.state != "COMPLETED":
+        if job1.job_id in worker.future_job_mapping:
+            del worker.future_job_mapping[job1.job_id]
         job1 = worker.storage.get_job(job1.job_id)
         time.sleep(0.1)
 
@@ -108,7 +91,6 @@ def test_keyerror_prevention_multiple_jobs(worker):
     assert job2.state == "COMPLETED"
 
 
-@pytest.mark.django_db
 class TestWorker:
     def test_enqueue_job_runs_job(self, worker):
         job = Job(id, args=(9,))

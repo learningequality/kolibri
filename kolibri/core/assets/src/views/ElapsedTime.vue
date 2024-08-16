@@ -1,28 +1,26 @@
 <template>
 
-  <KOptionalText
-    :text="date ? $formatRelative(ceilingDate, { now: now }) : ''"
-  />
+  <KOptionalText :text="date ? $formatRelative(ceilingDate, { now: now }) : ''" />
 
 </template>
 
 
 <script>
 
-  import { now } from 'kolibri.utils.serverClock';
+  import useNow from 'kolibri.coreVue.composables.useNow';
 
   export default {
     name: 'ElapsedTime',
+    setup() {
+      const { now } = useNow();
+      return { now };
+    },
     props: {
       date: {
         type: Date,
         default: null,
       },
     },
-    data: () => ({
-      now: now(),
-      timer: null,
-    }),
     computed: {
       ceilingDate() {
         if (this.date > this.now) {
@@ -30,14 +28,6 @@
         }
         return this.date;
       },
-    },
-    mounted() {
-      this.timer = setInterval(() => {
-        this.now = now();
-      }, 10000);
-    },
-    beforeDestroy() {
-      clearInterval(this.timer);
     },
   };
 

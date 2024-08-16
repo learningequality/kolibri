@@ -21,40 +21,55 @@
       <tbody>
         <tr>
           <td>
-            {{ $tr('uuid') }}<br>
-            <span class="label" :style="label">{{ $tr('optional') }}</span>
+            {{ $tr('uuid') }}<br >
+            <span
+              class="label"
+              :style="label"
+            >{{ $tr('optional') }}</span>
           </td>
           <td><code>UUID</code></td>
           <td>{{ $tr('uuidInfo') }}</td>
         </tr>
         <tr>
           <td>
-            {{ $tr('username') }}<br>
-            <span class="label" :style="label">{{ $tr('required') }}</span>
+            {{ $tr('username') }}<br >
+            <span
+              class="label"
+              :style="label"
+            >{{ $tr('required') }}</span>
           </td>
           <td><code>USERNAME</code></td>
           <td>{{ $tr('usernameInfo') }}</td>
         </tr>
         <tr>
           <td>
-            {{ $tr('password') }}<br>
-            <span class="label" :style="label">{{ $tr('required') }}</span>
+            {{ $tr('password') }}<br >
+            <span
+              class="label"
+              :style="label"
+            >{{ $tr('required') }}</span>
           </td>
           <td><code>PASSWORD</code></td>
           <td>{{ $tr('passwordInfo') }} <code>*</code></td>
         </tr>
         <tr>
           <td>
-            {{ $tr('fullName') }}<br>
-            <span class="label" :style="label">{{ $tr('required') }}</span>
+            {{ $tr('fullName') }}<br >
+            <span
+              class="label"
+              :style="label"
+            >{{ $tr('required') }}</span>
           </td>
           <td><code>FULL_NAME</code></td>
           <td>{{ $tr('fullNameInfo') }}</td>
         </tr>
         <tr>
           <td>
-            {{ $tr('userType') }}<br>
-            <span class="label" :style="label">{{ $tr('required') }}</span>
+            {{ $tr('userType') }}<br >
+            <span
+              class="label"
+              :style="label"
+            >{{ $tr('required') }}</span>
           </td>
           <td><code>USER_TYPE</code></td>
           <td>
@@ -69,24 +84,33 @@
         </tr>
         <tr>
           <td>
-            {{ $tr('identifier') }}<br>
-            <span class="label" :style="label">{{ $tr('optional') }}</span>
+            {{ $tr('identifier') }}<br >
+            <span
+              class="label"
+              :style="label"
+            >{{ $tr('optional') }}</span>
           </td>
           <td><code>IDENTIFIER</code></td>
           <td>{{ $tr('identifierInfo') }}</td>
         </tr>
         <tr>
           <td>
-            {{ $tr('birthYear') }}<br>
-            <span class="label" :style="label">{{ $tr('optional') }}</span>
+            {{ $tr('birthYear') }}<br >
+            <span
+              class="label"
+              :style="label"
+            >{{ $tr('optional') }}</span>
           </td>
           <td><code>BIRTH_YEAR</code></td>
           <td>{{ $tr('yearInfo') }}</td>
         </tr>
         <tr>
           <td>
-            {{ $tr('gender') }}<br>
-            <span class="label" :style="label">{{ $tr('optional') }}</span>
+            {{ $tr('gender') }}<br >
+            <span
+              class="label"
+              :style="label"
+            >{{ $tr('optional') }}</span>
           </td>
           <td><code>GENDER</code></td>
           <td>
@@ -100,8 +124,11 @@
         </tr>
         <tr>
           <td>
-            {{ $tr('enrolled') }}<br>
-            <span class="label" :style="label">{{ $tr('optional') }}</span>
+            {{ $tr('enrolled') }}<br >
+            <span
+              class="label"
+              :style="label"
+            >{{ $tr('optional') }}</span>
           </td>
           <td><code>ENROLLED_IN</code></td>
           <td>
@@ -115,8 +142,11 @@
         </tr>
         <tr>
           <td>
-            {{ $tr('assigned') }}<br>
-            <span class="label" :style="label">{{ $tr('optional') }}</span>
+            {{ $tr('assigned') }}<br >
+            <span
+              class="label"
+              :style="label"
+            >{{ $tr('optional') }}</span>
           </td>
           <td><code>ASSIGNED_TO</code></td>
           <td>
@@ -128,7 +158,6 @@
             </ul>
           </td>
         </tr>
-
       </tbody>
     </table>
   </KModal>

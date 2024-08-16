@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Naa' nder laawol janngirde ngomnati",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Kompiita nga'a wonay serwar Kolibri ɗum dawrooɓe, jannginooɓe bee fukaraaɓe kuutinirta.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Kompiita bee Kolibri fuu",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Sigorɗum pukaraajo gootum, koo ɗuɗɗum, nastinteema kompiita nga'a diga kompiita ngonnoonga. Cigorɗi fukaraaɓe cannjindiray hoore maaji bee kompiita ngan.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Kompiita pukaraajo tan",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "Iri kompiita ngaye?",
   "GuestAccessForm.changeLater": "A waaway sannjugoɗum yeeso, nder settings kompiita maaɗa.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Tonnga resu e danki kompiita",
   "UserCredentialsForm.adminAccountCreationHeader": "Waɗugo dawroowo mawɗo",
   "UserCredentialsForm.learnerAccountCreationDescription": "Sigorɗum kesum ɗum wuro bote '{facility}'",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Waɗugo sigorɗum maaɗa"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Waɗugo sigorɗum maaɗa",
+  "UserCredentialsForm.signInInstead": ""
 }

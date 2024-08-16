@@ -1,23 +1,23 @@
-!(function(e, a) {
+!(function (e, a) {
   'object' == typeof exports && 'undefined' != typeof module
     ? (module.exports = a())
     : 'function' == typeof define && define.amd // eslint-disable-line no-undef
-    ? define(a) // eslint-disable-line no-undef
-    : ((e.ReactIntlLocaleData = e.ReactIntlLocaleData || {}), (e.ReactIntlLocaleData.en = a()));
-})(this, function() {
+      ? define(a) // eslint-disable-line no-undef
+      : ((e.ReactIntlLocaleData = e.ReactIntlLocaleData || {}), (e.ReactIntlLocaleData.en = a()));
+})(this, function () {
   'use strict';
   return [
     {
       locale: 'ht',
-      pluralRuleFunction: function(e, a) {
+      pluralRuleFunction: function (e, a) {
         return a ? (1 == e ? 'one' : 'other') : 0 <= e && e < 2 ? 'one' : 'other';
       },
       fields: {
         year: {
           displayName: 'ane',
           relative: {
-            '0': 'ane sa a',
-            '1': 'ane pwochèn',
+            0: 'ane sa a',
+            1: 'ane pwochèn',
             '-1': 'ane pase',
           },
           relativeTime: {
@@ -34,8 +34,8 @@
         'year-short': {
           displayName: 'ane.',
           relative: {
-            '0': 'ane sa a.',
-            '1': 'ane pwochèn.',
+            0: 'ane sa a.',
+            1: 'ane pwochèn.',
             '-1': 'ane pase.',
           },
           relativeTime: {
@@ -52,8 +52,8 @@
         month: {
           displayName: 'mwa',
           relative: {
-            '0': 'mwa sa a',
-            '1': 'mwa pwochèn',
+            0: 'mwa sa a',
+            1: 'mwa pwochèn',
             '-1': 'mwa pase',
           },
           relativeTime: {
@@ -70,8 +70,8 @@
         'month-short': {
           displayName: 'mwa.',
           relative: {
-            '0': 'mwa sa a.',
-            '1': 'mwa pwochèn.',
+            0: 'mwa sa a.',
+            1: 'mwa pwochèn.',
             '-1': 'mwa pase.',
           },
           relativeTime: {
@@ -88,8 +88,8 @@
         day: {
           displayName: 'jou',
           relative: {
-            '0': 'jodi a',
-            '1': 'demen',
+            0: 'jodi a',
+            1: 'demen',
             '-1': 'yè',
           },
           relativeTime: {
@@ -106,8 +106,8 @@
         'day-short': {
           displayName: 'jou',
           relative: {
-            '0': 'jodi a',
-            '1': 'demen',
+            0: 'jodi a',
+            1: 'demen',
             '-1': 'yè',
           },
           relativeTime: {
@@ -124,7 +124,7 @@
         hour: {
           displayName: 'lè',
           relative: {
-            '0': 'nan lè sa a',
+            0: 'nan lè sa a',
           },
           relativeTime: {
             future: {
@@ -140,7 +140,7 @@
         'hour-short': {
           displayName: 'lè/èdtan',
           relative: {
-            '0': 'nan lè sa a',
+            0: 'nan lè sa a',
           },
           relativeTime: {
             future: {
@@ -156,7 +156,7 @@
         minute: {
           displayName: 'minit',
           relative: {
-            '0': 'minit sa a',
+            0: 'minit sa a',
           },
           relativeTime: {
             future: {
@@ -172,7 +172,7 @@
         'minute-short': {
           displayName: 'minit.',
           relative: {
-            '0': 'minit sa a',
+            0: 'minit sa a',
           },
           relativeTime: {
             future: {
@@ -188,7 +188,7 @@
         second: {
           displayName: 'segonn',
           relative: {
-            '0': 'kounye a',
+            0: 'kounye a',
           },
           relativeTime: {
             future: {
@@ -204,7 +204,7 @@
         'second-short': {
           displayName: 'segonn.',
           relative: {
-            '0': 'kounye a',
+            0: 'kounye a',
           },
           relativeTime: {
             future: {

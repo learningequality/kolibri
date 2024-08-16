@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-12 04:17-0800\n"
-"PO-Revision-Date: 2024-02-12 16:21\n"
+"POT-Creation-Date: 2024-06-20 16:50-0400\n"
+"PO-Revision-Date: 2024-07-15 23:09\n"
 "Last-Translator: \n"
 "Language-Team: Hausa\n"
 "Language: ha_HG\n"
@@ -14,8 +14,8 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: ha\n"
-"X-Crowdin-File: /016-test/django.po\n"
-"X-Crowdin-File-ID: 4744\n"
+"X-Crowdin-File: /release-v0.17.x/django.po\n"
+"X-Crowdin-File-ID: 4782\n"
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
@@ -36,7 +36,7 @@ msgid "Duplicated username"
 msgstr "Kwafin sunan mai amfani"
 
 #: core/auth/constants/commands_errors.py:28
-#: core/auth/management/commands/bulkimportusers.py:85
+#: core/auth/management/commands/bulkimportusers.py:84
 msgid "Username only can contain characters, numbers and underscores"
 msgstr "Sunan mai amfani zai iya ƙunsar haruffa, lambobi da jigo kawai"
 
@@ -53,12 +53,12 @@ msgid "No default facility exists. Make sure to set up a facility on the device 
 msgstr "Babu wuraren aiki na asali. A tabbatar an saita wurin aiki akan na'urar kafin gudanar da wannan umurnin"
 
 #: core/auth/constants/commands_errors.py:35
-#: core/auth/management/commands/bulkimportusers.py:99
+#: core/auth/management/commands/bulkimportusers.py:98
 msgid "Error trying to read csv file: {}"
 msgstr "An samu kuskure wajen karanta fayil ɗin csv: {}"
 
 #: core/auth/constants/commands_errors.py:36
-#: core/auth/management/commands/bulkimportusers.py:100
+#: core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to write csv file: {}"
 msgstr "An samu kuskure wajen rubuta fayil ɗin csv: {}"
 
@@ -127,48 +127,48 @@ msgctxt "CSV file header for the list of classrooms names where the tutor is goi
 msgid "Coach assignment ({})"
 msgstr "Mai Aikin Mai Horo ({})"
 
-#: core/auth/management/commands/bulkimportusers.py:76
+#: core/auth/management/commands/bulkimportusers.py:75
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
 msgstr "Banda aukuwa da ba tsammani [{}]: {}"
 
-#: core/auth/management/commands/bulkimportusers.py:80
+#: core/auth/management/commands/bulkimportusers.py:79
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
 msgstr "Ƙima a shafi '{}' yana da haruffa da yawa"
 
-#: core/auth/management/commands/bulkimportusers.py:82
+#: core/auth/management/commands/bulkimportusers.py:81
 msgid "Value in column '{}' not valid"
 msgstr "Daraja da ke cikin baka '{}' ba daidai ba ce"
 
-#: core/auth/management/commands/bulkimportusers.py:83
+#: core/auth/management/commands/bulkimportusers.py:82
 msgid "Username is duplicated"
 msgstr "An samu kwafi a sunan mai amfani"
 
-#: core/auth/management/commands/bulkimportusers.py:89
+#: core/auth/management/commands/bulkimportusers.py:88
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
-msgstr "Ana da buƙatar babin '{}'"
+msgstr "Ana buƙatar babi '{}'"
 
-#: core/auth/management/commands/bulkimportusers.py:93
+#: core/auth/management/commands/bulkimportusers.py:92
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
 msgstr "An sami kalmar saman shafi a layin farko ba dadidai ba"
 
-#: core/auth/management/commands/bulkimportusers.py:97
+#: core/auth/management/commands/bulkimportusers.py:96
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
 msgstr "Babu wuraren aiki na asali. A tabbatar an saita wurin aiki akan na'urar kafin a shigo da masu amfani da azuzuwa"
 
-#: core/auth/management/commands/bulkimportusers.py:102
+#: core/auth/management/commands/bulkimportusers.py:101
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
 msgstr "Ana buƙatar filin kalmar sirri. Don barin kalmar sirri wanda ba'a musanya ba a cikin masu amfani da ke akwai, sai a saka alamar tauraro (*)"
 
-#: core/auth/management/commands/bulkimportusers.py:105
+#: core/auth/management/commands/bulkimportusers.py:104
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
 msgstr "Ba za a iya sabunta mai amfani da ID: '{}' saboda babu mai amfani da wannan ID na kundun bayanai a wannan fasalin"
 
-#: core/auth/management/commands/bulkimportusers.py:107
+#: core/auth/management/commands/bulkimportusers.py:106
 msgid "Database ID is not valid"
 msgstr "ID na kundin bayanai ba daidai yake ba"
 
@@ -183,15 +183,15 @@ msgstr "Ana cigaba da haɗa bayani"
 msgid "Do not disconnect your device from the network."
 msgstr "Kada ka kashe sabis"
 
-#: core/content/api.py:418
+#: core/content/api.py:425
 msgid "Resource"
 msgstr "Kayayyaki"
 
-#: core/content/api.py:1780
+#: core/content/api.py:1773
 msgid "The requested channel does not exist on the content server"
 msgstr "Babu tashar da ake nema akan ma'ajiyar abun ciki"
 
-#: core/content/models.py:282
+#: core/content/models.py:278
 msgid "Unknown format"
 msgstr "Tsarin da ba a sani ba"
 
@@ -278,28 +278,28 @@ msgid "Content kind"
 msgstr "Nau'in bayanai"
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
-#: core/tasks/job.py:89
+#: core/tasks/job.py:86
 msgid "Complete"
 msgstr "Kammala"
 
 #. Translators: Message shown to indicate that a background process has failed.
-#: core/tasks/job.py:92
+#: core/tasks/job.py:89
 msgid "Failed"
 msgstr "An kasa"
 
 #. Translators: Message shown to indicate that a background process has been cancelled.
-#: core/tasks/job.py:95
+#: core/tasks/job.py:92
 msgid "Cancelled"
 msgstr "Fasawa"
 
 #. Translators: Message shown to indicate the percentage completed of a background process.
-#: core/tasks/job.py:98
+#: core/tasks/job.py:95
 #, python-brace-format
 msgid "In progress - {percent}%"
 msgstr "Yan cigaba - {percent}%"
 
 #. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
-#: core/tasks/job.py:102
+#: core/tasks/job.py:99
 msgid "Waiting"
 msgstr "Ana jira"
 
@@ -339,64 +339,64 @@ msgstr "Domin amfani da Kolibri, muna ba da shawarar amfani da mashigar yanar gi
 msgid "You can also try updating your current browser."
 msgstr "Hakanan kuna iya gwada sabunta mashigarku ta yanzu."
 
-#: core/templatetags/core_tags.py:84
+#: core/templatetags/core_tags.py:80
 msgid "Kolibri"
 msgstr "Kolibri"
 
-#: core/views.py:184
+#: core/views.py:185
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Ba a samu shafukan sake juyawa da suka dace ba. Wata ƙila ba a gyara Kolibri yanda ya dace"
 
-#: plugins/coach/kolibri_plugin.py:27
+#: plugins/coach/kolibri_plugin.py:23
 msgid "Coach"
 msgstr "Malami"
 
-#: plugins/facility/kolibri_plugin.py:22
+#: plugins/facility/kolibri_plugin.py:18
 msgid "Facility"
 msgstr "Makama"
 
-#: plugins/facility/views.py:151
+#: plugins/facility/views.py:147
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs_from_"
 msgstr "bayani_lokaci_shiga_daga_"
 
-#: plugins/facility/views.py:158 plugins/facility/views.py:176
+#: plugins/facility/views.py:154 plugins/facility/views.py:172
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "to_"
 msgstr "zuwa_"
 
-#: plugins/facility/views.py:169
+#: plugins/facility/views.py:165
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs_from_"
 msgstr "bayanai_tsakure_shiga_daga_"
 
-#: plugins/facility/views.py:187
+#: plugins/facility/views.py:183
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users"
 msgstr "yuza yuza"
 
-#: plugins/learn/kolibri_plugin.py:35
+#: plugins/learn/kolibri_plugin.py:31
 msgid "Learn"
 msgstr "Koyo"
 
-#: plugins/policies/kolibri_plugin.py:21
+#: plugins/policies/kolibri_plugin.py:17
 msgid "Policies"
 msgstr "Dokoki"
 
-#: plugins/setup_wizard/kolibri_plugin.py:23
+#: plugins/setup_wizard/kolibri_plugin.py:19
 msgid "Setup Wizard"
 msgstr "Manhajar Tsarawa"
 
-#: plugins/user_profile/kolibri_plugin.py:24
+#: plugins/user_profile/kolibri_plugin.py:20
 msgid "User Profile"
 msgstr "Rumbun Bayanai na Mai Amfani"
 
 #. Translators: A notification title shown to users when their learner account is joining a new learning facility.
-#: plugins/user_profile/tasks.py:84
+#: plugins/user_profile/tasks.py:87
 msgid "Account transfer in progress"
 msgstr "Ana sauta asus"
 
-#: plugins/user_profile/tasks.py:87
+#: plugins/user_profile/tasks.py:90
 #, python-brace-format
 msgid "Moving {learner_name} to learning facility {facility_name}"
 msgstr "Zuwa {learner_name} kayan koyo {facility_name}"

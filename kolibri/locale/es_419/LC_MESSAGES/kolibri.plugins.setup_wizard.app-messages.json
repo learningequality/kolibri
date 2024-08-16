@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Informal",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Este dispositivo será un servidor completo de Kolibri usado por administradores, tutores y estudiantes.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Dispositivo completo",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Este dispositivo tendrá una o más cuentas de estudiantes importadas desde un dispositivo completo que ya existe. Las cuentas de estudiantes se sincronizarán automáticamente con el dispositivo completo.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Este dispositivo sólo tendrá las características utilizadas por los estudiantes, y se sincronizará automáticamente con el dispositivo completo.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Dispositivo estudiante",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "¿Qué tipo de dispositivo es este?",
   "GuestAccessForm.changeLater": "Puedes cambiar esto más tarde en la configuración de tu dispositivo.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Copiar al portapapeles",
   "UserCredentialsForm.adminAccountCreationHeader": "Crear super administrador",
   "UserCredentialsForm.learnerAccountCreationDescription": "Nueva cuenta para el centro educativo '{facility}'",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Crear tu cuenta"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Crear tu cuenta",
+  "UserCredentialsForm.signInInstead": "Iniciar sesión con tu nombre de usuario"
 }

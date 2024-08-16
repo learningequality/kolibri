@@ -398,6 +398,10 @@ export const wizardMachine = createMachine(
             on: {
               BACK: 'selectLodSetupType',
               CONTINUE: 'lodJoinLoading',
+              SIGN_IN_INSTEAD: {
+                target: 'lodProceedJoinOrNew',
+                actions: ['setLodType', 'setSelectedImportDeviceFacility'],
+              },
             },
           },
         },
@@ -563,5 +567,5 @@ export const wizardMachine = createMachine(
         return context.fullOrLOD === DeviceTypePresets.FULL;
       },
     },
-  }
+  },
 );

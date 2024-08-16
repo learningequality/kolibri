@@ -1,5 +1,5 @@
 import mock
-from django.test import TransactionTestCase
+from django.test import TestCase
 
 from ..utils.network.broadcast import KolibriBroadcast
 from ..utils.network.broadcast import KolibriInstance
@@ -16,7 +16,7 @@ DYNAMIC_NETWORK_LOCATION_TASK_PRIORITY_METHOD = (
 )
 
 
-class NetworkLocationListenerTestCase(TransactionTestCase):
+class NetworkLocationListenerTestCase(TestCase):
     databases = "__all__"
 
     def setUp(self):

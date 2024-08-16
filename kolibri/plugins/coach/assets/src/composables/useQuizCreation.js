@@ -92,7 +92,7 @@ export default function useQuizCreation() {
       }
       if (questions.length > MAX_QUESTIONS_PER_QUIZ_SECTION) {
         throw new TypeError(
-          `Questions array must not exceed ${MAX_QUESTIONS_PER_QUIZ_SECTION} items`
+          `Questions array must not exceed ${MAX_QUESTIONS_PER_QUIZ_SECTION} items`,
         );
       }
       if (questions.some(q => !validateObject(q, QuizQuestion))) {
@@ -142,7 +142,7 @@ export default function useQuizCreation() {
       // Seed the random number generator with a random number
       Math.floor(Math.random() * 1000),
       // Exclude the questions that are already in the entire quiz
-      get(allQuestionsInQuiz).map(q => q.item)
+      get(allQuestionsInQuiz).map(q => q.item),
     );
 
     const questions = [...targetSection.questions, ...newQuestions];
@@ -306,7 +306,7 @@ export default function useQuizCreation() {
   function removeQuestionFromSelection(id) {
     set(
       _selectedQuestionIds,
-      get(_selectedQuestionIds).filter(_id => id !== _id)
+      get(_selectedQuestionIds).filter(_id => id !== _id),
     );
   }
 
@@ -328,7 +328,7 @@ export default function useQuizCreation() {
     } else {
       set(
         _selectedQuestionIds,
-        get(activeQuestions).map(q => q.item)
+        get(activeQuestions).map(q => q.item),
       );
     }
   }
@@ -346,13 +346,18 @@ export default function useQuizCreation() {
   const inactiveSections = computed(() =>
     get(allSections)
       .slice(0, get(activeSectionIndex))
-      .concat(get(allSections).slice(get(activeSectionIndex) + 1))
+      .concat(get(allSections).slice(get(activeSectionIndex) + 1)),
   );
+
+  /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `questions` property
+   *                                      those which are currently set to be used in the section */
+  const activeQuestions = computed(() => get(activeSection)?.questions || []);
+
   /** @type {ComputedRef<Object.<string, QuizExercise>>}
    * A map of exercise id to exercise for the currently active section */
   const activeResourceMap = computed(() => {
     const map = {};
-    for (const question of get(activeSection).questions) {
+    for (const question of get(activeQuestions)) {
       if (!map[question.exercise_id]) {
         map[question.exercise_id] = _exerciseMap[question.exercise_id];
       }
@@ -369,9 +374,6 @@ export default function useQuizCreation() {
   /** @type {ComputedRef<QuizExercise[]>}   The active section's exercises */
   const activeResourcePool = computed(() => Object.values(get(activeResourceMap)));
 
-  /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `questions` property
-   *                                      those which are currently set to be used in the section */
-  const activeQuestions = computed(() => get(activeSection).questions);
   /** @type {ComputedRef<String[]>}
    * All QuizQuestion.items the user selected for the active section */
   const selectedActiveQuestions = computed(() => get(_selectedQuestionIds));
@@ -402,8 +404,8 @@ export default function useQuizCreation() {
           get(selectedActiveQuestions).sort(),
           get(activeQuestions)
             .map(q => q.item)
-            .sort()
-        )
+            .sort(),
+        ),
     );
   });
 

@@ -14,8 +14,8 @@ class Logger {
       const name = methodName.toLowerCase();
       const logFunction = this.logger[name];
       if (logFunction) {
-        this[name] = param => {
-          return this.logger[name](param);
+        this[name] = (...params) => {
+          return this.logger[name](...params);
         };
       }
     });
@@ -23,10 +23,10 @@ class Logger {
 
   setMessagePrefix() {
     var originalFactory = this.logger.methodFactory;
-    this.logger.methodFactory = function(methodName, logLevel, loggerName) {
+    this.logger.methodFactory = function (methodName, logLevel, loggerName) {
       var rawMethod = originalFactory(methodName, logLevel, loggerName);
-      return function(message) {
-        rawMethod(`[${methodName.toUpperCase()}: ${loggerName}] ` + message);
+      return function (message, ...args) {
+        rawMethod(`[${methodName.toUpperCase()}: ${loggerName}] ` + message, ...args);
       };
     };
     this.logger.setLevel(this.logger.getLevel());
@@ -55,7 +55,7 @@ class Logging {
     this.defaultLogger = new Logger('root');
     Object.keys(loglevel.levels).forEach(methodName => {
       const name = methodName.toLowerCase();
-      this[name] = msg => this.defaultLogger[name](msg);
+      this[name] = (...msgs) => this.defaultLogger[name](...msgs);
     });
   }
 
@@ -75,7 +75,7 @@ class Logging {
     if (!loggerName) {
       loglevel[methodName](...args);
       Object.keys(this.registeredLoggers).forEach(name =>
-        this.registeredLoggers[name][methodName](...args)
+        this.registeredLoggers[name][methodName](...args),
       );
     } else {
       this.registeredLoggers[loggerName][methodName](...args);

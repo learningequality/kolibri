@@ -18,7 +18,7 @@ function getExamReportFromState(state, params) {
   }
 
   const exercise = exerciseContentNodes.find(
-    node => node.id === questions[questionNumber].exercise_id
+    node => node.id === questions[questionNumber].exercise_id,
   );
   if (!exercise) {
     return null;
@@ -56,6 +56,6 @@ export function showExamReport(store, params) {
       router.replace({
         name: ClassesPageNames.CLASS_ASSIGNMENTS,
         params: { classId },
-      })
+      }),
   );
 }

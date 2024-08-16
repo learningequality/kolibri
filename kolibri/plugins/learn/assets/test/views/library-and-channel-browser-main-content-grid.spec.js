@@ -70,7 +70,7 @@ describe('Library and Channel Browser Main Content', () => {
         'displays a `ResourceCard` for each node n',
         n => {
           expect(wrapper.find(`[data-test="ResourceCard-"${n}]`).element).toBeTruthy();
-        }
+        },
       );
     });
     it('does not display a `CardGrid` with `HybridLearningContentCard`s in columns', () => {

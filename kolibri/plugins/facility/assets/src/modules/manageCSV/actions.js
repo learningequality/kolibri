@@ -55,7 +55,7 @@ function startSummaryCSVExport(store, dateRange) {
     TaskTypes.EXPORTSUMMARYLOGCSV,
     dateRange,
     store.getters.inSummaryCSVCreation,
-    'START_SUMMARY_CSV_EXPORT'
+    'START_SUMMARY_CSV_EXPORT',
   );
 }
 
@@ -65,14 +65,14 @@ function startSessionCSVExport(store, dateRange) {
     TaskTypes.EXPORTSESSIONLOGCSV,
     dateRange,
     store.getters.inSessionCSVCreation,
-    'START_SESSION_CSV_EXPORT'
+    'START_SESSION_CSV_EXPORT',
   );
 }
 
 function getExportedCSVsInfo(store) {
   return client({
     url: urls['kolibri:kolibri.plugins.facility:exportedcsvinfo'](
-      store.rootGetters.activeFacilityId
+      store.rootGetters.activeFacilityId,
     ),
   }).then(response => {
     const data = response.data;
@@ -149,7 +149,7 @@ function refreshTaskList(store) {
         TaskTypes.EXPORTSESSIONLOGCSV,
         store.getters.sessionTaskId,
         'START_SESSION_CSV_EXPORT',
-        'SET_FINISHED_SESSION_CSV_CREATION'
+        'SET_FINISHED_SESSION_CSV_CREATION',
       );
       checkTaskStatus(
         store,
@@ -157,7 +157,7 @@ function refreshTaskList(store) {
         TaskTypes.EXPORTSUMMARYLOGCSV,
         store.getters.summaryTaskId,
         'START_SUMMARY_CSV_EXPORT',
-        'SET_FINISHED_SUMMARY_CSV_CREATION'
+        'SET_FINISHED_SUMMARY_CSV_CREATION',
       );
       checkTaskStatus(
         store,
@@ -165,7 +165,7 @@ function refreshTaskList(store) {
         TaskTypes.EXPORTUSERSTOCSV,
         store.state.exportUsersTaskId,
         'START_EXPORT_USERS',
-        'SET_FINISH_EXPORT_USERS'
+        'SET_FINISH_EXPORT_USERS',
       );
     })
     .catch(error => {

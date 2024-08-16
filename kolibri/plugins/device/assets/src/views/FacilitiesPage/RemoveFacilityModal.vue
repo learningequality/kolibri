@@ -32,7 +32,6 @@
       <p>
         {{ $tr('signInAsOtherAdminExplanation', { facilityName }) }}
       </p>
-
     </template>
   </KModal>
 
@@ -45,10 +44,15 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   export default {
     name: 'RemoveFacilityModal',
     mixins: [commonCoreStrings, commonSyncElements],
+    setup() {
+      const { session } = useUser();
+      return { session };
+    },
     props: {
       facility: {
         type: Object,
@@ -79,7 +83,7 @@
         return this.formatNameAndId(this.facility.name, this.facility.id);
       },
       canRemove() {
-        return this.$store.state.core.session.facility_id !== this.facility.id;
+        return this.session.facility_id !== this.facility.id;
       },
     },
     methods: {

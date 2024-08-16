@@ -14,12 +14,14 @@
     </KGrid>
 
     <div>
-      <slot>
-      </slot>
+      <slot> </slot>
     </div>
 
     <nav class="pagination-nav">
-      <span dir="auto" class="pagination-label">
+      <span
+        dir="auto"
+        class="pagination-label"
+      >
         {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
       </span>
       <KButtonGroup>

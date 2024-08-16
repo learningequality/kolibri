@@ -1,7 +1,6 @@
 <template>
 
   <CoachAppBarPage>
-
     <KPageContainer>
       <PlanHeader :activeTabId="PlanTabs.QUIZZES" />
       <KTabsPanel
@@ -88,21 +87,26 @@
                     v-if="!exam.active && !exam.archive"
                     :text="openQuizLabel$()"
                     appearance="flat-button"
-                    @click="showOpenConfirmationModal = true; activeQuiz = exam"
+                    @click="
+                      showOpenConfirmationModal = true;
+                      activeQuiz = exam;
+                    "
                   />
                   <!-- Close quiz button -->
                   <KButton
                     v-if="exam.active && !exam.archive"
                     :text="closeQuizLabel$()"
                     appearance="flat-button"
-                    @click="showCloseConfirmationModal = true; activeQuiz = exam;"
+                    @click="
+                      showCloseConfirmationModal = true;
+                      activeQuiz = exam;
+                    "
                   />
                   <!-- Closed quiz label -->
                   <div v-if="exam.archive">
                     {{ quizClosedLabel$() }}
                   </div>
                 </td>
-
               </tr>
             </transition-group>
           </template>
@@ -111,22 +115,13 @@
         <p v-if="!quizzes.length">
           {{ $tr('noExams') }}
         </p>
-        <p
-          v-else-if="statusSelected.value === filterQuizStarted$() &&
-            !startedExams.length"
-        >
+        <p v-else-if="statusSelected.value === filterQuizStarted$() && !startedExams.length">
           {{ coreString('noResultsLabel') }}
         </p>
-        <p
-          v-else-if=" statusSelected.value === filterQuizNotStarted$() &&
-            !notStartedExams.length"
-        >
+        <p v-else-if="statusSelected.value === filterQuizNotStarted$() && !notStartedExams.length">
           {{ coreString('noResultsLabel') }}
         </p>
-        <p
-          v-else-if=" statusSelected.value === filterQuizEnded$() &&
-            !endedExams.length"
-        >
+        <p v-else-if="statusSelected.value === filterQuizEnded$() && !endedExams.length">
           {{ coreString('noResultsLabel') }}
         </p>
 
@@ -146,7 +141,8 @@
           <p
             v-if="
               activeQuiz.data_model_version === 3 &&
-                activeQuiz.question_sources.some(s => (!s.questions || s.questions.length === 0))"
+                activeQuiz.question_sources.some(s => !s.questions || s.questions.length === 0)
+            "
           >
             {{ openQuizModalEmptySections$() }}
           </p>
@@ -333,7 +329,10 @@
         return this.quizzes;
       },
       newExamRoute() {
-        return { name: PageNames.EXAM_CREATION_ROOT, params: { sectionIndex: 0 } };
+        return {
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: { classId: this.$route.params.classId, sectionIndex: 0, quizId: 'new' },
+        };
       },
       dropdownOptions() {
         return [
@@ -354,6 +353,11 @@
         }
         return '--';
       },
+    },
+    mounted() {
+      if (this.$route.query.snackbar) {
+        this.$store.dispatch('createSnackbar', this.$route.query.snackbar);
+      }
     },
     methods: {
       handleOpenQuiz(quizId) {
@@ -396,14 +400,12 @@
           });
       },
       handleSelect({ value }) {
+        const nextRoute = this.newExamRoute;
         const nextRouteName = {
           MAKE_NEW_QUIZ: PageNames.EXAM_CREATION_ROOT,
           SELECT_QUIZ: PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
         }[value];
-        const nextRoute = {
-          name: nextRouteName,
-          params: { ...this.$route.params, quizId: 'new', sectionIndex: 0 },
-        };
+        nextRoute.name = nextRouteName;
         this.$router.push(nextRoute);
       },
     },

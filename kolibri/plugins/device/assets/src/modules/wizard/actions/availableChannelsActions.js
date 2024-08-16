@@ -14,7 +14,7 @@ import { getRemoteChannelByToken } from '../utils';
 export function getAllRemoteChannels(store, publicChannels) {
   const { channelList } = store.rootState.manageContent;
   const installedUnlistedChannels = differenceBy(channelList, publicChannels, 'id').filter(
-    channel => channel.available
+    channel => channel.available,
   );
   const promises = installedUnlistedChannels.map(installedChannel =>
     getRemoteChannelByToken(installedChannel.id)
@@ -24,9 +24,9 @@ export function getAllRemoteChannels(store, publicChannels) {
           ...installedChannel,
           installed_version: installedChannel.version,
           latest_version: channel.version,
-        })
+        }),
       )
-      .catch(() => Promise.resolve())
+      .catch(() => Promise.resolve()),
   );
   return Promise.all(promises).then(unlisted => {
     return [...unlisted.filter(Boolean), ...publicChannels];

@@ -113,10 +113,7 @@ describe('SelectDeviceForm', () => {
   it('if an device is (un)available, it is (dis)enabled', async () => {
     const { els, wrapper } = makeWrapper();
     function radioButtonNIsDisabled(n) {
-      return els
-        .radioButtons()
-        .at(n)
-        .props().disabled;
+      return els.radioButtons().at(n).props().disabled;
     }
 
     await wrapper.vm.$nextTick();

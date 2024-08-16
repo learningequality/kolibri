@@ -5,7 +5,10 @@
     :route="backRoute"
     :loading="loading"
   >
-    <KPageContainer v-if="!loading" class="device-container">
+    <KPageContainer
+      v-if="!loading"
+      class="device-container"
+    >
       <FilteredChannelListContainer
         :channels="allChannels"
         :selectedChannels.sync="selectedChannels"
@@ -157,7 +160,7 @@
             type: TaskTypes.DELETECHANNEL,
             channel_id: x.id,
             channel_name: x.name,
-          }))
+          })),
         )
           .then(tasks => {
             this.notifyAndWatchTask(tasks);
@@ -177,7 +180,7 @@
             channel_id: id,
             channel_name: name,
             drive_id: params.driveId,
-          }))
+          })),
         )
           .then(tasks => {
             this.notifyAndWatchTask(tasks);

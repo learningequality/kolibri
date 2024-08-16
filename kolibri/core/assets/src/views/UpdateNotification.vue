@@ -33,11 +33,16 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { mapGetters, mapActions, mapMutations } from 'vuex';
+  import { mapActions, mapMutations } from 'vuex';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   export default {
     name: 'UpdateNotification',
     mixins: [commonCoreStrings],
+    setup() {
+      const { isSuperuser } = useUser();
+      return { isSuperuser };
+    },
     props: {
       id: {
         type: String,
@@ -64,9 +69,6 @@
       return {
         dontShowNotificationAgain: false,
       };
-    },
-    computed: {
-      ...mapGetters(['isSuperuser']),
     },
     methods: {
       ...mapMutations({
@@ -112,9 +114,9 @@
         message: 'We have released an important update with fixes to this version of Kolibri.',
         context: 'Notification indicating an important new version of Kolibri is available.',
       },
-      upgradeMessage_0_16_0: {
+      upgradeMessage_0_17_0: {
         message:
-          'Kolibri version 0.16.0 is available! New features include practice quizzes, resource syncing across coach and learner devices, and much more.',
+          'Kolibri version 0.17.0 is available! New features include enhanced quiz editing, an updated exercise viewer and new facility creation, as well as bug fixes and improvements.',
         context: 'Notification indicating a new version of Kolibri is available.',
       },
       upgradeDownload: {

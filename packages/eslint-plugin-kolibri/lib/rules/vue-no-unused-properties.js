@@ -40,8 +40,8 @@ const create = context => {
       unusedProperties = Array.from(
         eslintPluginVueUtils.iterateProperties(
           obj,
-          new Set([GROUP_PROPS, GROUP_DATA, GROUP_COMPUTED])
-        )
+          new Set([GROUP_PROPS, GROUP_DATA, GROUP_COMPUTED]),
+        ),
       );
 
       const watchersNames = utils.getWatchersNames(obj);
@@ -57,7 +57,7 @@ const create = context => {
       if (!hasTemplate && unusedProperties.length) {
         utils.reportUnusedProperties(context, unusedProperties);
       }
-    })
+    }),
   );
 
   const templateVisitor = Object.assign(
@@ -82,13 +82,13 @@ const create = context => {
       if (unusedProperties.length) {
         utils.reportUnusedProperties(context, unusedProperties);
       }
-    })
+    }),
   );
 
   return Object.assign(
     {},
     initialize,
-    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor)
+    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor),
   );
 };
 

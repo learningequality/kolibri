@@ -1,7 +1,13 @@
 <template>
 
-  <ReportsLessonBase :showLearners="true" :activeTabId="ReportsLessonTabs.LEARNERS">
-    <KTabPanel :tabsId="REPORTS_LESSON_TABS_ID" :activeTabId="ReportsLessonTabs.LEARNERS" />
+  <ReportsLessonBase
+    :showLearners="true"
+    :activeTabId="ReportsLessonTabs.LEARNERS"
+  >
+    <KTabPanel
+      :tabsId="REPORTS_LESSON_TABS_ID"
+      :activeTabId="ReportsLessonTabs.LEARNERS"
+    />
   </ReportsLessonBase>
 
 </template>

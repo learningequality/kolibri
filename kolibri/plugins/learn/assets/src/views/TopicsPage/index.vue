@@ -22,7 +22,10 @@
         />
       </template>
 
-      <KCircularLoader v-if="loading" class="page-loader" />
+      <KCircularLoader
+        v-if="loading"
+        class="page-loader"
+      />
 
       <div v-else>
         <!-- Header with thumbail and tagline -->
@@ -67,7 +70,10 @@
         </TopicsHeader>
 
         <!-- mobile tabs (different alignment and interactions) -->
-        <TopicsMobileHeader v-else :topic="topic" />
+        <TopicsMobileHeader
+          v-else
+          :topic="topic"
+        />
 
         <main
           class="main-content-grid"
@@ -82,7 +88,10 @@
 
           <div class="card-grid">
             <!-- Filter buttons - shown when not sidebar not visible -->
-            <div v-if="!windowIsLarge" data-test="tab-buttons">
+            <div
+              v-if="!windowIsLarge"
+              data-test="tab-buttons"
+            >
               <KButton
                 v-if="topics.length"
                 icon="topic"
@@ -103,7 +112,10 @@
             </div>
 
             <!-- default/preview display of nested folder structure, not search -->
-            <div v-if="!displayingSearchResults" data-test="topics">
+            <div
+              v-if="!displayingSearchResults"
+              data-test="topics"
+            >
               <!-- Rows of cards and links / show more for each Topic -->
               <template v-for="t in topicsForDisplay">
                 <TopicSubsection
@@ -137,7 +149,10 @@
               >
                 {{ coreString('showMoreAction') }}
               </KButton>
-              <div v-else-if="topicMore" class="end-button-block">
+              <div
+                v-else-if="topicMore"
+                class="end-button-block"
+              >
                 <KButton
                   v-if="!topicMoreLoading"
                   :text="coreString('viewMoreAction')"
@@ -166,8 +181,8 @@
               :searchTerms="searchTerms"
               :searchLoading="searchLoading"
               :more="more"
-              @setCardStyle="style => currentSearchCardViewStyle = style"
-              @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
+              @setCardStyle="style => (currentSearchCardViewStyle = style)"
+              @setSidePanelMetadataContent="content => (metadataSidePanelContent = content)"
             />
           </div>
         </main>
@@ -195,9 +210,7 @@
             @close="sidePanelIsOpen = false"
           />
         </template>
-
       </div>
-
 
       <!-- Side panel for showing the information of selected content with a link to view it -->
       <SidePanelModal
@@ -213,14 +226,18 @@
             v-for="activity in metadataSidePanelContent.learning_activities"
             :key="activity"
             class="side-panel-chips"
-            :class="$computedClass({ '::after': {
-              content: '',
-              flex: 'auto'
-            } })"
+            :class="
+              $computedClass({
+                '::after': {
+                  content: '',
+                  flex: 'auto',
+                },
+              })
+            "
           >
             <LearningActivityChip
               class="chip"
-              style="margin-left: 8px; margin-bottom: 8px;"
+              style="margin-bottom: 8px; margin-left: 8px"
               :kind="activity"
             />
           </div>
@@ -233,7 +250,6 @@
           :canDownloadExternally="canDownloadExternally && !deviceId"
         />
       </SidePanelModal>
-
     </ImmersivePage>
   </div>
 
@@ -257,6 +273,7 @@
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import { ContentNodeResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
+  import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import SidePanelModal from '../SidePanelModal';
   import { PageNames } from '../../constants';
   import useChannels from '../../composables/useChannels';
@@ -269,7 +286,6 @@
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
-  import LearningActivityChip from '../LearningActivityChip';
   import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
   import SearchResultsGrid from '../SearchResultsGrid';
   import DeviceConnectionStatus from '../DeviceConnectionStatus.vue';
@@ -558,7 +574,7 @@
         default: null,
       },
     },
-    data: function() {
+    data: function () {
       return {
         sidePanelStyleOverrides: {},
         showMoreResources: false,
@@ -675,12 +691,12 @@
             const viewAll =
               !this.subTopicId && (topicChildren.length > childrenToDisplay || viewMore)
                 ? {
-                    ...this.$route,
-                    params: {
-                      ...this.$route.params,
-                      subtopic: t.id,
-                    },
-                  }
+                  ...this.$route,
+                  params: {
+                    ...this.$route.params,
+                    subtopic: t.id,
+                  },
+                }
                 : null;
 
             return {

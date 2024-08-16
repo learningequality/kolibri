@@ -25,7 +25,6 @@
           :resources.sync="updatedResources"
         />
       </section>
-
     </KPageContainer>
   </CoachImmersivePage>
 
@@ -37,6 +36,7 @@
   import isEqual from 'lodash/isEqual';
   import { LessonResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
@@ -50,6 +50,10 @@
       ResourceListTable,
     },
     mixins: [coachStringsMixin, commonCoreStrings],
+    setup() {
+      const { isSuperuser } = useUser();
+      return { isSuperuser };
+    },
     props: {
       showResourcesTable: {
         type: Boolean,
@@ -94,10 +98,10 @@
     created() {
       const initClassInfoPromise = this.$store.dispatch(
         'initClassInfo',
-        this.$route.params.classId
+        this.$route.params.classId,
       );
       const getFacilitiesPromise =
-        this.$store.getters.isSuperuser && this.$store.state.core.facilities.length === 0
+        this.isSuperuser && this.$store.state.core.facilities.length === 0
           ? this.$store.dispatch('getFacilities').catch(() => {})
           : Promise.resolve();
 
@@ -105,7 +109,7 @@
         .then(() =>
           LessonResource.fetchModel({
             id: this.$route.params.lessonId,
-          })
+          }),
         )
         .then(lesson => this.setData(lesson))
         .catch(error => this.setError(error))

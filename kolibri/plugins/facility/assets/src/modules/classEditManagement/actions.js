@@ -16,7 +16,7 @@ export function removeClassLearner(store, { classId, userId }) {
     },
     error => {
       store.dispatch('handleApiError', { error }, { root: true });
-    }
+    },
   );
 }
 
@@ -38,7 +38,7 @@ export function removeClassCoach(store, { classId, userId }) {
     },
     error => {
       store.dispatch('handleApiError', { error }, { root: true });
-    }
+    },
   );
 }
 
@@ -62,6 +62,6 @@ export function updateClass(store, { id, updateData }) {
     },
     error => {
       store.dispatch('handleApiError', { error }, { root: true });
-    }
+    },
   );
 }

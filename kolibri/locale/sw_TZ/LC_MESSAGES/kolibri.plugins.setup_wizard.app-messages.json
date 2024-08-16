@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Isiyo rasmi",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Kifaa hiki kitakuwa seva ya Kolibri iliyoangaziwa kikamilifu inayotumiwa na wasimamizi, walimu na wanafunzi.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Kifaa kamili",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Kifaa hiki kitakuwa na akaunti moja au zaidi ya wanafunzi iliyoletwa kutoka kwa kifaa kamili ambacho tayari kipo. Akaunti za wanafunzi zitasawazishwa kiotomatiki na kifaa kamili.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Kifaa hiki kitakuwa na vipengele vinavyotumiwa na wanafunzi pekee, na kitasawazisha kiotomatiki na kifaa kamili.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Kifaa cha kujifunza pekee",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "Je, kifaa hiki ni cha aina gani?",
   "GuestAccessForm.changeLater": "Unaweza kubadilisha hii katika mipangilio ya kifaa chako baadaye.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Nakili kwenye ubaoklipu",
   "UserCredentialsForm.adminAccountCreationHeader": "Unda msimamizi mkuu mpya",
   "UserCredentialsForm.learnerAccountCreationDescription": "Akaunti mpya ya kituo cha kujifunzia cha '{facility}'",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Unda akaunti"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Unda akaunti",
+  "UserCredentialsForm.signInInstead": "Badala yake ingia?"
 }

@@ -8,7 +8,7 @@
  *
  * vue-intl and intl npm packages must both be installed for this module to function.
  */
-module.exports = function() {
+module.exports = function () {
   const data = [];
   data.push(require('vue-intl/locale-data/ar.js'));
   data.push(require('vue-intl/locale-data/bg.js'));
@@ -33,6 +33,7 @@ module.exports = function() {
   data.push(require('vue-intl/locale-data/mr.js'));
   data.push(require('vue-intl/locale-data/my.js'));
   data.push(require('vue-intl/locale-data/ny.js'));
+  data.push(require('vue-intl/locale-data/pa.js'));
   data.push(require('vue-intl/locale-data/pt.js'));
   data.push(require('vue-intl/locale-data/pt.js'));
   data.push(require('vue-intl/locale-data/sw.js'));

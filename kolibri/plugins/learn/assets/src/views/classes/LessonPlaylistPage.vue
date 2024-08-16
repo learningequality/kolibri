@@ -1,17 +1,24 @@
 <template>
 
-  <LearnAppBarPage
-    :appBarTitle="learnString('learnLabel')"
-  >
-    <div v-if="!$store.state.core.loading" id="main" role="main">
-      <KBreadcrumbs :items="breadcrumbs" :ariaLabel="learnString('classesAndAssignmentsLabel')" />
+  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
+    <div
+      v-if="!$store.state.core.loading"
+      role="main"
+    >
+      <KBreadcrumbs
+        :items="breadcrumbs"
+        :ariaLabel="learnString('classesAndAssignmentsLabel')"
+      />
       <section class="lesson-details">
         <div>
           <ContentIcon
             kind="lesson"
             class="lesson-icon"
           />
-          <h1 dir="auto" class="title">
+          <h1
+            dir="auto"
+            class="title"
+          >
             {{ currentLesson.title }}
             <ProgressIcon
               v-if="lessonHasResources"
@@ -29,7 +36,10 @@
         <ResourceSyncingUiAlert v-if="lessonResources.length > contentNodes.length" />
       </section>
 
-      <section v-if="lessonHasResources" class="content-cards">
+      <section
+        v-if="lessonHasResources"
+        class="content-cards"
+      >
         <HybridLearningLessonCard
           v-for="content in contentNodes"
           :key="content.id"
@@ -39,7 +49,10 @@
           :link="genContentLinkBackLinkCurrentPage(content.id, true)"
         />
       </section>
-      <p v-else class="no-resources-message">
+      <p
+        v-else
+        class="no-resources-message"
+      >
         {{ $tr('noResourcesInLesson') }}
       </p>
     </div>
@@ -115,7 +128,7 @@
           // on all the ContentNodes
           const total = Object.values(this.contentNodesMap).reduce(
             (tot, node) => tot + (this.contentNodeProgressMap[node.content_id] || 0),
-            0
+            0,
           );
           if (total === 0) {
             return null;
@@ -128,25 +141,25 @@
       breadcrumbs() {
         return this.currentLesson && this.currentLesson.classroom
           ? [
-              {
-                text: this.coreString('homeLabel'),
-                link: { name: PageNames.HOME },
+            {
+              text: this.coreString('homeLabel'),
+              link: { name: PageNames.HOME },
+            },
+            {
+              text: this.coreString('classesLabel'),
+              link: { name: ClassesPageNames.ALL_CLASSES },
+            },
+            {
+              text: this.currentLesson.classroom.name,
+              link: {
+                name: ClassesPageNames.CLASS_ASSIGNMENTS,
+                params: { classId: this.currentLesson.classroom.id },
               },
-              {
-                text: this.coreString('classesLabel'),
-                link: { name: ClassesPageNames.ALL_CLASSES },
-              },
-              {
-                text: this.currentLesson.classroom.name,
-                link: {
-                  name: ClassesPageNames.CLASS_ASSIGNMENTS,
-                  params: { classId: this.currentLesson.classroom.id },
-                },
-              },
-              {
-                text: this.currentLesson.title,
-              },
-            ]
+            },
+            {
+              text: this.currentLesson.title,
+            },
+          ]
           : [];
       },
     },

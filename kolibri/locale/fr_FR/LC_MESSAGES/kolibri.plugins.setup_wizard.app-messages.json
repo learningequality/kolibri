@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Non-formel",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Cet appareil sera un serveur Kolibri complet utilisé par les administrateurs, les éducateurs et les apprenants.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Appareil complet",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Cet appareil aura un ou plusieurs comptes d'apprenants importés depuis un appareil complet existant déjà. Les comptes d'apprenants seront synchronisés automatiquement avec l'appareil en question.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Cet appareil n'aura que les fonctionnalités utilisées par les apprenants et se synchronisera automatiquement avec l'appareil complet.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Appareil en mode Apprentissage exclusivement",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "De quel type d'appareil s'agit-il ?",
   "GuestAccessForm.changeLater": "Vous pouvez le modifier plus tard dans les paramètres de votre appareil.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Copier dans le presse-papier",
   "UserCredentialsForm.adminAccountCreationHeader": "Créer un super-administrateur",
   "UserCredentialsForm.learnerAccountCreationDescription": "Nouveau compte pour l'établissement d'apprentissage “{facility}”",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Créer votre compte"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Créer votre compte",
+  "UserCredentialsForm.signInInstead": "Se connecter plutôt ?"
 }

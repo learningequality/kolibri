@@ -1,4 +1,4 @@
-Feature: Admin export usage data
+Feature: Admin exports usage data
   Admin needs to be able to export session and summary logs for the facility
 
   Background:
@@ -13,7 +13,7 @@ Feature: Admin export usage data
     	And I click *Generate*
     Then I see a *Download* button displayed to the left of the *Generate log* button
     When I click on the *Download* button
-    Then I see the *Open/Save as* window, or the file 'content_session_logs.csv' is automatically saved on my local drive, depending on the browser defaults
+    Then I see the *Open/Save as* window, or the file *<facility>_content_session_logs_from_<YY-MM-DD>_to_<YY-MM-DD>.csv* is automatically saved on my local drive, depending on the browser defaults
 
   Scenario: Export summary logs
     When I click on the *Generate log* button under *Summary logs* heading
@@ -22,4 +22,4 @@ Feature: Admin export usage data
     	And I click *Generate*
     Then I see a *Download* button displayed to the left of the *Generate log* button
     When I click on the *Download* button
-    Then I see the *Open/Save as* window, or the file 'content_session_logs.csv' is automatically saved on my local drive, depending on the browser defaults
+    Then I see the *Open/Save as* window, or the file *<facility>_content_summary_logs_from_<YY-MM-DD>_to_<YY-MM-DD>.csv* is automatically saved on my local drive, depending on the browser defaults

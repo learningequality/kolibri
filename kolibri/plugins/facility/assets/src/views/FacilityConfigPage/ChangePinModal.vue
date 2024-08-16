@@ -63,7 +63,7 @@
           }
         }
       },
-      focus: function() {
+      focus: function () {
         this.$refs.pinFocus.focus();
       },
     },

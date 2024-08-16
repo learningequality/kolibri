@@ -35,7 +35,7 @@ function startValidating(store, payload) {
     null,
     payload.deleteUsers,
     true,
-    'START_VALIDATE_USERS'
+    'START_VALIDATE_USERS',
   );
 }
 function startSavingUsers(store) {
@@ -45,7 +45,7 @@ function startSavingUsers(store) {
     store.getters.filename,
     store.getters.deleteUsers,
     false,
-    'START_SAVE_USERS'
+    'START_SAVE_USERS',
   );
 }
 
@@ -84,7 +84,7 @@ function refreshTaskList(store) {
         TaskTypes.IMPORTUSERSFROMCSV,
         store.getters.taskId,
         'START_VALIDATE_USERS',
-        'SET_FINISHED_IMPORT_USERS'
+        'SET_FINISHED_IMPORT_USERS',
       );
     })
     .catch(error => {

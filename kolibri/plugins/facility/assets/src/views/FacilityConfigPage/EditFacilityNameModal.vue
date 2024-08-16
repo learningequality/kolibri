@@ -73,7 +73,7 @@
       facilityNameIsUnique(value) {
         this.isDuplicated = !!this.facilities.find(
           facility =>
-            facility.id != this.facilityId && facility.name.toLowerCase() === value.toLowerCase()
+            facility.id != this.facilityId && facility.name.toLowerCase() === value.toLowerCase(),
         );
       },
       handleSubmit() {

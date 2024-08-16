@@ -44,7 +44,7 @@ const create = context => {
                   if (
                     !messageProperty ||
                     prop.value.properties.find(
-                      p => p.key.name !== 'message' && p.key.name !== 'context'
+                      p => p.key.name !== 'message' && p.key.name !== 'context',
                     ) ||
                     (contextProperty && typeof contextProperty.value.value !== 'string')
                   ) {
@@ -76,7 +76,7 @@ const create = context => {
               if (
                 !messageProperty ||
                 prop.value.properties.find(
-                  p => p.key.name !== 'message' && p.key.name !== 'context'
+                  p => p.key.name !== 'message' && p.key.name !== 'context',
                 ) ||
                 (contextProperty && typeof contextProperty.value.value !== 'string')
               ) {
@@ -92,19 +92,19 @@ const create = context => {
       if (!hasTemplate) {
         utils.reportImproperTranslationString(context, normalDefinitionNodes);
       }
-    })
+    }),
   );
   const templateVisitor = Object.assign(
     {},
     utils.executeOnRootTemplateEnd(() => {
       utils.reportImproperTranslationString(context, normalDefinitionNodes);
-    })
+    }),
   );
 
   return Object.assign(
     {},
     initialize,
-    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor)
+    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor),
   );
 };
 

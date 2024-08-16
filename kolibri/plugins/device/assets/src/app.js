@@ -53,7 +53,7 @@ class DeviceManagementModule extends KolibriApp {
       this.store.dispatch('resetModuleState', { toRoute, fromRoute });
     });
     router.beforeResolve((to, from, next) => {
-      this.checkIfPinAuthenticationIsRequired(this.store, function() {
+      this.checkIfPinAuthenticationIsRequired(this.store, function () {
         viewPlugin = true;
         next();
       });

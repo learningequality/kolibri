@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Ba isasshen wuri a kan na'urarka. Samar da wuri a disk ko a zabi albarkatu kadan",
   "CommonDeviceStrings.permissionsLabel": "Izini",
   "CommonDeviceStrings.primaryStorageLabel": "Sabbin kaéyyakin da aka saukar za a ajiye su a wannan ma'aji",
+  "CommonDeviceStrings.statusCanceled": "An soke",
+  "CommonDeviceStrings.statusCanceling": "Ana sokewa",
+  "CommonDeviceStrings.statusComplete": "An gama",
+  "CommonDeviceStrings.statusFailed": "An kasa",
+  "CommonDeviceStrings.statusInProgress": "Ana-yi",
+  "CommonDeviceStrings.statusInQueue": "Ana jira",
   "CommonDeviceStrings.unlistedChannelLabel": "Tashar da ba a jera da sunanta ba"
 }

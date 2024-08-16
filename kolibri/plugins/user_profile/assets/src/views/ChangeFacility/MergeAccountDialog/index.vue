@@ -2,10 +2,17 @@
 
   <div>
     <h1>{{ profileString('mergeAccounts') }}</h1>
-    <p class="fullname" data-test="fullName">
+    <p
+      class="fullname"
+      data-test="fullName"
+    >
       {{ fullName }}
     </p>
-    <p class="username" data-test="username" :style="{ color: $themeTokens.annotation }">
+    <p
+      class="username"
+      data-test="username"
+      :style="{ color: $themeTokens.annotation }"
+    >
       {{ username }}
     </p>
     <span v-if="usingAdminPasswordState">
@@ -17,8 +24,6 @@
         :autofocus="true"
         :label="coreString('usernameLabel')"
       />
-
-
     </span>
     <p v-else>
       {{ mergeAccountUserInfo }}
@@ -64,7 +69,6 @@
         </KButtonGroup>
       </slot>
     </BottomAppBar>
-
   </div>
 
 </template>
@@ -160,7 +164,7 @@
           facility.id,
           get(state, 'value.targetAccount.username', ''),
           formData.value.password,
-          usingAdminPasswordState.value ? formData.value.username : null
+          usingAdminPasswordState.value ? formData.value.username : null,
         ).then(user_info => {
           if (user_info === 'error') {
             isPasswordInvalid.value = true;

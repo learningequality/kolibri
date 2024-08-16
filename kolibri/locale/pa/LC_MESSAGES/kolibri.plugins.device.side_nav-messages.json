@@ -1,0 +1,17 @@
+{
+  "CommonDeviceStrings.deviceManagementTitle": "ਉਪਕਰਨ",
+  "CommonDeviceStrings.emptyTasksMessage": "ਪ੍ਰਦਰਸ਼ਿਤ ਕਰਨ ਲਈ ਕੋਈ ਕੰਮ ਨਹੀਂ ਹਨ",
+  "CommonDeviceStrings.newChannelLabel": "ਨਵਾਂ",
+  "CommonDeviceStrings.newEnabledPluginsState": "ਜਦੋਂ ਤੁਸੀਂ ਕਿਸੇ ਪੰਨੇ ਨੂੰ ਅਨਚੈੱਕ ਕਰਦੇ ਹੋ, ਤਾਂ ਇਹ ਉਪਭੋਗਤਾਵਾਂ ਲਈ ਅਦਿੱਖ ਹੋ ਜਾਵੇਗਾ ਭਾਵੇਂ ਉਹਨਾਂ ਕੋਲ ਇਸ ਤੱਕ ਪਹੁੰਚ ਕਰਨ ਦੀ ਇਜਾਜ਼ਤ ਹੋਵੇ।",
+  "CommonDeviceStrings.newResourceLabel": "ਨਵਾਂ",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "ਤੁਹਾਡੀ ਡਿਵਾਈਸ 'ਤੇ ਲੋੜੀਂਦੀ ਜਗ੍ਹਾ ਉਪਲਬਧ ਨਹੀਂ ਹੈ। ਡਿਸਕ ਸਪੇਸ ਖਾਲੀ ਕਰੋ ਜਾਂ ਘੱਟ ਸਰੋਤ ਚੁਣੋ",
+  "CommonDeviceStrings.permissionsLabel": "ਇਜਾਜ਼ਤਾਂ",
+  "CommonDeviceStrings.primaryStorageLabel": "ਨਵੇਂ ਡਾਊਨਲੋਡ ਕੀਤੇ ਸਰੋਤ ਪ੍ਰਾਇਮਰੀ ਸਟੋਰੇਜ਼ ਟਿਕਾਣੇ ਵਿੱਚ ਸ਼ਾਮਲ ਕੀਤੇ ਜਾਣਗੇ",
+  "CommonDeviceStrings.statusCanceled": "ਰੱਦ",
+  "CommonDeviceStrings.statusCanceling": "ਰੱਦ ਕਰ ਰਿਹਾ ਹੈ",
+  "CommonDeviceStrings.statusComplete": "ਸਮਾਪਤ ਹੋਇਆ",
+  "CommonDeviceStrings.statusFailed": "ਅਸਫਲ ਹੋਇਆ",
+  "CommonDeviceStrings.statusInProgress": "ਤਰੱਕੀ ਹੋ ਰਹੀ ਹੈ:",
+  "CommonDeviceStrings.statusInQueue": "ਉਡੀਕ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ",
+  "CommonDeviceStrings.unlistedChannelLabel": "ਗੈਰ-ਸੂਚੀਬੱਧ ਚੈਨਲ"
+}

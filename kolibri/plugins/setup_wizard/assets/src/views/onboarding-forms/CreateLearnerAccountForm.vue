@@ -8,7 +8,6 @@
     :eventOnGoBack="backEvent"
     @continue="handleContinue"
   >
-
     <KRadioButton
       ref="yesRadio"
       v-model="setting"
@@ -28,7 +27,6 @@
     <p class="description">
       {{ getCommonSyncString('changeLater') }}
     </p>
-
   </OnboardingStepBase>
 
 </template>

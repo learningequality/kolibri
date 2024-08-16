@@ -1,6 +1,7 @@
 import { ref } from 'kolibri.lib.vueCompositionApi';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { LearnerGroupResource, FacilityUserResource } from 'kolibri.resources';
+import useUser from 'kolibri.coreVue.composables.useUser';
 
 // Place outside the function to keep the state
 const groupsAreLoading = ref(false);
@@ -13,7 +14,7 @@ export function useGroups() {
   async function showGroupsPage(store, classId) {
     const initClassInfoPromise = store.dispatch('initClassInfo', classId);
     const getFacilitiesPromise =
-      store.getters.isSuperuser && store.state.core.facilities.length === 0
+      useUser().isSuperuser.value && store.state.core.facilities.length === 0
         ? store.dispatch('getFacilities').catch(() => {})
         : Promise.resolve();
 
@@ -41,7 +42,7 @@ export function useGroups() {
             FacilityUserResource.fetchCollection({
               getParams: { member_of: group.id },
               force: true,
-            })
+            }),
           );
 
           Promise.all(groupUsersPromises).then(
@@ -62,7 +63,7 @@ export function useGroups() {
             error =>
               shouldResolve()
                 ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
-                : null
+                : null,
           );
         }
       },
@@ -70,7 +71,7 @@ export function useGroups() {
         shouldResolve()
           ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
           : null;
-      }
+      },
     );
   }
 

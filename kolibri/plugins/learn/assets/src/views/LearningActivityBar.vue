@@ -1,10 +1,14 @@
 <template>
 
   <nav :aria-label="$tr('optionsLabel')">
-    <UiToolbar style="z-index: 8;" :style="contentSpecificStyles" class="toolbar">
+    <UiToolbar
+      style="z-index: 8"
+      :style="contentSpecificStyles"
+      class="toolbar"
+    >
       <CoachContentLabel
         :value="isCoachContent"
-        style="margin-top: 8px; width: auto;"
+        style="width: auto; margin-top: 8px"
       />
       <KLabeledIcon :style="{ 'margin-top': '8px' }">
         <template #icon>
@@ -25,7 +29,10 @@
           :maxLines="1"
         />
       </KLabeledIcon>
-      <ProgressIcon :progress="contentProgress" class="progress-icon" />
+      <ProgressIcon
+        :progress="contentProgress"
+        class="progress-icon"
+      />
 
       <template #icon>
         <KIconButton
@@ -91,7 +98,10 @@
               <div v-if="duration">
                 <strong>{{ learnString('suggestedTime') }}</strong>
               </div>
-              <SuggestedTime v-if="duration" :seconds="duration" />
+              <SuggestedTime
+                v-if="duration"
+                :seconds="duration"
+              />
             </div>
           </template>
         </CoreMenu>
@@ -143,7 +153,7 @@
                 :key="action.id"
                 :data-test="`menu_${action.dataTest}`"
                 :disabled="action.disabled"
-                :style="{ 'cursor': 'pointer' }"
+                :style="{ cursor: 'pointer' }"
                 :icon="action.icon"
                 @select="onActionClick(action.event)"
               >
@@ -181,7 +191,7 @@
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
   import get from 'lodash/get';
-  import LearningActivityIcon from './LearningActivityIcon.vue';
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import commonLearnStrings from './commonLearnStrings';
   import DeviceConnectionStatus from './DeviceConnectionStatus.vue';
 

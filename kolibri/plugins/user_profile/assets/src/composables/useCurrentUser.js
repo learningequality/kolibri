@@ -13,7 +13,7 @@ export default function useCurrentUser() {
       userModel => {
         currentUser.value = { ...userModel };
         isLoading.value = false;
-      }
+      },
     );
   });
 

@@ -1,7 +1,6 @@
 <template>
 
   <CoachAppBarPage>
-
     <KPageContainer>
       <ReportsResourceHeader
         :resource="resource"
@@ -15,7 +14,6 @@
       </ReportsControls>
 
       <ReportsLearnersTable :entries="table" />
-
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -66,7 +64,7 @@
             groups: this.getGroupNamesForLearner(learner.id),
             statusObj: this.getContentStatusObjForLearner(
               this.$route.params.resourceId,
-              learner.id
+              learner.id,
             ),
           };
           Object.assign(tableRow, learner);
@@ -100,8 +98,8 @@
             {
               contentId: this.resource.id,
             },
-            this.defaultBackLinkQuery
-          )
+            this.defaultBackLinkQuery,
+          ),
         );
       },
     },

@@ -2,9 +2,15 @@
 
   <div>
     <h1>{{ $tr('documentTitle') }}</h1>
-    <div class="task-panel" :class="{ 'task-panel-sm': windowIsSmall }">
+    <div
+      class="task-panel"
+      :class="{ 'task-panel-sm': windowIsSmall }"
+    >
       <div class="icon">
-        <transition v-if="!taskError" mode="out-in">
+        <transition
+          v-if="!taskError"
+          mode="out-in"
+        >
           <KIcon
             v-if="taskCompleted"
             icon="check"
@@ -16,23 +22,33 @@
             :size="24"
             :stroke="5"
           />
-
-
         </transition>
       </div>
 
       <div class="details">
-        <p class="details-status" :style="{ color: $themeTokens.annotation }">
+        <p
+          class="details-status"
+          :style="{ color: $themeTokens.annotation }"
+        >
           {{ taskInfo() }}
         </p>
 
-        <div v-if="taskCompleted" data-test="completedMessage">
+        <div
+          v-if="taskCompleted"
+          data-test="completedMessage"
+        >
           {{ successfullyJoined }}
         </div>
-        <div v-if="taskError" data-test="errorMessage">
+        <div
+          v-if="taskError"
+          data-test="errorMessage"
+        >
           {{ errorMessage }}
         </div>
-        <div v-else class="details-progress-bar">
+        <div
+          v-else
+          class="details-progress-bar"
+        >
           <KLinearLoader
             class="k-linear-loader"
             type="determinate"
@@ -67,7 +83,6 @@
         </KButtonGroup>
       </slot>
     </BottomAppBar>
-
   </div>
 
 </template>
@@ -105,7 +120,7 @@
       let isPolling = true;
       let isTaskRequested = false;
       const taskCompleted = computed(() =>
-        task.value === null ? false : task.value.status === TaskStatuses.COMPLETED
+        task.value === null ? false : task.value.status === TaskStatuses.COMPLETED,
       );
       const percentage = computed(() => (task.value ? task.value.percentage : 0));
       onMounted(() => {
@@ -149,7 +164,7 @@
           TaskResource.fetchCollection()
             .then(allTasks => {
               const tasks = allTasks.filter(
-                t => t.type === 'kolibri.plugins.user_profile.tasks.mergeuser'
+                t => t.type === 'kolibri.plugins.user_profile.tasks.mergeuser',
               );
               if (tasks.length > 0) {
                 updateMachineContext(tasks[0]);
@@ -213,16 +228,33 @@
               isPolling = false;
             });
         } else {
-          TaskResource.fetchModel({ id: taskId.value, force: true }).then(startedTask => {
-            task.value = startedTask;
-            if (startedTask.status == TaskStatuses.COMPLETED) {
+          TaskResource.fetchModel({ id: taskId.value, force: true })
+            .then(startedTask => {
+              task.value = startedTask;
+              if (startedTask.status == TaskStatuses.COMPLETED) {
+                isPolling = false;
+              } else if (startedTask.status === TaskStatuses.FAILED) {
+                TaskResource.clear(taskId.value); // start a new one
+                isTaskRequested = false;
+                taskError.value = true;
+              }
+            })
+            .catch(err => {
+              if (err?.response?.status === 403 && task.value) {
+                // If we get a 403, it means that our currently logged in user
+                // does not have permission to access the task. This can happen
+                // if the user has been deleted by the task as intended, so assume
+                // the task has completed successfully.
+                task.value = {
+                  ...task.value,
+                  status: TaskStatuses.COMPLETED,
+                };
+              } else {
+                // if the request is bad, we can't do anything
+                taskError.value = true;
+              }
               isPolling = false;
-            } else if (startedTask.status === TaskStatuses.FAILED) {
-              TaskResource.clear(taskId.value); // start a new one
-              isTaskRequested = false;
-              taskError.value = true;
-            }
-          });
+            });
         }
 
         if (isPolling) {
@@ -250,7 +282,7 @@
           method: 'POST',
           data: params,
         }).then(() => {
-          redirectBrowser(urls['kolibri:kolibri.plugins.learn:learn']());
+          redirectBrowser();
         });
       }
 

@@ -18,9 +18,7 @@
       <slot name="subheader"></slot>
     </section>
 
-    <KFixedGrid
-      numCols="3"
-    >
+    <KFixedGrid numCols="3">
       <KFixedGridItem
         v-if="$slots.aside"
         ref="aside"
@@ -41,7 +39,6 @@
           <slot name="main"></slot>
         </div>
       </KFixedGridItem>
-
     </KFixedGrid>
     <footer
       v-if="$slots.footer"

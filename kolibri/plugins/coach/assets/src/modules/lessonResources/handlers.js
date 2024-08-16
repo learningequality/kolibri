@@ -10,7 +10,14 @@ import chunk from 'lodash/chunk';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
 async function showResourceSelectionPage(store, params) {
-  const { lessonId, contentList, pageName, bookmarksList, ancestors = [] } = params;
+  const {
+    lessonId,
+    contentList,
+    pageName,
+    bookmarksList,
+    ancestors = [],
+    descendantCounts = [],
+  } = params;
   const pendingSelections = store.state.lessonSummary.workingResources || [];
   const cache = store.state.lessonSummary.resourceCache || {};
   const initClassInfoPromise = store.dispatch('initClassInfo', params.classId);
@@ -32,14 +39,17 @@ async function showResourceSelectionPage(store, params) {
     store.commit('lessonSummary/resources/SET_BOOKMARKS_LIST', bookmarksList);
     store.commit('lessonSummary/resources/SET_STATE', {
       contentList: [],
-      ancestors: [],
+      ancestors,
     });
-    store.dispatch('notLoading');
 
     if (lessonId) {
       const loadRequirements = [store.dispatch('lessonSummary/updateCurrentLesson', lessonId)];
       return Promise.all(loadRequirements).then(([currentLesson]) => {
-        // TODO make a state mapper
+        const resourceIds = currentLesson.resources.map(resourceObj => resourceObj.contentnode_id);
+        const setResourceCachePromise = store.dispatch(
+          'lessonSummary/getResourceCache',
+          resourceIds,
+        );
         // contains selections that were commited to server prior to opening this page
         if (!pendingSelections.length) {
           store.commit('lessonSummary/SET_WORKING_RESOURCES', currentLesson.resources);
@@ -49,51 +59,29 @@ async function showResourceSelectionPage(store, params) {
           store.commit('lessonSummary/resources/SET_ANCESTORS', ancestors);
         }
 
-        const ancestorCounts = {};
+        const descendantCountsObject = {};
+        for (const descendantCount of descendantCounts.data || descendantCounts) {
+          descendantCountsObject[descendantCount.id] = descendantCount.on_device_resources;
+        }
 
-        const resourceAncestors = store.state.lessonSummary.workingResources.map(
-          resource => (cache[resource.contentnode_id] || {}).ancestors || []
-        );
-        // store ancestor ids to get their descendants later
-        const ancestorIds = new Set();
+        store.commit('lessonSummary/resources/SET_DESCENDANT_COUNTS', descendantCountsObject);
 
-        resourceAncestors.forEach(ancestorArray =>
-          ancestorArray.forEach(ancestor => {
-            ancestorIds.add(ancestor.id);
-            if (ancestorCounts[ancestor.id]) {
-              ancestorCounts[ancestor.id].count++;
-            } else {
-              ancestorCounts[ancestor.id] = {};
-              // total number of working/added resources
-              ancestorCounts[ancestor.id].count = 1;
-              // total number of descendants
-              ancestorCounts[ancestor.id].total = 0;
-            }
-          })
-        );
-        ContentNodeResource.fetchDescendants(Array.from(ancestorIds)).then(nodes => {
-          nodes.data.forEach(node => {
-            // exclude topics from total resource calculation
-            if (node.kind !== ContentNodeKinds.TOPIC) {
-              ancestorCounts[node.ancestor_id].total++;
-            }
+        // carry pendingSelections over from other interactions in this modal
+        store.commit('lessonSummary/resources/SET_CONTENT_LIST', contentList);
+        if (params.searchResults) {
+          store.commit('lessonSummary/resources/SET_SEARCH_RESULTS', params.searchResults);
+        }
+        store.commit('SET_PAGE_NAME', pageName);
+        if (pageName === LessonsPageNames.SELECTION_SEARCH) {
+          store.commit('SET_TOOLBAR_ROUTE', {
+            name: LessonsPageNames.SELECTION_ROOT,
           });
-          store.commit('lessonSummary/resources/SET_ANCESTOR_COUNTS', ancestorCounts);
-          // carry pendingSelections over from other interactions in this modal
-          store.commit('lessonSummary/resources/SET_CONTENT_LIST', contentList);
-          if (params.searchResults) {
-            store.commit('lessonSummary/resources/SET_SEARCH_RESULTS', params.searchResults);
-          }
-          store.commit('SET_PAGE_NAME', pageName);
-          if (pageName === LessonsPageNames.SELECTION_SEARCH) {
-            store.commit('SET_TOOLBAR_ROUTE', {
-              name: LessonsPageNames.SELECTION_ROOT,
-            });
-          } else {
-            store.commit('SET_TOOLBAR_ROUTE', {
-              name: LessonsPageNames.SUMMARY,
-            });
-          }
+        } else {
+          store.commit('SET_TOOLBAR_ROUTE', {
+            name: LessonsPageNames.SUMMARY,
+          });
+        }
+        return setResourceCachePromise.then(() => {
           store.dispatch('notLoading');
         });
       });
@@ -111,13 +99,17 @@ export function showLessonResourceSelectionRootPage(store, params) {
         is_leaf: false,
       };
     });
-
-    return showResourceSelectionPage(store, {
-      classId: params.classId,
-      lessonId: params.lessonId,
-      contentList: channelContentList,
-      pageName: LessonsPageNames.SELECTION_ROOT,
-    });
+    return ContentNodeResource.fetchDescendantCounts({ parent__isnull: true }).then(
+      descendantCounts => {
+        return showResourceSelectionPage(store, {
+          classId: params.classId,
+          lessonId: params.lessonId,
+          contentList: channelContentList,
+          pageName: LessonsPageNames.SELECTION_ROOT,
+          descendantCounts,
+        });
+      },
+    );
   });
 }
 
@@ -128,9 +120,10 @@ export function showLessonResourceSelectionTopicPage(store, params) {
     const loadRequirements = [
       ContentNodeResource.fetchModel({ id: topicId }),
       ContentNodeResource.fetchCollection({ getParams: { parent: topicId } }),
+      ContentNodeResource.fetchDescendantCounts({ parent: topicId }),
     ];
 
-    return Promise.all(loadRequirements).then(([topicNode, childNodes]) => {
+    return Promise.all(loadRequirements).then(([topicNode, childNodes, descendantCounts]) => {
       const topicContentList = childNodes.map(node => {
         return { ...node, thumbnail: getContentNodeThumbnail(node) };
       });
@@ -140,6 +133,7 @@ export function showLessonResourceSelectionTopicPage(store, params) {
         lessonId: params.lessonId,
         contentList: topicContentList,
         pageName: LessonsPageNames.SELECTION,
+        descendantCounts,
         ancestors: [...topicNode.ancestors, topicNode],
       });
     });
@@ -249,7 +243,7 @@ export async function showLessonSelectionContentPreview(store, params, query = {
 
         store.commit(
           'lessonSummary/SET_WORKING_RESOURCES',
-          pendingSelections.length ? pendingSelections : preselectedResources
+          pendingSelections.length ? pendingSelections : preselectedResources,
         );
         store.dispatch('notLoading');
       })
@@ -267,24 +261,28 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
     getParams: { no_available_filtering: true },
   }).then(
     contentNode => {
-      const assessmentMetadata = contentNode.assessmentmetadata;
       store.commit('lessonSummary/SET_STATE', {
         toolbarRoute: {},
         // only exist if exercises
         workingResources: null,
         resourceCache: cache,
       });
+
       store.commit('lessonSummary/resources/SET_CURRENT_CONTENT_NODE', contentNode);
-      store.commit('lessonSummary/resources/SET_PREVIEW_STATE', {
-        questions: assessmentMetadata.assessment_item_ids,
-        completionData: assessmentMetadata.mastery_model,
-      });
+
+      if (contentNode.assessmentmetadata) {
+        store.commit('lessonSummary/resources/SET_PREVIEW_STATE', {
+          questions: contentNode.assessmentmetadata.assessment_item_ids,
+          completionData: contentNode.assessmentmetadata.mastery_model,
+        });
+      }
+
       store.commit('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
       return contentNode;
     },
     error => {
       return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
-    }
+    },
   );
 }
 

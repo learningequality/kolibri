@@ -1,9 +1,7 @@
 <template>
 
   <FacilityAppBarPage>
-
     <KPageContainer>
-
       <p>
         <KRouterLink
           :text="coreString('allClassesLabel')"
@@ -12,8 +10,14 @@
         />
       </p>
       <div>
-        <h1 class="title-header" dir="auto">
-          <KLabeledIcon icon="classes" :label="classDetails.name" />
+        <h1
+          class="title-header"
+          dir="auto"
+        >
+          <KLabeledIcon
+            icon="classes"
+            :label="classDetails.name"
+          />
         </h1>
         <KButton
           :text="$tr('renameButtonLabel')"

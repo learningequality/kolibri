@@ -1,16 +1,28 @@
 <template>
 
-  <table v-if="currentTryDefined" class="scores">
-    <tr v-if="!hideStatus" data-test="try-status">
+  <table
+    v-if="currentTryDefined"
+    class="scores"
+  >
+    <tr
+      v-if="!hideStatus"
+      data-test="try-status"
+    >
       <th>
         {{ coreString('statusLabel') }}
       </th>
       <td>
-        <ProgressIcon class="svg-icon" :progress="progress" />
+        <ProgressIcon
+          class="svg-icon"
+          :progress="progress"
+        />
         {{ progressIconLabel }}
       </td>
     </tr>
-    <tr v-if="masteryModel && !isSurvey" data-test="try-mastery-model">
+    <tr
+      v-if="masteryModel && !isSurvey"
+      data-test="try-mastery-model"
+    >
       <th>
         {{ coreString('masteryModelLabel') }}
       </th>
@@ -18,7 +30,10 @@
         <MasteryModel :masteryModel="masteryModel" />
       </td>
     </tr>
-    <tr v-if="!isSurvey && correctDefined && !masteryModel" data-test="try-score">
+    <tr
+      v-if="!isSurvey && correctDefined && !masteryModel"
+      data-test="try-score"
+    >
       <th>
         {{ coreString('scoreLabel') }}
       </th>
@@ -26,15 +41,21 @@
         {{ $formatNumber(score, { style: 'percent' }) }}
       </td>
     </tr>
-    <tr v-if="!isSurvey && correctDefined && !masteryModel" data-test="try-questions-correct">
+    <tr
+      v-if="!isSurvey && correctDefined && !masteryModel"
+      data-test="try-questions-correct"
+    >
       <th>
         {{ coreString('questionsCorrectLabel') }}
       </th>
       <td>
-        {{ coreString('questionsCorrectValue', {
-          correct: currentTry.correct, total: totalQuestions
-        }) }}
-        <br>
+        {{
+          coreString('questionsCorrectValue', {
+            correct: currentTry.correct,
+            total: totalQuestions,
+          })
+        }}
+        <br >
         <span
           v-if="questionsCorrectAnnotation"
           class="try-annotation"
@@ -42,13 +63,16 @@
         >{{ questionsCorrectAnnotation }}</span>
       </td>
     </tr>
-    <tr v-if="!isSurvey && currentTry.time_spent" data-test="try-time-spent">
+    <tr
+      v-if="!isSurvey && currentTry.time_spent"
+      data-test="try-time-spent"
+    >
       <th>
         {{ coreString('timeSpentLabel') }}
       </th>
       <td>
         <TimeDuration :seconds="currentTry.time_spent" />
-        <br>
+        <br >
         <span
           v-if="timeSpentAnnotation"
           class="try-annotation"
@@ -76,12 +100,12 @@
   import get from 'lodash/get';
   import isPlainObject from 'lodash/isPlainObject';
   import isUndefined from 'lodash/isUndefined';
-  import { mapGetters } from 'vuex';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import MasteryModel from 'kolibri.coreVue.components.MasteryModel';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { tryValidator } from './utils';
 
   export default {
@@ -93,6 +117,10 @@
       MasteryModel,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { currentUserId } = useUser();
+      return { currentUserId };
+    },
     props: {
       // This should be an object with the following properties:
       // id: the unique id for the mastery log for this try
@@ -136,7 +164,6 @@
       },
     },
     computed: {
-      ...mapGetters(['currentUserId']),
       currentTryDefined() {
         return isPlainObject(this.currentTry);
       },
@@ -189,8 +216,8 @@
 
         return this.currentTry.diff.correct > 0
           ? this.$tr('practiceQuizReportImprovedLabelSecondPerson', {
-              value: this.currentTry.diff.correct,
-            })
+            value: this.currentTry.diff.correct,
+          })
           : null;
       },
       diffTimeSpent() {

@@ -1,6 +1,6 @@
 export default (widget, rubric) => {
   const answers = rubric.answers.map(row =>
-    row.map(cell => (typeof cell === 'number' ? cell.toString() : ''))
+    row.map(cell => (typeof cell === 'number' ? cell.toString() : '')),
   );
 
   widget.props.onChange(
@@ -8,6 +8,6 @@ export default (widget, rubric) => {
       answers,
     },
     null, // cb
-    false // silent
+    false, // silent
   );
 };

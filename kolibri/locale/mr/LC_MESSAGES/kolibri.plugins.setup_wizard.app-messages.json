@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "अनौपचारिक",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "हे उपकरण प्रशासक, प्रशिक्षक आणि विद्यार्थ्यांद्वारे वापरलेला पूर्ण-वैशिष्ट्यीकृत कोलिब्री सर्व्हर असेल.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "पूर्ण सुविधा असणारे उपकरण",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "या डिव्‍हाइसमध्‍ये आधीपासून अस्तित्‍वात असलेल्‍या पूर्ण डिव्‍हाइसवरून इंपोर्ट केलेली एक किंवा अधिक शिकाऊ खाती असतील. विद्यार्थ्यांची खाती पूर्ण उपकरणासह स्वयं-सिंक होतील.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "या डिव्हाइसमध्ये केवळ विद्यार्थ्यांनी वापरलेली वैशिष्ट्ये असतील आणि ते पूर्ण डिव्हाइससह आपोआप सिंक होईल.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "फक्त शिकण्यासाठी उपकरण",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "हे कोणत्या प्रकारचे डिव्हाइस आहे?",
   "GuestAccessForm.changeLater": "तुम्ही तुमच्या डिव्हाइस सेटिंग्जमध्ये हे नंतर बदलू शकता.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "क्लिपबोर्डवर कॉपी करा",
   "UserCredentialsForm.adminAccountCreationHeader": "सुपर ॲडमिन तयार करा",
   "UserCredentialsForm.learnerAccountCreationDescription": "'{facility}'  शिक्षण सुविधेसाठी नवीन खाते",
-  "UserCredentialsForm.learnerAccountCreationHeader": "तुमचे खाते तयार करा"
+  "UserCredentialsForm.learnerAccountCreationHeader": "तुमचे खाते तयार करा",
+  "UserCredentialsForm.signInInstead": "त्याऐवजी साइन इन करायचे?"
 }

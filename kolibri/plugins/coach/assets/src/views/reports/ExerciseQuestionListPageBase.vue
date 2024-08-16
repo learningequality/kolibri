@@ -1,9 +1,7 @@
 <template>
 
   <CoachAppBarPage>
-
     <KPageContainer>
-
       <ReportsResourceHeader
         :resource="resource"
         @previewClick="onPreviewClick"
@@ -32,9 +30,7 @@
                   :to="questionLink(tableRow.question_id)"
                   icon="question"
                 />
-                <span v-else>
-                  <KIcon icon="question" />{{ tableRow.title }}
-                </span>
+                <span v-else> <KIcon icon="question" />{{ tableRow.title }} </span>
               </td>
               <td>
                 <LearnerProgressRatio
@@ -103,7 +99,7 @@
           {
             questionId,
             exerciseId: this.$route.params.exerciseId,
-          }
+          },
         );
       },
       exportCSV() {
@@ -131,8 +127,8 @@
             {
               contentId: this.exercise.id,
             },
-            this.defaultBackLinkQuery
-          )
+            this.defaultBackLinkQuery,
+          ),
         );
       },
     },

@@ -47,6 +47,12 @@ Next, initialize Git LFS:
   cd kolibri  # Enter the Kolibri directory
   git lfs install
 
+To make git blame more informative, we keep track of commits that make a lot of changes to the codebase but are not directly related to the code itself, like large scale automatic code formatting. To prevent these commits appearing in the blame output, run:
+
+.. code-block:: bash
+
+  git config blame.ignoreRevsFile .git-blame-ignore-revs
+
 Finally, add the Learning Equality repo as a remote called `upstream`. That way you can keep your local checkout updated with the most recent changes:
 
 

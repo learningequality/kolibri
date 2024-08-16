@@ -1,7 +1,6 @@
 <template>
 
   <CoachAppBarPage>
-
     <KPageContainer>
       <p>
         <BackLink
@@ -73,11 +72,17 @@
                 </KLabeledIcon>
               </td>
               <td>
-                <StatusSimple v-if="tableRow.statusObj" :status="tableRow.statusObj.status" />
+                <StatusSimple
+                  v-if="tableRow.statusObj"
+                  :status="tableRow.statusObj.status"
+                />
                 <KEmptyPlaceholder v-else />
               </td>
               <td>
-                <TimeDuration v-if="tableRow.statusObj" :seconds="showTime(tableRow)" />
+                <TimeDuration
+                  v-if="tableRow.statusObj"
+                  :seconds="showTime(tableRow)"
+                />
                 <KEmptyPlaceholder v-else />
               </td>
             </tr>

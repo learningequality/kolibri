@@ -30,7 +30,7 @@ export default function useDeleteClass(classroomProp) {
       },
       error => {
         $store.dispatch('handleApiError', { error });
-      }
+      },
     );
   }
 

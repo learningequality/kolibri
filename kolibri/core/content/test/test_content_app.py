@@ -7,7 +7,6 @@ import unittest
 import uuid
 
 import mock
-import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.test import LiveServerTestCase
@@ -28,6 +27,9 @@ from kolibri.core.content.test.test_channel_upgrade import ChannelBuilder
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSessionLog
@@ -1074,62 +1076,40 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             sibling_assessment_metadata.number_of_assessments,
         )
 
-    def test_contentnode_descendants_topic_siblings_ancestor_ids(self):
+    def test_contentnode_descendant_counts_topic_siblings_ancestor_ids(self):
         root = content.ContentNode.objects.get(parent__isnull=True)
         topics = content.ContentNode.objects.filter(
             parent=root, kind=content_kinds.TOPIC
         )
         topic_ids = topics.values_list("id", flat=True)
         response = self.client.get(
-            reverse("kolibri:core:contentnode-descendants"),
+            reverse("kolibri:core:contentnode-descendant-counts"),
             data={"ids": ",".join(topic_ids)},
         )
-        for datum in response.data:
-            topic = topics.get(id=datum["ancestor_id"])
-            self.assertTrue(topic.get_descendants().filter(id=datum["id"]).exists())
-
-    def test_contentnode_descendants_topic_siblings_kind_filter(self):
-        root = content.ContentNode.objects.get(parent__isnull=True)
-        topics = content.ContentNode.objects.filter(
-            parent=root, kind=content_kinds.TOPIC
-        )
-        topic_ids = topics.values_list("id", flat=True)
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-descendants"),
-            data={
-                "ids": ",".join(topic_ids),
-                "descendant_kind": content_kinds.EXERCISE,
-            },
-        )
-        for datum in response.data:
-            topic = topics.get(id=datum["ancestor_id"])
-            self.assertTrue(
-                topic.get_descendants()
-                .filter(id=datum["id"], kind=content_kinds.EXERCISE)
-                .exists()
+        lookup = {datum["id"]: datum for datum in response.data}
+        for topic in topics:
+            self.assertEqual(
+                lookup[topic.id]["on_device_resources"], topic.on_device_resources
             )
 
-    def test_contentnode_descendants_topic_parent_child_ancestor_ids(self):
+    def test_contentnode_descendant_counts_topic_parent_child_ancestor_ids(self):
         root = content.ContentNode.objects.get(parent__isnull=True)
         topic = content.ContentNode.objects.filter(
             parent=root, kind=content_kinds.TOPIC, children__isnull=False
         ).first()
         response = self.client.get(
-            reverse("kolibri:core:contentnode-descendants"),
+            reverse("kolibri:core:contentnode-descendant-counts"),
             data={"ids": ",".join((root.id, topic.id))},
         )
-        topic_items = [
-            datum for datum in response.data if datum["ancestor_id"] == topic.id
-        ]
-        for node in topic.get_descendants(include_self=False).filter(available=True):
-            self.assertTrue(next(item for item in topic_items if item["id"] == node.id))
-        root_items = [
-            datum for datum in response.data if datum["ancestor_id"] == root.id
-        ]
-        for node in root.get_descendants(include_self=False).filter(available=True):
-            self.assertTrue(next(item for item in root_items if item["id"] == node.id))
+        lookup = {datum["id"]: datum for datum in response.data}
+        self.assertEqual(
+            lookup[root.id]["on_device_resources"], root.on_device_resources
+        )
+        self.assertEqual(
+            lookup[topic.id]["on_device_resources"], topic.on_device_resources
+        )
 
-    def test_contentnode_descendants_availability(self):
+    def test_contentnode_descendant_counts_availability(self):
         content.ContentNode.objects.all().update(available=False)
         root = content.ContentNode.objects.get(parent__isnull=True)
         topics = content.ContentNode.objects.filter(
@@ -1137,7 +1117,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         topic_ids = topics.values_list("id", flat=True)
         response = self.client.get(
-            reverse("kolibri:core:contentnode-descendants"),
+            reverse("kolibri:core:contentnode-descendant-counts"),
             data={"ids": ",".join(topic_ids)},
         )
         self.assertEqual(len(response.data), 0)
@@ -1920,7 +1900,7 @@ def mock_patch_decorator(func):
     def wrapper(*args, **kwargs):
         mock_object = mock.Mock()
         mock_object.json.return_value = [{"id": 1, "name": "studio"}]
-        with mock.patch.object(requests, "get", return_value=mock_object):
+        with mock.patch.object(NetworkClient, "get", return_value=mock_object):
             return func(*args, **kwargs)
 
     return wrapper
@@ -1969,18 +1949,21 @@ class KolibriStudioAPITestCase(APITestCase):
         )
         self.assertEqual(response.data["name"], "studio")
 
-    @mock_patch_decorator
-    def test_channel_info_404(self):
-        mock_object = mock.Mock()
-        mock_object.status_code = 404
-        requests.get.return_value = mock_object
+    @mock.patch.object(
+        NetworkClient,
+        "get",
+        side_effect=NetworkLocationResponseFailure(response=mock.Mock(status_code=404)),
+    )
+    def test_channel_info_404(self, mock_get):
         response = self.client.get(
             reverse("kolibri:core:remotechannel-detail", kwargs={"pk": "abc"}),
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    @mock.patch.object(requests, "get", side_effect=requests.exceptions.ConnectionError)
+    @mock.patch.object(
+        NetworkClient, "get", side_effect=NetworkLocationConnectionFailure
+    )
     def test_channel_info_offline(self, mock_get):
         response = self.client.get(
             reverse("kolibri:core:remotechannel-detail", kwargs={"pk": "abc"}),
@@ -1989,7 +1972,9 @@ class KolibriStudioAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
         self.assertEqual(response.json()["status"], "offline")
 
-    @mock.patch.object(requests, "get", side_effect=requests.exceptions.ConnectionError)
+    @mock.patch.object(
+        NetworkClient, "get", side_effect=NetworkLocationConnectionFailure
+    )
     def test_channel_list_offline(self, mock_get):
         response = self.client.get(
             reverse("kolibri:core:remotechannel-list"), format="json"

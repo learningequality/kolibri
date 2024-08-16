@@ -103,9 +103,7 @@ describe(`YourClasses`, () => {
   it(`clicking a class navigates to the class page`, () => {
     const wrapper = makeWrapper({ classes: TEST_CLASSES });
     expect(wrapper.vm.$route.path).toBe('/');
-    getClassesLinks(wrapper)
-      .at(0)
-      .trigger('click');
+    getClassesLinks(wrapper).at(0).trigger('click');
     expect(wrapper.vm.$route.name).toBe(ClassesPageNames.CLASS_ASSIGNMENTS);
     expect(wrapper.vm.$route.params).toEqual({ classId: 'class-1' });
   });

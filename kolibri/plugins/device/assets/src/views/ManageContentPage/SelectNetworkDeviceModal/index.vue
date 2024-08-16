@@ -50,7 +50,7 @@
               selectContentPageLink({
                 addressId,
                 channelId: this.transferredChannel.id,
-              })
+              }),
             );
           } else {
             this.$router.push(availableChannelsPageLink({ addressId }));

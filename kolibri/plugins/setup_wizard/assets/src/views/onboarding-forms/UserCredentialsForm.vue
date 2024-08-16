@@ -42,6 +42,14 @@
         :isUniqueValidator="!selectedUser ? uniqueUsernameValidator : () => true"
       />
 
+      <KButton
+        v-if="usernameNotUnique"
+        :text="$tr('signInInstead')"
+        class="link"
+        appearance="basic-link"
+        @click="handleSignIn"
+      />
+
       <PasswordTextbox
         ref="passwordTextbox"
         :value.sync="password"
@@ -56,7 +64,6 @@
       <!-- NOTE: Demographic info forms were removed in PR #6053 -->
 
       <PrivacyLinkAndModal v-if="!hidePrivacyLink" />
-
     </form>
 
     <slot name="footer">
@@ -84,6 +91,7 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
@@ -192,6 +200,9 @@
           return every([this.usernameValid, this.fullNameValid, this.passwordValid]);
         }
       },
+      usernameNotUnique() {
+        return this.caughtErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
+      },
     },
     watch: {
       selectedUser(user) {
@@ -271,6 +282,9 @@
           }
         });
       },
+      handleSignIn() {
+        this.$emit('signInInstead');
+      },
     },
     $trs: {
       adminAccountCreationHeader: {
@@ -286,6 +300,10 @@
         message: "New account for '{facility}' learning facility",
         context:
           'The learner is creating their account for an existing facility and is told what that is',
+      },
+      signInInstead: {
+        message: 'Sign in instead?',
+        context: 'Text prompting user to sign in with existing username.',
       },
     },
   };
@@ -315,6 +333,10 @@
 
   .select {
     margin: 18px 0 36px;
+  }
+
+  .link {
+    padding-bottom: 15px;
   }
 
 </style>

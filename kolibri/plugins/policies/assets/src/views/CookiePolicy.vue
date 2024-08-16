@@ -26,23 +26,22 @@
             <th>{{ $tr('cookieExpiryTableHeader') }}</th>
           </tr>
           <tr>
-            <td> kolibri_csrftoken </td>
+            <td>kolibri_csrftoken</td>
             <td>{{ $tr('csrftokenCookiePurpose') }}</td>
             <td>{{ $tr('twoYearExpiry') }}</td>
           </tr>
           <tr>
-            <td> kolibri </td>
+            <td>kolibri</td>
             <td>{{ $tr('kolibriCookiePurpose') }}</td>
             <td>{{ $tr('kolibriCookieExpiry') }}</td>
           </tr>
           <tr>
-            <td> kolibri_cookie_consent </td>
+            <td>kolibri_cookie_consent</td>
             <td>{{ $tr('kolibriCookieConsentPurpose') }}</td>
             <td>{{ $tr('twoYearExpiry') }}</td>
           </tr>
         </table>
       </section>
-
 
       <section>
         <h2>{{ $tr('statisticsCookiesHeader') }}</h2>
@@ -54,7 +53,7 @@
             <th>{{ $tr('cookieExpiryTableHeader') }}</th>
           </tr>
           <tr>
-            <td> visitor_id </td>
+            <td>visitor_id</td>
             <td>{{ $tr('visitorIdPurpose') }}</td>
             <td>{{ $tr('twoYearExpiry') }}</td>
           </tr>
@@ -62,7 +61,7 @@
       </section>
       <section>
         <h2>{{ $tr('yourChoicesHeader') }}</h2>
-        <p>{{ $tr('choicesP1', { choice: "AYE" }) }}</p>
+        <p>{{ $tr('choicesP1', { choice: 'AYE' }) }}</p>
       </section>
       <KButton
         :text="coreString('closeAction')"
@@ -70,8 +69,6 @@
         @click="$emit('submit')"
       />
     </KPageContainer>
-
-
   </ImmersivePage>
 
 </template>

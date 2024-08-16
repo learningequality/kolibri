@@ -55,7 +55,7 @@ export class HeartBeat {
     this._client = clientFactory();
     // Define an interceptor to monitor the response that gets returned.
     this._client.interceptors.response.use(
-      function(response) {
+      function (response) {
         // If the response does not have one of the disconnect error codes
         // then we have reconnected.
         if (!store.getters.connected && !errorCodes.includes(response.status)) {
@@ -65,7 +65,7 @@ export class HeartBeat {
         }
         return response;
       },
-      function(error) {
+      function (error) {
         const { connected, reconnectTime } = store.getters;
         if (!connected) {
           // If the response does not have one of the disconnect error codes
@@ -84,12 +84,12 @@ export class HeartBeat {
           store.commit(
             'CORE_SET_RECONNECT_TIME',
             // Multiply the previous interval by our multiplier, but max out at a high interval.
-            Math.min(RECONNECT_MULTIPLIER * reconnect, MAX_RECONNECT_TIME)
+            Math.min(RECONNECT_MULTIPLIER * reconnect, MAX_RECONNECT_TIME),
           );
           createDisconnectedSnackbar(store, heartbeat.pollSessionEndPoint);
         }
         return Promise.reject(error);
-      }
+      },
     );
   }
   startPolling() {
@@ -266,7 +266,7 @@ export class HeartBeat {
     Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, true);
     // Redirect the user to let the server sort out where they should
     // be now
-    redirectBrowser();
+    redirectBrowser(null, true);
   }
   _sessionUrl(id) {
     return urls['kolibri:core:session-detail'](id);

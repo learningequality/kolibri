@@ -78,7 +78,7 @@ describe('Pdf Bookmarks', () => {
     expect(wrapper.findAllComponents(BookmarkItem)).toHaveLength(outline.length);
     outline.forEach(bookmark => {
       expect(
-        withWrapperArray(wrapper.findAllComponents(BookmarkItem)).hasText(bookmark.title)
+        withWrapperArray(wrapper.findAllComponents(BookmarkItem)).hasText(bookmark.title),
       ).toHaveLength(1);
     });
   });
@@ -108,8 +108,8 @@ describe('Pdf Bookmarks', () => {
       // check that children are not rendered before click
       expect(
         withWrapperArray(bookmarkItem.findAllComponents(BookmarkItem)).hasText(
-          bookmark.items[0].title
-        )
+          bookmark.items[0].title,
+        ),
       ).toHaveLength(0);
 
       bookmarkItem.find('.dropdown-icon-container').trigger('click');
@@ -118,7 +118,7 @@ describe('Pdf Bookmarks', () => {
         withWrapperArray(bookmarkItem.findAllComponents(BookmarkItem))
           .hasText(bookmark.items[0].title)
           // filter leaf nodes
-          .filter(i => i.findAllComponents(BookmarkItem).length === 1)
+          .filter(i => i.findAllComponents(BookmarkItem).length === 1),
       ).toHaveLength(1);
     }
   });
@@ -138,8 +138,8 @@ describe('Pdf Bookmarks', () => {
 
       expect(
         withWrapperArray(bookmarkItem.findAllComponents(BookmarkItem)).hasText(
-          bookmark.items[0].title
-        )
+          bookmark.items[0].title,
+        ),
       ).toHaveLength(0);
     }
   });

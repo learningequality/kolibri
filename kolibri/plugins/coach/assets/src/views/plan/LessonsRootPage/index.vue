@@ -37,8 +37,15 @@
             <th>{{ coachString('lessonVisibleLabel') }}</th>
           </template>
           <template #tbody>
-            <transition-group tag="tbody" name="list">
-              <tr v-for="lesson in sortedLessons" v-show="showLesson(lesson)" :key="lesson.id">
+            <transition-group
+              tag="tbody"
+              name="list"
+            >
+              <tr
+                v-for="lesson in sortedLessons"
+                v-show="showLesson(lesson)"
+                :key="lesson.id"
+              >
                 <td>
                   <KRouterLink
                     :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
@@ -57,9 +64,7 @@
                 <td>
                   <Recipients
                     :groupNames="getRecipientNamesForLesson(lesson)"
-                    :hasAssignments="
-                      lesson.assignments.length > 0 || lesson.learner_ids.length > 0
-                    "
+                    :hasAssignments="lesson.assignments.length > 0 || lesson.learner_ids.length > 0"
                   />
                 </td>
                 <td>
@@ -255,7 +260,7 @@
           const sum = this.lessons
             .filter(
               // only include visible lessons
-              lesson => lesson.active
+              lesson => lesson.active,
             )
             .reduce((acc, lesson) => {
               return acc + (lesson.size || 0);
@@ -330,7 +335,7 @@
           .then(() => {
             return this.$store.dispatch(
               'lessonsRoot/refreshClassLessons',
-              this.$route.params.classId
+              this.$route.params.classId,
             );
           })
           .then(() => {

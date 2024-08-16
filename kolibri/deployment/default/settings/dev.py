@@ -26,9 +26,11 @@ os.environ.update({"KOLIBRI_DEVELOPER_MODE": "True"})
 REST_FRAMEWORK = {
     "UNAUTHENTICATED_USER": "kolibri.core.auth.models.KolibriAnonymousUser",
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        # Always keep this first, so that we consistently return 403 responses
+        # when a request is unauthenticated.
+        "rest_framework.authentication.SessionAuthentication",
         # Activate basic auth for external API testing tools
         "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",

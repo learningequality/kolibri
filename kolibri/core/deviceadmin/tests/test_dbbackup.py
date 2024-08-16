@@ -25,7 +25,7 @@ def test_active_kolibri():
             gs.assert_called_once()
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 def test_inactive_kolibri():
     """
     Tests that if kolibri is inactive, a dump is created

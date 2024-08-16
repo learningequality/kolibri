@@ -9,6 +9,8 @@ from .api import FacilityViewSet
 from .api import IsPINValidView
 from .api import LearnerGroupViewSet
 from .api import MembershipViewSet
+from .api import RemoteFacilityUserAuthenticatedViewset
+from .api import RemoteFacilityUserViewset
 from .api import RoleViewSet
 from .api import SessionViewSet
 from .api import SetNonSpecifiedPasswordView
@@ -54,6 +56,16 @@ urlpatterns = (
             r"^ispinvalid/(?P<pk>[a-f0-9]{32})$",
             IsPINValidView.as_view(),
             name="ispinvalid",
+        ),
+        re_path(
+            r"^remotefacilityuser$",
+            RemoteFacilityUserViewset.as_view(),
+            name="remotefacilityuser",
+        ),
+        re_path(
+            r"^remotefacilityauthenticateduserinfo$",
+            RemoteFacilityUserAuthenticatedViewset.as_view(),
+            name="remotefacilityauthenticateduserinfo",
         ),
     ]
 )

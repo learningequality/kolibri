@@ -1,14 +1,13 @@
 <template>
 
   <FacilityAppBarPage>
-
     <KPageContainer>
       <p>
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
           :to="{
             name: facilityPageLinks.AllFacilitiesPage.name,
-            params: { subtopicName: 'ManageClassPage' }
+            params: { subtopicName: 'ManageClassPage' },
           }"
           icon="back"
           :text="coreString('changeLearningFacility')"
@@ -36,9 +35,14 @@
         </KGridItem>
       </KGrid>
 
-      <CoreTable :dataLoading="dataLoading" :emptyMessage="$tr('noClassesExist')">
+      <CoreTable
+        :dataLoading="dataLoading"
+        :emptyMessage="$tr('noClassesExist')"
+      >
         <caption class="visuallyhidden">
-          {{ $tr('tableCaption') }}
+          {{
+            $tr('tableCaption')
+          }}
         </caption>
         <template #headers>
           <th>{{ coreString('classNameLabel') }}</th>
@@ -51,7 +55,10 @@
           </th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
             <tr
               v-for="classroom in sortedClassrooms"
               :key="classroom.id"
@@ -105,9 +112,7 @@
         @cancel="closeModal"
         @success="handleCreateSuccess()"
       />
-
     </KPageContainer>
-
   </FacilityAppBarPage>
 
 </template>
@@ -119,6 +124,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import orderBy from 'lodash/orderBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassCreateModal from './ClassCreateModal';
@@ -141,15 +147,17 @@
     mixins: [commonCoreStrings],
     setup() {
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
+      const { userIsMultiFacilityAdmin } = useUser();
       return {
         classToDelete,
         selectClassToDelete,
         clearClassToDelete,
+        userIsMultiFacilityAdmin,
       };
     },
     computed: {
       ...mapState('classManagement', ['modalShown', 'classes', 'dataLoading']),
-      ...mapGetters(['userIsMultiFacilityAdmin', 'facilityPageLinks']),
+      ...mapGetters(['facilityPageLinks']),
       Modals: () => Modals,
       sortedClassrooms() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);

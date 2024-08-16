@@ -1,7 +1,6 @@
 <template>
 
   <div class="interaction-list">
-
     <div class="attempt-container">
       <InteractionItem
         v-for="(interaction, index) in interactions"
@@ -15,7 +14,6 @@
     <p>
       {{ interactionsMessage }}
     </p>
-
   </div>
 
 </template>

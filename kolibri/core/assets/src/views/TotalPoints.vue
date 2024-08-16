@@ -1,7 +1,14 @@
 <template>
 
-  <div v-if="isUserLoggedIn" ref="icon" class="points-wrapper">
-    <div class="icon-wrapper" :style="{ backgroundColor: $themeTokens.surface }">
+  <div
+    v-if="isUserLoggedIn"
+    ref="icon"
+    class="points-wrapper"
+  >
+    <div
+      class="icon-wrapper"
+      :style="{ backgroundColor: $themeTokens.surface }"
+    >
       <KIcon
         icon="pointsActive"
         :color="$themeTokens.primary"
@@ -24,11 +31,16 @@
 <script>
 
   import { mapGetters, mapActions } from 'vuex';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   export default {
     name: 'TotalPoints',
+    setup() {
+      const { currentUserId, isUserLoggedIn } = useUser();
+      return { currentUserId, isUserLoggedIn };
+    },
     computed: {
-      ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),
+      ...mapGetters(['totalPoints']),
     },
     watch: {
       currentUserId() {

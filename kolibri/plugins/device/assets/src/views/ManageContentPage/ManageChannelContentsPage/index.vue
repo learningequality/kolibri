@@ -10,7 +10,6 @@
       <TaskProgress v-if="!channel" />
 
       <template v-if="channel">
-
         <ChannelContentsSummary :channel="channel">
           <NewChannelVersionBanner
             v-if="availableVersions.studioLatest > availableVersions.installed"

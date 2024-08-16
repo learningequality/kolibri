@@ -4,13 +4,16 @@
     :items="workingResources"
     @sort="handleDrag"
   >
-    <transition-group tag="div" name="list" class="wrapper">
+    <transition-group
+      tag="div"
+      name="list"
+      class="wrapper"
+    >
       <Draggable
         v-for="(resource, index) in workingResources"
         :key="resource.contentnode_id"
       >
         <DragHandle>
-
           <!-- replaced KFixedGrid with normal div to prevent text overlap error  -->
           <div
             class="row"
@@ -39,9 +42,11 @@
                   <div class="content-link">
                     <KRouterLink
                       :text="resourceTitle(resource.contentnode_id)"
-                      :to="$router.getRoute(
-                        'RESOURCE_CONTENT_PREVIEW', { contentId: resource.contentnode_id }
-                      )"
+                      :to="
+                        $router.getRoute('RESOURCE_CONTENT_PREVIEW', {
+                          contentId: resource.contentnode_id,
+                        })
+                      "
                     />
                   </div>
                   <p
@@ -60,18 +65,22 @@
                   :isTopic="false"
                 />
               </div>
-              <div v-else class="child">
+              <div
+                v-else
+                class="child"
+              >
                 {{ resourceMissingText }}
               </div>
-
             </div>
 
             <div class="relative">
               <KIcon
-                v-if="!getCachedResource(resource.contentnode_id) ||
-                  !getCachedResource(resource.contentnode_id).available"
+                v-if="
+                  !getCachedResource(resource.contentnode_id) ||
+                    !getCachedResource(resource.contentnode_id).available
+                "
                 icon="warning"
-                :style=" { fill: $themePalette.yellow.v_1100 }"
+                :style="{ fill: $themePalette.yellow.v_1100 }"
               />
             </div>
 
@@ -184,7 +193,7 @@
                   this.workingResourcesBackup = [...this.workingResources];
                 }
               },
-            }
+            },
           );
         }
       },
@@ -326,7 +335,6 @@
   .move-handle {
     position: absolute;
     top: 16px;
-    left: 18px;
     left: 16px;
   }
 

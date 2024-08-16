@@ -14,9 +14,7 @@
       {{ selectionIsInvalidText }}
     </UiAlert>
 
-    <KPageContainer
-      :style="{ maxWidth: '1000px', margin: '0 auto 2em', paddingTop: '2rem' }"
-    >
+    <KPageContainer :style="{ maxWidth: '1000px', margin: '0 auto 2em', paddingTop: '2rem' }">
       <AssignmentDetailsModal
         v-if="quizInitialized"
         ref="detailsModal"
@@ -57,6 +55,13 @@
               :description="fixedSectionOptionDescription$()"
               @input="value => updateQuiz({ learners_see_fixed_order: value })"
             />
+            <KButton
+              v-if="quiz.learners_see_fixed_order"
+              :text="coreString('editAction') + ' - ' + sectionOrderLabel$()"
+              class="edit-section-order-btn"
+              appearance="basic-link"
+              @click="editSectionOrder"
+            />
           </KGridItem>
         </KGrid>
       </div>
@@ -84,7 +89,6 @@
           />
         </KButtonGroup>
       </BottomAppBar>
-
     </KPageContainer>
 
     <KModal
@@ -99,7 +103,6 @@
     </KModal>
 
     <SectionSidePanel v-if="quizInitialized" />
-
   </CoachImmersivePage>
 
 </template>
@@ -143,6 +146,7 @@
         saveQuiz,
         initializeQuiz,
         allSectionsEmpty,
+        allSections,
       } = useQuizCreation();
       const showError = ref(false);
       const quizInitialized = ref(false);
@@ -152,6 +156,7 @@
         allSectionsEmptyWarning$,
         closeConfirmationTitle$,
         closeConfirmationMessage$,
+        changesSavedSuccessfully$,
         sectionOrderLabel$,
         randomizedLabel$,
         fixedLabel$,
@@ -172,9 +177,11 @@
         updateQuiz,
         initializeQuiz,
         quizInitialized,
+        allSections,
         allSectionsEmpty,
         allSectionsEmptyWarning$,
         saveAndClose$,
+        changesSavedSuccessfully$,
         sectionOrderLabel$,
         randomizedLabel$,
         fixedLabel$,
@@ -229,6 +236,48 @@
         });
       },
     },
+    beforeRouteEnter(to, from, next) {
+      // If we're coming from no quizId and going to replace questions, redirect to exam creation
+      // then we're coming from another page altogether OR we're coming back from a refresh
+      if (!from.params?.quizId && to.name === PageNames.QUIZ_REPLACE_QUESTIONS) {
+        next({
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: to.params.classId,
+            quizId: to.params.quizId,
+          },
+        });
+      } else {
+        next();
+      }
+    },
+    beforeRouteUpdate(to, from, next) {
+      if (
+        to.name === PageNames.QUIZ_SELECT_PRACTICE_QUIZ &&
+        from.name === PageNames.EXAM_CREATION_ROOT
+      ) {
+        this.closeConfirmationToRoute = {
+          name: PageNames.EXAMS,
+          params: {
+            classId: to.params.classId,
+          },
+        };
+        next(false);
+        return;
+      }
+      if (to.params.sectionIndex >= this.allSections.length) {
+        next({
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: to.params.classId,
+            quizId: to.params.quizId,
+            sectionIndex: '0',
+          },
+        });
+      } else {
+        next();
+      }
+    },
     beforeRouteLeave(to, from, next) {
       if (this.quizHasChanged && !this.closeConfirmationToRoute) {
         this.closeConfirmationToRoute = to;
@@ -241,18 +290,57 @@
       this.$store.dispatch('notLoading');
     },
     async created() {
+      window.addEventListener('beforeunload', this.beforeUnload);
       await this.initializeQuiz(this.$route.params.classId, this.$route.params.quizId);
+      // If the section index doesn't exist, redirect to the first section; we also do this in
+      // beforeRouteUpdate. We do this here to avoid fully initializing the quiz if we're going to
+      // redirect anyway.
+      if (this.$route.params.sectionIndex >= this.allSections.length) {
+        this.$router.replace({
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: this.$route.params.classId,
+            quizId: this.$route.params.quizId,
+            sectionIndex: '0',
+          },
+        });
+      }
       this.quizInitialized = true;
     },
+    destroy() {
+      window.removeEventListener('beforeunload', this.beforeUnload);
+    },
     methods: {
+      editSectionOrder() {
+        this.$router.push({
+          name: PageNames.QUIZ_SECTION_ORDER,
+          params: {
+            classId: this.$route.params.classId,
+            quizId: this.$route.params.quizId,
+            sectionIndex: this.$route.params.sectionIndex,
+          },
+        });
+      },
+      beforeUnload(e) {
+        if (this.quizHasChanged) {
+          if (!window.confirm(this.closeConfirmationTitle$())) {
+            e.preventDefault();
+          }
+        }
+      },
       saveQuizAndRedirect(close = true) {
         this.saveQuiz()
           .then(exam => {
+            this.$refs.detailsModal.handleSubmitSuccess();
+            this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
             if (close) {
               this.$router.replace({
                 name: PageNames.EXAMS,
                 params: {
                   classId: this.$route.params.classId,
+                },
+                query: {
+                  snackbar: this.changesSavedSuccessfully$(),
                 },
               });
             } else {
@@ -298,6 +386,10 @@
   .section-order-header {
     margin-top: 0;
     margin-bottom: 0.5em;
+  }
+
+  .edit-section-order-btn {
+    margin-left: 2em;
   }
 
 </style>

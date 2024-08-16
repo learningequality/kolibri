@@ -1,15 +1,16 @@
 <template>
 
   <DeviceAppBarPage :title="pageTitle">
-
-    <KPageContainer v-if="!isPageLoading" class="device-container">
+    <KPageContainer
+      v-if="!isPageLoading"
+      class="device-container"
+    >
       <UiAlert
         v-if="showDisabledAlert && alertDismissed"
         type="warning"
         @dismiss="alertDismissed = false"
       >
         {{ disabledAlertText }}
-
       </UiAlert>
       <section>
         <h1>
@@ -49,7 +50,8 @@
             :checked="allowOtherBrowsersToConnect"
             @change="allowOtherBrowsersToConnect = $event"
           >
-            <span> {{ $tr('allowExternalConnectionsApp') }}
+            <span>
+              {{ $tr('allowExternalConnectionsApp') }}
               <p
                 v-if="allowOtherBrowsersToConnect"
                 class="description"
@@ -78,8 +80,29 @@
               :currentValue="landingPage"
               @input="handleLandingPageChange"
             />
-            <div class="fieldset" style="margin-left: 32px">
-              <!-- <KRadioButtonGroup :enable="disableSignInPageOptions"> -->
+            <div
+              class="fieldset"
+              style="margin-left: 32px"
+            >
+              <KRadioButton
+                data-test="landingPageButton"
+                :label="$tr('learnerAppPageChoice')"
+                :buttonValue="landingPageChoices.LEARN"
+                :currentValue="landingPage"
+                @input="handleLandingPageChange"
+              />
+              <KRadioButton
+                data-test="signInPageButton"
+                :label="$tr('signInPageChoice')"
+                :buttonValue="landingPageChoices.SIGN_IN"
+                :currentValue="landingPage"
+                @input="handleLandingPageChange"
+              />
+            </div>
+            <div
+              class="fieldset"
+              style="margin-left: 32px"
+            >
               <KRadioButton
                 data-test="allowGuestAccessButton"
                 :label="$tr('allowGuestAccess')"
@@ -104,12 +127,14 @@
                 :disabled="disableSignInPageOptions"
                 @input="handleSignInPageChange"
               />
-              <!-- </KRadioButtonGroup> -->
             </div>
           </KRadioButtonGroup>
         </div>
 
-        <div v-if="canCheckMeteredConnection" class="fieldset">
+        <div
+          v-if="canCheckMeteredConnection"
+          class="fieldset"
+        >
           <h2>
             <label>{{ $tr('allowDownloadOnMeteredConnection') }}</label>
           </h2>
@@ -119,7 +144,9 @@
           <KRadioButtonGroup>
             <KRadioButton
               :label="$tr('doNotAllowDownload')"
-              :buttonValue="meteredConnectionDownloadOptions.DISALLOW_DOWNLOAD_ON_METERED_CONNECTION"
+              :buttonValue="
+                meteredConnectionDownloadOptions.DISALLOW_DOWNLOAD_ON_METERED_CONNECTION
+              "
               :currentValue="meteredConnectionDownloadOption"
               @input="handleMeteredConnectionDownloadChange"
             />
@@ -142,12 +169,12 @@
           <p>
             {{ primaryStorageLocation }}
             <KButton
-              v-show="(secondaryStorageLocations.length >= 1)"
+              v-show="secondaryStorageLocations.length >= 1"
               :text="$tr('changeLocation')"
               :primary="true"
               appearance="basic-link"
               :disabled="!multipleWritablePaths || isRemoteContent || !canRestart"
-              :class="{ 'disabled': !multipleWritablePaths }"
+              :class="{ disabled: !multipleWritablePaths }"
               @click="showChangePrimaryLocationModal = true"
             />
           </p>
@@ -165,10 +192,16 @@
           <h2>
             {{ $tr('secondaryStorage') }}
           </h2>
-          <p v-show="multipleReadOnlyPaths" :class="InfoDescriptionColor">
+          <p
+            v-show="multipleReadOnlyPaths"
+            :class="InfoDescriptionColor"
+          >
             {{ $tr('secondaryStorageDescription') }}
           </p>
-          <p v-for="path in secondaryStorageLocations" :key="path.index">
+          <p
+            v-for="path in secondaryStorageLocations"
+            :key="path.index"
+          >
             {{ path }} {{ isWritablePath(path) }}
           </p>
           <KButton
@@ -179,7 +212,10 @@
             :text="coreString('optionsLabel')"
           >
             <template #menu>
-              <KDropdownMenu :options="storageLocationOptions" @select="handleSelect($event)" />
+              <KDropdownMenu
+                :options="storageLocationOptions"
+                @select="handleSelect($event)"
+              />
             </template>
           </KButton>
         </div>
@@ -192,7 +228,6 @@
             :label="$tr('enableAutoDownload')"
             :checked="enableAutomaticDownload"
             :description="$tr('enableAutoDownloadDescription')"
-            :disabled="isRemoteContent"
             @change="handleCheckAutodownload('enableAutomaticDownload', $event)"
           />
           <div class="fieldset left-margin">
@@ -200,14 +235,12 @@
               :label="$tr('allowLearnersDownloadResources')"
               :checked="allowLearnerDownloadResources"
               :description="$tr('allowLearnersDownloadDescription')"
-              :disabled="isRemoteContent"
               @change="handleCheckAutodownload('allowLearnerDownloadResources', $event)"
             />
             <KCheckbox
               :label="$tr('setStorageLimit')"
               :checked="setLimitForAutodownload"
               :description="$tr('setStorageLimitDescription')"
-              :disabled="isRemoteContent"
               @change="handleCheckAutodownload('setLimitForAutodownload', $event)"
             />
             <div
@@ -230,10 +263,11 @@
                 :floatingLabel="false"
                 @input="updateLimitForAutodownload"
               />
-              <div class="slider-section" :class="$computedClass(sliderSectionStyle)">
-                <p class="slider-min-max">
-                  0
-                </p>
+              <div
+                class="slider-section"
+                :class="$computedClass(sliderSectionStyle)"
+              >
+                <p class="slider-min-max">0</p>
                 <input
                   id="slider"
                   v-model="limitForAutodownload"
@@ -272,13 +306,15 @@
         </div>
       </section>
 
-
       <!-- List of separate links to Facility Settings pages -->
       <section v-if="isMultiFacilitySuperuser">
         <h2>{{ $tr('configureFacilitySettingsHeader') }}</h2>
         <ul class="ul-reset">
           <template>
-            <li v-for="(facility, idx) in facilities" :key="idx">
+            <li
+              v-for="(facility, idx) in facilities"
+              :key="idx"
+            >
               <KExternalLink
                 :text="facility.name"
                 :href="getFacilitySettingsPath(facility.id)"
@@ -289,7 +325,10 @@
         </ul>
       </section>
 
-      <section v-if="isAppContext" class="android-bar">
+      <section
+        v-if="isAppContext"
+        class="android-bar"
+      >
         <KButton
           :text="coreString('saveChangesAction')"
           appearance="raised-button"
@@ -344,7 +383,6 @@
         v-if="restarting"
         :restarting="true"
       />
-
     </KPageContainer>
   </DeviceAppBarPage>
 
@@ -367,6 +405,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { checkCapability } from 'kolibri.utils.appCapabilities';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import commonDeviceStrings from '../commonDeviceStrings';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
@@ -406,6 +445,7 @@
     },
     mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
+      const { isAppContext, isLearnerOnlyImport, isSuperuser } = useUser();
       const { canRestart, restart, restarting } = useDeviceRestart();
       const { plugins, fetchPlugins, togglePlugin } = usePlugins();
       const { windowIsSmall } = useKResponsiveWindow();
@@ -436,6 +476,9 @@
       }
 
       return {
+        isAppContext,
+        isLearnerOnlyImport,
+        isSuperuser,
         canRestart,
         restart,
         restarting,
@@ -482,7 +525,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAppContext', 'isPageLoading', 'snackbarIsVisible', 'isLearnerOnlyImport']),
+      ...mapGetters(['isPageLoading', 'snackbarIsVisible']),
       ...mapGetters('deviceInfo', ['isRemoteContent']),
       InfoDescriptionColor() {
         return {
@@ -496,7 +539,7 @@
         return this.$store.getters.facilities;
       },
       isMultiFacilitySuperuser() {
-        return this.$store.getters.isSuperuser && this.facilities.length > 1;
+        return this.isSuperuser && this.facilities.length > 1;
       },
       languageOptions() {
         const languages = sortLanguages(Object.values(availableLanguages), currentLanguage).map(
@@ -505,7 +548,7 @@
               value: language.id,
               label: language.lang_name,
             };
-          }
+          },
         );
         languages.splice(1, 0, this.browserDefaultOption);
 
@@ -553,8 +596,9 @@
             background: `linear-gradient(to right, ${this.$themeTokens.primary} 0%, ${
               this.$themeTokens.primary
             }
-            ${((0 - 0) / (100 - 0)) * 100}%, ${this.$themeTokens.fineLine} ${((0 - 0) / (100 - 0)) *
-              100}%, ${this.$themeTokens.fineLine} 100%)`,
+            ${((0 - 0) / (100 - 0)) * 100}%, ${this.$themeTokens.fineLine} ${
+              ((0 - 0) / (100 - 0)) * 100
+            }%, ${this.$themeTokens.fineLine} 100%)`,
             '::-webkit-slider-thumb': {
               background: this.$themeTokens.fineLine,
             },
@@ -566,9 +610,9 @@
               this.$themeTokens.primary
             }
             ${((this.limitForAutodownload - 0) / (this.freeSpace - 0)) * 100}%,
-            ${this.$themeTokens.fineLine} ${((this.limitForAutodownload - 0) /
-              (this.freeSpace - 0)) *
-              100}%, ${this.$themeTokens.fineLine} 100%)`,
+            ${this.$themeTokens.fineLine} ${
+              ((this.limitForAutodownload - 0) / (this.freeSpace - 0)) * 100
+            }%, ${this.$themeTokens.fineLine} 100%)`,
             '::-webkit-slider-thumb': {
               background: this.$themeTokens.primary,
             },
@@ -803,10 +847,8 @@
         }
       },
       handleSave() {
-        const {
-          allowGuestAccess,
-          allowLearnerUnassignedResourceAccess,
-        } = this.getContentSettings();
+        const { allowGuestAccess, allowLearnerUnassignedResourceAccess } =
+          this.getContentSettings();
         this.getExtraSettings();
 
         const pluginsChanged = this.checkPluginChanges();
@@ -907,7 +949,7 @@
           case 'primary':
             this.secondaryStorageLocations.push(this.primaryStorageLocation);
             this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
-              el => el !== this.restartPath.path
+              el => el !== this.restartPath.path,
             );
             this.primaryStorageLocation = this.restartPath.path;
             this.handleSave();
@@ -917,7 +959,7 @@
             if (confirmationChecked === true) {
               this.secondaryStorageLocations.push(this.primaryStorageLocation);
               this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
-                el => el !== this.restartPath.path
+                el => el !== this.restartPath.path,
               );
               this.primaryStorageLocation = this.restartPath.path;
             } else {
@@ -927,10 +969,10 @@
             break;
           case 'remove':
             this.storageLocations = this.storageLocations.filter(
-              el => el.path !== this.restartPath.path
+              el => el.path !== this.restartPath.path,
             );
             this.secondaryStorageLocations = this.secondaryStorageLocations.filter(
-              el => el !== this.restartPath.path
+              el => el !== this.restartPath.path,
             );
             this.handleSave();
             break;

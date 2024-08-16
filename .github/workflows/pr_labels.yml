@@ -3,19 +3,6 @@ name: PR Labels
 on: [pull_request_target]
 
 jobs:
-  size-labels:
-    runs-on: ubuntu-latest
-    name: Label the PR size
-    steps:
-      - uses: learningequality/pr-labeler@0da0f2aedfe5cb64819beb865015a57e19fbecf6
-        with:
-          xs_max_size: '10'
-          s_max_size: '100'
-          m_max_size: '500'
-          l_max_size: '1000'
-          exclude_files: '^$'
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   other-labels:
     permissions:
       contents: read

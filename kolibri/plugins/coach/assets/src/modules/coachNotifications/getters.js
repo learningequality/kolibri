@@ -107,7 +107,7 @@ export function allNotifications(state, getters, rootState, rootGetters) {
   return orderBy(
     state.notifications.map(reshapeNotification).filter(n => n),
     'timestamp',
-    ['desc']
+    ['desc'],
   );
 }
 
@@ -121,7 +121,7 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
   const groupedNotifications = groupBy(
     getters.allNotifications.filter(
       // Filter out "Answered" notifications to avoid flooding the list
-      n => n.event !== NotificationEvents.ANSWERED
+      n => n.event !== NotificationEvents.ANSWERED,
     ),
     n => {
       if (n.object === RESOURCE) {
@@ -134,7 +134,7 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
       if (n.object === QUIZ) {
         return `${n.object}_${n.quiz_id}`;
       }
-    }
+    },
   );
 
   for (const groupCode in groupedNotifications) {

@@ -1,9 +1,7 @@
 <template>
 
   <SubmissionStatePage :header="$tr('loadingPageHeader')">
-
     {{ $tr('loadingPageSubheader') }}
-
   </SubmissionStatePage>
 
 </template>

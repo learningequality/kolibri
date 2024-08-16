@@ -7,8 +7,10 @@
     :style="epubRendererStyle"
     @changeFullscreen="isInFullscreen = $event"
   >
-
-    <LoadingError v-if="errorLoading" :loaded="loaded" />
+    <LoadingError
+      v-if="errorLoading"
+      :loaded="loaded"
+    />
 
     <LoadingScreen v-else-if="!loaded" />
 
@@ -19,7 +21,6 @@
       @mousedown.stop="handleMouseDown"
       @keyup.esc="closeSideBar"
     >
-
       <TopBar
         ref="topBar"
         class="top-bar-component"
@@ -98,9 +99,7 @@
         class="navigation-and-epubjs"
         :style="{ backgroundColor }"
       >
-        <div
-          class="column epubjs-navigation"
-        >
+        <div class="column epubjs-navigation">
           <NextButton
             v-if="contentIsRtl"
             v-show="!isAtEnd"
@@ -124,11 +123,8 @@
           ref="epubjsContainer"
           class="column epubjs-parent"
           :style="{ backgroundColor }"
-        >
-        </div>
-        <div
-          class="column epubjs-navigation"
-        >
+        ></div>
+        <div class="column epubjs-navigation">
           <PreviousButton
             v-if="contentIsRtl"
             v-show="!isAtStart"
@@ -159,7 +155,6 @@
         @sliderChanged="handleSliderChanged"
       />
     </div>
-
   </CoreFullscreen>
 
 </template>
@@ -479,7 +474,7 @@
                   // In IE 11, EVENTS.RENDITION.DISPLAY_ERROR occurs when calling .resize(),
                   // so we'll try to redisplay, and if that's successful remove `errorLoading`
                   return this.rendition.display(this.savedLocation || undefined);
-                }
+                },
               )
               .then(() => {
                 this.errorLoading = false;
@@ -491,7 +486,7 @@
             },
             () => {
               this.errorLoading = true;
-            }
+            },
           );
 
         this.rendition.on(EVENTS.RENDITION.DISPLAY_ERROR, err => {
@@ -520,7 +515,7 @@
             // update progress using number of pages seen out of available pages
             this.$emit(
               'updateProgress',
-              Object.keys(this.visitedPages || {}).length / this.locations.length
+              Object.keys(this.visitedPages || {}).length / this.locations.length,
             );
           }
         }
@@ -653,7 +648,7 @@
         const newFontSizeNumericValue = clamp(
           fontSizeNumericValue + difference * FONT_SIZE_STEP,
           FONT_SIZE_MIN,
-          FONT_SIZE_MAX
+          FONT_SIZE_MAX,
         );
         this.setFontSize(`${newFontSizeNumericValue}px`);
       },
@@ -732,7 +727,7 @@
           const flatToc = this.flattenToc(this.toc);
           const currentLocationHref = this.book.canonical(currentLocationStart.href);
           currentSection = flatToc.find(
-            item => this.book.canonical(item.href) === currentLocationHref
+            item => this.book.canonical(item.href) === currentLocationHref,
           );
         }
         return currentSection;
@@ -765,7 +760,7 @@
       },
       handleSliderChanged(newSliderValue) {
         const indexOfLocationToJumpTo = Math.floor(
-          (this.locations.length - 1) * (newSliderValue / 100)
+          (this.locations.length - 1) * (newSliderValue / 100),
         );
         const locationToJumpTo = this.locations[indexOfLocationToJumpTo];
         this.jumpToLocation(locationToJumpTo);

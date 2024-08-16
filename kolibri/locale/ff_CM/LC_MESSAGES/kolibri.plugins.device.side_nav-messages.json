@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Disk kompiita ma ɓadake heewugo. Ɗustu ko woni nder disk koo suɓtu jannginillum seɗɗa tan.",
   "CommonDeviceStrings.permissionsLabel": "Yerduye",
   "CommonDeviceStrings.primaryStorageLabel": "Jannginillum donndaaɗum kesum ɓeydeteema nder beembal hoɗorde ɓurnde huutinireego",
+  "CommonDeviceStrings.statusCanceled": "Wilaama",
+  "CommonDeviceStrings.statusCanceling": "E ɗum wila",
+  "CommonDeviceStrings.statusComplete": "Timminaama",
+  "CommonDeviceStrings.statusFailed": "Waɗaayi",
+  "CommonDeviceStrings.statusInProgress": "E luttiri",
+  "CommonDeviceStrings.statusInQueue": "E reeni",
   "CommonDeviceStrings.unlistedChannelLabel": "Wuro janngugo ngo winndaaka"
 }

@@ -33,7 +33,7 @@ const fileManifest = [
 ];
 
 function downloadFiles() {
-  https.get(url.parse(zipUrl), function(res) {
+  https.get(url.parse(zipUrl), function (res) {
     if (res.statusCode !== 200) {
       logging.log(res);
       // handle error
@@ -44,22 +44,22 @@ function downloadFiles() {
     // don't set the encoding, it will break everything !
     // or, if you must, set it to null. In that case the chunk will be a string.
 
-    res.on('data', function(chunk) {
+    res.on('data', function (chunk) {
       data.push(chunk);
     });
 
-    res.on('end', function() {
+    res.on('end', function () {
       var buf = Buffer.concat(data);
       let i = 0;
       JSZip.loadAsync(buf)
-        .then(function(zip) {
+        .then(function (zip) {
           return Promise.all(
             fileManifest.map(fileRegex => {
               return Promise.all(
                 zip.file(fileRegex).map(file => {
                   const outputPath = path.resolve(
                     targetFolder,
-                    file.name.replace(/h5p-php-library-[^/]+\//, '')
+                    file.name.replace(/h5p-php-library-[^/]+\//, ''),
                   );
                   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
                   return new Promise(resolve => {
@@ -88,15 +88,15 @@ function downloadFiles() {
                       file
                         .nodeStream()
                         .pipe(fs.createWriteStream(outputPath))
-                        .on('finish', function() {
+                        .on('finish', function () {
                           i += 1;
                           resolve();
                         });
                     }
                   });
-                })
+                }),
               );
-            })
+            }),
           );
         })
         .then(() => {

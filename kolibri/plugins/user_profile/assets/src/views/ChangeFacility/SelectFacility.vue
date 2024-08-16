@@ -5,21 +5,25 @@
       <h1>{{ getCommonSyncString('selectFacilityTitle') }}</h1>
 
       <transition name="spinner-fade">
-
         <div v-if="isFetching">
           <KLabeledIcon>
             <template #icon>
-              <KCircularLoader :size="16" :stroke="6" />
+              <KCircularLoader
+                :size="16"
+                :stroke="6"
+              />
             </template>
           </KLabeledIcon>
         </div>
       </transition>
-
     </span>
     <p v-if="hasFetched && !availableFacilities.length">
       {{ $tr('noFacilitiesText') }}
     </p>
-    <div v-for="f in availableFacilities" :key="`div-${f.id}`">
+    <div
+      v-for="f in availableFacilities"
+      :key="`div-${f.id}`"
+    >
       <KRadioButton
         :key="f.id"
         v-model="selectedFacilityId"
@@ -33,10 +37,9 @@
       :style="{
         marginTop: '34px',
         paddingTop: '10px',
-        borderTop: `1px solid ${$themeTokens.fineLine}`
+        borderTop: `1px solid ${$themeTokens.fineLine}`,
       }"
     >
-
       <KGridItem>{{ $tr('doNotSeeYourFacility') }}</KGridItem>
       <KGridItem>
         <KButton
@@ -64,7 +67,6 @@
         </KButtonGroup>
       </slot>
     </BottomAppBar>
-
   </div>
 
 </template>
@@ -103,9 +105,8 @@
         subset_of_users_device: false,
       });
 
-      const { devices, isDeleting, hasDeleted, deletingFailed, doDelete } = useDeviceDeletion(
-        _devices
-      );
+      const { devices, isDeleting, hasDeleted, deletingFailed, doDelete } =
+        useDeviceDeletion(_devices);
 
       const storageFacilityId = useLocalStorage('kolibri-lastSelectedFacilityId', '');
 
@@ -137,7 +138,7 @@
         },
         {
           getKey: device => device.id,
-        }
+        },
       );
 
       // computed properties (functions):
@@ -145,7 +146,7 @@
       const availableAddressIds = computed(() =>
         get(devices)
           .filter(d => d.available)
-          .map(d => d.id)
+          .map(d => d.id),
       );
       const availableFacilities = computedAsync(
         async () => {
@@ -155,7 +156,7 @@
             .filter(d => get(availableAddressIds).includes(d.id))
             .sort((deviceA, deviceB) => deviceA.since_last_accessed - deviceB.since_last_accessed);
           const facilitiesFromDevices = await Promise.all(
-            _devices.map(d => fetchDeviceFacilities(d))
+            _devices.map(d => fetchDeviceFacilities(d)),
           );
           const facilities = {};
           // Promise.all will resolve with an array of arrays
@@ -179,12 +180,12 @@
           });
         },
         [],
-        { evaluating: isLoading, shallow: false }
+        { evaluating: isLoading, shallow: false },
       );
 
       const { isMinimumKolibriVersion } = useMinimumKolibriVersion(0, 16, 0);
       const facilityDisabled = computed(() => {
-        return function(facility) {
+        return function (facility) {
           return (
             get(fetchFailed) ||
             get(availableAddressIds).find(id => id === facility.address_id) === undefined ||
@@ -219,7 +220,7 @@
 
       function resetSelectedAddress() {
         const enabledFacilities = availableFacilities.value.filter(f =>
-          isMinimumKolibriVersion(f.kolibri_version)
+          isMinimumKolibriVersion(f.kolibri_version),
         );
         if (enabledFacilities.length !== 0) {
           const selectedId = storageFacilityId.value || selectedFacilityId.value;

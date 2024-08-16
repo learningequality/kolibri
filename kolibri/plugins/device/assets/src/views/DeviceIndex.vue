@@ -12,8 +12,6 @@
       />
     </transition>
 
-
-
     <router-view />
   </NotificationsRoot>
 
@@ -23,13 +21,14 @@
 <script>
 
   import Cookies from 'js-cookie';
-  import { mapGetters, mapState } from 'vuex';
+  import { mapState } from 'vuex';
   import find from 'lodash/find';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { IsPinAuthenticated } from 'kolibri.coreVue.vuex.constants';
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import urls from 'kolibri.urls';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { PageNames } from '../constants';
 
   import PinAuthenticationModal from './PinAuthenticationModal';
@@ -42,6 +41,13 @@
       PinAuthenticationModal,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { isUserLoggedIn, userFacilityId } = useUser();
+      return {
+        isUserLoggedIn,
+        userFacilityId,
+      };
+    },
     data() {
       return {
         showModal: false,
@@ -49,7 +55,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'userFacilityId']),
       ...mapState(['authenticateWithPin', 'grantPluginAccess']),
       facilities() {
         return this.$store.state.core.facilities;

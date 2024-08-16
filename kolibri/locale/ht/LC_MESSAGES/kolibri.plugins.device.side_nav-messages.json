@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Pa gen espas sifizan ki disponib sou aparèy ou an. Libere espas disk oubyen chwazi mwens resous.",
   "CommonDeviceStrings.permissionsLabel": "Pèmisyon yo",
   "CommonDeviceStrings.primaryStorageLabel": "Resous ki apèn sot telechaje yo pral ajoute nan anplasman estokaj prensipal la",
+  "CommonDeviceStrings.statusCanceled": "Anile",
+  "CommonDeviceStrings.statusCanceling": "Ap anile",
+  "CommonDeviceStrings.statusComplete": "Fini",
+  "CommonDeviceStrings.statusFailed": "Echwe",
+  "CommonDeviceStrings.statusInProgress": "Ap fèt",
+  "CommonDeviceStrings.statusInQueue": "Ap tann",
   "CommonDeviceStrings.unlistedChannelLabel": "Chanèl ki pa nan lis la"
 }

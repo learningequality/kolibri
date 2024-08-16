@@ -12,9 +12,10 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapState } from 'vuex';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import plugin_data from 'plugin_data';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { PageNames } from '../constants';
 
   export default {
@@ -22,8 +23,13 @@
     components: {
       NotificationsRoot,
     },
+    setup() {
+      const { isUserLoggedIn } = useUser();
+      return {
+        isUserLoggedIn,
+      };
+    },
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
       ...mapState({
         loading: state => state.core.loading,
       }),

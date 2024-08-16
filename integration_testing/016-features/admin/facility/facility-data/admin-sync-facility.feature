@@ -2,14 +2,18 @@ Feature: Admin syncs facility
   Admin needs to be able to sync their facility data to Kolibri Data Portal or another Kolibri server on their local network or internet
 
   Background:
-    Given I am logged in as a Facility admin
+    Given I am signed in as a Facility admin
       And my facility has been registered before
       And I want to sync my facility data to Kolibri Data Portal
-      And I am in the Data tab in the Facility plugin
+      And I am at *Facility > Data*
+      And there are other devices with Kolibri on the network
 
   Scenario: Learn what sync does
     When I click on *Usage and privacy* in the description of the *Sync facility data* section
-    Then I see a modal with a description of what sync does
+    Then I see the *Kolibri data portal* modal with a description of what syncing does
+    When I click the *Close* button
+    Then the modal closes
+    	And I am at *Facility > Data*
 
   Scenario: Successful sync to KDP
     When I click the *Sync* button

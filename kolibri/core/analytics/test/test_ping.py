@@ -4,7 +4,7 @@ import zlib
 import mock
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TransactionTestCase
+from django.test import TestCase
 from requests.models import Response
 
 from .test_utils import BaseDeviceSetupMixin
@@ -18,8 +18,8 @@ def load_zipped_json(data):
     return json.loads(data)
 
 
-def mocked_requests_post_wrapper(json_data, status_code):
-    def mocked_requests_post(*args, **kwargs):
+def mocked_network_client_post_wrapper(json_data, status_code):
+    def mocked_network_client_post(*args, **kwargs):
         class MockResponse(Response):
             def __init__(self):
                 self.json_data = json_data
@@ -27,19 +27,21 @@ def mocked_requests_post_wrapper(json_data, status_code):
                 self._content = json.dumps(json_data).encode()
                 self.reason = ""
                 self.url = args[0]
+                if 400 <= self.status_code < 600:
+                    self.raise_for_status()
 
             def json(self):
                 return self.json_data
 
         return MockResponse()
 
-    return mocked_requests_post
+    return mocked_network_client_post
 
 
-class PingCommandTestCase(BaseDeviceSetupMixin, TransactionTestCase):
+class PingCommandTestCase(BaseDeviceSetupMixin, TestCase):
     @mock.patch(
-        "kolibri.core.analytics.utils.requests.post",
-        side_effect=mocked_requests_post_wrapper({"id": 17}, 200),
+        "kolibri.core.discovery.utils.network.client.NetworkClient.post",
+        side_effect=mocked_network_client_post_wrapper({"id": 17}, 200),
     )
     def test_ping_succeeds(self, post_mock):
         call_command("ping", once=True)
@@ -49,8 +51,8 @@ class PingCommandTestCase(BaseDeviceSetupMixin, TransactionTestCase):
         assert load_zipped_json(post_mock.call_args_list[1][1]["data"])["pi"] == 17
 
     @mock.patch(
-        "kolibri.core.analytics.utils.requests.post",
-        side_effect=mocked_requests_post_wrapper({}, 400),
+        "kolibri.core.discovery.utils.network.client.NetworkClient.post",
+        side_effect=mocked_network_client_post_wrapper({}, 400),
     )
     def test_ping_fails(self, post_mock):
         with self.assertRaises(CommandError):

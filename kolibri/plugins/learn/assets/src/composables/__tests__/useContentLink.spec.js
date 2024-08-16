@@ -22,9 +22,8 @@ const store = new Vuex.Store({
   },
 });
 
-const { genContentLinkBackLinkCurrentPage, genContentLinkKeepCurrentBackLink } = useContentLink(
-  store
-);
+const { genContentLinkBackLinkCurrentPage, genContentLinkKeepCurrentBackLink } =
+  useContentLink(store);
 
 describe('genContentLinkBackLinkCurrentPage', () => {
   const topicLink = genContentLinkBackLinkCurrentPage(19, false);

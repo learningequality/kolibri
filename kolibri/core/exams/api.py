@@ -1,3 +1,5 @@
+import datetime
+
 from django.http import Http404
 from django.utils.timezone import now
 from django_filters.rest_framework import DjangoFilterBackend
@@ -152,9 +154,10 @@ class ExamViewset(ValuesViewset):
 
         # Consolidate the exam_queryset and draft_queryset
         # and sort them by reverse date_created
+        dt_utc_aware = datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
         all_objects = sorted(
             [*exam_objects, *draft_objects],
-            key=lambda x: x["date_created"],
+            key=lambda x: x["date_created"] or dt_utc_aware,
             reverse=True,
         )
 

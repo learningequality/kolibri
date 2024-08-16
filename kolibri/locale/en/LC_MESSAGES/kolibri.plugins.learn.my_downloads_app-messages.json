@@ -32,6 +32,7 @@
   "CommonLearnStrings.toggleLicenseDescription": "Toggle license description",
   "CommonLearnStrings.viewResource": "View resource",
   "CommonLearnStrings.whatYouWillNeed": "What you will need",
+  "DownloadRequests.downloadComplete": "Download complete",
   "DownloadRequests.downloadStartedLabel": "Download requested",
   "DownloadRequests.goToDownloadsPage": "Go to downloads",
   "DownloadRequests.resourceRemoved": "Resource removed from my library",

@@ -13,6 +13,13 @@ class TokenGenerator(PasswordResetTokenGenerator):
       - expires the token after some seconds, instead of one day
     """
 
+    def _make_hash_value(self, user_id, timestamp):
+        """
+        Override the hash value to only need the user_id and timestamp
+        to allow us to calculate before we have imported the remote user.
+        """
+        return f"{user_id}{timestamp}"
+
     def make_token(self, user):
         """
         Returns a token that can be used for TOKEN_EXPIRE_LIMIT seconds

@@ -1,6 +1,5 @@
 import uuid
 
-import requests
 from django.http import Http404
 from django.http.request import QueryDict
 from rest_framework import viewsets
@@ -20,7 +19,9 @@ from rest_framework.status import HTTP_503_SERVICE_UNAVAILABLE
 
 from .utils.portal import registerfacility
 from kolibri.core.auth.models import Facility
-from kolibri.core.utils.urls import join_url
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.utils import conf
 
 
@@ -30,7 +31,7 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
         facility = Facility.objects.get(id=request.data.get("facility_id"))
         try:
             response = registerfacility(request.data.get("token"), facility)
-        except requests.exceptions.RequestException as e:  # bubble up any response error
+        except NetworkLocationResponseFailure as e:  # bubble up any response error
             return Response(e.response.json(), status=e.response.status_code)
         return Response(status=response.status_code)
 
@@ -39,14 +40,16 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
         PORTAL_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
         try:
             # token is in query params
-            response = requests.get(
-                join_url(
-                    PORTAL_URL, "portal/api/public/v1/registerfacility/validate_token"
-                ),
+            client = NetworkClient(PORTAL_URL)
+            response = client.get(
+                "portal/api/public/v1/registerfacility/validate_token",
                 params=request.query_params,
             )
-        except requests.exceptions.ConnectionError:
+        except NetworkLocationConnectionFailure:
             return Response({"status": "offline"}, status=HTTP_503_SERVICE_UNAVAILABLE)
+        except NetworkLocationResponseFailure as e:
+            # bubble up for any other response error
+            response = e.response
         # handle any invalid json type responses
         try:
             data = response.json()

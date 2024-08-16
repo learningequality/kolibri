@@ -33,7 +33,8 @@
             :appearanceOverrides="{
               width: '100%',
               textDecoration: 'none',
-              color: $themeTokens.text }"
+              color: $themeTokens.text,
+            }"
             :to="getBookmarksLink()"
           >
             <div :class="windowIsSmall ? 'mobile-bookmark-container' : 'bookmark-container'">
@@ -116,6 +117,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import CoachImmersivePage from '../../CoachImmersivePage';
@@ -148,8 +150,10 @@
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
+      const { getUserPermissions } = useUser();
       return {
         windowIsSmall,
+        getUserPermissions,
       };
     },
     data() {
@@ -170,16 +174,15 @@
     computed: {
       ...mapState(['pageName']),
       ...mapState('classSummary', { classId: 'id' }),
-      ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
+      ...mapState('lessonSummary', ['currentLesson', 'resourceCache', 'workingResources']),
       ...mapState('lessonSummary/resources', [
-        'ancestorCounts',
+        'descendantCounts',
         'contentList',
         'bookmarksList',
         'searchResults',
         'ancestors',
       ]),
       ...mapGetters('lessonSummary/resources', ['numRemainingSearchResults']),
-      ...mapGetters(['getUserPermissions']),
       toolbarRoute() {
         if (this.$route.query.last) {
           return this.$router.getRoute(this.$route.query.last);
@@ -270,7 +273,7 @@
         // Content in the topic that can be added if 'Select All' is clicked
         const list = this.contentList ? this.contentList : this.bookmarksList;
         return list.filter(
-          content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
+          content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content),
         );
       },
       channelsLink() {
@@ -435,7 +438,7 @@
         return this.$router.getRoute(
           LessonsPageNames.LESSON_SELECTION_BOOKMARKS,
           { topicId },
-          this.$route.query
+          this.$route.query,
         );
       },
       bookmarkLink(content) {
@@ -484,15 +487,16 @@
       },
       selectionMetadata(content) {
         let count = 0;
-        let total = 0;
-        if (this.ancestorCounts[content.id]) {
-          count = this.ancestorCounts[content.id].count;
-          total = this.ancestorCounts[content.id].total;
+        for (const wr of this.workingResources) {
+          const resource = this.resourceCache[wr.contentnode_id];
+          if (resource && resource.ancestors.find(ancestor => ancestor.id === content.id)) {
+            count += 1;
+          }
         }
         if (count) {
           return this.$tr('selectionInformation', {
             count,
-            total,
+            total: this.descendantCounts[content.id],
           });
         }
         return '';
@@ -595,7 +599,10 @@
     min-height: 141px;
     margin-bottom: 24px;
     border-radius: 2px;
-    box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
+    box-shadow:
+      0 1px 5px 0 #a1a1a1,
+      0 2px 2px 0 #e6e6e6,
+      0 3px 1px -2px #ffffff;
     transition: box-shadow 0.25s ease;
   }
 
@@ -627,7 +634,10 @@
   }
 
   .bookmark-container:hover {
-    box-shadow: 0 5px 5px -3px #a1a1a1, 0 8px 10px 1px #d1d1d1, 0 3px 14px 2px #d4d4d4;
+    box-shadow:
+      0 5px 5px -3px #a1a1a1,
+      0 8px 10px 1px #d1d1d1,
+      0 3px 14px 2px #d4d4d4;
   }
 
   .text {

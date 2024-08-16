@@ -23,7 +23,6 @@
       @cancel="closeModal"
       @submit="closeModal"
     />
-
   </OnboardingStepBase>
 
 </template>

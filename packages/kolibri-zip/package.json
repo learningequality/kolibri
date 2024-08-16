@@ -12,6 +12,6 @@
     "fflate": "^0.8.2"
   },
   "devDependencies": {
-    "mime-db": "^1.52.0"
+    "mime-db": "^1.53.0"
   }
 }

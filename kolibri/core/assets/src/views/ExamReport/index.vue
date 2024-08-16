@@ -9,7 +9,10 @@
         class="page-status"
         :style="{ backgroundColor: $themeTokens.surface }"
       >
-        <KGridItem v-if="windowIsSmall" :layout4="{ span: 4, alignment: 'right' }">
+        <KGridItem
+          v-if="windowIsSmall"
+          :layout4="{ span: 4, alignment: 'right' }"
+        >
           <slot name="actions"></slot>
         </KGridItem>
         <KGridItem
@@ -18,10 +21,19 @@
           :layout4="{ span: 4, alignment: 'left' }"
         >
           <div>
-            <h1 v-if="userId" class="title">
-              <KLabeledIcon icon="person" :label="userName" />
+            <h1
+              v-if="userId"
+              class="title"
+            >
+              <KLabeledIcon
+                icon="person"
+                :label="userName"
+              />
             </h1>
-            <KLabeledIcon :icon="titleIcon" :label="title" />
+            <KLabeledIcon
+              :icon="titleIcon"
+              :label="title"
+            />
           </div>
           <!-- only show the current try if the user has only one try or if its a survey -->
           <TriesOverview
@@ -50,7 +62,10 @@
       </KGrid>
     </template>
 
-    <template v-if="!loading" #subheader>
+    <template
+      v-if="!loading"
+      #subheader
+    >
       <KSelect
         v-if="pastTries.length > 1"
         :value="pastTriesOptions[tryIndex]"
@@ -79,13 +94,20 @@
         :attemptLogs="attemptLogs"
         :selectedQuestionNumber="questionNumber"
         :isSurvey="isSurvey"
-        :sections="sections"
+        :sections="annotatedSections"
+        :currentSectionIndex="currentSectionIndex"
         @select="navigateToQuestion"
       />
     </template>
 
-    <template v-if="currentTry && currentTry.attemptlogs.length" #main>
-      <KCircularLoader v-if="loading" class="loader" />
+    <template
+      v-if="currentTry && currentTry.attemptlogs.length"
+      #main
+    >
+      <KCircularLoader
+        v-if="loading"
+        class="loader"
+      />
       <template v-else-if="itemId">
         <AttemptLogList
           v-if="windowIsSmall"
@@ -94,7 +116,8 @@
           :attemptLogs="attemptLogs"
           :selectedQuestionNumber="questionNumber"
           :isSurvey="isSurvey"
-          :sections="sections"
+          :sections="annotatedSections"
+          :currentSectionIndex="currentSectionIndex"
           @select="navigateToQuestion"
         />
         <div
@@ -103,15 +126,25 @@
           :class="windowIsSmall ? 'mobile-exercise-container' : ''"
           :style="{ backgroundColor: $themeTokens.surface }"
         >
-          <h3>{{ questionNumberInSectionLabel }}</h3>
+          <h3 v-if="questionNumberInSectionLabel">{{ questionNumberInSectionLabel }}</h3>
 
-          <div v-if="!isSurvey" data-test="diff-business">
+          <p v-if="currentSection && currentSection.description">
+            {{ currentSection.description }}
+          </p>
+
+          <div
+            v-if="!isSurvey"
+            data-test="diff-business"
+          >
             <KCheckbox
               :label="coreString('showCorrectAnswerLabel')"
               :checked="showCorrectAnswer"
               @change="toggleShowCorrectAnswer"
             />
-            <div v-if="currentAttemptDiff" style="padding-bottom: 15px;">
+            <div
+              v-if="currentAttemptDiff"
+              style="padding-bottom: 15px"
+            >
               <AttemptIconDiff
                 :correct="currentAttempt.correct"
                 :diff="currentAttemptDiff.correct"
@@ -142,7 +175,10 @@
             :showCorrectAnswer="showCorrectAnswer"
           />
         </div>
-        <MissingResourceAlert v-else :multiple="false" />
+        <MissingResourceAlert
+          v-else
+          :multiple="false"
+        />
       </template>
 
       <p v-else>
@@ -167,7 +203,9 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { MasteryLogResource } from 'kolibri.resources';
   import { now } from 'kolibri.utils.serverClock';
+  import { annotateSections } from 'kolibri.utils.exams';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
+  import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import AttemptLogList from '../AttemptLogList';
   import AttemptTextDiff from './AttemptTextDiff';
   import AttemptIconDiff from './AttemptIconDiff';
@@ -259,7 +297,7 @@
       sections: {
         type: Array,
         required: false,
-        default: () => [],
+        default: null,
       },
       // An array of questions in the format:
       // {
@@ -323,19 +361,28 @@
       };
     },
     computed: {
+      annotatedSections() {
+        return annotateSections(this.sections, this.questions);
+      },
+      currentSectionIndex() {
+        return this.annotatedSections.findIndex(
+          section =>
+            this.questionNumber >= section.startQuestionNumber &&
+            this.questionNumber <= section.endQuestionNumber,
+        );
+      },
+      currentSection() {
+        return this.annotatedSections[this.currentSectionIndex];
+      },
       questionNumberInSectionLabel() {
-        if (!this.sections) {
-          return '';
+        const questionLabel = this.coreString('questionNumberLabel', {
+          questionNumber: this.questionNumber + 1,
+        });
+        if (this.annotatedSections.length === 1) {
+          return questionLabel;
         }
-        for (let iSection = 0; iSection < this.sections.length; iSection++) {
-          const section = this.sections[iSection];
-          for (let iQuestion = 0; iQuestion < section.questions.length; iQuestion++) {
-            if (section.questions[iQuestion].item === this.itemId) {
-              return this.coreString('questionNumberLabel', { questionNumber: iQuestion + 1 });
-            }
-          }
-        }
-        return '';
+        const sectionLabel = displaySectionTitle(this.currentSection, this.currentSectionIndex);
+        return `${sectionLabel} - ${questionLabel}`;
       },
       attemptLogs() {
         if (this.isQuiz || this.isSurvey) {
@@ -395,10 +442,10 @@
         // filter out interactions without answers but keep hints and errors
         return this.currentAttempt
           ? this.currentAttempt.interaction_history.filter(interaction =>
-              Boolean(
-                interaction.answer || interaction.type === 'hint' || interaction.type === 'error'
-              )
-            ) || []
+            Boolean(
+              interaction.answer || interaction.type === 'hint' || interaction.type === 'error',
+            ),
+          ) || []
           : [];
       },
       currentInteraction() {
@@ -482,13 +529,13 @@
         MasteryLogResource.fetchCollection({ getParams: this.getParams(), force: true }).then(
           pastTries => {
             this.pastTries = pastTries;
-          }
+          },
         );
       },
       quizAttempts() {
         const mostRecentAttempts = sortBy(
           this.currentTry ? this.currentTry.attemptlogs : [],
-          'end_timestamp'
+          'end_timestamp',
         ).reverse();
         return sortBy(
           this.questions.map((question, index) => {
@@ -513,7 +560,7 @@
               missing_resource,
             };
           }),
-          'questionNumber'
+          'questionNumber',
         );
       },
       masteryAttempts() {

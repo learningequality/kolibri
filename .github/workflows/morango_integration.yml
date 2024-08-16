@@ -1,0 +1,103 @@
+name: Morango Integration Tests
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  pull_request:
+    branches:
+      - develop
+      - release-*
+
+jobs:
+  pre_job:
+    name: Path match check
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          github_token: ${{ github.token }}
+          paths: '["requirements/base.txt", ".github/workflows/morango_integration.yml"]'
+  morango_integration_tests_sqlite:
+    name: Morango Integration Tests
+    needs: pre_job
+    if: needs.pre_job.outputs.should_skip != 'true'
+    runs-on: ubuntu-20.04
+    env:
+      INTEGRATION_TEST: 'true'
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9, '3.10', '3.11', '3.12']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install tox
+        run: |
+          python -m pip install --upgrade pip
+          pip install "tox<4"
+      - name: tox env cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
+          key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
+      - name: Test with tox
+        run: tox -e py${{ matrix.python-version }} -- kolibri/core/auth/test/test_morango_integration.py
+
+
+  morango_integration_tests_postgres:
+    name: Morango Integration Tests with PostgreSQL
+    needs: pre_job
+    if: needs.pre_job.outputs.should_skip != 'true'
+    runs-on: ubuntu-latest
+    env:
+      INTEGRATION_TEST: 'true'
+
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres:12
+        # Provide the password for postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.9 for Postgres
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.9
+      - name: Install tox
+        run: |
+          python -m pip install --upgrade pip
+          pip install "tox<4"
+      - name: tox env cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.tox/py3.9
+          key: ${{ runner.os }}-tox-py3.9-${{ hashFiles('requirements/*.txt') }}
+      - name: Test with tox
+        run: tox -e postgres -- kolibri/core/auth/test/test_morango_integration.py

@@ -5,14 +5,12 @@
     :class="{ 'mobile-thumbnail': isMobile }"
     :style="thumbnailBackground"
   >
-
     <ContentIcon
       v-if="!thumbnail"
       kind="channel"
       class="type-icon"
       :color="$themeTokens.annotation"
     />
-
   </div>
 
 </template>

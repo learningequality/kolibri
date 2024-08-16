@@ -2,7 +2,10 @@
 
   <div>
     <span class="version">
-      <NewBadge :label="deviceString('newResourceLabel')" class="new-label" />
+      <NewBadge
+        :label="deviceString('newResourceLabel')"
+        class="new-label"
+      />
 
       <span class="version-available">
         {{ $tr('versionAvailable', { version }) }}

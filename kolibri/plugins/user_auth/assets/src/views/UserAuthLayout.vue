@@ -5,7 +5,6 @@
     class="main-wrapper"
     :style="mainWrapperStyles"
   >
-
     <div
       v-if="!loading"
       class="scrolling-pane"
@@ -28,7 +27,6 @@
 
       <div
         v-else
-        id="main"
         role="main"
         tabindex="-1"
         class="main"
@@ -41,7 +39,6 @@
     <div aria-live="polite">
       <GlobalSnackbar />
     </div>
-
   </div>
 
 </template>

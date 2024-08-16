@@ -414,9 +414,9 @@ class BaseQuerysetTestCase(BaseTestCase):
         return (parent, node)
 
 
-class IncompleteDownloadsQuerysetTestCase(BaseQuerysetTestCase):
+class BaseIncompleteDownloadsQuerysetTestCase(BaseQuerysetTestCase):
     def setUp(self):
-        super(IncompleteDownloadsQuerysetTestCase, self).setUp()
+        super(BaseIncompleteDownloadsQuerysetTestCase, self).setUp()
         self.admin_request = ContentDownloadRequest.build_for_user(self.admin)
         self.admin_request.contentnode_id = uuid.uuid4().hex
         self.admin_request.save()
@@ -424,6 +424,8 @@ class IncompleteDownloadsQuerysetTestCase(BaseQuerysetTestCase):
         self.learner_request.contentnode_id = uuid.uuid4().hex
         self.learner_request.save()
 
+
+class IncompleteDownloadsQuerysetTestCase(BaseIncompleteDownloadsQuerysetTestCase):
     @mock.patch(_module + "get_device_setting", return_value=False)
     def test_learner_downloads_disabled(self, mock_get_device_setting):
         qs = incomplete_downloads_queryset()

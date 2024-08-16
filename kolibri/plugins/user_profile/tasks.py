@@ -1,13 +1,12 @@
-import requests
 from django.core.management import call_command
 from morango.errors import MorangoError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.status import HTTP_201_CREATED
 
 from .utils import TokenGenerator
 from kolibri.core import error_constants
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.middleware import clear_user_cache_on_delete
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.tasks import PeerImportSingleSyncJobValidator
 from kolibri.core.auth.utils.delete import delete_facility
@@ -16,15 +15,17 @@ from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import set_device_settings
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import JobStatus
 from kolibri.core.tasks.job import Priority
+from kolibri.core.tasks.permissions import BasePermission
 from kolibri.core.tasks.permissions import IsFacilityAdmin
-from kolibri.core.tasks.permissions import IsSelf
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import PermissionsFromAny
 from kolibri.core.tasks.utils import get_current_job
-from kolibri.core.utils.urls import reverse_remote
+from kolibri.core.utils.urls import reverse_path
 from kolibri.utils.translation import gettext as _
 
 
@@ -58,6 +59,12 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
 
         job_data["args"].append(data["local_user_id"].id)
         job_data["extra_metadata"].update(user_fullname=data["local_user_id"].full_name)
+        # create token to validate user in the new facility
+        # after it's deleted in the current facility:
+        remote_user_pk = job_data["kwargs"]["user"]
+        token = TokenGenerator().make_token(remote_user_pk)
+        job_data["extra_metadata"]["token"] = token
+        job_data["extra_metadata"]["remote_user_pk"] = remote_user_pk
         if data.get("new_superuser_id"):
             job_data["kwargs"]["new_superuser_id"] = data["new_superuser_id"].id
         if data.get("set_as_super_user"):
@@ -76,10 +83,12 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
         for f in ["gender", "birth_year", "id_number", "full_name"]:
             if getattr(data["local_user_id"], f, "NOT_SPECIFIED") != "NOT_SPECIFIED":
                 user_data[f] = getattr(data["local_user_id"], f, None)
-        public_signup_url = reverse_remote(baseurl, "kolibri:core:publicsignup-list")
-        response = requests.post(public_signup_url, data=user_data)
-        if response.status_code != HTTP_201_CREATED:
-            raise serializers.ValidationError(response.json()[0]["id"])
+        client = NetworkClient.build_for_address(baseurl)
+        public_signup_url = reverse_path("kolibri:core:publicsignup-list")
+        try:
+            client.post(public_signup_url, data=user_data)
+        except NetworkLocationResponseFailure as e:
+            raise serializers.ValidationError(e.response.json()[0]["id"])
 
 
 def status_fn(job):
@@ -110,6 +119,19 @@ def start_soud_sync(user_id):
         soud.request_sync(soud.Context(user_id, instance_id))
     if instance_ids:
         enqueue_soud_sync_processing()
+
+
+class IsSelf(BasePermission):
+    def user_can_run_job(self, user, job):
+        # args[1] is the local_user_id argument
+        return user.id == job.args[1] or user.id == job.kwargs.get(
+            "remote_user_pk", None
+        )
+
+    def user_can_read_job(self, user, job):
+        return user.id == job.args[1] or user.id == job.kwargs.get(
+            "remote_user_pk", None
+        )
 
 
 @register_task(
@@ -177,16 +199,6 @@ def mergeuser(
             user=new_superuser, is_superuser=True, can_manage_content=True
         )
 
-    # create token to validate user in the new facility
-    # after it's deleted in the current facility:
-    remote_user_pk = kwargs["user"]
-    remote_user = FacilityUser.objects.get(pk=remote_user_pk)
-    token = TokenGenerator().make_token(remote_user)
-    job.extra_metadata["token"] = token
-    job.extra_metadata["remote_user_pk"] = remote_user_pk
-    job.save_meta()
-    job.update_progress(1.0, 1.0)
-
     try:
         # If the local user is associated with an OSUser
         # then transfer to the new remote user to maintain
@@ -198,15 +210,20 @@ def mergeuser(
         pass
 
     # check if current user should be set as superuser:
-    set_as_super_user = kwargs.get("set_as_super_user")
     if set_as_super_user and local_user.is_superuser:
         DevicePermissions.objects.create(
             user=remote_user, is_superuser=True, can_manage_content=True
         )
         delete_facility(local_user.facility)
+        # Because delete_facility disables post delete signals
+        # we have to manually call the clear_user_cache_on_delete signal
+        # to ensure we don't leave around references to the deleted user
+        clear_user_cache_on_delete(None, local_user)
         set_device_settings(default_facility=remote_user.facility)
     else:
         local_user.delete()
 
     # queue up this new user for syncing with any other devices
     start_soud_sync(remote_user.id)
+
+    job.update_progress(1.0, 1.0)

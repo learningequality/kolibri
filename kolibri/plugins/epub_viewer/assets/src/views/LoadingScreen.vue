@@ -1,6 +1,9 @@
 <template>
 
-  <div class="loading-screen" :style="backgroundStyle">
+  <div
+    class="loading-screen"
+    :style="backgroundStyle"
+  >
     <div class="loading-status">
       <KCircularLoader
         type="indeterminate"

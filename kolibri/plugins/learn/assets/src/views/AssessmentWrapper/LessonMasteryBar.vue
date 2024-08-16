@@ -1,8 +1,11 @@
 <template>
 
   <!-- z-index 7 - one beneath top menu bar for nested elevations -->
-  <BaseToolbar style="z-index: 7;">
-    <div class="container" :style="{ flexWrap: windowBreakpoint > 0 ? 'nowrap' : 'wrap' }">
+  <BaseToolbar style="z-index: 7">
+    <div
+      class="container"
+      :style="{ flexWrap: windowBreakpoint > 0 ? 'nowrap' : 'wrap' }"
+    >
       <KTextTruncator
         class="requirements"
         :text="coreString('shortExerciseGoalDescription', { count: requiredCorrectAnswers })"

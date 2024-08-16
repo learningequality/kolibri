@@ -45,7 +45,7 @@ describe('RearrangeChannelsPage', () => {
     await simulateSort(wrapper);
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith(
       'createSnackbar',
-      'Channel order saved'
+      'Channel order saved',
     );
     expect(wrapper.vm.channels[0].id).toEqual('2');
     expect(wrapper.vm.channels[1].id).toEqual('1');
@@ -58,7 +58,7 @@ describe('RearrangeChannelsPage', () => {
     await simulateSort(wrapper);
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith(
       'createSnackbar',
-      'There was a problem reordering the channels'
+      'There was a problem reordering the channels',
     );
     // Channels array is reset after an error
     expect(wrapper.vm.channels[0].id).toEqual('1');

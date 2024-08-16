@@ -35,6 +35,7 @@ function showQuestionDetailView(params) {
   const { exerciseId, learnerId, interactionIndex, questionId, quizId } = params;
   let promise;
   let exerciseNodeId;
+  let questions;
   if (quizId) {
     // If this is showing for a quiz, then no exerciseId will be passed in
     // set the appropriate exerciseId here based on the question sources
@@ -42,13 +43,15 @@ function showQuestionDetailView(params) {
     // of a combination of 'question_id:exercise_id'
     const baseExam = store.state.classSummary.examMap[quizId];
     promise = fetchExamWithContent(baseExam).then(({ exam }) => {
-      exerciseNodeId = exam.question_sources.find(source => source.item === questionId).exercise_id;
+      questions = exam.question_sources.reduce((acc, sec) => [...acc, ...sec.questions], []);
+      exerciseNodeId = questions.find(question => question.item === questionId).exercise_id;
       return exam;
     });
   } else {
     // Passed in exerciseId is the content_id of the contentNode
     // Map this to the id of the content node to do this fetch
     exerciseNodeId = store.state.classSummary.contentMap[exerciseId].node_id;
+    questions = [];
     promise = Promise.resolve();
   }
   return promise
@@ -57,7 +60,7 @@ function showQuestionDetailView(params) {
         exercise.assessmentmetadata = exercise.assessmentmetadata || {};
         let title;
         if (exam) {
-          const question = exam.question_sources.find(source => source.item === questionId);
+          const question = questions.find(source => source.item === questionId);
           title = coachStrings.$tr('nthExerciseName', {
             name: question.title,
             number: question.counter_in_exercise,
@@ -65,7 +68,7 @@ function showQuestionDetailView(params) {
         } else {
           const questionNumber = Math.max(
             1,
-            exercise.assessmentmetadata.assessment_item_ids.indexOf(questionId)
+            exercise.assessmentmetadata.assessment_item_ids.indexOf(questionId),
           );
           title = coachStrings.$tr('nthExerciseName', {
             name: exercise.title,

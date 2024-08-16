@@ -66,7 +66,6 @@
               {{ deviceString('notEnoughSpaceForChannelsWarning') }}
             </UiAlert>
           </p>
-
         </template>
 
         <template #default="{ showItem, handleChange, itemIsSelected }">
@@ -92,7 +91,7 @@
 
       <KCircularLoader
         v-else
-        style="margin: 2em auto;"
+        style="margin: 2em auto"
       />
 
       <ChannelTokenModal
@@ -124,7 +123,6 @@
         :fileSize.sync="fileSize"
         @clickconfirm="handleClickConfirm"
       />
-
     </KPageContainer>
   </ImmersivePage>
 
@@ -230,12 +228,12 @@
         const notInstalledChannels = differenceBy(
           this.availableChannels,
           this.installedChannelsWithResources,
-          'id'
+          'id',
         );
         // Need to de-duplicate channels in case user enters same token twice, etc.
         return uniqBy(
           [...this.newUnlistedChannels, ...installedChannels, ...notInstalledChannels],
-          'id'
+          'id',
         );
       },
       backRoute() {
@@ -363,14 +361,14 @@
             addressId: this.$route.query.address_id,
             channelId: channel.id,
             driveId: this.$route.query.drive_id,
-          })
+          }),
         );
       },
       handleClickConfirm() {
         this.disableBottomBar = true;
         const someChannelsWillUpdate = some(
           this.selectedChannels,
-          c => c.installed_version < c.latest_version
+          c => c.installed_version < c.latest_version,
         );
         this.setFreeSpace().then(() => {
           if (this.notEnoughFreeSpace) {

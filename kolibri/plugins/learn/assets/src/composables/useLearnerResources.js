@@ -93,9 +93,9 @@ export default function useLearnerResources() {
             lessonId: l.id,
             classId: c.id,
             contentNode: r.contentnode,
-          }))
+          })),
         ),
-      2
+      2,
     );
   });
 

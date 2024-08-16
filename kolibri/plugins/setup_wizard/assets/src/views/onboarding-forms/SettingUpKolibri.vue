@@ -1,7 +1,10 @@
 <template>
 
   <div class="full-page">
-    <AppError v-if="coreError" :hideParagraphs="true">
+    <AppError
+      v-if="coreError"
+      :hideParagraphs="true"
+    >
       <template #buttons>
         <KButton
           :text="coreString('startOverAction')"
@@ -199,7 +202,7 @@
             window.sessionStorage.setItem(welcomeDismissalKey, false);
             window.sessionStorage.setItem(
               facilityImported,
-              this.wizardContext('isImportedFacility')
+              this.wizardContext('isImportedFacility'),
             );
 
             Lockr.rm('savedState'); // Clear out saved state machine

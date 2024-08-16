@@ -190,7 +190,7 @@ describe('ContentTreeViewer component', () => {
       selectAllCheckbox().trigger('click');
       expect(addNodeMock).toHaveBeenCalledTimes(1);
       expect(addNodeMock).toHaveBeenCalledWith(
-        expect.objectContaining(sanitizeNode(wrapper.vm.annotatedTopicNode))
+        expect.objectContaining(sanitizeNode(wrapper.vm.annotatedTopicNode)),
       );
     });
 
@@ -202,7 +202,7 @@ describe('ContentTreeViewer component', () => {
       selectAllCheckbox().trigger('click');
       expect(removeNodeMock).toHaveBeenCalledTimes(1);
       expect(removeNodeMock).toHaveBeenCalledWith(
-        expect.objectContaining(sanitizeNode(wrapper.vm.annotatedTopicNode))
+        expect.objectContaining(sanitizeNode(wrapper.vm.annotatedTopicNode)),
       );
     });
   });

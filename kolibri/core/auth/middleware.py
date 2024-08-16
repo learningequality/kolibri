@@ -6,6 +6,7 @@ from django.contrib.auth.middleware import AuthenticationMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
 from django.utils.functional import SimpleLazyObject
 
@@ -64,12 +65,17 @@ def _get_user(request):
     return request._cached_user
 
 
-def clear_user_cache(sender, instance, created, **kwargs):
+def clear_user_cache_on_delete(sender, instance, **kwargs):
+    cache.delete(USER_SESSION_CACHE_KEY.format(instance.id))
+
+
+def clear_user_cache_on_save(sender, instance, created, **kwargs):
     if not created:
         cache.delete(USER_SESSION_CACHE_KEY.format(instance.id))
 
 
-post_save.connect(clear_user_cache, sender=settings.AUTH_USER_MODEL)
+post_delete.connect(clear_user_cache_on_delete, sender=settings.AUTH_USER_MODEL)
+post_save.connect(clear_user_cache_on_save, sender=settings.AUTH_USER_MODEL)
 
 
 class CustomAuthenticationMiddleware(AuthenticationMiddleware):

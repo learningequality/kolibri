@@ -19,7 +19,6 @@ def job_storage():
         s.clear(force=True)
 
 
-@pytest.mark.django_db
 class TestScheduler(object):
     @pytest.fixture
     def job(self):

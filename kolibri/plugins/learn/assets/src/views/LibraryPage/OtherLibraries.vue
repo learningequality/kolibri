@@ -1,7 +1,10 @@
 <template>
 
   <div>
-    <KGrid gutter="0" class="grid">
+    <KGrid
+      gutter="0"
+      class="grid"
+    >
       <KGridItem
         :layout12="{ span: 6 }"
         :layout8="{ span: 4 }"
@@ -22,7 +25,7 @@
             data-test="searching"
           >
             <span data-test="searching-label">{{ injectedtr('searchingOtherLibrary') }}</span>
-                &nbsp;&nbsp;
+            &nbsp;&nbsp;
             <span>
               <KCircularLoader
                 type="indeterminate"
@@ -41,9 +44,9 @@
                 class="wifi-svg"
               />
             </span>
-                &nbsp;&nbsp;
+            &nbsp;&nbsp;
             <span data-test="showing-all-label">{{ injectedtr('showingAllLibraries') }}</span>
-                &nbsp;&nbsp;
+            &nbsp;&nbsp;
             <span>
               <KIcon
                 v-if="!windowIsSmall"
@@ -59,7 +62,7 @@
             <span>
               <KIcon icon="disconnected" />
             </span>
-                &nbsp;&nbsp;
+            &nbsp;&nbsp;
             <span data-test="no-other-label">{{ injectedtr('noOtherLibraries') }}</span>
           </span>
         </div>
@@ -88,7 +91,10 @@
 
     <!-- More  -->
 
-    <KGrid v-if="!threeLibrariesOrFewer && unpinnedDevicesExist" class="other-libraries-grid">
+    <KGrid
+      v-if="!threeLibrariesOrFewer && unpinnedDevicesExist"
+      class="other-libraries-grid"
+    >
       <KGridItem
         :layout12="{ span: 10 }"
         :layout8="{ span: 6 }"
@@ -188,7 +194,7 @@
       const fullLibrariesToDisplay = computed(() =>
         get(threeLibrariesOrFewer)
           ? [...get(pinnedDevices), ...get(unpinnedDevices)]
-          : get(pinnedDevices)
+          : get(pinnedDevices),
       );
 
       // Make this conditional, as this import does not resolve properly
