@@ -20,8 +20,9 @@ import {
   NoCategories,
   ResourcesNeededTypes,
 } from 'kolibri.coreVue.vuex.constants';
-import { deduplicateResources } from '../utils/contentNode';
 /*
+ * TBD #12517
+import { deduplicateResources } from '../utils/contentNode';
 import { currentDeviceData } from './useDevices';
 import useContentNodeProgress from './useContentNodeProgress';
 */
