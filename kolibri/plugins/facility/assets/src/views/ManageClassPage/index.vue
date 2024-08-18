@@ -7,7 +7,7 @@
           v-if="userIsMultiFacilityAdmin"
           :to="{
             name: facilityPageLinks.AllFacilitiesPage.name,
-            params: { subtopicName: 'ManageClassPage' }
+            params: { subtopicName: 'ManageClassPage' },
           }"
           icon="back"
           :text="coreString('changeLearningFacility')"
@@ -44,18 +44,21 @@
         <template #header="{ header }">
           {{ header.label }}
         </template>
-        <template #cell="{ content, rowIndex, colIndex }">
+        <template #cell="{ content, rowIndex, colIndex, row }">
           <span v-if="colIndex === 0">
             <KRouterLink
               :text="content"
-              :to="$store.getters.facilityPageLinks.ClassEditPage(tableRows[rowIndex][3].id)"
+              :to="$store.getters.facilityPageLinks.ClassEditPage(row[3].id)"
               icon="classes"
             />
           </span>
           <span v-else-if="colIndex === 1">
             <KOptionalText
-              :text="coachNames(tableRows[rowIndex][3]).length ? 
-                formattedCoachNames(tableRows[rowIndex][3]) : ''"
+              :text="
+                coachNames(tableRows[rowIndex][3]).length
+                  ? formattedCoachNames(tableRows[rowIndex][3])
+                  : ''
+              "
             />
             <KTooltip
               v-if="formattedCoachNamesTooltip(tableRows[rowIndex][3])"
@@ -64,7 +67,7 @@
             >
               {{ formattedCoachNamesTooltip(tableRows[rowIndex][3]) }}
             </KTooltip>
-          </span> 
+          </span>
           <span v-else-if="colIndex === 2">
             {{ content }}
           </span>
@@ -75,7 +78,7 @@
             <KButton
               appearance="flat-button"
               :text="$tr('deleteClass')"
-              @click="selectClassToDelete(tableRows[rowIndex][3])"
+              @click="selectClassToDelete(row[3])"
             />
           </span>
         </template>
@@ -136,10 +139,25 @@
       Modals: () => Modals,
       tableHeaders() {
         return [
-          { label: this.coreString('classNameLabel'), dataType: 'string',minWidth: '150px', width: '20%'  },
-          { label: this.coreString('coachesLabel'), dataType: 'others',minWidth: '150px', width: '30%'  },
-          { label: this.coreString('learnersLabel'), dataType: 'numeric' ,minWidth: '150px', width: '20%' },
-          { label: '', dataType: 'others',minWidth: '150px', width: '30%'  },
+          {
+            label: this.coreString('classNameLabel'),
+            dataType: 'string',
+            minWidth: '150px',
+            width: '20%',
+          },
+          {
+            label: this.coreString('coachesLabel'),
+            dataType: 'others',
+            minWidth: '150px',
+            width: '30%',
+          },
+          {
+            label: this.coreString('learnersLabel'),
+            dataType: 'numeric',
+            minWidth: '150px',
+            width: '20%',
+          },
+          { label: '', dataType: 'others', minWidth: '150px', width: '30%' },
         ];
       },
       tableRows() {
@@ -177,7 +195,7 @@
       },
       formattedCoachNames(classroom) {
         const coach_names = this.coachNames(classroom);
-       
+
         if (coach_names.length === 1) {
           return coach_names[0];
         }
@@ -234,9 +252,9 @@
 
 <style lang="scss" scoped>
 
-.move-down {
-  position: relative;
-  margin-top: 24px;
-}
+  .move-down {
+    position: relative;
+    margin-top: 24px;
+  }
 
 </style>
