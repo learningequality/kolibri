@@ -84,7 +84,6 @@ class BackgroundJobOperation(SyncExtrasLocalOperation):
                 "id": context.transfer_session.id,
                 "target_stage": target_stage,
                 "capabilities": list(context.capabilities),
-                "start_stage": context.stage,
             },
             extra_metadata={
                 "type": "SYNCPROCEEDTO",

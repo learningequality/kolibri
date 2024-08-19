@@ -66,16 +66,13 @@ class BackgroundJobOperationTestCase(BaseTestCase):
         mock_job_storage.get_job.assert_not_called()
 
         job = mock_job_storage.enqueue_job.call_args[0][0]
+        self.assertEqual(job.args, ("sync_proceed_to",))
         self.assertEqual(
             job.kwargs,
             {
-                "args": ("sync_proceed_to",),
-                "kwargs": {
-                    "id": "def456",
-                    "target_stage": "other",
-                    "capabilities": [],
-                    "start_stage": "dequeuing",
-                },
+                "id": "def456",
+                "target_stage": "other",
+                "capabilities": [],
             },
         )
         self.assertEqual(
