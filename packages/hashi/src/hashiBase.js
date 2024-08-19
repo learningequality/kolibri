@@ -22,6 +22,7 @@ export const events = {
   RESIZE: 'resize',
   LOADING: 'loading',
   ERROR: 'error',
+  BLOOMDATAREQUESTED: 'bloomdatarequested',
 };
 
 export const DataTypes = {
