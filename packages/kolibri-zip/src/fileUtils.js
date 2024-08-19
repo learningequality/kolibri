@@ -72,7 +72,11 @@ const attributes = ['src', 'href'];
 
 const attributesSelector = attributes.map(attr => `[${attr}]`).join(', ');
 
+const styleAttributeUrlSelector = '[style*="url("]';
+
 const queryParamRegex = /([^?)]+)?(\?.*)/g;
+
+const styleUrlRegex = /url\(["']?([^"')]+)["']?\)/;
 
 export function getDOMPaths(fileContents, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
@@ -87,6 +91,17 @@ export function getDOMPaths(fileContents, mimeType) {
   );
 }
 
+export function getStylePaths(fileContents, mimeType) {
+  const dom = domParser.parseFromString(fileContents.trim(), mimeType);
+  const elements = dom.querySelectorAll(styleAttributeUrlSelector);
+  return flatten(
+    Array.from(elements).map(element => {
+      const styleAttr = element.getAttribute('style');
+      return styleAttr.match(cssPathRegex).map(path => path.match(styleUrlRegex)[1]);
+    }),
+  );
+}
+
 export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
   const elements = Array.from(dom.querySelectorAll(attributesSelector));
@@ -97,6 +112,7 @@ export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
         continue;
       }
       const newUrl = packageFiles[value.replace(queryParamRegex, '$1')];
+
       if (newUrl) {
         element.setAttribute(attr, newUrl);
       }
@@ -109,6 +125,49 @@ export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
     dom.documentElement.removeAttribute('xmlns');
   }
   return domSerializer.serializeToString(dom);
+}
+
+export function replaceStylePaths(fileContents, packageFiles, mimeType) {
+  const dom = domParser.parseFromString(fileContents.trim(), mimeType);
+  const elements = Array.from(dom.querySelectorAll(styleAttributeUrlSelector));
+  for (const element of elements) {
+    let styleAttr = element.getAttribute('style');
+    if (!styleAttr) {
+      continue;
+    }
+    styleAttr = styleAttr.replace(cssPathRegex, match => {
+      const newUrl = packageFiles[match.replace(styleUrlRegex, '$1')];
+      return newUrl ? `url(${newUrl})` : match;
+    });
+
+    element.setAttribute('style', styleAttr);
+  }
+  if (mimeType === 'text/html') {
+    // Remove the namespace attribute from the root element
+    // as serializeToString adds it by default and without this
+    // it gets repeated.
+    dom.documentElement.removeAttribute('xmlns');
+  }
+  return domSerializer.serializeToString(dom);
+}
+
+class BloomMapper extends Mapper {
+  getPaths() {
+    return [
+      ...new Set([
+        ...getDOMPaths(this.file.toString(), this.file.mimeType),
+        ...getStylePaths(this.file.toString(), this.file.mimeType),
+      ]),
+    ];
+  }
+
+  replacePaths(packageFiles) {
+    return replaceStylePaths(
+      replaceDOMPaths(this.file.toString(), packageFiles, this.file.mimeType),
+      packageFiles,
+      this.file.mimeType,
+    );
+  }
 }
 
 class DOMMapper extends Mapper {
@@ -127,4 +186,5 @@ export const defaultFilePathMappers = {
   htm: DOMMapper,
   xhtml: DOMMapper,
   xml: DOMMapper,
+  bloom: BloomMapper,
 };

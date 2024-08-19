@@ -117,6 +117,8 @@ export default class SandboxEnvironment {
     this.mediator.sendMessage({ nameSpace, event: events.LOADING, data: true });
     if (baseUrl.indexOf('.h5p') === baseUrl.length - 4) {
       this.H5P.init(this.iframe, startUrl);
+    } else if ([baseUrl.length - 7, baseUrl.length - 9].includes(baseUrl.indexOf('.bloom'))) {
+      this.Bloom.init(this.iframe, startUrl);
     } else {
       this.iframe.onload = () => {
         const error = this.iframe.contentDocument.head.querySelector('meta[name="hashi-error"]');
@@ -126,8 +128,6 @@ export default class SandboxEnvironment {
             event: events.ERROR,
             data: { message: error.getAttribute('content'), error: 'LOADING_ERROR' },
           });
-        } else if ([baseUrl.length - 7, baseUrl.length - 9].includes(baseUrl.indexOf('.bloom'))) {
-          this.Bloom.init(this.iframe, startUrl);
         } else {
           this.mediator.sendMessage({ nameSpace, event: events.LOADING, data: false });
         }
