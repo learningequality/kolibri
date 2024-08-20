@@ -1,5 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep';
 import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
+import coreModule from '../../../../../core/assets/src/state/modules/core';
 import pluginModule from '../../src/modules/pluginModule';
 import { contentNodeGranularPayload } from './data';
 
@@ -64,13 +65,15 @@ const channelsOnDevice = [
 ];
 
 export default function makeStore() {
-  return coreStoreFactory(pluginModule);
+  const store = coreStoreFactory(pluginModule);
+  store.registerModule('core', coreModule);
+  return store;
 }
-
 // Use for availableChannelsPage and all children:
 // channel-list-item
 export function makeAvailableChannelsPageStore() {
   const store = coreStoreFactory(cloneDeep(pluginModule));
+  store.registerModule('core', coreModule);
   store.state.manageContent.channelList = [...channelsOnDevice];
   store.state.core.loading = false;
   Object.assign(store.state.manageContent.wizard, {

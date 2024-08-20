@@ -1,9 +1,11 @@
 import { mount } from '@vue/test-utils';
 import AppError from '../index.vue';
 import { coreStoreFactory as makeStore } from '../../../../../kolibri/core/assets/src/state/store';
+import coreModule from '../../../../../kolibri/core/assets/src/state/modules/core';
 
 function makeWrapper() {
   const store = makeStore();
+  store.registerModule('core', coreModule);
   const wrapper = mount(AppError, {
     store,
   });

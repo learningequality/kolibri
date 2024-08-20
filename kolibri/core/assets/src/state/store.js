@@ -1,7 +1,6 @@
 import forEach from 'lodash/forEach';
 import Vuex from 'vuex';
 import Vue from 'vue';
-import coreModule from './modules/core';
 
 Vue.use(Vuex);
 
@@ -35,9 +34,6 @@ export function coreStoreFactory(pluginModule) {
       store.registerModule(name, module);
     });
   }
-
-  // Register core module last
-  store.registerModule('core', coreModule);
 
   return store;
 }

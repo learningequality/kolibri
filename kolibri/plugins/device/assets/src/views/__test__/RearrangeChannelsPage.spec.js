@@ -1,8 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import makeStore from '../../../test/utils/makeStore';
 import RearrangeChannelsPage from '../RearrangeChannelsPage';
 
 jest.mock('../../composables/useContentTasks');
+jest.mock('kolibri.coreVue.composables.useUser');
 
 RearrangeChannelsPage.methods.postNewOrder = () => Promise.resolve();
 RearrangeChannelsPage.methods.fetchChannels = () => {
@@ -13,7 +15,7 @@ RearrangeChannelsPage.methods.fetchChannels = () => {
 };
 async function makeWrapper() {
   const store = makeStore();
-  store.state.core.session.can_manage_content = true;
+  useUser.mockImplementation(() => useUserMock({ canManageContent: true }));
   const wrapper = shallowMount(RearrangeChannelsPage, {
     store,
   });
