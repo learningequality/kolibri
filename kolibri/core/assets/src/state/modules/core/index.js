@@ -12,10 +12,6 @@ export default {
       pageSessionId: 0,
       totalProgress: null,
       notifications: [],
-      channels: {
-        list: [],
-        currentId: null,
-      },
       allowRemoteAccess: plugin_data.allowRemoteAccess,
       // facility
       facilityConfig: {},

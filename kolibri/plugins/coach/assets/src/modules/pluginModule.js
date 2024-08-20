@@ -25,6 +25,10 @@ export default {
       pageName: '',
       toolbarRoute: {},
       toolbarTitle: '',
+      channels: {
+        list: [],
+        currentId: null,
+      },
     };
   },
   mutations: {
@@ -42,6 +46,9 @@ export default {
     },
     SET_TOOLBAR_ROUTE(state, toolbarRoute) {
       state.toolbarRoute = toolbarRoute;
+    },
+    SET_CHANNEL_LIST(state, channelList) {
+      state.channels.list = channelList;
     },
   },
   getters: {
@@ -61,6 +68,14 @@ export default {
         );
       }
       return false;
+    },
+    getChannels(state) {
+      return state.channels.list;
+    },
+    getChannelObject(state, getters) {
+      return function getter(channelId) {
+        return getters.getChannels(state).find(channel => channel.id === channelId);
+      };
     },
   },
   actions: {

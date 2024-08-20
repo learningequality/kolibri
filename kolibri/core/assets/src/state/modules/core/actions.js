@@ -5,7 +5,6 @@ import logger from 'kolibri.lib.logging';
 import {
   FacilityResource,
   FacilityDatasetResource,
-  ChannelResource,
   UserProgressResource,
   UserSyncStatusResource,
   PingbackNotificationResource,
@@ -37,20 +36,6 @@ const logging = logger.getLogger(__filename);
  * The methods below help map data from
  * the API to state in the Vuex store
  */
-
-function _channelListState(data) {
-  return data.map(channel => ({
-    id: channel.id,
-    title: channel.name,
-    description: channel.description,
-    tagline: channel.tagline,
-    root_id: channel.root,
-    last_updated: channel.last_updated,
-    version: channel.version,
-    thumbnail: channel.thumbnail,
-    num_coach_contents: channel.num_coach_contents,
-  }));
-}
 
 function _notificationListState(data) {
   return data.map(notification => ({
@@ -259,19 +244,6 @@ export function getFacilityConfig(store, facilityId) {
     }
     store.commit('CORE_SET_FACILITY_CONFIG', config);
   });
-}
-
-export function setChannelInfo(store) {
-  return ChannelResource.fetchCollection({ getParams: { available: true } }).then(
-    channelsData => {
-      store.commit('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
-      return channelsData;
-    },
-    error => {
-      store.dispatch('handleApiError', { error });
-      return error;
-    },
-  );
 }
 
 export function fetchPoints(store) {
