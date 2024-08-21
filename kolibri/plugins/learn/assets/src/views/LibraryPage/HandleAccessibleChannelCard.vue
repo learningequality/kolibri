@@ -9,7 +9,7 @@
         :layout="{ span: layoutSpan }"
       >
         <AccessibleChannelCard
-          :to="{}"
+          :to="genContentLinkBackLinkCurrentPage(device.id, false, null)"
           :contentNode="device"
           :title="device.title"
           :headingLevel="2"
@@ -25,6 +25,7 @@
 <script>
 
   import useCardLayoutSpan from '../../composables/useCardLayoutSpan';
+  import useContentLink from '../../composables/useContentLink';
   import AccessibleChannelCard from './AccessibleChannelCard';
 
   export default {
@@ -34,8 +35,10 @@
     },
     setup() {
       const { layoutSpan } = useCardLayoutSpan();
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
       return {
         layoutSpan,
+        genContentLinkBackLinkCurrentPage
       };
     },
     props:{

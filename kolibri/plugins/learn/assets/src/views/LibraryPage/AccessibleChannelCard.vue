@@ -20,6 +20,10 @@
       <template #belowTitle>
         <div>
           <KTextTruncator
+            :text="numberOfResources"
+            :maxLines="1"
+          />
+          <KTextTruncator
             :text="contentNode.description"
             :maxLines="2"
           />
@@ -59,6 +63,17 @@
         required: true,
       },
     },
+    computed:{
+      numberOfResources(){
+        return `${this.contentNode.num_coach_contents} ${this.$tr('resources')}`;
+      }
+    },
+    $trs: {
+      resources: {
+        message: 'Resources',
+        context: 'Number of resources in a channel',
+      },
+    }
   }
 
 </script>
