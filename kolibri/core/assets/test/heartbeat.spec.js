@@ -5,12 +5,15 @@ import * as serverClock from 'kolibri.utils.serverClock';
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
+import coreModule from '../src/state/modules/core';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri.lib.logging');
 jest.mock('kolibri.utils.redirectBrowser');
 jest.mock('kolibri.urls');
 jest.mock('lockr');
+
+coreStore.registerModule('core', coreModule);
 
 describe('HeartBeat', function () {
   stubWindowLocation(beforeAll, afterAll);

@@ -1,10 +1,12 @@
 import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
 import { shallowMount, mount } from '@vue/test-utils';
 import ChooseAdmin from '../index.vue';
+import coreModule from '../../../../../../../../core/assets/src/state/modules/core';
 
 const sendMachineEvent = jest.fn();
 function makeWrapper({ userId, sourceFacilityUsers } = {}) {
   const store = coreStoreFactory();
+  store.registerModule('core', coreModule);
   store.dispatch('notLoading');
   return mount(ChooseAdmin, {
     store,

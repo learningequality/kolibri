@@ -1,9 +1,11 @@
 import { mount } from '@vue/test-utils';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import ConfigPage from '../../src/views/FacilityConfigPage';
 import makeStore from '../makeStore';
 
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
+jest.mock('kolibri.coreVue.composables.useUser');
 jest.mock('../../../../device/assets/src/views/DeviceSettingsPage/api.js', () => ({
   getDeviceSettings: jest.fn(),
 }));
@@ -143,8 +145,8 @@ describe('facility config page view', () => {
   describe(`in the Android app mode`, () => {
     let wrapper;
     beforeAll(() => {
+      useUser.mockImplementation(() => useUserMock({ isAppContext: true }));
       wrapper = makeWrapper();
-      wrapper.vm.$store.state.core.session.app_context = true;
     });
 
     it(`reset and save buttons are in the bottom bar`, () => {

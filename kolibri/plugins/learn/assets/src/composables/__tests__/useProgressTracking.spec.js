@@ -3,12 +3,14 @@ import omit from 'lodash/omit';
 import client from 'kolibri.client';
 import { coreStoreFactory as makeStore } from 'kolibri.coreVue.vuex.store';
 import useProgressTracking from '../useProgressTracking';
+import coreModule from '../../../../../../core/assets/src/state/modules/core';
 
 jest.mock('kolibri.urls');
 jest.mock('kolibri.client');
 
 function setUp() {
   const store = makeStore();
+  store.registerModule('core', coreModule);
   return { store, ...useProgressTracking(store) };
 }
 
