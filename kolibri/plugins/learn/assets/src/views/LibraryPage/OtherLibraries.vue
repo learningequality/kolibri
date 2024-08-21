@@ -132,20 +132,6 @@
         />
       </KGridItem>
     </KGrid>
-
-    <h2>Accessible Channel card</h2>
-
-    <KGrid>
-      <KGridItem
-        v-for="device in unpinnedDevices.slice(0, cardsToDisplay)"
-        :key="device.id"
-        :layout="{ span: layoutSpan }"
-      >
-        <AccessibleChannelCard 
-          :to="genLibraryPageBackLink(device.id)"
-        />
-      </KGridItem>
-    </KGrid>
   </div>
 
 </template>
@@ -164,7 +150,6 @@
   import LibraryItem from '../ExploreLibrariesPage/LibraryItem';
   import FadeInTransitionGroup from '../FadeInTransitionGroup';
   import UnPinnedDevices from './UnPinnedDevices';
-  import AccessibleChannelCard from './AccessibleChannelCard.vue';
 
   export default {
     name: 'OtherLibraries',
@@ -172,7 +157,6 @@
       FadeInTransitionGroup,
       LibraryItem,
       UnPinnedDevices,
-      AccessibleChannelCard
     },
     setup() {
       const {
