@@ -86,7 +86,7 @@ export class HeartBeat {
           // Multiply the previous interval by our multiplier, but max out at a high interval.
           set(
             heartbeat._connection.reconnectTime,
-            Math.min(RECONNECT_MULTIPLIER * reconnect, MAX_RECONNECT_TIME)
+            Math.min(RECONNECT_MULTIPLIER * reconnect, MAX_RECONNECT_TIME),
           );
           createDisconnectedSnackbar(store, heartbeat.pollSessionEndPoint);
         }
