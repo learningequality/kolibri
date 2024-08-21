@@ -5,13 +5,24 @@
       :to="to"
       layout="horizontal"
       thumbnailDisplay="small"
+      thumbnailAlign="right"
+      :title="title"
+      :headingLevel="headingLevel"
     >
-      <template #aboveTitle>
-        <p>Above title</p>
+      <template #thumbnailPlaceholder>
+        <div>
+          <ChannelThumbnail
+            :thumbnail="contentNode.thumbnail"
+            style="width:100px"
+          />
+        </div>
       </template>
       <template #belowTitle>
         <div>
-          <p>Below title</p>
+          <KTextTruncator
+            :text="contentNode.description"
+            :maxLines="2"
+          />
         </div>
       </template>
     </KCard>
@@ -22,14 +33,32 @@
 
 <script>
 
+  import ChannelThumbnail from './../ChannelThumbnail.vue';
+
   export default {
     name: 'AccessibleChannelCard',
+    components:{
+      ChannelThumbnail,
+    },
     props:{
       to: {
         type: Object,
         required: true,
       },
-    }
+      title:{
+        type: String,
+        required: true,
+      },
+      headingLevel:{
+        type: Number,
+        required: false,
+        default: 2,
+      },
+      contentNode: {
+        type: Object,
+        required: true,
+      },
+    },
   }
 
 </script>

@@ -82,7 +82,9 @@
             :injectedtr="injecttr"
           />
 
-          
+          <HandleAccessibleChannelCard
+            :contentNode="rootNodes"
+          />
         </div>
 
         <SearchResultsGrid
@@ -199,6 +201,7 @@
   import useChannels from './../../composables/useChannels';
   import ResumableContentGrid from './ResumableContentGrid';
   import OtherLibraries from './OtherLibraries';
+  import HandleAccessibleChannelCard from './HandleAccessibleChannelCard.vue';
 
   const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
@@ -221,6 +224,7 @@
       LearnAppBarPage,
       OtherLibraries,
       PostSetupModalGroup,
+      HandleAccessibleChannelCard
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
