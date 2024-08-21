@@ -7,16 +7,20 @@ import qs from 'qs';
 import heartbeat from 'kolibri.heartbeat';
 import logger from 'kolibri.lib.logging';
 import store from 'kolibri.coreVue.vuex.store';
+import { get } from '@vueuse/core';
 import errorCodes from '../disconnectionErrorCodes';
+import useConnection from '../composables/useConnection';
 import clientFactory from './baseClient';
 
 export const logging = logger.getLogger(__filename);
+
+const connection = useConnection();
 
 const baseClient = clientFactory();
 
 // Disconnection handler interceptor
 baseClient.interceptors.request.use(function(config) {
-  if (!store.getters.connected) {
+  if (!get(connection.connected)) {
     // If the vuex state records that we are not currently connected then cancel all
     // outgoing requests.
     const source = CancelToken.source();
