@@ -13,7 +13,12 @@
       class="inline-icon"
       data-test="syncStatusIcon"
     />
-    <p :class="displaySize" data-test="syncStatusText">{{ syncTextDisplayMap }}</p>
+    <p
+      :class="displaySize"
+      data-test="syncStatusText"
+    >
+      {{ syncTextDisplayMap }}
+    </p>
   </span>
 
 </template>

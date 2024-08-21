@@ -9,7 +9,7 @@
       />
     </td>
     <td>
-      {{ this.$formatNumber(group.users.length) }}
+      {{ $formatNumber(group.users.length) }}
     </td>
     <td class="core-table-button-col">
       <KButton

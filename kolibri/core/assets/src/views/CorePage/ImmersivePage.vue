@@ -4,7 +4,7 @@
     <ScrollingHeader :scrollPosition="0">
       <ImmersiveToolbar
         ref="appBar"
-        :appBarTitle="(!loading ? appBarTitle : '')"
+        :appBarTitle="!loading ? appBarTitle : ''"
         :route="route"
         :icon="icon"
         :isFullscreen="primary"
@@ -19,7 +19,11 @@
         :delay="false"
       />
     </ScrollingHeader>
-    <div class="main-wrapper" :style="wrapperStyles">
+    <div
+      id="main"
+      class="main-wrapper"
+      :style="wrapperStyles"
+    >
       <slot></slot>
     </div>
   </div>
@@ -78,14 +82,14 @@
         return this.appearanceOverrides
           ? this.appearanceOverrides
           : {
-              width: '100%',
-              display: 'inline-block',
-              backgroundColor: this.$themePalette.grey.v_50,
-              paddingLeft: '32px',
-              paddingRight: '32px',
-              paddingBottom: '72px',
-              paddingTop: this.appBarHeight + 16 + 'px',
-            };
+            width: '100%',
+            display: 'inline-block',
+            backgroundColor: this.$themePalette.grey.v_50,
+            paddingLeft: '32px',
+            paddingRight: '32px',
+            paddingBottom: '72px',
+            paddingTop: this.appBarHeight + 16 + 'px',
+          };
       },
     },
     mounted() {

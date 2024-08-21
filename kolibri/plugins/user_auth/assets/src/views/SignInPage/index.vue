@@ -8,14 +8,14 @@
     <div v-if="!needsToCreatePassword">
       <!-- ** Text and Backlinks ** -->
 
-      <div style="width: 100%; text-align: left; display: block;">
+      <div style="display: block; width: 100%; text-align: left">
         <!-- In MFD show return to facility select when not asking for password -->
         <KRouterLink
           v-if="hasMultipleFacilities && !showPasswordForm"
           icon="back"
           :text="coreString('changeLearningFacility')"
           :to="backToFacilitySelectionRoute"
-          style="margin-top: 24px; margin-left: -4px;"
+          style="margin-top: 24px; margin-left: -4px"
         />
 
         <!-- When password form shows, show a change user link -->
@@ -24,18 +24,17 @@
           v-if="showPasswordForm"
           appearance="basic-link"
           :text="$tr('changeUser')"
-          style="margin-top: 24px; margin-left: 4px;"
+          style="margin-top: 24px; margin-left: 4px"
           @click="clearUser"
         >
           <template #icon>
             <KIcon
-              style="width: 24px; height: 24px; top: 6px; right: 8px;"
+              style="top: 6px; right: 8px; width: 24px; height: 24px"
               icon="back"
               :color="$themeTokens.primary"
             />
           </template>
         </KButton>
-
       </div>
 
       <SignInHeading
@@ -52,7 +51,11 @@
           TODO: Extract this into a separate component. We're post string freeze and short on
           time right now
         -->
-      <form ref="form" class="login-form" @submit.prevent="signIn">
+      <form
+        ref="form"
+        class="login-form"
+        @submit.prevent="signIn"
+      >
         <div v-show="showUsernameForm">
           <transition name="textbox">
             <KTextbox
@@ -163,6 +166,7 @@
   import { validateUsername } from 'kolibri.utils.validators';
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { ComponentMap } from '../../constants';
   import getUrlParameter from '../getUrlParameter';
   import AuthBase from '../AuthBase';
@@ -187,6 +191,10 @@
       UsersList,
     },
     mixins: [commonCoreStrings, commonUserStrings],
+    setup() {
+      const { isAppContext } = useUser();
+      return { isAppContext };
+    },
     data() {
       return {
         username: '',
@@ -205,7 +213,7 @@
       };
     },
     computed: {
-      ...mapGetters(['selectedFacility', 'isAppContext']),
+      ...mapGetters(['selectedFacility']),
       ...mapState('signIn', ['hasMultipleFacilities']),
       backToFacilitySelectionRoute() {
         const facilityRoute = this.$router.getRoute(ComponentMap.FACILITY_SELECT);
@@ -246,7 +254,7 @@
       suggestions() {
         // Filter suggestions on the client side so we don't hammer the server
         return this.usernameSuggestions.filter(sug =>
-          sug.toLowerCase().startsWith(this.username.toLowerCase())
+          sug.toLowerCase().startsWith(this.username.toLowerCase()),
         );
       },
       usernameIsInvalidText() {
@@ -391,7 +399,7 @@
             if (this.showDropdown && this.suggestions.length) {
               this.highlightedIndex = Math.min(
                 this.highlightedIndex + 1,
-                this.suggestions.length - 1
+                this.suggestions.length - 1,
               );
             }
             break;

@@ -19,10 +19,13 @@
           'transcript-visible': transcriptVisible,
           'transcript-wrap': transcriptWrap,
         },
-        $computedClass(progressStyle)
+        $computedClass(progressStyle),
       ]"
     >
-      <div v-show="loading" class="fill-space loading-space">
+      <div
+        v-show="loading"
+        class="fill-space loading-space"
+      >
         <KCircularLoader
           class="loader"
           :delay="true"
@@ -53,7 +56,11 @@
         </template>
       </video>
 
-      <audio v-else ref="player" class="custom-skin video-js">
+      <audio
+        v-else
+        ref="player"
+        class="custom-skin video-js"
+      >
         <template v-for="audio in audioSources">
           <source
             :key="audio.storage_url"
@@ -73,7 +80,10 @@
         </template>
       </audio>
 
-      <MediaPlayerTranscript v-if="transcriptVisible" ref="transcript" />
+      <MediaPlayerTranscript
+        v-if="transcriptVisible"
+        ref="transcript"
+      />
     </div>
   </MediaPlayerFullscreen>
 
@@ -108,7 +118,7 @@
     LanguagesButton,
   };
   Object.entries(componentsToRegister).forEach(([name, component]) =>
-    videojs.registerComponent(name, component)
+    videojs.registerComponent(name, component),
   );
   export default {
     name: 'MediaPlayerIndex',
@@ -142,7 +152,7 @@
       posterSources() {
         const posterFileExtensions = ['png', 'jpg'];
         return this.thumbnailFiles.filter(file =>
-          posterFileExtensions.some(ext => ext === file.extension)
+          posterFileExtensions.some(ext => ext === file.extension),
         );
       },
       audioPoster() {
@@ -162,11 +172,11 @@
       trackSources() {
         const trackFileExtensions = ['vtt'];
         return this.supplementaryFiles.filter(file =>
-          trackFileExtensions.some(ext => ext === file.extension)
+          trackFileExtensions.some(ext => ext === file.extension),
         );
       },
       audioSourceType() {
-        return function(extension) {
+        return function (extension) {
           switch (extension) {
             case 'mp3':
               // the correct type for mp3
@@ -313,19 +323,15 @@
               'Transcript off': this.$tr('transcriptOff'),
               Languages: this.$tr('languages'),
               'Volume Level': this.$tr('volumeLevel'),
-              'A network error caused the media download to fail part-way.': this.$tr(
-                'networkError'
-              ),
-              'The media could not be loaded, either because the server or network failed or because the format is not supported.': this.$tr(
-                'formatError'
-              ),
-              'The media playback was aborted due to a corruption problem or because the media used features your browser did not support.': this.$tr(
-                'corruptionOrSupportError'
-              ),
+              'A network error caused the media download to fail part-way.':
+                this.$tr('networkError'),
+              'The media could not be loaded, either because the server or network failed or because the format is not supported.':
+                this.$tr('formatError'),
+              'The media playback was aborted due to a corruption problem or because the media used features your browser did not support.':
+                this.$tr('corruptionOrSupportError'),
               'No compatible source was found for this media.': this.$tr('sourceError'),
-              'The media is encrypted and we do not have the keys to decrypt it.': this.$tr(
-                'encryptionError'
-              ),
+              'The media is encrypted and we do not have the keys to decrypt it.':
+                this.$tr('encryptionError'),
             },
           },
         };
@@ -440,8 +446,8 @@
             'addProgress',
             Math.max(
               0,
-              (this.dummyTime - this.progressStartingPoint) / Math.floor(this.player.duration())
-            )
+              (this.dummyTime - this.progressStartingPoint) / Math.floor(this.player.duration()),
+            ),
           );
         }
         this.progressStartingPoint = this.dummyTime;

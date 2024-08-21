@@ -6,6 +6,7 @@ import { ContentNodeResource } from 'kolibri.resources';
 import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
 import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
 import useSearch from '../useSearch';
+import coreModule from '../../../../../../core/assets/src/state/modules/core';
 
 Vue.use(VueRouter);
 
@@ -25,6 +26,7 @@ function prep(query = {}, descendant = null) {
       },
     },
   });
+  store.registerModule('core', coreModule);
   const router = new VueRouter();
   router.push = jest.fn().mockReturnValue(Promise.resolve());
   return {
@@ -288,7 +290,7 @@ describe(`useSearch`, () => {
           categories: `test1,test2`,
           channels: 'test1',
         },
-        ref({ tree_id: 1, lft: 10, rght: 20 })
+        ref({ tree_id: 1, lft: 10, rght: 20 }),
       );
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
@@ -331,7 +333,7 @@ describe(`useSearch`, () => {
           labels: expectedLabels,
           results: expectedResults,
           more: expectedMore,
-        })
+        }),
       );
       search();
       await Vue.nextTick();
@@ -391,7 +393,7 @@ describe(`useSearch`, () => {
           labels: expectedLabels,
           results: originalResults,
           more: expectedMore,
-        })
+        }),
       );
       search();
       await Vue.nextTick();
@@ -401,7 +403,7 @@ describe(`useSearch`, () => {
           labels: expectedLabels,
           results: expectedResults,
           more: expectedMore,
-        })
+        }),
       );
       set(more, {});
       searchMore();

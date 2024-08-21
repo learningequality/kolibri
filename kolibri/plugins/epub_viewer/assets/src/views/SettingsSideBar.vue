@@ -3,7 +3,10 @@
   <SideBar>
     <div class="o-f-h">
       <h3>{{ $tr('textSize') }}</h3>
-      <KFixedGrid numCols="2" gutter="8">
+      <KFixedGrid
+        numCols="2"
+        gutter="8"
+      >
         <KFixedGridItem span="1">
           <KButton
             ref="decreaseFontSizeButton"
@@ -12,7 +15,10 @@
             @click="$emit('decreaseFontSize')"
           >
             <template #icon>
-              <KIcon icon="minus" style="top: 0; width: 24px; height: 24px;" />
+              <KIcon
+                icon="minus"
+                style="top: 0; width: 24px; height: 24px"
+              />
             </template>
             <div class="truncate">
               {{ $tr('decrease') }}
@@ -27,7 +33,10 @@
             @click="$emit('increaseFontSize')"
           >
             <template #icon>
-              <KIcon icon="plus" style="top: 0; width: 24px; height: 24px;" />
+              <KIcon
+                icon="plus"
+                style="top: 0; width: 24px; height: 24px"
+              />
             </template>
             <div class="truncate">
               {{ $tr('increase') }}
@@ -39,7 +48,10 @@
 
     <div class="o-f-h">
       <h3>{{ $tr('theme') }}</h3>
-      <KFixedGrid numCols="4" gutter="8">
+      <KFixedGrid
+        numCols="4"
+        gutter="8"
+      >
         <KFixedGridItem
           v-for="(value, key) in themes"
           :key="key"
@@ -52,13 +64,12 @@
             @click="$emit('setTheme', value)"
           >
             <KIcon
-              v-if="isCurrentlySelectedTheme(value) "
+              v-if="isCurrentlySelectedTheme(value)"
               icon="check"
               :style="{ fill: value.textColor }"
-              style="top: 0; width: 24px; height: 24px;"
+              style="top: 0; width: 24px; height: 24px"
             />
           </KButton>
-
         </KFixedGridItem>
       </KFixedGrid>
     </div>

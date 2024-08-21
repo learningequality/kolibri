@@ -8,8 +8,15 @@
     :aria-valuemax="100"
     :aria-valuenow="progress * 100"
   >
-    <p v-if="completed" class="completion-label" :style="{ color: $themePalette.grey.v_800 }">
-      <ProgressIcon :progress="progress" class="completion-icon" />
+    <p
+      v-if="completed"
+      class="completion-label"
+      :style="{ color: $themePalette.grey.v_800 }"
+    >
+      <ProgressIcon
+        :progress="progress"
+        class="completion-icon"
+      />
       {{ coreString('completedLabel') }}
     </p>
     <KLinearLoader

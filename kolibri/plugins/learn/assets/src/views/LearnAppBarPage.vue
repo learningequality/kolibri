@@ -18,16 +18,12 @@
     </template>
 
     <template #storageNotif>
-      <div
-        v-if="page === 'AppBarPage'"
-        aria-live="polite"
-      >
+      <div v-if="page === 'AppBarPage'">
         <StorageNotification :showBanner="showStorageNotification" />
       </div>
     </template>
 
     <slot></slot>
-
   </component>
 
 </template>

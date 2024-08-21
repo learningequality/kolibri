@@ -7,18 +7,18 @@
         icon="correct"
         class="correct"
         :color="$themeTokens.correct"
-        style="top: 0; width: 24px; height: 24px;"
+        style="top: 0; width: 24px; height: 24px"
       />
       <KIcon
         v-else-if="answer === 'wrong'"
         icon="incorrect"
-        style="top: 0; width: 24px; height: 24px;"
+        style="top: 0; width: 24px; height: 24px"
         :color="$themeTokens.annotation"
       />
       <KIcon
         v-else-if="answer === 'hint'"
         icon="hint"
-        style="top: 0; width: 24px; height: 24px;"
+        style="top: 0; width: 24px; height: 24px"
         :color="$themeTokens.annotation"
       />
       <KIcon

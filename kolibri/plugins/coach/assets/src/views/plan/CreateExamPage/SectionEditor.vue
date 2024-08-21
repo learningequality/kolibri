@@ -1,65 +1,21 @@
 <template>
 
-  <div class="section-settings-content">
-    <h5
-      class="section-settings-top-heading"
-      :style="{ color: $themeTokens.text }"
-    >
+  <div
+    v-if="activeSection"
+    class="section-settings-content"
+  >
+    <h1 :style="{ color: $themeTokens.text }">
       {{ sectionSettings$() }}
-    </h5>
+    </h1>
 
-    <KGrid>
-      <KGridItem
-        :layout12="{ span: 6 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 2 }"
-      >
-        <KTextbox
-          v-model="section_title"
-          :label="sectionTitle$()"
-          :maxlength="100"
-        />
-      </KGridItem>
-      <KGridItem
-        :layout12="{ span: 6 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 2 }"
-      >
-        <div class="number-question">
-          <div>
-            <KTextbox
-              ref="numQuest"
-              v-model="question_count"
-              type="number"
-              :label="numberOfQuestionsLabel$()"
-            />
-          </div>
-          <div>
-            <div
-              :style="borderStyle"
-              class="group-button-border"
-            >
-              <KIconButton
-                icon="minus"
-                aria-hidden="true"
-                class="number-btn"
-                :disabled="question_count === 1"
-                @click="question_count -= 1"
-              />
-              <span
-                :style="dividerStyle"
-              > | </span>
-              <KIconButton
-                icon="plus"
-                aria-hidden="true"
-                class="number-btn"
-                @click="question_count += 1"
-              />
-            </div>
-          </div>
-        </div>
-      </KGridItem>
-    </KGrid>
+    <KTextbox
+      ref="sectionTitle"
+      v-model="section_title"
+      :label="sectionTitle$()"
+      :invalid="sectionTitleInvalid"
+      :invalidText="sectionTitleInvalidText"
+      :maxlength="100"
+    />
 
     <KTextbox
       v-model="description"
@@ -69,12 +25,10 @@
       class="description-ktextbox-style"
     />
 
-    <hr :style="dividerStyle">
+    <hr :style="dividerStyle" >
 
     <div>
-      <h5
-        class="section-settings-heading"
-      >
+      <h5 class="section-settings-heading">
         {{ questionOrder$() }}
       </h5>
       <KGrid>
@@ -86,7 +40,7 @@
           <KRadioButton
             v-model="learners_see_fixed_order"
             :label="randomizedLabel$()"
-            :buttonValue="true"
+            :buttonValue="false"
             :description="randomizedOptionDescription$()"
           />
         </KGridItem>
@@ -98,137 +52,45 @@
           <KRadioButton
             v-model="learners_see_fixed_order"
             :label="fixedLabel$()"
-            :buttonValue="false"
+            :buttonValue="true"
             :description="fixedOptionDescription$()"
           />
         </KGridItem>
       </KGrid>
     </div>
 
-    <hr :style="dividerStyle">
+    <hr :style="dividerStyle" >
 
-    <h5
-      class="section-settings-heading"
-    >
-      {{ quizResourceSelection$() }}
-    </h5>
-    <p>
+    <h5 class="section-settings-heading">
       {{
-        numberOfSelectedResources$(
-          {
-            count: activeResourcePool.length,
-            channels: channels.length
-          }
-        )
+        numberOfQuestionsSelected$({
+          count: activeQuestions.length,
+        })
       }}
-    </p>
+    </h5>
 
     <KRouterLink
+      v-if="showResourceButton"
       appearance="raised-button"
       :to="selectResourcesRoute"
-      style="margin-bottom: 1em;"
+      style="margin-bottom: 1em"
       iconAfter="forward"
     >
       {{ resourceButtonLabel }}
     </KRouterLink>
-
-    <hr :style="dividerStyle">
-
-    <h5
-      class="section-order-style section-settings-heading"
-    >
-      {{ sectionOrder$() }}
-    </h5>
-
-
-    <DragContainer
-      v-if="sectionOrderList.length > 0"
-      :items="sectionOrderList"
-      @sort="handleSectionSort"
-    >
-      <transition-group>
-        <Draggable
-          v-for="(section) in sectionOrderList"
-          :key="section.section_id"
-          :style="draggableStyle"
-        >
-          <DragHandle>
-            <div
-              :style="section.isActive ? activeSectionStyles : borderStyle "
-              class="section-order-list"
-            >
-              <KGrid>
-                <KGridItem
-                  :layout12="{ span: 1 }"
-                  :layout8="{ span: 1 }"
-                  :layout4="{ span: 1 }"
-                >
-                  <KIcon
-                    icon="dragVertical"
-                    class="space-content"
-                  />
-                </KGridItem>
-
-                <KGridItem
-                  :layout12="{ span: 6 }"
-                  :layout8="{ span: 4 }"
-                  :layout4="{ span: 2 }"
-                >
-                  <p class="space-content">
-                    {{ section.section_title.toUpperCase() }}
-                  </p>
-                </KGridItem>
-
-                <!-- Perhaps this should be positioned absolutely to
-                     accommodate longer section titles -->
-                <KGridItem
-                  :layout12="{ span: 5 }"
-                  :layout8="{ span: 3 }"
-                  :layout4="{ span: 1 }"
-                  class="current-section-style"
-                  :style="{ color: $themePalette.grey.v_700 }"
-                >
-                  <p
-                    v-if="activeSection.section_id === section.section_id"
-                    class="current-section-text space-content"
-                  >
-                    {{ currentSection$() }}
-                  </p>
-                </KGridItem>
-              </KGrid>
-            </div>
-          </DragHandle>
-        </Draggable>
-      </transition-group>
-    </DragContainer>
-
-    <div class="bottom-buttons-style">
-      <KGrid>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KButton
-            :text="deleteSectionLabel$()"
-            @click="handleDeleteSection(activeSection.section_id)"
-          />
-
-        </KGridItem>
-        <KGridItem
-          style="text-align: right;"
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KButton
-            :primary="true"
-            :text="applySettings$()"
-            @click="applySettings"
-          />
-
-        </KGridItem>
-      </KGrid>
+    <p v-else>
+      {{ maxQuestionsLabel }}
+    </p>
+    <div class="bottom-navigation">
+      <KButton
+        :text="deleteSectionLabel$()"
+        @click="handleDeleteSection()"
+      />
+      <KButton
+        :primary="true"
+        :text="applySettings$()"
+        @click="applySettings()"
+      />
     </div>
     <KModal
       v-if="showCloseConfirmation"
@@ -248,7 +110,11 @@
       @cancel="handleCancelDelete"
       @submit="handleConfirmDelete"
     >
-      {{ deleteConfirmation$({ section_title: activeSection.section_title }) }}
+      {{
+        deleteConfirmation$({
+          section_title: displaySectionTitle(activeSection, activeSectionIndex),
+        })
+      }}
     </KModal>
   </div>
 
@@ -260,14 +126,20 @@
   import isEqual from 'lodash/isEqual';
   import pick from 'lodash/pick';
   import { getCurrentInstance, computed, ref } from 'kolibri.lib.vueCompositionApi';
-  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import {
+    displaySectionTitle,
+    enhancedQuizManagementStrings,
+  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import { PageNames } from '../../../constants/index';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
+  import useDrag from './useDrag.js';
 
   export default {
     name: 'SectionEditor',
@@ -275,22 +147,23 @@
       Draggable,
       DragContainer,
       DragHandle,
+      DragSortWidget,
     },
     mixins: [commonCoreStrings],
     setup(_, context) {
       const router = getCurrentInstance().proxy.$router;
+      const store = getCurrentInstance().proxy.$store;
+      const route = computed(() => store.state.route);
 
       const {
         sectionSettings$,
         sectionTitle$,
+        sectionTitleUniqueWarning$,
         numberOfQuestionsLabel$,
         optionalDescriptionLabel$,
-        quizResourceSelection$,
-        numberOfSelectedResources$,
-        currentSection$,
+        numberOfQuestionsSelected$,
         deleteSectionLabel$,
         applySettings$,
-        changeResources$,
         sectionOrder$,
         questionOrder$,
         randomizedLabel$,
@@ -300,20 +173,24 @@
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         deleteConfirmation$,
-        changesSavedSuccessfully$,
-        selectResourcesFromChannels$,
+        addQuestionsLabel$,
+        addMoreQuestionsLabel$,
         sectionDeletedNotification$,
+        maxNumberOfQuestions$,
       } = enhancedQuizManagementStrings;
 
       const {
+        activeSectionIndex,
         activeSection,
         activeResourcePool,
+        activeQuestions,
         allSections,
         updateSection,
         updateQuiz,
         removeSection,
-        channels,
       } = injectQuizCreation();
+
+      const { moveDownOne, moveUpOne } = useDrag();
 
       const showCloseConfirmation = ref(false);
 
@@ -332,38 +209,57 @@
       }
 
       function handleConfirmDelete() {
-        const section_title = activeSection.value.section_title;
-        removeSection(showDeleteConfirmation.value);
+        const section_title = displaySectionTitle(activeSection.value, activeSectionIndex.value);
+        const newIndex = activeSectionIndex.value > 0 ? activeSectionIndex.value - 1 : 0;
+        removeSection(activeSectionIndex.value);
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: route.value.params.classId,
+            quizId: route.value.params.quizId,
+            sectionIndex: newIndex,
+          },
         });
-        this.$store.dispatch('createSnackbar', sectionDeletedNotification$({ section_title }));
+        store.dispatch('createSnackbar', sectionDeletedNotification$({ section_title }));
       }
 
-      function handleDeleteSection(section_id) {
-        showDeleteConfirmation.value = section_id;
+      function handleDeleteSection() {
+        showDeleteConfirmation.value = true;
       }
 
       /* Note that the use of snake_case here is to map directly to the API */
-      const learners_see_fixed_order = ref(activeSection.value.learners_see_fixed_order);
-      const question_count = ref(activeSection.value.question_count);
-      const description = ref(activeSection.value.description);
-      const section_title = ref(activeSection.value.section_title);
+      const learners_see_fixed_order = ref(activeSection?.value?.learners_see_fixed_order || false);
+      const description = ref(activeSection?.value?.description || '');
+      const section_title = ref(activeSection?.value?.section_title?.trim() || '');
+
+      // This is used to track the section that was moved
+      const reorderedSectionIndex = ref(null);
+
+      const sectionTitleInvalidText = computed(() => {
+        if (section_title.value.trim() === '') {
+          // Always allow empty section titles
+          return '';
+        }
+        const titleIsUnique = allSections.value.every((section, index) => {
+          if (index === activeSectionIndex.value) {
+            // Skip the current section
+            return true;
+          }
+          return section.section_title.trim() !== section_title.value.trim();
+        });
+        if (!titleIsUnique) {
+          return sectionTitleUniqueWarning$();
+        }
+      });
 
       const activeSectionChanged = computed(() => {
         return !isEqual(
           {
             learners_see_fixed_order: learners_see_fixed_order.value,
-            question_count: question_count.value,
             description: description.value,
-            section_title: section_title.value,
+            section_title: section_title.value.trim(),
           },
-          pick(activeSection.value, [
-            'learners_see_fixed_order',
-            'question_count',
-            'description',
-            'section_title',
-          ])
+          pick(activeSection.value, ['learners_see_fixed_order', 'description', 'section_title']),
         );
       });
 
@@ -372,7 +268,7 @@
       const sectionOrderChanged = computed(() => {
         return !isEqual(
           allSections.value.map(section => section.section_id),
-          sectionOrderList.value.map(section => section.section_id)
+          sectionOrderList.value.map(section => section.section_id),
         );
       });
 
@@ -383,14 +279,25 @@
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
 
       const resourceButtonLabel = computed(() => {
-        if (activeResourcePool.value.length === 0) {
-          return selectResourcesFromChannels$();
+        if (activeQuestions.value.length === 0) {
+          return addQuestionsLabel$();
         } else {
-          return changeResources$();
+          return addMoreQuestionsLabel$();
         }
       });
 
+      const showResourceButton = computed(() => {
+        return activeQuestions.value.length < MAX_QUESTIONS_PER_QUIZ_SECTION;
+      });
+
+      const maxQuestionsLabel = computed(() => {
+        return maxNumberOfQuestions$({ count: MAX_QUESTIONS_PER_QUIZ_SECTION });
+      });
+
       return {
+        reorderedSectionIndex,
+        sectionTitleInvalidText,
+        sectionTitleInvalid: computed(() => Boolean(sectionTitleInvalidText.value)),
         formDataHasChanged,
         sectionOrderChanged,
         showCloseConfirmation,
@@ -400,39 +307,43 @@
         handleCancelDelete,
         handleConfirmDelete,
         // useQuizCreation
-        channels,
+        activeSectionIndex,
         activeSection,
         activeResourcePool,
+        activeQuestions,
+        allSections,
         sectionOrderList,
         updateSection,
         updateQuiz,
         handleDeleteSection,
+        // dragging a11y
+        moveDownOne,
+        moveUpOne,
         // Form models
         learners_see_fixed_order,
-        question_count,
         description,
         section_title,
         resourceButtonLabel,
+        showResourceButton,
+        maxQuestionsLabel,
         // Responsiveness
         windowIsLarge,
         windowIsSmall,
         // i18n
-        selectResourcesFromChannels$,
+        displaySectionTitle,
+        addQuestionsLabel$,
         sectionSettings$,
         sectionTitle$,
         numberOfQuestionsLabel$,
         optionalDescriptionLabel$,
-        quizResourceSelection$,
-        numberOfSelectedResources$,
+        numberOfQuestionsSelected$,
         sectionDeletedNotification$,
-        currentSection$,
         deleteSectionLabel$,
         applySettings$,
-        changesSavedSuccessfully$,
         closeConfirmationTitle$,
         closeConfirmationMessage$,
         deleteConfirmation$,
-        changeResources$,
+        addMoreQuestionsLabel$,
         sectionOrder$,
         questionOrder$,
         randomizedLabel$,
@@ -464,39 +375,82 @@
       },
     },
     beforeRouteLeave(to, __, next) {
-      if (!this.showCloseConfirmation && this.formDataHasChanged && !this.showDeleteConfirmation) {
-        if (to.name === PageNames.QUIZ_SELECT_RESOURCES) {
-          // We're going from here to select resources so we'll save settings and move on without
-          // asking for confirmation.
-          // TODO This needs to be updated when/if "autosave" is implemented
-          this.applySettings();
-          next();
-        } else {
-          this.showCloseConfirmation = true;
+      if (this.formDataHasChanged && !this.showDeleteConfirmation) {
+        if (this.showCloseConfirmation) {
+          // The user should be confirming losing changes
           next(false);
+        } else {
+          // The user needs to confirm they want to leave
+          return (this.showCloseConfirmation = true);
         }
-      } else {
-        next();
       }
+      next();
     },
     methods: {
       handleSectionSort(e) {
         this.sectionOrderList = e.newArray;
+        const reorderedId = this.allSections[this.activeSectionIndex].section_id;
+        this.reorderedSectionIndex = this.sectionOrderList.findIndex(
+          section => section.section_id === reorderedId,
+        );
       },
-      applySettings() {
+      applySettings(nextRouteName = PageNames.EXAM_CREATION_ROOT) {
+        if (this.sectionTitleInvalid) {
+          this.$refs.sectionTitle.focus();
+          return;
+        }
+
         this.updateSection({
-          section_id: this.activeSection.section_id,
+          sectionIndex: this.activeSectionIndex,
           section_title: this.section_title,
           description: this.description,
-          question_count: this.question_count,
           learners_see_fixed_order: this.learners_see_fixed_order,
         });
+
         if (this.sectionOrderChanged) {
+          // Apply the new sorting to the updated sections,
+          // otherwise the edits we just made will be lost
+          const sectionOrderIds = this.sectionOrderList.map(section => section.section_id);
+          const question_sources = this.allSections.sort((a, b) => {
+            return sectionOrderIds.indexOf(a.section_id) - sectionOrderIds.indexOf(b.section_id);
+          });
           this.updateQuiz({
-            question_sources: this.sectionOrderList,
+            question_sources,
           });
         }
-        this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
+
+        if (nextRouteName) {
+          const sectionIndex =
+            this.reorderedSectionIndex !== null &&
+            this.reorderedSectionIndex !== this.activeSectionIndex
+              ? this.reorderedSectionIndex
+              : this.activeSectionIndex;
+
+          this.$router.push({
+            name: nextRouteName,
+            params: {
+              sectionIndex,
+              classId: this.$route.params.classId,
+              quizId: this.$route.params.quizId,
+            },
+          });
+        } else {
+          this.$emit('closePanel');
+        }
+      },
+      handleKeyboardDragDown(oldIndex, array) {
+        const newArray = this.moveDownOne(oldIndex, array);
+        this.sectionOrderList = newArray;
+      },
+      handleKeyboardDragUp(oldIndex, array) {
+        const newArray = this.moveUpOne(oldIndex, array);
+        this.sectionOrderList = newArray;
+      },
+      sectionOrderingTitle(section) {
+        const sectionIndexOrder = this.allSections.findIndex(
+          s => s.section_id === section.section_id,
+        );
+        return displaySectionTitle(section, sectionIndexOrder).toUpperCase();
       },
     },
   };
@@ -507,12 +461,6 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-
-  .number-field {
-    display: inline-block;
-    max-width: 31em;
-    margin-right: 0.5em;
-  }
 
   .section-settings-content {
     margin-bottom: 7em;
@@ -532,6 +480,9 @@
   }
 
   .section-order-list {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
     height: 2.5em;
     margin-top: 0.5em;
     border: 1px solid;
@@ -543,43 +494,26 @@
     font-size: 1em;
   }
 
-  .number-input-grid-item {
-    display: inline-flex;
-  }
-
-  .group-button-border {
-    display: inline-flex;
-    align-items: center;
-    height: 3.5em;
-    border: 1px solid;
-  }
-
-  .number-question {
-    display: inline-flex;
-    float: right;
-  }
-
   .section-order-style {
     font-size: 1em;
   }
 
-  .current-section-style {
-    font-size: 1em;
+  .drag-title {
+    display: inline-block;
+    padding: 8px;
   }
 
-  .bottom-buttons-style {
+  .bottom-navigation {
     position: absolute;
     right: 0;
-    bottom: 1.5em;
+    bottom: 0;
     left: 0;
+    display: flex;
+    justify-content: space-between;
     padding: 1em;
     margin-top: 1em;
     background-color: #ffffff;
     border-top: 1px solid black;
-
-    > div {
-      padding-right: 1em;
-    }
   }
 
   /deep/ .textbox {
@@ -588,10 +522,6 @@
 
   .description-ktextbox-style /deep/ .ui-textbox-label {
     width: 100%;
-  }
-
-  .current-section-text {
-    text-align: right;
   }
 
 </style>

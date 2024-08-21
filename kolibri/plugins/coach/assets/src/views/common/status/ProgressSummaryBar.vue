@@ -4,9 +4,18 @@
     class="bar-wrapper"
     :style="{ backgroundColor: $themePalette.grey.v_200 }"
   >
-    <div class="bar help" :style="helpLineStyle"></div>
-    <div class="bar" :style="barStyleStarted"></div>
-    <div class="bar" :style="barStyleCompleted"></div>
+    <div
+      class="bar help"
+      :style="helpLineStyle"
+    ></div>
+    <div
+      class="bar"
+      :style="barStyleStarted"
+    ></div>
+    <div
+      class="bar"
+      :style="barStyleCompleted"
+    ></div>
   </div>
 
 </template>

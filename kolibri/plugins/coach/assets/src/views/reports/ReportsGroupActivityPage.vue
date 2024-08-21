@@ -1,12 +1,7 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
+  <CoachAppBarPage>
     <KPageContainer>
-
       <ReportsGroupHeader
         :activeTabId="ReportsGroupTabs.ACTIVITY"
         :enablePrint="true"
@@ -20,7 +15,6 @@
           :noActivityString="coachString('activityListEmptyState')"
         />
       </KTabsPanel>
-
     </KPageContainer>
   </CoachAppBarPage>
 

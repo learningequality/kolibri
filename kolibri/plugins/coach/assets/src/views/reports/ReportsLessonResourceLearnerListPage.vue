@@ -1,12 +1,11 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
+  <CoachAppBarPage>
     <KPageContainer>
-      <ReportsResourceHeader :resource="resource" @previewClick="onPreviewClick" />
+      <ReportsResourceHeader
+        :resource="resource"
+        @previewClick="onPreviewClick"
+      />
 
       <ReportsControls @export="exportCSV">
         <KCheckbox
@@ -27,7 +26,10 @@
             class="group-title"
             data-test="group-title"
           >
-            <KLabeledIcon icon="group" :label="group.name" />
+            <KLabeledIcon
+              icon="group"
+              :label="group.name"
+            />
           </h2>
 
           <ReportsResourcesStats
@@ -152,7 +154,7 @@
             groups: this.getGroupNamesForLearner(learner.id),
             statusObj: this.getContentStatusObjForLearner(
               this.$route.params.resourceId,
-              learner.id
+              learner.id,
             ),
           };
           Object.assign(tableRow, learner);
@@ -183,7 +185,7 @@
       },
       getGroupEntries(groupId) {
         const learnerIdMap = fromPairs(
-          this.getLearnersForGroups([groupId]).map(learnerId => [learnerId, true])
+          this.getLearnersForGroups([groupId]).map(learnerId => [learnerId, true]),
         );
         return this.allEntries.filter(entry => {
           return learnerIdMap[entry.id];
@@ -212,8 +214,8 @@
             {
               last: lastPage,
               resourceId: this.resource.content_id,
-            }
-          )
+            },
+          ),
         );
       },
       exportCSV() {
@@ -229,7 +231,7 @@
         columns.push(
           ...csvFields.name(),
           ...csvFields.learnerProgress('statusObj.status'),
-          ...csvFields.timeSpent('statusObj.time_spent')
+          ...csvFields.timeSpent('statusObj.time_spent'),
         );
 
         if (!this.viewByGroups) {
@@ -263,7 +265,7 @@
             this.ungroupedEntries.map(entry => {
               entry.groupName = '';
               return entry;
-            })
+            }),
           );
         }
 

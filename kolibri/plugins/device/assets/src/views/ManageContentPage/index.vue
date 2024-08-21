@@ -9,7 +9,6 @@
     </transition>
 
     <KPageContainer class="device-container">
-
       <div>
         <HeaderWithOptions :headerText="coreString('channelsLabel')">
           <template #options>
@@ -32,7 +31,7 @@
               </KButton>
               <KButton
                 :text="$tr('import')"
-                style="margin-top: 16px; margin-bottom: -16px;"
+                style="margin-top: 16px; margin-bottom: -16px"
                 :primary="true"
                 @click="startImportWorkflow()"
               />
@@ -74,11 +73,8 @@
           @submit="handleDeleteChannel"
           @cancel="deleteChannelId = null"
         />
-
       </div>
-
     </KPageContainer>
-
   </DeviceAppBarPage>
 
 </template>
@@ -94,6 +90,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import taskNotificationMixin from '../taskNotificationMixin';
   import useContentTasks from '../../composables/useContentTasks';
@@ -127,6 +124,8 @@
     mixins: [commonCoreStrings, taskNotificationMixin],
     setup() {
       useContentTasks();
+      const { isLearnerOnlyImport } = useUser();
+      return { isLearnerOnlyImport };
     },
     data() {
       return {
@@ -140,7 +139,6 @@
         'channelIsBeingDeleted',
         'managedTasks',
       ]),
-      ...mapGetters(['isLearnerOnlyImport']),
       ...mapState('manageContent/wizard', ['pageName']),
       ...mapState('manageContent', ['channelListLoading']),
       ...mapState({

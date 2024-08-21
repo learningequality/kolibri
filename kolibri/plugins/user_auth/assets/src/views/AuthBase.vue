@@ -2,7 +2,7 @@
 
   <div class="fh">
     <div class="wrapper-table">
-      <div class="main-row table-row" :style="backgroundImageStyle">
+      <div class="main-row table-row">
         <div class="main-cell table-cell">
           <!-- remote access disabled -->
           <div
@@ -20,7 +20,7 @@
             <h1
               v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :style="[ { color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
+              :style="[{ color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
             >
               {{ logoText }}
             </h1>
@@ -30,7 +30,11 @@
             <p>{{ $tr('restrictedAccessDescription') }}</p>
           </div>
           <!-- remote access enabled -->
-          <div v-else class="box" :style="{ backgroundColor: $themeTokens.surface }">
+          <div
+            v-else
+            class="box"
+            :style="{ backgroundColor: $themeTokens.surface }"
+          >
             <CoreLogo
               v-if="themeConfig.signIn.topLogo"
               class="logo"
@@ -41,7 +45,7 @@
             <h1
               v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :style="[ { color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
+              :style="[{ color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
             >
               {{ logoText }}
             </h1>
@@ -68,22 +72,32 @@
 
             <slot></slot>
 
-            <p v-if="!hideCreateAccount && canSignUp" class="create">
+            <p
+              v-if="!hideCreateAccount && canSignUp"
+              class="create"
+            >
               <KRouterLink
                 :text="userString('createAccountAction')"
                 :to="signUpPage"
                 :primary="false"
                 appearance="raised-button"
                 :disabled="busy"
-                style="width: 100%;"
+                style="width: 100%"
                 data-test="createUser"
               />
             </p>
 
             <div>
-              <component :is="component" v-for="component in loginOptions" :key="component.name" />
+              <component
+                :is="component"
+                v-for="component in loginOptions"
+                :key="component.name"
+              />
             </div>
-            <p v-if="showGuestAccess" class="guest small-text">
+            <p
+              v-if="showGuestAccess"
+              class="guest small-text"
+            >
               <KExternalLink
                 :text="$tr('accessAsGuest')"
                 :href="guestURL"
@@ -92,10 +106,18 @@
               />
             </p>
           </div>
+          <div
+            class="background"
+            :style="backgroundImageStyle"
+            aria-hidden="true"
+          ></div>
         </div>
       </div>
       <div class="table-row">
-        <div class="footer-cell table-cell" :style="{ backgroundColor: $themeTokens.surface }">
+        <div
+          class="footer-cell table-cell"
+          :style="{ backgroundColor: $themeTokens.surface }"
+        >
           <LanguageSwitcherFooter />
           <div class="small-text">
             <span class="version-string">
@@ -113,9 +135,13 @@
             />
             <template v-if="themeConfig.signIn.backgroundImgCredit">
               <span> • </span>
-              {{ $tr('photoCreditLabel', {
-                photoCredit: themeConfig.signIn.backgroundImgCredit
-              }) }}
+              <span>
+                {{
+                  $tr('photoCreditLabel', {
+                    photoCredit: themeConfig.signIn.backgroundImgCredit,
+                  })
+                }}
+              </span>
             </template>
           </div>
         </div>
@@ -197,13 +223,14 @@
       ...mapGetters(['facilityConfig']),
       backgroundImageStyle() {
         if (this.themeConfig.signIn.background) {
-          const scrimOpacity =
-            this.themeConfig.signIn.scrimOpacity !== undefined
-              ? this.themeConfig.signIn.scrimOpacity
-              : 0.2;
+          const scrimOpacity = this.themeConfig.signIn.scrimOpacity;
           return {
             backgroundColor: this.$themeTokens.primary,
             backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.themeConfig.signIn.background})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            backgroundSize: 'cover',
+            filter: 'blur(2px)',
           };
         }
         return { backgroundColor: this.$themeBrand.primary.v_800 };
@@ -317,14 +344,15 @@
   }
 
   .table-row {
+    position: relative;
+    z-index: 1;
     display: table-row;
+    // Do this to mitigate issues with just using z-index on Safari.
+    transform: translateZ(1px);
   }
 
   .main-row {
     text-align: center;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
   }
 
   .table-cell {
@@ -336,9 +364,22 @@
     vertical-align: middle;
   }
 
+  .background {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+  }
+
   .box {
     @extend %dropshadow-16dp;
 
+    position: relative;
+    z-index: 1;
     width: 360px;
     padding: 32px;
     margin: 16px auto;

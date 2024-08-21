@@ -1,11 +1,13 @@
 <template>
 
-  <LearnAppBarPage
-    :appBarTitle="learnString('learnLabel')"
-  >
+  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
     <h1>{{ $tr('header') }}</h1>
     <p>
-      <KExternalLink v-if="deviceContentUrl" :text="$tr('adminLink')" :href="deviceContentUrl" />
+      <KExternalLink
+        v-if="deviceContentUrl"
+        :text="$tr('adminLink')"
+        :href="deviceContentUrl"
+      />
     </p>
     <p v-if="showLearnerText">
       {{ $tr('learnerText') }}
@@ -17,8 +19,8 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import urls from 'kolibri.urls';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import LearnAppBarPage from './LearnAppBarPage';
   import commonLearnStrings from './commonLearnStrings';
 
@@ -33,9 +35,14 @@
       LearnAppBarPage,
     },
     mixins: [commonLearnStrings],
-
+    setup() {
+      const { canManageContent, isLearner } = useUser();
+      return {
+        canManageContent,
+        isLearner,
+      };
+    },
     computed: {
-      ...mapGetters(['canManageContent', 'isLearner']),
       deviceContentUrl() {
         const deviceContentUrl = urls['kolibri:kolibri.plugins.device:device_management'];
         if (deviceContentUrl && this.canManageContent) {

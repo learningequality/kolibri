@@ -5,7 +5,7 @@
     class="alert"
     :style="{ backgroundColor: $themePalette.yellow.v_200 }"
   >
-    <div style="display:flex">
+    <div style="display: flex">
       <div>
         <KIcon
           icon="warning"
@@ -47,22 +47,26 @@
 
 
 <style scoped>
-.alert {
-  position: relative;
-  padding-left: 2em;
-  margin: 1em auto 0;
-  max-width: 1000px;
-  width: 100%;
-}
-.icon {
-  height: 24px;
-  width: 24px;
-  top: 1em;
-  left: 1em;
-  position: absolute;
-}
-.error-message {
-  font-size:14px;
-  margin: 0em 1em 0 2em;
-}
+
+  .alert {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    padding-left: 2em;
+    margin: 1em auto 0;
+  }
+
+  .icon {
+    position: absolute;
+    top: 1em;
+    left: 1em;
+    width: 24px;
+    height: 24px;
+  }
+
+  .error-message {
+    margin: 0 1em 0 2em;
+    font-size: 14px;
+  }
+
 </style>

@@ -11,11 +11,8 @@
   <CoreBase
     :immersivePage="false"
     :appBarTitle="coreString('coachLabel')"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
     :showSubNav="false"
   >
-
     <template #sub-nav>
       <TopNavbar />
     </template>
@@ -42,8 +39,14 @@
           <th>{{ coachString('learnersLabel') }}</th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="classObj in classList" :key="classObj.id">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
+            <tr
+              v-for="classObj in classList"
+              :key="classObj.id"
+            >
               <td>
                 <KRouterLink
                   :text="classObj.name"
@@ -62,7 +65,6 @@
         </template>
       </CoreTable>
     </KPageContainer>
-
   </CoreBase>
 
 </template>
@@ -75,16 +77,20 @@
 
   /* eslint-disable */
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
   import commonCoach from './common';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   export default {
     name: 'TestComponent',
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { isClassCoach, isFacilityCoach } = useUser();
+      return { isClassCoach, isFacilityCoach };
+    },
     computed: {
-      ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach']),
       ...mapState(['classList']),
       // Message that shows up when state.classList is empty
       emptyStateDetails() {
@@ -123,5 +129,4 @@
       noClassesInFacility: 'There are no classes yet',
     },
   };
-
 </script>

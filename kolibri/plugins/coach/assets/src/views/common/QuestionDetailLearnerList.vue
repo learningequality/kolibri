@@ -5,7 +5,10 @@
       {{ coreString('learnersLabel') }}
     </h3>
 
-    <ul ref="learnerList" class="history-list">
+    <ul
+      ref="learnerList"
+      class="history-list"
+    >
       <template v-for="(learner, index) in learners">
         <li
           :key="index"
@@ -20,19 +23,19 @@
             <KIcon
               v-if="learner.noattempt"
               class="item svg-item"
-              :style=" { fill: $themeTokens.annotation }"
-              icon="cancel"
+              :style="{ fill: $themeTokens.annotation }"
+              icon="notStarted"
             />
             <KIcon
               v-else-if="!learner.correct"
               class="item svg-item"
               :style="{ fill: $themeTokens.incorrect }"
-              icon="cancel"
+              icon="incorrect"
             />
             <KIcon
               v-else-if="learner.hinted"
               class="item svg-item"
-              :style=" { fill: $themeTokens.annotation }"
+              :style="{ fill: $themeTokens.annotation }"
               icon="hint"
             />
             <h3 class="item">
@@ -94,6 +97,7 @@
 <style lang="scss" scoped>
 
   .title {
+    position: relative;
     display: inline-block;
   }
 
@@ -117,22 +121,23 @@
     list-style-type: none;
   }
 
-  .item {
-    display: inline-block;
-    height: 24px;
+  h3.item {
+    margin-left: 2em;
   }
 
   .svg-item {
-    width: 32px;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 1.5em;
     height: auto;
-    margin-right: 8px;
-    vertical-align: middle;
+    transform: translateY(-50%);
   }
 
   .learner-item {
     display: block;
     min-width: 120px;
-    padding-left: 20px;
+    padding-left: 1em;
     clear: both;
   }
 

@@ -1,8 +1,10 @@
 <template>
 
   <DeviceAppBarPage :title="pageTitle">
-
-    <KPageContainer v-if="!isPageLoading" class="device-container">
+    <KPageContainer
+      v-if="!isPageLoading"
+      class="device-container"
+    >
       <div>
         <h1>{{ $tr('header') }}</h1>
         <table :class="windowIsSmall ? 'mobile-table' : ''">

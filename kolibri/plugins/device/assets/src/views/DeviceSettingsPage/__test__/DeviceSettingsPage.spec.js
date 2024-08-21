@@ -177,9 +177,8 @@ describe('DeviceSettingsPage', () => {
       });
 
       const { wrapper } = await makeWrapper();
-      const { learnPage, allowGuestAccess, disallowGuestAccess, lockedContent } = getButtons(
-        wrapper
-      );
+      const { learnPage, allowGuestAccess, disallowGuestAccess, lockedContent } =
+        getButtons(wrapper);
       // Learn page button is enabled and checked
       assertIsDisabled(learnPage, false);
       assertIsSelected(learnPage, true);
@@ -225,7 +224,7 @@ describe('DeviceSettingsPage', () => {
           landingPage: 'learn',
           allowGuestAccess: true,
           allowLearnerUnassignedResourceAccess: true,
-        })
+        }),
       );
     });
 
@@ -245,7 +244,7 @@ describe('DeviceSettingsPage', () => {
           landingPage: 'sign-in',
           allowGuestAccess: true,
           allowLearnerUnassignedResourceAccess: true,
-        })
+        }),
       );
     });
 
@@ -262,7 +261,7 @@ describe('DeviceSettingsPage', () => {
           landingPage: 'sign-in',
           allowGuestAccess: false,
           allowLearnerUnassignedResourceAccess: true,
-        })
+        }),
       );
     });
 
@@ -279,7 +278,7 @@ describe('DeviceSettingsPage', () => {
           landingPage: 'sign-in',
           allowGuestAccess: false,
           allowLearnerUnassignedResourceAccess: false,
-        })
+        }),
       );
     });
   });

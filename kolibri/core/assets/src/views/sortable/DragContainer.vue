@@ -52,6 +52,8 @@
         // hook up event listeners
         this.sortable.on('sortable:start', this.handleStart);
         this.sortable.on('sortable:stop', this.handleStop);
+        this.sortable.on('sortable:moveDown', this.moveDownOne);
+        this.sortable.on('sortable:moveUp', this.moveUpOne);
       },
       handleStart() {
         // handle cancelation of drags

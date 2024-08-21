@@ -17,35 +17,33 @@
           :style="sidePanelStyles"
           :aria-label="ariaLabel"
         >
-
           <!-- Fixed header -->
           <div
-            v-show="$slots.header"
             ref="fixedHeader"
             class="fixed-header"
             :style="fixedHeaderStyles"
           >
             <div class="header-content">
-              <slot name="header">
-              </slot>
+              <slot name="header"> </slot>
+              <KIconButton
+                v-if="closeButtonIconType"
+                :icon="closeButtonIconType"
+                class="close-button"
+                :style="closeButtonStyle"
+                :ariaLabel="closeButtonMessage"
+                :tooltip="closeButtonMessage"
+                @click="closePanel"
+              />
             </div>
           </div>
 
-          <KIconButton
-            v-if="closeButtonIconType"
-            :icon="closeButtonIconType"
-            class="close-button"
-            :style="closeButtonStyle"
-            :ariaLabel="closeButtonMessage"
-            :tooltip="closeButtonMessage"
-            @click="closePanel"
-          />
-
           <!-- Default slot for inserting content which will scroll on overflow -->
-          <div class="side-panel-content" :style="contentStyles">
+          <div
+            class="side-panel-content"
+            :style="contentStyles"
+          >
             <slot></slot>
           </div>
-
         </section>
       </FocusTrap>
     </transition>
@@ -149,8 +147,8 @@
           position: 'fixed',
           top: 0,
           backgroundColor: this.$themeTokens.surface,
-          'border-bottom': `1px solid ${this.$themePalette.grey.v_500}`,
-          padding: '24px 32px',
+          borderBottom: `1px solid ${this.$themePalette.grey.v_400}`,
+          padding: '0 1em',
           // Header border stays over content with this, but under any tooltips
           'z-index': 16,
         };
@@ -177,15 +175,17 @@
           if (this.closeButtonIconType === 'close') {
             return {
               position: 'absolute',
-              top: '16px',
-              left: '16px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              left: '1em',
               'z-index': '24',
             };
           } else {
             return {
               position: 'absolute',
-              top: '16px',
-              right: '24px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              right: '1em',
               'z-index': '24',
             };
           }
@@ -193,15 +193,17 @@
         if (this.closeButtonIconType === 'back') {
           return {
             position: 'absolute',
-            top: '16px',
-            left: '16px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            left: '1em',
             'z-index': '24',
           };
         } else {
           return {
             position: 'absolute',
-            top: '16px',
-            right: '24px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            right: '1em',
             'z-index': '24',
           };
         }
@@ -209,7 +211,7 @@
       contentStyles() {
         return {
           /* When the header margin is 0px from top, add 24 to accomodate close button */
-          'margin-top': this.fixedHeaderHeight === '0px' ? '24px' : this.fixedHeaderHeight,
+          'margin-top': this.fixedHeaderHeight === '0px' ? '16px' : this.fixedHeaderHeight,
           padding: '24px 32px 16px',
           'overflow-y': 'scroll',
           'overflow-x': 'hidden',

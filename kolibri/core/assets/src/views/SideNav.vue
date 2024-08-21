@@ -17,19 +17,17 @@
           backgroundColor: $themeTokens.surface,
         }"
       >
-
-
         <FocusTrap
           @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
           @shouldFocusLastEl="focusLastEl"
         >
-
-
           <div
             :class="showAppNavView ? 'bottom-nav-scrollable-area' : 'side-nav-scrollable-area'"
-            :style="showAppNavView ?
-              { width: `${width}` } :
-              { top: `${topBarHeight}px`, width: `${width}` }"
+            :style="
+              showAppNavView
+                ? { width: `${width}` }
+                : { top: `${topBarHeight}px`, width: `${width}` }
+            "
           >
             <img
               v-if="themeConfig.sideNav.topLogo"
@@ -39,9 +37,14 @@
               :style="themeConfig.sideNav.topLogo.style"
             >
 
-
-            <div v-if="userIsLearner || showAppNavView" class="user-information">
-              <div v-if="showAppNavView" style="margin-bottom:10px;margin-left:-15px">
+            <div
+              v-if="userIsLearner || showAppNavView"
+              class="user-information"
+            >
+              <div
+                v-if="showAppNavView"
+                style="margin-bottom: 10px; margin-left: -15px"
+              >
                 <KIconButton
                   ref="closeButton"
                   icon="close"
@@ -57,7 +60,7 @@
                   color: $themeTokens.annotation,
                   fontSize: '12px',
                   marginTop: '8px',
-                  marginBottom: 0
+                  marginBottom: 0,
                 }"
               >
                 {{ username }}
@@ -65,7 +68,6 @@
               <p :style="{ color: $themeTokens.annotation, fontSize: '12px', marginTop: 0 }">
                 {{ loggedInUserKind }}
               </p>
-
 
               <!-- display sync status, when relevant -->
               <div v-if="isLearnerOnlyImport">
@@ -79,7 +81,10 @@
                 />
               </div>
             </div>
-            <SideNavDivider v-if="userIsLearner" :style="{ listStyleType: 'none' }" />
+            <SideNavDivider
+              v-if="userIsLearner"
+              :style="{ listStyleType: 'none' }"
+            />
             <CoreMenu
               ref="coreMenu"
               role="navigation"
@@ -107,7 +112,7 @@
                   :link="item.url"
                   :icon="item.icon"
                   :linkActive="item.active"
-                  style="cursor: pointer;"
+                  style="cursor: pointer"
                   data-test="side-nav-item"
                   @toggleMenu="toggleNav"
                 />
@@ -128,7 +133,10 @@
               </template>
             </CoreMenu>
 
-            <div v-if="showSoudNotice" style="padding: 16px">
+            <div
+              v-if="showSoudNotice"
+              style="padding: 16px"
+            >
               <LearnOnlyDeviceNotice />
             </div>
 
@@ -146,8 +154,10 @@
                   :style="themeConfig.sideNav.brandedFooter.logo.style"
                 >
                 <div
-                  v-if="themeConfig.sideNav.brandedFooter.paragraphArray
-                    && themeConfig.sideNav.brandedFooter.paragraphArray.length"
+                  v-if="
+                    themeConfig.sideNav.brandedFooter.paragraphArray &&
+                      themeConfig.sideNav.brandedFooter.paragraphArray.length
+                  "
                   class="side-nav-scrollable-area-footer-info"
                 >
                   <p
@@ -184,7 +194,8 @@
             class="side-nav-header"
             :style="{
               height: topBarHeight + 'px',
-              width: `${width}`, paddingTop: windowIsSmall ? '4px' : '8px',
+              width: `${width}`,
+              paddingTop: windowIsSmall ? '4px' : '8px',
               backgroundColor: $themeTokens.appBar,
             }"
           >
@@ -214,8 +225,6 @@
       @toggleNav="toggleNav"
     />
 
-
-
     <Backdrop
       v-show="navShown && !showAppNavView"
       :transitions="true"
@@ -235,7 +244,6 @@
       :style="{ color: $themeTokens.text }"
       @cancel="languageModalShown = false"
     />
-
   </div>
 
 </template>
@@ -525,7 +533,9 @@
 
   // Matches the Keen-UI/UiToolbar box-shadow property
   %ui-toolbar-box-shadow {
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+    box-shadow:
+      0 0 2px rgba(0, 0, 0, 0.12),
+      0 2px 2px rgba(0, 0, 0, 0.2);
   }
 
   .side-nav-wrapper {

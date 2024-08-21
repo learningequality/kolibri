@@ -13,6 +13,7 @@ import MasteryModel from 'kolibri.coreVue.components.MasteryModel';
 import filter from 'lodash/filter';
 import get from 'lodash/get';
 import orderBy from 'lodash/orderBy';
+import useUser from 'kolibri.coreVue.composables.useUser';
 import { PageNames } from '../constants';
 import { LastPages } from '../constants/lastPagesConstants';
 import { STATUSES } from '../modules/classSummary/constants';
@@ -66,8 +67,15 @@ export default {
     TimeDuration,
   },
   mixins: [coachStringsMixin],
+  setup() {
+    const { isAdmin, isCoach, isSuperuser } = useUser();
+    return {
+      isAdmin,
+      isCoach,
+      isSuperuser,
+    };
+  },
   computed: {
-    ...mapGetters(['isAdmin', 'isCoach', 'isSuperuser']),
     ...mapState('classSummary', { classId: 'id', className: 'name' }),
     ...mapState('classSummary', [
       'adHocGroupsMap',
@@ -96,7 +104,6 @@ export default {
       'notificationModuleData',
       'getGroupNames',
       'getGroupNamesForLearner',
-      'getAdHocLearners',
       'getLearnersForGroups',
       'getLearnersForExam',
       'getLearnersForLesson',
@@ -112,12 +119,6 @@ export default {
       'getExamAvgScore',
     ]),
     userIsAuthorized() {
-      if (this.isSuperuser) {
-        return true;
-      }
-      if (this.$route.name === 'CoachClassListPage') {
-        return this.isCoach || this.isAdmin;
-      }
       return this.$store.getters.userIsAuthorizedForCoach;
     },
     PageNames() {
@@ -196,7 +197,7 @@ export default {
             },
             {
               groups: 'true',
-            }
+            },
           );
         case LastPages.EXERCISE_QUESTION_LIST:
           return this.classRoute('ReportsLessonExerciseQuestionListPage', {
@@ -214,7 +215,7 @@ export default {
             },
             {
               groups: 'true',
-            }
+            },
           );
         default:
           if (lastPage) {

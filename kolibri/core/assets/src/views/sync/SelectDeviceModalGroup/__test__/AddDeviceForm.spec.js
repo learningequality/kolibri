@@ -47,7 +47,7 @@ describe('AddDeviceForm', () => {
     } catch (err) {
       expect(els.addressTextbox().props().invalid).toEqual(true);
       expect(els.addressTextbox().props().invalidText).toEqual(
-        'Could not connect to this network address'
+        'Could not connect to this network address',
       );
     }
   });
@@ -65,7 +65,7 @@ describe('AddDeviceForm', () => {
     } catch (err) {
       expect(els.addressTextbox().props().invalid).toEqual(true);
       expect(els.addressTextbox().props().invalidText).toEqual(
-        'Please enter a valid IP address, URL, or hostname'
+        'Please enter a valid IP address, URL, or hostname',
       );
     }
   });

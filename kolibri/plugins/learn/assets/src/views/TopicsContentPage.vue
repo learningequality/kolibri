@@ -4,7 +4,6 @@
     ref="mainWrapper"
     class="main-wrapper"
   >
-
     <SkipNavigationLink />
     <LearningActivityBar
       ref="activityBar"
@@ -52,7 +51,6 @@
 
     <div
       v-else-if="!loading && content"
-      id="main"
       role="main"
       tabindex="-1"
       class="main"
@@ -64,7 +62,7 @@
         :content="content"
         :lessonId="lessonId"
         :style="{
-          backgroundColor: ( content.assessmentmetadata ? '' : $themeTokens.textInverted )
+          backgroundColor: content.assessmentmetadata ? '' : $themeTokens.textInverted,
         }"
         :allowMarkComplete="allowMarkComplete"
         @mounted="contentPageMounted = true"
@@ -91,14 +89,18 @@
           v-for="activity in sidePanelContent.learning_activities"
           :key="activity"
           class="side-panel-chips"
-          :class="$computedClass({ '::after': {
-            content: '',
-            flex: 'auto'
-          } })"
+          :class="
+            $computedClass({
+              '::after': {
+                content: '',
+                flex: 'auto',
+              },
+            })
+          "
         >
           <LearningActivityChip
             class="chip"
-            style="margin-left: 8px; margin-bottom: 8px;"
+            style="margin-bottom: 8px; margin-left: 8px"
             :kind="activity"
           />
         </div>
@@ -120,7 +122,7 @@
       @shouldFocusFirstEl="findFirstEl()"
     >
       <template #header>
-        <h2 style="margin: 0;">
+        <h2 style="margin: 0">
           {{ viewResourcesTitle }}
         </h2>
       </template>
@@ -169,6 +171,7 @@
   import urls from 'kolibri.urls';
   import AppError from 'kolibri-common/components/AppError';
   import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
+  import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import { PageNames, ClassesPageNames } from '../constants';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import useChannels from '../composables/useChannels';
@@ -184,7 +187,6 @@
   import useDownloadRequests from '../composables/useDownloadRequests';
   import commonLearnStrings from './commonLearnStrings';
   import SidePanelModal from './SidePanelModal';
-  import LearningActivityChip from './LearningActivityChip';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
@@ -227,11 +229,8 @@
       const store = currentInstance.$store;
       const router = currentInstance.$router;
       const { canDownloadExternally, canAddDownloads } = useCoreLearn();
-      const {
-        fetchContentNodeProgress,
-        fetchContentNodeTreeProgress,
-        contentNodeProgressMap,
-      } = useContentNodeProgress();
+      const { fetchContentNodeProgress, fetchContentNodeTreeProgress, contentNodeProgressMap } =
+        useContentNodeProgress();
       const { channelsMap, fetchChannels } = useChannels();
       const { fetchLesson } = useLearnerResources();
       const { back, genExternalBackURL } = useContentLink();
@@ -241,6 +240,7 @@
         downloadRequestMap,
         downloadRequestsTranslator,
         pollUserDownloadRequests,
+        showCompletedDownloadSnackbar,
         loading: downloadRequestLoading,
       } = useDownloadRequests();
       const deviceFormTranslator = crossComponentTranslator(AddDeviceForm);
@@ -273,7 +273,7 @@
             shouldResolve()
               ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
               : null;
-          }
+          },
         );
       }
 
@@ -337,6 +337,7 @@
         isAdmin,
         isSuperuser,
         currentUserId,
+        showCompletedDownloadSnackbar,
       };
     },
     props: {
@@ -416,7 +417,7 @@
         return lodashGet(
           this,
           ['content', 'options', 'completion_criteria', 'learner_managed'],
-          false
+          false,
         );
       },
       lessonContext() {
@@ -502,6 +503,11 @@
           this.stopMainScroll(true);
         } else {
           this.stopMainScroll(false);
+        }
+      },
+      isDownloading(newVal) {
+        if (newVal === false && this.isDownloaded) {
+          this.showCompletedDownloadSnackbar();
         }
       },
     },
@@ -608,7 +614,7 @@
           let nextFolders;
           if (fetchGrandparent) {
             const parentIndex = ancestor.children.results.findIndex(
-              c => c.id === this.content.parent
+              c => c.id === this.content.parent,
             );
             parent = ancestor.children.results[parentIndex];
             nextFolders = ancestor.children.results.slice(parentIndex + 1);

@@ -19,7 +19,11 @@
       Currently missing from material icon repo.
       See https://github.com/google/material-design-icons/issues/786
      -->
-    <KIcon icon="dragHorizontal" class="grip" style="top: 0; width: 24px; height: 24px" />
+    <KIcon
+      icon="dragHorizontal"
+      class="grip"
+      style="top: 0; width: 24px; height: 24px"
+    />
     <KIconButton
       v-show="!isLast"
       ref="dnBtn"
@@ -72,7 +76,7 @@
     methods: {
       updateFocus() {
         this.hasFocus = [this.$refs.dnBtn.$el, this.$refs.upBtn.$el].includes(
-          document.activeElement
+          document.activeElement,
         );
       },
       clickDown() {

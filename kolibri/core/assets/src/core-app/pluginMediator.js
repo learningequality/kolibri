@@ -464,7 +464,7 @@ export default function pluginMediatorFactory(facade) {
                 url.includes(languageDirections.RTL)) ||
               (languageDirection === languageDirections.LTR &&
                 !url.includes(languageDirections.RTL)) ||
-              !url.endsWith('css')
+              !url.endsWith('css'),
           );
           Promise.all(urls.map(scriptLoader))
             // Load all the urls that we just filtered (all the javascript
@@ -486,7 +486,7 @@ export default function pluginMediatorFactory(facade) {
               if (this._kolibriModuleRegistry[kolibriModuleName]) {
                 storeTags(this._kolibriModuleRegistry[kolibriModuleName]);
                 resolve(
-                  mergeMixin(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent)
+                  mergeMixin(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent),
                 );
               } else {
                 // Or wait until the module has been registered
@@ -494,7 +494,7 @@ export default function pluginMediatorFactory(facade) {
                   if (moduleName === kolibriModuleName) {
                     storeTags(this._kolibriModuleRegistry[kolibriModuleName]);
                     resolve(
-                      mergeMixin(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent)
+                      mergeMixin(this._kolibriModuleRegistry[kolibriModuleName].rendererComponent),
                     );
                   }
                 });
@@ -528,7 +528,7 @@ export default function pluginMediatorFactory(facade) {
             (direction === languageDirections.RTL && url.includes(languageDirections.RTL)) ||
             (direction === languageDirections.LTR &&
               !url.includes(languageDirections.RTL) &&
-              url.endsWith('css'))
+              url.endsWith('css')),
         );
         // Find the URL for the direction not specified
         const otherCssUrl = urls.find(
@@ -536,7 +536,7 @@ export default function pluginMediatorFactory(facade) {
             (direction !== languageDirections.RTL && url.includes(languageDirections.RTL)) ||
             (direction !== languageDirections.LTR &&
               !url.includes(languageDirections.RTL) &&
-              url.endsWith('css'))
+              url.endsWith('css')),
         );
         if (!cssUrl || contentRendererModule.urlTags[cssUrl]) {
           // There is no css file to try to load or

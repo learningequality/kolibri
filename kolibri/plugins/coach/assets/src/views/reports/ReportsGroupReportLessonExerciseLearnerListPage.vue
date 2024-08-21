@@ -1,12 +1,7 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
+  <CoachAppBarPage>
     <KPageContainer>
-
       <ReportsResourceHeader
         :resource="resource"
         @previewClick="onPreviewClick"
@@ -20,8 +15,9 @@
 
       <ReportsLearnersTable
         :entries="table"
-        :questionCount="resource.assessmentmetadata &&
-          resource.assessmentmetadata.number_of_assessments"
+        :questionCount="
+          resource.assessmentmetadata && resource.assessmentmetadata.number_of_assessments
+        "
       />
     </KPageContainer>
   </CoachAppBarPage>
@@ -75,7 +71,7 @@
             groups,
             statusObj: this.getContentStatusObjForLearner(
               this.$route.params.exerciseId,
-              learner.id
+              learner.id,
             ),
             link: this.link(learner.id),
           };
@@ -116,8 +112,8 @@
             {
               contentId: this.resource.id,
             },
-            this.defaultBackLinkQuery
-          )
+            this.defaultBackLinkQuery,
+          ),
         );
       },
     },

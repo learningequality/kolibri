@@ -8,7 +8,10 @@
       />
     </p>
     <h1>
-      <KLabeledIcon icon="group" :label="group.name" />
+      <KLabeledIcon
+        icon="group"
+        :label="group.name"
+      />
     </h1>
 
     <HeaderTabs
@@ -21,7 +24,6 @@
         :ariaLabel="$tr('groupReports')"
         :activeTabId="activeTabId"
         :tabs="tabs"
-        :style="{ position: 'relative', top: '5px' }"
         @click="() => saveTabsClick(REPORTS_GROUP_TABS_ID)"
       />
     </HeaderTabs>

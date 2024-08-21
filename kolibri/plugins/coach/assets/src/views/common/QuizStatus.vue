@@ -3,7 +3,10 @@
   <KPageContainer :topMargin="$isPrint ? 0 : 16">
     <KGrid gutter="16">
       <!-- Quiz Open button -->
-      <div v-if="!exam.active && !exam.archive && !$isPrint" class="status-item">
+      <div
+        v-if="!exam.active && !exam.archive && !$isPrint"
+        class="status-item"
+      >
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -20,7 +23,10 @@
       </div>
 
       <!-- Quiz Close button & time since opened -->
-      <div v-if="exam.active && !exam.archive && !$isPrint" class="status-item">
+      <div
+        v-if="exam.active && !exam.archive && !$isPrint"
+        class="status-item"
+      >
         <KGridItem
           :layout4="{ span: 4 }"
           :layout8="{ span: 4 }"
@@ -41,13 +47,16 @@
           <StatusElapsedTime
             :date="examDateOpened"
             actionType="opened"
-            style="display: block; margin-top: 8px;"
+            style="display: block; margin-top: 8px"
           />
         </KGridItem>
       </div>
 
       <!-- Quiz Closed label & time since closed -->
-      <div v-if="exam.archive && !$isPrint" class="status-item">
+      <div
+        v-if="exam.archive && !$isPrint"
+        class="status-item"
+      >
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -61,10 +70,16 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 12 }"
         >
-          <ElapsedTime :date="examDateArchived" style="margin-top: 8px;" />
+          <ElapsedTime
+            :date="examDateArchived"
+            style="margin-top: 8px"
+          />
         </KGridItem>
       </div>
-      <div v-if="exam.archive && !$isPrint" class="status-item">
+      <div
+        v-if="exam.archive && !$isPrint"
+        class="status-item"
+      >
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -81,7 +96,7 @@
           <KSwitch
             name="toggle-quiz-visibility"
             label=""
-            style="display:inline;"
+            style="display: inline"
             :checked="exam.active"
             :value="exam.active"
             @change="handleToggleVisibility"
@@ -90,7 +105,10 @@
       </div>
 
       <!-- Class name  -->
-      <div v-show="$isPrint" class="status-item">
+      <div
+        v-show="$isPrint"
+        class="status-item"
+      >
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -143,7 +161,10 @@
           :layout12="layout12Label"
         >
           <span>{{ coachString('avgScoreLabel') }}</span>
-          <AverageScoreTooltip v-show="!$isPrint" class="avg-score-info" />
+          <AverageScoreTooltip
+            v-show="!$isPrint"
+            class="avg-score-info"
+          />
         </KGridItem>
         <KGridItem
           :layout4="{ span: 4 }"
@@ -155,14 +176,17 @@
       </div>
 
       <!-- Question Order -->
-      <div v-if="!$isPrint" class="status-item">
+      <div
+        v-if="!$isPrint"
+        class="status-item"
+      >
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
           :layout8="{ span: 4 }"
           :layout12="{ span: 12 }"
         >
-          {{ $tr('questionOrderLabel') }}
+          {{ sectionOrderLabel$() }}
         </KGridItem>
         <KGridItem
           :layout4="{ span: 4 }"
@@ -174,7 +198,10 @@
       </div>
 
       <!-- quiz size -->
-      <div v-if="!$isPrint" class="status-item">
+      <div
+        v-if="!$isPrint"
+        class="status-item"
+      >
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -191,8 +218,6 @@
           <p>{{ exam.size_string ? exam.size_string : '--' }}</p>
         </KGridItem>
       </div>
-
-
     </KGrid>
 
     <KModal
@@ -251,7 +276,6 @@
         @change="dontShowAgainChecked = $event"
       />
     </KModal>
-
   </KPageContainer>
 
 </template>
@@ -265,6 +289,7 @@
   import Lockr from 'lockr';
   import { QUIZ_REPORT_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { mapActions } from 'vuex';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { coachStringsMixin } from './commonCoachStrings';
   import Score from './Score';
   import Recipients from './Recipients';
@@ -275,6 +300,10 @@
     name: 'QuizStatus',
     components: { Score, Recipients, ElapsedTime, StatusElapsedTime, AverageScoreTooltip },
     mixins: [coachStringsMixin, commonCoreStrings],
+    setup() {
+      const { sectionOrderLabel$ } = enhancedQuizManagementStrings;
+      return { sectionOrderLabel$ };
+    },
     props: {
       className: {
         type: String,
@@ -352,16 +381,26 @@
           id: this.$route.params.quizId,
           data: {
             active: true,
-            date_activated: new Date(),
+            draft: false,
           },
           exists: true,
         });
 
         return promise
-          .then(() => {
-            this.$store.dispatch('classSummary/refreshClassSummary');
+          .then(data => {
             this.showConfirmationModal = false;
             this.$store.dispatch('createSnackbar', this.coachString('quizOpenedMessage'));
+            if (data.id !== this.$route.params.quizId) {
+              this.$router.replace({
+                name: this.$route.name,
+                params: {
+                  ...this.$route.params,
+                  quizId: data.id,
+                },
+              });
+            } else {
+              this.$store.dispatch('classSummary/refreshClassSummary');
+            }
           })
           .catch(() => {
             this.$store.dispatch('createSnackbar', this.coachString('quizFailedToOpenMessage'));
@@ -372,7 +411,6 @@
           id: this.$route.params.quizId,
           data: {
             archive: true,
-            date_archived: new Date(),
           },
           exists: true,
         });
@@ -444,10 +482,6 @@
         message: 'Report visible to learners',
         context:
           'The label for a switch that will toggle whether or not learners can view their quiz report.',
-      },
-      questionOrderLabel: {
-        message: 'Question order',
-        context: 'A label for the place where the question order is shown.',
       },
     },
   };

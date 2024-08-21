@@ -1,90 +1,144 @@
 <template>
 
   <KGrid>
+    <!-- Question list - side panel accordion unless mobile, then KSelects -->
     <KGridItem
-      :layout8="{ span: 4 }"
-      :layout12="{ span: 5 }"
+      :layout8="{ span: windowIsSmall ? 8 : 4 }"
+      :layout12="{ span: windowIsSmall ? 12 : 5 }"
       class="list-wrapper"
     >
-      <DragContainer
-        v-if="fixedOrder && !readOnly"
-        :items="annotatedQuestions"
-        @sort="handleUserSort"
-      >
-        <transition-group tag="ol" name="list" class="question-list">
-          <Draggable
-            v-for="(question, questionIndex) in annotatedQuestions"
-            :key="listKey(question)"
-          >
-            <DragHandle>
-              <AssessmentQuestionListItem
-                :draggable="true"
-                :isSelected="isSelected(question)"
-                :exerciseName="question.title"
-                :isCoachContent="numCoachContents(question.exercise_id)"
-                :available="available(question.exercise_id)"
-                :questionNumberOfExercise="question.counterInExercise"
-                :isFirst="questionIndex === 0"
-                :isLast="questionIndex === annotatedQuestions.length - 1"
-                @select="currentQuestionIndex = questionIndex"
-                @moveDown="moveQuestionDown(questionIndex)"
-                @moveUp="moveQuestionUp(questionIndex)"
-              />
-            </DragHandle>
-          </Draggable>
-        </transition-group>
-      </DragContainer>
-      <ul v-else class="question-list">
-        <AssessmentQuestionListItem
-          v-for="(question, questionIndex) in annotatedQuestions"
-          :key="listKey(question)"
-          :draggable="false"
-          :isSelected="isSelected(question)"
-          :exerciseName="question.title"
-          :isCoachContent="numCoachContents(question.exercise_id)"
-          :questionNumberOfExercise="question.counterInExercise"
-          :available="available(question.exercise_id)"
-          @select="currentQuestionIndex = questionIndex"
+      <div v-if="windowIsSmall">
+        <KSelect
+          v-if="sectionSelectOptions.length > 1"
+          class="section-select"
+          :value="selectedSection"
+          :label="quizSectionsLabel$()"
+          :options="sectionSelectOptions"
+          :disabled="$attrs.disabled"
+          @change="handleSectionChange($event.value)"
         />
-      </ul>
 
-      <transition name="fade-numbers">
-        <ol v-if="fixedOrder" class="list-labels" aria-hidden>
-          <li
-            v-for="(question, questionIndex) in selectedQuestions"
-            :key="questionIndex"
-          ></li>
-        </ol>
-        <ul v-else class="list-labels" aria-hidden>
-          <li
-            v-for="(question, questionIndex) in selectedQuestions"
-            :key="questionIndex"
-          ></li>
-        </ul>
-      </transition>
+        <h2
+          v-else-if="selectedSection.label"
+          class="section-select"
+        >
+          {{ selectedSection.label }}
+        </h2>
+      </div>
+
+      <KSelect
+        v-if="windowIsSmall"
+        class="history-select"
+        :value="selectedQuestion"
+        :label="questionsLabel$()"
+        :options="questionSelectOptions"
+        :disabled="$attrs.disabled"
+        @change="handleQuestionChange($event.value)"
+      >
+        <template #display>
+          {{ selectedQuestion.label }}
+        </template>
+        <template #option="{ index }">
+          {{ questionSelectOptions[index].label }}
+        </template>
+      </KSelect>
+
+      <AccordionContainer
+        v-else-if="!windowIsSmall && annotatedSections && annotatedSections.length"
+        :hideTopActions="true"
+        :items="annotatedSections"
+        :style="{ backgroundColor: $themeTokens.surface }"
+      >
+        <AccordionItem
+          v-for="(section, index) in annotatedSections"
+          :id="`section-questions-${index}`"
+          :key="`section-questions-${index}`"
+          :title="displaySectionTitle(section, index)"
+          @focus="expand(index)"
+        >
+          <template #heading="{ title }">
+            <h3
+              v-if="title"
+              class="accordion-header"
+            >
+              <KButton
+                tabindex="0"
+                :style="accordionStyleOverrides"
+                appearance="basic-link"
+                class="accordion-header-label"
+                :aria-expanded="isExpanded(index)"
+                :aria-controls="`section-question-panel-${index}`"
+                @click="toggle(index)"
+              >
+                <span>{{ displaySectionTitle(section, index) }}</span>
+                <KIcon
+                  class="chevron-icon"
+                  :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
+                />
+              </KButton>
+            </h3>
+          </template>
+          <template #content>
+            <div
+              v-show="isExpanded(index)"
+              :style="{
+                backgroundColor: $themePalette.grey.v_100,
+              }"
+            >
+              <ul class="question-list">
+                <li v-for="(question, i) in section.questions">
+                  <KButton
+                    tabindex="0"
+                    class="question-button"
+                    appearance="basic-link"
+                    :class="{ selected: isSelected(question) }"
+                    :style="accordionStyleOverrides"
+                    @click="handleQuestionChange(i, index)"
+                  >
+                    <span class="text">
+                      {{
+                        questionNumberLabel$({
+                          questionNumber: i + 1 + section.startQuestionNumber,
+                        })
+                      }}
+                    </span>
+                  </KButton>
+                </li>
+              </ul>
+            </div>
+          </template>
+        </AccordionItem>
+      </AccordionContainer>
     </KGridItem>
+
     <KGridItem
-      :layout8="{ span: 4 }"
-      :layout12="{ span: 7 }"
+      :layout8="{ span: windowIsSmall ? 8 : 4 }"
+      :layout12="{ span: windowIsSmall ? 12 : 7 }"
     >
-      <h3 v-if="content && content.available" class="question-title">
-        {{ currentQuestion.title }}
+      <h3
+        v-if="content && content.available"
+        class="question-title"
+      >
+        {{ displayQuestionTitle(currentQuestion, content.title) }}
       </h3>
       <ContentRenderer
-        v-if="content && content.available && questionId"
+        v-if="content && content.available && currentQuestion.question_id"
         ref="contentRenderer"
         :kind="content.kind"
         :files="content.files"
         :available="content.available"
         :extraFields="content.extra_fields"
-        :itemId="questionId"
+        :itemId="currentQuestion.question_id"
         :assessment="true"
         :allowHints="false"
-        :showCorrectAnswer="true"
+        :showCorrectAnswer="false"
         :interactive="false"
       />
       <p v-else>
-        <KIcon icon="warning" :style=" { fill: $themePalette.yellow.v_1100 }" />
+        <KIcon
+          icon="warning"
+          :style="{ fill: $themePalette.yellow.v_1100 }"
+        />
         {{ resourceMissingText }}
       </p>
     </KGridItem>
@@ -95,116 +149,180 @@
 
 <script>
 
-  import DragContainer from 'kolibri.coreVue.components.DragContainer';
-  import Draggable from 'kolibri.coreVue.components.Draggable';
-  import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  import { ref, computed, toRefs, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import AssessmentQuestionListItem from './AssessmentQuestionListItem';
+  import useAccordion from 'kolibri-common/components/useAccordion';
+  import AccordionItem from 'kolibri-common/components/AccordionItem';
+  import AccordionContainer from 'kolibri-common/components/AccordionContainer';
+  import coreStrings from 'kolibri.utils.coreStrings';
+  import { annotateSections } from 'kolibri.utils.exams';
+  import {
+    displayQuestionTitle,
+    displaySectionTitle,
+    enhancedQuizManagementStrings,
+  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {
     name: 'QuestionListPreview',
     components: {
-      AssessmentQuestionListItem,
-      Draggable,
-      DragContainer,
-      DragHandle,
+      AccordionContainer,
+      AccordionItem,
     },
     mixins: [commonCoreStrings],
+    setup(props) {
+      const { windowIsSmall } = useKResponsiveWindow();
+
+      const { questionsLabel$, quizSectionsLabel$ } = enhancedQuizManagementStrings;
+      const { questionNumberLabel$ } = coreStrings;
+
+      const { sections, selectedExercises } = toRefs(props);
+
+      const annotatedSections = computed(() => annotateSections(sections.value));
+
+      const { expand, isExpanded, toggle } = useAccordion(annotatedSections);
+
+      const questions = computed(() => {
+        return annotatedSections.value.reduce((acc, section) => [...acc, ...section.questions], []);
+      });
+
+      const currentQuestionIndex = ref(0);
+
+      const currentSectionIndex = computed(() => {
+        const idx = annotatedSections.value.findIndex(
+          section =>
+            section.startQuestionNumber <= currentQuestionIndex.value &&
+            section.endQuestionNumber >= currentQuestionIndex.value,
+        );
+        return idx === -1 ? 0 : idx;
+      });
+
+      const currentQuestion = computed(() => {
+        return questions.value[currentQuestionIndex.value];
+      });
+
+      /** Finds the section which the current attempt belongs to and expands it */
+      function expandCurrentSectionIfNeeded() {
+        if (!isExpanded(currentSectionIndex.value)) {
+          expand(currentSectionIndex.value);
+        }
+      }
+
+      const sectionSelectOptions = computed(() => {
+        return annotatedSections.value.map((section, index) => ({
+          value: index,
+          label: displaySectionTitle(section, index),
+        }));
+      });
+
+      const currentSection = computed(() => {
+        return annotatedSections.value[currentSectionIndex.value];
+      });
+
+      const questionSelectOptions = computed(() => {
+        return currentSection.value.questions.map((question, index) => ({
+          value: index,
+          label: questionNumberLabel$({
+            questionNumber: index + 1 + currentSection.value.startQuestionNumber,
+          }),
+        }));
+      });
+
+      // The KSelect-shaped object for the current section
+      const selectedSection = computed(() => {
+        return sectionSelectOptions.value[currentSectionIndex.value];
+      });
+
+      // The KSelect-shaped object for the current question
+      const selectedQuestion = computed(() => {
+        return questionSelectOptions.value[
+          currentQuestionIndex.value - currentSection.value.startQuestionNumber
+        ];
+      });
+
+      function handleQuestionChange(questionIndex, sectionIndex = null) {
+        if (sectionIndex === null) {
+          // We're not in an accordion (ie, we only need to know the question index) as we're
+          // relying on `currentSection` to determine the section
+          currentQuestionIndex.value = questionIndex + currentSection.value.startQuestionNumber;
+        } else {
+          // otherwise, we're being given the specific section in which the question lives
+          currentQuestionIndex.value =
+            questionIndex + annotatedSections.value[sectionIndex].startQuestionNumber;
+        }
+        expandCurrentSectionIfNeeded();
+      }
+
+      function handleSectionChange(index) {
+        const questionIndex = annotatedSections.value[index].startQuestionNumber;
+        currentQuestionIndex.value = questionIndex;
+        expandCurrentSectionIfNeeded();
+      }
+
+      const content = computed(() => {
+        if (!currentQuestion.value) {
+          return {};
+        }
+        return selectedExercises.value[currentQuestion.value.exercise_id];
+      });
+
+      watch(currentQuestionIndex, expandCurrentSectionIfNeeded);
+
+      expandCurrentSectionIfNeeded();
+
+      return {
+        content,
+        questions,
+        currentQuestion,
+        annotatedSections,
+
+        questionSelectOptions,
+        sectionSelectOptions,
+        selectedQuestion,
+        selectedSection,
+
+        handleSectionChange,
+        handleQuestionChange,
+
+        displayQuestionTitle,
+        displaySectionTitle,
+        quizSectionsLabel$,
+        questionsLabel$,
+        questionNumberLabel$,
+
+        windowIsSmall,
+
+        expand,
+        isExpanded,
+        toggle,
+      };
+    },
     props: {
-      // If set to true, question buttons will be draggable
-      fixedOrder: {
-        type: Boolean,
-        required: true,
-      },
-      // If set to true, controls will be disabled for fixed-order mode
-      readOnly: {
-        type: Boolean,
-        default: false,
-      },
-      // Array of { question_id, exercise_id, title } from Exam.question_sources
-      selectedQuestions: {
+      // `sections` is used in `setup`
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      sections: {
         type: Array,
         required: true,
       },
-      // A Map(id, ContentNode)
+      // `selectedExercises` is used in `setup`
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
       selectedExercises: {
         type: Object,
         required: true,
       },
     },
-    data() {
-      return {
-        currentQuestionIndex: 0,
-      };
-    },
     computed: {
-      annotatedQuestions() {
-        const counts = {};
-        const totals = {};
-        this.selectedQuestions.forEach(question => {
-          if (!totals[question.exercise_id]) {
-            totals[question.exercise_id] = 0;
-          }
-          totals[question.exercise_id] += 1;
-          counts[this.listKey(question)] = totals[question.exercise_id];
-        });
-        return this.selectedQuestions.map(question => {
-          if (totals[question.exercise_id] > 1) {
-            question.counterInExercise = counts[this.listKey(question)];
-          }
-          const node = this.selectedExercises[question.exercise_id];
-          question.missing_resource = !node || !node.available;
-          return question;
-        });
-      },
-      currentQuestion() {
-        return this.selectedQuestions[this.currentQuestionIndex] || {};
-      },
-      content() {
-        return this.selectedExercises[this.currentQuestion.exercise_id];
-      },
-      questionId() {
-        return this.currentQuestion.question_id;
+      accordionStyleOverrides() {
+        return {
+          color: this.$themeTokens.text + '!important',
+          textDecoration: 'none',
+        };
       },
       resourceMissingText() {
         return this.coreString('resourceNotFoundOnDevice');
       },
     },
     methods: {
-      handleUserSort({ newArray, newIndex, oldIndex }) {
-        this.$store.commit('examCreation/SET_SELECTED_QUESTIONS', newArray);
-        if (this.isSelected(this.selectedQuestions[oldIndex])) {
-          // switch immediately
-          this.currentQuestionIndex = newIndex;
-        } else {
-          // wait for the bounce animation to complete before switching
-          setTimeout(() => {
-            this.currentQuestionIndex = newIndex;
-          }, 250);
-        }
-      },
-      shiftOne(oldIndex, newIndex) {
-        const newArray = [...this.selectedQuestions];
-        newArray[oldIndex] = this.selectedQuestions[newIndex];
-        newArray[newIndex] = this.selectedQuestions[oldIndex];
-        this.handleUserSort({ newArray, oldIndex, newIndex });
-      },
-      moveQuestionUp(index) {
-        this.shiftOne(index, index - 1);
-      },
-      moveQuestionDown(index) {
-        this.shiftOne(index, index + 1);
-      },
-      listKey(question) {
-        return question.exercise_id + question.question_id;
-      },
-      numCoachContents(exerciseId) {
-        // Do this to handle missing content
-        return Boolean((this.selectedExercises[exerciseId] || {}).num_coach_contents);
-      },
-      available(exerciseId) {
-        return Boolean(this.selectedExercises[exerciseId]);
-      },
       isSelected(question) {
         return (
           this.currentQuestion.question_id === question.question_id &&
@@ -227,8 +345,7 @@
 
   .question-list {
     padding: 0;
-    margin-top: 0;
-    margin-left: 40px;
+    margin: 0;
     list-style: none;
   }
 
@@ -255,6 +372,54 @@
 
   .fade-numbers-enter {
     opacity: 0;
+  }
+
+  .accordion-header-label {
+    display: block;
+    width: calc(100% - 1em);
+    height: 100%;
+    padding: 1em;
+
+    // Removes underline from section headings
+    /deep/.link-text {
+      text-decoration: none;
+    }
+  }
+
+  .chevron-icon {
+    position: absolute;
+    top: 50%;
+    right: 0.5em;
+    vertical-align: middle;
+    transform: translateY(-50%);
+  }
+
+  .accordion-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    text-align: left;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+
+  .question-button {
+    width: 100%;
+    height: 100%;
+    padding: 0.5em;
+
+    &:hover {
+      background-color: white;
+    }
+
+    &.selected {
+      background-color: white;
+    }
   }
 
 </style>

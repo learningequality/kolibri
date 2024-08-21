@@ -162,7 +162,7 @@
   "ManageClassPage.tableCaption": "कक्षाओं की सूची",
   "ManageClassPage.twoCoachNames": "{name1}, {name2}",
   "ManageSyncSchedule.NoSync": "कोई सिंक शेड्यूल नहीं है",
-  "ManageSyncSchedule.Schedule": "शेड्यूल",
+  "ManageSyncSchedule.Schedule": "शेड्यूल करें",
   "ManageSyncSchedule.addDevice": "डिवाइस जोड़ें",
   "ManageSyncSchedule.connected": "कनेक्ट हो गया",
   "ManageSyncSchedule.disconnected": "कनेक्टेड नहीं है",

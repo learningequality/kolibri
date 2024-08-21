@@ -4,10 +4,10 @@ import { canRenderContent, getRenderableFiles, getDefaultFile, getFilePreset } f
 
 export default {
   functional: true,
-  render: function(createElement, context) {
+  render: function (createElement, context) {
     const defaultItemPreset = getFilePreset(
       getDefaultFile(getRenderableFiles(context.props.files)),
-      context.props.preset
+      context.props.preset,
     );
     if (canRenderContent(defaultItemPreset)) {
       return createElement(
@@ -16,7 +16,7 @@ export default {
           ...context.data,
           props: context.props,
         },
-        context.children
+        context.children,
       );
     }
     return createElement(ContentRendererError);

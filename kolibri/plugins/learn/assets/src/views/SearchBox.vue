@@ -13,7 +13,10 @@
         fontSize: '16px',
       }"
     >
-      <label class="visuallyhidden" for="searchfield">{{ coreString('searchLabel') }}</label>
+      <label
+        class="visuallyhidden"
+        for="searchfield"
+      >{{ coreString('searchLabel') }}</label>
       <input
         :id="id"
         ref="searchInput"

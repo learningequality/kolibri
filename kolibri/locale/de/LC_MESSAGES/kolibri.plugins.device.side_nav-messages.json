@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Nicht ausreichend Speicherplatz auf dem Gerät. Geben Sie Speicherplatz auf dem Gerät frei oder wählen Sie weniger Materialien aus.",
   "CommonDeviceStrings.permissionsLabel": "Berechtigungen",
   "CommonDeviceStrings.primaryStorageLabel": "Neu heruntergeladene Materialien werden zum primären Speicherort hinzugefügt",
+  "CommonDeviceStrings.statusCanceled": "Abgebrochen",
+  "CommonDeviceStrings.statusCanceling": "Vorgang wird abgebrochen",
+  "CommonDeviceStrings.statusComplete": "Abgeschlossen",
+  "CommonDeviceStrings.statusFailed": "Fehlgeschlagen",
+  "CommonDeviceStrings.statusInProgress": "In Bearbeitung",
+  "CommonDeviceStrings.statusInQueue": "Warten",
   "CommonDeviceStrings.unlistedChannelLabel": "Nicht aufgeführter Kanal"
 }

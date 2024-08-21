@@ -1,10 +1,6 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
+  <CoachAppBarPage>
     <KPageContainer>
       <ReportsGroupHeader
         :activeTabId="ReportsGroupTabs.MEMBERS"
@@ -89,7 +85,7 @@
       },
       groupMembers() {
         return this.groupMap[this.$route.params.groupId].member_ids.map(
-          memberId => this.learnerMap[memberId]
+          memberId => this.learnerMap[memberId],
         );
       },
       table() {
@@ -97,7 +93,7 @@
         return sorted.map(learner => {
           const examStatuses = this.examStatuses.filter(status => learner.id === status.learner_id);
           const contentStatuses = this.contentStatuses.filter(
-            status => learner.id === status.learner_id
+            status => learner.id === status.learner_id,
           );
           const augmentedObj = {
             avgScore: this.avgScore(examStatuses),
@@ -131,7 +127,7 @@
         const statuses = contentStatuses.filter(
           status =>
             this.contentIdIsForExercise(status.content_id) &&
-            status.status === this.STATUSES.completed
+            status.status === this.STATUSES.completed,
         );
         return statuses.length;
       },
@@ -139,7 +135,7 @@
         const statuses = contentStatuses.filter(
           status =>
             !this.contentIdIsForExercise(status.content_id) &&
-            status.status !== this.STATUSES.notStarted
+            status.status !== this.STATUSES.notStarted,
         );
         return statuses.length;
       },

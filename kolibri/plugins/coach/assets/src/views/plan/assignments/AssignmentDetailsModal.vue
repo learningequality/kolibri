@@ -5,54 +5,91 @@
       <UiAlert
         v-if="showServerError"
         type="error"
-        :dismissible="false"
+        :dismissible="true"
+        @dismiss="showServerError = false"
       >
         {{ submitErrorMessage }}
       </UiAlert>
 
       <fieldset>
-        <KTextbox
-          ref="titleField"
-          v-model="title"
-          :label="coachString('titleLabel')"
-          :maxlength="50"
-          :autofocus="true"
-          :invalid="titleIsInvalid"
-          :invalidText="titleIsInvalidText"
-          :disabled="disabled || formIsSubmitted"
-          @blur="titleIsVisited = true"
-          @input="showTitleError = false"
-          @keydown.enter="submitData"
-        />
+        <KGrid>
+          <KGridItem
+            :layout4="{ span: 1 }"
+            :layout8="{ span: 1 }"
+            :layout12="{ span: 1 }"
+          >
+            <KIcon
+              :icon="iconName"
+              class="style-icon"
+            />
+          </KGridItem>
 
-        <KTextbox
-          v-if="showDescriptionField"
-          v-model="description"
-          :label="coachString('descriptionLabel')"
-          :maxlength="200"
-          :disabled="disabled || formIsSubmitted"
-          :textArea="true"
-        />
+          <KGridItem
+            :layout4="{ span: 3 }"
+            :layout8="{ span: 7 }"
+            :layout12="{ span: 11 }"
+          >
+            <KTextbox
+              ref="titleField"
+              v-model.trim="title"
+              :label="titleLabel$()"
+              :maxlength="titleMaxLength"
+              :autofocus="true"
+              :invalid="titleIsInvalid"
+              :invalidText="titleIsInvalidText"
+              :showInvalidText="titleIsInvalid"
+              :disabled="disabled || formIsSubmitted"
+              @input="showTitleError = false"
+              @keydown.enter="submitData"
+            />
+          </KGridItem>
+          <KGridItem
+            :layout4="{ span: 1 }"
+            :layout8="{ span: 1 }"
+            :layout12="{ span: 1 }"
+          />
+          <KGridItem
+            :layout4="{ span: 3 }"
+            :layout8="{ span: 7 }"
+            :layout12="{ span: 11 }"
+          >
+            <KTextbox
+              v-if="showDescriptionField"
+              v-model="description"
+              :label="descriptionLabel$()"
+              :maxlength="200"
+              :disabled="disabled || formIsSubmitted"
+              :textArea="true"
+            />
+          </KGridItem>
+        </KGrid>
       </fieldset>
 
       <fieldset>
+        <!--
+          TODO: Make this collapsible inside an Accordion component
+          if this is a quiz
+          when collapsed display this:
+          <Recipients
+            :groupNames="getRecipientNamesForExam(quiz)"
+            :hasAssignments="quiz.assignments.length > 0"
+          />
+        -->
         <legend>
-          {{ coachString('recipientsLabel') }}
+          {{ recipientsLabel$() }}
         </legend>
         <RecipientSelector
           v-model="selectedCollectionIds"
           :groups="groups"
           :classId="classId"
           :disabled="disabled || formIsSubmitted"
-          :initialAdHocLearners="initialAdHocLearners"
-          @updateLearners="learners => adHocLearners = learners"
+          :initialAdHocLearners="adHocLearners"
+          @updateLearners="learners => (adHocLearners = learners)"
         />
       </fieldset>
-
-      <slot name="resourceTable"></slot>
     </form>
 
-    <BottomAppBar>
+    <BottomAppBar v-if="!assignmentIsQuiz">
       <KButtonGroup>
         <KButton
           :text="coreString('cancelAction')"
@@ -79,7 +116,7 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import { coachStrings } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
 
   export default {
@@ -89,32 +126,49 @@
       RecipientSelector,
       UiAlert,
     },
-    mixins: [coachStringsMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
+    setup() {
+      const {
+        recipientsLabel$,
+        descriptionLabel$,
+        titleLabel$,
+        saveLessonError$,
+        saveQuizError$,
+        quizDuplicateTitleError$,
+        lessonDuplicateTitleError$,
+      } = coachStrings;
+      return {
+        recipientsLabel$,
+        descriptionLabel$,
+        titleLabel$,
+        saveLessonError$,
+        saveQuizError$,
+        quizDuplicateTitleError$,
+        lessonDuplicateTitleError$,
+      };
+    },
     props: {
-      modalTitleErrorMessage: {
-        type: String,
-        default: null,
-      },
-      submitErrorMessage: {
-        type: String,
+      /**
+       * The assignment object to be edited
+       * @type {Object}
+       * @required
+       * @example
+       * {
+       *  title: 'Assignment Title',
+       *  description: 'Assignment Description',
+       *  assignments: ['collection_id_1', 'collection_id_2'],
+       *  active: true,
+       *  learner_ids: ['learner_id_1', 'learner_id_2'],
+       * }
+       */
+      assignment: {
+        type: Object,
         required: true,
       },
-      initialTitle: {
+      assignmentType: {
         type: String,
         required: true,
-      },
-      initialDescription: {
-        type: String,
-        required: false,
-        default: null,
-      },
-      initialSelectedCollectionIds: {
-        type: Array,
-        required: true,
-      },
-      initialAdHocLearners: {
-        type: Array,
-        required: true,
+        validator: value => ['lesson', 'quiz'].includes(value),
       },
       classId: {
         type: String,
@@ -124,30 +178,20 @@
         type: Array,
         required: true,
       },
-      initialActive: {
-        type: Boolean,
-        required: false,
-      },
       // If set to true, all of the forms are disabled
       disabled: {
         type: Boolean,
         default: false,
       },
-      // Should be 'quiz', 'lesson', or 'new_lesson'
-      assignmentType: {
-        type: String,
-        required: true,
-      },
     },
     data() {
       return {
         // set default values
-        title: this.initialTitle,
-        description: this.initialDescription,
-        selectedCollectionIds: this.initialSelectedCollectionIds,
-        activeIsSelected: this.initialActive,
-        adHocLearners: this.initialAdHocLearners,
-        titleIsVisited: false,
+        title: this.assignment.title || '',
+        description: this.assignment.description || '',
+        selectedCollectionIds: this.assignment.assignments || [],
+        activeIsSelected: this.assignment.active || false,
+        adHocLearners: this.assignment.learner_ids || [],
         formIsSubmitted: false,
         showServerError: false,
         showTitleError: false,
@@ -156,31 +200,32 @@
     computed: {
       titleIsInvalidText() {
         // submission is handled because "blur" event happens on submit
-        if (!this.disabled && !this.formIsSubmitted && this.titleIsVisited) {
-          if (this.title === '') {
+        if (!this.disabled && !this.formIsSubmitted) {
+          if (this.title === '' && this.showTitleError) {
             return this.coreString('requiredFieldError');
           }
           if (this.assignmentIsQuiz) {
             if (
-              this.$store.getters['classSummary/quizTitleUnavailable']({
-                title: this.title,
-                excludeId: this.$route.params.quizId,
-              })
+              Boolean(
+                this.$store.getters['classSummary/quizTitleUnavailable']({
+                  title: this.title,
+                  excludeId: this.$route.params.quizId,
+                }),
+              ) ||
+              this.showTitleError
             ) {
-              return this.coachString('quizDuplicateTitleError');
+              return this.quizDuplicateTitleError$();
             }
           } else {
             if (
               this.$store.getters['classSummary/lessonTitleUnavailable']({
                 title: this.title,
                 excludeId: this.$route.params.lessonId,
-              })
+              }) ||
+              this.showTitleError
             ) {
-              return this.coachString('lessonDuplicateTitleError');
+              return this.lessonDuplicateTitleError$();
             }
-          }
-          if (this.showTitleError) {
-            return this.modalTitleErrorMessage;
           }
         }
         return '';
@@ -197,6 +242,32 @@
       },
       formIsValid() {
         return !this.titleIsInvalid;
+      },
+      titleMaxLength() {
+        if (this.assignmentIsQuiz) {
+          return 100;
+        }
+        return 50;
+      },
+      submitErrorMessage() {
+        return this.assignmentIsQuiz ? this.saveQuizError$() : this.saveLessonError$();
+      },
+      iconName() {
+        return this.assignmentIsQuiz ? 'quiz' : 'lesson';
+      },
+    },
+    watch: {
+      title() {
+        this.$emit('update', { title: this.title });
+      },
+      description() {
+        this.$emit('update', { description: this.description });
+      },
+      selectedCollectionIds() {
+        this.$emit('update', { assignments: this.selectedCollectionIds });
+      },
+      adHocLearners() {
+        this.$emit('update', { learner_ids: this.adHocLearners });
       },
     },
     methods: {
@@ -230,7 +301,6 @@
           });
         } else {
           this.formIsSubmitted = false;
-          this.$refs.titleField.focus();
         }
       },
       /**
@@ -246,6 +316,16 @@
       handleSubmitTitleFailure() {
         this.formIsSubmitted = false;
         this.showTitleError = true;
+        this.$refs.titleField.focus();
+        // Scroll to the title field in case focus() didn't do that immediately
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+      /**
+       * @public
+       */
+      handleSubmitSuccess() {
+        this.showTitleError = false;
+        this.showServerError = false;
       },
     },
   };
@@ -254,6 +334,23 @@
 
 
 <style lang="scss" scoped>
+
+  /deep/ .ui-textbox-label {
+    width: 100% !important;
+  }
+
+  /deep/ .textbox {
+    width: 100% !important;
+    max-width: 100%;
+    margin-left: -1em;
+  }
+
+  .style-icon {
+    width: 2em;
+    height: 2em;
+    margin-top: 0.5em;
+    margin-left: 1em;
+  }
 
   fieldset {
     padding: 0;

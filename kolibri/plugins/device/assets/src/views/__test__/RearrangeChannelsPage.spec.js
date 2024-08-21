@@ -1,8 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import makeStore from '../../../test/utils/makeStore';
 import RearrangeChannelsPage from '../RearrangeChannelsPage';
 
 jest.mock('../../composables/useContentTasks');
+jest.mock('kolibri.coreVue.composables.useUser');
 
 RearrangeChannelsPage.methods.postNewOrder = () => Promise.resolve();
 RearrangeChannelsPage.methods.fetchChannels = () => {
@@ -13,7 +15,7 @@ RearrangeChannelsPage.methods.fetchChannels = () => {
 };
 async function makeWrapper() {
   const store = makeStore();
-  store.state.core.session.can_manage_content = true;
+  useUser.mockImplementation(() => useUserMock({ canManageContent: true }));
   const wrapper = shallowMount(RearrangeChannelsPage, {
     store,
   });
@@ -45,7 +47,7 @@ describe('RearrangeChannelsPage', () => {
     await simulateSort(wrapper);
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith(
       'createSnackbar',
-      'Channel order saved'
+      'Channel order saved',
     );
     expect(wrapper.vm.channels[0].id).toEqual('2');
     expect(wrapper.vm.channels[1].id).toEqual('1');
@@ -58,7 +60,7 @@ describe('RearrangeChannelsPage', () => {
     await simulateSort(wrapper);
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith(
       'createSnackbar',
-      'There was a problem reordering the channels'
+      'There was a problem reordering the channels',
     );
     // Channels array is reset after an error
     expect(wrapper.vm.channels[0].id).toEqual('1');

@@ -55,11 +55,8 @@ export function fetchLessonsSizes(store, classId, shouldCommit = true) {
 
 export function createLesson(store, { classId, payload }) {
   return new Promise((resolve, reject) => {
-    const lesson_assignments = payload.assignments;
-    delete payload.assignments;
     const data = {
       ...payload,
-      lesson_assignments,
       collection: classId,
     };
     return LessonResource.saveModel({

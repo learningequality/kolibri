@@ -14,12 +14,11 @@ from rest_framework.response import Response
 
 from kolibri.core.auth import models as auth_models
 from kolibri.core.auth.constants import role_kinds
-from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
-from kolibri.core.exams.models import Exam
-from kolibri.core.lessons.models import Lesson
+from kolibri.core.exams.api import ExamViewset
+from kolibri.core.lessons.viewsets import LessonViewset
 from kolibri.core.logger import models as logger_models
 from kolibri.core.logger.utils.quiz import annotate_response_summary
 from kolibri.core.notifications.models import LearnerProgressNotification
@@ -35,6 +34,11 @@ NOT_STARTED = "NotStarted"
 STARTED = "Started"
 HELP_NEEDED = "HelpNeeded"
 COMPLETED = "Completed"
+
+
+# Instantiate the viewsets here so that we can use their serialize_list methods
+exam_viewset = ExamViewset()
+lesson_viewset = LessonViewset()
 
 
 def _get_quiz_status(queryset):
@@ -226,9 +230,13 @@ def _map_exam_status(item):
     return item
 
 
-def serialize_coach_assigned_quiz_status(queryset):
+def serialize_coach_assigned_quiz_status(exam_data):
     queryset = logger_models.MasteryLog.objects.filter(
-        summarylog__content_id__in=queryset.values("id"),
+        # DraftExam models have an integer pk, but also won't have any MasteryLogs associated with them,
+        # so we filter them out here to avoid a ValueError if we feed it into the query here.
+        summarylog__content_id__in=[
+            exam["id"] for exam in exam_data if not isinstance(exam["id"], int)
+        ],
     ).order_by()
     return list(map(_map_exam_status, _get_quiz_status(queryset)))
 
@@ -252,29 +260,18 @@ def _map_lesson(item):
     return item
 
 
-def serialize_lessons(queryset):
-    queryset = annotate_array_aggregate(
-        queryset, assignments="lesson_assignments__collection"
-    )
+def serialize_lessons(request, pk):
+    data = lesson_viewset.serialize_list(request, {"collection": pk})
     return list(
         map(
             _map_lesson,
-            queryset.values(
-                "id",
-                "title",
-                "resources",
-                "assignments",
-                "description",
-                "date_created",
-                "is_active",
-            ),
+            data,
         )
     )
 
 
 def _map_exam(item):
-    item["assignments"] = item.pop("exam_assignments")
-    data_model_version = item.pop("data_model_version")
+    data_model_version = item.get("data_model_version")
     if data_model_version == 3:
         item["node_ids"] = [
             question["exercise_id"]
@@ -291,28 +288,12 @@ def _map_exam(item):
     return item
 
 
-def serialize_exams(queryset):
-    queryset = annotate_array_aggregate(
-        queryset, exam_assignments="assignments__collection"
-    )
+def serialize_exams(request, classroom_id):
+    data = exam_viewset.serialize_list(request, {"collection": classroom_id})
     return list(
         map(
             _map_exam,
-            queryset.values(
-                "id",
-                "title",
-                "active",
-                "question_sources",
-                "data_model_version",
-                "question_count",
-                "learners_see_fixed_order",
-                "seed",
-                "date_created",
-                "date_archived",
-                "date_activated",
-                "archive",
-                "exam_assignments",
-            ),
+            data,
         )
     )
 
@@ -340,10 +321,8 @@ class ClassSummaryViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk):
         classroom = get_object_or_404(auth_models.Classroom, id=pk)
         query_learners = FacilityUser.objects.filter(memberships__collection=classroom)
-        query_lesson = Lesson.objects.filter(collection=pk)
-        query_exams = Exam.objects.filter(collection=pk)
-        lesson_data = serialize_lessons(query_lesson)
-        exam_data = serialize_exams(query_exams)
+        lesson_data = serialize_lessons(request, pk)
+        exam_data = serialize_exams(request, pk)
 
         all_node_ids = set()
         for lesson in lesson_data:
@@ -365,17 +344,9 @@ class ClassSummaryViewSet(viewsets.ViewSet):
         # final list of available nodes
         node_lookup = {node["node_id"]: node for node in content}
 
-        individual_learners_group_ids = AdHocGroup.objects.filter(
-            parent=classroom
-        ).values_list("id", flat=True)
-
         # filter classes out of exam assignments
         for exam in exam_data:
-            exam["groups"] = [
-                g
-                for g in exam["assignments"]
-                if g != pk and g not in individual_learners_group_ids
-            ]
+            exam["groups"] = [g for g in exam["assignments"] if g != pk]
             # determine if any resources are missing locally for the quiz
             exam["missing_resource"] = any(
                 node_id not in node_lookup or not node_lookup[node_id]["available"]
@@ -384,11 +355,7 @@ class ClassSummaryViewSet(viewsets.ViewSet):
 
         # filter classes out of lesson assignments
         for lesson in lesson_data:
-            lesson["groups"] = [
-                g
-                for g in lesson["assignments"]
-                if g != pk and g not in individual_learners_group_ids
-            ]
+            lesson["groups"] = [g for g in lesson["assignments"] if g != pk]
             # determine if any resources are missing locally for the lesson
             lesson["missing_resource"] = any(
                 node_id not in node_lookup or not node_lookup[node_id]["available"]
@@ -412,7 +379,7 @@ class ClassSummaryViewSet(viewsets.ViewSet):
                 classroom.get_individual_learners_group()
             ),
             "exams": exam_data,
-            "exam_learner_status": serialize_coach_assigned_quiz_status(query_exams),
+            "exam_learner_status": serialize_coach_assigned_quiz_status(exam_data),
             "content": content,
             "content_learner_status": content_status_serializer(
                 lesson_data, learners_data, classroom

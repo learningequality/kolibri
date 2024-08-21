@@ -7,7 +7,7 @@
           v-if="userIsMultiFacilityAdmin"
           :to="{
             name: facilityPageLinks.AllFacilitiesPage.name,
-            params: { subtopicName: 'UserPage' }
+            params: { subtopicName: 'UserPage' },
           }"
           icon="back"
           :text="coreString('changeLearningFacility')"
@@ -54,7 +54,10 @@
         </template>
 
         <template #filter>
-          <FilterTextbox v-model="search" :placeholder="$tr('searchText')" />
+          <FilterTextbox
+            v-model="search"
+            :placeholder="$tr('searchText')"
+          />
         </template>
 
         <template>
@@ -116,6 +119,7 @@
   import UserTable from 'kolibri.coreVue.components.UserTable';
   import cloneDeep from 'lodash/cloneDeep';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
@@ -139,6 +143,14 @@
       PaginatedListContainerWithBackend,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { currentUserId, isSuperuser, userIsMultiFacilityAdmin } = useUser();
+      return {
+        currentUserId,
+        isSuperuser,
+        userIsMultiFacilityAdmin,
+      };
+    },
     data() {
       return {
         selectedUser: null,
@@ -146,12 +158,7 @@
       };
     },
     computed: {
-      ...mapGetters([
-        'currentUserId',
-        'isSuperuser',
-        'userIsMultiFacilityAdmin',
-        'facilityPageLinks',
-      ]),
+      ...mapGetters(['facilityPageLinks']),
       ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount', 'dataLoading']),
       Modals: () => Modals,
       userKinds() {

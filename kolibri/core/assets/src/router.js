@@ -27,7 +27,7 @@ class Router {
         nextCalled = true;
       } else {
         logging.warn(
-          'next() called multiple times - this may happen if you are invoking next() in an asynchronous handler'
+          'next() called multiple times - this may happen if you are invoking next() in an asynchronous handler',
         );
       }
     };

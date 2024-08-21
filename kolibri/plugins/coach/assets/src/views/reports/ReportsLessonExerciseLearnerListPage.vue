@@ -1,12 +1,7 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
+  <CoachAppBarPage>
     <KPageContainer>
-
       <ReportsResourceHeader
         :resource="resource"
         @previewClick="onPreviewClick"
@@ -150,7 +145,7 @@
             groups,
             statusObj: this.getContentStatusObjForLearner(
               this.$route.params.exerciseId,
-              learner.id
+              learner.id,
             ),
             link: this.getExerciseLearnerLink(learner.id),
           };
@@ -208,7 +203,7 @@
       },
       getGroupEntries(groupId) {
         const learnerIdMap = fromPairs(
-          this.getLearnersForGroups([groupId]).map(learnerId => [learnerId, true])
+          this.getLearnersForGroups([groupId]).map(learnerId => [learnerId, true]),
         );
         return this.allEntries.filter(entry => {
           return learnerIdMap[entry.id];
@@ -229,8 +224,8 @@
             {
               last: lastPage,
               exerciseId: this.exercise.content_id,
-            }
-          )
+            },
+          ),
         );
       },
       exportCSV() {
@@ -246,7 +241,7 @@
         columns.push(
           ...csvFields.name(),
           ...csvFields.learnerProgress('statusObj.status'),
-          ...csvFields.timeSpent('statusObj.time_spent')
+          ...csvFields.timeSpent('statusObj.time_spent'),
         );
 
         if (!this.viewByGroups) {
@@ -280,7 +275,7 @@
             this.ungroupedEntries.map(entry => {
               entry.groupName = '';
               return entry;
-            })
+            }),
           );
         }
 

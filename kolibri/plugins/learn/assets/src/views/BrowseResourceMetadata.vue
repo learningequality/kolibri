@@ -1,7 +1,6 @@
 <template>
 
   <section class="metadata">
-
     <div class="flex section">
       <div>
         <span
@@ -30,7 +29,11 @@
       <ContentNodeThumbnail :contentNode="content" />
     </div>
 
-    <div v-if="content.title" class="section title" data-test="content-title">
+    <div
+      v-if="content.title"
+      class="section title"
+      data-test="content-title"
+    >
       {{ content.title }}
     </div>
 
@@ -54,12 +57,17 @@
       @click="toggleShowMoreOrLess"
     />
     <!-- this v-else ensures spacing remains consistent without show more -->
-    <div v-else class="section"></div>
+    <div
+      v-else
+      class="section"
+    ></div>
 
-    <div v-if="content.duration" class="section" data-test="estimated-time">
-      <span class="label">
-        {{ learnString('estimatedTime') }}:
-      </span>
+    <div
+      v-if="content.duration"
+      class="section"
+      data-test="estimated-time"
+    >
+      <span class="label"> {{ learnString('estimatedTime') }}: </span>
       <span>
         <TimeDuration :seconds="content.duration" />
       </span>
@@ -70,63 +78,73 @@
       class="section"
       data-test="grade-levels"
     >
-      <span class="label">
-        {{ coreString('levelLabel') }}:
-      </span>
+      <span class="label"> {{ coreString('levelLabel') }}: </span>
       <span>
         {{ levels(content.grade_levels) }}
       </span>
     </div>
 
-    <div v-if="content.lang" class="section" data-test="lang">
-      <span class="label">
-        {{ coreString('languageLabel') }}:
-      </span>
+    <div
+      v-if="content.lang"
+      class="section"
+      data-test="lang"
+    >
+      <span class="label"> {{ coreString('languageLabel') }}: </span>
       <span>
         {{ content.lang.lang_name }}
       </span>
     </div>
 
-    <div v-if="accessibilityLabels" class="section" data-test="accessibility-labels">
-      <span class="label">
-        {{ coreString('accessibility') }}:
-      </span>
+    <div
+      v-if="accessibilityLabels"
+      class="section"
+      data-test="accessibility-labels"
+    >
+      <span class="label"> {{ coreString('accessibility') }}: </span>
       <span>
         {{ accessibilityLabels }}
       </span>
     </div>
 
-    <div v-if="content.learner_needs" class="section" data-test="learner-needs">
-      <span class="label">
-        {{ learnString('whatYouWillNeed') }}:
-      </span>
+    <div
+      v-if="content.learner_needs"
+      class="section"
+      data-test="learner-needs"
+    >
+      <span class="label"> {{ learnString('whatYouWillNeed') }}: </span>
       <span>
         {{ learnerNeedsLabels }}
       </span>
     </div>
 
-    <div v-if="content.author" class="section" data-test="author">
-      <span class="label">
-        {{ learnString('author') }}:
-      </span>
+    <div
+      v-if="content.author"
+      class="section"
+      data-test="author"
+    >
+      <span class="label"> {{ learnString('author') }}: </span>
       <span>
         {{ content.author }}
       </span>
     </div>
 
-    <div v-if="content.license_owner" class="section" data-test="license-owner">
-      <span class="label">
-        {{ learnString('copyrightHolder') }}:
-      </span>
+    <div
+      v-if="content.license_owner"
+      class="section"
+      data-test="license-owner"
+    >
+      <span class="label"> {{ learnString('copyrightHolder') }}: </span>
       <span>
         {{ content.license_owner }}
       </span>
     </div>
 
-    <div v-if="licenseDescription" class="section" data-test="license-desc">
-      <span class="label">
-        {{ learnString('license') }}:
-      </span>
+    <div
+      v-if="licenseDescription"
+      class="section"
+      data-test="license-desc"
+    >
+      <span class="label"> {{ learnString('license') }}: </span>
       <span>
         {{ licenseShortName || '' }}
         <KIconButton
@@ -137,19 +155,24 @@
           class="absolute-icon license-toggle"
           @click="licenseDescriptionIsVisible = !licenseDescriptionIsVisible"
         />
-        <div v-if="licenseDescriptionIsVisible" class="license-details">
+        <div
+          v-if="licenseDescriptionIsVisible"
+          class="license-details"
+        >
           <p class="license-details-name">
             {{ licenseLongName }}
           </p>
-          <p style="margin-bottom: 0;">{{ licenseDescription }}</p>
+          <p style="margin-bottom: 0">{{ licenseDescription }}</p>
         </div>
       </span>
     </div>
 
-    <div v-if="recommendations" class="related section" data-test="recommendations">
-      <div class="label">
-        {{ coreString('related') }}:
-      </div>
+    <div
+      v-if="recommendations"
+      class="related section"
+      data-test="recommendations"
+    >
+      <div class="label">{{ coreString('related') }}:</div>
       <div class="list">
         <div
           v-for="related in recommendations"
@@ -168,30 +191,38 @@
       </div>
     </div>
 
-    <div v-if="showLocationsInChannel && locationsInChannel" class="section" data-test="locations">
+    <div
+      v-if="showLocationsInChannel && locationsInChannel"
+      class="section"
+      data-test="locations"
+    >
       <div class="label">
         {{
-          learnString('locationsInChannel', { 'channelname': (content.ancestors[0] || {}).title })
+          learnString('locationsInChannel', { channelname: (content.ancestors[0] || {}).title })
         }}:
       </div>
-      <div v-for="location in locationsInChannel" :key="location.id">
+      <div
+        v-for="location in locationsInChannel"
+        :key="location.id"
+      >
         <div>
-          <KRouterLink
-            :to="genContentLinkKeepCurrentBackLink(lastAncestor(location).id, false)"
-          >
+          <KRouterLink :to="genContentLinkKeepCurrentBackLink(lastAncestor(location).id, false)">
             {{ lastAncestor(location).title }}
           </KRouterLink>
         </div>
       </div>
     </div>
 
-    <div v-if="canDownloadExternally" class="section" data-test="download">
+    <div
+      v-if="canDownloadExternally"
+      class="section"
+      data-test="download"
+    >
       <DownloadButton
         :files="content.files"
         :nodeTitle="content.title"
       />
     </div>
-
   </section>
 
 </template>
@@ -212,9 +243,9 @@
   } from 'kolibri.utils.licenseTranslations';
   import LearnerNeeds from 'kolibri-constants/labels/Needs';
   import { ContentNodeResource } from 'kolibri.resources';
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import useContentLink from '../composables/useContentLink';
   import commonLearnStrings from './commonLearnStrings';
-  import LearningActivityIcon from './LearningActivityIcon';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
 
   export default {
@@ -270,7 +301,7 @@
       learnerNeeds() {
         // Remove FOR_BEGINNERS in this list because it is indicated separately, above, if present
         return get(this.content, 'learner_needs', []).filter(
-          need => need !== LearnerNeeds.FOR_BEGINNERS
+          need => need !== LearnerNeeds.FOR_BEGINNERS,
         );
       },
       /**
@@ -296,7 +327,7 @@
       licenseDescription() {
         return licenseDescriptionForConsumer(
           get(this, 'content.license_name', null),
-          get(this, 'content.license_description', null)
+          get(this, 'content.license_description', null),
         );
       },
       chipStyle() {

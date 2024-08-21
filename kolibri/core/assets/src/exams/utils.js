@@ -1,6 +1,6 @@
 import uniq from 'lodash/uniq';
 import some from 'lodash/some';
-import { v4 as uuidv4 } from 'uuid';
+import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
 import { ExamResource, ContentNodeResource } from 'kolibri.resources';
 
 /*
@@ -41,9 +41,9 @@ function convertExamQuestionSourcesV0V2(questionSources, seed, questionIds) {
           exercise_id: val.exercise_id,
           title: val.title,
           questionNumber,
-        }))
+        })),
       ),
-    []
+    [],
   );
   const shuffledExamQuestions = seededShuffle(examQuestions, seed);
   const shuffledExerciseQuestions = {};
@@ -56,7 +56,7 @@ function convertExamQuestionSourcesV0V2(questionSources, seed, questionIds) {
     title: question.title,
     counter_in_exercise:
       questionIds[question.exercise_id].findIndex(
-        id => id === shuffledExerciseQuestions[question.exercise_id][question.questionNumber]
+        id => id === shuffledExerciseQuestions[question.exercise_id][question.questionNumber],
       ) + 1,
   }));
 }
@@ -96,17 +96,26 @@ function annotateQuestionsWithItem(questions) {
 export function convertExamQuestionSourcesV2toV3({ question_sources, learners_see_fixed_order }) {
   // In V2, question_sources are questions so we add them
   // to the newly created section's `questions` property
-  const questions = question_sources;
-  return [
-    {
-      section_id: uuidv4(),
+  const questions = question_sources.map(item => {
+    return {
+      ...item,
+      // Overwrite the exercise title as the question title
+      // is user editable in the V3 schema, so we set it to
+      // blank to indicate it has not been set by an editor.
+      title: '',
+    };
+  });
+  const sections = [];
+
+  while (questions.length > 0) {
+    sections.push({
       section_title: '',
       description: '',
-      questions,
+      questions: questions.splice(0, MAX_QUESTIONS_PER_QUIZ_SECTION),
       learners_see_fixed_order,
-      question_count: questions.length,
-    },
-  ];
+    });
+  }
+  return sections;
 }
 
 /**
@@ -142,7 +151,7 @@ export async function convertExamQuestionSources(exam) {
     exam.question_sources = convertExamQuestionSourcesV0V2(
       exam.question_sources,
       exam.seed,
-      questionIds
+      questionIds,
     );
     // v1 -> v2 only updates the `counter_in_exercise` field if it's in camelCase
     // so we can set the data_model_version to 2 here to skip that code
@@ -178,7 +187,7 @@ export async function fetchExamWithContent(exam) {
       exam.question_sources.reduce((acc, section) => {
         acc = [...acc, ...section.questions.map(item => item.exercise_id)];
         return acc;
-      }, [])
+      }, []),
     );
 
     return ContentNodeResource.fetchCollection({
@@ -224,8 +233,8 @@ export function getExamReport(examId, tryIndex = 0, questionNumber = 0, interact
         return exam;
       }
 
-      // TODO: Reports will eventually want to have the proper section-specific data to render
-      // the report page - but we are not updating the report UI yet.
+      // We need this array of questions to easily do questionNumber based indexing across
+      // all the sections.
       const questions = exam.question_sources.reduce((qs, sect) => {
         qs = [...qs, ...sect.questions];
         return qs;
@@ -243,5 +252,32 @@ export function getExamReport(examId, tryIndex = 0, questionNumber = 0, interact
         interactionIndex: Number(interactionIndex),
       };
     });
+  });
+}
+
+export function annotateSections(sections, questions = []) {
+  // Adding the additional startQuestionNumber and endQuestionNumber fields to each section
+  // allows to more easily identify the overall place in the quiz that a question is.
+  // This is useful for deciding which section is currently active based on the global
+  // question number, and also for displaying the global question number in the UI.
+  if (!sections) {
+    return [
+      {
+        title: '',
+        questions: questions,
+        startQuestionNumber: 0,
+        endQuestionNumber: questions.length - 1,
+      },
+    ];
+  }
+  let startQuestionNumber = 0;
+  return sections.map(section => {
+    const annotatedSection = {
+      ...section,
+      startQuestionNumber,
+      endQuestionNumber: startQuestionNumber + section.questions.length - 1,
+    };
+    startQuestionNumber += section.questions.length;
+    return annotatedSection;
   });
 }

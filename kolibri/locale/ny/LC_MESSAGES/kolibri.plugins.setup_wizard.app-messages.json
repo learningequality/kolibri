@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Zosavomerezeka ndi malo",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Chipangizochi chidzayikidwa pa seva ya Kolibri yogwiritsidwa ntchito ndi oyang'anira, aphunzitsi ndiponso ophunzira.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Chipangizo chonse",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Chipangizochi chikhala ndi akaunti ya wophunzira m'modzi kapena ambiri ochokera ku chipangizo chokwanira chomwe chilipo kale. Ma akaunti a wophunzira adzalumikizana pawokha ku chipangizo chokwanirachi.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Chipangizochi chikhala ndi zinthu zomwe ophunzira angagwiritse ntchito, ndipo chilumikizana ndi chipangizo chonse.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Chipangizo chongophunzirira basi",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "Kodi ichi ndi chipangizo cha mtundu wanji?",
   "GuestAccessForm.changeLater": "Mukhonza kusintha izi nthawi ina pa malo osinthira a chipangizo chanu.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Koperani ku kilipibodi",
   "UserCredentialsForm.adminAccountCreationHeader": "Tsekulani akaunti ya woyang'anira wamkulu",
   "UserCredentialsForm.learnerAccountCreationDescription": "Akaunti yatsopano ya malo ophunzirira a '{facility}'",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Tsekulani akaunti yanu"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Tsekulani akaunti yanu",
+  "UserCredentialsForm.signInInstead": "Lowani ku akaunti yanu m'malo mwake?"
 }

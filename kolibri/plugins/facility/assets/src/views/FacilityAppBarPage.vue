@@ -1,11 +1,9 @@
 <template>
 
   <AppBarPage :title="title">
-
-    <div style="max-width: 1000px; margin: 0 auto;">
+    <div style="max-width: 1000px; margin: 0 auto">
       <slot></slot>
     </div>
-
   </AppBarPage>
 
 </template>
@@ -16,11 +14,16 @@
   import { mapGetters } from 'vuex';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   export default {
     name: 'FacilityAppBarPage',
     components: { AppBarPage },
     mixins: [commonCoreStrings],
+    setup() {
+      const { userIsMultiFacilityAdmin } = useUser();
+      return { userIsMultiFacilityAdmin };
+    },
     props: {
       appBarTitle: {
         type: String,
@@ -28,7 +31,7 @@
       },
     },
     computed: {
-      ...mapGetters(['userIsMultiFacilityAdmin', 'currentFacilityName']),
+      ...mapGetters(['currentFacilityName']),
       /* Returns the given appBarTitle prop if given, otherwise will return
          the facility label appropriate to whether there are multiple facilities
          and the current user is the correct kind of admin */
@@ -37,8 +40,8 @@
           this.appBarTitle ||
           (this.userIsMultiFacilityAdmin && this.currentFacilityName
             ? this.$tr('facilityLabelWithName', {
-                facilityName: this.currentFacilityName,
-              })
+              facilityName: this.currentFacilityName,
+            })
             : this.coreString('facilityLabel'))
         );
       },

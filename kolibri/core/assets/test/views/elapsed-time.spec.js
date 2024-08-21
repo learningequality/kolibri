@@ -80,6 +80,6 @@ describe('elapsed time component', () => {
         },
       });
       expect(getTimeText(wrapper)).toEqual(message);
-    }
+    },
   );
 });

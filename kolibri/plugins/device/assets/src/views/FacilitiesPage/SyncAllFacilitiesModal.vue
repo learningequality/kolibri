@@ -72,7 +72,7 @@
       },
       startSyncAllTask() {
         return TaskResource.startTasks(
-          this.facilities.map(f => ({ type: TaskTypes.SYNCDATAPORTAL, facility: f.id }))
+          this.facilities.map(f => ({ type: TaskTypes.SYNCDATAPORTAL, facility: f.id })),
         )
           .then(() => {
             this.$emit('success');

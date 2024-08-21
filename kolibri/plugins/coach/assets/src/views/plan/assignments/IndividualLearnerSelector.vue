@@ -8,16 +8,19 @@
       :disabled="disabled"
       @change="$emit('togglevisibility', $event)"
     >
-      <KLabeledIcon icon="people" :label="$tr('individualLearnersLabel')" />
+      <KLabeledIcon
+        icon="people"
+        :label="$tr('individualLearnersLabel')"
+      />
     </KCheckbox>
 
     <!-- Paginated list of learners -->
     <div v-if="isVisible">
       <div class="table-title">
-        {{ $tr("selectedIndividualLearnersLabel") }}
+        {{ $tr('selectedIndividualLearnersLabel') }}
       </div>
       <div class="table-description">
-        {{ $tr("onlyShowingEnrolledLabel") }}
+        {{ $tr('onlyShowingEnrolledLabel') }}
       </div>
 
       <PaginatedListContainer
@@ -51,7 +54,10 @@
 
             <template #tbody>
               <tbody>
-                <tr v-for="learner in items" :key="learner.id">
+                <tr
+                  v-for="learner in items"
+                  :key="learner.id"
+                >
                   <td>
                     <KCheckbox
                       :key="`select-learner-${learner.id}`"
@@ -74,7 +80,6 @@
         </template>
       </PaginatedListContainer>
     </div>
-
   </div>
 
 </template>
@@ -214,7 +219,7 @@
       selectVisiblePage() {
         const newIds = [...this.selectedLearnerIds];
         const isWholePageSelected = every(this.currentPageLearners, learner =>
-          this.selectedLearnerIds.includes(learner.id)
+          this.selectedLearnerIds.includes(learner.id),
         );
         this.currentPageLearners.forEach(learner => {
           const index = newIds.indexOf(learner.id);

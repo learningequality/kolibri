@@ -8,7 +8,10 @@
       />
     </p>
     <h1>
-      <KLabeledIcon icon="person" :label="learner.name" />
+      <KLabeledIcon
+        icon="person"
+        :label="learner.name"
+      />
     </h1>
     <HeaderTable>
       <HeaderTableRow>
@@ -110,7 +113,7 @@
       avgScore() {
         const statuses = this.examStatuses.filter(
           status =>
-            this.learner.id === status.learner_id && status.status === this.STATUSES.completed
+            this.learner.id === status.learner_id && status.status === this.STATUSES.completed,
         );
         if (!statuses.length) {
           return null;
@@ -121,7 +124,7 @@
         const statuses = this.learnerContentStatuses.filter(
           status =>
             this.contentIdIsForExercise(status.content_id) &&
-            status.status === this.STATUSES.completed
+            status.status === this.STATUSES.completed,
         );
         return statuses.length;
       },
@@ -129,7 +132,7 @@
         const statuses = this.learnerContentStatuses.filter(
           status =>
             !this.contentIdIsForExercise(status.content_id) &&
-            status.status !== this.STATUSES.notStarted
+            status.status !== this.STATUSES.notStarted,
         );
         return statuses.length;
       },

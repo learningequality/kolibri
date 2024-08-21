@@ -1,7 +1,10 @@
 <template>
 
   <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
-    <div v-if="!loading" id="main" role="main">
+    <div
+      v-if="!loading"
+      role="main"
+    >
       <ResourceSyncingUiAlert
         v-if="missingResources"
         @syncComplete="hydrateHomePage"
@@ -17,9 +20,9 @@
         v-if="continueLearning"
         class="section"
         :fromClasses="continueLearningFromClasses"
-        :data-test="continueLearningFromClasses ?
-          'continueLearningFromClasses' :
-          'continueLearningOnYourOwn'"
+        :data-test="
+          continueLearningFromClasses ? 'continueLearningFromClasses' : 'continueLearningOnYourOwn'
+        "
       />
       <AssignedLessonsCards
         v-if="hasActiveClassesLessons"
@@ -42,13 +45,15 @@
         :channels="channels"
         class="section"
         data-test="exploreChannels"
-        :short="Boolean(displayClasses ||
-          continueLearning ||
-          hasActiveClassesLessons ||
-          hasActiveClassesQuizzes)
+        :short="
+          Boolean(
+            displayClasses ||
+              continueLearning ||
+              hasActiveClassesLessons ||
+              hasActiveClassesQuizzes,
+          )
         "
       />
-
     </div>
   </LearnAppBarPage>
 
@@ -58,7 +63,7 @@
 <script>
 
   import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
-  import { get } from '@vueuse/core';
+  import { get, set } from '@vueuse/core';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import useUser from 'kolibri.coreVue.composables.useUser';
@@ -70,6 +75,7 @@
     setResumableContentNodes,
   } from '../../composables/useLearnerResources';
   import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
+  import { inClasses } from '../../composables/useCoreLearn';
   import { PageNames } from '../../constants';
   import AssignedLessonsCards from '../classes/AssignedLessonsCards';
   import AssignedQuizzesCards from '../classes/AssignedQuizzesCards';
@@ -118,27 +124,27 @@
       const continueLearningFromClasses = computed(
         () =>
           (get(isUserLoggedIn) && get(resumableClassesQuizzes).length > 0) ||
-          get(resumableClassesResources).length > 0
+          get(resumableClassesResources).length > 0,
       );
       const continueLearningOnYourOwn = computed(
         () =>
           get(isUserLoggedIn) &&
           get(learnerFinishedAllClasses) &&
           get(canAccessUnassignedContent) &&
-          get(resumableContentNodes).length > 0
+          get(resumableContentNodes).length > 0,
       );
 
       const continueLearning = computed(
-        () => get(continueLearningFromClasses) || get(continueLearningOnYourOwn)
+        () => get(continueLearningFromClasses) || get(continueLearningOnYourOwn),
       );
 
       const hasActiveClassesLessons = computed(
         () =>
-          get(isUserLoggedIn) && get(activeClassesLessons) && get(activeClassesLessons).length > 0
+          get(isUserLoggedIn) && get(activeClassesLessons) && get(activeClassesLessons).length > 0,
       );
       const hasActiveClassesQuizzes = computed(
         () =>
-          get(isUserLoggedIn) && get(activeClassesQuizzes) && get(activeClassesQuizzes).length > 0
+          get(isUserLoggedIn) && get(activeClassesQuizzes) && get(activeClassesQuizzes).length > 0,
       );
       const hasChannels = computed(() => {
         return get(localChannelsCache).length > 0;
@@ -166,14 +172,17 @@
         return client({ url: urls['kolibri:kolibri.plugins.learn:homehydrate']() }).then(
           response => {
             setClasses(response.data.classrooms);
+            // Update our hydrated class membership boolean in case it has changed
+            // since the learn page was opened.
+            set(inClasses, Boolean(response.data.classrooms.length));
             setResumableContentNodes(
               response.data.resumable_resources.results || [],
-              response.data.resumable_resources.more || null
+              response.data.resumable_resources.more || null,
             );
             for (const progress of response.data.resumable_resources_progress) {
               setContentNodeProgress(progress);
             }
-          }
+          },
         );
       }
 

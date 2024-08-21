@@ -168,6 +168,13 @@
     "default_font": "NotoSans"
   },
   {
+    "crowdin_code":   "pa-IN",
+    "intl_code":      "pa",
+    "language_name":  "ਪੰਜਾਬੀ",
+    "english_name":   "Punjabi",
+    "default_font":   "NotoSansGurmukhi"
+  },
+  {
     "crowdin_code": "pt-BR",
     "intl_code": "pt-br",
     "language_name": "Português (Brazil)",

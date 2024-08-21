@@ -28,6 +28,7 @@
     </ScrollingHeader>
 
     <div
+      id="main"
       class="main-wrapper"
       :style="wrapperStyles"
     >
@@ -44,7 +45,6 @@
         @shouldFocusFirstEl="findFirstEl()"
       />
     </transition>
-
   </div>
 
 </template>
@@ -58,6 +58,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { isTouchDevice } from 'kolibri.utils.browserInfo';
   import useUserSyncStatus from 'kolibri.coreVue.composables.useUserSyncStatus';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import AppBar from '../AppBar';
   import SideNav from '../SideNav';
   import ScrollingHeader from '../ScrollingHeader';
@@ -73,10 +74,12 @@
     setup() {
       const userDeviceStatus = useUserSyncStatus().deviceStatus;
       const { windowBreakpoint, windowIsSmall } = useKResponsiveWindow();
+      const { isAppContext } = useUser();
       return {
         userDeviceStatus,
         windowBreakpoint,
         windowIsSmall,
+        isAppContext,
       };
     },
     props: {
@@ -110,7 +113,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAppContext', 'isPageLoading']),
+      ...mapGetters(['isPageLoading']),
       isAppContextAndTouchDevice() {
         return this.isAppContext && isTouchDevice;
       },
@@ -121,16 +124,16 @@
         return this.appearanceOverrides
           ? this.appearanceOverrides
           : {
-              width: '100%',
-              maxWidth: '1064px',
-              margin: 'auto',
-              backgroundColor: this.$themePalette.grey.v_50,
-              paddingLeft: this.paddingLeftRight,
-              paddingRight: this.paddingLeftRight,
-              paddingTop: this.appBarHeight + this.paddingTop + 'px',
-              paddingBottom: '72px',
-              marginTop: 0,
-            };
+            width: '100%',
+            maxWidth: '1064px',
+            margin: 'auto',
+            backgroundColor: this.$themePalette.grey.v_50,
+            paddingLeft: this.paddingLeftRight,
+            paddingRight: this.paddingLeftRight,
+            paddingTop: this.appBarHeight + this.paddingTop + 'px',
+            paddingBottom: '72px',
+            marginTop: 0,
+          };
       },
       paddingTop() {
         return this.isAppContext ? 0 : 4;

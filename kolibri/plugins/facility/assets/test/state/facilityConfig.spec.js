@@ -2,6 +2,7 @@ import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
 import client from 'kolibri.client';
 import { showFacilityConfigPage } from '../../src/modules/facilityConfig/handlers';
 import makeStore from '../makeStore';
+import coreModule from '../../../../../core/assets/src/state/modules/core';
 
 jest.mock('kolibri.client');
 jest.mock('kolibri.urls');
@@ -65,6 +66,7 @@ describe('facility config page actions', () => {
 
   beforeEach(() => {
     store = makeStore();
+    store.registerModule('core', coreModule);
     commitStub = jest.spyOn(store, 'commit');
     store.state.route = { params: {} };
     Object.assign(store.state.core, {
@@ -128,7 +130,7 @@ describe('facility config page actions', () => {
           });
           expect(commitStub).toHaveBeenCalledWith(
             'facilityConfig/SET_STATE',
-            expect.objectContaining(expectedState)
+            expect.objectContaining(expectedState),
           );
         });
       });
@@ -145,7 +147,7 @@ describe('facility config page actions', () => {
           return showFacilityConfigPage(store, test.toRoute).then(() => {
             expect(commitStub).toHaveBeenCalledWith(
               'facilityConfig/SET_STATE',
-              expect.objectContaining(expectedState)
+              expect.objectContaining(expectedState),
             );
           });
         });
@@ -157,7 +159,7 @@ describe('facility config page actions', () => {
           await showFacilityConfigPage(store, test.toRoute);
           expect(commitStub).toHaveBeenCalledWith(
             'facilityConfig/SET_STATE',
-            expect.objectContaining(expectedState)
+            expect.objectContaining(expectedState),
           );
         });
       });
@@ -192,7 +194,7 @@ describe('facility config page actions', () => {
 
         return store.dispatch('facilityConfig/saveFacilityConfig').then(() => {
           expect(saveStub).toHaveBeenCalledWith(
-            expect.objectContaining({ id: 1000, data: expectedRequest })
+            expect.objectContaining({ id: 1000, data: expectedRequest }),
           );
         });
       });

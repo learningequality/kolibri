@@ -46,16 +46,12 @@ describe('SelectContentPage', () => {
   });
 
   it('shows the total size of the channel', () => {
-    const rows = makeWrapper({ store })
-      .findComponent(ChannelContentsSummary)
-      .findAll('tr');
+    const rows = makeWrapper({ store }).findComponent(ChannelContentsSummary).findAll('tr');
     expect(rows.at(1).text()).toEqual('Total size 1,000 5 GB');
   });
 
   it('shows the total size of any resources on the device', () => {
-    const rows = makeWrapper({ store })
-      .findComponent(ChannelContentsSummary)
-      .findAll('tr');
+    const rows = makeWrapper({ store }).findComponent(ChannelContentsSummary).findAll('tr');
     expect(rows.at(2).text()).toEqual('On your device 2,000 95 MB');
   });
 
@@ -65,9 +61,7 @@ describe('SelectContentPage', () => {
       on_device_resources: 0,
       on_device_file_size: 0,
     });
-    const rows = makeWrapper({ store })
-      .findComponent(ChannelContentsSummary)
-      .findAll('tr');
+    const rows = makeWrapper({ store }).findComponent(ChannelContentsSummary).findAll('tr');
     expect(rows.at(2).text()).toEqual('On your device 0 0 B');
   });
 

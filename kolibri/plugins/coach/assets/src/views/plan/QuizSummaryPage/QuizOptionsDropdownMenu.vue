@@ -33,16 +33,20 @@
           return ['plan', 'report'].includes(opt);
         },
       },
+      draft: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       options() {
-        const editDetails = {
-          label: this.coreString('editDetailsAction'),
+        const edit = {
+          label: this.draft ? this.coreString('editAction') : this.coreString('editDetailsAction'),
           value: 'EDIT_DETAILS',
         };
         if (this.optionsFor === 'plan') {
           return [
-            editDetails,
+            edit,
             {
               label: this.$tr('copyQuizAction'),
               value: 'COPY',
@@ -55,7 +59,7 @@
             label: this.coachString('previewAction'),
             value: 'PREVIEW',
           },
-          editDetails,
+          edit,
           {
             label: this.coachString('printReportAction'),
             value: 'PRINT_REPORT',

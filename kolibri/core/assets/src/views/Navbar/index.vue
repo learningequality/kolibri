@@ -1,8 +1,6 @@
 <template>
 
-  <nav
-    class="navbar-positioning"
-  >
+  <nav class="navbar-positioning">
     <ul
       ref="items"
       class="items"
@@ -162,6 +160,7 @@
   .navbar-positioning {
     position: relative;
     display: flex;
+    align-items: center;
   }
 
 </style>

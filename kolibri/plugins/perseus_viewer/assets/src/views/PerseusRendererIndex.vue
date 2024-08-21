@@ -4,80 +4,23 @@
     v-if="itemId || itemData"
     class="bibliotron-exercise perseus-root"
     :class="{ 'perseus-mobile': isMobile }"
+    @keydown.enter.prevent="answerGiven"
   >
-    <div class="framework-perseus" :style="{ margin: isMobile ? '0' : '0 24px' }">
-      <div id="perseus" ref="perseus" class="perseus">
+    <div
+      class="framework-perseus"
+      :style="{ margin: isMobile ? '0' : '0 24px' }"
+    >
+      <div
+        ref="perseus"
+        class="perseus"
+      >
         <div class="loader-container">
           <KLinearLoader
-            v-show="loading"
             :delay="false"
             type="indeterminate"
           />
         </div>
-        <KGrid>
-          <!-- Layout notes
-            - Layout12 span8 -> ~66% width on windowIsLarge
-            - No other layout definitions means span will be 100%
-            - If we're not allowingHints, then it should be 100% because
-              they're the reason we'd go smaller at all
-          -->
-          <KGridItem :layout12="{ span: allowHints && interactive ? 6 : 12 }">
-            <div
-              id="problem-area"
-              class="problem-area"
-              :dir="contentDirection"
-            >
-              <div id="workarea" style="margin-left: 0px; margin-right: 0px;"></div>
-            </div>
-          </KGridItem>
-
-          <!--
-              - Hide when not allowing hints
-              - It is a v-show because seems without the proper anchors in place
-                it will fail to properly mount the react component
-          -->
-          <KGridItem v-show="interactive && allowHints" :layout12="{ span: 6 }">
-            <div v-if="hinted" id="hintlabel" class="hintlabel" :dir="contentDirection">
-              {{ $tr("hintLabel") }}
-            </div>
-            <div id="hintsarea" class="hintsarea" :dir="contentDirection"></div>
-          </KGridItem>
-        </KGrid>
       </div>
-
-      <transition name="expand">
-        <div v-show="message" id="message" :dir="contentDirection">
-          {{ message }}
-        </div>
-      </transition>
-
-      <div id="answer-area-wrap" :dir="contentDirection">
-        <div id="answer-area">
-          <div class="info-box">
-            <div id="solutionarea" class="solutionarea"></div>
-          </div>
-        </div>
-      </div>
-
-      <KButton
-        v-if="scratchpad"
-        id="scratchpad-show"
-        :primary="false"
-        :raised="false"
-        :text="$tr('showScratch')"
-      />
-      <KButton
-        v-else
-        id="scratchpad-not-available"
-        :primary="false"
-        :raised="false"
-        disabled
-        :text="$tr('notAvailable')"
-      />
-
-      <!-- Need a DOM mount point for ReactDOM to attach to,
-        but Perseus renders weirdly so doesn't use this -->
-      <div id="perseus-container" ref="perseusContainer" :dir="contentDirection"></div>
     </div>
   </div>
 
@@ -86,35 +29,39 @@
 
 <script>
 
+  import { StyleSheet } from 'aphrodite';
   import invert from 'lodash/invert';
+  import get from 'lodash/get';
   import ZipFile from 'kolibri-zip';
   import { Mapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
-  import urls from 'kolibri.urls';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { isTouchDevice, isMouseUsed } from 'kolibri.utils.browserInfo';
-  import scriptLoader from 'kolibri-common/utils/scriptLoader';
-  import perseus from '../../dist/perseus';
-  import icu from '../KAGlobals/icu';
-  import Khan from '../KAGlobals/Khan';
-  // Import this here so that our string translation machinery
-  // is aware of the dependency, as otherwise the functions in here are only
-  // referenced via WebpackProvidePlugin
-  import '../i18n';
+  import { defer } from 'underscore';
+  import { createElement as e } from 'react';
+  import { createPortal, render, unmountComponentAtNode } from 'react-dom';
+  import * as perseus from '@khanacademy/perseus';
+  import {
+    MathInputI18nContextProvider,
+    StatefulKeypadContextProvider,
+    KeypadContext,
+    MobileKeypad,
+  } from '@khanacademy/math-input';
+  import { RenderStateRoot } from '@khanacademy/wonder-blocks-core';
+  import perseusTranslator from '../translator';
+  import { wrapPerseusMessages } from '../translationUtils';
   import widgetSolver from '../widgetSolver';
   import imageMissing from './image_missing.svg';
+  import TeX from './Tex';
 
-  // A handy convenience mapping to what is essentially a constructor for Item Renderer
-  // components.
-  const itemRendererFactory = perseus.React.createFactory(perseus.ItemRenderer);
+  const translator = wrapPerseusMessages(perseusTranslator);
+
+  const keypadStyle = StyleSheet.create({
+    keypadContainer: {
+      zIndex: 20,
+      pointerEvents: 'none',
+    },
+  });
 
   const logging = require('kolibri.lib.logging').getLogger(__filename);
-
-  // because MathJax isn't compatible with webpack, we are loading it this way.
-  const mathJaxConfigFileName = require('../constants').ConfigFileName;
-  // the config is fragile, Khan may change it and we need to update the following hardcoded path.
-  const mathJaxUrl = urls.static(`mathjax/2.1/MathJax.js?config=${mathJaxConfigFileName}`);
-
-  const mathJaxPromise = scriptLoader(mathJaxUrl);
 
   const sorterWidgetRegex = /sorter [0-9]+/;
 
@@ -122,9 +69,78 @@
   // group to determine if it's a graphie image or a regular image.
   const allImageRegex = /((web\+graphie:)?)\$\{☣ LOCALPATH\}\/([^)^"]+)/g;
 
+  const svgLabelsRegex = /^web\+graphie:/;
+
   const blobImageRegex = /blob:[^)^"]+/g;
 
-  Khan.imageUrls = {};
+  /**
+   * Global register of all Perseus files. This object is used to keep track of all Perseus files
+   * across multiple instances of the PerseusRenderer. This allows for reuse of the same file and
+   * prevents collisions between different instances where they might try to render the same image
+   * from the same file, but with different URLs. This also allows us to only monkey patch the Util
+   * functions once, as it gives us a global register and prevents duelling components from
+   * overriding each other.
+   *
+   * @type {
+   *  Object.<string, {zipFile: ZipFile, usageCounter: number, imageUrls: Object.<string, string>}>
+   * }
+   *
+   * @property {ZipFile} zipFile - A ZipFile object for the Perseus file.
+   * @property {number} usageCounter - The number of components using this object.
+   * @property {Object.<string, string>} imageUrls - A lookup object mapping from the image filename
+   * to the URL generated for that image for display.
+   */
+  const globalPerseusFileRegistry = {};
+
+  function setUpPerseusFile(perseusFileUrl) {
+    if (globalPerseusFileRegistry[perseusFileUrl]) {
+      globalPerseusFileRegistry[perseusFileUrl].usageCounter += 1;
+    } else {
+      globalPerseusFileRegistry[perseusFileUrl] = {
+        zipFile: null,
+        usageCounter: 1,
+        imageUrls: {},
+      };
+      class JSONMapper extends Mapper {
+        getPaths() {
+          return getImagePaths(this.file.toString());
+        }
+        replacePaths(packageFiles) {
+          return replaceImageUrls(this.file.toString(), perseusFileUrl, packageFiles);
+        }
+      }
+
+      const filePathMappers = {
+        ...defaultFilePathMappers,
+        json: JSONMapper,
+      };
+      globalPerseusFileRegistry[perseusFileUrl].zipFile = new ZipFile(perseusFileUrl, {
+        filePathMappers,
+      });
+    }
+  }
+
+  function cleanUpPerseusFile(perseusFileUrl) {
+    if (globalPerseusFileRegistry[perseusFileUrl]) {
+      globalPerseusFileRegistry[perseusFileUrl].usageCounter -= 1;
+      if (globalPerseusFileRegistry[perseusFileUrl].usageCounter === 0) {
+        globalPerseusFileRegistry[perseusFileUrl].zipFile.close();
+        delete globalPerseusFileRegistry[perseusFileUrl];
+      }
+    }
+  }
+
+  function getImageUrl(key, zipFileUrl = null) {
+    if (zipFileUrl !== null && globalPerseusFileRegistry[zipFileUrl]) {
+      return globalPerseusFileRegistry[zipFileUrl].imageUrls[key];
+    }
+    for (const file in globalPerseusFileRegistry) {
+      if (globalPerseusFileRegistry[file].imageUrls[key]) {
+        return globalPerseusFileRegistry[file].imageUrls[key];
+      }
+    }
+    return;
+  }
 
   function getImagePaths(itemResponse) {
     const graphieMatches = {};
@@ -144,13 +160,14 @@
     const images = Object.keys(imageMatches);
     const svgAndJson = graphieImages.reduce(
       (acc, image) => [...acc, `${image}.svg`, `${image}-data.json`],
-      []
+      [],
     );
     return images.concat(svgAndJson);
   }
 
-  function replaceImageUrls(itemResponse, packageFiles) {
-    Object.assign(Khan.imageUrls, packageFiles);
+  function replaceImageUrls(itemResponse, zipFileUrl, packageFiles = {}) {
+    const imageUrls = globalPerseusFileRegistry[zipFileUrl].imageUrls;
+    Object.assign(imageUrls, packageFiles);
     // If the file is not present in the zip file, then fill in a missing image
     // file for images, and an empty dummy json file for json
     return itemResponse.replace(allImageRegex, (match, g1, g2, image) => {
@@ -159,30 +176,68 @@
         // `web+graphie:` prefix separately from any others,
         // as they are parsed slightly differently to standard image
         // urls (Perseus adds the protocol in place of `web+graphie:`).
-        if (!Khan.imageUrls[image]) {
-          Khan.imageUrls[image] = 'data:application/json,';
+        if (!getImageUrl(image, zipFileUrl)) {
+          imageUrls[image] = 'data:application/json,';
         }
         return `web+graphie:${image}`;
       } else {
         // Replace any placeholder values for image URLs with
         // the base URL for the perseus file we are reading from
-        return packageFiles[image] || imageMissing;
+        return getImageUrl(image, zipFileUrl) || imageMissing;
       }
     });
   }
 
-  class JSONMapper extends Mapper {
-    getPaths() {
-      return getImagePaths(this.file.toString());
-    }
-    replacePaths(packageFiles) {
-      return replaceImageUrls(this.file.toString(), packageFiles);
-    }
+  function restoreImageUrls(itemResponse, perseusFileUrl) {
+    const imageUrls = globalPerseusFileRegistry[perseusFileUrl].imageUrls;
+    const lookup = invert(imageUrls);
+    return JSON.parse(
+      JSON.stringify(itemResponse).replace(blobImageRegex, match => {
+        // Make sure to add our prefix back in
+        return '${☣ LOCALPATH}/' + lookup[match] || '';
+      }),
+    );
   }
 
-  const filePathMappers = {
-    ...defaultFilePathMappers,
-    json: JSONMapper,
+  perseus.Util.getDataUrl = url => {
+    return getImageUrl(url.replace(svgLabelsRegex, '') + '-data.json');
+  };
+  perseus.Util.getSvgUrl = url => {
+    return getImageUrl(url.replace(svgLabelsRegex, '') + '.svg');
+  };
+  perseus.Util.getRealImageUrl = url => {
+    if (perseus.Util.isLabeledSVG(url)) {
+      return perseus.Util.getSvgUrl(url);
+    }
+
+    return url;
+  };
+  perseus.Util.getImageSize = (url, callback) => {
+    const img = new Image();
+
+    img.onload = function () {
+      // Vendored from perseus to override image handling
+      if (img.width === 0 && img.height === 0) {
+        var _document$body;
+
+        (_document$body = document.body) === null || _document$body === void 0
+          ? void 0
+          : _document$body.appendChild(img);
+
+        defer(function () {
+          var _document$body2;
+
+          callback(img.clientWidth, img.clientHeight);
+          (_document$body2 = document.body) === null || _document$body2 === void 0
+            ? void 0
+            : _document$body2.removeChild(img);
+        });
+      } else {
+        callback(img.width, img.height);
+      }
+    };
+
+    img.src = perseus.Util.getRealImageUrl(url);
   };
 
   export default {
@@ -194,58 +249,28 @@
       };
     },
     data: () => ({
-      // Is the perseus item renderer loading?
+      // Is the perseus item loading?
       loading: true,
+      itemRendererUpdating: false,
       // state about the answer
       message: null,
       // default item data
       item: {},
-      itemRenderer: null,
-      scratchpad: false,
       // Store a copy of the blank state of a question to clear set answers later
       blankState: null,
+      hintsVisible: 0,
     }),
     computed: {
       isMobile() {
         return this.windowBreakpoint < 3;
       },
-      usesTouch() {
-        return isTouchDevice && !isMouseUsed;
-      },
-      itemRenderData() {
-        return {
-          // A property to return data formatted in the form expected by the Item Renderer
-          // constructor function.
-          initialHintsVisible: 0,
-          item: this.item,
-          workAreaSelector: '#workarea',
-          problemAreaSelector: '#problem-area',
-          problemNum: Math.floor(Math.random() * 1000),
-          enabledFeatures: {
-            highlight: true,
-            toolTipFormats: true,
-          },
-          apiOptions: {
-            // Pass in callbacks for widget interaction and focus change.
-            // Here we dismiss answer error message on interaction and focus change.
-            interactionCallback: this.interactionCallback,
-            onFocusChange: this.dismissMessage,
-            isMobile: this.isMobile,
-            customKeypad: this.usesTouch,
-            readOnly: !this.interactive,
-          },
-        };
-      },
-      hinted() {
-        return this.itemRenderer ? this.itemRenderer.state.hintsVisible > 0 : false;
-      },
       /* eslint-disable kolibri/vue-no-unused-properties */
       availableHints() {
         /* eslint-enable */
-        return (this.itemRenderer && this.totalHints - this.itemRenderer.state.hintsVisible) || 0;
+        return this.totalHints - this.hintsVisible;
       },
       totalHints() {
-        return this.itemRenderer ? this.itemRenderer.getNumHints() : 0;
+        return get(this.item, 'hints.length', 0);
       },
     },
     watch: {
@@ -255,9 +280,6 @@
       itemData(newItemData) {
         this.setItemData(newItemData);
       },
-      loading() {
-        this.setAnswer();
-      },
       answerState(newState) {
         this.resetState(newState);
       },
@@ -265,22 +287,42 @@
         this.resetState(newVal);
       },
     },
-    beforeCreate() {
-      icu.setIcuSymbols();
-    },
-
     beforeDestroy() {
       this.$emit('stopTracking');
       this.clearItemRenderer();
-      if (this.perseusFile) {
-        this.perseusFile.close();
-      }
+      cleanUpPerseusFile(this.perseusFileUrl);
     },
     created() {
-      this.perseusFile = null;
-      const initPromise = mathJaxPromise.then(() =>
-        perseus.init({ skipMathJax: true, loadExtraWidgets: true })
-      );
+      this.itemRenderer = null;
+      this.keypadElement = null;
+      // This is a local object for tracking image URLs
+      // we use this to clean up image URLs just for this component
+      this.imageUrls = {};
+      // This is how Perseus handles dependency injection now
+      // all of the following appear to be required, otherwise
+      // Perseus will throw runtime errors.
+      perseus.Dependencies.setDependencies({
+        // JIPT stands for Just In Place Translation
+        // i.e. the system used by Crowdin for in-context translation.
+        JIPT: {
+          useJIPT: false,
+        },
+        // This is the component that actually renders TeX either with KaTeX or Mathjax.
+        TeX,
+        isDevServer: process.env.NODE_ENV !== 'production',
+        // We set this to 'en' regardless of the language being used, so as to
+        // avoid Perseus trying to load localized data URLs. This allows our monkey patching
+        // to be done more simply, and avoid having to do specific edits of the source code.
+        kaLocale: 'en',
+        // For some reason this is defined here as well as in the apiOptions
+        isMobile: this.isMobile,
+        // We already preprocess all URLs
+        // we may need to enhance this if we find one of the uses of it is breaking.
+        staticUrl: url => url,
+        // Pass our logging object to capture Log messages from Perseus
+        Log: logging,
+      });
+      const initPromise = perseus.init({ skipMathJax: true });
       // Try to load the appropriate directional CSS for the particular content
       const cssPromise = this.$options.contentModule.loadDirectionalCSS(this.contentDirection);
       Promise.all([initPromise, cssPromise]).then(() => {
@@ -317,14 +359,14 @@
                 (Object.prototype.hasOwnProperty.call(obj.answerArea, key) &&
                   typeof obj.answerArea[key] !== 'boolean')
               ),
-            true
+            true,
           ) &&
           // Check that the 'hints' property is an Array.
           Array.isArray(obj.hints) &&
           obj.hints.reduce(
             // Check that each hint in the hints array is an object (and not null)
             (prev, item) => item && typeof item === 'object',
-            true
+            true,
           ) &&
           // Check that the question property is an object (and not null)
           obj.question &&
@@ -333,33 +375,133 @@
         /* eslint-enable no-mixed-operators */
       },
       renderItem() {
-        // Reset the state tracking variables.
-        this.loading = true;
-        // Don't store blank state for another item.
-        this.blankState = null;
-
-        // Clear any currently displayed messages when we render an item.
-        this.dismissMessage();
-
+        this.itemRendererUpdating = true;
+        // Data formatted in the form expected by the Server Item Renderer
+        const itemRenderData = {
+          hintsVisible: this.hintsVisible,
+          item: this.item,
+          problemNum: Math.floor(Math.random() * 1000),
+          reviewMode: this.showCorrectAnswer,
+          showSolutions: this.showCorrectAnswer ? 'all' : 'none',
+          apiOptions: {
+            isArticle: false,
+            // Pass in callbacks for widget interaction and focus change.
+            // Here we dismiss answer error message on interaction and focus change.
+            interactionCallback: this.interactionCallback,
+            trackInteraction: this.interactionCallback,
+            onFocusChange: this.dismissMessage,
+            onInputError: logging.error,
+            isMobile: this.isMobile,
+            // Always use our custom keypad implementation
+            customKeypad: true,
+            readOnly: !this.interactive,
+            hintProgressColor: this.$themeTokens.primary,
+          },
+          ref: itemRenderer => {
+            this.itemRenderer = itemRenderer;
+            if (itemRenderer) {
+              this.$emit('itemRendererUpdated');
+              this.itemRendererUpdating = false;
+            }
+          },
+          dependencies: {
+            analytics: {
+              onAnalyticsEvent: async () => {},
+            },
+          },
+        };
         // Create react component with current item data.
         // If the component already existed, this will perform an update.
-        this.$set(
-          this,
-          'itemRenderer',
-          perseus.ReactDOM.render(
-            itemRendererFactory(this.itemRenderData, null),
-            this.$refs.perseusContainer,
-            () => {
-              this.loading = false;
-            }
-          )
+        const keypadContextConsumerElement = e(
+          KeypadContext.Consumer,
+          { key: 'keypadContextConsumer' },
+          ({ keypadElement }) => {
+            this.keypadElement = keypadElement;
+            return e(perseus.ServerItemRenderer, {
+              ...itemRenderData,
+              keypadElement: this.interactive ? keypadElement : null,
+            });
+          },
         );
+        const keypadWithContextElement = e(
+          KeypadContext.Consumer,
+          { key: 'keypadWithContext ' },
+          ({ setKeypadElement, renderer }) =>
+            createPortal(
+              e(MobileKeypad, {
+                style: keypadStyle.keypadContainer,
+                onElementMounted: el => {
+                  // We need to add the class to the container element
+                  // but the MobileKeypad component does not pass through
+                  // React's className prop to the root element.
+                  const domNode = el.getDOMNode();
+                  if (domNode) {
+                    domNode.classList.add('perseus-keypad-container');
+                  }
+                  setKeypadElement(el);
+                },
+                onDismiss: () => renderer && renderer.blur(),
+                onAnalyticsEvent: async () => {},
+              }),
+              document.body,
+            ),
+        );
+        const statefulKeypadContextProviderElement = e(StatefulKeypadContextProvider, {
+          children: [keypadContextConsumerElement, keypadWithContextElement],
+        });
+        const perseusStringsElement = e(perseus.PerseusI18nContextProvider, {
+          locale: this.lang,
+          strings: translator,
+          children: statefulKeypadContextProviderElement,
+        });
+        const mathInputStringsElement = e(MathInputI18nContextProvider, {
+          locale: this.lang,
+          strings: translator,
+          children: perseusStringsElement,
+        });
+        const dependencyContextElement = e(perseus.Dependencies.DependenciesContext.Provider, {
+          analytics: { onAnalyticsEvent: async () => {} },
+          children: mathInputStringsElement,
+        });
+        const renderStateRootElement = e(RenderStateRoot, { children: dependencyContextElement });
+        render(renderStateRootElement, this.$refs.perseus);
       },
-      resetState(val) {
+      renderNewItem() {
+        // Clear any pending state reset calls
+        this.$off('itemRendererUpdated');
+        // Dismiss the keypad
+        if (this.keypadElement) {
+          this.keypadElement.dismiss();
+        }
+        this.$once('itemRendererUpdated', () => {
+          // Blur any previously focused element once we have rendered a new item
+          this.itemRenderer.blur();
+          // Wait for the itemRenderer to be updated before setting the answer
+          // This is necessary because the itemRenderer may not be available immediately
+          // or may be in the process of updating, and contain stale state from the previous item.
+          // The first thing we do in setAnswer is read the blank state from the itemRenderer,
+          // so we need to ensure that the itemRenderer is available and up to date first.
+          this.setAnswer();
+        });
+        this.renderItem();
+      },
+      _resetState(val) {
         if (!val) {
           this.restoreSerializedState(this.blankState);
         }
         this.setAnswer();
+      },
+      resetState(val) {
+        // Because resetState is called in response to watching props, we need to ensure
+        // that the itemRenderer is available and not in the process of updating before
+        // we try to reset the state.
+        if (this.itemRenderer && !this.itemRendererUpdating && !this.loading) {
+          this._resetState(val);
+        } else {
+          this.$once('itemRendererUpdated', () => {
+            this._resetState(val);
+          });
+        }
       },
       clearItemRenderer() {
         // Clean up any existing itemRenderer to avoid leak memory
@@ -368,12 +510,11 @@
         // to ensure clean up without worrying about whether React has already cleaned up this
         // component.
         try {
-          perseus.ReactDOM.unmountComponentAtNode(this.$refs.perseusContainer);
-          this.$set(this, 'itemRenderer', null);
+          unmountComponentAtNode(this.$refs.perseus);
+          this.itemRenderer = null;
         } catch (e) {
           logging.debug('Error during unmounting of item renderer', e);
         }
-        Khan.imageUrls = {};
       },
       /*
        * Special method to extract the current state of a Perseus Sorter widget
@@ -383,8 +524,8 @@
         this.itemRenderer.getWidgetIds().forEach(id => {
           if (sorterWidgetRegex.test(id)) {
             if (questionState[id]) {
-              const sortableComponent = this.itemRenderer.questionRenderer.getWidgetInstance(id)
-                .refs.sortable;
+              const sortableComponent =
+                this.itemRenderer.questionRenderer.getWidgetInstance(id).refs.sortable;
               questionState[id].options = sortableComponent.getOptions();
             }
           }
@@ -399,50 +540,55 @@
         let hints = [];
         if (this.itemRenderer.hintsRenderer) {
           hints = Object.keys(this.itemRenderer.hintsRenderer.refs || {}).map(key =>
-            this.itemRenderer.hintsRenderer.refs[key].getSerializedState()
+            this.itemRenderer.hintsRenderer.refs[key].getSerializedState(),
           );
         }
         const question = this.addSorterState(
-          this.itemRenderer.questionRenderer.getSerializedState()
+          this.itemRenderer.questionRenderer.getSerializedState(),
         );
         // To prevent propagation of our locally replace blob URLs into answers,
         // we need to replace them with the original URLs.
-        return this.restoreImageUrls({ hints, question });
+        return restoreImageUrls({ hints, question }, this.perseusFileUrl);
       },
       restoreSerializedState(answerState) {
-        answerState = JSON.parse(replaceImageUrls(JSON.stringify(answerState)));
-        this.itemRenderer.restoreSerializedState(answerState);
-        this.itemRenderer.getWidgetIds().forEach(id => {
-          if (sorterWidgetRegex.test(id)) {
-            if (answerState.question[id]) {
-              const sortableComponent = this.itemRenderer.questionRenderer.getWidgetInstance(id)
-                .refs.sortable;
-              const newProps = Object.assign({}, sortableComponent.props, {
-                options: answerState.question[id].options,
-              });
-              sortableComponent.setState({ items: sortableComponent.itemsFromProps(newProps) });
+        if (answerState && answerState.question && answerState.hints) {
+          answerState = JSON.parse(
+            replaceImageUrls(JSON.stringify(answerState), this.perseusFileUrl),
+          );
+          const widgetIds = this.itemRenderer.getWidgetIds();
+          // Because of a switch between the input-number and numeric-input widgets
+          // it seems it is possible for us to have a serialized state with keys
+          // that do not correspond to any widgets. We need to sanitize the state
+          // before restoring it.
+          const sanitizedQuestion = {};
+          for (const key of widgetIds) {
+            if (answerState.question[key]) {
+              sanitizedQuestion[key] = answerState.question[key];
             }
           }
-        });
+          answerState.question = sanitizedQuestion;
+          this.itemRenderer.restoreSerializedState(answerState);
+          widgetIds.forEach(id => {
+            if (sorterWidgetRegex.test(id)) {
+              if (answerState.question[id]) {
+                const sortableComponent =
+                  this.itemRenderer.questionRenderer.getWidgetInstance(id).refs.sortable;
+                const newProps = Object.assign({}, sortableComponent.props, {
+                  options: answerState.question[id].options,
+                });
+                sortableComponent.setState({ items: sortableComponent.itemsFromProps(newProps) });
+              }
+            }
+          });
+        }
       },
       setAnswer() {
         this.blankState = this.getSerializedState();
         // If a passed in answerState is an object with the right keys, restore.
-        if (
-          this.itemRenderer &&
-          this.answerState &&
-          this.answerState.question &&
-          this.answerState.hints &&
-          !this.loading
-        ) {
+        if (this.answerState && this.answerState.question && this.answerState.hints) {
           this.restoreSerializedState(this.answerState);
-        } else if (this.showCorrectAnswer && !this.loading) {
+        } else if (this.showCorrectAnswer) {
           this.setCorrectAnswer();
-        } else if (this.itemRenderer && !this.loading) {
-          // Not setting an answer state, but need to hide any hints.
-          this.itemRenderer.setState({
-            hintsVisible: 0,
-          });
         }
       },
       /*
@@ -451,31 +597,46 @@
       checkAnswer() {
         if (this.itemRenderer && !this.loading) {
           const check = this.itemRenderer.scoreInput();
-          this.empty = check.empty;
           if (check.message && check.empty) {
             this.message = check.message;
-          } else if (!check.empty) {
-            const answerState = this.getSerializedState();
-            // We cannot reliably get simplified answers from Perseus, so don't try.
-            const simpleAnswer = '';
-            return {
-              correct: check.correct,
-              answerState,
-              simpleAnswer,
-            };
           }
+          // Even if the answer is 'empty' according to perseus, it can contain
+          // meaningful state - so we should still return it.
+          // The most salient example of this is multi-select multiple choice
+          // where if insufficient responses have been given, this is counted
+          // as 'empty'.
+          const answerState = this.getSerializedState();
+          // We cannot reliably get simplified answers from Perseus, so don't try.
+          const simpleAnswer = '';
+          return {
+            correct: check.correct,
+            answerState,
+            simpleAnswer,
+          };
         }
         return null;
+      },
+      answerGiven(e) {
+        if (e) {
+          // This is a hack to prevent enter keydown event from propagating when the mobile keypad
+          // is open and the user is dismissing the keypad with the enter key. The only reliable
+          // marker for this is the ariaLabel of the button that is clicked.
+          if (e.target.tagName === 'BUTTON' && e.target.ariaLabel === translator.dismiss) {
+            return;
+          }
+        }
+        const answer = this.checkAnswer();
+        if (answer) {
+          this.$emit('answerGiven', answer);
+        }
       },
       /*
        * @public
        */
       takeHint() {
-        if (
-          this.itemRenderer &&
-          this.itemRenderer.state.hintsVisible < this.itemRenderer.getNumHints()
-        ) {
-          this.itemRenderer.showHint();
+        if (this.itemRenderer && this.hintsVisible < this.totalHints) {
+          this.hintsVisible += 1;
+          this.renderItem();
           this.$emit('hintTaken', { answerState: this.getSerializedState() });
         }
       },
@@ -491,17 +652,17 @@
         // Only try to do this if itemId is defined.
         if (this.itemId && this.defaultFile && this.defaultFile.storage_url) {
           this.loading = true;
-          if (!this.perseusFile || this.perseusFileUrl !== this.defaultFile.storage_url) {
-            this.perseusFile = new ZipFile(this.defaultFile.storage_url, {
-              filePathMappers,
-            });
+          if (this.perseusFileUrl !== this.defaultFile.storage_url) {
+            cleanUpPerseusFile(this.perseusFileUrl);
+            setUpPerseusFile(this.defaultFile.storage_url);
             this.perseusFileUrl = this.defaultFile.storage_url;
           }
-          this.perseusFile
+          globalPerseusFileRegistry[this.perseusFileUrl].zipFile
             .file(`${this.itemId}.json`)
             .then(itemFile => {
               const itemResponse = itemFile.toString();
               this.setItemData(JSON.parse(itemResponse));
+              this.loading = false;
             })
             .catch(reason => {
               logging.debug('There was an error loading the assessment item data: ', reason);
@@ -510,23 +671,22 @@
             });
         }
       },
-      restoreImageUrls(itemResponse) {
-        const lookup = invert(Khan.imageUrls);
-        return JSON.parse(
-          JSON.stringify(itemResponse).replace(blobImageRegex, match => {
-            // Make sure to add our prefix back in
-            return '${☣ LOCALPATH}/' + lookup[match] || '';
-          })
-        );
-      },
       setItemData(itemData) {
         if (this.validateItemData(itemData)) {
           this.item = itemData;
+          // Don't store blank state for another item.
+          this.blankState = null;
+
+          // Clear any currently displayed hints when we render an item.
+          this.hintsVisible = 0;
+
+          // Clear any currently displayed messages when we render an item.
+          this.dismissMessage();
           if (this.$el) {
             // Don't try to render if our component is not mounted yet.
-            this.renderItem();
+            this.renderNewItem();
           } else {
-            this.$once('mounted', this.renderItem);
+            this.$once('mounted', this.renderNewItem);
           }
         } else {
           logging.warn('Loaded item was malformed', itemData);
@@ -555,23 +715,6 @@
         }
       },
     },
-
-    $trs: {
-      showScratch: {
-        message: 'Show scratchpad',
-        context:
-          'The scratchpad refers to the interactive area in an exercise where the learner responds to a question.',
-      },
-      notAvailable: {
-        message: 'The scratchpad is not available',
-        context:
-          'The scratchpad refers to the interactive area in an exercise where the learner responds to a question. On some devices the scratchpad may not be available. If this is the case, this message is displayed to the learner.',
-      },
-      hintLabel: {
-        message: 'Hint:',
-        context: 'A hint is a suggestion to help learners solve a problem.',
-      },
-    },
   };
 
 </script>
@@ -579,10 +722,9 @@
 
 <style lang="scss" scoped>
 
-  @import '~../../dist/khan-exercise.css';
-  @import '~../../dist/katex.css';
-  @import '~../../dist/perseus.css';
-  @import '~../../dist/mathquill.css';
+  @import '~katex/dist/katex.css';
+  @import '~../../dist/index.css';
+  @import '~../../dist/math-input.css';
 
   /deep/ .perseus-hint-renderer {
     padding-left: 16px;
@@ -593,32 +735,9 @@
     margin-left: 16px;
   }
 
-  .solutionarea {
-    max-width: 100%;
-    padding: 0 !important;
-    margin: 0 !important;
-    border-bottom-style: none !important;
-  }
-
-  .hintlabel {
-    margin-left: 16px;
-  }
-
-  .hintsarea {
-    padding-right: 16px;
-  }
-
-  .info-icon {
-    margin: 0 8px;
-  }
-
   .loader-container {
     width: 100%;
     height: 4px;
-  }
-
-  .problem-area {
-    padding: 0 16px;
   }
 
   .perseus-mobile {
@@ -641,7 +760,10 @@
      help force Perseus exercises to render within the allotted space. */
 
   .framework-perseus {
-    padding-bottom: 104px;
+    position: relative; /* Make it a positioning context */
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Take up all available vertical space */
 
     // Orderer widget wrapper. Stops it from going off screen right
     /deep/ .orderer {
@@ -670,8 +792,33 @@
   }
 
   .perseus {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
     padding: 24px;
+    overflow: auto; /* Allow scrolling if needed */
     background: white;
+  }
+
+  /deep/ .perseus > div {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px; /* Optional: space between the grid items */
+  }
+
+  @media (max-width: 600px) {
+    /deep/ .perseus > div {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /deep/ .perseus {
+    /* Override Perseus' responsive SVG image display which forces full width */
+    .paragraph > .svg-image {
+      display: inline-block;
+      vertical-align: middle;
+    }
   }
 
   /deep/ .perseus-renderer {
@@ -693,6 +840,7 @@
   .perseus-root {
     position: relative;
     z-index: 0;
+    height: 100%;
 
     div,
     span,
@@ -835,8 +983,8 @@
     }
   }
 
-  .keypad-container {
-    direction: ltr;
+  .perseus-keypad-container > div > div {
+    pointer-events: auto;
   }
 
 </style>

@@ -13,6 +13,7 @@ import GroupsPage from './views/plan/GroupsPage';
 import GroupMembersPage from './views/plan/GroupMembersPage';
 import GroupEnrollPage from './views/plan/GroupEnrollPage';
 import pages from './views/reports/allReportsPages';
+import HomeActivityPage from './views/home/HomeActivityPage';
 
 class CoachToolsModule extends KolibriApp {
   get stateSetters() {
@@ -36,11 +37,17 @@ class CoachToolsModule extends KolibriApp {
         PageNames.EXAM_CREATION_ROOT,
         PageNames.QUIZ_SECTION_EDITOR,
         PageNames.QUIZ_REPLACE_QUESTIONS,
+        PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
         PageNames.QUIZ_SELECT_RESOURCES,
+        PageNames.QUIZ_SECTION_ORDER,
         PageNames.BOOK_MARKED_RESOURCES,
         pages.ReportsQuizLearnerPage.name,
       ];
-      if (!skipLoading.includes(to.name)) {
+      // If we're navigating to the same page for a quiz summary page, don't set loading
+      if (
+        !skipLoading.includes(to.name) &&
+        !(to.params.quizId && from.params.quizId && to.name === from.name)
+      ) {
         this.store.dispatch('loading');
       }
       const promises = [];
@@ -56,7 +63,7 @@ class CoachToolsModule extends KolibriApp {
         to.name &&
         !to.params.classId &&
         !['CoachClassListPage', 'StatusTestPage', 'CoachPrompts', 'AllFacilitiesPage'].includes(
-          to.name
+          to.name,
         )
       ) {
         this.store.dispatch('coachNotifications/stopPolling');
@@ -80,6 +87,8 @@ class CoachToolsModule extends KolibriApp {
           GroupsPage.name,
           GroupMembersPage.name,
           GroupEnrollPage.name,
+          PageNames.HOME_PAGE,
+          HomeActivityPage.name,
         ].includes(to.name)
       ) {
         next();
@@ -90,7 +99,7 @@ class CoachToolsModule extends KolibriApp {
         to.name &&
         to.params.classId &&
         !['CoachClassListPage', 'StatusTestPage', 'CoachPrompts', 'AllFacilitiesPage'].includes(
-          to.name
+          to.name,
         )
       ) {
         promises.push(this.store.dispatch('initClassInfo', to.params.classId));

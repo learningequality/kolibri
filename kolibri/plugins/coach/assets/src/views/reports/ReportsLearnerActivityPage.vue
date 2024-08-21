@@ -1,13 +1,11 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
+  <CoachAppBarPage>
     <KPageContainer>
-
-      <ReportsLearnerHeader :enablePrint="true" :activeTabId="ReportsLearnersTabs.ACTIVITY" />
+      <ReportsLearnerHeader
+        :enablePrint="true"
+        :activeTabId="ReportsLearnersTabs.ACTIVITY"
+      />
       <KTabsPanel
         :tabsId="REPORTS_LEARNERS_TABS_ID"
         :activeTabId="ReportsLearnersTabs.ACTIVITY"

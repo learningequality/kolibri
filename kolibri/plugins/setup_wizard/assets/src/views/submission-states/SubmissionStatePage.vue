@@ -6,14 +6,16 @@
       :delay="false"
     />
 
-    <h1 class="submission-state-page-header" :style="{ color: $themeTokens.primary }">
+    <h1
+      class="submission-state-page-header"
+      :style="{ color: $themeTokens.primary }"
+    >
       {{ header }}
     </h1>
 
     <div class="submission-state-page-body">
       <slot></slot>
     </div>
-
   </div>
 
 </template>

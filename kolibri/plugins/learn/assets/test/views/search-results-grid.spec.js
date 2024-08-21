@@ -24,7 +24,7 @@ describe('when search results are loaded', () => {
         },
       });
       expect(wrapper.find('[data-test="search-results-title"]').element).toHaveTextContent(
-        coreStrings('uncountedAdditionalResults', { num: 1 })
+        coreStrings('uncountedAdditionalResults', { num: 1 }),
       );
     });
   });
@@ -38,7 +38,7 @@ describe('when search results are loaded', () => {
         },
       });
       expect(wrapper.find('[data-test="search-results-title"]').element).toHaveTextContent(
-        SearchStrings.$tr('results', { results: 1 })
+        SearchStrings.$tr('results', { results: 1 }),
       );
     });
   });

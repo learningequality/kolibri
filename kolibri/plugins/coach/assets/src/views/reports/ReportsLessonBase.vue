@@ -1,18 +1,14 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
+  <CoachAppBarPage>
     <KGrid gutter="16">
       <KGridItem>
         <QuizLessonDetailsHeader
           examOrLesson="lesson"
           :backlinkLabel="group ? group.name : coreString('allLessonsLabel')"
-          :backlink="group ?
-            classRoute('ReportsGroupReportPage') :
-            classRoute('ReportsLessonListPage')"
+          :backlink="
+            group ? classRoute('ReportsGroupReportPage') : classRoute('ReportsLessonListPage')
+          "
         >
           <template #dropdown>
             <LessonOptionsDropdownMenu
@@ -59,7 +55,6 @@
         </KPageContainer>
       </KGridItem>
     </KGrid>
-
   </CoachAppBarPage>
 
 </template>
@@ -160,7 +155,7 @@
             status: this.getLessonStatusStringForLearner(this.lesson.id, learner.id),
             link: this.classRoute(
               this.group ? 'ReportsGroupReportLessonLearnerPage' : 'ReportsLessonLearnerPage',
-              { learnerId: learner.id }
+              { learnerId: learner.id },
             ),
           };
           Object.assign(tableRow, learner);
@@ -209,8 +204,8 @@
               'SELECTION_ROOT',
               {},
               // So the "X" and "Cancel" buttons return back to the ReportPage
-              { last: this.$route.name }
-            )
+              { last: this.$route.name },
+            ),
           );
         }
         if (action === 'PRINT_REPORT') {
@@ -260,14 +255,14 @@
               this.group
                 ? 'ReportsGroupReportLessonExerciseLearnerListPage'
                 : 'ReportsLessonExerciseLearnerListPage',
-              { exerciseId: resource.content_id }
+              { exerciseId: resource.content_id },
             );
           } else {
             return this.classRoute(
               this.group
                 ? 'ReportsGroupReportLessonResourceLearnerListPage'
                 : 'ReportsLessonResourceLearnerListPage',
-              { resourceId: resource.content_id }
+              { resourceId: resource.content_id },
             );
           }
         }

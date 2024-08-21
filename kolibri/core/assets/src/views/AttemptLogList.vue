@@ -8,66 +8,140 @@
       {{ $tr('answerHistoryLabel') }}
     </h3>
 
-    <KSelect
-      v-if="isMobile"
-      class="history-select"
-      :value="selected"
-      aria-labelledby="answer-history-label"
-      :options="options"
-      :disabled="$attrs.disabled"
-      @change="handleDropdownChange($event.value)"
-    >
-      <template #display>
-        <AttemptLogItem
-          :isSurvey="isSurvey"
-          :attemptLog="attemptLogs[selectedQuestionNumber]"
-          displayTag="span"
-        />
-      </template>
-      <template #option="{ index }">
-        <AttemptLogItem
-          :isSurvey="isSurvey"
-          :attemptLog="attemptLogs[index]"
-          displayTag="span"
-        />
-      </template>
-    </KSelect>
+    <div v-if="isMobile">
+      <KSelect
+        v-if="sectionSelectOptions.length > 1"
+        class="section-select"
+        :value="selectedSection"
+        :label="quizSectionsLabel$()"
+        :options="sectionSelectOptions"
+        :disabled="$attrs.disabled"
+        @change="handleSectionChange($event.value)"
+      />
 
-    <ul
+      <h2
+        v-else-if="selectedSection.label"
+        class="section-select"
+      >
+        {{ selectedSection.label }}
+      </h2>
+
+      <KSelect
+        class="history-select"
+        :value="selectedQuestion"
+        :label="questionsLabel$()"
+        :options="questionSelectOptions"
+        :disabled="$attrs.disabled"
+        @change="handleQuestionChange($event.value)"
+      >
+        <template #display>
+          <AttemptLogItem
+            class="attempt-selected"
+            :isSurvey="isSurvey"
+            :attemptLog="attemptLogs[selectedQuestionNumber]"
+            displayTag="span"
+          />
+        </template>
+        <template #option="{ index }">
+          <AttemptLogItem
+            class="attempt-option"
+            :isSurvey="isSurvey"
+            :attemptLog="attemptLogs[sections[currentSectionIndex].startQuestionNumber + index]"
+            displayTag="span"
+          />
+        </template>
+      </KSelect>
+    </div>
+
+    <AccordionContainer
       v-else
-      ref="attemptList"
-      class="history-list"
-      role="listbox"
-      @keydown.home="setSelectedAttemptLog(0)"
-      @keydown.end="setSelectedAttemptLog(attemptLogs.length - 1)"
-      @keydown.up.prevent="setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
-      @keydown.left.prevent="setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
-      @keydown.down.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
-      @keydown.right.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
+      :hideTopActions="true"
+      :items="sections"
     >
-      <template v-for="(attemptLog, index) in attemptLogs">
-        <li
-          :key="index"
-          class="attempt-item"
-          :style="{
-            backgroundColor: isSelected(index) ? $themePalette.grey.v_100 : '',
-          }"
+      <AccordionItem
+        v-for="(section, index) in sections"
+        :id="`section-questions-${index}`"
+        :key="`section-questions-${index}`"
+        :title="displaySectionTitle(section, index)"
+        @focus="expand(index)"
+      >
+        <template
+          v-if="sections.length > 1"
+          #heading="{ title }"
         >
-          <a
-            ref="attemptListOption"
-            role="option"
-            class="attempt-item-anchor"
-            :aria-selected="isSelected(index).toString()"
-            :tabindex="isSelected(index) ? 0 : -1"
-            @click.prevent="setSelectedAttemptLog(index)"
-            @keydown.enter="setSelectedAttemptLog(index)"
-            @keydown.space.prevent="setSelectedAttemptLog(index)"
+          <h3
+            v-if="title"
+            class="accordion-header"
+            :style="{
+              backgroundColor: index === currentSectionIndex ? $themePalette.grey.v_100 : '',
+            }"
           >
-            <AttemptLogItem :isSurvey="isSurvey" :attemptLog="attemptLog" displayTag="p" />
-          </a>
-        </li>
-      </template>
-    </ul>
+            <KButton
+              tabindex="0"
+              appearance="basic-link"
+              :style="accordionStyleOverrides"
+              class="accordion-header-label"
+              :aria-expanded="isExpanded(index)"
+              :aria-controls="`section-question-panel-${index}`"
+              @click="toggle(index)"
+            >
+              <span>{{ title }}</span>
+              <KIcon
+                class="chevron-icon"
+                :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
+              />
+            </KButton>
+          </h3>
+        </template>
+        <template #content>
+          <div v-show="sections.length === 1 || isExpanded(index)">
+            <ul
+              ref="attemptList"
+              class="history-list"
+              role="listbox"
+              @keydown.home="setSelectedAttemptLog(0)"
+              @keydown.end="setSelectedAttemptLog(attemptLogs.length - 1)"
+              @keydown.up.prevent="setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
+              @keydown.left.prevent="
+                setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))
+              "
+              @keydown.down.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
+              @keydown.right.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
+            >
+              <li
+                v-for="(question, qIndex) in section.questions"
+                :key="`attempt-item-${qIndex}`"
+                class="attempt-item"
+                :style="{
+                  backgroundColor: isSelected(section.startQuestionNumber + qIndex)
+                    ? $themePalette.grey.v_100
+                    : '',
+                }"
+              >
+                <a
+                  ref="attemptListOption"
+                  role="option"
+                  class="attempt-item-anchor"
+                  :aria-selected="isSelected(section.startQuestionNumber + qIndex).toString()"
+                  :tabindex="isSelected(section.startQuestionNumber + qIndex) ? 0 : -1"
+                  @click.prevent="setSelectedAttemptLog(section.startQuestionNumber + qIndex)"
+                  @keydown.enter="setSelectedAttemptLog(section.startQuestionNumber + qIndex)"
+                  @keydown.space.prevent="
+                    setSelectedAttemptLog(section.startQuestionNumber + qIndex)
+                  "
+                >
+                  <AttemptLogItem
+                    :isSurvey="isSurvey"
+                    :attemptLog="attemptLogs[section.startQuestionNumber + qIndex]"
+                    displayTag="p"
+                  />
+                </a>
+              </li>
+            </ul>
+          </div>
+        </template>
+      </AccordionItem>
+    </AccordionContainer>
   </div>
 
 </template>
@@ -75,16 +149,107 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import {
+    displaySectionTitle,
+    enhancedQuizManagementStrings,
+  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import useAccordion from 'kolibri-common/components/useAccordion';
+  import AccordionItem from 'kolibri-common/components/AccordionItem';
+  import AccordionContainer from 'kolibri-common/components/AccordionContainer';
+  import { computed, onMounted, watch } from 'kolibri.lib.vueCompositionApi';
+  import { toRefs } from '@vueuse/core';
+  import { coreStrings } from '../mixins/commonCoreStrings';
   import AttemptLogItem from './AttemptLogItem';
 
   export default {
     name: 'AttemptLogList',
     components: {
       AttemptLogItem,
+      AccordionContainer,
+      AccordionItem,
     },
-    mixins: [commonCoreStrings],
+    setup(props, { emit }) {
+      const { questionsLabel$, quizSectionsLabel$ } = enhancedQuizManagementStrings;
+      const { questionNumberLabel$ } = coreStrings;
+      const { currentSectionIndex, sections, selectedQuestionNumber } = toRefs(props);
+
+      const { expand, isExpanded, toggle } = useAccordion(sections);
+
+      /** Finds the section which the current attempt belongs to and expands it */
+      function expandCurrentSectionIfNeeded() {
+        if (!isExpanded(currentSectionIndex.value)) {
+          expand(currentSectionIndex.value);
+        }
+      }
+
+      const sectionSelectOptions = computed(() => {
+        return sections.value.map((section, index) => ({
+          value: index,
+          label: displaySectionTitle(section, index),
+        }));
+      });
+
+      const currentSection = computed(() => {
+        return sections.value[currentSectionIndex.value];
+      });
+
+      const questionSelectOptions = computed(() => {
+        return currentSection.value.questions.map((question, index) => ({
+          value: index,
+          label: questionNumberLabel$({ questionNumber: index + 1 }),
+        }));
+      });
+
+      // The KSelect-shaped object for the current section
+      const selectedSection = computed(() => {
+        return sectionSelectOptions.value[currentSectionIndex.value];
+      });
+
+      // The KSelect-shaped object for the current question
+      const selectedQuestion = computed(() => {
+        return questionSelectOptions.value[
+          selectedQuestionNumber.value - currentSection.value.startQuestionNumber
+        ];
+      });
+
+      function handleQuestionChange(index) {
+        emit('select', index + currentSection.value.startQuestionNumber);
+        expandCurrentSectionIfNeeded();
+      }
+
+      function handleSectionChange(index) {
+        const questionIndex = sections.value[index].startQuestionNumber;
+        emit('select', questionIndex);
+        expandCurrentSectionIfNeeded();
+      }
+
+      watch(selectedQuestionNumber, expandCurrentSectionIfNeeded);
+      onMounted(expandCurrentSectionIfNeeded);
+
+      return {
+        handleSectionChange,
+        handleQuestionChange,
+        displaySectionTitle,
+        quizSectionsLabel$,
+        questionsLabel$,
+        expand,
+        isExpanded,
+        toggle,
+        selectedSection,
+        sectionSelectOptions,
+        selectedQuestion,
+        questionSelectOptions,
+      };
+    },
     props: {
+      sections: {
+        type: Array,
+        required: true,
+      },
+      currentSectionIndex: {
+        type: Number,
+        required: true,
+      },
       attemptLogs: {
         type: Array,
         required: true,
@@ -103,20 +268,11 @@
       },
     },
     computed: {
-      selected() {
-        return this.options.find(o => o.value === this.selectedQuestionNumber + 1) || {};
-      },
-      options() {
-        let label = '';
-        return this.attemptLogs.map(attemptLog => {
-          label = this.coreString('questionNumberLabel', {
-            questionNumber: attemptLog.questionNumber,
-          });
-          return {
-            value: attemptLog.questionNumber,
-            label: label,
-          };
-        });
+      accordionStyleOverrides() {
+        return {
+          color: this.$themeTokens.text + '!important',
+          textDecoration: 'none',
+        };
       },
     },
     mounted() {
@@ -125,9 +281,6 @@
       });
     },
     methods: {
-      handleDropdownChange(value) {
-        this.$emit('select', value - 1);
-      },
       setSelectedAttemptLog(questionNumber) {
         const listOption = this.$refs.attemptListOption[questionNumber];
         listOption.focus();
@@ -190,10 +343,44 @@
     list-style-type: none;
   }
 
+  .section-select {
+    max-width: 90%;
+    padding: 0.5em 0;
+    margin: 1em auto;
+  }
+
   .history-select {
     max-width: 90%;
-    padding-top: 16px;
-    margin: auto;
+    padding: 0.5em 0;
+    margin: 0 auto;
+  }
+
+  /deep/.ui-select-dropdown {
+    left: 0;
+  }
+
+  .attempt-option {
+    position: relative;
+    width: calc(100% - 1em);
+
+    /deep/.svg-item {
+      position: absolute;
+      top: 50%;
+      right: 0.5em;
+      z-index: 1;
+      vertical-align: middle;
+      transform: translateY(-50%);
+    }
+  }
+
+  .attempt-selected {
+    /deep/.svg-item {
+      position: absolute;
+      top: 50%;
+      right: 0.5em;
+      vertical-align: middle;
+      transform: translateY(-50%);
+    }
   }
 
   .attempt-item {
@@ -207,6 +394,40 @@
     padding-right: 1vw;
     padding-left: 1vw;
     cursor: pointer;
+  }
+
+  .accordion-header-label {
+    display: block;
+    width: calc(100% - 1em);
+    height: 100%;
+    padding: 1em;
+
+    // Removes underline from section headings
+    /deep/.link-text {
+      text-decoration: none;
+    }
+  }
+
+  .chevron-icon {
+    position: absolute;
+    top: 50%;
+    right: 0.5em;
+    vertical-align: middle;
+    transform: translateY(-50%);
+  }
+
+  .accordion-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    text-align: left;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
   }
 
 </style>

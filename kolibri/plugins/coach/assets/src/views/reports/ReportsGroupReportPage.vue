@@ -1,15 +1,8 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
+  <CoachAppBarPage>
     <KPageContainer>
-
-      <ReportsGroupHeader
-        :activeTabId="ReportsGroupTabs.REPORTS"
-      />
+      <ReportsGroupHeader :activeTabId="ReportsGroupTabs.REPORTS" />
       <KTabsPanel
         :tabsId="REPORTS_GROUP_TABS_ID"
         :activeTabId="ReportsGroupTabs.REPORTS"

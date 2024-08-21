@@ -4,70 +4,113 @@
     :route="homePageLink"
     :appBarTitle="exam.title || ''"
   >
-    <KCircularLoader v-if="loading" />
+    <KCircularLoader v-if="loading || !currentQuestion" />
+
     <div v-else>
       <KGrid :gridStyle="gridStyle">
         <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
         <KGridItem
-          v-if="windowIsLarge"
+          v-if="showQuestionsList"
           ref="questionListWrapper"
           :layout12="{ span: 4 }"
           class="column-pane"
         >
           <div class="column-contents-wrapper">
+            <KPageContainer style="padding: 0">
+              <AnswerHistory
+                :pastattempts="pastattempts"
+                :sections="sections"
+                :currentSectionIndex="currentSectionIndex"
+                :questionNumber="questionNumber"
+                :questionItem="attemptLogItemValue"
+                :wrapperComponentRefs="$refs"
+                @goToQuestion="goToQuestion"
+              />
+            </KPageContainer>
+          </div>
+        </KGridItem>
 
-            <KPageContainer>
-              <div
-                v-for="(section,index) in exam.question_sources"
-                :key="index"
+        <KGridItem
+          :layout12="{ span: 8 }"
+          class="column-pane"
+          :style="!showQuestionsList ? { overflow: 'unset' } : {}"
+        >
+          <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
+            <KPageContainer
+              v-if="windowIsLarge"
+              dir="auto"
+              style="overflow-x: visible"
+            >
+              <KGrid>
+                <KGridItem :layout12="{ span: 8 }">
+                  <h2 class="section-title">
+                    {{ displaySectionTitle(currentSection, currentSectionIndex) }}
+                  </h2>
+                  <p v-if="currentSection.description">{{ currentSection.description }}</p>
+                </KGridItem>
+                <KGridItem :layout12="{ span: 4 }">
+                  <div :style="{ margin: '2em auto 0', textAlign: 'center', width: '100%' }">
+                    <div>{{ coreString('timeSpentLabel') }}:</div>
+                    <TimeDuration
+                      class="timer"
+                      aria-live="polite"
+                      role="timer"
+                      :seconds="time_spent"
+                    />
+                  </div>
+                </KGridItem>
+              </KGrid>
+            </KPageContainer>
+            <div v-else>
+              <KPageContainer
+                dir="auto"
+                class="quiz-container"
               >
-                <div
-                  class="spacing-items"
-                  :style="{
-                    backgroundColor: $themePalette.grey.v_100,
-                  }"
-                >
-                  <Button
-                    v-if="section.section_title"
-                    class="remove-btn-style"
-                    @click="toggleDescription"
+                <span>{{ coreString('timeSpentLabel') }}:</span>
+                <TimeDuration
+                  class="timer"
+                  aria-live="polite"
+                  role="timer"
+                  :seconds="time_spent"
+                />
+              </KPageContainer>
+              <KPageContainer
+                dir="auto"
+                class="quiz-container"
+              >
+                <div v-if="windowIsSmall || windowIsMedium">
+                  <KSelect
+                    v-if="sectionSelectOptions.length > 1"
+                    :value="currentSectionOption"
+                    :options="sectionSelectOptions"
+                    :label="quizSectionsLabel$()"
+                    @select="handleSectionOptionChange"
                   >
-                    <KGrid>
-                      <KGridItem
-                        :layout12="{ span: 8 }"
-                        :layout8="{ span: 6 }"
-                        :layout4="{ span: 3 }"
-                      >
-                        <span class="quiz-title">
-                          {{ section.section_title }}
-                        </span>
-                      </KGridItem>
-
-                      <KGridItem
-                        :layout12="{ span: 4 }"
-                        :layout8="{ span: 2 }"
-                        :layout4="{ span: 1 }"
-                      >
-                        <div style="text-align: right; cursor: pointer">
-                          <KIcon
-                            :icon="isDescriptionVisible ? 'chevronUp' : 'chevronDown'"
-                            class="icon-size"
-                          />
-                        </div>
-                      </KGridItem>
-                    </KGrid>
-                  </Button>
-                  <Button class="remove-btn-style">
-                    <p v-if="isDescriptionVisible" style="font-size: 14px; text-align:left">
-                      {{ section.description }}
-                    </p>
-                  </Button>
-
-
-                <!-- <p>{{ coreString('timeSpentLabel') }}</p>
-                <div :style="{ paddingBottom: '8px' }">
-                  <TimeDuration class="timer" :seconds="time_spent" />
+                    <template #display>
+                      <KIcon
+                        class="dot"
+                        :icon="sectionQuestionsIcon(currentSectionIndex)"
+                        :color="sectionQuestionsIconColor(currentSectionIndex)"
+                      />
+                      <span>{{ currentSectionOption.label }}</span>
+                    </template>
+                    <template #option="{ index, option }">
+                      <KIcon
+                        class="dot"
+                        :icon="sectionQuestionsIcon(index)"
+                        :color="sectionQuestionsIconColor(index)"
+                      />
+                      <span>{{ option.label }}</span>
+                    </template>
+                  </KSelect>
+                  <h2
+                    v-else-if="currentSectionOption.label"
+                    class="section-select"
+                  >
+                    {{ currentSectionOption.label }}
+                  </h2>
                 </div>
+                <p v-if="currentSection.description">{{ currentSection.description }}</p>
                 <p v-if="content && content.duration">
                   {{ learnString('suggestedTime') }}
                 </p>
@@ -75,35 +118,69 @@
                   v-if="content && content.duration"
                   class="timer"
                   :seconds="content.duration"
-                /> -->
-                </div>
-
-                <span
-                  class="divider"
-                  :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
-                >
-                </span>
-
-                <AnswerHistory
-                  :pastattempts="pastattempts"
-                  :questions="section.questions"
-                  :questionNumber="questionNumber"
-                  :wrapperComponentRefs="$refs"
-                  @goToQuestion="goToQuestion"
                 />
-
-              </div>
-
-            </KPageContainer>
-          </div>
-        </KGridItem>
-        <KGridItem :layout12="{ span: 8 }" class="column-pane">
-          <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
-            <KPageContainer>
-
-              <h1 class="number-of-questions">
+              </KPageContainer>
+            </div>
+            <KPageContainer style="overflow-x: visible">
+              <KSelect
+                v-if="windowIsSmall || windowIsMedium"
+                style="margin-top: 1em"
+                :value="currentQuestionOption"
+                :options="questionSelectOptions"
+                :label="questionsLabel$()"
+                @select="handleQuestionOptionChange"
+              >
+                <template #display>
+                  <KIcon
+                    v-if="currentQuestionOption.disabled"
+                    class="dot"
+                    icon="warning"
+                    :color="$themePalette.yellow.v_1100"
+                  />
+                  <KIcon
+                    v-else
+                    class="dot"
+                    :icon="
+                      isAnswered(currentQuestionOption.value)
+                        ? 'unpublishedResource'
+                        : 'unpublishedChange'
+                    "
+                    :color="
+                      isAnswered(currentQuestionOption.value)
+                        ? $themeTokens.progress
+                        : $themeTokens.textDisabled
+                    "
+                  />
+                  <span>
+                    {{ currentQuestionOption.label }}
+                  </span>
+                </template>
+                <template #option="{ option }">
+                  <KIcon
+                    v-if="option.disabled"
+                    class="dot"
+                    icon="warning"
+                    :color="$themePalette.yellow.v_1100"
+                  />
+                  <KIcon
+                    v-else
+                    class="dot"
+                    :icon="isAnswered(option.value) ? 'unpublishedResource' : 'unpublishedChange'"
+                    :color="
+                      isAnswered(option.value) ? $themeTokens.progress : $themeTokens.textDisabled
+                    "
+                  />
+                  <span>
+                    {{ option.label }}
+                  </span>
+                </template>
+              </KSelect>
+              <h2
+                v-else
+                class="number-of-questions"
+              >
                 {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
-              </h1>
+              </h2>
               <ContentRenderer
                 v-if="content && itemId"
                 ref="contentRenderer"
@@ -117,21 +194,23 @@
                 :answerState="currentAttempt.answer"
                 @interaction="saveAnswer"
               />
-              <ResourceSyncingUiAlert v-else :multiple="false" />
+              <ResourceSyncingUiAlert
+                v-else
+                :multiple="false"
+              />
             </KPageContainer>
           </main>
         </KGridItem>
       </KGrid>
-      <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
-        <component :is="windowIsSmall ? 'div' : 'KButtonGroup'">
+      <BottomAppBar :maxWidth="null">
+        <KButtonGroup :class="{ spread: !windowIsLarge }">
           <KButton
             :disabled="questionNumber === 0"
             :primary="true"
             :dir="layoutDirReset"
             :appearanceOverrides="navigationButtonStyle"
-            :class="{ 'left-align': windowIsSmall }"
             :aria-label="$tr('previousQuestion')"
-            @click="goToQuestion(questionNumber - 1)"
+            @click="goToPreviousQuestion"
           >
             <template #icon>
               <KIcon
@@ -148,7 +227,7 @@
             :dir="layoutDirReset"
             :aria-label="$tr('nextQuestion')"
             :appearanceOverrides="navigationButtonStyle"
-            @click="goToQuestion(questionNumber + 1)"
+            @click="goToNextQuestion"
           >
             <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
             <template #iconAfter>
@@ -159,7 +238,22 @@
               />
             </template>
           </KButton>
-        </component>
+          <!-- below prev/next buttons in tab and DOM order -->
+          <KButton
+            v-if="!windowIsLarge && questionsUnanswered === 0"
+            :text="$tr('submitExam')"
+            :primary="true"
+            appearance="raised-button"
+            @click="finishExam"
+          />
+          <KButton
+            v-else-if="!windowIsLarge && !missingResources"
+            :text="$tr('submitExam')"
+            :primary="false"
+            appearance="flat-button"
+            @click="toggleModal"
+          />
+        </KButtonGroup>
 
         <!-- below prev/next buttons in tab and DOM order, in footer -->
         <div
@@ -167,7 +261,10 @@
           :dir="layoutDirReset"
           class="left-align"
         >
-          <div v-if="!missingResources" class="answered">
+          <div
+            v-if="!missingResources"
+            class="answered"
+          >
             {{ answeredText }}
           </div>
           <KButton
@@ -184,54 +281,28 @@
             appearance="flat-button"
             @click="toggleModal"
           />
-          <div v-if="missingResources" class="nosubmit">
+          <div
+            v-if="missingResources"
+            class="nosubmit"
+          >
             {{ $tr('unableToSubmit') }}
           </div>
         </div>
-
       </BottomAppBar>
     </div>
-
-
 
     <KModal
       v-if="submitModalOpen"
       :title="$tr('submitExam')"
+      :submitText="$tr('submitExam')"
+      :cancelText="coreString('cancelAction')"
+      @submit="finishExam"
+      @cancel="toggleModal"
     >
       <p v-if="questionsUnanswered">
-        {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
+        {{ $tr('unanswered', { numLeft: questionsUnanswered }) }}
       </p>
       <p>{{ $tr('areYouSure') }}</p>
-
-
-      <KGrid>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KButton
-            class="btn-size"
-            @click="toggleModal"
-          >
-            {{ coreString('cancelAction') }}
-          </KButton>
-        </KGridItem>
-
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KButton
-            class="btn-size"
-            primary
-            @click="finishExam"
-          >
-            {{ $tr('submitExam') }}
-          </KButton>
-        </KGridItem>
-      </KGrid>
     </KModal>
   </ImmersivePage>
 
@@ -242,16 +313,22 @@
 
   import { mapState } from 'vuex';
   import isEqual from 'lodash/isEqual';
+  import {
+    displaySectionTitle,
+    enhancedQuizManagementStrings,
+  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import { annotateSections } from 'kolibri.utils.exams';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
   import { PageNames, ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
-
   import AnswerHistory from './AnswerHistory';
 
   export default {
@@ -266,6 +343,7 @@
       BottomAppBar,
       ImmersivePage,
       ResourceSyncingUiAlert,
+      TimeDuration,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -277,8 +355,14 @@
         startTrackingProgress,
         stopTrackingProgress,
       } = useProgressTracking();
-      const { windowBreakpoint, windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+      const { currentUserId } = useUser();
+      const { windowBreakpoint, windowIsMedium, windowIsLarge, windowIsSmall } =
+        useKResponsiveWindow();
+      const { quizSectionsLabel$, questionsLabel$ } = enhancedQuizManagementStrings;
       return {
+        questionsLabel$,
+        quizSectionsLabel$,
+        displaySectionTitle,
         pastattempts,
         time_spent,
         initContentSession,
@@ -288,12 +372,13 @@
         windowBreakpoint,
         windowIsLarge,
         windowIsSmall,
+        windowIsMedium,
+        currentUserId,
       };
     },
     data() {
       return {
         submitModalOpen: false,
-        isDescriptionVisible: false,
         // Note this time is only used to calculate the time spent on a
         // question, it is not used to generate any timestamps.
         startTime: Date.now(),
@@ -304,6 +389,56 @@
         loading: state => state.core.loading,
       }),
       ...mapState('examViewer', ['exam', 'contentNodeMap', 'questions', 'questionNumber']),
+      questionSelectOptions() {
+        if (!this.currentSection) return [];
+        return (
+          this.currentSection.questions.map((question, i) => ({
+            label: this.$tr('question', {
+              num: this.currentSection.startQuestionNumber + i + 1,
+              total: this.exam.question_count,
+            }),
+            value: this.currentSection.startQuestionNumber + i,
+            disabled: question.missing,
+          })) || []
+        );
+      },
+      currentQuestionOption() {
+        return this.questionSelectOptions[
+          this.questionNumber - this.currentSection.startQuestionNumber
+        ];
+      },
+      currentSectionIndex() {
+        return this.sections.findIndex(
+          section =>
+            section.startQuestionNumber <= this.questionNumber &&
+            section.endQuestionNumber >= this.questionNumber,
+        );
+      },
+      currentSection() {
+        return this.sections[this.currentSectionIndex];
+      },
+      sections() {
+        return annotateSections(this.exam.question_sources || [], this.questions);
+      },
+      sectionSelectOptions() {
+        return this.sections.map((section, i) => ({
+          label: this.displaySectionTitle(section, i),
+          value: i,
+        }));
+      },
+      currentSectionOption() {
+        return this.sectionSelectOptions[this.currentSectionIndex];
+      },
+      sectionCompletionMap() {
+        const answeredAttemptItems = this.pastattempts.filter(a => a.answer).map(a => a.item);
+        return this.sections.reduce((acc, { questions }, index) => {
+          acc[index] = questions
+            .filter(q => answeredAttemptItems.includes(q.item))
+            .map(q => q.item);
+
+          return acc;
+        }, {});
+      },
       gridStyle() {
         if (!this.windowIsSmall) {
           return {
@@ -363,7 +498,10 @@
       // We generate a special item value to save to the backend that encodes
       // both the itemId and the nodeId
       attemptLogItemValue() {
-        return `${this.nodeId}:${this.itemId}`;
+        if (!this.currentQuestion) {
+          return null;
+        }
+        return this.currentQuestion.item;
       },
       questionsAnswered() {
         return Object.keys(
@@ -372,7 +510,7 @@
               map[attempt.item] = true;
             }
             return map;
-          }, {})
+          }, {}),
         ).length;
       },
       questionsUnanswered() {
@@ -407,6 +545,9 @@
           ? { position: 'relative', top: '3px', left: '-4px' }
           : {};
       },
+      showQuestionsList() {
+        return this.windowIsLarge;
+      },
     },
     watch: {
       attemptLogItemValue(newVal, oldVal) {
@@ -424,7 +565,7 @@
             return this.router.replace({
               name: ClassesPageNames.EXAM_REPORT_VIEWER,
               params: {
-                userId: this.$store.getters.currentUserId,
+                userId: this.currentUserId,
                 examId: this.exam.id,
                 questionNumber: 0,
                 questionInteraction: 0,
@@ -435,6 +576,45 @@
         });
     },
     methods: {
+      sectionQuestionsIconColor(index) {
+        const answered = this.sectionCompletionMap[index].length;
+        const total = this.sections[index].questions.length;
+        if (answered === total) {
+          return this.$themeTokens.progress;
+        } else if (answered > 0) {
+          return this.$themeTokens.progress;
+        }
+        return this.$themeTokens.textDisabled;
+      },
+      sectionQuestionsIcon(index) {
+        const answered = this.sectionCompletionMap[index].length;
+        const total = this.sections[index].questions.length;
+        if (answered === total) {
+          return 'unpublishedResource';
+        } else if (answered > 0) {
+          return 'unpublishedChange';
+        }
+        return 'unpublishedChange';
+      },
+      isAnswered(questionIndex) {
+        const question = this.questions[questionIndex];
+        const attempt = this.pastattempts.find(attempt => attempt.item === question.item);
+        return attempt && attempt.answer;
+      },
+      handleSectionOptionChange(opt) {
+        const index = opt.value;
+        if (index === this.currentSectionIndex) {
+          return;
+        }
+        this.goToQuestion(this.sections[index].startQuestionNumber);
+      },
+      handleQuestionOptionChange(opt) {
+        const index = opt.value;
+        if (index === this.questionNumber) {
+          return;
+        }
+        this.goToQuestion(opt.value);
+      },
       setAndSaveCurrentExamAttemptLog({ close, interaction } = {}) {
         // Clear the learner classroom cache here as its progress data is now
         // stale
@@ -490,6 +670,38 @@
         }
         return Promise.resolve();
       },
+      goToPreviousQuestion() {
+        if (this.questionNumber === 0) {
+          return;
+        }
+        const questionNumber = this.questionNumber - 1;
+        const promise = this.debouncedSetAndSaveCurrentExamAttemptLog.flush() || Promise.resolve();
+        promise.then(() => {
+          this.$router.push({
+            name: ClassesPageNames.EXAM_VIEWER,
+            params: {
+              examId: this.exam.id,
+              questionNumber,
+            },
+          });
+        });
+      },
+      goToNextQuestion() {
+        if (this.questionNumber >= this.questions.length) {
+          return;
+        }
+        const questionNumber = this.questionNumber + 1;
+        const promise = this.debouncedSetAndSaveCurrentExamAttemptLog.flush() || Promise.resolve();
+        promise.then(() => {
+          this.$router.push({
+            name: ClassesPageNames.EXAM_VIEWER,
+            params: {
+              examId: this.exam.id,
+              questionNumber,
+            },
+          });
+        });
+      },
       goToQuestion(questionNumber) {
         const promise = this.debouncedSetAndSaveCurrentExamAttemptLog.flush() || Promise.resolve();
         promise.then(() => {
@@ -513,9 +725,6 @@
           });
         }
         this.submitModalOpen = !this.submitModalOpen;
-      },
-      toggleDescription() {
-        this.isDescriptionVisible = !this.isDescriptionVisible;
       },
       finishExam() {
         this.saveAnswer(true).then(() => {
@@ -605,6 +814,19 @@
     text-align: center;
   }
 
+  .spread {
+    display: flex;
+    justify-content: space-between;
+    // Swap the display order of the next and submit buttons
+    :nth-child(2) {
+      order: 3;
+    }
+
+    :nth-child(3) {
+      order: 2;
+    }
+  }
+
   .left-align {
     position: absolute;
     left: 10px;
@@ -624,8 +846,14 @@
     overflow-y: hidden;
   }
 
+  .section-title {
+    margin-bottom: 0;
+    font-size: 1.5rem;
+  }
+
   .number-of-questions {
-    font-size: 1em;
+    margin-bottom: 0;
+    font-size: 0.9em;
     font-weight: 400;
     text-align: center;
   }
@@ -663,6 +891,19 @@
     padding: 0;
     background-color: transparent;
     border: 0;
+  }
+
+  .dot {
+    margin-right: 5px;
+  }
+
+  .section-select {
+    margin: 0;
+  }
+
+  .quiz-container {
+    padding: 1em !important;
+    overflow-x: visible;
   }
 
 </style>

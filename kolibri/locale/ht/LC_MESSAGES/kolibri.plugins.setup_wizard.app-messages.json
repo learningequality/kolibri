@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Pa fòmèl",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Aparèy sa ap vin yon sèvè Kolibri avèk fonksyonalite konplè ke administratè yo, kotch yo ak aprenan yo ap itilize.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Aparèy konplè",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Aparèy sa pral genyen youn oubyen plis kont aprenan ki enpòte soti nan yon aparèy konplè ki deja egziste. Kont aprenan yo pral senkwonize otomatikman avèk aparèy konplè a.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Aparèy sa a pral sèlman genyen fonksyonalite elèv yo itilize, epi li pral senkwonize otomatikman ak aparèy konplè a.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Aparèy pou elèv aprann sèlman",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "Ki kalte aparèy sa ye?",
   "GuestAccessForm.changeLater": "Ou kapab chanje sa nan paramèt aparèy ou yo pita.",
@@ -68,9 +68,9 @@
   "ReportErrorModal.emailDescription": "Kontakte ekip sipò a avèk detay sou erè ou yo epi nou pral fè tout sa nou kapab pou ede ou.",
   "ReportErrorModal.emailPrompt": "Voye yon imèl bay devlopè yo",
   "ReportErrorModal.errorDetailsHeader": "Detay erè yo",
-  "ReportErrorModal.forumPostingTips": "Enkli yon deskripsyon de kisa ou t ap eseye fè epi sou kisa ou te klike lè erè a te parèt la.",
-  "ReportErrorModal.forumPrompt": "Vizite fowòm kominotè a",
-  "ReportErrorModal.forumUseTips": "Chache nan fowòm kominotè a pou wè si lòt moun te rankontre pwoblèm similè. Si w pa rive jwenn anyen, kole detay erè a pi ba a nan yon nouvo piblikasyon sou fowòm lan pou nou ka korije erè nan yon pwochen vèsyon Kolibri.",
+  "ReportErrorModal.forumPostingTips": "Enkli yon deskripsyon sou kisa ou t ap eseye fè epi sou kisa ou te klike lè erè a te parèt la.",
+  "ReportErrorModal.forumPrompt": "Vizite fowòm kominotè yo",
+  "ReportErrorModal.forumUseTips": "Chache nan fowòm kominotè a pou wè si lòt moun yo te rankontre divès pwoblèm similè. Si w pa rive jwenn anyen, kole detay erè a pi ba a nan yon nouvo piblikasyon sou fowòm lan pou nou ka korije erè a nan yon pwochen vèsyon Kolibri.",
   "ReportErrorModal.reportErrorHeader": "Rapòte yon erè",
   "RequirePasswordForLearnersForm.header": "Fasilite mo sekrè kont elèv yo?",
   "RequirePasswordForLearnersForm.noOptionLabel": "Non. Kont elèv yo ka ouvè sèlman ak non itilizatè a",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Kopye nan klavye a",
   "UserCredentialsForm.adminAccountCreationHeader": "Kreye yon sipè administratè",
   "UserCredentialsForm.learnerAccountCreationDescription": "Nouvo kont pou etablisman aprantisaj '{facility}'",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Kreye kont ou"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Kreye kont ou",
+  "UserCredentialsForm.signInInstead": "Prefere konekte?"
 }

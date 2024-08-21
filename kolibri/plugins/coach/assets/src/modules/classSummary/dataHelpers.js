@@ -23,22 +23,27 @@ function notStartedStatusObj() {
  */
 
 export default {
+  getGroupIdsForAssignment(state) {
+    return function (obj) {
+      return obj.assignments.filter(id => id !== state.id);
+    };
+  },
   /*
    * Return array of group names given an array of group IDs
    */
   getGroupNames(state) {
-    return function(groupIds) {
+    return function (groupIds) {
       if (!Array.isArray(groupIds)) {
         throw new Error('getGroupNames: invalid parameter(s)');
       }
-      return groupIds.map(id => state.groupMap[id].name);
+      return groupIds.map(id => state.groupMap[id]?.name).filter(Boolean);
     };
   },
   /*
    * Return array of group names given a learner ID
    */
   getGroupNamesForLearner(state, getters) {
-    return function(learnerId) {
+    return function (learnerId) {
       if (!learnerId) {
         throw new Error('getGroupNamesForLearner: invalid parameter(s)');
       }
@@ -52,120 +57,94 @@ export default {
    * An empty list is considered the whole class in the context of assignment.
    */
   getLearnersForGroups(state) {
-    return function(groupIds) {
+    return function (groupIds) {
       if (!Array.isArray(groupIds)) {
         throw new Error('getLearnersForGroups: invalid parameter(s)');
       }
       if (!groupIds.length) {
         return map(state.learnerMap, 'id');
       }
-      return uniq(flatten(map(groupIds, id => state.groupMap[id].member_ids)));
-    };
-  },
-  /*
-   * Return array of learner IDs who were individually assigned to the exam
-   */
-  getAdHocLearners() {
-    return function(assignments) {
-      const ilg = this.adHocGroups.find(group => assignments.includes(group.id));
-      return ilg ? ilg.member_ids : [];
+      return uniq(flatten(map(groupIds, id => state.groupMap[id]?.member_ids || [])));
     };
   },
   /*
    * Return array of names of groups followed by names of assigned
    * ad hoc learners
    */
-  getRecipientNamesForExam(state) {
-    return function(exam) {
-      const adHocLearners = this.getAdHocLearners(exam.assignments).map(
-        learnerId => state.learnerMap[learnerId].name
-      );
+  getRecipientNamesForExam(state, getters) {
+    return function (exam) {
+      const adHocLearners = exam.learner_ids.map(learnerId => state.learnerMap[learnerId].name);
+      const groups = getters.getGroupIdsForAssignment(exam);
       const recipientsForGroups =
-        exam.groups.length || !adHocLearners.length ? this.getLearnersForGroups(exam.groups) : [];
+        groups.length || !adHocLearners.length ? getters.getLearnersForGroups(groups) : [];
       const learnersInSelectedGroups = recipientsForGroups.map(
-        learnerId => state.learnerMap[learnerId].name
+        learnerId => state.learnerMap[learnerId].name,
       );
-      return this.getGroupNames(exam.groups).concat(
-        adHocLearners.filter(name => !learnersInSelectedGroups.includes(name))
-      );
+      return getters
+        .getGroupNames(groups)
+        .concat(adHocLearners.filter(name => !learnersInSelectedGroups.includes(name)));
+    };
+  },
+  getLearnersForAssignment(state, getters) {
+    return function (assignment) {
+      if (!assignment) {
+        throw new Error('getLearnersForAssignment: invalid parameter(s)');
+      }
+      if (!assignment.assignments.length && !assignment.learner_ids.length) {
+        return [];
+      }
+      const assignedToWholeClass = assignment.assignments.includes(state.id);
+      if (assignedToWholeClass) {
+        return Object.keys(state.learnerMap);
+      }
+      const groups = getters.getGroupIdsForAssignment(assignment);
+      const adHocLearners = assignment.learner_ids;
+      return adHocLearners.length
+        ? uniq(adHocLearners.concat(getters.getLearnersForGroups(groups)))
+        : getters.getLearnersForGroups(groups);
     };
   },
   /*
    * Return array of learner IDs given an exam
    */
-  getLearnersForExam() {
-    return function(exam) {
-      if (!exam) {
-        throw new Error('getLearnersForLesson: invalid parameter(s)');
-      }
-      const individuallyAssignedLearners = this.getAdHocLearners(exam.assignments);
-      if (individuallyAssignedLearners.length) {
-        // If exam.groups is empty, getLearnersForGroups returns the whole class
-        // so only concat it if we're getting learners from specified groups
-        return exam.groups.length
-          ? uniq(individuallyAssignedLearners.concat(this.getLearnersForGroups(exam.groups)))
-          : individuallyAssignedLearners;
-      } else {
-        if (exam.assignments.length) {
-          return this.getLearnersForGroups(exam.groups);
-        } else {
-          return [];
-        }
-      }
-    };
+  getLearnersForExam(state, getters) {
+    return getters.getLearnersForAssignment;
   },
   /*
    * Return array of learner IDs given a lesson
    */
-  getLearnersForLesson() {
-    return function(lesson) {
-      if (!lesson) {
-        throw new Error('getLearnersForLesson: invalid parameter(s)');
-      }
-      const individuallyAssignedLearners = this.getAdHocLearners(lesson.assignments);
-      if (individuallyAssignedLearners.length) {
-        // If lesson.groups is empty, getLearnersForGroups returns the whole class
-        // so only concat it if we're getting learners from specified groups
-        return lesson.groups.length
-          ? uniq(individuallyAssignedLearners.concat(this.getLearnersForGroups(lesson.groups)))
-          : individuallyAssignedLearners;
-      } else {
-        if (lesson.assignments.length) {
-          return this.getLearnersForGroups(lesson.groups);
-        } else {
-          return [];
-        }
-      }
-    };
+  getLearnersForLesson(state, getters) {
+    return getters.getLearnersForAssignment;
   },
   /*
    * Return array of names of groups followed by names of assigned
    * ad hoc learners
    */
-  getRecipientNamesForLesson(state) {
-    return function(lesson) {
+  getRecipientNamesForLesson(state, getters) {
+    return function (lesson) {
       const fullLesson = state.lessonMap[lesson.id];
       if (!fullLesson) {
         return [];
       }
-      const recipientsForGroups = fullLesson.groups.length
-        ? this.getLearnersForGroups(fullLesson.groups)
-        : [];
+      const groups = getters.getGroupIdsForAssignment(fullLesson);
+      const recipientsForGroups = groups.length ? getters.getLearnersForGroups(groups) : [];
       const learnersInSelectedGroups = recipientsForGroups.map(
-        learnerId => state.learnerMap[learnerId].name
+        learnerId => state.learnerMap[learnerId].name,
       );
-      return this.getGroupNames(fullLesson.groups).concat(
-        lesson.learner_ids
-          .map(learnerId => state.learnerMap[learnerId].name)
-          .filter(learner => !learnersInSelectedGroups.includes(learner))
-      );
+      return getters
+        .getGroupNames(groups)
+        .concat(
+          fullLesson.learner_ids
+            .map(learnerId => state.learnerMap[learnerId].name)
+            .filter(learner => !learnersInSelectedGroups.includes(learner)),
+        );
     };
   },
   /*
    * Return a STATUSES constant given a content ID and a learner ID
    */
   getContentStatusObjForLearner(state) {
-    return function(contentId, learnerId) {
+    return function (contentId, learnerId) {
       if (!contentId || !learnerId) {
         throw new Error('getContentStatusObjForLearner: invalid parameter(s)');
       }
@@ -176,7 +155,7 @@ export default {
    * Return a 'tally object' given a content ID and an array of learner IDs
    */
   getContentStatusTally(state, getters) {
-    return function(contentId, learnerIds) {
+    return function (contentId, learnerIds) {
       if (!contentId || !Array.isArray(learnerIds)) {
         throw new Error('getContentStatusTally: invalid parameter(s)');
       }
@@ -197,7 +176,7 @@ export default {
    * Return a STATUSES constant given an exam ID and a learner ID
    */
   getExamStatusObjForLearner(state) {
-    return function(examId, learnerId) {
+    return function (examId, learnerId) {
       if (!examId || !learnerId) {
         throw new Error('getExamStatusObjForLearner: invalid parameter(s)');
       }
@@ -208,7 +187,7 @@ export default {
    * Return a 'tally object' given an exam ID and an array of learner IDs
    */
   getExamStatusTally(state, getters) {
-    return function(examId, learnerIds) {
+    return function (examId, learnerIds) {
       if (!examId || !Array.isArray(learnerIds)) {
         throw new Error('getExamStatusTally: invalid parameter(s)');
       }
@@ -229,14 +208,14 @@ export default {
    * Return a STATUSES constant given a lesson ID and a learner ID
    */
   getLessonStatusStringForLearner(state, getters) {
-    return function(lessonId, learnerId) {
+    return function (lessonId, learnerId) {
       if (!lessonId || !learnerId) {
         throw new Error('getLessonStatusStringForLearner: invalid parameter(s)');
       }
       return get(
         getters.lessonLearnerStatusMap,
         [lessonId, learnerId, 'status'],
-        STATUSES.notStarted
+        STATUSES.notStarted,
       );
     };
   },
@@ -244,7 +223,7 @@ export default {
    * Return a 'tally object' given a lesson ID and an array of learner IDs
    */
   getLessonStatusTally(state, getters) {
-    return function(lessonId, learnerIds) {
+    return function (lessonId, learnerIds) {
       if (!lessonId || !Array.isArray(learnerIds)) {
         throw new Error('getLessonStatusTally: invalid parameter(s)');
       }
@@ -265,7 +244,7 @@ export default {
    * Return a number (in seconds) given a content ID and an array of learner IDs
    */
   getContentAvgTimeSpent(state, getters) {
-    return function(contentId, learnerIds) {
+    return function (contentId, learnerIds) {
       if (!contentId || !Array.isArray(learnerIds)) {
         throw new Error('getContentAvgTimeSpent: invalid parameter(s)');
       }
@@ -286,7 +265,7 @@ export default {
    * Return a number (0-1) given an exam ID and an array of learner IDs
    */
   getExamAvgScore(state, getters) {
-    return function(examId, learnerIds) {
+    return function (examId, learnerIds) {
       if (!examId || !Array.isArray(learnerIds)) {
         throw new Error('getExamAvgScore: invalid parameter(s)');
       }

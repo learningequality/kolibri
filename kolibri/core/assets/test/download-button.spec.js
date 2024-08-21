@@ -3,7 +3,7 @@ import DownloadButton from '../src/views/ContentRenderer/DownloadButton';
 
 jest.mock('kolibri.urls');
 
-describe('download-button Component', function() {
+describe('download-button Component', function () {
   const samplesFiles = [
     {
       file_size: 100000,
@@ -19,9 +19,9 @@ describe('download-button Component', function() {
     },
   ];
 
-  describe('computed property', function() {
-    describe('fileOptions', function() {
-      it('should return an array of length equal to number of files', function() {
+  describe('computed property', function () {
+    describe('fileOptions', function () {
+      it('should return an array of length equal to number of files', function () {
         const wrapper = mount(DownloadButton, {
           propsData: {
             files: samplesFiles,

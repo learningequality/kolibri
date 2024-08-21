@@ -1,10 +1,6 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
+  <CoachAppBarPage>
     <KPageContainer>
       <ReportsHeader
         :activeTabId="ReportsTabs.GROUPS"
@@ -99,10 +95,10 @@
         const sorted = sortBy(this.groups, ['name']);
         return sorted.map(group => {
           const groupLessons = this.lessons.filter(
-            lesson => lesson.groups.includes(group.id) || !lesson.groups.length
+            lesson => lesson.groups.includes(group.id) || !lesson.groups.length,
           );
           const groupExams = this.exams.filter(
-            exam => exam.groups.includes(group.id) || !exam.groups.length
+            exam => exam.groups.includes(group.id) || !exam.groups.length,
           );
           const learnerIds = this.getLearnersForGroups([group.id]);
           const tableRow = {
@@ -121,7 +117,7 @@
       avgScore(learnerIds) {
         const relevantStatuses = this.examStatuses.filter(
           status =>
-            learnerIds.includes(status.learner_id) && status.status === this.STATUSES.completed
+            learnerIds.includes(status.learner_id) && status.status === this.STATUSES.completed,
         );
         if (!relevantStatuses.length) {
           return null;
@@ -133,7 +129,7 @@
           ...this.examStatuses.filter(status => learnerIds.includes(status.learner_id)),
           ...this.contentStatuses.filter(
             status =>
-              status.status !== this.STATUSES.notStarted && learnerIds.includes(status.learner_id)
+              status.status !== this.STATUSES.notStarted && learnerIds.includes(status.learner_id),
           ),
         ];
 

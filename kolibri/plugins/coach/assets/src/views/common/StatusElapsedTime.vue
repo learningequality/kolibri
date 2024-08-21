@@ -34,7 +34,7 @@
         type: String,
         required: false,
         default: null,
-        validator: function(value) {
+        validator: function (value) {
           return ACTION_TYPES.includes(value);
         },
       },

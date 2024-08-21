@@ -4,8 +4,8 @@
     @shouldFocusFirstEl="focusFirstEl"
     @shouldFocusLastEl="focusLastEl"
   >
-
     <KModal
+      appendToRoot
       :title="coreString('changeLanguageOption')"
       :submitText="coreString('confirmAction')"
       :cancelText="coreString('cancelAction')"
@@ -33,9 +33,7 @@
           />
         </KGridItem>
       </KGrid>
-
     </KModal>
-
   </FocusTrap>
 
 </template>

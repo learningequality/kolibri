@@ -208,13 +208,13 @@ program
     '--plugins <plugins...>',
     'An explicit comma separated list of plugins that should be built',
     list,
-    []
+    [],
   )
   .option(
     '--pluginPath <pluginPath>',
     'A system path to the plugin or module that should be added to the Python path so that it can be imported during build time',
     String,
-    ''
+    '',
   )
   .option('--parallel <parallel>', 'Run multiple bundles in parallel', Number, 0)
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
@@ -227,20 +227,20 @@ program
     '--watchonly [plugins...]',
     'An explicit comma separated list of plugins that should be watched - all others will be built once only',
     list,
-    []
+    [],
   )
   .option(
     '--require-kds-path',
     'Flag to check if yarn command is run using devserver-with-kds',
-    false
+    false,
   )
   .option('--kds-path <kdsPath>', 'Full path to local kds directory', String, '')
   .option('--write-to-disk', 'Write files to disk instead of using webpack devserver', false)
-  .action(function(mode, options) {
+  .action(function (mode, options) {
     if (options.requireKdsPath) {
       if (!options.kdsPath) {
         cliLogging.error(
-          'The --require-kds-path flag was specified, but no --kds-path value was provided. Please include the path to the local KDS directory.'
+          'The --require-kds-path flag was specified, but no --kds-path value was provided. Please include the path to the local KDS directory.',
         );
         process.exit(1);
       }
@@ -328,7 +328,7 @@ program
 
     if (options.writeToDisk && mode === modes.DEV) {
       cliLogging.warn(
-        'Enabling write-to-disk mode may fill up your developer machine with lots of different built files if frequent changes are made.'
+        'Enabling write-to-disk mode may fill up your developer machine with lots of different built files if frequent changes are made.',
       );
     }
 
@@ -345,21 +345,9 @@ program
   .option('-w, --write', 'Write autofixes to file', false)
   .option('-e, --encoding <string>', 'Text encoding of file', 'utf-8')
   .option('-m, --monitor', 'Monitor files and check on change', false)
-  .option(
-    '-i, --ignore <patterns...>',
-    'Ignore these comma separated patterns',
-    list,
-    ignoreDefaults
-  )
+  .option('-i, --ignore <string>', 'Ignore these comma separated patterns', list, ignoreDefaults)
   .option('-p, --pattern <string>', 'Lint only files that match this comma separated pattern', null)
-  .action(function(args, options) {
-    const files = [];
-    if (!(args instanceof Command)) {
-      files.push(...args);
-    } else {
-      options = args;
-    }
-
+  .action(function (files, options) {
     let patternCheck;
     if (!files.length && !options.pattern) {
       cliLogging.error('Must specify files or glob patterns to lint!');
@@ -409,18 +397,18 @@ program
                 } else {
                   return Promise.resolve(0);
                 }
-              })
+              }),
             ).then(sources => {
               return sources.reduce((code, result) => {
                 return Math.max(code, result);
               }, noChange);
             });
-          })
+          }),
         ).then(sources => {
           process.exit(
             sources.reduce((code, result) => {
               return Math.max(code, result);
-            }, noChange)
+            }, noChange),
           );
         });
       }
@@ -432,7 +420,7 @@ program
   .command('test')
   .option('--config [config]', 'Set configuration for jest tests')
   .allowUnknownOption()
-  .action(function(options) {
+  .action(function (options) {
     const baseConfigPath = path.resolve(__dirname, '../jest.conf');
     if (process.env.NODE_ENV == null) {
       process.env.NODE_ENV = 'test';
@@ -457,26 +445,29 @@ program
   .command('compress')
   .arguments('[files...]', 'List of custom file globs or file names to compress')
   .allowUnknownOption()
-  .action(function(files) {
+  .action(function (files) {
     if (!files.length) {
       program.command('compress').help();
     } else {
       const glob = require('./glob');
       const compressFile = require('./compress');
+      logger.warn(
+        'The compress command is a destructive operation and will truncate any source files that are compressed. Please ensure you have a backup of the files you are compressing.',
+      );
       Promise.all(
         files.map(file => {
           const matches = glob.sync(file);
           return Promise.all(matches.map(compressFile));
-        })
+        }),
       );
     }
   });
 
 const localeDataFolderDefault = filePath(
-  get(config, configSectionPath.concat(['locale_data_folder']))
+  get(config, configSectionPath.concat(['locale_data_folder'])),
 );
 const globalWebpackConfigDefault = filePath(
-  get(config, configSectionPath.concat(['webpack_config']))
+  get(config, configSectionPath.concat(['webpack_config'])),
 );
 const langInfoConfigDefault = filePath(get(config, configSectionPath.concat(['lang_info'])));
 const langIgnoreDefaults = list(get(config, configSectionPath.concat(['ignore']), ''));
@@ -488,8 +479,8 @@ const _kolibriLangInfoPath = path.join(__dirname, '../../../kolibri/locale/langu
 const langInfoDefault = langInfoConfigDefault
   ? langInfoConfigDefault
   : fs.existsSync(_kolibriLangInfoPath)
-  ? _kolibriLangInfoPath
-  : path.join(__dirname, './i18n/language_info.json');
+    ? _kolibriLangInfoPath
+    : path.join(__dirname, './i18n/language_info.json');
 
 // I18N Intl and Vue-Intl Polyfill Code Generation
 program
@@ -498,14 +489,14 @@ program
     '--lang-info <langInfo>',
     'Set path for file that contains language information',
     filePath,
-    langInfoDefault
+    langInfoDefault,
   )
   .option(
     '--output-dir <outputDir>',
     'Directory in which to write JS intl polyfill files',
-    filePath
+    filePath,
   )
-  .action(function(options) {
+  .action(function (options) {
     const intlCodeGen = require('./i18n/intl_code_gen');
     intlCodeGen(options.outputDir, options.langInfo);
   });
@@ -541,7 +532,7 @@ function _generatePathInfo({
           entry,
           aliases,
         };
-      })
+      }),
     );
   }
   if (namespace.length && namespace.length == searchPath.length) {
@@ -587,52 +578,52 @@ function _addPathOptions(cmd) {
       '-p, --plugins <plugins...>',
       'An explicit comma separated list of plugins that should be built',
       list,
-      []
+      [],
     )
     .option(
       '--pluginPath <pluginPath>',
       'A system path to the plugin or module that should be added to the Python path so that it can be imported during build time',
       String,
-      ''
+      '',
     )
     .option(
       '-i, --ignore <patterns...>',
       'Ignore these comma separated patterns',
       list,
-      langIgnoreDefaults.length ? langIgnoreDefaults : ignoreDefaults
+      langIgnoreDefaults.length ? langIgnoreDefaults : ignoreDefaults,
     )
     .option(
       '-n , --namespace <namespace>',
       'Set namespace for string extraction; this may be specified multiple times, but there must be an equal number of --searchPath arguments',
       _collect,
-      []
+      [],
     )
     .option(
       '--localeDataFolder <localeDataFolder>',
       'Set path to write locale files to',
       filePath,
-      localeDataFolderDefault
+      localeDataFolderDefault,
     )
     .option(
       '--searchPath <searchPath>',
       'Set path to search for files containing strings to be extracted; this may be specified multiple times, but there must be an equal number of --namespace arguments',
       _collect,
-      []
+      [],
     )
     .option(
       '--webpackConfig <webpackConfig>',
       'Set a webpack config to use for module aliases',
       filePath,
-      globalWebpackConfigDefault
+      globalWebpackConfigDefault,
     )
     .option(
       '--verbose',
-      'Verbose debug messages. Only errors are printed unless this flag is set.'
+      'Verbose debug messages. Only errors are printed unless this flag is set.',
     );
 }
 
 // I18N Message Handling
-_addPathOptions(program.command('i18n-extract-messages')).action(function(options) {
+_addPathOptions(program.command('i18n-extract-messages')).action(function (options) {
   const pathInfo = _generatePathInfo(options);
   if (!pathInfo) {
     program.command('i18n-extract-messages').help();
@@ -641,7 +632,7 @@ _addPathOptions(program.command('i18n-extract-messages')).action(function(option
   extractMessages(pathInfo, options.ignore, options.localeDataFolder, options.verbose);
 });
 
-_addPathOptions(program.command('i18n-transfer-context')).action(function(options) {
+_addPathOptions(program.command('i18n-transfer-context')).action(function (options) {
   const pathInfo = _generatePathInfo(options);
   if (!pathInfo) {
     program.command('i18n-transfer-context').help();
@@ -656,9 +647,9 @@ _addPathOptions(program.command('i18n-create-message-files'))
     '--lang-info <langInfo>',
     'Set path for file that contains language information',
     filePath,
-    langInfoDefault
+    langInfoDefault,
   )
-  .action(function(options) {
+  .action(function (options) {
     const pathInfo = _generatePathInfo(options);
     if (!pathInfo) {
       program.command('i18n-create-message-files').help();
@@ -669,7 +660,7 @@ _addPathOptions(program.command('i18n-create-message-files'))
       options.ignore,
       options.langInfo,
       options.localeDataFolder,
-      options.verbose
+      options.verbose,
     );
   });
 
@@ -679,9 +670,9 @@ _addPathOptions(program.command('i18n-untranslated-messages'))
     '--lang-info <langInfo>',
     'Set path for file that contains language information',
     filePath,
-    langInfoDefault
+    langInfoDefault,
   )
-  .action(function(options) {
+  .action(function (options) {
     const pathInfo = _generatePathInfo(options);
     if (!pathInfo) {
       program.command('i18n-untranslated-messages').help();
@@ -692,7 +683,7 @@ _addPathOptions(program.command('i18n-untranslated-messages'))
       options.ignore,
       options.langInfo,
       options.localeDataFolder,
-      options.verbose
+      options.verbose,
     );
   });
 
@@ -701,9 +692,9 @@ _addPathOptions(program.command('i18n-profile'))
   .option(
     '--output-file <outputFile>',
     'File path and name to which to write out the profile to',
-    filePath
+    filePath,
   )
-  .action(function(options) {
+  .action(function (options) {
     const pathInfo = _generatePathInfo(options);
     if (!pathInfo) {
       program.command('i18n-profile').help();
@@ -717,14 +708,14 @@ _addPathOptions(program.command('i18n-audit'))
   .option(
     '--output-file <outputFile>',
     'File path and name to which to write out the audit to',
-    filePath
+    filePath,
   )
   .option(
     '--ditto-file <dittoFile>',
     'File paths of the CSV files to read the ditto strings from',
-    filePath
+    filePath,
   )
-  .action(function(options) {
+  .action(function (options) {
     const pathInfo = _generatePathInfo(options);
     if (!pathInfo) {
       program.command('i18n-audit').help();
@@ -735,7 +726,7 @@ _addPathOptions(program.command('i18n-audit'))
       options.ignore,
       [options.dittoFile],
       options.outputFile,
-      options.verbose
+      options.verbose,
     );
   });
 

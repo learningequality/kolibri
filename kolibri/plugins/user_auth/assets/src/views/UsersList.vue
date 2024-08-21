@@ -5,15 +5,16 @@
       v-for="username in users"
       :key="username"
       class="listed-user"
-      style="width: 100%; text-align: left; margin-left: 0px;"
+      style="width: 100%; margin-left: 0; text-align: left"
       :disabled="busy"
       @click="$emit('userSelected', username)"
     >
-
-      <KIcon icon="person" style="margin-right: 8px" />
+      <KIcon
+        icon="person"
+        style="margin-right: 8px"
+      />
 
       {{ username }}
-
     </KButton>
   </div>
 

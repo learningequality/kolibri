@@ -46,7 +46,7 @@ export function goForwardFromSelectDriveModal(store, { driveId, forExport }) {
   if (isImportingMore) {
     store.commit('SET_WIZARD_PAGENAME', ContentWizardPages.SELECT_CONTENT);
     return router.push(
-      selectContentPageLink({ channelId: transferredChannel.id, driveId, forExport })
+      selectContentPageLink({ channelId: transferredChannel.id, driveId, forExport }),
     );
   }
   // From top-level import/export workflow

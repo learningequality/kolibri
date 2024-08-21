@@ -13,6 +13,16 @@ import reportRoutes from './reportRoutes';
 import planRoutes from './planRoutes';
 import { classIdParamRequiredGuard } from './utils';
 
+function showHomePage(toRoute) {
+  const initClassInfoPromise = store.dispatch('initClassInfo', toRoute.params.classId);
+  const getFacilitiesPromise =
+    store.getters.isSuperuser && store.state.core.facilities.length === 0
+      ? store.dispatch('getFacilities').catch(() => {})
+      : Promise.resolve();
+
+  return Promise.all([initClassInfoPromise, getFacilitiesPromise]);
+}
+
 export default [
   ...planRoutes,
   ...reportRoutes,
@@ -47,7 +57,7 @@ export default [
             return;
           }
         },
-        error => store.dispatch('handleApiError', { error, reloadOnReconnect: true })
+        error => store.dispatch('handleApiError', { error, reloadOnReconnect: true }),
       );
     },
     meta: {
@@ -58,10 +68,11 @@ export default [
     name: PageNames.HOME_PAGE,
     path: '/:classId?/home',
     component: HomePage,
-    handler: (toRoute, fromRoute, next) => {
+    handler: async (toRoute, fromRoute, next) => {
       if (classIdParamRequiredGuard(toRoute, HomePage.name, next)) {
         return;
       }
+      await showHomePage(toRoute);
       store.dispatch('notLoading');
     },
     meta: {
@@ -71,7 +82,8 @@ export default [
   {
     path: '/:classId/home/activity',
     component: HomeActivityPage,
-    handler() {
+    handler: async (toRoute, fromRoute, next) => {
+      await showHomePage(toRoute);
       store.dispatch('notLoading');
     },
     meta: {

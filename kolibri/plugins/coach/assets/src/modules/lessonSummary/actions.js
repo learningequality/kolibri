@@ -27,7 +27,7 @@ export function updateCurrentLesson(store, lessonId) {
     },
     error => {
       return store.dispatch('handleApiError', { error }, { root: true });
-    }
+    },
   );
 }
 

@@ -1,13 +1,7 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
-    <KPageContainer>
-      Resource manager
-    </KPageContainer>
+  <CoachAppBarPage>
+    <KPageContainer> Resource manager </KPageContainer>
   </CoachAppBarPage>
 
 </template>

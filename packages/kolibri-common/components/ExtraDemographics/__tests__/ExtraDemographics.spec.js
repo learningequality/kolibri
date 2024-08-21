@@ -74,7 +74,7 @@ describe('ExtraDemographics', () => {
     });
     const extraDemographicFields = wrapper.findAllComponents(ExtraDemographicField);
     expect(extraDemographicFields).toHaveLength(
-      mockFacilityDatasetExtraFields.demographic_fields.length
+      mockFacilityDatasetExtraFields.demographic_fields.length,
     );
   });
 

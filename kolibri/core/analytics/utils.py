@@ -5,7 +5,6 @@ import json
 import logging
 import math
 
-import requests
 from dateutil import parser
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
@@ -32,6 +31,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import LocalFile
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import get_device_setting
+from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
@@ -40,7 +40,6 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.utils.lock import db_lock
-from kolibri.core.utils.urls import join_url
 from kolibri.utils import conf
 from kolibri.utils.server import installation_type
 from kolibri.utils.time_utils import local_now
@@ -415,7 +414,9 @@ def create_and_update_notifications(data, source):
 
 def perform_ping(started, server=DEFAULT_SERVER_URL):
 
-    url = join_url(server, "/api/v1/pingback")
+    client = NetworkClient(server)
+
+    url = "/api/v1/pingback"
 
     instance, _ = InstanceIDModel.get_or_create_current_instance()
 
@@ -447,20 +448,19 @@ def perform_ping(started, server=DEFAULT_SERVER_URL):
 
     logger.debug("Pingback data: {}".format(data))
     jsondata = dump_zipped_json(data)
-    response = requests.post(url, data=jsondata, timeout=60)
-    response.raise_for_status()
+    response = client.post(url, data=jsondata, timeout=60)
     return json.loads(response.content.decode() or "{}")
 
 
 def perform_statistics(server, pingback_id):
-    url = join_url(server, "/api/v1/statistics")
+    client = NetworkClient(server)
+    url = "/api/v1/statistics"
     channels = [extract_channel_statistics(c) for c in ChannelMetadata.objects.all()]
     facilities = [extract_facility_statistics(f) for f in Facility.objects.all()]
     data = {"pi": pingback_id, "c": channels, "f": facilities}
     logger.debug("Statistics data: {}".format(data))
     jsondata = dump_zipped_json(data)
-    response = requests.post(url, data=jsondata, timeout=60)
-    response.raise_for_status()
+    response = client.post(url, data=jsondata, timeout=60)
     return json.loads(response.content.decode() or "{}")
 
 

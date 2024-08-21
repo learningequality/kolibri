@@ -1,22 +1,23 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
-    <KGrid gutter="16">
+  <CoachAppBarPage>
+    <KGrid
+      v-if="exam"
+      gutter="16"
+    >
       <KGridItem>
         <QuizLessonDetailsHeader
           examOrLesson="exam"
           :backlink="
-            group ? classRoute('ReportsGroupReportPage') : classRoute('ReportsQuizListPage')"
+            group ? classRoute('ReportsGroupReportPage') : classRoute('ReportsQuizListPage')
+          "
           :backlinkLabel="group ? group.name : coachString('allQuizzesLabel')"
           optionsFor="report"
         >
           <template #dropdown>
             <QuizOptionsDropdownMenu
               optionsFor="report"
+              :draft="exam && exam.draft"
               @select="handleSelectOption"
             />
           </template>
@@ -63,6 +64,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
+  import { PageNames } from '../../constants';
   import { QUIZZES_TABS_ID, QuizzesTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';
   import QuizOptionsDropdownMenu from '../plan/QuizSummaryPage/QuizOptionsDropdownMenu';
@@ -108,7 +110,7 @@
         return this.$route.params.groupId && this.groupMap[this.$route.params.groupId];
       },
       tabs() {
-        return [
+        const tabsList = [
           {
             id: QuizzesTabs.REPORT,
             label: this.coachString('reportLabel'),
@@ -116,14 +118,18 @@
               ? this.classRoute('ReportsGroupReportQuizLearnerListPage')
               : this.classRoute('ReportsQuizLearnerListPage'),
           },
-          {
+        ];
+        const isDraftExam = this.exam && this.exam.draft;
+        if (!isDraftExam) {
+          tabsList.push({
             id: QuizzesTabs.DIFFICULT_QUESTIONS,
             label: this.coachString('difficultQuestionsLabel'),
             to: this.group
               ? this.classRoute('ReportsGroupReportQuizQuestionListPage')
               : this.classRoute('ReportsQuizQuestionListPage'),
-          },
-        ];
+          });
+        }
+        return tabsList;
       },
     },
     mounted() {
@@ -141,11 +147,19 @@
     methods: {
       handleSelectOption(option) {
         if (option === 'EDIT_DETAILS') {
-          this.$router.push(this.$router.getRoute('QuizReportEditDetailsPage'));
+          this.$router.push({
+            name: PageNames.EXAM_CREATION_ROOT,
+            params: {
+              classId: this.$route.params.classId,
+              quizId: this.$route.params.quizId,
+              sectionIndex: 0,
+            },
+            query: this.defaultBackLinkQuery,
+          });
         }
         if (option === 'PREVIEW') {
           this.$router.push(
-            this.$router.getRoute('ReportsQuizPreviewPage', {}, this.defaultBackLinkQuery)
+            this.$router.getRoute('ReportsQuizPreviewPage', {}, this.defaultBackLinkQuery),
           );
         }
         if (option === 'PRINT_REPORT') {

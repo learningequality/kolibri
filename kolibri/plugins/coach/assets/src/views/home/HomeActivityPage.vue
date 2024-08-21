@@ -1,9 +1,6 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
+  <CoachAppBarPage>
     <KPageContainer>
       <p>
         <BackLink
@@ -16,7 +13,6 @@
         :noActivityString="$tr('noActivityLabel')"
         embeddedPageName="HomeActivityPage"
       />
-
     </KPageContainer>
   </CoachAppBarPage>
 

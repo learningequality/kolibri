@@ -50,7 +50,7 @@
     computed: {
       duplicateName() {
         return !!this.classes.find(
-          classroom => classroom.name.toUpperCase() === this.name.toUpperCase()
+          classroom => classroom.name.toUpperCase() === this.name.toUpperCase(),
         );
       },
       nameIsInvalidText() {

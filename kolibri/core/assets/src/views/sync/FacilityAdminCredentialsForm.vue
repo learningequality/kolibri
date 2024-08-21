@@ -1,14 +1,20 @@
 <template>
 
   <form>
-    <p v-if="singleFacility && facility.name" class="facility-name">
+    <p
+      v-if="singleFacility && facility.name"
+      class="facility-name"
+    >
       {{ formatNameAndId(facility.name, facility.id) }}
     </p>
     <p>
       {{ prompt }}
     </p>
 
-    <p v-if="error" :style="{ color: $themeTokens.error }">
+    <p
+      v-if="error"
+      :style="{ color: $themeTokens.error }"
+    >
       {{ coreString('invalidCredentialsError') }}
     </p>
     <p v-if="false">

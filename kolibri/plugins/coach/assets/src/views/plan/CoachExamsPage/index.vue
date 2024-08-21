@@ -1,10 +1,6 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
+  <CoachAppBarPage>
     <KPageContainer>
       <PlanHeader :activeTabId="PlanTabs.QUIZZES" />
       <KTabsPanel
@@ -17,7 +13,7 @@
           </p>
           <KSelect
             v-model="statusSelected"
-            :label="coachString('filterQuizStatus')"
+            :label="filterQuizStatus$()"
             :options="statusOptions"
             :inline="true"
           />
@@ -26,7 +22,7 @@
               primary
               hasDropdown
               appearance="raised-button"
-              :text="coachString('newQuizAction')"
+              :text="newQuizAction$()"
             >
               <template #menu>
                 <KDropdownMenu
@@ -45,17 +41,17 @@
               :primary="true"
               appearance="raised-button"
               :to="newExamRoute"
-              :text="coachString('newQuizAction')"
+              :text="newQuizAction$()"
             />
           </div>
         </div>
         <CoreTable>
           <template #headers>
-            <th>{{ coachString('titleLabel') }}</th>
-            <th>{{ coachString('recipientsLabel') }}</th>
-            <th>{{ coachString('sizeLabel') }}</th>
+            <th>{{ titleLabel$() }}</th>
+            <th>{{ recipientsLabel$() }}</th>
+            <th>{{ sizeLabel$() }}</th>
             <th class="center-text">
-              {{ coachString('statusLabel') }}
+              {{ statusLabel$() }}
             </th>
           </template>
           <template #tbody>
@@ -89,72 +85,79 @@
                   <!-- Open quiz button -->
                   <KButton
                     v-if="!exam.active && !exam.archive"
-                    :text="coachString('openQuizLabel')"
+                    :text="openQuizLabel$()"
                     appearance="flat-button"
-                    @click="showOpenConfirmationModal = true; activeQuiz = exam"
+                    @click="
+                      showOpenConfirmationModal = true;
+                      activeQuiz = exam;
+                    "
                   />
                   <!-- Close quiz button -->
                   <KButton
                     v-if="exam.active && !exam.archive"
-                    :text="coachString('closeQuizLabel')"
+                    :text="closeQuizLabel$()"
                     appearance="flat-button"
-                    @click="showCloseConfirmationModal = true; activeQuiz = exam;"
+                    @click="
+                      showCloseConfirmationModal = true;
+                      activeQuiz = exam;
+                    "
                   />
                   <!-- Closed quiz label -->
                   <div v-if="exam.archive">
-                    {{ coachString('quizClosedLabel') }}
+                    {{ quizClosedLabel$() }}
                   </div>
                 </td>
-
               </tr>
             </transition-group>
           </template>
         </CoreTable>
 
-        <p v-if="!exams.length">
+        <p v-if="!quizzes.length">
           {{ $tr('noExams') }}
         </p>
-        <p
-          v-else-if="statusSelected.value === coachString('filterQuizStarted') &&
-            !startedExams.length"
-        >
+        <p v-else-if="statusSelected.value === filterQuizStarted$() && !startedExams.length">
           {{ coreString('noResultsLabel') }}
         </p>
-        <p
-          v-else-if=" statusSelected.value === coachString('filterQuizNotStarted') &&
-            !notStartedExams.length"
-        >
+        <p v-else-if="statusSelected.value === filterQuizNotStarted$() && !notStartedExams.length">
           {{ coreString('noResultsLabel') }}
         </p>
-        <p
-          v-else-if=" statusSelected.value === coachString('filterQuizEnded') &&
-            !endedExams.length"
-        >
+        <p v-else-if="statusSelected.value === filterQuizEnded$() && !endedExams.length">
           {{ coreString('noResultsLabel') }}
         </p>
 
         <!-- Modals for Close & Open of quiz from right-most column -->
         <KModal
           v-if="showOpenConfirmationModal"
-          :title="coachString('openQuizLabel')"
+          :title="openQuizLabel$()"
           :submitText="coreString('continueAction')"
           :cancelText="coreString('cancelAction')"
           @cancel="showOpenConfirmationModal = false"
           @submit="handleOpenQuiz(activeQuiz.id)"
         >
-          <p>{{ coachString('openQuizModalDetail') }}</p>
-          <p>{{ coachString('lodQuizDetail') }}</p>
-          <p>{{ coachString('fileSizeToDownload', { size: activeQuiz.size_string }) }}</p>
+          <p>{{ openQuizModalDetail$() }}</p>
+          <p v-if="activeQuiz.draft">
+            {{ canNoLongerEditQuizNotice$() }}
+          </p>
+          <p
+            v-if="
+              activeQuiz.data_model_version === 3 &&
+                activeQuiz.question_sources.some(s => !s.questions || s.questions.length === 0)
+            "
+          >
+            {{ openQuizModalEmptySections$() }}
+          </p>
+          <p>{{ lodQuizDetail$() }}</p>
+          <p>{{ fileSizeToDownload$({ size: activeQuiz.size_string }) }}</p>
         </KModal>
         <KModal
           v-if="showCloseConfirmationModal"
-          :title="coachString('closeQuizLabel')"
+          :title="closeQuizLabel$()"
           :submitText="coreString('continueAction')"
           :cancelText="coreString('cancelAction')"
           @cancel="showCloseConfirmationModal = false"
           @submit="handleCloseQuiz(activeQuiz.id)"
         >
-          <div>{{ coachString('closeQuizModalDetail') }}</div>
+          <div>{{ closeQuizModalDetail$() }}</div>
         </KModal>
       </KTabsPanel>
     </KPageContainer>
@@ -165,17 +168,21 @@
 
 <script>
 
+  import { getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ExamResource } from 'kolibri.resources';
+  import { ExamResource, UserSyncStatusResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import { mapActions } from 'vuex';
+  import { mapGetters } from 'kolibri.lib.vuex';
   import { PageNames } from '../../../constants';
   import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
-  import commonCoach from '../../common';
+  import { coachStrings } from '../../common/commonCoachStrings';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import PlanHeader from '../../plan/PlanHeader';
+  import Recipients from '../../common/Recipients';
+  import useCoreCoach from '../../../composables/useCoreCoach';
+  import useQuizzes from '../../../composables/useQuizzes';
 
   export default {
     name: 'CoachExamsPage',
@@ -183,72 +190,149 @@
       CoreTable,
       CoachAppBarPage,
       PlanHeader,
+      Recipients,
     },
-    mixins: [commonCoach, commonCoreStrings],
-    data() {
+    mixins: [commonCoreStrings],
+    setup() {
+      const { classId, initClassInfo, refreshClassSummary } = useCoreCoach();
+      const { quizzes, fetchQuizSizes } = useQuizzes();
+      const store = getCurrentInstance().proxy.$store;
+      const showOpenConfirmationModal = ref(false);
+      const showCloseConfirmationModal = ref(false);
+      const activeQuiz = ref(null);
+      const learnOnlyDevicesExist = ref(false);
+
+      initClassInfo().then(() => store.dispatch('notLoading'));
+
+      // TODO: refactor to a more robust check
+      UserSyncStatusResource.fetchCollection({
+        force: true,
+        getParams: { member_of: classId },
+      }).then(data => {
+        if (data && data.length > 0) {
+          learnOnlyDevicesExist.value = true;
+        }
+      });
+
+      fetchQuizSizes();
+
+      const {
+        filterQuizAll$,
+        filterQuizStarted$,
+        filterQuizNotStarted$,
+        filterQuizEnded$,
+        quizOpenedMessage$,
+        quizFailedToOpenMessage$,
+        quizClosedMessage$,
+        quizFailedToCloseMessage$,
+        openQuizLabel$,
+        closeQuizLabel$,
+        openQuizModalDetail$,
+        openQuizModalEmptySections$,
+        closeQuizModalDetail$,
+        lodQuizDetail$,
+        fileSizeToDownload$,
+        titleLabel$,
+        recipientsLabel$,
+        sizeLabel$,
+        statusLabel$,
+        newQuizAction$,
+        filterQuizStatus$,
+        quizClosedLabel$,
+        canNoLongerEditQuizNotice$,
+      } = coachStrings;
+
+      const statusSelected = ref({
+        label: filterQuizAll$(),
+        value: filterQuizAll$(),
+      });
+
       return {
+        quizzes,
+        refreshClassSummary,
         PLAN_TABS_ID,
         PlanTabs,
-        statusSelected: {
-          label: this.coachString('filterQuizAll'),
-          value: this.coachString('filterQuizAll'),
-        },
-        showOpenConfirmationModal: false,
-        showCloseConfirmationModal: false,
-        activeQuiz: null,
-        learnOnlyDevicesExist: false,
+        showOpenConfirmationModal,
+        showCloseConfirmationModal,
+        activeQuiz,
+        learnOnlyDevicesExist,
+        statusSelected,
+        filterQuizAll$,
+        filterQuizStarted$,
+        filterQuizNotStarted$,
+        filterQuizEnded$,
+        quizOpenedMessage$,
+        quizFailedToOpenMessage$,
+        quizClosedMessage$,
+        quizFailedToCloseMessage$,
+        openQuizLabel$,
+        closeQuizLabel$,
+        openQuizModalDetail$,
+        openQuizModalEmptySections$,
+        closeQuizModalDetail$,
+        lodQuizDetail$,
+        fileSizeToDownload$,
+        titleLabel$,
+        recipientsLabel$,
+        sizeLabel$,
+        canNoLongerEditQuizNotice$,
+        statusLabel$,
+        newQuizAction$,
+        filterQuizStatus$,
+        quizClosedLabel$,
       };
     },
     computed: {
-      sortedExams() {
-        return this._.orderBy(this.exams, ['date_created'], ['desc']);
-      },
+      ...mapGetters('classSummary', ['getRecipientNamesForExam']),
       practiceQuizzesExist() {
         return plugin_data.practice_quizzes_exist;
       },
       statusOptions() {
         return [
           {
-            label: this.coachString('filterQuizAll'),
-            value: this.coachString('filterQuizAll'),
+            label: this.filterQuizAll$(),
+            value: this.filterQuizAll$(),
           },
           {
-            label: this.coachString('filterQuizStarted'),
-            value: this.coachString('filterQuizStarted'),
+            label: this.filterQuizStarted$(),
+            value: this.filterQuizStarted$(),
           },
           {
-            label: this.coachString('filterQuizNotStarted'),
-            value: this.coachString('filterQuizNotStarted'),
+            label: this.filterQuizNotStarted$(),
+            value: this.filterQuizNotStarted$(),
           },
           {
-            label: this.coachString('filterQuizEnded'),
-            value: this.coachString('filterQuizEnded'),
+            label: this.filterQuizEnded$(),
+            value: this.filterQuizEnded$(),
           },
         ];
       },
 
       startedExams() {
-        return this.sortedExams.filter(exam => exam.active === true && exam.archive === false);
+        return this.quizzes.filter(exam => exam.active === true && exam.archive === false);
       },
       endedExams() {
-        return this.sortedExams.filter(exam => exam.active === true && exam.archive === true);
+        return this.quizzes.filter(exam => exam.active === true && exam.archive === true);
       },
       notStartedExams() {
-        return this.sortedExams.filter(exam => exam.active === false);
+        return this.quizzes.filter(exam => exam.active === false);
       },
       filteredExams() {
         const filter = this.statusSelected.label;
-        if (filter === this.coachString('filterQuizStarted')) {
+        if (filter === this.filterQuizStarted$()) {
           return this.startedExams;
-        } else if (filter === this.coachString('filterQuizNotStarted')) {
+        } else if (filter === this.filterQuizNotStarted$()) {
           return this.notStartedExams;
-        } else if (filter === this.coachString('filterQuizEnded')) {
+        } else if (filter === this.filterQuizEnded$()) {
           return this.endedExams;
         }
-        return this.sortedExams;
+        return this.quizzes;
       },
       newExamRoute() {
-        return { name: PageNames.EXAM_CREATION_ROOT };
+        return {
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: { classId: this.$route.params.classId, sectionIndex: 0, quizId: 'new' },
+        };
       },
       dropdownOptions() {
         return [
@@ -259,11 +343,11 @@
       calcTotalSizeOfVisibleQuizzes() {
         if (this.filteredExams) {
           let sum = 0;
-          this.filteredExams.forEach(exam => {
+          for (const exam of this.filteredExams) {
             if (exam.active) {
               sum += exam.size;
             }
-          });
+          }
           const size = bytesForHumans(sum);
           return size;
         }
@@ -271,38 +355,29 @@
       },
     },
     mounted() {
-      this.checkIfAnyLODsInClass();
+      if (this.$route.query.snackbar) {
+        this.$store.dispatch('createSnackbar', this.$route.query.snackbar);
+      }
     },
     methods: {
-      ...mapActions(['fetchUserSyncStatus']),
-      // modal about lesson sizes should only exist of LODs exist in the class
-      // which we are checking via if there have recently been any user syncs
-      // TODO: refactor to a more robust check
-      checkIfAnyLODsInClass() {
-        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
-          if (data && data.length > 0) {
-            this.learnOnlyDevicesExist = true;
-          }
-        });
-      },
       handleOpenQuiz(quizId) {
         const promise = ExamResource.saveModel({
           id: quizId,
           data: {
             active: true,
-            date_activated: new Date(),
+            draft: false,
           },
           exists: true,
         });
 
         return promise
           .then(() => {
-            this.$store.dispatch('classSummary/refreshClassSummary');
+            this.refreshClassSummary();
             this.showOpenConfirmationModal = false;
-            this.$store.dispatch('createSnackbar', this.coachString('quizOpenedMessage'));
+            this.$store.dispatch('createSnackbar', this.quizOpenedMessage$());
           })
           .catch(() => {
-            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToOpenMessage'));
+            this.$store.dispatch('createSnackbar', this.quizFailedToOpenMessage$());
           });
       },
       handleCloseQuiz(quizId) {
@@ -310,27 +385,28 @@
           id: quizId,
           data: {
             archive: true,
-            date_archived: new Date(),
           },
           exists: true,
         });
 
         return promise
           .then(() => {
-            this.$store.dispatch('classSummary/refreshClassSummary');
+            this.refreshClassSummary();
             this.showCloseConfirmationModal = false;
-            this.$store.dispatch('createSnackbar', this.coachString('quizClosedMessage'));
+            this.$store.dispatch('createSnackbar', this.quizClosedMessage$());
           })
           .catch(() => {
-            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
+            this.$store.dispatch('createSnackbar', this.quizFailedToCloseMessage$());
           });
       },
       handleSelect({ value }) {
-        const nextRoute = {
+        const nextRoute = this.newExamRoute;
+        const nextRouteName = {
           MAKE_NEW_QUIZ: PageNames.EXAM_CREATION_ROOT,
-          SELECT_QUIZ: PageNames.EXAM_CREATION_PRACTICE_QUIZ,
+          SELECT_QUIZ: PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
         }[value];
-        this.$router.push(this.$router.getRoute(nextRoute));
+        nextRoute.name = nextRouteName;
+        this.$router.push(nextRoute);
       },
     },
     $trs: {

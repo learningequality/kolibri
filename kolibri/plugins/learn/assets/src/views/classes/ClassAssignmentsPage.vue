@@ -1,17 +1,27 @@
 <template>
 
-  <LearnAppBarPage
-    :appBarTitle="learnString('learnLabel')"
-  >
+  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
     <KCircularLoader v-if="loading" />
-    <div v-else id="main" role="main">
-      <KBreadcrumbs :items="breadcrumbs" :ariaLabel="learnString('classesAndAssignmentsLabel')" />
+    <div
+      v-else
+      role="main"
+    >
+      <KBreadcrumbs
+        :items="breadcrumbs"
+        :ariaLabel="learnString('classesAndAssignmentsLabel')"
+      />
       <h1 class="classroom-name">
-        <KLabeledIcon icon="classes" :label="className" />
+        <KLabeledIcon
+          icon="classes"
+          :label="className"
+        />
       </h1>
 
       <AssignedLessonsCards :lessons="activeLessons" />
-      <AssignedQuizzesCards :quizzes="activeQuizzes" :style="{ marginTop: '44px' }" />
+      <AssignedQuizzesCards
+        :quizzes="activeQuizzes"
+        :style="{ marginTop: '44px' }"
+      />
     </div>
   </LearnAppBarPage>
 
@@ -48,12 +58,8 @@
     },
     mixins: [commonCoreStrings, commonLearnStrings],
     setup(_, { root }) {
-      const {
-        fetchClass,
-        getClass,
-        getClassActiveLessons,
-        getClassActiveQuizzes,
-      } = useLearnerResources();
+      const { fetchClass, getClass, getClassActiveLessons, getClassActiveQuizzes } =
+        useLearnerResources();
 
       const classId = root.$router.currentRoute.params.classId;
       const classroom = computed(() => getClass(classId));

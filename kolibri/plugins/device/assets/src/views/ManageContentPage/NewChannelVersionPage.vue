@@ -7,12 +7,11 @@
   >
     <KPageContainer class="device-container">
       <div v-if="!loadingChannel">
-
         <section>
           <h1>
             {{ versionAvailableText }}
           </h1>
-          <p> {{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
+          <p>{{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
           <p v-if="channelIsIncomplete">
             {{ $tr('channelIsIncomplete', { available, total }) }}
           </p>
@@ -21,10 +20,12 @@
         <section>
           <p>
             <strong>
-              {{ $tr('versionChangesHeader', {
-                oldVersion: currentVersion,
-                newVersion: nextVersion
-              }) }}
+              {{
+                $tr('versionChangesHeader', {
+                  oldVersion: currentVersion,
+                  newVersion: nextVersion,
+                })
+              }}
             </strong>
           </p>
           <table v-if="!loadingChannel && !loadingTask">
@@ -71,7 +72,6 @@
             :indeterminate="true"
             :delay="false"
           />
-
         </section>
 
         <dl>
@@ -338,6 +338,12 @@
         context:
           'Label associated with the number of resources that would be deleted if the channel is updated',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      resourceOrFolderMetadata: {
+        message: 'Resource and folder information has changed',
+        context: 'Indicates that the metadata for a resource or folder has changed',
+      },
+      /* eslint-enable kolibri/vue-no-unused-translations */
       resourcesToBeDeletedTooltip: {
         message:
           'When you update this channel, some resources will be deleted. This may affect lessons or quizzes that are using the deleted resources',

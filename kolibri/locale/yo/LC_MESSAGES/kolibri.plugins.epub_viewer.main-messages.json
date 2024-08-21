@@ -9,7 +9,7 @@
   "SearchSideBar.enterSearchQuery": "Ṣàmúlò ọ̀rọ̀ láti ṣàwarí",
   "SearchSideBar.loadingResults": "O n ko èsì po",
   "SearchSideBar.noSearchResults": "Ko si èsì",
-  "SearchSideBar.numberOfSearchResults": "{num, number, integer} {num, plural, eyookan {esi} other {esi}}",
+  "SearchSideBar.numberOfSearchResults": "{num, number, integer} {num, plural, one {àbájáde} other {àwọn àbájáde}}",
   "SearchSideBar.overCertainNumberOfSearchResults": "{num, number, integer} {num, plural, one {esi} other {awon esi}}",
   "SearchSideBar.searchThroughBook": "Se iṣàwárí ninu iwe",
   "SearchSideBar.submitSearchQuery": "Bẹ̀ẹ̀rẹ̀ ìṣawarí náà",

@@ -3,7 +3,7 @@
   <div v-if="contentNode">
     <span
       class="learning-activity"
-      :class="[ condensed || labelAfter ? 'reversed' : '' ]"
+      :class="[condensed || labelAfter ? 'reversed' : '']"
     >
       <span
         class="label"
@@ -25,7 +25,7 @@
       v-if="!hideDuration"
       :contentNode="contentNode"
       class="duration"
-      :class="[ condensed ? 'condensed' : '' ]"
+      :class="[condensed ? 'condensed' : '']"
     />
   </div>
 
@@ -36,8 +36,8 @@
 
   import { computed } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import useLearningActivities from '../../composables/useLearningActivities';
-  import LearningActivityIcon from '../LearningActivityIcon';
   import LearningActivityDuration from '../LearningActivityDuration';
 
   /**
@@ -52,7 +52,7 @@
     },
     setup(props) {
       const { hasSingleActivity, firstActivity, getLearningActivityLabel } = useLearningActivities(
-        props.contentNode
+        props.contentNode,
       );
 
       const label = computed(() => {

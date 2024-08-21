@@ -52,7 +52,6 @@
           </transition-group>
         </DragContainer>
       </template>
-
     </KPageContainer>
   </ImmersivePage>
 
@@ -68,6 +67,7 @@
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import DeviceChannelResource from '../apiResources/deviceChannel';
   import useContentTasks from '../composables/useContentTasks';
   import { PageNames } from '../constants';
@@ -88,6 +88,8 @@
     },
     setup() {
       useContentTasks();
+      const { canManageContent } = useUser();
+      return { canManageContent };
     },
     data() {
       return {
@@ -108,7 +110,7 @@
       },
     },
     beforeMount() {
-      if (!this.$store.getters.canManageContent) {
+      if (!this.canManageContent) {
         return this.$router.replace(this.$router.getRoute('MANAGE_CONTENT_PAGE'));
       }
       this.fetchChannels()

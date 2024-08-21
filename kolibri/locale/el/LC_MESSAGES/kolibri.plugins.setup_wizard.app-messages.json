@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Άτυπη",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Αυτή η συσκευή θα είναι ένας πλήρως εξοπλισμένος διακομιστής Kolibri που θα χρησιμοποιείται από διαχειριστές, εκπαιδευτές και εκπαιδευόμενους.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Πλήρης συσκευή",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Αυτή η συσκευή θα έχει έναν ή περισσότερους λογαριασμούς εκπαιδευόμενων που εισάγονται από μια πλήρη συσκευή που υπάρχει ήδη. Οι λογαριασμοί των εκπαιδευόμενων θα συγχρονιστούν αυτόματα με την κανονική συσκευή.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Αυτή η συσκευή θα έχει μόνο τα χαρακτηριστικά που χρησιμοποιούνται από τους μαθητές και θα συγχρονίζει αυτόματα με την πλήρη συσκευή.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Συσκευή μόνο για εκμάθηση",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "Τι είδους συσκευή είναι αυτή;",
   "GuestAccessForm.changeLater": "Μπορείτε να το αλλάξετε αργότερα στις ρυθμίσεις της συσκευής σας,",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Αντιγραφή στο πρόχειρο",
   "UserCredentialsForm.adminAccountCreationHeader": "Δημιουργία υπερδιαχειριστή",
   "UserCredentialsForm.learnerAccountCreationDescription": "Νέος λογαριασμός για την εγκατάσταση μάθησης '{facility}'",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Δημιουργία του λογαριασμού σας"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Δημιουργία του λογαριασμού σας",
+  "UserCredentialsForm.signInInstead": "Συνδεθείτε αντ' αυτού"
 }

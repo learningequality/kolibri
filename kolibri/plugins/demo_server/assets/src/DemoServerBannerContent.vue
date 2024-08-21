@@ -7,8 +7,8 @@
     <h1>{{ $tr('demoServerHeader') }}</h1>
     <p>{{ $tr('demoServerP1') }}</p>
     <ul>
-      <li>{{ $tr('demoServerL1', { user: 'learnerdemo', pass: 'pass' } ) }}</li>
-      <li>{{ $tr('demoServerL2', { user: 'coachdemo', pass: 'pass' } ) }}</li>
+      <li>{{ $tr('demoServerL1', { user: 'learnerdemo', pass: 'pass' }) }}</li>
+      <li>{{ $tr('demoServerL2', { user: 'coachdemo', pass: 'pass' }) }}</li>
     </ul>
     <p>{{ $tr('demoServerP2') }}</p>
     <p>{{ $tr('demoServerP3') }}</p>

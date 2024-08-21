@@ -7,9 +7,10 @@ Feature: Admin bulk export of users and classrooms
       And there are learners enrolled in classrooms and coaches assigned to them
 
   Scenario: Export a CSV file containing all users in the facility
-    When I click on *Export* button under *Import and export users* heading
+    When I click on *Generate user CSV file* link under the *Import and export users* heading
     Then I see the loading indicator
-      And I am able to open or save or the file 'users_<date>_<time>.csv'
-      # <date> is current date and <time> current time, for example users_20200420_194415.csv
+    	And I see that the *Download CSV* button becomes enabled
+    	When I click on the *Download CSV* button
+      And I can open or save the file '<facility>_users.csv'
     When I open the CSV file
     Then I see that it contains only users from my facility, even if there are more facilities in the device

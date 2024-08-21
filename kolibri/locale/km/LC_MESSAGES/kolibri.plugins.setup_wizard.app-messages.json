@@ -3,7 +3,7 @@
   "AppError.defaultErrorHeader": "សូមអភ័យទោស! មានបញ្ហាបានកើតឡើង!",
   "AppError.defaultErrorMessage": "យើងគិតដល់បទពិសោធន៍របស់អ្នកនៅក្នុង Kolibri ហើយយើងកំពុងព្យាយាមដោះស្រាយបញ្ហានេះយ៉ាងលំបាក។",
   "AppError.defaultErrorReportPrompt": "ជួយយើងដោយរាយការណ៍កំហុសនេះ",
-  "AppError.defaultErrorResolution": "សាកល្បងទាញទំព័រនេះម្តងទៀត ឬបកទៅទំព័រខាងមុខវិញ។",
+  "AppError.defaultErrorResolution": "សាកល្បងទាញទំព័រនេះម្តងទៀត ឬបកទៅទំព័រដើមវិញ។",
   "AppError.resourceNotFoundHeader": "ធនធានមិនបានរកឃើញ",
   "AppError.resourceNotFoundMessage": "សុំអភ័យទោស! ធនធាននោះមិនមានទេ",
   "CommonProfileStrings.createAccount": "បង្កើតគណនីថ្មី",
@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "ក្រៅផ្លូវការ",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "ឧបករណ៍នេះនឹងក្លាយជាម៉ាស៊ីនមេរបស់ Kolibri ដែលមានលក្ខណៈពេញលេញដែលប្រើដោយអ្នកគ្រប់គ្រង គ្រូបង្វឹក និងអ្នកសិក្សា។",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "ឧបករណ៍ពេញលេញ",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "ឧបករណ៍នេះនឹងមានគណនីអ្នកសិក្សាមួយ ឬច្រើនដែលបាននាំចូលពីឧបករណ៍ពេញលេញដែលមានរួចហើយ។ គណនីអ្នកសិក្សានឹងធ្វើសមកាលកម្មដោយស្វ័យប្រវត្តិជាមួយនឹងឧបករណ៍ពេញលេញ។",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "ឧបករណ៍នេះនឹងមានមុខងារប្រើប្រាស់ដោយអ្នកសិក្សាតែប៉ុណ្ណោះ ហើយវានឹងធ្វើសមកាលកម្មដោយស្វ័យប្រវត្តិជាមួយនឹងឧបករណ៍ពេញលេញ។",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "ប្រើបានតែឧបករណ៍សិក្សា",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "តើនេះជាឧបករណ៍ប្រភេទអ្វី?",
   "GuestAccessForm.changeLater": "អ្នកអាចផ្លាស់ប្តូរវានៅក្នុងការកំណត់ឧបករណ៍របស់អ្នកនៅពេលក្រោយ។",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "ចម្លងទៅ Clipboard",
   "UserCredentialsForm.adminAccountCreationHeader": "បង្កើតអ្នកគ្រប់គ្រងជាន់ខ្ពស់",
   "UserCredentialsForm.learnerAccountCreationDescription": "គណនីថ្មីសម្រាប់'{facility}'កន្លែងសិក្សា",
-  "UserCredentialsForm.learnerAccountCreationHeader": "បង្កើតគណនីរបស់អ្នក។"
+  "UserCredentialsForm.learnerAccountCreationHeader": "បង្កើតគណនីរបស់អ្នក។",
+  "UserCredentialsForm.signInInstead": "ចូលប្រើ​ ជំនួស​វិញ?"
 }

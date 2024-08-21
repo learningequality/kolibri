@@ -4,7 +4,7 @@
     <p>
       <BackLink
         v-if="classListPageEnabled || userIsMultiFacilityAdmin"
-        :to="$router.getRoute('HomePage', { classId: this.$route.params.classId })"
+        :to="$router.getRoute('HomePage', { classId: $route.params.classId })"
         :text="coreString('classHome')"
       />
     </p>
@@ -19,7 +19,6 @@
         :ariaLabel="$tr('coachReports')"
         :activeTabId="activeTabId"
         :tabs="tabs"
-        :style="{ position: 'relative', top: '5px' }"
         @click="() => saveTabsClick(REPORTS_TABS_ID)"
       />
     </HeaderTabs>
@@ -32,6 +31,7 @@
 
   import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import commonCoach from '../common';
   import { REPORTS_TABS_ID, ReportsTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';
@@ -41,9 +41,11 @@
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
+      const { userIsMultiFacilityAdmin } = useUser();
       return {
         saveTabsClick,
         wereTabsClickedRecently,
+        userIsMultiFacilityAdmin,
       };
     },
     props: {
@@ -62,7 +64,7 @@
       };
     },
     computed: {
-      ...mapGetters(['classListPageEnabled', 'userIsMultiFacilityAdmin']),
+      ...mapGetters(['classListPageEnabled']),
       reportTitle() {
         return this.title || this.coachString('reportsLabel');
       },

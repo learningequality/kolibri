@@ -22,7 +22,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { computed } from 'kolibri.lib.vueCompositionApi';
   import { interpret } from 'xstate';
-  import { mapGetters } from 'vuex';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { changeFacilityMachine } from '../../machines/changeFacilityMachine';
 
   export default {
@@ -34,6 +34,10 @@
     },
     components: { NotificationsRoot, ImmersivePage },
     mixins: [commonCoreStrings],
+    setup() {
+      const { session, getUserKind } = useUser();
+      return { session, getUserKind };
+    },
     data() {
       return {
         service: interpret(changeFacilityMachine),
@@ -52,7 +56,6 @@
     },
 
     computed: {
-      ...mapGetters(['session', 'getUserKind']),
       wrapperStyles() {
         return {
           maxWidth: '1064px',
@@ -82,9 +85,9 @@
               this.internalNavigation = true;
               this.$router.push(
                 { name: newRoute, path: state.meta[stateID].path },
-                function() {
+                function () {
                   this.internalNavigation = false;
-                }.bind(this)
+                }.bind(this),
               );
             } else this.$router.push(newRoute);
           }
@@ -122,7 +125,7 @@
       onMachineError(machineState) {
         this.$store.commit(
           'CORE_SET_ERROR',
-          `An error occured in the '${this.previousMachineStateName}' state of the change facility machine`
+          `An error occured in the '${this.previousMachineStateName}' state of the change facility machine`,
         );
         this.service.send('RESET');
         this.previousMachineStateName = machineState.value;

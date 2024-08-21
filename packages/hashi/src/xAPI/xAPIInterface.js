@@ -75,7 +75,7 @@ export default class xAPI extends BaseShim {
         !s.error &&
         (s.verb.id === XAPIVerbMap.mastered ||
           s.verb.id === XAPIVerbMap.passed ||
-          s.verb.id === XAPIVerbMap.completed)
+          s.verb.id === XAPIVerbMap.completed),
     );
     if (successStatement) {
       return 1;
@@ -131,7 +131,7 @@ export default class xAPI extends BaseShim {
             s.object.objectType === OBJECT_TYPES.SUBSTATEMENT && actorsEqual(s.object.actor, agent),
           s => s.context && s.context.instructor && actorsEqual(s.context.instructor, agent),
           s => s.context && s.context.team && actorsEqual(s.context.team, agent),
-          s => s.authority && s.authority && actorsEqual(s.authority, agent)
+          s => s.authority && s.authority && actorsEqual(s.authority, agent),
         );
       }
     }
@@ -159,8 +159,8 @@ export default class xAPI extends BaseShim {
           s =>
             s.context &&
             Object.values(s.context.contextActivities || {}).some(a =>
-              a.some(act => act.id === activity)
-            )
+              a.some(act => act.id === activity),
+            ),
         );
       }
     }
@@ -216,7 +216,7 @@ export default class xAPI extends BaseShim {
 
   getIds(nameSpace, since = '') {
     return Object.keys(this.data[nameSpace] || {}).filter(
-      id => this.data[nameSpace][id].stored > since
+      id => this.data[nameSpace][id].stored > since,
     );
   }
 

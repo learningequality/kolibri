@@ -83,14 +83,11 @@ export default new Resource({
   fetchRandomCollection({ getParams: params }) {
     return this.getListEndpoint('random', params);
   },
-  fetchDescendants(ids, getParams = {}) {
-    return this.getListEndpoint('descendants', { ids, ...getParams });
+  fetchDescendantCounts(getParams) {
+    return this.getListEndpoint('descendant_counts', { ...getParams });
   },
   fetchDescendantsAssessments(ids) {
     return this.getListEndpoint('descendants_assessments', { ids });
-  },
-  fetchNodeAssessments(ids) {
-    return this.getListEndpoint('node_assessments', { ids });
   },
   fetchRecommendationsFor(id, getParams) {
     return this.fetchDetailCollection('recommendations_for', id, getParams);
@@ -142,7 +139,7 @@ export default new Resource({
       if (data[this.idKey]) {
         this.cache[data[this.idKey]] = Object.assign(
           this.cache[data[this.idKey]] || {},
-          cloneDeep(data)
+          cloneDeep(data),
         );
         if (data.children) {
           this.cacheData(data.children);

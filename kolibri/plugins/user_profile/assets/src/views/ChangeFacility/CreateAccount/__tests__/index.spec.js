@@ -1,19 +1,15 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import CreateAccount from '../index.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
+jest.mock('kolibri.coreVue.composables.useUser');
+
 const sendMachineEvent = jest.fn();
-function makeWrapper({ targetFacility, fullName } = {}) {
-  const store = new Vuex.Store({
-    getters: {
-      session: () => {
-        return { full_name: fullName };
-      },
-    },
-  });
+function makeWrapper({ targetFacility } = {}) {
   return mount(CreateAccount, {
     provide: {
       changeFacilityService: {
@@ -26,7 +22,6 @@ function makeWrapper({ targetFacility, fullName } = {}) {
       },
     },
     localVue,
-    store,
   });
 }
 
@@ -37,24 +32,17 @@ const getPasswordTextbox = wrapper => wrapper.find('[data-test="passwordTextbox"
 const clickBackButton = wrapper => getBackButton(wrapper).trigger('click');
 const clickContinueButton = wrapper => getContinueButton(wrapper).trigger('click');
 const setUsernameTextboxValue = (wrapper, value) => {
-  getUsernameTextbox(wrapper)
-    .find('input')
-    .setValue(value);
+  getUsernameTextbox(wrapper).find('input').setValue(value);
 };
 const setPasswordTextboxValue = (wrapper, value) => {
-  getPasswordTextbox(wrapper)
-    .findComponent({ ref: 'password' })
-    .find('input')
-    .setValue(value);
-  getPasswordTextbox(wrapper)
-    .findComponent({ ref: 'confirm' })
-    .find('input')
-    .setValue(value);
+  getPasswordTextbox(wrapper).findComponent({ ref: 'password' }).find('input').setValue(value);
+  getPasswordTextbox(wrapper).findComponent({ ref: 'confirm' }).find('input').setValue(value);
 };
 
 describe(`ChangeFacility/CreateAccount`, () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useUser.mockImplementation(() => useUserMock());
   });
 
   it(`smoke test`, () => {
@@ -64,12 +52,12 @@ describe(`ChangeFacility/CreateAccount`, () => {
 
   it(`shows the message about creating a new account in the target facility
     that contains user's full name and the target facility name`, () => {
+    useUser.mockImplementation(() => useUserMock({ session: { full_name: 'Test User' } }));
     const wrapper = makeWrapper({
       targetFacility: { name: 'Test Facility' },
-      fullName: 'Test User',
     });
     expect(wrapper.text()).toContain(
-      "New account for 'Test User' in 'Test Facility' learning facility"
+      "New account for 'Test User' in 'Test Facility' learning facility",
     );
   });
 
@@ -112,7 +100,7 @@ describe(`ChangeFacility/CreateAccount`, () => {
   it(`shows the message for users to remember their account information`, () => {
     const wrapper = makeWrapper();
     expect(wrapper.text()).toContain(
-      'Important: please remember this account information. Write it down if needed.'
+      'Important: please remember this account information. Write it down if needed.',
     );
   });
 

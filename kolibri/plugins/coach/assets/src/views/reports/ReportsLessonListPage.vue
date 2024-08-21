@@ -1,16 +1,15 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
+  <CoachAppBarPage>
     <KPageContainer>
       <ReportsHeader
         :activeTabId="ReportsTabs.LESSONS"
         :title="$isPrint ? $tr('printLabel', { className }) : null"
       />
-      <p v-if="calcTotalSizeOfVisibleLessons !== null" class="total-size">
+      <p
+        v-if="calcTotalSizeOfVisibleLessons !== null"
+        class="total-size"
+      >
         {{ coachString('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
       </p>
 
@@ -25,7 +24,6 @@
             :options="filterOptions"
             :inline="true"
           />
-
         </ReportsControls>
         <CoreTable :emptyMessage="emptyMessage">
           <template #headers>
@@ -61,7 +59,7 @@
                 </td>
                 <td>
                   <Recipients
-                    :groupNames="getRecipientNamesForExam(tableRow)"
+                    :groupNames="tableRow.recipientNames"
                     :hasAssignments="tableRow.assignments.length > 0"
                   />
                 </td>
@@ -75,8 +73,8 @@
                   <KSwitch
                     name="toggle-lesson-visibility"
                     label=""
-                    :checked="tableRow.is_active"
-                    :value="tableRow.is_active"
+                    :checked="tableRow.active"
+                    :value="tableRow.active"
                     @change="toggleModal(tableRow)"
                   />
                 </td>
@@ -199,9 +197,9 @@
           if (this.filter.value === 'allLessons') {
             return true;
           } else if (this.filter.value === 'visibleLessons') {
-            return lesson.is_active;
+            return lesson.active;
           } else if (this.filter.value === 'lessonsNotVisible') {
-            return !lesson.is_active;
+            return !lesson.active;
           }
         });
         const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
@@ -210,8 +208,8 @@
           const tableRow = {
             totalLearners: learners.length,
             tally: this.getLessonStatusTally(lesson.id, learners),
-            groupNames: this.getGroupNames(lesson.groups),
-            recipientNames: this.getRecipientNamesForExam(lesson),
+            groupNames: this.getGroupNames(lesson.assignments),
+            recipientNames: this.getRecipientNamesForLesson(lesson),
             hasAssignments: learners.length > 0,
           };
           Object.assign(tableRow, lesson);
@@ -223,7 +221,7 @@
           const sum = this.table
             .filter(
               // only include visible lessons
-              lesson => lesson.is_active
+              lesson => lesson.active,
             )
             .reduce((acc, lesson) => {
               return acc + (lesson.size || 0);
@@ -242,14 +240,14 @@
     methods: {
       ...mapActions(['fetchUserSyncStatus']),
       handleToggleVisibility(lesson) {
-        const newActiveState = !lesson.is_active;
+        const newActiveState = !lesson.active;
         const snackbarMessage = newActiveState
           ? this.coachString('lessonVisibleToLearnersLabel')
           : this.coachString('lessonNotVisibleToLearnersLabel');
         const promise = LessonResource.saveModel({
           id: lesson.id,
           data: {
-            is_active: newActiveState,
+            active: newActiveState,
           },
           exists: true,
         });
@@ -283,7 +281,7 @@
         const hideModalConfirmation = Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
         this.activeLesson = lesson;
         if (!hideModalConfirmation && this.learnOnlyDevicesExist) {
-          if (lesson.is_active) {
+          if (lesson.active) {
             this.showLessonIsVisibleModal = false;
             this.showLessonIsNotVisibleModal = true;
           } else {

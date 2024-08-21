@@ -50,7 +50,7 @@ export default {
       state.workingResources = state.workingResources.filter(
         // Resources could either be a content node or a resource item from a lesson
         workingResource =>
-          !resources.find(r => (r.id || r.contentnode_id) === workingResource.contentnode_id)
+          !resources.find(r => (r.id || r.contentnode_id) === workingResource.contentnode_id),
       );
     },
     ADD_TO_RESOURCE_CACHE(state, { node, channelTitle }) {

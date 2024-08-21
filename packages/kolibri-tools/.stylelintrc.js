@@ -6,6 +6,7 @@ module.exports = {
     'stylelint-config-sass-guidelines',
     'stylelint-config-recess-order',
     'stylelint-config-prettier',
+    'stylelint-config-html/vue',
   ],
   rules: {
     'color-hex-length': 'long',
@@ -34,6 +35,12 @@ module.exports = {
     'order/properties-alphabetical-order': null,
     'scss/percent-placeholder-pattern': null,
     'scss/no-global-function-names': null, // Does not distinguish between SCSS functions and CSS functions
+
+    // Custom rules
+    'import-notation': 'string', // Enforce string imports rather than 'url' as 'url' doesn't work with sass-loader
+    'media-feature-range-notation': 'prefix', // Enforce use of min-width and max-width as sass-loader breaks otherwise
+    // Enforce indentation of 2 spaces and to be indented within style blocks in Vue SFC
+    'indentation': [ 2, { baseIndentLevel: 1 } ],
   },
   "overrides": [
     {
@@ -47,6 +54,10 @@ module.exports = {
     {
       "files": ["**/*.sass"],
       "customSyntax": "postcss-sass",
+    },
+    {
+      "files": ["*.html", "**/*.html", "*.vue", "**/*.vue"],
+      "customSyntax": "postcss-html",
     },
   ]
 };

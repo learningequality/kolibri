@@ -1,12 +1,7 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
-
+  <CoachAppBarPage>
     <KPageContainer>
-
       <ReportsLearnerHeader :activeTabId="ReportsLearnersTabs.REPORTS" />
       <KTabsPanel
         :tabsId="REPORTS_LEARNERS_TABS_ID"
@@ -33,9 +28,11 @@
                   >
                     <td>
                       <KRouterLink
-                        :to="classRoute('ReportsLearnerReportLessonPage', {
-                          lessonId: tableRow.id
-                        })"
+                        :to="
+                          classRoute('ReportsLearnerReportLessonPage', {
+                            lessonId: tableRow.id,
+                          })
+                        "
                         :text="tableRow.title"
                         icon="lesson"
                       />
@@ -87,7 +84,6 @@
             </CoreTable>
           </KGridItem>
         </KGrid>
-
       </KTabsPanel>
     </KPageContainer>
   </CoachAppBarPage>

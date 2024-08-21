@@ -4,9 +4,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 function Plugin() {}
 
-Plugin.prototype.apply = function(compiler) {
+Plugin.prototype.apply = function (compiler) {
   if (compiler.hooks) {
-    compiler.hooks.compilation.tap('HashiHashWriterPlugin', function(compilation) {
+    compiler.hooks.compilation.tap('HashiHashWriterPlugin', function (compilation) {
       if (compilation.errors.length > 0) {
         return;
       }
@@ -14,7 +14,7 @@ Plugin.prototype.apply = function(compiler) {
       HtmlWebpackPlugin.getHooks(compilation).afterEmit.tapAsync('HashiWritePlugin', (data, cb) => {
         var outputFilename = path.resolve(
           __dirname,
-          '../../kolibri/core/content/build/hashi_filename'
+          '../../kolibri/core/content/build/hashi_filename',
         );
         fs.mkdirSync(path.dirname(outputFilename), { recursive: true });
 

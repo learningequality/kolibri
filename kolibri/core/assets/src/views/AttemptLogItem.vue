@@ -1,12 +1,11 @@
 <template>
 
   <span :class="{ 'no-diff': !showDiff }">
-    <component :is="displayTag" class="item">
-      {{ coreString(
-        'questionNumberLabel',
-        { questionNumber: attemptLog.questionNumber }
-      )
-      }}
+    <component
+      :is="displayTag"
+      class="item"
+    >
+      {{ coreString('questionNumberLabel', { questionNumber: attemptLog.questionNumber }) }}
     </component>
     <template v-if="!isSurvey">
       <AttemptIconDiff
@@ -33,7 +32,7 @@
         v-else-if="attemptLog.error"
         class="svg-item"
         data-test="question-attempt-icons"
-        :style=" { fill: $themeTokens.annotation }"
+        :style="{ fill: $themeTokens.annotation }"
         icon="helpNeeded"
       />
       <KIcon
@@ -47,7 +46,7 @@
         v-else-if="attemptLog.hinted"
         class="item svg-item"
         data-test="question-attempt-icons"
-        :style=" { fill: $themeTokens.annotation }"
+        :style="{ fill: $themeTokens.annotation }"
         icon="hint"
       />
     </template>

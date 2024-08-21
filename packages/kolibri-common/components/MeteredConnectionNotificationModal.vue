@@ -32,12 +32,12 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import appCapabilities, { checkCapability } from 'kolibri.utils.appCapabilities';
   import logger from 'kolibri.lib.logging';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   const logging = logger.getLogger(__filename);
 
@@ -51,6 +51,10 @@
   export default {
     name: 'MeteredConnectionNotificationModal',
     mixins: [commonCoreStrings],
+    setup() {
+      const { isSuperuser } = useUser();
+      return { isSuperuser };
+    },
     data() {
       return {
         Options,
@@ -62,7 +66,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isSuperuser']),
       displayMeteredConnectionWarning() {
         return (
           this.originalSettingDisallows &&
@@ -90,8 +93,6 @@
           // if we only include one of the keys for the extra_settings object
           client({ method: 'GET', url: this.settingsUrl })
             .then(({ data }) => {
-              logging.info('mounted', isMetered);
-              logging.info(data);
               this.extra_settings = data.extra_settings;
               this.selected = this.extra_settings.allow_download_on_metered_connection
                 ? Options.USE_METERED

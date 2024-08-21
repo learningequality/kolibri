@@ -365,10 +365,9 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     message: 'There was a problem saving this lesson',
     context: 'Error message.',
   },
-  duplicateLessonTitleError: {
-    message: 'A lesson with that name already exists',
-    context:
-      "Appears if the coach creates a lesson that has the same name as one that's already created.",
+  saveQuizError: {
+    message: 'There was a problem saving this quiz',
+    context: 'Error message.',
   },
 
   // empty states
@@ -519,10 +518,19 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   },
   openQuizModalDetail: {
     message:
-      'Starting the quiz will make it visible to learners and they will be able to answer questions',
-
+      'Starting the quiz will make it visible to learners and they will be able to answer questions.',
     context:
       "Text shown on a modal pop-up window when the user clicks the 'Start Quiz' button. This explains what will happen when the user confirms the action of starting the quiz.",
+  },
+  canNoLongerEditQuizNotice: {
+    message: 'You will no longer be able to edit the questions and sections of the quiz.',
+    context:
+      'In the modal pop-up window when the user clicks the "Start Quiz" button, explains that they will not be able to edit the quiz after starting it.',
+  },
+  openQuizModalEmptySections: {
+    message: 'Any sections without questions will be removed from the quiz.',
+    context:
+      "Text shown on a modal pop-up window when the user clicks the 'Start Quiz' button. This explains that empty sections will be removed from the quiz.",
   },
   closeQuizLabel: {
     message: 'End quiz',

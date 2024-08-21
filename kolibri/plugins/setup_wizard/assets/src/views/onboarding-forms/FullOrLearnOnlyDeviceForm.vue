@@ -79,7 +79,7 @@
       },
       learnOnlyDeviceDescription: {
         message:
-          'This device will have one or more learner accounts imported from a full device that already exists. Learner accounts will auto-sync with the full device.',
+          'This device will only have the features used by learners, and it will auto-sync with the full device.',
         context: '',
       },
     },

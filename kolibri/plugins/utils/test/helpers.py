@@ -12,6 +12,7 @@ import sys
 from django.conf import settings
 from django.urls import clear_url_caches
 
+from kolibri.plugins import config
 from kolibri.plugins.registry import registered_plugins
 
 
@@ -42,8 +43,11 @@ def plugin_enabled(*plugin_names):
         for plugin_name in plugin_names:
             try:
                 del registered_plugins._apps[plugin_name]
+                if plugin_name in config["UPDATED_PLUGINS"]:
+                    config["UPDATED_PLUGINS"].remove(plugin_name)
             except KeyError:
                 pass
+        config.save()
         _reset_plugin_dependent_modules()
 
 

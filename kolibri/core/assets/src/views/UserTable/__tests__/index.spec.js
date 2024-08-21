@@ -219,9 +219,7 @@ describe(`UserTable`, () => {
         const wrapper = makeWrapper({
           propsData: { users: TEST_USERS, selectable: true, value: [] },
         });
-        getUserCheckboxes(wrapper)
-          .at(1)
-          .trigger('click');
+        getUserCheckboxes(wrapper).at(1).trigger('click');
         expect(wrapper.emitted().input.length).toBe(1);
         expect(wrapper.emitted().input[0][0]).toEqual(['id-coach']);
       });
@@ -231,9 +229,7 @@ describe(`UserTable`, () => {
         const wrapper = makeWrapper({
           propsData: { users: TEST_USERS, selectable: true, value: ['id-to-be-preserved'] },
         });
-        getUserCheckboxes(wrapper)
-          .at(1)
-          .trigger('click');
+        getUserCheckboxes(wrapper).at(1).trigger('click');
         expect(wrapper.emitted().input.length).toBe(1);
         expect(wrapper.emitted().input[0][0]).toEqual(['id-to-be-preserved', 'id-coach']);
       });
@@ -244,12 +240,8 @@ describe(`UserTable`, () => {
         const wrapper = makeWrapper({
           propsData: { users: TEST_USERS, selectable: true, value: [] },
         });
-        getUserCheckboxes(wrapper)
-          .at(1)
-          .trigger('click');
-        getUserCheckboxes(wrapper)
-          .at(1)
-          .trigger('click');
+        getUserCheckboxes(wrapper).at(1).trigger('click');
+        getUserCheckboxes(wrapper).at(1).trigger('click');
         expect(wrapper.emitted().input.length).toBe(2);
         expect(wrapper.emitted().input[1][0]).toEqual([]);
       });
@@ -259,12 +251,8 @@ describe(`UserTable`, () => {
         const wrapper = makeWrapper({
           propsData: { users: TEST_USERS, selectable: true, value: ['id-to-be-preserved'] },
         });
-        getUserCheckboxes(wrapper)
-          .at(1)
-          .trigger('click');
-        getUserCheckboxes(wrapper)
-          .at(1)
-          .trigger('click');
+        getUserCheckboxes(wrapper).at(1).trigger('click');
+        getUserCheckboxes(wrapper).at(1).trigger('click');
         expect(wrapper.emitted().input.length).toBe(2);
         expect(wrapper.emitted().input[1][0]).toEqual(['id-to-be-preserved']);
       });
@@ -331,10 +319,7 @@ describe(`UserTable`, () => {
             value: [],
           },
         });
-        getUserRadioButtons(wrapper)
-          .at(1)
-          .find('input')
-          .trigger('change');
+        getUserRadioButtons(wrapper).at(1).find('input').trigger('change');
         expect(wrapper.emitted().input.length).toBe(1);
         expect(wrapper.emitted().input[0][0]).toEqual(['id-coach']);
       });

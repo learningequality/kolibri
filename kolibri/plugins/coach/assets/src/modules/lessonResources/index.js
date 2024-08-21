@@ -5,7 +5,7 @@ import * as actions from './actions';
 function defaultState() {
   return {
     bookmarksList: [],
-    ancestorCounts: {},
+    descendantCounts: {},
     ancestors: [],
     contentList: [],
     searchResults: {
@@ -44,8 +44,8 @@ export default {
     SET_BOOKMARKS_LIST(state, bookmarks) {
       state.bookmarksList = bookmarks;
     },
-    SET_ANCESTOR_COUNTS(state, ancestorCountsObject) {
-      state.ancestorCounts = ancestorCountsObject;
+    SET_DESCENDANT_COUNTS(state, descendantCountsObject) {
+      state.descendantCounts = descendantCountsObject;
     },
     SET_CONTENT_LIST(state, contentList) {
       state.contentList = contentList;
@@ -60,16 +60,16 @@ export default {
       // Append the new results
       state.searchResults.results = unionBy(
         [...state.searchResults.results, ...searchResults.results],
-        'id'
+        'id',
       );
       // Append the filters
       state.searchResults.channel_ids = union(
         state.searchResults.channel_ids,
-        searchResults.channel_ids
+        searchResults.channel_ids,
       );
       state.searchResults.content_kinds = union(
         state.searchResults.content_kinds,
-        searchResults.content_kinds
+        searchResults.content_kinds,
       );
       // NOTE: Don't update total_results. Must keep the value set initially
       // for remainingSearchResults to work properly

@@ -29,8 +29,8 @@ class LessonPermissions(KolibriAuthPermissions):
             _ensure_raw_dict(datum)
         )
         # Cannot have create assignments without creating the Lesson first,
-        # so this doesn't try to validate the Lesson with a non-empty lesson_assignments list
-        validated_data.pop("lesson_assignments", [])
+        # so this doesn't try to validate the Lesson with a non-empty assignments list
+        validated_data.pop("assignments", [])
         validated_data.pop("learner_ids", [])
         return request.user.can_create(model, validated_data)
 
@@ -65,8 +65,9 @@ class LessonViewset(ValuesViewset):
     )
 
     field_map = {
+        "active": "is_active",
         "classroom": _map_lesson_classroom,
-        "lesson_assignments": "lesson_assignment_collections",
+        "assignments": "lesson_assignment_collections",
     }
 
     def consolidate(self, items, queryset):
@@ -86,9 +87,9 @@ class LessonViewset(ValuesViewset):
                 if item["id"] in adhoc_assignments:
                     adhoc_assignment = adhoc_assignments[item["id"]]
                     item["learner_ids"] = adhoc_assignments[item["id"]]["learner_ids"]
-                    item["lesson_assignments"] = [
+                    item["assignments"] = [
                         i
-                        for i in item["lesson_assignments"]
+                        for i in item["assignments"]
                         if i != adhoc_assignment["collection"]
                     ]
                 else:

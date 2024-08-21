@@ -5,10 +5,18 @@
     ref="resourcePanel"
     alignment="right"
     sidePanelWidth="700px"
-    :closeButtonIconType="closeBackIcon"
+    closeButtonIconType="close"
     @closePanel="handleClosePanel"
     @shouldFocusFirstEl="findFirstEl()"
   >
+    <template #header>
+      <KIconButton
+        v-if="canGoBack"
+        icon="back"
+        :style="backButtonStyles"
+        @click="$router.go(-1)"
+      />
+    </template>
     <router-view @closePanel="handleClosePanel" />
   </SidePanelModal>
 
@@ -17,89 +25,75 @@
 
 <script>
 
-  import { onClickOutside } from '@vueuse/core';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { ref, watch, computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
-  import logging from 'kolibri.lib.logging';
-  import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import { PageNames } from '../../../constants';
-
-  const logger = logging.getLogger(__filename);
 
   export default {
     name: 'SectionSidePanel',
     components: {
       SidePanelModal,
     },
-    setup(_, context) {
-      const { activeSection } = injectQuizCreation();
+    setup() {
       const store = getCurrentInstance().proxy.$store;
       const router = getCurrentInstance().proxy.$router;
       const route = computed(() => store.state.route);
-      const section_id = computed(() => route.value.params.section_id);
 
-      const routeWhenSidePanelOpened = route.value;
-      const prevRoute = ref({ name: PageNames.EXAM_CREATION_ROOT });
-      const canCloseSidePanel = ref(true);
-
-      watch(route, (to, from) => {
-        // We're on the same route we were on when we started so should be able to close it
-        canCloseSidePanel.value =
-          to.name === routeWhenSidePanelOpened.name &&
-          // I tried using _.isEqual on the params & query objects but it didn't work as I expected
-          // so this is hard-coded for now.
-          to.params.section_id === routeWhenSidePanelOpened.params.section_id &&
-          to.params.topic_id === routeWhenSidePanelOpened.params.topic_id &&
-          to.query.showBookmarks === routeWhenSidePanelOpened.query.showBookmarks &&
-          to.query.search === routeWhenSidePanelOpened.query.search;
-
-        prevRoute.value = from;
-      });
+      const canGoBack = ref(false);
+      const showSidePanel = computed(() => route.value?.name !== PageNames.EXAM_CREATION_ROOT);
 
       function handleClosePanel() {
-        if (canCloseSidePanel.value) {
-          // Avoid redundant navigation error
-          if (prevRoute.value.name === PageNames.EXAM_CREATION_ROOT) {
-            router.back();
-          } else {
-            router.push({ name: PageNames.EXAM_CREATION_ROOT });
-          }
-        } else {
-          router.back();
-        }
+        router.push({
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: route.value.params.classId,
+            quizId: route.value.params.quizId,
+            sectionIndex: route.value.params.sectionIndex,
+          },
+          query: { ...route.value.query },
+        });
       }
 
-      onClickOutside(context.refs.resourcePanel, () => {
-        canCloseSidePanel.value = true;
-        handleClosePanel();
+      watch(route, (newRoute, oldRoute) => {
+        // Here we basically handle all of the edge cases around when we do and don't show the back
+        // button in the heading of the side panel -- basically, we're going for:
+        //  - If we just loaded, no back arrow (ie, refresh the page w/ the panel open)
+        //  - If we're viewing bookmarks or have gone into a topic show the back arrow
+        //  - If we're still not on the same route as before, then show it
+        canGoBack.value =
+          oldRoute.name !== PageNames.EXAM_CREATION_ROOT && // We didn't just get here
+          newRoute.name !== PageNames.QUIZ_SECTION_EDITOR && // The new route isn't section editor // One of these is also true...
+          (Boolean(newRoute.query.showBookmarks) || // We're viewing bookmarks
+            Boolean(newRoute.params.topic_id) || // We're viewing a topic
+            oldRoute.name !== newRoute.name); // We're just not on the same page within the panel
       });
-
-      const closeBackIcon = computed(() => {
-        if (canCloseSidePanel.value) {
-          return 'close';
-        } else {
-          return 'back';
-        }
-      });
-
-      /**
-       * Avoids flashing the side panel when we're going to just hide it anyway.
-       */
-      let showSidePanel = false;
-
-      if (section_id.value !== activeSection.value.section_id) {
-        logger.warn("Section ID doesn't match active section ID, forcing close of side panel.");
-        router.push({ name: PageNames.EXAM_CREATION_ROOT });
-      } else {
-        showSidePanel = true;
-      }
 
       return {
+        canGoBack,
         showSidePanel,
-        canCloseSidePanel,
-        closeBackIcon,
         handleClosePanel,
       };
+    },
+    computed: {
+      backButtonStyles() {
+        if (this.isRtl) {
+          return {
+            position: 'absolute',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            right: '1em',
+            'z-index': '24',
+          };
+        } else {
+          return {
+            position: 'absolute',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            left: '1em',
+            'z-index': '24',
+          };
+        }
+      },
     },
     methods: {
       /**

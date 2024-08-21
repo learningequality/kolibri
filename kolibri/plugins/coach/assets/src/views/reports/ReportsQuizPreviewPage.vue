@@ -20,9 +20,7 @@
       </p>
 
       <QuestionListPreview
-        :fixedOrder="!quizIsRandomized"
-        :readOnly="true"
-        :selectedQuestions="selectedQuestions"
+        :sections="quiz.question_sources || []"
         :selectedExercises="selectedExercises"
       />
     </KPageContainer>
@@ -34,6 +32,7 @@
 <script>
 
   import fromPairs from 'lodash/fromPairs';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoach from '../common';
   import CoachImmersivePage from '../CoachImmersivePage';
   import QuestionListPreview from '../plan/CreateExamPage/QuestionListPreview';
@@ -46,6 +45,14 @@
       QuestionListPreview,
     },
     mixins: [commonCoach],
+    setup() {
+      const { randomizedSectionOptionDescription$, fixedSectionOptionDescription$ } =
+        enhancedQuizManagementStrings;
+      return {
+        randomizedSectionOptionDescription$,
+        fixedSectionOptionDescription$,
+      };
+    },
     data() {
       return {
         quiz: {
@@ -59,16 +66,13 @@
       };
     },
     computed: {
-      selectedQuestions() {
-        return this.quiz.question_sources;
-      },
       quizIsRandomized() {
         return !this.quiz.learners_see_fixed_order;
       },
       orderDescriptionString() {
         return this.quizIsRandomized
-          ? this.coachString('orderRandomDescription')
-          : this.coachString('orderFixedDescription');
+          ? this.randomizedSectionOptionDescription$()
+          : this.fixedSectionOptionDescription$();
       },
       title() {
         return this.$tr('pageTitle', { title: this.quiz.title });

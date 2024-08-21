@@ -32,6 +32,7 @@
   "CommonLearnStrings.toggleLicenseDescription": "تبديل توصيف الترخيص",
   "CommonLearnStrings.viewResource": "عرض المصدر",
   "CommonLearnStrings.whatYouWillNeed": "ما الذي ستحتاجه",
+  "DownloadRequests.downloadComplete": "اكتمل التحميل",
   "DownloadRequests.downloadStartedLabel": "التحميل المطلوب",
   "DownloadRequests.goToDownloadsPage": "الذهاب إلى التحميلات",
   "DownloadRequests.resourceRemoved": "تمت إزالة المصدر من مكتبتي",

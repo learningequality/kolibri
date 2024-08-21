@@ -3,6 +3,7 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import client from 'kolibri.client';
 import * as constants from '../../src/constants';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
+import coreModule from '../../src/state/modules/core';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri.urls');
@@ -15,6 +16,7 @@ describe('Vuex store/actions for core module', () => {
     Vue.prototype.$formatMessage = () => errorMessage;
     it('handleError action updates core state', () => {
       const store = makeStore();
+      store.registerModule('core', coreModule);
       store.dispatch('handleError', 'catastrophic failure');
       expect(store.state.core.error).toEqual('catastrophic failure');
       expect(store.state.core.loading).toBeFalsy();
@@ -22,6 +24,7 @@ describe('Vuex store/actions for core module', () => {
 
     it('handleApiError action updates core state', () => {
       const store = makeStore();
+      store.registerModule('core', coreModule);
       const apiError = { message: 'Too Bad' };
       try {
         store.dispatch('handleApiError', { error: apiError });
@@ -40,6 +43,7 @@ describe('Vuex store/actions for core module', () => {
 
     beforeEach(() => {
       store = makeStore();
+      store.registerModule('core', coreModule);
     });
 
     afterEach(() => {

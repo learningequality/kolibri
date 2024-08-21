@@ -2,10 +2,12 @@ import urls from 'kolibri.urls';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import AuthMessage from '../../src/views/AuthMessage';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import AuthMessage from '../../src/views/AuthMessage';
 
 jest.mock('urls', () => ({}));
+jest.mock('kolibri.coreVue.composables.useUser');
 
 const localVue = createLocalVue();
 
@@ -15,14 +17,7 @@ localVue.use(VueRouter);
 const router = new VueRouter();
 
 function makeWrapper(options) {
-  const store = new Vuex.Store({
-    getters: {
-      isUserLoggedIn() {
-        return false;
-      },
-    },
-  });
-  return shallowMount(AuthMessage, { store, localVue, router, ...options });
+  return shallowMount(AuthMessage, { localVue, router, ...options });
 }
 
 // prettier-ignore
@@ -37,6 +32,8 @@ describe('auth message component', () => {
   stubWindowLocation(beforeAll, afterAll);
 
   beforeEach(() => {
+    jest.clearAllMocks();
+    useUser.mockImplementation(() => useUserMock());
     window.location.href = 'http://localhost:8000/#/test_url';
   });
 
@@ -99,8 +96,7 @@ describe('auth message component', () => {
       const wrapper = makeWrapper();
       const link = wrapper.find('kexternallink-stub');
       expect(link.attributes()).toMatchObject({
-        href:
-          'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Ftest_url',
+        href: 'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Ftest_url',
         text: 'Sign in to Kolibri',
       });
     });
@@ -110,8 +106,7 @@ describe('auth message component', () => {
       const wrapper = makeWrapper();
       const link = wrapper.find('kexternallink-stub');
       expect(link.attributes()).toMatchObject({
-        href:
-          'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Fsome_other_url',
+        href: 'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Fsome_other_url',
         text: 'Sign in to Kolibri',
       });
     });
@@ -127,14 +122,8 @@ describe('auth message component', () => {
   });
 
   it('does not show a link if the user is logged in', () => {
-    const store = new Vuex.Store({
-      getters: {
-        isUserLoggedIn() {
-          return true;
-        },
-      },
-    });
-    const wrapper = makeWrapper({ store });
+    useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+    const wrapper = makeWrapper();
     expect(wrapper.find('kexternallink-stub').exists()).toBe(false);
   });
 });

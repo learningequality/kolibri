@@ -20,6 +20,6 @@ export default (widget, rubric) => {
   widget.props.onChange(
     newProps,
     widget._renderGraphie, // cb
-    false // silent
+    false, // silent
   );
 };

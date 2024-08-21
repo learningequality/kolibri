@@ -2,8 +2,6 @@
 
   <CoachImmersivePage
     :appBarTitle="exam ? exam.title : null"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
     icon="back"
     :pageTitle="title"
     :primary="false"

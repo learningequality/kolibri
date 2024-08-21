@@ -19,7 +19,7 @@
           buttonType="submit"
           :ariaLabel="$tr('submitSearchQuery')"
           class="d-tc"
-          style="position: relative; top:4px; left: 8px;"
+          style="position: relative; top: 4px; left: 8px"
           size="small"
         />
       </div>
@@ -125,15 +125,12 @@
     return book.spine.spineItems.reduce(
       (promiseChain, currentSpineItem) =>
         promiseChain.then(totalSearchResults =>
-          searchThroughSpineItem(
-            currentSpineItem,
-            searchQuery,
-            totalSearchResults.length
-          ).then(currentSpineItemSearchResults =>
-            totalSearchResults.concat(currentSpineItemSearchResults)
-          )
+          searchThroughSpineItem(currentSpineItem, searchQuery, totalSearchResults.length).then(
+            currentSpineItemSearchResults =>
+              totalSearchResults.concat(currentSpineItemSearchResults),
+          ),
         ),
-      Promise.resolve([])
+      Promise.resolve([]),
     );
   }
 
@@ -198,7 +195,7 @@
               this.searchResults = this.selectMatchResult(searchResults);
               this.$emit('newSearchQuery', searchQuery);
               this.searchIsLoading = false;
-            }
+            },
           );
         }
       },

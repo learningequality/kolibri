@@ -3,12 +3,14 @@ import omit from 'lodash/omit';
 import client from 'kolibri.client';
 import { coreStoreFactory as makeStore } from 'kolibri.coreVue.vuex.store';
 import useProgressTracking from '../useProgressTracking';
+import coreModule from '../../../../../../core/assets/src/state/modules/core';
 
 jest.mock('kolibri.urls');
 jest.mock('kolibri.client');
 
 function setUp() {
   const store = makeStore();
+  store.registerModule('core', coreModule);
   return { store, ...useProgressTracking(store) };
 }
 
@@ -43,7 +45,7 @@ describe('useProgressTracking composable', () => {
         await initContentSession({ quizId: 'test_quiz', node });
       } catch (error) {
         expect(error).toEqual(
-          new TypeError('quizId must be the only defined parameter if defined')
+          new TypeError('quizId must be the only defined parameter if defined'),
         );
       }
     });
@@ -56,7 +58,7 @@ describe('useProgressTracking composable', () => {
         });
       } catch (error) {
         expect(error).toEqual(
-          new TypeError('quizId must be the only defined parameter if defined')
+          new TypeError('quizId must be the only defined parameter if defined'),
         );
       }
     });
@@ -71,7 +73,7 @@ describe('useProgressTracking composable', () => {
         } catch (error) {
           expect(error).toEqual(new TypeError(`node must have ${property} property`));
         }
-      }
+      },
     );
     it('should throw an error if assessmentmetadata is missing from an exercise node', async () => {
       const { initContentSession } = setUp();
@@ -98,7 +100,7 @@ describe('useProgressTracking composable', () => {
         });
       } catch (error) {
         expect(error).toEqual(
-          new TypeError(`node must have assessmentmetadata property with mastery_model property`)
+          new TypeError(`node must have assessmentmetadata property with mastery_model property`),
         );
       }
     });
@@ -117,8 +119,8 @@ describe('useProgressTracking composable', () => {
       } catch (error) {
         expect(error).toEqual(
           new TypeError(
-            `node must have assessmentmetadata property with plain object mastery_model property`
-          )
+            `node must have assessmentmetadata property with plain object mastery_model property`,
+          ),
         );
       }
     });
@@ -137,8 +139,8 @@ describe('useProgressTracking composable', () => {
       } catch (error) {
         expect(error).toEqual(
           new TypeError(
-            `node must have assessmentmetadata property with mastery_model property with type property`
-          )
+            `node must have assessmentmetadata property with mastery_model property with type property`,
+          ),
         );
       }
     });
@@ -404,7 +406,7 @@ describe('useProgressTracking composable', () => {
         await updateContentSession({});
       } catch (error) {
         expect(error).toEqual(
-          new ReferenceError('Cannot update a content session before one has been initialized')
+          new ReferenceError('Cannot update a content session before one has been initialized'),
         );
       }
     });
@@ -631,12 +633,8 @@ describe('useProgressTracking composable', () => {
       expect(client).not.toHaveBeenCalled();
     });
     it('should update totalattempts, pastattempts and store if interaction is passed without an id', async () => {
-      const {
-        updateContentSession,
-        pastattempts,
-        pastattemptMap,
-        totalattempts,
-      } = await initStore();
+      const { updateContentSession, pastattempts, pastattemptMap, totalattempts } =
+        await initStore();
       await updateContentSession({
         interaction: {
           item: 'testitem',
@@ -661,12 +659,8 @@ describe('useProgressTracking composable', () => {
       ]);
     });
     it('should update totalattempts, pastattempts and map if passed without an id and backend returns id', async () => {
-      const {
-        updateContentSession,
-        pastattempts,
-        pastattemptMap,
-        totalattempts,
-      } = await initStore();
+      const { updateContentSession, pastattempts, pastattemptMap, totalattempts } =
+        await initStore();
       client.__setPayload({
         attempts: [
           {
@@ -714,12 +708,8 @@ describe('useProgressTracking composable', () => {
       ]);
     });
     it('should update totalattempts, pastattempts and map if passed without an id and backend returns id and additional interactions happen', async () => {
-      const {
-        updateContentSession,
-        pastattempts,
-        pastattemptMap,
-        totalattempts,
-      } = await initStore();
+      const { updateContentSession, pastattempts, pastattemptMap, totalattempts } =
+        await initStore();
       client.__setPayload({
         attempts: [
           {
@@ -884,12 +874,8 @@ describe('useProgressTracking composable', () => {
       expect(get(unsaved_interactions)).toHaveLength(0);
     });
     it('should save multiple unrelated interactions without overwriting', async () => {
-      const {
-        updateContentSession,
-        pastattempts,
-        pastattemptMap,
-        totalattempts,
-      } = await initStore();
+      const { updateContentSession, pastattempts, pastattemptMap, totalattempts } =
+        await initStore();
       client.__setPayload({
         attempts: [
           {

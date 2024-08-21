@@ -6,18 +6,13 @@
     authorizedRole="adminOrCoach"
     icon="close"
     :pageTitle="coachString('createLessonAction')"
-    :route="{ name: 'PLAN_LESSONS_ROOT' }"
+    :route="{ name: 'PLAN_LESSONS_ROOT', params: { classId } }"
   >
     <KPageContainer>
       <AssignmentDetailsModal
         ref="detailsModal"
-        assignmentType="new_lesson"
-        :modalTitleErrorMessage="coachString('duplicateLessonTitleError')"
-        :submitErrorMessage="coachString('saveLessonError')"
-        :initialDescription="''"
-        :initialTitle="''"
-        :initialSelectedCollectionIds="[classId]"
-        :initialAdHocLearners="[]"
+        assignmentType="lesson"
+        :assignment="{ assignments: [classId] }"
         :classId="classId"
         :groups="groups"
         :disabled="false"
@@ -54,7 +49,7 @@
     created() {
       const initClassInfoPromise = this.$store.dispatch('initClassInfo', this.classId);
       const getFacilitiesPromise =
-        this.$store.getters.isSuperuser && this.$store.state.core.facilities.length === 0
+        this.isSuperuser && this.$store.state.core.facilities.length === 0
           ? this.$store.dispatch('getFacilities').catch(() => {})
           : Promise.resolve();
 

@@ -1,11 +1,8 @@
 import { ClassroomResource } from 'kolibri.resources';
 import logger from 'kolibri.lib.logging';
-import { pageNameToModuleMap, PageNames } from '../constants';
+import { pageNameToModuleMap } from '../constants';
 import { LessonsPageNames } from '../constants/lessonsConstants';
-import examCreation from './examCreation';
-import examReport from './examReport';
 import examReportDetail from './examReportDetail';
-import examsRoot from './examsRoot';
 import exerciseDetail from './exerciseDetail';
 import groups from './groups';
 import lessonSummary from './lessonSummary';
@@ -55,10 +52,12 @@ export default {
       if (getters.isSuperuser) {
         return true;
       } else if (getters.isCoach || getters.isAdmin) {
-        return state.classSummary.facility_id === rootState.core.session.facility_id;
-      } else {
-        return false;
+        return (
+          rootState.route.params.facilityId === rootState.core.session.facility_id ||
+          !rootState.route.params.facilityId
+        );
       }
+      return false;
     },
   },
   actions: {
@@ -102,9 +101,6 @@ export default {
       ) {
         return store.dispatch('lessonSummary/resetLessonSummaryState');
       }
-      if (toRoute.name === PageNames.EXAMS) {
-        return store.dispatch('examCreation/resetExamCreationState');
-      }
       const moduleName = pageNameToModuleMap[fromRoute.name];
       if (moduleName) {
         store.commit(`${moduleName}/RESET_STATE`);
@@ -136,10 +132,7 @@ export default {
   modules: {
     classSummary,
     coachNotifications,
-    examCreation,
-    examReport,
     examReportDetail,
-    examsRoot,
     exerciseDetail,
     groups,
     lessonSummary,

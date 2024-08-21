@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Ayè tó wà lórí ohun-èlò kò pọ̀. E yonda àyè tàbí kí e yàn ohun èlò níwọ̀nba",
   "CommonDeviceStrings.permissionsLabel": "Awọn igbanilaaye",
   "CommonDeviceStrings.primaryStorageLabel": "Àwọn orísun ìgbàsílẹ̀ tuntun ni yóò jẹ́ àfikún sí ipo ibi ìpamọ́ àkọ́kọ́",
+  "CommonDeviceStrings.statusCanceled": "Mu kuro",
+  "CommonDeviceStrings.statusCanceling": "N fagilé e",
+  "CommonDeviceStrings.statusComplete": "O parí",
+  "CommonDeviceStrings.statusFailed": "Ti kùnà",
+  "CommonDeviceStrings.statusInProgress": "Ń tẹ̀síwájú",
+  "CommonDeviceStrings.statusInQueue": "N Iduro",
   "CommonDeviceStrings.unlistedChannelLabel": "Awọn ọ̀nà tí kò sí lákọọ́lẹ̀"
 }

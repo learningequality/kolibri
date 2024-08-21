@@ -74,9 +74,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-list"),
             {
                 "title": "title next",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [],
+                "assignments": [],
             },
             format="json",
         )
@@ -90,9 +90,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-list"),
             {
                 "title": "title next",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [self.classroom.id],
+                "assignments": [self.classroom.id],
             },
             format="json",
         )
@@ -110,9 +110,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-list"),
             {
                 "title": "title next",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [self.classroom.id],
+                "assignments": [self.classroom.id],
             },
             format="json",
         )
@@ -121,9 +121,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson_id}),
             {
                 "title": "title next",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [],
+                "assignments": [],
                 "created_by": self.admin.id,
             },
             format="json",
@@ -141,9 +141,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-list"),
             {
                 "title": "title next",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [self.classroom.id],
+                "assignments": [self.classroom.id],
             },
             format="json",
         )
@@ -153,9 +153,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson_id}),
             {
                 "title": "title next",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [group.id],
+                "assignments": [group.id],
                 "created_by": self.admin.id,
             },
             format="json",
@@ -179,9 +179,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-list"),
             {
                 "title": "title next",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [self.classroom.id],
+                "assignments": [self.classroom.id],
             },
             format="json",
         )
@@ -191,9 +191,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson_id}),
             {
                 "title": "title next",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [group.id, self.classroom.id],
+                "assignments": [group.id, self.classroom.id],
                 "created_by": self.admin.id,
             },
             format="json",
@@ -223,9 +223,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-list"),
             {
                 "title": "title next",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [self.classroom.id],
+                "assignments": [self.classroom.id],
             },
             format="json",
         )
@@ -238,9 +238,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson_id}),
             {
                 "title": "title next",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [],
+                "assignments": [],
                 "created_by": self.admin.id,
                 "learner_ids": [user.id],
             },
@@ -266,9 +266,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-list"),
             {
                 "title": "title next",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [self.classroom.id],
+                "assignments": [self.classroom.id],
             },
             format="json",
         )
@@ -280,9 +280,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson_id}),
             {
                 "title": "title next",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [],
+                "assignments": [],
                 "created_by": self.admin.id,
                 "learner_ids": [user.id],
             },
@@ -304,9 +304,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-list"),
             {
                 "title": "title next",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [],
+                "assignments": [],
             },
             format="json",
         )
@@ -320,9 +320,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-detail", kwargs={"pk": self.lesson.id}),
             {
                 "title": "title",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [],
+                "assignments": [],
             },
             format="json",
         )
@@ -341,7 +341,7 @@ class LessonAPITestCase(APITestCase):
             {
                 "id": self.lesson.id,
                 "title": "title",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
             },
             format="json",
@@ -355,9 +355,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-list"),
             {
                 "title": "TiTlE",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [self.classroom.id],
+                "assignments": [self.classroom.id],
             },
             format="json",
         )
@@ -372,7 +372,7 @@ class LessonAPITestCase(APITestCase):
             {
                 "id": self.lesson.id,
                 "title": "title",
-                "is_active": False,
+                "active": False,
                 "collection": self.classroom.id,
             },
             format="json",
@@ -394,7 +394,7 @@ class LessonAPITestCase(APITestCase):
             {
                 "id": self.lesson.id,
                 "title": "title",
-                "is_active": False,
+                "active": False,
                 "collection": self.classroom.id,
             },
             format="json",
@@ -416,7 +416,7 @@ class LessonAPITestCase(APITestCase):
             {
                 "id": self.lesson.id,
                 "title": "titular",
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
             },
             format="json",
@@ -438,9 +438,9 @@ class LessonAPITestCase(APITestCase):
             reverse("kolibri:core:lesson-list"),
             {
                 "title": self.lesson.title,
-                "is_active": True,
+                "active": True,
                 "collection": self.classroom.id,
-                "lesson_assignments": [self.classroom.id],
+                "assignments": [self.classroom.id],
             },
             format="json",
         )
@@ -529,3 +529,17 @@ class LessonAPITestCase(APITestCase):
         )
 
         self.assertEqual(response.status_code, 200)  # passing!
+
+    def test_can_update_lesson_active(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.patch(
+            reverse("kolibri:core:lesson-detail", kwargs={"pk": self.lesson.id}),
+            {
+                "active": False,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.lesson.refresh_from_db()
+        self.assertFalse(self.lesson.is_active)

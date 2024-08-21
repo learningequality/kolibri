@@ -3,6 +3,7 @@ import logger from 'kolibri.lib.logging';
 import { get } from '@vueuse/core';
 import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
 import { currentLanguage, isRtl } from 'kolibri.utils.i18n';
+import useUser from 'kolibri.coreVue.composables.useUser';
 import { coachStrings } from '../views/common/commonCoachStrings';
 
 const logging = logger.getLogger(__filename);
@@ -12,13 +13,17 @@ export default function useCoreCoach(store) {
   const route = computed(() => store.state.route);
   const pageTitle = computed(() => formatPageTitle());
   const appBarTitle = computed(() => getAppBarTitle());
+  const authorized = computed(() => store.getters.userIsAuthorizedForCoach);
+  const classId = computed(() => get(route).params.classId);
+  const groups = computed(() => store.getters['classSummary/groups']);
+  const { isSuperuser } = useUser();
 
   function getAppBarTitle() {
     let facilityName;
     // Using coachStrings.$tr() here because mixins are not applied
     // prior to props being processed.
     const { facility_id, name } = store.state.classSummary;
-    if (facility_id && store.state.core.facilities.length > 1 && store.getters.isSuperuser) {
+    if (facility_id && store.state.core.facilities.length > 1 && get(isSuperuser)) {
       const match = find(store.state.core.facilities, { id: facility_id }) || {};
       facilityName = match.name;
     }
@@ -64,7 +69,7 @@ export default function useCoreCoach(store) {
         }
       } catch (err) {
         logging.error(
-          "Failed to obtain page title. Ensure that this route's meta.titleParts are corrrectly configured."
+          "Failed to obtain page title. Ensure that this route's meta.titleParts are corrrectly configured.",
         );
         return '';
       }
@@ -76,7 +81,20 @@ export default function useCoreCoach(store) {
     return strings.join(' - ');
   }
 
+  function initClassInfo() {
+    return store.dispatch('initClassInfo', get(classId));
+  }
+
+  function refreshClassSummary() {
+    return store.dispatch('classSummary/refreshClassSummary', null, { root: true });
+  }
+
   return {
+    initClassInfo,
+    refreshClassSummary,
+    classId,
+    groups,
+    authorized,
     pageTitle,
     appBarTitle,
   };

@@ -15,7 +15,10 @@
     </p>
 
     <h1>
-      <KLabeledIcon icon="classes" :label="$store.state.classSummary.name" />
+      <KLabeledIcon
+        icon="classes"
+        :label="$store.state.classSummary.name"
+      />
     </h1>
     <HeaderTable>
       <HeaderTableRow>
@@ -43,7 +46,7 @@
               :text="$tr('viewLearners')"
               appearance="basic-link"
               :to="classLearnersListRoute"
-              style="margin-left: 24px;"
+              style="margin-left: 24px"
             />
           </template>
         </template>
@@ -59,6 +62,7 @@
   import { mapGetters } from 'vuex';
   import pickBy from 'lodash/pickBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { ClassesPageNames } from '../../../../../../learn/assets/src/constants';
   import commonCoach from '../../common';
   import { LastPages } from '../../../constants/lastPagesConstants';
@@ -66,8 +70,12 @@
   export default {
     name: 'OverviewBlock',
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { userIsMultiFacilityAdmin } = useUser();
+      return { userIsMultiFacilityAdmin };
+    },
     computed: {
-      ...mapGetters(['classListPageEnabled', 'userIsMultiFacilityAdmin']),
+      ...mapGetters(['classListPageEnabled']),
       coachNames() {
         return this.coaches.map(coach => coach.name);
       },
@@ -76,7 +84,7 @@
       },
       classListLink() {
         let facility_id;
-        if (this.$store.getters.userIsMultiFacilityAdmin) {
+        if (this.userIsMultiFacilityAdmin) {
           facility_id = this.$store.state.classSummary.facility_id;
         }
         return this.$router.getRoute('CoachClassListPage', { facility_id });

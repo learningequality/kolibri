@@ -47,7 +47,7 @@ export function updateFacilityLevelRoles(facilityUser, newRoleKind) {
   // are left untouched
   if (FACILITY_ROLES.includes(newRoleKind)) {
     return createFacilityRole().then(() =>
-      RoleResource.deleteModel({ id: currentFacilityRole.id })
+      RoleResource.deleteModel({ id: currentFacilityRole.id }),
     );
   }
 }

@@ -1,16 +1,23 @@
 <template>
 
-  <span v-if="text" data-testid="attempt-text-diff">{{ text }}</span>
+  <span
+    v-if="text"
+    data-testid="attempt-text-diff"
+  >{{ text }}</span>
 
 </template>
 
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   export default {
     name: 'AttemptTextDiff',
+    setup() {
+      const { currentUserId } = useUser();
+      return { currentUserId };
+    },
     props: {
       correct: {
         type: Number,
@@ -26,7 +33,6 @@
       },
     },
     computed: {
-      ...mapGetters(['currentUserId']),
       isSecondPersonPerspective() {
         return this.userId === this.currentUserId;
       },

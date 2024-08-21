@@ -1,6 +1,9 @@
 <template>
 
-  <transition name="modal-fade" appear>
+  <transition
+    name="modal-fade"
+    appear
+  >
     <div
       class="modal-overlay"
       @keyup.esc.stop="emitCloseEvent"
@@ -12,7 +15,7 @@
         :tabindex="0"
         role="dialog"
         aria-labelledby="modal-title"
-        :style="[ modalSizeStyles, { background: $themeTokens.surface } ]"
+        :style="[modalSizeStyles, { background: $themeTokens.surface }]"
       >
         <FocusTrap
           @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
@@ -70,7 +73,10 @@
               </div>
               <div>{{ $tr('keepUpTheGreatProgress') }}</div>
             </div>
-            <KCircularLoader v-if="loading" class="loader" />
+            <KCircularLoader
+              v-if="loading"
+              class="loader"
+            />
             <template v-else>
               <CompletionModalSection
                 v-if="nextContentNode"
@@ -90,12 +96,13 @@
 
               <CompletionModalSection
                 ref="staySection"
-                :icon="(isQuiz || isSurvey) ? 'reports' : 'restart'"
+                :icon="isQuiz || isSurvey ? 'reports' : 'restart'"
                 :class="sectionClass"
                 :title="staySectionTitle"
                 :description="staySectionDescription"
-                :buttonLabel="(isQuiz || isSurvey) ?
-                  $tr('reviewQuizButtonLabel') : $tr('stayButtonLabel')"
+                :buttonLabel="
+                  isQuiz || isSurvey ? $tr('reviewQuizButtonLabel') : $tr('stayButtonLabel')
+                "
                 @buttonClick="$emit('close')"
               />
 
@@ -118,10 +125,7 @@
                     <ResourceItem
                       data-test="recommended-resource"
                       :contentNode="node"
-                      :contentNodeRoute="genContentLinkKeepCurrentBackLink(
-                        node.id,
-                        node.is_leaf,
-                      )"
+                      :contentNodeRoute="genContentLinkKeepCurrentBackLink(node.id, node.is_leaf)"
                       :size="recommendedResourceItemSize"
                     />
                   </KGridItem>
@@ -154,6 +158,7 @@
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { currentDeviceData } from '../../composables/useDevices';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
@@ -187,6 +192,7 @@
       const { genContentLinkKeepCurrentBackLink } = useContentLink();
       const { baseurl } = currentDeviceData();
       const { windowBreakpoint, windowHeight, windowWidth } = useKResponsiveWindow();
+      const { isAdmin, isCoach, isSuperuser } = useUser();
       return {
         baseurl,
         canAccessUnassignedContent,
@@ -195,6 +201,9 @@
         windowBreakpoint,
         windowHeight,
         windowWidth,
+        isAdmin,
+        isCoach,
+        isSuperuser,
       };
     },
     props: {
@@ -319,7 +328,7 @@
       nextContentNodeRoute() {
         return this.genContentLinkKeepCurrentBackLink(
           this.nextContentNode.id,
-          this.nextContentNode.is_leaf
+          this.nextContentNode.is_leaf,
         );
       },
     },
@@ -368,10 +377,7 @@
             ? this.contentNode.ancestors.slice(-2)[0].id
             : this.contentNode.parent,
           params: {
-            include_coach_content:
-              this.$store.getters.isAdmin ||
-              this.$store.getters.isCoach ||
-              this.$store.getters.isSuperuser,
+            include_coach_content: this.isAdmin || this.isCoach || this.isSuperuser,
             depth: fetchGrandparent ? 2 : 1,
             baseurl: this.baseurl,
           },

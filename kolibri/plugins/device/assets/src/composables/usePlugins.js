@@ -13,7 +13,7 @@ export default function usePlugins() {
       url: urls['kolibri:core:plugins-list'](),
     }).then(response => {
       plugins.value = response.data;
-    })
+    }),
   );
 
   function togglePlugin(pluginId, value) {

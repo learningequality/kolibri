@@ -10,13 +10,16 @@
       <KRouterLink
         v-for="content in contentNodes"
         :key="content.id"
-        :to="content.is_leaf ?
-          genContentLinkKeepCurrentBackLink(content.id, content.is_leaf) :
-          genContentLinkKeepPreviousBackLink(content.id)"
+        :to="
+          content.is_leaf
+            ? genContentLinkKeepCurrentBackLink(content.id, content.is_leaf)
+            : genContentLinkKeepPreviousBackLink(content.id)
+        "
         class="item"
-        :class="[windowIsSmall && 'small',
-                 content.id === currentResourceId &&
-                   $computedClass(currentlyViewedItemStyle)]"
+        :class="[
+          windowIsSmall && 'small',
+          content.id === currentResourceId && $computedClass(currentlyViewedItemStyle),
+        ]"
         :style="linkStyles"
       >
         <p
@@ -30,11 +33,15 @@
           class="activity-icon"
           :kind="content.learning_activities"
         />
-        <KIcon v-else class="topic-icon" icon="topic" />
+        <KIcon
+          v-else
+          class="topic-icon"
+          icon="topic"
+        />
 
         <div class="content-meta">
           <div class="text-and-time">
-            <TextTruncatorCss
+            <KTextTruncator
               class="content-title"
               :text="content.title"
               :maxLines="2"
@@ -55,10 +62,13 @@
               class="mastered-icon"
               :style="{ fill: $themeTokens.mastered }"
             />
-            <ProgressBar v-else :contentNode="content" class="bar" />
+            <ProgressBar
+              v-else
+              :contentNode="content"
+              class="bar"
+            />
           </div>
         </div>
-
       </KRouterLink>
     </div>
 
@@ -75,17 +85,23 @@
       :style="{
         borderTop: '1px solid ' + $themeTokens.fineLine,
         background: $themeTokens.surface,
-        ...linkStyles
+        ...linkStyles,
       }"
     >
-      <KIcon class="folder-icon" icon="topic" />
+      <KIcon
+        class="folder-icon"
+        icon="topic"
+      />
       <div class="next-label">
         {{ nextFolderMessage }}
       </div>
       <div class="next-title">
         {{ nextFolder.title }}
       </div>
-      <KIcon class="forward-icon" icon="forward" />
+      <KIcon
+        class="forward-icon"
+        icon="forward"
+      />
     </KRouterLink>
   </div>
 
@@ -95,13 +111,12 @@
 <script>
 
   import isBoolean from 'lodash/isBoolean';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
-  import LearningActivityIcon from './LearningActivityIcon.vue';
   import ProgressBar from './ProgressBar';
 
   export default {
@@ -109,16 +124,13 @@
     components: {
       LearningActivityIcon,
       ProgressBar,
-      TextTruncatorCss,
       TimeDuration,
       MissingResourceAlert,
     },
     setup() {
       const { contentNodeProgressMap } = useContentNodeProgress();
-      const {
-        genContentLinkKeepCurrentBackLink,
-        genContentLinkKeepPreviousBackLink,
-      } = useContentLink();
+      const { genContentLinkKeepCurrentBackLink, genContentLinkKeepPreviousBackLink } =
+        useContentLink();
       const { windowIsSmall } = useKResponsiveWindow();
       return {
         contentNodeProgressMap,

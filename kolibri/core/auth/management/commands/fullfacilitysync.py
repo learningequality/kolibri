@@ -1,6 +1,5 @@
 import getpass
 
-import requests
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -18,8 +17,9 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_device
+from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.tasks.management.commands.base import AsyncCommand
-from kolibri.core.utils.urls import reverse_remote
+from kolibri.core.utils.urls import reverse_path
 
 
 class Command(AsyncCommand):
@@ -34,9 +34,9 @@ class Command(AsyncCommand):
 
     def get_dataset_id(self, base_url, dataset_id):
         # get list of facilities and if more than 1, display all choices to user
-        facility_url = reverse_remote(base_url, "kolibri:core:publicfacility-list")
-        facility_resp = requests.get(facility_url)
-        facility_resp.raise_for_status()
+        client = NetworkClient.build_for_address(base_url)
+        facility_url = reverse_path("kolibri:core:publicfacility-list")
+        facility_resp = client.get(facility_url)
         facilities = facility_resp.json()
         if len(facilities) > 1 and not dataset_id:
             message = "Please choose a facility to sync with:\n"

@@ -26,8 +26,11 @@
         :layout8="{ span: 8, alignment: 'auto' }"
         :layout12="{ span: 12, alignment: 'auto' }"
       >
-        <h1 class="title" data-test="header-title">
-          <TextTruncatorCss
+        <h1
+          class="title"
+          data-test="header-title"
+        >
+          <KTextTruncator
             :text="title"
             :maxLines="1"
           />
@@ -56,7 +59,7 @@
         :layout8="{ span: thumbnail ? 6 : 8, alignment: 'auto' }"
         :layout12="{ span: thumbnail ? 10 : 12, alignment: 'auto' }"
       >
-        <TextTruncatorCss
+        <KTextTruncator
           class="text-description"
           :text="description"
           :maxLines="4"
@@ -75,7 +78,6 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ChannelThumbnail from '../ChannelThumbnail';
   import commonLearnStrings from './../commonLearnStrings';
@@ -85,7 +87,6 @@
     components: {
       ChannelThumbnail,
       KBreadcrumbs,
-      TextTruncatorCss,
     },
     mixins: [commonCoreStrings, commonLearnStrings],
     setup() {

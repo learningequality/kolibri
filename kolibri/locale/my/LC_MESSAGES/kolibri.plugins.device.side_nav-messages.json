@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "သင်၏ စက်ပစ္စည်းတွင် နေရာ အလုံအလောက်မရှိပါ။ နေရာကို လွတ်အောင်ပြုလုပ်ပါ သို့မဟုတ် ရင်းမြစ်များကို လျှော့၍ ရွေးပါ။",
   "CommonDeviceStrings.permissionsLabel": "ခွင့်ပြုမိန့်",
   "CommonDeviceStrings.primaryStorageLabel": "အသစ်ဒေါင်းလုဒ်လုပ်ထားသော အရင်းအမြစ်များကို အဓိကသိုလှောင်သည့်နေရာသို့ ပေါင်းထည့်ပါမည်",
+  "CommonDeviceStrings.statusCanceled": "ပယ်ဖျက်ခဲ့သည်",
+  "CommonDeviceStrings.statusCanceling": "ပယ်ဖျက်နေသည်",
+  "CommonDeviceStrings.statusComplete": "ပြီးဆုံးပါပြီ",
+  "CommonDeviceStrings.statusFailed": "မအောင်မြင်ပါ",
+  "CommonDeviceStrings.statusInProgress": "လုပ်ဆောင်နေသည်",
+  "CommonDeviceStrings.statusInQueue": "စောင့်ဆိုင်းနေသည်",
   "CommonDeviceStrings.unlistedChannelLabel": "လူတိုင်းမရရှိနိုင်သည့် ရင်းမြစ်အစုအဝေး"
 }

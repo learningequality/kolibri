@@ -4,7 +4,10 @@
     :route="homePageLink"
     :appBarTitle="exam.title || ''"
   >
-    <KPageContainer :topMargin="50" class="container">
+    <KPageContainer
+      :topMargin="50"
+      class="container"
+    >
       <KCircularLoader v-if="loading" />
       <div v-else-if="exerciseContentNodes && exerciseContentNodes.length">
         <ExamReport
@@ -19,6 +22,7 @@
           :exerciseContentNodes="exerciseContentNodes"
           :navigateTo="navigateTo"
           :questions="questions"
+          :sections="exam.question_sources"
           @noCompleteTries="noCompleteTries"
         />
       </div>
@@ -28,7 +32,6 @@
         </p>
       </div>
     </KPageContainer>
-
   </ImmersivePage>
 
 </template>
@@ -39,6 +42,7 @@
   import { mapState } from 'vuex';
   import ExamReport from 'kolibri.coreVue.components.ExamReport';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { PageNames, ClassesPageNames } from '../constants';
 
   export default {
@@ -51,6 +55,10 @@
     components: {
       ExamReport,
       ImmersivePage,
+    },
+    setup() {
+      const { full_name, user_id } = useUser();
+      return { userName: full_name, userId: user_id };
     },
     computed: {
       ...mapState('examReportViewer', [
@@ -66,8 +74,6 @@
         selectedInteractionIndex: state => state.interactionIndex,
       }),
       ...mapState({
-        userName: state => state.core.session.full_name,
-        userId: state => state.core.session.user_id,
         loading: state => state.core.loading,
       }),
       homePageLink() {

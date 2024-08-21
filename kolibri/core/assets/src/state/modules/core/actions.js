@@ -263,7 +263,7 @@ export function setChannelInfo(store) {
     error => {
       store.dispatch('handleApiError', { error });
       return error;
-    }
+    },
   );
 }
 
@@ -316,7 +316,7 @@ export function fetchUserSyncStatus(store, params) {
       error => {
         store.dispatch('handleApiError', { error });
         return error;
-      }
+      },
     );
   }
   // for fetching an individual user
@@ -331,7 +331,7 @@ export function fetchUserSyncStatus(store, params) {
       error => {
         store.dispatch('handleApiError', { error });
         return error;
-      }
+      },
     );
   }
 }

@@ -2,11 +2,12 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 from morango.models import Certificate
-from requests import exceptions
 
 from kolibri.core import error_constants
 from kolibri.core.auth.management.utils import confirm_or_exit
 from kolibri.core.auth.management.utils import get_facility
+from kolibri.core.discovery.utils.network.errors import NetworkClientError
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.utils.portal import registerfacility
 
 
@@ -42,7 +43,7 @@ class Command(BaseCommand):
                 )
             )
         # an invalid nonce/register response
-        except exceptions.HTTPError as e:
+        except NetworkLocationResponseFailure as e:
             error = e.response.json()[0]
             message = error["metadata"].get("message") or e.response.text
             # handle facility not existing response from portal server
@@ -71,5 +72,5 @@ class Command(BaseCommand):
                 )
             )
         # handle any other invalid response
-        except exceptions.RequestException as e:
+        except NetworkClientError as e:
             raise CommandError(e)
