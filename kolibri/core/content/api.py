@@ -1723,7 +1723,8 @@ class ContentNodeProgressViewset(TreeQueryMixin, BaseValuesViewset, ListModelMix
                     .annotate(
                         num_attempts=Count("attemptlogs"),
                     )
-                    .values("num_attempts")[:1]
+                    .values("num_attempts")
+                    .order_by("-end_timestamp")[:1]
                 ),
                 num_correct_attempts=Subquery(
                     MasteryLog.objects.filter(
@@ -1736,7 +1737,8 @@ class ContentNodeProgressViewset(TreeQueryMixin, BaseValuesViewset, ListModelMix
                             distinct=True,
                         ),
                     )
-                    .values("num_correct_attempts")[:1]
+                    .values("num_correct_attempts")
+                    .order_by("-end_timestamp")[:1]
                 ),
                 total_questions=Subquery(
                     models.ContentNode.objects.filter(
