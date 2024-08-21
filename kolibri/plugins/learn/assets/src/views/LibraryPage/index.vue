@@ -81,6 +81,8 @@
             data-test="other-libraries"
             :injectedtr="injecttr"
           />
+
+          
         </div>
 
         <SearchResultsGrid
