@@ -5,6 +5,7 @@ The settings can be changed through environment variables or sections and keys
 in the options.ini file.
 """
 import ast
+import importlib
 import logging
 import os
 import sys
@@ -15,6 +16,7 @@ from urllib.parse import urlunparse
 from configobj import ConfigObj
 from configobj import flatten_errors
 from configobj import get_extra_values
+from django.core.files.storage import Storage
 from django.utils.functional import SimpleLazyObject
 from django.utils.module_loading import import_string
 from validate import is_boolean
@@ -271,6 +273,22 @@ def multiprocess_bool(value):
         return False
 
 
+def inherits_from_storage(value):
+    try:
+        modules = value.split(".")
+        klass = modules.pop()
+        module_path = ".".join(modules)
+        module = importlib.import_module(module_path)
+        Klass = getattr(module, klass)
+        return issubclass(Klass, Storage)
+    except ImportError:
+        logger.error("Default file storage is not available.")
+        raise VdtValueError(value)
+    except Exception:
+        logger.error("{} is not a valid Python module path".format(value))
+        raise VdtValueError(value)
+
+
 def cache_option(value):
     """
     Validate the cache options.
@@ -359,6 +377,16 @@ def lazy_import_callback_list(value):
 
 
 base_option_spec = {
+    "FileStorage": {
+        "DEFAULT_FILE_STORAGE": {
+            "type": "file_storage_option",
+            "default": "django.core.files.storage.FileSystemStorage",
+            "description": """
+            The storage backend class that Django will use when managing files. The class given here must implement
+            the Django files.storage.Storage class.
+            """,
+        }
+    },
     "Cache": {
         "CACHE_BACKEND": {
             "type": "cache_option",
@@ -738,6 +766,7 @@ def _get_validator():
             "bytes": validate_bytes,
             "multiprocess_bool": multiprocess_bool,
             "cache_option": cache_option,
+            "file_storage_option": inherits_from_storage,
             "lazy_import_callback_list": lazy_import_callback_list,
         }
     )
