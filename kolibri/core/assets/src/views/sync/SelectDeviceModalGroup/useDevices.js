@@ -5,7 +5,12 @@ import { ref, reactive, computed, onBeforeUnmount, watch } from 'kolibri.lib.vue
 import { get, set, useMemoize, useTimeoutPoll } from '@vueuse/core';
 
 import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
-import { fetchDevices, channelIsAvailableAtDevice, deviceHasMatchingFacility } from './api';
+import {
+  fetchDevices,
+  channelIsAvailableAtDevice,
+  deviceHasAnyFacilities,
+  deviceHasMatchingFacility,
+} from './api';
 
 const logging = logger.getLogger(__filename);
 
@@ -193,10 +198,6 @@ export function useDeviceFacilityFilter({
 
   if (on_my_own_setup !== null) {
     filters.on_my_own_setup = on_my_own_setup;
-  }
-
-  if (Object.keys(filters).length === 0) {
-    return () => Promise.resolve(true);
   }
 
   return useAsyncDeviceFilter(function deviceFacilityFilter(device) {
