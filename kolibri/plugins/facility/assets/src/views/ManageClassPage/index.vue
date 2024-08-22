@@ -53,19 +53,13 @@
             />
           </span>
           <span v-else-if="colIndex === 1">
-            <KOptionalText
-              :text="
-                coachNames(tableRows[rowIndex][3]).length
-                  ? formattedCoachNames(tableRows[rowIndex][3])
-                  : ''
-              "
-            />
+            <KOptionalText :text="coachNames(row[3]).length ? formattedCoachNames(row[3]) : ''" />
             <KTooltip
               v-if="formattedCoachNamesTooltip(tableRows[rowIndex][3])"
-              :reference="`coachNames${tableRows[rowIndex][3].id}`"
+              :reference="`coachNames${row[3].id}`"
               :refs="$refs"
             >
-              {{ formattedCoachNamesTooltip(tableRows[rowIndex][3]) }}
+              {{ formattedCoachNamesTooltip(row[3]) }}
             </KTooltip>
           </span>
           <span v-else-if="colIndex === 2">
