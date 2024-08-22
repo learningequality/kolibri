@@ -72,11 +72,11 @@ const attributes = ['src', 'href'];
 
 const attributesSelector = attributes.map(attr => `[${attr}]`).join(', ');
 
-const styleAttributeUrlSelector = '[style*="url("]';
+const urlStyleAttributeSelector = '[style*="url("]';
+
+const audioClassAttributeSelector = '[class*="audio-sentence"], [data-backgroundaudio]';
 
 const queryParamRegex = /([^?)]+)?(\?.*)/g;
-
-const styleUrlRegex = /url\(["']?([^"')]+)["']?\)/;
 
 export function getDOMPaths(fileContents, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
@@ -91,13 +91,14 @@ export function getDOMPaths(fileContents, mimeType) {
   );
 }
 
-export function getStylePaths(fileContents, mimeType) {
+export function getStyleUrlPaths(fileContents, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
-  const elements = dom.querySelectorAll(styleAttributeUrlSelector);
+  const elements = dom.querySelectorAll(urlStyleAttributeSelector);
   return flatten(
     Array.from(elements).map(element => {
       const styleAttr = element.getAttribute('style');
-      return styleAttr.match(cssPathRegex).map(path => path.match(styleUrlRegex)[1]);
+      const styleUrl = styleAttr.split('url(').at(-1);
+      return styleUrl.substring(1, styleUrl.length - 2);
     }),
   );
 }
@@ -127,20 +128,56 @@ export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
   return domSerializer.serializeToString(dom);
 }
 
-export function replaceStylePaths(fileContents, packageFiles, mimeType) {
+export function replaceStyleUrlPaths(fileContents, packageFiles, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
-  const elements = Array.from(dom.querySelectorAll(styleAttributeUrlSelector));
+  const elements = Array.from(dom.querySelectorAll(urlStyleAttributeSelector));
   for (const element of elements) {
     let styleAttr = element.getAttribute('style');
     if (!styleAttr) {
       continue;
     }
-    styleAttr = styleAttr.replace(cssPathRegex, match => {
-      const newUrl = packageFiles[match.replace(styleUrlRegex, '$1')];
-      return newUrl ? `url(${newUrl})` : match;
-    });
+    styleAttr = styleAttr.split('url(');
+    const oldUrl = styleAttr[1];
+    const newUrl = packageFiles[oldUrl.substring(1, oldUrl.length - 2)];
+    styleAttr = styleAttr[0] + "url('" + newUrl + "')";
 
     element.setAttribute('style', styleAttr);
+  }
+  if (mimeType === 'text/html') {
+    // Remove the namespace attribute from the root element
+    // as serializeToString adds it by default and without this
+    // it gets repeated.
+    dom.documentElement.removeAttribute('xmlns');
+  }
+  return domSerializer.serializeToString(dom);
+}
+
+export function getAudioId(fileContents, mimeType) {
+  const dom = domParser.parseFromString(fileContents.trim(), mimeType);
+  const elements = dom.querySelectorAll(audioClassAttributeSelector);
+  return Array.from(elements).map(element => {
+    let value = element.getAttribute('id');
+    const backgroundAudio = element.getAttribute('data-backgroundAudio');
+    if (backgroundAudio) {
+      value = backgroundAudio;
+    }
+    return value;
+  });
+}
+
+export function replaceAudioId(fileContents, packageFiles, mimeType) {
+  const dom = domParser.parseFromString(fileContents.trim(), mimeType);
+  const elements = Array.from(dom.querySelectorAll(audioClassAttributeSelector));
+  for (const element of elements) {
+    const backgroundAudio = element.getAttribute('data-backgroundAudio');
+    let id = element.getAttribute('id');
+    id = packageFiles[id];
+    if (backgroundAudio) {
+      id = packageFiles[backgroundAudio];
+      element.setAttribute('data-backgroundAudio', id);
+    } else {
+      element.setAttribute('id', id);
+    }
   }
   if (mimeType === 'text/html') {
     // Remove the namespace attribute from the root element
@@ -156,13 +193,13 @@ class BloomMapper extends Mapper {
     return [
       ...new Set([
         ...getDOMPaths(this.file.toString(), this.file.mimeType),
-        ...getStylePaths(this.file.toString(), this.file.mimeType),
+        ...getStyleUrlPaths(this.file.toString(), this.file.mimeType),
       ]),
     ];
   }
 
   replacePaths(packageFiles) {
-    return replaceStylePaths(
+    return replaceStyleUrlPaths(
       replaceDOMPaths(this.file.toString(), packageFiles, this.file.mimeType),
       packageFiles,
       this.file.mimeType,

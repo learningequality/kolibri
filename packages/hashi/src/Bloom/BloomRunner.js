@@ -1,6 +1,6 @@
 import ZipFile from 'kolibri-zip';
 import { strToU8 } from 'fflate';
-import { defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
+import { defaultFilePathMappers, getAudioId, replaceAudioId } from 'kolibri-zip/src/fileUtils';
 import { events } from '../hashiBase';
 
 const CONTENT_ID = '1234567890';
@@ -19,7 +19,6 @@ export default class BloomRunner {
     this.shim = shim;
     this.data = shim.data;
     this.events = events;
-    this.scriptLoader = this.scriptLoader.bind(this);
   }
 
   init(iframe, filepath, loaded, errored) {
@@ -58,59 +57,43 @@ export default class BloomRunner {
    * Start Bloom player in the contentWindow.
    */
   initBloom() {
-    return this.scriptLoader('../bloom/storageEvent.js').then(() => {
-      try {
-        this.loaded();
-        this.iframe.contentWindow.postMessage(
-          {
-            event: this.events.BLOOMDATAREQUESTED,
-            data: [this.contentUrl, this.distributionUrl, this.metaUrl],
-          },
-          '*',
-        );
-        this.iframe.src = `../bloom/bloomplayer.htm?url=${this.contentUrl}`;
-      } catch (e) {
-        this.errored(e);
-      }
-    });
-  }
-
-  scriptLoader(url, css = false) {
-    const iframeDocument = this.iframe.contentWindow.document;
-    return new Promise((resolve, reject) => {
-      let script;
-      if (!css) {
-        script = iframeDocument.createElement('script');
-        script.type = 'text/javascript';
-        script.src = url;
-        script.async = true;
-        script.addEventListener('load', () => resolve(script));
-        script.addEventListener('error', reject);
-      } else {
-        script = iframeDocument.createElement('link');
-        script.rel = 'stylesheet';
-        script.type = 'text/css';
-        script.href = url;
-        // Can't detect loading for css, so just assume it worked.
-        resolve(script);
-      }
-      iframeDocument.body.appendChild(script);
-    });
+    try {
+      this.loaded();
+      this.iframe.src = `../bloom/bloomplayer.htm?url=${this.contentUrl}&distributionUrl=${this.distributionUrl}&metaJsonUrl=${this.metaUrl}`;
+    } catch (e) {
+      this.errored(e);
+    }
   }
 
   processContent() {
     const mapper = new defaultFilePathMappers.bloom(this.contentfile);
     const files = mapper.getPaths().filter(file => !file.startsWith('blob:'));
-    if (files.length > 0) {
-      const replacementFileMap = {};
+    const audioIds = getAudioId(this.contentfile.toString(), this.contentfile.mimeType);
+    const replacementFileMap = {};
+    if (files.length > 0 || audioIds.length > 0) {
       for (const file of this.packageFiles) {
         if (files.includes(file.name)) {
           replacementFileMap[file.name] = file.toUrl();
         }
+        if (files.includes(encodeURI(file.name))) {
+          replacementFileMap[encodeURI(file.name)] = file.toUrl();
+        }
+        const audioFile = file.name.substring(6);
+        const audioFileName = audioFile.split('.')[0];
+        const url = file.toUrl();
+        if (audioIds.includes(audioFileName)) {
+          replacementFileMap[audioFileName] = `_${url.split('/').at(-1)}`;
+        }
+        if (audioIds.includes(audioFile)) {
+          replacementFileMap[audioFile] = `_${url.split('/').at(-1)}`;
+        }
       }
-      this.contentfile.obj = strToU8(mapper.replacePaths(replacementFileMap));
-      this.contentUrl = this.contentfile.toUrl();
     }
+    let newHtmlFile = mapper.replacePaths(replacementFileMap);
+    newHtmlFile = replaceAudioId(newHtmlFile, replacementFileMap, this.contentfile.mimeType);
+
+    this.contentfile.obj = strToU8(newHtmlFile);
+    this.contentUrl = this.contentfile.toUrl();
   }
 
   /*

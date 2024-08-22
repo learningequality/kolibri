@@ -85,6 +85,7 @@ js-dist
 !kolibri/**/static/assets/
 !kolibri/**/static/assets/*
 !kolibri/**/static/assets/**/*
+!kolibri/**/static/bloom/
 
 # swap files
 *.swp
