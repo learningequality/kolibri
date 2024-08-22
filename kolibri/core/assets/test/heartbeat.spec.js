@@ -2,6 +2,7 @@ import mock from 'xhr-mock';
 import coreStore from 'kolibri.coreVue.vuex.store';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import * as serverClock from 'kolibri.utils.serverClock';
+import { get, set } from '@vueuse/core';
 import { HeartBeat } from '../src/heartbeat.js';
 import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
@@ -167,10 +168,10 @@ describe('HeartBeat', function () {
       heartBeat.monitorDisconnect();
     });
     it('should set connected to false', function () {
-      expect(coreStore.getters.connected).toEqual(false);
+      expect(get(heartBeat._connection.connected)).toEqual(false);
     });
     it('should set reconnectTime to not null', function () {
-      expect(coreStore.getters.reconnectTime).not.toEqual(null);
+      expect(get(heartBeat._connection.reconnectTime)).not.toEqual(null);
     });
     it('should set current snackbar to disconnected', function () {
       expect(coreStore.getters.snackbarIsVisible).toEqual(true);
@@ -181,9 +182,9 @@ describe('HeartBeat', function () {
       ).toEqual(true);
     });
     it('should not do anything if it already knows it is disconnected', function () {
-      coreStore.commit('CORE_SET_RECONNECT_TIME', 'fork');
+      set(heartBeat._connection.reconnectTime, 'fork');
       heartBeat.monitorDisconnect();
-      expect(coreStore.getters.reconnectTime).toEqual('fork');
+      expect(get(heartBeat._connection.reconnectTime)).toEqual('fork');
     });
   });
   describe('_checkSession method', function () {
@@ -308,11 +309,11 @@ describe('HeartBeat', function () {
       });
       it('should increase the reconnect time when it fails to connect', function () {
         mock.put(/.*/, () => Promise.reject(new Error()));
-        coreStore.commit('CORE_SET_RECONNECT_TIME', 5);
+        set(heartBeat._connection.reconnectTime, 5);
         return heartBeat._checkSession().finally(() => {
-          const oldReconnectTime = coreStore.getters.reconnectTime;
+          const oldReconnectTime = get(heartBeat._connection.reconnectTime);
           return heartBeat._checkSession().finally(() => {
-            expect(coreStore.getters.reconnectTime).toBeGreaterThan(oldReconnectTime);
+            expect(get(heartBeat._connection.reconnectTime)).toBeGreaterThan(oldReconnectTime);
           });
         });
       });
@@ -333,12 +334,12 @@ describe('HeartBeat', function () {
         });
         it('should set connected to true', function () {
           return heartBeat._checkSession().finally(() => {
-            expect(coreStore.getters.connected).toEqual(true);
+            expect(get(heartBeat._connection.connected)).toEqual(true);
           });
         });
         it('should set reconnect time to null', function () {
           return heartBeat._checkSession().finally(() => {
-            expect(coreStore.getters.reconnectTime).toEqual(null);
+            expect(get(heartBeat._connection.reconnectTime)).toEqual(null);
           });
         });
       });

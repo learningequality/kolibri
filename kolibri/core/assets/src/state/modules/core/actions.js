@@ -17,9 +17,11 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
 import Lockr from 'lockr';
+import { set } from '@vueuse/core';
 import { baseSessionState } from '../session';
 import { LoginErrors, ERROR_CONSTANTS, UPDATE_MODAL_DISMISSED } from '../../../constants';
 import { browser, os } from '../../../utils/browserInfo';
+import useConnection from '../../../composables/useConnection';
 import errorCodes from './../../../disconnectionErrorCodes.js';
 
 const logging = logger.getLogger(__filename);
@@ -79,7 +81,7 @@ export function handleApiError(store, { error, reloadOnReconnect = false } = {})
     if (errorCodes.includes(error.response.status)) {
       // Do not log errors for disconnections, as it disrupts the user experience
       // and should already be being handled by our disconnection overlay.
-      store.commit('CORE_SET_RELOAD_ON_RECONNECT', reloadOnReconnect);
+      set(useConnection().reloadOnReconnect, reloadOnReconnect);
       return;
     }
     // Reassign object properties here as Axios error objects have built in
