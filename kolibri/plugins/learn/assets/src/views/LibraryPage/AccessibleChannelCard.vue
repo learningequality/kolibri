@@ -1,36 +1,34 @@
 <template>
 
-  <div>
-    <KCard
-      :to="to"
-      layout="horizontal"
-      thumbnailDisplay="small"
-      thumbnailAlign="right"
-      :title="title"
-      :headingLevel="headingLevel"
-    >
-      <template #thumbnailPlaceholder>
-        <div>
-          <ChannelThumbnail
-            :thumbnail="contentNode.thumbnail"
-            style="width:100px"
-          />
-        </div>
-      </template>
-      <template #belowTitle>
-        <div>
-          <KTextTruncator
-            :text="numberOfResources"
-            :maxLines="1"
-          />
-          <KTextTruncator
-            :text="contentNode.description"
-            :maxLines="2"
-          />
-        </div>
-      </template>
-    </KCard>
-  </div>
+  <KCard
+    :to="to"
+    layout="horizontal"
+    thumbnailDisplay="small"
+    thumbnailAlign="right"
+    :title="title"
+    :headingLevel="headingLevel"
+  >
+    <template #thumbnailPlaceholder>
+      <div>
+        <ChannelThumbnail
+          :thumbnail="contentNode.thumbnail"
+          style="width:100px"
+        />
+      </div>
+    </template>
+    <template #belowTitle>
+      <div>
+        <KTextTruncator
+          :text="numberOfResources"
+          :maxLines="1"
+        />
+        <KTextTruncator
+          :text="contentNode.description"
+          :maxLines="2"
+        />
+      </div>
+    </template>
+  </KCard>
 
 </template>
 
