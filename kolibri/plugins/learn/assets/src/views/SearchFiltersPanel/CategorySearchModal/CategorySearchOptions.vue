@@ -59,13 +59,14 @@
 
   import camelCase from 'lodash/camelCase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { injectSearch } from '../../../composables/useSearch';
+  import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
 
   export default {
     name: 'CategorySearchOptions',
     mixins: [commonCoreStrings],
     setup() {
-      const { activeSearchTerms, availableLibraryCategories, searchableLabels } = injectSearch();
+      const { activeSearchTerms, availableLibraryCategories, searchableLabels } =
+        injectBaseSearch();
       return {
         activeSearchTerms,
         availableLibraryCategories,

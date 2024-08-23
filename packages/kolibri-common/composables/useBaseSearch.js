@@ -20,10 +20,9 @@ import {
   NoCategories,
   ResourcesNeededTypes,
 } from 'kolibri.coreVue.vuex.constants';
-import { setLanguages } from './useLanguages';
 
-//TBD #12517 -- See diff in #12566
-const deduplicateResources = o => o;
+import { deduplicateResources } from '../utils/contentNode';
+import { setLanguages } from './useLanguages';
 
 export const logging = logger.getLogger(__filename);
 
@@ -161,10 +160,13 @@ export const searchKeys = [
   'grade_levels',
 ];
 
-// TBD #12517 - Will be injected in subsequent work.
-const fetchContentNodeProgress = Promise.resolve({});
-
-export default function useBaseSearch(descendant, store, router) {
+export default function useBaseSearch({
+  descendant,
+  store,
+  router,
+  baseurl,
+  fetchContentNodeProgress,
+}) {
   // Get store and router references from the curent instance
   // but allow them to be passed in to allow for dependency
   // injection, primarily for tests.
@@ -177,9 +179,6 @@ export default function useBaseSearch(descendant, store, router) {
   const _results = ref([]);
   const more = ref(null);
   const labels = ref(null);
-
-  // TODO: Kolibri #12517 - Will be injected in subsequent work
-  const baseurl = undefined;
 
   const searchTerms = computed({
     get() {
@@ -277,7 +276,7 @@ export default function useBaseSearch(descendant, store, router) {
         getParams.keywords = terms.keywords;
       }
       if (store.getters.isUserLoggedIn) {
-        fetchContentNodeProgress(getParams);
+        fetchContentNodeProgress?.(getParams);
       }
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
         set(_results, data.results || []);
@@ -303,7 +302,7 @@ export default function useBaseSearch(descendant, store, router) {
     if (get(displayingSearchResults) && get(more) && !get(moreLoading)) {
       set(moreLoading, true);
       if (store.getters.isUserLoggedIn) {
-        fetchContentNodeProgress(get(more));
+        fetchContentNodeProgress?.(get(more));
       }
       return ContentNodeResource.fetchCollection({ getParams: get(more) }).then(data => {
         set(_results, [...get(_results), ...(data.results || [])]);
@@ -392,7 +391,9 @@ export default function useBaseSearch(descendant, store, router) {
   }
 
   ensureGlobalLabels();
-  watch(baseurl, ensureGlobalLabels);
+  if (baseurl) {
+    watch(baseurl, ensureGlobalLabels);
+  }
 
   function _getGlobalLabels(name, defaultValue) {
     const lookup = get(globalLabels);
@@ -460,7 +461,7 @@ export default function useBaseSearch(descendant, store, router) {
  * Helper function to retrieve references for provided properties
  * from an ancestor's use of useBaseSearch
  */
-export function injectSearch() {
+export function injectBaseSearch() {
   const availableLearningActivities = inject('availableLearningActivities');
   const availableLibraryCategories = inject('availableLibraryCategories');
   const availableResourcesNeeded = inject('availableResourcesNeeded');

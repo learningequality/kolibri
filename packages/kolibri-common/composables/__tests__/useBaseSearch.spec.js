@@ -30,7 +30,7 @@ function prep(query = {}, descendant = null) {
   router.push = jest.fn().mockReturnValue(Promise.resolve());
   store.registerModule('core', coreModule);
   return {
-    ...useBaseSearch(descendant, store, router),
+    ...useBaseSearch({ descendant, store, router }),
     router,
     store,
   };

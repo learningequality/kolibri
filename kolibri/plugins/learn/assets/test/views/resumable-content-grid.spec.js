@@ -15,7 +15,7 @@ describe('when there are nodes with progress that can be resumed', () => {
         /*
          * moreResumableContentNodes existing would realistically mean
          * that there are 13+ resumableContentNodes but we
-         * rely on useSearch to handle the details of that implementation
+         * rely on useBaseSearch to handle the details of that implementation
          */
         resumableContentNodes: [
           { node: 1 },
