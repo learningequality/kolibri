@@ -118,6 +118,7 @@
           .then(data => {
             this.facilities = [...data.facilities];
             if (this.facilities.length === 0) {
+              // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
               this.errorMessage = SelectFacilityStrings.$tr('noFacilitiesText');
               return;
             }
