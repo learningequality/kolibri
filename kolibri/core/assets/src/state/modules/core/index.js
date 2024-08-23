@@ -1,4 +1,3 @@
-import connectionModule from '../connection';
 import sessionModule from '../session';
 import snackbarModule from '../snackbar';
 import * as getters from './getters';
@@ -29,7 +28,6 @@ export default {
   actions,
   mutations,
   modules: {
-    connection: connectionModule,
     session: sessionModule,
     snackbar: snackbarModule,
   },
