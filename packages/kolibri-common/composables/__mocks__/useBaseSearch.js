@@ -64,7 +64,7 @@ const MOCK_DEFAULTS = {
   }),
 };
 
-export function useBaseSearch(overrides = {}) {
+export function useBaseSearchMock(overrides = {}) {
   return {
     ...MOCK_DEFAULTS,
     ...overrides,

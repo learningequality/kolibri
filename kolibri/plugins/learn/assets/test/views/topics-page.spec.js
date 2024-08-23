@@ -7,7 +7,7 @@ import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { useDevicesWithFilter } from 'kolibri.coreVue.componentSets.sync';
 import { ContentNodeResource } from 'kolibri.resources';
 import plugin_data from 'plugin_data';
-import useBaseSearch, { useBaseSearchMock } from 'kolibri-commmon/composables/useBaseSearch';
+import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
 import makeStore from '../makeStore';
 import CustomContentRenderer from '../../src/views/ChannelRenderer/CustomContentRenderer';
 import { PageNames } from '../../src/constants';
