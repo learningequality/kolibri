@@ -77,8 +77,10 @@ from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
+from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
+from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
@@ -86,7 +88,6 @@ from kolibri.core.query import SQSum
 from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
-from kolibri.utils import conf
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.urls import validator
 
@@ -1856,12 +1857,15 @@ class RemoteChannelViewSet(viewsets.ViewSet):
     @no_cache_on_method
     def kolibri_studio_status(self, request, **kwargs):
         try:
-            baseurl = conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
-            client = NetworkClient.build_for_address(baseurl)
+            client = NetworkClient.build_for_address(CENTRAL_CONTENT_BASE_URL)
             resp = client.get("/api/public/info")
             data = resp.json()
             data["available"] = True
             data["status"] = "online"
             return Response(data)
-        except (NetworkLocationResponseFailure, NetworkLocationConnectionFailure):
+        except (
+            NetworkLocationResponseFailure,
+            NetworkLocationConnectionFailure,
+            NetworkLocationNotFound,
+        ):
             return Response({"status": "offline", "available": False})
