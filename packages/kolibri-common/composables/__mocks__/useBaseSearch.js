@@ -71,7 +71,7 @@ export function useBaseSearchMock(overrides = {}) {
   };
 }
 
-export default jest.fn(() => useBaseSearch());
+export default jest.fn(() => useBaseSearchMock());
 
 export const injectBaseSearch = jest.fn(() => ({
   availableLearningActivities: [],

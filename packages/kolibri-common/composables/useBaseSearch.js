@@ -238,7 +238,7 @@ export default function useBaseSearch({
   }
 
   function search() {
-    const currentBaseUrl = baseurl && get(baseurl);
+    const currentBaseUrl = get(baseurl);
     const getParams = {
       include_coach_content:
         store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
@@ -367,7 +367,7 @@ export default function useBaseSearch({
 
   function ensureGlobalLabels() {
     set(globalLabelsLoading, true);
-    const currentBaseUrl = baseurl && get(baseurl);
+    const currentBaseUrl = get(baseurl);
     ContentNodeResource.fetchCollection({
       getParams: { max_results: 1, baseurl: currentBaseUrl },
     })

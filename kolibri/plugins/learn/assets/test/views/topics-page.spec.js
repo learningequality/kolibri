@@ -87,8 +87,8 @@ jest.mock('kolibri.client');
 jest.mock('kolibri.resources');
 jest.mock('kolibri.urls');
 jest.mock('kolibri.coreVue.composables.useUser');
-jest.mock('../../src/composables/useContentLink');
 jest.mock('kolibri-common/composables/useBaseSearch');
+jest.mock('../../src/composables/useContentLink');
 jest.mock('../../src/composables/useChannels');
 // Needed to test anything using mount() where children use this composable
 jest.mock('../../src/composables/useLearningActivities');

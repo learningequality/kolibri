@@ -363,8 +363,6 @@
       const store = currentInstance.$store;
       const router = currentInstance.$router;
       const topic = ref(null);
-      const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
-
       const {
         searchTerms,
         displayingSearchResults,
@@ -381,6 +379,7 @@
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
       const { windowBreakpoint, windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       const { channelsMap, fetchChannels } = useChannels();
+      const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
       const { isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
       const { fetchUserDownloadRequests } = useDownloadRequests(store);
 
