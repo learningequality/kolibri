@@ -15,7 +15,6 @@ from urllib.parse import urlunparse
 from configobj import ConfigObj
 from configobj import flatten_errors
 from configobj import get_extra_values
-from django.core.files.storage import Storage
 from django.utils.functional import SimpleLazyObject
 from django.utils.module_loading import import_string
 from validate import is_boolean
@@ -272,6 +271,24 @@ def multiprocess_bool(value):
         return False
 
 
+def storage_option(value, *opts):
+    """
+    Validate the storage options.
+    Check that the given option is valid, then check that needed external
+    libraries are available where relevant.
+    """
+    value = is_option(value, *opts)
+    if value == "gcs":
+        try:
+            from storages.backends.gcloud import GoogleCloudStorage  # noqa
+        except ModuleNotFoundError:
+            logger.error(
+                "Google Cloud Storage backend is not available.",
+                "Are storage requirements installed?",
+            )
+            raise VdtValueError(value)
+
+
 def cache_option(value):
     """
     Validate the cache options.
@@ -362,8 +379,8 @@ def lazy_import_callback_list(value):
 base_option_spec = {
     "FileStorage": {
         "STORAGE_BACKEND": {
-            "type": "option",
-            "options": ("file_system", "gcloud"),
+            "type": "storage_option",
+            "options": ("file_system", "gcs"),
             "default": "file_system",
             "description": """
             The storage backend class that Django will use when managing files. The class given here must implement
@@ -749,6 +766,7 @@ def _get_validator():
             "url_prefix": url_prefix,
             "bytes": validate_bytes,
             "multiprocess_bool": multiprocess_bool,
+            "storage_option": storage_option,
             "cache_option": cache_option,
             "lazy_import_callback_list": lazy_import_callback_list,
         }

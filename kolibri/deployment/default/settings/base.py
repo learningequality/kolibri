@@ -196,8 +196,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 if not os.environ.get("DEFAULT_FILE_STORAGE"):
     if conf.OPTIONS["FileStorage"]["STORAGE_BACKEND"] == "file_system":
         DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-    elif conf.OPTIONS["FileStorage"]["STORAGE_BAKCEND"] == "gcloud":
-        DEFAULT_FILE_STORAGE = "some-other-thing-gotta-figure-that-out"
+    elif conf.OPTIONS["FileStorage"]["STORAGE_BACKEND"] == "gcs":
+        # https://django-storages.readthedocs.io/en/latest/backends/gcloud.html#google-cloud-storage
+        GS_DEFAULT_ACL = "publicRead"
+        DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+        # GS_PROJECT_ID, GS_CREDENTIALS, etc should be inferred from the environment
 
 
 # Internationalization
