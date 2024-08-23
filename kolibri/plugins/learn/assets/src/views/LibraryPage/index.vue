@@ -173,6 +173,8 @@
   import MeteredConnectionNotificationModal from 'kolibri-common/components/MeteredConnectionNotificationModal.vue';
   import appCapabilities, { checkCapability } from 'kolibri.utils.appCapabilities';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
+  import { searchKeys } from 'kolibri-common/composables/useBaseSearch';
+  import useSearch from '../../composables/useSearch';
   import SidePanelModal from '../SidePanelModal';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import { KolibriStudioId, PageNames } from '../../constants';
@@ -185,7 +187,6 @@
     setCurrentDevice,
     StudioNotAllowedError,
   } from '../../composables/useDevices';
-  import useSearch, { searchKeys } from '../../composables/useSearch';
   import useLearnerResources from '../../composables/useLearnerResources';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import commonLearnStrings from '../commonLearnStrings';
@@ -234,6 +235,8 @@
         isLearnerOnlyImport,
       } = useUser();
       const { allowDownloadOnMeteredConnection } = useDeviceSettings();
+      const { baseurl, deviceName } = currentDeviceData();
+
       const {
         searchTerms,
         displayingSearchResults,
@@ -260,7 +263,6 @@
       const { canAddDownloads, canDownloadExternally } = useCoreLearn();
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
-      const { baseurl, deviceName } = currentDeviceData();
       const { fetchChannels } = useChannels();
 
       onMounted(() => {

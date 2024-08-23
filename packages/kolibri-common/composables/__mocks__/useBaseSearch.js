@@ -73,7 +73,7 @@ export function useBaseSearch(overrides = {}) {
 
 export default jest.fn(() => useBaseSearch());
 
-export const injectSearch = jest.fn(() => ({
+export const injectBaseSearch = jest.fn(() => ({
   availableLearningActivities: [],
   availableLibraryCategories: [],
   availableResourcesNeeded: [],

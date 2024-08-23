@@ -130,11 +130,11 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
   import SearchBox from '../SearchBox';
   import SidePanelModal from '../SidePanelModal';
   import commonLearnStrings from '../commonLearnStrings';
   import useContentLink from '../../composables/useContentLink';
-  import { injectSearch } from '../../composables/useSearch';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import CategorySearchModal from './CategorySearchModal';
   import SelectGroup from './SelectGroup';
@@ -157,7 +157,7 @@
         availableResourcesNeeded,
         searchableLabels,
         activeSearchTerms,
-      } = injectSearch();
+      } = injectBaseSearch();
       const currentCategory = ref(null);
       return {
         availableLibraryCategories,
