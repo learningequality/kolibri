@@ -263,11 +263,11 @@
   import themeConfig from 'kolibri.themeConfig';
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
-  import TotalPoints from 'kolibri.coreVue.components.TotalPoints';
   import urls from 'kolibri.urls';
   import useNav from '../composables/useNav';
   import useUser from '../composables/useUser';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
+  import TotalPoints from './TotalPoints.vue';
   import SyncStatusDisplay from './SyncStatusDisplay';
   import SideNavDivider from './SideNavDivider';
   import FocusTrap from './FocusTrap.vue';
