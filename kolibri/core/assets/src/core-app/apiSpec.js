@@ -87,7 +87,6 @@ import PaginatedListContainer from '../views/PaginatedListContainer';
 import MasteryModel from '../views/MasteryModel';
 import LearnOnlyDeviceNotice from '../views/LearnOnlyDeviceNotice';
 import themeConfig from '../styles/themeConfig';
-import sortLanguages from '../utils/sortLanguages';
 import * as sync from '../views/sync/syncComponentSet';
 import NotificationsRoot from '../views/NotificationsRoot';
 import useMinimumKolibriVersion from '../composables/useMinimumKolibriVersion';
@@ -229,7 +228,6 @@ export default {
     samePageCheckGenerator,
     serverClock,
     shuffled,
-    sortLanguages,
     syncTaskUtils,
     UserType,
     validators,

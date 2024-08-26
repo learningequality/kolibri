@@ -373,8 +373,7 @@
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
-  import sortLanguages from 'kolibri.utils.sortLanguages';
+  import { availableLanguages, currentLanguage, sortLanguages } from 'kolibri.utils.i18n';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { checkCapability } from 'kolibri.utils.appCapabilities';
