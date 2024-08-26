@@ -1,0 +1,121 @@
+# ITALIAN TRANSLATION.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kolibri-gnome package.
+# ALBANO BATTISTELLA <ALBANOBATTISTELLA@GMAIL.COM>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri-gnome\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-01 10:35-0700\n"
+"PO-Revision-Date: 2024-08-26 18:26+0100\n"
+"Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
+"Language-Team: Italian <>\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: data/applications/org.learningequality.Kolibri.desktop.in:5
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:4
+#: src/kolibri_gnome/desktop_launcher/application.py:294
+msgid "Kolibri"
+msgstr "Kolibri"
+
+#: data/applications/org.learningequality.Kolibri.desktop.in:6
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:6
+msgid "Offline education technology platform"
+msgstr "Piattaforma tecnologica per l'istruzione offline"
+
+#. TRANSLATORS: These are search terms to find this application.
+#. Terms MUST be separated by semicolons.
+#. This list must end with a semicolon.
+#: data/applications/org.learningequality.Kolibri.desktop.in:10
+msgid "education;multimedia;videos;learning;quiz;"
+msgstr "istruzione;multimedia;video;apprendimento;quiz;"
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:5
+msgid "Learning Equality"
+msgstr "Learning Equality"
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:15
+msgid ""
+"Kolibri makes high quality education technology available in low-resource "
+"communities such as rural schools, refugee camps, orphanages, non-formal "
+"school systems, and prison systems. Running on a wide variety of hardware, "
+"it enables offline access to a rich set of content and tools to support "
+"learners, coaches, and administrators."
+msgstr ""
+"Kolibri rende disponibile una tecnologia educativa di alta qualità in comunità con risorse limitate,"
+"come scuole rurali, campi profughi, orfanotrofi, sistemi scolastici "
+"non formali e sistemi carcerari. Funzionando su un'ampia varietà di hardware, "
+"consente l'accesso offline a un ricco set di contenuti e strumenti per supportare "
+"studenti, insegnanti e amministratori."
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:20
+msgid "Browsing content channels in Kolibri"
+msgstr "Esplorazione dei canali dei contenuti in Kolibri"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:133
+msgid "File"
+msgstr "File"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:134
+msgid "New Window"
+msgstr "Nuova finestra"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:135
+msgid "Close Window"
+msgstr "Chiudi finestra"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:137
+msgid "Open Kolibri Home Folder"
+msgstr "Apri cartella Home di Kolibri"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:141
+msgid "View"
+msgstr "Vista"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:142
+msgid "Reload"
+msgstr "Ricaricare"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:143
+msgid "Actual Size"
+msgstr "Dimensione attuale"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:144
+msgid "Zoom In"
+msgstr "Zoom avanti"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:145
+msgid "Zoom Out"
+msgstr "Zoom indietro"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:147
+msgid "Open in Browser"
+msgstr "Apri nel browser"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:150
+msgid "History"
+msgstr "Cronologia"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:151
+msgid "Back"
+msgstr "Indietro"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:152
+msgid "Forward"
+msgstr "Avanti"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:155
+msgid "Help"
+msgstr "Aiuto"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:156
+msgid "Documentation"
+msgstr "Documentazione"
+
+#: src/kolibri_gnome/desktop_launcher/application.py:157
+msgid "Community Forums"
+msgstr "Forum della comunità"
