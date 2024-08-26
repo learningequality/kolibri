@@ -53,8 +53,7 @@
 
 <script>
 
-  import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
-  import { compareLanguages } from 'kolibri.utils.sortLanguages';
+  import { availableLanguages, compareLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import languageSwitcherMixin from './mixin';
   import SelectedLanguage from './SelectedLanguage';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
