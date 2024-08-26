@@ -13,9 +13,10 @@ from sqlalchemy import or_
 from sqlalchemy import select
 from sqlalchemy import String
 from sqlalchemy import Table
+from sqlalchemy import text
 from sqlalchemy import update
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
@@ -157,7 +158,8 @@ class Storage(object):
         :return: None
         """
         try:
-            self.engine.execute("PRAGMA journal_mode = WAL;")
+            with self.engine.connect() as conn:
+                conn.execute(text("PRAGMA journal_mode = WAL;"))
         except OperationalError:
             pass
 
@@ -297,7 +299,7 @@ class Storage(object):
         return self.engine.execute(
             update(ORMJob)
             .values(state=State.SELECTED)
-            .where(ORMJob.id == subquery.as_scalar())
+            .where(ORMJob.id == subquery.scalar_subquery())
             .returning(ORMJob.saved_job)
         ).fetchone()
 
@@ -775,7 +777,7 @@ class Storage(object):
             raise ValueError("Job argument must be a Job object.")
 
         with self.session_scope() as session:
-            orm_job = session.query(ORMJob).get(job.job_id)
+            orm_job = session.get(ORMJob, job.job_id)
             if orm_job and orm_job.state == State.RUNNING:
                 raise JobRunning()
 

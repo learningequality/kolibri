@@ -2,9 +2,6 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 
-from colorlog import ColoredFormatter
-from colorlog import TTYColoredFormatter as BaseTTYColoredFormatter
-
 
 GET_FILES_TO_DELETE = "getFilesToDelete"
 DO_ROLLOVER = "doRollover"
@@ -168,24 +165,6 @@ class NoExceptionsFilter(logging.Filter):
         return record.levelno < logging.ERROR
 
 
-class TTYColoredFormatter(BaseTTYColoredFormatter):
-    """
-    A logging formatter that can be used to colorize output to a TTY.
-    Subclassed from the base TTY formatter to allow slightly more more permissive
-    color formatting when we are running using the NPM concurrently package,
-    which does not register as a TTY context.
-    """
-
-    def color(self, log_colors, level_name):
-        """
-        Only returns colors if STDOUT is a TTY, or if we are running in a
-        NPM concurrently context.
-        """
-        if not self.stream.isatty() and "FORCE_COLOR" not in os.environ:
-            log_colors = {}
-        return ColoredFormatter.color(self, log_colors, level_name)
-
-
 def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
     """
     A minimal logging config for just kolibri without any Django
@@ -255,7 +234,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             },
             "simple_date": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
             "color": {
-                "()": "kolibri.utils.logger.TTYColoredFormatter",
+                "()": "colorlog.ColoredFormatter",
                 "format": "%(log_color)s%(levelname)-8s %(asctime)s %(message)s",
                 "log_colors": LOG_COLORS,
             },

@@ -118,7 +118,7 @@
             @click="wizardService.send(eventOnGoBack)"
           />
           <KButton
-            v-if="!$slots.buttons"
+            v-if="!$slots.buttons && !hideContinue"
             :text="coreString('continueAction')"
             :primary="true"
             :disabled="navDisabled"
@@ -203,6 +203,10 @@
       description: {
         type: String,
         default: null,
+      },
+      hideContinue: {
+        type: Boolean,
+        default: false,
       },
       footerMessageType: {
         type: String,

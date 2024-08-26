@@ -1,5 +1,4 @@
-import maxBy from 'lodash/maxBy';
-import sortBy from 'lodash/sortBy';
+import orderBy from 'lodash/orderBy';
 import uniqBy from 'lodash/uniqBy';
 import notificationsResource from '../../apiResources/notifications';
 import { allNotifications, summarizedNotifications } from './getters';
@@ -12,10 +11,13 @@ export default {
   },
   mutations: {
     SET_NOTIFICATIONS(state, notifications) {
-      state.notifications = sortBy([...notifications], '-id');
+      state.notifications = orderBy([...notifications], 'timestamp', ['desc']);
     },
     INSERT_NOTIFICATIONS(state, notifications) {
-      state.notifications = uniqBy(sortBy([...state.notifications, ...notifications], '-id'), 'id');
+      state.notifications = uniqBy(
+        orderBy([...state.notifications, ...notifications], 'timestamp', ['desc']),
+        'id',
+      );
     },
     SET_CURRENT_CLASSROOM_ID(state, classroomId) {
       state.currentClassroomId = classroomId;
@@ -24,10 +26,9 @@ export default {
   getters: {
     allNotifications,
     summarizedNotifications,
-    maxNotificationIndex(state) {
+    maxNotificationTimestamp(state) {
       if (state.notifications.length > 0) {
-        // IDs are being converted to strings for some reason
-        return maxBy(state.notifications, n => Number(n.id)).id;
+        return state.notifications[0].timestamp;
       }
       return 0;
     },
@@ -54,6 +55,7 @@ export default {
           if (!store.state.poller) {
             store.dispatch('startingPolling', { coachesPolling: data.coaches_polling });
           }
+          store.dispatch('checkEmptySummarizedNotifications');
         })
         .catch(() => {
           if (!store.state.poller) {
@@ -66,12 +68,15 @@ export default {
       if (!store.state.currentClassroomId) {
         return;
       }
+      const params = {
+        classroom_id: classroomId,
+      };
+      if (after) {
+        params.after = after;
+      }
       return notificationsResource
         .fetchCollection({
-          getParams: {
-            classroom_id: classroomId,
-            after,
-          },
+          getParams: params,
           force: true,
         })
         .then(data => {
@@ -97,7 +102,7 @@ export default {
         .fetchCollection({
           getParams: {
             classroom_id: classroomId,
-            before: lastNotification.id,
+            before: lastNotification.timestamp,
             limit,
             ...(params || {}),
           },
@@ -106,6 +111,9 @@ export default {
         .then(data => {
           if (data.results.length > 0) {
             store.commit('INSERT_NOTIFICATIONS', data.results);
+            if (data.more_results) {
+              store.dispatch('checkEmptySummarizedNotifications');
+            }
             return data.more_results;
           }
           return false;
@@ -119,9 +127,14 @@ export default {
       setTimeout(() => {
         store.dispatch('updateNotificationsForClass', {
           classroomId: store.state.currentClassroomId,
-          after: store.getters.maxNotificationIndex,
+          after: store.getters.maxNotificationTimestamp,
         });
       }, timeout);
+    },
+    checkEmptySummarizedNotifications(store) {
+      if (store.getters.summarizedNotifications.length === 0) {
+        store.dispatch('moreNotificationsForClass');
+      }
     },
   },
 };

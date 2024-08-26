@@ -13,6 +13,7 @@
       :filterLODAvailable="filterLODAvailable"
       :filterByFacilityCanSignUp="filterByFacilityCanSignUp"
       :filterByOnMyOwnFacility="filterByOnMyOwnFacility"
+      :filterByHasFacilities="filterByHasFacilities"
       :selectedId="addedAddressId"
       :formDisabled="$attrs.selectAddressDisabled"
       @click_add_address="goToAddAddress"
@@ -53,6 +54,10 @@
       },
       // When looking for devices for which a learner can sign up
       filterByFacilityCanSignUp: {
+        type: Boolean,
+        default: null,
+      },
+      filterByHasFacilities: {
         type: Boolean,
         default: null,
       },

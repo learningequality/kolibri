@@ -341,7 +341,7 @@ class SyncQueueAPIView(APIView):
 
 class FacilitySearchUsernameViewSet(BaseValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filter_fields = ("facility",)
+    filterset_fields = ("facility",)
     search_fields = ("^username",)
 
     values = ("id", "username")

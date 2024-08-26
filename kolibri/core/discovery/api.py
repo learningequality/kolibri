@@ -28,7 +28,7 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
     serializer_class = NetworkLocationSerializer
     queryset = NetworkLocation.objects.exclude(location_type=LocationTypes.Reserved)
     filter_backends = [DjangoFilterBackend]
-    filter_fields = [
+    filterset_fields = [
         "id",
         "subset_of_users_device",
         "instance_id",

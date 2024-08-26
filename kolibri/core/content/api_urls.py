@@ -1,8 +1,10 @@
 from django.urls import include
+from django.urls import path
 from django.urls import re_path
 from rest_framework import routers
 
 from .api import ChannelMetadataViewSet
+from .api import ChannelThumbnailView
 from .api import ContentNodeBookmarksViewset
 from .api import ContentNodeGranularViewset
 from .api import ContentNodeProgressViewset
@@ -46,4 +48,11 @@ router.register(
 )
 router.register(r"remotechannel", RemoteChannelViewSet, basename="remotechannel")
 
-urlpatterns = [re_path(r"^", include(router.urls))]
+urlpatterns = [
+    path(
+        "channel-thumbnail/<channel_id>/",
+        ChannelThumbnailView.as_view(),
+        name="channel-thumbnail",
+    ),
+    re_path(r"^", include(router.urls)),
+]

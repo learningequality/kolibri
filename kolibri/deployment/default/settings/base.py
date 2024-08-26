@@ -16,6 +16,7 @@ import pytz
 from django.conf import locale
 from morango.constants import settings as morango_settings
 from tzlocal import get_localzone
+from tzlocal.utils import ZoneInfoNotFoundError
 
 import kolibri
 from kolibri.deployment.default.cache import CACHES
@@ -309,7 +310,7 @@ LANGUAGE_CODE = (
 
 try:
     TIME_ZONE = get_localzone().zone
-except (pytz.UnknownTimeZoneError, ValueError):
+except (pytz.UnknownTimeZoneError, ValueError, ZoneInfoNotFoundError):
     # Do not fail at this point because a timezone was not
     # detected.
     TIME_ZONE = pytz.utc.zone
