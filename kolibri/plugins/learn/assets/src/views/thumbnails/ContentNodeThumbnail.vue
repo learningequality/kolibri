@@ -26,7 +26,6 @@
 
 <script>
 
-  import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import useChannels from '../../composables/useChannels';
   import Thumbnail from './Thumbnail';
@@ -63,7 +62,7 @@
     },
     computed: {
       thumbnailUrl() {
-        const thumbnail = getContentNodeThumbnail(this.contentNode);
+        const thumbnail = this.contentNode.thumbnail;
         if (!thumbnail) {
           const parent = this.contentNode.parent;
           if (!parent) {
