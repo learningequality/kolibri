@@ -7,12 +7,12 @@ import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { useDevicesWithFilter } from 'kolibri.coreVue.componentSets.sync';
 import { ContentNodeResource } from 'kolibri.resources';
 import plugin_data from 'plugin_data';
+// eslint-disable-next-line import/named
 import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
 import makeStore from '../makeStore';
 import CustomContentRenderer from '../../src/views/ChannelRenderer/CustomContentRenderer';
 import { PageNames } from '../../src/constants';
 import TopicsPage from '../../src/views/TopicsPage';
-// eslint-disable-next-line import/named
 // eslint-disable-next-line import/named
 import useChannels, { useChannelsMock } from '../../src/composables/useChannels';
 
