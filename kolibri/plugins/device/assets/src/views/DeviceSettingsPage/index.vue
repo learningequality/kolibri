@@ -370,7 +370,7 @@
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
   import logger from 'kolibri.lib.logging';
-  import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { ref, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
@@ -379,6 +379,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { checkCapability } from 'kolibri.utils.appCapabilities';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import commonDeviceStrings from '../commonDeviceStrings';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
@@ -422,6 +423,7 @@
       const { plugins, fetchPlugins, togglePlugin } = usePlugins();
       const { windowIsSmall } = useKResponsiveWindow();
       const dataPlugins = ref(null);
+      const { snackbarIsVisible, createSnackbar } = useSnackbar();
 
       fetchPlugins.then(() => {
         dataPlugins.value = plugins.value.map(plugin => ({ ...plugin }));
@@ -458,6 +460,8 @@
         checkPluginChanges,
         checkAndTogglePlugins,
         windowIsSmall,
+        snackbarIsVisible,
+        createSnackbar,
       };
     },
     data() {
@@ -497,7 +501,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isPageLoading', 'snackbarIsVisible']),
+      ...mapGetters(['isPageLoading']),
       ...mapGetters('deviceInfo', ['isRemoteContent']),
       InfoDescriptionColor() {
         return {
@@ -841,7 +845,7 @@
           .then(didSave => {
             didSave = didSave || pluginsChanged;
             if (didSave) {
-              this.$store.commit('CORE_CREATE_SNACKBAR', {
+              this.createSnackbar({
                 text: this.$tr('saveSuccessNotification'),
                 autoDismiss: true,
                 duration: 2000,
@@ -857,7 +861,7 @@
           .then(shouldReload => {
             if (shouldReload) {
               if (this.snackbarIsVisible) {
-                const unwatch = this.$watch('snackbarIsVisible', () => {
+                const unwatch = watch(this.snackbarIsVisible, () => {
                   unwatch && unwatch();
                   window.location.reload();
                 });
@@ -868,7 +872,7 @@
           })
           .catch(err => {
             logging.error(err);
-            this.$store.dispatch('createSnackbar', this.$tr('saveFailureNotification'));
+            this.createSnackbar(this.$tr('saveFailureNotification'));
           });
       },
       getDeviceSettings,

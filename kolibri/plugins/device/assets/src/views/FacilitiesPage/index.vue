@@ -204,6 +204,7 @@
   } from 'kolibri.coreVue.componentSets.sync';
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import some from 'lodash/some';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { PageNames, ImportFacility, CreateNewFacility } from '../../constants';
   import { deviceString } from '../commonDeviceStrings';
@@ -245,8 +246,10 @@
     mixins: [commonCoreStrings, commonSyncElements, facilityTaskQueue],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
+      const { createSnackbar } = useSnackbar();
       return {
         windowIsSmall,
+        createSnackbar,
       };
     },
     data() {
@@ -402,8 +405,7 @@
         };
       },
       showFacilityRemovedSnackbar(facilityName) {
-        this.$store.dispatch(
-          'createSnackbar',
+        this.createSnackbar(
           this.$tr('facilityRemovedSnackbar', {
             facilityName,
           }),

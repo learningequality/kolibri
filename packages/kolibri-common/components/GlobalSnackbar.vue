@@ -19,15 +19,23 @@
 <script>
 
   import CoreSnackbar from 'kolibri.coreVue.components.CoreSnackbar';
-  import { mapGetters } from 'vuex';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
 
   export default {
     name: 'GlobalSnackbar',
     components: {
       CoreSnackbar,
     },
+    setup() {
+      const { snackbarIsVisible, snackbarOptions, clearSnackbar } = useSnackbar();
+
+      return {
+        snackbarIsVisible,
+        snackbarOptions,
+        clearSnackbar,
+      };
+    },
     computed: {
-      ...mapGetters(['snackbarIsVisible', 'snackbarOptions']),
       key() {
         const options = Object.assign({}, this.snackbarOptions);
         // The forceReuse option is used to force the reuse of the snackbar
@@ -41,17 +49,14 @@
       },
     },
     destroyed() {
-      this.clearSnackbarState();
+      this.clearSnackbar();
     },
     methods: {
-      clearSnackbarState() {
-        this.$store.commit('CORE_CLEAR_SNACKBAR');
-      },
       hideCallback() {
         if (this.snackbarOptions.hideCallback) {
           this.snackbarOptions.hideCallback();
         }
-        this.clearSnackbarState();
+        this.clearSnackbar();
       },
     },
   };

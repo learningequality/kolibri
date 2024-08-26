@@ -1,5 +1,4 @@
 import sessionModule from '../session';
-import snackbarModule from '../snackbar';
 import * as getters from './getters';
 import * as actions from './actions';
 import mutations from './mutations';
@@ -29,6 +28,5 @@ export default {
   mutations,
   modules: {
     session: sessionModule,
-    snackbar: snackbarModule,
   },
 };

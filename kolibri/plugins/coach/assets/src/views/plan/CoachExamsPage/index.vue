@@ -175,6 +175,7 @@
   import plugin_data from 'plugin_data';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { mapGetters } from 'kolibri.lib.vuex';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { PageNames } from '../../../constants';
   import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
   import { coachStrings } from '../../common/commonCoachStrings';
@@ -194,6 +195,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const { createSnackbar } = useSnackbar();
       const { classId, initClassInfo, refreshClassSummary } = useCoreCoach();
       const { quizzes, fetchQuizSizes } = useQuizzes();
       const store = getCurrentInstance().proxy.$store;
@@ -280,6 +282,7 @@
         newQuizAction$,
         filterQuizStatus$,
         quizClosedLabel$,
+        createSnackbar,
       };
     },
     computed: {
@@ -356,7 +359,7 @@
     },
     mounted() {
       if (this.$route.query.snackbar) {
-        this.$store.dispatch('createSnackbar', this.$route.query.snackbar);
+        this.createSnackbar(this.$route.query.snackbar);
       }
     },
     methods: {
@@ -374,10 +377,10 @@
           .then(() => {
             this.refreshClassSummary();
             this.showOpenConfirmationModal = false;
-            this.$store.dispatch('createSnackbar', this.quizOpenedMessage$());
+            this.createSnackbar(this.quizOpenedMessage$());
           })
           .catch(() => {
-            this.$store.dispatch('createSnackbar', this.quizFailedToOpenMessage$());
+            this.createSnackbar(this.quizFailedToOpenMessage$());
           });
       },
       handleCloseQuiz(quizId) {
@@ -393,10 +396,10 @@
           .then(() => {
             this.refreshClassSummary();
             this.showCloseConfirmationModal = false;
-            this.$store.dispatch('createSnackbar', this.quizClosedMessage$());
+            this.createSnackbar(this.quizClosedMessage$());
           })
           .catch(() => {
-            this.$store.dispatch('createSnackbar', this.quizFailedToCloseMessage$());
+            this.createSnackbar(this.quizFailedToCloseMessage$());
           });
       },
       handleSelect({ value }) {

@@ -93,6 +93,7 @@ import NotificationsRoot from '../views/NotificationsRoot';
 import useMinimumKolibriVersion from '../composables/useMinimumKolibriVersion';
 import useUserSyncStatus from '../composables/useUserSyncStatus';
 import useUser from '../composables/useUser';
+import useSnackbar from '../composables/useSnackbar';
 import { registerNavItem } from '../composables/useNav';
 import useNow from '../composables/useNow';
 
@@ -206,6 +207,7 @@ export default {
       useNow,
       useUser,
       useUserSyncStatus,
+      useSnackbar,
     },
   },
   resources,

@@ -237,6 +237,7 @@
   import urls from 'kolibri.urls';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
@@ -291,9 +292,11 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const { createSnackbar } = useSnackbar();
       const { windowIsSmall } = useKResponsiveWindow();
       const { isAppContext, isSuperuser, userIsMultiFacilityAdmin } = useUser();
       return {
+        createSnackbar,
         windowIsSmall,
         isAppContext,
         isSuperuser,
@@ -390,7 +393,6 @@
     methods: {
       camelCase,
       ...mapActions('facilityConfig', ['saveFacilityName']),
-      ...mapActions(['createSnackbar']),
       updateSettingValue(settingName, newValue) {
         this.$store.commit('facilityConfig/CONFIG_PAGE_MODIFY_SETTING', {
           name: settingName,

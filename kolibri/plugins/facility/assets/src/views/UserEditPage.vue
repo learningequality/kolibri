@@ -150,6 +150,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import IdentifierTextbox from './IdentifierTextbox';
 
   export default {
@@ -171,8 +172,13 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const { createSnackbar } = useSnackbar();
       const { currentUserId } = useUser();
-      return { currentUserId };
+
+      return {
+        createSnackbar,
+        currentUserId,
+      };
     },
     data() {
       return {
@@ -369,7 +375,7 @@
           // Log out of Facility Page if and Admin demotes themselves to non-Admin
           this.$store.dispatch('kolibriLogout');
         } else {
-          this.$store.dispatch('createSnackbar', this.coreString('changesSavedNotification'));
+          this.createSnackbar(this.coreString('changesSavedNotification'));
           this.goToUserManagementPage();
         }
       },

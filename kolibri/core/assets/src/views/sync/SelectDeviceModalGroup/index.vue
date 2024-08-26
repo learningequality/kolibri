@@ -28,6 +28,7 @@
 
 <script>
 
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import AddDeviceForm from './AddDeviceForm';
   import SelectDeviceForm from './SelectDeviceForm';
 
@@ -36,6 +37,10 @@
     components: {
       AddDeviceForm,
       SelectDeviceForm,
+    },
+    setup() {
+      const { createSnackbar } = useSnackbar();
+      return { createSnackbar };
     },
     props: {
       // Channel filter only needed on ManageContentPage/SelectNetworkDeviceModal
@@ -74,9 +79,6 @@
       };
     },
     methods: {
-      createSnackbar(args) {
-        this.$store.dispatch('createSnackbar', args);
-      },
       goToAddAddress() {
         this.addedAddressId = '';
         this.addingAddress = true;

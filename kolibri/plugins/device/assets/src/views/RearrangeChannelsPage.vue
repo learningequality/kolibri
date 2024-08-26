@@ -68,6 +68,7 @@
   import urls from 'kolibri.urls';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import DeviceChannelResource from '../apiResources/deviceChannel';
   import useContentTasks from '../composables/useContentTasks';
   import { PageNames } from '../constants';
@@ -89,7 +90,12 @@
     setup() {
       useContentTasks();
       const { canManageContent } = useUser();
-      return { canManageContent };
+      const { createSnackbar } = useSnackbar();
+
+      return {
+        canManageContent,
+        createSnackbar,
+      };
     },
     data() {
       return {
@@ -153,7 +159,7 @@
         this.channels = [...event.newArray];
         this.postNewOrder(event.newArray.map(x => x.id))
           .then(() => {
-            this.$store.dispatch('createSnackbar', this.$tr('successNotification'));
+            this.createSnackbar(this.$tr('successNotification'));
           })
           .catch(() => {
             // HACK completely reset the array to undo the move on the drag list
@@ -161,7 +167,7 @@
             this.$nextTick().then(() => {
               this.channels = oldArray;
             });
-            this.$store.dispatch('createSnackbar', this.$tr('failureNotification'));
+            this.createSnackbar(this.$tr('failureNotification'));
           });
       },
     },

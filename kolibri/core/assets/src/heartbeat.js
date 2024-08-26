@@ -251,7 +251,7 @@ export class HeartBeat {
   _setConnected() {
     set(this._connection.connected, true);
     set(this._connection.reconnectTime, null);
-    createReconnectedSnackbar(store);
+    createReconnectedSnackbar();
     if (get(this._connection.reloadOnReconnect)) {
       // If we were disconnected while loading, we need to reload the page
       // to ensure that we are in a consistent state.

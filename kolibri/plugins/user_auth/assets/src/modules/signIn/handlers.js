@@ -1,6 +1,7 @@
 import Lockr from 'lockr';
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri.coreVue.vuex.constants';
 import { createTranslator } from 'kolibri.utils.i18n';
+import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
 
 const snackbarTranslator = createTranslator('UserPageSnackbars', {
   dismiss: {
@@ -17,11 +18,12 @@ const snackbarTranslator = createTranslator('UserPageSnackbars', {
 
 export function showSignInPage(store) {
   if (Lockr.get(SIGNED_OUT_DUE_TO_INACTIVITY)) {
-    store.commit('CORE_CREATE_SNACKBAR', {
+    const { createSnackbar, clearSnackbar } = useSnackbar();
+    createSnackbar({
       text: snackbarTranslator.$tr('signedOut'),
       autoDismiss: false,
       actionText: snackbarTranslator.$tr('dismiss'),
-      actionCallback: () => store.commit('CORE_CLEAR_SNACKBAR'),
+      actionCallback: () => clearSnackbar(),
     });
     Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, null);
   }
