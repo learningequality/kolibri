@@ -6,7 +6,9 @@ import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import { ContentNodeResource } from 'kolibri.resources';
 import useUser from 'kolibri.coreVue.composables.useUser';
+/* eslint-disable import/named */
 import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
+/* eslint-enable import/named */
 import { PageNames } from '../../src/constants';
 import LibraryPage from '../../src/views/LibraryPage';
 import OtherLibraries from '../../src/views/LibraryPage/OtherLibraries';
