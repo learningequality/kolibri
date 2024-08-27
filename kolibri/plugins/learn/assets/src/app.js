@@ -1,5 +1,7 @@
 import router from 'kolibri.coreVue.router';
 import KolibriApp from 'kolibri_app';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 import RootVue from './views/LearnIndex';
 import routes from './routes';
 import { prepareLearnApp } from './composables/useCoreLearn';
@@ -23,10 +25,11 @@ class LearnModule extends KolibriApp {
     // If we are not logged in and are forbidden from accessing as guest
     // redirect to CONTENT_UNAVAILABLE.
     router.beforeEach((to, from, next) => {
+      const { isUserLoggedIn } = useUser();
       if (
         to.name !== PageNames.CONTENT_UNAVAILABLE &&
         !this.store.state.allowGuestAccess &&
-        !this.store.getters.isUserLoggedIn
+        !get(isUserLoggedIn)
       ) {
         // Pass the ?next param on to AuthMessage
         const currentURL = window.encodeURIComponent(window.location.href);

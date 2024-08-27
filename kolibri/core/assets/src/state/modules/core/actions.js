@@ -17,7 +17,8 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
 import Lockr from 'lockr';
-import { set } from '@vueuse/core';
+import { set, get } from '@vueuse/core';
+import useUser from 'kolibri.coreVue.composables.useUser';
 import { baseSessionState } from '../session';
 import { LoginErrors, ERROR_CONSTANTS, UPDATE_MODAL_DISMISSED } from '../../../constants';
 import { browser, os } from '../../../utils/browserInfo';
@@ -191,7 +192,8 @@ export function setPageVisibility(store) {
 }
 
 export function getNotifications(store) {
-  if (store.getters.isAdmin || store.getters.isSuperuser) {
+  const { isAdmin, isSuperuser } = useUser();
+  if (get(isAdmin) || get(isSuperuser)) {
     return PingbackNotificationResource.fetchCollection()
       .then(notifications => {
         logging.info('Notifications set.');
@@ -205,8 +207,9 @@ export function getNotifications(store) {
 }
 
 export function saveDismissedNotification(store, notification_id) {
+  const { user_id } = useUser();
   const dismissedNotificationData = {
-    user: store.getters.session.user_id,
+    user: get(user_id),
     notification: notification_id,
   };
   return PingbackNotificationDismissedResource.saveModel({ data: dismissedNotificationData })

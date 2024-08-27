@@ -1,4 +1,6 @@
 import { ContentNodeResource } from 'kolibri.resources';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 import useContentNodeProgress from '../../composables/useContentNodeProgress';
 import { LearnerLessonResource } from '../../apiResources';
 import { ClassesPageNames } from '../../constants';
@@ -9,7 +11,8 @@ const { fetchContentNodeProgress } = useContentNodeProgress();
 export function showLessonPlaylist(store, { lessonId }) {
   return store.dispatch('loading').then(() => {
     // Only load contentnode progress if the user is logged in
-    if (store.getters.isUserLoggedIn) {
+    const { isUserLoggedIn } = useUser();
+    if (get(isUserLoggedIn)) {
       fetchContentNodeProgress({ lesson: lessonId });
     }
     const contentNodePromise = ContentNodeResource.fetchLessonResources(lessonId);

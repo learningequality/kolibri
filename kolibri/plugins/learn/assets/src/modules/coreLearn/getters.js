@@ -1,9 +1,11 @@
-export function canAccessUnassignedContent(state, getters) {
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
+
+export function canAccessUnassignedContent(state) {
+  const { isCoach, isAdmin, isSuperuser } = useUser();
+
   return (
-    state.canAccessUnassignedContentSetting ||
-    getters.isCoach ||
-    getters.isAdmin ||
-    getters.isSuperUser
+    state.canAccessUnassignedContentSetting || get(isCoach) || get(isAdmin) || get(isSuperuser)
   );
 }
 

@@ -15,6 +15,7 @@ import Modalities from 'kolibri-constants/Modalities';
 import client from 'kolibri.client';
 import logger from 'kolibri.lib.logging';
 import urls from 'kolibri.urls';
+import useUser from 'kolibri.coreVue.composables.useUser';
 
 const logging = logger.getLogger(__filename);
 
@@ -287,7 +288,8 @@ export default function useProgressTracking(store) {
       if (response.data.complete) {
         set(complete, true);
         set(progress_state, 1);
-        if (store.getters.isUserLoggedIn && !wasComplete) {
+        const { isUserLoggedIn } = useUser();
+        if (get(isUserLoggedIn) && !wasComplete) {
           store.commit('INCREMENT_TOTAL_PROGRESS', 1);
         }
       }

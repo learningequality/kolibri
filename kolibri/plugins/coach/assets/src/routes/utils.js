@@ -1,10 +1,11 @@
 import store from 'kolibri.coreVue.vuex.store';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 
 export function classIdParamRequiredGuard(toRoute, subtopicName, next) {
   if (!toRoute.params.classId) {
-    const redirectPage = store.getters.userIsMultiFacilityAdmin
-      ? 'AllFacilitiesPage'
-      : 'CoachClassListPage';
+    const { userIsMultiFacilityAdmin } = useUser();
+    const redirectPage = get(userIsMultiFacilityAdmin) ? 'AllFacilitiesPage' : 'CoachClassListPage';
 
     next({
       name: redirectPage,
