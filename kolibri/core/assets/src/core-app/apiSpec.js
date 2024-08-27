@@ -96,7 +96,6 @@ import useNow from '../composables/useNow';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
-import * as contentNode from '../utils/contentNodeUtils';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
 import SlotTruncator from '../views/SlotTruncator';
@@ -214,7 +213,6 @@ export default {
     bytesForHumans,
     CatchErrors,
     clientFactory,
-    contentNode,
     coreBannerContent,
     exams,
     filterUsersByNames,

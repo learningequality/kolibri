@@ -5,7 +5,6 @@ import {
   ContentNodeSearchResource,
 } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import chunk from 'lodash/chunk';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
@@ -124,14 +123,10 @@ export function showLessonResourceSelectionTopicPage(store, params) {
     ];
 
     return Promise.all(loadRequirements).then(([topicNode, childNodes, descendantCounts]) => {
-      const topicContentList = childNodes.map(node => {
-        return { ...node, thumbnail: getContentNodeThumbnail(node) };
-      });
-
       return showResourceSelectionPage(store, {
         classId: params.classId,
         lessonId: params.lessonId,
-        contentList: topicContentList,
+        contentList: childNodes,
         pageName: LessonsPageNames.SELECTION,
         descendantCounts,
         ancestors: [...topicNode.ancestors, topicNode],
@@ -148,14 +143,10 @@ export function showLessonResourceBookmarks(store, params) {
     ];
 
     return Promise.all(loadRequirements).then(([topicNode, childNodes]) => {
-      const topicContentList = childNodes.map(node => {
-        return { ...node, thumbnail: getContentNodeThumbnail(node) };
-      });
-
       return showResourceSelectionPage(store, {
         classId: params.classId,
         lessonId: params.lessonId,
-        bookmarksList: topicContentList,
+        bookmarksList: childNodes,
         pageName: LessonsPageNames.SELECTION,
         ancestors: [...topicNode.ancestors, topicNode],
       });
@@ -297,13 +288,10 @@ export function showLessonResourceSearchPage(store, params, query = {}) {
         }),
       },
     }).then(results => {
-      const contentList = results.results.map(node => {
-        return { ...node, thumbnail: getContentNodeThumbnail(node) };
-      });
       return showResourceSelectionPage(store, {
         classId: params.classId,
         lessonId: params.lessonId,
-        contentList,
+        contentList: results.results,
         searchResults: results,
         pageName: LessonsPageNames.SELECTION_SEARCH,
       });
