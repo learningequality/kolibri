@@ -10,8 +10,6 @@ It stores:
 
 Eventually, it may also store user feedback on the content and the software.
 """
-from __future__ import unicode_literals
-
 import logging
 from datetime import timedelta
 
