@@ -32,6 +32,7 @@
   "CommonLearnStrings.toggleLicenseDescription": "បិទ/បើកសេចក្តីពិពណ៌នាអាជ្ញាប័ណ្ណ",
   "CommonLearnStrings.viewResource": "មើលធនធាន",
   "CommonLearnStrings.whatYouWillNeed": "អ្វីដែលអ្នកនឹងត្រូវការ",
+  "DownloadRequests.downloadComplete": "បញ្ចប់ដោនឡូត.",
   "DownloadRequests.downloadStartedLabel": "បានស្នើសុំការទាញយក",
   "DownloadRequests.goToDownloadsPage": "ចូលទៅកាន់ការទាញយក",
   "DownloadRequests.resourceRemoved": "ធនធានត្រូវបានដកចេញពីបណ្ណាល័យរបស់ខ្ញុំ",

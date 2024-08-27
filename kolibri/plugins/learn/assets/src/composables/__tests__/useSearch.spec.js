@@ -6,6 +6,7 @@ import { ContentNodeResource } from 'kolibri.resources';
 import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
 import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
 import useSearch from '../useSearch';
+import coreModule from '../../../../../../core/assets/src/state/modules/core';
 
 Vue.use(VueRouter);
 
@@ -25,6 +26,7 @@ function prep(query = {}, descendant = null) {
       },
     },
   });
+  store.registerModule('core', coreModule);
   const router = new VueRouter();
   router.push = jest.fn().mockReturnValue(Promise.resolve());
   return {

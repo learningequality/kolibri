@@ -21,10 +21,11 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState } from 'vuex';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import YourClasses from '../YourClasses';
   import { PageNames } from '../../constants';
   import commonLearnStrings from './../commonLearnStrings';
@@ -44,8 +45,13 @@
       LearnAppBarPage,
     },
     mixins: [commonCoreStrings, commonLearnStrings],
+    setup() {
+      const { isUserLoggedIn } = useUser();
+      return {
+        isUserLoggedIn,
+      };
+    },
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
       ...mapState('classes', ['classrooms']),
       ...mapState({
         loading: state => state.core.loading,

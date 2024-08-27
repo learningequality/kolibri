@@ -49,7 +49,7 @@
     created() {
       const initClassInfoPromise = this.$store.dispatch('initClassInfo', this.classId);
       const getFacilitiesPromise =
-        this.$store.getters.isSuperuser && this.$store.state.core.facilities.length === 0
+        this.isSuperuser && this.$store.state.core.facilities.length === 0
           ? this.$store.dispatch('getFacilities').catch(() => {})
           : Promise.resolve();
 

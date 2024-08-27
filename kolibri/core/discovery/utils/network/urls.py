@@ -187,5 +187,4 @@ def get_normalized_url_variations(address):
                         path=path,
                     )
                 )
-
     return urls

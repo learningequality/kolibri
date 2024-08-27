@@ -33,7 +33,6 @@ import CoreLogo from '../views/CoreLogo';
 import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
 import LanguageSwitcherModal from '../views/language-switcher/LanguageSwitcherModal';
 import ElapsedTime from '../views/ElapsedTime';
-import TotalPoints from '../views/TotalPoints';
 import AuthMessage from '../views/AuthMessage';
 import FilterTextbox from '../views/FilterTextbox';
 import KolibriLoadingSnippet from '../views/KolibriLoadingSnippet';
@@ -87,7 +86,6 @@ import PaginatedListContainer from '../views/PaginatedListContainer';
 import MasteryModel from '../views/MasteryModel';
 import LearnOnlyDeviceNotice from '../views/LearnOnlyDeviceNotice';
 import themeConfig from '../styles/themeConfig';
-import sortLanguages from '../utils/sortLanguages';
 import * as sync from '../views/sync/syncComponentSet';
 import NotificationsRoot from '../views/NotificationsRoot';
 import useMinimumKolibriVersion from '../composables/useMinimumKolibriVersion';
@@ -98,7 +96,6 @@ import useNow from '../composables/useNow';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
-import * as contentNode from '../utils/contentNodeUtils';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
 import SlotTruncator from '../views/SlotTruncator';
@@ -149,7 +146,6 @@ export default {
       LanguageSwitcherModal,
       LanguageSwitcherList,
       ElapsedTime,
-      TotalPoints,
       AuthMessage,
       FilterTextbox,
       CoreSnackbar,
@@ -217,7 +213,6 @@ export default {
     bytesForHumans,
     CatchErrors,
     clientFactory,
-    contentNode,
     coreBannerContent,
     exams,
     filterUsersByNames,
@@ -229,7 +224,6 @@ export default {
     samePageCheckGenerator,
     serverClock,
     shuffled,
-    sortLanguages,
     syncTaskUtils,
     UserType,
     validators,

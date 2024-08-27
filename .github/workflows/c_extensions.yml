@@ -57,10 +57,10 @@ jobs:
         make staticdeps-cext
         pip install .
         # Start and stop kolibri
-        coverage run -p kolibri start --port=8081
-        coverage run -p kolibri stop
+        kolibri start --port=8081
+        kolibri stop
         # Run just tests in test/
-        py.test --cov=kolibri --cov-report= --cov-append --color=no test/
+        py.test --color=no test/
   no_c_ext:
     name: No C Extensions
     needs: pre_job
@@ -94,7 +94,7 @@ jobs:
         make staticdeps
         pip install .
         # Start and stop kolibri
-        coverage run -p kolibri start --port=8081
-        coverage run -p kolibri stop
+        kolibri start --port=8081
+        kolibri stop
         # Run just tests in test/
-        py.test --cov=kolibri --cov-report= --cov-append --color=no test/
+        py.test --color=no test/

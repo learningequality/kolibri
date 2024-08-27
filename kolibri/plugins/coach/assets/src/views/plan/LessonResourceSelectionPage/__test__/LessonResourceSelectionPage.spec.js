@@ -7,6 +7,7 @@ import makeStore from '../../../../../test/makeStore';
 jest.mock('kolibri.client');
 jest.mock('kolibri.urls');
 jest.mock('kolibri.resources');
+jest.mock('kolibri.coreVue.composables.useUser');
 
 const router = new VueRouter({
   routes: [

@@ -1,13 +1,20 @@
 import { shallowMount } from '@vue/test-utils';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import NotificationsRoot from '../../src/views/NotificationsRoot.vue';
 import { coreStoreFactory as makeStore } from '../../src/state/store';
+import coreModule from '../../src/state/modules/core';
 
-function makeWrapper(options = {}) {
+jest.mock('kolibri.coreVue.composables.useUser');
+
+function makeWrapper(useUserMockObj = null) {
   const store = makeStore();
+  store.registerModule('core', coreModule);
+  if (useUserMockObj) {
+    useUser.mockImplementation(() => useUserMock(useUserMockObj));
+  }
   const wrapper = shallowMount(NotificationsRoot, {
     store,
-    ...options,
     computed: {
       mostRecentNotification: () => {
         return {
@@ -18,10 +25,9 @@ function makeWrapper(options = {}) {
           linkUrl: 'url',
         };
       },
-      ...(options.computed || {}),
     },
   });
-  return { wrapper, store, ...options };
+  return { wrapper, store };
 }
 
 describe('NotificationsRoot', function () {
@@ -64,8 +70,7 @@ describe('NotificationsRoot', function () {
     });
 
     it('notification modal should be rendered if the user is an admin/superuser, a notification exists, and there is a recent notification', async () => {
-      const { wrapper, store } = makeWrapper();
-      store.commit('CORE_SET_SESSION', { kind: [UserKinds.ADMIN] });
+      const { wrapper, store } = makeWrapper({ isAdmin: true, isSuperuser: true });
       store.state.core.loading = false;
       store.state.core.notifications = [
         {

@@ -32,6 +32,7 @@
   "CommonLearnStrings.toggleLicenseDescription": "Розгорнути опис ліцензії",
   "CommonLearnStrings.viewResource": "Переглянути матеріал",
   "CommonLearnStrings.whatYouWillNeed": "Що вам потрібно",
+  "DownloadRequests.downloadComplete": "Звантаження завершено",
   "DownloadRequests.downloadStartedLabel": "Запит на завантаження",
   "DownloadRequests.goToDownloadsPage": "Перейти до завантажень",
   "DownloadRequests.resourceRemoved": "Матеріал було видалено з моєї бібліотеки.",

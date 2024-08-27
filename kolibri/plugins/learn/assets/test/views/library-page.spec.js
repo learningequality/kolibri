@@ -6,11 +6,13 @@ import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import { ContentNodeResource } from 'kolibri.resources';
 import useUser from 'kolibri.coreVue.composables.useUser';
+/* eslint-disable import/named */
+import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
+/* eslint-enable import/named */
 import { PageNames } from '../../src/constants';
 import LibraryPage from '../../src/views/LibraryPage';
 import OtherLibraries from '../../src/views/LibraryPage/OtherLibraries';
 /* eslint-disable import/named */
-import useSearch, { useSearchMock } from '../../src/composables/useSearch';
 import useChannels, { useChannelsMock } from '../../src/composables/useChannels';
 import usePinnedDevices, { usePinnedDevicesMock } from '../../src/composables/usePinnedDevices';
 import useDevices, { useDevicesMock } from '../../src/composables/useDevices';
@@ -39,11 +41,11 @@ const CHANNEL = {
 jest.mock('../../src/composables/useChannels');
 jest.mock('../../src/composables/useCardLayoutSpan');
 jest.mock('../../src/composables/useDevices');
-jest.mock('../../src/composables/useSearch');
 jest.mock('../../src/composables/useLearnerResources');
 jest.mock('../../src/composables/useLearningActivities');
 jest.mock('../../src/composables/useContentLink');
 jest.mock('../../src/composables/usePinnedDevices');
+jest.mock('kolibri-common/composables/useBaseSearch');
 jest.mock('kolibri.coreVue.composables.useUser');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 jest.mock('kolibri.resources');
@@ -147,9 +149,9 @@ describe('LibraryPage', () => {
 
   describe('displaying channels and recent/popular content ', () => {
     beforeAll(() => {
-      useSearch.mockImplementation(() => useSearchMock({ displayingSearchResults: false }));
+      useBaseSearch.mockImplementation(() => useBaseSearchMock({ displayingSearchResults: false }));
     });
-    /** useSearch#displayingSearchResults is falsy and there are rootNodes */
+    /** useBaseSearch#displayingSearchResults is falsy and there are rootNodes */
     it('displays a grid of channel cards', async () => {
       const wrapper = await makeWrapper();
       expect(wrapper.find('[data-test="channels"').element).toBeTruthy();
@@ -164,7 +166,7 @@ describe('LibraryPage', () => {
 
   describe('when page is loading', () => {
     it('shows a KCircularLoader', async () => {
-      useSearch.mockImplementation(() => useSearchMock({ searchLoading: true }));
+      useBaseSearch.mockImplementation(() => useBaseSearchMock({ searchLoading: true }));
       const wrapper = await makeWrapper();
       expect(wrapper.findComponent(KCircularLoader).exists()).toBeTruthy();
     });
@@ -172,7 +174,7 @@ describe('LibraryPage', () => {
 
   describe('nothing in library label', () => {
     beforeAll(() => {
-      useSearch.mockImplementation(() => useSearchMock({ displayingSearchResults: false }));
+      useBaseSearch.mockImplementation(() => useBaseSearchMock({ displayingSearchResults: false }));
     });
     it('display when no channels are available', async () => {
       const wrapper = await makeWrapper({ rootNodes: [] });
@@ -189,7 +191,7 @@ describe('LibraryPage', () => {
 
   describe('Resumable content', () => {
     beforeAll(() => {
-      useSearch.mockImplementation(() => useSearchMock({ displayingSearchResults: false }));
+      useBaseSearch.mockImplementation(() => useBaseSearchMock({ displayingSearchResults: false }));
     });
     it('show content', async () => {
       const wrapper = await makeWrapper();
@@ -233,7 +235,7 @@ describe('LibraryPage', () => {
     }
     beforeEach(() => {
       useUser.mockImplementation(() => ({ isUserLoggedIn: true }));
-      useSearch.mockImplementation(() => useSearchMock({ displayingSearchResults: false }));
+      useBaseSearch.mockImplementation(() => useBaseSearchMock({ displayingSearchResults: false }));
     });
 
     it('show other libraries', async () => {
@@ -339,7 +341,7 @@ describe('LibraryPage', () => {
 
   describe('SearchResultsGrid', () => {
     beforeEach(() => {
-      useSearch.mockImplementation(() => useSearchMock({ displayingSearchResults: true }));
+      useBaseSearch.mockImplementation(() => useBaseSearchMock({ displayingSearchResults: true }));
     });
     it('display search results grid', async () => {
       const wrapper = await makeWrapper();

@@ -3,9 +3,6 @@
   "description": "Learn Plugin for Kolibri",
   "private": true,
   "version": "0.0.1",
-  "dependencies": {
-    "vue2-teleport": "^1.1.4"
-  },
   "devDependencies": {
     "flush-promises": "^1.0.2"
   }

@@ -65,10 +65,11 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapState } from 'vuex';
   import find from 'lodash/find';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { PageNames } from '../constants';
   import CoachAppBarPage from './CoachAppBarPage';
   import commonCoach from './common';
@@ -79,6 +80,10 @@
       CoachAppBarPage,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { isClassCoach, isFacilityCoach, userIsMultiFacilityAdmin } = useUser();
+      return { isClassCoach, isFacilityCoach, userIsMultiFacilityAdmin };
+    },
     props: {
       subtopicName: {
         type: String,
@@ -87,7 +92,6 @@
       },
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach', 'userIsMultiFacilityAdmin']),
       ...mapState(['classList', 'dataLoading']),
       // Message that shows up when state.classList is empty
       emptyStateDetails() {

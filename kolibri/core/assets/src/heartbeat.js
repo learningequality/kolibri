@@ -3,6 +3,8 @@ import store from 'kolibri.coreVue.vuex.store';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import Lockr from 'lockr';
 import urls from 'kolibri.urls';
+import { get, set } from '@vueuse/core';
+import useConnection from './composables/useConnection';
 import clientFactory from './core-app/baseClient';
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from './constants';
 import errorCodes from './disconnectionErrorCodes';
@@ -44,6 +46,7 @@ const ACTIVE_DELAY = 240;
 
 export class HeartBeat {
   constructor() {
+    this._connection = useConnection();
     // Do this to have a consistent callback that has 'this' properly bound
     // but can be repeatedly referenced to add and remove listeners.
     this.setUserActive = this.setUserActive.bind(this);
@@ -58,7 +61,7 @@ export class HeartBeat {
       function (response) {
         // If the response does not have one of the disconnect error codes
         // then we have reconnected.
-        if (!store.getters.connected && !errorCodes.includes(response.status)) {
+        if (!get(heartbeat._connection.connected) && !errorCodes.includes(response.status)) {
           // Not one of our 'disconnected' status codes, so we are connected again
           // Set connected and return the response here to prevent any further processing.
           heartbeat._setConnected();
@@ -66,8 +69,7 @@ export class HeartBeat {
         return response;
       },
       function (error) {
-        const { connected, reconnectTime } = store.getters;
-        if (!connected) {
+        if (!get(heartbeat._connection.connected)) {
           // If the response does not have one of the disconnect error codes
           // then we have reconnected.
           if (!errorCodes.includes(error.response.status)) {
@@ -79,11 +81,11 @@ export class HeartBeat {
           // If we have got here, then the error code meant that the server is still not reachable
           // set the snackbar to disconnected.
           // See what the previous reconnect interval was.
-          const reconnect = reconnectTime;
+          const reconnect = get(heartbeat._connection.reconnectTime);
           // Set a new reconnect interval.
-          store.commit(
-            'CORE_SET_RECONNECT_TIME',
-            // Multiply the previous interval by our multiplier, but max out at a high interval.
+          // Multiply the previous interval by our multiplier, but max out at a high interval.
+          set(
+            heartbeat._connection.reconnectTime,
             Math.min(RECONNECT_MULTIPLIER * reconnect, MAX_RECONNECT_TIME),
           );
           createDisconnectedSnackbar(store, heartbeat.pollSessionEndPoint);
@@ -133,12 +135,11 @@ export class HeartBeat {
     this._active = false;
   }
   get _delay() {
-    const { reconnectTime } = store.getters;
-    if (!store.getters.connected && reconnectTime) {
+    if (!get(this._connection.connected) && get(this._connection.reconnectTime)) {
       // If we are currently engaged in exponential backoff in trying to reconnect to the server
       // use the current reconnect time preferentially instead of the standard delay.
       // The reconnect time is stored in seconds, so multiply by 1000 to give the milliseconds.
-      return reconnectTime;
+      return get(this._connection.reconnectTime);
     }
     // If page is not visible, don't poll as frequently, as user activity is unlikely.
     return store.state.pageVisible ? ACTIVE_DELAY : ACTIVE_DELAY * 2;
@@ -157,9 +158,9 @@ export class HeartBeat {
    * @return {Promise} promise that resolves when the endpoint check is complete.
    */
   _checkSession() {
-    const { currentUserId, connected } = store.getters;
+    const { currentUserId } = store.getters;
     // Record the current user id to check if a different one is returned by the server.
-    if (!connected) {
+    if (!get(this._connection.connected)) {
       // If not currently connected to the server, flag that we are currently trying to reconnect.
       createTryingToReconnectSnackbar(store);
     }
@@ -170,7 +171,7 @@ export class HeartBeat {
         data: {
           // Only send active when both connected and activity has been registered.
           // Do this to prevent a user logging activity cascade on the server side.
-          active: connected && this._active,
+          active: get(this._connection.connected) && this._active,
           browser,
           os,
         },
@@ -222,9 +223,9 @@ export class HeartBeat {
    * if the vuex state does not already indicate disconnection.
    */
   monitorDisconnect(code = 0) {
-    if (store.getters.connected) {
+    if (get(this._connection.connected)) {
       // We have not already registered that we have been disconnected
-      store.commit('CORE_SET_CONNECTED', false);
+      set(this._connection.connected, false);
       let reconnectionTime;
       if (store.state.pageVisible) {
         // If current page is not visible, back off completely
@@ -238,7 +239,7 @@ export class HeartBeat {
         // back off quickly before trying to reconnect.
         reconnectionTime = TIMEOUT_RECONNECT_TIME;
       }
-      store.commit('CORE_SET_RECONNECT_TIME', reconnectionTime);
+      set(this._connection.reconnectTime, reconnectionTime);
       createDisconnectedSnackbar(store, this.pollSessionEndPoint);
       this._wait();
     }
@@ -248,10 +249,10 @@ export class HeartBeat {
    * on the regular heartbeat delay.
    */
   _setConnected() {
-    store.commit('CORE_SET_CONNECTED', true);
-    store.commit('CORE_SET_RECONNECT_TIME', null);
+    set(this._connection.connected, true);
+    set(this._connection.reconnectTime, null);
     createReconnectedSnackbar(store);
-    if (store.state.core.connection.reloadOnReconnect) {
+    if (get(this._connection.reloadOnReconnect)) {
       // If we were disconnected while loading, we need to reload the page
       // to ensure that we are in a consistent state.
       window.location.reload();

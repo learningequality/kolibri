@@ -140,20 +140,24 @@ class LocalFileRemote(TransactionTestCase):
         process_cache.clear()
         self.location = NetworkLocation.objects.create(base_url="test")
 
-    @patch("kolibri.core.content.utils.file_availability.requests")
-    def test_set_one_file(self, requests_mock):
-        requests_mock.post.return_value.status_code = 200
-        requests_mock.post.return_value.content = "1"
+    @patch("kolibri.core.content.utils.file_availability.NetworkClient")
+    def test_set_one_file(self, networkclient_mock):
+        network_client = networkclient_mock.build_for_address.return_value
+        network_client.base_url = "test"
+        network_client.post.return_value.status_code = 200
+        network_client.post.return_value.content = "1"
         checksums = get_available_checksums_from_remote(
             test_channel_id, self.location.id
         )
         self.assertEqual(len(checksums), 1)
         self.assertTrue(local_file_qs.filter(id=list(checksums)[0]).exists())
 
-    @patch("kolibri.core.content.utils.file_availability.requests")
-    def test_set_two_files_in_channel(self, requests_mock):
-        requests_mock.post.return_value.status_code = 200
-        requests_mock.post.return_value.content = "3"
+    @patch("kolibri.core.content.utils.file_availability.NetworkClient")
+    def test_set_two_files_in_channel(self, networkclient_mock):
+        network_client = networkclient_mock.build_for_address.return_value
+        network_client.base_url = "test"
+        network_client.post.return_value.status_code = 200
+        network_client.post.return_value.content = "3"
         checksums = get_available_checksums_from_remote(
             test_channel_id, self.location.id
         )
@@ -161,27 +165,33 @@ class LocalFileRemote(TransactionTestCase):
         self.assertTrue(local_file_qs.filter(id=list(checksums)[0]).exists())
         self.assertTrue(local_file_qs.filter(id=list(checksums)[1]).exists())
 
-    @patch("kolibri.core.content.utils.file_availability.requests")
-    def test_set_two_files_none_in_channel(self, requests_mock):
-        requests_mock.post.return_value.status_code = 200
-        requests_mock.post.return_value.content = "0"
+    @patch("kolibri.core.content.utils.file_availability.NetworkClient")
+    def test_set_two_files_none_in_channel(self, networkclient_mock):
+        network_client = networkclient_mock.build_for_address.return_value
+        network_client.base_url = "test"
+        network_client.post.return_value.status_code = 200
+        network_client.post.return_value.content = "0"
         checksums = get_available_checksums_from_remote(
             test_channel_id, self.location.id
         )
         self.assertEqual(checksums, set())
 
-    @patch("kolibri.core.content.utils.file_availability.requests")
-    def test_404_remote_checksum_response(self, requests_mock):
-        requests_mock.post.return_value.status_code = 404
+    @patch("kolibri.core.content.utils.file_availability.NetworkClient")
+    def test_404_remote_checksum_response(self, networkclient_mock):
+        network_client = networkclient_mock.build_for_address.return_value
+        network_client.base_url = "test"
+        network_client.post.return_value.status_code = 404
         checksums = get_available_checksums_from_remote(
             test_channel_id, self.location.id
         )
         self.assertIsNone(checksums)
 
-    @patch("kolibri.core.content.utils.file_availability.requests")
-    def test_invalid_integer_remote_checksum_response(self, requests_mock):
-        requests_mock.post.return_value.status_code = 200
-        requests_mock.post.return_value.content = "I am not a json, I am a free man!"
+    @patch("kolibri.core.content.utils.file_availability.NetworkClient")
+    def test_invalid_integer_remote_checksum_response(self, networkclient_mock):
+        network_client = networkclient_mock.build_for_address.return_value
+        network_client.base_url = "test"
+        network_client.post.return_value.status_code = 200
+        network_client.post.return_value.content = "I am not a json, I am a free man!"
         checksums = get_available_checksums_from_remote(
             test_channel_id, self.location.id
         )

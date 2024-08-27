@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Ki i se ti gbogbo gbòò",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Ohun elò ni a ó ṣàfihàn rẹ̀ lẹ́kunrẹ́rẹ́ ní apèsè Kolibri tí àwọn olùkọ́ alábòójútó àti àwọn akẹ́ẹ̀kọ́ ń lò",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Ohun elò ni kíkún",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Ẹrọ yìí yóò ní àkọọ́lẹ̀ akẹ́kọ̀ọ́ kan tàbí jù bẹ́ẹ̀ lọ tí wọ́n kó láti inú ẹ̀rọ tó ti wà. Àwọn àkọsílẹ̀ àwọn akẹ́kọ̀ọ́ yóò máa bá gbogbo ẹ̀rọ náà ṣọ̀kan.",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Ẹ̀rọ yìí yóò ní àwọn ohun tí àwọn akẹ́kọ̀ọ́ ń lò nìkan, yóò sì ṣe àfọwọ́sọ̀kan pẹ̀lú gbogbo ẹ̀rọ náà.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Ohun èlò kíkọ́-nìkan",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "Irú ẹ̀rọ wo ni èyí?",
   "GuestAccessForm.changeLater": "O lè yí èyí padà ní ìtòlẹ́sẹẹsẹ ẹ̀rọ rẹ lẹ́yìn náà.",
@@ -94,5 +94,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Ṣe ẹ̀dà si aka ọlọ́pọ́n",
   "UserCredentialsForm.adminAccountCreationHeader": "Sẹ̀dá alábòójútó tó ga jù",
   "UserCredentialsForm.learnerAccountCreationDescription": "Akọọlẹ titun fun '{facility}' ni ile ẹkọ ''",
-  "UserCredentialsForm.learnerAccountCreationHeader": "Ṣẹ̀dá àkáǹtì re"
+  "UserCredentialsForm.learnerAccountCreationHeader": "Ṣẹ̀dá àkáǹtì re",
+  "UserCredentialsForm.signInInstead": "Wọlé dípò bẹ́ẹ̀ bí?"
 }

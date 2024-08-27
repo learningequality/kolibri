@@ -5,9 +5,9 @@ import datetime
 import time
 import unittest
 import uuid
+from base64 import urlsafe_b64decode
 
 import mock
-import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.test import LiveServerTestCase
@@ -28,6 +28,9 @@ from kolibri.core.content.test.test_channel_upgrade import ChannelBuilder
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSessionLog
@@ -1898,7 +1901,7 @@ def mock_patch_decorator(func):
     def wrapper(*args, **kwargs):
         mock_object = mock.Mock()
         mock_object.json.return_value = [{"id": 1, "name": "studio"}]
-        with mock.patch.object(requests, "get", return_value=mock_object):
+        with mock.patch.object(NetworkClient, "get", return_value=mock_object):
             return func(*args, **kwargs)
 
     return wrapper
@@ -1947,18 +1950,21 @@ class KolibriStudioAPITestCase(APITestCase):
         )
         self.assertEqual(response.data["name"], "studio")
 
-    @mock_patch_decorator
-    def test_channel_info_404(self):
-        mock_object = mock.Mock()
-        mock_object.status_code = 404
-        requests.get.return_value = mock_object
+    @mock.patch.object(
+        NetworkClient,
+        "get",
+        side_effect=NetworkLocationResponseFailure(response=mock.Mock(status_code=404)),
+    )
+    def test_channel_info_404(self, mock_get):
         response = self.client.get(
             reverse("kolibri:core:remotechannel-detail", kwargs={"pk": "abc"}),
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    @mock.patch.object(requests, "get", side_effect=requests.exceptions.ConnectionError)
+    @mock.patch.object(
+        NetworkClient, "get", side_effect=NetworkLocationConnectionFailure
+    )
     def test_channel_info_offline(self, mock_get):
         response = self.client.get(
             reverse("kolibri:core:remotechannel-detail", kwargs={"pk": "abc"}),
@@ -1967,7 +1973,9 @@ class KolibriStudioAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
         self.assertEqual(response.json()["status"], "offline")
 
-    @mock.patch.object(requests, "get", side_effect=requests.exceptions.ConnectionError)
+    @mock.patch.object(
+        NetworkClient, "get", side_effect=NetworkLocationConnectionFailure
+    )
     def test_channel_list_offline(self, mock_get):
         response = self.client.get(
             reverse("kolibri:core:remotechannel-list"), format="json"
@@ -1998,3 +2006,43 @@ class PrefixedProxyContentMetadataTestCase(ProxyContentMetadataTestCase):
     @property
     def baseurl(self):
         return self.live_server_url + "/test/"
+
+
+class ChannelThumbnailViewTestCase(APITestCase):
+    def setUp(self):
+        self.content_node = content.ContentNode.objects.create(
+            pk="6a406ac66b224106aa2e93f73a94333d",
+            channel_id="f8ec4a5d14cd4716890999da596032d2",
+            content_id="ded4a083e75f4689b386fd2b706e792a",
+        )
+        self.thumbnail = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABjElEQVR42mNk"
+        self.channel_metadata = content.ChannelMetadata.objects.create(
+            id="63acff41781543828861ade41dbdd7ff",
+            name="no exercise channel metadata",
+            thumbnail=self.thumbnail,
+            root=self.content_node,
+        )
+
+    def test_channel_thumbnail_view(self):
+        response = self.client.get(
+            reverse("kolibri:core:channel-thumbnail", args=[self.channel_metadata.id])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "image/png")
+        self.assertEqual(
+            response.content, urlsafe_b64decode(self.thumbnail.split(",")[1])
+        )
+
+    def test_channel_thumbnail_view_not_found(self):
+        response = self.client.get(
+            reverse("kolibri:core:channel-thumbnail", args=["deadpool"])
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_channel_thumbnail_view_no_thumbnail(self):
+        self.channel_metadata.thumbnail = ""
+        self.channel_metadata.save()
+        response = self.client.get(
+            reverse("kolibri:core:channel-thumbnail", args=[self.channel_metadata.id])
+        )
+        self.assertEqual(response.status_code, 404)

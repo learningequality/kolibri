@@ -1,0 +1,403 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-06-20 16:50-0400\n"
+"PO-Revision-Date: 2024-07-15 23:10\n"
+"Last-Translator: \n"
+"Language-Team: Punjabi\n"
+"Language: pa_IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Project-ID: 201933\n"
+"X-Crowdin-Language: pa-IN\n"
+"X-Crowdin-File: /release-v0.17.x/django.po\n"
+"X-Crowdin-File-ID: 4782\n"
+
+#: core/auth/constants/commands_errors.py:17
+msgid "Unexpected exception [{}]: {}"
+msgstr "ਅਚਾਨਕ ਅਪਵਾਦ [{}]: {}"
+
+#: core/auth/constants/commands_errors.py:20
+msgctxt "Error report message when the allowed number of digits has been exceeded."
+msgid "Content of cell '{}' is too long"
+msgstr "ਸੈੱਲ '{}' ਦਾ ਕੰਟੈਂਟ ਬਹੁਤ ਲੰਬਾ ਹੈ"
+
+#: core/auth/constants/commands_errors.py:24
+msgctxt "Error report message when the cell contains an improper data format."
+msgid "Content of cell '{}' is not valid"
+msgstr "ਸੈੱਲ '{}' ਦਾ ਕੰਟੈਂਟ ਵੈਲਿਡ ਨਹੀਂ ਹੈ"
+
+#: core/auth/constants/commands_errors.py:26
+msgid "Duplicated username"
+msgstr "ਡੁਪਲੀਕੇਟ ਯੂਜ਼ਰਨੇਮ"
+
+#: core/auth/constants/commands_errors.py:28
+#: core/auth/management/commands/bulkimportusers.py:84
+msgid "Username only can contain characters, numbers and underscores"
+msgstr "ਯੂਜ਼ਰਨੇਮ ਵਿੱਚ ਸਿਰਫ਼ ਅੱਖਰ, ਨੰਬਰ ਅਤੇ ਅੰਡਰਸਕੋਰ ਸ਼ਾਮਲ ਹੋ ਸਕਦੇ ਹਨ"
+
+#: core/auth/constants/commands_errors.py:30
+msgid "The column '{}' is required"
+msgstr "ਕਾਲਮ '{}' ਲੋੜੀਂਦਾ ਹੈ"
+
+#: core/auth/constants/commands_errors.py:31
+msgid "Mix of valid and/or invalid header labels found in first row"
+msgstr "ਪਹਿਲੀ ਰੋ ਵਿੱਚ ਮਿਲੇ ਵੈਲਿਡ ਅਤੇ/ਜਾਂ ਇਨਵੈਲਿਡ ਹੈਦਰ ਲੇਬਲਾਂ ਦਾ ਮਿਸ਼ਰਣ"
+
+#: core/auth/constants/commands_errors.py:33
+msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
+msgstr "ਕੋਈ ਡਿਫਾਲਟ ਸਹੂਲਤ ਮੌਜੂਦ ਨਹੀਂ ਹੈ। ਇਸ ਕਮਾਂਡ ਨੂੰ ਚਲਾਉਣ ਤੋਂ ਪਹਿਲਾਂ ਡਿਵਾਈਸ 'ਤੇ ਇੱਕ ਸਹੂਲਤ ਸਥਾਪਤ ਕਰਨਾ ਯਕੀਨੀ ਬਣਾਓ"
+
+#: core/auth/constants/commands_errors.py:35
+#: core/auth/management/commands/bulkimportusers.py:98
+msgid "Error trying to read csv file: {}"
+msgstr "Csv ਫਾਈਲ ਨੂੰ ਪੜ੍ਹਨ ਦੀ ਕੋਸ਼ਿਸ਼ ਵਿੱਚ ਗਲਤੀ: {}"
+
+#: core/auth/constants/commands_errors.py:36
+#: core/auth/management/commands/bulkimportusers.py:99
+msgid "Error trying to write csv file: {}"
+msgstr "Csv ਫਾਈਲ ਰਾਈਟ ਕਰਨ ਦੀ ਕੋਸ਼ਿਸ਼ ਵਿੱਚ ਗਲਤੀ: {}"
+
+#: core/auth/management/commands/bulkexportusers.py:46
+#: core/auth/management/commands/bulkexportusers.py:123
+msgid "Database ID ({})"
+msgstr "ਡਾਟਾਬੇਸ ID ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:47
+#: core/auth/management/commands/bulkexportusers.py:124
+msgid "Username ({})"
+msgstr "ਯੂਜ਼ਰਨੇਮ ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:48
+#: core/auth/management/commands/bulkexportusers.py:125
+msgid "Password ({})"
+msgstr "ਪਾਸਵਰਡ ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:49
+#: core/auth/management/commands/bulkexportusers.py:126
+msgid "Full name ({})"
+msgstr "ਪੂਰਾ ਨਾਂਮ ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:54
+msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
+msgid "User type ({})"
+msgstr "ਯੂਜ਼ਰ ਟਾਈਪ ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:57
+#: core/auth/management/commands/bulkexportusers.py:134
+msgid "Identifier ({})"
+msgstr "ਪਛਾਣਕਰਤਾ ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:58
+#: core/auth/management/commands/bulkexportusers.py:135
+msgid "Birth year ({})"
+msgstr "ਜਨਮ ਦਾ ਸਾਲ ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:59
+#: core/auth/management/commands/bulkexportusers.py:136
+msgid "Gender ({})"
+msgstr "ਲਿੰਗ ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:64
+msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
+msgid "Learner enrollment ({})"
+msgstr "ਸਿਖਿਆਰਥੀ ਦਾਖਲਾ ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:71
+msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
+msgid "Coach assignment ({})"
+msgstr "ਕਲਾਸ ਅਸਾਈਨਮੈਂਟ ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:131
+msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
+msgid "User type ({})"
+msgstr "ਯੂਜ਼ਰ ਟਾਈਪ ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:141
+msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
+msgid "Learner enrollment ({})"
+msgstr "ਸਿਖਿਆਰਥੀ ਦਾਖਲਾ ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:148
+msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
+msgid "Coach assignment ({})"
+msgstr "ਕੋਚ ਅਸਾਈਨਮੈਂਟ ({})"
+
+#: core/auth/management/commands/bulkimportusers.py:75
+msgctxt "Error message that might appear when there's a programming error importing a CSV file"
+msgid "Unexpected error [{}]: {}"
+msgstr "ਅਚਾਨਕ ਗਲਤੀ [{}]: {}"
+
+#: core/auth/management/commands/bulkimportusers.py:79
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "Value in column '{}' has too many characters"
+msgstr "ਕਾਲਮ '{}' ਦੇ ਮੁੱਲ ਵਿੱਚ ਬਹੁਤ ਸਾਰੇ ਅੱਖਰ ਹਨ"
+
+#: core/auth/management/commands/bulkimportusers.py:81
+msgid "Value in column '{}' not valid"
+msgstr "ਕਾਲਮ '{}' ਵਿੱਚ ਮੁੱਲ ਵੈਲਿਡ ਨਹੀਂ ਹੈ"
+
+#: core/auth/management/commands/bulkimportusers.py:82
+msgid "Username is duplicated"
+msgstr "ਯੂਜ਼ਰਨਾਮ ਡੁਪਲੀਕੇਟ ਹੈ"
+
+#: core/auth/management/commands/bulkimportusers.py:88
+msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
+msgid "The column '{}' is required"
+msgstr "ਕਾਲਮ '{}' ਲੋੜੀਂਦਾ ਹੈ"
+
+#: core/auth/management/commands/bulkimportusers.py:92
+msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
+msgid "Incorrect header label found in the first row"
+msgstr "ਪਹਿਲੀ ਰੋ ਵਿੱਚ ਗਲਤ ਹੈਡਰ ਲੇਬਲ ਮਿਲਿਆ"
+
+#: core/auth/management/commands/bulkimportusers.py:96
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
+msgstr "ਕੋਈ ਡਿਫਾਲਟ ਸਹੂਲਤ ਮੌਜੂਦ ਨਹੀਂ ਹੈ। ਉਪਭੋਗਤਾਵਾਂ ਅਤੇ ਕਲਾਸਾਂ ਨੂੰ ਆਯਾਤ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਡਿਵਾਈਸ 'ਤੇ ਇੱਕ ਸਹੂਲਤ ਸਥਾਪਤ ਕਰਨਾ ਯਕੀਨੀ ਬਣਾਓ"
+
+#: core/auth/management/commands/bulkimportusers.py:101
+msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
+msgstr "ਪਾਸਵਰਡ ਖੇਤਰ ਲੋੜੀਂਦਾ ਹੈ। ਮੌਜੂਦਾ ਉਪਭੋਗਤਾਵਾਂ ਵਿੱਚ ਪਾਸਵਰਡ ਨੂੰ ਬਦਲਿਆ ਨਾ ਛੱਡਣ ਲਈ, ਇੱਕ ਤਾਰਾ (*) ਪਾਓ"
+
+#: core/auth/management/commands/bulkimportusers.py:104
+msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
+msgstr "ID: '{}' ਨਾਲ ਯੂਜ਼ਰ ਨੂੰ ਅੱਪਡੇਟ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ ਕਿਉਂਕਿ ਇਸ ਸਹੂਲਤ ਵਿੱਚ ਉਸ ਡੇਟਾਬੇਸ ID ਵਾਲਾ ਕੋਈ ਯੂਜ਼ਰ ਮੌਜੂਦ ਨਹੀਂ ਹੈ।"
+
+#: core/auth/management/commands/bulkimportusers.py:106
+msgid "Database ID is not valid"
+msgstr "ਡਾਟਾਬੇਸ ID ਵੈਲਿਡ ਨਹੀਂ ਹੈ"
+
+#. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
+#: core/auth/tasks.py:56
+msgid "Data syncing in progress"
+msgstr "ਡਾਟਾ ਸਿੰਕਿੰਗ ਜਾਰੀ ਹੈ"
+
+#. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
+#. to encourage them to stay connected to their network to ensure a successful sync.
+#: core/auth/tasks.py:60
+msgid "Do not disconnect your device from the network."
+msgstr "ਆਪਣੀ ਡਿਵਾਈਸ ਨੂੰ ਨੈੱਟਵਰਕ ਤੋਂ ਡਿਸਕਨੈਕਟ ਨਾ ਕਰੋ।"
+
+#: core/content/api.py:425
+msgid "Resource"
+msgstr "ਸਰੋਤ"
+
+#: core/content/api.py:1773
+msgid "The requested channel does not exist on the content server"
+msgstr "ਬੇਨਤੀ ਕੀਤਾ ਚੈਨਲ ਕੰਟੈਂਟ ਸਰਵਰ 'ਤੇ ਮੌਜੂਦ ਨਹੀਂ ਹੈ"
+
+#: core/content/models.py:278
+msgid "Unknown format"
+msgstr "ਅਗਿਆਤ ਫਾਰਮੈਟ"
+
+#. Translators: Message shown to an App user when the device's library is being updated
+#. either with new resources, or unwanted resources being deleted.
+#: core/content/tasks.py:57
+msgid "Updating your library"
+msgstr "ਤੁਹਾਡੀ ਲਾਇਬ੍ਰੇਰੀ ਨੂੰ ਅੱਪਡੇਟ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ"
+
+#. Translators: Message shown to an App user when an update to the library has been successful.
+#: core/content/tasks.py:60
+msgid "Library updated"
+msgstr "ਲਾਇਬ੍ਰੇਰੀ ਅੱਪਡੇਟ ਕੀਤੀ ਗਈ"
+
+#. Translators: Message shown to an App user when an update to the library has failed.
+#: core/content/tasks.py:63
+msgid "Library update failed"
+msgstr "ਲਾਇਬ੍ਰੇਰੀ ਅੱਪਡੇਟ ਅਸਫਲ ਰਿਹਾ"
+
+#: core/device/serializers.py:48
+msgid "Language is not supported by Kolibri"
+msgstr "ਭਾਸ਼ਾ ਕੋਲਿਬਰੀ ਦੁਆਰਾ ਸਮਰਥਿਤ ਨਹੀਂ ਹੈ"
+
+#. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:11
+msgid "Searching"
+msgstr "ਖੋਜ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ"
+
+#. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:13
+msgid "Looking for other Kolibri devices"
+msgstr "ਹੋਰ ਕੋਲੀਬਰੀ ਡਿਵਾਈਸਾਂ ਦੀ ਭਾਲ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ"
+
+#: core/logger/csv_export.py:69
+msgid "Facility name"
+msgstr "ਸਹੂਲਤ ਦਾ ਨਾਮ"
+
+#: core/logger/csv_export.py:70
+msgid "Username"
+msgstr "ਯੂਜ਼ਰਨੇਮ"
+
+#: core/logger/csv_export.py:71
+msgid "Channel id"
+msgstr "ਚੈਨਲ ਆਈ.ਡੀ"
+
+#: core/logger/csv_export.py:72
+msgid "Channel name"
+msgstr "ਚੈਨਲ ਦਾ ਨਾਮ"
+
+#: core/logger/csv_export.py:73
+msgid "Content id"
+msgstr "ਕੰਟੈਂਟ ਆਈ ਡੀ"
+
+#: core/logger/csv_export.py:74
+msgid "Content title"
+msgstr "ਕੰਟੈਂਟ ਟਾਈਟਲ"
+
+#: core/logger/csv_export.py:79
+msgctxt "CSV column header for the time of the first interaction in the exported logs"
+msgid "Time of first interaction"
+msgstr "ਪਹਿਲੀ ਗੱਲਬਾਤ ਦਾ ਸਮਾਂ"
+
+#: core/logger/csv_export.py:86
+msgctxt "CSV column header for the time of the last interaction in the exported logs"
+msgid "Time of last interaction"
+msgstr "ਆਖਰੀ ਗੱਲਬਾਤ ਦਾ ਸਮਾਂ"
+
+#: core/logger/csv_export.py:93
+msgctxt "CSV column header for the percentage of completion in the exported logs"
+msgid "Time of completion"
+msgstr "ਪੂਰਾ ਹੋਣ ਦਾ ਸਮਾਂ"
+
+#: core/logger/csv_export.py:100
+msgctxt "CSV column header for the time spent in a resource in the exported logs"
+msgid "Time Spent (sec)"
+msgstr "ਸਮਾਂ ਬਿਤਾਇਆ (ਸਕਿੰਟ)"
+
+#: core/logger/csv_export.py:103
+msgid "Progress (0-1)"
+msgstr "ਤਰੱਕੀ (0-1)"
+
+#: core/logger/csv_export.py:104
+msgid "Content kind"
+msgstr "ਕੰਟੈਂਟ ਕਾਈਂਡ"
+
+#. Translators: Message shown to indicate that a background process has finished successfully.
+#: core/tasks/job.py:86
+msgid "Complete"
+msgstr "ਸੰਪੂਰਨ"
+
+#. Translators: Message shown to indicate that a background process has failed.
+#: core/tasks/job.py:89
+msgid "Failed"
+msgstr "ਅਸਫਲ ਹੋਇਆ"
+
+#. Translators: Message shown to indicate that a background process has been cancelled.
+#: core/tasks/job.py:92
+msgid "Cancelled"
+msgstr "ਰੱਦ"
+
+#. Translators: Message shown to indicate the percentage completed of a background process.
+#: core/tasks/job.py:95
+#, python-brace-format
+msgid "In progress - {percent}%"
+msgstr "ਪ੍ਰਗਤੀ ਵਿੱਚ - {percent}%"
+
+#. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
+#: core/tasks/job.py:99
+msgid "Waiting"
+msgstr "ਉਡੀਕ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ"
+
+#: core/templates/kolibri/loading_page.html:8
+msgid "Kolibri is starting"
+msgstr "ਕੋਲੀਬਰੀ ਸ਼ੁਰੂ ਹੋ ਰਹੀ ਹੈ"
+
+#: core/templates/kolibri/loading_page.html:87
+msgid "Starting Kolibri"
+msgstr "ਕੋਲੀਬਰੀ ਸ਼ੁਰੂ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ"
+
+#: core/templates/kolibri/loading_page.html:89
+msgid "You should be automatically redirected when Kolibri is ready"
+msgstr "ਕੋਲਿਬਰੀ ਤਿਆਰ ਹੋਣ 'ਤੇ ਤੁਹਾਨੂੰ ਆਪਣੇ ਆਪ ਰੀਡਾਇਰੈਕਟ ਕੀਤਾ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ"
+
+#: core/templates/kolibri/loading_page.html:90
+msgid "If not, please ask for help in our community forums"
+msgstr "ਜੇਕਰ ਨਹੀਂ, ਤਾਂ ਕਿਰਪਾ ਕਰਕੇ ਸਾਡੇ ਭਾਈਚਾਰਕ ਫੋਰਮਾਂ ਵਿੱਚ ਮਦਦ ਮੰਗੋ"
+
+#: core/templates/kolibri/loading_page.html:91
+msgid "Refresh page"
+msgstr "ਸਫ਼ਾ ਰੀਫ੍ਰੈਸ਼ ਕਰੋ"
+
+#: core/templates/kolibri/unsupported_browser.html:42
+msgid "Unsupported browser"
+msgstr "ਅਸਮਰਥਿਤ ਬ੍ਰਾਊਜ਼ਰ"
+
+#: core/templates/kolibri/unsupported_browser.html:43
+msgid "Sorry, your browser version is not supported."
+msgstr "ਮਾਫ਼ ਕਰਨਾ, ਤੁਹਾਡਾ ਬ੍ਰਾਊਜ਼ਰ ਸੰਸਕਰਣ ਸਮਰਥਿਤ ਨਹੀਂ ਹੈ।"
+
+#: core/templates/kolibri/unsupported_browser.html:44
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "ਕੋਲੀਬਰੀ ਦੀ ਵਰਤੋਂ ਕਰਨ ਲਈ, ਅਸੀਂ ਫਾਇਰਫਾਕਸ ਜਾਂ ਕਰੋਮ ਵਰਤਣ ਦੀ ਸਿਫ਼ਾਰਿਸ਼ ਕਰਦੇ ਹਾਂ।"
+
+#: core/templates/kolibri/unsupported_browser.html:45
+msgid "You can also try updating your current browser."
+msgstr "ਤੁਸੀਂ ਆਪਣੇ ਮੌਜੂਦਾ ਬ੍ਰਾਊਜ਼ਰ ਨੂੰ ਅੱਪਡੇਟ ਕਰਨ ਦੀ ਕੋਸ਼ਿਸ਼ ਵੀ ਕਰ ਸਕਦੇ ਹੋ।"
+
+#: core/templatetags/core_tags.py:80
+msgid "Kolibri"
+msgstr "ਕੋਲੀਬਰੀ"
+
+#: core/views.py:185
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "ਕੋਈ ਢੁਕਵੇਂ ਰੀਡਾਇਰੈਕਟ ਪੰਨੇ ਨਹੀਂ ਮਿਲੇ। ਇਹ ਸੰਭਾਵਨਾ ਹੈ ਕਿ ਕੋਲੀਬਰੀ ਬੁਰੀ ਤਰ੍ਹਾਂ ਸੰਰਚਿਤ ਹੈ"
+
+#: plugins/coach/kolibri_plugin.py:23
+msgid "Coach"
+msgstr "ਕੋਚ"
+
+#: plugins/facility/kolibri_plugin.py:18
+msgid "Facility"
+msgstr "ਸਹੂਲਤ"
+
+#: plugins/facility/views.py:147
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs_from_"
+msgstr "content_session_logs_from_"
+
+#: plugins/facility/views.py:154 plugins/facility/views.py:172
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "to_"
+msgstr "to_"
+
+#: plugins/facility/views.py:165
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs_from_"
+msgstr "content_summary_logs_from_"
+
+#: plugins/facility/views.py:183
+msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
+msgid "users"
+msgstr "ਯੂਜ਼ਰ"
+
+#: plugins/learn/kolibri_plugin.py:31
+msgid "Learn"
+msgstr "ਸਿੱਖੋ"
+
+#: plugins/policies/kolibri_plugin.py:17
+msgid "Policies"
+msgstr "ਨੀਤੀਆਂ"
+
+#: plugins/setup_wizard/kolibri_plugin.py:19
+msgid "Setup Wizard"
+msgstr "ਸੈਟਅੱਪ ਵਿਜ਼ਰਡ"
+
+#: plugins/user_profile/kolibri_plugin.py:20
+msgid "User Profile"
+msgstr "ਯੂਜ਼ਰ ਪ੍ਰੋਫ਼ਾਈਲ"
+
+#. Translators: A notification title shown to users when their learner account is joining a new learning facility.
+#: plugins/user_profile/tasks.py:87
+msgid "Account transfer in progress"
+msgstr "ਅਕਾਊਂਟ ਟ੍ਰਾਂਸਫਰ ਜਾਰੀ ਹੈ"
+
+#: plugins/user_profile/tasks.py:90
+#, python-brace-format
+msgid "Moving {learner_name} to learning facility {facility_name}"
+msgstr "{learner_name} ਨੂੰ ਸਿੱਖਣ ਦੀ ਸਹੂਲਤ {facility_name} ਵਿੱਚ ਤਬਦੀਲ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ"
+

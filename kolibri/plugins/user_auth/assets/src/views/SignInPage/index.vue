@@ -166,6 +166,7 @@
   import { validateUsername } from 'kolibri.utils.validators';
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { ComponentMap } from '../../constants';
   import getUrlParameter from '../getUrlParameter';
   import AuthBase from '../AuthBase';
@@ -190,6 +191,10 @@
       UsersList,
     },
     mixins: [commonCoreStrings, commonUserStrings],
+    setup() {
+      const { isAppContext } = useUser();
+      return { isAppContext };
+    },
     data() {
       return {
         username: '',
@@ -208,7 +213,7 @@
       };
     },
     computed: {
-      ...mapGetters(['selectedFacility', 'isAppContext']),
+      ...mapGetters(['selectedFacility']),
       ...mapState('signIn', ['hasMultipleFacilities']),
       backToFacilitySelectionRoute() {
         const facilityRoute = this.$router.getRoute(ComponentMap.FACILITY_SELECT);

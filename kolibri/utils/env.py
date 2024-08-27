@@ -96,6 +96,19 @@ def monkey_patch_markdown():
     sys.modules["markdown"] = None
 
 
+def monkey_patch_distutils():
+    """
+    Monkey patch distutils module which has been removed in Python 3.12, but is still relied
+    upon by the version of redis we are using, this points to a dummy module that exposes the
+    single import from distutils.version that is used by redis.
+    """
+    if sys.version_info >= (3, 12):
+        from importlib import import_module
+
+        module = import_module("kolibri.utils.dummy_distutils_version")
+        sys.modules["distutils.version"] = module
+
+
 def set_env():
     """
     Sets the Kolibri environment for the CLI or other application worker
@@ -106,6 +119,7 @@ def set_env():
     else.
     """
     monkey_patch_markdown()
+    monkey_patch_distutils()
 
     from kolibri import dist as kolibri_dist  # noqa
 

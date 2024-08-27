@@ -231,7 +231,8 @@
     setup() {
       const { windowIsMedium, windowIsSmall } = useKResponsiveWindow();
       const { isAppContext } = useUser();
-      return { windowIsMedium, windowIsSmall, isAppContext };
+      const { userIsMultiFacilityAdmin } = useUser();
+      return { windowIsMedium, windowIsSmall, isAppContext, userIsMultiFacilityAdmin };
     },
     data() {
       return {
@@ -252,7 +253,7 @@
         'inSummaryCSVCreation',
         'firstLogDate',
       ]),
-      ...mapGetters(['activeFacilityId', 'userIsMultiFacilityAdmin', 'facilityPageLinks']),
+      ...mapGetters(['activeFacilityId', 'facilityPageLinks']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       // NOTE: We disable CSV file upload/download on embedded web views like the Mac
       // and Android apps

@@ -10,7 +10,7 @@
       <KGrid :gridStyle="gridStyle">
         <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
         <KGridItem
-          v-if="windowIsLarge"
+          v-if="showQuestionsList"
           ref="questionListWrapper"
           :layout12="{ span: 4 }"
           class="column-pane"
@@ -33,13 +33,15 @@
         <KGridItem
           :layout12="{ span: 8 }"
           class="column-pane"
+          :style="!showQuestionsList ? { overflow: 'unset' } : {}"
         >
           <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
             <KPageContainer
+              v-if="windowIsLarge"
               dir="auto"
               style="overflow-x: visible"
             >
-              <KGrid v-if="windowIsLarge">
+              <KGrid>
                 <KGridItem :layout12="{ span: 8 }">
                   <h2 class="section-title">
                     {{ displaySectionTitle(currentSection, currentSectionIndex) }}
@@ -58,15 +60,30 @@
                   </div>
                 </KGridItem>
               </KGrid>
-              <div
-                v-else
-                style="overflow-x: visible"
+            </KPageContainer>
+            <div v-else>
+              <KPageContainer
+                dir="auto"
+                class="quiz-container"
+              >
+                <span>{{ coreString('timeSpentLabel') }}:</span>
+                <TimeDuration
+                  class="timer"
+                  aria-live="polite"
+                  role="timer"
+                  :seconds="time_spent"
+                />
+              </KPageContainer>
+              <KPageContainer
+                dir="auto"
+                class="quiz-container"
               >
                 <div v-if="windowIsSmall || windowIsMedium">
                   <KSelect
                     v-if="sectionSelectOptions.length > 1"
                     :value="currentSectionOption"
                     :options="sectionSelectOptions"
+                    :label="quizSectionsLabel$()"
                     @select="handleSectionOptionChange"
                   >
                     <template #display>
@@ -93,32 +110,24 @@
                     {{ currentSectionOption.label }}
                   </h2>
                 </div>
-                <p>{{ currentSection.description }}</p>
+                <p v-if="currentSection.description">{{ currentSection.description }}</p>
                 <p v-if="content && content.duration">
                   {{ learnString('suggestedTime') }}
                 </p>
-                <div :style="{ margin: '0 auto', textAlign: 'center', width: '100%' }">
-                  <span>{{ coreString('timeSpentLabel') }}:</span>
-                  <TimeDuration
-                    class="timer"
-                    aria-live="polite"
-                    role="timer"
-                    :seconds="time_spent"
-                  />
-                </div>
                 <SuggestedTime
                   v-if="content && content.duration"
                   class="timer"
                   :seconds="content.duration"
                 />
-              </div>
-            </KPageContainer>
+              </KPageContainer>
+            </div>
             <KPageContainer style="overflow-x: visible">
               <KSelect
                 v-if="windowIsSmall || windowIsMedium"
                 style="margin-top: 1em"
                 :value="currentQuestionOption"
                 :options="questionSelectOptions"
+                :label="questionsLabel$()"
                 @select="handleQuestionOptionChange"
               >
                 <template #display>
@@ -304,7 +313,10 @@
 
   import { mapState } from 'vuex';
   import isEqual from 'lodash/isEqual';
-  import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import {
+    displaySectionTitle,
+    enhancedQuizManagementStrings,
+  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -312,6 +324,7 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import { annotateSections } from 'kolibri.utils.exams';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
   import { PageNames, ClassesPageNames } from '../../constants';
@@ -342,9 +355,13 @@
         startTrackingProgress,
         stopTrackingProgress,
       } = useProgressTracking();
+      const { currentUserId } = useUser();
       const { windowBreakpoint, windowIsMedium, windowIsLarge, windowIsSmall } =
         useKResponsiveWindow();
+      const { quizSectionsLabel$, questionsLabel$ } = enhancedQuizManagementStrings;
       return {
+        questionsLabel$,
+        quizSectionsLabel$,
         displaySectionTitle,
         pastattempts,
         time_spent,
@@ -356,6 +373,7 @@
         windowIsLarge,
         windowIsSmall,
         windowIsMedium,
+        currentUserId,
       };
     },
     data() {
@@ -527,6 +545,9 @@
           ? { position: 'relative', top: '3px', left: '-4px' }
           : {};
       },
+      showQuestionsList() {
+        return this.windowIsLarge;
+      },
     },
     watch: {
       attemptLogItemValue(newVal, oldVal) {
@@ -544,7 +565,7 @@
             return this.router.replace({
               name: ClassesPageNames.EXAM_REPORT_VIEWER,
               params: {
-                userId: this.$store.getters.currentUserId,
+                userId: this.currentUserId,
                 examId: this.exam.id,
                 questionNumber: 0,
                 questionInteraction: 0,
@@ -874,6 +895,15 @@
 
   .dot {
     margin-right: 5px;
+  }
+
+  .section-select {
+    margin: 0;
+  }
+
+  .quiz-container {
+    padding: 1em !important;
+    overflow-x: visible;
   }
 
 </style>

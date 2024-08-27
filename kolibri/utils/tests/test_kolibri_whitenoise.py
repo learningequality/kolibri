@@ -2,12 +2,12 @@ import os
 import re
 import tempfile
 from gzip import GzipFile
+from http import HTTPStatus
 
 import pytest
 from mock import MagicMock
 from mock import mock_open
 from mock import patch
-from whitenoise.httpstatus_backport import HTTPStatus
 from whitenoise.responders import Response
 
 from kolibri.utils.kolibri_whitenoise import COMPRESSED_FILE_FOR_REGULAR_PATH

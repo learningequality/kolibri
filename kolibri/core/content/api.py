@@ -1,11 +1,11 @@
 import hashlib
 import logging
 import re
+from base64 import urlsafe_b64decode
 from collections import OrderedDict
 from functools import reduce
 from random import sample
 
-import requests
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db.models import Exists
@@ -14,11 +14,14 @@ from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models.aggregates import Count
 from django.http import Http404
+from django.http import HttpResponse
+from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
 from django.utils.encoding import iri_to_uri
 from django.utils.translation import gettext as _
+from django.views import View
 from django.views.decorators.cache import cache_page
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import etag
@@ -32,7 +35,6 @@ from django_filters.rest_framework import NumberFilter
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
-from requests.exceptions import RequestException
 from rest_framework import filters
 from rest_framework import mixins
 from rest_framework import status
@@ -72,12 +74,14 @@ from kolibri.core.content.utils.importability_annotation import (
     get_channel_stats_from_studio,
 )
 from kolibri.core.content.utils.paths import get_channel_lookup_url
-from kolibri.core.content.utils.paths import get_info_url
 from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import ContentSessionLog
@@ -86,7 +90,7 @@ from kolibri.core.query import SQSum
 from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
-from kolibri.core.utils.urls import join_url
+from kolibri.utils import conf
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.urls import validator
 
@@ -210,14 +214,13 @@ class RemoteMixin(object):
             validator(baseurl)
         except ValidationError:
             raise Http404("Remote resource not found")
-        remote_url = join_url(baseurl, remote_path)
+        client = NetworkClient.build_for_address(baseurl)
+        remote_url = remote_path
         try:
-            response = requests.get(
+            response = client.get(
                 remote_url, params=qs, headers=self._get_request_headers(request)
             )
-            if response.status_code == 404:
-                raise Http404("Remote resource not found")
-            response.raise_for_status()
+
             # If Etag is set on the response we have returned here, any further Etag will not be modified
             # by the django etag decorator, so this should allow us to transparently proxy the remote etag.
             try:
@@ -231,8 +234,9 @@ class RemoteMixin(object):
                 status=response.status_code,
                 headers=headers,
             )
-        except RequestException:
-            # If any sort of error due to connection or timeout, raise a resource gone error
+        except NetworkLocationResponseFailure as e:
+            if e.response.status_code == 404:
+                raise Http404("Remote resource not found")
             raise ResourceGoneError
 
 
@@ -289,6 +293,18 @@ class ChannelMetadataFilter(FilterSet):
 
     def filter_available(self, queryset, name, value):
         return queryset.filter(root__available=value)
+
+
+class ChannelThumbnailView(View):
+    def get(self, request, channel_id):
+        channel = get_object_or_404(models.ChannelMetadata, id=channel_id)
+        try:
+            header, b_64_thumbnail = channel.thumbnail.split(",", 1)
+            mimetype = header.split(":")[1].split(";")[0]
+        except ValueError:
+            raise Http404("No thumbnail available")
+        thumbnail = urlsafe_b64decode(b_64_thumbnail)
+        return HttpResponse(thumbnail, content_type=mimetype)
 
 
 class BaseChannelMetadataMixin(object):
@@ -373,9 +389,21 @@ class BaseChannelMetadataMixin(object):
         return Response(data)
 
 
+def _create_channel_thumbnail_url(item):
+    return (
+        reverse("kolibri:core:channel-thumbnail", args=[item["id"]])
+        if item["thumbnail"]
+        else ""
+    )
+
+
 @method_decorator(remote_metadata_cache, name="dispatch")
 class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
-    pass
+    field_map = {
+        "thumbnail": _create_channel_thumbnail_url,
+    }
+
+    field_map.update(BaseChannelMetadataMixin.field_map)
 
 
 MODALITIES = set(["QUIZ"])
@@ -1744,23 +1772,26 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         if baseurl is not None:
             try:
                 validator(baseurl)
+                client = NetworkClient.build_for_address(baseurl)
             except ValidationError:
                 baseurl = None
+        if baseurl is None:
+            client = NetworkClient("/")
         url = get_channel_lookup_url(
             identifier=identifier, baseurl=baseurl, keyword=keyword, language=language
         )
+        try:
 
-        resp = requests.get(url)
+            resp = client.get(url)
+            # map the channel list into the format the Kolibri client-side expects
+            channels = list(map(self._studio_response_to_kolibri_response, resp.json()))
 
-        if resp.status_code == 404:
-            raise Http404(
-                _("The requested channel does not exist on the content server")
-            )
-
-        # map the channel list into the format the Kolibri client-side expects
-        channels = list(map(self._studio_response_to_kolibri_response, resp.json()))
-
-        return channels
+            return channels
+        except NetworkLocationResponseFailure as e:
+            if e.response.status_code == 404:
+                raise Http404(
+                    _("The requested channel does not exist on the content server")
+                )
 
     @staticmethod
     def _get_lang_native_name(code):
@@ -1824,7 +1855,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             channels = self._make_channel_endpoint_request(
                 identifier=token, baseurl=baseurl, keyword=keyword, language=language
             )
-        except requests.exceptions.ConnectionError:
+        except NetworkLocationConnectionFailure:
             return Response(
                 {"status": "offline"}, status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
@@ -1841,7 +1872,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             channels = self._make_channel_endpoint_request(
                 identifier=pk, baseurl=baseurl, keyword=keyword, language=language
             )
-        except requests.exceptions.ConnectionError:
+        except NetworkLocationConnectionFailure:
             return Response(
                 {"status": "offline"}, status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
@@ -1853,13 +1884,12 @@ class RemoteChannelViewSet(viewsets.ViewSet):
     @no_cache_on_method
     def kolibri_studio_status(self, request, **kwargs):
         try:
-            resp = requests.get(get_info_url())
-            if resp.status_code == 404:
-                raise requests.ConnectionError("Kolibri Studio URL is incorrect!")
-            else:
-                data = resp.json()
-                data["available"] = True
-                data["status"] = "online"
-                return Response(data)
-        except requests.ConnectionError:
+            baseurl = conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
+            client = NetworkClient.build_for_address(baseurl)
+            resp = client.get("/api/public/info")
+            data = resp.json()
+            data["available"] = True
+            data["status"] = "online"
+            return Response(data)
+        except (NetworkLocationResponseFailure, NetworkLocationConnectionFailure):
             return Response({"status": "offline", "available": False})

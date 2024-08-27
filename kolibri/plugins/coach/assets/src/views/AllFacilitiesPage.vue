@@ -41,6 +41,7 @@
 
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import commonCoach from './common';
   import CoachAppBarPage from './CoachAppBarPage';
 
@@ -51,6 +52,10 @@
       CoreTable,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { facility_id, userIsMultiFacilityAdmin } = useUser();
+      return { facility_id, userIsMultiFacilityAdmin };
+    },
     props: {
       subtopicName: {
         type: String,
@@ -64,8 +69,8 @@
       },
     },
     beforeMount() {
-      if (!this.$store.getters.userIsMultiFacilityAdmin) {
-        const singleFacility = { id: this.$store.getters.userFacilityId };
+      if (!this.userIsMultiFacilityAdmin) {
+        const singleFacility = { id: this.facility_id };
         this.$router.replace(this.coachClassListPageLink(singleFacility));
       }
     },

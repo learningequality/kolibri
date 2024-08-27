@@ -1,11 +1,11 @@
 {
   "AppError.defaultErrorExitPrompt": "తిరిగి హోమ్‌కి వెళ్లు",
-  "AppError.defaultErrorHeader": "క్షమించండి! ఏదో పొరపాటు జరిగింది!",
+  "AppError.defaultErrorHeader": "మన్నించాలి! ఏదో పొరపాటు జరిగింది!",
   "AppError.defaultErrorMessage": "Kolibriలో మీ అనుభవానికి మేము ప్రాధాన్యతని ఇవ్వడంతోపాటు ఈ సమస్యని పరిష్కరించేందుకు కృషి చేస్తున్నాము",
   "AppError.defaultErrorReportPrompt": "ఈ లోపాన్ని నివేదించడం ద్వారా మాకు సహాయపడండి",
   "AppError.defaultErrorResolution": "ఈ పేజీని రీఫ్రెష్ చేసేందుకు లేదా తిరిగి హోమ్ పేజీకి వెళ్లేందుకు ప్రయత్నించండి",
   "AppError.resourceNotFoundHeader": "వనరు కనుగొనబడలేదు",
-  "AppError.resourceNotFoundMessage": "క్షమించండి, ఆ వనరు ఉనికిలో లేదు",
+  "AppError.resourceNotFoundMessage": "మన్నించాలి, ఆ వనరు ఉనికిలో లేదు",
   "AuthBase.accessAsGuest": "ఖాతాతో నిమిత్తం లేకుండా విశ్లేషించండి",
   "AuthBase.oidcGenericExplanation": "Kolibri ఒక ఇ-లెర్నింగ్ ప్లాట్‌ఫారమ్. మీరు కొన్ని మూడవ-పక్ష అప్లికేషన్‌లకు లాగిన్ చేసేందుకు కూడా Kolibri ఖాతాని ఉపయోగించవచ్చు.",
   "AuthBase.oidcSpecificExplanation": "మీరు ఇక్కడకు '{app_name}' అప్లికేషన్ ద్వారా పంపబడ్డారు. Kolibri అనేది ఒక ఇ-లెర్నింగ్ ప్లాట్‌ఫారమ్, అలాగే మీరు '{app_name}'ని యాక్సెస్ చేసేందుకు కూడా Kolibri ఖాతాని ఉపయోగించవచ్చు.",

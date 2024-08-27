@@ -385,15 +385,11 @@ program
             return Promise.all(
               matches.map(globbedFile => {
                 if (!patternCheck || patternCheck.match(globbedFile)) {
-                  return runLinting(globbedFile)
-                    .then(formatted => {
-                      return formatted.code;
-                    })
-                    .catch(error => {
-                      logging.error(`Error processing file: ${globbedFile}`);
-                      logging.error(error.error ? error.error : error);
-                      return error.code;
-                    });
+                  return runLinting(globbedFile).catch(error => {
+                    logging.error(`Error processing file: ${globbedFile}`);
+                    logging.error(error.error ? error.error : error);
+                    return error.code;
+                  });
                 } else {
                   return Promise.resolve(0);
                 }

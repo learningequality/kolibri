@@ -29,6 +29,7 @@
 
   import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import { LessonsPageNames } from '../../constants/lessonsConstants';
@@ -40,9 +41,11 @@
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
+      const { userIsMultiFacilityAdmin } = useUser();
       return {
         saveTabsClick,
         wereTabsClickedRecently,
+        userIsMultiFacilityAdmin,
       };
     },
     props: {
@@ -57,7 +60,7 @@
       };
     },
     computed: {
-      ...mapGetters(['classListPageEnabled', 'userIsMultiFacilityAdmin']),
+      ...mapGetters(['classListPageEnabled']),
       LessonsPageNames() {
         return LessonsPageNames;
       },

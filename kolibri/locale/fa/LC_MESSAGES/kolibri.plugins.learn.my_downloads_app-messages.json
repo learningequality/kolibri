@@ -32,6 +32,7 @@
   "CommonLearnStrings.toggleLicenseDescription": "تغییر چگونگی مجوز توضیحات",
   "CommonLearnStrings.viewResource": "مشاهده منابع",
   "CommonLearnStrings.whatYouWillNeed": "آنچه نیاز خواهید داشت",
+  "DownloadRequests.downloadComplete": "بارگیری کامل شد",
   "DownloadRequests.downloadStartedLabel": "دانلود درخواست شد",
   "DownloadRequests.goToDownloadsPage": "برو به دانلودها",
   "DownloadRequests.resourceRemoved": "منبع از کتابخانه من حذف شده است",

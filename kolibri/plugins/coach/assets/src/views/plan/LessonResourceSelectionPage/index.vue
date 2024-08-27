@@ -117,6 +117,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import CoachImmersivePage from '../../CoachImmersivePage';
@@ -149,8 +150,10 @@
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
+      const { getUserPermissions } = useUser();
       return {
         windowIsSmall,
+        getUserPermissions,
       };
     },
     data() {
@@ -180,7 +183,6 @@
         'ancestors',
       ]),
       ...mapGetters('lessonSummary/resources', ['numRemainingSearchResults']),
-      ...mapGetters(['getUserPermissions']),
       toolbarRoute() {
         if (this.$route.query.last) {
           return this.$router.getRoute(this.$route.query.last);

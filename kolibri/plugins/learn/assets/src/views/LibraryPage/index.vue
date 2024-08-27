@@ -169,10 +169,11 @@
   import useUser from 'kolibri.coreVue.composables.useUser';
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import { ContentNodeResource } from 'kolibri.resources';
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState } from 'vuex';
   import MeteredConnectionNotificationModal from 'kolibri-common/components/MeteredConnectionNotificationModal.vue';
   import appCapabilities, { checkCapability } from 'kolibri.utils.appCapabilities';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
+  import { searchKeys } from 'kolibri-common/composables/useBaseSearch';
   import SidePanelModal from '../SidePanelModal';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import { KolibriStudioId, PageNames } from '../../constants';
@@ -185,7 +186,7 @@
     setCurrentDevice,
     StudioNotAllowedError,
   } from '../../composables/useDevices';
-  import useSearch, { searchKeys } from '../../composables/useSearch';
+  import useSearch from '../../composables/useSearch';
   import useLearnerResources from '../../composables/useLearnerResources';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import commonLearnStrings from '../commonLearnStrings';
@@ -225,7 +226,14 @@
       const store = currentInstance.$store;
       const router = currentInstance.$router;
 
-      const { isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
+      const {
+        isUserLoggedIn,
+        isCoach,
+        isAdmin,
+        isSuperuser,
+        canManageContent,
+        isLearnerOnlyImport,
+      } = useUser();
       const { allowDownloadOnMeteredConnection } = useDeviceSettings();
       const {
         searchTerms,
@@ -316,7 +324,7 @@
 
       function _showLibrary(baseurl) {
         return fetchChannels({ baseurl }).then(channels => {
-          if (!channels.length && !store.getters.isUserLoggedIn) {
+          if (!channels.length && isUserLoggedIn) {
             router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
             return;
           }
@@ -401,6 +409,8 @@
         rootNodesLoading,
         rootNodes,
         isUserLoggedIn,
+        canManageContent,
+        isLearnerOnlyImport,
       };
     },
     props: {
@@ -418,7 +428,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isLearnerOnlyImport', 'canManageContent']),
       ...mapState({
         welcomeModalVisibleState: 'welcomeModalVisible',
       }),

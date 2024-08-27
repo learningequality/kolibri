@@ -50,19 +50,9 @@ class TestApp extends KolibriApp {
 }
 
 describe('KolibriApp', function () {
-  it('it should register the core vuex component', () => {
-    const app = new TestApp();
-    expect(app.store.state.core).toMatchObject(coreModule.state());
-    // just checking on keys, since vuex transforms the actions
-    expect(Object.keys(app.store._actions)).toEqual(Object.keys(coreModule.actions));
-    // only checks intersection with core getters; doesn't include sub-modules
-    expect(Object.keys(app.store.getters)).toEqual(
-      expect.arrayContaining(Object.keys(coreModule.getters)),
-    );
-  });
-
   it('it should register the plugin vuex components', async function () {
     const app = new TestApp();
+    app.store.registerModule('core', coreModule);
     app.store.hotUpdate({
       modules: {
         core: {

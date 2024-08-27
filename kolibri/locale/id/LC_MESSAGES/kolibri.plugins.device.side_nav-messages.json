@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Ruangan dalam perangkat tidak cukup. Kosongkan ruang dan pilih aplikasi yang lebih kecil",
   "CommonDeviceStrings.permissionsLabel": "Izin",
   "CommonDeviceStrings.primaryStorageLabel": "Sumber daya yang baru diunduh akan ditambahkan ke lokasi penyimpanan utama",
+  "CommonDeviceStrings.statusCanceled": "Dibatalkan",
+  "CommonDeviceStrings.statusCanceling": "Sedang membatalkan",
+  "CommonDeviceStrings.statusComplete": "Selesai",
+  "CommonDeviceStrings.statusFailed": "Gagal",
+  "CommonDeviceStrings.statusInProgress": "Sedang berlangsung",
+  "CommonDeviceStrings.statusInQueue": "Menunggu",
   "CommonDeviceStrings.unlistedChannelLabel": "Channel yang tidak terdaftar"
 }

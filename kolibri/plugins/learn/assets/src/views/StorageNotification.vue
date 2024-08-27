@@ -13,7 +13,7 @@
         <!-- Grid Content -->
         <KGridItem :layout12="{ span: 12 }">
           <p>
-            {{ getMessage() }}
+            {{ message }}
           </p>
         </KGridItem>
 
@@ -58,9 +58,9 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { mapGetters } from 'vuex';
   import useUser from 'kolibri.coreVue.composables.useUser';
   import { useLocalStorage } from '@vueuse/core';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import urls from 'kolibri.urls';
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
@@ -74,7 +74,7 @@
       const local_storage_last_synced = useLocalStorage('last_synced', '');
       const local_storage_lastDownloadRemoved = useLocalStorage('last_download_removed', '');
 
-      const { isLearnerOnlyImport } = useUser();
+      const { isAdmin, isLearner, isLearnerOnlyImport, canManageContent } = useUser();
 
       const setLastSyncedValue = newLastSyncValue => {
         local_storage_last_synced.value = newLastSyncValue;
@@ -93,6 +93,8 @@
         lastDownloadRemoved,
       } = useUserSyncStatus();
 
+      const { sendAssertiveMessage } = useKLiveRegion();
+
       return {
         lastSynced,
         status,
@@ -100,11 +102,15 @@
         deviceStatusSentiment,
         hasDownloads,
         lastDownloadRemoved,
+        isAdmin,
+        isLearner,
         isLearnerOnlyImport,
+        canManageContent,
         local_storage_last_synced,
         local_storage_lastDownloadRemoved,
         setLastSyncedValue,
         setDownloadRemovedValue,
+        sendAssertiveMessage,
       };
     },
     data() {
@@ -113,7 +119,19 @@
       };
     },
     computed: {
-      ...mapGetters(['isLearner', 'isAdmin', 'canManageContent']),
+      message() {
+        let message = '';
+        if (this.isAdmin) {
+          message = this.$tr('superAdminMessage');
+        } else if (this.insufficientStorageNoDownloads) {
+          message = this.$tr('insufficientStorageNoDownloads');
+        } else if (this.learnOnlyRemovedResources) {
+          message = this.$tr('resourcesRemoved');
+        } else if (this.availableDownload) {
+          message = this.$tr('insufficientStorageAvailableDownloads');
+        }
+        return message;
+      },
       insufficientStorageNoDownloads() {
         return (
           (this.isLearner && this.insufficientStorage) ||
@@ -144,6 +162,15 @@
           }
         },
         deep: true,
+        immediate: true,
+      },
+      message: {
+        handler(newVal, oldVal) {
+          if (newVal !== oldVal) {
+            this.sendAssertiveMessage(this.message);
+          }
+        },
+        immediate: true,
       },
     },
     mounted() {
@@ -153,19 +180,6 @@
       document.removeEventListener('focusin', this.focusChange);
     },
     methods: {
-      getMessage() {
-        let message = '';
-        if (this.isAdmin) {
-          message = this.$tr('superAdminMessage');
-        } else if (this.insufficientStorageNoDownloads) {
-          message = this.$tr('insufficientStorageNoDownloads');
-        } else if (this.learnOnlyRemovedResources) {
-          message = this.$tr('resourcesRemoved');
-        } else if (this.availableDownload) {
-          message = this.$tr('insufficientStorageAvailableDownloads');
-        }
-        return message;
-      },
       closeBanner() {
         this.setLastSyncedValue(this.lastSynced);
         this.setDownloadRemovedValue(this.lastDownloadRemoved);

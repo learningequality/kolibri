@@ -203,7 +203,6 @@
             :label="$tr('enableAutoDownload')"
             :checked="enableAutomaticDownload"
             :description="$tr('enableAutoDownloadDescription')"
-            :disabled="isRemoteContent"
             @change="handleCheckAutodownload('enableAutomaticDownload', $event)"
           />
           <div class="fieldset left-margin">
@@ -211,14 +210,12 @@
               :label="$tr('allowLearnersDownloadResources')"
               :checked="allowLearnerDownloadResources"
               :description="$tr('allowLearnersDownloadDescription')"
-              :disabled="isRemoteContent"
               @change="handleCheckAutodownload('allowLearnerDownloadResources', $event)"
             />
             <KCheckbox
               :label="$tr('setStorageLimit')"
               :checked="setLimitForAutodownload"
               :description="$tr('setStorageLimitDescription')"
-              :disabled="isRemoteContent"
               @change="handleCheckAutodownload('setLimitForAutodownload', $event)"
             />
             <div
@@ -376,11 +373,11 @@
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
-  import sortLanguages from 'kolibri.utils.sortLanguages';
+  import { availableLanguages, currentLanguage, sortLanguages } from 'kolibri.utils.i18n';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { checkCapability } from 'kolibri.utils.appCapabilities';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import commonDeviceStrings from '../commonDeviceStrings';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
@@ -419,6 +416,7 @@
     },
     mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
+      const { isAppContext, isLearnerOnlyImport, isSuperuser } = useUser();
       const { canRestart, restart, restarting } = useDeviceRestart();
       const { plugins, fetchPlugins, togglePlugin } = usePlugins();
       const { windowIsSmall } = useKResponsiveWindow();
@@ -449,6 +447,9 @@
       }
 
       return {
+        isAppContext,
+        isLearnerOnlyImport,
+        isSuperuser,
         canRestart,
         restart,
         restarting,
@@ -495,7 +496,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAppContext', 'isPageLoading', 'snackbarIsVisible', 'isLearnerOnlyImport']),
+      ...mapGetters(['isPageLoading', 'snackbarIsVisible']),
       ...mapGetters('deviceInfo', ['isRemoteContent']),
       InfoDescriptionColor() {
         return {
@@ -509,7 +510,7 @@
         return this.$store.getters.facilities;
       },
       isMultiFacilitySuperuser() {
-        return this.$store.getters.isSuperuser && this.facilities.length > 1;
+        return this.isSuperuser && this.facilities.length > 1;
       },
       languageOptions() {
         const languages = sortLanguages(Object.values(availableLanguages), currentLanguage).map(

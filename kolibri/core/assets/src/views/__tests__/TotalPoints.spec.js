@@ -1,8 +1,11 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import TotalPoints from '../TotalPoints.vue';
 import '@testing-library/jest-dom';
 
 let store, storeActions;
+
+jest.mock('kolibri.coreVue.composables.useUser');
 
 // Create a mock Vuex store with the required getters and actions
 // This is a helper function to avoid create a new store for each test and not reuse the same object
@@ -10,8 +13,6 @@ const getMockStore = () => {
   return {
     getters: {
       totalPoints: () => store.totalPoints,
-      currentUserId: () => store.currentUserId,
-      isUserLoggedIn: () => store.isUserLoggedIn,
     },
     actions: {
       fetchPoints: storeActions.fetchPoints,
@@ -28,18 +29,19 @@ const renderComponent = store => {
 
 describe('TotalPoints', () => {
   beforeEach(() => {
+    jest.clearAllMocks();
+    useUser.mockImplementation(() => useUserMock());
     store = {
       totalPoints: 0,
-      currentUserId: 1,
-      isUserLoggedIn: false,
     };
+
     storeActions = {
       fetchPoints: jest.fn(),
     };
   });
 
   test('renders when user is logged in', async () => {
-    store.isUserLoggedIn = true;
+    useUser.mockImplementation(() => useUserMock({ currentUserId: 1, isUserLoggedIn: true }));
     store.totalPoints = 100;
     renderComponent(getMockStore());
 
@@ -48,7 +50,7 @@ describe('TotalPoints', () => {
   });
 
   test('does not render when user is not logged in', async () => {
-    store.isUserLoggedIn = false;
+    useUser.mockImplementation(() => useUserMock({ currentUserId: 1, isUserLoggedIn: false }));
     store.totalPoints = 100;
     renderComponent(getMockStore());
 
@@ -57,7 +59,7 @@ describe('TotalPoints', () => {
   });
 
   test('fetchPoints method is called on created', async () => {
-    store.isUserLoggedIn = true;
+    useUser.mockImplementation(() => useUserMock({ currentUserId: 1, isUserLoggedIn: true }));
     const mockedStore = getMockStore();
     renderComponent(mockedStore);
 
@@ -65,7 +67,7 @@ describe('TotalPoints', () => {
   });
 
   test('tooltip message is displayed correctly when the mouse hovers over the icon', async () => {
-    store.isUserLoggedIn = true;
+    useUser.mockImplementation(() => useUserMock({ currentUserId: 1, isUserLoggedIn: true }));
     store.totalPoints = 100;
     renderComponent(getMockStore());
 

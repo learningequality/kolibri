@@ -177,14 +177,6 @@ class IsAdminForJob(PermissionsFromAny):
         super(IsAdminForJob, self).__init__(IsSuperAdmin(), IsFacilityAdminForJob())
 
 
-class IsSelf(BasePermission):
-    def user_can_run_job(self, user, job):
-        return user.id == job.kwargs.get("local_user_id", None)
-
-    def user_can_read_job(self, user, job):
-        return user.id == job.kwargs.get("local_user_id", None)
-
-
 class NotProvisioned(BasePermission):
     def user_can_run_job(self, user, job):
         from kolibri.core.device.utils import device_provisioned

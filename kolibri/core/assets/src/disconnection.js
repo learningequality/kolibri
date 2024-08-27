@@ -1,4 +1,6 @@
 import { createTranslator } from 'kolibri.utils.i18n';
+import { get } from '@vueuse/core';
+import useConnection from './composables/useConnection';
 
 export const trs = createTranslator('DisconnectionSnackbars', {
   disconnected: {
@@ -37,7 +39,8 @@ export function createDisconnectedSnackbar(store, beatCallback) {
   // clear timers
   clearTimer();
   // set proper time
-  setDynamicReconnectTime(store.state.core.connection.reconnectTime);
+  const { reconnectTime } = useConnection();
+  setDynamicReconnectTime(get(reconnectTime));
   // create snackbar
   store.commit('CORE_CREATE_SNACKBAR', {
     text: generateDisconnectedSnackbarText(),

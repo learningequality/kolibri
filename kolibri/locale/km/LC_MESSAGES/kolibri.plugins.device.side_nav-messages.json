@@ -7,5 +7,11 @@
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "គ្មានទំហំទំនេរគ្រប់គ្រាន់នៅលើឧបករណ៍របស់អ្នកទេ។ បង្កើនទំហំថាស ឬជ្រើសរើសធនធានដែលតិចជាង",
   "CommonDeviceStrings.permissionsLabel": "ការអនុញ្ញាត",
   "CommonDeviceStrings.primaryStorageLabel": "ធនធានដែលបានទាញយកថ្មីនឹងត្រូវបន្ថែមទៅទីតាំងផ្ទុកបឋម",
+  "CommonDeviceStrings.statusCanceled": "បានបោះបង់",
+  "CommonDeviceStrings.statusCanceling": "កំពុងបោះបង់",
+  "CommonDeviceStrings.statusComplete": "បានបញ្ចប់ហើយ",
+  "CommonDeviceStrings.statusFailed": "បានបរាជ័យ",
+  "CommonDeviceStrings.statusInProgress": "កំពុងដំណើរការ",
+  "CommonDeviceStrings.statusInQueue": "កំពុងរងចាំ",
   "CommonDeviceStrings.unlistedChannelLabel": "មិននៅក្នុងបញ្ជីឆានែល"
 }

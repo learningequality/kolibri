@@ -158,6 +158,7 @@
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { currentDeviceData } from '../../composables/useDevices';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
@@ -191,6 +192,7 @@
       const { genContentLinkKeepCurrentBackLink } = useContentLink();
       const { baseurl } = currentDeviceData();
       const { windowBreakpoint, windowHeight, windowWidth } = useKResponsiveWindow();
+      const { isAdmin, isCoach, isSuperuser } = useUser();
       return {
         baseurl,
         canAccessUnassignedContent,
@@ -199,6 +201,9 @@
         windowBreakpoint,
         windowHeight,
         windowWidth,
+        isAdmin,
+        isCoach,
+        isSuperuser,
       };
     },
     props: {
@@ -372,10 +377,7 @@
             ? this.contentNode.ancestors.slice(-2)[0].id
             : this.contentNode.parent,
           params: {
-            include_coach_content:
-              this.$store.getters.isAdmin ||
-              this.$store.getters.isCoach ||
-              this.$store.getters.isSuperuser,
+            include_coach_content: this.isAdmin || this.isCoach || this.isSuperuser,
             depth: fetchGrandparent ? 2 : 1,
             baseurl: this.baseurl,
           },

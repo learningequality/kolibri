@@ -30,8 +30,8 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import urls from 'kolibri.urls';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   const userRoles = [
     'admin',
@@ -44,6 +44,10 @@
 
   export default {
     name: 'AuthMessage',
+    setup() {
+      const { isUserLoggedIn } = useUser();
+      return { isUserLoggedIn };
+    },
     props: {
       authorizedRole: {
         type: String,
@@ -64,7 +68,6 @@
       },
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
       detailsText() {
         return this.details || this.$tr(this.authorizedRole);
       },

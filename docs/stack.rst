@@ -71,5 +71,4 @@ We use a number of mechanisms to help encourage code quality and consistency. Mo
 - `pytest <http://pytest.org/latest/>`__ runs our Python unit tests. We also leverage the `Django test framework <https://docs.djangoproject.com/en/1.11/topics/testing/>`__.
 - In addition to building client assets, `webpack <https://webpack.github.io/>`__ runs linters on client-side code: `ESLint <http://eslint.org/>`__ for ES6 JavaScript, `Stylelint <https://stylelint.io/>`__ for SCSS, and `HTMLHint <http://htmlhint.com/>`__ for HTML and Vue.js components.
 - Client-side code is tested using `Jest <https://facebook.github.io/jest/>`__
-- `codecov <https://codecov.io/>`__ reports on the test coverage
 - We have `Sentry <https://docs.sentry.io/>`__ clients integrated (off by default) for automated error reporting

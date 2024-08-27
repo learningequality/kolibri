@@ -100,6 +100,7 @@
 
   import { mapState, mapActions, mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassCreateModal from './ClassCreateModal';
@@ -121,15 +122,19 @@
     mixins: [commonCoreStrings],
     setup() {
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
+      const { userIsMultiFacilityAdmin } = useUser();
       return {
         classToDelete,
         selectClassToDelete,
         clearClassToDelete,
+        userIsMultiFacilityAdmin,
       };
     },
     computed: {
+
       ...mapState('classManagement', ['modalShown', 'classes']),
-      ...mapGetters(['userIsMultiFacilityAdmin', 'facilityPageLinks']),
+      ...mapGetters(['facilityPageLinks']),
+
       Modals: () => Modals,
       tableHeaders() {
         return [

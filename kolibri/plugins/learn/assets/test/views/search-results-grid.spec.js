@@ -6,10 +6,10 @@ import SearchResultsGrid from '../../src/views/SearchResultsGrid.vue';
 const SearchStrings = createTranslator('SearchResultsGrid', SearchResultsGrid.$trs);
 const coreStrings = commonCoreStrings.methods.coreString;
 
-jest.mock('../../src/composables/useSearch');
+jest.mock('kolibri-common/composables/useBaseSearch');
 
 describe('when search results are loaded', () => {
-  /* useSearch#displayingSearchResults is truthy and isLoading is false */
+  /* useBaseSearch#displayingSearchResults is truthy and isLoading is false */
   it('does not display a list of channels', () => {
     const wrapper = shallowMount(SearchResultsGrid, {});
     expect(wrapper.findComponent({ name: 'ChannelCardGroupGrid' }).exists()).toBe(false);
@@ -31,7 +31,7 @@ describe('when search results are loaded', () => {
 
   describe('when there are no more results to show than the default amount', () => {
     it('displays results message with the number of results', () => {
-      /* useSearch#more is relied on here to determine if there are more to show */
+      /* useBaseSearch#more is relied on here to determine if there are more to show */
       const wrapper = shallowMount(SearchResultsGrid, {
         propsData: {
           results: [{ result: 1 }],

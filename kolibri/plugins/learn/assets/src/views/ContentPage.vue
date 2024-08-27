@@ -103,12 +103,13 @@
 <script>
 
   import get from 'lodash/get';
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState } from 'vuex';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import { ContentNodeResource } from 'kolibri.resources';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import router from 'kolibri.coreVue.router';
   import Modalities from 'kolibri-constants/Modalities';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { setContentNodeProgress } from '../composables/useContentNodeProgress';
   import useProgressTracking from '../composables/useProgressTracking';
   import useContentLink from '../composables/useContentLink';
@@ -158,6 +159,7 @@
         return Promise.resolve();
       };
       const { windowIsSmall } = useKResponsiveWindow();
+      const { isUserLoggedIn, currentUserId, full_name } = useUser();
       return {
         errored,
         progress,
@@ -173,6 +175,9 @@
         stopTracking: stopTrackingProgress,
         genContentLinkKeepCurrentBackLink,
         windowIsSmall,
+        isUserLoggedIn,
+        currentUserId,
+        full_name,
       };
     },
     props: {
@@ -204,13 +209,10 @@
         showCompletionModal: false,
         wasComplete: false,
         sessionReady: false,
+        fullName: this.full_name,
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'currentUserId']),
-      ...mapState({
-        fullName: state => state.core.session.full_name,
-      }),
       ...mapState(['showCompleteContentModal']),
       practiceQuiz() {
         return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;

@@ -25,6 +25,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   addQuizSectionQuestionsInstructions: {
     message: 'To add questions, select resources from the available channels',
+    context:
+      "'Resources' refers to 'exercise' type of content, which contain multiple questions. Feel free to translate as '...select exercises from the available channels'.",
   },
   addQuestionsLabel: {
     message: 'Add questions',
@@ -50,6 +52,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   tooManyQuestions: {
     message: 'You cannot select more than { count, number } questions',
+    context: 'This number will always be at least 10.',
   },
   optionalDescriptionLabel: {
     message: 'Description (optional)',
@@ -83,6 +86,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   collapseAll: {
     message: 'Collapse all',
+    context:
+      "Refers to 'questions' - by default coach sees the list of question titles, but the titles are clickable and when opened, the whole content of the question is visible. When many questions are opened, the coach can use the button with this label 'Collapse all' to close them all at once.",
   },
   expandAll: {
     message: 'Expand all',
@@ -144,7 +149,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   closeConfirmationMessage: {
     message: 'You will lose any unsaved edits to your work',
     context:
-      'The body of a confirmation modal informing the user that they will lose their work if they leave the page',
+      'Warning message for the user that they will lose their work if they leave the page without saving.',
   },
 
   numberOfSelectedReplacements: {
@@ -184,7 +189,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   sectionDeletedNotification: {
     message: "'{ section_title }' deleted",
-    context: 'A snackbar message that appears when the user deletes a section',
+    context: 'A snackbar message that appears when the user deletes a SECTION',
   },
   questionsDeletedNotification: {
     message: '{ count, number } { count, plural, one { question } other { questions }} deleted',

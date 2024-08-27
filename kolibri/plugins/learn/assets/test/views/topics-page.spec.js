@@ -7,12 +7,12 @@ import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { useDevicesWithFilter } from 'kolibri.coreVue.componentSets.sync';
 import { ContentNodeResource } from 'kolibri.resources';
 import plugin_data from 'plugin_data';
+// eslint-disable-next-line import/named
+import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
 import makeStore from '../makeStore';
 import CustomContentRenderer from '../../src/views/ChannelRenderer/CustomContentRenderer';
 import { PageNames } from '../../src/constants';
 import TopicsPage from '../../src/views/TopicsPage';
-// eslint-disable-next-line import/named
-import useSearch, { useSearchMock } from '../../src/composables/useSearch';
 // eslint-disable-next-line import/named
 import useChannels, { useChannelsMock } from '../../src/composables/useChannels';
 
@@ -87,8 +87,8 @@ jest.mock('kolibri.client');
 jest.mock('kolibri.resources');
 jest.mock('kolibri.urls');
 jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri-common/composables/useBaseSearch');
 jest.mock('../../src/composables/useContentLink');
-jest.mock('../../src/composables/useSearch');
 jest.mock('../../src/composables/useChannels');
 // Needed to test anything using mount() where children use this composable
 jest.mock('../../src/composables/useLearningActivities');
@@ -108,8 +108,8 @@ describe('TopicsPage', () => {
   let store;
 
   beforeEach(() => {
-    useSearch.mockImplementation(() =>
-      useSearchMock({
+    useBaseSearch.mockImplementation(() =>
+      useBaseSearchMock({
         displayingSearchResults: false,
         results: [],
         search: jest.fn(),
@@ -153,7 +153,7 @@ describe('TopicsPage', () => {
     it('renders a CustomContentRenderer', async () => {
       plugin_data.enableCustomChannelNav.mockImplementation(() => true);
 
-      useSearch.mockImplementation(() => useSearchMock());
+      useBaseSearch.mockImplementation(() => useBaseSearchMock());
 
       ContentNodeResource.fetchTree.mockResolvedValue({
         ...DEFAULT_TOPIC,
@@ -275,8 +275,8 @@ describe('TopicsPage', () => {
 
         jest.clearAllMocks();
 
-        useSearch.mockImplementation(() =>
-          useSearchMock({
+        useBaseSearch.mockImplementation(() =>
+          useBaseSearchMock({
             displayingSearchResults: true, // true here
             results, // those we just made above
             search: jest.fn(),
@@ -309,8 +309,8 @@ describe('TopicsPage', () => {
       it('displays a grid of cards with the topics and their chidlren', async () => {
         jest.clearAllMocks();
 
-        useSearch.mockImplementation(() =>
-          useSearchMock({
+        useBaseSearch.mockImplementation(() =>
+          useBaseSearchMock({
             displayingSearchResults: false,
             results: [],
             search: jest.fn(),
@@ -387,8 +387,8 @@ describe('TopicsPage', () => {
 
       it('shows correct breadcrumbs at a non-Channel Topic', async () => {
         ContentNodeResource.fetchTree.mockResolvedValue(DEFAULT_TOPIC.children.results[0]);
-        useSearch.mockImplementation(() =>
-          useSearchMock({
+        useBaseSearch.mockImplementation(() =>
+          useBaseSearchMock({
             displayingSearchResults: false,
             results: [],
             search: jest.fn(),

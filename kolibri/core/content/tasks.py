@@ -1,6 +1,3 @@
-from urllib.parse import urljoin
-
-import requests
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db.models import Q
@@ -33,6 +30,7 @@ from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import IncompatibleVersionError
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.tasks.decorators import register_task
@@ -43,7 +41,7 @@ from kolibri.core.tasks.job import State
 from kolibri.core.tasks.permissions import CanManageContent
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
-from kolibri.core.utils.urls import reverse_remote
+from kolibri.core.utils.urls import reverse_path
 from kolibri.utils import conf
 from kolibri.utils.translation import gettext as _
 from kolibri.utils.version import version_matches_range
@@ -339,14 +337,11 @@ def remoteresourceimport(
     peer_id=None,
 ):
     current_job = get_current_job()
-    metadata_url = urljoin(
-        baseurl,
-        reverse_remote(
-            baseurl, "kolibri:core:importmetadata-detail", kwargs={"pk": node_id}
-        ),
+    client = NetworkClient.build_for_address(baseurl)
+    metadata_url = reverse_path(
+        "kolibri:core:importmetadata-detail", kwargs={"pk": node_id}
     )
-    response = requests.get(metadata_url)
-    response.raise_for_status()
+    response = client.get(metadata_url)
     import_metadata = response.json()
     cancel_check = None if not current_job else current_job.check_for_cancel
     import_channel_from_data(import_metadata, cancel_check, partial=True)
@@ -641,10 +636,17 @@ class RemoteChannelDiffStatsValidator(RemoteChannelImportValidator):
     def validate(self, data):
         job_data = super(RemoteChannelDiffStatsValidator, self).validate(data)
         # get channel version metadata
+        if job_data["kwargs"]["peer_id"]:
+            client = NetworkClient.build_for_address(job_data["kwargs"]["baseurl"])
+        else:
+            client = NetworkClient("/")
         url = get_channel_lookup_url(
             baseurl=job_data["kwargs"]["baseurl"], identifier=data["channel_id"]
         )
-        resp = requests.get(url)
+        try:
+            resp = client.get(url)
+        except NetworkLocationResponseFailure as e:
+            resp = e.response
         channel_metadata = resp.json()
         job_data["extra_metadata"]["new_channel_version"] = channel_metadata[0][
             "version"
