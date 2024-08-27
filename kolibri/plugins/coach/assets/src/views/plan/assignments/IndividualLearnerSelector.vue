@@ -40,6 +40,7 @@
                   key="selectAllOnPage"
                   :label="$tr('selectAllLabel')"
                   :checked="selectAllCheckboxProps.checked"
+                  :indeterminate="selectAllCheckboxProps.indeterminate"
                   :disabled="selectAllCheckboxProps.disabled"
                   @change="selectVisiblePage"
                 />
@@ -184,9 +185,13 @@
             return 'unchecked';
           }
         });
+        const disabled = currentCount === counts.disabled || currentCount === 0;
+        const checked = currentCount !== 0 && !counts.unchecked;
+
         return {
-          disabled: currentCount === counts.disabled || currentCount === 0,
-          checked: currentCount !== 0 && !counts.unchecked,
+          disabled,
+          checked,
+          indeterminate: !checked && !disabled && counts.checked < currentCount,
         };
       },
       itemsPerPage() {
