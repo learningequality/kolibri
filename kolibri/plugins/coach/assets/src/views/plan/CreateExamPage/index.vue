@@ -118,6 +118,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { PageNames } from '../../../constants';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import useQuizCreation from '../../../composables/useQuizCreation';
@@ -138,6 +139,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const closeConfirmationToRoute = ref(null);
+      const { createSnackbar } = useSnackbar();
       const { classId, groups } = useCoreCoach();
       const {
         quizHasChanged,
@@ -187,6 +189,7 @@
         fixedLabel$,
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
+        createSnackbar,
       };
     },
     provide() {
@@ -332,7 +335,7 @@
         this.saveQuiz()
           .then(exam => {
             this.$refs.detailsModal.handleSubmitSuccess();
-            this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
+            this.createSnackbar(this.changesSavedSuccessfully$());
             if (close) {
               this.$router.replace({
                 name: PageNames.EXAMS,

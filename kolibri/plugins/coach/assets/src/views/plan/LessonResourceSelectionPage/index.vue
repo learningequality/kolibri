@@ -118,6 +118,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import CoachImmersivePage from '../../CoachImmersivePage';
@@ -151,9 +152,12 @@
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
       const { getUserPermissions } = useUser();
+      const { createSnackbar, clearSnackbar } = useSnackbar();
       return {
         windowIsSmall,
         getUserPermissions,
+        createSnackbar,
+        clearSnackbar,
       };
     },
     data() {
@@ -371,7 +375,6 @@
       });
     },
     methods: {
-      ...mapActions(['createSnackbar', 'clearSnackbar']),
       ...mapActions('lessonSummary', ['saveLessonResources', 'addToResourceCache']),
       ...mapActions('lessonSummary/resources', ['fetchAdditionalSearchResults']),
       ...mapMutations('lessonSummary', {

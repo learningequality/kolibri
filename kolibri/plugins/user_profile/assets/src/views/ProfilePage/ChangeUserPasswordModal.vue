@@ -27,6 +27,7 @@
 
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
 
   export default {
     name: 'ChangeUserPasswordModal',
@@ -34,6 +35,10 @@
       PasswordTextbox,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { createSnackbar } = useSnackbar();
+      return { createSnackbar };
+    },
     data() {
       return {
         password: '',
@@ -56,7 +61,7 @@
           .then(() => {
             this.busy = false;
             this.$emit('cancel');
-            this.$store.dispatch('createSnackbar', this.$tr('passwordChangedNotification'));
+            this.createSnackbar(this.$tr('passwordChangedNotification'));
           })
           .catch(error => {
             this.$store.dispatch('handleApiError', { error });

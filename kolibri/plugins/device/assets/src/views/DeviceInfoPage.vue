@@ -84,6 +84,7 @@
   import TechnicalTextBlock from 'kolibri-common/components/AppError/TechnicalTextBlock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import DeviceAppBarPage from './DeviceAppBarPage';
   import { deviceString } from './commonDeviceStrings';
   import DeviceNameModal from './DeviceNameModal';
@@ -103,8 +104,10 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
+      const { createSnackbar } = useSnackbar();
       return {
         windowIsSmall,
+        createSnackbar,
       };
     },
     data() {
@@ -149,10 +152,10 @@
         this.$store
           .dispatch('deviceInfo/updateDeviceName', newName)
           .then(() => {
-            this.$store.dispatch('createSnackbar', this.coreString('changesSavedNotification'));
+            this.createSnackbar(this.coreString('changesSavedNotification'));
           })
           .catch(() => {
-            this.$store.dispatch('createSnackbar', this.coreString('changesNotSavedNotification'));
+            this.createSnackbar(this.coreString('changesNotSavedNotification'));
           });
       },
     },

@@ -4,6 +4,7 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import { setChannelInfo } from 'kolibri.coreVue.vuex.actions';
 import router from 'kolibri.coreVue.router';
 import KolibriApp from 'kolibri_app';
+import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
 import { PageNames } from './constants';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
@@ -26,6 +27,7 @@ class CoachToolsModule extends KolibriApp {
     return pluginModule;
   }
   ready() {
+    const { snackbarIsVisibile, clearSnackbar } = useSnackbar();
     const { isLearnerOnlyImport } = useUser();
     router.beforeEach((to, from, next) => {
       if (get(isLearnerOnlyImport)) {
@@ -54,8 +56,8 @@ class CoachToolsModule extends KolibriApp {
 
       // Clear the snackbar at every navigation to prevent it from re-appearing
       // when the next page component mounts.
-      if (this.store.state.core.snackbar.isVisible && !skipLoading.includes(to.name)) {
-        this.store.dispatch('clearSnackbar');
+      if (get(snackbarIsVisibile) && !skipLoading.includes(to.name)) {
+        clearSnackbar();
       }
 
       this.store.commit('SET_PAGE_NAME', to.name);

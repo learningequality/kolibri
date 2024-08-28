@@ -132,6 +132,7 @@
   import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import Lockr from 'lockr';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import commonCoach from '../common';
   import { REPORTS_TABS_ID, ReportsTabs } from '../../constants/tabsConstants';
   import CoachAppBarPage from '../CoachAppBarPage';
@@ -148,6 +149,10 @@
       ReportsHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { createSnackbar } = useSnackbar();
+      return { createSnackbar };
+    },
     data() {
       return {
         REPORTS_TABS_ID,
@@ -254,7 +259,7 @@
         this.manageModalVisibilityAndPreferences();
         return promise.then(() => {
           this.$store.dispatch('classSummary/refreshClassSummary');
-          this.$store.dispatch('createSnackbar', snackbarMessage);
+          this.createSnackbar(snackbarMessage);
         });
       },
       exportCSV() {

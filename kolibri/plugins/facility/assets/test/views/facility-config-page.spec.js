@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import useSnackbar, { useSnackbarMock } from 'kolibri.coreVue.composables.useSnackbar';
 import ConfigPage from '../../src/views/FacilityConfigPage';
 import makeStore from '../makeStore';
 
@@ -9,6 +10,7 @@ jest.mock('kolibri.coreVue.composables.useUser');
 jest.mock('../../../../device/assets/src/views/DeviceSettingsPage/api.js', () => ({
   getDeviceSettings: jest.fn(),
 }));
+jest.mock('kolibri.coreVue.composables.useSnackbar');
 
 function makeWrapper(propsData = {}) {
   const store = makeStore();
@@ -35,10 +37,12 @@ function getElements(wrapper) {
 }
 
 describe('facility config page view', () => {
+  const createSnackbar = jest.fn();
   beforeAll(() => {
     useKResponsiveWindow.mockImplementation(() => ({
       windowIsSmall: false,
     }));
+    useSnackbar.mockImplementation(() => useSnackbarMock({ createSnackbar }));
   });
 
   function assertModalIsUp(wrapper) {
@@ -114,9 +118,9 @@ describe('facility config page view', () => {
     assertModalIsUp(wrapper);
     confirmResetModal().vm.$emit('submit');
     await wrapper.vm.$nextTick();
-    expect(mock).toHaveBeenCalledTimes(2);
+    expect(mock).toHaveBeenCalledTimes(1);
     expect(mock).toHaveBeenCalledWith('facilityConfig/resetFacilityConfig');
-    expect(mock).toHaveBeenCalledWith('createSnackbar', 'Facility settings updated');
+    expect(createSnackbar).toHaveBeenCalledWith('Facility settings updated');
     assertModalIsDown(wrapper);
   });
 

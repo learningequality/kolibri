@@ -276,15 +276,6 @@ export function fetchPoints(store) {
   }
 }
 
-// Creates a snackbar that automatically dismisses and has no action buttons.
-export function createSnackbar(store, text) {
-  store.commit('CORE_CREATE_SNACKBAR', { text, autoDismiss: true });
-}
-
-export function clearSnackbar(store) {
-  store.commit('CORE_CLEAR_SNACKBAR');
-}
-
 export function loading(store) {
   return new Promise(resolve => {
     store.commit('CORE_SET_PAGE_LOADING', true);
