@@ -8,7 +8,7 @@ import heartbeat from 'kolibri.heartbeat';
 import logger from 'kolibri.lib.logging';
 import { get } from '@vueuse/core';
 import useUser from 'kolibri.coreVue.composables.useUser';
-import errorCodes from '../disconnectionErrorCodes';
+import { DisconnectionErrorCodes } from 'kolibri.coreVue.vuex.constants';
 import useConnection from '../composables/useConnection';
 import clientFactory from './baseClient';
 
@@ -58,7 +58,7 @@ baseClient.interceptors.response.use(
       }
       // On every error, check to see if the status code is one of our designated
       // disconnection status codes.
-      if (errorCodes.includes(error.response.status)) {
+      if (DisconnectionErrorCodes.includes(error.response.status)) {
         // If so, set our heartbeat module to start monitoring the disconnection state
         heartbeat.monitorDisconnect(error.response.status);
       }

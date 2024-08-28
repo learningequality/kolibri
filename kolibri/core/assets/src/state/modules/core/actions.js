@@ -19,11 +19,15 @@ import Vue from 'kolibri.lib.vue';
 import Lockr from 'lockr';
 import { set, get } from '@vueuse/core';
 import useUser from 'kolibri.coreVue.composables.useUser';
+import {
+  DisconnectionErrorCodes,
+  LoginErrors,
+  ERROR_CONSTANTS,
+  UPDATE_MODAL_DISMISSED,
+} from 'kolibri.coreVue.vuex.constants';
 import { baseSessionState } from '../session';
-import { LoginErrors, ERROR_CONSTANTS, UPDATE_MODAL_DISMISSED } from '../../../constants';
 import { browser, os } from '../../../utils/browserInfo';
 import useConnection from '../../../composables/useConnection';
-import errorCodes from './../../../disconnectionErrorCodes.js';
 
 const logging = logger.getLogger(__filename);
 
@@ -79,7 +83,7 @@ export function handleApiError(store, { error, reloadOnReconnect = false } = {})
   if (typeof error === 'object' && !(error instanceof Error)) {
     errorString = JSON.stringify(error, null, 2);
   } else if (error.response) {
-    if (errorCodes.includes(error.response.status)) {
+    if (DisconnectionErrorCodes.includes(error.response.status)) {
       // Do not log errors for disconnections, as it disrupts the user experience
       // and should already be being handled by our disconnection overlay.
       set(useConnection().reloadOnReconnect, reloadOnReconnect);
