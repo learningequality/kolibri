@@ -5,14 +5,16 @@
     layout="horizontal"
     thumbnailDisplay="small"
     thumbnailAlign="right"
+    :thumbnailSrc="thumbnailSrc"
     :title="title"
     :headingLevel="headingLevel"
   >
     <template #thumbnailPlaceholder>
       <div>
-        <ChannelThumbnail
-          :thumbnail="contentNode.thumbnail"
-          style="width:100px"
+        <ContentIcon
+          kind="channel"
+          class="type-icon"
+          :color="$themeTokens.annotation"
         />
       </div>
     </template>
@@ -35,13 +37,15 @@
 
 <script>
 
-  import ChannelThumbnail from './../ChannelThumbnail.vue';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'AccessibleChannelCard',
     components:{
-      ChannelThumbnail,
+      ContentIcon,
     },
+    mixins: [commonCoreStrings],
     props:{
       to: {
         type: Object,
@@ -60,18 +64,16 @@
         type: Object,
         required: true,
       },
+      thumbnailSrc: {
+        type: String,
+        default: null,
+      },
     },
     computed:{
       numberOfResources(){
-        return `${this.contentNode.num_coach_contents} ${this.$tr('resources')}`;
+        return `${this.contentNode.num_coach_contents} ${this.coreString('resourcesLabel')}`;
       }
     },
-    $trs: {
-      resources: {
-        message: 'Resources',
-        context: 'Number of resources in a channel',
-      },
-    }
   }
 
 </script>

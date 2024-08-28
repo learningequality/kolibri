@@ -13,6 +13,7 @@
           :contentNode="device"
           :title="device.title"
           :headingLevel="2"
+          :thumbnailSrc="device.thumbnail"
           :style="{ marginBottom: '24px' }"
         />
       </KGridItem>
