@@ -4,6 +4,7 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import Lockr from 'lockr';
 import urls from 'kolibri.urls';
 import { get, set } from '@vueuse/core';
+import useUser from 'kolibri.coreVue.composables.useUser';
 import useConnection from './composables/useConnection';
 import clientFactory from './core-app/baseClient';
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from './constants';
@@ -158,7 +159,7 @@ export class HeartBeat {
    * @return {Promise} promise that resolves when the endpoint check is complete.
    */
   _checkSession() {
-    const { currentUserId } = store.getters;
+    const { id, currentUserId } = useUser();
     // Record the current user id to check if a different one is returned by the server.
     if (!get(this._connection.connected)) {
       // If not currently connected to the server, flag that we are currently trying to reconnect.
@@ -183,7 +184,7 @@ export class HeartBeat {
         const pollEnd = Date.now();
         const session = response.data;
         // If our session is already defined, check the user id in the response
-        if (store.state.core.session.id && session.user_id !== currentUserId) {
+        if (get(id) && session.user_id !== get(currentUserId)) {
           if (session.user_id === null) {
             // If it is different, and the user_id is now null then our user has been signed out.
             return this.signOutDueToInactivity();

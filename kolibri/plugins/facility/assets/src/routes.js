@@ -5,6 +5,8 @@ import VueRouter from 'vue-router';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 import ClassEditPage from './views/ClassEditPage';
 import CoachClassAssignmentPage from './views/CoachClassAssignmentPage';
 import LearnerClassEnrollmentPage from './views/LearnerClassEnrollmentPage';
@@ -30,7 +32,8 @@ const logging = logger.getLogger(__filename);
 
 function facilityParamRequiredGuard(toRoute, subtopicName) {
   const { isNavigationFailure, NavigationFailureType } = VueRouter;
-  if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
+  const { userIsMultiFacilityAdmin } = useUser();
+  if (get(userIsMultiFacilityAdmin) && !toRoute.params.facility_id) {
     router
       .replace({
         name: 'ALL_FACILITIES_PAGE',
@@ -156,7 +159,8 @@ export default [
     path: '/',
     // Redirect to AllFacilitiesPage if a superuser and device has > 1 facility
     beforeEnter(to, from, next) {
-      if (store.getters.userIsMultiFacilityAdmin) {
+      const { userIsMultiFacilityAdmin } = useUser();
+      if (get(userIsMultiFacilityAdmin)) {
         next(store.getters.facilityPageLinks.AllFacilitiesPage);
       } else {
         next(store.getters.facilityPageLinks.ManageClassPage);
@@ -166,7 +170,8 @@ export default [
   {
     path: '/:facility_id?/managesync',
     props: route => {
-      const facilityId = route.params.facility_id || store.getters.userFacilityId;
+      const { userFacilityId } = useUser();
+      const facilityId = route.params.facility_id || get(userFacilityId);
       return {
         facilityId,
         goBackRoute: {
@@ -192,8 +197,9 @@ export default [
     component: EditDeviceSyncSchedule,
     name: SyncPageNames.EDIT_SYNC_SCHEDULE,
     props: route => {
+      const { userFacilityId } = useUser();
       return {
-        facilityId: route.params.facility_id || store.getters.userFacilityId,
+        facilityId: route.params.facility_id || get(userFacilityId),
         deviceId: route.params.deviceId,
         goBackRoute: {
           name: SyncPageNames.MANAGE_SYNC_SCHEDULE,

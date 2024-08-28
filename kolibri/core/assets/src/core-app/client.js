@@ -6,8 +6,8 @@ import { CancelToken } from 'axios';
 import qs from 'qs';
 import heartbeat from 'kolibri.heartbeat';
 import logger from 'kolibri.lib.logging';
-import store from 'kolibri.coreVue.vuex.store';
 import { get } from '@vueuse/core';
+import useUser from 'kolibri.coreVue.composables.useUser';
 import errorCodes from '../disconnectionErrorCodes';
 import useConnection from '../composables/useConnection';
 import clientFactory from './baseClient';
@@ -41,7 +41,8 @@ baseClient.interceptors.response.use(
     // if they were logged in.
     if (error.response) {
       if (error.response.status === 403) {
-        if (store.state.core.session.id && !store.state.core.session.user_id) {
+        const { id, user_id } = useUser();
+        if (get(id) && !get(user_id)) {
           // We have session information but no user_id, which means we are not logged in
           // This is a sign that the user has been logged out due to inactivity
           heartbeat.signOutDueToInactivity();
@@ -49,7 +50,7 @@ baseClient.interceptors.response.use(
           // In this case, we should check right now if they are still logged in
           heartbeat.pollSessionEndPoint().then(() => {
             // If they are not, we should handle sign out
-            if (!store.state.core.session.user_id) {
+            if (!get(user_id)) {
               heartbeat.signOutDueToInactivity();
             }
           });

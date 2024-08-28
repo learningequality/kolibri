@@ -1,5 +1,7 @@
 import { DevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 
 /**
  * Serially fetches Permissions, then FacilityUser. If returned Promise rejects,
@@ -44,7 +46,8 @@ export function showUserPermissionsPage(store, userId) {
   const stopLoading = () => store.dispatch('notLoading');
 
   // Don't request any data if not an Admin
-  if (!store.getters.isSuperuser) {
+  const { isSuperuser } = useUser();
+  if (!get(isSuperuser)) {
     setUserPermissionsState({ user: null, permissions: {} });
     stopLoading();
     return Promise.resolve();

@@ -2,11 +2,13 @@ import { get, set } from '@vueuse/core';
 import omit from 'lodash/omit';
 import client from 'kolibri.client';
 import { coreStoreFactory as makeStore } from 'kolibri.coreVue.vuex.store';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import useProgressTracking from '../useProgressTracking';
 import coreModule from '../../../../../../core/assets/src/state/modules/core';
 
 jest.mock('kolibri.urls');
 jest.mock('kolibri.client');
+jest.mock('kolibri.coreVue.composables.useUser');
 
 function setUp() {
   const store = makeStore();
@@ -22,6 +24,9 @@ const node = {
 };
 
 describe('useProgressTracking composable', () => {
+  beforeEach(() => {
+    useUser.mockImplementation(() => useUserMock());
+  });
   describe('initContentSession', () => {
     it('should throw an error if no context provided', async () => {
       const { initContentSession } = setUp();
@@ -479,6 +484,7 @@ describe('useProgressTracking composable', () => {
     });
     it('should update total progress if the backend returns complete and was not complete and user is logged in', async () => {
       const { updateContentSession, store } = await initStore();
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
       store.commit('CORE_SET_SESSION', { kind: ['learner'] });
       store.commit('SET_TOTAL_PROGRESS', 0);
       client.__setPayload({

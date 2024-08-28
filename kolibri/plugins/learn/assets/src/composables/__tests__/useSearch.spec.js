@@ -5,10 +5,13 @@ import { ref } from 'kolibri.lib.vueCompositionApi';
 import { ContentNodeResource } from 'kolibri.resources';
 import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
 import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import useSearch from '../useSearch';
 import coreModule from '../../../../../../core/assets/src/state/modules/core';
 
 Vue.use(VueRouter);
+
+jest.mock('kolibri.coreVue.composables.useUser');
 
 const name = 'not important';
 
@@ -40,6 +43,7 @@ describe(`useSearch`, () => {
   beforeEach(() => {
     ContentNodeResource.fetchCollection = jest.fn();
     ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+    useUser.mockImplementation(() => useUserMock());
   });
   describe(`searchTerms computed ref`, () => {
     it(`returns an object with all relevant keys when query params are empty`, () => {

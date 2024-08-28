@@ -27,8 +27,8 @@ class CoachToolsModule extends KolibriApp {
     return pluginModule;
   }
   ready() {
-    const { snackbarIsVisibile, clearSnackbar } = useSnackbar();
-    const { isLearnerOnlyImport } = useUser();
+    const { snackbarIsVisible, clearSnackbar } = useSnackbar();
+    const { isLearnerOnlyImport, isSuperuser } = useUser();
     router.beforeEach((to, from, next) => {
       if (get(isLearnerOnlyImport)) {
         redirectBrowser();
@@ -56,7 +56,7 @@ class CoachToolsModule extends KolibriApp {
 
       // Clear the snackbar at every navigation to prevent it from re-appearing
       // when the next page component mounts.
-      if (get(snackbarIsVisibile) && !skipLoading.includes(to.name)) {
+      if (get(snackbarIsVisible) && !skipLoading.includes(to.name)) {
         clearSnackbar();
       }
 
@@ -107,7 +107,7 @@ class CoachToolsModule extends KolibriApp {
         promises.push(this.store.dispatch('initClassInfo', to.params.classId));
       }
 
-      if (this.store.getters.isSuperuser && this.store.state.core.facilities.length === 0) {
+      if (get(isSuperuser) && this.store.state.core.facilities.length === 0) {
         promises.push(this.store.dispatch('getFacilities').catch(() => {}));
       }
 

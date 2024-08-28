@@ -1,3 +1,5 @@
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 import { MaxPointsPerContent } from '../../../constants';
 
 export function facilityConfig(state) {
@@ -26,8 +28,9 @@ export function pageSessionId(state) {
   return state.pageSessionId;
 }
 
-export function allowAccess(state, getters, rootState, rootGetters) {
-  return state.allowRemoteAccess || rootGetters.isAppContext;
+export function allowAccess(state) {
+  const { isAppContext } = useUser();
+  return state.allowRemoteAccess || get(isAppContext);
 }
 
 export function isPageLoading(state) {

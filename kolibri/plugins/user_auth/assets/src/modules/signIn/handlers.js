@@ -2,6 +2,8 @@ import Lockr from 'lockr';
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri.coreVue.vuex.constants';
 import { createTranslator } from 'kolibri.utils.i18n';
 import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 
 const snackbarTranslator = createTranslator('UserPageSnackbars', {
   dismiss: {
@@ -29,11 +31,12 @@ export function showSignInPage(store) {
   }
   return store.dispatch('setFacilitiesAndConfig').then(() => {
     // Use selected id if available, otherwise get the default facility id from session
+    const { userFacilityId } = useUser();
     let facilityId;
     if (store.getters.facilities.length > 1) {
-      facilityId = store.state.facilityId || store.getters.userFacilityId;
+      facilityId = store.state.facilityId || get(userFacilityId);
     } else {
-      facilityId = store.getters.userFacilityId;
+      facilityId = get(userFacilityId);
     }
     store.commit('SET_FACILITY_ID', facilityId);
     store.commit('signIn/SET_STATE', {

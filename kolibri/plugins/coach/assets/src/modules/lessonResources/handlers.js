@@ -6,6 +6,8 @@ import {
 } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import chunk from 'lodash/chunk';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
 async function showResourceSelectionPage(store, params) {
@@ -20,8 +22,9 @@ async function showResourceSelectionPage(store, params) {
   const pendingSelections = store.state.lessonSummary.workingResources || [];
   const cache = store.state.lessonSummary.resourceCache || {};
   const initClassInfoPromise = store.dispatch('initClassInfo', params.classId);
+  const { isSuperuser } = useUser();
   const getFacilitiesPromise =
-    store.getters.isSuperuser && store.state.core.facilities.length === 0
+    get(isSuperuser) && store.state.core.facilities.length === 0
       ? store.dispatch('getFacilities').catch(() => {})
       : Promise.resolve();
 
@@ -183,8 +186,9 @@ function getBookmarks() {
 export async function showLessonResourceContentPreview(store, params) {
   const { classId, lessonId, contentId } = params;
   const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+  const { isSuperuser } = useUser();
   const getFacilitiesPromise =
-    store.getters.isSuperuser && store.state.core.facilities.length === 0
+    get(isSuperuser) && store.state.core.facilities.length === 0
       ? store.dispatch('getFacilities').catch(() => {})
       : Promise.resolve();
 
@@ -199,8 +203,9 @@ export async function showLessonResourceContentPreview(store, params) {
 export async function showLessonSelectionContentPreview(store, params, query = {}) {
   const { classId, lessonId, contentId } = params;
   const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+  const { isSuperuser } = useUser();
   const getFacilitiesPromise =
-    store.getters.isSuperuser && store.state.core.facilities.length === 0
+    get(isSuperuser) && store.state.core.facilities.length === 0
       ? store.dispatch('getFacilities').catch(() => {})
       : Promise.resolve();
 
