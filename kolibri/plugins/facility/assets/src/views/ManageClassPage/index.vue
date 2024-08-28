@@ -131,7 +131,6 @@
       };
     },
     computed: {
-
       ...mapState('classManagement', ['modalShown', 'classes']),
       ...mapGetters(['facilityPageLinks']),
 
