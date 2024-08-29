@@ -40,9 +40,10 @@
           if you're trying to make the card clickable remove these properties
         -->
         <AccessibleFolderCard
-          v-if="content.kind === 'topic'"
+          v-if="content.kind === ContentNodeKinds.TOPIC"
           :to="contentCardLink(content)"
           :contentNode="content"
+          :headingLevel="2"
         />
         <LessonContentCard
           v-else
@@ -93,19 +94,18 @@
 
   import { computed, toRefs } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import AccessibleFolderCard from 'kolibri-common/components/Cards/AccessibleFolderCard.vue';
   import { ViewMoreButtonStates } from '../../../constants/index';
-  import AccessibleFolderCard from '../../../../../../learn/assets/src/views/LibraryPage/AccessibleFolderCard.vue';
-
   import LessonContentCard from './LessonContentCard';
 
   export default {
     name: 'ContentCardList',
     components: {
       LessonContentCard,
-      AccessibleFolderCard,
+      AccessibleFolderCard
     },
     mixins: [commonCoreStrings],
-
     setup(props) {
       const { selectAllChecked, selectAllIndeterminate } = toRefs(props);
       // Code too long to display in template
@@ -186,6 +186,9 @@
       },
       needCheckboxes() {
         return this.contentList.some(c => this.contentHasCheckbox(c));
+      },
+      ContentNodeKinds() {
+        return ContentNodeKinds;
       },
     },
     methods: {

@@ -25,6 +25,18 @@
         </template>
       </component>
     </component>
+
+    <h2>AccessibleResourceCard preview</h2>
+    <div>
+      <AccessibleResourceCard
+        v-for="(contentNode, idx) in contents"
+        :key="`resource-${idx}`"
+        :to="contentLink(contentNode.id, contentNode.is_leaf)"
+        :contentNode="contentNode"
+        :thumbnailSrc="contentNode.thumbnail"
+        :headingLevel="2"
+      />
+    </div>
   </div>
 
 </template>
@@ -33,10 +45,10 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import AccessibleResourceCard from 'kolibri-common/components/Cards/AccessibleResourceCard.vue'
   import useContentLink from '../composables/useContentLink';
   import CardGrid from './cards/CardGrid';
   import ResourceCard from './cards/ResourceCard';
-
   import HybridLearningContentCard from './HybridLearningContentCard';
   import HybridLearningFooter from './HybridLearningContentCard/HybridLearningFooter';
   import CardList from './CardList';
@@ -50,6 +62,7 @@
       HybridLearningFooter,
       CardList,
       ResourceCard,
+      AccessibleResourceCard
     },
 
     setup() {
