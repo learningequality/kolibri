@@ -39,10 +39,11 @@
         :headers="tableHeaders"
         :rows="tableRows"
         :caption="$tr('tableCaption')"
-        :useLocalSorting="true"
+        :emptyMessage="$tr('noClassesExist')"
+        sortable
       >
-        <template #header="{ header }">
-          {{ header.label }}
+        <template #header="{ header, index }">
+          <span :class="{ visuallyhidden: index === 3 }">{{ header.label }}</span>
         </template>
         <template #cell="{ content, rowIndex, colIndex, row }">
           <span v-if="colIndex === 0">
@@ -155,7 +156,12 @@
             minWidth: '150px',
             width: '20%',
           },
-          { label: '', dataType: 'others', minWidth: '150px', width: '30%' },
+          {
+            label: this.coreString('userActionsColumnHeader'),
+            dataType: 'others',
+            minWidth: '150px',
+            width: '30%',
+          },
         ];
       },
       tableRows() {
@@ -241,6 +247,11 @@
       manyCoachNames: {
         message: '{name1}, {name2}… (+{numRemaining, number})',
         context: 'DO NOT TRANSLATE\nCopy the source string.',
+      },
+      noClassesExist: {
+        message: 'No classes exist',
+        context:
+          'Message that displays when there are no classes created in the Facility > Classes section.',
       },
     },
   };
