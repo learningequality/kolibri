@@ -21,9 +21,6 @@ export default {
   INCREMENT_TOTAL_PROGRESS(state, progress) {
     state.totalProgress += progress;
   },
-  SET_CORE_CHANNEL_LIST(state, channelList) {
-    state.channels.list = channelList;
-  },
   CORE_SET_NOTIFICATIONS(state, notifications) {
     state.notifications = notifications;
   },

@@ -10,16 +10,6 @@ export function facilities(state) {
   return state.facilities;
 }
 
-export function getChannels(state) {
-  return state.channels.list;
-}
-
-export function getChannelObject(state) {
-  return function getter(channelId) {
-    return getChannels(state).find(channel => channel.id === channelId);
-  };
-}
-
 export function totalPoints(state) {
   return state.totalProgress * MaxPointsPerContent;
 }

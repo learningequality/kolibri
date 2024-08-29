@@ -1,8 +1,8 @@
 import { get } from '@vueuse/core';
 import useUser from 'kolibri.coreVue.composables.useUser';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
-import { setChannelInfo } from 'kolibri.coreVue.vuex.actions';
 import router from 'kolibri.coreVue.router';
+import { ChannelResource } from 'kolibri.resources';
 import KolibriApp from 'kolibri_app';
 import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
 import { PageNames } from './constants';
@@ -15,6 +15,33 @@ import GroupMembersPage from './views/plan/GroupMembersPage';
 import GroupEnrollPage from './views/plan/GroupEnrollPage';
 import pages from './views/reports/allReportsPages';
 import HomeActivityPage from './views/home/HomeActivityPage';
+
+function _channelListState(data) {
+  return data.map(channel => ({
+    id: channel.id,
+    title: channel.name,
+    description: channel.description,
+    tagline: channel.tagline,
+    root_id: channel.root,
+    last_updated: channel.last_updated,
+    version: channel.version,
+    thumbnail: channel.thumbnail,
+    num_coach_contents: channel.num_coach_contents,
+  }));
+}
+
+export function setChannelInfo(store) {
+  return ChannelResource.fetchCollection({ getParams: { available: true } }).then(
+    channelsData => {
+      store.commit('SET_CHANNEL_LIST', _channelListState(channelsData));
+      return channelsData;
+    },
+    error => {
+      store.dispatch('handleApiError', { error });
+      return error;
+    },
+  );
+}
 
 class CoachToolsModule extends KolibriApp {
   get stateSetters() {
