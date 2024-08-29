@@ -10,7 +10,6 @@ export default {
       error: '',
       loading: true,
       pageSessionId: 0,
-      totalProgress: null,
       notifications: [],
       allowRemoteAccess: plugin_data.allowRemoteAccess,
       // facility

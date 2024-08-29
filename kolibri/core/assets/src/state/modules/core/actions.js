@@ -5,7 +5,6 @@ import logger from 'kolibri.lib.logging';
 import {
   FacilityResource,
   FacilityDatasetResource,
-  UserProgressResource,
   UserSyncStatusResource,
   PingbackNotificationResource,
   PingbackNotificationDismissedResource,
@@ -244,15 +243,6 @@ export function getFacilityConfig(store, facilityId) {
     }
     store.commit('CORE_SET_FACILITY_CONFIG', config);
   });
-}
-
-export function fetchPoints(store) {
-  const { isUserLoggedIn, currentUserId } = store.getters;
-  if (isUserLoggedIn && store.state.totalProgress === null) {
-    UserProgressResource.fetchModel({ id: currentUserId }).then(progress => {
-      store.commit('SET_TOTAL_PROGRESS', progress.progress);
-    });
-  }
 }
 
 export function loading(store) {
