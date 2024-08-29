@@ -682,7 +682,7 @@ base_option_spec = {
             """,
         },
         "ZEROCONF_ENABLED": {
-            "type": "bool",
+            "type": "boolean",
             "default": True,
             "description": """
                 Boolean Flag to check Whether to enable Zeroconf discovery.
