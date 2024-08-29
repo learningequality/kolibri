@@ -5,8 +5,8 @@ import * as serverClock from 'kolibri.utils.serverClock';
 import { get, set } from '@vueuse/core';
 import useSnackbar, { useSnackbarMock } from 'kolibri.coreVue.composables.useSnackbar';
 import { ref } from 'kolibri.lib.vueCompositionApi';
+import { DisconnectionErrorCodes } from 'kolibri.coreVue.vuex.constants';
 import { HeartBeat } from '../src/heartbeat.js';
-import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
 import coreModule from '../src/state/modules/core';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
@@ -264,20 +264,18 @@ describe('HeartBeat', function () {
       // Rather it is the status code that our request client library returns
       // when the connection is refused by the host, or is otherwise unable to connect.
       // What happens for a zero code is tested later in this file.
-      disconnectionErrorCodes
-        .filter(code => code !== 0)
-        .forEach(errorCode => {
-          it('should call monitorDisconnect if it receives error code ' + errorCode, function () {
-            const monitorStub = jest.spyOn(heartBeat, 'monitorDisconnect');
-            mock.put(/.*/, {
-              status: errorCode,
-              headers: { 'Content-Type': 'application/json' },
-            });
-            return heartBeat._checkSession().finally(() => {
-              expect(monitorStub).toHaveBeenCalledTimes(1);
-            });
+      DisconnectionErrorCodes.filter(code => code !== 0).forEach(errorCode => {
+        it('should call monitorDisconnect if it receives error code ' + errorCode, function () {
+          const monitorStub = jest.spyOn(heartBeat, 'monitorDisconnect');
+          mock.put(/.*/, {
+            status: errorCode,
+            headers: { 'Content-Type': 'application/json' },
+          });
+          return heartBeat._checkSession().finally(() => {
+            expect(monitorStub).toHaveBeenCalledTimes(1);
           });
         });
+      });
     });
     describe('when not connected', function () {
       let snackbar;
@@ -297,26 +295,24 @@ describe('HeartBeat', function () {
         expect(get(snackbar.snackbarIsVisible)).toEqual(true);
         expect(get(snackbar.snackbarOptions).text).toEqual(trs.$tr('tryingToReconnect'));
       });
-      disconnectionErrorCodes
-        .filter(code => code !== 0)
-        .forEach(errorCode => {
-          it('should set snackbar to disconnected for error code ' + errorCode, function () {
-            jest.spyOn(heartBeat, 'monitorDisconnect');
-            mock.put(/.*/, {
-              status: errorCode,
-              headers: { 'Content-Type': 'application/json' },
-            });
-            heartBeat._wait = jest.fn();
-            return heartBeat._checkSession().finally(() => {
-              expect(get(snackbar.snackbarIsVisible)).toEqual(true);
-              expect(
-                get(snackbar.snackbarOptions).text.startsWith(
-                  'Disconnected from server. Will try to reconnect in',
-                ),
-              ).toEqual(true);
-            });
+      DisconnectionErrorCodes.filter(code => code !== 0).forEach(errorCode => {
+        it('should set snackbar to disconnected for error code ' + errorCode, function () {
+          jest.spyOn(heartBeat, 'monitorDisconnect');
+          mock.put(/.*/, {
+            status: errorCode,
+            headers: { 'Content-Type': 'application/json' },
+          });
+          heartBeat._wait = jest.fn();
+          return heartBeat._checkSession().finally(() => {
+            expect(get(snackbar.snackbarIsVisible)).toEqual(true);
+            expect(
+              get(snackbar.snackbarOptions).text.startsWith(
+                'Disconnected from server. Will try to reconnect in',
+              ),
+            ).toEqual(true);
           });
         });
+      });
       it('should set snackbar to disconnected for error code 0', function () {
         jest.spyOn(heartBeat, 'monitorDisconnect');
         mock.put(/.*/, () => Promise.reject(new Error()));
