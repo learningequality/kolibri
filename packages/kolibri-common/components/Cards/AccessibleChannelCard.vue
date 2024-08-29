@@ -37,25 +37,25 @@
 
 <script>
 
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon'
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'AccessibleChannelCard',
-    components:{
+    components: {
       ContentIcon,
     },
     mixins: [commonCoreStrings],
-    props:{
+    props: {
       to: {
         type: Object,
         required: true,
       },
-      title:{
+      title: {
         type: String,
         required: true,
       },
-      headingLevel:{
+      headingLevel: {
         type: Number,
         required: false,
         default: 2,
@@ -69,11 +69,11 @@
         default: null,
       },
     },
-    computed:{
-      numberOfResources(){
+    computed: {
+      numberOfResources() {
         return `${this.contentNode.num_coach_contents} ${this.coreString('resourcesLabel')}`;
-      }
+      },
     },
-  }
+  };
 
 </script>

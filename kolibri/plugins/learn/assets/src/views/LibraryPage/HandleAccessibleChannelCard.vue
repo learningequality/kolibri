@@ -39,15 +39,15 @@
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
       return {
         layoutSpan,
-        genContentLinkBackLinkCurrentPage
+        genContentLinkBackLinkCurrentPage,
       };
     },
-    props:{
+    props: {
       contentNode: {
         type: Array,
         required: true,
       },
-    }
-  }
+    },
+  };
 
 </script>

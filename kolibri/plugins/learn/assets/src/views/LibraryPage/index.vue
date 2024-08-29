@@ -82,9 +82,7 @@
             :injectedtr="injecttr"
           />
 
-          <HandleAccessibleChannelCard
-            :contentNode="rootNodes"
-          />
+          <HandleAccessibleChannelCard :contentNode="rootNodes" />
         </div>
 
         <SearchResultsGrid
@@ -224,7 +222,7 @@
       LearnAppBarPage,
       OtherLibraries,
       PostSetupModalGroup,
-      HandleAccessibleChannelCard
+      HandleAccessibleChannelCard,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
