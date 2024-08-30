@@ -197,6 +197,7 @@
   import useUser from 'kolibri.coreVue.composables.useUser';
   import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
   import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
+  import useTotalProgress from 'kolibri.coreVue.composables.useTotalProgress';
   import { RoutesMap } from '../../constants';
   import useCurrentUser from '../../composables/useCurrentUser';
   import useOnMyOwnSetup from '../../composables/useOnMyOwnSetup';
@@ -233,6 +234,7 @@
         userFacilityId,
       } = useUser();
       const { onMyOwnSetup } = useOnMyOwnSetup();
+      const { fetchPoints, totalPoints } = useTotalProgress();
       return {
         currentUser,
         onMyOwnSetup,
@@ -245,10 +247,12 @@
         userFacilityId,
         showLearnModal,
         showPasswordModal,
+        fetchPoints,
+        totalPoints,
       };
     },
     computed: {
-      ...mapGetters(['facilityConfig', 'totalPoints']),
+      ...mapGetters(['facilityConfig']),
       profileEditRoute() {
         return this.$router.getRoute(RoutesMap.PROFILE_EDIT);
       },
@@ -285,7 +289,7 @@
       },
     },
     created() {
-      this.$store.dispatch('fetchPoints');
+      this.fetchPoints();
     },
     methods: {
       getPermissionString(permission) {
