@@ -43,6 +43,7 @@
           v-if="content.kind === ContentNodeKinds.TOPIC"
           :to="contentCardLink(content)"
           :contentNode="content"
+          :thumbnailSrc="content.thumbnail"
           :headingLevel="2"
         />
         <LessonContentCard
@@ -116,6 +117,7 @@
         ariaChecked,
         ViewMoreButtonStates,
       };
+
     },
     props: {
       showSelectAll: {

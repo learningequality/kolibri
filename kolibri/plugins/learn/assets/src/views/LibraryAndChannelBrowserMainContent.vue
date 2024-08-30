@@ -45,7 +45,7 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import AccessibleResourceCard from 'kolibri-common/components/Cards/AccessibleResourceCard.vue'
+  import AccessibleResourceCard from 'kolibri-common/components/Cards/AccessibleResourceCard'
   import useContentLink from '../composables/useContentLink';
   import CardGrid from './cards/CardGrid';
   import ResourceCard from './cards/ResourceCard';
