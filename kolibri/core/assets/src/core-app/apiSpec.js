@@ -57,7 +57,6 @@ import UserType from '../utils/UserType';
 import * as syncTaskUtils from '../utils/syncTaskUtils';
 import samePageCheckGenerator from '../utils/samePageCheckGenerator';
 import Backdrop from '../views/Backdrop';
-import CoreSnackbar from '../views/CoreSnackbar';
 import CoreMenu from '../views/CoreMenu';
 import CoreMenuDivider from '../views/CoreMenu/CoreMenuDivider';
 import CoreMenuOption from '../views/CoreMenu/CoreMenuOption';
@@ -150,7 +149,6 @@ export default {
       ElapsedTime,
       AuthMessage,
       FilterTextbox,
-      CoreSnackbar,
       CoreMenu,
       CoreMenuDivider,
       CoreMenuOption,
