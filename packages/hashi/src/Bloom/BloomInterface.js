@@ -6,14 +6,16 @@ export default class Bloom extends BaseShim {
     super(mediator);
     this.data = {};
     this.userData = {};
-    this.nameSpace = 'Bloom';
+    this.nameSpace = 'BloomPlayer';
     // Bind this to ensure that we don't end up with unpredictable this.
     this.__setData = this.__setData.bind(this);
     this.__setUserData = this.__setUserData.bind(this);
+    this.__getProgress = this.__getProgress.bind(this);
     this.loaded = this.loaded.bind(this);
     this.errored = this.errored.bind(this);
     this.on(this.events.STATEUPDATE, this.__setData);
     this.on(this.events.USERDATAUPDATE, this.__setUserData);
+    this.on(this.events.BLOOMPAGESREAD, this.__getProgress);
   }
 
   init(iframe, filepath) {
@@ -31,6 +33,19 @@ export default class Bloom extends BaseShim {
 
   __setUserData(userData = {}) {
     this.userData = userData;
+  }
+
+  __getProgress(data = {}) {
+    let progress = this.userData.progress || 0;
+    if (data.totalNumberedPages) {
+      progress = (data.audioPages + data.nonAudioPages + data.videoPages) / data.totalNumberedPages;
+      this.userData.progress = progress;
+    }
+    this.__mediator.sendMessage({
+      nameSpace: nameSpace,
+      event: events.USERDATAUPDATE,
+      data: this.userData,
+    });
   }
 
   /*

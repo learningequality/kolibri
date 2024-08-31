@@ -1,16 +1,13 @@
-<!-- For this file to work it must have a param named "url" which points the folder containing the bloom book. For example,
-   <iframe src="\bloomplayer.htm?url='https:\\example.com\mybook"></iframe> -->
-
-<!DOCTYPE html>
+<!doctype html>
 <html>
-    <head>
-        <meta charset="UTF-8" />
-    </head>
-    <body style="background-color: #2e2e2e;">
-        <div id="root"><span style="color: #d65649">Loading Bloom Player...</span></div>
-    <script type="text/javascript" src="bloomPlayer-469de4b6cca7dc5c3e04.min.js"></script></body>
-    <!-- At build time, we insert a script tag pointing at bloomPlayer.min.js but with a hash created at build time,
-        to avoid getting a stale version from a cache (while allowing us to cache it for a long time).
-        It has a style sheet which sets the same color on the body, but it takes a while to fetch and load,
-        so we reduce flicker by setting a background color explicitly. -->
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body style="background-color: #2e2e2e">
+    <div id="root"><span style="color: #d65649">Loading Bloom Player...</span></div>
+    <script
+      type="text/javascript"
+      src="bloomPlayer-d1be6dab31acb4a956a6.min.js"
+    ></script>
+  </body>
 </html>

@@ -143,13 +143,12 @@
     },
     mounted() {
       this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
-      this.hashi.onStateUpdate(data => {
-        this.$emit('updateContentState', data);
-        const hashiProgress = this.hashi.getProgress();
+      this.hashi.onUserDataUpdate(data => {
+        const hashiProgress = data.progress;
         if (hashiProgress !== null && !this.forceDurationBasedProgress) {
           this.$emit('updateProgress', hashiProgress);
         }
-      });
+      })
       this.hashi.on('navigateTo', message => {
         this.$emit('navigateTo', message);
       });

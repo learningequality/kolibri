@@ -1,6 +1,13 @@
 import ZipFile from 'kolibri-zip';
 import { strToU8 } from 'fflate';
-import { defaultFilePathMappers, getAudioId, replaceAudioId } from 'kolibri-zip/src/fileUtils';
+import {
+  getAudioId,
+  getDOMPaths,
+  getStyleUrlPaths,
+  replaceAudioId,
+  replaceDOMPaths,
+  replaceStyleUrlPaths,
+} from 'kolibri-zip/src/fileUtils';
 import { events } from '../hashiBase';
 
 const CONTENT_ID = '1234567890';
@@ -29,7 +36,7 @@ export default class BloomRunner {
     // same as the current window context that the Bloom constructor has been
     // invoked in.
     this.iframe = iframe;
-    // This is the path to the Bloom file which we load in its entirety.
+    // This is the path to the Bloompub file which we load in its entirety.
     this.filepath = filepath;
     // A fallback URL to the zipcontent endpoint for this H5P file
     this.zipcontentUrl = new URL(
@@ -59,15 +66,18 @@ export default class BloomRunner {
   initBloom() {
     try {
       this.loaded();
-      this.iframe.src = `../bloom/bloomplayer.htm?url=${this.contentUrl}&distributionUrl=${this.distributionUrl}&metaJsonUrl=${this.metaUrl}`;
+      this.iframe.src = `../bloom/bloomplayer.htm?url=${this.contentUrl}&distributionUrl=${this.distributionUrl}&metaJsonUrl=${this.metaUrl}&independent=false`;
     } catch (e) {
       this.errored(e);
     }
   }
 
   processContent() {
-    const mapper = new defaultFilePathMappers.bloom(this.contentfile);
-    const files = mapper.getPaths().filter(file => !file.startsWith('blob:'));
+    const domPaths = getDOMPaths(this.contentfile.toString(), this.contentfile.mimeType).filter(
+      file => !file.startsWith('blob:'),
+    );
+    const stylePaths = getStyleUrlPaths(this.contentfile.toString(), this.contentfile.mimeType);
+    const files = [...new Set([...domPaths, ...stylePaths])];
     const audioIds = getAudioId(this.contentfile.toString(), this.contentfile.mimeType);
     const replacementFileMap = {};
     if (files.length > 0 || audioIds.length > 0) {
@@ -89,7 +99,12 @@ export default class BloomRunner {
         }
       }
     }
-    let newHtmlFile = mapper.replacePaths(replacementFileMap);
+    let newHtmlFile = replaceDOMPaths(
+      this.contentfile.toString(),
+      replacementFileMap,
+      this.contentfile.mimeType,
+    );
+    newHtmlFile = replaceStyleUrlPaths(newHtmlFile, replacementFileMap, this.contentfile.mimeType);
     newHtmlFile = replaceAudioId(newHtmlFile, replacementFileMap, this.contentfile.mimeType);
 
     this.contentfile.obj = strToU8(newHtmlFile);

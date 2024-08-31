@@ -188,25 +188,6 @@ export function replaceAudioId(fileContents, packageFiles, mimeType) {
   return domSerializer.serializeToString(dom);
 }
 
-class BloomMapper extends Mapper {
-  getPaths() {
-    return [
-      ...new Set([
-        ...getDOMPaths(this.file.toString(), this.file.mimeType),
-        ...getStyleUrlPaths(this.file.toString(), this.file.mimeType),
-      ]),
-    ];
-  }
-
-  replacePaths(packageFiles) {
-    return replaceStyleUrlPaths(
-      replaceDOMPaths(this.file.toString(), packageFiles, this.file.mimeType),
-      packageFiles,
-      this.file.mimeType,
-    );
-  }
-}
-
 class DOMMapper extends Mapper {
   getPaths() {
     return getDOMPaths(this.file.toString(), this.file.mimeType);
@@ -223,5 +204,4 @@ export const defaultFilePathMappers = {
   htm: DOMMapper,
   xhtml: DOMMapper,
   xml: DOMMapper,
-  bloom: BloomMapper,
 };
