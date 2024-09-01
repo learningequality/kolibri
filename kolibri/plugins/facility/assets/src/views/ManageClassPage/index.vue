@@ -40,6 +40,7 @@
         :rows="tableRows"
         :caption="$tr('tableCaption')"
         :emptyMessage="$tr('noClassesExist')"
+        :dataLoading="dataLoading"
         sortable
       >
         <template #header="{ header, index }">
@@ -132,7 +133,7 @@
       };
     },
     computed: {
-      ...mapState('classManagement', ['modalShown', 'classes']),
+      ...mapState('classManagement', ['modalShown', 'classes', 'dataLoading']),
       ...mapGetters(['facilityPageLinks']),
 
       Modals: () => Modals,
