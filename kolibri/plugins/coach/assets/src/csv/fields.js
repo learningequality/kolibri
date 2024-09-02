@@ -89,6 +89,16 @@ export function helpNeeded() {
   ];
 }
 
+export function allLearners(key = 'all') {
+  return [
+    {
+      name: FieldsMixinStrings.$tr('allLearners'),
+      key,
+      format: row => get(row, key) || '',
+    },
+  ];
+}
+
 export function lastActivity(key = 'lastActivity') {
   return [
     {
