@@ -308,6 +308,7 @@
           ...csvFields.avgScore(),
           ...csvFields.recipients(this.className),
           ...csvFields.tally(),
+          ...csvFields.allLearners('totalLearners'),
         ];
 
         const fileName = this.$tr('printLabel', { className: this.className });
