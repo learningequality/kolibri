@@ -89,17 +89,19 @@ export function helpNeeded() {
   ];
 }
 
-export function lastActivity() {
+export function lastActivity(key = 'lastActivity') {
   return [
     {
       name: coachStrings.$tr('lastActivityLabel'),
-      key: 'lastActivity',
+      key,
       format(row) {
-        if (!row[this.key]) {
+        const value = get(row, key);
+
+        if (!value) {
           return '';
         }
 
-        return row[this.key].toISOString();
+        return value.toISOString();
       },
     },
   ];
