@@ -123,7 +123,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .bottom-bar {
-    @extend %dropshadow-4dp;
+    @extend %dropshadow-2dp;
 
     position: fixed;
     right: 0;

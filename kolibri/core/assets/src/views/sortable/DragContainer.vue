@@ -101,7 +101,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   /deep/ .draggable-mirror {
-    @extend %dropshadow-8dp;
+    @extend %dropshadow-6dp;
 
     z-index: 8;
     cursor: grabbing;
