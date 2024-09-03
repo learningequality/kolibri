@@ -9,7 +9,7 @@
       :title="contentNode.title"
       :thumbnailSrc="thumbnailSrc"
       :thumbnailScaleType="thumbnailScaleType"
-      :thumbnailAlign="thumbnailAlign"
+      thumbnailAlign="right"
       :style="{ height: '172px',width: '500px', margin: '16px 0 16px 0' }"
     >
       <template #thumbnailPlaceholder>
@@ -89,10 +89,6 @@
       thumbnailScaleType: {
         type: String,
         default: "centerInside",
-      },
-      thumbnailAlign: {
-        type: String,
-        default: "right",
       },
     },
   };
