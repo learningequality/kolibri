@@ -238,7 +238,7 @@
           columns.push(...csvFields.list('groupNames', 'groupsLabel'));
         }
 
-        columns.push(...csvFields.lastActivity());
+        columns.push(...csvFields.lastActivity('statusObj.last_activity'));
 
         const exporter = new CSVExporter(columns, this.className);
         exporter.addNames({
