@@ -7730,10 +7730,10 @@ kolibri-constants@0.2.6:
   resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.2.6.tgz#d13762862505a3a6ec58a104870b21da96778656"
   integrity sha512-gQaY2wFNFrsB+9+xQNeEcLHixNuZEK+GHyKKr78s/hg8gFU3YVsnhlYp0u+du4XeVwewpyN1ajGb4UrrdF8rTA==
 
-kolibri-design-system@5.0.0-rc3:
-  version "5.0.0-rc3"
-  resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-5.0.0-rc3.tgz#adc3eccadc75f144b3f55a36940ed6fc56b6aca6"
-  integrity sha512-4TRnz4/2VHuknwA5Ujwz1gNO4r/iv+MQsE7N37PBUhaem8Pmq2g/9kop6wPpxbbI+93/VBTLTjXMxIVH+kiuVg==
+kolibri-design-system@5.0.0-rc4:
+  version "5.0.0-rc4"
+  resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-5.0.0-rc4.tgz#1e5cbce52f7c9f46c71f5cdf178084cacbd1cf81"
+  integrity sha512-G27LPYA2ui/3s2qiSzwzeBc7+p8stG9HSbXdiZRNMAsZne9NENgWyYIm+3ZcOZBlOzkyExcCZHoRwmxmQBrK1Q==
   dependencies:
     "@vue/composition-api" "1.7.2"
     aphrodite "git+https://github.com/learningequality/aphrodite.git"
