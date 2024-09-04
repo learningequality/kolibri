@@ -261,8 +261,8 @@
           .reduce((entries, groupEntries) => entries.concat(groupEntries), []);
 
         if (this.ungroupedEntries.length) {
-          data.concat(
-            this.ungroupedEntries.map(entry => {
+          data.push(
+            ...this.ungroupedEntries.map(entry => {
               entry.groupName = '';
               return entry;
             }),
