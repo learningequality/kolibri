@@ -235,7 +235,7 @@
         );
 
         if (!this.viewByGroups) {
-          columns.push(...csvFields.list('groupNames', 'groupsLabel'));
+          columns.push(...csvFields.list('groups', 'groupsLabel'));
         }
 
         columns.push(...csvFields.lastActivity('statusObj.last_activity'));
