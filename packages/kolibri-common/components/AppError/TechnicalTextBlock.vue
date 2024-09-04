@@ -38,11 +38,15 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import ClipboardJS from 'clipboard';
 
   export default {
     name: 'TechnicalTextBlock',
+    setup() {
+      const { createSnackbar } = useSnackbar();
+      return { createSnackbar };
+    },
     props: {
       text: {
         type: String,
@@ -86,9 +90,6 @@
       if (this.clipboard) {
         this.clipboard.destroy();
       }
-    },
-    methods: {
-      ...mapActions(['createSnackbar']),
     },
     $trs: {
       copyToClipboardButtonPrompt: {

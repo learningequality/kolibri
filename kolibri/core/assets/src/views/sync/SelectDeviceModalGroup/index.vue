@@ -13,6 +13,7 @@
       :filterLODAvailable="filterLODAvailable"
       :filterByFacilityCanSignUp="filterByFacilityCanSignUp"
       :filterByOnMyOwnFacility="filterByOnMyOwnFacility"
+      :filterByHasFacilities="filterByHasFacilities"
       :selectedId="addedAddressId"
       :formDisabled="$attrs.selectAddressDisabled"
       @click_add_address="goToAddAddress"
@@ -27,6 +28,7 @@
 
 <script>
 
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import AddDeviceForm from './AddDeviceForm';
   import SelectDeviceForm from './SelectDeviceForm';
 
@@ -35,6 +37,10 @@
     components: {
       AddDeviceForm,
       SelectDeviceForm,
+    },
+    setup() {
+      const { createSnackbar } = useSnackbar();
+      return { createSnackbar };
     },
     props: {
       // Channel filter only needed on ManageContentPage/SelectNetworkDeviceModal
@@ -56,6 +62,10 @@
         type: Boolean,
         default: null,
       },
+      filterByHasFacilities: {
+        type: Boolean,
+        default: null,
+      },
       // When looking for facilities to import in the setup wizard
       filterByOnMyOwnFacility: {
         type: Boolean,
@@ -69,9 +79,6 @@
       };
     },
     methods: {
-      createSnackbar(args) {
-        this.$store.dispatch('createSnackbar', args);
-      },
       goToAddAddress() {
         this.addedAddressId = '';
         this.addingAddress = true;

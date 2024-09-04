@@ -1,24 +1,24 @@
 /**
- * `useSearch` composable function mock.
+ * `useBaseSearch` composable function mock.
  *
  * If default values are sufficient for tests,
- * you only need call `jest.mock('<useSearch file path>')`
+ * you only need call `jest.mock('<useBaseSearch file path>')`
  * at the top of a test file.
  *
  * If you need to override some default values from some tests,
- * you can import a helper function `useSearchMock` that accepts
+ * you can import a helper function `useBaseSearch` that accepts
  * an object with values to be overriden and use it together
  * with  `mockImplementation` as follows:
  *
  * ```
  * // eslint-disable-next-line import/named
- * import useSearch, { useSearchMock } from '<useSearch file path>';
+ * import useBaseSearch, { useBaseSearch } from '<useBaseSearch file path>';
  *
- * jest.mock('<useSearch file path>')
+ * jest.mock('<useBaseSearch file path>')
  *
  * it('test', () => {
- *   useSearch.mockImplementation(
- *     () => useSearchMock({ classes: [{ id: 'class-1' }] })
+ *   useBaseSearch.mockImplementation(
+ *     () => useBaseSearch({ classes: [{ id: 'class-1' }] })
  *   );
  * })
  * ```
@@ -27,7 +27,7 @@
  * for other tests by calling the following in `beforeEach`:
  *
  * ```
- * useSearch.mockImplementation(() => useSearchMock())
+ * useBaseSearch.mockImplementation(() => useBaseSearch())
  * ```
  */
 
@@ -64,16 +64,16 @@ const MOCK_DEFAULTS = {
   }),
 };
 
-export function useSearchMock(overrides = {}) {
+export function useBaseSearchMock(overrides = {}) {
   return {
     ...MOCK_DEFAULTS,
     ...overrides,
   };
 }
 
-export default jest.fn(() => useSearchMock());
+export default jest.fn(() => useBaseSearchMock());
 
-export const injectSearch = jest.fn(() => ({
+export const injectBaseSearch = jest.fn(() => ({
   availableLearningActivities: [],
   availableLibraryCategories: [],
   availableResourcesNeeded: [],

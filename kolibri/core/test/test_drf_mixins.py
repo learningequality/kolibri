@@ -19,7 +19,7 @@ class LanguageViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     queryset = Language.objects.all()
     serializer_class = LanguageSerializer
-    filter_fields = ("id",)
+    filterset_fields = ("id",)
 
 
 class BulkDeleteView(BulkDeleteMixin, LanguageViewSet):

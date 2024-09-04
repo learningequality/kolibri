@@ -5,8 +5,6 @@ import logger from 'kolibri.lib.logging';
 import {
   FacilityResource,
   FacilityDatasetResource,
-  ChannelResource,
-  UserProgressResource,
   UserSyncStatusResource,
   PingbackNotificationResource,
   PingbackNotificationDismissedResource,
@@ -17,10 +15,17 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
 import Lockr from 'lockr';
+import { set, get } from '@vueuse/core';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import {
+  DisconnectionErrorCodes,
+  LoginErrors,
+  ERROR_CONSTANTS,
+  UPDATE_MODAL_DISMISSED,
+} from 'kolibri.coreVue.vuex.constants';
 import { baseSessionState } from '../session';
-import { LoginErrors, ERROR_CONSTANTS, UPDATE_MODAL_DISMISSED } from '../../../constants';
 import { browser, os } from '../../../utils/browserInfo';
-import errorCodes from './../../../disconnectionErrorCodes.js';
+import useConnection from '../../../composables/useConnection';
 
 const logging = logger.getLogger(__filename);
 
@@ -30,20 +35,6 @@ const logging = logger.getLogger(__filename);
  * The methods below help map data from
  * the API to state in the Vuex store
  */
-
-function _channelListState(data) {
-  return data.map(channel => ({
-    id: channel.id,
-    title: channel.name,
-    description: channel.description,
-    tagline: channel.tagline,
-    root_id: channel.root,
-    last_updated: channel.last_updated,
-    version: channel.version,
-    thumbnail: channel.thumbnail,
-    num_coach_contents: channel.num_coach_contents,
-  }));
-}
 
 function _notificationListState(data) {
   return data.map(notification => ({
@@ -76,10 +67,10 @@ export function handleApiError(store, { error, reloadOnReconnect = false } = {})
   if (typeof error === 'object' && !(error instanceof Error)) {
     errorString = JSON.stringify(error, null, 2);
   } else if (error.response) {
-    if (errorCodes.includes(error.response.status)) {
+    if (DisconnectionErrorCodes.includes(error.response.status)) {
       // Do not log errors for disconnections, as it disrupts the user experience
       // and should already be being handled by our disconnection overlay.
-      store.commit('CORE_SET_RELOAD_ON_RECONNECT', reloadOnReconnect);
+      set(useConnection().reloadOnReconnect, reloadOnReconnect);
       return;
     }
     // Reassign object properties here as Axios error objects have built in
@@ -189,7 +180,8 @@ export function setPageVisibility(store) {
 }
 
 export function getNotifications(store) {
-  if (store.getters.isAdmin || store.getters.isSuperuser) {
+  const { isAdmin, isSuperuser } = useUser();
+  if (get(isAdmin) || get(isSuperuser)) {
     return PingbackNotificationResource.fetchCollection()
       .then(notifications => {
         logging.info('Notifications set.');
@@ -203,8 +195,9 @@ export function getNotifications(store) {
 }
 
 export function saveDismissedNotification(store, notification_id) {
+  const { user_id } = useUser();
   const dismissedNotificationData = {
-    user: store.getters.session.user_id,
+    user: get(user_id),
     notification: notification_id,
   };
   return PingbackNotificationDismissedResource.saveModel({ data: dismissedNotificationData })
@@ -250,37 +243,6 @@ export function getFacilityConfig(store, facilityId) {
     }
     store.commit('CORE_SET_FACILITY_CONFIG', config);
   });
-}
-
-export function setChannelInfo(store) {
-  return ChannelResource.fetchCollection({ getParams: { available: true } }).then(
-    channelsData => {
-      store.commit('SET_CORE_CHANNEL_LIST', _channelListState(channelsData));
-      return channelsData;
-    },
-    error => {
-      store.dispatch('handleApiError', { error });
-      return error;
-    },
-  );
-}
-
-export function fetchPoints(store) {
-  const { isUserLoggedIn, currentUserId } = store.getters;
-  if (isUserLoggedIn && store.state.totalProgress === null) {
-    UserProgressResource.fetchModel({ id: currentUserId }).then(progress => {
-      store.commit('SET_TOTAL_PROGRESS', progress.progress);
-    });
-  }
-}
-
-// Creates a snackbar that automatically dismisses and has no action buttons.
-export function createSnackbar(store, text) {
-  store.commit('CORE_CREATE_SNACKBAR', { text, autoDismiss: true });
-}
-
-export function clearSnackbar(store) {
-  store.commit('CORE_CLEAR_SNACKBAR');
 }
 
 export function loading(store) {

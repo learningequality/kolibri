@@ -58,7 +58,7 @@
   import camelCase from 'lodash/camelCase';
   import { ContentLevels, AccessibilityCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { injectSearch } from '../../composables/useSearch';
+  import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
 
   export default {
     name: 'SelectGroup',
@@ -70,7 +70,7 @@
         availableLanguages,
         availableChannels,
         searchableLabels,
-      } = injectSearch();
+      } = injectBaseSearch();
       return {
         availableGradeLevels,
         availableAccessibilityOptions,

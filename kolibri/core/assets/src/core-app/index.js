@@ -15,6 +15,7 @@ import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 import heartbeat from 'kolibri.heartbeat';
 import ContentRenderer from '../views/ContentRenderer';
 import initializeTheme from '../styles/initializeTheme';
+import coreModule from '../state/modules/core';
 import { i18nSetup } from '../utils/i18n';
 import setupPluginMediator from './pluginMediator';
 import apiSpec from './apiSpec';
@@ -65,6 +66,9 @@ Vue.use(VueCompositionApi);
 Vue.use(KThemePlugin);
 
 Vue.component('ContentRenderer', ContentRenderer);
+
+// Register core module
+store.registerModule('core', coreModule);
 
 // Start the heartbeat polling here, as any URL needs should be set by now
 heartbeat.startPolling();

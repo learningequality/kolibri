@@ -27,6 +27,7 @@
   import { mapState, mapActions } from 'vuex';
   import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
   import CoachImmersivePage from '../../views/CoachImmersivePage';
@@ -39,6 +40,10 @@
       LessonContentPreviewPage,
     },
     mixins: [commonCoreStrings, commonCoach],
+    setup() {
+      const { clearSnackbar } = useSnackbar();
+      return { clearSnackbar };
+    },
     props: {
       // If set to true, will show the add/remove buttons.
       showSelectOptions: {
@@ -109,7 +114,6 @@
       this.clearSnackbar();
     },
     methods: {
-      ...mapActions(['clearSnackbar']),
       ...mapActions('lessonSummary', ['addToResourceCache']),
       handleAddResource(content) {
         this.$router.push(this.returnBackRoute).then(() => {

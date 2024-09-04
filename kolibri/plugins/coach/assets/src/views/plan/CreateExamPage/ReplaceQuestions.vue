@@ -156,6 +156,7 @@
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import useAccordion from 'kolibri-common/components/useAccordion';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import { PageNames } from '../../../constants/index';
 
@@ -167,6 +168,8 @@
     },
     mixins: [commonCoreStrings],
     setup(_, context) {
+      const { createSnackbar } = useSnackbar();
+
       const router = getCurrentInstance().proxy.$router;
 
       const {
@@ -229,7 +232,7 @@
             sectionIndex: this.$route.params.sectionIndex,
           },
         });
-        this.$store.dispatch('createSnackbar', numberOfQuestionsReplaced$({ count }));
+        createSnackbar(numberOfQuestionsReplaced$({ count }));
       }
 
       function confirmReplacement() {
@@ -270,6 +273,8 @@
         useAccordion(replacementQuestionPool);
 
       return {
+        createSnackbar,
+
         toggle,
         isExpanded,
         collapseAll,

@@ -88,13 +88,13 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { ContentNodeResource } from 'kolibri.resources';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
@@ -127,11 +127,13 @@
       const { fetchContentNodeProgress } = useContentNodeProgress();
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const { windowIsSmall } = useKResponsiveWindow();
+      const { createSnackbar } = useSnackbar();
       return {
         canDownloadExternally,
         fetchContentNodeProgress,
         genContentLinkBackLinkCurrentPage,
         windowIsSmall,
+        createSnackbar,
       };
     },
     data() {
@@ -151,7 +153,6 @@
       });
     },
     methods: {
-      ...mapActions(['createSnackbar']),
       loadMore() {
         if (!this.loading) {
           this.loading = true;

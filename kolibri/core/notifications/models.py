@@ -123,6 +123,13 @@ class LearnerProgressNotification(models.Model):
 
     class Meta:
         app_label = "notifications"
+        indexes = [
+            models.Index(
+                fields=[
+                    "-timestamp",
+                ]
+            ),
+        ]
 
 
 class NotificationsLog(models.Model):

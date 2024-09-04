@@ -23,6 +23,7 @@
       v-if="showSelectAddressModal"
       :filterLODAvailable="true"
       :filterByFacilityCanSignUp="selected === Options.JOIN ? true : null"
+      :filterByHasFacilities="true"
       @cancel="showSelectAddressModal = false"
       @submit="handleContinueImport"
     />
@@ -47,7 +48,7 @@
     data() {
       return {
         Options,
-        selected: Options.JOIN,
+        selected: this.wizardService.state.context.lodImportOrJoin || Options.JOIN,
         showSelectAddressModal: false,
       };
     },

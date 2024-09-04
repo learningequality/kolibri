@@ -45,7 +45,7 @@
               <span
                 v-if="section.description"
                 class="current-section-style"
-                style="flex: 2; text-overflow: ellipses"
+                style="flex: 2; text-overflow: ellipsis"
               >
                 {{ section.description }}
               </span>
@@ -87,8 +87,7 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import pick from 'lodash/pick';
-  import { getCurrentInstance, computed, ref } from 'kolibri.lib.vueCompositionApi';
+  import { computed, ref } from 'kolibri.lib.vueCompositionApi';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
@@ -113,12 +112,9 @@
     },
     mixins: [commonCoreStrings],
     setup(_, context) {
-      const router = getCurrentInstance().proxy.$router;
-
       const {
         sectionSettings$,
         sectionTitle$,
-        sectionTitleUniqueWarning$,
         numberOfQuestionsLabel$,
         optionalDescriptionLabel$,
         numberOfQuestionsSelected$,
@@ -148,7 +144,6 @@
         allSections,
         updateSection,
         updateQuiz,
-        removeSection,
       } = injectQuizCreation();
 
       const { moveDownOne, moveUpOne } = useDrag();
@@ -165,19 +160,6 @@
 
       // This is used to track the section that was moved
       const reorderedSectionIndex = ref(null);
-
-      const section_title = ref(activeSection?.value?.section_title?.trim() || '');
-
-      const activeSectionChanged = computed(() => {
-        return !isEqual(
-          {
-            learners_see_fixed_order: learners_see_fixed_order.value,
-            description: description.value,
-            section_title: section_title.value.trim(),
-          },
-          pick(activeSection.value, ['learners_see_fixed_order', 'description', 'section_title']),
-        );
-      });
 
       const sectionOrderList = ref(allSections.value);
 
@@ -261,16 +243,10 @@
           border: `1px solid ${this.$themeTokens.fineLine}`,
         };
       },
-      dividerStyle() {
-        return `color : ${this.$themeTokens.fineLine}`;
-      },
       draggableStyle() {
         return {
           backgroundColor: this.$themeTokens.surface,
         };
-      },
-      selectResourcesRoute() {
-        return { name: PageNames.QUIZ_SELECT_RESOURCES };
       },
     },
     beforeRouteLeave(to, __, next) {

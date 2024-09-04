@@ -3,7 +3,7 @@ import logging
 from django.contrib.auth import login
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.http import urlunquote
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
@@ -70,7 +70,9 @@ class InitializeAppView(APIView):
                 logger.error(e)
         redirect_url = request.GET.get("next", "/")
         # Copied and modified from https://github.com/django/django/blob/stable/1.11.x/django/views/i18n.py#L40
-        if (redirect_url or not request.is_ajax()) and not is_safe_url(
+        if (
+            redirect_url or not request.is_ajax()
+        ) and not url_has_allowed_host_and_scheme(
             url=redirect_url,
             allowed_hosts={request.get_host()},
             require_https=request.is_secure(),
@@ -78,7 +80,7 @@ class InitializeAppView(APIView):
             redirect_url = request.META.get("HTTP_REFERER")
             if redirect_url:
                 redirect_url = urlunquote(redirect_url)  # HTTP_REFERER may be encoded.
-            if not is_safe_url(
+            if not url_has_allowed_host_and_scheme(
                 url=redirect_url,
                 allowed_hosts={request.get_host()},
                 require_https=request.is_secure(),

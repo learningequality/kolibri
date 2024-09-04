@@ -1,5 +1,6 @@
-import store from 'kolibri.coreVue.vuex.store';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 import MyDownloadsPage from './views/MyDownloads';
 
 export default [
@@ -8,7 +9,8 @@ export default [
     name: 'MY_DOWNLOADS',
     component: MyDownloadsPage,
     beforeEnter(to, from, next) {
-      if (!store.getters.isUserLoggedIn) {
+      const { isUserLoggedIn } = useUser();
+      if (!get(isUserLoggedIn)) {
         redirectBrowser();
       } else {
         next();

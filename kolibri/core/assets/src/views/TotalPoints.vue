@@ -30,17 +30,20 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'vuex';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import useTotalProgress from 'kolibri.coreVue.composables.useTotalProgress';
 
   export default {
     name: 'TotalPoints',
     setup() {
       const { currentUserId, isUserLoggedIn } = useUser();
-      return { currentUserId, isUserLoggedIn };
-    },
-    computed: {
-      ...mapGetters(['totalPoints']),
+      const { fetchPoints, totalPoints } = useTotalProgress();
+      return {
+        currentUserId,
+        isUserLoggedIn,
+        fetchPoints,
+        totalPoints,
+      };
     },
     watch: {
       currentUserId() {
@@ -49,9 +52,6 @@
     },
     created() {
       this.fetchPoints();
-    },
-    methods: {
-      ...mapActions(['fetchPoints']),
     },
     $trs: {
       pointsTooltip: {

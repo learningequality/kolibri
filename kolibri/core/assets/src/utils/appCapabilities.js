@@ -1,7 +1,8 @@
 import client from 'kolibri.client';
-import store from 'kolibri.coreVue.vuex.store';
 import logger from 'kolibri.lib.logging';
 import urls from 'kolibri.urls';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 import plugin_data from 'plugin_data';
 
 const logging = logger.getLogger(__filename);
@@ -11,7 +12,10 @@ const appCapabilities = plugin_data.appCapabilities || {};
 // Check that we are in an appcontext, if not disable all capabilities
 // this means that consumers of this API can rely solely on the existence
 // check of methods in this API to know if they can call these or not.
-export const checkCapability = key => store.getters.isAppContext && appCapabilities[key];
+export const checkCapability = key => {
+  const { isAppContext } = useUser();
+  return get(isAppContext) && appCapabilities[key];
+};
 
 // Use a janky getter to return a method here to only expose functions
 // that are available so that we have a single API for both existence

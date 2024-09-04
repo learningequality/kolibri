@@ -139,6 +139,7 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import pickBy from 'lodash/pickBy';
   import { UnreachableConnectionStatuses } from './constants';
   import useDeviceDeletion from './useDeviceDeletion.js';
   import {
@@ -163,19 +164,22 @@
         deviceFilters.push(useDeviceChannelFilter({ id: props.filterByChannelId }));
       }
 
-      if (
-        props.filterByFacilityId !== null ||
-        props.filterByFacilityCanSignUp !== null ||
-        props.filterByOnMyOwnFacility !== null
-      ) {
+      const pickNotNull = v => v !== null;
+      // Either we build a facility filter or an empty object.
+      // Passing the empty object to useDeviceFacilityFilter is asking "are there ANY facilities?"
+      const facilityFilter = pickBy(
+        {
+          id: props.filterByFacilityId,
+          learner_can_sign_up: props.filterByFacilityCanSignUp,
+          on_my_own_setup: props.filterByOnMyOwnFacility,
+        },
+        pickNotNull,
+      );
+
+      // If we're filtering a particular facility
+      if (Object.keys(facilityFilter).length > 0 || props.filterByHasFacilities) {
         apiParams.subset_of_users_device = false;
-        deviceFilters.push(
-          useDeviceFacilityFilter({
-            id: props.filterByFacilityId,
-            learner_can_sign_up: props.filterByFacilityCanSignUp,
-            on_my_own_setup: props.filterByOnMyOwnFacility,
-          }),
-        );
+        deviceFilters.push(useDeviceFacilityFilter(facilityFilter));
       }
 
       if (props.filterLODAvailable) {
@@ -251,6 +255,12 @@
       // In the setup wizard, to exclude importiing facilities that are "On My Own"
       // eslint-disable-next-line kolibri/vue-no-unused-properties
       filterByOnMyOwnFacility: {
+        type: Boolean,
+        default: null,
+      },
+      // In the setup wizard, to exclude devices that do not have a facility
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      filterByHasFacilities: {
         type: Boolean,
         default: null,
       },

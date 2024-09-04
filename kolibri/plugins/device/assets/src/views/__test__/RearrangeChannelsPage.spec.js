@@ -1,8 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import useSnackbar, { useSnackbarMock } from 'kolibri.coreVue.composables.useSnackbar';
 import makeStore from '../../../test/utils/makeStore';
 import RearrangeChannelsPage from '../RearrangeChannelsPage';
 
 jest.mock('../../composables/useContentTasks');
+jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri.coreVue.composables.useSnackbar');
 
 RearrangeChannelsPage.methods.postNewOrder = () => Promise.resolve();
 RearrangeChannelsPage.methods.fetchChannels = () => {
@@ -13,7 +17,7 @@ RearrangeChannelsPage.methods.fetchChannels = () => {
 };
 async function makeWrapper() {
   const store = makeStore();
-  store.state.core.session.can_manage_content = true;
+  useUser.mockImplementation(() => useUserMock({ canManageContent: true }));
   const wrapper = shallowMount(RearrangeChannelsPage, {
     store,
   });
@@ -23,6 +27,11 @@ async function makeWrapper() {
 }
 
 describe('RearrangeChannelsPage', () => {
+  const createSnackbar = jest.fn();
+  beforeAll(() => {
+    useSnackbar.mockImplementation(() => useSnackbarMock({ createSnackbar }));
+  });
+
   async function simulateSort(wrapper) {
     const dragContainer = wrapper.findComponent({ name: 'DragContainer' });
     dragContainer.vm.$emit('sort', {
@@ -43,10 +52,7 @@ describe('RearrangeChannelsPage', () => {
     wrapper.vm.postNewOrder = jest.fn().mockResolvedValue();
     wrapper.vm.$store.dispatch = jest.fn();
     await simulateSort(wrapper);
-    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith(
-      'createSnackbar',
-      'Channel order saved',
-    );
+    expect(createSnackbar).toHaveBeenCalledWith('Channel order saved');
     expect(wrapper.vm.channels[0].id).toEqual('2');
     expect(wrapper.vm.channels[1].id).toEqual('1');
   });
@@ -56,10 +62,7 @@ describe('RearrangeChannelsPage', () => {
     wrapper.vm.postNewOrder = jest.fn().mockRejectedValue();
     wrapper.vm.$store.dispatch = jest.fn();
     await simulateSort(wrapper);
-    expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith(
-      'createSnackbar',
-      'There was a problem reordering the channels',
-    );
+    expect(createSnackbar).toHaveBeenCalledWith('There was a problem reordering the channels');
     // Channels array is reset after an error
     expect(wrapper.vm.channels[0].id).toEqual('1');
     expect(wrapper.vm.channels[1].id).toEqual('2');

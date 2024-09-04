@@ -86,7 +86,10 @@
               }"
             >
               <ul class="question-list">
-                <li v-for="(question, i) in section.questions">
+                <li
+                  v-for="(question, i) in section.questions"
+                  :key="`question-list-${i}`"
+                >
                   <KButton
                     tabindex="0"
                     class="question-button"

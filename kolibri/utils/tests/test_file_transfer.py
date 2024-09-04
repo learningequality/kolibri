@@ -136,6 +136,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
 
         range_headers = self.get_headers(range_data, start, end)
         mock_response = MagicMock()
+        mock_response.url = url
 
         # Because of the way that requests iterates over the content, we need to
         # keep track of whether the content has been exhausted, so that we can
@@ -166,6 +167,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
     def mock_head_request(self, url, **kwargs):
         mock_response = MagicMock()
         mock_response.headers = self.get_headers(self.content, None, None)
+        mock_response.url = url
         return mock_response
 
     def set_session_mock(self):
@@ -367,6 +369,32 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         ) as fd:
             with self.assertRaises(HTTPError):
                 fd.run()
+
+    def test_file_download_redirect(self):
+        mock_response = MagicMock()
+        mock_response.status_code = 302
+        mock_response.url = "https://example.com/testfile"
+
+        def mock_head_request_redirect(url, **kwargs):
+            mock_response = self.mock_head_request(url, **kwargs)
+            mock_response.status_code = 302
+            mock_response.url = "https://example.com/testfile"
+            return mock_response
+
+        self.mock_session.head.side_effect = mock_head_request_redirect
+
+        with FileDownload(
+            self.source,
+            self.dest,
+            self.checksum,
+            session=self.mock_session,
+            retry_wait=0,
+            full_ranges=self.full_ranges,
+        ) as fd:
+            fd.run()
+
+        self.source = "https://example.com/testfile"
+        self._assert_downloaded_content()
 
     def test_file_download_request_exception(self):
         mock_session = MagicMock()

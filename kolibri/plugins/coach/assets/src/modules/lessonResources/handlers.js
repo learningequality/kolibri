@@ -5,8 +5,9 @@ import {
   ContentNodeSearchResource,
 } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import chunk from 'lodash/chunk';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
 async function showResourceSelectionPage(store, params) {
@@ -21,8 +22,9 @@ async function showResourceSelectionPage(store, params) {
   const pendingSelections = store.state.lessonSummary.workingResources || [];
   const cache = store.state.lessonSummary.resourceCache || {};
   const initClassInfoPromise = store.dispatch('initClassInfo', params.classId);
+  const { isSuperuser } = useUser();
   const getFacilitiesPromise =
-    store.getters.isSuperuser && store.state.core.facilities.length === 0
+    get(isSuperuser) && store.state.core.facilities.length === 0
       ? store.dispatch('getFacilities').catch(() => {})
       : Promise.resolve();
 
@@ -124,14 +126,10 @@ export function showLessonResourceSelectionTopicPage(store, params) {
     ];
 
     return Promise.all(loadRequirements).then(([topicNode, childNodes, descendantCounts]) => {
-      const topicContentList = childNodes.map(node => {
-        return { ...node, thumbnail: getContentNodeThumbnail(node) };
-      });
-
       return showResourceSelectionPage(store, {
         classId: params.classId,
         lessonId: params.lessonId,
-        contentList: topicContentList,
+        contentList: childNodes,
         pageName: LessonsPageNames.SELECTION,
         descendantCounts,
         ancestors: [...topicNode.ancestors, topicNode],
@@ -148,14 +146,10 @@ export function showLessonResourceBookmarks(store, params) {
     ];
 
     return Promise.all(loadRequirements).then(([topicNode, childNodes]) => {
-      const topicContentList = childNodes.map(node => {
-        return { ...node, thumbnail: getContentNodeThumbnail(node) };
-      });
-
       return showResourceSelectionPage(store, {
         classId: params.classId,
         lessonId: params.lessonId,
-        bookmarksList: topicContentList,
+        bookmarksList: childNodes,
         pageName: LessonsPageNames.SELECTION,
         ancestors: [...topicNode.ancestors, topicNode],
       });
@@ -192,8 +186,9 @@ function getBookmarks() {
 export async function showLessonResourceContentPreview(store, params) {
   const { classId, lessonId, contentId } = params;
   const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+  const { isSuperuser } = useUser();
   const getFacilitiesPromise =
-    store.getters.isSuperuser && store.state.core.facilities.length === 0
+    get(isSuperuser) && store.state.core.facilities.length === 0
       ? store.dispatch('getFacilities').catch(() => {})
       : Promise.resolve();
 
@@ -208,8 +203,9 @@ export async function showLessonResourceContentPreview(store, params) {
 export async function showLessonSelectionContentPreview(store, params, query = {}) {
   const { classId, lessonId, contentId } = params;
   const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+  const { isSuperuser } = useUser();
   const getFacilitiesPromise =
-    store.getters.isSuperuser && store.state.core.facilities.length === 0
+    get(isSuperuser) && store.state.core.facilities.length === 0
       ? store.dispatch('getFacilities').catch(() => {})
       : Promise.resolve();
 
@@ -297,13 +293,10 @@ export function showLessonResourceSearchPage(store, params, query = {}) {
         }),
       },
     }).then(results => {
-      const contentList = results.results.map(node => {
-        return { ...node, thumbnail: getContentNodeThumbnail(node) };
-      });
       return showResourceSelectionPage(store, {
         classId: params.classId,
         lessonId: params.lessonId,
-        contentList,
+        contentList: results.results,
         searchResults: results,
         pageName: LessonsPageNames.SELECTION_SEARCH,
       });

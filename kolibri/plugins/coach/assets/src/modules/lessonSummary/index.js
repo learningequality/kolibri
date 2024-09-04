@@ -16,7 +16,7 @@ export default {
   getters: {
     getChannelForNode(state, getters, rootState) {
       return function getter(node) {
-        return rootState.core.channels.list.find(({ id }) => id === node.channel_id);
+        return rootState.channels.list.find(({ id }) => id === node.channel_id);
       };
     },
   },

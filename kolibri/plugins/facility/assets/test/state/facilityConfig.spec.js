@@ -2,6 +2,7 @@ import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
 import client from 'kolibri.client';
 import { showFacilityConfigPage } from '../../src/modules/facilityConfig/handlers';
 import makeStore from '../makeStore';
+import coreModule from '../../../../../core/assets/src/state/modules/core';
 
 jest.mock('kolibri.client');
 jest.mock('kolibri.urls');
@@ -65,6 +66,7 @@ describe('facility config page actions', () => {
 
   beforeEach(() => {
     store = makeStore();
+    store.registerModule('core', coreModule);
     commitStub = jest.spyOn(store, 'commit');
     store.state.route = { params: {} };
     Object.assign(store.state.core, {

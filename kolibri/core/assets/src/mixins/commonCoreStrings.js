@@ -3,6 +3,7 @@ import camelCase from 'lodash/camelCase';
 import get from 'lodash/get';
 import invert from 'lodash/invert';
 import * as METADATA from 'kolibri.coreVue.vuex.constants';
+import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
 import notificationStrings from './notificationStrings';
 
 export const coreStrings = createTranslator('CommonCoreStrings', {
@@ -1609,14 +1610,15 @@ export default {
      * `CORE_CREATE_SNACKBAR` mutation.
      */
     showSnackbarNotification(key, args, coreCreateSnackbarArgs) {
+      const { createSnackbar } = useSnackbar();
       const text = notificationStrings.$tr(key, args || {});
       if (coreCreateSnackbarArgs) {
-        this.$store.commit('CORE_CREATE_SNACKBAR', {
+        createSnackbar({
           ...coreCreateSnackbarArgs,
           text,
         });
       } else {
-        this.$store.dispatch('createSnackbar', text);
+        createSnackbar(text);
       }
     },
   },

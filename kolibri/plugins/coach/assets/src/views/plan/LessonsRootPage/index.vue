@@ -176,6 +176,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKShow from 'kolibri-design-system/lib/composables/useKShow';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
@@ -197,7 +198,8 @@
     setup() {
       const { show } = useKShow();
       const { lessonsAreLoading } = useLessons();
-      return { show, lessonsAreLoading };
+      const { createSnackbar } = useSnackbar();
+      return { show, lessonsAreLoading, createSnackbar };
     },
     data() {
       return {
@@ -342,7 +344,7 @@
             Vue.delete(this.updatingVisibilityLessons, lesson.id);
             // slightly delay to sync a bit better with the toggle loader
             setTimeout(() => {
-              this.$store.dispatch('createSnackbar', snackbarMessage);
+              this.createSnackbar(snackbarMessage);
             }, 1000);
           })
           .catch(() => {

@@ -40,9 +40,9 @@
 
 <script>
 
-  import { mapActions } from 'vuex';
   import UiSnackbar from 'kolibri-design-system/lib/keen/UiSnackbar.vue';
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
 
   /* Snackbars are used to display notification. */
   export default {
@@ -50,6 +50,10 @@
     components: {
       Backdrop,
       UiSnackbar,
+    },
+    setup() {
+      const { clearSnackbar } = useSnackbar();
+      return { clearSnackbar };
     },
     props: {
       /* Text of notification to be displayed */
@@ -119,7 +123,6 @@
       }
     },
     methods: {
-      ...mapActions(['clearSnackbar']),
       hideSnackbar() {
         this.isVisible = false;
         this.$emit('hide');

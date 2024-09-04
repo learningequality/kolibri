@@ -8,9 +8,20 @@
     :footerMessageType="loading ? null : footerMessageType"
     :step="loading ? null : 1"
     :steps="loading ? null : 5"
+    :hideContinue="true"
     @continue="handleContinue"
   >
-    <div v-if="!loading">
+    <UiAlert
+      v-if="errorMessage"
+      :dismissible="false"
+      class="alert"
+      type="error"
+      :style="{ marginBottom: 0, marginTop: '8px' }"
+    >
+      {{ errorMessage }}
+    </UiAlert>
+
+    <div v-else-if="!loading">
       <!-- TODO: Show "you cannot import from this facility" message -->
       <RadioButtonGroup
         v-if="!loadingNewAddress"
@@ -51,10 +62,15 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { SelectDeviceModalGroup, RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
+  import SelectFacility from '../../../../user_profile/assets/src/views/ChangeFacility/SelectFacility';
   import { FooterMessageTypes } from '../constants';
 
   import OnboardingStepBase from './OnboardingStepBase';
+
+  const SelectFacilityStrings = crossComponentTranslator(SelectFacility);
 
   export default {
     name: 'SelectFacilityForm',
@@ -62,6 +78,7 @@
       OnboardingStepBase,
       RadioButtonGroup,
       SelectDeviceModalGroup,
+      UiAlert,
     },
     inject: ['wizardService'],
     mixins: [commonCoreStrings, commonSyncElements],
@@ -77,6 +94,7 @@
         formDisabled: false,
         loadingNewAddress: false,
         showSelectAddressModal: false,
+        errorMessage: '',
       };
     },
     computed: {
@@ -99,6 +117,11 @@
         return this.fetchNetworkLocationFacilities(deviceId)
           .then(data => {
             this.facilities = [...data.facilities];
+            if (this.facilities.length === 0) {
+              // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
+              this.errorMessage = SelectFacilityStrings.$tr('noFacilitiesText');
+              return;
+            }
             this.device = {
               name: data.device_name,
               id: data.device_id,
