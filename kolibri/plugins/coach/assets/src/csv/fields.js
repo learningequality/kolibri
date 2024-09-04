@@ -228,10 +228,10 @@ export function tally() {
   ];
 }
 
-export function timeSpent(key, label = 'timeSpentLabel') {
+export function timeSpent(key, label = coreStrings.$tr('timeSpentLabel')) {
   return [
     {
-      name: coachStrings.$tr(label),
+      name: label,
       key,
       format(row) {
         const value = get(row, key);
