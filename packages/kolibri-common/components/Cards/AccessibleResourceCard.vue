@@ -1,57 +1,55 @@
 <template>
 
-  <div>
-    <KCard
-      :to="to"
-      :headingLevel="headingLevel"
-      layout="horizontal"
-      thumbnailDisplay="large"
-      :title="contentNode.title"
-      :thumbnailSrc="thumbnailSrc"
-      :thumbnailScaleType="thumbnailScaleType"
-      thumbnailAlign="right"
-      :style="{ height: '172px',width: '500px', margin: '16px 0 16px 0' }"
-    >
-      <template #thumbnailPlaceholder>
-        <div class="default-resource-icon" >
-          <LearningActivityIcon
-            :kind="contentNode.learning_activities"
-          />
-        </div>
-      </template>
-      <template #belowTitle>
-        <div>
-          <KTextTruncator
-            :text="contentNode.description"
-            :maxLines="2"
-          />
-        </div>
-      </template>
-      <template #footer>
-        <div class="footer-icon-style">
+  <KCard
+    :to="to"
+    :headingLevel="headingLevel"
+    layout="horizontal"
+    thumbnailDisplay="large"
+    :title="contentNode.title"
+    :thumbnailSrc="thumbnailSrc"
+    :thumbnailScaleType="thumbnailScaleType"
+    thumbnailAlign="right"
+    :style="{ height: '172px',width: '500px', margin: '16px 0 16px 0' }"
+  >
+    <template #thumbnailPlaceholder>
+      <div class="default-resource-icon" >
+        <LearningActivityIcon
+          :kind="contentNode.learning_activities"
+        />
+      </div>
+    </template>
+    <template #belowTitle>
+      <div>
+        <KTextTruncator
+          :text="contentNode.description"
+          :maxLines="2"
+        />
+      </div>
+    </template>
+    <template #footer>
+      <div class="footer-icon-style">
           
-          <KIconButton
-            icon="bookmarkEmpty"
-            size="mini"
-            :color="$themePalette.grey.v_600"
-            :ariaLabel="coreString('savedFromBookmarks')"
-            :tooltip="coreString('savedFromBookmarks')"
-            @click="$emit('toggleInfoPanel')"
-          />
+        <KIconButton
+          icon="bookmarkEmpty"
+          size="mini"
+          :color="$themePalette.grey.v_600"
+          :ariaLabel="coreString('savedFromBookmarks')"
+          :tooltip="coreString('savedFromBookmarks')"
+          @click="$emit('toggleBookmark')"
+        />
 
-          <KIconButton
-            icon="infoOutline"
-            size="mini"
-            :color="$themePalette.grey.v_600"
-            :ariaLabel="coreString('viewInformation')"
-            :tooltip="coreString('viewInformation')"
-            @click="$emit('toggleInfoPanel')"
-          />
-        </div>
-      </template>
+        <KIconButton
+          icon="infoOutline"
+          size="mini"
+          :color="$themePalette.grey.v_600"
+          :ariaLabel="coreString('viewInformation')"
+          :tooltip="coreString('viewInformation')"
+          @click="$emit('toggleInfo')"
+        />
+      </div>
+    </template>
 
-    </KCard>
-  </div>
+  </KCard>
 
 </template>
 
@@ -98,26 +96,6 @@
 
 <style lang="scss" scoped>
 
-  .header-bar {
-    display: flex;
-    justify-content: space-between;
-    height: 38px;
-    font-size: 12px;
-
-  }
-
-  .folder-header-bar {
-    display: inline-block;
-    margin-left: 8px;
-    font-size: 16px;
-  }
-
-  .folder-header-text {
-    display: inline-block;
-    padding: 0;
-    margin: 4px;
-    font-size: 12px;
-  }
   .default-resource-icon{
     font-size: 48px;
     text-align: center;
@@ -126,6 +104,7 @@
     margin:auto;
     margin-top: 40px;
   }
+  
   .footer-icon-style{
     text-align: right;
     margin-top:15px;
