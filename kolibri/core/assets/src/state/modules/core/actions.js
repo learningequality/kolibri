@@ -179,35 +179,7 @@ export function setPageVisibility(store) {
   _setPageVisibility(store, document.visibilityState === 'visible');
 }
 
-export function getNotifications(store) {
-  const { isAdmin, isSuperuser } = useUser();
-  if (get(isAdmin) || get(isSuperuser)) {
-    return PingbackNotificationResource.fetchCollection()
-      .then(notifications => {
-        logging.info('Notifications set.');
-        store.commit('CORE_SET_NOTIFICATIONS', _notificationListState(notifications));
-      })
-      .catch(error => {
-        store.dispatch('handleApiError', { error });
-      });
-  }
-  return Promise.resolve();
-}
 
-export function saveDismissedNotification(store, notification_id) {
-  const { user_id } = useUser();
-  const dismissedNotificationData = {
-    user: get(user_id),
-    notification: notification_id,
-  };
-  return PingbackNotificationDismissedResource.saveModel({ data: dismissedNotificationData })
-    .then(() => {
-      store.commit('CORE_REMOVE_NOTIFICATION', notification_id);
-    })
-    .catch(error => {
-      store.dispatch('handleApiError', { error });
-    });
-}
 
 export function getFacilities(store) {
   return FacilityResource.fetchCollection({ force: true }).then(facilities => {

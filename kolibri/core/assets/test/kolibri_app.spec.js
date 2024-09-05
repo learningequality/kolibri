@@ -58,7 +58,6 @@ describe('KolibriApp', function () {
         core: {
           actions: {
             getCurrentSession: jest.fn().mockResolvedValue(),
-            getNotifications: jest.fn().mockResolvedValue(),
           },
         },
       },
