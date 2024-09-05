@@ -412,6 +412,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "A coach can view learner progress in Kolibri.\n\nFor example, in the Coach > Reports section under the 'Progress' column they can see how many learners have started a lesson, or if a learner needs help.\n",
   },
+  questionsLeftLabel: {
+    message: '{remaining, number} questions left',
+    context:
+      "Indicates how many questions a learner has left to answer in a quiz. For example, it will show something like '5 questions left' or '1 question left' when a learner is taking a quiz.",
+  },
   questionNumberLabel: {
     message: 'Question { questionNumber, number }',
     context: 'Indicates the question number in a quiz that a learner could be taking.',
