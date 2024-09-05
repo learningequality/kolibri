@@ -179,8 +179,6 @@ export function setPageVisibility(store) {
   _setPageVisibility(store, document.visibilityState === 'visible');
 }
 
-
-
 export function getFacilities(store) {
   return FacilityResource.fetchCollection({ force: true }).then(facilities => {
     store.commit('CORE_SET_FACILITIES', [...facilities]);
