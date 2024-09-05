@@ -9,18 +9,39 @@
     :aria-valuenow="progress * 100"
   >
     <p
-      v-if="completed"
       class="completion-label"
       :style="{ color: $themePalette.grey.v_800 }"
     >
-      <ProgressIcon
-        :progress="progress"
-        class="completion-icon"
-      />
-      {{ coreString('completedLabel') }}
+      <template v-if="isQuiz">
+        <template v-if="progress < 1">
+          <ProgressIcon
+            :progress="progress"
+            class="completion-icon"
+          />
+          {{
+            coreString('questionsLeftLabel', {
+              remaining: remainingQuestions,
+            })
+          }}
+        </template>
+        <template v-else>
+          <ProgressIcon
+            :progress="progress"
+            class="completion-icon"
+          />
+          {{ coreString('scoreLabel') }} {{ $formatNumber(score, { style: 'percent' }) }}
+        </template>
+      </template>
+      <template v-else>
+        <ProgressIcon
+          :progress="progress"
+          class="completion-icon"
+        />
+        {{ coreString('completedLabel') }}
+      </template>
     </p>
     <KLinearLoader
-      v-if="progress && !completed"
+      v-if="!isQuiz && progress && !completed"
       class="k-linear-loader"
       :delay="false"
       :progress="progress * 100"
@@ -36,6 +57,7 @@
 
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import lodashGet from 'lodash/get';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
 
   /**
@@ -51,8 +73,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { contentNodeProgressMap } = useContentNodeProgress();
-      return { contentNodeProgressMap };
+      const { contentNodeProgressMap, contentNodeQuizProgressMap } = useContentNodeProgress();
+      return { contentNodeProgressMap, contentNodeQuizProgressMap };
     },
     props: {
       // eslint-disable-next-line kolibri/vue-no-unused-properties
@@ -62,7 +84,34 @@
       },
     },
     computed: {
+      isQuiz() {
+        return lodashGet(this.contentNode, ['options', 'modality'], false) === 'QUIZ';
+      },
+      score() {
+        if (this.isQuiz) {
+          const quizProgress =
+            this.contentNodeQuizProgressMap[this.contentNode && this.contentNode.content_id];
+          if (quizProgress.total_questions) {
+            return quizProgress.num_question_answered_correctly / quizProgress.total_questions;
+          }
+        }
+      },
+      remainingQuestions() {
+        if (this.isQuiz) {
+          const quizProgress =
+            this.contentNodeQuizProgressMap[this.contentNode && this.contentNode.content_id];
+          if (quizProgress.total_questions) {
+            return quizProgress.total_questions - quizProgress.num_question_answered;
+          }
+        }
+      },
       progress() {
+        if (this.isQuiz) {
+          return (
+            this.contentNodeQuizProgressMap[this.contentNode && this.contentNode.content_id]
+              ?.progress || 0
+          );
+        }
         return this.contentNodeProgressMap[this.contentNode && this.contentNode.content_id] || 0;
       },
       completed() {
