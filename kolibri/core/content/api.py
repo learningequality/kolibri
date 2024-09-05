@@ -1684,8 +1684,8 @@ class ContentNodeProgressViewset(TreeQueryMixin, BaseValuesViewset, ListModelMix
     values = (
         "content_id",
         "progress",
-        "num_attempts",
-        "num_correct_attempts",
+        "num_question_answered",
+        "num_question_answered_correctly",
         "total_questions",
     )
 
@@ -1716,28 +1716,29 @@ class ContentNodeProgressViewset(TreeQueryMixin, BaseValuesViewset, ListModelMix
                 ),
             )
             .annotate(
-                num_attempts=Subquery(
+                num_question_answered=Subquery(
                     MasteryLog.objects.filter(
+                        user=self.request.user,
                         summarylog__content_id=OuterRef("content_id"),
                     )
                     .annotate(
-                        num_attempts=Count("attemptlogs"),
+                        num_question_answered=Count("attemptlogs"),
                     )
-                    .values("num_attempts")
+                    .values("num_question_answered")
                     .order_by("-end_timestamp")[:1]
                 ),
-                num_correct_attempts=Subquery(
+                num_question_answered_correctly=Subquery(
                     MasteryLog.objects.filter(
+                        user=self.request.user,
                         summarylog__content_id=OuterRef("content_id"),
                     )
                     .annotate(
-                        num_correct_attempts=Count(
-                            "attemptlogs__item",
+                        num_question_answered_correctly=Count(
+                            "attemptlogs",
                             filter=Q(attemptlogs__correct=1),
-                            distinct=True,
                         ),
                     )
-                    .values("num_correct_attempts")
+                    .values("num_question_answered_correctly")
                     .order_by("-end_timestamp")[:1]
                 ),
                 total_questions=Subquery(
