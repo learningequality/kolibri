@@ -228,7 +228,8 @@ export function tally() {
   ];
 }
 
-export function timeSpent(key, label = coreStrings.$tr('timeSpentLabel')) {
+export function timeSpent(key, label) {
+  label = label || coreStrings.$tr('timeSpentLabel');
   return [
     {
       name: label,
