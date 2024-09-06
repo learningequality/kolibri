@@ -1,5 +1,4 @@
 <template>
-
   <KPageContainer :topMargin="$isPrint ? 0 : 16">
     <KGrid gutter="16">
       <!-- Quiz Open button -->
@@ -277,12 +276,9 @@
       />
     </KModal>
   </KPageContainer>
-
 </template>
 
-
 <script>
-
   import { ExamResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
@@ -349,7 +345,7 @@
           // palette.red.v_1100 is the darkest available red
           // in the palette. Using this hardcoded color was
           // agreed with designers.
-          ':hover': { 'background-color': '#A81700' },
+          ':hover': { 'background-color': this.$darken1(this.$themePalette.red.v_1100) },
         };
       },
       examDateArchived() {
@@ -487,12 +483,9 @@
       },
     },
   };
-
 </script>
 
-
 <style scoped lang="scss">
-
   .grid-item {
     font-size: 14px;
 
@@ -526,5 +519,4 @@
       }
     }
   }
-
 </style>
