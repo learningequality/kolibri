@@ -7764,11 +7764,9 @@ kolibri-constants@0.2.6:
   resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.2.6.tgz#d13762862505a3a6ec58a104870b21da96778656"
   integrity sha512-gQaY2wFNFrsB+9+xQNeEcLHixNuZEK+GHyKKr78s/hg8gFU3YVsnhlYp0u+du4XeVwewpyN1ajGb4UrrdF8rTA==
 
-
-"kolibri-design-system@https://github.com/BabyElias/kolibri-design-system#7764ef4b5f9b66ebd90d2ad389ae3d44252437a0":
-  version "5.0.0-rc3"
-  resolved "https://github.com/BabyElias/kolibri-design-system#7764ef4b5f9b66ebd90d2ad389ae3d44252437a0"
-
+"kolibri-design-system@https://github.com/BabyElias/kolibri-design-system#7acfa97775799aa8cde3b3be2f6c7a76f0c7ba88":
+  version "5.0.0-rc4"
+  resolved "https://github.com/BabyElias/kolibri-design-system#7acfa97775799aa8cde3b3be2f6c7a76f0c7ba88"
   dependencies:
     "@vue/composition-api" "1.7.2"
     aphrodite "https://github.com/learningequality/aphrodite/"
