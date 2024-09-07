@@ -43,10 +43,10 @@
         :dataLoading="dataLoading"
         sortable
       >
-        <template #header="{ header, index }">
-          <span :class="{ visuallyhidden: index === 3 }">{{ header.label }}</span>
+        <template #header="{ header, colIndex }">
+          <span :class="{ visuallyhidden: colIndex === 3 }">{{ header.label }}</span>
         </template>
-        <template #cell="{ content, rowIndex, colIndex, row }">
+        <template #cell="{ content, colIndex, row }">
           <span v-if="colIndex === 0">
             <KRouterLink
               :text="content"
@@ -147,19 +147,19 @@
           },
           {
             label: this.coreString('coachesLabel'),
-            dataType: 'others',
+            dataType: 'undefined',
             minWidth: '150px',
             width: '30%',
           },
           {
             label: this.coreString('learnersLabel'),
-            dataType: 'numeric',
+            dataType: 'number',
             minWidth: '150px',
             width: '20%',
           },
           {
             label: this.coreString('userActionsColumnHeader'),
-            dataType: 'others',
+            dataType: 'undefined',
             minWidth: '150px',
             width: '30%',
           },
