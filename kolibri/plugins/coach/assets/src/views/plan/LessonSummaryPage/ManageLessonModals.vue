@@ -32,6 +32,7 @@
   import { mapState } from 'vuex';
   import { LessonResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import AssignmentCopyModal from '../../plan/assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../plan/assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
@@ -44,6 +45,10 @@
       AssignmentDeleteModal,
     },
     mixins: [coachStringsMixin, commonCoreStrings],
+    setup() {
+      const { createSnackbar, clearSnackbar } = useSnackbar();
+      return { createSnackbar, clearSnackbar };
+    },
     props: {
       // Should be 'COPY' or 'DELETE'
       currentAction: {
@@ -96,14 +101,14 @@
           .catch(error => {
             const caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
             if (caughtErrors) {
-              this.$store.commit('CORE_CREATE_SNACKBAR', {
+              this.createSnackbar({
                 text: this.$tr('uniqueTitleError', {
                   title,
                   className: classroomName,
                 }),
                 autoDismiss: false,
                 actionText: this.coreString('closeAction'),
-                actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
+                actionCallback: () => this.clearSnackbar(),
               });
             } else {
               this.$store.dispatch('handleApiError', { error });

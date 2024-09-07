@@ -1,4 +1,6 @@
 import Lockr from 'lockr';
+import { get } from '@vueuse/core';
+import useUser from 'kolibri.coreVue.composables.useUser';
 import { ComponentMap, pageNameToModuleMap } from '../constants';
 import signIn from './signIn';
 
@@ -41,7 +43,8 @@ export default {
       if (selectedFacility) {
         return selectedFacility;
       } else {
-        return getters.facilities.find(f => f.id === getters.userFacilityId) || null;
+        const { userFacilityId } = useUser();
+        return getters.facilities.find(f => f.id === get(userFacilityId)) || null;
       }
     },
   },

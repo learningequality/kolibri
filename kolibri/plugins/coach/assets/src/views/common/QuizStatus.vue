@@ -290,6 +290,7 @@
   import { QUIZ_REPORT_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { mapActions } from 'vuex';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { coachStringsMixin } from './commonCoachStrings';
   import Score from './Score';
   import Recipients from './Recipients';
@@ -302,7 +303,8 @@
     mixins: [coachStringsMixin, commonCoreStrings],
     setup() {
       const { sectionOrderLabel$ } = enhancedQuizManagementStrings;
-      return { sectionOrderLabel$ };
+      const { createSnackbar } = useSnackbar();
+      return { sectionOrderLabel$, createSnackbar };
     },
     props: {
       className: {
@@ -389,7 +391,7 @@
         return promise
           .then(data => {
             this.showConfirmationModal = false;
-            this.$store.dispatch('createSnackbar', this.coachString('quizOpenedMessage'));
+            this.createSnackbar(this.coachString('quizOpenedMessage'));
             if (data.id !== this.$route.params.quizId) {
               this.$router.replace({
                 name: this.$route.name,
@@ -403,7 +405,7 @@
             }
           })
           .catch(() => {
-            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToOpenMessage'));
+            this.createSnackbar(this.coachString('quizFailedToOpenMessage'));
           });
       },
       handleCloseQuiz() {
@@ -419,10 +421,10 @@
           .then(() => {
             this.$store.dispatch('classSummary/refreshClassSummary');
             this.showCancellationModal = false;
-            this.$store.dispatch('createSnackbar', this.coachString('quizClosedMessage'));
+            this.createSnackbar(this.coachString('quizClosedMessage'));
           })
           .catch(() => {
-            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
+            this.createSnackbar(this.coachString('quizFailedToCloseMessage'));
           });
       },
       // modal about quiz report size should only exist of LODs exist in the class
@@ -473,7 +475,7 @@
           this.showConfirmationModal = false;
           this.showRemoveReportVisibilityModal = false;
           this.showMakeReportVisibleModal = false;
-          this.$store.dispatch('createSnackbar', snackbarMessage);
+          this.createSnackbar(snackbarMessage);
         });
       },
     },

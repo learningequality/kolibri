@@ -1,5 +1,7 @@
 import { ClassroomResource } from 'kolibri.resources';
 import logger from 'kolibri.lib.logging';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 import { pageNameToModuleMap } from '../constants';
 import { LessonsPageNames } from '../constants/lessonsConstants';
 import examReportDetail from './examReportDetail';
@@ -23,6 +25,10 @@ export default {
       pageName: '',
       toolbarRoute: {},
       toolbarTitle: '',
+      channels: {
+        list: [],
+        currentId: null,
+      },
     };
   },
   mutations: {
@@ -41,6 +47,9 @@ export default {
     SET_TOOLBAR_ROUTE(state, toolbarRoute) {
       state.toolbarRoute = toolbarRoute;
     },
+    SET_CHANNEL_LIST(state, channelList) {
+      state.channels.list = channelList;
+    },
   },
   getters: {
     classListPageEnabled(state) {
@@ -49,15 +58,24 @@ export default {
       return state.classList.length !== 1;
     },
     userIsAuthorizedForCoach(state, getters, rootState) {
-      if (getters.isSuperuser) {
+      const { isAdmin, isSuperuser, isCoach, facility_id } = useUser();
+      if (get(isSuperuser)) {
         return true;
-      } else if (getters.isCoach || getters.isAdmin) {
+      } else if (get(isCoach) || get(isAdmin)) {
         return (
-          rootState.route.params.facilityId === rootState.core.session.facility_id ||
+          rootState.route.params.facilityId === get(facility_id) ||
           !rootState.route.params.facilityId
         );
       }
       return false;
+    },
+    getChannels(state) {
+      return state.channels.list;
+    },
+    getChannelObject(state, getters) {
+      return function getter(channelId) {
+        return getters.getChannels(state).find(channel => channel.id === channelId);
+      };
     },
   },
   actions: {

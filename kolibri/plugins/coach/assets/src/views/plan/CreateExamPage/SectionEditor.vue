@@ -133,6 +133,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { PageNames } from '../../../constants/index';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import useDrag from './useDrag.js';
@@ -144,6 +145,7 @@
       const router = getCurrentInstance().proxy.$router;
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
+      const { createSnackbar } = useSnackbar();
 
       const {
         sectionSettings$,
@@ -210,7 +212,7 @@
             sectionIndex: newIndex,
           },
         });
-        store.dispatch('createSnackbar', sectionDeletedNotification$({ section_title }));
+        createSnackbar(sectionDeletedNotification$({ section_title }));
       }
 
       function handleDeleteSection() {
@@ -340,6 +342,8 @@
         randomizedOptionDescription$,
         fixedLabel$,
         fixedOptionDescription$,
+
+        createSnackbar,
       };
     },
     computed: {

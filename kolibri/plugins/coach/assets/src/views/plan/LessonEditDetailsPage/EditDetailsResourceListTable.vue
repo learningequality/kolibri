@@ -101,7 +101,7 @@
 
 <script>
 
-  import { mapActions, mapState } from 'vuex';
+  import { mapState } from 'vuex';
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
@@ -109,6 +109,7 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { coachStrings } from '../../common/commonCoachStrings';
 
   // This is a simplified version of ResourceListTable that is supposed to work
@@ -125,9 +126,12 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const { createSnackbar, clearSnackbar } = useSnackbar();
       const { noResourcesInLessonLabel$ } = coachStrings;
       return {
         noResourcesInLessonLabel$,
+        createSnackbar,
+        clearSnackbar,
       };
     },
     props: {
@@ -184,7 +188,6 @@
       },
     },
     methods: {
-      ...mapActions(['clearSnackbar']),
       emitUpdatedResources(resources) {
         this.$emit('update:resources', resources);
       },
@@ -203,7 +206,7 @@
         // Need to wait for the parent to update the resources prop
         this.$nextTick(() => {
           this.firstRemovalTitle = title;
-          this.$store.commit('CORE_CREATE_SNACKBAR', {
+          this.createSnackbar({
             text: this.removalMessage,
             autoDismiss: true,
             duration: 5000,

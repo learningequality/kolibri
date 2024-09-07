@@ -2,6 +2,8 @@ import { ExamResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { fetchExamWithContent } from 'kolibri.utils.exams';
 import shuffled from 'kolibri.utils.shuffled';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
 
@@ -13,9 +15,9 @@ export function showExam(store, params, alreadyOnQuiz) {
   }
   store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
 
-  const userId = store.getters.currentUserId;
+  const { currentUserId } = useUser();
 
-  if (!userId) {
+  if (!get(currentUserId)) {
     store.commit('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
     store.commit('CORE_SET_PAGE_LOADING', false);
   } else {
@@ -36,13 +38,13 @@ export function showExam(store, params, alreadyOnQuiz) {
               // Seed based on the user ID so they see a consistent order each time.
               for (const section of question_sources) {
                 if (!section.learners_see_fixed_order) {
-                  section.questions = shuffled(section.questions, store.state.core.session.user_id);
+                  section.questions = shuffled(section.questions, get(currentUserId));
                 }
               }
               // When necessary randomize the order of the sections
               // Seed based on the user ID so they see a consistent order each time.
               if (!converted.learners_see_fixed_order) {
-                question_sources = shuffled(question_sources, store.state.core.session.user_id);
+                question_sources = shuffled(question_sources, get(currentUserId));
               }
               // If necessary, convert the question source info
               const allQuestions = question_sources.reduce((acc, section) => {

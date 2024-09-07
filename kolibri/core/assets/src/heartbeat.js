@@ -4,10 +4,13 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import Lockr from 'lockr';
 import urls from 'kolibri.urls';
 import { get, set } from '@vueuse/core';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import {
+  DisconnectionErrorCodes,
+  SIGNED_OUT_DUE_TO_INACTIVITY,
+} from 'kolibri.coreVue.vuex.constants';
 import useConnection from './composables/useConnection';
 import clientFactory from './core-app/baseClient';
-import { SIGNED_OUT_DUE_TO_INACTIVITY } from './constants';
-import errorCodes from './disconnectionErrorCodes';
 import {
   createTryingToReconnectSnackbar,
   createDisconnectedSnackbar,
@@ -61,7 +64,10 @@ export class HeartBeat {
       function (response) {
         // If the response does not have one of the disconnect error codes
         // then we have reconnected.
-        if (!get(heartbeat._connection.connected) && !errorCodes.includes(response.status)) {
+        if (
+          !get(heartbeat._connection.connected) &&
+          !DisconnectionErrorCodes.includes(response.status)
+        ) {
           // Not one of our 'disconnected' status codes, so we are connected again
           // Set connected and return the response here to prevent any further processing.
           heartbeat._setConnected();
@@ -72,7 +78,7 @@ export class HeartBeat {
         if (!get(heartbeat._connection.connected)) {
           // If the response does not have one of the disconnect error codes
           // then we have reconnected.
-          if (!errorCodes.includes(error.response.status)) {
+          if (!DisconnectionErrorCodes.includes(error.response.status)) {
             // Not one of our 'disconnected' status codes, so we are connected again
             // Set connected and return the response here to prevent any further processing.
             heartbeat._setConnected();
@@ -158,7 +164,7 @@ export class HeartBeat {
    * @return {Promise} promise that resolves when the endpoint check is complete.
    */
   _checkSession() {
-    const { currentUserId } = store.getters;
+    const { id, currentUserId } = useUser();
     // Record the current user id to check if a different one is returned by the server.
     if (!get(this._connection.connected)) {
       // If not currently connected to the server, flag that we are currently trying to reconnect.
@@ -183,7 +189,7 @@ export class HeartBeat {
         const pollEnd = Date.now();
         const session = response.data;
         // If our session is already defined, check the user id in the response
-        if (store.state.core.session.id && session.user_id !== currentUserId) {
+        if (get(id) && session.user_id !== get(currentUserId)) {
           if (session.user_id === null) {
             // If it is different, and the user_id is now null then our user has been signed out.
             return this.signOutDueToInactivity();
@@ -210,7 +216,7 @@ export class HeartBeat {
       .catch(error => {
         // An error occurred.
         logging.error('Session polling failed, with error: ', error);
-        if (errorCodes.includes(error.response.status)) {
+        if (DisconnectionErrorCodes.includes(error.response.status)) {
           // We had an error that indicates that we are disconnected, so start to monitor
           // the disconnection.
           return this.monitorDisconnect(error.response.status);
@@ -251,7 +257,7 @@ export class HeartBeat {
   _setConnected() {
     set(this._connection.connected, true);
     set(this._connection.reconnectTime, null);
-    createReconnectedSnackbar(store);
+    createReconnectedSnackbar();
     if (get(this._connection.reloadOnReconnect)) {
       // If we were disconnected while loading, we need to reload the page
       // to ensure that we are in a consistent state.

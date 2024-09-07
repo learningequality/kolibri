@@ -340,6 +340,7 @@
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import useAccordion from 'kolibri-common/components/useAccordion';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
@@ -420,6 +421,8 @@
       const { moveUpOne, moveDownOne } = useDrag();
       const dragActive = ref(false);
 
+      const { createSnackbar } = useSnackbar();
+
       return {
         canCollapseAll,
         canExpandAll,
@@ -475,6 +478,8 @@
         replacementQuestionPool,
         activeQuestions,
         selectedActiveQuestions,
+
+        createSnackbar,
       };
     },
     data() {
@@ -581,10 +586,7 @@
         this.setActiveSection(newIndex);
         this.removeSection(this.activeSectionIndex);
         this.$nextTick(() => {
-          this.$store.dispatch(
-            'createSnackbar',
-            this.sectionDeletedNotification$({ section_title }),
-          );
+          this.createSnackbar(this.sectionDeletedNotification$({ section_title }));
           this.focusActiveSectionTab();
         });
         this.showDeleteConfirmation = false;
@@ -686,12 +688,7 @@
       deleteQuestions() {
         const count = this.selectedActiveQuestions.length;
         this.deleteActiveSelectedQuestions();
-        this.$store.dispatch(
-          'createSnackbar',
-          this.questionsDeletedNotification$({
-            count,
-          }),
-        );
+        this.createSnackbar(this.questionsDeletedNotification$({ count }));
       },
     },
   };

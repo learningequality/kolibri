@@ -1,5 +1,4 @@
 import sessionModule from '../session';
-import snackbarModule from '../snackbar';
 import * as getters from './getters';
 import * as actions from './actions';
 import mutations from './mutations';
@@ -11,12 +10,7 @@ export default {
       error: '',
       loading: true,
       pageSessionId: 0,
-      totalProgress: null,
       notifications: [],
-      channels: {
-        list: [],
-        currentId: null,
-      },
       allowRemoteAccess: plugin_data.allowRemoteAccess,
       // facility
       facilityConfig: {},
@@ -29,6 +23,5 @@ export default {
   mutations,
   modules: {
     session: sessionModule,
-    snackbar: snackbarModule,
   },
 };

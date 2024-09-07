@@ -46,7 +46,7 @@ describe('LessonsSearchFilters', () => {
 
   it('has the correct channel filter options based on search results', async () => {
     const { wrapper, els } = makeWrapper();
-    wrapper.vm.$store.state.core.channels.list = [{ id: '123', title: 'Channel 123' }];
+    wrapper.vm.$store.state.channels.list = [{ id: '123', title: 'Channel 123' }];
     wrapper.setProps({
       searchResults: {
         channel_ids: ['123'],

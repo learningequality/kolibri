@@ -75,6 +75,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
@@ -101,9 +102,12 @@
     setup() {
       const { randomizedSectionOptionDescription$, fixedSectionOptionDescription$ } =
         enhancedQuizManagementStrings;
+      const { createSnackbar, clearSnackbar } = useSnackbar();
       return {
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
+        createSnackbar,
+        clearSnackbar,
       };
     },
     data() {
@@ -223,14 +227,14 @@
             const caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
             if (caughtErrors) {
               const className = find(this.classList, { id: classroomId }).name;
-              this.$store.commit('CORE_CREATE_SNACKBAR', {
+              this.createSnackbar({
                 text: this.$tr('uniqueTitleError', {
                   title,
                   className,
                 }),
                 autoDismiss: false,
                 actionText: this.coreString('closeAction'),
-                actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
+                actionCallback: () => this.clearSnackbar(),
               });
             } else {
               this.$store.dispatch('handleApiError', { error });
