@@ -5,6 +5,10 @@ import Vuex from 'vuex';
 import { useDevicesWithFilter } from 'kolibri.coreVue.componentSets.sync';
 import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+import useTotalProgress, {
+  useTotalProgressMock,
+} from 'kolibri.coreVue.composables.useTotalProgress';
+import { ref } from 'kolibri.lib.vueCompositionApi';
 import { ClassesPageNames, PageNames } from '../../../constants';
 import HomePage from '../index';
 /* eslint-disable import/named */
@@ -25,6 +29,7 @@ jest.mock('../../../composables/useContentLink');
 // Needed to test anything using mount() where children use this composable
 jest.mock('../../../composables/useLearningActivities');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
+jest.mock('kolibri.coreVue.composables.useTotalProgress');
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -106,6 +111,7 @@ describe(`HomePage`, () => {
     }));
   });
 
+  let totalProgressMock;
   beforeEach(() => {
     jest.clearAllMocks();
     // set back to default values defined in __mocks__
@@ -125,6 +131,8 @@ describe(`HomePage`, () => {
         fetchChannels: jest.fn(() => Promise.resolve([{ id: 'channel-1', name: 'Channel 1' }])),
       }),
     );
+    totalProgressMock = { totalProgress: ref(null) };
+    useTotalProgress.mockImplementation(() => useTotalProgressMock(totalProgressMock));
   });
 
   it(`smoke test`, () => {

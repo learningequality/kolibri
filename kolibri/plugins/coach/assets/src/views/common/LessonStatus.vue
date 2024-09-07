@@ -137,6 +137,7 @@
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import Lockr from 'lockr';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import Recipients from './Recipients';
   import { coachStringsMixin } from './commonCoachStrings';
 
@@ -144,6 +145,10 @@
     name: 'LessonStatus',
     components: { Recipients },
     mixins: [coachStringsMixin, commonCoreStrings],
+    setup() {
+      const { createSnackbar } = useSnackbar();
+      return { createSnackbar };
+    },
     props: {
       className: {
         type: String,
@@ -215,7 +220,7 @@
         return promise.then(() => {
           this.$store.dispatch('lessonSummary/updateCurrentLesson', this.lesson.id);
           this.$store.dispatch('classSummary/refreshClassSummary');
-          this.$store.dispatch('createSnackbar', snackbarMessage);
+          this.createSnackbar(snackbarMessage);
         });
       },
       toggleModal(lesson) {

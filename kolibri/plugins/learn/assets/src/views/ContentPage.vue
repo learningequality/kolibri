@@ -110,6 +110,7 @@
   import router from 'kolibri.coreVue.router';
   import Modalities from 'kolibri-constants/Modalities';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { setContentNodeProgress } from '../composables/useContentNodeProgress';
   import useProgressTracking from '../composables/useProgressTracking';
   import useContentLink from '../composables/useContentLink';
@@ -160,6 +161,7 @@
       };
       const { windowIsSmall } = useKResponsiveWindow();
       const { isUserLoggedIn, currentUserId, full_name } = useUser();
+      const { createSnackbar } = useSnackbar();
       return {
         errored,
         progress,
@@ -178,6 +180,7 @@
         isUserLoggedIn,
         currentUserId,
         full_name,
+        createSnackbar,
       };
     },
     props: {
@@ -267,7 +270,7 @@
         this.displayCompletionModal();
         return this.updateProgress(1.0)
           .then(() => {
-            this.$store.dispatch('createSnackbar', this.learnString('resourceCompletedLabel'));
+            this.createSnackbar(this.learnString('resourceCompletedLabel'));
           })
           .catch(error => {
             this.$store.dispatch('handleApiError', { error });

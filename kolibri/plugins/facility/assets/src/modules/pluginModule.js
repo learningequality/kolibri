@@ -1,4 +1,6 @@
 import find from 'lodash/find';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 import { pageNameToModuleMap, PageNames } from '../constants';
 import classAssignMembers from './classAssignMembers';
 import classEditManagement from './classEditManagement';
@@ -34,16 +36,17 @@ export default {
     },
   },
   getters: {
-    activeFacilityId(state, getters, rootState, rootGetters) {
+    activeFacilityId(state, getters, rootState) {
       // Return either the facility_id param in the route module,
       // or the userFacilityId value from core.session
 
       // For multi-facility case, only use facility_id if in route because userFacilityId
       // fallback would always navigate to our default facility, not multi-facility landing page
-      if (getters.userIsMultiFacilityAdmin) {
+      const { userIsMultiFacilityAdmin, userFacilityId } = useUser();
+      if (get(userIsMultiFacilityAdmin)) {
         return rootState.route.params.facility_id;
       }
-      return rootState.route.params.facility_id || rootGetters.userFacilityId;
+      return rootState.route.params.facility_id || get(userFacilityId);
     },
     currentFacilityName(state, getters, rootState) {
       const match = find(rootState.core.facilities, { id: getters.activeFacilityId });
@@ -53,7 +56,8 @@ export default {
       // Use this getter to get Link objects that have the optional 'facility_id'
       // parameter if we're in a multi-facility situation
       const params = {};
-      if (getters.userIsMultiFacilityAdmin) {
+      const { userIsMultiFacilityAdmin } = useUser();
+      if (get(userIsMultiFacilityAdmin)) {
         params.facility_id = getters.activeFacilityId;
       }
       return {

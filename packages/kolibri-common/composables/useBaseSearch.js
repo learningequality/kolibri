@@ -20,6 +20,7 @@ import {
   NoCategories,
   ResourcesNeededTypes,
 } from 'kolibri.coreVue.vuex.constants';
+import useUser from 'kolibri.coreVue.composables.useUser';
 
 import { deduplicateResources } from '../utils/contentNode';
 import { setLanguages } from './useLanguages';
@@ -180,6 +181,8 @@ export default function useBaseSearch({
   const more = ref(null);
   const labels = ref(null);
 
+  const { isAdmin, isCoach, isSuperuser, isUserLoggedIn } = useUser();
+
   const searchTerms = computed({
     get() {
       const searchTerms = {};
@@ -240,8 +243,7 @@ export default function useBaseSearch({
   function search() {
     const currentBaseUrl = get(baseurl);
     const getParams = {
-      include_coach_content:
-        store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
+      include_coach_content: get(isAdmin) || get(isCoach) || get(isSuperuser),
       baseurl: currentBaseUrl,
     };
     const descValue = descendant ? get(descendant) : null;
@@ -275,7 +277,7 @@ export default function useBaseSearch({
       if (terms.keywords) {
         getParams.keywords = terms.keywords;
       }
-      if (store.getters.isUserLoggedIn) {
+      if (get(isUserLoggedIn)) {
         fetchContentNodeProgress?.(getParams);
       }
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
@@ -301,7 +303,7 @@ export default function useBaseSearch({
   function searchMore() {
     if (get(displayingSearchResults) && get(more) && !get(moreLoading)) {
       set(moreLoading, true);
-      if (store.getters.isUserLoggedIn) {
+      if (get(isUserLoggedIn)) {
         fetchContentNodeProgress?.(get(more));
       }
       return ContentNodeResource.fetchCollection({ getParams: get(more) }).then(data => {

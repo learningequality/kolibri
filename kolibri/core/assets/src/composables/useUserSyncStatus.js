@@ -5,7 +5,7 @@ import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
 import { get, useTimeoutPoll } from '@vueuse/core';
 import useUser from './useUser';
 
-const { isLearnerOnlyImport, isUserLoggedIn } = useUser();
+const { isLearnerOnlyImport, isUserLoggedIn, currentUserId } = useUser();
 
 const status = ref(SyncStatus.NOT_CONNECTED);
 const queued = ref(false);
@@ -41,7 +41,7 @@ export function pollUserSyncStatusTask() {
   if (!get(isUserLoggedIn) || !get(isLearnerOnlyImport)) {
     return Promise.resolve();
   }
-  return fetchUserSyncStatus({ user: store.state.core.session.user_id }).then(syncData => {
+  return fetchUserSyncStatus({ user: get(currentUserId) }).then(syncData => {
     if (syncData && syncData[0]) {
       queued.value = syncData[0].queued;
       lastSynced.value = syncData[0].last_synced ? new Date(syncData[0].last_synced) : null;

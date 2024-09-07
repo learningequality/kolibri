@@ -152,7 +152,6 @@ oriented data synchronization.
 
 <script>
 
-  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import shuffled from 'kolibri.utils.shuffled';
@@ -161,6 +160,7 @@ oriented data synchronization.
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import { createTranslator, defaultLanguage } from 'kolibri.utils.i18n';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import LessonMasteryBar from './LessonMasteryBar';
   import ExerciseAttempts from './ExerciseAttempts';
 
@@ -192,8 +192,10 @@ oriented data synchronization.
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
+      const { currentUserId } = useUser();
       return {
         windowIsSmall,
+        currentUserId,
       };
     },
     props: {
@@ -278,9 +280,6 @@ oriented data synchronization.
       };
     },
     computed: {
-      ...mapState({
-        userid: state => state.core.session.user_id,
-      }),
       currentattempt() {
         return !this.firstAttemptAtQuestion ? this.pastattempts[0] : null;
       },
@@ -458,7 +457,7 @@ oriented data synchronization.
       setItemId() {
         const index = this.totalattempts % this.assessmentIds.length;
         if (this.randomize) {
-          const seed = this.userid ? this.userid : Date.now();
+          const seed = this.currentUserId ? this.currentUserId : Date.now();
           this.itemId = shuffled(this.assessmentIds, seed)[index];
         } else {
           this.itemId = this.assessmentIds[index];

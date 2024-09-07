@@ -42,6 +42,7 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { SelectDeviceForm, AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { availableChannelsPageLink } from './ManageContentPage/manageContentLinks';
   import WelcomeModal from './WelcomeModal';
   import PermissionsChangeModal from './PermissionsChangeModal';
@@ -66,7 +67,12 @@
     mixins: [commonSyncElements],
     setup() {
       const { isUserLoggedIn } = useUser();
-      return { isUserLoggedIn };
+      const { createSnackbar } = useSnackbar();
+
+      return {
+        isUserLoggedIn,
+        createSnackbar,
+      };
     },
     props: {
       isOnMyOwnUser: {
@@ -92,9 +98,6 @@
       },
     },
     methods: {
-      createSnackbar(args) {
-        this.$store.dispatch('createSnackbar', args);
-      },
       startNormalImportWorkflow() {
         this.$emit('cancel');
         this.$store.dispatch('manageContent/startImportWorkflow');

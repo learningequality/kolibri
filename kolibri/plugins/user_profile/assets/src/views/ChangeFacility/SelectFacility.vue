@@ -75,13 +75,14 @@
 <script>
 
   import { useLocalStorage, useMemoize, computedAsync, get } from '@vueuse/core';
-  import { computed, getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
+  import { computed, ref, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { NetworkLocationResource } from 'kolibri.resources';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
   import { AddDeviceForm, useDevices, useDeviceDeletion } from 'kolibri.coreVue.componentSets.sync';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import commonProfileStrings from '../commonProfileStrings';
 
   export default {
@@ -114,7 +115,6 @@
       const selectedFacilityId = ref('');
       const showAddAddressModal = ref(false);
       const isLoading = ref(false);
-      const $store = getCurrentInstance().proxy.$store;
 
       const fetchDeviceFacilities = useMemoize(
         async device => {
@@ -207,10 +207,7 @@
         }
       });
 
-      // methods:
-      function createSnackbar(args) {
-        $store.dispatch('createSnackbar', args);
-      }
+      const { createSnackbar } = useSnackbar();
 
       function handleAddedAddress() {
         forceFetch();

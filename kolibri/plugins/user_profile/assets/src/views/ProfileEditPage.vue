@@ -103,8 +103,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { isLearnerOnlyImport, isLearner } = useUser();
-      return { isLearnerOnlyImport, isLearner };
+      const { isLearnerOnlyImport, isLearner, currentUserId } = useUser();
+      return { isLearnerOnlyImport, isLearner, currentUserId };
     },
     data() {
       return {
@@ -160,15 +160,13 @@
     methods: {
       // Have to query FacilityUser again since we don't put demographic info on the session
       setFacilityUser() {
-        FacilityUserResource.fetchModel({ id: this.$store.state.core.session.user_id }).then(
-          facilityUser => {
-            this.birthYear = facilityUser.birth_year;
-            this.gender = facilityUser.gender;
-            this.fullName = facilityUser.full_name;
-            this.username = facilityUser.username;
-            this.userCopy = { ...facilityUser };
-          },
-        );
+        FacilityUserResource.fetchModel({ id: this.currentUserId }).then(facilityUser => {
+          this.birthYear = facilityUser.birth_year;
+          this.gender = facilityUser.gender;
+          this.fullName = facilityUser.full_name;
+          this.username = facilityUser.username;
+          this.userCopy = { ...facilityUser };
+        });
       },
       getUpdates() {
         return pickBy(

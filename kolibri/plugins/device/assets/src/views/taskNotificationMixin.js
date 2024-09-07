@@ -1,4 +1,5 @@
 import { createTranslator } from 'kolibri.utils.i18n';
+import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
 import { PageNames } from '../constants';
 
 const TaskSnackbarStrings = createTranslator('TaskSnackbarStrings', {
@@ -30,6 +31,10 @@ export default {
       showSnackbarWhenTaskHasFinished: true,
     };
   },
+  setup() {
+    const { createSnackbar } = useSnackbar();
+    return { createSnackbar };
+  },
   computed: {
     watchedTaskId() {
       return this.$store.state.manageContent.watchedTaskId;
@@ -60,16 +65,16 @@ export default {
       this.$router.push({ name: PageNames.MANAGE_TASKS });
     },
     createTaskFailedSnackbar() {
-      this.$store.dispatch('createSnackbar', TaskSnackbarStrings.$tr('taskFailed'));
+      this.createSnackbar(TaskSnackbarStrings.$tr('taskFailed'));
     },
     createTaskFinishedSnackbar() {
-      this.$store.commit('CORE_CREATE_SNACKBAR', {
+      this.createSnackbar({
         text: TaskSnackbarStrings.$tr('taskFinished'),
         autoDismiss: true,
       });
     },
     createTaskStartedSnackbar() {
-      this.$store.commit('CORE_CREATE_SNACKBAR', {
+      this.createSnackbar({
         text: TaskSnackbarStrings.$tr('taskStarted'),
         autoDismiss: true,
       });
