@@ -35,7 +35,7 @@
           :color="$themePalette.grey.v_600"
           :ariaLabel="coreString('savedFromBookmarks')"
           :tooltip="coreString('savedFromBookmarks')"
-          @click="$emit('toggleBookmark')"
+          @click.stop="$emit('toggleBookmark')"
         />
 
         <KIconButton
@@ -44,7 +44,7 @@
           :color="$themePalette.grey.v_600"
           :ariaLabel="coreString('viewInformation')"
           :tooltip="coreString('viewInformation')"
-          @click="$emit('toggleInfo')"
+          @click.stop="$emit('toggleInfo')"
         />
       </div>
     </template>
