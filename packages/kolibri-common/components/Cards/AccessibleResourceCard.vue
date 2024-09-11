@@ -9,13 +9,11 @@
     :thumbnailSrc="thumbnailSrc"
     :thumbnailScaleType="thumbnailScaleType"
     thumbnailAlign="right"
-    :style="{ height: '172px',width: '500px', margin: '16px 0 16px 0' }"
+    :style="{ height: '172px', width: '500px', margin: '16px 0 16px 0' }"
   >
     <template #thumbnailPlaceholder>
-      <div class="default-resource-icon" >
-        <LearningActivityIcon
-          :kind="contentNode.learning_activities"
-        />
+      <div class="default-resource-icon">
+        <LearningActivityIcon :kind="contentNode.learning_activities" />
       </div>
     </template>
     <template #belowTitle>
@@ -28,7 +26,6 @@
     </template>
     <template #footer>
       <div class="footer-icon-style">
-          
         <KIconButton
           icon="bookmarkEmpty"
           size="mini"
@@ -48,7 +45,6 @@
         />
       </div>
     </template>
-
   </KCard>
 
 </template>
@@ -59,11 +55,11 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LearningActivityIcon from './../ResourceDisplayAndSearch/LearningActivityIcon.vue';
- 
+
   export default {
     name: 'AccessibleResourceCard',
     components: {
-      LearningActivityIcon
+      LearningActivityIcon,
     },
     mixins: [commonCoreStrings],
     props: {
@@ -78,7 +74,7 @@
       },
       headingLevel: {
         type: Number,
-        required:true
+        required: true,
       },
       thumbnailSrc: {
         type: String,
@@ -86,7 +82,7 @@
       },
       thumbnailScaleType: {
         type: String,
-        default: "centerInside",
+        default: 'centerInside',
       },
     },
   };
@@ -96,18 +92,18 @@
 
 <style lang="scss" scoped>
 
-  .default-resource-icon{
+  .default-resource-icon {
+    width: 172px;
+    height: 172px;
+    margin: auto;
+    margin-top: 40px;
     font-size: 48px;
     text-align: center;
-    width:172px;
-    height:172px;
-    margin:auto;
-    margin-top: 40px;
   }
-  
-  .footer-icon-style{
+
+  .footer-icon-style {
+    margin-top: 15px;
     text-align: right;
-    margin-top:15px;
   }
 
 </style>

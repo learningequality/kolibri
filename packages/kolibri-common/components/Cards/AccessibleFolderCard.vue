@@ -1,6 +1,5 @@
 <template>
 
-  
   <KCard
     :to="to"
     :headingLevel="headingLevel"
@@ -13,7 +12,7 @@
     :style="{ height: '172px', margin: '16px 0 16px 0' }"
   >
     <template #thumbnailPlaceholder>
-      <div class="default-folder-icon" >
+      <div class="default-folder-icon">
         <KIcon
           icon="topic"
           :color="$themePalette.grey.v_600"
@@ -25,7 +24,7 @@
     <template #belowTitle>
       <div
         class="header-bar"
-        :style="headerStyles "
+        :style="headerStyles"
       >
         <KIcon
           icon="topic"
@@ -40,7 +39,6 @@
         </p>
       </div>
     </template>
-
   </KCard>
 
 </template>
@@ -66,13 +64,12 @@
       },
       headingLevel: {
         type: Number,
-        required:true
+        required: true,
       },
       thumbnailSrc: {
         type: String,
         default: null,
       },
-
     },
     computed: {
       headerStyles() {
@@ -98,8 +95,6 @@
     justify-content: space-between;
     height: 38px;
     font-size: 12px;
-    
-
   }
 
   .folder-header-bar {
@@ -114,13 +109,14 @@
     margin: 4px;
     font-size: 12px;
   }
-  .default-folder-icon{
+
+  .default-folder-icon {
+    width: 172px;
+    height: 172px;
+    margin: auto;
+    margin-top: 40px;
     font-size: 48px;
     text-align: center;
-    width:172px;
-    height:172px;
-    margin:auto;
-    margin-top: 40px;
   }
 
 </style>

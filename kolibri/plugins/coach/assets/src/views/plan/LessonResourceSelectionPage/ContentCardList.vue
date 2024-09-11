@@ -104,7 +104,7 @@
     name: 'ContentCardList',
     components: {
       LessonContentCard,
-      AccessibleFolderCard
+      AccessibleFolderCard,
     },
     mixins: [commonCoreStrings],
     setup(props) {
@@ -117,7 +117,6 @@
         ariaChecked,
         ViewMoreButtonStates,
       };
-
     },
     props: {
       showSelectAll: {
@@ -238,9 +237,9 @@
     margin-left: $checkbox-offset;
   }
 
-  /deep/ .horizontal-with-large-thumbnail{
-    height:141px;
-    margin:0 0 16px 0;
+  /deep/ .horizontal-with-large-thumbnail {
+    height: 141px;
+    margin: 0 0 16px;
   }
 
 </style>
