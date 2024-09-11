@@ -372,7 +372,7 @@
   }
 
   .points-popover {
-    @extend %dropshadow-4dp;
+    @extend %dropshadow-6dp;
 
     position: absolute;
     right: 50px;

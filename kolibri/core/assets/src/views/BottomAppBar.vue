@@ -35,7 +35,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .bottom {
-    @extend %dropshadow-8dp;
+    @extend %dropshadow-6dp;
 
     position: fixed;
     right: 0;

@@ -146,7 +146,7 @@
 
   .pdf-sidebar {
     overflow-y: auto;
-    box-shadow: inset -1px 2px 8px rgba(0, 0, 0, 0.16);
+    @extend %dropshadow-2dp;
   }
 
   .tab:focus-visible {

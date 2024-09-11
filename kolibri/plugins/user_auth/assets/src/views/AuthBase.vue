@@ -376,7 +376,7 @@
   }
 
   .box {
-    @extend %dropshadow-16dp;
+    @extend %dropshadow-6dp;
 
     position: relative;
     z-index: 1;
@@ -409,7 +409,7 @@
   }
 
   .footer-cell {
-    @extend %dropshadow-8dp;
+    @extend %dropshadow-6dp;
 
     padding: 16px;
   }
