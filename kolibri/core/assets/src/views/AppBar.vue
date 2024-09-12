@@ -127,7 +127,6 @@
 
 <script>
 
-  import { mapActions, mapGetters } from 'vuex';
   import { get } from '@vueuse/core';
   import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -135,6 +134,7 @@
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import themeConfig from 'kolibri.themeConfig';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import useTotalProgress from 'kolibri.coreVue.composables.useTotalProgress';
   import useNav from '../composables/useNav';
   import useUser from '../composables/useUser';
   import SkipNavigationLink from './SkipNavigationLink';
@@ -157,6 +157,7 @@
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       const { topBarHeight, navItems } = useNav();
       const { isLearner, isUserLoggedIn, username, full_name } = useUser();
+      const { totalPoints, fetchPoints } = useTotalProgress();
       const links = computed(() => {
         const currentItem = navItems.find(nc => nc.url === window.location.pathname);
         if (!currentItem || !currentItem.routes) {
@@ -179,6 +180,8 @@
         isLearner,
         username,
         fullName: full_name,
+        totalPoints,
+        fetchPoints,
       };
     },
     props: {
@@ -201,7 +204,6 @@
       };
     },
     computed: {
-      ...mapGetters(['totalPoints']),
       // temp hack for the VF plugin
       usernameForDisplay() {
         return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
@@ -219,7 +221,6 @@
       window.removeEventListener('keydown', this.handlePopoverByKeyboard, true);
     },
     methods: {
-      ...mapActions(['fetchPoints']),
       handleWindowClick(event) {
         if (this.$refs.pointsButton && this.$refs.pointsButton.$el) {
           if (!this.$refs.pointsButton.$el.contains(event.target) && this.pointsDisplayed) {
