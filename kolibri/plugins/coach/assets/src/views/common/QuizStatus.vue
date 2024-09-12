@@ -344,12 +344,7 @@
         return {
           color: this.$themeTokens.textInverted,
           'background-color': this.$themePalette.red.v_1100,
-          // We need to use a darker color for hover than
-          // palette.red.v_1100 but at the same time,
-          // palette.red.v_1100 is the darkest available red
-          // in the palette. Using this hardcoded color was
-          // agreed with designers.
-          ':hover': { 'background-color': '#A81700' },
+          ':hover': { 'background-color': this.$darken1(this.$themePalette.red.v_1100) },
         };
       },
       examDateArchived() {
