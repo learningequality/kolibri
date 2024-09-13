@@ -27,7 +27,7 @@
     "kolibri-design-system": "5.0.0-rc3",
     "lockr": "0.8.5",
     "lodash": "^4.17.21",
-    "loglevel": "^1.9.1",
+    "loglevel": "^1.9.2",
     "path-to-regexp": "1.8.0",
     "screenfull": "^5.2.0",
     "tinycolor2": "^1.6.0",
