@@ -58,15 +58,15 @@ class ErrorReportingMiddlewareTestCase(TestCase):
                 "request_info": {
                     "url": "http://testserver/",
                     "method": "GET",
-                    "headers": dict(request.headers),
+                    "headers": {},  # checking whether cookies are removed
                     "body": "",
                     "query_params": {},
                 },
                 "server": {"host": "testserver", "port": "80"},
                 "packages": ["Django==3.2.25"],
                 "python_version": "3.9.9",
+                "avg_request_time_to_error": 0.0,
             },
-            request_time_to_error=0.0,
         )
 
     @patch.object(ErrorReports, "insert_or_update_error")

@@ -48,6 +48,7 @@ class TestPingErrorReports(TestCase):
                 "server": {"host": "localhost", "port": "8000"},
                 "packages": ["Django==3.2.25"],
                 "python_version": "3.9.1",
+                "request_time_to_error": 0.0,
             },
         )
 

@@ -61,5 +61,6 @@ context_backend_schema = {
         },
         "packages": {"type": "array", "optional": True},
         "python_version": {"type": "string", "optional": True},
+        "avg_request_time_to_error": {"type": "number", "optional": True},
     },
 }

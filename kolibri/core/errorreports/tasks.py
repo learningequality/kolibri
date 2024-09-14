@@ -26,8 +26,6 @@ def serialize_error_reports_to_json_response(errors, pingback_id):
                 "first_occurred": error.first_occurred,
                 "last_occurred": error.last_occurred,
                 "events": error.events,
-                "release_version": error.release_version,
-                "installation_type": error.installation_type,
                 "context": error.context,
                 "pingback_id": pingback_id,
             }
