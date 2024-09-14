@@ -13,26 +13,22 @@
       :style="{ color: $themePalette.grey.v_800 }"
     >
       <template v-if="isQuiz">
-        <template v-if="progress < 1">
+        <template v-if="!completed">
           <ProgressIcon
             :progress="progress"
             class="completion-icon"
           />
-          {{
-            coreString('questionsLeftLabel', {
-              remaining: remainingQuestions,
-            })
-          }}
+          {{ inProgressLabel }}
         </template>
         <template v-else>
           <ProgressIcon
             :progress="progress"
             class="completion-icon"
           />
-          {{ coreString('scoreLabel') }} {{ $formatNumber(score, { style: 'percent' }) }}
+          {{ completedLabel }}
         </template>
       </template>
-      <template v-else>
+      <template v-else-if="completed">
         <ProgressIcon
           :progress="progress"
           class="completion-icon"
@@ -73,8 +69,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { contentNodeProgressMap, contentNodeQuizProgressMap } = useContentNodeProgress();
-      return { contentNodeProgressMap, contentNodeQuizProgressMap };
+      const { contentNodeProgressMap, contentNodeProgressMetaDataMap } = useContentNodeProgress();
+      return { contentNodeProgressMap, contentNodeProgressMetaDataMap };
     },
     props: {
       // eslint-disable-next-line kolibri/vue-no-unused-properties
@@ -87,35 +83,54 @@
       isQuiz() {
         return lodashGet(this.contentNode, ['options', 'modality'], false) === 'QUIZ';
       },
-      score() {
-        if (this.isQuiz) {
-          const quizProgress =
-            this.contentNodeQuizProgressMap[this.contentNode && this.contentNode.content_id];
-          if (quizProgress.total_questions) {
-            return quizProgress.num_question_answered_correctly / quizProgress.total_questions;
-          }
-        }
-      },
-      remainingQuestions() {
-        if (this.isQuiz) {
-          const quizProgress =
-            this.contentNodeQuizProgressMap[this.contentNode && this.contentNode.content_id];
-          if (quizProgress.total_questions) {
-            return quizProgress.total_questions - quizProgress.num_question_answered;
-          }
-        }
-      },
       progress() {
-        if (this.isQuiz) {
-          return (
-            this.contentNodeQuizProgressMap[this.contentNode && this.contentNode.content_id]
-              ?.progress || 0
-          );
-        }
         return this.contentNodeProgressMap[this.contentNode && this.contentNode.content_id] || 0;
       },
       completed() {
         return this.progress >= 1;
+      },
+      quizProgress() {
+        return (
+          this.contentNodeProgressMetaDataMap[this.contentNode && this.contentNode.content_id] || {}
+        );
+      },
+      remainingQuestions() {
+        if (this.isQuiz && this.quizProgress.total_questions) {
+          return this.quizProgress.total_questions - this.quizProgress.num_question_answered;
+        }
+        return 0;
+      },
+      score() {
+        if (this.isQuiz && this.quizProgress.total_questions) {
+          return (
+            this.quizProgress.num_question_answered_correctly / this.quizProgress.total_questions
+          );
+        }
+        return 0;
+      },
+      inProgressLabel() {
+        if (this.isQuiz) {
+          return this.$tr('questionsLeft', { questionsLeft: this.remainingQuestions });
+        }
+        return '';
+      },
+      completedLabel() {
+        if (this.isQuiz && this.completed) {
+          const percentage = Math.round(100 * this.score);
+          return this.$tr('completedPercentLabel', { score: percentage });
+        }
+        return '';
+      },
+    },
+    $trs: {
+      questionsLeft: {
+        message:
+          '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',
+        context: 'Indicates how many questions the learner has left to complete.',
+      },
+      completedPercentLabel: {
+        message: 'Score: {score, number, integer}%',
+        context: 'A label shown to learners on a quiz card when the quiz is completed',
       },
     },
   };

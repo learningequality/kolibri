@@ -11,7 +11,7 @@ import { ContentNodeProgressResource } from 'kolibri.resources';
 
 // The reactive is defined in the outer scope so it can be used as a shared store
 const contentNodeProgressMap = reactive({});
-const contentNodeQuizProgressMap = reactive({});
+const contentNodeProgressMetaDataMap = reactive({});
 
 export function setContentNodeProgress(progress) {
   // Avoid setting stale progress data - assume that progress increases monotonically
@@ -21,8 +21,7 @@ export function setContentNodeProgress(progress) {
   ) {
     set(contentNodeProgressMap, progress.content_id, progress.progress);
     // this should have been conditional
-    set(contentNodeQuizProgressMap, progress.content_id, {
-      progress: progress.progress,
+    set(contentNodeProgressMetaDataMap, progress.content_id, {
       num_question_answered: progress.num_question_answered,
       num_question_answered_correctly: progress.num_question_answered_correctly,
       total_questions: progress.total_questions,
@@ -77,6 +76,6 @@ export default function useContentNodeProgress() {
     fetchContentNodeProgress,
     fetchContentNodeTreeProgress,
     contentNodeProgressMap,
-    contentNodeQuizProgressMap,
+    contentNodeProgressMetaDataMap,
   };
 }
