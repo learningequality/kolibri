@@ -6,8 +6,6 @@ import {
   FacilityResource,
   FacilityDatasetResource,
   UserSyncStatusResource,
-  PingbackNotificationResource,
-  PingbackNotificationDismissedResource,
 } from 'kolibri.resources';
 import { setServerTime } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
@@ -36,15 +34,7 @@ const logging = logger.getLogger(__filename);
  * the API to state in the Vuex store
  */
 
-function _notificationListState(data) {
-  return data.map(notification => ({
-    id: notification.id,
-    version_range: notification.version_range,
-    timestamp: notification.timestamp,
-    link_url: notification.link_url,
-    i18n: notification.i18n,
-  }));
-}
+
 
 /**
  * Actions
