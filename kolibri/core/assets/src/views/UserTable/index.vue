@@ -318,29 +318,36 @@
         if (this.userIsSelected(id)) return this.selectedStyle;
         return '';
       },
-      selectAll(checked) {
+      selectAll() {
         const currentUsers = this.users.map(user => user.id);
-        if (checked) {
+        if (this.allAreSelected) {
+          // All of them are already selected, so emit the value without currently shown users
+          return this.$emit('input', difference(this.value, currentUsers));
+        } else {
+          // Some or none of them are selected, so emit value including all of those which were not
+          // already selected
           return this.$emit(
             'input',
             this.value.concat(currentUsers.filter(item => this.value.indexOf(item) < 0)),
           );
         }
-        return this.$emit('input', difference(this.value, currentUsers));
       },
       selectSingleUser(id) {
         this.$emit('input', [id]);
       },
-      selectUser(id, checked) {
+      selectUser(id) {
         const selected = Array.from(this.value);
-        if (checked) {
+        if (this.userIsSelected(id)) {
+          // id is already selected, so remove it from what we emit
+          return this.$emit(
+            'input',
+            selected.filter(selectedId => selectedId !== id),
+          );
+        } else {
+          // Otherwise, we are adding the id to what we emit
           selected.push(id);
           return this.$emit('input', selected);
         }
-        return this.$emit(
-          'input',
-          selected.filter(selectedId => selectedId !== id),
-        );
       },
     },
     $trs: {
