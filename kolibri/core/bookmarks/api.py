@@ -44,4 +44,4 @@ class BookmarksViewSet(ValuesViewset):
         KolibriAuthPermissionsFilter,
         DjangoFilterBackend,
     )
-    filter_fields = ("contentnode_id",)
+    filterset_fields = ("contentnode_id",)

@@ -27,6 +27,7 @@
   import { mapState, mapActions, mapGetters } from 'vuex';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import ClassEnrollForm from './ClassEnrollForm';
 
   export default {
@@ -41,6 +42,10 @@
       ImmersivePage,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { createSnackbar } = useSnackbar();
+      return { createSnackbar };
+    },
     data() {
       return {
         formIsDisabled: false,
@@ -73,7 +78,7 @@
           })
           .catch(() => {
             this.formIsDisabled = false;
-            this.$store.dispatch('createSnackbar', this.coreString('changesNotSavedNotification'));
+            this.createSnackbar(this.coreString('changesNotSavedNotification'));
           });
       },
     },

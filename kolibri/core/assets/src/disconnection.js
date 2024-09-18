@@ -1,4 +1,7 @@
 import { createTranslator } from 'kolibri.utils.i18n';
+import { get } from '@vueuse/core';
+import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+import useConnection from './composables/useConnection';
 
 export const trs = createTranslator('DisconnectionSnackbars', {
   disconnected: {
@@ -22,8 +25,9 @@ export const trs = createTranslator('DisconnectionSnackbars', {
   },
 });
 
-export function createTryingToReconnectSnackbar(store) {
-  store.commit('CORE_CREATE_SNACKBAR', {
+export function createTryingToReconnectSnackbar() {
+  const { createSnackbar } = useSnackbar();
+  createSnackbar({
     text: trs.$tr('tryingToReconnect'),
     backdrop: true,
     autoDismiss: false,
@@ -37,9 +41,11 @@ export function createDisconnectedSnackbar(store, beatCallback) {
   // clear timers
   clearTimer();
   // set proper time
-  setDynamicReconnectTime(store.state.core.connection.reconnectTime);
+  const { reconnectTime } = useConnection();
+  setDynamicReconnectTime(get(reconnectTime));
   // create snackbar
-  store.commit('CORE_CREATE_SNACKBAR', {
+  const { createSnackbar, setSnackbarText } = useSnackbar();
+  createSnackbar({
     text: generateDisconnectedSnackbarText(),
     actionText: trs.$tr('tryNow'),
     actionCallback: beatCallback,
@@ -50,7 +56,7 @@ export function createDisconnectedSnackbar(store, beatCallback) {
   // start timeout
   timer = setInterval(() => {
     setDynamicReconnectTime(dynamicReconnectTime - 1);
-    store.commit('CORE_SET_SNACKBAR_TEXT', generateDisconnectedSnackbarText());
+    setSnackbarText(generateDisconnectedSnackbarText());
   }, 1000);
 }
 
@@ -70,7 +76,8 @@ function clearTimer() {
   }
 }
 
-export function createReconnectedSnackbar(store) {
+export function createReconnectedSnackbar() {
   clearTimer();
-  store.dispatch('createSnackbar', trs.$tr('successfullyReconnected'));
+  const { createSnackbar } = useSnackbar();
+  createSnackbar(trs.$tr('successfullyReconnected'));
 }

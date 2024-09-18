@@ -2,11 +2,18 @@ import { get, set } from '@vueuse/core';
 import omit from 'lodash/omit';
 import client from 'kolibri.client';
 import { coreStoreFactory as makeStore } from 'kolibri.coreVue.vuex.store';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import useTotalProgress, {
+  useTotalProgressMock,
+} from 'kolibri.coreVue.composables.useTotalProgress';
+import { ref } from 'kolibri.lib.vueCompositionApi';
 import useProgressTracking from '../useProgressTracking';
 import coreModule from '../../../../../../core/assets/src/state/modules/core';
 
 jest.mock('kolibri.urls');
 jest.mock('kolibri.client');
+jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri.coreVue.composables.useTotalProgress');
 
 function setUp() {
   const store = makeStore();
@@ -22,6 +29,12 @@ const node = {
 };
 
 describe('useProgressTracking composable', () => {
+  let totalProgressMock;
+  beforeEach(() => {
+    useUser.mockImplementation(() => useUserMock());
+    totalProgressMock = { totalProgress: ref(null) };
+    useTotalProgress.mockImplementation(() => useTotalProgressMock(totalProgressMock));
+  });
   describe('initContentSession', () => {
     it('should throw an error if no context provided', async () => {
       const { initContentSession } = setUp();
@@ -469,23 +482,24 @@ describe('useProgressTracking composable', () => {
       expect(get(complete)).toBe(true);
     });
     it('should not update total progress if the backend returns complete and was not complete and user is not logged in', async () => {
-      const { updateContentSession, store } = await initStore();
+      const { updateContentSession } = await initStore();
       client.__setPayload({
         complete: true,
       });
-      store.commit('SET_TOTAL_PROGRESS', 0);
+      set(totalProgressMock.totalProgress, 0);
       await updateContentSession({ contentState: { test: 'test' } });
-      expect(store.state.core.totalProgress).toEqual(0);
+      expect(get(totalProgressMock.totalProgress)).toEqual(0);
     });
     it('should update total progress if the backend returns complete and was not complete and user is logged in', async () => {
       const { updateContentSession, store } = await initStore();
+      useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
       store.commit('CORE_SET_SESSION', { kind: ['learner'] });
-      store.commit('SET_TOTAL_PROGRESS', 0);
+      set(totalProgressMock.totalProgress, 0);
       client.__setPayload({
         complete: true,
       });
       await updateContentSession({ contentState: { test: 'test' } });
-      expect(store.state.core.totalProgress).toEqual(1);
+      expect(get(totalProgressMock.totalProgress)).toEqual(1);
     });
     it('should update progress_state if the backend returns complete', async () => {
       const { updateContentSession, progress } = await initStore();
@@ -498,12 +512,12 @@ describe('useProgressTracking composable', () => {
     it('should not update total progress if the backend returns complete and was already complete', async () => {
       const { updateContentSession, store } = await initStore({ complete: true });
       store.commit('CORE_SET_SESSION', { kind: ['learner'] });
-      store.commit('SET_TOTAL_PROGRESS', 0);
+      set(totalProgressMock.totalProgress, 0);
       client.__setPayload({
         complete: true,
       });
       await updateContentSession({ contentState: { test: 'test' } });
-      expect(store.state.core.totalProgress).toEqual(0);
+      expect(get(totalProgressMock.totalProgress)).toEqual(0);
     });
     it('should update progress and progress_delta if progress is updated under threshold', async () => {
       const { updateContentSession, progress, progress_delta } = await initStore();

@@ -1,13 +1,17 @@
 import isEmpty from 'lodash/isEmpty';
 import { FacilityUserResource } from 'kolibri.resources';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 
 export function updateUserProfile(store, { updates }) {
   if (isEmpty(updates)) {
     return Promise.resolve();
   }
 
+  const { currentUserId } = useUser();
+
   return FacilityUserResource.saveModel({
-    id: store.rootGetters.currentUserId,
+    id: get(currentUserId),
     data: updates,
     exists: true,
   }).then(() => {
@@ -16,8 +20,9 @@ export function updateUserProfile(store, { updates }) {
 }
 
 export function updateUserProfilePassword(store, password) {
+  const { currentUserId } = useUser();
   return FacilityUserResource.saveModel({
-    id: store.rootGetters.currentUserId,
+    id: get(currentUserId),
     data: { password },
     exists: true,
   });

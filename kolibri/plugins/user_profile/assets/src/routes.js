@@ -1,5 +1,7 @@
 import store from 'kolibri.coreVue.vuex.store';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { get } from '@vueuse/core';
 import ProfilePage from './views/ProfilePage';
 import ProfileEditPage from './views/ProfileEditPage';
 import ChangeFacility from './views/ChangeFacility';
@@ -30,7 +32,8 @@ export default [
     name: 'PROFILE',
     component: ProfilePage,
     beforeEnter(to, from, next) {
-      if (!store.getters.isUserLoggedIn) {
+      const { isUserLoggedIn } = useUser();
+      if (!get(isUserLoggedIn)) {
         redirectBrowser();
       } else {
         preload(next);
@@ -42,7 +45,8 @@ export default [
     name: 'PROFILE_EDIT',
     component: ProfileEditPage,
     beforeEnter(to, from, next) {
-      if (!store.getters.isUserLoggedIn) {
+      const { isUserLoggedIn } = useUser();
+      if (!get(isUserLoggedIn)) {
         redirectBrowser();
       } else {
         preload(next);
@@ -55,7 +59,8 @@ export default [
     name: 'CHANGE_FACILITY',
     component: ChangeFacility,
     beforeEnter(to, from, next) {
-      if (!store.getters.isUserLoggedIn) {
+      const { isUserLoggedIn } = useUser();
+      if (!get(isUserLoggedIn)) {
         redirectBrowser();
       } else {
         preload(next);

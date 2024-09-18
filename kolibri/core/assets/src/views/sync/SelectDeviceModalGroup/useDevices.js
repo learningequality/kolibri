@@ -195,10 +195,6 @@ export function useDeviceFacilityFilter({
     filters.on_my_own_setup = on_my_own_setup;
   }
 
-  if (Object.keys(filters).length === 0) {
-    return () => Promise.resolve(true);
-  }
-
   return useAsyncDeviceFilter(function deviceFacilityFilter(device) {
     return deviceHasMatchingFacility(device, filters);
   });

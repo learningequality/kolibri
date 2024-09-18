@@ -64,16 +64,16 @@ const MOCK_DEFAULTS = {
   }),
 };
 
-export function useBaseSearch(overrides = {}) {
+export function useBaseSearchMock(overrides = {}) {
   return {
     ...MOCK_DEFAULTS,
     ...overrides,
   };
 }
 
-export default jest.fn(() => useBaseSearch());
+export default jest.fn(() => useBaseSearchMock());
 
-export const injectSearch = jest.fn(() => ({
+export const injectBaseSearch = jest.fn(() => ({
   availableLearningActivities: [],
   availableLibraryCategories: [],
   availableResourcesNeeded: [],

@@ -6,17 +6,21 @@ import { CancelToken } from 'axios';
 import qs from 'qs';
 import heartbeat from 'kolibri.heartbeat';
 import logger from 'kolibri.lib.logging';
-import store from 'kolibri.coreVue.vuex.store';
-import errorCodes from '../disconnectionErrorCodes';
+import { get } from '@vueuse/core';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import { DisconnectionErrorCodes } from 'kolibri.coreVue.vuex.constants';
+import useConnection from '../composables/useConnection';
 import clientFactory from './baseClient';
 
 export const logging = logger.getLogger(__filename);
+
+const connection = useConnection();
 
 const baseClient = clientFactory();
 
 // Disconnection handler interceptor
 baseClient.interceptors.request.use(function (config) {
-  if (!store.getters.connected) {
+  if (!get(connection.connected)) {
     // If the vuex state records that we are not currently connected then cancel all
     // outgoing requests.
     const source = CancelToken.source();
@@ -37,7 +41,8 @@ baseClient.interceptors.response.use(
     // if they were logged in.
     if (error.response) {
       if (error.response.status === 403) {
-        if (store.state.core.session.id && !store.state.core.session.user_id) {
+        const { id, user_id } = useUser();
+        if (get(id) && !get(user_id)) {
           // We have session information but no user_id, which means we are not logged in
           // This is a sign that the user has been logged out due to inactivity
           heartbeat.signOutDueToInactivity();
@@ -45,7 +50,7 @@ baseClient.interceptors.response.use(
           // In this case, we should check right now if they are still logged in
           heartbeat.pollSessionEndPoint().then(() => {
             // If they are not, we should handle sign out
-            if (!store.state.core.session.user_id) {
+            if (!get(user_id)) {
               heartbeat.signOutDueToInactivity();
             }
           });
@@ -53,7 +58,7 @@ baseClient.interceptors.response.use(
       }
       // On every error, check to see if the status code is one of our designated
       // disconnection status codes.
-      if (errorCodes.includes(error.response.status)) {
+      if (DisconnectionErrorCodes.includes(error.response.status)) {
         // If so, set our heartbeat module to start monitoring the disconnection state
         heartbeat.monitorDisconnect(error.response.status);
       }

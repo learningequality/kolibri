@@ -11,6 +11,7 @@ import urls from 'kolibri.urls';
 import client from 'kolibri.client';
 import Vue from 'kolibri.lib.vue';
 import useUser from 'kolibri.coreVue.composables.useUser';
+import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
 import { currentDeviceData } from '../composables/useDevices';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {
@@ -119,6 +120,8 @@ export default function useDownloadRequests(store) {
     redirectBrowser(urls['kolibri:kolibri.plugins.learn:my_downloads']());
   }
 
+  const { createSnackbar } = useSnackbar();
+
   function addDownloadRequest(contentNode) {
     const metadata = {
       title: contentNode.title,
@@ -141,7 +144,7 @@ export default function useDownloadRequests(store) {
       restartPolling();
     });
 
-    store.commit('CORE_CREATE_SNACKBAR', {
+    createSnackbar({
       text: downloadRequestsTranslator.$tr('downloadStartedLabel'),
       actionText: downloadRequestsTranslator.$tr('goToDownloadsPage'),
       actionCallback: navigateToDownloads,
@@ -153,7 +156,7 @@ export default function useDownloadRequests(store) {
   }
 
   function showCompletedDownloadSnackbar() {
-    store.commit('CORE_CREATE_SNACKBAR', {
+    createSnackbar({
       text: downloadRequestsTranslator.$tr('downloadComplete'),
       actionText: downloadRequestsTranslator.$tr('goToDownloadsPage'),
       actionCallback: navigateToDownloads,
@@ -172,7 +175,7 @@ export default function useDownloadRequests(store) {
       id: contentRequest.id,
     });
     Vue.delete(downloadRequestMap, contentRequest.contentnode_id);
-    store.commit('CORE_CREATE_SNACKBAR', {
+    createSnackbar({
       text: downloadRequestsTranslator.$tr('resourceRemoved'),
       backdrop: false,
       forceReuse: true,

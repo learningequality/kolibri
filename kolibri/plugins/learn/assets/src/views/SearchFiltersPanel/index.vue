@@ -6,8 +6,8 @@
     role="region"
     :class="windowIsLarge ? 'side-panel' : ''"
     :closeButtonIconType="closeButtonIcon"
-    :aria-label="learnString('filterAndSearchLabel')"
-    :ariaLabel="learnString('filterAndSearchLabel')"
+    :aria-label="filterAndSearchLabel$()"
+    :ariaLabel="filterAndSearchLabel$()"
     :style="
       windowIsLarge
         ? {
@@ -128,13 +128,13 @@
 
   import { NoCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
   import SearchBox from '../SearchBox';
   import SidePanelModal from '../SidePanelModal';
-  import commonLearnStrings from '../commonLearnStrings';
   import useContentLink from '../../composables/useContentLink';
-  import { injectSearch } from '../../composables/useSearch';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import CategorySearchModal from './CategorySearchModal';
   import SelectGroup from './SelectGroup';
@@ -148,7 +148,7 @@
       CategorySearchModal,
       SidePanelModal,
     },
-    mixins: [commonLearnStrings, commonCoreStrings],
+    mixins: [commonCoreStrings],
     setup() {
       const { windowIsLarge } = useKResponsiveWindow();
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
@@ -157,9 +157,11 @@
         availableResourcesNeeded,
         searchableLabels,
         activeSearchTerms,
-      } = injectSearch();
+      } = injectBaseSearch();
       const currentCategory = ref(null);
+      const { filterAndSearchLabel$ } = searchAndFilterStrings;
       return {
+        filterAndSearchLabel$,
         availableLibraryCategories,
         availableResourcesNeeded,
         currentCategory,

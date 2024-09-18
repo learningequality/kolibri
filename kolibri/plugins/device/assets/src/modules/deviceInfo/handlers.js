@@ -42,7 +42,8 @@ export function getDeviceInfo() {
  * @returns Promise<void>
  */
 export function showDeviceInfoPage(store) {
-  if (store.getters.canManageContent) {
+  const { canManageContent } = useUser();
+  if (get(canManageContent)) {
     const shouldResolve = samePageCheckGenerator(store);
     const promises = Promise.all([getDeviceInfo()]);
     return promises

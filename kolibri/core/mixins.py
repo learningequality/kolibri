@@ -36,7 +36,7 @@ class BulkDeleteMixin(object):
         """
         # Only let a bulk destroy if the queryset is being filtered by a valid filter_field parameter
         return any(
-            key in self.filter_fields for key in self.request.query_params.keys()
+            key in self.filterset_fields for key in self.request.query_params.keys()
         )
 
     def bulk_destroy(self, request, *args, **kwargs):

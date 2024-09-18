@@ -518,7 +518,7 @@ class UsernameAvailableView(views.APIView):
 
 class FacilityUsernameViewSet(ReadOnlyValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filter_fields = ("facility",)
+    filterset_fields = ("facility",)
     search_fields = ("^username",)
 
     values = ("username",)
@@ -552,7 +552,7 @@ class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet)
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
     filterset_class = MembershipFilter
-    filter_fields = ["user", "collection", "user_ids"]
+    filterset_fields = ["user", "collection", "user_ids"]
 
 
 class RoleFilter(FilterSet):
@@ -572,7 +572,7 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
     filterset_class = RoleFilter
-    filter_fields = ["user", "collection", "kind", "user_ids"]
+    filterset_fields = ["user", "collection", "kind", "user_ids"]
 
 
 dataset_keys = [
@@ -796,7 +796,7 @@ class LearnerGroupViewSet(ValuesViewset):
     queryset = LearnerGroup.objects.all()
     serializer_class = LearnerGroupSerializer
 
-    filter_fields = ("parent",)
+    filterset_fields = ("parent",)
 
     values = ("id", "name", "parent", "user_ids")
 

@@ -122,7 +122,6 @@ class JobValidator(serializers.Serializer):
             enqueue_args = value.pop("enqueue_args", {})
             value = self.validate(value)
             value["enqueue_args"] = enqueue_args
-            assert value is not None, ".validate() should return the validated data"
         except (ValidationError, DjangoValidationError) as exc:
             raise ValidationError(detail=serializers.as_serializer_error(exc))
 

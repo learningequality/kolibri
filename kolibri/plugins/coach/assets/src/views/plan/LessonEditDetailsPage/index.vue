@@ -37,6 +37,7 @@
   import { LessonResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
@@ -51,8 +52,13 @@
     },
     mixins: [coachStringsMixin, commonCoreStrings],
     setup() {
+      const { createSnackbar } = useSnackbar();
       const { isSuperuser } = useUser();
-      return { isSuperuser };
+
+      return {
+        createSnackbar,
+        isSuperuser,
+      };
     },
     props: {
       showResourcesTable: {
@@ -155,7 +161,7 @@
           })
           .catch(() => {
             this.disabled = false;
-            this.$store.dispatch('createSnackbar', this.$tr('submitErrorMessage'));
+            this.createSnackbar(this.$tr('submitErrorMessage'));
           });
       },
     },

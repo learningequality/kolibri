@@ -153,6 +153,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { REPORTS_TABS_ID, ReportsTabs } from '../../constants/tabsConstants';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
@@ -169,6 +170,10 @@
       ReportsHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { createSnackbar } = useSnackbar();
+      return { createSnackbar };
+    },
     data() {
       return {
         REPORTS_TABS_ID,
@@ -277,10 +282,10 @@
           .then(() => {
             this.$store.dispatch('classSummary/refreshClassSummary');
             this.showOpenConfirmationModal = false;
-            this.$store.dispatch('createSnackbar', this.coachString('quizOpenedMessage'));
+            this.createSnackbar(this.coachString('quizOpenedMessage'));
           })
           .catch(() => {
-            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToOpenMessage'));
+            this.createSnackbar(this.coachString('quizFailedToOpenMessage'));
           });
       },
       handleCloseQuiz(quizId) {
@@ -296,10 +301,10 @@
           .then(() => {
             this.$store.dispatch('classSummary/refreshClassSummary');
             this.showCloseConfirmationModal = false;
-            this.$store.dispatch('createSnackbar', this.coachString('quizClosedMessage'));
+            this.createSnackbar(this.coachString('quizClosedMessage'));
           })
           .catch(() => {
-            this.$store.dispatch('createSnackbar', this.coachString('quizFailedToCloseMessage'));
+            this.createSnackbar(this.coachString('quizFailedToCloseMessage'));
           });
       },
       exportCSV() {

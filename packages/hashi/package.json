@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "core-js": "3.38",
-    "dayjs": "^1.11.12",
+    "dayjs": "^1.11.13",
     "iri": "^1.3.1",
     "is-language-code": "^3.1.0",
     "iso8601-duration": "^2.1.2",

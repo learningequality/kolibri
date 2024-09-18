@@ -747,8 +747,14 @@ class FileDownload(Transfer):
         if self._headers_set:
             return
 
-        response = self.session.head(self.source, timeout=self.timeout)
+        response = self.session.head(
+            self.source, timeout=self.timeout, allow_redirects=True
+        )
         response.raise_for_status()
+
+        if response.url != self.source:
+            logger.debug("Redirected from {} to {}".format(self.source, response.url))
+            self.source = response.url
 
         self.compressed = bool(response.headers.get("content-encoding", ""))
 

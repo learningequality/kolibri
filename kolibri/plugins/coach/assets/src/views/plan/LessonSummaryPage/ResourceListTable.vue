@@ -110,6 +110,7 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
 
   const removalSnackbarTime = 5000;
 
@@ -124,6 +125,10 @@
       ContentIcon,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { clearSnackbar } = useSnackbar();
+      return { clearSnackbar };
+    },
     data() {
       return {
         workingResourcesBackup: [...this.$store.state.lessonSummary.workingResources],
@@ -150,7 +155,6 @@
       },
     },
     methods: {
-      ...mapActions(['clearSnackbar']),
       ...mapActions('lessonSummary', [
         'saveLessonResources',
         'updateCurrentLesson',

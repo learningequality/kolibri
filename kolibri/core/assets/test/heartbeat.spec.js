@@ -2,8 +2,11 @@ import mock from 'xhr-mock';
 import coreStore from 'kolibri.coreVue.vuex.store';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import * as serverClock from 'kolibri.utils.serverClock';
+import { get, set } from '@vueuse/core';
+import useSnackbar, { useSnackbarMock } from 'kolibri.coreVue.composables.useSnackbar';
+import { ref } from 'kolibri.lib.vueCompositionApi';
+import { DisconnectionErrorCodes } from 'kolibri.coreVue.vuex.constants';
 import { HeartBeat } from '../src/heartbeat.js';
-import disconnectionErrorCodes from '../src/disconnectionErrorCodes';
 import { trs } from '../src/disconnection';
 import coreModule from '../src/state/modules/core';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
@@ -12,6 +15,7 @@ jest.mock('kolibri.lib.logging');
 jest.mock('kolibri.utils.redirectBrowser');
 jest.mock('kolibri.urls');
 jest.mock('lockr');
+jest.mock('kolibri.coreVue.composables.useSnackbar');
 
 coreStore.registerModule('core', coreModule);
 
@@ -160,30 +164,40 @@ describe('HeartBeat', function () {
     });
   });
   describe('monitorDisconnect method', function () {
-    let heartBeat;
+    let heartBeat, snackbar;
+    beforeAll(function () {
+      snackbar = {
+        snackbarIsVisible: ref(false),
+        snackbarOptions: ref({
+          text: '',
+          autoDismiss: true,
+        }),
+      };
+      useSnackbar.mockImplementation(() => useSnackbarMock(snackbar));
+    });
     beforeEach(function () {
       heartBeat = new HeartBeat();
       jest.spyOn(heartBeat, '_wait').mockImplementation(() => {});
       heartBeat.monitorDisconnect();
     });
     it('should set connected to false', function () {
-      expect(coreStore.getters.connected).toEqual(false);
+      expect(get(heartBeat._connection.connected)).toEqual(false);
     });
     it('should set reconnectTime to not null', function () {
-      expect(coreStore.getters.reconnectTime).not.toEqual(null);
+      expect(get(heartBeat._connection.reconnectTime)).not.toEqual(null);
     });
     it('should set current snackbar to disconnected', function () {
-      expect(coreStore.getters.snackbarIsVisible).toEqual(true);
+      expect(get(snackbar.snackbarIsVisible)).toEqual(true);
       expect(
-        coreStore.getters.snackbarOptions.text.startsWith(
+        get(snackbar.snackbarOptions).text.startsWith(
           'Disconnected from server. Will try to reconnect in',
         ),
       ).toEqual(true);
     });
     it('should not do anything if it already knows it is disconnected', function () {
-      coreStore.commit('CORE_SET_RECONNECT_TIME', 'fork');
+      set(heartBeat._connection.reconnectTime, 'fork');
       heartBeat.monitorDisconnect();
-      expect(coreStore.getters.reconnectTime).toEqual('fork');
+      expect(get(heartBeat._connection.reconnectTime)).toEqual('fork');
     });
   });
   describe('_checkSession method', function () {
@@ -250,57 +264,62 @@ describe('HeartBeat', function () {
       // Rather it is the status code that our request client library returns
       // when the connection is refused by the host, or is otherwise unable to connect.
       // What happens for a zero code is tested later in this file.
-      disconnectionErrorCodes
-        .filter(code => code !== 0)
-        .forEach(errorCode => {
-          it('should call monitorDisconnect if it receives error code ' + errorCode, function () {
-            const monitorStub = jest.spyOn(heartBeat, 'monitorDisconnect');
-            mock.put(/.*/, {
-              status: errorCode,
-              headers: { 'Content-Type': 'application/json' },
-            });
-            return heartBeat._checkSession().finally(() => {
-              expect(monitorStub).toHaveBeenCalledTimes(1);
-            });
+      DisconnectionErrorCodes.filter(code => code !== 0).forEach(errorCode => {
+        it('should call monitorDisconnect if it receives error code ' + errorCode, function () {
+          const monitorStub = jest.spyOn(heartBeat, 'monitorDisconnect');
+          mock.put(/.*/, {
+            status: errorCode,
+            headers: { 'Content-Type': 'application/json' },
+          });
+          return heartBeat._checkSession().finally(() => {
+            expect(monitorStub).toHaveBeenCalledTimes(1);
           });
         });
+      });
     });
     describe('when not connected', function () {
+      let snackbar;
       beforeEach(function () {
+        snackbar = {
+          snackbarIsVisible: ref(false),
+          snackbarOptions: ref({
+            text: '',
+            autoDismiss: true,
+          }),
+        };
+        useSnackbar.mockImplementation(() => useSnackbarMock(snackbar));
         heartBeat.monitorDisconnect();
       });
       it('should set snackbar to trying to reconnect', function () {
         heartBeat._checkSession();
-        expect(coreStore.getters.snackbarIsVisible).toEqual(true);
-        expect(coreStore.getters.snackbarOptions.text).toEqual(trs.$tr('tryingToReconnect'));
+        expect(get(snackbar.snackbarIsVisible)).toEqual(true);
+        expect(get(snackbar.snackbarOptions).text).toEqual(trs.$tr('tryingToReconnect'));
       });
-      disconnectionErrorCodes
-        .filter(code => code !== 0)
-        .forEach(errorCode => {
-          it('should set snackbar to disconnected for error code ' + errorCode, function () {
-            jest.spyOn(heartBeat, 'monitorDisconnect');
-            mock.put(/.*/, {
-              status: errorCode,
-              headers: { 'Content-Type': 'application/json' },
-            });
-            heartBeat._wait = jest.fn();
-            return heartBeat._checkSession().finally(() => {
-              expect(coreStore.getters.snackbarIsVisible).toEqual(true);
-              expect(
-                coreStore.getters.snackbarOptions.text.startsWith(
-                  'Disconnected from server. Will try to reconnect in',
-                ),
-              ).toEqual(true);
-            });
+      DisconnectionErrorCodes.filter(code => code !== 0).forEach(errorCode => {
+        it('should set snackbar to disconnected for error code ' + errorCode, function () {
+          jest.spyOn(heartBeat, 'monitorDisconnect');
+          mock.put(/.*/, {
+            status: errorCode,
+            headers: { 'Content-Type': 'application/json' },
+          });
+          heartBeat._wait = jest.fn();
+          return heartBeat._checkSession().finally(() => {
+            expect(get(snackbar.snackbarIsVisible)).toEqual(true);
+            expect(
+              get(snackbar.snackbarOptions).text.startsWith(
+                'Disconnected from server. Will try to reconnect in',
+              ),
+            ).toEqual(true);
           });
         });
+      });
       it('should set snackbar to disconnected for error code 0', function () {
         jest.spyOn(heartBeat, 'monitorDisconnect');
         mock.put(/.*/, () => Promise.reject(new Error()));
         return heartBeat._checkSession().finally(() => {
-          expect(coreStore.getters.snackbarIsVisible).toEqual(true);
+          expect(get(snackbar.snackbarIsVisible)).toEqual(true);
           expect(
-            coreStore.getters.snackbarOptions.text.startsWith(
+            get(snackbar.snackbarOptions).text.startsWith(
               'Disconnected from server. Will try to reconnect in',
             ),
           ).toEqual(true);
@@ -308,11 +327,11 @@ describe('HeartBeat', function () {
       });
       it('should increase the reconnect time when it fails to connect', function () {
         mock.put(/.*/, () => Promise.reject(new Error()));
-        coreStore.commit('CORE_SET_RECONNECT_TIME', 5);
+        set(heartBeat._connection.reconnectTime, 5);
         return heartBeat._checkSession().finally(() => {
-          const oldReconnectTime = coreStore.getters.reconnectTime;
+          const oldReconnectTime = get(heartBeat._connection.reconnectTime);
           return heartBeat._checkSession().finally(() => {
-            expect(coreStore.getters.reconnectTime).toBeGreaterThan(oldReconnectTime);
+            expect(get(heartBeat._connection.reconnectTime)).toBeGreaterThan(oldReconnectTime);
           });
         });
       });
@@ -325,20 +344,18 @@ describe('HeartBeat', function () {
         });
         it('should set snackbar to reconnected', function () {
           return heartBeat._checkSession().finally(() => {
-            expect(coreStore.getters.snackbarIsVisible).toEqual(true);
-            expect(coreStore.getters.snackbarOptions.text).toEqual(
-              trs.$tr('successfullyReconnected'),
-            );
+            expect(get(snackbar.snackbarIsVisible)).toEqual(true);
+            expect(get(snackbar.snackbarOptions).text).toEqual(trs.$tr('successfullyReconnected'));
           });
         });
         it('should set connected to true', function () {
           return heartBeat._checkSession().finally(() => {
-            expect(coreStore.getters.connected).toEqual(true);
+            expect(get(heartBeat._connection.connected)).toEqual(true);
           });
         });
         it('should set reconnect time to null', function () {
           return heartBeat._checkSession().finally(() => {
-            expect(coreStore.getters.reconnectTime).toEqual(null);
+            expect(get(heartBeat._connection.reconnectTime)).toEqual(null);
           });
         });
       });

@@ -5,6 +5,7 @@ import datetime
 import time
 import unittest
 import uuid
+from base64 import urlsafe_b64decode
 
 import mock
 from django.conf import settings
@@ -2005,3 +2006,43 @@ class PrefixedProxyContentMetadataTestCase(ProxyContentMetadataTestCase):
     @property
     def baseurl(self):
         return self.live_server_url + "/test/"
+
+
+class ChannelThumbnailViewTestCase(APITestCase):
+    def setUp(self):
+        self.content_node = content.ContentNode.objects.create(
+            pk="6a406ac66b224106aa2e93f73a94333d",
+            channel_id="f8ec4a5d14cd4716890999da596032d2",
+            content_id="ded4a083e75f4689b386fd2b706e792a",
+        )
+        self.thumbnail = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABjElEQVR42mNk"
+        self.channel_metadata = content.ChannelMetadata.objects.create(
+            id="63acff41781543828861ade41dbdd7ff",
+            name="no exercise channel metadata",
+            thumbnail=self.thumbnail,
+            root=self.content_node,
+        )
+
+    def test_channel_thumbnail_view(self):
+        response = self.client.get(
+            reverse("kolibri:core:channel-thumbnail", args=[self.channel_metadata.id])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "image/png")
+        self.assertEqual(
+            response.content, urlsafe_b64decode(self.thumbnail.split(",")[1])
+        )
+
+    def test_channel_thumbnail_view_not_found(self):
+        response = self.client.get(
+            reverse("kolibri:core:channel-thumbnail", args=["deadpool"])
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_channel_thumbnail_view_no_thumbnail(self):
+        self.channel_metadata.thumbnail = ""
+        self.channel_metadata.save()
+        response = self.client.get(
+            reverse("kolibri:core:channel-thumbnail", args=[self.channel_metadata.id])
+        )
+        self.assertEqual(response.status_code, 404)

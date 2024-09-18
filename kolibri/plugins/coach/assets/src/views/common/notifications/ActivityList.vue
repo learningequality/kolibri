@@ -154,9 +154,6 @@
           const params = {
             ...this.filterParam,
           };
-          if (this.notifications.length) {
-            params.before = this.notifications.slice(-1)[0].id;
-          }
           this.moreNotificationsForClass(params).then(moreResults => {
             this.moreResults = moreResults;
             this.loading = false;
