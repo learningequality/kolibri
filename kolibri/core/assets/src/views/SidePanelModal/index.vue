@@ -66,7 +66,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
-  import commonLearnStrings from '../commonLearnStrings.js';
 
   export default {
     name: 'SidePanelModal',
@@ -74,7 +73,7 @@
       Backdrop,
       FocusTrap,
     },
-    mixins: [commonCoreStrings, commonLearnStrings],
+    mixins: [commonCoreStrings],
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
       return {

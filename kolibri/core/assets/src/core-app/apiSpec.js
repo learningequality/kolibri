@@ -43,6 +43,8 @@ import commonTaskStrings from '../mixins/taskStrings';
 import commonSyncElements from '../mixins/commonSyncElements';
 import translatedUserKinds from '../mixins/userKinds';
 import CoreFullscreen from '../views/CoreFullscreen';
+import SearchFiltersPanel from '../views/SearchFiltersPanel';
+import SidePanelModal from '../views/SidePanelModal';
 import * as exams from '../exams/utils';
 import * as validators from '../validators';
 import * as objectSpecs from '../objectSpecs';
@@ -186,6 +188,8 @@ export default {
       MasteryModel,
       NotificationsRoot,
       KolibriLoadingSnippet,
+      SidePanelModal,
+      SearchFiltersPanel,
     },
     componentSets: {
       sync,

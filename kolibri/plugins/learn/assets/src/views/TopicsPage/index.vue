@@ -274,7 +274,8 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
-  import SidePanelModal from '../SidePanelModal';
+  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
+  import SearchFiltersPanel from 'kolibri.coreVue.components.SearchFiltersPanel';
   import { PageNames } from '../../constants';
   import useChannels from '../../composables/useChannels';
   import useSearch from '../../composables/useSearch';
@@ -284,7 +285,6 @@
   import { setCurrentDevice, StudioNotAllowedError } from '../../composables/useDevices';
   import useDownloadRequests from '../../composables/useDownloadRequests';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
-  import SearchFiltersPanel from '../SearchFiltersPanel';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
   import SearchResultsGrid from '../SearchResultsGrid';

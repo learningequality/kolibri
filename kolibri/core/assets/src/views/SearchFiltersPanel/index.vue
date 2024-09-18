@@ -134,7 +134,6 @@
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
   import SearchBox from '../SearchBox';
   import SidePanelModal from '../SidePanelModal';
-  import useContentLink from '../../composables/useContentLink';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import CategorySearchModal from './CategorySearchModal';
   import SelectGroup from './SelectGroup';
@@ -151,7 +150,6 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsLarge } = useKResponsiveWindow();
-      const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const {
         availableLibraryCategories,
         availableResourcesNeeded,
@@ -165,7 +163,6 @@
         availableLibraryCategories,
         availableResourcesNeeded,
         currentCategory,
-        genContentLinkBackLinkCurrentPage,
         searchableLabels,
         activeSearchTerms,
         windowIsLarge,
