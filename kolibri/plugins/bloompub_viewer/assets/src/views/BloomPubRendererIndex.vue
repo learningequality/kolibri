@@ -148,7 +148,7 @@
         if (hashiProgress !== null && !this.forceDurationBasedProgress) {
           this.$emit('updateProgress', hashiProgress);
         }
-      })
+      });
       this.hashi.on('navigateTo', message => {
         this.$emit('navigateTo', message);
       });
