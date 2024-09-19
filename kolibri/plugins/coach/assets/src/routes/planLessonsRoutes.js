@@ -1,4 +1,5 @@
 import store from 'kolibri.coreVue.vuex.store';
+import TechnicalTextBlock from 'kolibri-common/components/AppError/TechnicalTextBlock.vue';
 import {
   showLessonResourceContentPreview,
   showLessonResourceSelectionRootPage,
@@ -56,6 +57,36 @@ export default [
     name: LessonsPageNames.LESSON_CREATION_ROOT,
     path: path(CLASS, ALL_LESSONS, '/new'),
     component: LessonCreationPage,
+  },
+  {
+    name: PageNames.LESSON_CREATION_ROOT_BETTER,
+    path: '/:classId/plan/lessonstemp/:lessonId/edit',
+    component: LessonCreationPage,
+    children: [
+      {
+        name: PageNames.LESSON_EDIT_DETAILS,
+        path: 'details/',
+        component: TechnicalTextBlock,
+        props: {
+          text: 'test',
+        },
+      },
+      {
+        name: PageNames.LESSON_SELECT_RESOURCES,
+        path: 'select-resources/:topicId?',
+        component: TechnicalTextBlock,
+      },
+      {
+        name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
+        path: 'preview-resources/',
+        component: TechnicalTextBlock,
+      },
+      {
+        name: PageNames.LESSON_PREVIEW_RESOURCE,
+        path: 'preview-resources/:nodeId',
+        component: TechnicalTextBlock,
+      },
+    ],
   },
   {
     name: LessonsPageNames.SUMMARY,
