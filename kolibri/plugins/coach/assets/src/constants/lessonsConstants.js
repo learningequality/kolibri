@@ -12,6 +12,7 @@ export const LessonsPageNames = {
   CONTENT_PREVIEW: 'CONTENT_PREVIEW',
   LESSON_SELECTION_BOOKMARKS: 'LESSON_SELECTION_BOOKMARKS',
   LESSON_SELECTION_BOOKMARKS_MAIN: 'LESSON_SELECTION_BOOKMARKS_MAIN',
+  // Seems like something needs to be added here?
 };
 
 export const CollectionTypes = {

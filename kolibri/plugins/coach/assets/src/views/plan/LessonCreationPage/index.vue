@@ -21,6 +21,8 @@
       />
     </KPageContainer>
   </CoachImmersivePage>
+  <!-- add the sidePanel here -->
+  <!-- Dont forget to handel the logic for events!!-->
 
 </template>
 
@@ -33,12 +35,14 @@
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
+  // import sidePanel and Relevant Constants
 
   export default {
     name: 'LessonCreationPage',
     components: {
       AssignmentDetailsModal,
       CoachImmersivePage,
+      // Are u missing something here?
     },
     mixins: [commonCoach, commonCoreStrings],
     computed: {

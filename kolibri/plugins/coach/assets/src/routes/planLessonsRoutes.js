@@ -57,6 +57,11 @@ export default [
     path: path(CLASS, ALL_LESSONS, '/new'),
     component: LessonCreationPage,
   },
+
+  // add the new routes here
+  // Visit the desired routes and fix any bugs on the way
+  // https://gist.github.com/ozer550/e5451d11f1ed92391a9bc123b80f9e11
+
   {
     name: LessonsPageNames.SUMMARY,
     path: path(CLASS, LESSON),
