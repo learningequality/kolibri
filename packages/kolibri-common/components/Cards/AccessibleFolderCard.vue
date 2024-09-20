@@ -3,7 +3,7 @@
   <KCard
     :to="to"
     :headingLevel="headingLevel"
-    layout="horizontal"
+    :layout="computedLayout"
     thumbnailDisplay="large"
     :title="contentNode.title"
     :thumbnailSrc="thumbnailSrc"
@@ -47,11 +47,19 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'AccessibleFolderCard',
     mixins: [commonCoreStrings],
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+  
+      return {
+        windowBreakpoint,
+      };
+    },
     props: {
       to: {
         type: Object,
@@ -81,6 +89,13 @@
           margin: '0',
           backgroundColor: this.$themePalette.grey.v_50,
         };
+      },
+      computedLayout() {
+        if (this.windowBreakpoint === 0) {
+          return 'vertical';
+        }
+        // Check windowBreakpoint and conditionally set layout
+        return this.windowBreakpoint === 0 ? 'vertical' : 'horizontal';
       },
     },
   };

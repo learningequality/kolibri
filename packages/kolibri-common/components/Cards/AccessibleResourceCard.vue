@@ -3,13 +3,13 @@
   <KCard
     :to="to"
     :headingLevel="headingLevel"
-    layout="horizontal"
+    :layout="computedLayout" 
     thumbnailDisplay="large"
     :title="contentNode.title"
     :thumbnailSrc="thumbnailSrc"
-    :thumbnailScaleType="thumbnailScaleType"
     thumbnailAlign="right"
-    :style="{ height: '172px', width: '500px', margin: '16px 0 16px 0' }"
+    :thumbnailScaleType="thumbnailScaleType"
+    :style="{ height: '250px', margin: '16px 0 16px 0', }"
   >
     <template #thumbnailPlaceholder>
       <div class="default-resource-icon">
@@ -25,7 +25,7 @@
       </div>
     </template>
     <template #footer>
-      <div class="footer-icon-style">
+      <div class="default-icon">
         <KIconButton
           icon="bookmarkEmpty"
           size="mini"
@@ -54,14 +54,23 @@
 
   import { validateLinkObject } from 'kolibri.utils.validators';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import LearningActivityIcon from './../ResourceDisplayAndSearch/LearningActivityIcon.vue';
 
+ 
   export default {
     name: 'AccessibleResourceCard',
     components: {
       LearningActivityIcon,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+  
+      return {
+        windowBreakpoint,
+      };
+    },
     props: {
       to: {
         type: Object,
@@ -84,6 +93,16 @@
         type: String,
         default: 'centerInside',
       },
+
+    },
+    computed: {
+      computedLayout() {
+        if (this.windowBreakpoint === 0) {
+          return 'vertical';
+        }
+        // Check windowBreakpoint and conditionally set layout
+        return this.windowBreakpoint === 0 ? 'vertical' : 'horizontal';
+      },
     },
   };
 
@@ -101,9 +120,13 @@
     text-align: center;
   }
 
-  .footer-icon-style {
-    margin-top: 15px;
-    text-align: right;
+  .default-icon {
+    margin-top: 20px;
+    position: absolute;
+    display: flex;
+    align-content: end;
+    padding: 16px;
+    margin-bottom: 8px;
   }
 
 </style>
