@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "kolibri-tools": "0.16.0-dev.3",
-    "webpack": "4.43.0"
+    "webpack": "4.44.0"
   },
   "engineStrict": true,
   "engines": {
