@@ -9,14 +9,13 @@
     :thumbnailSrc="thumbnailSrc"
     thumbnailScaleType="centerInside"
     thumbnailAlign="right"
-    :style="{ height: '172px', margin: '16px 0 16px 0' }"
+    :style="{ margin: '16px 0 16px 0', maxWidth: '800px' }"
   >
     <template #thumbnailPlaceholder>
       <div class="default-folder-icon">
         <KIcon
           icon="topic"
           :color="$themePalette.grey.v_600"
-          class=""
         />
       </div>
     </template>
@@ -126,12 +125,12 @@
   }
 
   .default-folder-icon {
-    width: 172px;
-    height: 172px;
-    margin: auto;
-    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
     font-size: 48px;
-    text-align: center;
   }
 
 </style>

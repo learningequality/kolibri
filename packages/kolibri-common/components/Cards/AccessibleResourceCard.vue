@@ -3,13 +3,13 @@
   <KCard
     :to="to"
     :headingLevel="headingLevel"
-    :layout="computedLayout" 
+    :layout="computedLayout"
     thumbnailDisplay="large"
     :title="contentNode.title"
     :thumbnailSrc="thumbnailSrc"
     thumbnailAlign="right"
     :thumbnailScaleType="thumbnailScaleType"
-    :style="{ height: '250px', margin: '16px 0 16px 0', }"
+    :style="{ margin: '16px 0 16px 0', maxWidth: '800px' }"
   >
     <template #thumbnailPlaceholder>
       <div class="default-resource-icon">
@@ -27,12 +27,12 @@
     <template #footer>
       <div class="default-icon">
         <KIconButton
-          icon="bookmarkEmpty"
+          :icon="isBookmarked ? 'bookmark' : 'bookmarkEmpty'"
           size="mini"
           :color="$themePalette.grey.v_600"
           :ariaLabel="coreString('savedFromBookmarks')"
           :tooltip="coreString('savedFromBookmarks')"
-          @click.stop="$emit('toggleBookmark')"
+          @click.stop="isBookmarked = !isBookmarked"
         />
 
         <KIconButton
@@ -93,7 +93,12 @@
         type: String,
         default: 'centerInside',
       },
-
+      
+    },
+    data() {
+      return {
+        isBookmarked: false,
+      }
     },
     computed: {
       computedLayout() {
@@ -112,21 +117,16 @@
 <style lang="scss" scoped>
 
   .default-resource-icon {
-    width: 172px;
-    height: 172px;
-    margin: auto;
-    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
     font-size: 48px;
-    text-align: center;
   }
 
   .default-icon {
-    margin-top: 20px;
-    position: absolute;
-    display: flex;
-    align-content: end;
-    padding: 16px;
-    margin-bottom: 8px;
+    text-align: right;
   }
 
 </style>

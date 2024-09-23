@@ -39,6 +39,7 @@
           disabled, tabindex, is-leaf class set here to hack making the card not clickable
           if you're trying to make the card clickable remove these properties
         -->
+        <!-- to be removed before remerge -->
         <AccessibleFolderCard
           v-if="content.kind === ContentNodeKinds.TOPIC"
           :to="contentCardLink(content)"
@@ -104,6 +105,7 @@
     name: 'ContentCardList',
     components: {
       LessonContentCard,
+      //removed before remerge
       AccessibleFolderCard,
     },
     mixins: [commonCoreStrings],
@@ -235,11 +237,6 @@
 
   .with-checkbox {
     margin-left: $checkbox-offset;
-  }
-
-  /deep/ .horizontal-with-large-thumbnail {
-    height: 141px;
-    margin: 0 0 16px;
   }
 
 </style>
