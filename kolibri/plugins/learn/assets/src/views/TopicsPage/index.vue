@@ -274,8 +274,8 @@
   import { ContentNodeResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
-  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
-  import SearchFiltersPanel from 'kolibri.coreVue.components.SearchFiltersPanel';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
   import { PageNames } from '../../constants';
   import useChannels from '../../composables/useChannels';
   import useSearch from '../../composables/useSearch';

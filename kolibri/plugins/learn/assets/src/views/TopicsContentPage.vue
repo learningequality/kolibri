@@ -172,7 +172,7 @@
   import AppError from 'kolibri-common/components/AppError';
   import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
-  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { PageNames, ClassesPageNames } from '../constants';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import useChannels from '../composables/useChannels';

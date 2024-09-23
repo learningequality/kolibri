@@ -95,7 +95,7 @@
   import urls from 'kolibri.urls';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
-  import SidePanelModal from 'kolibri.coreVue.components.SidePanelModal';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
