@@ -85,9 +85,12 @@ class ErrorReports(models.Model):
                 "ErrorReports: Database not updated, as DEVELOPER_MODE is True."
             )
             return
-        error_report = cls.objects.filter(
-            category=category, error_message=error_message, traceback=traceback
-        ).first()
+        error_report, _ = cls.objects.get_or_create(
+            category=category,
+            error_message=error_message,
+            traceback=traceback,
+            defaults={"context": context},
+        )
         if error_report is not None:
             error_report.events += 1
             error_report.last_occurred = timezone.now()
@@ -98,14 +101,8 @@ class ErrorReports(models.Model):
                     + context["avg_request_time_to_error"]
                 ) / error_report.events
                 error_report.context = context
-            error_report.save()
-        else:
-            error_report = cls.objects.create(
-                category=category,
-                error_message=error_message,
-                traceback=traceback,
-                context=context,
-            )
+
+        error_report.save()
         logger.error("ErrorReports: Database updated.")
         return error_report
 
