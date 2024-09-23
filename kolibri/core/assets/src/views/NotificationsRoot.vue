@@ -45,12 +45,12 @@
   import { mapState } from 'vuex';
   import Lockr from 'lockr';
   import {
-  FacilityResource,
-  FacilityDatasetResource,
-  UserSyncStatusResource,
-  PingbackNotificationResource,
-  PingbackNotificationDismissedResource,
-} from 'kolibri.resources';
+    FacilityResource,
+    FacilityDatasetResource,
+    UserSyncStatusResource,
+    PingbackNotificationResource,
+    PingbackNotificationDismissedResource,
+  } from 'kolibri.resources';
   import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';

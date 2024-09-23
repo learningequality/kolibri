@@ -34,8 +34,6 @@ const logging = logger.getLogger(__filename);
  * the API to state in the Vuex store
  */
 
-
-
 /**
  * Actions
  *
