@@ -105,7 +105,7 @@
     name: 'ContentCardList',
     components: {
       LessonContentCard,
-      //removed before remerge
+      //remove before remerge
       AccessibleFolderCard,
     },
     mixins: [commonCoreStrings],

@@ -25,7 +25,7 @@
         </template>
       </component>
     </component>
-
+    <!-- remove before remerge -->
     <h2>AccessibleResourceCard preview</h2>
     <div>
       <AccessibleResourceCard
@@ -62,6 +62,7 @@
       HybridLearningFooter,
       CardList,
       ResourceCard,
+      // remove before remerge
       AccessibleResourceCard,
     },
 
