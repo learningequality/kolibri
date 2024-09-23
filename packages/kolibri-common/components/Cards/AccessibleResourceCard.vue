@@ -57,7 +57,6 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import LearningActivityIcon from './../ResourceDisplayAndSearch/LearningActivityIcon.vue';
 
- 
   export default {
     name: 'AccessibleResourceCard',
     components: {
@@ -66,7 +65,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
-  
+
       return {
         windowBreakpoint,
       };
@@ -93,12 +92,11 @@
         type: String,
         default: 'centerInside',
       },
-      
     },
     data() {
       return {
         isBookmarked: false,
-      }
+      };
     },
     computed: {
       computedLayout() {
@@ -118,8 +116,8 @@
 
   .default-resource-icon {
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100%;
     font-size: 48px;
