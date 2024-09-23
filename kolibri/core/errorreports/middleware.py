@@ -16,12 +16,20 @@ from .models import ErrorReports
 
 
 def get_request_info(request):
+    # checked the codebase and found these are the sensitive headers
+    request_headers = dict(request.headers)
+    request_headers.pop("X-Csrftoken", None)
+    request_headers.pop("Cookie", None)
+
+    request_get = dict(request.GET)
+    request_get.pop("token", None)
+
     return {
         "url": request.build_absolute_uri(),
         "method": request.method,
-        "headers": dict(request.headers),
+        "headers": request_headers,
         "body": request.body.decode("utf-8"),
-        "query_params": dict(request.GET),
+        "query_params": request_get,
     }
 
 
@@ -60,12 +68,12 @@ class ErrorReportingMiddleware:
     def process_exception(self, request, exception):
         error_message = str(exception)
         traceback_info = traceback.format_exc()
-        request_time_to_error = get_request_time_to_error(request)
         context = {
             "request_info": get_request_info(request),
             "server": get_server_info(request),
             "packages": get_packages(),
             "python_version": get_python_version(),
+            "avg_request_time_to_error": get_request_time_to_error(request),
         }
         self.logger.error("Unexpected Error: %s", error_message)
         try:
@@ -75,9 +83,7 @@ class ErrorReportingMiddleware:
                 error_message,
                 traceback_info,
                 context,
-                request_time_to_error=request_time_to_error,
             )
-            self.logger.info("Error report saved to the database.")
         except (IntegrityError, ValidationError) as e:
             self.logger.error(
                 "Error occurred while saving error report to the database: %s", str(e)

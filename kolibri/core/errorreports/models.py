@@ -9,11 +9,9 @@ from .constants import FRONTEND
 from .constants import POSSIBLE_ERRORS
 from .schemas import context_backend_schema
 from .schemas import context_frontend_schema
-from kolibri import __version__
 from kolibri.core.fields import JSONField
 from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.deployment.default.sqlite_db_names import ERROR_REPORTS
-from kolibri.utils.server import installation_type
 
 
 logger = logging.getLogger(__name__)
@@ -62,13 +60,10 @@ class ErrorReports(models.Model):
     last_occurred = models.DateTimeField(default=timezone.now)
     reported = models.BooleanField(default=False)
     events = models.IntegerField(default=1)
-    release_version = models.CharField(max_length=128, default=__version__, blank=True)
-    installation_type = models.CharField(max_length=64, blank=True)
     context = JSONField(
         null=True,
         blank=True,
     )
-    avg_request_time_to_error = models.FloatField(null=True, blank=True)  # in seconds
 
     def __str__(self):
         return f"{self.error_message} ({self.category})"
@@ -84,34 +79,32 @@ class ErrorReports(models.Model):
         super().save(*args, **kwargs)
 
     @classmethod
-    def insert_or_update_error(
-        cls, category, error_message, traceback, context, request_time_to_error=None
-    ):
-        if not getattr(settings, "DEVELOPER_MODE", None):
-            error, created = cls.objects.get_or_create(
-                category=category,
-                error_message=error_message,
-                traceback=traceback,
-                context=context,
-                release_version=__version__,
-                installation_type=installation_type(),
+    def insert_or_update_error(cls, category, error_message, traceback, context):
+        if getattr(settings, "DEVELOPER_MODE", False):
+            logger.info(
+                "ErrorReports: Database not updated, as DEVELOPER_MODE is True."
             )
-            if not created:
-                error.events += 1
-                error.last_occurred = timezone.now()
-                if error.avg_request_time_to_error is not None:
-                    # see the proof: https://math.stackexchange.com/a/106314
-                    error.avg_request_time_to_error = (
-                        error.avg_request_time_to_error * (error.events - 1)
-                        + request_time_to_error
-                    ) / error.events
-                else:
-                    error.avg_request_time_to_error = request_time_to_error
-                error.save()
-            logger.error("ErrorReports: Database updated.")
-            return error
-        logger.error("ErrorReports: Database not updated, as DEVELOPER_MODE is True.")
-        return None
+            return
+        error_report, _ = cls.objects.get_or_create(
+            category=category,
+            error_message=error_message,
+            traceback=traceback,
+            defaults={"context": context},
+        )
+        if error_report is not None:
+            error_report.events += 1
+            error_report.last_occurred = timezone.now()
+            if error_report.context.get("avg_request_time_to_error", None):
+                context["avg_request_time_to_error"] = (
+                    error_report.context["avg_request_time_to_error"]
+                    * (error_report.events - 1)
+                    + context["avg_request_time_to_error"]
+                ) / error_report.events
+                error_report.context = context
+
+        error_report.save()
+        logger.error("ErrorReports: Database updated.")
+        return error_report
 
     @classmethod
     def get_unreported_errors(cls):
