@@ -1,5 +1,4 @@
 import store from 'kolibri.coreVue.vuex.store';
-import TechnicalTextBlock from 'kolibri-common/components/AppError/TechnicalTextBlock.vue';
 import {
   showLessonResourceContentPreview,
   showLessonResourceSelectionRootPage,
@@ -21,6 +20,9 @@ import LessonResourceSelectionPage from '../views/plan/LessonResourceSelectionPa
 import PlanLessonSelectionContentPreview from '../views/plan/PlanLessonSelectionContentPreview';
 import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
 import LessonCreationPage from '../views/plan/LessonCreationPage';
+import EditLessonDetails from '../views/plan/LessonEditDetailsPage/EditLessonDetails.vue';
+import PreviewSelectedResources from '../views/plan/LessonContentPreviewPage/PreviewSelectedResources.vue';
+import LessonResourceSelection from '../views/plan/LessonResourceSelectionPage/LessonResourceSelection.vue';
 import { classIdParamRequiredGuard } from './utils';
 
 const OPTIONAL_CLASS = '/:classId?/plan';
@@ -66,7 +68,7 @@ export default [
       {
         name: PageNames.LESSON_EDIT_DETAILS,
         path: 'details/',
-        component: TechnicalTextBlock,
+        component: EditLessonDetails,
         props: {
           text: 'test',
         },
@@ -74,17 +76,17 @@ export default [
       {
         name: PageNames.LESSON_SELECT_RESOURCES,
         path: 'select-resources/:topicId?',
-        component: TechnicalTextBlock,
+        component: LessonResourceSelection,
       },
       {
         name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
         path: 'preview-resources/',
-        component: TechnicalTextBlock,
+        component: PreviewSelectedResources,
       },
       {
         name: PageNames.LESSON_PREVIEW_RESOURCE,
         path: 'preview-resources/:nodeId',
-        component: TechnicalTextBlock,
+        component: PreviewSelectedResources,
       },
     ],
   },
