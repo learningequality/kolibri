@@ -53,13 +53,17 @@
       fileOptions() {
         const options = this.files.map(file => {
           const label = getFilePresetString(file);
+          const fileId =
+            file.preset === 'video_subtitle' && file?.lang.lang_name
+              ? file?.lang.lang_name
+              : file.checksum.slice(0, 6);
           return {
             label,
             url: file.storage_url,
             fileName: this.$tr('downloadFilename', {
               resourceTitle: this.nodeTitle.length ? this.nodeTitle : file.checksum,
               fileExtension: file.extension,
-              fileId: file.checksum.slice(0, 6),
+              fileId,
             }),
           };
         });
@@ -68,26 +72,12 @@
     },
     methods: {
       download(file) {
-        const req = new XMLHttpRequest();
-        req.open('GET', file.url, true);
-        req.responseType = 'blob';
-
-        req.onload = function () {
-          const blob = req.response;
-          const blobUrl = window.URL.createObjectURL(blob);
-          try {
-            const a = document.createElement('a');
-            a.download = file.fileName;
-            a.href = blobUrl;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-          } catch (e) {
-            window.open(file.url, '_blank');
-          }
-        };
-
-        req.send();
+        const a = document.createElement('a');
+        a.download = file.fileName;
+        a.href = file.url;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
       },
     },
     $trs: {
