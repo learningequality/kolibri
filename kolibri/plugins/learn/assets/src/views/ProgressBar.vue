@@ -9,30 +9,18 @@
     :aria-valuenow="progress * 100"
   >
     <p
+      v-if="completed || isQuiz"
       class="completion-label"
       :style="{ color: $themePalette.grey.v_800 }"
     >
+      <ProgressIcon
+        :progress="progress"
+        class="completion-icon"
+      />
       <template v-if="isQuiz">
-        <template v-if="!completed">
-          <ProgressIcon
-            :progress="progress"
-            class="completion-icon"
-          />
-          {{ inProgressLabel }}
-        </template>
-        <template v-else>
-          <ProgressIcon
-            :progress="progress"
-            class="completion-icon"
-          />
-          {{ completedLabel }}
-        </template>
+        {{ completed ? quizCompletedLabel : quizInProgressLabel }}
       </template>
-      <template v-else-if="completed">
-        <ProgressIcon
-          :progress="progress"
-          class="completion-icon"
-        />
+      <template v-else>
         {{ coreString('completedLabel') }}
       </template>
     </p>
@@ -108,13 +96,13 @@
         }
         return 0;
       },
-      inProgressLabel() {
+      quizInProgressLabel() {
         if (this.isQuiz) {
           return this.$tr('questionsLeft', { questionsLeft: this.remainingQuestions });
         }
         return '';
       },
-      completedLabel() {
+      quizCompletedLabel() {
         if (this.isQuiz && this.completed) {
           const percentage = Math.round(100 * this.score);
           return this.$tr('completedPercentLabel', { score: percentage });
