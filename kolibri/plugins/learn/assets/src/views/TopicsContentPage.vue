@@ -776,4 +776,5 @@
     text-align: left;
     transform: translate(0, -50%);
   }
+
 </style>
