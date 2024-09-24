@@ -1,18 +1,21 @@
 exclude: (\.git/|\.tox/|\.venv/|build/|static/|dist/|node_modules/|kolibripip\.pex)
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.0.0
+    rev: v4.6.0
     hooks:
     -   id: trailing-whitespace
-    -   id: flake8
-        additional_dependencies: [
-            'flake8-print==5.0.0'
-        ]
     -   id: check-yaml
     -   id: check-added-large-files
     -   id: debug-statements
     -   id: end-of-file-fixer
         exclude: '^.+?(\.json|\.po)$'
+-   repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+    -   id: flake8
+        additional_dependencies: [
+            'flake8-print==5.0.0'
+        ]
 -   repo: https://github.com/asottile/reorder_python_imports
     rev: v1.3.3
     hooks:
