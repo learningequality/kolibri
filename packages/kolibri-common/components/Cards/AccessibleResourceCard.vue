@@ -9,7 +9,6 @@
     :thumbnailSrc="thumbnailSrc"
     thumbnailAlign="right"
     :thumbnailScaleType="thumbnailScaleType"
-    :style="{ margin: '16px 0 16px 0', maxWidth: '800px' }"
   >
     <template #thumbnailPlaceholder>
       <div class="default-resource-icon">

@@ -9,7 +9,6 @@
     :thumbnailSrc="thumbnailSrc"
     thumbnailScaleType="centerInside"
     thumbnailAlign="right"
-    :style="{ margin: '16px 0 16px 0', maxWidth: '800px' }"
   >
     <template #thumbnailPlaceholder>
       <div class="default-folder-icon">
