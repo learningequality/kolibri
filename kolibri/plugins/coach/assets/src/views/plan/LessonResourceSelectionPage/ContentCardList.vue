@@ -40,7 +40,6 @@
           if you're trying to make the card clickable remove these properties
         -->
         <LessonContentCard
-          v-else
           class="content-card"
           :disabled="content.is_leaf"
           :tabindex="content.is_leaf ? -1 : 0"
