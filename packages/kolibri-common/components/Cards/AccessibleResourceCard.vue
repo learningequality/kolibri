@@ -3,7 +3,7 @@
   <KCard
     :to="to"
     :headingLevel="headingLevel"
-    :layout="windowBreakpoint  === 0 ? 'vertical' : 'horizontal'"
+    :layout="windowBreakpoint === 0 ? 'vertical' : 'horizontal'"
     thumbnailDisplay="large"
     :title="contentNode.title"
     :thumbnailSrc="thumbnailSrc"
@@ -98,8 +98,7 @@
         isBookmarked: false,
       };
     },
-    computed: {
-    },
+    computed: {},
   };
 
 </script>
