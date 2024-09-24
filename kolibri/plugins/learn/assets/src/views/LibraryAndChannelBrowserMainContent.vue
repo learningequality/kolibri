@@ -25,18 +25,6 @@
         </template>
       </component>
     </component>
-    <!-- remove before remerge -->
-    <h2>AccessibleResourceCard preview</h2>
-    <div>
-      <AccessibleResourceCard
-        v-for="(contentNode, idx) in contents"
-        :key="`resource-${idx}`"
-        :to="contentLink(contentNode.id, contentNode.is_leaf)"
-        :contentNode="contentNode"
-        :thumbnailSrc="contentNode.thumbnail"
-        :headingLevel="2"
-      />
-    </div>
   </div>
 
 </template>
@@ -45,7 +33,6 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import AccessibleResourceCard from 'kolibri-common/components/Cards/AccessibleResourceCard';
   import useContentLink from '../composables/useContentLink';
   import CardGrid from './cards/CardGrid';
   import ResourceCard from './cards/ResourceCard';
@@ -62,8 +49,6 @@
       HybridLearningFooter,
       CardList,
       ResourceCard,
-      // remove before remerge
-      AccessibleResourceCard,
     },
 
     setup() {

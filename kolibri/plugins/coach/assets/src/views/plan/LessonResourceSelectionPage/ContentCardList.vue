@@ -39,14 +39,6 @@
           disabled, tabindex, is-leaf class set here to hack making the card not clickable
           if you're trying to make the card clickable remove these properties
         -->
-        <!-- to be removed before remerge -->
-        <AccessibleFolderCard
-          v-if="content.kind === ContentNodeKinds.TOPIC"
-          :to="contentCardLink(content)"
-          :contentNode="content"
-          :thumbnailSrc="content.thumbnail"
-          :headingLevel="2"
-        />
         <LessonContentCard
           v-else
           class="content-card"
@@ -96,8 +88,6 @@
 
   import { computed, toRefs } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import AccessibleFolderCard from 'kolibri-common/components/Cards/AccessibleFolderCard.vue';
   import { ViewMoreButtonStates } from '../../../constants/index';
   import LessonContentCard from './LessonContentCard';
 
@@ -105,8 +95,6 @@
     name: 'ContentCardList',
     components: {
       LessonContentCard,
-      //remove before remerge
-      AccessibleFolderCard,
     },
     mixins: [commonCoreStrings],
     setup(props) {
@@ -189,9 +177,6 @@
       },
       needCheckboxes() {
         return this.contentList.some(c => this.contentHasCheckbox(c));
-      },
-      ContentNodeKinds() {
-        return ContentNodeKinds;
       },
     },
     methods: {

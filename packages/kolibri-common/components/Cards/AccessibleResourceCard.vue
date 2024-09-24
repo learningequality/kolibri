@@ -3,7 +3,7 @@
   <KCard
     :to="to"
     :headingLevel="headingLevel"
-    :layout="computedLayout"
+    :layout="windowBreakpoint  === 0 ? 'vertical' : 'horizontal'"
     thumbnailDisplay="large"
     :title="contentNode.title"
     :thumbnailSrc="thumbnailSrc"
@@ -99,13 +99,6 @@
       };
     },
     computed: {
-      computedLayout() {
-        if (this.windowBreakpoint === 0) {
-          return 'vertical';
-        }
-        // Check windowBreakpoint and conditionally set layout
-        return this.windowBreakpoint === 0 ? 'vertical' : 'horizontal';
-      },
     },
   };
 
