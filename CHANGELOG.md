@@ -2,6 +2,12 @@
 
 List of the most important changes for each release.
 
+## 0.17.2
+
+### Changed
+- Make 'save to device' file downloads initiate immediately by @rtibbles in [#12675](https://github.com/learningequality/kolibri/pull/12675)
+
+
 ## 0.17.1
 
 ### Added
