@@ -95,10 +95,10 @@
   import urls from 'kolibri.urls';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
-  import SidePanelModal from './SidePanelModal';
   import commonLearnStrings from './commonLearnStrings';
   import LearnAppBarPage from './LearnAppBarPage';
   import CardList from './CardList';
@@ -214,7 +214,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-    margin-bottom: -8px;
+    margin-top: 8px;
     margin-left: -8px;
   }
 

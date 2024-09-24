@@ -50,8 +50,8 @@
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonLearnStrings from '../commonLearnStrings';
-  import SidePanelModal from '../SidePanelModal';
   import useContentLink from '../../composables/useContentLink';
 
   export default {

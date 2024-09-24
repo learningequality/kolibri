@@ -174,8 +174,8 @@
   import appCapabilities, { checkCapability } from 'kolibri.utils.appCapabilities';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import { searchKeys } from 'kolibri-common/composables/useBaseSearch';
-  import SidePanelModal from '../SidePanelModal';
-  import SearchFiltersPanel from '../SearchFiltersPanel';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
@@ -640,7 +640,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-    margin-bottom: -8px;
+    margin-top: 8px;
     margin-left: -8px;
   }
 
