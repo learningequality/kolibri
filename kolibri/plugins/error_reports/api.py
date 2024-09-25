@@ -5,9 +5,9 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .constants import FRONTEND
-from .models import ErrorReports
 from .serializers import ErrorReportSerializer
+from kolibri.core.errorreports.constants import FRONTEND
+from kolibri.core.errorreports.models import ErrorReports
 
 
 logger = logging.getLogger(__name__)

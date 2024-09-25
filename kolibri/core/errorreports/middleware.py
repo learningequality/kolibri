@@ -8,11 +8,15 @@ if version_info < (3, 10):
 else:
     from importlib.metadata import distributions
 
+from django.core.exceptions import MiddlewareNotUsed
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
 from .constants import BACKEND
 from .models import ErrorReports
+
+from kolibri.plugins.error_reports.kolibri_plugin import ErrorReportsPlugin
+from kolibri.plugins.registry import registered_plugins
 
 
 def get_request_info(request):
@@ -58,6 +62,8 @@ class ErrorReportingMiddleware:
     """
 
     def __init__(self, get_response):
+        if ErrorReportsPlugin not in registered_plugins:
+            raise MiddlewareNotUsed("ErrorReportsPlugin is not enabled.")
         self.get_response = get_response
         self.logger = logging.getLogger(__name__)
 
@@ -92,6 +98,8 @@ class ErrorReportingMiddleware:
 
 class PreRequestMiddleware:
     def __init__(self, get_response):
+        if ErrorReportsPlugin not in registered_plugins:
+            raise MiddlewareNotUsed("ErrorReportsPlugin is not enabled.")
         self.get_response = get_response
 
     def __call__(self, request):

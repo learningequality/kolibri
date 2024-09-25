@@ -46,12 +46,12 @@ class FrontendReportTestCase(TestCase):
         self.client = APIClient()
 
     def test_frontend_report(self):
-        url = reverse("kolibri:core:report")
+        url = reverse("kolibri:kolibri.plugins.error_reports:report")
         response = self.client.post(url, self.data, format="json")
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_frontend_report_invalid_data(self):
-        url = reverse("kolibri:core:report")
+        url = reverse("kolibri:kolibri.plugins.error_reports:report")
         data = self.data.copy()
         invalid_data = data.pop("context")
         response = self.client.post(url, invalid_data, format="json")
@@ -64,7 +64,7 @@ class FrontendReportTestCase(TestCase):
     def test_frontend_report_server_error_attribute_error(
         self, mock_insert_or_update_error
     ):
-        url = reverse("kolibri:core:report")
+        url = reverse("kolibri:kolibri.plugins.error_reports:report")
         response = self.client.post(url, self.data, format="json")
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.data)
@@ -76,7 +76,7 @@ class FrontendReportTestCase(TestCase):
     def test_frontend_report_server_error_validation_error(
         self, mock_insert_or_update_error
     ):
-        url = reverse("kolibri:core:report")
+        url = reverse("kolibri:kolibri.plugins.error_reports:report")
         response = self.client.post(url, self.data, format="json")
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.data)
