@@ -3,7 +3,7 @@
   <div>
     <KModal
       v-if="windowIsLarge"
-      appendToRoot
+      appendToOverlay
       :title="$tr('title')"
       :cancelText="coreString('closeAction')"
       size="large"
