@@ -487,6 +487,15 @@ def diskexport(
 class DeleteChannelValidator(ChannelResourcesValidator):
     force_delete = serializers.BooleanField(default=False)
 
+    def validate(self, data):
+        job_data = super(ChannelResourcesValidator, self).validate(data)
+        job_data["kwargs"].update(
+            {
+                "force_delete": data.get("force_delete"),
+            }
+        )
+        return job_data
+
 
 @register_task(
     validator=DeleteChannelValidator,
