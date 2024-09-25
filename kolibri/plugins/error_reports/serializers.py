@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import ErrorReports
+from kolibri.core.errorreports.models import ErrorReports
 
 
 class ErrorReportSerializer(serializers.ModelSerializer):
