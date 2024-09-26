@@ -8,7 +8,7 @@ from requests.exceptions import ConnectionError
 from requests.exceptions import RequestException
 from requests.exceptions import Timeout
 
-from .models import ErrorReports
+from .models import ErrorReport
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.utils.urls import join_url
 
@@ -36,7 +36,7 @@ def serialize_error_reports_to_json_response(errors, pingback_id):
 @register_task
 def ping_error_reports(server, pingback_id):
     try:
-        errors = ErrorReports.get_unreported_errors()
+        errors = ErrorReport.get_unreported_errors()
 
         errors_json = serialize_error_reports_to_json_response(errors, pingback_id)
 

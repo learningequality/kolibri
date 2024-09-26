@@ -6,8 +6,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .serializers import ErrorReportSerializer
-from kolibri.core.errorreports.constants import FRONTEND
-from kolibri.core.errorreports.models import ErrorReports
+from kolibri.core.error_reports.constants import FRONTEND
+from kolibri.core.error_reports.models import ErrorReport
 
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ def report(request):
     if serializer.is_valid():
         data = serializer.validated_data
         try:
-            error = ErrorReports.insert_or_update_error(
+            error = ErrorReport.insert_or_update_error(
                 FRONTEND,
                 data["error_message"],
                 data["traceback"],

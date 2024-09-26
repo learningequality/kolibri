@@ -58,7 +58,7 @@ class FrontendReportTestCase(TestCase):
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     @patch(
-        "kolibri.core.errorreports.models.ErrorReports.insert_or_update_error",
+        "kolibri.core.error_reports.models.ErrorReport.insert_or_update_error",
         side_effect=AttributeError("Mocked AttributeError"),
     )
     def test_frontend_report_server_error_attribute_error(
@@ -70,7 +70,7 @@ class FrontendReportTestCase(TestCase):
         self.assertIn("error", response.data)
 
     @patch(
-        "kolibri.core.errorreports.models.ErrorReports.insert_or_update_error",
+        "kolibri.core.error_reports.models.ErrorReport.insert_or_update_error",
         side_effect=ValidationError("Mocked exception"),
     )
     def test_frontend_report_server_error_validation_error(
