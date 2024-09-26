@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from ..constants import BACKEND
 from ..constants import FRONTEND
+from ..constants import TASK
 from kolibri.core.errorreports.models import ErrorReports
 
 
@@ -41,6 +42,24 @@ class ErrorReportsTestCase(TestCase):
             "packages": ["django==3.2", "kolibri==0.15.8"],
             "python_version": "3.9.1",
         }
+        self.context_task = {
+            "job_info": {
+                "job_id": "1",
+                "func": "test_func",
+                "facility_id": None,
+                "args": ["test"],
+                "kwargs": {"test": "test"},
+                "progress": 0,
+                "total_progress": 0,
+                "extra_metadata": {},
+            },
+            "worker_info": {
+                "worker_host": "localhost",
+                "worker_process": "1",
+                "worker_thread": "1",
+                "worker_extra": None,
+            },
+        }
 
     def create_error(
         self,
@@ -59,7 +78,7 @@ class ErrorReportsTestCase(TestCase):
         )
 
     @override_settings(DEVELOPER_MODE=False)
-    def test_insert_or_update_error_prod_mode(self):
+    def test_insert_or_update_frontend_error_prod_mode(self):
         error = ErrorReports.insert_or_update_error(
             self.category_frontend,
             self.error_message,
@@ -90,6 +109,88 @@ class ErrorReportsTestCase(TestCase):
         self.assertEqual(error.error_message, self.error_message)
         self.assertEqual(error.traceback, self.traceback)
         self.assertEqual(error.context, self.context_frontend)
+        self.assertEqual(error.events, 2)
+        self.assertFalse(error.reported)
+        self.assertLess(
+            timezone.now() - error.first_occurred, timezone.timedelta(seconds=1)
+        )
+        self.assertLess(
+            timezone.now() - error.last_occurred, timezone.timedelta(seconds=1)
+        )
+
+    @override_settings(DEVELOPER_MODE=False)
+    def test_insert_or_update_backend_error_prod_mode(self):
+        error = ErrorReports.insert_or_update_error(
+            self.category_backend,
+            self.error_message,
+            self.traceback,
+            self.context_backend,
+        )
+        self.assertEqual(error.category, self.category_backend)
+        self.assertEqual(error.error_message, self.error_message)
+        self.assertEqual(error.traceback, self.traceback)
+        self.assertEqual(error.context, self.context_backend)
+        self.assertEqual(error.events, 1)
+        self.assertFalse(error.reported)
+        self.assertLess(
+            timezone.now() - error.first_occurred, timezone.timedelta(seconds=1)
+        )
+        self.assertLess(
+            timezone.now() - error.last_occurred, timezone.timedelta(seconds=1)
+        )
+
+        # Creating the error again, so this time it should update the error
+        error = ErrorReports.insert_or_update_error(
+            self.category_backend,
+            self.error_message,
+            self.traceback,
+            self.context_backend,
+        )
+        self.assertEqual(error.category, self.category_backend)
+        self.assertEqual(error.error_message, self.error_message)
+        self.assertEqual(error.traceback, self.traceback)
+        self.assertEqual(error.context, self.context_backend)
+        self.assertEqual(error.events, 2)
+        self.assertFalse(error.reported)
+        self.assertLess(
+            timezone.now() - error.first_occurred, timezone.timedelta(seconds=1)
+        )
+        self.assertLess(
+            timezone.now() - error.last_occurred, timezone.timedelta(seconds=1)
+        )
+
+    @override_settings(DEVELOPER_MODE=False)
+    def test_insert_or_update_task_error_prod_mode(self):
+        error = ErrorReports.insert_or_update_error(
+            TASK,
+            self.error_message,
+            self.traceback,
+            self.context_task,
+        )
+        self.assertEqual(error.category, TASK)
+        self.assertEqual(error.error_message, self.error_message)
+        self.assertEqual(error.traceback, self.traceback)
+        self.assertEqual(error.context, self.context_task)
+        self.assertEqual(error.events, 1)
+        self.assertFalse(error.reported)
+        self.assertLess(
+            timezone.now() - error.first_occurred, timezone.timedelta(seconds=1)
+        )
+        self.assertLess(
+            timezone.now() - error.last_occurred, timezone.timedelta(seconds=1)
+        )
+
+        # Creating the error again, so this time it should update the error
+        error = ErrorReports.insert_or_update_error(
+            TASK,
+            self.error_message,
+            self.traceback,
+            self.context_task,
+        )
+        self.assertEqual(error.category, TASK)
+        self.assertEqual(error.error_message, self.error_message)
+        self.assertEqual(error.traceback, self.traceback)
+        self.assertEqual(error.context, self.context_task)
         self.assertEqual(error.events, 2)
         self.assertFalse(error.reported)
         self.assertLess(

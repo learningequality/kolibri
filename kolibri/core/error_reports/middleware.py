@@ -13,7 +13,7 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
 from .constants import BACKEND
-from .models import ErrorReports
+from .models import ErrorReport
 
 from kolibri.plugins.error_reports.kolibri_plugin import ErrorReportsPlugin
 from kolibri.plugins.registry import registered_plugins
@@ -76,13 +76,13 @@ class ErrorReportingMiddleware:
             "request_info": get_request_info(request),
             "server": get_server_info(request),
             "packages": get_packages(),
-            "python_version": ".".join(str(v) for v in version_info[:3]),
+            "python_version": get_python_version(),
             "avg_request_time_to_error": get_request_time_to_error(request),
         }
         self.logger.error("Unexpected Error: %s", error_message)
         try:
             self.logger.error("Saving error report to the database.")
-            ErrorReports.insert_or_update_error(
+            ErrorReport.insert_or_update_error(
                 BACKEND,
                 error_message,
                 traceback_info,
