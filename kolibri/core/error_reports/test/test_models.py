@@ -5,10 +5,10 @@ from django.utils import timezone
 from ..constants import BACKEND
 from ..constants import FRONTEND
 from ..constants import TASK
-from kolibri.core.errorreports.models import ErrorReports
+from kolibri.core.error_reports.models import ErrorReport
 
 
-class ErrorReportsTestCase(TestCase):
+class ErrorReportTestCase(TestCase):
     databases = "__all__"
 
     def setUp(self):
@@ -69,7 +69,7 @@ class ErrorReportsTestCase(TestCase):
         context,
         reported=False,
     ):
-        return ErrorReports.objects.create(
+        return ErrorReport.objects.create(
             category=category,
             error_message=error_message,
             traceback=traceback,
@@ -79,7 +79,7 @@ class ErrorReportsTestCase(TestCase):
 
     @override_settings(DEVELOPER_MODE=False)
     def test_insert_or_update_frontend_error_prod_mode(self):
-        error = ErrorReports.insert_or_update_error(
+        error = ErrorReport.insert_or_update_error(
             self.category_frontend,
             self.error_message,
             self.traceback,
@@ -99,7 +99,7 @@ class ErrorReportsTestCase(TestCase):
         )
 
         # Creating the error again, so this time it should update the error
-        error = ErrorReports.insert_or_update_error(
+        error = ErrorReport.insert_or_update_error(
             self.category_frontend,
             self.error_message,
             self.traceback,
@@ -120,7 +120,7 @@ class ErrorReportsTestCase(TestCase):
 
     @override_settings(DEVELOPER_MODE=False)
     def test_insert_or_update_backend_error_prod_mode(self):
-        error = ErrorReports.insert_or_update_error(
+        error = ErrorReport.insert_or_update_error(
             self.category_backend,
             self.error_message,
             self.traceback,
@@ -140,7 +140,7 @@ class ErrorReportsTestCase(TestCase):
         )
 
         # Creating the error again, so this time it should update the error
-        error = ErrorReports.insert_or_update_error(
+        error = ErrorReport.insert_or_update_error(
             self.category_backend,
             self.error_message,
             self.traceback,
@@ -161,7 +161,7 @@ class ErrorReportsTestCase(TestCase):
 
     @override_settings(DEVELOPER_MODE=False)
     def test_insert_or_update_task_error_prod_mode(self):
-        error = ErrorReports.insert_or_update_error(
+        error = ErrorReport.insert_or_update_error(
             TASK,
             self.error_message,
             self.traceback,
@@ -181,7 +181,7 @@ class ErrorReportsTestCase(TestCase):
         )
 
         # Creating the error again, so this time it should update the error
-        error = ErrorReports.insert_or_update_error(
+        error = ErrorReport.insert_or_update_error(
             TASK,
             self.error_message,
             self.traceback,
@@ -202,7 +202,7 @@ class ErrorReportsTestCase(TestCase):
 
     @override_settings(DEVELOPER_MODE=True)
     def test_insert_or_update_error_dev_mode(self):
-        error = ErrorReports.insert_or_update_error(
+        error = ErrorReport.insert_or_update_error(
             self.category_backend,
             self.error_message,
             self.traceback,
@@ -234,7 +234,7 @@ class ErrorReportsTestCase(TestCase):
         )
 
         # Get unreported errors, should be only 2 as out of 3, 1 is reported
-        unreported_errors = ErrorReports.get_unreported_errors()
+        unreported_errors = ErrorReport.get_unreported_errors()
         self.assertEqual(unreported_errors.count(), 2)
         self.assertFalse(unreported_errors[0].reported)
         self.assertFalse(unreported_errors[1].reported)

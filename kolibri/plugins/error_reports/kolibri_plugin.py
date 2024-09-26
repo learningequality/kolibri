@@ -1,6 +1,6 @@
 import logging
 
-from kolibri.core.errorreports.constants import TASK
+from kolibri.core.error_reports.constants import TASK
 from kolibri.core.hooks import FrontEndBaseSyncHook
 from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import State
@@ -37,11 +37,11 @@ class ErrorReportsPluginStorageHook(StorageHook):
     def update(self, job, orm_job, state=None, **kwargs):
         if state == State.FAILED:
             # Importing here to avoid importing models at the top level
-            from kolibri.core.errorreports.middleware import get_packages
-            from kolibri.core.errorreports.middleware import get_python_version
-            from kolibri.core.errorreports.models import ErrorReports
+            from kolibri.core.error_reports.middleware import get_packages
+            from kolibri.core.error_reports.middleware import get_python_version
+            from kolibri.core.error_reports.models import ErrorReport
 
-            ErrorReports.insert_or_update_error(
+            ErrorReport.insert_or_update_error(
                 TASK,
                 job.exception,
                 job.traceback,
