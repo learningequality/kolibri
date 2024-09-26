@@ -7,7 +7,7 @@ from kolibri.core.analytics.utils import ping_once
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
-from kolibri.core.errorreports.tasks import ping_error_reports
+from kolibri.core.error_reports.tasks import ping_error_reports
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.main import job_storage

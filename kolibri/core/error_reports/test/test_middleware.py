@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from ..constants import BACKEND
 from ..middleware import ErrorReportingMiddleware
-from ..models import ErrorReports
+from ..models import ErrorReport
 
 
 class ErrorReportingMiddlewareTestCase(TestCase):
@@ -16,17 +16,17 @@ class ErrorReportingMiddlewareTestCase(TestCase):
         self.factory = RequestFactory()
 
     @patch(
-        "kolibri.core.errorreports.middleware.get_request_time_to_error",
+        "kolibri.core.error_reports.middleware.get_request_time_to_error",
         return_value=0.0,
     )
     @patch(
-        "kolibri.core.errorreports.middleware.get_python_version", return_value="3.9.9"
+        "kolibri.core.error_reports.middleware.get_python_version", return_value="3.9.9"
     )
     @patch(
-        "kolibri.core.errorreports.middleware.get_packages",
+        "kolibri.core.error_reports.middleware.get_packages",
         return_value=["Django==3.2.25"],
     )
-    @patch.object(ErrorReports, "insert_or_update_error")
+    @patch.object(ErrorReport, "insert_or_update_error")
     @patch.object(logging.Logger, "error")
     def test_process_exception(
         self,
@@ -69,7 +69,7 @@ class ErrorReportingMiddlewareTestCase(TestCase):
             },
         )
 
-    @patch.object(ErrorReports, "insert_or_update_error")
+    @patch.object(ErrorReport, "insert_or_update_error")
     @patch.object(logging.Logger, "error")
     def test_process_exception_integrity_error(
         self, mock_logger_error, mock_insert_or_update_error

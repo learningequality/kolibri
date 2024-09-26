@@ -74,7 +74,7 @@ INSTALLED_APPS = [
     "kolibri.core.auth.apps.KolibriAuthConfig",
     "kolibri.core.bookmarks",
     "kolibri.core.content",
-    "kolibri.core.errorreports",
+    "kolibri.core.error_reports",
     "kolibri.core.logger",
     "kolibri.core.notifications.apps.KolibriNotificationsConfig",
     "kolibri.core.tasks.apps.KolibriTasksConfig",
@@ -103,8 +103,8 @@ MIDDLEWARE = [
     "csp.middleware.CSPMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "kolibri.core.auth.middleware.CustomAuthenticationMiddleware",
-    "kolibri.core.errorreports.middleware.ErrorReportingMiddleware",
-    "kolibri.core.errorreports.middleware.PreRequestMiddleware",
+    "kolibri.core.error_reports.middleware.ErrorReportingMiddleware",
+    "kolibri.core.error_reports.middleware.PreRequestMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -166,7 +166,7 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
         "kolibri.core.notifications.models.NotificationsRouter",
         "kolibri.core.device.models.SyncQueueRouter",
         "kolibri.core.discovery.models.NetworkLocationRouter",
-        "kolibri.core.errorreports.models.ErrorReportsRouter",
+        "kolibri.core.error_reports.models.ErrorReportsRouter",
     )
 
 elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
