@@ -103,8 +103,6 @@
   import ReportsControls from '../../reports/ReportsControls';
   import ReportsLearnersTable from '../../reports/ReportsLearnersTable';
   import ReportsDifficultQuestionsTable from '../../reports/ReportsDifficultQuestionsTable';
-  import * as csvFields from '../../../csv/fields';
-  import CSVExporter from '../../../csv/exporter';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';
   import {
@@ -354,20 +352,7 @@
         });
       },
       exportCSV() {
-        const columns = [
-          ...csvFields.name(),
-          ...csvFields.learnerProgress('statusObj.status'),
-          ...csvFields.score(),
-          ...csvFields.quizQuestionsAnswered(this.exam),
-          ...csvFields.list('groups', 'groupsLabel'),
-        ];
-
-        const exporter = new CSVExporter(columns, this.className);
-        exporter.addNames({
-          resource: this.exam.title,
-        });
-
-        exporter.export(this.table);
+        this.$refs.table.exportCSV?.();
       },
     },
     $trs: {

@@ -46,6 +46,8 @@
   import commonCoach from '../common';
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
   import { coachStrings } from '../common/commonCoachStrings';
+  import * as csvFields from '../../csv/fields';
+  import CSVExporter from '../../csv/exporter';
   import { PageNames } from './../../constants';
 
   export default {
@@ -73,6 +75,14 @@
         default: false,
       },
     },
+    computed: {
+      exam() {
+        return this.examMap[this.$route.params.quizId];
+      },
+      group() {
+        return this.$route.params.groupId && this.groupMap[this.$route.params.groupId];
+      },
+    },
     methods: {
       questionLink(questionId) {
         return this.classRoute(
@@ -84,6 +94,25 @@
             quizId: this.$route.params.quizId,
           },
         );
+      },
+      /**
+       * @public
+       */
+      exportCSV() {
+        const columns = [...csvFields.questionTitle(), ...csvFields.helpNeeded()];
+
+        const exporter = new CSVExporter(columns, this.className);
+        const names = {
+          resource: this.exam.title,
+          difficultQuestions: this.coachString('difficultQuestionsLabel'),
+        };
+
+        if (this.group) {
+          names.group = this.group.name;
+        }
+        exporter.addNames(names);
+
+        exporter.export(this.entries);
       },
     },
   };
