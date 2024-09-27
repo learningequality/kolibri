@@ -24,6 +24,16 @@ export function useCoachMetadataTags(contentNode) {
         return contentNode.lang.length > 1 ? ['Multiple languages'] : [contentNode.lang.lang_name];
     };
 
+    const getActivityTag = () => {
+        if (!contentNode.learning_activities) return [];
+    
+        return contentNode.learning_activities.length > 1 ? ['Multiple learning activities'] :
+            contentNode.learning_activities.map(activity =>
+              commonCoreStringsMixin.methods.coreString(activity)
+            );
+    };
+    
+
     return {
         tags
     }
