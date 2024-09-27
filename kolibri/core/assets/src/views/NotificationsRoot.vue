@@ -1,4 +1,5 @@
 <template>
+
   <div>
     <AppBarPage v-if="!loading && notAuthorized">
       <KPageContainer>
@@ -35,9 +36,12 @@
       @submit="dismissUpdateModal"
     />
   </div>
+
 </template>
 
+
 <script>
+
   import { mapState } from 'vuex';
   import Lockr from 'lockr';
   import {
@@ -203,6 +207,8 @@
       i18n: notification.i18n,
     }));
   }
+
 </script>
+
 
 <style lang="scss" scoped></style>
