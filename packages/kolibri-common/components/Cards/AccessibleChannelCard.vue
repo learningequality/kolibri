@@ -2,7 +2,7 @@
 
   <KCard
     :to="to"
-    layout="horizontal"
+    :layout="windowBreakpoint === 0 ? 'vertical' : 'horizontal'"
     thumbnailDisplay="small"
     thumbnailAlign="right"
     :thumbnailSrc="thumbnailSrc"
@@ -39,6 +39,7 @@
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {
     name: 'AccessibleChannelCard',
@@ -46,6 +47,12 @@
       ContentIcon,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
+      };
+    },
     props: {
       to: {
         type: Object,
@@ -77,3 +84,13 @@
   };
 
 </script>
+
+
+<style scoped>
+
+  .type-icon{
+    font-size: 3em;
+    right:10px;
+  }
+
+</style>
