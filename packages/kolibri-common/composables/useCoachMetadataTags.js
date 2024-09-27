@@ -60,7 +60,7 @@ export function useCoachMetadataTags(contentNode) {
          ...getLevelTags(),
          ...getSpecificCategoryTag(),
          ...getLanguageTag(),
-       ];
+       ].slice(0, 3);
     }
 
     return {
