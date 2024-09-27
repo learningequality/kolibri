@@ -42,19 +42,29 @@
               ref="tabList"
               :tabsId="QUIZZES_TABS_ID"
               :ariaLabel="coachString('detailsLabel')"
-              :activeTabId="QuizzesTabs.REPORT"
+              :activeTabId="activeTabId"
               :tabs="tabs"
               @click="() => saveTabsClick(QUIZZES_TABS_ID)"
             />
           </HeaderTabs>
           <KTabsPanel
             :tabsId="QUIZZES_TABS_ID"
-            :activeTabId="QuizzesTabs.REPORT"
+            :activeTabId="activeTabId"
           >
-            <ReportsLearnersTable
-              :entries="table"
-              :questionCount="exam.question_count"
-            />
+            <template #[QuizzesTabs.REPORT]>
+              <ReportsLearnersTable
+                ref="table"
+                :entries="learnersTable"
+                :questionCount="exam.question_count"
+              />
+            </template>
+            <template #[QuizzesTabs.DIFFICULT_QUESTIONS]>
+              <ReportsDifficultQuestionsTable
+                ref="table"
+                :entries="difficultQuestionsTable"
+                :isMissingResource="exam.missing_resource"
+              />
+            </template>
           </KTabsPanel>
         </KPageContainer>
       </KGridItem>
@@ -73,7 +83,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import find from 'lodash/find';
   import sortBy from 'lodash/sortBy';
   import fromPairs from 'lodash/fromPairs';
@@ -85,12 +95,14 @@
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { PageNames } from '../../../constants';
   import { QUIZZES_TABS_ID, QuizzesTabs } from '../../../constants/tabsConstants';
+  import { useCoachTabs } from '../../../composables/useCoachTabs';
 
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import ReportsControls from '../../reports/ReportsControls';
   import ReportsLearnersTable from '../../reports/ReportsLearnersTable';
+  import ReportsDifficultQuestionsTable from '../../reports/ReportsDifficultQuestionsTable';
   import * as csvFields from '../../../csv/fields';
   import CSVExporter from '../../../csv/exporter';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
@@ -110,17 +122,23 @@
       ManageExamModals,
       ReportsLearnersTable,
       QuizOptionsDropdownMenu,
+      ReportsDifficultQuestionsTable,
     },
     mixins: [commonCoach, coachStringsMixin, commonCoreStrings],
     setup() {
       const { randomizedSectionOptionDescription$, fixedSectionOptionDescription$ } =
         enhancedQuizManagementStrings;
       const { createSnackbar, clearSnackbar } = useSnackbar();
+
+      const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
+
       return {
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
+        wereTabsClickedRecently,
         createSnackbar,
         clearSnackbar,
+        saveTabsClick,
       };
     },
     data() {
@@ -141,14 +159,26 @@
     },
     computed: {
       ...mapState(['classList']),
+      ...mapGetters('questionList', ['difficultQuestions']),
+
       // quizIsRandomized() {
       //   return !this.quiz.learners_see_fixed_order;
       // },
+      quizId() {
+        return this.$route.params.quizId;
+      },
+      activeTabId() {
+        const { tabId } = this.$route.params;
+        if (Object.values(QuizzesTabs).includes(tabId)) {
+          return tabId;
+        }
+        return QuizzesTabs.REPORT;
+      },
       avgScore() {
-        return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
+        return this.getExamAvgScore(this.quizId, this.recipients);
       },
       exam() {
-        return this.examMap[this.$route.params.quizId];
+        return this.examMap[this.quizId];
       },
       recipients() {
         return this.getLearnersForExam(this.exam);
@@ -166,20 +196,24 @@
           {
             id: QuizzesTabs.REPORT,
             label: this.coachString('reportLabel'),
-            to: this.classRoute('ReportsQuizLearnerListPage'),
           },
         ];
+
         const isDraftExam = this.exam && this.exam.draft;
         if (!isDraftExam) {
           tabsList.push({
             id: QuizzesTabs.DIFFICULT_QUESTIONS,
             label: this.coachString('difficultQuestionsLabel'),
-            to: this.classRoute('ReportsQuizQuestionListPage'),
           });
         }
+
+        tabsList.forEach(tab => {
+          tab.to = this.classRoute('QuizSummaryPage', { quizId: this.quizId, tabId: tab.id });
+        });
+
         return tabsList;
       },
-      table() {
+      learnersTable() {
         const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
         const sorted = sortBy(learners, ['name']);
         return sorted.map(learner => {
@@ -192,6 +226,13 @@
           return tableRow;
         });
       },
+      difficultQuestionsTable() {
+        return this.difficultQuestions.map(question => {
+          const tableRow = {};
+          Object.assign(tableRow, question);
+          return tableRow;
+        });
+      },
     },
     beforeRouteEnter(to, from, next) {
       return fetchQuizSummaryPageData(to.params.quizId)
@@ -201,6 +242,18 @@
         .catch(error => {
           next(vm => vm.setError(error));
         });
+    },
+    mounted() {
+      // focus the active tab but only when it's likely
+      // that this header was re-mounted as a result
+      // of navigation after clicking a tab (focus shouldn't
+      // be manipulated programatically in other cases, e.g.
+      // when visiting the page for the first time)
+      if (this.wereTabsClickedRecently(this.QUIZZES_TABS_ID)) {
+        this.$nextTick(() => {
+          this.$refs.tabList.focusActiveTab();
+        });
+      }
     },
     methods: {
       // @public

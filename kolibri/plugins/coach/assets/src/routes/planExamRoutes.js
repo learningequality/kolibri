@@ -6,6 +6,7 @@ import ReplaceQuestions from '../views/plan/CreateExamPage/ReplaceQuestions.vue'
 import CoachExamsPage from '../views/plan/CoachExamsPage';
 import QuizSummaryPage from '../views/plan/QuizSummaryPage';
 import SectionOrder from '../views/plan/CreateExamPage/SectionOrder';
+import { generateQuestionListHandler } from '../modules/questionList/handlers';
 
 export default [
   {
@@ -55,6 +56,7 @@ export default [
     name: QuizSummaryPage.name,
     path: '/:classId/plan/quizzes/:quizId/:tabId?',
     component: QuizSummaryPage,
+    handler: generateQuestionListHandler(['quizId']),
     meta: {
       titleParts: ['QUIZ_NAME', 'quizzesLabel', 'CLASS_NAME'],
     },
