@@ -13,6 +13,12 @@ export function useCoachMetadataTags(contentNode) {
           commonCoreStringsMixin.methods.coreString(category));
     };
 
+    const getLevelTags = () => {
+        if (!contentNode.grade_levels) return [];
+        return contentNode.grade_levels.map
+        (grade_levels => commonCoreStringsMixin.methods.coreString(grade_levels));
+    };
+
     return {
         tags
     }
