@@ -19,6 +19,11 @@ export function useCoachMetadataTags(contentNode) {
         (grade_levels => commonCoreStringsMixin.methods.coreString(grade_levels));
     };
 
+    const getLanguageTag = () => {
+        if (!contentNode.lang) return [];
+        return contentNode.lang.length > 1 ? ['Multiple languages'] : [contentNode.lang.lang_name];
+    };
+
     return {
         tags
     }
