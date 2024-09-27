@@ -36,20 +36,26 @@
           v-if="!loading"
           :topMargin="16"
         >
-          <section v-if="selectedQuestions">
-            <h2>
-              {{ coachString('numberOfQuestions', { value: selectedQuestions.length }) }}
-            </h2>
-
-            <p>
-              {{ orderDescriptionString }}
-            </p>
-
-            <QuestionListPreview
-              :sections="quiz.question_sources || []"
-              :selectedExercises="selectedExercises"
+          <ReportsControls @export="exportCSV" />
+          <HeaderTabs :enablePrint="true">
+            <KTabsList
+              ref="tabList"
+              :tabsId="QUIZZES_TABS_ID"
+              :ariaLabel="coachString('detailsLabel')"
+              :activeTabId="QuizzesTabs.REPORT"
+              :tabs="tabs"
+              @click="() => saveTabsClick(QUIZZES_TABS_ID)"
             />
-          </section>
+          </HeaderTabs>
+          <KTabsPanel
+            :tabsId="QUIZZES_TABS_ID"
+            :activeTabId="QuizzesTabs.REPORT"
+          >
+            <ReportsLearnersTable
+              :entries="table"
+              :questionCount="exam.question_count"
+            />
+          </KTabsPanel>
         </KPageContainer>
       </KGridItem>
     </KGrid>
@@ -68,8 +74,9 @@
 <script>
 
   import { mapState } from 'vuex';
-  import fromPairs from 'lodash/fromPairs';
   import find from 'lodash/find';
+  import sortBy from 'lodash/sortBy';
+  import fromPairs from 'lodash/fromPairs';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -77,10 +84,15 @@
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { PageNames } from '../../../constants';
+  import { QUIZZES_TABS_ID, QuizzesTabs } from '../../../constants/tabsConstants';
+
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
-  import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import ReportsControls from '../../reports/ReportsControls';
+  import ReportsLearnersTable from '../../reports/ReportsLearnersTable';
+  import * as csvFields from '../../../csv/fields';
+  import CSVExporter from '../../../csv/exporter';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';
   import {
@@ -94,8 +106,9 @@
     name: 'QuizSummaryPage',
     components: {
       CoachAppBarPage,
+      ReportsControls,
       ManageExamModals,
-      QuestionListPreview,
+      ReportsLearnersTable,
       QuizOptionsDropdownMenu,
     },
     mixins: [commonCoach, coachStringsMixin, commonCoreStrings],
@@ -122,19 +135,15 @@
         selectedExercises: {},
         loading: true,
         currentAction: '',
+        QUIZZES_TABS_ID,
+        QuizzesTabs,
       };
     },
     computed: {
       ...mapState(['classList']),
-      selectedQuestions() {
-        return this.quiz.question_sources.reduce((acc, section) => {
-          acc = [...acc, ...section.questions];
-          return acc;
-        }, []);
-      },
-      quizIsRandomized() {
-        return !this.quiz.learners_see_fixed_order;
-      },
+      // quizIsRandomized() {
+      //   return !this.quiz.learners_see_fixed_order;
+      // },
       avgScore() {
         return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
       },
@@ -144,13 +153,44 @@
       recipients() {
         return this.getLearnersForExam(this.exam);
       },
-      orderDescriptionString() {
-        return this.quizIsRandomized
-          ? this.randomizedSectionOptionDescription$()
-          : this.fixedSectionOptionDescription$();
-      },
+      // orderDescriptionString() {
+      //   return this.quizIsRandomized
+      //     ? this.randomizedSectionOptionDescription$()
+      //     : this.fixedSectionOptionDescription$();
+      // },
       classId() {
         return this.$route.params.classId;
+      },
+      tabs() {
+        const tabsList = [
+          {
+            id: QuizzesTabs.REPORT,
+            label: this.coachString('reportLabel'),
+            to: this.classRoute('ReportsQuizLearnerListPage'),
+          },
+        ];
+        const isDraftExam = this.exam && this.exam.draft;
+        if (!isDraftExam) {
+          tabsList.push({
+            id: QuizzesTabs.DIFFICULT_QUESTIONS,
+            label: this.coachString('difficultQuestionsLabel'),
+            to: this.classRoute('ReportsQuizQuestionListPage'),
+          });
+        }
+        return tabsList;
+      },
+      table() {
+        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+        const sorted = sortBy(learners, ['name']);
+        return sorted.map(learner => {
+          const tableRow = {
+            groups: this.getGroupNamesForLearner(learner.id),
+            statusObj: this.getExamStatusObjForLearner(this.exam.id, learner.id),
+            link: this.detailLink(learner.id),
+          };
+          Object.assign(tableRow, learner);
+          return tableRow;
+        });
       },
     },
     beforeRouteEnter(to, from, next) {
@@ -254,6 +294,27 @@
           .catch(error => {
             this.$store.dispatch('handleApiError', { error });
           });
+      },
+      detailLink(learnerId) {
+        return this.classRoute(PageNames.REPORTS_QUIZ_LEARNER_PAGE_ROOT, {
+          learnerId,
+        });
+      },
+      exportCSV() {
+        const columns = [
+          ...csvFields.name(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.score(),
+          ...csvFields.quizQuestionsAnswered(this.exam),
+          ...csvFields.list('groups', 'groupsLabel'),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          resource: this.exam.title,
+        });
+
+        exporter.export(this.table);
       },
     },
     $trs: {
