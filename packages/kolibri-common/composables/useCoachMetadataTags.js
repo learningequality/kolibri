@@ -38,6 +38,13 @@ export function useCoachMetadataTags(contentNode) {
         return contentNode.duration.map
         (duration => coreStrings.formatDuration(duration));
     };
+
+    const getSpecificCategoryTag = () => {
+        if (!contentNode.categories) return [];
+        const specificCategories = contentNode.categories.filter(category => category.split('.').length > 2);
+        return specificCategories.map(category =>
+             commonCoreStringsMixin.methods.coreString(category));
+    };
     
 
     return {
