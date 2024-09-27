@@ -103,6 +103,9 @@
       };
     },
     computed: {
+      ...mapState({
+        error: state => state.core.error,
+      }),
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
         if (
