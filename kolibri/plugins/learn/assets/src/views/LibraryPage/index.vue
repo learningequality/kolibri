@@ -81,7 +81,7 @@
             data-test="other-libraries"
             :injectedtr="injecttr"
           />
-
+          <!-- For QA purposes only it should be removed -->
           <HandleAccessibleChannelCard :contentNode="rootNodes" />
         </div>
 
