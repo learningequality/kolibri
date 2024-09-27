@@ -44,13 +44,6 @@
 
   import { mapState } from 'vuex';
   import Lockr from 'lockr';
-  import {
-    FacilityResource,
-    FacilityDatasetResource,
-    UserSyncStatusResource,
-    PingbackNotificationResource,
-    PingbackNotificationDismissedResource,
-  } from 'kolibri.resources';
   import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
@@ -102,11 +95,14 @@
     },
     data() {
       return {
-        notifications: [],
         notificationModalShown: true,
       };
     },
     computed: {
+      ...mapState({
+        error: state => state.core.error,
+        notifications: state => state.core.notifications,
+      }),
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
         if (
@@ -151,59 +147,15 @@
         return null;
       },
     },
-    created() {
-      this.getNotifications();
-    },
     methods: {
-      async getNotifications() {
-        const { isAdmin, isSuperuser } = useUser();
-        if (isAdmin || isSuperuser) {
-          try {
-            const notifications = await PingbackNotificationResource.fetchCollection();
-            this.notifications = _notificationListState(notifications);
-          } catch (error) {
-            this.dispatchError(error);
-          }
-        }
-      },
-      async saveDismissedNotification(notificationId) {
-        const { user_id } = useUser();
-        try {
-          await PingbackNotificationDismissedResource.saveModel({
-            data: {
-              user: user_id,
-              notification: notificationId,
-            },
-          });
-          this.removeNotification(notificationId);
-        } catch (error) {
-          this.dispatchError(error);
-        }
-      },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
           this.notificationModalShown = false;
           Lockr.set(UPDATE_MODAL_DISMISSED, true);
         }
       },
-      dispatchError(error) {
-        this.$store.dispatch('handleApiError', { error });
-      },
-      removeNotification(notificationId) {
-        this.notifications = this.notifications.filter(n => n.id !== notificationId);
-      },
     },
   };
-
-  function _notificationListState(data) {
-    return data.map(notification => ({
-      id: notification.id,
-      version_range: notification.version_range,
-      timestamp: notification.timestamp,
-      link_url: notification.link_url,
-      i18n: notification.i18n,
-    }));
-  }
 
 </script>
 
