@@ -45,7 +45,23 @@ export function useCoachMetadataTags(contentNode) {
         return specificCategories.map(category =>
              commonCoreStringsMixin.methods.coreString(category));
     };
-    
+
+    if (contentNode.kind === ContentNodeKinds.CHANNEL ||
+        contentNode.kind === ContentNodeKinds.TOPIC) {
+       tags.value = [
+         ...getCategoryTags().slice(0,3),
+         ...getLevelTags().slice(0,3),
+         ...getLanguageTag(),
+       ];
+    } else {
+       tags.value = [
+         ...getActivityTag(),
+         ...getDurationTag(),
+         ...getLevelTags(),
+         ...getSpecificCategoryTag(),
+         ...getLanguageTag(),
+       ];
+    }
 
     return {
         tags
