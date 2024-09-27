@@ -6606,10 +6606,10 @@ ini@^1.3.4, ini@^1.3.5:
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.5.tgz#eee25f56db1c9ec6085e0c22778083f596abf927"
   integrity sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw==
 
-ini@^4.1.3:
-  version "4.1.3"
-  resolved "https://registry.yarnpkg.com/ini/-/ini-4.1.3.tgz#4c359675a6071a46985eb39b14e4a2c0ec98a795"
-  integrity sha512-X7rqawQBvfdjS10YU1y1YVreA3SsLrW9dX2CewP2EbBJM4ypVNLDkO5y04gejPwKIY9lR+7r9gn3rFPt/kmWFg==
+ini@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/ini/-/ini-5.0.0.tgz#a7a4615339843d9a8ccc2d85c9d81cf93ffbc638"
+  integrity sha512-+N0ngpO3e7cRUWOJAS7qw0IZIVc6XPrW4MlFBdD066F2L4k1L6ker3hLqSq7iXxU5tgS4WGkIUElWn5vogAEnw==
 
 inline-style-prefixer@^4.0.2:
   version "4.0.2"
@@ -7773,10 +7773,10 @@ kolibri-constants@0.2.7:
   resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.2.7.tgz#7441bff81c459e081eeb8125a741745a72a002d1"
   integrity sha512-gzAeXmFCFYxTlvQ4sPdyRdQzm0FTD/ydK8Q7zgqcnooFjwPHw+cov8xmy6OKn/eqF/87fxFAv54bdkmrghkIPQ==
 
-kolibri-design-system@5.0.0-rc3:
-  version "5.0.0-rc3"
-  resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-5.0.0-rc3.tgz#adc3eccadc75f144b3f55a36940ed6fc56b6aca6"
-  integrity sha512-4TRnz4/2VHuknwA5Ujwz1gNO4r/iv+MQsE7N37PBUhaem8Pmq2g/9kop6wPpxbbI+93/VBTLTjXMxIVH+kiuVg==
+kolibri-design-system@5.0.0-rc5:
+  version "5.0.0-rc5"
+  resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-5.0.0-rc5.tgz#54daecb859d389a9deee49276d05ba14ebae15ab"
+  integrity sha512-Lam9bwSgKk7Dz6nblvnM/uA0H6BX7pPPGgXCRSyp7m7d9DasqrjArkhXuc5TopSjMfajn3hXzWNg4nhX/w33EQ==
   dependencies:
     "@vue/composition-api" "1.7.2"
     aphrodite "git+https://github.com/learningequality/aphrodite.git"
@@ -7794,17 +7794,17 @@ kolibri-design-system@5.0.0-rc3:
     vue2-teleport "1.1.4"
     xstate "4.38.3"
 
-launch-editor-middleware@^2.8.1:
-  version "2.8.1"
-  resolved "https://registry.yarnpkg.com/launch-editor-middleware/-/launch-editor-middleware-2.8.1.tgz#f571c289279e2ea6f7dcda8499ab84ff983e2cbe"
-  integrity sha512-GWhcsTuzgRQguiiei0BrbLX7rS5Pcj+6VyynZlS7zlnmUvVAUUBnJjILIhuIgWJXn1WSMtkfHAkXFSoQeJvwdQ==
+launch-editor-middleware@^2.9.1:
+  version "2.9.1"
+  resolved "https://registry.yarnpkg.com/launch-editor-middleware/-/launch-editor-middleware-2.9.1.tgz#d1256339d3a21ca00035ba5d7f9bc53ac192f46c"
+  integrity sha512-4wF6AtPtaIENiZdH/a+3yW8Xni7uxzTEDd1z+gH00hUWBCSmQknFohznMd9BWhLk8MXObeB5ir69GbIr9qFW1w==
   dependencies:
-    launch-editor "^2.8.1"
+    launch-editor "^2.9.1"
 
-launch-editor@^2.6.1, launch-editor@^2.8.1:
-  version "2.8.1"
-  resolved "https://registry.yarnpkg.com/launch-editor/-/launch-editor-2.8.1.tgz#3bda72af213ec9b46b170e39661916ec66c2f463"
-  integrity sha512-elBx2l/tp9z99X5H/qev8uyDywVh0VXAwEbjk8kJhnc5grOFkGh7aW6q55me9xnYbss261XtnUrysZ+XvGbhQA==
+launch-editor@^2.6.1, launch-editor@^2.9.1:
+  version "2.9.1"
+  resolved "https://registry.yarnpkg.com/launch-editor/-/launch-editor-2.9.1.tgz#253f173bd441e342d4344b4dae58291abb425047"
+  integrity sha512-Gcnl4Bd+hRO9P9icCP/RVVT2o8SFlPXofuCxvA2SaZuH45whSvf5p8x5oih5ftLiVhEI4sp5xDY+R+b3zJBh5w==
   dependencies:
     picocolors "^1.0.0"
     shell-quote "^1.8.1"
@@ -8990,6 +8990,13 @@ path-to-regexp@1.8.0, path-to-regexp@^1.7.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-1.8.0.tgz#887b3ba9d84393e87a0a0b9f4cb756198b53548a"
   integrity sha512-n43JRhlUKUAlibEJhPeir1ncUID16QnEjNpwzNdO3Lm4ywrBpBZ5oLD0I6br9evr1Y9JTqwRtAh7JLoOzAQdVA==
+  dependencies:
+    isarray "0.0.1"
+
+path-to-regexp@1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-1.9.0.tgz#5dc0753acbf8521ca2e0f137b4578b917b10cf24"
+  integrity sha512-xIp7/apCFJuUHdDLWe8O1HIkb0kQrOMb/0u6FXQjemHn/ii5LrIzU6bdECnsiTF/GjZkMEKg1xdiZwNqDYlZ6g==
   dependencies:
     isarray "0.0.1"
 

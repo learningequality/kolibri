@@ -9,7 +9,7 @@
     :aria-valuenow="progress * 100"
   >
     <p
-      v-if="completed"
+      v-if="completed || isQuiz"
       class="completion-label"
       :style="{ color: $themePalette.grey.v_800 }"
     >
@@ -17,10 +17,15 @@
         :progress="progress"
         class="completion-icon"
       />
-      {{ coreString('completedLabel') }}
+      <template v-if="isQuiz">
+        {{ completed ? quizCompletedLabel : quizInProgressLabel }}
+      </template>
+      <template v-else>
+        {{ coreString('completedLabel') }}
+      </template>
     </p>
     <KLinearLoader
-      v-if="progress && !completed"
+      v-if="!isQuiz && progress && !completed"
       class="k-linear-loader"
       :delay="false"
       :progress="progress * 100"
@@ -36,6 +41,7 @@
 
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import lodashGet from 'lodash/get';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
 
   /**
@@ -51,8 +57,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { contentNodeProgressMap } = useContentNodeProgress();
-      return { contentNodeProgressMap };
+      const { contentNodeProgressMap, contentNodeProgressMetaDataMap } = useContentNodeProgress();
+      return { contentNodeProgressMap, contentNodeProgressMetaDataMap };
     },
     props: {
       // eslint-disable-next-line kolibri/vue-no-unused-properties
@@ -62,11 +68,57 @@
       },
     },
     computed: {
+      isQuiz() {
+        return lodashGet(this.contentNode, ['options', 'modality'], false) === 'QUIZ';
+      },
       progress() {
         return this.contentNodeProgressMap[this.contentNode && this.contentNode.content_id] || 0;
       },
       completed() {
         return this.progress >= 1;
+      },
+      quizProgress() {
+        return (
+          this.contentNodeProgressMetaDataMap[this.contentNode && this.contentNode.content_id] || {}
+        );
+      },
+      remainingQuestions() {
+        if (this.isQuiz && this.quizProgress.total_questions) {
+          return this.quizProgress.total_questions - this.quizProgress.num_question_answered;
+        }
+        return 0;
+      },
+      score() {
+        if (this.isQuiz && this.quizProgress.total_questions) {
+          return (
+            this.quizProgress.num_question_answered_correctly / this.quizProgress.total_questions
+          );
+        }
+        return 0;
+      },
+      quizInProgressLabel() {
+        if (this.isQuiz) {
+          return this.$tr('questionsLeft', { questionsLeft: this.remainingQuestions });
+        }
+        return '';
+      },
+      quizCompletedLabel() {
+        if (this.isQuiz && this.completed) {
+          const percentage = Math.round(100 * this.score);
+          return this.$tr('completedPercentLabel', { score: percentage });
+        }
+        return '';
+      },
+    },
+    $trs: {
+      questionsLeft: {
+        message:
+          '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',
+        context: 'Indicates how many questions the learner has left to complete.',
+      },
+      completedPercentLabel: {
+        message: 'Score: {score, number, integer}%',
+        context: 'A label shown to learners on a quiz card when the quiz is completed',
       },
     },
   };
