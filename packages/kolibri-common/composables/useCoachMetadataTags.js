@@ -32,6 +32,12 @@ export function useCoachMetadataTags(contentNode) {
               commonCoreStringsMixin.methods.coreString(activity)
             );
     };
+
+    const getDurationTag = () => {
+        if (!contentNode.duration) return [];
+        return contentNode.duration.map
+        (duration => coreStrings.formatDuration(duration));
+    };
     
 
     return {
