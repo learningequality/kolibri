@@ -37,7 +37,7 @@
 
 <script>
 
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import ContentIcon from 'kolibri.coreVue.components.ContentIcon'
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
