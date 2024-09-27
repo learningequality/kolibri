@@ -27,7 +27,7 @@
 
   import useCardLayoutSpan from '../../composables/useCardLayoutSpan';
   import useContentLink from '../../composables/useContentLink';
-  import AccessibleChannelCard from './AccessibleChannelCard';
+  import AccessibleChannelCard from '../../../../../../../packages/kolibri-common/components/Cards/AccessibleChannelCard';
 
   export default {
     name: 'HandleAccessibleChannelCard',
