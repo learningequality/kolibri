@@ -135,8 +135,8 @@
       },
       mostRecentNotification() {
         if (this.notifications.length === 0) {
-            return null;
-          }
+          return null;
+        }
         let languageCode = defaultLanguage.id;
         // notifications should already be ordered by timestamp
         const notification = this.notifications[0];
@@ -203,8 +203,8 @@
 
   function _notificationListState(data) {
     if (!data || data.length === 0) {
-        return [];
-      }
+      return [];
+    }
     return data.map(notification => ({
       id: notification.id,
       version_range: notification.version_range,
