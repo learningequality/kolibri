@@ -48,6 +48,11 @@
         <CoreTable>
           <template #headers>
             <th>{{ titleLabel$() }}</th>
+            <th style="position: relative">
+              {{ avgScoreLabel$() }}
+              <AverageScoreTooltip v-show="!$isPrint" />
+            </th>
+            <th>{{ coreString('progressLabel') }}</th>
             <th>{{ recipientsLabel$() }}</th>
             <th>{{ sizeLabel$() }}</th>
             <th class="center-text">
@@ -71,7 +76,16 @@
                     icon="quiz"
                   />
                 </td>
-
+                <td>
+                  <Score :value="exam.avgScore" />
+                </td>
+                <td>
+                  <StatusSummary
+                    :tally="exam.tally"
+                    :verbose="true"
+                    :includeNotStarted="true"
+                  />
+                </td>
                 <td>
                   <Recipients
                     :groupNames="getRecipientNamesForExam(exam)"
@@ -184,6 +198,8 @@
   import Recipients from '../../common/Recipients';
   import useCoreCoach from '../../../composables/useCoreCoach';
   import useQuizzes from '../../../composables/useQuizzes';
+  import AverageScoreTooltip from '../../common/AverageScoreTooltip';
+  import commonCoach from '../../common';
 
   export default {
     name: 'CoachExamsPage',
@@ -192,8 +208,9 @@
       CoachAppBarPage,
       PlanHeader,
       Recipients,
+      AverageScoreTooltip,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
       const { classId, initClassInfo, refreshClassSummary } = useCoreCoach();
@@ -242,6 +259,7 @@
         filterQuizStatus$,
         quizClosedLabel$,
         canNoLongerEditQuizNotice$,
+        avgScoreLabel$,
       } = coachStrings;
 
       const statusSelected = ref({
@@ -283,6 +301,7 @@
         filterQuizStatus$,
         quizClosedLabel$,
         createSnackbar,
+        avgScoreLabel$,
       };
     },
     computed: {
@@ -322,14 +341,23 @@
       },
       filteredExams() {
         const filter = this.statusSelected.label;
+        let selectedExams;
         if (filter === this.filterQuizStarted$()) {
-          return this.startedExams;
+          selectedExams = this.startedExams;
         } else if (filter === this.filterQuizNotStarted$()) {
-          return this.notStartedExams;
+          selectedExams = this.notStartedExams;
         } else if (filter === this.filterQuizEnded$()) {
-          return this.endedExams;
+          selectedExams = this.endedExams;
+        } else {
+          selectedExams = this.quizzes;
         }
-        return this.quizzes;
+
+        return selectedExams.map(quiz => {
+          const learnersForQuiz = this.getLearnersForExam(quiz);
+          quiz.tally = this.getExamStatusTally(quiz.id, learnersForQuiz);
+          quiz.avgScore = this.getExamAvgScore(quiz.id, learnersForQuiz);
+          return quiz;
+        });
       },
       newExamRoute() {
         return {
