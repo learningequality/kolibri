@@ -1,0 +1,11 @@
+{
+  "name": "kolibri-logging",
+  "version": "1.0.0",
+  "description": "The Kolibri logging module",
+  "main": "src/index.js",
+  "author": "Learning Equality",
+  "license": "MIT",
+  "dependencies": {
+    "loglevel": "^1.9.1"
+  }
+}
