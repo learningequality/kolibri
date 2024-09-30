@@ -18,7 +18,7 @@
   const HOUR = MINUTE * 60;
   const DAY = HOUR * 24;
 
-  const ACTION_TYPES = ['created', 'closed', 'opened'];
+  const ACTION_TYPES = ['created', 'closed', 'opened', 'madeVisible'];
 
   export default {
     name: 'StatusElapsedTime',

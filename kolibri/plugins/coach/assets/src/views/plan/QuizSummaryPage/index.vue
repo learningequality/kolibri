@@ -12,6 +12,10 @@
           examOrLesson="exam"
         >
           <template #dropdown>
+            <KButton
+              :text="coachString('previewAction')"
+              style="margin-right: 8px"
+            />
             <QuizOptionsDropdownMenu
               optionsFor="plan"
               :draft="exam && exam.draft"

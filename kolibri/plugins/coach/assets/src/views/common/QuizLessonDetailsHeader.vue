@@ -20,6 +20,7 @@
             />
           </h1>
           <StatusElapsedTime
+            v-if="examOrLesson !== 'exam'"
             v-show="!$isPrint"
             :date="createdDate"
             actionType="created"
