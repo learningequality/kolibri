@@ -109,12 +109,11 @@ async function lintStyle(code, file, messages) {
   return stylinted;
 }
 
-async function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
-  const source = await readFile(file, { encoding });
+async function lintSource({ file, source }) {
   let formatted = source;
-  let messages = [];
-
+  const messages = [];
   let extension = path.extname(file);
+
   if (extension.startsWith('.')) {
     extension = extension.slice(1);
   }
@@ -132,12 +131,19 @@ async function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
     formatted = await lintStyle(formatted, file, messages);
   }
 
+  // Get rid of any empty messages
+  return { formatted, messages: messages.filter(msg => msg.trim()) };
+}
+
+async function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
+  const source = await readFile(file, { encoding });
+
+  const { formatted, messages } = await lintSource({ file, source });
+
   if (formatted !== source) {
     messages.push(chalk.yellow(`${file} did not conform to formatting standards`));
   }
 
-  // Get rid of any empty messages
-  messages = messages.filter(msg => msg.trim());
   if (!messages.length) {
     // Nothing to lint, return noChange.
     return noChange;
@@ -164,6 +170,7 @@ async function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
 
 module.exports = {
   lint,
+  lintSource,
   logging,
   noChange,
 };

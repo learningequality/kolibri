@@ -4,11 +4,13 @@ const path = require('node:path');
 const resolve = require('resolve');
 const espree = require('espree');
 const escodegen = require('escodegen');
+const invert = require('lodash/invert');
 const vueTemplateCompiler = require('vue-template-compiler');
 const scssParser = require('scss-parser');
 const createQueryWrapper = require('query-ast');
 const esquery = require('esquery');
 const ensureDist = require('./ensureDist');
+const moduleMapping = require('./moduleMapping');
 
 /**
  * The following code is designed to read our apiSpec Javascript, but without having to resolve the
@@ -145,13 +147,14 @@ if (fs.existsSync(baseAliasSourcePaths.kolibri_module + '.js')) {
 
 function recurseAndCopySpecObject(specObj, targetPath) {
   const knownAliases = coreAliases();
-
+  const aliasLookup = invert(knownAliases);
   const distPath = targetPath;
 
   // Keep track of all the external dependencies so that they can be added to the package.json
   // for the exported API spec.
   const externalDependencies = {};
   const files = [];
+  const sourceFiles = [];
 
   function parseJSDependencies(sourceContents, destinationFolder, sourceFolder) {
     const sourceTree = espree.parse(sourceContents, { sourceType: 'module', ecmaVersion });
@@ -167,7 +170,6 @@ function recurseAndCopySpecObject(specObj, targetPath) {
           sourcePath: importPath,
           destinationFolder,
           sourceFolder,
-          prefix: '_',
         });
         sourceContents = sourceContents.replace(importPath, replacePath);
       }
@@ -189,7 +191,6 @@ function recurseAndCopySpecObject(specObj, targetPath) {
         sourcePath: importPath,
         destinationFolder,
         sourceFolder,
-        prefix: '_',
       });
       sourceContents.replace(importPath, replacePath);
     });
@@ -221,8 +222,8 @@ function recurseAndCopySpecObject(specObj, targetPath) {
     sourcePath,
     destinationFolder,
     sourceFolder = '',
-    prefix = '',
     destinationFileBase = '',
+    root = false,
   } = {}) {
     // The source file path must be an absolute or relative path, otherwise it is a library external to Kolibri
     // like vue, vuex etc. Do not copy these. Alternatively it is a kolibri API spec reference.
@@ -234,22 +235,26 @@ function recurseAndCopySpecObject(specObj, targetPath) {
         extensions: ['.js', '.json', '.vue', '.scss', '.css'],
       });
 
+      const fullPathNoExt = sourceFile.split('.').slice(0, -1).join('.');
+      // If we're not copying a file from the core API
+      // make sure we remap any core API references to the correct path
+      if (aliasLookup[fullPathNoExt] && !root) {
+        return aliasLookup[fullPathNoExt];
+      }
+
       let extraPath = '';
 
+      let targetFilename = destinationFileBase
+        ? destinationFileBase + path.extname(sourceFile)
+        : path.basename(sourceFile);
       // Possible that the resolved file is actually an index file inside a folder
       // Check for that case.
       if (path.basename(sourceFile).startsWith('index')) {
         extraPath = path.dirname(sourceFile).split(path.sep).slice(-1)[0];
+        targetFilename = path.basename(sourceFile);
       }
       // Create the destination file name based on the source file name base name, copy it exactly.
-      const destinationFile = path.join(
-        destinationFolder,
-        extraPath,
-        prefix +
-          (destinationFileBase
-            ? destinationFileBase + path.extname(sourceFile)
-            : path.basename(sourceFile)),
-      );
+      const destinationFile = path.join(destinationFolder, extraPath, targetFilename);
       // Copy from the source to the destination.
       const sourceContents = fs.readFileSync(sourceFile, { encoding: 'utf-8' });
 
@@ -278,8 +283,9 @@ function recurseAndCopySpecObject(specObj, targetPath) {
       // Write out the final contents of the file to disk
       fs.writeFileSync(destinationFile, finalSource, { encoding: 'utf-8' });
       files.push(destinationFile);
+      sourceFiles.push(sourceFile);
       // Return a relative path to the copied file
-      return './' + prefix + path.basename(sourceFile);
+      return './' + path.basename(sourceFile).split('.').slice(0, -1).join('.');
     } else {
       const exportSourcePath = (
         sourcePath.startsWith('~') ? sourcePath.slice(1) : sourcePath
@@ -298,17 +304,33 @@ function recurseAndCopySpecObject(specObj, targetPath) {
         recurseSpecAndCopy([...pathsArray, key], obj[key]);
       } else {
         // Make a folder so that we have a directory structure that maps to the core API object structure
-        const destinationFolder = path.resolve(path.join(distPath, ...pathsArray));
-        fs.mkdirSync(destinationFolder, { recursive: true });
-        resolveDependenciesAndCopy({
-          sourcePath: obj[key],
-          destinationFolder,
-          destinationFileBase: key,
-        });
+        const fullPath = ['kolibri', ...pathsArray, key].join('.');
+        if (
+          moduleMapping[fullPath] &&
+          typeof moduleMapping[fullPath] === 'string' &&
+          (moduleMapping[fullPath].startsWith('kolibri/') ||
+            moduleMapping[fullPath].startsWith('kolibri-common/'))
+        ) {
+          const folder = moduleMapping[fullPath].split('/').slice(0, -1).join('/');
+          const destName = moduleMapping[fullPath].split('/').slice(-1)[0];
+          const destinationFolder = path.resolve(path.join(distPath, folder));
+          fs.mkdirSync(destinationFolder, { recursive: true });
+          resolveDependenciesAndCopy({
+            sourcePath: obj[key],
+            destinationFolder,
+            destinationFileBase: destName,
+            root: true,
+          });
+        }
       }
     });
   }
   recurseSpecAndCopy([], specObj);
+  for (const sourceFile of sourceFiles) {
+    if (fs.existsSync(sourceFile)) {
+      fs.unlinkSync(sourceFile);
+    }
+  }
   return {
     files,
     externalDependencies,
