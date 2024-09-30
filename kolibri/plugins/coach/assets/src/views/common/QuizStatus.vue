@@ -82,16 +82,23 @@
       >
         <KGridItem
           class="status-label"
-          :layout4="{ span: 4 }"
+          style="padding-bottom: 16px"
+          :layout4="{ span: 3 }"
           :layout8="{ span: 4 }"
-          :layout12="{ span: 12 }"
+          :layout12="{ span: 10 }"
         >
-          {{ $tr('reportVisibleToLearnersLabel') }}
+          <span> {{ $tr('reportVisibleToLearnersLabel') }} </span>
+          <StatusElapsedTime
+            v-if="exam.active"
+            :date="examDateOpened"
+            actionType="madeVisible"
+            style="font-weight: normal"
+          />
         </KGridItem>
         <KGridItem
-          :layout4="{ span: 4 }"
+          :layout4="{ span: 1 }"
           :layout8="{ span: 4 }"
-          :layout12="{ span: 12 }"
+          :layout12="{ span: 2 }"
         >
           <KSwitch
             name="toggle-quiz-visibility"
