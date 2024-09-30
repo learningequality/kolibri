@@ -196,7 +196,7 @@
         const tabsList = [
           {
             id: QuizzesTabs.REPORT,
-            label: this.coachString('reportLabel'),
+            label: this.coachString('learnersLabel'),
           },
         ];
 
@@ -209,7 +209,7 @@
         }
 
         tabsList.forEach(tab => {
-          tab.to = this.classRoute('QuizSummaryPage', { quizId: this.quizId, tabId: tab.id });
+          tab.to = this.classRoute('QuizSummaryPage', { tabId: tab.id });
         });
 
         return tabsList;
