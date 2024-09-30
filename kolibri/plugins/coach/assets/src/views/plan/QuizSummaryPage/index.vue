@@ -24,7 +24,7 @@
           </template>
         </QuizLessonDetailsHeader>
       </KGridItem>
-      <KGridItem :layout12="{ span: 4 }">
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 4 }">
         <h2 class="visuallyhidden">
           {{ coachString('generalInformationLabel') }}
         </h2>
@@ -35,10 +35,10 @@
           :exam="exam"
         />
       </KGridItem>
-      <KGridItem :layout12="{ span: 8 }">
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 8 }">
         <KPageContainer
           v-if="!loading"
-          :topMargin="16"
+          :topMargin="$isPrint ? 0 : 16"
         >
           <ReportsControls @export="exportCSV" />
           <HeaderTabs :enablePrint="true">

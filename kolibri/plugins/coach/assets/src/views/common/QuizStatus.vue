@@ -229,14 +229,14 @@
           class="status-label"
           :layout4="{ span: 4 }"
           :layout8="{ span: 4 }"
-          :layout12="{ span: 12 }"
+          :layout12="layout12Label"
         >
           {{ coreString('dateCreated') }}
         </KGridItem>
         <KGridItem
           :layout4="{ span: 4 }"
           :layout8="{ span: 4 }"
-          :layout12="{ span: 12 }"
+          :layout12="layout12Value"
         >
           <ElapsedTime
             :date="examDateCreated"
