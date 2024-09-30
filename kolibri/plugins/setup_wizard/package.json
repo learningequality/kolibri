@@ -1,0 +1,9 @@
+{
+    "name": "kolibri-setup-wizard-plugin",
+    "description": "Setup Wizard Plugin for Kolibri",
+    "private": true,
+    "version": "0.0.1",
+    "dependencies": {
+      "xstate": "^4.38.3"
+    }
+}

@@ -5,5 +5,13 @@
   "main": "index.js",
   "author": "Learning Equality",
   "license": "MIT",
-  "private": "true"
+  "private": "true",
+  "dependencies": {
+    "@shopify/draggable": "^1.0.0-beta.8",
+    "clipboard": "^2.0.11",
+    "date-fns": "^1.28.2",
+    "fuse.js": "^7.0.0",
+    "knuth-shuffle-seeded": "^1.0.6",
+    "screenfull": "^5.2.0"
+  }
 }

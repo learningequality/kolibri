@@ -1,5 +1,4 @@
 import { sync } from 'vuex-router-sync';
-import forEach from 'lodash/forEach';
 import router from 'kolibri.coreVue.router';
 import logger from 'kolibri.lib.logging';
 import Vue from 'kolibri.lib.vue';
@@ -83,9 +82,9 @@ export default class KolibriApp extends KolibriModule {
     });
 
     // Register plugin sub-modules
-    forEach(this.pluginModule.modules, (module, name) => {
+    for (const [name, module] of Object.entries(this.pluginModule?.modules || {})) {
       store.registerModule(name, module);
-    });
+    }
   }
 
   startRootVue() {
