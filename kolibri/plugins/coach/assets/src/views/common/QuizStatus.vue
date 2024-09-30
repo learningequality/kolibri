@@ -104,30 +104,6 @@
         </KGridItem>
       </div>
 
-      <!-- Class name  -->
-      <div
-        v-show="$isPrint"
-        class="status-item"
-      >
-        <KGridItem
-          class="status-label"
-          :layout4="{ span: 4 }"
-          :layout8="{ span: 4 }"
-          :layout12="layout12Label"
-        >
-          {{ coachString('classLabel') }}
-        </KGridItem>
-        <KGridItem
-          :layout4="{ span: 4 }"
-          :layout8="{ span: 4 }"
-          :layout12="layout12Value"
-        >
-          <div>
-            {{ className }}
-          </div>
-        </KGridItem>
-      </div>
-
       <!-- Recipients  -->
       <div class="status-item">
         <KGridItem
@@ -175,6 +151,27 @@
         </KGridItem>
       </div>
 
+      <!-- Class name  -->
+      <div class="status-item">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Label"
+        >
+          {{ coachString('classLabel') }}
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
+          <div>
+            {{ className }}
+          </div>
+        </KGridItem>
+      </div>
+
       <!-- Question Order -->
       <div
         v-if="!$isPrint"
@@ -215,7 +212,29 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 12 }"
         >
-          <p>{{ exam.size_string ? exam.size_string : '--' }}</p>
+          <span>{{ exam.size_string ? exam.size_string : '--' }}</span>
+        </KGridItem>
+      </div>
+
+      <!-- Date created -->
+      <div class="status-item">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
+          {{ coreString('dateCreated') }}
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 12 }"
+        >
+          <ElapsedTime
+            :date="examDateCreated"
+            style="margin-top: 8px"
+          />
         </KGridItem>
       </div>
     </KGrid>
@@ -346,6 +365,13 @@
           'background-color': this.$themePalette.red.v_1100,
           ':hover': { 'background-color': this.$darken1(this.$themePalette.red.v_1100) },
         };
+      },
+      examDateCreated() {
+        if (this.exam.date_created) {
+          return new Date(this.exam.date_created);
+        } else {
+          return null;
+        }
       },
       examDateArchived() {
         if (this.exam.date_archived) {

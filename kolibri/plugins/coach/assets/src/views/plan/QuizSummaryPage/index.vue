@@ -62,7 +62,6 @@
               <ReportsDifficultQuestionsTable
                 ref="table"
                 :entries="difficultQuestionsTable"
-                :isMissingResource="exam.missing_resource"
               />
             </template>
           </KTabsPanel>

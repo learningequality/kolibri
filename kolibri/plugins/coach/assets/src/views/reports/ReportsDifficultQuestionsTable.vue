@@ -17,7 +17,7 @@
           <td>
             <span v-if="$isPrint">{{ tableRow.title }}</span>
             <KRouterLink
-              v-if="!isMissingResource"
+              v-if="!exam.missing_resource"
               :text="tableRow.title"
               :to="questionLink(tableRow.item)"
               icon="question"
@@ -69,10 +69,6 @@
       entries: {
         type: Array,
         default: () => [],
-      },
-      isMissingResource: {
-        type: Boolean,
-        default: false,
       },
     },
     computed: {
