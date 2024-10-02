@@ -8,8 +8,11 @@
         :text="coreString('classHome')"
       />
     </p>
-    <h1>{{ $tr('planYourClassLabel') }}</h1>
-    <p>{{ $tr('planYourClassDescription') }}</p>
+    <slot name="header"></slot>
+    <div v-if="!$slots.header">
+      <h1>{{ $tr('planYourClassLabel') }}</h1>
+      <p>{{ $tr('planYourClassDescription') }}</p>
+    </div>
     <HeaderTabs :style="{ marginTop: '28px' }">
       <KTabsList
         ref="tabsList"
