@@ -43,6 +43,7 @@ export const PageNames = {
 };
 
 export const GroupModals = {
+  ABOUT_GROUP: 'ABOUT_GROUP',
   CREATE_GROUP: 'CREATE_GROUP',
   RENAME_GROUP: 'RENAME_GROUP',
   DELETE_GROUP: 'DELETE_GROUP',
