@@ -18,7 +18,7 @@
         @click.stop="toggle"
       >
         <div class="header-content">
-          <div class="d-flex">
+          <div class="title-actions-wrapper">
             <div
               v-if="$slots['leading-actions']"
               class="leading-actions"
@@ -136,28 +136,15 @@
     }
   }
 
-  .leading-actions {
+  .leading-actions,
+  .trailing-actions,
+  .title-actions-wrapper {
     display: flex;
     align-items: center;
-  }
-
-  .header-label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    /deep/ .link-text {
-      display: none;
-    }
   }
 
   .content {
     padding: 10px;
-  }
-
-  .d-flex {
-    display: flex;
-    align-items: center;
   }
 
 </style>

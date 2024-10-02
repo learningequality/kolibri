@@ -11,6 +11,7 @@ export default function useAccordion() {
 
   function unregisterItem(uid) {
     _items.value = _items.value.filter(v => v !== uid);
+    _expandedItems.value = _expandedItems.value.filter(v => v !== uid);
   }
 
   function toggle(uid) {
