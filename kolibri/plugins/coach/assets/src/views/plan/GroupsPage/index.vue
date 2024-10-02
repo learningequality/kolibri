@@ -52,6 +52,9 @@
                 :group="group"
                 @rename="openRenameGroupModal"
                 @delete="openDeleteGroupModal"
+                @enroll="
+                  () => $router.push($router.getRoute('GroupEnrollPage', { groupId: group.id }))
+                "
               />
             </tbody>
           </template>
