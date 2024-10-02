@@ -184,6 +184,14 @@ def _enqueue_network_location_update_with_backoff(network_location):
     dependent on how many connection faults have occurred
     :type network_location: NetworkLocation
     """
+    # Check if the network location is local before proceeding
+    if not network_location.is_local:
+        logger.info(
+            "Network location {} is not local. Skipping enqueue.".format(
+                network_location.id
+            )
+        )
+        return
     # exponential backoff depending on how many faults/attempts we've had
     next_attempt_minutes = 2 ** network_location.connection_faults
     logger.debug(
