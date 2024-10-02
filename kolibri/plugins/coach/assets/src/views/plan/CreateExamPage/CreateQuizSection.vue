@@ -168,43 +168,48 @@
           </KGridItem>
         </KGrid>
 
-        <AccordionContainer :items="activeQuestions">
-          <template #left-actions>
-            <KCheckbox
-              ref="selectAllCheckbox"
-              class="select-all-box"
-              :label="selectAllLabel$()"
-              :checked="allQuestionsSelected"
-              :indeterminate="selectAllIsIndeterminate"
-              @change="() => selectAllQuestions()"
-            />
-          </template>
-          <template #right-actions>
-            <KIconButton
-              icon="expandAll"
-              :tooltip="expandAll$()"
-              :disabled="!canExpandAll"
-              @click="expandAll"
-            />
-            <KIconButton
-              icon="collapseAll"
-              :tooltip="collapseAll$()"
-              :disabled="!canCollapseAll"
-              @click="collapseAll"
-            />
-            <KIconButton
-              icon="refresh"
-              :tooltip="replaceAction$()"
-              :disabled="!canReplaceQuestions"
-              @click="handleReplaceSelection()"
-            />
-            <KIconButton
-              icon="trash"
-              :tooltip="coreString('deleteAction')"
-              :aria-label="coreString('deleteAction')"
-              :disabled="selectedActiveQuestions.length === 0"
-              @click="() => deleteQuestions()"
-            />
+        <AccordionContainer>
+          <template #header="{ canExpandAll, expandAll, canCollapseAll, collapseAll }">
+            <div style="display: flex; align-items: center; justify-content: space-between">
+              <div>
+                <KCheckbox
+                  ref="selectAllCheckbox"
+                  class="select-all-box"
+                  :label="selectAllLabel$()"
+                  :checked="allQuestionsSelected"
+                  :indeterminate="selectAllIsIndeterminate"
+                  @change="() => selectAllQuestions()"
+                  @click.stop="() => {}"
+                />
+              </div>
+              <div style="display: flex; align-items: center">
+                <KIconButton
+                  icon="expandAll"
+                  :tooltip="expandAll$()"
+                  :disabled="!canExpandAll"
+                  @click="expandAll"
+                />
+                <KIconButton
+                  icon="collapseAll"
+                  :tooltip="collapseAll$()"
+                  :disabled="!canCollapseAll"
+                  @click="collapseAll"
+                />
+                <KIconButton
+                  icon="refresh"
+                  :tooltip="replaceAction$()"
+                  :disabled="!canReplaceQuestions"
+                  @click="handleReplaceSelection()"
+                />
+                <KIconButton
+                  icon="trash"
+                  :tooltip="coreString('deleteAction')"
+                  :aria-label="coreString('deleteAction')"
+                  :disabled="selectedActiveQuestions.length === 0"
+                  @click="() => deleteQuestions()"
+                />
+              </div>
+            </div>
           </template>
 
           <DragContainer
@@ -225,55 +230,35 @@
                 style="background: white"
               >
                 <AccordionItem
-                  :id="question.item"
                   :title="
                     displayQuestionTitle(question, activeResourceMap[question.exercise_id].title)
                   "
                   :aria-selected="selectedActiveQuestions.includes(question.item)"
                 >
-                  <template #heading="{ title }">
-                    <h3 class="accordion-header">
-                      <DragHandle>
-                        <div>
-                          <DragSortWidget
-                            class="sort-widget"
-                            moveUpText="up"
-                            moveDownText="down"
-                            :noDrag="true"
-                            :isFirst="index === 0"
-                            :isLast="index === activeQuestions.length - 1"
-                            @moveUp="() => handleKeyboardDragUp(index, activeQuestions)"
-                            @moveDown="() => handleKeyboardDragDown(index, activeQuestions)"
-                          />
-                        </div>
-                      </DragHandle>
-                      <KCheckbox
-                        class="accordion-item-checkbox"
-                        :checked="selectedActiveQuestions.includes(question.item)"
-                        @change="() => toggleQuestionInSelection(question.item)"
-                      />
-                      <KButton
-                        tabindex="0"
-                        appearance="basic-link"
-                        :style="accordionStyleOverrides"
-                        class="accordion-header-label"
-                        :aria-expanded="isExpanded(index)"
-                        :aria-controls="`question-panel-${question.item}`"
-                        @click="toggle(index)"
-                      >
-                        <span>{{ title }}</span>
-                        <KIcon
-                          class="chevron-icon"
-                          :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
+                  <template #leading-actions>
+                    <DragHandle>
+                      <div>
+                        <DragSortWidget
+                          class="sort-widget"
+                          moveUpText="up"
+                          moveDownText="down"
+                          :noDrag="true"
+                          :isFirst="index === 0"
+                          :isLast="index === activeQuestions.length - 1"
+                          @moveUp="() => handleKeyboardDragUp(index, activeQuestions)"
+                          @moveDown="() => handleKeyboardDragDown(index, activeQuestions)"
                         />
-                      </KButton>
-                    </h3>
+                      </div>
+                    </DragHandle>
+                    <KCheckbox
+                      class="accordion-item-checkbox"
+                      :checked="selectedActiveQuestions.includes(question.item)"
+                      @change="() => toggleQuestionInSelection(question.item)"
+                    />
                   </template>
                   <template #content>
                     <div
-                      v-if="isExpanded(index)"
                       :id="`question-panel-${question.item}`"
-                      :ref="`question-panel-${question.item}`"
                       :style="{ userSelect: dragActive ? 'none!important' : 'text' }"
                     >
                       <ContentRenderer
@@ -336,9 +321,8 @@
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
-  import AccordionItem from 'kolibri-common/components/AccordionItem';
-  import AccordionContainer from 'kolibri-common/components/AccordionContainer';
-  import useAccordion from 'kolibri-common/components/useAccordion';
+  import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
+  import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
@@ -407,32 +391,12 @@
         selectedActiveQuestions,
       } = injectQuizCreation();
 
-      const {
-        collapse,
-        collapseAll,
-        expand,
-        expandAll,
-        isExpanded,
-        toggle,
-        canCollapseAll,
-        canExpandAll,
-      } = useAccordion(activeQuestions);
-
       const { moveUpOne, moveDownOne } = useDrag();
       const dragActive = ref(false);
 
       const { createSnackbar } = useSnackbar();
 
       return {
-        canCollapseAll,
-        canExpandAll,
-        collapse,
-        collapseAll,
-        expand,
-        expandAll,
-        isExpanded,
-        toggle,
-
         dragActive,
         sectionLabel$,
         expandAll$,
@@ -489,14 +453,6 @@
       };
     },
     computed: {
-      accordionStyleOverrides() {
-        return {
-          color: this.$themeTokens.text + '!important',
-          textDecoration: 'none',
-          // Ensure text doesn't get highlighted as we drag
-          userSelect: this.dragActive ? 'none!important' : 'text',
-        };
-      },
       canReplaceQuestions() {
         return (
           this.selectedActiveQuestions.length > 0 &&
@@ -698,15 +654,6 @@
 
 <style lang="scss" scoped>
 
-  .no-question-layout {
-    width: auto;
-    padding: 40px;
-    text-align: center;
-    background-color: #fafafa;
-    border: 1px;
-    border-radius: 0.5em;
-  }
-
   .question-mark-layout {
     width: 2.5em;
     height: 2.5em;
@@ -718,29 +665,11 @@
   .help-icon-style {
     font-size: 1.5em;
     font-weight: 700;
-    color: #996189;
-  }
-
-  .kgrid-alignment-style {
-    padding-right: 1em;
-    padding-left: 0;
-    text-align: left;
-  }
-
-  .left-column-alignment-style {
-    display: inline-flex;
-    margin-left: 1em;
   }
 
   .drag-icon {
     margin-top: -0.5em;
     font-size: 1em;
-  }
-
-  .float-item-left-style {
-    float: right;
-    margin-top: 1em;
-    margin-right: 0.5em;
   }
 
   .reduce-chervon-spacing {
@@ -831,38 +760,8 @@
     max-width: 25rem;
   }
 
-  .menu-button {
-    width: calc(100% - 40px);
-    max-width: calc(100% - 40px) !important;
-    min-height: 40px;
-  }
-
-  .accordion-header {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    padding: 0 0.5em !important;
-    margin: 0.25em 0;
-
-    .accordion-item-checkbox {
-      margin-left: 0.5em;
-    }
-
-    .chevron-icon {
-      position: absolute;
-      top: 0.92em;
-      right: 0;
-    }
-  }
-
-  .accordion-header-label {
-    position: relative;
-    flex-grow: 1;
-    align-self: stretch;
-    padding: 0 0 0 1em;
-    line-height: 2.75em;
-    text-align: left;
-    cursor: pointer;
+  .accordion-item-checkbox {
+    margin-left: 0.5em;
   }
 
   /deep/ .checkbox-icon {
@@ -880,7 +779,7 @@
   .select-all-box {
     margin-top: 0;
     margin-bottom: 0;
-    margin-left: 2.5em;
+    margin-left: 1.5em;
 
     // Vertical centering here into the KCheckbox
     /deep/ & label {
