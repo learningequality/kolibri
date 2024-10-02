@@ -13,6 +13,8 @@
       <button
         class="header"
         :style="headerAppearanceOverrides"
+        :aria-expanded="isExpanded"
+        :aria-controls="contentId"
         @click.stop="toggle"
       >
         <div class="header-content">
@@ -29,7 +31,7 @@
           </div>
           <div class="trailing-actions">
             <KIconButton
-              icon="chevronDown"
+              :icon="isExpanded ? 'chevronDown' : 'chevronRight'"
               @click.stop="toggle"
             />
             <slot name="trailing-actions"></slot>
@@ -39,6 +41,7 @@
     </h3>
     <div
       v-if="isExpanded"
+      :id="contentId"
       class="content"
       :style="contentAppearanceOverrides"
     >
@@ -61,6 +64,7 @@
       const { registerItem, unregisterItem, toggle, isExpanded } = injectAccordionItem(_uid);
 
       return {
+        _uid,
         registerItem,
         unregisterItem,
         toggle,
@@ -83,6 +87,11 @@
       disabled: {
         type: Boolean,
         default: false,
+      },
+    },
+    computed: {
+      contentId() {
+        return `accordion-content-${this._uid}`;
       },
     },
     mounted() {
@@ -113,6 +122,8 @@
     .header {
       width: 100%;
       padding: 10px;
+      cursor: pointer;
+      user-select: text;
       background: unset;
       border: 0;
       outline-offset: 0;
@@ -123,6 +134,11 @@
         justify-content: space-between;
       }
     }
+  }
+
+  .leading-actions {
+    display: flex;
+    align-items: center;
   }
 
   .header-label {
