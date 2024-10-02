@@ -17,6 +17,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Button to cancel an action and return to the previous page. Usually this is the opposite of the save button which saves some piece of information.',
   },
+  learnMoreAction: {
+    message: 'Learn more',
+    context:
+      'Button for link which will show the user information providing more information about the relevant context',
+  },
   cannotUndoActionWarning: {
     message: 'This action cannot be undone',
     context:
