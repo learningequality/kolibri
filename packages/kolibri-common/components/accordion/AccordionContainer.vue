@@ -2,7 +2,7 @@
 
   <div class="accordion">
     <div
-      v-if="$slots.header"
+      v-if="hasHeaderSlot"
       class="header"
       :style="{
         borderColor: $themeTokens.fineLine,
@@ -10,37 +10,16 @@
         ...headerAppearanceOverrides,
       }"
     >
-      <slot name="header"></slot>
+      <slot
+        name="header"
+        :canExpandAll="canExpandAll"
+        :expandAll="expandAll"
+        :canCollapseAll="canCollapseAll"
+        :collapseAll="collapseAll"
+      ></slot>
     </div>
-    <!-- <KGrid
-      v-if="!hideTopActions"
-      :style="{
-        backgroundColor: $themePalette.grey.v_100,
-      }"
-    >
-      <KGridItem
-        :layout4="{ span: 2 }"
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
-        class="header-actions"
-      >
-        <div class="header-left-actions">
-          <slot name="left-actions"></slot>
-        </div>
-      </KGridItem>
-      <KGridItem
-        :layout4="{ span: 2 }"
-        :layout8="{ span: 4 }"
-        :layout12="{ span: 6 }"
-        class="header-actions"
-      >
-        <div class="header-right-actions">
-          <slot name="right-actions"></slot>
-        </div>
-      </KGridItem>
-    </KGrid> -->
     <div>
-      <slot></slot>
+      <slot name="default"></slot>
     </div>
   </div>
 
@@ -49,8 +28,24 @@
 
 <script>
 
+  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import useAccordion from './useAccordion';
+
   export default {
     name: 'AccordionContainer',
+    setup(prop, { slots }) {
+      const { canExpandAll, canCollapseAll, collapseAll, expandAll } = useAccordion();
+
+      const hasHeaderSlot = computed(() => !!slots.header);
+
+      return {
+        hasHeaderSlot,
+        canExpandAll,
+        canCollapseAll,
+        collapseAll,
+        expandAll,
+      };
+    },
     props: {
       headerAppearanceOverrides: {
         type: [Object, String],

@@ -13,7 +13,7 @@
       <button
         class="header"
         :style="headerAppearanceOverrides"
-        @click="toggle"
+        @click.stop="toggle"
       >
         <div class="header-content">
           <div class="d-flex">
@@ -30,7 +30,7 @@
           <div class="trailing-actions">
             <KIconButton
               icon="chevronDown"
-              @click="toggle"
+              @click.stop="toggle"
             />
             <slot name="trailing-actions"></slot>
           </div>
@@ -51,8 +51,22 @@
 
 <script>
 
+  import { v4 as uuidv4 } from 'uuid';
+  import { injectAccordionItem } from './useAccordion';
+
   export default {
     name: 'AccordionItem',
+    setup() {
+      const _uid = uuidv4();
+      const { registerItem, unregisterItem, toggle, isExpanded } = injectAccordionItem(_uid);
+
+      return {
+        registerItem,
+        unregisterItem,
+        toggle,
+        isExpanded,
+      };
+    },
     props: {
       title: {
         type: String,
@@ -71,15 +85,11 @@
         default: false,
       },
     },
-    computed: {
-      isExpanded() {
-        return !this.disabled;
-      },
+    mounted() {
+      this.registerItem();
     },
-    methods: {
-      toggle() {
-        this.isExpanded;
-      },
+    componentWillUnmount() {
+      this.unregisterItem();
     },
   };
 
