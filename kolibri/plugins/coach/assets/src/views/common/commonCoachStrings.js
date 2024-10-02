@@ -40,6 +40,15 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     message: 'Print report',
     context: "Option to print a hard copy of a report in the 'Reports' tab.",
   },
+  renameGroupAction: {
+    message: 'Rename group',
+    context: 'Label for dropdown menu button that allows user to rename a group',
+  },
+  enrollLearnersAction: {
+    message: 'Enroll learners',
+    context:
+      'Label for dropdown menu button that navigates the coach to edit the enrollment for a group',
+  },
   renameAction: {
     message: 'Rename',
     context: 'Generic option to change the name of some element such as a class name. ',
