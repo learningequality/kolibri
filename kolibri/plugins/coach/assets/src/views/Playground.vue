@@ -59,10 +59,21 @@
     <KPageContainer>
       <h2>Test 2</h2>
       <AccordionContainer style="width: 600px">
-        <template #header>
+        <template #header="{ canExpandAll, expandAll, canCollapseAll, collapseAll }">
           <div style="display: flex; align-items: center; justify-content: space-between">
             <KCheckbox label="Identify Molecular formulas" />
-            <KIconButton icon="expandAll" />
+            <div style="display: flex; align-items: center">
+              <KIconButton
+                icon="expandAll"
+                :disabled="!canExpandAll"
+                @click="expandAll"
+              />
+              <KIconButton
+                icon="collapseAll"
+                :disabled="!canCollapseAll"
+                @click="collapseAll"
+              />
+            </div>
           </div>
         </template>
         <template #default>
