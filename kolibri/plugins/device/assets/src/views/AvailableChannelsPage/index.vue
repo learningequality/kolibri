@@ -142,6 +142,7 @@
   import { TaskResource } from 'kolibri.resources';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { TransferTypes, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import plugin_data from 'plugin_data';
   import commonDeviceStrings from '../commonDeviceStrings';
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
@@ -154,7 +155,6 @@
   import ChannelTokenModal from './ChannelTokenModal';
   import ChannelUpdateModal from './ChannelUpdateModal';
   import { getFreeSpaceOnServer } from './api';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'AvailableChannelsPage',

@@ -20,8 +20,8 @@ import {
   ERROR_CONSTANTS,
   UPDATE_MODAL_DISMISSED,
 } from 'kolibri.coreVue.vuex.constants';
+import { browser, os } from 'kolibri.utils.browserInfo';
 import { baseSessionState } from '../session';
-import { browser, os } from '../../../utils/browserInfo';
 
 const logging = logger.getLogger(__filename);
 

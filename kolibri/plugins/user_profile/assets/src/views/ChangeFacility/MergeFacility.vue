@@ -100,7 +100,7 @@
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
-  import { getTaskString } from '../../../../../../core/assets/src/mixins/taskStrings';
+  import { getTaskString } from 'kolibri-common/uiText/tasks';
 
   export default {
     name: 'MergeFacility',
