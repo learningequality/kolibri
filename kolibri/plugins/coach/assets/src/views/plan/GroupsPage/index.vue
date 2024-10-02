@@ -2,7 +2,19 @@
 
   <CoachAppBarPage>
     <KPageContainer>
-      <PlanHeader :activeTabId="PlanTabs.GROUPS" />
+      <PlanHeader :activeTabId="PlanTabs.GROUPS">
+        <template #header>
+          <h1>{{ coachString('groupsLabel') }}</h1>
+          <p>
+            {{ $tr('groupsDescription') }}
+            <KButton
+              appearance="basic-link"
+              :text="coreString('learnMoreAction')"
+              @click="openAboutGroupModal"
+            />
+          </p>
+        </template>
+      </PlanHeader>
       <KTabsPanel
         :tabsId="PLAN_TABS_ID"
         :activeTabId="PlanTabs.GROUPS"
@@ -59,6 +71,20 @@
           @submit="handleSuccessDeleteGroup"
           @cancel="closeModal"
         />
+
+        <KModal
+          v-if="showAboutGroupModal"
+          :title="$tr('aboutGroupsTitle')"
+          @cancel="closeModal"
+          @submit="closeModal"
+        >
+          <p style="overflow-y: visible">{{ $tr('aboutGroupsDescription') }}</p>
+          <template #actions>
+            <KButton @click="closeModal">
+              {{ coreString('closeAction') }}
+            </KButton>
+          </template>
+        </KModal>
       </KTabsPanel>
     </KPageContainer>
   </CoachAppBarPage>
@@ -124,6 +150,9 @@
       showDeleteGroupModal() {
         return this.groupModalShown === GroupModals.DELETE_GROUP;
       },
+      showAboutGroupModal() {
+        return this.groupModalShown === GroupModals.ABOUT_GROUP;
+      },
       sortedGroups() {
         return orderBy(this.groups, [group => group.name.toUpperCase()], ['asc']);
       },
@@ -139,6 +168,10 @@
       openRenameGroupModal(groupName, groupId) {
         this.setSelectedGroup(groupName, groupId);
         this.displayModal(GroupModals.RENAME_GROUP);
+      },
+      openAboutGroupModal(groupName, groupId) {
+        this.setSelectedGroup(groupName, groupId);
+        this.displayModal(GroupModals.ABOUT_GROUP);
       },
       openDeleteGroupModal(groupName, groupId) {
         this.setSelectedGroup(groupName, groupId);
@@ -162,6 +195,21 @@
       noGroups: {
         message: 'You do not have any groups',
         context: 'Message displayed when there are no groups within a class.',
+      },
+      groupsDescription: {
+        message: 'Personalize learning by organizing learners into groups',
+        context:
+          'A brief statement describing the current page. This sentence is to be followed by a button labeled "Learn more" which will open an informative modal',
+      },
+      aboutGroupsTitle: {
+        message: 'About groups',
+        context: 'Title for a modal with information describing the groups feature',
+      },
+      aboutGroupsDescription: {
+        message:
+          'Groups help coaches personalize learning and support differentiated instruction. Organize learners into groups, assign tailored lessons and quizzes to each and monitor their progress.',
+        context:
+          'Shown to the coach when they click the "Learn more" button that follows the groups page description',
       },
     },
   };
