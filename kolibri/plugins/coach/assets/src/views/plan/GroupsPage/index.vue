@@ -6,6 +6,14 @@
         <template #header>
           <h1>{{ coachString('groupsLabel') }}</h1>
           <p>
+            <KIcon
+              icon="classes"
+              class="class-name-icon"
+            />
+            <span>{{ className }}</span>
+          </p>
+
+          <p>
             {{ $tr('groupsDescription') }}
             <KButton
               appearance="basic-link"
@@ -218,6 +226,17 @@
 
 
 <style lang="scss" scoped>
+
+  .class-name-icon {
+    position: relative;
+    // Aligns icon to class name text
+    top: 0.34em;
+    // Icon was far smaller than text by default, better matches
+    width: 1.5em;
+    height: 1.5em;
+    // Space between icon and text
+    margin-right: 0.5em;
+  }
 
   .ta-r {
     text-align: right;
