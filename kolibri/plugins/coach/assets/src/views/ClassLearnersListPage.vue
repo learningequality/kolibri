@@ -92,11 +92,10 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import { mapState, mapActions } from 'vuex';
-  // TODO: Cleanup this import by moving it into kolibri-common
-  import SyncStatusDisplay from '../../../../../core/assets/src/views/SyncStatusDisplay';
-  import SyncStatusDescription from '../../../../../core/assets/src/views/SyncStatusDescription';
+  import SyncStatusDisplay from 'kolibri/components/SyncStatusDisplay';
   import CoachImmersivePage from '../views/CoachImmersivePage';
   import { PageNames } from '../constants';
+  import SyncStatusDescription from './common/SyncStatusDescription';
   import StorageNotificationBanner from './StorageNotificationBanner';
 
   export default {

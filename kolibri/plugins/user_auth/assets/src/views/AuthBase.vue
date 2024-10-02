@@ -187,11 +187,11 @@
   import themeConfig from 'kolibri.themeConfig';
   import loginComponents from 'kolibri.utils.loginComponents';
   import urls from 'kolibri.urls';
+  import plugin_data from 'plugin_data';
   import { ComponentMap } from '../constants';
   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
   import commonUserStrings from './commonUserStrings';
   import getUrlParameter from './getUrlParameter';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'AuthBase',

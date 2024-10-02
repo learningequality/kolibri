@@ -21,9 +21,7 @@ const moduleMapping = require('./moduleMapping');
 const ecmaVersion = 2023;
 
 // Find the API specification file relative to this file.
-const specFilePath = path.resolve(
-  path.join(__dirname, '../../../kolibri/core/assets/src/core-app/apiSpec.js'),
-);
+const specFilePath = path.resolve(path.join(__dirname, '../../kolibri/apiSpec.js'));
 
 function specModule(filePath) {
   const rootPath = path.dirname(filePath);

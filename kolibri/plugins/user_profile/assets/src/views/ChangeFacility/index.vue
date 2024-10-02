@@ -138,7 +138,7 @@
 
 <style lang="scss" scoped>
 
-  @import '../../../../../../core/assets/src/styles/definitions';
+  @import 'kolibri-common/styles/definitions';
 
   .container {
     max-width: $page-container-max-width;

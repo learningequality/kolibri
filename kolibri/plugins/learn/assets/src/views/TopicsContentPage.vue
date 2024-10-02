@@ -174,8 +174,8 @@
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useChannels from 'kolibri-common/composables/useChannels';
+  import SkipNavigationLink from 'kolibri/components/SkipNavigationLink';
   import { PageNames, ClassesPageNames } from '../constants';
-  import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';

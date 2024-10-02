@@ -86,6 +86,7 @@
   import find from 'lodash/find';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { TaskResource } from 'kolibri.resources';
+  import plugin_data from 'plugin_data';
   import commonDeviceStrings from '../commonDeviceStrings';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import useContentTasks from '../../composables/useContentTasks';
@@ -100,7 +101,6 @@
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
   import { startImportTask } from './api';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'SelectContentPage',

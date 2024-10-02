@@ -1,5 +1,5 @@
-import HTML5AppComponent from './views/Html5AppRendererIndex';
 import ContentRendererModule from 'content_renderer_module';
+import HTML5AppComponent from './views/Html5AppRendererIndex';
 
 class HTML5AppModule extends ContentRendererModule {
   get rendererComponent() {
