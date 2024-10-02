@@ -21,6 +21,8 @@ from kolibri.core.discovery.utils.network.broadcast import KolibriInstance
 from kolibri.core.discovery.utils.network.connections import update_network_location
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
+from kolibri.core.discovery.well_known import DATA_PORTAL_BASE_INSTANCE_ID
+from kolibri.core.discovery.well_known import DATA_PORTAL_SYNCING_BASE_URL
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.main import job_storage
@@ -340,17 +342,36 @@ def dispatch_broadcast_hooks(hook_type, instance):
 
 def _refresh_reserved_locations():
     """
-    TODO handle this a bit smarter with: https://github.com/learningequality/kolibri/issues/10431
+    Refreshes the reserved network locations for Studio and Kolibri Data Portal
     """
+    # Delete existing reserved locations
     NetworkLocation.objects.filter(location_type=LocationTypes.Reserved).delete()
-    NetworkLocation.objects.create(
+
+    # Create or update Studio reserved location
+    NetworkLocation.objects.update_or_create(
         id=CENTRAL_CONTENT_BASE_INSTANCE_ID,
-        instance_id=CENTRAL_CONTENT_BASE_INSTANCE_ID,
-        nickname="Kolibri Studio",
-        base_url=CENTRAL_CONTENT_BASE_URL,
-        location_type=LocationTypes.Reserved,
-        is_local=False,
-        kolibri_version="0.16.0",
+        defaults={
+            "instance_id": CENTRAL_CONTENT_BASE_INSTANCE_ID,
+            "nickname": "Kolibri Studio",
+            "base_url": CENTRAL_CONTENT_BASE_URL,
+            "location_type": LocationTypes.Reserved,
+            "is_local": False,
+            "kolibri_version": "0.16.0",
+        },
+    )
+
+    # Create or update Kolibri Data Portal reserved location
+    NetworkLocation.objects.update_or_create(
+        id=DATA_PORTAL_BASE_INSTANCE_ID,
+        defaults={
+            "instance_id": DATA_PORTAL_BASE_INSTANCE_ID,
+            "nickname": "Kolibri Data Portal",
+            "base_url": DATA_PORTAL_SYNCING_BASE_URL,
+            "location_type": LocationTypes.Reserved,
+            "is_local": False,
+            "application": "Kolibri Data Portal",
+            "kolibri_version": "0.16.0",
+        },
     )
 
 
@@ -380,11 +401,21 @@ def reset_connection_states(broadcast_id):
         connection_faults=0,
     )
 
-    # enqueue update tasks for all static locations
-    for static_location_id in StaticNetworkLocation.objects.all().values_list(
-        "id", flat=True
+    # enqueue update tasks for all static locations except KDP
+    for static_location_id in (
+        StaticNetworkLocation.objects.all()
+        .values_list("id", flat=True)
+        .exclude(id=DATA_PORTAL_BASE_INSTANCE_ID)
     ):
         perform_network_location_update.enqueue(
             job_id=generate_job_id(TYPE_CONNECT, static_location_id),
             args=(static_location_id,),
         )
+
+    # For KDP, set the application to 'Kolibri Data Portal' without enqueuing update task
+    kdp_location = NetworkLocation.objects.filter(
+        id=DATA_PORTAL_BASE_INSTANCE_ID
+    ).first()
+    if kdp_location:
+        kdp_location.application = "Kolibri Data Portal"
+        kdp_location.save()
