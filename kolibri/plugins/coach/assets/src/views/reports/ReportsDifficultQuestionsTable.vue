@@ -15,10 +15,10 @@
           :key="tableRow.item + index"
         >
           <td>
-            <span v-if="$isPrint">{{ tableRow.title }}</span>
+            <span v-if="$isPrint">{{ getQuestionTitle(tableRow) }}</span>
             <KRouterLink
               v-if="!exam.missing_resource"
-              :text="tableRow.title"
+              :text="getQuestionTitle(tableRow)"
               :to="questionLink(tableRow.item)"
               icon="question"
             />
@@ -57,12 +57,14 @@
     },
     mixins: [commonCoach],
     setup() {
-      const { questionListEmptyState$, questionLabel$, helpNeededLabel$ } = coachStrings;
+      const { questionListEmptyState$, questionLabel$, helpNeededLabel$, nthExerciseName$ } =
+        coachStrings;
 
       return {
         questionListEmptyState$,
         questionLabel$,
         helpNeededLabel$,
+        nthExerciseName$,
       };
     },
     props: {
@@ -90,6 +92,12 @@
             quizId: this.$route.params.quizId,
           },
         );
+      },
+      getQuestionTitle(question) {
+        return this.nthExerciseName$({
+          name: question.title,
+          number: question.questionNumber,
+        });
       },
       /**
        * @public

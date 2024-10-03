@@ -1,17 +1,52 @@
 import { fetchExamWithContent } from 'kolibri.utils.exams';
 import { ExamResource } from 'kolibri.resources';
+import QuizDifficulties from '../../../apiResources/quizDifficulties';
+import { getDifficultQuestions } from '../../../utils';
 
-export function fetchQuizSummaryPageData(examId) {
-  return ExamResource.fetchModel({ id: examId })
-    .then(exam => {
-      return fetchExamWithContent(exam);
-    })
-    .then(({ exam, exercises }) => {
-      return {
-        exerciseContentNodes: exercises,
-        exam,
-      };
-    });
+const fetchDifficultQuestions = async exam => {
+  if (exam.draft) {
+    return [];
+  }
+  const correctnessStats = await QuizDifficulties.fetchDetailCollection(
+    'detail',
+    exam.id,
+    undefined,
+    true,
+  );
+
+  const allQuestions = exam.question_sources.reduce((qs, section) => {
+    qs = [...qs, ...section.questions];
+
+    return qs;
+  }, []);
+
+  allQuestions.forEach(question => {
+    const questionStats = correctnessStats.find(stat => stat.item === question.item);
+    if (questionStats) {
+      question.correct = questionStats.correct;
+      question.total = questionStats.total;
+    } else {
+      question.correct = 0;
+      question.total = correctnessStats[0]?.total || 0;
+    }
+    question.questionNumber = question.counter_in_exercise;
+  });
+
+  return getDifficultQuestions(allQuestions);
+};
+
+export async function fetchQuizSummaryPageData(examId) {
+  const _exam = await ExamResource.fetchModel({ id: examId });
+
+  const { exam, exercises } = await fetchExamWithContent(_exam);
+
+  const difficultQuestions = await fetchDifficultQuestions(exam);
+
+  return {
+    exam,
+    exerciseContentNodes: exercises,
+    difficultQuestions,
+  };
 }
 
 export function serverAssignmentPayload(listOfIDs, classId) {
