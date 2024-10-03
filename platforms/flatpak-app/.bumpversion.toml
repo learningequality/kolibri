@@ -1,5 +1,5 @@
 [tool.bumpversion]
-current_version = "3.7"
+current_version = "3.8"
 commit = true
 tag = true
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)(.(?P<patch>\\d+))?"
