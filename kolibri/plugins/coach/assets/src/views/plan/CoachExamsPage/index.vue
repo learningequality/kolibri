@@ -8,15 +8,12 @@
         :activeTabId="PlanTabs.QUIZZES"
       >
         <div class="filter-and-button">
-          <p v-if="filteredExams.length && filteredExams.length > 0">
+          <p
+            v-if="filteredExams.length && filteredExams.length > 0"
+            class="total-quiz-size"
+          >
             {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
           </p>
-          <KSelect
-            v-model="statusSelected"
-            :label="filterQuizStatus$()"
-            :options="statusOptions"
-            :inline="true"
-          />
           <KButtonGroup v-if="practiceQuizzesExist">
             <KButton
               primary
@@ -45,6 +42,20 @@
             />
           </div>
         </div>
+        <ReportsControls @export="exportCSV">
+          <KSelect
+            v-model="statusSelected"
+            :label="filterQuizStatus$()"
+            :options="statusOptions"
+            :inline="true"
+          />
+          <KSelect
+            v-model="recipientSelected"
+            :label="recipientsLabel$()"
+            :options="recipientOptions"
+            :inline="true"
+          />
+        </ReportsControls>
         <CoreTable>
           <template #headers>
             <th>{{ titleLabel$() }}</th>
@@ -200,6 +211,9 @@
   import useQuizzes from '../../../composables/useQuizzes';
   import AverageScoreTooltip from '../../common/AverageScoreTooltip';
   import commonCoach from '../../common';
+  import ReportsControls from '../../../views/reports/ReportsControls.vue';
+  import CSVExporter from '../../../csv/exporter';
+  import * as csvFields from '../../../csv/fields';
 
   export default {
     name: 'CoachExamsPage',
@@ -209,6 +223,7 @@
       PlanHeader,
       Recipients,
       AverageScoreTooltip,
+      ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
@@ -260,11 +275,17 @@
         quizClosedLabel$,
         canNoLongerEditQuizNotice$,
         avgScoreLabel$,
+        entireClassLabel$,
       } = coachStrings;
 
       const statusSelected = ref({
         label: filterQuizAll$(),
         value: filterQuizAll$(),
+      });
+
+      const recipientSelected = ref({
+        label: entireClassLabel$(),
+        value: entireClassLabel$(),
       });
 
       return {
@@ -302,6 +323,8 @@
         quizClosedLabel$,
         createSnackbar,
         avgScoreLabel$,
+        entireClassLabel$,
+        recipientSelected,
       };
     },
     computed: {
@@ -329,7 +352,26 @@
           },
         ];
       },
-
+      recipientOptions() {
+        return [
+          {
+            label: this.entireClassLabel$(),
+            value: this.entireClassLabel$(),
+          },
+          {
+            label: 'Red',
+            value: 'Red',
+          },
+          {
+            label: 'Green',
+            value: 'Green',
+          },
+          {
+            label: 'Yellow',
+            value: 'Yellow',
+          },
+        ];
+      },
       startedExams() {
         return this.quizzes.filter(exam => exam.active === true && exam.archive === false);
       },
@@ -411,6 +453,15 @@
             this.createSnackbar(this.quizFailedToOpenMessage$());
           });
       },
+      exportCSV() {
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.recipients(this.className),
+          ...csvFields.tally(),
+        ];
+        const fileName = this.$tr('printLabel', { className: this.className });
+        new CSVExporter(columns, fileName).export(this.filteredExams);
+      },
       handleCloseQuiz(quizId) {
         const promise = ExamResource.saveModel({
           id: quizId,
@@ -459,6 +510,11 @@
         context:
           'Descriptive text at the top of the table that displays the calculated file size of all quiz resources (i.e. 120 MB)',
       },
+      printLabel: {
+        message: '{className} Lessons',
+        context:
+          "Title that displays on a printed copy of the 'Reports' > 'Lessons' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
+      },
     },
   };
 
@@ -475,6 +531,11 @@
     button {
       align-self: flex-end;
     }
+  }
+
+  .total-quiz-size {
+    flex-basis: 50%;
+    margin-bottom: 25px;
   }
 
   .center-text {
