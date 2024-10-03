@@ -3,6 +3,7 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 
 from .models import ConnectionStatus
+from .models import LocationTypes
 from .models import NetworkLocation
 from .models import PinnedDevice
 from .utils.network import errors
@@ -30,6 +31,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
             "subset_of_users_device",
             "connection_status",
             "is_local",
+            "location_type",
         )
         read_only_fields = (
             "available",
@@ -45,6 +47,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
             "subset_of_users_device",
             "connection_status",
             "is_local",
+            "location_type",
         )
 
     def validate(self, data):
@@ -63,6 +66,11 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
         info = {k: v for (k, v) in client.device_info.items() if v is not None}
         data.update(info)
         return super(NetworkLocationSerializer, self).validate(data)
+
+    def create(self, validated_data):
+        # Ensure 'location_type' is set to 'static' when creating new instances
+        validated_data["location_type"] = LocationTypes.Static
+        return super(NetworkLocationSerializer, self).create(validated_data)
 
 
 class PinnedDeviceSerializer(ModelSerializer):
