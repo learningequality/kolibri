@@ -22,11 +22,12 @@
         </h1>
 
         <KFixedGrid numCols="2">
-          <KFixedGridItem
-            span="1"
-            class="number-learners"
-          >
-            {{ coachString('numberOfLearners', { value: currentGroup.users.length }) }}
+          <KFixedGridItem span="1">
+            <KIcon
+              icon="classes"
+              class="class-name-icon"
+            />
+            <span>{{ className }}</span>
           </KFixedGridItem>
           <KFixedGridItem
             span="1"
@@ -224,4 +225,17 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .class-name-icon {
+    position: relative;
+    // Aligns icon to class name text
+    top: 0.34em;
+    // Icon was far smaller than text by default, better matches
+    width: 1.5em;
+    height: 1.5em;
+    // Space between icon and text
+    margin-right: 0.5em;
+  }
+
+</style>
