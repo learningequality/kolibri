@@ -1,3 +1,9 @@
+kolibri-source (0.17.2-0ubuntu1) jammy; urgency=medium
+
+  * New upstream release
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 03 Oct 2024 19:47:04 +0200
+
 kolibri-source (0.17.0-0ubuntu1) jammy; urgency=medium
 
   * New upstream release
