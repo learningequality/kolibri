@@ -181,6 +181,7 @@
       handleSuccessDeleteGroup() {
         this.showSnackbarNotification('groupDeleted');
         this.displayModal(false);
+        this.$router.push(this.$router.getRoute('GroupsPage'));
       },
       handleOptionSelect(value) {
         switch (value) {
