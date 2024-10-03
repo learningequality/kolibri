@@ -2,7 +2,6 @@
 This module contains constants representing the possible statuses
 when a SoUD request to sync
 """
-from __future__ import unicode_literals
 
 
 SYNC = "SYNC"  # can begin a sync right now

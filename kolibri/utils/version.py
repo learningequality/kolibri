@@ -82,11 +82,6 @@ of this file. You cannot import this module in other distributed package's
 ``__init__``, because ``setup.py`` cannot depend on the import of other
 packages at install-time (which is when the version is generated and stored).
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import datetime
 import logging
 import os

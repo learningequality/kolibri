@@ -681,6 +681,13 @@ base_option_spec = {
                 The default is to disallow server restarts, so callbacks need to be added to enable restarting.
             """,
         },
+        "ZEROCONF_ENABLED": {
+            "type": "boolean",
+            "default": True,
+            "description": """
+                Boolean Flag to check Whether to enable Zeroconf discovery.
+            """,
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
