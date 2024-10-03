@@ -11,6 +11,7 @@
       :label="$tr('selectAllLabel')"
       :showLabel="true"
       :checked="allAreSelected"
+      :indeterminate="allIsIndeterminate"
       :disabled="disabled || !users || users.length === 0"
       class="select-all"
       :style="{ color: $themeTokens.annotation }"
@@ -298,6 +299,14 @@
       },
       showSelectAllCheckbox() {
         return this.selectable && this.enableMultipleSelection;
+      },
+      allIsIndeterminate() {
+        return (
+          this.showSelectAllCheckbox &&
+          Boolean(this.users && this.users.length) &&
+          !this.allAreSelected &&
+          this.users.some(user => this.value.includes(user.id))
+        );
       },
       allAreSelected() {
         return (
