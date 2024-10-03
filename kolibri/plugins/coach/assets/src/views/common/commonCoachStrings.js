@@ -419,11 +419,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     message: '{name} ({number, number, integer})',
     context: 'DO NOT TRANSLATE\nCopy the source string.',
   },
-  numberOfLearners: {
-    message: '{value, number, integer} {value, plural, one {learner} other {learners}}',
-    context:
-      "Can refer to number of learners in a group, for example. Only translate 'learner' and 'learners'.",
-  },
   numberOfQuestions: {
     message: '{value, number, integer} {value, plural, one {question} other {questions}}',
     context:
