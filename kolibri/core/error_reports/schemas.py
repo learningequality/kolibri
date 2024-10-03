@@ -1,3 +1,8 @@
+from .constants import BACKEND
+from .constants import FRONTEND
+from .constants import TASK
+
+
 context_frontend_schema = {
     "type": "object",
     "definitions": {
@@ -63,4 +68,41 @@ context_backend_schema = {
         "python_version": {"type": "string", "optional": True},
         "avg_request_time_to_error": {"type": "number", "optional": True},
     },
+}
+
+context_task_schema = {
+    "type": "object",
+    "properties": {
+        "job_info": {
+            "type": "object",
+            "properties": {
+                "job_id": {"type": "string", "optional": True},
+                "func": {"type": "string", "optional": True},
+                "facility_id": {"type": ["string", "null"], "optional": True},
+                "args": {"type": "array", "optional": True},
+                "kwargs": {"type": "object", "optional": True},
+                "progress": {"type": "integer", "optional": True},
+                "total_progress": {"type": "integer", "optional": True},
+                "extra_metadata": {"type": "object", "optional": True},
+            },
+        },
+        "worker_info": {
+            "type": "object",
+            "properties": {
+                "worker_host": {"type": ["string", "null"], "optional": True},
+                "worker_process": {"type": ["string", "null"], "optional": True},
+                "worker_thread": {"type": ["string", "null"], "optional": True},
+                "worker_extra": {"type": ["string", "null"], "optional": True},
+            },
+        },
+        "packages": {"type": "array", "optional": True},
+        "python_version": {"type": "string", "optional": True},
+    },
+}
+
+
+SCHEMA_MAP = {
+    FRONTEND: context_frontend_schema,
+    BACKEND: context_backend_schema,
+    TASK: context_task_schema,
 }

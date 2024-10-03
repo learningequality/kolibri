@@ -1,26 +1,30 @@
+import client from 'kolibri.client';
 import urls from 'kolibri.urls';
-import Resource from '../errorReport';
 import {
+  report,
   VueErrorReport,
   JavascriptErrorReport,
   UnhandledRejectionErrorReport,
-} from '../../utils/errorReportUtils';
+} from '../utils';
 
 /* eslint-env jest */
 jest.mock('kolibri.urls', () => ({
-  'kolibri:core:report': jest.fn(),
+  'kolibri:kolibri.plugins.error_reports:report': jest.fn(),
 }));
+jest.mock('kolibri.client', () => jest.fn());
 
 describe('Error Report', () => {
   beforeEach(() => {
-    urls['kolibri:core:report'].mockReturnValue('/api/core/report');
+    urls['kolibri:kolibri.plugins.error_reports:report'].mockReturnValue(
+      '/error_reports/api/report'
+    );
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should call api/core/report with VueErrorReport data', () => {
+  it('should call /error_reports/api/report with VueErrorReport data', () => {
     const vueError = new Error('Vue error');
     vueError.stack = 'My stack trace';
     const vm = { $options: { name: 'TestComponent' } };
@@ -35,17 +39,16 @@ describe('Error Report', () => {
       },
     };
 
-    Resource.client = jest.fn();
-    Resource.report(errorReport);
+    report(errorReport);
 
-    expect(Resource.client).toHaveBeenCalledWith({
-      url: '/api/core/report',
+    expect(client).toHaveBeenCalledWith({
+      url: '/error_reports/api/report',
       method: 'post',
       data: expectedData,
     });
   });
 
-  it('should call api/core/report with JavascriptErrorReport data', () => {
+  it('should call /error_reports/api/report with JavascriptErrorReport data', () => {
     const jsErrorEvent = {
       error: new Error('Javascript error'),
     };
@@ -59,17 +62,16 @@ describe('Error Report', () => {
       context: errorReport.getContext(),
     };
 
-    Resource.client = jest.fn();
-    Resource.report(errorReport);
+    report(errorReport);
 
-    expect(Resource.client).toHaveBeenCalledWith({
-      url: '/api/core/report',
+    expect(client).toHaveBeenCalledWith({
+      url: '/error_reports/api/report',
       method: 'post',
       data: expectedData,
     });
   });
 
-  it('should call api/core/report with UnhandledRejectionErrorReport data', () => {
+  it('should call /error_reports/api/report with UnhandledRejectionErrorReport data', () => {
     const rejectionEvent = {
       reason: new Error('Unhandled rejection'),
     };
@@ -83,11 +85,10 @@ describe('Error Report', () => {
       context: errorReport.getContext(),
     };
 
-    Resource.client = jest.fn();
-    Resource.report(errorReport);
+    report(errorReport);
 
-    expect(Resource.client).toHaveBeenCalledWith({
-      url: '/api/core/report',
+    expect(client).toHaveBeenCalledWith({
+      url: '/error_reports/api/report',
       method: 'post',
       data: expectedData,
     });
