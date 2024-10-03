@@ -53,6 +53,9 @@
         <p>Changes included in this release:</p>
         <ul>
           <li>
+            Kolibri has been updated to 0.17.2.
+          </li>
+          <li>
             The application runtime is updated to GNOME 47.
           </li>
           <li>
