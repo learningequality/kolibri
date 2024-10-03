@@ -48,12 +48,27 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="3.7+next" type="development">
+      <description>
+        <p>Changes included in this release:</p>
+        <ul>
+          <li>
+            The application runtime is updated to GNOME 47.
+          </li>
+          <li>
+            An Italian translation has been added.
+          </li>
+        </ul>
+      </description>
+    </release>
     <release version="3.7" date="2024-08-07" type="stable">
       <description>
         <p>Changes included in this release:</p>
-	<ul>
-          <li>Kolibri has been updated to 0.17.0.</li>
-	</ul>
+        <ul>
+          <li>
+            Kolibri has been updated to 0.17.0.
+          </li>
+        </ul>
       </description>
     </release>
     <release version="3.6" date="2024-06-07" type="stable">
