@@ -86,10 +86,9 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState } from 'vuex';
   import find from 'lodash/find';
   import sortBy from 'lodash/sortBy';
-  import fromPairs from 'lodash/fromPairs';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -151,20 +150,15 @@
           question_sources: [],
           title: '',
         },
-        selectedExercises: {},
         loading: true,
         currentAction: '',
         QUIZZES_TABS_ID,
         QuizzesTabs,
+        difficultQuestions: [],
       };
     },
     computed: {
       ...mapState(['classList']),
-      ...mapGetters('questionList', ['difficultQuestions']),
-
-      // quizIsRandomized() {
-      //   return !this.quiz.learners_see_fixed_order;
-      // },
       quizId() {
         return this.$route.params.quizId;
       },
@@ -184,11 +178,6 @@
       recipients() {
         return this.getLearnersForExam(this.exam);
       },
-      // orderDescriptionString() {
-      //   return this.quizIsRandomized
-      //     ? this.randomizedSectionOptionDescription$()
-      //     : this.fixedSectionOptionDescription$();
-      // },
       classId() {
         return this.$route.params.classId;
       },
@@ -259,9 +248,9 @@
     methods: {
       // @public
       setData(data) {
-        const { exam, exerciseContentNodes } = data;
+        const { exam, difficultQuestions } = data;
         this.quiz = exam;
-        this.selectedExercises = fromPairs(exerciseContentNodes.map(x => [x.id, x]));
+        this.difficultQuestions = difficultQuestions;
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
