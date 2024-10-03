@@ -8,10 +8,7 @@
         :activeTabId="PlanTabs.QUIZZES"
       >
         <div class="filter-and-button">
-          <p
-            v-if="filteredExams.length && filteredExams.length > 0"
-            class="total-quiz-size"
-          >
+          <p v-if="filteredExams.length && filteredExams.length > 0">
             {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
           </p>
           <KButtonGroup v-if="practiceQuizzesExist">
@@ -531,11 +528,6 @@
     button {
       align-self: flex-end;
     }
-  }
-
-  .total-quiz-size {
-    flex-basis: 50%;
-    margin-bottom: 25px;
   }
 
   .center-text {
