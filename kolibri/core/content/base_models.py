@@ -65,8 +65,6 @@ name property to the previous CONTENT_SCHEMA_VERSION e.g. VERSION_2.
 If fields are being removed or entire models deleted from this file, they should be copied
 into legacy_models.py to allow for referencing during channel import of older databases.
 """
-from __future__ import print_function
-
 from django.db import models
 from le_utils.constants import content_kinds
 from le_utils.constants import file_formats

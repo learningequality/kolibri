@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.urls import include
 from django.urls import path
 
