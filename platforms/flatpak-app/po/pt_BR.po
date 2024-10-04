@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri-mac-app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-01 10:35-0700\n"
+"POT-Creation-Date: 2024-10-04 12:00-0700\n"
 "PO-Revision-Date: 2019-12-17 04:35\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Portuguese, Brazilian\n"
@@ -15,104 +15,198 @@ msgstr ""
 "X-Crowdin-Language: pt-BR\n"
 "X-Crowdin-File: macapp.pot\n"
 
-#: data/applications/org.learningequality.Kolibri.desktop.in:5
-#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:4
-#: src/kolibri_gnome/desktop_launcher/application.py:294
+#: data/applications/org.learningequality.Kolibri.Frontend.desktop.in.in:5
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:4
+#: src/kolibri_gnome/application.py:40
 msgid "Kolibri"
 msgstr ""
 
-#: data/applications/org.learningequality.Kolibri.desktop.in:6
-#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:6
+#: data/applications/org.learningequality.Kolibri.Frontend.desktop.in.in:6
 msgid "Offline education technology platform"
 msgstr ""
 
 #. TRANSLATORS: These are search terms to find this application.
 #. Terms MUST be separated by semicolons.
 #. This list must end with a semicolon.
-#: data/applications/org.learningequality.Kolibri.desktop.in:10
+#: data/applications/org.learningequality.Kolibri.Frontend.desktop.in.in:10
 msgid "education;multimedia;videos;learning;quiz;"
 msgstr ""
 
-#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:5
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:6
 msgid "Learning Equality"
 msgstr ""
 
-#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:15
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:8
+msgid "Offline learning platform"
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:20
 msgid ""
-"Kolibri makes high quality education technology available in low-resource "
-"communities such as rural schools, refugee camps, orphanages, non-formal "
-"school systems, and prison systems. Running on a wide variety of hardware, "
-"it enables offline access to a rich set of content and tools to support "
-"learners, coaches, and administrators."
+"Kolibri provides offline access to a curated and openly licensed educational "
+"content library, focused on serving both learners and educators."
 msgstr ""
 
-#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in:20
-msgid "Browsing content channels in Kolibri"
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:25
+msgid ""
+"Available in dozens of languages, the Kolibri Content Library includes both "
+"formal educational materials, such as lessons and assessments, as well as "
+"exploratory materials, such as books, games, and simulations."
 msgstr ""
 
-#: src/kolibri_gnome/desktop_launcher/application.py:133
-msgid "File"
-msgstr "Arquivo"
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:38
+msgid "Browsing content in Kolibri"
+msgstr ""
 
-#: src/kolibri_gnome/desktop_launcher/application.py:134
-msgid "New Window"
-msgstr "Nova Janela"
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:42
+msgid "Exploring more content in Kolibri"
+msgstr ""
 
-#: src/kolibri_gnome/desktop_launcher/application.py:135
-msgid "Close Window"
-msgstr "Fechar Janela"
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:46
+msgid "Watching a video from Khan Academy using Kolibri"
+msgstr ""
 
-#: src/kolibri_gnome/desktop_launcher/application.py:137
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:53
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:69
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:79
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:107
+msgid "Changes included in this release:"
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:55
+msgid "Kolibri has been updated to 0.17.2."
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:58
+msgid "The application runtime is updated to GNOME 47."
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:61
+msgid "An Italian translation has been added."
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:71
+msgid "Kolibri has been updated to 0.17.0."
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:81
+msgid "Kolibri has been updated to 0.16.2."
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:84
+msgid "The app icon has been updated."
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:87
+msgid ""
+"The Kolibri app will now sign in automatically using credentials associated "
+"with the current desktop user account."
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:91
+msgid "The main menu has been simplified."
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:94
+msgid "Troubleshooting information has been added to the About window."
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:97
+msgid ""
+"Kolibri's first run setup wizard will appear in a dialog when the "
+"application is started for the first time."
+msgstr ""
+
+#: data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in:109
+msgid ""
+"An issue was resolved where the application was failing to save files "
+"selected using the file chooser dialog."
+msgstr ""
+
+#: src/kolibri_app/globals.py:74
+#, python-brace-format
+msgid "{kolibri_version} ({vcs_tag})"
+msgstr ""
+
+#: src/kolibri_app/globals.py:79
+#, python-brace-format
+msgid "{kolibri_version} ({app_version})"
+msgstr ""
+
+#: src/kolibri_gnome/application.py:179
+msgid "Community Forums"
+msgstr "Fórum Comunitário"
+
+#. TODO: It would be better to use the kolibri_home property from
+#. kolibri-daemon, but the OpenURI portal only allows us to open
+#. files which exist in our sandbox.
+#. TODO: This link should be in the Troubleshooting section, but
+#. AdwAboutDialog doesn't allow us to do that at the moment.
+#: src/kolibri_gnome/application.py:186
 msgid "Open Kolibri Home Folder"
 msgstr "Abrir a Pasta Inicial em Kolibri"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:141
-msgid "View"
-msgstr "Visualizar"
+#: src/kolibri_gnome/application.py:271
+#, fuzzy
+msgid "Save File"
+msgstr "Arquivo"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:142
+#: src/kolibri_gnome/kolibri_window.py:95
+msgid "Main Menu"
+msgstr ""
+
+#: src/kolibri_gnome/kolibri_window.py:307
+msgid "New Window"
+msgstr "Nova Janela"
+
+#: src/kolibri_gnome/kolibri_window.py:313
 msgid "Reload"
 msgstr "Recarregar"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:143
+#: src/kolibri_gnome/kolibri_window.py:314
 msgid "Actual Size"
 msgstr "Tamanho atual"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:144
+#: src/kolibri_gnome/kolibri_window.py:315
 msgid "Zoom In"
 msgstr "Ampliar"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:145
+#: src/kolibri_gnome/kolibri_window.py:316
 msgid "Zoom Out"
 msgstr "Diminuir"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:147
+#: src/kolibri_gnome/kolibri_window.py:319
 msgid "Open in Browser"
 msgstr "Abrir no navegador"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:150
-msgid "History"
-msgstr "Histórico"
+#: src/kolibri_gnome/kolibri_window.py:328
+msgid "Show Developer Tools"
+msgstr ""
 
-#: src/kolibri_gnome/desktop_launcher/application.py:151
-msgid "Back"
-msgstr "Voltar"
-
-#: src/kolibri_gnome/desktop_launcher/application.py:152
-msgid "Forward"
-msgstr "Avançar"
-
-#: src/kolibri_gnome/desktop_launcher/application.py:155
+#: src/kolibri_gnome/kolibri_window.py:333
 msgid "Help"
 msgstr "Ajuda"
 
-#: src/kolibri_gnome/desktop_launcher/application.py:156
-msgid "Documentation"
-msgstr "Documentação"
+#: src/kolibri_gnome/kolibri_window.py:334
+msgid "About"
+msgstr ""
 
-#: src/kolibri_gnome/desktop_launcher/application.py:157
-msgid "Community Forums"
-msgstr "Fórum Comunitário"
+#~ msgid "Close Window"
+#~ msgstr "Fechar Janela"
+
+#~ msgid "View"
+#~ msgstr "Visualizar"
+
+#~ msgid "History"
+#~ msgstr "Histórico"
+
+#~ msgid "Back"
+#~ msgstr "Voltar"
+
+#~ msgid "Forward"
+#~ msgstr "Avançar"
+
+#~ msgid "Documentation"
+#~ msgstr "Documentação"
 
 #~ msgid "Edit"
 #~ msgstr "Editar"
