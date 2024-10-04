@@ -4,6 +4,7 @@ from django.test import TestCase
 
 import kolibri
 from ..models import ConnectionStatus
+from ..models import LocationTypes
 from ..models import NetworkLocation
 from ..utils.network import errors
 from ..utils.network.client import NetworkClient
@@ -190,7 +191,7 @@ class NetworkClientTestCase(TestCase):
             spec=NetworkLocation(),
             base_url="url.qqq",
             connection_status=ConnectionStatus.Unknown,
-            dynamic=True,
+            location_type=LocationTypes.Dynamic,
         )
         client = NetworkClient.build_from_network_location(network_loc)
         # should have resolved the base url to something different
@@ -205,7 +206,7 @@ class NetworkClientTestCase(TestCase):
             spec=NetworkLocation(),
             base_url="url.qqq",
             connection_status=ConnectionStatus.Unknown,
-            dynamic=True,
+            location_type=LocationTypes.Dynamic,
         )
         with self.assertRaises(errors.NetworkLocationNotFound):
             NetworkClient.build_from_network_location(network_loc)
@@ -218,7 +219,7 @@ class NetworkClientTestCase(TestCase):
             spec=NetworkLocation(),
             base_url="url.qqq",
             connection_status=ConnectionStatus.ConnectionFailure,
-            dynamic=True,
+            location_type=LocationTypes.Dynamic,
         )
         try:
             NetworkClient.build_from_network_location(network_loc)
@@ -233,7 +234,6 @@ class NetworkClientTestCase(TestCase):
             spec=NetworkLocation(),
             base_url="url.qqq",
             connection_status=ConnectionStatus.Unknown,
-            dynamic=False,
         )
         try:
             NetworkClient.build_from_network_location(network_loc)

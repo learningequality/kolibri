@@ -137,7 +137,10 @@ def _update_connection_status(network_location):
         logger.error(e)
         logger.warning(
             "Failed to update connection status for {} location {}".format(
-                "dynamic" if network_location.dynamic else "static", network_location.id
+                "dynamic"
+                if network_location.location_type is LocationTypes.Dynamic
+                else "static",
+                network_location.id,
             )
         )
 
