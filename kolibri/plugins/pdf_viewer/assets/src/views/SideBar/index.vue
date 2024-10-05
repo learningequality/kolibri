@@ -146,7 +146,7 @@
 
   .pdf-sidebar {
     overflow-y: auto;
-    @extend %dropshadow-2dp;
+    @extend %dropshadow-4dp;
   }
 
   .tab:focus-visible {
