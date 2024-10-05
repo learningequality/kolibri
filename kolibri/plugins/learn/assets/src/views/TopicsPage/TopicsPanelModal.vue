@@ -106,7 +106,7 @@
   }
 
   .side-panel {
-    @extend %dropshadow-2dp;
+    @extend %dropshadow-4dp;
 
     position: fixed;
     top: 60px;
