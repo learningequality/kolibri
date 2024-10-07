@@ -1,6 +1,6 @@
 import has from 'lodash/has';
 import logger from 'kolibri.lib.logging';
-import { masteryModelValidator } from '../../utils/contentNodeUtils';
+import { masteryModelValidator } from 'kolibri-common/utils/contentNode';
 
 export const logging = logger.getLogger(__filename);
 
