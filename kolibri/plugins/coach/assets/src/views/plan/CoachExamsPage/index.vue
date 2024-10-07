@@ -7,14 +7,15 @@
         :tabsId="PLAN_TABS_ID"
         :activeTabId="PlanTabs.QUIZZES"
       >
+        <div>
+          <KIcon
+            icon="classes"
+            class="class-name-icon"
+          />
+          <span>{{ className }}</span>
+        </div>
+
         <div class="filter-and-button">
-          <div>
-            <KIcon
-              icon="classes"
-              class="class-name-icon"
-            />
-            <span>{{ className }}</span>
-          </div>
           <p v-if="filteredExams.length && filteredExams.length > 0">
             {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
           </p>
@@ -550,14 +551,10 @@
 
   .class-name-icon {
     position: relative;
-    top: 0.34em;
+    top: 0.5em;
     width: 1.5em;
     height: 1.5em;
     margin-right: 0.5em;
-  }
-
-  .report-controls {
-    margin-top: 1em;
   }
 
 </style>
