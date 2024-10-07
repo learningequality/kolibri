@@ -8,6 +8,13 @@
         :activeTabId="PlanTabs.QUIZZES"
       >
         <div class="filter-and-button">
+          <div>
+            <KIcon
+              icon="classes"
+              class="class-name-icon"
+            />
+            <span>{{ className }}</span>
+          </div>
           <p v-if="filteredExams.length && filteredExams.length > 0">
             {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
           </p>
@@ -39,7 +46,10 @@
             />
           </div>
         </div>
-        <ReportsControls @export="exportCSV">
+        <ReportsControls
+          class="report-controls"
+          @export="exportCSV"
+        >
           <KSelect
             v-model="statusSelected"
             :label="filterQuizStatus$()"
@@ -536,6 +546,18 @@
 
   .button-col {
     vertical-align: middle;
+  }
+
+  .class-name-icon {
+    position: relative;
+    top: 0.34em;
+    width: 1.5em;
+    height: 1.5em;
+    margin-right: 0.5em;
+  }
+
+  .report-controls {
+    margin-top: 1em;
   }
 
 </style>
