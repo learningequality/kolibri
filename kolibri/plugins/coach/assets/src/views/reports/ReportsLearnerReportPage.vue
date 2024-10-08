@@ -2,13 +2,24 @@
 
   <CoachAppBarPage>
     <KPageContainer>
-      <ReportsLearnerHeader :activeTabId="ReportsLearnersTabs.REPORTS" />
+      <ReportsLearnerHeader />
+    </KPageContainer>
+
+    <KPageContainer>
+      <HeaderTabs>
+        <KTabsList
+          ref="tabList"
+          :tabsId="REPORTS_LEARNERS_TABS_ID"
+          :ariaLabel="$tr('reportLearners')"
+          :activeTabId="ReportsLearnersTabs.REPORTS"
+          :tabs="tabs"
+          @click="() => saveTabsClick(REPORTS_LEARNERS_TABS_ID)"
+        />
+      </HeaderTabs>
       <KTabsPanel
         :tabsId="REPORTS_LEARNERS_TABS_ID"
         :activeTabId="ReportsLearnersTabs.REPORTS"
       >
-        <ReportsControls :disableExport="true" />
-
         <KGrid>
           <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
             <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
@@ -98,17 +109,23 @@
   import CoachAppBarPage from '../CoachAppBarPage';
   import { PageNames } from '../../constants';
   import { REPORTS_LEARNERS_TABS_ID, ReportsLearnersTabs } from '../../constants/tabsConstants';
+  import { useCoachTabs } from '../../composables/useCoachTabs';
   import ReportsLearnerHeader from './ReportsLearnerHeader';
-  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsLearnerReportPage',
     components: {
       CoachAppBarPage,
       ReportsLearnerHeader,
-      ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
+      return {
+        saveTabsClick,
+        wereTabsClickedRecently,
+      };
+    },
     data() {
       return {
         REPORTS_LEARNERS_TABS_ID,
@@ -141,6 +158,32 @@
           return tableRow;
         });
       },
+      tabs() {
+        return [
+          {
+            id: ReportsLearnersTabs.REPORTS,
+            label: this.coachString('reportsLabel'),
+            to: this.classRoute('ReportsLearnerReportPage', {}),
+          },
+          {
+            id: ReportsLearnersTabs.ACTIVITY,
+            label: this.coachString('activityLabel'),
+            to: this.classRoute('ReportsLearnerActivityPage', {}),
+          },
+        ];
+      },
+    },
+    mounted() {
+      // focus the active tab but only when it's likely
+      // that this header was re-mounted as a result
+      // of navigation after clicking a tab (focus shouldn't
+      // be manipulated programatically in other cases, e.g.
+      // when visiting the page for the first time)
+      if (this.wereTabsClickedRecently(this.REPORTS_LEARNERS_TABS_ID)) {
+        this.$nextTick(() => {
+          this.$refs.tabList.focusActiveTab();
+        });
+      }
     },
     methods: {
       isAssignedLesson(lesson) {
@@ -151,6 +194,12 @@
       },
       quizLink(quizId) {
         return this.classRoute(PageNames.REPORTS_LEARNER_REPORT_QUIZ_PAGE_ROOT, { quizId });
+      },
+    },
+    $trs: {
+      reportLearners: {
+        message: 'Report learners',
+        context: 'Labels the Reports > Learners tab for screen reader users',
       },
     },
   };
