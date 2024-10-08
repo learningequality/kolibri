@@ -159,7 +159,7 @@
       const { isLearner, isUserLoggedIn, username, full_name } = useUser();
       const { totalPoints, fetchPoints } = useTotalProgress();
       const links = computed(() => {
-        const currentItem = navItems.find(nc => nc.url === window.location.pathname);
+        const currentItem = get(navItems).find(nc => nc.url === window.location.pathname);
         if (!currentItem || !currentItem.routes) {
           return [];
         }

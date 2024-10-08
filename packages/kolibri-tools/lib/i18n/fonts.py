@@ -3,8 +3,6 @@
 For usage instructions, see:
     https://kolibri-dev.readthedocs.io/en/develop/references/i18n.html
 """
-from __future__ import unicode_literals
-
 import argparse
 import base64
 import io

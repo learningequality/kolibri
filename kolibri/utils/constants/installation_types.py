@@ -1,7 +1,7 @@
 """
 This module contains constants representing the type of "installers" used to install Kolibri.
 """
-from __future__ import unicode_literals
+
 
 APK = "apk"
 DEB = "deb"

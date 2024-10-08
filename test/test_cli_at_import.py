@@ -4,9 +4,6 @@ These tests deliberately omit `@pytest.mark.django_db` from the tests,
 so that any attempt to access the Django database during the running
 of these cli methods will result in an error and test failure.
 """
-from __future__ import absolute_import
-from __future__ import print_function
-
 from mock import patch
 
 

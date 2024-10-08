@@ -85,7 +85,7 @@
           </router-link>
           <a
             v-else
-            :href="generateNavRoute(subRoute.route)"
+            :href="subRoute.href"
             class="link"
             :class="subRouteInactiveClass"
           >
@@ -102,7 +102,6 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { generateNavRoute } from '../../utils/generateNavRoutes';
 
   export default {
     name: 'CoreMenuOption',
@@ -136,7 +135,8 @@
         required: false,
         default: () => [],
         // subRoutes should be an array of objects with the name, label, and route properties
-        validate: subRoutes => subRoutes.every(route => route.name && route.label && route.route),
+        validate: subRoutes =>
+          subRoutes.every(route => route.name && route.label && route.route && route.href),
       },
       disabled: {
         type: Boolean,
@@ -225,10 +225,6 @@
           this.$emit('toggleMenu');
         }
         return true;
-      },
-      generateNavRoute(route) {
-        const params = this.$route.params;
-        return generateNavRoute(this.link, route, params);
       },
       conditionalEmit() {
         if (this.disabled || this.link) {

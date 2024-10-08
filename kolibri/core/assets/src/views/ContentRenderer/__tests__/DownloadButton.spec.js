@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import { render, screen } from '@testing-library/vue';
 import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import { RENDERER_SUFFIX } from 'kolibri.coreVue.vuex.constants';
 import DownloadButton from '../DownloadButton.vue';
-import { RENDERER_SUFFIX } from '../constants';
 
 jest.mock('kolibri.coreVue.composables.useUser');
 

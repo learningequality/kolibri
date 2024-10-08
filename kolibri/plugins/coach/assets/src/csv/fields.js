@@ -89,17 +89,29 @@ export function helpNeeded() {
   ];
 }
 
-export function lastActivity() {
+export function allLearners(key = 'all') {
+  return [
+    {
+      name: FieldsMixinStrings.$tr('allLearners'),
+      key,
+      format: row => get(row, key) || '',
+    },
+  ];
+}
+
+export function lastActivity(key = 'lastActivity') {
   return [
     {
       name: coachStrings.$tr('lastActivityLabel'),
-      key: 'lastActivity',
+      key,
       format(row) {
-        if (!row[this.key]) {
+        const value = get(row, key);
+
+        if (!value) {
           return '';
         }
 
-        return row[this.key].toISOString();
+        return value.toISOString();
       },
     },
   ];
@@ -216,10 +228,11 @@ export function tally() {
   ];
 }
 
-export function timeSpent(key, label = 'timeSpentLabel') {
+export function timeSpent(key, label) {
+  label = label || coreStrings.$tr('timeSpentLabel');
   return [
     {
-      name: coachStrings.$tr(label),
+      name: label,
       key,
       format(row) {
         const value = get(row, key);

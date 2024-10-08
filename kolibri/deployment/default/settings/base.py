@@ -15,7 +15,7 @@ from urllib.parse import urljoin
 import pytz
 from django.conf import locale
 from morango.constants import settings as morango_settings
-from tzlocal import get_localzone
+from tzlocal import get_localzone_name
 from tzlocal.utils import ZoneInfoNotFoundError
 
 import kolibri
@@ -309,7 +309,7 @@ LANGUAGE_CODE = (
 )
 
 try:
-    TIME_ZONE = get_localzone().zone
+    TIME_ZONE = get_localzone_name()
 except (pytz.UnknownTimeZoneError, ValueError, ZoneInfoNotFoundError):
     # Do not fail at this point because a timezone was not
     # detected.

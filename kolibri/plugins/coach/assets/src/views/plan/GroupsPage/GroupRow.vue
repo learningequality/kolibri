@@ -49,18 +49,31 @@
     },
     computed: {
       menuOptions() {
-        return [this.coachString('renameAction'), this.coreString('deleteAction')];
+        return [
+          this.coachString('renameGroupAction'),
+          this.coachString('enrollLearnersAction'),
+          this.coreString('deleteAction'),
+        ];
       },
     },
     methods: {
       handleSelection(selectedOption) {
-        let emitted;
-        if (selectedOption === this.coachString('renameAction')) {
-          emitted = 'rename';
-        } else if (selectedOption === this.coreString('deleteAction')) {
-          emitted = 'delete';
+        switch (selectedOption) {
+          case this.coachString('renameGroupAction'):
+            this.$emit('rename', this.group.name, this.group.id);
+            break;
+          case this.coachString('enrollLearnersAction'):
+            this.$emit('enroll', this.group.name, this.group.id);
+            break;
+          case this.coreString('deleteAction'):
+            this.$emit('delete', this.group.name, this.group.id);
+            break;
+          default:
+            // eslint-disable-next-line no-console
+            console.warn(
+              `GroupRow: Tried to handleSelection of ${selectedOption}, but that isn't being handled.`,
+            );
         }
-        this.$emit(emitted, this.group.name, this.group.id);
       },
     },
   };

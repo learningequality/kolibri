@@ -1,4 +1,4 @@
-import { RENDERER_SUFFIX } from './constants';
+import { RENDERER_SUFFIX } from 'kolibri.coreVue.vuex.constants';
 import ContentRendererError from './ContentRendererError';
 import { canRenderContent, getRenderableFiles, getDefaultFile, getFilePreset } from './utils';
 

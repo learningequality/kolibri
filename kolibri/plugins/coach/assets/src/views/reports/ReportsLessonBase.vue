@@ -87,11 +87,12 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
-      const { coachReportsLesson$ } = coachStrings;
+      const { coachReportsLesson$, avgTimeSpentLabel$ } = coachStrings;
       const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
       return {
         saveTabsClick,
         wereTabsClickedRecently,
+        avgTimeSpentLabel$,
         coachReportsLesson$,
       };
     },
@@ -220,7 +221,7 @@
           const columns = [
             ...csvFields.title(),
             ...csvFields.tally(),
-            ...csvFields.timeSpent('avgTimeSpent', 'avgTimeSpentLabel'),
+            ...csvFields.timeSpent('avgTimeSpent', this.avgTimeSpentLabel$()),
           ];
 
           const exporter = new CSVExporter(columns, this.className);

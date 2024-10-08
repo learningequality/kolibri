@@ -22,11 +22,12 @@
         </h1>
 
         <KFixedGrid numCols="2">
-          <KFixedGridItem
-            span="1"
-            class="number-learners"
-          >
-            {{ coachString('numberOfLearners', { value: currentGroup.users.length }) }}
+          <KFixedGridItem span="1">
+            <KIcon
+              icon="classes"
+              class="class-name-icon"
+            />
+            <span>{{ className }}</span>
           </KFixedGridItem>
           <KFixedGridItem
             span="1"
@@ -38,6 +39,19 @@
               :text="$tr('enrollButton')"
               :to="$router.getRoute('GroupEnrollPage')"
             />
+
+            <KIconButton
+              icon="optionsHorizontal"
+              style="margin-left: 1em"
+            >
+              <template #menu>
+                <KDropdownMenu
+                  position="bottom left"
+                  :options="menuOptions"
+                  @select="handleOptionSelect"
+                />
+              </template>
+            </KIconButton>
           </KFixedGridItem>
         </KFixedGrid>
 
@@ -86,6 +100,21 @@
         />
       </div>
     </KPageContainer>
+    <RenameGroupModal
+      v-if="showRenameGroupModal"
+      :groupName="currentGroup.name"
+      :groupId="currentGroup.id"
+      :groups="groups"
+      @cancel="closeModal"
+    />
+
+    <DeleteGroupModal
+      v-if="showDeleteGroupModal"
+      :groupName="currentGroup.name"
+      :groupId="currentGroup.id"
+      @submit="handleSuccessDeleteGroup"
+      @cancel="closeModal"
+    />
   </CoachAppBarPage>
 
 </template>
@@ -97,7 +126,10 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
+  import { GroupModals } from '../../../constants';
   import CoachAppBarPage from '../../CoachAppBarPage';
+  import RenameGroupModal from '../GroupsPage/RenameGroupModal';
+  import DeleteGroupModal from '../GroupsPage/DeleteGroupModal';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
 
   export default {
@@ -106,6 +138,8 @@
       CoachAppBarPage,
       CoreTable,
       RemoveFromGroupModal,
+      RenameGroupModal,
+      DeleteGroupModal,
     },
     mixins: [commonCoreStrings, commonCoach],
     data() {
@@ -114,13 +148,22 @@
       };
     },
     computed: {
-      ...mapState('groups', ['groups']),
+      ...mapState('groups', ['groupModalShown', 'groups']),
       currentGroup() {
         return this.groups.find(g => g.id === this.$route.params.groupId);
       },
+      menuOptions() {
+        return [this.coachString('renameGroupAction'), this.$tr('deleteGroup')];
+      },
+      showRenameGroupModal() {
+        return this.groupModalShown === GroupModals.RENAME_GROUP;
+      },
+      showDeleteGroupModal() {
+        return this.groupModalShown === GroupModals.DELETE_GROUP;
+      },
     },
     methods: {
-      ...mapActions('groups', ['removeUsersFromGroup']),
+      ...mapActions('groups', ['removeUsersFromGroup', 'displayModal']),
       removeSelectedUserFromGroup() {
         if (this.userForRemoval) {
           this.removeUsersFromGroup({
@@ -132,12 +175,42 @@
           });
         }
       },
+      closeModal() {
+        this.displayModal(false);
+      },
+      handleSuccessDeleteGroup() {
+        this.showSnackbarNotification('groupDeleted');
+        this.displayModal(false);
+        this.$router.push(this.$router.getRoute('GroupsPage'));
+      },
+      handleOptionSelect(value) {
+        switch (value) {
+          case this.coachString('renameGroupAction'):
+            this.openRenameGroupModal(this.currentGroup.name, this.currentGroup.id);
+            break;
+          case this.$tr('deleteGroup'):
+            this.openDeleteGroupModal(this.currentGroup.name, this.currentGroup.id);
+            break;
+          default:
+            break;
+        }
+      },
+      openRenameGroupModal() {
+        this.displayModal(GroupModals.RENAME_GROUP);
+      },
+      openDeleteGroupModal() {
+        this.displayModal(GroupModals.DELETE_GROUP);
+      },
     },
     $trs: {
       enrollButton: {
         message: 'Enroll learners',
         context:
           'Button which allows user to add learners to a group once the group has been created.',
+      },
+      deleteGroup: {
+        message: 'Delete group',
+        context: 'Button allowing user to delete the group',
       },
       groupDoesNotExist: {
         message: 'This group does not exist',
@@ -153,4 +226,17 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .class-name-icon {
+    position: relative;
+    // Aligns icon to class name text
+    top: 0.34em;
+    // Icon was far smaller than text by default, better matches
+    width: 1.5em;
+    height: 1.5em;
+    // Space between icon and text
+    margin-right: 0.5em;
+  }
+
+</style>

@@ -2,6 +2,30 @@
 
 List of the most important changes for each release.
 
+## 0.17.2
+
+### Changed
+- Make 'save to device' file downloads initiate immediately by @rtibbles in [#12675](https://github.com/learningequality/kolibri/pull/12675)
+
+
+## 0.17.1
+
+### Added
+- Allow redirects for file downloads by @rtibbles in [#12309](https://github.com/learningequality/kolibri/pull/12309)
+- Add configuration option to disable Zeroconf by @ozer550 in [#12620](https://github.com/learningequality/kolibri/pull/12620)
+
+
+### Changed
+- Optimise Library page load time when channels have large thumbnails by @thesujai in [#12530](https://github.com/learningequality/kolibri/pull/12530)
+- Provide more helpful error state when trying to import from unprovisioned device during device setup by @nucleogenesis in [#12397](https://github.com/learningequality/kolibri/pull/12397)
+- Upgrade Python dependencies by @rtibbles in [#12165](https://github.com/learningequality/kolibri/pull/12165)
+
+### Fixed
+- Preserve the subfolder structure inside the static folder on unzipping for h5p and HTML5 zips by @rtibbles in [#12538](https://github.com/learningequality/kolibri/pull/12538)
+- Fixed variety of inconsistencies with activity notifications by @AlexVelezLl in [#12386](https://github.com/learningequality/kolibri/pull/12386)
+- Fixed mismatch between coach Reports and generated CSV by @AlexVelezLl in [#12628](https://github.com/learningequality/kolibri/pull/12628)
+
+
 ## 0.17.0
 
 ### Added

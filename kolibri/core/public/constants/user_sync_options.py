@@ -1,7 +1,7 @@
 """
 This module contains constants representing options for SoUD sync
 """
-from __future__ import unicode_literals
+
 
 DELAYED_SYNC = 900  # client: seconds to mark sync as not recent
 

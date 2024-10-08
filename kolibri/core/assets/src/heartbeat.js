@@ -320,6 +320,9 @@ export class HeartBeat {
       'MSPointerMove',
     ];
   }
+  setReloadOnReconnect(reloadOnReconnect) {
+    set(this._connection.reloadOnReconnect, reloadOnReconnect);
+  }
 }
 
 const heartbeat = new HeartBeat();
