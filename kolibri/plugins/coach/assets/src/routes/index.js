@@ -11,7 +11,6 @@ import HomeActivityPage from '../views/home/HomeActivityPage';
 import StatusTestPage from '../views/common/status/StatusTestPage';
 import { ClassesPageNames } from '../../../../learn/assets/src/constants';
 import { PageNames } from '../constants';
-import Playground from '../views/Playground.vue';
 import reportRoutes from './reportRoutes';
 import planRoutes from './planRoutes';
 import { classIdParamRequiredGuard } from './utils';
@@ -113,13 +112,6 @@ export default [
   {
     path: '/coach-prompts',
     component: CoachPrompts,
-    handler() {
-      store.dispatch('notLoading');
-    },
-  },
-  {
-    path: '/playground',
-    component: Playground,
     handler() {
       store.dispatch('notLoading');
     },
