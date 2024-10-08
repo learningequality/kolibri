@@ -141,6 +141,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       'Exercises are marked as completed when the learner has answered the required number of questions correctly in that specific exercise.',
   },
+  lessonsCompletedLabel: {
+    message: 'Lessons completed',
+    context:
+      'Lessons are marked as completed when the learner has answered the required number of questions correctly in that specific lesson.',
+  },
   filterLessonAll: {
     message: 'All',
     context:
