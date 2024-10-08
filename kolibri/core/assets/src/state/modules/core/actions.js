@@ -14,8 +14,6 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
 import Lockr from 'lockr';
-import { get } from '@vueuse/core';
-import useUser from 'kolibri.coreVue.composables.useUser';
 import {
   DisconnectionErrorCodes,
   LoginErrors,

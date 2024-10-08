@@ -1,5 +1,4 @@
 <template>
-
   <div>
     <AppBarPage v-if="!loading && notAuthorized">
       <KPageContainer>
@@ -36,18 +35,12 @@
       @submit="dismissUpdateModal"
     />
   </div>
-
 </template>
 
-
 <script>
-
   import { mapState } from 'vuex';
   import Lockr from 'lockr';
   import {
-    FacilityResource,
-    FacilityDatasetResource,
-    UserSyncStatusResource,
     PingbackNotificationResource,
     PingbackNotificationDismissedResource,
   } from 'kolibri.resources';
@@ -70,11 +63,12 @@
       UpdateNotification,
     },
     setup() {
-      const { isAdmin, isSuperuser } = useUser();
+      const { isAdmin, isSuperuser, user_id } = useUser();
 
       return {
         isAdmin,
         isSuperuser,
+        user_id,
       };
     },
     props: {
@@ -160,6 +154,7 @@
     created() {
       this.getNotifications();
     },
+
     methods: {
       async getNotifications() {
         const { isAdmin, isSuperuser } = useUser();
@@ -177,7 +172,7 @@
         try {
           await PingbackNotificationDismissedResource.saveModel({
             data: {
-              user: user_id,
+              user: this.user_id,
               notification: notificationId,
             },
           });
@@ -190,6 +185,9 @@
         if (this.notifications.length === 0) {
           this.notificationModalShown = false;
           Lockr.set(UPDATE_MODAL_DISMISSED, true);
+        } else {
+          // Call saveDismissedNotification for the most recent notification
+          this.saveDismissedNotification(this.mostRecentNotification.id);
         }
       },
       dispatchError(error) {
@@ -213,8 +211,6 @@
       i18n: notification.i18n,
     }));
   }
-
 </script>
-
 
 <style lang="scss" scoped></style>
