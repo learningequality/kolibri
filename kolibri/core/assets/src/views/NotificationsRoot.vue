@@ -1,4 +1,5 @@
 <template>
+
   <div>
     <AppBarPage v-if="!loading && notAuthorized">
       <KPageContainer>
@@ -35,9 +36,12 @@
       @submit="dismissUpdateModal"
     />
   </div>
+
 </template>
 
+
 <script>
+
   import { mapState } from 'vuex';
   import Lockr from 'lockr';
   import {
@@ -168,7 +172,6 @@
         }
       },
       async saveDismissedNotification(notificationId) {
-        const { user_id } = useUser();
         try {
           await PingbackNotificationDismissedResource.saveModel({
             data: {
@@ -186,7 +189,6 @@
           this.notificationModalShown = false;
           Lockr.set(UPDATE_MODAL_DISMISSED, true);
         } else {
-          // Call saveDismissedNotification for the most recent notification
           this.saveDismissedNotification(this.mostRecentNotification.id);
         }
       },
@@ -211,6 +213,8 @@
       i18n: notification.i18n,
     }));
   }
+
 </script>
+
 
 <style lang="scss" scoped></style>
