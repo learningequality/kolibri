@@ -4,8 +4,27 @@
     <KPageContainer>
       <ReportsHeader
         :activeTabId="ReportsTabs.LEARNERS"
-        :title="$isPrint ? $tr('printLabel', { className }) : null"
-      />
+        :title="$isPrint ? $tr('printLabel', { className }) : coachString('learnersLabel')"
+      >
+        <template #header>
+          <p>
+            <KIcon
+              icon="classes"
+              class="class-name-icon"
+            />
+            <span>{{ className }}</span>
+          </p>
+          <div class="filter">
+            <KSelect
+              v-model="filterSelection"
+              :label="coachString('recipientsLabel')"
+              :options="filterOptions"
+              :inline="true"
+            />
+          </div>
+        </template>
+      </ReportsHeader>
+
       <KTabsPanel
         :tabsId="REPORTS_TABS_ID"
         :activeTabId="ReportsTabs.LEARNERS"
@@ -62,6 +81,7 @@
 
   import sortBy from 'lodash/sortBy';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { REPORTS_TABS_ID, ReportsTabs } from '../../constants/tabsConstants';
   import CoachAppBarPage from '../CoachAppBarPage';
@@ -78,11 +98,18 @@
       ReportsHeader,
       ElapsedTime,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         REPORTS_TABS_ID,
         ReportsTabs,
+        filterOptions: [
+          {
+            label: this.coreString('allLabel'),
+            value: this.coreString('allLabel'),
+          },
+        ],
+        filterSelection: { label: this.coreString('allLabel'), value: this.coreString('allLabel') },
       };
     },
     computed: {
@@ -179,5 +206,19 @@
 <style lang="scss" scoped>
 
   @import '../common/print-table';
+
+  .class-name-icon {
+    position: relative;
+    top: 0.4em;
+    width: 1.5em;
+    height: 1.5em;
+    margin-right: 0.5em;
+  }
+
+  .filter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
 </style>
