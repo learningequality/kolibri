@@ -2,7 +2,31 @@
 
   <CoachAppBarPage :showSubNav="true">
     <KPageContainer>
-      <PlanHeader :activeTabId="PlanTabs.LESSONS" />
+      <PlanHeader :activeTabId="PlanTabs.LESSONS">
+        <template #header>
+          <div style="display: flex; justify-content: space-between">
+            <span>
+              <h1>{{ coreString('lessonsLabel') }}</h1>
+              <p>
+                <KIcon
+                  icon="classes"
+                  class="class-name-icon"
+                />
+                <span>{{ className }}</span>
+              </p>
+            </span>
+            <span>
+              <KRouterLink
+                :style="{ alignSelf: 'flex-end', marginTop: '1em' }"
+                :primary="true"
+                appearance="raised-button"
+                :text="coachString('newLessonAction')"
+                :to="newLessonRoute"
+              />
+            </span>
+          </div>
+        </template>
+      </PlanHeader>
       <KTabsPanel
         :tabsId="PLAN_TABS_ID"
         :activeTabId="PlanTabs.LESSONS"
@@ -13,21 +37,24 @@
         >
           {{ coachString('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
         </p>
-        <div class="filter-and-button">
-          <KSelect
-            v-model="filterSelection"
-            class="select"
-            :label="coachString('filterLessonStatus')"
-            :options="filterOptions"
-            :inline="true"
-          />
-          <KRouterLink
-            :primary="true"
-            appearance="raised-button"
-            :text="coachString('newLessonAction')"
-            :to="newLessonRoute"
-          />
-        </div>
+        <ReportsControls @export="exportCSV">
+          <div :style="windowIsSmall ? { display: 'grid' } : {}">
+            <KSelect
+              v-model="filterSelection"
+              class="select"
+              :label="coachString('filterLessonStatus')"
+              :options="filterOptions"
+              :inline="true"
+            />
+            <KSelect
+              :value="{ label: coreString('allLabel'), value: coreString('allLabel') }"
+              class="select"
+              :label="coachString('recipientsLabel')"
+              :options="[]"
+              :inline="true"
+            />
+          </div>
+        </ReportsControls>
 
         <CoreTable
           :dataLoading="lessonsAreLoading"
@@ -187,6 +214,7 @@
   import useKShow from 'kolibri-design-system/lib/composables/useKShow';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
@@ -195,6 +223,9 @@
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
   import { lessonSummaryLink } from '../../../routes/planLessonsRouterUtils';
   import { useLessons } from '../../../composables/useLessons';
+  import ReportsControls from '../../reports/ReportsControls';
+  import * as csvFields from '../../../csv/fields';
+  import CSVExporter from '../../../csv/exporter';
 
   export default {
     name: 'LessonsRootPage',
@@ -203,13 +234,15 @@
       CoreTable,
       CoachAppBarPage,
       AssignmentDetailsModal,
+      ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { show } = useKShow();
       const { lessonsAreLoading } = useLessons();
       const { createSnackbar } = useSnackbar();
-      return { show, lessonsAreLoading, createSnackbar };
+      const { windowIsSmall } = useKResponsiveWindow();
+      return { show, lessonsAreLoading, createSnackbar, windowIsSmall };
     },
     data() {
       return {
@@ -401,6 +434,16 @@
         this.showLessonIsVisibleModal = false;
         this.showLessonIsNotVisibleModal = false;
       },
+      exportCSV() {
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.recipients(this.className),
+          ...csvFields.tally(),
+          ...csvFields.allLearners('totalLearners'),
+        ];
+        const fileName = this.$tr('printLabel', { className: this.className });
+        new CSVExporter(columns, fileName).export(this.table);
+      },
       bytesForHumans,
     },
     $trs: {
@@ -428,6 +471,11 @@
         context:
           'The size of the file or files that will be removed from learner devices for the lesson, (i.e. 20 KB)',
       },
+      printLabel: {
+        message: '{className} Lessons',
+        context:
+          "Title that displays on a printed copy of the Lessons Report. This shows if the user uses the 'Print' option by clicking on the printer icon.",
+      },
     },
   };
 
@@ -436,20 +484,16 @@
 
 <style lang="scss" scoped>
 
-  .filter-and-button {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 24px;
-    margin-bottom: 24px;
-
-    button {
-      align-self: flex-end;
-    }
+  .total-size {
+    padding: 16px 0 0;
   }
 
-  .total-size {
-    padding: 16px 0;
+  .class-name-icon {
+    position: relative;
+    top: 0.4em;
+    width: 1.5em;
+    height: 1.5em;
+    margin-right: 0.5em;
   }
 
 </style>
