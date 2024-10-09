@@ -7,8 +7,6 @@ import {
   FacilityResource,
   FacilityDatasetResource,
   UserSyncStatusResource,
-  PingbackNotificationResource,
-  PingbackNotificationDismissedResource,
 } from 'kolibri.resources';
 import { setServerTime } from 'kolibri.utils.serverClock';
 import urls from 'kolibri.urls';
@@ -16,8 +14,6 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import CatchErrors from 'kolibri.utils.CatchErrors';
 import Vue from 'kolibri.lib.vue';
 import Lockr from 'lockr';
-import { get } from '@vueuse/core';
-import useUser from 'kolibri.coreVue.composables.useUser';
 import {
   DisconnectionErrorCodes,
   LoginErrors,
@@ -35,16 +31,6 @@ const logging = logger.getLogger(__filename);
  * The methods below help map data from
  * the API to state in the Vuex store
  */
-
-function _notificationListState(data) {
-  return data.map(notification => ({
-    id: notification.id,
-    version_range: notification.version_range,
-    timestamp: notification.timestamp,
-    link_url: notification.link_url,
-    i18n: notification.i18n,
-  }));
-}
 
 /**
  * Actions
@@ -177,36 +163,6 @@ const _setPageVisibility = debounce((store, visibility) => {
 
 export function setPageVisibility(store) {
   _setPageVisibility(store, document.visibilityState === 'visible');
-}
-
-export function getNotifications(store) {
-  const { isAdmin, isSuperuser } = useUser();
-  if (get(isAdmin) || get(isSuperuser)) {
-    return PingbackNotificationResource.fetchCollection()
-      .then(notifications => {
-        logging.info('Notifications set.');
-        store.commit('CORE_SET_NOTIFICATIONS', _notificationListState(notifications));
-      })
-      .catch(error => {
-        store.dispatch('handleApiError', { error });
-      });
-  }
-  return Promise.resolve();
-}
-
-export function saveDismissedNotification(store, notification_id) {
-  const { user_id } = useUser();
-  const dismissedNotificationData = {
-    user: get(user_id),
-    notification: notification_id,
-  };
-  return PingbackNotificationDismissedResource.saveModel({ data: dismissedNotificationData })
-    .then(() => {
-      store.commit('CORE_REMOVE_NOTIFICATION', notification_id);
-    })
-    .catch(error => {
-      store.dispatch('handleApiError', { error });
-    });
 }
 
 export function getFacilities(store) {
