@@ -88,7 +88,6 @@
   import { computed, toRefs } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ViewMoreButtonStates } from '../../../constants/index';
-
   import LessonContentCard from './LessonContentCard';
 
   export default {
@@ -97,7 +96,6 @@
       LessonContentCard,
     },
     mixins: [commonCoreStrings],
-
     setup(props) {
       const { selectAllChecked, selectAllIndeterminate } = toRefs(props);
       // Code too long to display in template

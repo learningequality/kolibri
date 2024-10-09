@@ -8,7 +8,7 @@ from PIL import Image
 
 # The default input size is based off the current size of the Kolibri logo SVG
 def convert_svg_to_image(
-    svg_file_path, output_file_path, input_size=200, final_size=None
+    svg_file_path, output_file_path, input_size=200, final_size=None, padding=None
 ):
     ext = os.path.splitext(output_file_path)[1].lower()
     temp_png_file = tempfile.NamedTemporaryFile(suffix=ext, delete=False)
@@ -34,6 +34,11 @@ def convert_svg_to_image(
 
         # Determine the dimensions for a square based on the cropped image
         max_dim = max(img_cropped.size)
+
+        if padding:
+            padding = int(padding) / 100
+            max_dim += int(max_dim * padding)
+
         square_size = (max_dim, max_dim)
 
         # Create a new square image with a transparent background
@@ -76,7 +81,15 @@ if __name__ == "__main__":
         help="Optional final size to resize the output image to a square of this size.",
         default=None,
     )
+    parser.add_argument(
+        "--padding",
+        type=int,
+        help="Optional add this percentage of padding around the bounding box.",
+        default=None,
+    )
 
     args = parser.parse_args()
 
-    convert_svg_to_image(args.svg_file, args.image_file, final_size=args.size)
+    convert_svg_to_image(
+        args.svg_file, args.image_file, final_size=args.size, padding=args.padding
+    )

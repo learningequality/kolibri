@@ -245,10 +245,10 @@
         );
 
         if (!this.viewByGroups) {
-          columns.push(...csvFields.list('groupNames', 'groupsLabel'));
+          columns.push(...csvFields.list('groups', 'groupsLabel'));
         }
 
-        columns.push(...csvFields.lastActivity());
+        columns.push(...csvFields.lastActivity('statusObj.last_activity'));
 
         const exporter = new CSVExporter(columns, this.className);
         exporter.addNames({
@@ -271,8 +271,8 @@
           .reduce((entries, groupEntries) => entries.concat(groupEntries), []);
 
         if (this.ungroupedEntries.length) {
-          data.concat(
-            this.ungroupedEntries.map(entry => {
+          data.push(
+            ...this.ungroupedEntries.map(entry => {
               entry.groupName = '';
               return entry;
             }),

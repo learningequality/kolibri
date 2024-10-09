@@ -18,8 +18,8 @@
 
 <script>
 
-  import CoreSnackbar from 'kolibri.coreVue.components.CoreSnackbar';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import CoreSnackbar from './CoreSnackbar';
 
   export default {
     name: 'GlobalSnackbar',

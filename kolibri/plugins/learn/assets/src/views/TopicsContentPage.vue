@@ -172,6 +172,7 @@
   import AppError from 'kolibri-common/components/AppError';
   import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { PageNames, ClassesPageNames } from '../constants';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import useChannels from '../composables/useChannels';
@@ -186,7 +187,6 @@
   import useLearnerResources from '../composables/useLearnerResources';
   import useDownloadRequests from '../composables/useDownloadRequests';
   import commonLearnStrings from './commonLearnStrings';
-  import SidePanelModal from './SidePanelModal';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
   import ContentPage from './ContentPage';
   import LearningActivityBar from './LearningActivityBar';
@@ -761,13 +761,20 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-    margin-bottom: -8px;
+    margin-top: 8px;
     margin-left: -8px;
   }
 
   .chip {
     margin-bottom: 8px;
     margin-left: 8px;
+  }
+
+  .header-content h2 {
+    position: absolute;
+    top: 50%;
+    text-align: left;
+    transform: translate(0, -50%);
   }
 
 </style>

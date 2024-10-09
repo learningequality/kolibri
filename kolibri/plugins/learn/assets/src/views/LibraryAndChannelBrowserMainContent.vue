@@ -36,7 +36,6 @@
   import useContentLink from '../composables/useContentLink';
   import CardGrid from './cards/CardGrid';
   import ResourceCard from './cards/ResourceCard';
-
   import HybridLearningContentCard from './HybridLearningContentCard';
   import HybridLearningFooter from './HybridLearningContentCard/HybridLearningFooter';
   import CardList from './CardList';

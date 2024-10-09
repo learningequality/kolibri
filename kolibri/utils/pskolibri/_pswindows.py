@@ -1,7 +1,4 @@
 """Windows platform implementation."""
-from __future__ import absolute_import
-from __future__ import division
-
 import ctypes
 import errno
 import functools

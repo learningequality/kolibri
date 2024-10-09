@@ -1,7 +1,7 @@
 """
 This module contains constants representing the kinds of Collections.
 """
-from __future__ import unicode_literals
+
 
 FACILITY = "facility"
 CLASSROOM = "classroom"

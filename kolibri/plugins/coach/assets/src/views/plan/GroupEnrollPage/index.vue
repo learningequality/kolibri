@@ -210,7 +210,7 @@
           'Indicates next page of results shown on the enroll learners page. This is not seen in the UI.',
       },
       allUsersAlready: {
-        message: 'All users are already enrolled in this class',
+        message: 'All users are already enrolled in this group',
         context:
           'Message that displays on group when all learners in a class have already been added to the group and there are no more to add.',
       },

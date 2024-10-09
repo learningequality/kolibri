@@ -3,7 +3,8 @@ import { KolibriIcons } from 'kolibri-design-system/lib/KIcon/iconDefinitions';
 import { get } from '@vueuse/core';
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
 import logger from 'kolibri.lib.logging';
-import { computed } from 'kolibri.lib.vueCompositionApi';
+import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+import { generateNavRoute } from './generateNavRoutes';
 
 const logging = logger.getLogger(__filename);
 
@@ -75,13 +76,26 @@ export const registerNavItem = component => {
   }
 };
 
-export default function useNav() {
+export default function useNav(store) {
+  store = store || getCurrentInstance().proxy.$store;
+  const route = computed(() => store.state.route);
   const { windowIsSmall } = useKResponsiveWindow();
   const topBarHeight = computed(() => (get(windowIsSmall) ? 56 : 64));
-  const exportedItems = navItems.map(component => ({
-    ...component,
-    active: window.location.pathname == component.url,
-  }));
+  const exportedItems = computed(() =>
+    navItems.map(item => {
+      const output = {
+        ...item,
+        active: window.location.pathname == item.url,
+      };
+      if (item.routes) {
+        output.routes = item.routes.map(routeItem => ({
+          ...routeItem,
+          href: generateNavRoute(item.url, routeItem.route, get(route).params),
+        }));
+      }
+      return output;
+    }),
+  );
   return {
     navItems: exportedItems,
     topBarHeight,
