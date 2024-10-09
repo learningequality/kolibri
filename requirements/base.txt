@@ -2,7 +2,7 @@ diskcache==5.6.3
 django-filter==21.1
 django-js-reverse==0.10.2
 djangorestframework==3.14.0
-django==3.2.25
+django==4.2.16
 colorlog==6.8.2
 configobj==5.0.8
 django-mptt==0.14.0
