@@ -56,6 +56,20 @@ export default [
     },
   },
   {
+    name: LessonsPageNames.PLAN_LESSONS_ROOT_BETTER,
+    path: '/:classId/plan/lessonstemp',
+    component: LessonsRootPage,
+    handler(toRoute, fromRoute, next) {
+      if (classIdParamRequiredGuard(toRoute, PageNames.PLAN_PAGE, next)) {
+        return;
+      }
+      showLessonsRootPage(store, toRoute.params.classId);
+    },
+    meta: {
+      titleParts: ['lessonsLabel', 'CLASS_NAME'],
+    },
+  },
+  {
     name: LessonsPageNames.LESSON_CREATION_ROOT,
     path: path(CLASS, ALL_LESSONS, '/new'),
     component: LessonCreationPage,
