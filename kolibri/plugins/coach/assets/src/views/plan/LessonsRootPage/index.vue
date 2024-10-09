@@ -7,7 +7,10 @@
         :tabsId="PLAN_TABS_ID"
         :activeTabId="PlanTabs.LESSONS"
       >
-        <p v-if="lessons.length && lessons.length > 0">
+        <p
+          v-if="calcTotalSizeOfVisibleLessons !== null"
+          class="total-size"
+        >
           {{ coachString('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
         </p>
         <div class="filter-and-button">
@@ -32,6 +35,7 @@
         >
           <template #headers>
             <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ coreString('progressLabel') }}</th>
             <th>{{ $tr('size') }}</th>
             <th>{{ coachString('recipientsLabel') }}</th>
             <th>{{ coachString('lessonVisibleLabel') }}</th>
@@ -51,6 +55,12 @@
                     :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
                     :text="lesson.title"
                     icon="lesson"
+                  />
+                </td>
+                <td>
+                  <StatusSummary
+                    :tally="lesson.tally"
+                    :verbose="true"
                   />
                 </td>
                 <td>
@@ -222,7 +232,19 @@
       ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonsRoot', ['lessons', 'learnerGroups']),
       sortedLessons() {
-        return this._.orderBy(this.lessons, ['date_created'], ['desc']);
+        const sorted = this._.orderBy(this.lessons, ['date_created'], ['desc']);
+        return sorted.map(lesson => {
+          const learners = this.getLearnersForLesson(lesson);
+          const sortedLesson = {
+            totalLearners: learners.length,
+            tally: this.getLessonStatusTally(lesson.id, learners),
+            groupNames: this.getGroupNames(lesson.assignments),
+            recipientNames: this.getRecipientNamesForLesson(lesson),
+            hasAssignments: learners.length > 0,
+          };
+          Object.assign(sortedLesson, lesson);
+          return sortedLesson;
+        });
       },
       userHasDismissedModal() {
         return Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
@@ -424,6 +446,10 @@
     button {
       align-self: flex-end;
     }
+  }
+
+  .total-size {
+    padding: 16px 0;
   }
 
 </style>
