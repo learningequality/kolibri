@@ -126,6 +126,15 @@
 
 <script>
 
+  //
+  // Usage of injectBaseSearch() in this component requires ancestor's use of useSearch
+  // Examples of it can be found in the following components:
+  // - kolibri/plugins/learn/assets/src/views/LibraryPage/index.vue
+  //   in https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/learn/assets/src/views/LibraryPage/index.vue#L238-L251
+  // - kolibri/plugins/learn/assets/src/views/TopicsPage/index.vue
+  //   in https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/learn/assets/src/views/TopicsPage/index.vue#L366-L378
+  //
+
   import { NoCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
@@ -134,7 +143,6 @@
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
   import SearchBox from '../SearchBox';
   import SidePanelModal from '../SidePanelModal';
-  import useContentLink from '../../composables/useContentLink';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import CategorySearchModal from './CategorySearchModal';
   import SelectGroup from './SelectGroup';
@@ -151,7 +159,6 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsLarge } = useKResponsiveWindow();
-      const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const {
         availableLibraryCategories,
         availableResourcesNeeded,
@@ -165,7 +172,6 @@
         availableLibraryCategories,
         availableResourcesNeeded,
         currentCategory,
-        genContentLinkBackLinkCurrentPage,
         searchableLabels,
         activeSearchTerms,
         windowIsLarge,

@@ -20,6 +20,9 @@ import LessonResourceSelectionPage from '../views/plan/LessonResourceSelectionPa
 import PlanLessonSelectionContentPreview from '../views/plan/PlanLessonSelectionContentPreview';
 import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
 import LessonCreationPage from '../views/plan/LessonCreationPage';
+import EditLessonDetails from '../views/plan/LessonEditDetailsPage/EditLessonDetails.vue';
+import PreviewSelectedResources from '../views/plan/LessonContentPreviewPage/PreviewSelectedResources.vue';
+import LessonResourceSelection from '../views/plan/LessonResourceSelectionPage/LessonResourceSelection.vue';
 import { classIdParamRequiredGuard } from './utils';
 
 const OPTIONAL_CLASS = '/:classId?/plan';
@@ -56,6 +59,36 @@ export default [
     name: LessonsPageNames.LESSON_CREATION_ROOT,
     path: path(CLASS, ALL_LESSONS, '/new'),
     component: LessonCreationPage,
+  },
+  {
+    name: PageNames.LESSON_CREATION_ROOT_BETTER,
+    path: '/:classId/plan/lessonstemp/:lessonId/edit',
+    component: LessonCreationPage,
+    children: [
+      {
+        name: PageNames.LESSON_EDIT_DETAILS,
+        path: 'details/',
+        component: EditLessonDetails,
+        props: {
+          text: 'test',
+        },
+      },
+      {
+        name: PageNames.LESSON_SELECT_RESOURCES,
+        path: 'select-resources/:topicId?',
+        component: LessonResourceSelection,
+      },
+      {
+        name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
+        path: 'preview-resources/',
+        component: PreviewSelectedResources,
+      },
+      {
+        name: PageNames.LESSON_PREVIEW_RESOURCE,
+        path: 'preview-resources/:nodeId',
+        component: PreviewSelectedResources,
+      },
+    ],
   },
   {
     name: LessonsPageNames.SUMMARY,

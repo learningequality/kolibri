@@ -44,6 +44,10 @@
 
   import { mapState } from 'vuex';
   import Lockr from 'lockr';
+  import {
+    PingbackNotificationResource,
+    PingbackNotificationDismissedResource,
+  } from 'kolibri.resources';
   import { UPDATE_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { currentLanguage, defaultLanguage } from 'kolibri.utils.i18n';
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
@@ -63,11 +67,12 @@
       UpdateNotification,
     },
     setup() {
-      const { isAdmin, isSuperuser } = useUser();
+      const { isAdmin, isSuperuser, user_id } = useUser();
 
       return {
         isAdmin,
         isSuperuser,
+        user_id,
       };
     },
     props: {
@@ -95,13 +100,13 @@
     },
     data() {
       return {
+        notifications: [],
         notificationModalShown: true,
       };
     },
     computed: {
       ...mapState({
         error: state => state.core.error,
-        notifications: state => state.core.notifications,
       }),
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
@@ -127,6 +132,9 @@
         return false;
       },
       mostRecentNotification() {
+        if (this.notifications.length === 0) {
+          return null;
+        }
         let languageCode = defaultLanguage.id;
         // notifications should already be ordered by timestamp
         const notification = this.notifications[0];
@@ -147,15 +155,64 @@
         return null;
       },
     },
+    created() {
+      this.getNotifications();
+    },
+
     methods: {
+      async getNotifications() {
+        const { isAdmin, isSuperuser } = useUser();
+        if (isAdmin || isSuperuser) {
+          try {
+            const notifications = await PingbackNotificationResource.fetchCollection();
+            this.notifications = _notificationListState(notifications);
+          } catch (error) {
+            this.dispatchError(error);
+          }
+        }
+      },
+      async saveDismissedNotification(notificationId) {
+        try {
+          await PingbackNotificationDismissedResource.saveModel({
+            data: {
+              user: this.user_id,
+              notification: notificationId,
+            },
+          });
+          this.removeNotification(notificationId);
+        } catch (error) {
+          this.dispatchError(error);
+        }
+      },
       dismissUpdateModal() {
         if (this.notifications.length === 0) {
           this.notificationModalShown = false;
           Lockr.set(UPDATE_MODAL_DISMISSED, true);
+        } else {
+          this.saveDismissedNotification(this.mostRecentNotification.id);
         }
+      },
+      dispatchError(error) {
+        this.$store.dispatch('handleApiError', { error });
+      },
+      removeNotification(notificationId) {
+        this.notifications = this.notifications.filter(n => n.id !== notificationId);
       },
     },
   };
+
+  function _notificationListState(data) {
+    if (!data || data.length === 0) {
+      return [];
+    }
+    return data.map(notification => ({
+      id: notification.id,
+      version_range: notification.version_range,
+      timestamp: notification.timestamp,
+      link_url: notification.link_url,
+      i18n: notification.i18n,
+    }));
+  }
 
 </script>
 

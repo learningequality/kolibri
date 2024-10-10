@@ -759,9 +759,10 @@ class KolibriServicesProcessBus(BaseKolibriProcessBus):
         service_plugin = ServicesPlugin(self)
         service_plugin.subscribe()
 
-        # Setup zeroconf plugin
-        zeroconf_plugin = ZeroConfPlugin(self, self.port)
-        zeroconf_plugin.subscribe()
+        if conf.OPTIONS["Deployment"]["ZEROCONF_ENABLED"]:
+            # Setup zeroconf plugin
+            zeroconf_plugin = ZeroConfPlugin(self, self.port)
+            zeroconf_plugin.subscribe()
 
     def run(self):
         self.graceful()

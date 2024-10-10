@@ -20,8 +20,6 @@ This will just regenerate the current schema for SQLAlchemy, so that we can use 
 to calculate these fields if needed (this can frequently be more efficient than using the
 Django ORM for these calculations).
 """
-from __future__ import print_function
-
 import os
 import uuid
 from gettext import gettext as _

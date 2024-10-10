@@ -1,9 +1,6 @@
 """
 Tests for `kolibri.utils.main` module.
 """
-from __future__ import absolute_import
-from __future__ import print_function
-
 import unittest
 
 import pytest

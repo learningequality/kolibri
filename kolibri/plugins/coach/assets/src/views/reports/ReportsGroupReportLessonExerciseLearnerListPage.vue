@@ -93,7 +93,7 @@
           ...csvFields.learnerProgress('statusObj.status'),
           ...csvFields.timeSpent('statusObj.time_spent'),
           ...csvFields.list('groups', 'groupsLabel'),
-          ...csvFields.lastActivity(),
+          ...csvFields.lastActivity('statusObj.last_activity'),
         ];
 
         const exporter = new CSVExporter(columns, this.className);

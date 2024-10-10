@@ -9,7 +9,7 @@
       :key="key"
     >
       <a
-        :href="generateNavRoute(routeDefinition.route)"
+        :href="routeDefinition.href"
         tabindex="-1"
         class="nav-menu-item"
         :style="{ textDecoration: 'none' }"
@@ -65,7 +65,6 @@
 <script>
 
   import commonCoreStrings from '../mixins/commonCoreStrings';
-  import { generateNavRoute } from '../utils/generateNavRoutes';
 
   export default {
     name: 'BottomNavigationBar',
@@ -95,15 +94,8 @@
       routes() {
         return this.bottomMenuItem.routes || [];
       },
-      url() {
-        return this.bottomMenuItem.url || '';
-      },
     },
     methods: {
-      generateNavRoute(route) {
-        const params = this.$route.params;
-        return generateNavRoute(this.url, route, params);
-      },
       isActiveLink(route) {
         return this.bottomMenuItem.active && route == this.$router.currentRoute.path;
       },
