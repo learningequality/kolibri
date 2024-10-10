@@ -7,18 +7,14 @@
         :tabsId="PLAN_TABS_ID"
         :activeTabId="PlanTabs.QUIZZES"
       >
-        <div>
-          <KIcon
-            icon="classes"
-            class="class-name-icon"
-          />
-          <span>{{ className }}</span>
-        </div>
-
-        <div class="filter-and-button">
-          <p v-if="filteredExams.length && filteredExams.length > 0">
-            {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
-          </p>
+        <div class="classname-quiz-button-div">
+          <div>
+            <KIcon
+              icon="classes"
+              class="class-name-icon"
+            />
+            <span>{{ className }}</span>
+          </div>
           <KButtonGroup v-if="practiceQuizzesExist">
             <KButton
               primary
@@ -47,6 +43,11 @@
             />
           </div>
         </div>
+
+        <p v-if="filteredExams.length && filteredExams.length > 0">
+          {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
+        </p>
+
         <ReportsControls
           class="report-controls"
           @export="exportCSV"
@@ -542,16 +543,6 @@
 
 <style lang="scss" scoped>
 
-  .filter-and-button {
-    display: flex;
-    flex-wrap: wrap-reverse;
-    justify-content: space-between;
-
-    button {
-      align-self: flex-end;
-    }
-  }
-
   .center-text {
     text-align: center;
   }
@@ -566,6 +557,12 @@
     width: 1.5em;
     height: 1.5em;
     margin-right: 0.5em;
+  }
+
+  .classname-quiz-button-div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5em;
   }
 
 </style>
