@@ -1,5 +1,3 @@
-var path = require('path');
-
 var OFF = 0;
 var ERROR = 2;
 
@@ -70,9 +68,13 @@ module.exports = {
   ],
   plugins: ['import', 'vue', 'kolibri', 'jest-dom', 'jest'],
   settings: {
-    'import/resolver': {
-      [path.resolve(path.join(path.dirname(__filename), './lib/alias_import_resolver.js'))]: {
-        extensions: ['.js', '.vue'],
+    "import/resolver": {
+      node: {
+        extensions: [
+          ".js",
+          ".json",
+          ".vue"
+        ],
       },
     },
   },
