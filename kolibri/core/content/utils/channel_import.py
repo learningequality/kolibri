@@ -654,11 +654,23 @@ class ChannelImport(object):
                         )
                     )
                 else:
-                    cursor.executemany(
-                        "INSERT INTO {table} AS SOURCE ({column_names}) VALUES ({values_list}) ON CONFLICT ({pk_name}) DO UPDATE SET {set_statement};".format(
+                    list_of_values = (
+                        tuple(datum for datum in generate_data_with_default(record))
+                        for record in results_slice
+                    )
+                    values_str = ", ".join(
+                        cursor.mogrify(
+                            f"({', '.join(['%s'] * len(column_names))})", v
+                        ).decode("utf-8")
+                        for v in list_of_values
+                    )
+                    insert_sql = (
+                        "INSERT INTO {table} AS SOURCE ({column_names}) "
+                        "VALUES {values_str} "
+                        "ON CONFLICT ({pk_name}) DO UPDATE SET {set_statement};".format(
                             table=DestinationTable.name,
                             column_names=", ".join(column_names),
-                            values_list=", ".join(["%s"] * len(column_names)),
+                            values_str=values_str,
                             pk_name=pk_name,
                             set_statement=", ".join(
                                 [
@@ -675,12 +687,10 @@ class ChannelImport(object):
                                     if column_name != pk_name
                                 ]
                             ),
-                        ),
-                        (
-                            tuple(datum for datum in generate_data_with_default(record))
-                            for record in results_slice
-                        ),
+                        )
                     )
+                    cursor.execute(insert_sql)
+
                 i += BATCH_SIZE
                 results_slice = list(islice(results, i, i + BATCH_SIZE))
         cursor.close()
