@@ -3,9 +3,11 @@ import json
 import logging
 import os
 import tempfile
+import unittest
 import uuid
 
 import pytest
+from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase
 from django.test import TransactionTestCase
@@ -30,6 +32,7 @@ from kolibri.core.content.constants.schema_versions import VERSION_4
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import ContentTag
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
@@ -832,6 +835,7 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
     data_name = "longdescriptions"
 
     longdescription = "soverylong" * 45
+    long_tag_id = "0c20e2eb254b4070a713da63380ff0a3"
 
     def test_long_descriptions(self):
         self.assertEqual(
@@ -844,6 +848,19 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
             ContentNode.objects.get(id="2e8bac07947855369fe2d77642dfc870").description,
             self.longdescription,
         )
+
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        != "django.db.backends.postgresql",
+        "Postgresql only test",
+    )
+    def test_import_too_long_content_tags(self):
+        """
+        Test that importing content tags with overly long tag_name fields will truncate correctly.
+        """
+        max_length = ContentTag._meta.get_field("tag_name").max_length
+        long_imported_tag = ContentTag.objects.get(id=self.long_tag_id)
+        assert len(long_imported_tag.tag_name) == max_length
 
 
 class Version4ImportTestCase(NaiveImportTestCase):
