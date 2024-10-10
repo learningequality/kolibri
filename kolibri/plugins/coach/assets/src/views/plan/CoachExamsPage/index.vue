@@ -207,7 +207,7 @@
   import { ExamResource, UserSyncStatusResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import { mapGetters } from 'kolibri.lib.vuex';
+  import { mapState, mapGetters } from 'kolibri.lib.vuex';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { PageNames } from '../../../constants';
   import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
@@ -218,10 +218,11 @@
   import useCoreCoach from '../../../composables/useCoreCoach';
   import useQuizzes from '../../../composables/useQuizzes';
   import AverageScoreTooltip from '../../common/AverageScoreTooltip';
-  import commonCoach from '../../common';
   import ReportsControls from '../../../views/reports/ReportsControls.vue';
   import CSVExporter from '../../../csv/exporter';
   import * as csvFields from '../../../csv/fields';
+  import Score from '../../common/Score.vue';
+  import StatusSummary from '../../common/status/StatusSummary';
 
   export default {
     name: 'CoachExamsPage',
@@ -232,8 +233,10 @@
       Recipients,
       AverageScoreTooltip,
       ReportsControls,
+      Score,
+      StatusSummary,
     },
-    mixins: [commonCoach, commonCoreStrings],
+    mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
       const { classId, initClassInfo, refreshClassSummary } = useCoreCoach();
@@ -336,7 +339,15 @@
       };
     },
     computed: {
-      ...mapGetters('classSummary', ['getRecipientNamesForExam']),
+      ...mapGetters('classSummary', [
+        'learners',
+        'groups',
+        'getExamAvgScore',
+        'getExamStatusTally',
+        'getLearnersForExam',
+        'getRecipientNamesForExam',
+      ]),
+      ...mapState('classSummary', { className: 'name' }),
       practiceQuizzesExist() {
         return plugin_data.practice_quizzes_exist;
       },
@@ -361,23 +372,23 @@
         ];
       },
       recipientOptions() {
+        const groupOptions = this.groups.map(group => ({
+          label: group.name,
+          value: group.name,
+        }));
+
+        const learnerOptions = this.learners.map(learner => ({
+          label: learner.name,
+          value: learner.name,
+        }));
+
         return [
           {
             label: this.entireClassLabel$(),
             value: this.entireClassLabel$(),
           },
-          {
-            label: 'Red',
-            value: 'Red',
-          },
-          {
-            label: 'Green',
-            value: 'Green',
-          },
-          {
-            label: 'Yellow',
-            value: 'Yellow',
-          },
+          ...groupOptions,
+          ...learnerOptions,
         ];
       },
       startedExams() {
