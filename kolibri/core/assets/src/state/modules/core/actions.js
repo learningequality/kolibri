@@ -1,26 +1,24 @@
 import debounce from 'lodash/debounce';
 import pick from 'lodash/pick';
-import client from 'kolibri.client';
-import heartbeat from 'kolibri.heartbeat';
-import logger from 'kolibri.lib.logging';
-import {
-  FacilityResource,
-  FacilityDatasetResource,
-  UserSyncStatusResource,
-} from 'kolibri.resources';
-import { setServerTime } from 'kolibri.utils.serverClock';
-import urls from 'kolibri.urls';
-import redirectBrowser from 'kolibri.utils.redirectBrowser';
-import CatchErrors from 'kolibri.utils.CatchErrors';
-import Vue from 'kolibri.lib.vue';
+import client from 'kolibri/client';
+import heartbeat from 'kolibri/heartbeat';
+import logger from 'kolibri-logging';
+import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
+import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
+import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
+import { setServerTime } from 'kolibri/utils/serverClock';
+import urls from 'kolibri/urls';
+import redirectBrowser from 'kolibri/utils/redirectBrowser';
+import CatchErrors from 'kolibri/utils/CatchErrors';
+import Vue from 'vue';
 import Lockr from 'lockr';
 import {
   DisconnectionErrorCodes,
   LoginErrors,
   ERROR_CONSTANTS,
   UPDATE_MODAL_DISMISSED,
-} from 'kolibri.coreVue.vuex.constants';
-import { browser, os } from 'kolibri.utils.browserInfo';
+} from 'kolibri/constants';
+import { browser, os } from 'kolibri/utils/browserInfo';
 import { baseSessionState } from '../session';
 
 const logging = logger.getLogger(__filename);

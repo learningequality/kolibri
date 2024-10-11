@@ -52,8 +52,8 @@
 <script>
 
   import clamp from 'lodash/clamp';
-  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
+  import FilterTextbox from 'kolibri/components/FilterTextbox';
+  import filterUsersByNames from 'kolibri-common/utils/filterUsersByNames';
 
   export default {
     name: 'PaginatedListContainer',

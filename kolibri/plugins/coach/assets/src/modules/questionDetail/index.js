@@ -1,5 +1,5 @@
 import sortBy from 'lodash/sortBy';
-import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import { ContentNodeKinds } from 'kolibri/constants';
 import * as actions from './actions';
 
 function defaultState() {

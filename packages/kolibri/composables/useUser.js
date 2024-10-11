@@ -1,5 +1,5 @@
-import { computed } from 'kolibri.lib.vueCompositionApi';
-import store from 'kolibri.coreVue.vuex.store';
+import { computed } from '@vue/composition-api';
+import store from 'kolibri/store';
 
 export default function useUser() {
   //getters

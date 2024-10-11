@@ -1,5 +1,5 @@
 import { get } from '@vueuse/core';
-import { ContentNodeResource } from 'kolibri.resources';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import useFetchTree from '../src/composables/useFetchTree.js';
 import {
   fetchTreeTopicResponseWithMore,
@@ -11,7 +11,7 @@ import {
 const publicApi = ['topic', 'resources', 'loading', 'fetchTree', 'fetchMore', 'hasMore'];
 var resources, topic, fetchTree, fetchMore, hasMore;
 
-jest.mock('kolibri.resources');
+jest.mock('kolibri-common/apiResources/ContentNodeResource');
 
 describe('useFetchTree', () => {
   describe('fetching data with ContentNode.fetchTree when there is more', () => {

@@ -1,4 +1,4 @@
-import { createTranslator } from 'kolibri.utils.i18n';
+import { createTranslator } from 'kolibri/utils/i18n';
 
 export const learnStrings = createTranslator('CommonLearnStrings', {
   // Labels

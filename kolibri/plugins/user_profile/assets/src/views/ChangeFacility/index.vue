@@ -17,12 +17,12 @@
 
 <script>
 
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { computed } from '@vue/composition-api';
   import { interpret } from 'xstate';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import useUser from 'kolibri/composables/useUser';
   import { changeFacilityMachine } from '../../machines/changeFacilityMachine';
 
   export default {

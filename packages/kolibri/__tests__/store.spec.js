@@ -1,14 +1,14 @@
 import Vue from 'vue';
-import redirectBrowser from 'kolibri.utils.redirectBrowser';
-import client from 'kolibri.client';
-import * as constants from 'kolibri.coreVue.vuex.constants';
+import redirectBrowser from 'kolibri/utils/redirectBrowser';
+import client from 'kolibri/client';
+import * as constants from 'kolibri/constants';
 import { coreStoreFactory as makeStore } from '../store';
 import coreModule from '../../../kolibri/core/assets/src/state/modules/core';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
-jest.mock('kolibri.urls');
-jest.mock('kolibri.client');
-jest.mock('kolibri.utils.redirectBrowser');
+jest.mock('kolibri/urls');
+jest.mock('kolibri/client');
+jest.mock('kolibri/utils/redirectBrowser');
 
 describe('Vuex store/actions for core module', () => {
   describe('error handling', () => {

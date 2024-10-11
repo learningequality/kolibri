@@ -50,10 +50,10 @@
 
 <script>
 
-  import CatchErrors from 'kolibri.utils.CatchErrors';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import CatchErrors from 'kolibri/utils/CatchErrors';
+  import { ERROR_CONSTANTS } from 'kolibri/constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { createDevice } from './api';
 

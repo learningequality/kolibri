@@ -30,8 +30,8 @@
 
 <script>
 
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import useTotalProgress from 'kolibri.coreVue.composables.useTotalProgress';
+  import useUser from 'kolibri/composables/useUser';
+  import useTotalProgress from 'kolibri/composables/useTotalProgress';
 
   export default {
     name: 'TotalPoints',

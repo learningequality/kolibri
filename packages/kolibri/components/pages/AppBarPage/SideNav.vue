@@ -251,21 +251,21 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { UserKinds, NavComponentSections } from 'kolibri/constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
-  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
-  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
-  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
-  import themeConfig from 'kolibri.themeConfig';
-  import Backdrop from 'kolibri.coreVue.components.Backdrop';
-  import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
-  import urls from 'kolibri.urls';
-  import useNav from 'kolibri.utils.registerNavItem';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import useUserSyncStatus from 'kolibri.coreVue.composables.useUserSyncStatus';
-  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
+  import CoreMenu from 'kolibri-common/components/CoreMenu';
+  import CoreMenuOption from 'kolibri-common/components/CoreMenu/CoreMenuOption';
+  import CoreLogo from 'kolibri/components/CoreLogo';
+  import PrivacyInfoModal from 'kolibri-common/components/PrivacyInfoModal';
+  import themeConfig from 'kolibri/styles/themeConfig';
+  import Backdrop from 'kolibri-common/components/Backdrop';
+  import LanguageSwitcherModal from 'kolibri/components/language-switcher/LanguageSwitcherModal';
+  import urls from 'kolibri/urls';
+  import useNav from 'kolibri/composables/useNav';
+  import useUser from 'kolibri/composables/useUser';
+  import useUserSyncStatus from 'kolibri-common/composables/useUserSyncStatus';
+  import FocusTrap from 'kolibri-common/components/FocusTrap';
   import SyncStatusDisplay from '../../SyncStatusDisplay';
   import LearnOnlyDeviceNotice from './LearnOnlyDeviceNotice';
   import TotalPoints from './TotalPoints';

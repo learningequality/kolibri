@@ -3,7 +3,7 @@
  * which has urls written into it at runtime by the Kolibri server.
  */
 
-import plugin_data from 'plugin_data';
+import plugin_data from 'kolibri-plugin-data';
 
 function generateUrl(baseUrl, { url, origin, port } = {}) {
   let urlObject = new URL(baseUrl, origin || window.location.origin);

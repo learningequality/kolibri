@@ -66,8 +66,8 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import { validateLinkObject } from 'kolibri.utils.validators';
+  import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
+  import { validateLinkObject } from 'kolibri/utils/validators';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import CardThumbnail from './CardThumbnail';
 

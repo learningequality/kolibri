@@ -2,7 +2,7 @@ import orderBy from 'lodash/orderBy';
 import groupBy from 'lodash/groupBy';
 import find from 'lodash/find';
 import sortedUniqBy from 'lodash/sortedUniqBy';
-import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import { ContentNodeKinds } from 'kolibri/constants';
 import { NotificationObjects, NotificationEvents } from '../../constants/notificationsConstants';
 import { CollectionTypes } from '../../constants/lessonsConstants';
 

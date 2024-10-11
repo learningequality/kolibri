@@ -1,7 +1,7 @@
 import isPlainObject from 'lodash/isPlainObject';
 import cloneDeep from 'lodash/cloneDeep';
-import { Resource } from 'kolibri.lib.apiResource';
-import urls from 'kolibri.urls';
+import { Resource } from 'kolibri/apiResource';
+import urls from 'kolibri/urls';
 
 /**
  * Type definition for Language metadata

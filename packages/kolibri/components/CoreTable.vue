@@ -1,7 +1,7 @@
 <script>
 
   import get from 'lodash/get';
-  import logger from 'kolibri.lib.logging';
+  import logger from 'kolibri-logging';
   import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
 
   const logging = logger.getLogger(__filename);

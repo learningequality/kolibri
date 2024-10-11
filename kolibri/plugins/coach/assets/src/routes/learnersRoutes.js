@@ -1,4 +1,4 @@
-import store from 'kolibri.coreVue.vuex.store';
+import store from 'kolibri/store';
 import { PageNames } from '../constants';
 import LearnersRootPage from '../views/learners/LearnersRootPage';
 import LearnerSummaryPage from '../views/learners/LearnerSummaryPage';

@@ -49,8 +49,8 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import { FacilityImportResource } from '../api';
   import { FooterMessageTypes } from '../constants';
   import UserCredentialsForm from './onboarding-forms/UserCredentialsForm';

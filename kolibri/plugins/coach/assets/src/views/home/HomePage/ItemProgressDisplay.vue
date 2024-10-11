@@ -43,7 +43,7 @@
 
 <script>
 
-  import { validateLinkObject } from 'kolibri.utils.validators';
+  import { validateLinkObject } from 'kolibri/utils/validators';
   import commonCoach from '../../common';
   import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
 

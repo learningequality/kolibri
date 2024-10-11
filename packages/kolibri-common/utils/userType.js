@@ -1,4 +1,4 @@
-import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+import { UserKinds } from 'kolibri/constants';
 
 export default function UserType(userObject) {
   if (userObject.is_superuser) {

@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
-import { PortalResource, FacilityDatasetResource } from 'kolibri.resources';
-import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+import PortalResource from 'kolibri-common/apiResources/PortalResource';
+import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
+import { ERROR_CONSTANTS } from 'kolibri/constants';
 import ConfirmationRegisterModal from '../ConfirmationRegisterModal.vue';
 
 const sampleProjectName = 'Test Project';
@@ -23,13 +24,12 @@ const renderComponent = props => {
 };
 
 // Mock necessary resources and modules
-jest.mock('kolibri.resources', () => ({
-  PortalResource: {
-    registerFacility: jest.fn(() => Promise.resolve()),
-  },
-  FacilityDatasetResource: {
-    saveModel: jest.fn(() => Promise.resolve()),
-  },
+jest.mock('kolibri-common/apiResources/PortalResource', () => ({
+  registerFacility: jest.fn(() => Promise.resolve()),
+}));
+
+jest.mock('kolibri-common/apiResources/FacilityDatasetResource', () => ({
+  saveModel: jest.fn(() => Promise.resolve()),
 }));
 
 describe('ConfirmationRegisterModal', () => {

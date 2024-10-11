@@ -4,11 +4,11 @@
  */
 import 'core-js';
 import coreApp from 'kolibri';
-import urls from 'kolibri.urls';
-import logging from 'kolibri.lib.logging';
-import store from 'kolibri.coreVue.vuex.store';
-import heartbeat from 'kolibri.heartbeat';
-import { i18nSetup } from 'kolibri.utils.i18n';
+import urls from 'kolibri/urls';
+import logging from 'kolibri-logging';
+import store from 'kolibri/store';
+import heartbeat from 'kolibri/heartbeat';
+import { i18nSetup } from 'kolibri/utils/i18n';
 import coreModule from './state/modules/core';
 
 // Do this before any async imports to ensure that public paths

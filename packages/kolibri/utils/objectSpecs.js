@@ -34,7 +34,7 @@
     or a validator function can be provided for nested objects, but not both.
 */
 
-import logger from 'kolibri.lib.logging';
+import logger from 'kolibri-logging';
 
 import clone from 'lodash/clone';
 import isArray from 'lodash/isArray';

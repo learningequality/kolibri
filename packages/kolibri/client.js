@@ -4,12 +4,12 @@
 
 import { CancelToken } from 'axios';
 import qs from 'qs';
-import heartbeat from 'kolibri.heartbeat';
-import logger from 'kolibri.lib.logging';
+import heartbeat from 'kolibri/heartbeat';
+import logger from 'kolibri-logging';
 import { get } from '@vueuse/core';
-import useUser from 'kolibri.coreVue.composables.useUser';
-import { DisconnectionErrorCodes } from 'kolibri.coreVue.vuex.constants';
-import clientFactory from 'kolibri.utils.clientFactory';
+import useUser from 'kolibri/composables/useUser';
+import { DisconnectionErrorCodes } from 'kolibri/constants';
+import clientFactory from 'kolibri/utils/baseClient';
 import useConnection from './useConnection';
 
 export const logging = logger.getLogger(__filename);

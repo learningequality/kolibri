@@ -19,7 +19,7 @@
  * Then when you need find out if tabs were clicked recently,
  * call `wereTabsClickedRecently`.
  */
-import { reactive } from 'kolibri.lib.vueCompositionApi';
+import { reactive } from '@vue/composition-api';
 
 // tabs interaction is considered to be recent
 // when it's not older than ...

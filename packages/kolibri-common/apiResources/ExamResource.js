@@ -1,4 +1,4 @@
-import { Resource } from 'kolibri.lib.apiResource';
+import { Resource } from 'kolibri/apiResource';
 
 /**
  * @example Get a Collection of Exams for a given class

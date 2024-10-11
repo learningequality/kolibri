@@ -9,7 +9,7 @@
 
 <script>
 
-  import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
+  import { SyncStatus } from 'kolibri/constants';
 
   export default {
     name: 'SyncStatusDescription',

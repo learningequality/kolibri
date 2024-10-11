@@ -20,7 +20,7 @@
 
 <script>
 
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import useUser from 'kolibri/composables/useUser';
   import { getFilePresetString } from '../uiText/filePresetStrings';
   import { getRenderableFiles } from '../utils/contentViewer';
 

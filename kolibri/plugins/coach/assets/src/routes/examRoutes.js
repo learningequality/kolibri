@@ -1,4 +1,4 @@
-import store from 'kolibri.coreVue.vuex.store';
+import store from 'kolibri/store';
 import { PageNames } from '../constants';
 import CreateExamPage from '../views/quizzes/CreateExamPage';
 import SectionEditor from '../views/quizzes/CreateExamPage/SectionEditor.vue';

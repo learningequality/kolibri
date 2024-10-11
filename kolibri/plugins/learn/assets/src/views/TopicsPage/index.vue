@@ -259,16 +259,16 @@
   import lodashSet from 'lodash/set';
   import lodashGet from 'lodash/get';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
-  import { getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
+  import { getCurrentInstance, ref, watch } from '@vue/composition-api';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
+  import { ContentNodeKinds } from 'kolibri/constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { throttle } from 'frame-throttle';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-  import { ContentNodeResource } from 'kolibri.resources';
-  import plugin_data from 'plugin_data';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+  import plugin_data from 'kolibri-plugin-data';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
@@ -731,16 +731,16 @@
       gridStyle() {
         let style = {};
         /*
-            Fixes jumping scrollbar when reaching the bottom of the page
-            for certain page heights and when side bar is present.
-            The issue is caused by the document scroll height being changed
-            by the sidebar's switching position from absolute to fixed in
-            the sticky calculation, resulting in an endless cycle
-            of the calculation being called and the sidepanel alternating between
-            fixed and absolute position over and over. Setting min height prevents
-            this by making sure that the document scroll height won't change
-            on the sidebar positioning updates.
-          */
+          Fixes jumping scrollbar when reaching the bottom of the page
+          for certain page heights and when side bar is present.
+          The issue is caused by the document scroll height being changed
+          by the sidebar's switching position from absolute to fixed in
+          the sticky calculation, resulting in an endless cycle
+          of the calculation being called and the sidepanel alternating between
+          fixed and absolute position over and over. Setting min height prevents
+          this by making sure that the document scroll height won't change
+          on the sidebar positioning updates.
+        */
         if (this.windowIsLarge) {
           style = {
             minHeight: '900px',

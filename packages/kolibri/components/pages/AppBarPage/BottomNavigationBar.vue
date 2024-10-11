@@ -64,7 +64,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.utils.coreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'BottomNavigationBar',

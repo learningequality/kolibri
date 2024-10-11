@@ -1,9 +1,9 @@
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import { KolibriIcons } from 'kolibri-design-system/lib/KIcon/iconDefinitions';
 import { get } from '@vueuse/core';
-import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-import logger from 'kolibri.lib.logging';
-import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+import { UserKinds, NavComponentSections } from 'kolibri/constants';
+import logger from 'kolibri-logging';
+import { computed, getCurrentInstance } from '@vue/composition-api';
 import { generateNavRoute } from './generateNavRoutes';
 
 const logging = logger.getLogger(__filename);

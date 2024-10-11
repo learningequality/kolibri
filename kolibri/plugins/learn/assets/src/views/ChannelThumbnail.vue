@@ -18,7 +18,7 @@
 
 <script>
 
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
 
   export default {
     name: 'ChannelThumbnail',

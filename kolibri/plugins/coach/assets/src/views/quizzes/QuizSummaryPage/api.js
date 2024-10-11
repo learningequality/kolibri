@@ -1,5 +1,5 @@
-import { fetchExamWithContent } from 'kolibri.utils.exams';
-import { ExamResource } from 'kolibri.resources';
+import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
+import ExamResource from 'kolibri-common/apiResources/ExamResource';
 import QuizDifficulties from '../../../apiResources/quizDifficulties';
 import { getDifficultQuestions } from '../../../utils';
 

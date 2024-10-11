@@ -191,20 +191,18 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import { FacilityResource } from 'kolibri.resources';
-  import {
-    FacilityNameAndSyncStatus,
-    RegisterFacilityModal,
-    ConfirmationRegisterModal,
-    SyncFacilityModalGroup,
-  } from 'kolibri.coreVue.componentSets.sync';
-  import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
+  import FacilityNameAndSyncStatus from 'kolibri-common/components/syncComponentSet/FacilityNameAndSyncStatus';
+  import RegisterFacilityModal from 'kolibri-common/components/syncComponentSet/RegisterFacilityModal';
+  import ConfirmationRegisterModal from 'kolibri-common/components/syncComponentSet/ConfirmationRegisterModal';
+  import SyncFacilityModalGroup from 'kolibri-common/components/syncComponentSet/SyncFacilityModalGroup';
+  import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import some from 'lodash/some';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { PageNames, ImportFacility, CreateNewFacility } from '../../constants';
   import { deviceString } from '../commonDeviceStrings';

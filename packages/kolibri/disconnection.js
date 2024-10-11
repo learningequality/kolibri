@@ -1,6 +1,6 @@
-import { createTranslator } from 'kolibri.utils.i18n';
+import { createTranslator } from 'kolibri/utils/i18n';
 import { get } from '@vueuse/core';
-import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+import useSnackbar from 'kolibri/composables/useSnackbar';
 import useConnection from './useConnection';
 
 export const trs = createTranslator('DisconnectionSnackbars', {

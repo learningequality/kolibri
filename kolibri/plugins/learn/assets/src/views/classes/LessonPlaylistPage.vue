@@ -67,9 +67,9 @@
   import { mapMutations, mapState } from 'vuex';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
+  import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useContentLink from '../../composables/useContentLink';
   import useContentNodeProgress from '../../composables/useContentNodeProgress';

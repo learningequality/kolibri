@@ -1,5 +1,6 @@
 import find from 'lodash/find';
-import { RemoteChannelResource, NetworkLocationResource } from 'kolibri.resources';
+import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
+import { NetworkLocationResource } from 'kolibri-common/apiResources/NetworkLocationResource';
 import { ContentWizardErrors } from '../../constants';
 
 export function getAvailableChannelsOnPeerServer(store, addressId) {

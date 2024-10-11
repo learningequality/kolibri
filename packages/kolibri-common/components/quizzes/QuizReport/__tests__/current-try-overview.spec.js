@@ -1,17 +1,17 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
-import { createTranslator } from 'kolibri.utils.i18n';
-import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
-import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
-import MasteryModel from 'kolibri.coreVue.components.MasteryModel';
-import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import { createTranslator } from 'kolibri/utils/i18n';
+import ElapsedTime from 'kolibri-common/components/ElapsedTime';
+import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
+import TimeDuration from 'kolibri-common/components/TimeDuration';
+import MasteryModel from 'kolibri-common/components/labels/MasteryModel';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import CurrentTryOverview from '../CurrentTryOverview';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri/composables/useUser');
 
 const translator = createTranslator('CurrentTryOverview', CurrentTryOverview.$trs);
 

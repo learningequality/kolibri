@@ -7,7 +7,7 @@
 
 <script>
 
-  import useNow from 'kolibri.coreVue.composables.useNow';
+  import useNow from 'kolibri/composables/useNow';
 
   export default {
     name: 'ElapsedTime',

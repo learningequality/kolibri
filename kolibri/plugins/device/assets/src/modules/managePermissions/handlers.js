@@ -1,5 +1,6 @@
-import { DevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
-import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
+import DevicePermissionsResource from 'kolibri-common/apiResources/DevicePermissionsResource';
+import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
 import head from 'lodash/head';

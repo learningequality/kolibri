@@ -30,10 +30,10 @@
 
 <script>
 
-  import { computed, onBeforeMount, onBeforeUnmount } from 'kolibri.lib.vueCompositionApi';
+  import { computed, onBeforeMount, onBeforeUnmount } from '@vue/composition-api';
   import { get } from '@vueuse/core';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   import { PageNames, ClassesPageNames } from '../../constants';
 

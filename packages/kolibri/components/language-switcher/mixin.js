@@ -1,7 +1,7 @@
-import redirectBrowser from 'kolibri.utils.redirectBrowser';
-import { availableLanguages, currentLanguage, sortLanguages } from 'kolibri.utils.i18n';
-import { httpClient } from 'kolibri.client';
-import urls from 'kolibri.urls';
+import redirectBrowser from 'kolibri/utils/redirectBrowser';
+import { availableLanguages, currentLanguage, sortLanguages } from 'kolibri/utils/i18n';
+import { httpClient } from 'kolibri/client';
+import urls from 'kolibri/urls';
 
 export default {
   methods: {

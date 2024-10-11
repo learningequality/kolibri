@@ -1,15 +1,13 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
-import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
-import useTotalProgress, {
-  useTotalProgressMock,
-} from 'kolibri.coreVue.composables.useTotalProgress';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
+import useTotalProgress, { useTotalProgressMock } from 'kolibri/composables/useTotalProgress'; // eslint-disable-line
 import '@testing-library/jest-dom';
-import { ref } from 'kolibri.lib.vueCompositionApi';
+import { ref } from '@vue/composition-api';
 import { get, set } from '@vueuse/core';
 import TotalPoints from '../TotalPoints.vue';
 
-jest.mock('kolibri.coreVue.composables.useUser');
-jest.mock('kolibri.coreVue.composables.useTotalProgress');
+jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri/composables/useTotalProgress');
 
 describe('TotalPoints', () => {
   let totalPointsMock;

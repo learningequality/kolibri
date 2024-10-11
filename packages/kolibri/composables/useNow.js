@@ -1,6 +1,6 @@
-import { now as getNow } from 'kolibri.utils.serverClock';
+import { now as getNow } from 'kolibri/utils/serverClock';
 
-import { ref, onMounted, onUnmounted } from 'kolibri.lib.vueCompositionApi';
+import { ref, onMounted, onUnmounted } from '@vue/composition-api';
 
 export default function useNow(interval = 10000) {
   const now = ref(getNow());

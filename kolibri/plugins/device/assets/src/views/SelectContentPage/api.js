@@ -1,5 +1,5 @@
-import { TaskResource } from 'kolibri.resources';
-import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+import TaskResource from 'kolibri/apiResources/TaskResource';
+import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 
 export function startImportTask(params) {
   const { importSource, channelId, channelName, included, excluded } = params;

@@ -101,9 +101,9 @@
   // Private Channel Icon
   // Resources on Device Indicator
   import { mapGetters } from 'vuex';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { selectContentPageLink } from '../manageContentLinks';
   import NewBadge from '../NewBadge';
   import { PageNames } from '../../../constants';

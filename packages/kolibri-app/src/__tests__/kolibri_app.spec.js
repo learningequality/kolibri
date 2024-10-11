@@ -15,7 +15,7 @@ jest.mock(
   { virtual: true },
 );
 
-jest.mock('kolibri.heartbeat', () => ({
+jest.mock('kolibri/heartbeat', () => ({
   startPolling() {
     return Promise.resolve();
   },

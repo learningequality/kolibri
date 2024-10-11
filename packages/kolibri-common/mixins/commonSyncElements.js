@@ -1,7 +1,7 @@
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
-import { TaskResource } from 'kolibri.resources';
-import { createTranslator } from 'kolibri.utils.i18n';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
+import TaskResource from 'kolibri/apiResources/TaskResource';
+import { createTranslator } from 'kolibri/utils/i18n';
 
 // Strings that might be shared among syncing-related UIs across plugins.
 // See taskStrings mixin for strings relating to the Facility-Syncing Async Task.

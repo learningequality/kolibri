@@ -32,8 +32,8 @@
 <script>
 
   import get from 'lodash/get';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
   import commonProfileStrings from '../../commonProfileStrings';
 
   export default {

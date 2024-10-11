@@ -1,5 +1,5 @@
 import VueRouter from 'vue-router';
-import logger from 'kolibri.lib.logging';
+import logger from 'kolibri-logging';
 
 const logging = logger.getLogger(__filename);
 

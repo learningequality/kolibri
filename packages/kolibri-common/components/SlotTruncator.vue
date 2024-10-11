@@ -36,7 +36,7 @@
 
   import debounce from 'lodash/debounce';
   import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'SlotTruncator',

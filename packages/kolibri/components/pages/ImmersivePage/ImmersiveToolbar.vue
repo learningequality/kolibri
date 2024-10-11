@@ -64,10 +64,10 @@
 
 <script>
 
-  import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import { validateLinkObject } from 'kolibri.utils.validators';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useNav from 'kolibri.utils.registerNavItem';
+  import UiToolbar from 'kolibri-common/components/keen/UiToolbar';
+  import { validateLinkObject } from 'kolibri/utils/validators';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useNav from 'kolibri/composables/useNav';
 
   export default {
     name: 'ImmersiveToolbar',

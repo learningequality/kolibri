@@ -2,7 +2,7 @@
   Define translations using LE Utils license names as keys
 */
 
-import { createTranslator } from 'kolibri.utils.i18n';
+import { createTranslator } from 'kolibri/utils/i18n';
 
 const licenseShortNameStrings = {
   'CC BY': {

@@ -17,8 +17,8 @@
 
 <script>
 
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import TimeDuration from 'kolibri-common/components/TimeDuration';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'SuggestedTime',
@@ -36,4 +36,4 @@
 </script>
 
 
-<style scoped lang="scss"></style>
+<style lang="scss" scoped></style>

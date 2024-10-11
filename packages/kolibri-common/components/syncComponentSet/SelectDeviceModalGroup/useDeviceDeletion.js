@@ -1,4 +1,4 @@
-import { ref, computed } from 'kolibri.lib.vueCompositionApi';
+import { ref, computed } from '@vue/composition-api';
 import { set, get } from '@vueuse/core';
 import { deleteDevice } from './api';
 

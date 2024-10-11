@@ -1,4 +1,4 @@
-import urls from 'kolibri.urls';
+import urls from 'kolibri/urls';
 
 export default function redirectBrowser(url, next = false) {
   url = url || urls['kolibri:core:redirect_user']();

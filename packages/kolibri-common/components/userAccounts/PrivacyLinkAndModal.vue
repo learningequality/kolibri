@@ -19,8 +19,8 @@
 
 <script>
 
-  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import PrivacyInfoModal from 'kolibri-common/components/PrivacyInfoModal';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'PrivacyLinkAndModal',

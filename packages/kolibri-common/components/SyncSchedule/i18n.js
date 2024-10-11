@@ -1,4 +1,4 @@
-import { createTranslator } from 'kolibri.utils.i18n';
+import { createTranslator } from 'kolibri/utils/i18n';
 
 // Taken from the PrivacyModal component in the facility plugin.
 export const kdpNameTranslator = createTranslator('PrivacyModal', {

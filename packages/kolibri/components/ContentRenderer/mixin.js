@@ -1,7 +1,7 @@
 import Vue from 'vue';
-import logger from 'kolibri.lib.logging';
-import heartbeat from 'kolibri.heartbeat';
-import { ContentErrorConstants } from 'kolibri.coreVue.vuex.constants';
+import logger from 'kolibri-logging';
+import heartbeat from 'kolibri/heartbeat';
+import { ContentErrorConstants } from 'kolibri/constants';
 import {
   defaultLanguage,
   languageValidator,

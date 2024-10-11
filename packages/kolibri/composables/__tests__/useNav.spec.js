@@ -1,7 +1,5 @@
-import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+import { UserKinds, NavComponentSections } from 'kolibri/constants';
 import { navItems, registerNavItem } from '../useNav';
-
-jest.mock('kolibri.lib.logging');
 
 describe('nav component', () => {
   afterEach(() => {

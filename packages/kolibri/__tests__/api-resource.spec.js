@@ -1,6 +1,6 @@
 import * as Resources from '../apiResource';
 
-jest.mock('kolibri.urls');
+jest.mock('kolibri/urls');
 
 describe('Resource', function () {
   let resource, modelData;

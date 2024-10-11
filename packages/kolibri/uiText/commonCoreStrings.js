@@ -1,9 +1,9 @@
-import { createTranslator } from 'kolibri.utils.i18n';
+import { createTranslator } from 'kolibri/utils/i18n';
 import camelCase from 'lodash/camelCase';
 import get from 'lodash/get';
 import invert from 'lodash/invert';
-import * as METADATA from 'kolibri.coreVue.vuex.constants';
-import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+import * as METADATA from 'kolibri/constants';
+import useSnackbar from 'kolibri/composables/useSnackbar';
 import notificationStrings from './notificationStrings';
 
 export const coreStrings = createTranslator('CommonCoreStrings', {

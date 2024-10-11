@@ -10,7 +10,7 @@
 
 <script>
 
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import useUser from 'kolibri/composables/useUser';
 
   export default {
     name: 'AttemptTextDiff',

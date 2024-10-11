@@ -29,7 +29,7 @@
  * })
  * ```
  */
-import { ref } from 'kolibri.lib.vueCompositionApi';
+import { ref } from '@vue/composition-api';
 import { get, set } from '@vueuse/core';
 
 const MOCK_DEFAULTS = {

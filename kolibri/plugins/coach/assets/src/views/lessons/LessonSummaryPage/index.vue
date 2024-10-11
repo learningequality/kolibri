@@ -86,8 +86,8 @@
 
   import sortBy from 'lodash/sortBy';
   import { mapState, mapActions, mapMutations } from 'vuex';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import ReportsControls from '../../common/ReportsControls';

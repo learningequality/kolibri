@@ -18,8 +18,8 @@
 
 <script>
 
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import { validateContentNodeKind } from 'kolibri.utils.validators';
+  import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
+  import { validateContentNodeKind } from 'kolibri/utils/validators';
   import BookmarkIcon from './BookmarkIcon';
 
   export default {

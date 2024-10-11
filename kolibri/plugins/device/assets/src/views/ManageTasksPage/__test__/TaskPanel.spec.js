@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import TaskPanel from '../TaskPanel';
 
 function makeWrapper(propsData) {

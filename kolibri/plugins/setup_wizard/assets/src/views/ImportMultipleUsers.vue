@@ -59,25 +59,25 @@
 
 <script>
 
-  import { TaskResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
-  import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
-  import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
-  import UserTable from 'kolibri.coreVue.components.UserTable';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
+  import { DemographicConstants } from 'kolibri/constants';
+  import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
+  import UserTable from 'kolibri-common/components/UserTable';
   import { FooterMessageTypes, SoudQueue } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 
   /** Workflow
-    - wizardService holds successfully imported learners and a list of all possible learners
-    - This component will maintain a list of users currently being imported by polling the
-      SoudQueue task queue - we use this list of users to change their "import" button to a
-      circular loader; then when they are done being imported, we add them to the final state
-      which allows us to identify them as being "imported" in place of the "import" button
-    - If the admin goes back from here they go to a loading page which will ping the same Queue
-      and offer them to import another user once all SoudQueue tasks are COMPLETE
-  */
+  - wizardService holds successfully imported learners and a list of all possible learners
+  - This component will maintain a list of users currently being imported by polling the
+    SoudQueue task queue - we use this list of users to change their "import" button to a
+    circular loader; then when they are done being imported, we add them to the final state
+    which allows us to identify them as being "imported" in place of the "import" button
+  - If the admin goes back from here they go to a loading page which will ping the same Queue
+    and offer them to import another user once all SoudQueue tasks are COMPLETE
+*/
   export default {
     name: 'ImportMultipleUsers',
     components: {

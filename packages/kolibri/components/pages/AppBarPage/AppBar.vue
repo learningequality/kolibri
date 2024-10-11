@@ -128,15 +128,15 @@
 <script>
 
   import { get } from '@vueuse/core';
-  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
+  import { computed, getCurrentInstance } from '@vue/composition-api';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import UiToolbar from 'kolibri-common/components/keen/UiToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
-  import themeConfig from 'kolibri.themeConfig';
+  import themeConfig from 'kolibri/styles/themeConfig';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useTotalProgress from 'kolibri.coreVue.composables.useTotalProgress';
-  import useNav from 'kolibri.utils.registerNavItem';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import useTotalProgress from 'kolibri/composables/useTotalProgress';
+  import useNav from 'kolibri/composables/useNav';
+  import useUser from 'kolibri/composables/useUser';
   import SkipNavigationLink from '../../SkipNavigationLink';
   import Navbar from './Navbar';
 

@@ -1,19 +1,12 @@
 import isEqual from 'lodash/isEqual';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
-import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
-import { ExamResource } from 'kolibri.resources';
-import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
+import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
+import ExamResource from 'kolibri-common/apiResources/ExamResource';
+import { validateObject, objectWithDefaults } from 'kolibri/utils/objectSpecs';
 import { get, set } from '@vueuse/core';
-import {
-  computed,
-  ref,
-  provide,
-  inject,
-  getCurrentInstance,
-  watch,
-} from 'kolibri.lib.vueCompositionApi';
-import { fetchExamWithContent } from 'kolibri.utils.exams';
+import { computed, ref, provide, inject, getCurrentInstance, watch } from '@vue/composition-api';
+import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 // TODO: Probably move this to this file's local dir
 import selectQuestions, { getExerciseQuestionsMap } from '../utils/selectQuestions.js';
 import { Quiz, QuizSection, QuizQuestion } from './quizCreationSpecs.js';

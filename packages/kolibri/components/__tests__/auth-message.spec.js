@@ -1,13 +1,13 @@
-import urls from 'kolibri.urls';
+import urls from 'kolibri/urls';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
-import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import AuthMessage from '../AuthMessage';
 
 jest.mock('urls', () => ({}));
-jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri/composables/useUser');
 
 const localVue = createLocalVue();
 

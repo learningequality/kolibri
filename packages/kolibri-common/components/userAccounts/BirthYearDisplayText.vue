@@ -7,8 +7,8 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { DemographicConstants } from 'kolibri/constants';
 
   const { NOT_SPECIFIED, DEFERRED } = DemographicConstants;
 

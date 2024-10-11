@@ -1,11 +1,3 @@
-<!--
-This template is intended to act as the default wrapper for assessment focused rendering
-plugins.
-
-As such, it provides display of current mastery progress, and manages all mastery/attempt log
-oriented data synchronization.
--->
-
 <template v-if="ready">
 
   <div>
@@ -152,15 +144,15 @@ oriented data synchronization.
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
-  import shuffled from 'kolibri.utils.shuffled';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { MasteryModelGenerators } from 'kolibri/constants';
+  import shuffled from 'kolibri-common/utils/shuffled';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import { createTranslator, defaultLanguage } from 'kolibri.utils.i18n';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
+  import { createTranslator, defaultLanguage } from 'kolibri/utils/i18n';
+  import useUser from 'kolibri/composables/useUser';
   import LessonMasteryBar from './LessonMasteryBar';
   import ExerciseAttempts from './ExerciseAttempts';
 

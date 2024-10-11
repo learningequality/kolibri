@@ -208,10 +208,11 @@
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
-  import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
+  import { computed, ref, getCurrentInstance, watch } from '@vue/composition-api';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+  import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
+  import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useBaseSearch from 'kolibri-common/composables/useBaseSearch';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
@@ -630,10 +631,10 @@
 
       const contentList = computed(() => {
         /*
-        if (!topicId.value) {
-          return channels.value;
-        }
-        */
+      if (!topicId.value) {
+        return channels.value;
+      }
+      */
         if (showBookmarks.value) {
           return bookmarks.value.map(item => ({ ...item, is_leaf: true }));
         }
@@ -822,12 +823,12 @@
         return `color : ${this.$themeTokens.fineLine}`;
       },
       /*
-      selectAllIsVisible() {
-        TO BE IMPLEMENTED IN https://github.com/learningequality/kolibri/issues/11734
-        Should only be visible if there are any checkboxes at all -- we'll only be showing
-        checkboxes for Exercises, not topics
-      },
-      */
+    selectAllIsVisible() {
+      TO BE IMPLEMENTED IN https://github.com/learningequality/kolibri/issues/11734
+      Should only be visible if there are any checkboxes at all -- we'll only be showing
+      checkboxes for Exercises, not topics
+    },
+    */
     },
     watch: {
       bookmarks(newVal) {
@@ -925,7 +926,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
 

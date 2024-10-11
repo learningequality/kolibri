@@ -39,8 +39,8 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import SelectDeviceModalGroup from './SelectDeviceModalGroup';
   import SelectSyncSourceModal from './SelectSyncSourceModal';
   import RegisterFacilityModal from './RegisterFacilityModal';

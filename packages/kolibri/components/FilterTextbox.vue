@@ -41,7 +41,7 @@
 
   import throttle from 'lodash/throttle';
   import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   /**
    * Used to filter items via text input
    */

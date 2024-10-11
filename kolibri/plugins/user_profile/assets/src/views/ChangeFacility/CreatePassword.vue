@@ -44,10 +44,10 @@
 <script>
 
   import get from 'lodash/get';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
+  import useUser from 'kolibri/composables/useUser';
 
   export default {
     name: 'CreatePassword',

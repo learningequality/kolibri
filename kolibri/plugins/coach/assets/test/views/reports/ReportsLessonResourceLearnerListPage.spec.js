@@ -11,7 +11,7 @@ const localVue = createLocalVue();
 localVue.use(VueRouter);
 
 // commonCoach mixin imports kolibri customized router and uses getRoute method
-jest.mock('kolibri.coreVue.router', () => {
+jest.mock('kolibri/router', () => {
   return {
     getRoute: (name, params, query) => {
       return { name, params, query };

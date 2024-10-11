@@ -71,7 +71,7 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
 
   export default {
     name: 'ChannelDetails',
@@ -168,7 +168,7 @@
       max-width: 500px;
 
       /* KA Burmese description with no spaces would run off
-       * screen - this breaks it within the container */
+     * screen - this breaks it within the container */
       word-wrap: break-word;
     }
 

@@ -23,13 +23,13 @@
   import Cookies from 'js-cookie';
   import { mapState } from 'vuex';
   import find from 'lodash/find';
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { IsPinAuthenticated } from 'kolibri.coreVue.vuex.constants';
-  import redirectBrowser from 'kolibri.utils.redirectBrowser';
-  import urls from 'kolibri.urls';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import plugin_data from 'plugin_data';
+  import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { IsPinAuthenticated } from 'kolibri/constants';
+  import redirectBrowser from 'kolibri/utils/redirectBrowser';
+  import urls from 'kolibri/urls';
+  import useUser from 'kolibri/composables/useUser';
+  import plugin_data from 'kolibri-plugin-data';
   import { PageNames } from '../constants';
 
   import PinAuthenticationModal from './PinAuthenticationModal';

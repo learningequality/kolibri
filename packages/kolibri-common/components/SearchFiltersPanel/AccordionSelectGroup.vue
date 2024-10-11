@@ -175,15 +175,11 @@
 
 <script>
 
-  import {
-    NoCategories,
-    ContentLevels,
-    AccessibilityCategories,
-  } from 'kolibri.coreVue.vuex.constants';
+  import { NoCategories, ContentLevels, AccessibilityCategories } from 'kolibri/constants';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import camelCase from 'lodash/camelCase';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
 
   export default {

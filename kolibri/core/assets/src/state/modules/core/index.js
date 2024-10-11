@@ -1,4 +1,4 @@
-import plugin_data from 'plugin_data';
+import plugin_data from 'kolibri-plugin-data';
 import sessionModule from '../session';
 import * as getters from './getters';
 import * as actions from './actions';

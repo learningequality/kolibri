@@ -60,7 +60,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   .sign-in-text {
     margin-top: 24px;

@@ -1,9 +1,9 @@
 import matches from 'lodash/matches';
 import {
   NetworkLocationResource,
-  RemoteChannelResource,
   StaticNetworkLocationResource,
-} from 'kolibri.resources';
+} from 'kolibri-common/apiResources/NetworkLocationResource';
+import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
 
 export function createDevice(address) {
   return StaticNetworkLocationResource.createModel({

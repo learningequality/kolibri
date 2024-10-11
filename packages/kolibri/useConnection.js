@@ -1,4 +1,4 @@
-import { ref } from 'kolibri.lib.vueCompositionApi';
+import { ref } from '@vue/composition-api';
 
 const connected = ref(true);
 const reconnectTime = ref(null);

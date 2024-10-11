@@ -1,9 +1,9 @@
-import client from 'kolibri.client';
-import logger from 'kolibri.lib.logging';
-import urls from 'kolibri.urls';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import client from 'kolibri/client';
+import logger from 'kolibri-logging';
+import urls from 'kolibri/urls';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
-import plugin_data from 'plugin_data';
+import plugin_data from 'kolibri-plugin-data';
 
 const logging = logger.getLogger(__filename);
 

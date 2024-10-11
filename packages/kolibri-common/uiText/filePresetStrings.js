@@ -1,6 +1,6 @@
-import { createTranslator } from 'kolibri.utils.i18n';
-import bytesForHumans from 'kolibri.utils.bytesForHumans';
-import logger from 'kolibri.lib.logging';
+import { createTranslator } from 'kolibri/utils/i18n';
+import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+import logger from 'kolibri-logging';
 
 const logging = logger.getLogger(__filename);
 

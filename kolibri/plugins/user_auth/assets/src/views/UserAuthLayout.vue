@@ -47,13 +47,13 @@
 <script>
 
   import { mapState } from 'vuex';
-  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import coreBannerContent from 'kolibri.utils.coreBannerContent';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import AuthMessage from 'kolibri/components/AuthMessage';
+  import coreBannerContent from 'kolibri-common/utils/coreBannerContent';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AppError from 'kolibri-common/components/AppError';
   import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
-  import CoreBanner from '../../../../../core/assets/src/views/CoreBanner';
   import { ComponentMap } from '../constants';
+  import CoreBanner from './CoreBanner';
 
   export default {
     name: 'UserAuthLayout',
@@ -137,9 +137,9 @@
 
     @media print {
       /* Without this, things won't print correctly
-      *  - Firefox: Tables will get cutoff
-      *  - Chrome: Table header won't repeat correctly on each page
-      */
+    *  - Firefox: Tables will get cutoff
+    *  - Chrome: Table header won't repeat correctly on each page
+    */
       display: block;
     }
   }

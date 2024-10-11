@@ -180,14 +180,14 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
-  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import themeConfig from 'kolibri.themeConfig';
-  import loginComponents from 'kolibri.utils.loginComponents';
-  import urls from 'kolibri.urls';
-  import plugin_data from 'plugin_data';
+  import CoreLogo from 'kolibri/components/CoreLogo';
+  import PrivacyInfoModal from 'kolibri-common/components/PrivacyInfoModal';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
+  import themeConfig from 'kolibri/styles/themeConfig';
+  import loginComponents from 'kolibri-common/utils/loginComponents';
+  import urls from 'kolibri/urls';
+  import plugin_data from 'kolibri-plugin-data';
   import { ComponentMap } from '../constants';
   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
   import commonUserStrings from './commonUserStrings';

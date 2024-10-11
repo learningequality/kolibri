@@ -1,5 +1,5 @@
-import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+import { UserKinds } from 'kolibri/constants';
 
 export default {
   mixins: [commonCoreStrings],

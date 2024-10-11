@@ -30,8 +30,8 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import plugin_data from 'plugin_data';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import plugin_data from 'kolibri-plugin-data';
 
   export default {
     name: 'DeprecationWarningBanner',

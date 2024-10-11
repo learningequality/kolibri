@@ -131,8 +131,8 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonTaskStrings from 'kolibri-common/uiText/tasks';
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 
   export default {

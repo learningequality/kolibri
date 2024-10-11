@@ -1,6 +1,6 @@
 import pickBy from 'lodash/pickBy';
 import uniq from 'lodash/uniq';
-import { ContentNodeSearchResource } from 'kolibri.resources';
+import ContentNodeSearchResource from 'kolibri-common/apiResources/ContentNodeSearchResource';
 
 export function fetchAdditionalSearchResults(store, params) {
   return ContentNodeSearchResource.fetchCollection({

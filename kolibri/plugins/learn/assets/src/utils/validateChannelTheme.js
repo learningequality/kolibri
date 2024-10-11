@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import logging from 'kolibri.lib.logging';
+import logging from 'kolibri-logging';
 
 const logger = logging.getLogger('theme validation');
 

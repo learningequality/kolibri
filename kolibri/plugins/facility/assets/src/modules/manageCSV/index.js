@@ -1,4 +1,4 @@
-import Vue from 'kolibri.lib.vue';
+import Vue from 'vue';
 import { CSVGenerationStatuses, UsersExportStatuses } from '../../constants';
 import actions from './actions';
 

@@ -1,7 +1,7 @@
 import pad from 'lodash/padStart';
 import get from 'lodash/get';
-import { createTranslator, formatList } from 'kolibri.utils.i18n';
-import coreStrings from 'kolibri.utils.coreStrings';
+import { createTranslator, formatList } from 'kolibri/utils/i18n';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { STATUSES } from '../modules/classSummary/constants';
 import { VERBS } from '../views/common/status/constants';
 import { learnerProgressTranslators } from '../views/common/status/statusStrings';

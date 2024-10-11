@@ -88,13 +88,13 @@
 <script>
 
   import { mapState } from 'vuex';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import DragContainer from 'kolibri.coreVue.components.DragContainer';
-  import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
-  import Draggable from 'kolibri.coreVue.components.Draggable';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import TimeDuration from 'kolibri-common/components/TimeDuration';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
+  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
+  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
+  import Draggable from 'kolibri-common/components/sortable/Draggable';
   import CSVExporter from '../../../../csv/exporter';
   import * as csvFields from '../../../../csv/fields';
   import StatusSummary from '../../../common/status/StatusSummary';
@@ -194,7 +194,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   /deep/ .draggable-mirror {
     /* Styles to fix styles errors for having a draggable tr with fixed position */

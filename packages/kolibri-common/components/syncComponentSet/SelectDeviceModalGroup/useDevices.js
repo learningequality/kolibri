@@ -1,10 +1,10 @@
-import logger from 'kolibri.lib.logging';
+import logger from 'kolibri-logging';
 import _get from 'lodash/get';
 import isArray from 'lodash/isArray';
-import { ref, reactive, computed, onBeforeUnmount, watch } from 'kolibri.lib.vueCompositionApi';
+import { ref, reactive, computed, onBeforeUnmount, watch } from '@vue/composition-api';
 import { get, set, useMemoize, useTimeoutPoll } from '@vueuse/core';
 
-import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
+import useMinimumKolibriVersion from 'kolibri/composables/useMinimumKolibriVersion';
 import { fetchDevices, channelIsAvailableAtDevice, deviceHasMatchingFacility } from './api';
 
 const logging = logger.getLogger(__filename);

@@ -46,11 +46,13 @@
 
   import sortBy from 'lodash/sortBy';
   import find from 'lodash/find';
-  import { error as logError } from 'kolibri.lib.logging';
-  import { LearnerGroupResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import logging from 'kolibri-logging';
+  import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
+
+  const logger = logging.getLogger(__filename);
 
   const Stages = {
     SELECT_CLASSROOM: 'SELECT_CLASSROOM',
@@ -151,7 +153,7 @@
           })
           .catch(error => {
             this.$store.dispatch('handleApiError', { error });
-            logError(error);
+            logger.error(error);
             this.blockControls = false;
           });
       },

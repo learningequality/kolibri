@@ -1,5 +1,5 @@
-import { Resource } from 'kolibri.lib.apiResource';
-import urls from 'kolibri.urls';
+import { Resource } from 'kolibri/apiResource';
+import urls from 'kolibri/urls';
 
 export default new Resource({
   name: 'portal',

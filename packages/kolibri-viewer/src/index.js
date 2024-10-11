@@ -1,4 +1,4 @@
-import KolibriModule from 'kolibri_module';
+import KolibriModule from 'kolibri-module';
 
 export default class ContentRenderer extends KolibriModule {
   get rendererComponent() {

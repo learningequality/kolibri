@@ -1,10 +1,10 @@
 import { shallowMount, mount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import { useDevicesWithFilter } from 'kolibri.coreVue.componentSets.sync';
-import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+import { useDevicesWithFilter } from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
+import { LearningActivities } from 'kolibri/constants';
 import LearningActivityBar from '../../src/views/LearningActivityBar';
 
-jest.mock('kolibri.coreVue.componentSets.sync');
+jest.mock('kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices');
 function makeWrapper({ propsData } = {}) {
   const store = new Vuex.Store({
     state: { core: { loading: false } },

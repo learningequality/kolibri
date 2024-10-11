@@ -75,14 +75,16 @@
 <script>
 
   import { useLocalStorage, useMemoize, computedAsync, get } from '@vueuse/core';
-  import { computed, ref, watch } from 'kolibri.lib.vueCompositionApi';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { NetworkLocationResource } from 'kolibri.resources';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
-  import { AddDeviceForm, useDevices, useDeviceDeletion } from 'kolibri.coreVue.componentSets.sync';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import { computed, ref, watch } from '@vue/composition-api';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import { NetworkLocationResource } from 'kolibri-common/apiResources/NetworkLocationResource';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import useMinimumKolibriVersion from 'kolibri/composables/useMinimumKolibriVersion';
+  import AddDeviceForm from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/AddDeviceForm';
+  import useDevices from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
+  import useDeviceDeletion from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDeviceDeletion';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import commonProfileStrings from '../commonProfileStrings';
 
   export default {

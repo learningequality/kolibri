@@ -39,7 +39,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { PageNames } from '../../../constants';
   import CardGrid from '../../cards/CardGrid';
   import BaseChannelCard from '../../cards/BaseChannelCard';

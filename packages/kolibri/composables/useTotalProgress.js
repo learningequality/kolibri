@@ -1,8 +1,8 @@
-import { ref, computed } from 'kolibri.lib.vueCompositionApi';
+import { ref, computed } from '@vue/composition-api';
 import { get, set } from '@vueuse/core';
-import useUser from 'kolibri.coreVue.composables.useUser';
-import { UserProgressResource } from 'kolibri.resources';
-import { MaxPointsPerContent } from 'kolibri.coreVue.vuex.constants';
+import useUser from 'kolibri/composables/useUser';
+import UserProgressResource from 'kolibri-common/apiResources/UserProgressResource';
+import { MaxPointsPerContent } from 'kolibri/constants';
 
 const totalProgress = ref(null);
 
