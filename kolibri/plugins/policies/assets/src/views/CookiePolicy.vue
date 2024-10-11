@@ -76,8 +76,8 @@
 
 <script>
 
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'CookiePolicy',

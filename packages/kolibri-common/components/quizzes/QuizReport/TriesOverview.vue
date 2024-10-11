@@ -64,9 +64,9 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
+  import TimeDuration from 'kolibri-common/components/TimeDuration';
   import { tryValidator } from './utils';
 
   export default {

@@ -156,9 +156,9 @@
   import useAccordion from 'kolibri-common/components/useAccordion';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
-  import { computed, onMounted, watch } from 'kolibri.lib.vueCompositionApi';
+  import { computed, onMounted, watch } from '@vue/composition-api';
   import { toRefs } from '@vueuse/core';
-  import { coreStrings } from 'kolibri.utils.coreStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import AttemptLogItem from './AttemptLogItem';
 
   export default {

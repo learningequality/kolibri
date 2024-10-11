@@ -42,7 +42,7 @@
 <script>
 
   import last from 'lodash/last';
-  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
+  import FocusTrap from 'kolibri-common/components/FocusTrap';
 
   export default {
     name: 'CoreMenu',

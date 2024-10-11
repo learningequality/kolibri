@@ -2,13 +2,11 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 
-import { useDevicesWithFilter } from 'kolibri.coreVue.componentSets.sync';
-import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import { useDevicesWithFilter } from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-import useTotalProgress, {
-  useTotalProgressMock,
-} from 'kolibri.coreVue.composables.useTotalProgress';
-import { ref } from 'kolibri.lib.vueCompositionApi';
+import useTotalProgress, { useTotalProgressMock } from 'kolibri/composables/useTotalProgress'; // eslint-disable-line
+import { ref } from '@vue/composition-api';
 import { ClassesPageNames, PageNames } from '../../../constants';
 import HomePage from '../index';
 /* eslint-disable import/named */
@@ -18,18 +16,18 @@ import useLearnerResources, {
   useLearnerResourcesMock,
 } from '../../../composables/useLearnerResources';
 /* eslint-enable import/named */
-jest.mock('kolibri.client');
-jest.mock('kolibri.urls');
-jest.mock('kolibri.coreVue.componentSets.sync');
+jest.mock('kolibri/client');
+jest.mock('kolibri/urls');
+jest.mock('kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices');
 jest.mock('../../../composables/useChannels');
-jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri/composables/useUser');
 jest.mock('../../../composables/useDeviceSettings');
 jest.mock('../../../composables/useLearnerResources');
 jest.mock('../../../composables/useContentLink');
 // Needed to test anything using mount() where children use this composable
 jest.mock('../../../composables/useLearningActivities');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
-jest.mock('kolibri.coreVue.composables.useTotalProgress');
+jest.mock('kolibri/composables/useTotalProgress');
 
 const localVue = createLocalVue();
 localVue.use(Vuex);

@@ -111,7 +111,7 @@
 <script>
 
   import isBoolean from 'lodash/isBoolean';
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import TimeDuration from 'kolibri-common/components/TimeDuration';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
@@ -247,7 +247,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
 

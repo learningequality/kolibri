@@ -26,7 +26,7 @@
 
 <script>
 
-  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
+  import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
 
   export default {
     name: 'PageHeader',

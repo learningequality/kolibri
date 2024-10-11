@@ -3,9 +3,9 @@ import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResp
 import Vuex from 'vuex';
 import AppBar from '../AppBar';
 
-jest.mock('kolibri.urls');
+jest.mock('kolibri/urls');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
-jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri/composables/useUser');
 
 const localVue = createLocalVue();
 localVue.use(Vuex);

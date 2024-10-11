@@ -1,5 +1,5 @@
-import coreBannerContent from 'kolibri.utils.coreBannerContent';
-import KolibriModule from 'kolibri_module';
+import coreBannerContent from 'kolibri-common/utils/coreBannerContent';
+import KolibriModule from 'kolibri-module';
 import DemoServerBannerContent from './DemoServerBannerContent';
 
 class DemoServerModule extends KolibriModule {

@@ -32,12 +32,12 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
-  import client from 'kolibri.client';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import appCapabilities, { checkCapability } from 'kolibri.utils.appCapabilities';
-  import logger from 'kolibri.lib.logging';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import urls from 'kolibri/urls';
+  import client from 'kolibri/client';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import appCapabilities, { checkCapability } from 'kolibri/utils/appCapabilities';
+  import logger from 'kolibri-logging';
+  import useUser from 'kolibri/composables/useUser';
 
   const logging = logger.getLogger(__filename);
 

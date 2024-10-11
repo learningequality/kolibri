@@ -1,5 +1,5 @@
-import Vue from 'kolibri.lib.vue';
-import store from 'kolibri.coreVue.vuex.store';
+import Vue from 'vue';
+import store from 'kolibri/store';
 import videojs from 'video.js';
 
 /**

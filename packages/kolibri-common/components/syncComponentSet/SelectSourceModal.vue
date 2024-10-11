@@ -25,8 +25,8 @@
 <script>
 
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
 
   // This is a SelectSourceModal template with the common heading and loading
   // message widget. Place the form (usually a radio button group)

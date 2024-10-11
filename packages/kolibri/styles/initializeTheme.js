@@ -1,13 +1,13 @@
-import '../styles/main.scss'; // attaches styles globally
+import './main.scss'; // attaches styles globally
 import { setBrandColors, setTokenMapping } from 'kolibri-design-system/lib/styles/theme';
 import generateGlobalStyles from 'kolibri-design-system/lib/styles/generateGlobalStyles';
 import Vue from 'vue';
 import trackInputModality from 'kolibri-design-system/lib/styles/trackInputModality';
 import trackMediaType from 'kolibri-design-system/lib/styles/trackMediaType';
-import themeConfig from 'kolibri.themeConfig';
-import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
+import themeConfig from 'kolibri/styles/themeConfig';
+import { validateObject, objectWithDefaults } from 'kolibri/utils/objectSpecs';
+import plugin_data from 'kolibri-plugin-data';
 import themeSpec from './themeSpec';
-import plugin_data from 'plugin_data';
 
 export function setThemeConfig(theme) {
   Object.keys(themeConfig).forEach(key => {

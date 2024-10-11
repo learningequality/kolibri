@@ -38,7 +38,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 
   export default {

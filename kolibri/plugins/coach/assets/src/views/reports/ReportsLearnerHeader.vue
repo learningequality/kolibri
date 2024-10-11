@@ -111,7 +111,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../common';
   import { useCoachTabs } from '../../composables/useCoachTabs';
   import ReportsControls from './ReportsControls';

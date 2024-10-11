@@ -1,15 +1,8 @@
 import { get, set } from '@vueuse/core';
 import invert from 'lodash/invert';
-import logger from 'kolibri.lib.logging';
-import {
-  computed,
-  getCurrentInstance,
-  inject,
-  provide,
-  ref,
-  watch,
-} from 'kolibri.lib.vueCompositionApi';
-import { ContentNodeResource } from 'kolibri.resources';
+import logger from 'kolibri-logging';
+import { computed, getCurrentInstance, inject, provide, ref, watch } from '@vue/composition-api';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import {
   AllCategories,
   Categories,
@@ -19,8 +12,8 @@ import {
   LearningActivities,
   NoCategories,
   ResourcesNeededTypes,
-} from 'kolibri.coreVue.vuex.constants';
-import useUser from 'kolibri.coreVue.composables.useUser';
+} from 'kolibri/constants';
+import useUser from 'kolibri/composables/useUser';
 
 import { deduplicateResources } from '../utils/contentNode';
 import { setLanguages } from './useLanguages';

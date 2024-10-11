@@ -44,10 +44,10 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
-  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import UsernameTextbox from 'kolibri-common/components/userAccounts/UsernameTextbox';
+  import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
 
   export default {
     name: 'FacilityAdminCredentialsForm',

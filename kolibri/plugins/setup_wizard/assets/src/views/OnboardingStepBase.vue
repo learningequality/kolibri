@@ -157,12 +157,12 @@
 
 <script>
 
-  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
-  import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoreLogo from 'kolibri/components/CoreLogo';
+  import LanguageSwitcherModal from 'kolibri/components/language-switcher/LanguageSwitcherModal';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AppError from 'kolibri-common/components/AppError';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
+  import { availableLanguages, currentLanguage } from 'kolibri/utils/i18n';
   import { FooterMessageTypes } from '../constants';
 
   export default {

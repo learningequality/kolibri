@@ -80,8 +80,8 @@
 <script>
 
   import sortBy from 'lodash/sortBy';
-  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ElapsedTime from 'kolibri-common/components/ElapsedTime';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../common';
   import { REPORTS_TABS_ID, ReportsTabs } from '../../constants/tabsConstants';
   import CoachAppBarPage from '../CoachAppBarPage';

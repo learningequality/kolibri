@@ -1,4 +1,4 @@
-import { Resource } from 'kolibri.lib.apiResource';
+import { Resource } from 'kolibri/apiResource';
 
 /**
  * @example Get all memberships for a given user

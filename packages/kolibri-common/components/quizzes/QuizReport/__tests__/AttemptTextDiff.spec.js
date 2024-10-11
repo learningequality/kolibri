@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
-import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import AttemptTextDiff from '../AttemptTextDiff.vue';
 
-jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri/composables/useUser');
 
 const renderComponent = props => {
   return render(AttemptTextDiff, {

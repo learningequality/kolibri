@@ -22,9 +22,9 @@
 <script>
 
   import { mapState } from 'vuex';
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import AppBarPage from 'kolibri/components/pages/AppBarPage';
+  import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useCoreCoach from '../composables/useCoreCoach';
 
   export default {

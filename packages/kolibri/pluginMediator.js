@@ -1,7 +1,7 @@
 import Vue from 'vue';
-import scriptLoader from 'kolibri-common//utils/scriptLoader';
-import { RENDERER_SUFFIX } from 'kolibri.coreVue.vuex.constants';
-import { languageDirection, languageDirections } from 'kolibri.utils.i18n';
+import scriptLoader from 'kolibri-common/utils/scriptLoader';
+import { RENDERER_SUFFIX } from 'kolibri/constants';
+import { languageDirection, languageDirections } from 'kolibri/utils/i18n';
 import contentRendererMixin from './components/ContentRenderer/mixin';
 import ContentRendererLoading from './components/ContentRenderer/ContentRendererLoading';
 import ContentRendererError from './components/ContentRenderer/ContentRendererError';

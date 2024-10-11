@@ -135,22 +135,22 @@
 
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
-  import UserType from 'kolibri.utils.UserType';
-  import { FacilityUserResource } from 'kolibri.resources';
+  import UserType from 'kolibri-common/utils/userType';
+  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { mapActions, mapState, mapGetters } from 'vuex';
-  import urls from 'kolibri.urls';
-  import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import CatchErrors from 'kolibri.utils.CatchErrors';
-  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
-  import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
-  import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
-  import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import urls from 'kolibri/urls';
+  import { UserKinds, ERROR_CONSTANTS } from 'kolibri/constants';
+  import CatchErrors from 'kolibri/utils/CatchErrors';
+  import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
+  import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
+  import BirthYearSelect from 'kolibri-common/components/userAccounts/BirthYearSelect';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import FullNameTextbox from 'kolibri-common/components/userAccounts/FullNameTextbox';
+  import UsernameTextbox from 'kolibri-common/components/userAccounts/UsernameTextbox';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useUser from 'kolibri/composables/useUser';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import IdentifierTextbox from './IdentifierTextbox';
 
   export default {

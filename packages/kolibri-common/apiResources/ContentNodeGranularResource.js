@@ -1,4 +1,4 @@
-import { Resource } from 'kolibri.lib.apiResource';
+import { Resource } from 'kolibri/apiResource';
 
 /**
  * @example Get ContentNode from a local USB drive for the purposes of importing from that drive.

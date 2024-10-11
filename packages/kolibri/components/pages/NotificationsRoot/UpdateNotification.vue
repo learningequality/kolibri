@@ -32,9 +32,9 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { mapActions, mapMutations } from 'vuex';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import useUser from 'kolibri/composables/useUser';
 
   export default {
     name: 'UpdateNotification',

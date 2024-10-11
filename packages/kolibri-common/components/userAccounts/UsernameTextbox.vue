@@ -19,9 +19,9 @@
 
 <script>
 
-  import { validateUsername } from 'kolibri.utils.validators';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { validateUsername } from 'kolibri/utils/validators';
+  import { ERROR_CONSTANTS } from 'kolibri/constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'UsernameTextbox',

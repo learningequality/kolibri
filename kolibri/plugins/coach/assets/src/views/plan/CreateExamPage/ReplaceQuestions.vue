@@ -149,14 +149,14 @@
     enhancedQuizManagementStrings,
     displayQuestionTitle,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { getCurrentInstance, computed, ref } from 'kolibri.lib.vueCompositionApi';
+  import { getCurrentInstance, computed, ref } from '@vue/composition-api';
   import { get } from '@vueuse/core';
   import isEqual from 'lodash/isEqual';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import useAccordion from 'kolibri-common/components/useAccordion';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import { PageNames } from '../../../constants/index';
 

@@ -1,7 +1,7 @@
-import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-import registerNavItem from 'kolibri.utils.registerNavItem';
-import urls from 'kolibri.urls';
-import coreStrings from 'kolibri.utils.coreStrings';
+import { UserKinds, NavComponentSections } from 'kolibri/constants';
+import { registerNavItem } from 'kolibri/composables/useNav';
+import urls from 'kolibri/urls';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 
 registerNavItem({
   get url() {

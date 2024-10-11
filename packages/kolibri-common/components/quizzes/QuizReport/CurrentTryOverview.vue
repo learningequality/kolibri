@@ -100,12 +100,12 @@
   import get from 'lodash/get';
   import isPlainObject from 'lodash/isPlainObject';
   import isUndefined from 'lodash/isUndefined';
-  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
-  import MasteryModel from 'kolibri.coreVue.components.MasteryModel';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import ElapsedTime from 'kolibri-common/components/ElapsedTime';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
+  import TimeDuration from 'kolibri-common/components/TimeDuration';
+  import MasteryModel from 'kolibri-common/components/labels/MasteryModel';
+  import useUser from 'kolibri/composables/useUser';
   import { tryValidator } from './utils';
 
   export default {

@@ -1,9 +1,9 @@
-import logger from 'kolibri.lib.logging';
+import logger from 'kolibri-logging';
 import cloneDeep from 'lodash/cloneDeep';
 import find from 'lodash/find';
 import matches from 'lodash/matches';
 import isEqual from 'lodash/isEqual';
-import urls from 'kolibri.urls';
+import urls from 'kolibri/urls';
 
 export const logging = logger.getLogger(__filename);
 
@@ -1024,12 +1024,12 @@ export class Resource {
   }
 
   client(options) {
-    const client = require('./core-app/client').default;
+    const client = require('kolibri/client').default;
     return client(options);
   }
 
   logError(err) {
-    const store = require('kolibri.coreVue.vuex.store').default;
+    const store = require('kolibri/store').default;
     if (!err.config) {
       return;
     }

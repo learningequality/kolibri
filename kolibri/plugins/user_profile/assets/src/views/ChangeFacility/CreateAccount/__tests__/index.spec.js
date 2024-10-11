@@ -1,12 +1,12 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
-import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import CreateAccount from '../index.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri/composables/useUser');
 
 const sendMachineEvent = jest.fn();
 function makeWrapper({ targetFacility } = {}) {

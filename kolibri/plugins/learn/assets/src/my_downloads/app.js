@@ -1,4 +1,4 @@
-import KolibriApp from 'kolibri_app';
+import KolibriApp from 'kolibri-app';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
 

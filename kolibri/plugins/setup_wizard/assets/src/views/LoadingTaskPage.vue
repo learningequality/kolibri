@@ -48,11 +48,11 @@
 
 <script>
 
-  import { FacilityTaskPanel } from 'kolibri.coreVue.componentSets.sync';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { TaskResource } from 'kolibri.resources';
-  import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
+  import FacilityTaskPanel from 'kolibri-common/components/syncComponentSet/FacilityTaskPanel';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
   import { DeviceTypePresets, LodTypePresets, SoudQueue, FooterMessageTypes } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 

@@ -1,8 +1,8 @@
 import range from 'lodash/range';
 import sumBy from 'lodash/fp/sumBy';
 import sortBy from 'lodash/sortBy';
-import shuffled from 'kolibri.utils.shuffled';
-import logger from 'kolibri.lib.logging';
+import shuffled from 'kolibri-common/utils/shuffled';
+import logger from 'kolibri-logging';
 
 const logging = logger.getLogger(__filename);
 

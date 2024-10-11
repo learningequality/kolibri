@@ -53,7 +53,7 @@
   import uniq from 'lodash/uniq';
   import map from 'lodash/map';
   import { mapActions, mapGetters } from 'vuex';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { NotificationObjects } from '../../../constants/notificationsConstants';
   import { LastPages } from '../../../constants/lastPagesConstants';
   import NotificationCard from './NotificationCard';

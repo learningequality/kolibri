@@ -1,21 +1,20 @@
 import mock from 'xhr-mock';
-import coreStore from 'kolibri.coreVue.vuex.store';
-import redirectBrowser from 'kolibri.utils.redirectBrowser';
-import * as serverClock from 'kolibri.utils.serverClock';
+import coreStore from 'kolibri/store';
+import redirectBrowser from 'kolibri/utils/redirectBrowser';
+import * as serverClock from 'kolibri/utils/serverClock';
 import { get, set } from '@vueuse/core';
-import useSnackbar, { useSnackbarMock } from 'kolibri.coreVue.composables.useSnackbar';
-import { ref } from 'kolibri.lib.vueCompositionApi';
-import { DisconnectionErrorCodes } from 'kolibri.coreVue.vuex.constants';
+import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
+import { ref } from '@vue/composition-api';
+import { DisconnectionErrorCodes } from 'kolibri/constants';
 import { HeartBeat } from '../heartbeat.js';
 import { trs } from '../disconnection';
 import coreModule from '../../../kolibri/core/assets/src/state/modules/core';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
-jest.mock('kolibri.lib.logging');
-jest.mock('kolibri.utils.redirectBrowser');
-jest.mock('kolibri.urls');
+jest.mock('kolibri/utils/redirectBrowser');
+jest.mock('kolibri/urls');
 jest.mock('lockr');
-jest.mock('kolibri.coreVue.composables.useSnackbar');
+jest.mock('kolibri/composables/useSnackbar');
 
 coreStore.registerModule('core', coreModule);
 

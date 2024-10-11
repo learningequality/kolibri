@@ -55,10 +55,10 @@
   import { mapGetters } from 'vuex';
   import { throttle } from 'frame-throttle';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { isTouchDevice } from 'kolibri.utils.browserInfo';
-  import useUserSyncStatus from 'kolibri.coreVue.composables.useUserSyncStatus';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { isTouchDevice } from 'kolibri/utils/browserInfo';
+  import useUserSyncStatus from 'kolibri-common/composables/useUserSyncStatus';
+  import useUser from 'kolibri/composables/useUser';
   import ScrollingHeader from '../ScrollingHeader';
   import AppBar from './AppBar';
   import SideNav from './SideNav';

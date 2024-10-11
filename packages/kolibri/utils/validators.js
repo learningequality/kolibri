@@ -1,5 +1,5 @@
 import values from 'lodash/values';
-import { ContentNodeKinds, LearningActivities } from 'kolibri.coreVue.vuex.constants';
+import { ContentNodeKinds, LearningActivities } from 'kolibri/constants';
 import every from 'lodash/every';
 import keys from 'lodash/keys';
 

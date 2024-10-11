@@ -29,7 +29,7 @@
  * })
  * ```
  */
-import { ref, computed } from 'kolibri.lib.vueCompositionApi';
+import { ref, computed } from '@vue/composition-api';
 import { get, set } from '@vueuse/core';
 import { MaxPointsPerContent } from 'kolibri/constants';
 

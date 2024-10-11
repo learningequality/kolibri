@@ -1,7 +1,8 @@
 import uniq from 'lodash/uniq';
 import some from 'lodash/some';
-import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
-import { ExamResource, ContentNodeResource } from 'kolibri.resources';
+import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
+import ExamResource from 'kolibri-common/apiResources/ExamResource';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 
 /*
  * Converts from v0 exam structures to v1

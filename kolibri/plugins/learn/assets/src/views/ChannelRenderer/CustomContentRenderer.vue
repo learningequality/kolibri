@@ -25,16 +25,14 @@
 <script>
 
   import { get } from '@vueuse/core';
-  import urls from 'kolibri.urls';
+  import urls from 'kolibri/urls';
   import Hashi from 'hashi';
-  import { now } from 'kolibri.utils.serverClock';
-  import {
-    ChannelResource,
-    ContentNodeResource,
-    ContentNodeSearchResource,
-  } from 'kolibri.resources';
-  import router from 'kolibri.coreVue.router';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { now } from 'kolibri/utils/serverClock';
+  import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+  import ContentNodeSearchResource from 'kolibri-common/apiResources/ContentNodeSearchResource';
+  import router from 'kolibri/router';
+  import { ContentNodeKinds } from 'kolibri/constants';
   import { events, MessageStatuses } from 'hashi/src/hashiBase';
   import { validateChannelTheme } from '../../utils/validateChannelTheme';
   import useContentLink from '../../composables/useContentLink';

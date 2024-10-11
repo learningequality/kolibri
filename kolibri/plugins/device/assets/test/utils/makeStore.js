@@ -1,5 +1,5 @@
 import cloneDeep from 'lodash/cloneDeep';
-import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
+import { coreStoreFactory } from 'kolibri/store';
 import coreModule from '../../../../../core/assets/src/state/modules/core';
 import pluginModule from '../../src/modules/pluginModule';
 import { contentNodeGranularPayload } from './data';

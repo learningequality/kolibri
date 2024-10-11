@@ -213,14 +213,14 @@
 
 <script>
 
-  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
+  import CoreTable from 'kolibri/components/CoreTable';
   import difference from 'lodash/difference';
-  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
-  import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import translatedUserKinds from 'kolibri.coreVue.mixins.translatedUserKinds';
+  import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
+  import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
+  import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import translatedUserKinds from 'kolibri-common/uiText/userKinds';
 
   export default {
     name: 'UserTable',

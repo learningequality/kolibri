@@ -11,9 +11,9 @@ import { getPathPermissions, getDeviceURLs, getDeviceSettings, getPathsPermissio
 import { getFreeSpaceOnServer } from '../../AvailableChannelsPage/api';
 
 jest.mock('../../../composables/usePlugins');
-jest.mock('kolibri.urls');
+jest.mock('kolibri/urls');
 
-jest.mock('plugin_data', () => {
+jest.mock('kolibri-plugin-data', () => {
   return {
     __esModule: true,
     default: {

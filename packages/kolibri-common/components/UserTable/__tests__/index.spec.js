@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
-import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
+import { UserKinds } from 'kolibri/constants';
+import { coreStoreFactory } from 'kolibri/store';
 import UserTable from '../index';
 
 function makeWrapper({ propsData } = {}) {

@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/vue';
-import { FacilityUserGender } from 'kolibri.coreVue.vuex.constants';
+import { FacilityUserGender } from 'kolibri/constants';
 import GenderDisplayText from '../GenderDisplayText';
 import '@testing-library/jest-dom';
 

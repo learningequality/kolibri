@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
-import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import useNav, { useNavMock } from 'kolibri.utils.registerNavItem';
-import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import { UserKinds } from 'kolibri/constants';
+import useNav, { useNavMock } from 'kolibri/composables/useNav'; // eslint-disable-line
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import SideNav from '../SideNav';
 // eslint-disable-next-line import/named
 // eslint-disable-next-line import/named
@@ -9,9 +9,9 @@ import LearnOnlyDeviceNotice from '../LearnOnlyDeviceNotice';
 import SyncStatusDisplay from '../../../SyncStatusDisplay';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
-jest.mock('kolibri.urls');
-jest.mock('kolibri.utils.registerNavItem');
-jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri/urls');
+jest.mock('kolibri/composables/useNav');
+jest.mock('kolibri/composables/useUser');
 
 function createWrapper({ navShown = true, headerHeight = 20, width = 100 } = {}) {
   return mount(SideNav, {

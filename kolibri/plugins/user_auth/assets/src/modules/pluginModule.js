@@ -1,6 +1,6 @@
 import Lockr from 'lockr';
 import { get } from '@vueuse/core';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import useUser from 'kolibri/composables/useUser';
 import { ComponentMap, pageNameToModuleMap } from '../constants';
 import signIn from './signIn';
 

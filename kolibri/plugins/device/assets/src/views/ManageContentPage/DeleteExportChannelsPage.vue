@@ -57,10 +57,10 @@
 
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import { TaskResource } from 'kolibri.resources';
-  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import { PageNames } from '../../constants';
   import DeviceChannelResource from '../../apiResources/deviceChannel';
   import useContentTasks from '../../composables/useContentTasks';

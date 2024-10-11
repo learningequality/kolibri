@@ -88,13 +88,13 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { ContentNodeResource } from 'kolibri.resources';
-  import client from 'kolibri.client';
-  import urls from 'kolibri.urls';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+  import client from 'kolibri/client';
+  import urls from 'kolibri/urls';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
@@ -203,7 +203,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   .fix-pos {
     position: fixed;

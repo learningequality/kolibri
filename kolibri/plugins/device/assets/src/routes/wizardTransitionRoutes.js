@@ -1,6 +1,6 @@
 import omit from 'lodash/omit';
-import router from 'kolibri.coreVue.router';
-import store from 'kolibri.coreVue.vuex.store';
+import router from 'kolibri/router';
+import store from 'kolibri/store';
 import {
   showAvailableChannelsPage,
   showSelectContentPage,

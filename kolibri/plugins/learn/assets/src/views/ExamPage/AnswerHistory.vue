@@ -106,7 +106,7 @@
 
 <script>
 
-  import coreStrings from 'kolibri.utils.coreStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import {
     enhancedQuizManagementStrings,
     displaySectionTitle,

@@ -1,8 +1,8 @@
 import FontFaceObserver from 'fontfaceobserver';
-import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
-import logger from 'kolibri.lib.logging';
-import { browser, passesRequirements } from 'kolibri.utils.browserInfo';
-import plugin_data from 'plugin_data';
+import { availableLanguages, currentLanguage } from 'kolibri/utils/i18n';
+import logger from 'kolibri-logging';
+import { browser, passesRequirements } from 'kolibri/utils/browserInfo';
+import plugin_data from 'kolibri-plugin-data';
 
 const logging = logger.getLogger(__filename);
 

@@ -85,13 +85,13 @@
 
   import every from 'lodash/every';
   import get from 'lodash/get';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
-  import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
-  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
-  import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import FullNameTextbox from 'kolibri-common/components/userAccounts/FullNameTextbox';
+  import UsernameTextbox from 'kolibri-common/components/userAccounts/UsernameTextbox';
+  import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
+  import PrivacyLinkAndModal from 'kolibri-common/components/userAccounts/PrivacyLinkAndModal';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import { ERROR_CONSTANTS } from 'kolibri/constants';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {

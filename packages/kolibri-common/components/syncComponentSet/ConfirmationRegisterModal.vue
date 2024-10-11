@@ -22,10 +22,11 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import CatchErrors from 'kolibri.utils.CatchErrors';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import { FacilityDatasetResource, PortalResource } from 'kolibri.resources';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import CatchErrors from 'kolibri/utils/CatchErrors';
+  import { ERROR_CONSTANTS } from 'kolibri/constants';
+  import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
+  import PortalResource from 'kolibri-common/apiResources/PortalResource';
 
   export default {
     name: 'ConfirmationRegisterModal',

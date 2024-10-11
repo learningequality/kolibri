@@ -1,4 +1,4 @@
-import plugin_data from 'plugin_data';
+import plugin_data from 'kolibri-plugin-data';
 
 // a name for every URL pattern
 export const PageNames = {

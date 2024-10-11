@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+import { ERROR_CONSTANTS } from 'kolibri/constants';
 import AddDeviceForm from '../AddDeviceForm';
 import { createDevice } from '../api';
 

@@ -12,9 +12,9 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import AppBarPage from 'kolibri/components/pages/AppBarPage';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
 
   export default {
     name: 'FacilityAppBarPage',

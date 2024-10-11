@@ -7,7 +7,7 @@
 
 <script>
 
-  import { MasteryModelTypes } from 'kolibri.coreVue.vuex.constants';
+  import { MasteryModelTypes } from 'kolibri/constants';
   import { masteryModelValidator } from 'kolibri-common/utils/contentNode';
 
   export default {

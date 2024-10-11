@@ -25,11 +25,11 @@
 
   import range from 'lodash/range';
   import getYear from 'date-fns/get_year';
-  import { now } from 'kolibri.utils.serverClock';
-  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { now } from 'kolibri/utils/serverClock';
+  import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
+  import { DemographicConstants } from 'kolibri/constants';
 
   const { NOT_SPECIFIED } = DemographicConstants;
 

@@ -1,9 +1,9 @@
-import { ref, onMounted, onUnmounted, computed } from 'kolibri.lib.vueCompositionApi';
-import { UserSyncStatusResource } from 'kolibri.resources';
-import store from 'kolibri.coreVue.vuex.store';
-import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
+import { ref, onMounted, onUnmounted, computed } from '@vue/composition-api';
+import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
+import store from 'kolibri/store';
+import { SyncStatus } from 'kolibri/constants';
 import { get, useTimeoutPoll } from '@vueuse/core';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import useUser from 'kolibri/composables/useUser';
 
 const { isLearnerOnlyImport, isUserLoggedIn, currentUserId } = useUser();
 

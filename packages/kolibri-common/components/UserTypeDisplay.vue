@@ -12,7 +12,7 @@
 
 <script>
 
-  import translatedUserKinds from 'kolibri.coreVue.mixins.translatedUserKinds';
+  import translatedUserKinds from 'kolibri-common/uiText/userKinds';
 
   export default {
     name: 'UserTypeDisplay',

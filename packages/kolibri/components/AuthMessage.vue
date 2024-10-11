@@ -30,8 +30,8 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import urls from 'kolibri/urls';
+  import useUser from 'kolibri/composables/useUser';
 
   const userRoles = [
     'admin',

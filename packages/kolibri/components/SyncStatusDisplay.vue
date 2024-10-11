@@ -26,8 +26,8 @@
 
 <script>
 
-  import useNow from 'kolibri.coreVue.composables.useNow';
-  import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
+  import useNow from 'kolibri/composables/useNow';
+  import { SyncStatus } from 'kolibri/constants';
 
   export default {
     name: 'SyncStatusDisplay',

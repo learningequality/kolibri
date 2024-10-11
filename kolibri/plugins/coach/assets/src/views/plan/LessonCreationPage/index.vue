@@ -45,9 +45,9 @@
 
 <script>
 
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import CatchErrors from 'kolibri.utils.CatchErrors';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ERROR_CONSTANTS } from 'kolibri/constants';
+  import CatchErrors from 'kolibri/utils/CatchErrors';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import commonCoach from '../../common';

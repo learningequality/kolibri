@@ -30,7 +30,7 @@
 
 <script>
 
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { crossComponentTranslator } from 'kolibri/utils/i18n';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import AppError from 'kolibri-common/components/AppError';
   import ReportErrorModal from 'kolibri-common/components/AppError/ReportErrorModal';

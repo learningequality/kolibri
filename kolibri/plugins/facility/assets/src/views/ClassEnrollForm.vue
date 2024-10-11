@@ -40,9 +40,9 @@
   import { mapState } from 'vuex';
   import pickBy from 'lodash/pickBy';
   import debounce from 'lodash/debounce';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import UserTable from 'kolibri.coreVue.components.UserTable';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import FilterTextbox from 'kolibri/components/FilterTextbox';
+  import UserTable from 'kolibri-common/components/UserTable';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import SelectionBottomBar from './SelectionBottomBar';
 

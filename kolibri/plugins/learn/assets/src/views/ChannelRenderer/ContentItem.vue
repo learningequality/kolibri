@@ -24,8 +24,8 @@
 
 <script>
 
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import { ContentNodeKinds } from 'kolibri/constants';
+  import useUser from 'kolibri/composables/useUser';
   import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
   import useProgressTracking from '../../composables/useProgressTracking';
   import AssessmentWrapper from '../AssessmentWrapper';

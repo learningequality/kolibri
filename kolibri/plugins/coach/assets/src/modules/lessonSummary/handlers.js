@@ -1,5 +1,5 @@
-import { LearnerGroupResource } from 'kolibri.resources';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 

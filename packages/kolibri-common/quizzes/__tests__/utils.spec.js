@@ -1,6 +1,6 @@
 import map from 'lodash/map';
-import { ContentNodeResource } from 'kolibri.resources';
-import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
 import { convertExamQuestionSources } from '../utils';
 
 // map of content IDs to lists of question IDs
@@ -82,7 +82,7 @@ const contentNodes = map(QUESTION_IDS, (assessmentIds, nodeId) => {
   };
 });
 
-jest.mock('kolibri.resources');
+jest.mock('kolibri-common/apiResources/ContentNodeResource');
 ContentNodeResource.fetchCollection = jest.fn(() => Promise.resolve(contentNodes));
 
 describe('exam utils', () => {

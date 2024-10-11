@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { RENDERER_SUFFIX } from 'kolibri.coreVue.vuex.constants';
+import { RENDERER_SUFFIX } from 'kolibri/constants';
 import {
   canRenderContent,
   getRenderableFiles,

@@ -1,22 +1,20 @@
 import { mount, createLocalVue } from '@vue/test-utils';
-import { TaskResource } from 'kolibri.resources';
-import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
-import redirectBrowser from 'kolibri.utils.redirectBrowser';
-import client from 'kolibri.client';
+import TaskResource from 'kolibri/apiResources/TaskResource';
+import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
+import redirectBrowser from 'kolibri/utils/redirectBrowser';
+import client from 'kolibri/client';
 import MergeFacility from '../../../src/views/ChangeFacility/MergeFacility';
 
 const localVue = createLocalVue();
 const sendMachineEvent = jest.fn();
-jest.mock('kolibri.client');
-jest.mock('kolibri.urls');
-jest.mock('kolibri.utils.redirectBrowser');
-jest.mock('kolibri.resources', () => ({
-  TaskResource: {
-    fetchModel: jest.fn(),
-    fetchCollection: jest.fn(),
-    startTask: jest.fn(),
-    clear: jest.fn(),
-  },
+jest.mock('kolibri/client');
+jest.mock('kolibri/urls');
+jest.mock('kolibri/utils/redirectBrowser');
+jest.mock('kolibri/apiResources/TaskResource', () => ({
+  fetchModel: jest.fn(),
+  fetchCollection: jest.fn(),
+  startTask: jest.fn(),
+  clear: jest.fn(),
 }));
 
 function makeWrapper({ taskId = 'task_1' } = {}) {

@@ -1,6 +1,6 @@
-import commonCoreStrings from 'kolibri.utils.coreStrings';
-import { getTaskString } from 'kolibri.coreVue.mixins.commonTaskStrings';
-import bytesForHumans from 'kolibri.utils.bytesForHumans';
+import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+import { getTaskString } from 'kolibri-common/uiText/tasks';
+import bytesForHumans from 'kolibri/uiText/bytesForHumans';
 
 export const TaskTypes = {
   REMOTECHANNELIMPORT: 'kolibri.core.content.tasks.remotechannelimport',

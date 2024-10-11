@@ -1,4 +1,4 @@
-import { Resource } from 'kolibri.lib.apiResource';
+import { Resource } from 'kolibri/apiResource';
 
 export default new Resource({
   name: 'attemptlog',

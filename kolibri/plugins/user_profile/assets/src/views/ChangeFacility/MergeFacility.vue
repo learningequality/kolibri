@@ -90,16 +90,16 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import { computed, inject, onMounted, ref } from 'kolibri.lib.vueCompositionApi';
-  import { TaskResource } from 'kolibri.resources';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import { computed, inject, onMounted, ref } from '@vue/composition-api';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
   import get from 'lodash/get';
-  import { syncStatusToDescriptionMap, TaskStatuses } from 'kolibri.utils.syncTaskUtils';
-  import redirectBrowser from 'kolibri.utils.redirectBrowser';
-  import urls from 'kolibri.urls';
-  import client from 'kolibri.client';
+  import { syncStatusToDescriptionMap, TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
+  import redirectBrowser from 'kolibri/utils/redirectBrowser';
+  import urls from 'kolibri/urls';
+  import client from 'kolibri/client';
   import { getTaskString } from 'kolibri-common/uiText/tasks';
 
   export default {

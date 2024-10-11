@@ -1,9 +1,9 @@
 import find from 'lodash/find';
-import logger from 'kolibri.lib.logging';
+import logger from 'kolibri-logging';
 import { get } from '@vueuse/core';
-import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
-import { currentLanguage, isRtl } from 'kolibri.utils.i18n';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import { computed, getCurrentInstance } from '@vue/composition-api';
+import { currentLanguage, isRtl } from 'kolibri/utils/i18n';
+import useUser from 'kolibri/composables/useUser';
 import { coachStrings } from '../views/common/commonCoachStrings';
 
 const logging = logger.getLogger(__filename);

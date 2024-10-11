@@ -28,7 +28,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AssignmentCopyModal from '../assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../assignments/AssignmentDeleteModal';
 

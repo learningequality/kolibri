@@ -52,8 +52,8 @@
   import { mapActions, mapState, mapGetters, mapMutations } from 'vuex';
   import find from 'lodash/find';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { TransferTypes } from 'kolibri-common/utils/syncTaskUtils';
   import DriveList from './DriveList';
 
   export default {

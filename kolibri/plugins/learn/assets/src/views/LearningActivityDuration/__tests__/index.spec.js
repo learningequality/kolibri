@@ -3,16 +3,18 @@ import CompletionCriteria from 'kolibri-constants/CompletionCriteria';
 
 import LearningActivityDuration from '../index';
 
-jest.mock('kolibri.utils.coreStrings', () => {
+jest.mock('kolibri/uiText/commonCoreStrings', () => {
   const translations = {
     readReference: 'Reference',
     shortActivity: 'Short activity',
     longActivity: 'Long activity',
   };
   return {
-    $tr: jest.fn(key => {
-      return translations[key];
-    }),
+    coreStrings: {
+      $tr: jest.fn(key => {
+        return translations[key];
+      }),
+    },
   };
 });
 

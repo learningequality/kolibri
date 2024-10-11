@@ -1,4 +1,4 @@
-import { ref, onBeforeUnmount } from 'kolibri.lib.vueCompositionApi';
+import { ref, onBeforeUnmount } from '@vue/composition-api';
 import { get, set, useMemoize, useTimeoutPoll } from '@vueuse/core';
 import { updateConnectionStatus } from './api';
 import { ConnectionStatus } from './constants';

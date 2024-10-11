@@ -39,8 +39,8 @@
 
 <script>
 
-  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import lodashGet from 'lodash/get';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
 

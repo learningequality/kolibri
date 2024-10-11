@@ -13,7 +13,7 @@
 
 <script>
 
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
+  import AppBarPage from 'kolibri/components/pages/AppBarPage';
   import DeprecationWarningBanner from './DeprecationWarningBanner';
 
   export default {

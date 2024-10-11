@@ -5,7 +5,7 @@
  */
 
 import coreApp from 'kolibri';
-import urls from 'kolibri.urls';
+import urls from 'kolibri/urls';
 
 if (process.env.NODE_ENV === 'production') {
   /* eslint-disable no-undef */

@@ -30,7 +30,7 @@
 
 <script>
 
-  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import { computed } from '@vue/composition-api';
   import useLearnerResources from '../../composables/useLearnerResources';
   import QuizCard from '../cards/QuizCard';
   import CardGrid from '../cards/CardGrid';

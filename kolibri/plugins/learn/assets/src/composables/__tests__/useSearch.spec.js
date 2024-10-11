@@ -1,17 +1,17 @@
 import { get, set } from '@vueuse/core';
 import VueRouter from 'vue-router';
 import Vue from 'vue';
-import { ref } from 'kolibri.lib.vueCompositionApi';
-import { ContentNodeResource } from 'kolibri.resources';
-import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
-import { AllCategories, NoCategories } from 'kolibri.coreVue.vuex.constants';
-import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import { ref } from '@vue/composition-api';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import { coreStoreFactory } from 'kolibri/store';
+import { AllCategories, NoCategories } from 'kolibri/constants';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useSearch from '../useSearch';
 import coreModule from '../../../../../../core/assets/src/state/modules/core';
 
 Vue.use(VueRouter);
 
-jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri/composables/useUser');
 
 const name = 'not important';
 

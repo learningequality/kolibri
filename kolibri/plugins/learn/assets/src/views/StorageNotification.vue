@@ -57,14 +57,14 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
   import { useLocalStorage } from '@vueuse/core';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
-  import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
-  import urls from 'kolibri.urls';
-  import redirectBrowser from 'kolibri.utils.redirectBrowser';
-  import useUserSyncStatus from 'kolibri.coreVue.composables.useUserSyncStatus';
+  import { LearnerDeviceStatus } from 'kolibri/constants';
+  import urls from 'kolibri/urls';
+  import redirectBrowser from 'kolibri/utils/redirectBrowser';
+  import useUserSyncStatus from 'kolibri-common/composables/useUserSyncStatus';
 
   export default {
     name: 'StorageNotification',

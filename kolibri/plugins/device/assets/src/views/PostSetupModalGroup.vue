@@ -39,10 +39,11 @@
 
 <script>
 
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { SelectDeviceForm, AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import SelectDeviceForm from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/SelectDeviceForm';
+  import AddDeviceForm from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/AddDeviceForm';
+  import useUser from 'kolibri/composables/useUser';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { availableChannelsPageLink } from './ManageContentPage/manageContentLinks';
   import WelcomeModal from './WelcomeModal';
   import PermissionsChangeModal from './PermissionsChangeModal';

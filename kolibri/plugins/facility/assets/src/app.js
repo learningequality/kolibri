@@ -1,8 +1,8 @@
 import { get } from '@vueuse/core';
-import useUser from 'kolibri.coreVue.composables.useUser';
-import redirectBrowser from 'kolibri.utils.redirectBrowser';
-import router from 'kolibri.coreVue.router';
-import KolibriApp from 'kolibri_app';
+import useUser from 'kolibri/composables/useUser';
+import redirectBrowser from 'kolibri/utils/redirectBrowser';
+import router from 'kolibri/router';
+import KolibriApp from 'kolibri-app';
 import RootVue from './views/FacilityIndex';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';

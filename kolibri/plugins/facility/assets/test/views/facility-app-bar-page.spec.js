@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import FacilityAppBarPage from '../../src/views/FacilityAppBarPage';
 
 function makeWrapper({ propsData = {}, getters = {} }) {
@@ -15,9 +15,9 @@ function makeWrapper({ propsData = {}, getters = {} }) {
     store,
   });
 }
-jest.mock('kolibri.urls');
+jest.mock('kolibri/urls');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
-jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri/composables/useUser');
 
 describe('FacilityAppBarPage', function () {
   beforeEach(() => {

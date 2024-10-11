@@ -1,5 +1,5 @@
-import router from 'kolibri.coreVue.router';
-import KolibriApp from 'kolibri_app';
+import router from 'kolibri/router';
+import KolibriApp from 'kolibri-app';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
 

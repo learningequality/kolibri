@@ -111,8 +111,8 @@
 
 <script>
 
-  import { validateContentNodeKind } from 'kolibri.utils.validators';
-  import { ContentNodeKinds, USER } from 'kolibri.coreVue.vuex.constants';
+  import { validateContentNodeKind } from 'kolibri/utils/validators';
+  import { ContentNodeKinds, USER } from 'kolibri/constants';
   import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 
   export default {

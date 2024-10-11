@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import DownloadButton from '../DownloadButton';
 
-jest.mock('kolibri.urls');
+jest.mock('kolibri/urls');
 
 describe('download-button Component', function () {
   const samplesFiles = [

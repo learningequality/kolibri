@@ -35,8 +35,8 @@
 
 <script>
 
-  import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
+  import { PermissionTypes, UserKinds } from 'kolibri/constants';
+  import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
 
   export default {
     name: 'PermissionsIcon',

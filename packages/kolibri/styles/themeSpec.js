@@ -1,4 +1,4 @@
-import logger from 'kolibri.lib.logging';
+import logger from 'kolibri-logging';
 import isObject from 'lodash/isObject';
 
 const logging = logger.getLogger(__filename);

@@ -34,7 +34,7 @@
 
 <script>
 
-  import { SelectDeviceModalGroup } from 'kolibri.coreVue.componentSets.sync';
+  import SelectDeviceModalGroup from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup';
   import { LodTypePresets as Options } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 

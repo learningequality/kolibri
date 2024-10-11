@@ -1,12 +1,13 @@
 import { shallowMount } from '@vue/test-utils';
-import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import { UserKinds } from 'kolibri/constants';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import NotificationsRoot from '../NotificationsRoot';
 import { coreStoreFactory as makeStore } from '../../../store';
 import coreModule from '../../../../../kolibri/core/assets/src/state/modules/core';
 
-jest.mock('kolibri.coreVue.composables.useUser');
-jest.mock('kolibri.resources');
+jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri-common/apiResources/PingbackNotificationResource');
+jest.mock('kolibri-common/apiResources/PingbackNotificationDismissedResource');
 
 function makeWrapper(useUserMockObj = null) {
   const store = makeStore();

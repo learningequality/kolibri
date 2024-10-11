@@ -1,11 +1,11 @@
-import logger from 'kolibri.lib.logging';
-import coreStore from 'kolibri.coreVue.vuex.store';
-import { TaskResource } from 'kolibri.resources';
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
+import logger from 'kolibri-logging';
+import coreStore from 'kolibri/store';
+import TaskResource from 'kolibri/apiResources/TaskResource';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/fp/pick';
-import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 
 const logging = logger.getLogger(__filename);
 

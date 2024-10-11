@@ -22,8 +22,8 @@
 
 <script>
 
-  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {

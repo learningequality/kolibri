@@ -1,11 +1,12 @@
-import { TaskResource } from 'kolibri.resources';
-import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+import TaskResource from 'kolibri/apiResources/TaskResource';
+import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import { loadChannelMetadata } from '../../src/modules/wizard/actions/selectContentActions';
 import ChannelResource from '../../src/apiResources/deviceChannel';
 import { defaultChannel } from '../utils/data';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 
-jest.mock('kolibri.resources');
+jest.mock('kolibri/apiResources/TaskResource');
+jest.mock('kolibri-common/apiResources/ChannelResource');
 jest.genMockFromModule('../../src/apiResources/deviceChannel');
 
 // Have store suddenly add a Task to the store so the task waiting step

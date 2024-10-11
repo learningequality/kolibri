@@ -1,10 +1,10 @@
 import { sync } from 'vuex-router-sync';
-import router from 'kolibri.coreVue.router';
-import logger from 'kolibri.lib.logging';
-import Vue from 'kolibri.lib.vue';
-import store from 'kolibri.coreVue.vuex.store';
-import heartbeat from 'kolibri.heartbeat';
-import KolibriModule from 'kolibri_module';
+import router from 'kolibri/router';
+import logger from 'kolibri-logging';
+import Vue from 'vue';
+import store from 'kolibri/store';
+import heartbeat from 'kolibri/heartbeat';
+import KolibriModule from 'kolibri-module';
 
 export const logging = logger.getLogger(__filename);
 

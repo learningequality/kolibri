@@ -68,8 +68,8 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
   import AttemptIconDiff from './AttemptIconDiff';
 
   export default {

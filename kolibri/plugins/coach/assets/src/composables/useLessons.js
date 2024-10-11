@@ -1,6 +1,6 @@
-import { ref } from 'kolibri.lib.vueCompositionApi';
-import { LearnerGroupResource } from 'kolibri.resources';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import { ref } from '@vue/composition-api';
+import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
+import useUser from 'kolibri/composables/useUser';
 import { LessonsPageNames } from '../constants/lessonsConstants';
 
 // Place outside the function to keep the state

@@ -2,9 +2,9 @@
  * A composable function containing logic related to channels
  */
 
-import { ref } from 'kolibri.lib.vueCompositionApi';
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
+import { ref } from '@vue/composition-api';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 
 export default function usePlugins() {
   const plugins = ref(null);

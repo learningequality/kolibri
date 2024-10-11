@@ -76,9 +76,9 @@
 
 <script>
 
-  import useNow from 'kolibri.coreVue.composables.useNow';
-  import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useNow from 'kolibri/composables/useNow';
+  import taskStrings from 'kolibri-common/uiText/tasks';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'FacilityNameAndSyncStatus',

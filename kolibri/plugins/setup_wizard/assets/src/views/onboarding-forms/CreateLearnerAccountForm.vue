@@ -34,8 +34,8 @@
 
 <script>
 
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { Presets } from 'kolibri.coreVue.vuex.constants';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import { Presets } from 'kolibri/constants';
   import OnboardingStepBase from '../OnboardingStepBase';
   import { FooterMessageTypes } from '../../constants';
 

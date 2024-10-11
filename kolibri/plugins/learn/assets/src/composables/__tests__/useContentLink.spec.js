@@ -1,5 +1,5 @@
 import Vuex from 'vuex';
-import { validateLinkObject } from 'kolibri.utils.validators';
+import { validateLinkObject } from 'kolibri/utils/validators';
 import { PageNames } from '../../../src/constants';
 import useContentLink from '../useContentLink';
 
