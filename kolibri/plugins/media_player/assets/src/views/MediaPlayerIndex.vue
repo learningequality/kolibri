@@ -98,7 +98,6 @@
   import throttle from 'lodash/throttle';
   import { languageIdToCode } from 'kolibri.utils.i18n';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import Settings from '../utils/settings';
   import { ReplayButton, ForwardButton } from './customButtons';
@@ -123,7 +122,7 @@
   export default {
     name: 'MediaPlayerIndex',
     components: { MediaPlayerFullscreen, MediaPlayerTranscript },
-    mixins: [commonCoreStrings, responsiveElementMixin],
+    mixins: [commonCoreStrings],
     setup() {
       const { windowIsSmall, windowIsPortrait } = useKResponsiveWindow();
       return { windowIsSmall, windowIsPortrait };

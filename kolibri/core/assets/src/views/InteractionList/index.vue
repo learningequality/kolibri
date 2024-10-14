@@ -21,13 +21,11 @@
 
 <script>
 
-  import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
   import InteractionItem from './InteractionItem';
 
   export default {
     name: 'InteractionList',
     components: { InteractionItem },
-    mixins: [responsiveElementMixin],
     props: {
       interactions: {
         type: Array,

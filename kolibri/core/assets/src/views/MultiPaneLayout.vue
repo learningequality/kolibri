@@ -56,11 +56,9 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
 
   export default {
     name: 'MultiPaneLayout',
-    mixins: [responsiveElementMixin],
     setup() {
       const { windowHeight } = useKResponsiveWindow();
       return {
