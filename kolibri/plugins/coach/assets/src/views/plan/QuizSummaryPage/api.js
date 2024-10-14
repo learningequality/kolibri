@@ -14,11 +14,10 @@ const fetchDifficultQuestions = async exam => {
     true,
   );
 
-  const allQuestions = exam.question_sources.reduce((qs, section) => {
-    qs = [...qs, ...section.questions];
-
-    return qs;
-  }, []);
+  const allQuestions = exam.question_sources.reduce(
+    (qs, section) => [...qs, ...section.questions],
+    [],
+  );
 
   allQuestions.forEach(question => {
     const questionStats = correctnessStats.find(stat => stat.item === question.item);

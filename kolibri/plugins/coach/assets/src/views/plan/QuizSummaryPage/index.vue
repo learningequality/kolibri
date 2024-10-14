@@ -344,7 +344,9 @@
         });
       },
       exportCSV() {
-        this.$refs.table.exportCSV?.();
+        if (typeof this.$refs.table.exportCSV === 'function') {
+          this.$refs.table.exportCSV();
+        }
       },
     },
     $trs: {
