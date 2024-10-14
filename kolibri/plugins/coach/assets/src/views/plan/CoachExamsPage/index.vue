@@ -434,17 +434,20 @@
         ];
       },
       calcTotalSizeOfVisibleQuizzes() {
-        if (this.filteredExams) {
-          let sum = 0;
-          for (const exam of this.filteredExams) {
-            if (exam.active) {
-              sum += exam.size;
-            }
-          }
-          const size = bytesForHumans(sum);
-          return size;
+        if (!this.filteredExams || this.filteredExams.length === 0) {
+          return '--';
         }
-        return '--';
+        let sum = 0;
+        for (const exam of this.filteredExams) {
+          if (exam.active && exam.size && !isNaN(exam.size)) {
+            sum += exam.size;
+          }
+        }
+        if (sum === 0) {
+          return '--';
+        }
+        const size = bytesForHumans(sum);
+        return size;
       },
     },
     mounted() {
