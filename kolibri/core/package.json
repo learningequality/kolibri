@@ -25,7 +25,7 @@
     "lockr": "0.8.5",
     "lodash": "^4.17.21",
     "loglevel": "^1.9.2",
-    "path-to-regexp": "1.8.0",
+    "path-to-regexp": "1.9.0",
     "screenfull": "^5.2.0",
     "tinycolor2": "^1.6.0",
     "ua-parser-js": "^1.0.38",
