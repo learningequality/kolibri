@@ -3,36 +3,28 @@ Feature: Coach edits lessons
 
   Background:
     Given I am signed in to Kolibri as a coach user
-      And I am on the *Coach - '<class>' > Plan > Lessons > '<lesson>'* page
+      And I am on the *Coach - '<class>' > Lessons > '<lesson>'* page
       And there are 2 or more learner groups
-      And there is a lesson <lesson> created previously
+      And there is a previously created lesson
 
-  Scenario: Edit existing lesson title
-  # Repeat the scenario from the *Coach - '<class>' > Report > Lessons > '<lesson>'* page
-    When I click the *Options* dropdown menu
+  Scenario: Edit the title and description of an existing lesson
+    When I click the *...* button
       And I select the *Edit details* option
     Then I see the *Edit lesson details* page
-    When I edit the lesson *Title* and leave the field
+    When I change the title and description of the lesson
       And I click the *Save changes* button
-    Then I see the lesson <lesson> page again
-      And I see the title of the lesson is changed
-      # And I see the snackbar notification “Lesson changes saved” # No snackbar
+    Then I see the lesson details page again
+    	And I see a *Changes saved* snackbar notification
+      And I see that the title of the lesson is changed
+    When I click on the title of the lesson
+    Then I am the lesson details page
+    	And I can see that the description of the lesson is also changed
 
   Scenario: Cannot change the title of an existing lesson if it is already used
-  # Repeat the scenario from the *Coach - '<class>' > Report > Lessons > '<lesson>'* page
-    Given There exists a lesson called "Second Lesson"
-      When I enter "Second Lesson" in the *Title* field
-        And I either move to a different field or click *Save changes*
-      Then the *A lesson with this name already exists* error notification appears
+    Given I am at the *Edit lesson details* page
+      When I try to rename the channel by entering an existing lesson title
+      Then I see the following validation message: *A lesson with this name already exists*
         And I cannot save until I choose another title
-
-  Scenario: Edit existing lesson description
-  # Repeat the scenario from the *Coach - '<class>' > Report > Lessons > '<lesson>'* page
-    When I edit the lesson <lesson> *Description*
-      And I click the *Save changes* button
-    Then I see the lesson <lesson> page again
-      And I see the description of the lesson is changed
-      # And I see the snackbar notification “Lesson changes saved” # No snackbar
 
   Scenario: Reassign existing lesson to different recipient groups
   # Repeat the scenario from the *Coach - '<class>' > Report > Lessons > '<lesson>'* page

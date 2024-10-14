@@ -3,20 +3,20 @@ Feature: Coach copies lesson
 
   Background:
     Given I am signed in to Kolibri as coach user
-      And I am on *Coach - '<class>' > Plan > Lessons* page
-      And I see the <lesson> lesson
+      And I am at *Coach - '<class>' > Lessons* page
+      And I have already created some lessons
 
-  Scenario: Copy lesson to the same class and assign to the entire class
-    When I click the <lesson> lesson
-    Then I see the <lesson> page
-    When I click *Options* button
-      And I select *Copy lesson* option
+  Scenario: Copy lesson to the same class and assign it to the entire class
+    When I click the title of a lesson
+    Then I see the lesson summary page
+    When I click *...* button next to *Manage resources*
+      And I select the *Copy lesson* option
     Then I see the *Copy lesson to* modal
-      And I see *'<class>' (current class)* is selected
-    When I click *Continue* button
+      And I see that *'<class>' (current class)* is selected
+    When I click the *Continue* button
     Then the modal content changes and asks to select recipients
-      And I see *Entire class* selected
-    When I click *Copy* button
+      And I see that *Entire class* is selected by default
+    When I click the *Copy* button
     Then the modal closes
 			And the snackbar confirmation appears
     When I click on *All Lessons*
@@ -24,24 +24,24 @@ Feature: Coach copies lesson
       And I see *Entire class* value for it under the *Recipients* heading
 
   Scenario: Copy lesson to a different class and assign it to just one group
-    Given there is a class <class2> that has a group <group>
-    When I click the <lesson> lesson
-    Then I see the <lesson> page
-    When I click *Options* button
-      And I select *Copy lesson* option
+    Given there is a class for which there is a group of learners
+    When I click the title of a lesson
+    Then I see the lesson summary page
+    When I click *...* button next to *Manage resources*
+      And I select the *Copy lesson* option
     Then I see the *Copy lesson to* modal
-      And I see *'<class>' (current class)* is selected
-    When I select class <class2>
-      And I click *Continue* button
+      And I see that *'<class>' (current class)* is selected
+    When I select a class
+      And I click the *Continue* button
     Then the modal content changes and asks to select recipients
-      And I see *Entire class* selected
-    When I select group <group>
-      And I click *Copy* button
+      And I see that *Entire class* is selected by default
+    When I select a group
+      And I click the *Copy* button
     Then the modal closes
       And the snackbar confirmation appears
     When I open the sidebar
       And I click on *Coach*
-      And I click class <class2>
-      And I click on *Plan > Lessons* tab
+      And I select the other class
+      And I go to the *Coach > Lessons* page
     Then I see the *Copy of '<lesson>'* in the list of lessons
-      And I see *1 group* value for it under the *Recipients* heading
+      And I see the specified group under the *Recipients* heading
