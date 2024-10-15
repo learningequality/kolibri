@@ -87,8 +87,7 @@ Feature: Coach creates lessons
 
   Scenario: Clear results and reset search
     Given that there are results from the previous search
-    When I press the *X* button in the search field
-      Or I delete the previous search term and press *Enter*
+    When I press the *X* button in the search field #Or I delete the previous search term and press *Enter*
     Then I still see the previous search results (no change)
 
   Scenario: Add resources from the search results page

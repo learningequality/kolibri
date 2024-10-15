@@ -5,12 +5,12 @@ Coach needs to be able to determine which questions in a lesson are difficult
 
   Background:
     Given I have both sessions visible in two browser windows/tabs (signed into one as learner, and in the other as coach)
-      And there <learner1> and <learner2> enrolled in the class
+      And there are <learner1> and <learner2> enrolled in the class
       And there is a <lesson> with <exercise1> and <exercise2> assigned to class <class>
 
-  Scenario: 1 learner gives incorrect answer
-    When I as a <learner1> give 1 incorrect answer to question <question> in the <exercise1>
-    Then I as a coach <coach> go to *Coach - '<class>' > Reports > Lessons > '<lesson>' > Difficult questions* subtab
+  Scenario: Learner 1 gives an incorrect answer
+    When I as <learner1> give an incorrect answer to a question in the exercise
+    Then when I as a coach go to *Coach - '<class>' > Lessons > '<lesson>' > Difficult questions* subtab
       And I see the question <question> under the *Question* column
       And I see *1 of 1 needs help* under the *Help needed* column
 

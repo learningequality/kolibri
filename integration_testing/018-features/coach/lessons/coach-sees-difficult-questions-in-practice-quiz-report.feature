@@ -1,18 +1,19 @@
 Feature: Coach sees detailed information for difficult questions in practice quiz report from lessons
 
-  Scenario: Coach sees detailed information for difficult questions
-    Given that I am in 'Reports'
-      And I click on the 'Lessons' subtab
-      And I click on a lesson title
-      And I click on the title of an practice quiz in the 'Reports' subtab
-      And I click on the 'Difficult questions' subtab
-    When I select the difficult question
-    Then I see a list of learners who got the question incorrect, a preview of the question, and the option to show the correct answer.
+	Background:
+    Given I am signed in to Kolibri as Coach
+      And I am at *Coach - '<class>' > Lessons <lesson>* page for a practice quiz
+      And a learner has already interacted with exercises in the lesson and has given repeatedly incorrect answers to some of the questions
 
-  Scenario: coach sees the correct difficult questions for most recent attempt
-    Given that I am in 'Reports'
-      And I click on the 'Lessons' subtab
-      And I click on a lesson title
-      And I click on the title of an practice quiz in the 'Reports' subtab
-    When I click on the 'Difficult questions' subtab
-    Then I see the correct difficult questions for most recent attempt
+  Scenario: Coach sees detailed information for difficult questions
+    When I look at the table with resources
+    Then in the *Progress* column I see *N need help*
+		When I click on the title of the practice quiz
+      And I click on the *Difficult questions* tab
+    Then I see a table with all of the difficult questions
+    When I click on the title of a difficult question
+    Then I see a list of learners who got the question incorrect
+    	And I see a preview of the question
+    	And I see a *Show correct answer* checkbox
+    When I select the *Show correct answer* checkbox
+    Then I see the correct answer
