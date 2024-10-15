@@ -2,7 +2,7 @@
 
   <KCard
     :to="to"
-    :layout="windowBreakpoint === 0 ? 'vertical' : 'horizontal'"
+    :orientation="windowBreakpoint === 0 ? 'vertical' : 'horizontal'"
     thumbnailDisplay="small"
     thumbnailAlign="right"
     :thumbnailSrc="thumbnailSrc"
@@ -21,7 +21,7 @@
     <template #belowTitle>
       <div>
         <KTextTruncator
-          :text="coachString('numberOfResources',{ value: contentNode.num_coach_contents })"
+          :text="coachString('numberOfResources', { value: contentNode.num_coach_contents })"
           :maxLines="1"
         />
         <KTextTruncator
@@ -70,7 +70,7 @@
       contentNode: {
         type: Object,
         required: true,
-      }, 
+      },
       thumbnailSrc: {
         type: String,
         default: null,
@@ -83,9 +83,9 @@
 
 <style scoped>
 
-  .type-icon{
+  .type-icon {
+    right: 10px;
     font-size: 3em;
-    right:10px;
   }
 
 </style>
