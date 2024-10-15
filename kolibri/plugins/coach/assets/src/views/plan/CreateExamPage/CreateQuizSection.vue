@@ -170,7 +170,7 @@
 
         <AccordionContainer>
           <template #header="{ canExpandAll, expandAll, canCollapseAll, collapseAll }">
-            <div style="display: flex; align-items: center; justify-content: space-between">
+            <div class="questions-accordion-header">
               <div>
                 <KCheckbox
                   ref="selectAllCheckbox"
@@ -182,7 +182,7 @@
                   @click.stop="() => {}"
                 />
               </div>
-              <div style="display: flex; align-items: center">
+              <div class="trailing-actions">
                 <KIconButton
                   icon="expandAll"
                   :tooltip="expandAll$()"
@@ -227,7 +227,9 @@
                 v-for="(question, index) in activeQuestions"
                 :key="`drag-${question.item}`"
                 tabindex="-1"
-                style="background: white"
+                :style="{
+                  background: $themeTokens.surface,
+                }"
               >
                 <AccordionItem
                   :title="
@@ -256,7 +258,7 @@
                     <KCheckbox
                       class="accordion-item-checkbox"
                       :checked="selectedActiveQuestions.includes(question.item)"
-                      @change="() => toggleQuestionInSelection(question.item)"
+                      @change="(_, $event) => handleQuestionCheckboxChange(question.item, $event)"
                     />
                   </template>
                   <template #content>
@@ -638,6 +640,10 @@
         const newArray = this.moveUpOne(oldIndex, array);
         this.handleQuestionOrderChange({ newArray });
       },
+      handleQuestionCheckboxChange(item, $event) {
+        $event.stopPropagation();
+        this.toggleQuestionInSelection(item);
+      },
       openSelectResources() {
         this.$router.push({
           name: PageNames.QUIZ_SELECT_RESOURCES,
@@ -817,6 +823,18 @@
   // This makes sure that the keyboard focus ring is visible on the section tabs
   /deep/ .tab {
     outline-offset: -5px !important;
+  }
+
+  .questions-accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-left: 8px;
+
+    .trailing-actions {
+      display: flex;
+      align-items: center;
+    }
   }
 
 </style>

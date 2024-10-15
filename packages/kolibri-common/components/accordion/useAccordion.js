@@ -89,18 +89,3 @@ export function injectAccordionItem(uid) {
     isExpanded,
   };
 }
-/**
- * <KAccordion>
- *   <KAccordionItem
- *      v-for="(item, index) in items"
- *      :isExpanded="isExpanded(index)"
- *   >
- *      <template #heading>
- *        <h3 @click="toggle(index)">{{ item.title }}</h3>
- *      </template>
- *      <template #content>
- *        <p v-if="isExpanded(index)">{{ item.content }}</p>
- *      </template>
- *   </KAccordionItem>
- * </KAccordion>
- */
