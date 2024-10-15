@@ -324,7 +324,7 @@ class QuizDifficultiesPermissions(permissions.BasePermission):
             return False
         try:
             collection = Exam.objects.get(id=exam_id).collection
-        except Exam.DoesNotExist:
+        except (Exam.DoesNotExist, ValueError):
             return False
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
         try:

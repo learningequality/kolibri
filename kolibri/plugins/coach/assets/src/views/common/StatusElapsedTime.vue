@@ -18,7 +18,7 @@
   const HOUR = MINUTE * 60;
   const DAY = HOUR * 24;
 
-  const ACTION_TYPES = ['created', 'closed', 'opened'];
+  const ACTION_TYPES = ['created', 'closed', 'opened', 'madeVisible'];
 
   export default {
     name: 'StatusElapsedTime',
@@ -64,6 +64,8 @@
               return this.$tr('closedSecondsAgo', strParams);
             case 'opened':
               return this.$tr('openedSecondsAgo', strParams);
+            case 'madeVisible':
+              return this.$tr('madeVisibleSecondsAgo', strParams);
             default:
               return '';
           }
@@ -78,6 +80,8 @@
               return this.$tr('closedMinutesAgo', strParams);
             case 'opened':
               return this.$tr('openedMinutesAgo', strParams);
+            case 'madeVisible':
+              return this.$tr('madeVisibleMinutesAgo', strParams);
             default:
               return '';
           }
@@ -92,6 +96,8 @@
               return this.$tr('closedHoursAgo', strParams);
             case 'opened':
               return this.$tr('openedHoursAgo', strParams);
+            case 'madeVisible':
+              return this.$tr('madeVisibleHoursAgo', strParams);
             default:
               return '';
           }
@@ -105,6 +111,8 @@
             return this.$tr('closedDaysAgo', strParams);
           case 'opened':
             return this.$tr('openedDaysAgo', strParams);
+          case 'madeVisible':
+            return this.$tr('madeVisibleDaysAgo', strParams);
           default:
             return '';
         }
@@ -181,6 +189,26 @@
       openedDaysAgo: {
         message: 'Started {days} {days, plural, one {day} other {days}} ago',
         context: 'Indicates that a quiz was started a number of days prior to the current date.',
+      },
+      madeVisibleSecondsAgo: {
+        message: 'Made visible {seconds} {seconds, plural, one {second} other {seconds}} ago',
+        context:
+          'Indicates that a quiz was made visible a number of seconds prior to the current time, but is always less than 1 minute ago.',
+      },
+      madeVisibleMinutesAgo: {
+        message: 'Made visible {minutes} {minutes, plural, one {minute} other {minutes}} ago',
+        context:
+          'Indicates that a quiz was made visible a number of minutes prior to the current time, but the time is always less than 1 hour ago.',
+      },
+      madeVisibleHoursAgo: {
+        message: 'Made visible {hours} {hours, plural, one {hour} other {hours}} ago',
+        context:
+          'Indicates that a quiz was made visible a number of hours prior to the current time, but the time is always less than one day ago',
+      },
+      madeVisibleDaysAgo: {
+        message: 'Made visible {days} {days, plural, one {day} other {days}} ago',
+        context:
+          'Indicates that a quiz was made visible a number of days prior to the current date.',
       },
     },
   };
