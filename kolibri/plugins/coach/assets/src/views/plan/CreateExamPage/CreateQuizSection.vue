@@ -234,6 +234,9 @@
                     displayQuestionTitle(question, activeResourceMap[question.exercise_id].title)
                   "
                   :aria-selected="selectedActiveQuestions.includes(question.item)"
+                  :headerAppearanceOverrides="{
+                    userSelect: dragActive ? 'none !important' : 'text',
+                  }"
                 >
                   <template #leading-actions>
                     <DragHandle>
@@ -259,7 +262,7 @@
                   <template #content>
                     <div
                       :id="`question-panel-${question.item}`"
-                      :style="{ userSelect: dragActive ? 'none!important' : 'text' }"
+                      :style="{ userSelect: dragActive ? 'none !important' : 'text' }"
                     >
                       <ContentRenderer
                         :ref="`contentRenderer-${question.item}`"
