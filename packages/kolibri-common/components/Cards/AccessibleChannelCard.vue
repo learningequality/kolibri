@@ -21,7 +21,7 @@
     <template #belowTitle>
       <div>
         <KTextTruncator
-          :text="numberOfResources"
+          :text="coachString('numberOfResources',{ value: contentNode.num_coach_contents })"
           :maxLines="1"
         />
         <KTextTruncator
@@ -38,15 +38,15 @@
 <script>
 
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import commonCoach from './../../../../kolibri/plugins/coach/assets/src/views/common';
 
   export default {
     name: 'AccessibleChannelCard',
     components: {
       ContentIcon,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoach],
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
       return {
@@ -70,15 +70,10 @@
       contentNode: {
         type: Object,
         required: true,
-      },
+      }, 
       thumbnailSrc: {
         type: String,
         default: null,
-      },
-    },
-    computed: {
-      numberOfResources() {
-        return `${this.contentNode.num_coach_contents} ${this.coreString('resourcesLabel')}`;
       },
     },
   };
