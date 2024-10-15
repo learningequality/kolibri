@@ -60,11 +60,11 @@
   export default {
     name: 'AccordionItem',
     setup() {
-      const _uid = uuidv4();
-      const { registerItem, unregisterItem, toggle, isExpanded } = injectAccordionItem(_uid);
+      const uuid = uuidv4();
+      const { registerItem, unregisterItem, toggle, isExpanded } = injectAccordionItem(uuid);
 
       return {
-        _uid,
+        uuid,
         registerItem,
         unregisterItem,
         toggle,
@@ -91,7 +91,7 @@
     },
     computed: {
       contentId() {
-        return `accordion-content-${this._uid}`;
+        return `accordion-content-${this.uuid}`;
       },
     },
     mounted() {
