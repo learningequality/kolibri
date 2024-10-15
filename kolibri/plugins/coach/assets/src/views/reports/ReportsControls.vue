@@ -78,7 +78,8 @@
           this.$route.name === 'ReportsQuizListPage' ||
           this.$route.name === 'ReportsGroupListPage' ||
           this.$route.name === 'ReportsLearnerListPage' ||
-          this.$route.name === 'ReportsLessonListPage'
+          this.$route.name === 'ReportsLessonListPage' ||
+          this.$route.name === 'EXAMS'
         );
       },
       classLearnersListRoute() {
