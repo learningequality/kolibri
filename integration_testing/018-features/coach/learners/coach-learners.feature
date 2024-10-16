@@ -1,4 +1,22 @@
-Feature: Learners subtab
+Feature: Learners
+
+  Background:
+    Given I am signed in to Kolibri as a super admin or a coach
+      And I am at the *Coach - '<class>' > Learners* page
+
+  Scenario: Learners page overview
+    When I look at the *Learners* page
+    Then I see the *Learners* title and class info
+    	And I see the filter by recipients, *View learner devices* link, *Print report* and *Export as CSV* icons
+    	And I see a table with all of the learners with the following columns: *Name*, *Groups*, *Average score*, *Exercises completed*, *Exercises viewed*, *Last activity*
+
+  Scenario: Review the learner details
+    When I click on the name of a learner
+    Then I see the learner summary page
+    	And I see the learner's name, class, username and groups info
+    	And I see the *Print report* and *Export as CSV* icons
+    	And I see the *Lessons completed*, *Average quiz score*, *Exercises completed* and *Resources viewed* cards
+    	And I see the *Lessons assigned* and *Quizzes assigned* sections
 
   Scenario: Navigate into the *Learners* subtab
     Given I am on any tab inside *Coach - '<class>' > Reports*

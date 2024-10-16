@@ -3,8 +3,8 @@ Feature: Coach reviews learner reports for quizzes
 
   Background:
     Given I am logged in as a coach
-      And I am on *Coach - '<class>' > Reports > Quizzes* subtab
-      And there is a <quiz> assigned to <class>
+      And I am at *Coach - '<class>' > Quizzes*
+      And there is a quiz assigned to a class
 
   Scenario: Review quiz reports
     When I click on quiz <quiz>

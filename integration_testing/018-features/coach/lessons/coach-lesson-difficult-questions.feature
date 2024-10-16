@@ -17,12 +17,12 @@ Coach needs to be able to determine which questions in a lesson are difficult
   Scenario: 2 learners give incorrect answers
     When I as a <learner1> give 1 incorrect answer to question <question> in the <exercise1>
       And I as a <learner2> also give incorrect answer to question <question> in the <exercise1>
-    Then I as a coach <coach> go to *Coach - '<class>' > Reports > Lessons > '<lesson>' > Difficult questions* subtab
+    Then I as a coach <coach> go to *Coach - '<class>' > Lessons > '<lesson>' > Difficult questions* subtab
       And I see the question <question> under the *Question* column
       And I see *2 of 2 need help* under the *Help needed* column
 
   Scenario: 2 learners give correct answers
     When I as a <learner1> give correct answer to question <question2> in the <exercise2>
       And I as a <learner2> also give correct answer to question <question2> in the <exercise2>
-    Then I as a coach <coach> go to *Coach - '<class>' > Reports > Lessons > '<lesson>' > Difficult questions* subtab
+    Then I as a coach <coach> go to *Coach - '<class>' > Lessons > '<lesson>' > Difficult questions* subtab
       And I don't see any question under the *Question* column

@@ -1,11 +1,20 @@
 Feature: Enhanced quiz management
   Coaches need to be able to customize quizzes by swapping out questions or editing questions to create the quiz they want.
 
+	Background:
+    Given I am signed in to Kolibri as a super admin or a coach
+      And I am at the *Coach - '<class>' > Quizzes* page
+      And there are imported channels with exercises on the device
+
+	Scenario: Quizzes page overview
+    When I go to *Coach > Quizzes*
+    Then I see the *Quizzes* page
+    	And I see the *New quiz* button
+    	And I see the class name, the total size of quizzes visible to learners, filters by status and recipients, *View learner devices* link, *Print report* and *Export as CSV* icons
+    	And I see a table with all of the quizzes with the following columns: *Title*, *Average score*, *Progress*, *Recipients*, *Size*, *Status*
+
 	Scenario: Coach creates a new quiz for the entire class and starts it
-  	Given I am signed in to Kolibri as a super admin or a coach
-  	  And I am at *Coach > Plan > Quizzes*
-  	  And there are imported exercises on the device
-    When I click the *New quiz* button
+  	When I click the *New quiz* button
     	And I select *Create new quiz*
     Then I see the *Create new quiz* modal
     	And I see an empty *Title* field
@@ -27,7 +36,7 @@ Feature: Enhanced quiz management
     Then I am back at the *Create new quiz* page
       And I see that the questions are added to *Section 1*
     When I click the *Save and close* button
-    Then I am back at *Coach > Plan > Quizzes*
+    Then I am back at *Coach > Quizzes*
       And I see the *Changes saved successfully* snackbar message
     	And I see the newly created quiz
     When I click the *Start quiz* button
@@ -35,18 +44,28 @@ Feature: Enhanced quiz management
     When I click *Continue*
     Then I see the *Quiz started* snackbar message
 
+  Scenario: Review quiz details
+    When I click on the title of a quiz
+    Then I see the quiz summary page
+    	And I see the quiz title, the *Preview* button and the *...* button next to it
+    	And I see the side panel with *Report visible to learners* status, *Recipients*, *Average score*, *Class*, *Question order*, *Size*, *Date created*
+    	And I see the *Learners* tab with the learners table
+    	And there are the following columns: *Title*, *Progress* and *Score* and *Groups*
+    	And I see the *Difficult questions* tab
+    When I click on the *Difficult questions* tab
+    Then I see a table with the difficult questions
+    	And I see the following columns: *Question*, *Help needed*
+
   Scenario: Coach can edit a not started quiz
-    Given I am signed in to Kolibri as a super admin or a coach
-      And I am at *Coach > Plan > Quizzes*
-      And there is a quiz which is not started yet
+    Given there is a quiz which is not started yet
     When I click on the title of the quiz
     Then I see the quiz details page
-    When I click the *Options* drop-down
-      And I select the *Edit* option
+    When I click the *...* drop-down
+      And I select the *Edit details* option
     Then I see the quiz editor modal
     When I make some changes to the quiz
       And I click the *Save and close* button
-    Then I am back at *Coach > Plan > Quizzes*
+    Then I am back at *Coach > Quizzes*
       And I see the *Changes saved successfully* snackbar message
       And I see the edited quiz
     When I click on the title of the quiz
@@ -54,12 +73,10 @@ Feature: Enhanced quiz management
       And I can see that the changes I've made are visible there
 
   Scenario: Coach can copy a not started quiz
-    Given I am signed in to Kolibri as a super admin or a coach
-      And I am at *Coach > Plan > Quizzes*
-      And there is a quiz which is not started yet
+    Given there is a quiz which is not started yet
     When I click on the title of the quiz
     Then I see the quiz details page
-    When I click the *Options* drop-down
+    When I click the *...* drop-down
       And I select the *Copy quiz* option
     Then I see the *Copy quiz to* modal
     When I select a class
@@ -70,34 +87,30 @@ Feature: Enhanced quiz management
       And I click *Copy*
     Then I am back at the quiz details page
       And I see a *Quiz copied* snackbar message
-    Then I am back at *Coach > Plan > Quizzes*
+    Then I am back at *Coach > Quizzes*
       And I see the copied quiz
     When I click on the title of the quiz
     Then I see the quiz details page
 
   Scenario: Coach can delete a not started quiz
-    Given I am signed in to Kolibri as a super admin or a coach
-      And I am at *Coach > Plan > Quizzes*
-      And there is a quiz which is not started yet
+    Given there is a quiz which is not started yet
     When I click on the title of the quiz
     Then I see the quiz details page
-    When I click the *Options* drop-down
+    When I click the *...* drop-down
       And I select the *Delete* option
     Then I see the *Delete quiz* modal
     When I click *Delete*
-    Then I am back at *Coach > Plan > Quizzes*
+    Then I am back at *Coach > Quizzes*
       And I no longer see the deleted quiz
 
   Scenario: Coach creates a new quiz for a group and starts it
-    Given I am signed in to Kolibri as a super admin or a coach
-      And I am at *Coach > Plan > Quizzes > Create new quiz*
-      And there are imported exercises on the device
+    Given I am at *Coach > Quizzes > Create new quiz*
       And there are created groups with learners
       And I've added a title for the quiz
       And there are sections with questions in the quiz
     When I select a group from the *Recipients* section
       And I click the *Save and close* button
-    Then I am back at *Coach > Plan > Quizzes*
+    Then I am back at *Coach > Quizzes*
       And I see the *Changes saved successfully* snackbar message
       And I see the newly created quiz
     When I click on the title of the quiz
@@ -110,16 +123,14 @@ Feature: Enhanced quiz management
       And I see the *Start quiz* button changed to *End quiz*
 
   Scenario: Coach creates a new quiz for individual learners and starts it
-    Given I am signed in to Kolibri as a super admin or a coach
-      And I am at *Coach > Plan > Quizzes > Create new quiz*
-      And there are imported exercises on the device
+    Given I am at *Coach > Quizzes > Create new quiz*
       And I've added a title for the quiz
       And there are sections with questions in the quiz
     When I select the *Individual learners* checkbox from the *Recipients* section
     Then I see the *Select individual learners* table
     When I select some of the learners
       And I click the *Save and close* button
-    Then I am back at *Coach > Plan > Quizzes*
+    Then I am back at *Coach > Quizzes*
       And I see the *Changes saved successfully* snackbar message
       And I see the newly created quiz
     When I click on the title of the quiz
