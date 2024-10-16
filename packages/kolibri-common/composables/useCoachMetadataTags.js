@@ -2,6 +2,7 @@ import { ref } from 'kolibri.lib.vueCompositionApi';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import coreStrings from 'kolibri.utils.coreStrings';
 import commonCoreStringsMixin from 'kolibri.coreVue.mixins.commonCoreStrings';
+import { learnStrings } from '../../../kolibri/plugins/learn/assets/src/views/commonLearnStrings';
 
 export function useCoachMetadataTags(contentNode) {
 
@@ -21,13 +22,13 @@ export function useCoachMetadataTags(contentNode) {
 
     const getLanguageTag = () => {
         if (!contentNode.lang) return [];
-        return contentNode.lang.length > 1 ? ['Multiple languages'] : [contentNode.lang.lang_name];
+        return contentNode.lang.lang_name;
     };
 
     const getActivityTag = () => {
         if (!contentNode.learning_activities) return [];
     
-        return contentNode.learning_activities.length > 1 ? ['Multiple learning activities'] :
+        return contentNode.learning_activities.length > 1 ? [learnStrings.$tr('multipleLearningActivities')] :
             contentNode.learning_activities.map(activity =>
               commonCoreStringsMixin.methods.coreString(activity)
             );
