@@ -80,6 +80,8 @@
           'ReportsLearnerListPage',
           'ReportsLessonListPage',
           'QuizSummaryPage',
+          'PLAN_LESSONS_ROOT',
+          'PLAN_LESSONS_ROOT_BETTER',
         ].includes(this.$route.name);
       },
       classLearnersListRoute() {
