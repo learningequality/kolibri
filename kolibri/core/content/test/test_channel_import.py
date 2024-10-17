@@ -836,6 +836,8 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
 
     longdescription = "soverylong" * 45
     long_tag_id = "0c20e2eb254b4070a713da63380ff0a3"
+    utf_tag_id = "9e4760e53568402bb287dcdb8466758a"
+    utf_tag_name = "transformación de energía"
 
     def test_long_descriptions(self):
         self.assertEqual(
@@ -861,6 +863,19 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
         max_length = ContentTag._meta.get_field("tag_name").max_length
         long_imported_tag = ContentTag.objects.get(id=self.long_tag_id)
         assert len(long_imported_tag.tag_name) == max_length
+
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        != "django.db.backends.postgresql",
+        "Postgresql only test",
+    )
+    def test_utf_test_keeps_its_length(self):
+        """
+        Test inserting non-English chars keeps length
+        of the strings as are not decoded into bytes.
+        """
+        imported_tag = ContentTag.objects.get(id=self.utf_tag_id)
+        assert len(imported_tag.tag_name) == len(self.utf_tag_name)
 
 
 class Version4ImportTestCase(NaiveImportTestCase):
