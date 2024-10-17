@@ -1,8 +1,8 @@
 import router from 'kolibri.coreVue.router';
+import KolibriApp from 'kolibri_app';
 import RootVue from './views/UserAuthIndex';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
-import KolibriApp from 'kolibri_app';
 
 class UserAuthModule extends KolibriApp {
   get stateSetters() {

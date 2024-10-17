@@ -7,7 +7,7 @@
     @keyup.esc="closePanel"
   >
     <transition name="side-panel">
-      <FocusTrap
+      <KFocusTrap
         @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
         @shouldFocusLastEl="focusLastEl"
       >
@@ -45,7 +45,7 @@
             <slot></slot>
           </div>
         </section>
-      </FocusTrap>
+      </KFocusTrap>
     </transition>
 
     <Backdrop

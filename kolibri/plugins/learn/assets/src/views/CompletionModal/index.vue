@@ -17,7 +17,7 @@
         aria-labelledby="modal-title"
         :style="[modalSizeStyles, { background: $themeTokens.surface }]"
       >
-        <FocusTrap
+        <KFocusTrap
           @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
           @shouldFocusLastEl="focusLastEl"
         >
@@ -142,7 +142,7 @@
             :tooltip="coreString('closeAction')"
             @click="$emit('close')"
           />
-        </FocusTrap>
+        </KFocusTrap>
       </div>
     </div>
   </transition>

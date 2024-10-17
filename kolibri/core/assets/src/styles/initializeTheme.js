@@ -5,9 +5,9 @@ import Vue from 'vue';
 import trackInputModality from 'kolibri-design-system/lib/styles/trackInputModality';
 import trackMediaType from 'kolibri-design-system/lib/styles/trackMediaType';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
+import plugin_data from 'plugin_data';
 import themeSpec from './themeSpec';
 import themeConfig from './themeConfig';
-import plugin_data from 'plugin_data';
 
 export function setThemeConfig(theme) {
   Object.keys(themeConfig).forEach(key => {

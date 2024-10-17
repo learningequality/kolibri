@@ -29,10 +29,10 @@
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import urls from 'kolibri.urls';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import plugin_data from 'plugin_data';
   import { PageNames } from '../constants';
 
   import PinAuthenticationModal from './PinAuthenticationModal';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'DeviceIndex',
