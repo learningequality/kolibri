@@ -6,6 +6,7 @@ import { coreStoreFactory as makeStore } from '../../src/state/store';
 import coreModule from '../../src/state/modules/core';
 
 jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri.resources');
 
 function makeWrapper(useUserMockObj = null) {
   const store = makeStore();
@@ -72,7 +73,7 @@ describe('NotificationsRoot', function () {
     it('notification modal should be rendered if the user is an admin/superuser, a notification exists, and there is a recent notification', async () => {
       const { wrapper, store } = makeWrapper({ isAdmin: true, isSuperuser: true });
       store.state.core.loading = false;
-      store.state.core.notifications = [
+      wrapper.vm.notifications = [
         {
           id: 2,
           title: 'title',
@@ -90,7 +91,7 @@ describe('NotificationsRoot', function () {
       const { wrapper, store } = makeWrapper();
       store.commit('CORE_SET_SESSION', { kind: [UserKinds.ADMIN] });
       store.state.core.loading = false;
-      store.state.core.notifications = [];
+      wrapper.vm.notifications = [];
       await wrapper.vm.$nextTick();
 
       expect(wrapper.findComponent({ name: 'UpdateNotification' }).exists()).toBeFalsy();

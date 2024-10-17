@@ -103,6 +103,8 @@
   import isUndefined from 'lodash/isUndefined';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import * as csvFields from '../../csv/fields';
+  import CSVExporter from '../../csv/exporter';
 
   export default {
     name: 'ReportsLearnersTable',
@@ -142,6 +144,9 @@
       anyTries() {
         return this.entries.some(entry => !isUndefined(entry.statusObj.tries));
       },
+      exam() {
+        return this.examMap[this.$route.params.quizId];
+      },
     },
     methods: {
       completedQuestionsCountLabel(answered, total) {
@@ -180,6 +185,25 @@
       },
       showQuizStatus(entry) {
         return this.questionCount && !isUndefined(entry.statusObj.num_answered);
+      },
+      /**
+       * @public
+       */
+      exportCSV() {
+        const columns = [
+          ...csvFields.name(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.score(),
+          ...csvFields.quizQuestionsAnswered(this.exam),
+          ...csvFields.list('groups', 'groupsLabel'),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          resource: this.exam.title,
+        });
+
+        exporter.export(this.entries);
       },
     },
     $trs: {

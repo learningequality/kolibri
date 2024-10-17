@@ -35,12 +35,19 @@
 <script>
 
   import debounce from 'lodash/debounce';
-  import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
+  import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'SlotTruncator',
-    mixins: [commonCoreStrings, responsiveElementMixin],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { elementWidth, elementHeight } = useKResponsiveElement();
+      return {
+        elementWidth,
+        elementHeight,
+      };
+    },
     props: {
       maxHeight: {
         type: Number,

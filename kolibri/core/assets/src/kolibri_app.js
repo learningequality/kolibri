@@ -104,7 +104,6 @@ export default class KolibriApp extends KolibriModule {
   ready() {
     this.setupVue();
     return heartbeat.startPolling().then(() => {
-      this.store.dispatch('getNotifications');
       return Promise.all([
         // Invoke each of the state setters before initializing the app.
         ...this.stateSetters.map(setter => setter(this.store)),

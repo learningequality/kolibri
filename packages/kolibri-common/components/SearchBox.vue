@@ -62,11 +62,10 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
 
   export default {
     name: 'SearchBox',
-    mixins: [commonCoreStrings, responsiveElementMixin],
+    mixins: [commonCoreStrings],
     props: {
       icon: {
         type: String,

@@ -35,70 +35,50 @@
         </KGridItem>
       </KGrid>
 
-      <CoreTable
-        :dataLoading="dataLoading"
+      <KTable
+        :headers="tableHeaders"
+        :rows="tableRows"
+        :caption="$tr('tableCaption')"
         :emptyMessage="$tr('noClassesExist')"
+        :dataLoading="dataLoading"
+        sortable
       >
-        <caption class="visuallyhidden">
-          {{
-            $tr('tableCaption')
-          }}
-        </caption>
-        <template #headers>
-          <th>{{ coreString('classNameLabel') }}</th>
-          <th>{{ coreString('coachesLabel') }}</th>
-          <th>{{ coreString('learnersLabel') }}</th>
-          <th>
-            <span class="visuallyhidden">
-              {{ coreString('userActionsColumnHeader') }}
-            </span>
-          </th>
+        <template #header="{ header, colIndex }">
+          <span :class="{ visuallyhidden: colIndex === 3 }">{{ header.label }}</span>
         </template>
-        <template #tbody>
-          <transition-group
-            tag="tbody"
-            name="list"
-          >
-            <tr
-              v-for="classroom in sortedClassrooms"
-              :key="classroom.id"
+        <template #cell="{ content, colIndex, row }">
+          <span v-if="colIndex === 0">
+            <KRouterLink
+              :text="content"
+              :to="$store.getters.facilityPageLinks.ClassEditPage(row[3].id)"
+              icon="classes"
+            />
+          </span>
+          <span v-else-if="colIndex === 1">
+            <KOptionalText :text="coachNames(row[3]).length ? formattedCoachNames(row[3]) : ''" />
+            <KTooltip
+              v-if="formattedCoachNamesTooltip(row[3])"
+              :reference="`coachNames${row[3].id}`"
+              :refs="$refs"
             >
-              <td>
-                <KRouterLink
-                  :text="classroom.name"
-                  :to="$store.getters.facilityPageLinks.ClassEditPage(classroom.id)"
-                  icon="classes"
-                />
-              </td>
-              <td>
-                <span :ref="`coachNames${classroom.id}`">
-                  <KOptionalText
-                    :text="coachNames(classroom).length ? formattedCoachNames(classroom) : ''"
-                  />
-                </span>
-                <KTooltip
-                  v-if="formattedCoachNamesTooltip(classroom)"
-                  :reference="`coachNames${classroom.id}`"
-                  :refs="$refs"
-                >
-                  {{ formattedCoachNamesTooltip(classroom) }}
-                </KTooltip>
-              </td>
-
-              <td>
-                {{ $formatNumber(classroom.learner_count) }}
-              </td>
-              <td class="core-table-button-col">
-                <KButton
-                  appearance="flat-button"
-                  :text="$tr('deleteClass')"
-                  @click="selectClassToDelete(classroom)"
-                />
-              </td>
-            </tr>
-          </transition-group>
+              {{ formattedCoachNamesTooltip(row[3]) }}
+            </KTooltip>
+          </span>
+          <span v-else-if="colIndex === 2">
+            {{ content }}
+          </span>
+          <span
+            v-else-if="colIndex === 3"
+            class="core-table-button-col"
+          >
+            <KButton
+              appearance="flat-button"
+              :text="$tr('deleteClass')"
+              @click="selectClassToDelete(row[3])"
+            />
+          </span>
         </template>
-      </CoreTable>
+      </KTable>
 
       <ClassDeleteModal
         v-if="Boolean(classToDelete)"
@@ -108,7 +88,7 @@
       />
       <ClassCreateModal
         v-if="modalShown === Modals.CREATE_CLASS"
-        :classes="sortedClassrooms"
+        :classes="classes"
         @cancel="closeModal"
         @success="handleCreateSuccess()"
       />
@@ -121,8 +101,6 @@
 <script>
 
   import { mapState, mapActions, mapGetters } from 'vuex';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import orderBy from 'lodash/orderBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useUser from 'kolibri.coreVue.composables.useUser';
   import { Modals } from '../../constants';
@@ -140,7 +118,6 @@
     },
     components: {
       FacilityAppBarPage,
-      CoreTable,
       ClassCreateModal,
       ClassDeleteModal,
     },
@@ -158,9 +135,43 @@
     computed: {
       ...mapState('classManagement', ['modalShown', 'classes', 'dataLoading']),
       ...mapGetters(['facilityPageLinks']),
+
       Modals: () => Modals,
-      sortedClassrooms() {
-        return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
+      tableHeaders() {
+        return [
+          {
+            label: this.coreString('classNameLabel'),
+            dataType: 'string',
+            minWidth: '150px',
+            width: '20%',
+          },
+          {
+            label: this.coreString('coachesLabel'),
+            dataType: 'undefined',
+            minWidth: '150px',
+            width: '30%',
+          },
+          {
+            label: this.coreString('learnersLabel'),
+            dataType: 'number',
+            minWidth: '150px',
+            width: '20%',
+          },
+          {
+            label: this.coreString('userActionsColumnHeader'),
+            dataType: 'undefined',
+            minWidth: '150px',
+            width: '30%',
+          },
+        ];
+      },
+      tableRows() {
+        return this.classes.map(classroom => [
+          classroom.name,
+          this.formattedCoachNames(classroom),
+          this.$formatNumber(classroom.learner_count),
+          classroom,
+        ]);
       },
     },
     methods: {
@@ -183,12 +194,13 @@
         }
       },
       // Duplicated in class-list-page
-      coachNames(classroom) {
-        const { coaches } = classroom;
+      coachNames(classes) {
+        const { coaches } = classes;
         return coaches.map(({ full_name }) => full_name);
       },
       formattedCoachNames(classroom) {
         const coach_names = this.coachNames(classroom);
+
         if (coach_names.length === 1) {
           return coach_names[0];
         }

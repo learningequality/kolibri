@@ -87,7 +87,6 @@
   import objectFitImages from 'object-fit-images';
   import client from 'kolibri.client';
 
-  import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
@@ -109,7 +108,6 @@
       HooperPagination,
       HooperNavigation,
     },
-    mixins: [responsiveElementMixin],
     setup() {
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       return {

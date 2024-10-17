@@ -74,14 +74,15 @@
         return this.isAppContext || this.disableExport;
       },
       isMainReport() {
-        return (
-          this.$route.name === 'ReportsQuizListPage' ||
-          this.$route.name === 'ReportsGroupListPage' ||
-          this.$route.name === 'ReportsLearnerListPage' ||
-          this.$route.name === 'ReportsLessonListPage' ||
-          this.$route.name === 'PLAN_LESSONS_ROOT' ||
-          this.$route.name === 'PLAN_LESSONS_ROOT_BETTER'
-        );
+        return [
+          'ReportsQuizListPage',
+          'ReportsGroupListPage',
+          'ReportsLearnerListPage',
+          'ReportsLessonListPage',
+          'QuizSummaryPage',
+          'PLAN_LESSONS_ROOT',
+          'PLAN_LESSONS_ROOT_BETTER',
+        ].includes(this.$route.name);
       },
       classLearnersListRoute() {
         const { query } = this.$route;

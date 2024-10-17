@@ -12,6 +12,10 @@
           examOrLesson="exam"
         >
           <template #dropdown>
+            <KButton
+              :text="coachString('previewAction')"
+              style="margin-right: 8px"
+            />
             <QuizOptionsDropdownMenu
               optionsFor="plan"
               :draft="exam && exam.draft"
@@ -20,7 +24,7 @@
           </template>
         </QuizLessonDetailsHeader>
       </KGridItem>
-      <KGridItem :layout12="{ span: 4 }">
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 4 }">
         <h2 class="visuallyhidden">
           {{ coachString('generalInformationLabel') }}
         </h2>
@@ -31,25 +35,40 @@
           :exam="exam"
         />
       </KGridItem>
-      <KGridItem :layout12="{ span: 8 }">
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 8 }">
         <KPageContainer
           v-if="!loading"
-          :topMargin="16"
+          :topMargin="$isPrint ? 0 : 16"
         >
-          <section v-if="selectedQuestions">
-            <h2>
-              {{ coachString('numberOfQuestions', { value: selectedQuestions.length }) }}
-            </h2>
-
-            <p>
-              {{ orderDescriptionString }}
-            </p>
-
-            <QuestionListPreview
-              :sections="quiz.question_sources || []"
-              :selectedExercises="selectedExercises"
+          <ReportsControls @export="exportCSV" />
+          <HeaderTabs :enablePrint="true">
+            <KTabsList
+              ref="tabList"
+              :tabsId="QUIZZES_TABS_ID"
+              :ariaLabel="coachString('detailsLabel')"
+              :activeTabId="activeTabId"
+              :tabs="tabs"
+              @click="() => saveTabsClick(QUIZZES_TABS_ID)"
             />
-          </section>
+          </HeaderTabs>
+          <KTabsPanel
+            :tabsId="QUIZZES_TABS_ID"
+            :activeTabId="activeTabId"
+          >
+            <template #[QuizzesTabs.REPORT]>
+              <ReportsLearnersTable
+                ref="table"
+                :entries="learnersTable"
+                :questionCount="exam.question_count"
+              />
+            </template>
+            <template #[QuizzesTabs.DIFFICULT_QUESTIONS]>
+              <ReportsDifficultQuestionsTable
+                ref="table"
+                :entries="difficultQuestionsTable"
+              />
+            </template>
+          </KTabsPanel>
         </KPageContainer>
       </KGridItem>
     </KGrid>
@@ -68,8 +87,8 @@
 <script>
 
   import { mapState } from 'vuex';
-  import fromPairs from 'lodash/fromPairs';
   import find from 'lodash/find';
+  import sortBy from 'lodash/sortBy';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -77,10 +96,15 @@
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { PageNames } from '../../../constants';
+  import { QUIZZES_TABS_ID, QuizzesTabs } from '../../../constants/tabsConstants';
+  import { useCoachTabs } from '../../../composables/useCoachTabs';
+
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
-  import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import ReportsControls from '../../reports/ReportsControls';
+  import ReportsLearnersTable from '../../reports/ReportsLearnersTable';
+  import ReportsDifficultQuestionsTable from '../../reports/ReportsDifficultQuestionsTable';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';
   import {
@@ -94,20 +118,27 @@
     name: 'QuizSummaryPage',
     components: {
       CoachAppBarPage,
+      ReportsControls,
       ManageExamModals,
-      QuestionListPreview,
+      ReportsLearnersTable,
       QuizOptionsDropdownMenu,
+      ReportsDifficultQuestionsTable,
     },
     mixins: [commonCoach, coachStringsMixin, commonCoreStrings],
     setup() {
       const { randomizedSectionOptionDescription$, fixedSectionOptionDescription$ } =
         enhancedQuizManagementStrings;
       const { createSnackbar, clearSnackbar } = useSnackbar();
+
+      const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
+
       return {
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
+        wereTabsClickedRecently,
         createSnackbar,
         clearSnackbar,
+        saveTabsClick,
       };
     },
     data() {
@@ -119,38 +150,78 @@
           question_sources: [],
           title: '',
         },
-        selectedExercises: {},
         loading: true,
         currentAction: '',
+        QUIZZES_TABS_ID,
+        QuizzesTabs,
+        difficultQuestions: [],
       };
     },
     computed: {
       ...mapState(['classList']),
-      selectedQuestions() {
-        return this.quiz.question_sources.reduce((acc, section) => {
-          acc = [...acc, ...section.questions];
-          return acc;
-        }, []);
+      quizId() {
+        return this.$route.params.quizId;
       },
-      quizIsRandomized() {
-        return !this.quiz.learners_see_fixed_order;
+      activeTabId() {
+        const { tabId } = this.$route.params;
+        if (Object.values(QuizzesTabs).includes(tabId)) {
+          return tabId;
+        }
+        return QuizzesTabs.REPORT;
       },
       avgScore() {
-        return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
+        return this.getExamAvgScore(this.quizId, this.recipients);
       },
       exam() {
-        return this.examMap[this.$route.params.quizId];
+        return this.examMap[this.quizId];
       },
       recipients() {
         return this.getLearnersForExam(this.exam);
       },
-      orderDescriptionString() {
-        return this.quizIsRandomized
-          ? this.randomizedSectionOptionDescription$()
-          : this.fixedSectionOptionDescription$();
-      },
       classId() {
         return this.$route.params.classId;
+      },
+      tabs() {
+        const tabsList = [
+          {
+            id: QuizzesTabs.REPORT,
+            label: this.coachString('learnersLabel'),
+          },
+        ];
+
+        const isDraftExam = this.exam && this.exam.draft;
+        if (!isDraftExam) {
+          tabsList.push({
+            id: QuizzesTabs.DIFFICULT_QUESTIONS,
+            label: this.coachString('difficultQuestionsLabel'),
+          });
+        }
+
+        tabsList.forEach(tab => {
+          tab.to = this.classRoute('QuizSummaryPage', { tabId: tab.id });
+        });
+
+        return tabsList;
+      },
+      learnersTable() {
+        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+        const sorted = sortBy(learners, ['name']);
+        return sorted.map(learner => {
+          const tableRow = {
+            groups: this.getGroupNamesForLearner(learner.id),
+            statusObj: this.getExamStatusObjForLearner(this.exam.id, learner.id),
+            link: this.detailLink(learner.id),
+          };
+          Object.assign(tableRow, learner);
+          return tableRow;
+        });
+      },
+      difficultQuestionsTable() {
+        return this.difficultQuestions.map(question => {
+          const tableRow = {};
+          Object.assign(tableRow, question);
+          return tableRow;
+        });
       },
     },
     beforeRouteEnter(to, from, next) {
@@ -162,12 +233,24 @@
           next(vm => vm.setError(error));
         });
     },
+    mounted() {
+      // focus the active tab but only when it's likely
+      // that this header was re-mounted as a result
+      // of navigation after clicking a tab (focus shouldn't
+      // be manipulated programatically in other cases, e.g.
+      // when visiting the page for the first time)
+      if (this.wereTabsClickedRecently(this.QUIZZES_TABS_ID)) {
+        this.$nextTick(() => {
+          this.$refs.tabList.focusActiveTab();
+        });
+      }
+    },
     methods: {
       // @public
       setData(data) {
-        const { exam, exerciseContentNodes } = data;
+        const { exam, difficultQuestions } = data;
         this.quiz = exam;
-        this.selectedExercises = fromPairs(exerciseContentNodes.map(x => [x.id, x]));
+        this.difficultQuestions = difficultQuestions;
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
@@ -254,6 +337,16 @@
           .catch(error => {
             this.$store.dispatch('handleApiError', { error });
           });
+      },
+      detailLink(learnerId) {
+        return this.classRoute(PageNames.REPORTS_QUIZ_LEARNER_PAGE_ROOT, {
+          learnerId,
+        });
+      },
+      exportCSV() {
+        if (typeof this.$refs.table.exportCSV === 'function') {
+          this.$refs.table.exportCSV();
+        }
       },
     },
     $trs: {
