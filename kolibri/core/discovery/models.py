@@ -132,17 +132,6 @@ class NetworkLocation(models.Model):
         return self.connection_status == ConnectionStatus.Okay
 
     @property
-    def dynamic(self):
-        return self.location_type == LocationTypes.Dynamic
-
-    @dynamic.setter
-    def dynamic(self, value):
-        """
-        TODO: remove this setter once we've migrated to the new location_type field
-        """
-        self.location_type = LocationTypes.Dynamic if value else LocationTypes.Static
-
-    @property
     def reserved(self):
         return self.location_type == LocationTypes.Reserved
 

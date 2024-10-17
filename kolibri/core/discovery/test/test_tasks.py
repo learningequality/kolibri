@@ -7,6 +7,7 @@ from django.test import TestCase
 
 from ..models import ConnectionStatus
 from ..models import DynamicNetworkLocation
+from ..models import LocationTypes
 from ..models import NetworkLocation
 from ..models import StaticNetworkLocation
 from ..tasks import _dispatch_discovery_hooks
@@ -183,7 +184,7 @@ class RemoveDynamicNetworkLocationTestCase(TestCase):
             kolibri_version="0.15.11",
             instance_id=mock_device_info.get("instance_id"),
             subset_of_users_device=False,
-            dynamic=True,
+            location_type=LocationTypes.Dynamic,
         )
         self.task = unwrap(unwrap(remove_dynamic_network_location))
 
@@ -194,7 +195,7 @@ class RemoveDynamicNetworkLocationTestCase(TestCase):
 
     @mock.patch("kolibri.core.discovery.tasks._dispatch_discovery_hooks")
     def test_static_location(self, mock_dispatch):
-        self.network_location.dynamic = False
+        self.network_location.location_type = LocationTypes.Static
         self.network_location.save()
         self.task(self.broadcast_id, self.instance)
         mock_dispatch.assert_not_called()
@@ -479,3 +480,22 @@ class TaskUtilitiesTestCase(TestCase):
             next_attempt,
             priority=Priority.LOW,
         )
+
+    @mock.patch("kolibri.core.discovery.tasks.get_current_job")
+    def test_enqueue_network_location_update_with_backoff__not_local(
+        self, mock_get_current_job
+    ):
+        current_job_mock = mock.MagicMock()
+        mock_get_current_job.return_value = current_job_mock
+        self.network_location.is_local = False
+
+        with mock.patch("kolibri.core.discovery.tasks.logger") as mock_logger:
+            _enqueue_network_location_update_with_backoff(self.network_location)
+            # 'retry_in' should not be called since is_local is False
+            current_job_mock.retry_in.assert_not_called()
+            # Verify the function logged the appropriate message
+            mock_logger.info.assert_called_once_with(
+                "Network location {} is not local. Skipping enqueue.".format(
+                    self.network_location.id
+                )
+            )
