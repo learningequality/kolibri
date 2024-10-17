@@ -95,7 +95,13 @@ def process_docstring(app, what, name, obj, options, lines):
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode", "m2r", "notfound.extension"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "m2r",
+    "notfound.extension",
+    "sphinxcontrib.jquery",
+]
 
 linkcheck_ignore = [
     "https://groups.google.com/a/learningequality.org/forum/#!forum/dev"

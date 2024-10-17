@@ -1,9 +1,12 @@
 -r base.txt
 
 # These are for building the docs
-sphinx
+
+# Sphinx stack requires a version of requests that's incompatible with Morango, so downgrading
+sphinx>=6,<7
 sphinx-intl
-sphinx-rtd-theme
+# We want to ensure the latest version of sphinx-rtd-theme that has sphinxcontrib-jquery as a dependency
+sphinx-rtd-theme~=2.0
 sphinx-autobuild
 m2r
 sphinx-notfound-page
