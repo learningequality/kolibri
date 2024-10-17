@@ -9,9 +9,10 @@
       />
     </p>
     <h1>{{ reportTitle }}</h1>
-    <p v-show="!$isPrint">
-      {{ $tr('description') }}
-    </p>
+    <slot name="header"></slot>
+    <div v-if="!$slots.header && !$isPrint">
+      <p>{{ $tr('description') }}</p>
+    </div>
     <HeaderTabs :style="{ marginTop: '28px' }">
       <KTabsList
         ref="tabsList"

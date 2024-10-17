@@ -1,70 +1,109 @@
 <template>
 
   <div>
-    <p>
-      <BackLink
-        :to="classRoute('ReportsLearnerListPage')"
-        :text="$tr('back')"
-      />
-    </p>
+    <div style="display: flex; justify-content: space-between">
+      <p>
+        <BackLink
+          :to="classRoute('ReportsLearnerListPage')"
+          :text="$tr('back')"
+        />
+      </p>
+      <ReportsControls />
+    </div>
     <h1>
       <KLabeledIcon
         icon="person"
         :label="learner.name"
       />
     </h1>
-    <HeaderTable>
-      <HeaderTableRow>
-        <template #key>
-          {{ coreString('usernameLabel') }}
-        </template>
-        <template #value>
-          {{ learner.username }}
-        </template>
-      </HeaderTableRow>
-      <HeaderTableRow>
-        <template #key>
-          {{ coachString('groupsLabel') }}
-        </template>
-        <template #value>
-          <TruncatedItemList :items="getGroupNamesForLearner(learner.id)" />
-        </template>
-      </HeaderTableRow>
-      <HeaderTableRow>
-        <template #key>
-          {{ coachString('avgScoreLabel') }}
-        </template>
-        <template #value>
-          {{ $formatNumber(avgScore, { style: 'percent', maximumFractionDigits: 0 }) }}
-        </template>
-      </HeaderTableRow>
-      <HeaderTableRow>
-        <template #key>
-          {{ coachString('exercisesCompletedLabel') }}
-        </template>
-        <template #value>
-          {{ $formatNumber(exercisesCompleted) }}
-        </template>
-      </HeaderTableRow>
-      <HeaderTableRow>
-        <template #key>
-          {{ coachString('resourcesViewedLabel') }}
-        </template>
-        <template #value>
-          {{ $formatNumber(resourcesViewed) }}
-        </template>
-      </HeaderTableRow>
-    </HeaderTable>
-    <HeaderTabs :enablePrint="enablePrint">
-      <KTabsList
-        ref="tabList"
-        :tabsId="REPORTS_LEARNERS_TABS_ID"
-        :ariaLabel="$tr('reportLearners')"
-        :activeTabId="activeTabId"
-        :tabs="tabs"
-        @click="() => saveTabsClick(REPORTS_LEARNERS_TABS_ID)"
-      />
-    </HeaderTabs>
+    <KGrid>
+      <KGridItem :layout12="{ span: 4 }">
+        <HeaderTable>
+          <HeaderTableRow>
+            <template #key>
+              {{ coachString('classLabel') }}
+            </template>
+            <template #value>
+              {{ className }}
+            </template>
+          </HeaderTableRow>
+          <HeaderTableRow>
+            <template #key>
+              {{ coreString('usernameLabel') }}
+            </template>
+            <template #value>
+              {{ learner.username }}
+            </template>
+          </HeaderTableRow>
+          <HeaderTableRow>
+            <template #key>
+              {{ coachString('groupsLabel') }}
+            </template>
+            <template #value>
+              <TruncatedItemList :items="getGroupNamesForLearner(learner.id)" />
+            </template>
+          </HeaderTableRow>
+        </HeaderTable>
+      </KGridItem>
+      <KGridItem :layout12="{ span: 4 }">
+        <div :style="boxStyle">
+          <p
+            class="key"
+            :style="{ color: $themeTokens.primary }"
+          >
+            {{ coachString('lessonsCompletedLabel') }}
+          </p>
+          <div class="value-box">
+            <p class="value">{{ lessonsCompleted }}</p>
+            <p style="display: inline; word-wrap: break-word">
+              {{ $tr('totalLessons', { total: lessons.length }) }}
+            </p>
+          </div>
+        </div>
+      </KGridItem>
+      <KGridItem :layout12="{ span: 4 }">
+        <div :style="boxStyle">
+          <p
+            class="key"
+            :style="{ color: $themeTokens.primary }"
+          >
+            {{ coachString('avgScoreLabel') }}
+          </p>
+          <div class="value-box">
+            <p class="value">
+              {{ $formatNumber(avgScore, { style: 'percent', maximumFractionDigits: 0 }) }}
+            </p>
+          </div>
+        </div>
+      </KGridItem>
+      <KGridItem :layout12="{ span: 4 }" />
+      <KGridItem :layout12="{ span: 4 }">
+        <div :style="boxStyle">
+          <p
+            class="key"
+            :style="{ color: $themeTokens.primary }"
+          >
+            {{ coachString('exercisesCompletedLabel') }}
+          </p>
+          <div class="value-box">
+            <p class="value">{{ $formatNumber(exercisesCompleted) }}</p>
+          </div>
+        </div>
+      </KGridItem>
+      <KGridItem :layout12="{ span: 4 }">
+        <div :style="boxStyle">
+          <p
+            class="key"
+            :style="{ color: $themeTokens.primary }"
+          >
+            {{ coachString('resourcesViewedLabel') }}
+          </p>
+          <div class="value-box">
+            <p class="value">{{ $formatNumber(resourcesViewed) }}</p>
+          </div>
+        </div>
+      </KGridItem>
+    </KGrid>
   </div>
 
 </template>
@@ -74,11 +113,14 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
-  import { REPORTS_LEARNERS_TABS_ID, ReportsLearnersTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';
+  import ReportsControls from './ReportsControls';
 
   export default {
     name: 'ReportsLearnerHeader',
+    components: {
+      ReportsControls,
+    },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
@@ -87,28 +129,22 @@
         wereTabsClickedRecently,
       };
     },
-    props: {
-      enablePrint: {
-        type: Boolean,
-        required: false,
-        default: false,
-      },
-      activeTabId: {
-        type: String,
-        required: true,
-      },
-    },
-    data() {
-      return {
-        REPORTS_LEARNERS_TABS_ID,
-      };
-    },
     computed: {
       learner() {
         return this.learnerMap[this.$route.params.learnerId];
       },
       learnerContentStatuses() {
         return this.contentStatuses.filter(status => this.learner.id === status.learner_id);
+      },
+      lessonsCompleted() {
+        const statuses = this.lessonStatuses.filter(
+          status =>
+            this.learner.id === status.learner_id && status.status === this.STATUSES.completed,
+        );
+        if (!statuses.length) {
+          return 0;
+        }
+        return statuses.length;
       },
       avgScore() {
         const statuses = this.examStatuses.filter(
@@ -136,32 +172,15 @@
         );
         return statuses.length;
       },
-      tabs() {
-        return [
-          {
-            id: ReportsLearnersTabs.REPORTS,
-            label: this.coachString('reportsLabel'),
-            to: this.classRoute('ReportsLearnerReportPage', {}),
-          },
-          {
-            id: ReportsLearnersTabs.ACTIVITY,
-            label: this.coachString('activityLabel'),
-            to: this.classRoute('ReportsLearnerActivityPage', {}),
-          },
-        ];
+      boxStyle() {
+        return {
+          border: '1px solid',
+          borderColor: this.$themePalette.grey.v_100,
+          borderRadius: '4px',
+          padding: '0px 16px',
+          margin: '5px',
+        };
       },
-    },
-    mounted() {
-      // focus the active tab but only when it's likely
-      // that this header was re-mounted as a result
-      // of navigation after clicking a tab (focus shouldn't
-      // be manipulated programatically in other cases, e.g.
-      // when visiting the page for the first time)
-      if (this.wereTabsClickedRecently(this.REPORTS_LEARNERS_TABS_ID)) {
-        this.$nextTick(() => {
-          this.$refs.tabList.focusActiveTab();
-        });
-      }
     },
     $trs: {
       back: {
@@ -169,14 +188,30 @@
         context:
           "Link that takes user back to the list of learners on the 'Reports' tab, from the individual learner's information page.",
       },
-      reportLearners: {
-        message: 'Report learners',
-        context: 'Labels the Reports > Learners tab for screen reader users',
-      },
+      totalLessons: 'of {total}',
     },
   };
 
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .key {
+    font-size: 14px;
+  }
+
+  .value-box {
+    padding-bottom: 10px;
+  }
+
+  p.value {
+    position: relative;
+    display: inline;
+    margin-right: 5px;
+    margin-bottom: 0;
+    font-size: 32px;
+    word-wrap: break-word;
+  }
+
+</style>
