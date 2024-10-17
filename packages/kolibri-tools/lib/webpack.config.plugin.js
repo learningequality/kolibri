@@ -14,8 +14,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const BundleTracker = require('./webpackBundleTracker');
 const baseConfig = require('./webpack.config.base');
 const logging = require('./logging');
-const coreExternals = require('./apiSpecExportTools').coreExternals();
-const coreAliases = require('./apiSpecExportTools').coreAliases();
+const { coreExternals } = require('./apiSpecExportTools');
 const WebpackRTLPlugin = require('./webpackRtlPlugin');
 const { kolibriName } = require('./kolibriName');
 const WebpackMessages = require('./webpackMessages');
@@ -91,18 +90,14 @@ module.exports = (
     });
   }
 
-  let externals;
-
   const isCoreBundle = webpackConfig.output && webpackConfig.output.library === kolibriName;
 
-  if (!isCoreBundle) {
-    // If this is not the core bundle, then we need to add the external library mappings.
-    externals = coreExternals;
-  } else {
-    externals = { kolibri: kolibriName };
-  }
+  // If this is not the core bundle, then we need to add the external library mappings.
+  const externals = isCoreBundle ? {} : coreExternals;
+
+  const alias = {};
   if (kdsPath) {
-    coreAliases['kolibri-design-system'] = path.resolve(kdsPath);
+    alias['kolibri-design-system'] = path.resolve(kdsPath);
     cache = false;
   }
   let bundle = {
@@ -125,7 +120,7 @@ module.exports = (
       pathinfo: mode === 'production',
     },
     resolve: {
-      alias: coreAliases,
+      alias,
       modules: [
         // Add local resolution paths
         path.join(data.plugin_path, 'node_modules'),
@@ -172,8 +167,24 @@ module.exports = (
 
   if (isCoreBundle && mode === 'production') {
     bundle.plugins.push(
-      // requires >= v3.0.0, which is specified in the kolibri-core yarn workspace
+      // requires >= v3.0.0, which is specified in the kolibri package
       new webpack.NormalModuleReplacementPlugin(/^vue-intl$/, 'vue-intl/dist/vue-intl.prod.min.js'),
+    );
+  }
+
+  if (isCoreBundle) {
+    bundle.plugins.push(
+      // We need to do this to sidestep the janky @vue/composition-api package's index.js which
+      // conditionally imports the prod or dev version of the package based on the NODE_ENV, but
+      // only exposes the common JS builds, and reassigns them to the module.exports, thereby
+      // preventing webpack from importing it consistently in both how we use it internally
+      // in the core bundle, and also then access it via externals in the plugin bundles.
+      new webpack.NormalModuleReplacementPlugin(
+        /^@vue\/composition-api$/,
+        mode === 'production'
+          ? '@vue/composition-api/dist/vue-composition-api.prod.js'
+          : '@vue/composition-api/dist/vue-composition-api.js',
+      ),
     );
   }
 
