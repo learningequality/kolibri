@@ -542,7 +542,7 @@
   }
 
   .side-nav {
-    @extend %dropshadow-16dp;
+    @extend %dropshadow-6dp;
 
     position: fixed;
     top: 0;
