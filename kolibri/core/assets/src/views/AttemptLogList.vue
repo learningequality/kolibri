@@ -38,15 +38,16 @@
           <AttemptLogItem
             class="attempt-selected"
             :isSurvey="isSurvey"
-            :attemptLog="attemptLogs[selectedQuestionNumber]"
+            :attemptLog="selectedAttemptLog"
             displayTag="span"
           />
         </template>
         <template #option="{ index }">
           <AttemptLogItem
+            v-if="attemptLogsForCurrentSection[index]"
             class="attempt-option"
             :isSurvey="isSurvey"
-            :attemptLog="attemptLogs[sections[currentSectionIndex].startQuestionNumber + index]"
+            :attemptLog="attemptLogsForCurrentSection[index]"
             displayTag="span"
           />
         </template>
@@ -62,7 +63,7 @@
         v-for="(section, index) in sections"
         :id="`section-questions-${index}`"
         :key="`section-questions-${index}`"
-        :title="displaySectionTitle(section, index)"
+        :title="displaySectionTitle(section, index) || ''"
         @focus="expand(index)"
       >
         <template
@@ -131,8 +132,9 @@
                   "
                 >
                   <AttemptLogItem
+                    v-if="attemptLogsForCurrentSection[qIndex]"
                     :isSurvey="isSurvey"
-                    :attemptLog="attemptLogs[section.startQuestionNumber + qIndex]"
+                    :attemptLog="attemptLogsForCurrentSection[qIndex]"
                     displayTag="p"
                   />
                 </a>
@@ -193,11 +195,24 @@
         return sections.value[currentSectionIndex.value];
       });
 
+      // Computed property for attempt logs of the current section
+      const attemptLogsForCurrentSection = computed(() => {
+        const start = currentSection.value.startQuestionNumber;
+        return currentSection.value.questions.map((_, index) => {
+          return props.attemptLogs[start + index];
+        });
+      });
+
       const questionSelectOptions = computed(() => {
-        return currentSection.value.questions.map((question, index) => ({
-          value: index,
-          label: questionNumberLabel$({ questionNumber: index + 1 }),
-        }));
+        return currentSection.value.questions.reduce((options, question, index) => {
+          if (attemptLogsForCurrentSection.value[index]) {
+            options.push({
+              value: index,
+              label: questionNumberLabel$({ questionNumber: index + 1 }),
+            });
+          }
+          return options;
+        }, []);
       });
 
       // The KSelect-shaped object for the current section
@@ -210,6 +225,11 @@
         return questionSelectOptions.value[
           selectedQuestionNumber.value - currentSection.value.startQuestionNumber
         ];
+      });
+
+      // Computed property for the selected attempt log
+      const selectedAttemptLog = computed(() => {
+        return props.attemptLogs[selectedQuestionNumber.value];
       });
 
       function handleQuestionChange(index) {
@@ -239,6 +259,8 @@
         sectionSelectOptions,
         selectedQuestion,
         questionSelectOptions,
+        attemptLogsForCurrentSection,
+        selectedAttemptLog,
       };
     },
     props: {
