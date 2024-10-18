@@ -193,14 +193,14 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import urls from 'kolibri.urls';
-  import { FacilityResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
+  import urls from 'kolibri/urls';
+  import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import validationConstants from 'kolibri-design-system/lib/KDateRange/validationConstants';
-  import { currentLanguage } from 'kolibri.utils.i18n';
-  import { now } from 'kolibri.utils.serverClock';
+  import { currentLanguage } from 'kolibri/utils/i18n';
+  import { now } from 'kolibri/utils/serverClock';
   import format from 'date-fns/format';
   import KDateRange from 'kolibri-design-system/lib/KDateRange';
   import { PageNames } from '../../constants';

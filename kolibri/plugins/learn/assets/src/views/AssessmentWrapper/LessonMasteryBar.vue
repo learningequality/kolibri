@@ -21,8 +21,8 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import BaseToolbar from 'kolibri.coreVue.components.BaseToolbar';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import BaseToolbar from 'kolibri-common/components/BaseToolbar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {

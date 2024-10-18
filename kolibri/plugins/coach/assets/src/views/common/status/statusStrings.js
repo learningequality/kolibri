@@ -1,5 +1,5 @@
-import { createTranslator } from 'kolibri.utils.i18n';
-import logger from 'kolibri.lib.logging';
+import { createTranslator } from 'kolibri/utils/i18n';
+import logger from 'kolibri-logging';
 
 import { VERBS } from './constants';
 

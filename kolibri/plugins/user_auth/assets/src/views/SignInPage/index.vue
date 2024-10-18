@@ -159,14 +159,14 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import { FacilityUsernameResource } from 'kolibri.resources';
+  import FacilityUsernameResource from 'kolibri-common/apiResources/FacilityUsernameResource';
   import get from 'lodash/get';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { LoginErrors } from 'kolibri.coreVue.vuex.constants';
-  import { validateUsername } from 'kolibri.utils.validators';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { LoginErrors } from 'kolibri/constants';
+  import { validateUsername } from 'kolibri/utils/validators';
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import useUser from 'kolibri/composables/useUser';
   import { ComponentMap } from '../../constants';
   import getUrlParameter from '../getUrlParameter';
   import AuthBase from '../AuthBase';

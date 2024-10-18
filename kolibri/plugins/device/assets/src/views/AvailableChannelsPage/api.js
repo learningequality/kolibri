@@ -1,5 +1,5 @@
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 
 export function getFreeSpaceOnServer() {
   return client({ url: urls['kolibri:core:deviceinfo']() }).then(response => {

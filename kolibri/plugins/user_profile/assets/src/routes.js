@@ -1,6 +1,6 @@
-import store from 'kolibri.coreVue.vuex.store';
-import redirectBrowser from 'kolibri.utils.redirectBrowser';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import store from 'kolibri/store';
+import redirectBrowser from 'kolibri/utils/redirectBrowser';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import ProfilePage from './views/ProfilePage';
 import ProfileEditPage from './views/ProfileEditPage';

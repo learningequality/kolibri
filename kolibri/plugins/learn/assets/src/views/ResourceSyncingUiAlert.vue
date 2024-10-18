@@ -15,12 +15,12 @@
 <script>
 
   import { get } from '@vueuse/core';
-  import { computed, watch } from 'kolibri.lib.vueCompositionApi';
+  import { computed, watch } from '@vue/composition-api';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert.vue';
-  import useUserSyncStatus from 'kolibri.coreVue.composables.useUserSyncStatus';
-  import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
-  import { createTranslator } from 'kolibri.utils.i18n';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import useUserSyncStatus from 'kolibri-common/composables/useUserSyncStatus';
+  import { SyncStatus } from 'kolibri/constants';
+  import { createTranslator } from 'kolibri/utils/i18n';
+  import useUser from 'kolibri/composables/useUser';
 
   const syncStatusDescriptionStrings = createTranslator('SyncStatusDescription', {
     syncingDescription: {

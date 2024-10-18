@@ -1,5 +1,5 @@
-import { ContentNodeResource } from 'kolibri.resources';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useContentNodeProgress from '../../composables/useContentNodeProgress';
 import { LearnerLessonResource } from '../../apiResources';

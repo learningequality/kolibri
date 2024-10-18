@@ -54,7 +54,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ContentNodeThumbnail from '../thumbnails/ContentNodeThumbnail';
   import ProgressBar from '../ProgressBar';
   import LearningActivityLabel from '../LearningActivityLabel';

@@ -23,7 +23,7 @@
 // Original line: 17
 
 import { renderTextLayer } from 'pdfjs-dist/legacy/build/pdf';
-import logger from 'kolibri.lib.logging';
+import logger from 'kolibri-logging';
 
 const logging = logger.getLogger(__filename);
 

@@ -1,4 +1,4 @@
-import store from 'kolibri.coreVue.vuex.store';
+import store from 'kolibri/store';
 import { PageNames } from '../constants';
 import { useGroups } from '../composables/useGroups';
 import GroupsPage from '../views/plan/GroupsPage';

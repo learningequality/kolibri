@@ -1,6 +1,6 @@
 import find from 'lodash/find';
-import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import { RoleResource } from 'kolibri.resources';
+import { UserKinds } from 'kolibri/constants';
+import RoleResource from 'kolibri-common/apiResources/RoleResource';
 
 const FACILITY_ROLES = [UserKinds.ADMIN, UserKinds.ASSIGNABLE_COACH, UserKinds.COACH];
 

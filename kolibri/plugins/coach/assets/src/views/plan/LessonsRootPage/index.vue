@@ -201,20 +201,17 @@
 
   import Vue from 'vue';
   import { mapState, mapActions } from 'vuex';
-  import { LessonResource } from 'kolibri.resources';
+  import LessonResource from 'kolibri-common/apiResources/LessonResource';
   import countBy from 'lodash/countBy';
-  import {
-    LESSON_VISIBILITY_MODAL_DISMISSED,
-    ERROR_CONSTANTS,
-  } from 'kolibri.coreVue.vuex.constants';
+  import { LESSON_VISIBILITY_MODAL_DISMISSED, ERROR_CONSTANTS } from 'kolibri/constants';
   import Lockr from 'lockr';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import CatchErrors from 'kolibri.utils.CatchErrors';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import CatchErrors from 'kolibri/utils/CatchErrors';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKShow from 'kolibri-design-system/lib/composables/useKShow';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';

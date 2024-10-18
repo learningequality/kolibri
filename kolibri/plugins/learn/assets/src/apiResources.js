@@ -1,4 +1,4 @@
-import { Resource } from 'kolibri.lib.apiResource';
+import { Resource } from 'kolibri/apiResource';
 
 /**
  * Gets all of the Classrooms in which a Learner is enrolled

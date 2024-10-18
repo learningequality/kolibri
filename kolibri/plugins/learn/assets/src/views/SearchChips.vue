@@ -31,8 +31,8 @@
 <script>
 
   import flatMap from 'lodash/flatMap';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { NoCategories } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { NoCategories } from 'kolibri/constants';
   import useChannels from '../composables/useChannels';
   import useLanguages from '../composables/useLanguages';
 

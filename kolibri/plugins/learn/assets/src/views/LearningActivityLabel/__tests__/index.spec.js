@@ -1,9 +1,9 @@
 import { shallowMount, mount } from '@vue/test-utils';
 
-import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+import { LearningActivities } from 'kolibri/constants';
 import LearningActivityLabel from '../index';
 
-jest.mock('kolibri.utils.coreStrings', () => {
+jest.mock('kolibri/uiText/commonCoreStrings', () => {
   const translations = {
     all: 'All',
     watch: 'Watch',
@@ -15,9 +15,11 @@ jest.mock('kolibri.utils.coreStrings', () => {
     explore: 'Explore',
   };
   return {
-    $tr: jest.fn(key => {
-      return translations[key];
-    }),
+    coreStrings: {
+      $tr: jest.fn(key => {
+        return translations[key];
+      }),
+    },
   };
 });
 

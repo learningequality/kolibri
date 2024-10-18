@@ -150,10 +150,10 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ExamResource } from 'kolibri.resources';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import ExamResource from 'kolibri-common/apiResources/ExamResource';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { REPORTS_TABS_ID, ReportsTabs } from '../../constants/tabsConstants';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';

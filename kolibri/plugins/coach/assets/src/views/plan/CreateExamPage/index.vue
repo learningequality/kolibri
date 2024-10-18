@@ -111,14 +111,14 @@
 <script>
 
   import get from 'lodash/get';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import CatchErrors from 'kolibri.utils.CatchErrors';
-  import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { ERROR_CONSTANTS } from 'kolibri/constants';
+  import CatchErrors from 'kolibri/utils/CatchErrors';
+  import { ref } from '@vue/composition-api';
   import pickBy from 'lodash/pickBy';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../constants';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import useQuizCreation from '../../../composables/useQuizCreation';

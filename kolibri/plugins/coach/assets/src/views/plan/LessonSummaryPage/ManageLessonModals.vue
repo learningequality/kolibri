@@ -27,12 +27,12 @@
 <script>
 
   import find from 'lodash/find';
-  import CatchErrors from 'kolibri.utils.CatchErrors';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import CatchErrors from 'kolibri/utils/CatchErrors';
+  import { ERROR_CONSTANTS } from 'kolibri/constants';
   import { mapState } from 'vuex';
-  import { LessonResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import LessonResource from 'kolibri-common/apiResources/LessonResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import AssignmentCopyModal from '../../plan/assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../plan/assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';

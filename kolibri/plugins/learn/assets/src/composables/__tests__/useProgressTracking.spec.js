@@ -1,19 +1,17 @@
 import { get, set } from '@vueuse/core';
 import omit from 'lodash/omit';
-import client from 'kolibri.client';
-import { coreStoreFactory as makeStore } from 'kolibri.coreVue.vuex.store';
-import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
-import useTotalProgress, {
-  useTotalProgressMock,
-} from 'kolibri.coreVue.composables.useTotalProgress';
-import { ref } from 'kolibri.lib.vueCompositionApi';
+import client from 'kolibri/client';
+import { coreStoreFactory as makeStore } from 'kolibri/store';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
+import useTotalProgress, { useTotalProgressMock } from 'kolibri/composables/useTotalProgress'; // eslint-disable-line
+import { ref } from '@vue/composition-api';
 import useProgressTracking from '../useProgressTracking';
 import coreModule from '../../../../../../core/assets/src/state/modules/core';
 
-jest.mock('kolibri.urls');
-jest.mock('kolibri.client');
-jest.mock('kolibri.coreVue.composables.useUser');
-jest.mock('kolibri.coreVue.composables.useTotalProgress');
+jest.mock('kolibri/urls');
+jest.mock('kolibri/client');
+jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri/composables/useTotalProgress');
 
 function setUp() {
   const store = makeStore();

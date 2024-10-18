@@ -1,4 +1,5 @@
-import { LessonResource, ContentNodeResource } from 'kolibri.resources';
+import LessonResource from 'kolibri-common/apiResources/LessonResource';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 
 export function resetLessonSummaryState(store) {
   store.commit('RESET_STATE');

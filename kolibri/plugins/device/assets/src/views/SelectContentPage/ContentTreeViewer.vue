@@ -65,11 +65,11 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import { ContentNodeKinds } from 'kolibri/constants';
   import every from 'lodash/every';
   import omit from 'lodash/omit';
-  import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
+  import { TransferTypes } from 'kolibri-common/utils/syncTaskUtils';
   import { selectContentTopicLink } from '../ManageContentPage/manageContentLinks';
   import { annotateNode, CheckboxTypes, transformBreadrumb } from './treeViewUtils';
   import ContentNodeRow from './ContentNodeRow';

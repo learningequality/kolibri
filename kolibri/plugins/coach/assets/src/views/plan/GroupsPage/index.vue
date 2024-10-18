@@ -105,11 +105,11 @@
 
 <script>
 
-  import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { ref } from '@vue/composition-api';
   import { mapState, mapActions } from 'vuex';
   import orderBy from 'lodash/orderBy';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../../common';
   import { useGroups } from '../../../composables/useGroups';
   import CoachAppBarPage from '../../CoachAppBarPage';

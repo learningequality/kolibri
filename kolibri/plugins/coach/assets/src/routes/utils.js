@@ -1,5 +1,5 @@
-import store from 'kolibri.coreVue.vuex.store';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import store from 'kolibri/store';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 
 export function classIdParamRequiredGuard(toRoute, subtopicName, next) {

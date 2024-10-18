@@ -1,7 +1,7 @@
 import find from 'lodash/find';
 import flip from 'lodash/flip';
 import sumBy from 'lodash/fp/sumBy';
-import { createTranslator } from 'kolibri.utils.i18n';
+import { createTranslator } from 'kolibri/utils/i18n';
 import { selectContentTopicLink } from '../ManageContentPage/manageContentLinks';
 
 const translator = createTranslator('TreeViewRowMessages', {

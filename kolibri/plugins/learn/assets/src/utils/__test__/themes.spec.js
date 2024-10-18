@@ -1,4 +1,4 @@
-import logging from 'kolibri.lib.logging';
+import logging from 'kolibri-logging';
 import { validateChannelTheme } from '../validateChannelTheme';
 
 const defaultTheme = {

@@ -61,10 +61,10 @@
 <script>
 
   import { get } from '@vueuse/core';
-  import Backdrop from 'kolibri.coreVue.components.Backdrop';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import Backdrop from 'kolibri-common/components/Backdrop';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
+  import FocusTrap from 'kolibri-common/components/FocusTrap';
 
   export default {
     name: 'SidePanelModal',

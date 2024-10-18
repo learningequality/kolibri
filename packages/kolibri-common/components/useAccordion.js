@@ -1,5 +1,5 @@
 import uniq from 'lodash/uniq';
-import { isRef, ref, computed } from 'kolibri.lib.vueCompositionApi';
+import { isRef, ref, computed } from '@vue/composition-api';
 
 /**
  * @param {Object} options

@@ -55,8 +55,8 @@
   // ChannelPanel with Details, On-Device Size, and Options Dropdown
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import NewBadge from '../NewBadge';
   import commonDeviceStrings from '../../commonDeviceStrings';
   import ChannelDetails from './ChannelDetails';

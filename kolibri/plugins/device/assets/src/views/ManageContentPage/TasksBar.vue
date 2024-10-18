@@ -37,8 +37,8 @@
 
   import some from 'lodash/some';
   import sumBy from 'lodash/sumBy';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonTaskStrings from 'kolibri-common/uiText/tasks';
 
   export default {
     name: 'TasksBar',

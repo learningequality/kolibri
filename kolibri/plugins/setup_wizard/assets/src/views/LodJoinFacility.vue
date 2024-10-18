@@ -20,10 +20,10 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { TaskResource } from 'kolibri.resources';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import { ERROR_CONSTANTS } from 'kolibri/constants';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import { SetupWizardResource } from '../api';
   import { FooterMessageTypes, LodTypePresets as Options } from '../constants';
   import UserCredentialsForm from './onboarding-forms/UserCredentialsForm';

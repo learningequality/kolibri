@@ -1,7 +1,5 @@
 var path = require('node:path');
 var resolve = require('resolve');
-var coreAliases = require('./apiSpecExportTools').coreAliases();
-var coreExternals = require('./apiSpecExportTools').coreExternals();
 
 function packageFilter(pkg) {
   if (pkg['jsnext:main']) {
@@ -63,12 +61,6 @@ exports.resolve = function (source, file, config) {
     source = source.slice(0, finalQuestionMark);
   }
 
-  if (coreAliases[source]) {
-    source = coreAliases[source];
-  }
-  if (coreExternals[source]) {
-    return { found: true, path: null };
-  }
   const alias = Object.keys(moduleAliases).find(k => source.startsWith(k));
   if (alias) {
     source = source.replace(alias, moduleAliases[alias]);

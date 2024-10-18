@@ -1,5 +1,5 @@
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 
 const url = urls['kolibri:core:facility-create-facility']();
 

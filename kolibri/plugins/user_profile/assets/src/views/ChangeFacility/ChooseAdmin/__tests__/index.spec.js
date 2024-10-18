@@ -1,4 +1,4 @@
-import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
+import { coreStoreFactory } from 'kolibri/store';
 import { shallowMount, mount } from '@vue/test-utils';
 import ChooseAdmin from '../index.vue';
 import coreModule from '../../../../../../../../core/assets/src/state/modules/core';

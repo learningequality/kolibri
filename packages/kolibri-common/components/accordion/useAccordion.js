@@ -1,5 +1,5 @@
 import uniq from 'lodash/uniq';
-import { ref, computed, provide, inject } from 'kolibri.lib.vueCompositionApi';
+import { ref, computed, provide, inject } from '@vue/composition-api';
 
 export default function useAccordion() {
   const _items = ref([]);

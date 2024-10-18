@@ -62,11 +62,11 @@
 
 <script>
 
-  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+  import { computed, getCurrentInstance } from '@vue/composition-api';
   import { get, set } from '@vueuse/core';
-  import client from 'kolibri.client';
-  import urls from 'kolibri.urls';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import client from 'kolibri/client';
+  import urls from 'kolibri/urls';
+  import useUser from 'kolibri/composables/useUser';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useChannels from '../../composables/useChannels';
   import useDeviceSettings from '../../composables/useDeviceSettings';

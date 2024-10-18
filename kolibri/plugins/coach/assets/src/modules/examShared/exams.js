@@ -1,4 +1,4 @@
-import { ExamResource } from 'kolibri.resources';
+import ExamResource from 'kolibri-common/apiResources/ExamResource';
 
 export function createExam(store, exam) {
   return ExamResource.saveModel({ data: exam });

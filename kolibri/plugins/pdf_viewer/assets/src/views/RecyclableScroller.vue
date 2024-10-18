@@ -105,7 +105,7 @@
   import { ResizeObserver } from 'vue-resize';
   import { ObserveVisibility } from 'vue-observe-visibility';
   import ScrollParent from 'scrollparent';
-  import logger from 'kolibri.lib.logging';
+  import logger from 'kolibri-logging';
 
   const logging = logger.getLogger(__filename);
 

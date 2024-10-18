@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep';
 
-import { ContentNodeResource } from 'kolibri.resources';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
 import useLearnerResources from '../useLearnerResources';
@@ -23,7 +23,7 @@ const {
   fetchResumableContentNodes,
 } = useLearnerResources();
 
-jest.mock('kolibri.resources');
+jest.mock('kolibri-common/apiResources/ContentNodeResource');
 jest.mock('../../apiResources');
 jest.mock('../useContentNodeProgress');
 

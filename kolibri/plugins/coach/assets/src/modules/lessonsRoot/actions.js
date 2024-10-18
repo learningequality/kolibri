@@ -1,7 +1,7 @@
-import { LessonResource } from 'kolibri.resources';
-import router from 'kolibri.coreVue.router';
-import { createTranslator } from 'kolibri.utils.i18n';
-import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+import LessonResource from 'kolibri-common/apiResources/LessonResource';
+import router from 'kolibri/router';
+import { createTranslator } from 'kolibri/utils/i18n';
+import useSnackbar from 'kolibri/composables/useSnackbar';
 import { lessonSummaryLink } from '../../routes/planLessonsRouterUtils';
 
 const translator = createTranslator('LessonRootActionTexts', {

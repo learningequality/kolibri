@@ -78,7 +78,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import Bookmarks from './Bookmarks';
 
   export default {
@@ -142,7 +142,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   .pdf-sidebar {
     overflow-y: auto;

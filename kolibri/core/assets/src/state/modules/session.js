@@ -1,5 +1,5 @@
 import some from 'lodash/some';
-import { UserKinds } from '../../constants';
+import { UserKinds } from 'kolibri/constants';
 
 export const baseSessionState = {
   app_context: false,

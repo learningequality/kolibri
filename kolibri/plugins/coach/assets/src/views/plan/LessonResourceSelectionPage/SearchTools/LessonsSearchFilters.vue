@@ -66,8 +66,8 @@
 
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ContentNodeKinds } from 'kolibri/constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   const kindFilterToLabelMap = {
     [ContentNodeKinds.TOPIC]: 'topics',

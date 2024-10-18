@@ -97,7 +97,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { PageNames } from '../../constants';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';

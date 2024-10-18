@@ -1,0 +1,8 @@
+{
+  "name": "kolibri-plugin-data",
+  "version": "1.0.0",
+  "description": "The Kolibri plugin data module",
+  "main": "src/index.js",
+  "author": "Learning Equality",
+  "license": "MIT"
+}

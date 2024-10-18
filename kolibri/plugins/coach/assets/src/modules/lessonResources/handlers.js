@@ -1,12 +1,10 @@
 import pickBy from 'lodash/pickBy';
-import {
-  BookmarksResource,
-  ContentNodeResource,
-  ContentNodeSearchResource,
-} from 'kolibri.resources';
-import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import ContentNodeSearchResource from 'kolibri-common/apiResources/ContentNodeSearchResource';
+import { ContentNodeKinds } from 'kolibri/constants';
 import chunk from 'lodash/chunk';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 

@@ -53,8 +53,8 @@
 
   import { mapState } from 'vuex';
   import { throttle } from 'frame-throttle';
-  import { getLangDir } from 'kolibri.utils.i18n';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { getLangDir } from 'kolibri/utils/i18n';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import TranscriptCue from './TranscriptCue';
 
   export default {

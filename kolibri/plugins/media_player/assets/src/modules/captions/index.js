@@ -1,4 +1,4 @@
-import vue from 'kolibri.lib.vue';
+import vue from 'vue';
 import videojs from 'video.js';
 import trackUtils from '../../utils/track';
 import Settings from '../../utils/settings';

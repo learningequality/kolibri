@@ -180,16 +180,16 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
-  import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
-  import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import { validateLearningActivity } from 'kolibri.utils.validators';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
-  import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
+  import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
+  import CoreMenu from 'kolibri-common/components/CoreMenu';
+  import { ContentNodeKinds } from 'kolibri/constants';
+  import CoreMenuOption from 'kolibri-common/components/CoreMenu/CoreMenuOption';
+  import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
+  import UiToolbar from 'kolibri-common/components/keen/UiToolbar';
+  import { validateLearningActivity } from 'kolibri/utils/validators';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import TimeDuration from 'kolibri-common/components/TimeDuration';
+  import SuggestedTime from 'kolibri-common/components/SuggestedTime';
   import get from 'lodash/get';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import commonLearnStrings from './commonLearnStrings';

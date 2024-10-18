@@ -125,15 +125,15 @@
 
   import isEqual from 'lodash/isEqual';
   import pick from 'lodash/pick';
-  import { getCurrentInstance, computed, ref } from 'kolibri.lib.vueCompositionApi';
+  import { getCurrentInstance, computed, ref } from '@vue/composition-api';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../constants/index';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import useDrag from './useDrag.js';
@@ -242,6 +242,7 @@
         if (!titleIsUnique) {
           return sectionTitleUniqueWarning$();
         }
+        return '';
       });
 
       const activeSectionChanged = computed(() => {

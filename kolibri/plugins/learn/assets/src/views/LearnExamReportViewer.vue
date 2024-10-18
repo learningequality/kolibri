@@ -40,9 +40,9 @@
 <script>
 
   import { mapState } from 'vuex';
-  import ExamReport from 'kolibri.coreVue.components.ExamReport';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import ExamReport from 'kolibri-common/components/quizzes/QuizReport';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import useUser from 'kolibri/composables/useUser';
   import { PageNames, ClassesPageNames } from '../constants';
 
   export default {

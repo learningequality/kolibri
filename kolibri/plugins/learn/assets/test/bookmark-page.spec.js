@@ -1,15 +1,15 @@
 import flushPromises from 'flush-promises';
-import client from 'kolibri.client';
-import { ContentNodeResource } from 'kolibri.resources';
+import client from 'kolibri/client';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { shallowMount } from '@vue/test-utils';
 import BookmarkPage from '../src/views/BookmarkPage';
 import makeStore from './makeStore';
 
 jest.mock('../src/composables/useContentNodeProgress');
 jest.mock('../src/composables/useContentLink');
-jest.mock('kolibri.client');
-jest.mock('kolibri.urls');
-jest.mock('kolibri.resources');
+jest.mock('kolibri/client');
+jest.mock('kolibri/urls');
+jest.mock('kolibri-common/apiResources/ContentNodeResource');
 
 describe('Bookmark Page', () => {
   let wrapper;

@@ -18,7 +18,7 @@
 
 <script>
 
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import CoreSnackbar from './CoreSnackbar';
 
   export default {

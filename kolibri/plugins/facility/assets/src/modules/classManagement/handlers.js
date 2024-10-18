@@ -1,4 +1,4 @@
-import { ClassroomResource } from 'kolibri.resources';
+import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 
 export function showClassesPage(store, toRoute) {
   store.dispatch('preparePage');
