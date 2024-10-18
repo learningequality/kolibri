@@ -1,6 +1,6 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import Vuex from 'vuex';
+import Vuex, { Store } from 'vuex';
 
 import { useDevicesWithFilter } from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
@@ -34,12 +34,9 @@ localVue.use(Vuex);
 localVue.use(VueRouter);
 
 function makeWrapper() {
-  const mockStore = new Vuex.Store({
+  const mockStore = new Store({
     state: { core: { loading: false } },
     getters: {
-      isUserLoggedIn: jest.fn(),
-      isAppContext: jest.fn(),
-      isLearner: jest.fn(),
       isPageLoading: jest.fn(() => false),
     },
     actions: {

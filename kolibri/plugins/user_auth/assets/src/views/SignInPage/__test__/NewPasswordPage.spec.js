@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { Store } from 'vuex';
 import VueRouter from 'vue-router';
 import NewPasswordPage from '../NewPasswordPage';
 
 const loginSpy = jest.fn().mockResolvedValue();
 const updatePwSpy = jest.fn().mockResolvedValue();
 
-const store = new Vuex.Store({
+const store = new Store({
   actions: {
     kolibriSetUnspecifiedPassword: updatePwSpy,
     kolibriLogin: loginSpy,

@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
+// eslint-disable-next-line import/no-named-as-default
 import userEvent from '@testing-library/user-event';
 import VueRouter from 'vue-router';
 import CoreMenuOption from '../CoreMenuOption.vue';

@@ -1,5 +1,5 @@
 import { mount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
+import Vuex, { Store } from 'vuex';
 import ElapsedTime from '../ElapsedTime';
 
 const localVue = createLocalVue();
@@ -8,7 +8,7 @@ localVue.use(Vuex);
 const DUMMY_CURRENT_DATE = new Date(2017, 0, 1, 1, 1, 1);
 
 function makeWrapper(options) {
-  const store = new Vuex.Store();
+  const store = new Store();
   return mount(ElapsedTime, {
     ...options,
     store,

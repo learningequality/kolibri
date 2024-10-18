@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { Store } from 'vuex';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import FacilityAppBarPage from '../../src/views/FacilityAppBarPage';
 
 function makeWrapper({ propsData = {}, getters = {} }) {
-  const store = new Vuex.Store(getters);
+  const store = new Store(getters);
   store.getters = {
     getUserKind: jest.fn(),
     ...getters,

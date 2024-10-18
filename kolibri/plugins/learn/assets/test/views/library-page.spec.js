@@ -1,6 +1,6 @@
 import { mount, shallowMount, createLocalVue } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
-import Vuex from 'vuex';
+import Vuex, { Store } from 'vuex';
 import VueRouter from 'vue-router';
 import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -52,7 +52,7 @@ jest.mock('kolibri-common/apiResources/ContentNodeResource');
 jest.mock('kolibri/urls');
 
 async function makeWrapper({ options, fullMount = false } = {}) {
-  const store = new Vuex.Store({
+  const store = new Store({
     state: { core: { loading: false } },
     getters: {
       isUserLoggedIn: jest.fn(),
