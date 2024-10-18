@@ -962,7 +962,7 @@
     border-radius: 2px;
 
     .ease:hover {
-      @extend %dropshadow-8dp;
+      @extend %dropshadow-6dp;
       @extend %md-decelerate-func;
 
       transition: all $core-time;

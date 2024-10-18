@@ -71,7 +71,7 @@
   }
 
   .skip-nav-link a {
-    @extend %dropshadow-4dp;
+    @extend %dropshadow-2dp;
 
     position: absolute;
     left: -1000px;

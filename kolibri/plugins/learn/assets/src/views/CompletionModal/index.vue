@@ -544,7 +544,7 @@
   }
 
   .modal {
-    @extend %dropshadow-16dp;
+    @extend %dropshadow-6dp;
     @extend %momentum-scroll;
 
     position: absolute;

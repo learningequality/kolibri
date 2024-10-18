@@ -101,7 +101,7 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .banner {
-    @extend %dropshadow-16dp;
+    @extend %dropshadow-6dp;
 
     position: relative;
     width: 100%;
