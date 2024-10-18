@@ -7,6 +7,7 @@ from . import errors
 from .client import NetworkClient
 from .urls import parse_address_into_components
 from kolibri.core.discovery.models import ConnectionStatus
+from kolibri.core.discovery.models import LocationTypes
 from kolibri.core.discovery.models import NetworkLocation
 
 
@@ -48,7 +49,7 @@ def capture_network_state(network_location, client):
     # having validated the base URL, we can save that
     network_location.base_url = client.base_url
     # save the IP address for static locations
-    if not network_location.dynamic:
+    if network_location.location_type is not LocationTypes.Dynamic:
         remote_ip = client.remote_ip
 
         network_location.last_known_ip = remote_ip
