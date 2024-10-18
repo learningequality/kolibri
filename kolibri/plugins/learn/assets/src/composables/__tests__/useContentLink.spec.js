@@ -1,4 +1,4 @@
-import Vuex from 'vuex';
+import { Store } from 'vuex';
 import { validateLinkObject } from 'kolibri/utils/validators';
 import { PageNames } from '../../../src/constants';
 import useContentLink from '../useContentLink';
@@ -12,7 +12,7 @@ const query = {
 };
 const params = { lesson: 'that' };
 
-const store = new Vuex.Store({
+const store = new Store({
   state: {
     route: {
       name,

@@ -1,5 +1,5 @@
 import forEach from 'lodash/forEach';
-import Vuex from 'vuex';
+import Vuex, { Store } from 'vuex';
 import Vue from 'vue';
 
 Vue.use(Vuex);
@@ -11,7 +11,7 @@ Vue.use(Vuex);
 export function coreStoreFactory(pluginModule) {
   // Core state is organized under `state.core`, but actions, getters, and mutations
   // are not namespaced.
-  const store = new Vuex.Store();
+  const store = new Store();
   // Appends any pluginModule components to the store. `pluginModule.state`
   // is added to `state`. Actions, getters, and mutations cannot be namespaced.
   if (pluginModule) {

@@ -1,7 +1,7 @@
 import store from 'kolibri/store';
 import router from 'kolibri/router';
 import logger from 'kolibri-logging';
-import VueRouter from 'vue-router';
+import { isNavigationFailure, NavigationFailureType } from 'vue-router';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
@@ -31,7 +31,6 @@ import { PageNames } from './constants';
 const logging = logger.getLogger(__filename);
 
 function facilityParamRequiredGuard(toRoute, subtopicName) {
-  const { isNavigationFailure, NavigationFailureType } = VueRouter;
   const { userIsMultiFacilityAdmin } = useUser();
   if (get(userIsMultiFacilityAdmin) && !toRoute.params.facility_id) {
     router

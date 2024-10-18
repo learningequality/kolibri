@@ -1,26 +1,15 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-import Vuex from 'vuex';
 import AppBar from '../AppBar';
 
 jest.mock('kolibri/urls');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 jest.mock('kolibri/composables/useUser');
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
-const store = new Vuex.Store({
-  state: {},
-  getters: {
-    isAppContext: () => false,
-  },
-});
-
 function createWrapper({ propsData } = {}) {
   const node = document.createElement('div');
   document.body.appendChild(node);
   return shallowMount(AppBar, {
-    store,
     propsData,
     attachTo: node,
   });

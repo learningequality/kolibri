@@ -1,12 +1,12 @@
 import { shallowMount, mount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { Store } from 'vuex';
 import { useDevicesWithFilter } from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
 import { LearningActivities } from 'kolibri/constants';
 import LearningActivityBar from '../../src/views/LearningActivityBar';
 
 jest.mock('kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices');
 function makeWrapper({ propsData } = {}) {
-  const store = new Vuex.Store({
+  const store = new Store({
     state: { core: { loading: false } },
     mutations: {
       SET_SHOW_COMPLETE_CONTENT_MODAL: jest.fn(),

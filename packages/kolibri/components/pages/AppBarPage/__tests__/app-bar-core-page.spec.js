@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import Vuex, { Store } from 'vuex';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import AppBarPage from '../index';
 
@@ -7,7 +7,7 @@ jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
-const store = new Vuex.Store({
+const store = new Store({
   getters: {
     isUserLoggedIn: jest.fn(),
     isAppContext: jest.fn(),
