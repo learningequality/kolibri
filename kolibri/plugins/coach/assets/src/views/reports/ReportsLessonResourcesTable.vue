@@ -99,7 +99,7 @@
   import { coachStringsMixin } from '../common/commonCoachStrings';
 
   export default {
-    name: 'ReportsLessonResourcesList',
+    name: 'ReportsLessonResourcesTable',
     components: {
       CoreTable,
       StatusSummary,
