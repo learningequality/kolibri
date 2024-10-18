@@ -60,10 +60,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       'Title of the modal window where a user will confirm or cancel marking a resource as complete manually.',
   },
-  multipleLearningActivities: {
-    message: 'Multiple learning activities',
-    context: 'Label indicating the resource contains several different learning activities.',
-  },
   suggestedTime: {
     message: 'Suggested time',
     context: 'Time suggested by coach for how long an independent practice quiz should take',
