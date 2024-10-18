@@ -369,7 +369,7 @@ Feature: Kolibri critical workflows
 
   Scenario: Coach creates a new lesson for the entire class
   	Given I am signed in to Kolibri as a super admin or a coach
-  	  	And I am at *Coach > Plan*
+  	  	And I am at *Coach > <class> > Lessons*
     When I click the *New lesson* button
     Then I see the *Create new lesson* modal
     When I fill in the title for the lesson
@@ -382,7 +382,7 @@ Feature: Kolibri critical workflows
 
   Scenario: Coach adds resources to a lesson and makes it visible to learners
   	Given I am signed in to Kolibri as a super admin or a coach
-  	  	And I am at *Coach > Plan > <lesson>*
+  	  	And I am at *Coach > <class> > Lessons > <lesson>*
   	When I click the *Manage resources* button
   	Then I am at the *Manage resources in '<lesson>'* page
   	  And I see the available content channels
@@ -397,17 +397,31 @@ Feature: Kolibri critical workflows
 
   Scenario: Coach creates a new quiz for the entire class and starts it
   	Given I am signed in to Kolibri as a super admin or a coach
-  	  	And I am at *Coach > Plan > Quizzes*
+  	  	And I am at *Coach > <class> > Quizzes*
     When I click the *New quiz* button
     	And I select *Create new quiz*
     Then I see the *Create new quiz* modal
+    	And I see an empty *Title* field
+    	And I see the *Recipients* section with the *Entire class* option selected by default
+      And I see the *Section order* section with the *Fixed* option selected by default
+    	And I see a *Section 1* tab with the following description text: *There are no questions in this section. To add questions, select resources from the available channels.*
+    	And I see the *Add questions*, *Add section* and *Options* buttons
+      And I see that both the *Save* and *Save and close* buttons are disabled
     When I fill in the title for the quiz
-      And I select a quiz from the available channel resources
-      And I click the *Continue* button
-    Then I see the *Preview quiz* page
-      And I see the lesson details, question order and questions
-    When I click the *Finish* button
-    Then I am back at *Coach > Plan > Quizzes*
+    	And I click the *Add questions* button
+    Then I see the *Add questions to 'Section 1'* modal
+      And I see *Current number of questions in this section: 0*
+    	And I see a search field
+      And I see *You can only select a total of 100 questions or fewer.*
+      And I see a list with the available channel resources
+    When I click on a channel card
+      And I select an exercise with enough questions
+      And I click the *Add NN questions* button
+    Then I am back at the *Create new quiz* page
+      And I see that the questions are added to *Section 1*
+    When I click the *Save and close* button
+    Then I am back at *Coach > Quizzes*
+      And I see the *Changes saved successfully* snackbar message
     	And I see the newly created quiz
     When I click the *Start quiz* button
     Then I see the *Start quiz* modal
@@ -807,29 +821,25 @@ Feature: Kolibri critical workflows
 
   Scenario: Coach can review a lesson report
   	Given I am signed in to Kolibri as a coach
-      And I am at *Coach > Reports > Lessons* page
+      And I am at the *Coach > <class> > Lessons* page
       And there are completed lessons
     When I click on the title of a lesson
-    Then I see the *Report* tab and the table with each lesson resource
-      And I see the *Progress* and *Average time spent* columns for each resource
-    When I click on a resource's title
-    Then I see the report page for the resource
-    	And I see a *Preview* button
-    	And I see the title, description, suggested time, license, copyright holder and average time spent of the resource
-    	And I see the *View by groups* checkbox
-    	And I see a table with the users to whom the resource is assigned
-    	And I see options to print or export the report
-    When I click the back arrow
-    Then I am back at the *Report* tab
+    Then I see the lesson summary page
+    	And I see the lesson title, the *Manage resources* button and the *...* button next to it
+    	And I see the side panel with *Visible to learners* status, *Recipients*, *Description*, *Class*, *Size*, *Date created*
+    	And I see the *Resources* tab with a table with the available lesson resources and and *Title*, *Progress* and *Average time spent* columns for each resource
+    	And I see options to rearrange the order of the resources or to remove a resource
+    	And I see the *Learners* tab
     When I click on the *Learners* tab
-    Then I see a table with each user's name, progress and groups
-    When I click on the name of a learner
-    Then I see a table with the resources assigned to the learner
-      And I see the title, progress and time spent values for each resource
+    Then I see a table with the learners
+    	And I see the following columns: *Name*, *Progress*, *Groups
+    	And I see the progress made by each learner
+    When I click the *Export as CSV* button
+    	Then I can download and open the generated .csv report
 
-  Scenario: Coach can review a quiz reports
+  Scenario: Coach can review a quiz report
   	Given I am signed in to Kolibri as a coach
-      And I am at *Coach > Reports > Quizzes* page
+      And I am at the *Coach > <class> > Quizzes* page
       And there are assigned quizzes
       And I see a table with the assigned quizzes
       And I see the title, average score, progress, recipients, size and status of each quiz
@@ -850,24 +860,24 @@ Feature: Kolibri critical workflows
 		When I click on the title of a question
 		Then I see details for the number of attempts made on this question
 
-  Scenario: Coach can export reports
+  Scenario: Coach can export lesson and quiz reports
   	Given I am signed in to Kolibri as a coach
-      And I am at *Coach > Reports > Lessons* page
+      And I am at *Coach > <class> > Lessons* page
       And there are completed lessons
     When I navigate through the available pages
     	And I click the *Export as CSV file* icon
     Then I can download and view a lesson report as a .csv file
-    When I go to any of the *Quizzes*, *Groups* and *Learners* tabs
+    When I go to any of the *Quizzes*, *Groups* and *Learners* *pages
     	And I click the *Export as CSV file* icon
     Then I can download and view a report as a .csv file
 
   Scenario: Coach can print reports
   	Given I am signed in to Kolibri as a coach
-      And I am at *Coach > Reports > Lessons* page
+      And I am at *Coach > <class> > Lessons* page
       And there are completed lessons
     When I navigate through the available pages
     	And I click the *Print report* icon
     Then I can print a report
-    When I go to any of the *Quizzes*, *Groups* and *Learners* tabs
+    When I go to any of the *Quizzes*, *Groups* and *Learners* pages
     	And I click the *Print report* icon
     Then I can print a report

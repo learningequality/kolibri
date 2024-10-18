@@ -28,10 +28,9 @@ Feature: Coach changes profile information
     Then I see my selected gender and birth year on the profile page
 
   Scenario: Coach changes password
-    When I click the “Change password” link
-    Then I see the “Change password” modal
-    When I enter the new password
+    When I click the *Change password* link
+    Then I see the *Change password* modal
+    When I enter a new password
       And I re-enter the new password
-      And if my changes are valid (I did not leave the fields empty, or entered two different passwords)
-      And I click the “Update” button
+      And I click the *Update* button
     Then I see the *Your password has been changed* snackbar notification

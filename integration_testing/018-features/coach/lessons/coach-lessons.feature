@@ -25,6 +25,7 @@ Feature: Lessons landing page
     When I click on the *Learners* tab
     Then I see a table with the learners
     	And I see the following columns: *Name*, *Progress*, *Groups
+    	And I see the progress made by each learner
 
   Scenario: Review the resource progress report
   	Given I am at the lesson details page for a lesson

@@ -14,9 +14,9 @@ Feature: Coaches can see sync statuses for connected devices
 		Then I see the *Learners in '<class>'* table with all devices connected to the classroom server
 			And I see the sync statuses of every connected device
 
-	Scenario: Coach can see the sync statuses of the learners from the *Reports* page
-		When I go to *Coach > <class> Reports*
-			And I click the *View learner devices* hyperlink
+	Scenario: Coach can see the sync statuses of the learners from the *Lessons* and *Quizzes* pages
+		When I go to *Coach > <class> Lesson* or *Coach > <class> Quizzes*
+			And I click the *View learner devices* link
 		Then I see the *Learners in '<class>'* table with all devices connected to the classroom server
 			And I see the sync statuses of every connected device
 
