@@ -64,7 +64,18 @@
         // if in regular <tbody>
         const tgroupChildren = get(tbody, 'componentOptions.children');
         if (tgroupChildren) {
-          tableHasRows = tgroupChildren.length > 0;
+          if (tgroupChildren.length === 0) {
+            tableHasRows = false;
+          } else if (
+            tgroupChildren.length === 1 &&
+            tgroupChildren[0]?.tag?.includes('transition-group')
+          ) {
+            const [child] = tgroupChildren;
+            const children = child.children || child.componentOptions?.children;
+            tableHasRows = !!children?.length > 0;
+          } else {
+            tableHasRows = true;
+          }
         }
 
         if (tbody.children) {
