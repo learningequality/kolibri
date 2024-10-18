@@ -22,6 +22,7 @@ export const events = {
   RESIZE: 'resize',
   LOADING: 'loading',
   ERROR: 'error',
+  BLOOMPAGESREAD: 'Pages Read',
 };
 
 export const DataTypes = {
