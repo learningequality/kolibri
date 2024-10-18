@@ -3,8 +3,8 @@
  * which has urls written into it at runtime by the Kolibri server.
  */
 
-import setWebpackPublicPath from '../utils/setWebpackPublicPath';
 import plugin_data from 'plugin_data';
+import setWebpackPublicPath from '../utils/setWebpackPublicPath';
 
 function generateUrl(baseUrl, { url, origin, port } = {}) {
   let urlObject = new URL(baseUrl, origin || window.location.origin);

@@ -16,7 +16,7 @@
         <slot name="header"></slot>
       </div>
 
-      <FocusTrap
+      <KFocusTrap
         ref="focusTrap"
         class="ui-menu-options"
         :disabled="!containFocus"
@@ -24,7 +24,7 @@
         @shouldFocusLastEl="focusLastEl"
       >
         <slot name="options"></slot>
-      </FocusTrap>
+      </KFocusTrap>
 
       <div
         v-if="$slots.footer"

@@ -17,7 +17,7 @@
           backgroundColor: $themeTokens.surface,
         }"
       >
-        <FocusTrap
+        <KFocusTrap
           @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
           @shouldFocusLastEl="focusLastEl"
         >
@@ -214,7 +214,7 @@
               :style="{ color: $themeTokens.text }"
             >{{ sideNavTitleText }}</span>
           </div>
-        </FocusTrap>
+        </KFocusTrap>
       </div>
     </transition>
 

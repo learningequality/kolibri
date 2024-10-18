@@ -1,6 +1,6 @@
 <template>
 
-  <FocusTrap
+  <KFocusTrap
     @shouldFocusFirstEl="focusFirstEl"
     @shouldFocusLastEl="focusLastEl"
   >
@@ -36,7 +36,7 @@
         </KRadioButtonGroup>
       </KGrid>
     </KModal>
-  </FocusTrap>
+  </KFocusTrap>
 
 </template>
 
