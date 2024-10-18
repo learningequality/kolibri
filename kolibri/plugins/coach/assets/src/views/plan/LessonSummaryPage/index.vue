@@ -54,8 +54,9 @@
             <template #[ReportsLessonTabs.REPORTS]>
               <ReportsLessonResourcesTable
                 ref="table"
-                editable
+                :editable="!$isPrint"
                 :entries="resourcesTable"
+                @change="handleResourcesChange"
               />
             </template>
             <template #[ReportsLessonTabs.LEARNERS]>
@@ -76,8 +77,9 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapActions, mapMutations } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import ReportsControls from '../../reports/ReportsControls';
@@ -87,6 +89,8 @@
   import ReportsLessonResourcesTable from '../../reports/ReportsLessonResourcesTable.vue';
   import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
   import ManageLessonModals from './ManageLessonModals';
+
+  const REMOVAL_SNACKBAR_TIME = 5000;
 
   export default {
     name: 'LessonSummaryPage',
@@ -103,16 +107,26 @@
       ReportsLessonResourcesTable,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { createSnackbar, clearSnackbar } = useSnackbar();
+      return { createSnackbar, clearSnackbar };
+    },
     data() {
+      const workingResourcesBackup = [...this.$store.state.lessonSummary.workingResources];
+
       return {
         currentAction: '',
         ReportsLessonTabs,
+        workingResourcesBackup,
         REPORTS_LESSON_TABS_ID,
       };
     },
     computed: {
       ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
+      classId() {
+        return this.currentLesson.classroom.id;
+      },
       loading() {
         return this.$store.state.core.loading;
       },
@@ -174,8 +188,19 @@
           return tableRow;
         });
       },
+      numberOfRemovals() {
+        return this.workingResourcesBackup.length - this.workingResources.length;
+      },
     },
     methods: {
+      ...mapActions('lessonSummary', [
+        'saveLessonResources',
+        'updateCurrentLesson',
+        'fetchLessonsSizes',
+      ]),
+      ...mapMutations('lessonSummary', {
+        setWorkingResources: 'SET_WORKING_RESOURCES',
+      }),
       handleSelectOption(action) {
         if (action === 'EDIT_DETAILS') {
           this.$router.push(this.$router.getRoute('LessonEditDetailsPage'));
@@ -206,6 +231,61 @@
             );
           }
         }
+      },
+      showResourcesRemovedNotification() {
+        const undo = () => {
+          this.save(this.workingResourcesBackup);
+          this.clearSnackbar();
+        };
+        const hide = () => {
+          if (this.workingResourcesBackup) {
+            // snackbar might carryover to another page (like select)
+            this.workingResourcesBackup = [...this.workingResources];
+          }
+        };
+        this.showSnackbarNotification(
+          'resourcesRemovedWithCount',
+          { count: this.numberOfRemovals },
+          {
+            autoDismiss: true,
+            duration: REMOVAL_SNACKBAR_TIME,
+            actionText: this.$tr('undoActionPrompt'),
+            actionCallback: undo,
+            hideCallback: hide,
+          },
+        );
+      },
+      async handleResourcesChange({ newArray }) {
+        const newResources = newArray.map(row => {
+          return this.workingResources.find(resource => resource.contentnode_id === row.node_id);
+        });
+        await this.save(newResources);
+        await this.$nextTick();
+        if (this.numberOfRemovals > 0) {
+          this.showResourcesRemovedNotification();
+        } else {
+          this.showSnackbarNotification('resourceOrderSaved');
+        }
+      },
+      async save(resources) {
+        this.setWorkingResources(resources);
+        try {
+          await this.saveLessonResources({
+            lessonId: this.lessonId,
+            resources,
+          });
+        } catch {
+          this.setWorkingResources(this.workingResourcesBackup);
+          this.createSnackbar(this.coachString('saveLessonError'));
+        }
+        await this.updateCurrentLesson(this.lessonId);
+        await this.fetchLessonsSizes({ classId: this.classId });
+      },
+    },
+    $trs: {
+      undoActionPrompt: {
+        message: 'Undo',
+        context: 'Allows user to undo an action.',
       },
     },
   };

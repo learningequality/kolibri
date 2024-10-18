@@ -131,11 +131,12 @@
         this.dragActive = true;
       },
       handleResourcesOrderChange({ newArray }) {
-        this.$emit('sort', { newArray });
+        this.$emit('change', { newArray });
         this.dragActive = false;
       },
       handleRemoveEntry(entry) {
-        this.$emit('remove', entry);
+        const newArray = this.entries.filter(({ node_id }) => node_id !== entry.node_id);
+        this.handleResourcesOrderChange({ newArray });
       },
       moveUpOne(oldIndex) {
         this.swap(oldIndex, oldIndex - 1);
