@@ -180,9 +180,9 @@
         redirectBrowser(downloadsUrl);
       },
       manageChannel() {
-        const deviceManagementUrl = urls['kolibri:kolibri.plugins.device:device_management']();
+        const deviceManagementUrl = urls['kolibri:kolibri.plugins.device:device_management'];
         if (this.canManageContent && deviceManagementUrl) {
-          redirectBrowser(deviceManagementUrl);
+          redirectBrowser(deviceManagementUrl());
         } else {
           this.bannerOpened = false;
         }
