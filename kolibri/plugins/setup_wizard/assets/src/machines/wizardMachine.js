@@ -1,6 +1,6 @@
 import uniq from 'lodash/uniq';
-import { checkCapability } from 'kolibri.utils.appCapabilities';
-import { Presets } from 'kolibri.coreVue.vuex.constants';
+import { checkCapability } from 'kolibri/utils/appCapabilities';
+import { Presets } from 'kolibri/constants';
 import { DeviceTypePresets, FacilityTypePresets, LodTypePresets, UsePresets } from '../constants';
 
 /**

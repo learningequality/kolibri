@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { Store } from 'vuex';
 import PinAuthenticationModal from '../PinAuthenticationModal';
 
-const store = new Vuex.Store({
+const store = new Store({
   modules: {
     facilityConfig: {
       namespaced: true,

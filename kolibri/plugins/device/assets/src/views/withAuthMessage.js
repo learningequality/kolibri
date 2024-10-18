@@ -1,7 +1,7 @@
-import Vue from 'kolibri.lib.vue';
-import logger from 'kolibri.lib.logging';
-import store from 'kolibri.coreVue.vuex.store';
-import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
+import Vue from 'vue';
+import logger from 'kolibri-logging';
+import store from 'kolibri/store';
+import AuthMessage from 'kolibri/components/AuthMessage';
 
 const logging = logger.getLogger(__filename);
 

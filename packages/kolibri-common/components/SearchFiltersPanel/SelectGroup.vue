@@ -56,8 +56,8 @@
 <script>
 
   import camelCase from 'lodash/camelCase';
-  import { ContentLevels, AccessibilityCategories } from 'kolibri.coreVue.vuex.constants';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ContentLevels, AccessibilityCategories } from 'kolibri/constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
 
   export default {

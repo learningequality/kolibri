@@ -59,7 +59,7 @@
 
   import get from 'lodash/get';
   import { mapActions, mapState } from 'vuex';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ReportErrorModal from './ReportErrorModal';
 
   export default {

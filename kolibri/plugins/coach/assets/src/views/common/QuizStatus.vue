@@ -309,14 +309,14 @@
 
 <script>
 
-  import { ExamResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
+  import ExamResource from 'kolibri-common/apiResources/ExamResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import Lockr from 'lockr';
-  import { QUIZ_REPORT_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
+  import { QUIZ_REPORT_VISIBILITY_MODAL_DISMISSED } from 'kolibri/constants';
   import { mapActions } from 'vuex';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { coachStringsMixin } from './commonCoachStrings';
   import Score from './Score';
   import Recipients from './Recipients';
@@ -519,7 +519,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   .grid-item {
     font-size: 14px;

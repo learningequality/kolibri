@@ -58,9 +58,9 @@
 
   import { mapGetters, mapState } from 'vuex';
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
-  import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
+  import { PermissionTypes, UserKinds } from 'kolibri/constants';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { deviceString } from '../commonDeviceStrings';
   import UserGrid from './UserGrid';

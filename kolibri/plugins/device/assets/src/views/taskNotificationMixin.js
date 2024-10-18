@@ -1,5 +1,5 @@
-import { createTranslator } from 'kolibri.utils.i18n';
-import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+import { createTranslator } from 'kolibri/utils/i18n';
+import useSnackbar from 'kolibri/composables/useSnackbar';
 import { PageNames } from '../constants';
 
 const TaskSnackbarStrings = createTranslator('TaskSnackbarStrings', {

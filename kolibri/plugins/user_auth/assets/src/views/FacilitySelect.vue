@@ -68,7 +68,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import partition from 'lodash/partition';
   import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';

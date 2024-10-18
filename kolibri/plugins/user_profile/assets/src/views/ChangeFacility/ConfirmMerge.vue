@@ -40,9 +40,9 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import { inject, ref } from 'kolibri.lib.vueCompositionApi';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import { inject, ref } from '@vue/composition-api';
   import commonProfileStrings from '../commonProfileStrings';
 
   export default {

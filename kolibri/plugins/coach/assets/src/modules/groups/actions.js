@@ -1,5 +1,6 @@
 import uniq from 'lodash/uniq';
-import { LearnerGroupResource, MembershipResource } from 'kolibri.resources';
+import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
+import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
 
 function _groupState(group) {
   return {

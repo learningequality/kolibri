@@ -230,19 +230,19 @@
 
 <script>
 
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import TimeDuration from 'kolibri-common/components/TimeDuration';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import camelCase from 'lodash/camelCase';
-  import { ContentLevels } from 'kolibri.coreVue.vuex.constants';
-  import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
+  import { ContentLevels } from 'kolibri/constants';
+  import DownloadButton from 'kolibri-common/components/DownloadButton';
   import get from 'lodash/get';
   import {
     licenseShortName,
     licenseLongName,
     licenseDescriptionForConsumer,
-  } from 'kolibri.utils.licenseTranslations';
+  } from 'kolibri/uiText/licenses';
   import LearnerNeeds from 'kolibri-constants/labels/Needs';
-  import { ContentNodeResource } from 'kolibri.resources';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import useContentLink from '../composables/useContentLink';
   import commonLearnStrings from './commonLearnStrings';

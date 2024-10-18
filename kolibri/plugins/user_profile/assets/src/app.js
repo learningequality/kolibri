@@ -1,7 +1,7 @@
-import router from 'kolibri.coreVue.router';
+import router from 'kolibri/router';
+import KolibriApp from 'kolibri-app';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
-import KolibriApp from 'kolibri_app';
 
 class UserProfileModule extends KolibriApp {
   get routes() {

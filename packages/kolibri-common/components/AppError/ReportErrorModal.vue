@@ -45,7 +45,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import TechnicalTextBlock from './TechnicalTextBlock';
 
   export default {

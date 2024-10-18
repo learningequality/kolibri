@@ -67,9 +67,9 @@
 
   import { mapState } from 'vuex';
   import find from 'lodash/find';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import urls from 'kolibri.urls';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import urls from 'kolibri/urls';
+  import useUser from 'kolibri/composables/useUser';
   import { PageNames } from '../constants';
   import CoachAppBarPage from './CoachAppBarPage';
   import commonCoach from './common';

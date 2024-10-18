@@ -3,12 +3,12 @@
  * and their duration.
  */
 
-import { computed } from 'kolibri.lib.vueCompositionApi';
+import { computed } from '@vue/composition-api';
 import { get } from '@vueuse/core';
 import CompletionCriteria from 'kolibri-constants/CompletionCriteria';
 import lodashGet from 'lodash/get';
-import { LearningActivities, ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import coreStrings from 'kolibri.utils.coreStrings';
+import { LearningActivities, ContentNodeKinds } from 'kolibri/constants';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 
 const DURATION_THRESHOLD = 60 * 30; // 30 minutes in seconds
 
@@ -154,6 +154,7 @@ export default function useLearningActivities(contentNode) {
         return coreStrings.$tr('shortExerciseGoalDescription', { count: m });
       }
     }
+    return '';
   });
 
   /**

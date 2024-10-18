@@ -2,19 +2,14 @@
  * A composable function containing logic related to channels
  */
 
-import {
-  computed,
-  getCurrentInstance,
-  ref,
-  onBeforeUnmount,
-  watch,
-} from 'kolibri.lib.vueCompositionApi';
-import { NetworkLocationResource, RemoteChannelResource } from 'kolibri.resources';
+import { computed, getCurrentInstance, ref, onBeforeUnmount, watch } from '@vue/composition-api';
+import { NetworkLocationResource } from 'kolibri-common/apiResources/NetworkLocationResource';
+import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
 import { get, set, useTimeoutPoll } from '@vueuse/core';
-import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
-import useUser from 'kolibri.coreVue.composables.useUser';
-import { localeCompare } from 'kolibri.utils.i18n';
-import plugin_data from 'plugin_data';
+import useMinimumKolibriVersion from 'kolibri/composables/useMinimumKolibriVersion';
+import useUser from 'kolibri/composables/useUser';
+import { localeCompare } from 'kolibri/utils/i18n';
+import plugin_data from 'kolibri-plugin-data';
 import { KolibriStudioId } from '../constants';
 import { learnStrings } from '../views/commonLearnStrings';
 import useChannels from './useChannels';

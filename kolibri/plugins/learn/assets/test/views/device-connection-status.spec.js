@@ -1,8 +1,8 @@
 import { shallowMount, mount } from '@vue/test-utils';
-import { useDevices } from 'kolibri.coreVue.componentSets.sync';
+import useDevices from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
 import DeviceConnectionStatus from '../../src/views/DeviceConnectionStatus';
 
-jest.mock('kolibri.coreVue.componentSets.sync');
+jest.mock('kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices');
 
 function makeWrapper({ propsData } = {}) {
   return mount(DeviceConnectionStatus, { propsData });

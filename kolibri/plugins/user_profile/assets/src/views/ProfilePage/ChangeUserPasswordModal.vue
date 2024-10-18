@@ -25,9 +25,9 @@
 
 <script>
 
-  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
 
   export default {
     name: 'ChangeUserPasswordModal',

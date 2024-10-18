@@ -39,9 +39,9 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { Presets } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import { Presets } from 'kolibri/constants';
   import { createFacility } from './api';
 
   export default {

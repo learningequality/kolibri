@@ -58,7 +58,7 @@
 <script>
 
   import camelCase from 'lodash/camelCase';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
 
   export default {

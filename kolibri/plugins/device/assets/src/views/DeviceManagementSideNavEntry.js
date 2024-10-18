@@ -1,9 +1,9 @@
 import { get } from '@vueuse/core';
-import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import useUser from 'kolibri.coreVue.composables.useUser';
-import registerNavItem from 'kolibri.utils.registerNavItem';
-import urls from 'kolibri.urls';
-import coreStrings from 'kolibri.utils.coreStrings';
+import { UserKinds } from 'kolibri/constants';
+import useUser from 'kolibri/composables/useUser';
+import { registerNavItem } from 'kolibri/composables/useNav';
+import urls from 'kolibri/urls';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import baseRoutes from '../routes/baseRoutes';
 import { deviceString } from './commonDeviceStrings';
 

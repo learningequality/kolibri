@@ -4,6 +4,7 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
+    "hammerjs": "^2.0.8",
     "intersection-observer": "0.12.2",
     "pdfjs-dist": "^2.16.105",
     "vue-virtual-scroller": "1.1.2",

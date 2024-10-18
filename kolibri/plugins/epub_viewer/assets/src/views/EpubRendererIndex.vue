@@ -170,7 +170,7 @@
   import clamp from 'lodash/clamp';
   import Lockr from 'lockr';
   import FocusLock from 'vue-focus-lock';
-  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';

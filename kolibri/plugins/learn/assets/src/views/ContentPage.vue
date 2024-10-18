@@ -104,13 +104,13 @@
 
   import get from 'lodash/get';
   import { mapState } from 'vuex';
-  import { ref } from 'kolibri.lib.vueCompositionApi';
-  import { ContentNodeResource } from 'kolibri.resources';
+  import { ref } from '@vue/composition-api';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import router from 'kolibri.coreVue.router';
+  import router from 'kolibri/router';
   import Modalities from 'kolibri-constants/Modalities';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useUser from 'kolibri/composables/useUser';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { setContentNodeProgress } from '../composables/useContentNodeProgress';
   import useProgressTracking from '../composables/useProgressTracking';
   import useContentLink from '../composables/useContentLink';

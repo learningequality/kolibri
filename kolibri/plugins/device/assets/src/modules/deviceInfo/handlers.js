@@ -1,9 +1,9 @@
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
-import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import bytesForHumans from 'kolibri.utils.bytesForHumans';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
+import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
+import bytesForHumans from 'kolibri/uiText/bytesForHumans';
 import { get } from '@vueuse/core';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import useUser from 'kolibri/composables/useUser';
 
 /* Function to fetch device info from the backend
  * and resolve validated data

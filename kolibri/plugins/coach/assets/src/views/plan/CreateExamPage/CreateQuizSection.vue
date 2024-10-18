@@ -313,23 +313,23 @@
 
 <script>
 
-  import { ref } from 'kolibri.lib.vueCompositionApi';
-  import logging from 'kolibri.lib.logging';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ref } from '@vue/composition-api';
+  import logging from 'kolibri-logging';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
     displayQuestionTitle,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import DragContainer from 'kolibri.coreVue.components.DragContainer';
-  import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
-  import Draggable from 'kolibri.coreVue.components.Draggable';
-  import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
+  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
+  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
+  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
+  import Draggable from 'kolibri-common/components/sortable/Draggable';
+  import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
-  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import FocusTrap from 'kolibri-common/components/FocusTrap';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';

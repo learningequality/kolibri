@@ -1,13 +1,13 @@
 import { shallowMount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import { BookmarksResource } from 'kolibri.resources';
+import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
 import LessonResourceSelectionPage from '../index.vue';
 import makeStore from '../../../../../test/makeStore';
 
-jest.mock('kolibri.client');
-jest.mock('kolibri.urls');
-jest.mock('kolibri.resources');
-jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri/client');
+jest.mock('kolibri/urls');
+jest.mock('kolibri-common/apiResources/BookmarksResource');
+jest.mock('kolibri/composables/useUser');
 
 const router = new VueRouter({
   routes: [

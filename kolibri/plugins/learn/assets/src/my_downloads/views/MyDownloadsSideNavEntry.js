@@ -1,8 +1,8 @@
-import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-import registerNavItem from 'kolibri.utils.registerNavItem';
-import coreStrings from 'kolibri.utils.coreStrings';
-import urls from 'kolibri.urls';
-import plugin_data from 'plugin_data';
+import { UserKinds, NavComponentSections } from 'kolibri/constants';
+import { registerNavItem } from 'kolibri/composables/useNav';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import urls from 'kolibri/urls';
+import plugin_data from 'kolibri-plugin-data';
 
 if (plugin_data.allowLearnerDownloads) {
   registerNavItem({

@@ -1,4 +1,6 @@
-import { ClassroomResource, MembershipResource, RoleResource } from 'kolibri.resources';
+import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
+import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
+import RoleResource from 'kolibri-common/apiResources/RoleResource';
 
 export function removeClassLearner(store, { classId, userId }) {
   if (!classId || !userId) {

@@ -1,6 +1,6 @@
 import find from 'lodash/find';
 import findLastIndex from 'lodash/findLastIndex';
-import { TaskTypes, TaskStatuses } from 'kolibri.utils.syncTaskUtils';
+import { TaskTypes, TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
 import wizard from '../wizard';
 import actions from './actions';
 

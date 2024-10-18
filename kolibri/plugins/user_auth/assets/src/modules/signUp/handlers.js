@@ -1,4 +1,4 @@
-import { FacilityResource } from 'kolibri.resources';
+import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import { ComponentMap } from '../../constants';
 
 export function showSignUpPage(store, fromRoute) {

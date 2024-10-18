@@ -40,8 +40,8 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSimple from '../common/status/StatusSimple';
   import TruncatedItemList from '../common/TruncatedItemList';

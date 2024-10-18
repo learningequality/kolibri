@@ -2,12 +2,12 @@
  * A composable function containing logic related to restarting the device
  */
 
-import { ref } from 'kolibri.lib.vueCompositionApi';
-import heartbeat from 'kolibri.heartbeat';
-import client from 'kolibri.client';
-import clientFactory from 'kolibri.utils.clientFactory';
-import urls from 'kolibri.urls';
-import plugin_data from 'plugin_data';
+import { ref } from '@vue/composition-api';
+import heartbeat from 'kolibri/heartbeat';
+import client from 'kolibri/client';
+import clientFactory from 'kolibri/utils/baseClient';
+import urls from 'kolibri/urls';
+import plugin_data from 'kolibri-plugin-data';
 
 // The refs are defined in the outer scope so they can be used as a shared store
 const restarting = ref(false);

@@ -1,5 +1,6 @@
-import { ClassroomResource, FacilityUserResource } from 'kolibri.resources';
-import { localeCompare } from 'kolibri.utils.i18n';
+import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
+import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import { localeCompare } from 'kolibri/utils/i18n';
 import { _userState } from '../mappers';
 
 export function sortUsersByFullName(users) {

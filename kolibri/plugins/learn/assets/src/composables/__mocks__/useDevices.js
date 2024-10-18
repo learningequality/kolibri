@@ -31,7 +31,7 @@
  * ```
  */
 
-import { ref } from 'kolibri.lib.vueCompositionApi';
+import { ref } from '@vue/composition-api';
 
 const MOCK_DEFAULTS = {
   fetchDevices: jest.fn(() => Promise.resolve([])),

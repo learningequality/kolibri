@@ -149,14 +149,14 @@
 <script>
 
   import pickBy from 'lodash/pickBy';
-  import { now } from 'kolibri.utils.serverClock';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { now } from 'kolibri/utils/serverClock';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
-  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+  import { computed, getCurrentInstance } from '@vue/composition-api';
   import { get } from '@vueuse/core';
-  import { createTranslator } from 'kolibri.utils.i18n';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useContentLink from '../../../composables/useContentLink';
   import useDevices from '../../../composables/useDevices';

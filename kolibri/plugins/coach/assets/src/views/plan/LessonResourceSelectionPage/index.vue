@@ -109,16 +109,16 @@
 <script>
 
   import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
-  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-  import { BookmarksResource } from 'kolibri.resources';
+  import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
+  import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
   import debounce from 'lodash/debounce';
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useUser from 'kolibri/composables/useUser';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import CoachImmersivePage from '../../CoachImmersivePage';

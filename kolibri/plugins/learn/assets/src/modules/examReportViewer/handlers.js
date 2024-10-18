@@ -1,5 +1,5 @@
-import { getExamReport } from 'kolibri.utils.exams';
-import router from 'kolibri.coreVue.router';
+import { getExamReport } from 'kolibri-common/quizzes/utils';
+import router from 'kolibri/router';
 import { ClassesPageNames } from '../../constants';
 
 function getExamReportFromState(state, params) {

@@ -37,7 +37,7 @@
 <script>
 
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
 
   export default {

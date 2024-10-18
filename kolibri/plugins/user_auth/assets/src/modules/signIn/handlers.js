@@ -1,8 +1,8 @@
 import Lockr from 'lockr';
-import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri.coreVue.vuex.constants';
-import { createTranslator } from 'kolibri.utils.i18n';
-import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri/constants';
+import { createTranslator } from 'kolibri/utils/i18n';
+import useSnackbar from 'kolibri/composables/useSnackbar';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 
 const snackbarTranslator = createTranslator('UserPageSnackbars', {

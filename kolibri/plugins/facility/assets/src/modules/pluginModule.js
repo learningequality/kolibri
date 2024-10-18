@@ -1,5 +1,5 @@
 import find from 'lodash/find';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import { pageNameToModuleMap, PageNames } from '../constants';
 import classAssignMembers from './classAssignMembers';

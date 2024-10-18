@@ -71,7 +71,7 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
 
   export default {
     name: 'ChannelDetails',

@@ -59,8 +59,8 @@
 
   import last from 'lodash/last';
   import uniqBy from 'lodash/uniqBy';
-  import { computed } from 'kolibri.lib.vueCompositionApi';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { computed } from '@vue/composition-api';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { get } from '@vueuse/core';
   import CardGrid from '../cards/CardGrid';
   import QuizCard from '../cards/QuizCard';

@@ -1,6 +1,6 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import Vuex from 'vuex';
+import Vuex, { Store } from 'vuex';
 import DeviceSettingsPage from '../index.vue';
 import usePlugins, {
   // eslint-disable-next-line import/named
@@ -11,9 +11,9 @@ import { getPathPermissions, getDeviceURLs, getDeviceSettings, getPathsPermissio
 import { getFreeSpaceOnServer } from '../../AvailableChannelsPage/api';
 
 jest.mock('../../../composables/usePlugins');
-jest.mock('kolibri.urls');
+jest.mock('kolibri/urls');
 
-jest.mock('plugin_data', () => {
+jest.mock('kolibri-plugin-data', () => {
   return {
     __esModule: true,
     default: {
@@ -53,7 +53,7 @@ const DeviceSettingsData = {
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
-const store = new Vuex.Store({
+const store = new Store({
   state: {},
   getters: {
     isAppContext: () => false,

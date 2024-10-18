@@ -92,12 +92,12 @@
 
 <script>
 
-  import vue from 'kolibri.lib.vue';
+  import vue from 'vue';
   import { mapActions, mapState, mapGetters } from 'vuex';
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
-  import { languageIdToCode } from 'kolibri.utils.i18n';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { languageIdToCode } from 'kolibri/utils/i18n';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import Settings from '../utils/settings';
   import { ReplayButton, ForwardButton } from './customButtons';

@@ -1,12 +1,12 @@
 import Cookies from 'js-cookie';
 import { get } from '@vueuse/core';
-import router from 'kolibri.coreVue.router';
-import { IsPinAuthenticated } from 'kolibri.coreVue.vuex.constants';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import router from 'kolibri/router';
+import { IsPinAuthenticated } from 'kolibri/constants';
+import useUser from 'kolibri/composables/useUser';
+import KolibriApp from 'kolibri-app';
 import RootVue from './views/DeviceIndex';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
-import KolibriApp from 'kolibri_app';
 
 let viewPlugin = false;
 

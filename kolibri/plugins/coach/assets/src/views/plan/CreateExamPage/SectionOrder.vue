@@ -87,17 +87,17 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import { computed, ref } from 'kolibri.lib.vueCompositionApi';
+  import { computed, ref } from '@vue/composition-api';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import Draggable from 'kolibri.coreVue.components.Draggable';
-  import DragContainer from 'kolibri.coreVue.components.DragContainer';
-  import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
+  import Draggable from 'kolibri-common/components/sortable/Draggable';
+  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
+  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
+  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
   import { PageNames } from '../../../constants/index';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import useDrag from './useDrag.js';

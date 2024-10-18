@@ -38,7 +38,7 @@
 
 <script>
 
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import ClipboardJS from 'clipboard';
 
   export default {

@@ -1,14 +1,12 @@
 import { mount } from '@vue/test-utils';
-import { TaskResource } from 'kolibri.resources';
+import TaskResource from 'kolibri/apiResources/TaskResource';
 import LoadingTaskPage from '../LoadingTaskPage';
 
-jest.mock('kolibri.resources', () => ({
-  TaskResource: {
-    cancel: jest.fn(),
-    clearAll: jest.fn(),
-    restart: jest.fn(),
-    list: jest.fn(),
-  },
+jest.mock('kolibri/apiResources/TaskResource', () => ({
+  cancel: jest.fn(),
+  clearAll: jest.fn(),
+  restart: jest.fn(),
+  list: jest.fn(),
 }));
 
 const cancelTaskMock = TaskResource.cancel;

@@ -1,7 +1,7 @@
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
-import { MasteryModelTypes } from 'kolibri.coreVue.vuex.constants';
-import { getContentLangActive } from 'kolibri.utils.i18n';
+import { MasteryModelTypes } from 'kolibri/constants';
+import { getContentLangActive } from 'kolibri/utils/i18n';
 
 export function deduplicateResources(contentNodes) {
   const grouped = groupBy(contentNodes, 'content_id');

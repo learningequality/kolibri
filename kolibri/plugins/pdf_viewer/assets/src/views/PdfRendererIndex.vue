@@ -125,12 +125,12 @@
   import Hammer from 'hammerjs';
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
-  import logger from 'kolibri.lib.logging';
+  import logger from 'kolibri-logging';
   // polyfill necessary for recycle list
   import 'intersection-observer';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
   import '../utils/domPolyfills';
   import { EventBus } from '../utils/event_utils';
   import RecyclableScroller from './RecyclableScroller';

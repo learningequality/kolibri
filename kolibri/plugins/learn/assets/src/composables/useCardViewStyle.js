@@ -1,5 +1,5 @@
 import { get } from '@vueuse/core';
-import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+import { computed, getCurrentInstance } from '@vue/composition-api';
 
 const cardViewStyleQueryParam = 'cardViewStyle';
 

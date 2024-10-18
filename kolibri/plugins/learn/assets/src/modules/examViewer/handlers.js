@@ -1,8 +1,8 @@
-import { ExamResource } from 'kolibri.resources';
-import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { fetchExamWithContent } from 'kolibri.utils.exams';
-import shuffled from 'kolibri.utils.shuffled';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import ExamResource from 'kolibri-common/apiResources/ExamResource';
+import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
+import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
+import shuffled from 'kolibri-common/utils/shuffled';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';

@@ -51,8 +51,8 @@
 
 <script>
 
-  import { validateLinkObject } from 'kolibri.utils.validators';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { validateLinkObject } from 'kolibri/utils/validators';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import LearningActivityIcon from './../ResourceDisplayAndSearch/LearningActivityIcon.vue';
 

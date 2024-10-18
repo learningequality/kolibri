@@ -10,8 +10,8 @@ import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
 import VueCompositionApi from '@vue/composition-api';
 import Vuex from 'vuex';
-import logging from 'kolibri.lib.logging';
-import { i18nSetup } from 'kolibri.utils.i18n';
+import logging from 'kolibri-logging';
+import { i18nSetup } from 'kolibri/utils/i18n';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 
 /* eslint-disable vue/one-component-per-file */

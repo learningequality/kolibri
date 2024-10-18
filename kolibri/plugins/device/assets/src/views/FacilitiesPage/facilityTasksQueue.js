@@ -1,7 +1,5 @@
-// Mixin that can be used for a component to view and manage
-// the task queue
-import { TaskResource } from 'kolibri.resources';
-import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+import TaskResource from 'kolibri/apiResources/TaskResource';
+import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 
 function isSyncTask(task) {
   return task.type === TaskTypes.SYNCDATAPORTAL || task.type === TaskTypes.SYNCPEERFULL;
