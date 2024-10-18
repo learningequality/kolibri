@@ -16,7 +16,7 @@
           </template>
         </QuizLessonDetailsHeader>
       </KGridItem>
-      <KGridItem :layout12="{ span: 4 }">
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 4 }">
         <h2 class="visuallyhidden">
           {{ coachString('generalInformationLabel') }}
         </h2>
@@ -26,43 +26,46 @@
           :groupNames="getRecipientNamesForLesson(currentLesson)"
         />
       </KGridItem>
-      <KGridItem :layout12="{ span: 8 }">
-        <KPageContainer>
-          <div class="lesson-summary">
-            <div>
-              <div class="resource-list">
-                <div class="resource-list-header">
-                  <div class="resource-list-header-title-block">
-                    <h2 class="resource-list-header-title">
-                      {{ coreString('resourcesLabel') }}
-                    </h2>
-                  </div>
-                  <div class="resource-list-header-add-resource-button">
-                    <KRouterLink
-                      :to="lessonSelectionRootPage"
-                      :text="coachString('manageResourcesAction')"
-                      :primary="true"
-                      appearance="raised-button"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <ResourceListTable v-if="workingResources.length" />
-
-              <p
-                v-else
-                class="no-resources-message"
-              >
-                {{ coachString('noResourcesInLessonLabel') }}
-              </p>
-
-              <ManageLessonModals
-                :currentAction="currentAction"
-                @cancel="currentAction = ''"
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 8 }">
+        <KPageContainer
+          v-if="!loading"
+          :topMargin="$isPrint ? 0 : 16"
+        >
+          <KRouterLink
+            :to="lessonSelectionRootPage"
+            :text="coachString('manageResourcesAction')"
+            :primary="true"
+            appearance="raised-button"
+          />
+          <ReportsControls @export="exportCSV" />
+          <HeaderTabs :enablePrint="true">
+            <KTabsList
+              ref="tabList"
+              :tabsId="REPORTS_LESSON_TABS_ID"
+              :ariaLabel="coachString('detailsLabel')"
+              :activeTabId="activeTabId"
+              :tabs="tabs"
+            />
+          </HeaderTabs>
+          <KTabsPanel
+            :tabsId="REPORTS_LESSON_TABS_ID"
+            :activeTabId="activeTabId"
+          >
+            <template #[ReportsLessonTabs.REPORTS]>
+              <ReportsLessonResourcesTable
+                ref="table"
+                editable
+                :entries="resourcesTable"
               />
-            </div>
-          </div>
+            </template>
+            <template #[ReportsLessonTabs.LEARNERS]>
+              <div>Hola mundo</div>
+            </template>
+          </KTabsPanel>
+          <ManageLessonModals
+            :currentAction="currentAction"
+            @cancel="currentAction = ''"
+          />
         </KPageContainer>
       </KGridItem>
     </KGrid>
@@ -75,12 +78,15 @@
 
   import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import CoachAppBarPage from '../../CoachAppBarPage';
   import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
+  import ReportsControls from '../../reports/ReportsControls';
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
-  import ManageLessonModals from './ManageLessonModals';
-  import ResourceListTable from './ResourceListTable';
+  import { LessonsPageNames } from '../../../constants/lessonsConstants';
+  import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../../constants/tabsConstants';
+  import ReportsLessonResourcesTable from '../../reports/ReportsLessonResourcesTable.vue';
   import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
+  import ManageLessonModals from './ManageLessonModals';
 
   export default {
     name: 'LessonSummaryPage',
@@ -90,20 +96,23 @@
       };
     },
     components: {
+      ReportsControls,
       CoachAppBarPage,
-      ResourceListTable,
       ManageLessonModals,
       LessonOptionsDropdownMenu,
+      ReportsLessonResourcesTable,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         currentAction: '',
+        ReportsLessonTabs,
+        REPORTS_LESSON_TABS_ID,
       };
     },
     computed: {
       ...mapState('classSummary', { classId: 'id' }),
-      ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
+      ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
       loading() {
         return this.$store.state.core.loading;
       },
@@ -113,6 +122,58 @@
       lessonSelectionRootPage() {
         return selectionRootLink({ lessonId: this.lessonId, classId: this.classId });
       },
+      activeTabId() {
+        const { tabId } = this.$route.params;
+        if (Object.values(ReportsLessonTabs).includes(tabId)) {
+          return tabId;
+        }
+        return ReportsLessonTabs.REPORTS;
+      },
+      tabs() {
+        const tabsList = [
+          {
+            id: ReportsLessonTabs.REPORTS,
+            label: this.coreString('resourcesLabel'),
+          },
+          {
+            id: ReportsLessonTabs.LEARNERS,
+            label: this.coachString('learnersLabel'),
+          },
+        ];
+
+        tabsList.forEach(tab => {
+          tab.to = this.classRoute(LessonsPageNames.SUMMARY, { tabId: tab.id });
+        });
+
+        return tabsList;
+      },
+      recipients() {
+        return this.getLearnersForLesson(this.currentLesson);
+      },
+      resourcesTable() {
+        return this.workingResources.map(resource => {
+          const content = this.resourceCache[resource.contentnode_id];
+          if (!content) {
+            return this.missingResourceObj(resource.contentnode_id);
+          }
+
+          const tally = this.getContentStatusTally(content.content_id, this.recipients);
+          const tableRow = {
+            ...content,
+            node_id: content.id,
+            avgTimeSpent: this.getContentAvgTimeSpent(content.content_id, this.recipients),
+            tally,
+            hasAssignments: Object.values(tally).reduce((a, b) => a + b, 0),
+          };
+
+          const link = this.resourceLink(tableRow);
+          if (link) {
+            tableRow.link = link;
+          }
+
+          return tableRow;
+        });
+      },
     },
     methods: {
       handleSelectOption(action) {
@@ -120,6 +181,30 @@
           this.$router.push(this.$router.getRoute('LessonEditDetailsPage'));
         } else {
           this.currentAction = action;
+        }
+      },
+      exportCSV() {
+        if (typeof this.$refs.table.exportCSV === 'function') {
+          this.$refs.table.exportCSV();
+        }
+      },
+      resourceLink(resource) {
+        if (resource.hasAssignments) {
+          if (resource.kind === this.ContentNodeKinds.EXERCISE) {
+            return this.classRoute(
+              this.group
+                ? 'ReportsGroupReportLessonExerciseLearnerListPage'
+                : 'ReportsLessonExerciseLearnerListPage',
+              { exerciseId: resource.content_id },
+            );
+          } else {
+            return this.classRoute(
+              this.group
+                ? 'ReportsGroupReportLessonResourceLearnerListPage'
+                : 'ReportsLessonResourceLearnerListPage',
+              { resourceId: resource.content_id },
+            );
+          }
         }
       },
     },

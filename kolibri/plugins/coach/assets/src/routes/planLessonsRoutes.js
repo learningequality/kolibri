@@ -106,7 +106,7 @@ export default [
   },
   {
     name: LessonsPageNames.SUMMARY,
-    path: '/:classId/plan/lessonstemp/:lessonId',
+    path: '/:classId/plan/lessonstemp/:lessonId/:tabId?',
     component: LessonSummaryPage,
     handler(toRoute) {
       return showLessonSummaryPage(store, toRoute.params);
