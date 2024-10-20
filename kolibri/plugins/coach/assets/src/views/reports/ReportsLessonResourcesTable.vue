@@ -88,6 +88,7 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -95,6 +96,8 @@
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import Draggable from 'kolibri.coreVue.components.Draggable';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import StatusSummary from '../common/status/StatusSummary';
   import { coachStringsMixin } from '../common/commonCoachStrings';
 
@@ -111,6 +114,10 @@
     },
     mixins: [coachStringsMixin, commonCoreStrings],
     props: {
+      title: {
+        type: String,
+        default: '',
+      },
       entries: {
         type: Array,
         default: () => [],
@@ -124,6 +131,9 @@
       return {
         dragActive: false,
       };
+    },
+    computed: {
+      ...mapState('classSummary', { className: 'name' }),
     },
     methods: {
       handleDragStart() {
@@ -151,6 +161,23 @@
         newArray[oldIndex] = oldResource;
 
         this.handleResourcesOrderChange({ newArray });
+      },
+      /**
+       * @public
+       */
+      exportCSV() {
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.tally(),
+          ...csvFields.timeSpent('avgTimeSpent', this.coachString('avgTimeSpentLabel')),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          lesson: this.title,
+        });
+
+        exporter.export(this.entries);
       },
     },
     $trs: {

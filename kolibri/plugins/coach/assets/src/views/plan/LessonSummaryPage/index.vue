@@ -54,6 +54,7 @@
             <template #[ReportsLessonTabs.REPORTS]>
               <ReportsLessonResourcesTable
                 ref="table"
+                :title="currentLesson.title"
                 :editable="!$isPrint"
                 :entries="resourcesTable"
                 @change="handleResourcesChange"
