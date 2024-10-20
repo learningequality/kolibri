@@ -192,6 +192,13 @@
         return this.workingResourcesBackup.length - this.workingResources.length;
       },
     },
+    watch: {
+      loading(newVal, oldVal) {
+        if (!newVal && oldVal) {
+          this.workingResourcesBackup = [...this.$store.state.lessonSummary.workingResources];
+        }
+      },
+    },
     methods: {
       ...mapActions('lessonSummary', [
         'saveLessonResources',
