@@ -366,6 +366,8 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri-design-system/lib/styles/definitions';
+
   .drawer-panel {
     padding-bottom: 60px;
   }
