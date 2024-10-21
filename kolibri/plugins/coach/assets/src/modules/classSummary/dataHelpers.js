@@ -100,16 +100,10 @@ export default {
       const groups = getters.getGroupIdsForAssignment(assignment);
       const adHocLearners = assignment.learner_ids;
 
-      let learners;
-      const totalLearnersInClass = Object.keys(state.learnerMap).length;
-
-      if (getters.getLearnersForGroups(groups).length === totalLearnersInClass) {
-        learners = adHocLearners;
-      } else {
-        learners = uniq(adHocLearners.concat(getters.getLearnersForGroups(groups)));
-      }
-
-      return adHocLearners.length ? learners : getters.getLearnersForGroups(groups);
+      // NOTE: getters.getLearnersForGroups returns the learner_ids of the whole class
+      // when no groups exist.
+      const learnersFromGroups = groups.length ? getters.getLearnersForGroups(groups) : [];
+      return uniq(adHocLearners.concat(learnersFromGroups));
     };
   },
   /*
