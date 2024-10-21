@@ -375,12 +375,12 @@
       recipientOptions() {
         const groupOptions = this.groups.map(group => ({
           label: group.name,
-          value: group.name,
+          value: group.id,
         }));
 
         const learnerOptions = this.learners.map(learner => ({
           label: learner.name,
-          value: learner.name,
+          value: learner.id,
         }));
 
         return [
@@ -412,6 +412,15 @@
           selectedExams = this.endedExams;
         } else {
           selectedExams = this.quizzes;
+        }
+
+        const recipientsFilter = this.recipientSelected.value;
+
+        if (recipientsFilter !== this.entireClassLabel$()) {
+          selectedExams = selectedExams.filter(
+            exam =>
+              exam.groups.includes(recipientsFilter) || exam.learner_ids.includes(recipientsFilter),
+          );
         }
 
         return selectedExams.map(quiz => {
