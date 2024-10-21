@@ -1,4 +1,4 @@
-Feature: Enhanced quiz management
+Feature: Quizzes
   Coaches need to be able to customize quizzes by swapping out questions or editing questions to create the quiz they want.
 
 	Background:
@@ -71,6 +71,17 @@ Feature: Enhanced quiz management
     When I click on the title of the quiz
     Then I see the quiz details page
       And I can see that the changes I've made are visible there
+
+  Scenario: Coach can reassign a quiz
+    Given I am at the quiz details page
+    When I click the *...* button
+      And I select *Edit details*
+    Then I see the full-page *Edit quiz details* modal
+    When I change the *Recipients* by selecting one of the groups or some individual learners
+      And I click *Save and close* button
+    Then I am back at *Coach - '<class>' > Quizzes
+      	And I see the snackbar message *Changes saved successfully*
+				And I see the change under *Recipients* in the quizzes table
 
   Scenario: Coach can copy a not started quiz
     Given there is a quiz which is not started yet
