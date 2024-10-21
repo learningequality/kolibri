@@ -189,7 +189,7 @@ export default class MainClient {
     this.on(events.STATEUPDATE, callback);
   }
 
-  onProgressUpdate(callback) {
-    this.on(events.PROGRESSUPDATE, callback);
+  onUserDataUpdate(callback) {
+    this.on(events.USERDATAUPDATE, callback);
   }
 }
