@@ -144,6 +144,8 @@
 
 <style scoped lang="scss">
 
+  @import '~kolibri-design-system/lib/styles/definitions';
+
   .pdf-sidebar {
     overflow-y: auto;
     @extend %dropshadow-2dp;
