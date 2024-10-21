@@ -53,7 +53,7 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonLearnStrings from '../commonLearnStrings';
   import useContentLink from '../../composables/useContentLink';
-  
+
   export default {
     name: 'TopicsPanelModal',
     components: { SidePanelModal },
