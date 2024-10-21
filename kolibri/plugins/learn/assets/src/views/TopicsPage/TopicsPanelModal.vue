@@ -53,7 +53,7 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonLearnStrings from '../commonLearnStrings';
   import useContentLink from '../../composables/useContentLink';
-
+  
   export default {
     name: 'TopicsPanelModal',
     components: { SidePanelModal },
@@ -100,6 +100,8 @@
 
 
 <style lang="scss" scoped>
+
+  @import '~kolibri-design-system/lib/styles/definitions';
 
   .drawer-panel {
     padding-bottom: 60px;
