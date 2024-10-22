@@ -602,6 +602,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Activity type',
     context: 'Indicate the kind of learning activity, such as: reading, listening, watching, etc.',
   },
+  multipleLearningActivities: {
+    message: 'Multiple learning activities',
+    context: 'Label indicating the resource contains several different learning activities.',
+  },
 
   // Library Categories
   school: {
