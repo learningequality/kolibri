@@ -643,7 +643,11 @@
       topics() {
         return this.contents
           .filter(content => content.kind === ContentNodeKinds.TOPIC)
-          .filter(t => t.children && t.children.results.length)
+          .filter(t => t.children && t.children.results.length);
+      },
+      topicsForDisplay() {
+        return this.topics
+          .filter(t => (this.subTopicId ? t.id === this.subTopicId : true))
           .map(t => {
             let topicChildren = t.children.results;
             const prefixTitles = [];
@@ -655,15 +659,8 @@
               topicChildren = t.children ? t.children.results : [];
             }
             t.prefixTitles = prefixTitles;
-            return t;
-          });
-      },
-      topicsForDisplay() {
-        return this.topics
-          .filter(t => (this.subTopicId ? t.id === this.subTopicId : true))
-          .map(t => {
             let childrenToDisplay;
-            const topicChildren = t.children ? t.children.results : [];
+            topicChildren = t.children ? t.children.results : [];
             if (this.subTopicId || this.topics.length === 1) {
               // If we are in a subtopic display, we should only be displaying this topic
               // so don't bother checking if the ids match.
