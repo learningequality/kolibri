@@ -131,6 +131,10 @@
               </template>
 
               <!-- display for each nested topic/folder  -->
+              <hr
+                v-if="topicsForDisplay.length"
+                class="divider"
+              >
               <!-- display all resources at the top level of the folder -->
               <LibraryAndChannelBrowserMainContent
                 v-if="resources.length"
@@ -1042,6 +1046,10 @@
   .page-loader {
     top: $toolbar-height;
     padding-top: 16px;
+  }
+
+  .divider {
+    margin-bottom: 24px;
   }
 
 </style>
