@@ -305,7 +305,7 @@ Feature: Quizzes
       And I see a *Bookmarks* card with the number of bookmarked exercises
     When I click on the *Bookmarks* card
     Then I see a list with the available bookmarked exercises
-    When I select an exercise
+    When I select one or several exercises
       And I click the *Add N questions* button
     Then I am back at the *Create new quiz* page
       And I see the *Question list* with all the imported questions

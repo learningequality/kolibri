@@ -1,4 +1,4 @@
-Feature: Lessons landing page
+Feature: Lessons
   Coach can see the lessons assigned to the class and the learner's progress in the lesson's summary page
 
   Background:
