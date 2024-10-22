@@ -175,6 +175,7 @@
         const exporter = new CSVExporter(columns, this.className);
         exporter.addNames({
           lesson: this.title,
+          resources: this.coreString('resourcesLabel'),
         });
 
         exporter.export(this.entries);

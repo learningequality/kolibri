@@ -75,6 +75,27 @@
         </KGridItem>
       </div>
 
+      <!-- Class name  -->
+      <div class="status-item">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Label"
+        >
+          {{ coachString('classLabel') }}
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
+          <div>
+            {{ className }}
+          </div>
+        </KGridItem>
+      </div>
+
       <!-- Lesson Sizes -->
       <div class="status-item">
         <KGridItem
@@ -88,6 +109,28 @@
             {{ bytesForHumans(lesson.size) }}
           </p>
           <KEmptyPlaceholder v-else />
+        </KGridItem>
+      </div>
+
+      <!-- Date created -->
+      <div class="status-item">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Label"
+        >
+          {{ coreString('dateCreated') }}
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
+          <ElapsedTime
+            :date="lessonDateCreated"
+            style="margin-top: 8px"
+          />
         </KGridItem>
       </div>
     </KGrid>
@@ -135,6 +178,7 @@
   import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import Lockr from 'lockr';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
@@ -143,7 +187,7 @@
 
   export default {
     name: 'LessonStatus',
-    components: { Recipients },
+    components: { Recipients, ElapsedTime },
     mixins: [coachStringsMixin, commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
@@ -184,6 +228,13 @@
       },
       userHasDismissedModal() {
         return Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
+      },
+      lessonDateCreated() {
+        if (this.lesson.date_created) {
+          return new Date(this.lesson.date_created);
+        } else {
+          return null;
+        }
       },
     },
     mounted() {

@@ -1,7 +1,8 @@
 <template>
 
-  <KButton
+  <KIconButton
     hasDropdown
+    icon="optionsHorizontal"
     appearance="flat-button"
     :text="coreString('optionsLabel')"
   >
@@ -11,7 +12,7 @@
         @select="$emit('select', $event.value)"
       />
     </template>
-  </KButton>
+  </KIconButton>
 
 </template>
 

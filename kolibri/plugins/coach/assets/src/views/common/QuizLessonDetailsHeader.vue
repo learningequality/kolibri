@@ -19,12 +19,6 @@
               :label="resource.title"
             />
           </h1>
-          <StatusElapsedTime
-            v-if="examOrLesson !== 'exam'"
-            v-show="!$isPrint"
-            :date="createdDate"
-            actionType="created"
-          />
         </div>
       </template>
       <template #options>
@@ -44,7 +38,6 @@
   import { mapState } from 'vuex';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import HeaderWithOptions from './HeaderWithOptions';
-  import StatusElapsedTime from './StatusElapsedTime';
   import BackLink from './BackLink';
 
   export default {
@@ -52,7 +45,6 @@
     components: {
       HeaderWithOptions,
       MissingResourceAlert,
-      StatusElapsedTime,
       BackLink,
     },
     props: {
@@ -82,13 +74,6 @@
       },
       resource() {
         return this.examOrLesson === 'lesson' ? this.lesson : this.exam;
-      },
-      createdDate() {
-        if (this[this.examOrLesson].date_created) {
-          return new Date(this[this.examOrLesson].date_created);
-        } else {
-          return null;
-        }
       },
     },
   };

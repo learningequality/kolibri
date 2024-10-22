@@ -9,6 +9,12 @@
           :backlink="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
         >
           <template #dropdown>
+            <KRouterLink
+              :to="lessonSelectionRootPage"
+              :text="coachString('manageResourcesAction')"
+              appearance="raised-button"
+              style="margin-right: 8px"
+            />
             <LessonOptionsDropdownMenu
               optionsFor="plan"
               @select="handleSelectOption"
@@ -31,12 +37,6 @@
           v-if="!loading"
           :topMargin="$isPrint ? 0 : 16"
         >
-          <KRouterLink
-            :to="lessonSelectionRootPage"
-            :text="coachString('manageResourcesAction')"
-            :primary="true"
-            appearance="raised-button"
-          />
           <ReportsControls @export="exportCSV" />
           <HeaderTabs :enablePrint="true">
             <KTabsList
