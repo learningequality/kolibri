@@ -61,7 +61,11 @@
               />
             </template>
             <template #[ReportsLessonTabs.LEARNERS]>
-              <div>Hola mundo</div>
+              <ReportsLessonLearnersTable
+                ref="table"
+                :title="currentLesson.title"
+                :entries="learnersTable"
+              />
             </template>
           </KTabsPanel>
           <ManageLessonModals
@@ -78,6 +82,7 @@
 
 <script>
 
+  import sortBy from 'lodash/sortBy';
   import { mapState, mapActions, mapMutations } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
@@ -87,7 +92,8 @@
   import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../../constants/tabsConstants';
-  import ReportsLessonResourcesTable from '../../reports/ReportsLessonResourcesTable.vue';
+  import ReportsLessonResourcesTable from '../../reports/ReportsLessonResourcesTable';
+  import ReportsLessonLearnersTable from '../../reports/ReportsLessonLearnersTable';
   import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
   import ManageLessonModals from './ManageLessonModals';
 
@@ -105,6 +111,7 @@
       CoachAppBarPage,
       ManageLessonModals,
       LessonOptionsDropdownMenu,
+      ReportsLessonLearnersTable,
       ReportsLessonResourcesTable,
     },
     mixins: [commonCoach, commonCoreStrings],
@@ -188,6 +195,21 @@
 
           return tableRow;
         });
+      },
+      learnersTable() {
+        const learners = this.recipients.map(learnerId => this.learnerMap[learnerId]);
+        const sorted = sortBy(learners, ['name']);
+
+        const table = sorted.map(learner => {
+          const tableRow = {
+            groups: this.getGroupNamesForLearner(learner.id),
+            status: this.getLessonStatusStringForLearner(this.lessonId, learner.id),
+            link: this.classRoute('ReportsLessonLearnerPage', { learnerId: learner.id }),
+          };
+          Object.assign(tableRow, learner);
+          return tableRow;
+        });
+        return table;
       },
       numberOfRemovals() {
         return this.workingResourcesBackup.length - this.workingResources.length;

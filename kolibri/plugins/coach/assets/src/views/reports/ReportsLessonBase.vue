@@ -48,7 +48,7 @@
             v-if="showResources"
             :entries="contentTable"
           />
-          <ReportsLessonLearnersList
+          <ReportsLessonLearnersTable
             v-else-if="showLearners"
             :entries="learnerTable"
           />
@@ -73,7 +73,7 @@
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';
   import ReportsControls from './ReportsControls';
-  import ReportsLessonLearnersList from './ReportsLessonLearnersList';
+  import ReportsLessonLearnersTable from './ReportsLessonLearnersTable';
   import ReportsLessonResourcesTable from './ReportsLessonResourcesTable.vue';
 
   export default {
@@ -82,7 +82,7 @@
       CoachAppBarPage,
       ReportsControls,
       LessonOptionsDropdownMenu,
-      ReportsLessonLearnersList,
+      ReportsLessonLearnersTable,
       ReportsLessonResourcesTable,
     },
     mixins: [commonCoach, commonCoreStrings],
