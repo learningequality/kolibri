@@ -60,8 +60,6 @@
 
       const tbodyCopy = [...this.$slots.tbody];
       tbodyCopy.forEach(tbody => {
-        // Need to check componentOptions if wrapped in <transition-group>, or just children
-        // if in regular <tbody>
         const tgroupChildren = get(tbody, 'componentOptions.children');
         if (tgroupChildren) {
           if (tgroupChildren.length === 0) {

@@ -10,15 +10,11 @@
     <template #tbody>
       <DragContainer
         :items="entries"
-        @dragStart="handleDragStart"
         @sort="handleResourcesOrderChange"
       >
         <transition-group
           tag="tbody"
           name="list"
-          :class="{
-            'is-dragging': dragActive,
-          }"
         >
           <Draggable
             v-for="(tableRow, index) in entries"
@@ -28,6 +24,7 @@
               <td>
                 <div class="resource-title">
                   <DragHandle v-if="editable">
+                    <!-- Mousedown.prevent is needed to avoid user selection -->
                     <DragSortWidget
                       class="sort-widget"
                       :moveUpText="$tr('moveResourceUpButtonDescription')"
@@ -36,6 +33,7 @@
                       :isLast="index === entries.length - 1"
                       @moveUp="moveUpOne(index)"
                       @moveDown="moveDownOne(index)"
+                      @mousedown.prevent
                     />
                   </DragHandle>
                   <KIcon
@@ -127,22 +125,12 @@
         default: false,
       },
     },
-    data() {
-      return {
-        dragActive: false,
-      };
-    },
     computed: {
       ...mapState('classSummary', { className: 'name' }),
     },
     methods: {
-      handleDragStart() {
-        // Used to mitigate the issue of text being selected while dragging
-        this.dragActive = true;
-      },
       handleResourcesOrderChange({ newArray }) {
         this.$emit('change', { newArray });
-        this.dragActive = false;
       },
       handleRemoveEntry(entry) {
         const newArray = this.entries.filter(({ node_id }) => node_id !== entry.node_id);
@@ -198,16 +186,12 @@
 
 <style scoped lang="scss">
 
-  .is-dragging {
-    user-select: none;
+  /deep/ .draggable-mirror {
+    /* Styles to fix styles errors for having a draggable tr with fixed position */
+    height: auto !important;
 
-    /deep/ .draggable-mirror {
-      /* Styles to fix styles errors for having a draggable tr with fixed position */
-      height: auto !important;
-
-      td {
-        width: 35%;
-      }
+    td {
+      width: 35%;
     }
   }
 

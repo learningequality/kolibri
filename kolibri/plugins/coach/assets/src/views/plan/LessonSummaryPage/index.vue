@@ -289,9 +289,10 @@
         const newResources = newArray.map(row => {
           return this.workingResources.find(resource => resource.contentnode_id === row.node_id);
         });
+        const removedResources = this.workingResources.length - newArray.length;
         await this.save(newResources);
         await this.$nextTick();
-        if (this.numberOfRemovals > 0) {
+        if (removedResources > 0) {
           this.showResourcesRemovedNotification();
         } else {
           this.showSnackbarNotification('resourceOrderSaved');
