@@ -404,11 +404,9 @@ def reset_connection_states(broadcast_id):
         connection_faults=0,
     )
 
-    # enqueue update tasks for all static locations except KDP
-    for static_location_id in (
-        StaticNetworkLocation.objects.all()
-        .values_list("id", flat=True)
-        .exclude(id=DATA_PORTAL_BASE_INSTANCE_ID)
+    # enqueue update tasks for all static locations
+    for static_location_id in StaticNetworkLocation.objects.all().values_list(
+        "id", flat=True
     ):
         perform_network_location_update.enqueue(
             job_id=generate_job_id(TYPE_CONNECT, static_location_id),
