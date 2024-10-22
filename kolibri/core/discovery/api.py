@@ -54,7 +54,7 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
         else:
             # Exclude both KDP and Studio
             queryset = NetworkLocation.objects.filter(
-                location_type=LocationTypes.Static
+                location_type__in=[LocationTypes.Static, LocationTypes.Dynamic]
             )
         return queryset
 
