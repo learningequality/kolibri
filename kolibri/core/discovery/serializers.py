@@ -3,9 +3,8 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 
 from .models import ConnectionStatus
-from .models import LocationTypes
-from .models import NetworkLocation
 from .models import PinnedDevice
+from .models import StaticNetworkLocation
 from .utils.network import errors
 from .utils.network.client import NetworkClient
 from kolibri.core.serializers import HexOnlyUUIDField
@@ -13,7 +12,7 @@ from kolibri.core.serializers import HexOnlyUUIDField
 
 class NetworkLocationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = NetworkLocation
+        model = StaticNetworkLocation
         fields = (
             "id",
             "available",
@@ -64,11 +63,6 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
         info = {k: v for (k, v) in client.device_info.items() if v is not None}
         data.update(info)
         return super(NetworkLocationSerializer, self).validate(data)
-
-    def create(self, validated_data):
-        # Ensure 'location_type' is set to 'static' when creating new instances
-        validated_data["location_type"] = LocationTypes.Static
-        return super(NetworkLocationSerializer, self).create(validated_data)
 
 
 class PinnedDeviceSerializer(ModelSerializer):
