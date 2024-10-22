@@ -108,8 +108,14 @@ export default [
     name: LessonsPageNames.SUMMARY,
     path: '/:classId/plan/lessonstemp/:lessonId/:tabId?',
     component: LessonSummaryPage,
-    handler(toRoute) {
-      return showLessonSummaryPage(store, toRoute.params);
+    handler(toRoute, fromRoute) {
+      if (
+        fromRoute.name !== LessonsPageNames.SUMMARY ||
+        toRoute.params.lessonId !== fromRoute.params.lessonId
+      ) {
+        return showLessonSummaryPage(store, toRoute.params);
+      }
+      store.dispatch('notLoading');
     },
     meta: {
       titleParts: ['LESSON_NAME', 'CLASS_NAME'],
@@ -119,8 +125,14 @@ export default [
     name: LessonsPageNames.SUMMARY,
     path: path(CLASS, LESSON),
     component: LessonSummaryPage,
-    handler(toRoute) {
-      return showLessonSummaryPage(store, toRoute.params);
+    handler(toRoute, fromRoute) {
+      if (
+        fromRoute.name !== LessonsPageNames.SUMMARY ||
+        toRoute.params.lessonId !== fromRoute.params.lessonId
+      ) {
+        return showLessonSummaryPage(store, toRoute.params);
+      }
+      store.dispatch('notLoading');
     },
     meta: {
       titleParts: ['LESSON_NAME', 'CLASS_NAME'],

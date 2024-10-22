@@ -46,6 +46,14 @@
               label: this.$tr('copyLessonAction'),
               value: 'COPY',
             },
+            {
+              label: this.coachString('printReportAction'),
+              value: 'PRINT_REPORT',
+            },
+            {
+              label: this.coachString('exportCSVAction'),
+              value: 'EXPORT',
+            },
             { label: this.coreString('deleteAction'), value: 'DELETE' },
           ];
         }

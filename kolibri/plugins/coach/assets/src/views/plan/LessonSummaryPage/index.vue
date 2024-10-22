@@ -232,10 +232,15 @@
         setWorkingResources: 'SET_WORKING_RESOURCES',
       }),
       handleSelectOption(action) {
-        if (action === 'EDIT_DETAILS') {
-          this.$router.push(this.$router.getRoute('LessonEditDetailsPage'));
-        } else {
-          this.currentAction = action;
+        switch (action) {
+          case 'EDIT_DETAILS':
+            return this.$router.push(this.$router.getRoute('LessonEditDetailsPage'));
+          case 'PRINT_REPORT':
+            return this.$print();
+          case 'EXPORT':
+            return this.exportCSV();
+          default:
+            this.currentAction = action;
         }
       },
       exportCSV() {

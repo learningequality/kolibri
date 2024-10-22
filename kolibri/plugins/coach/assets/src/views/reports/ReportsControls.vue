@@ -83,6 +83,7 @@
           'PLAN_LESSONS_ROOT',
           'PLAN_LESSONS_ROOT_BETTER',
           'EXAMS',
+          'SUMMARY',
         ].includes(this.$route.name);
       },
       classLearnersListRoute() {
