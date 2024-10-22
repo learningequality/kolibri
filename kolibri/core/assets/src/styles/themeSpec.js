@@ -153,7 +153,7 @@ export default {
           },
           paragraphArray: {
             type: Array,
-            default: [],
+            default: () => [],
           },
         },
       },
