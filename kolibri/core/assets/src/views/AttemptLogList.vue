@@ -39,6 +39,7 @@
             class="attempt-selected"
             :isSurvey="isSurvey"
             :attemptLog="selectedAttemptLog"
+            :questionNumber="selectedQuestionNumber + 1"
             displayTag="span"
           />
         </template>
@@ -48,6 +49,7 @@
             class="attempt-option"
             :isSurvey="isSurvey"
             :attemptLog="attemptLogsForCurrentSection[index]"
+            :questionNumber="index + 1"
             displayTag="span"
           />
         </template>
@@ -135,6 +137,7 @@
                     v-if="attemptLogsForCurrentSection[qIndex]"
                     :isSurvey="isSurvey"
                     :attemptLog="attemptLogsForCurrentSection[qIndex]"
+                    :questionNumber="qIndex + 1"
                     displayTag="p"
                   />
                 </a>
@@ -198,21 +201,15 @@
       // Computed property for attempt logs of the current section
       const attemptLogsForCurrentSection = computed(() => {
         const start = currentSection.value.startQuestionNumber;
-        return currentSection.value.questions.map((_, index) => {
-          return props.attemptLogs[start + index];
-        });
+        return props.attemptLogs.slice(start, start + currentSection.value.questions.length);
       });
 
       const questionSelectOptions = computed(() => {
-        return currentSection.value.questions.reduce((options, question, index) => {
-          if (attemptLogsForCurrentSection.value[index]) {
-            options.push({
-              value: index,
-              label: questionNumberLabel$({ questionNumber: index + 1 }),
-            });
-          }
-          return options;
-        }, []);
+        return currentSection.value.questions.map((question, index) => ({
+          value: index,
+          label: questionNumberLabel$({ questionNumber: index + 1 }),
+          disabled: !attemptLogsForCurrentSection.value[index],
+        }));
       });
 
       // The KSelect-shaped object for the current section
