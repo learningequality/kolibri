@@ -604,7 +604,7 @@
     transition: box-shadow $core-time ease;
 
     &:hover {
-      @extend %dropshadow-8dp;
+      @extend %dropshadow-6dp;
     }
 
     &:focus {

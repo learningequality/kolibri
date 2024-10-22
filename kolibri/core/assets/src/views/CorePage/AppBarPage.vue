@@ -204,13 +204,13 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .app-bar {
-    @extend %dropshadow-8dp;
+    @extend %dropshadow-2dp;
 
     width: 100%;
   }
 
   .android-nav-bottom-bar {
-    @extend %dropshadow-4dp;
+    @extend %dropshadow-1dp;
 
     position: fixed;
     right: 0;

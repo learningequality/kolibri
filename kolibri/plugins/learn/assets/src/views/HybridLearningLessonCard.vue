@@ -82,7 +82,7 @@
     @extend %dropshadow-1dp;
 
     &:hover {
-      @extend %dropshadow-4dp;
+      @extend %dropshadow-6dp;
     }
   }
 

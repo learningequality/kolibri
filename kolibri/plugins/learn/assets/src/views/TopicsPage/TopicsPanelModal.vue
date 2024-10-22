@@ -101,11 +101,15 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri-design-system/lib/styles/definitions';
+
   .drawer-panel {
     padding-bottom: 60px;
   }
 
   .side-panel {
+    @extend %dropshadow-2dp;
+
     position: fixed;
     top: 60px;
     left: 0;
@@ -113,7 +117,6 @@
     padding: 24px 24px 0;
     overflow-y: scroll;
     font-size: 14px;
-    box-shadow: 0 3px 3px 0 #00000040;
   }
 
   /*

@@ -132,7 +132,7 @@
 
     &:hover,
     &:focus {
-      @extend %dropshadow-8dp;
+      @extend %dropshadow-6dp;
     }
   }
 
