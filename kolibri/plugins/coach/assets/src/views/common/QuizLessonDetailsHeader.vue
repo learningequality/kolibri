@@ -9,24 +9,20 @@
     <!-- Cheating to get the same layout effect but not
            using a backlink...
       -->
-    <HeaderWithOptions>
-      <template #header>
-        <div>
-          <h1 class="exam-title">
-            <!-- KLabeledIcon does not have an 'exam' token, but rather 'quiz' -->
-            <KLabeledIcon
-              :icon="examOrLesson === 'exam' ? 'quiz' : 'lesson'"
-              :label="resource.title"
-            />
-          </h1>
-        </div>
-      </template>
-      <template #options>
-        <div>
-          <slot name="dropdown"></slot>
-        </div>
-      </template>
-    </HeaderWithOptions>
+    <div class="header">
+      <div>
+        <h1 class="exam-title">
+          <!-- KLabeledIcon does not have an 'exam' token, but rather 'quiz' -->
+          <KLabeledIcon
+            :icon="examOrLesson === 'exam' ? 'quiz' : 'lesson'"
+            :label="resource.title"
+          />
+        </h1>
+      </div>
+      <div>
+        <slot name="dropdown"></slot>
+      </div>
+    </div>
     <MissingResourceAlert v-if="resource.missing_resource" />
   </KPageContainer>
 
@@ -37,13 +33,11 @@
 
   import { mapState } from 'vuex';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
-  import HeaderWithOptions from './HeaderWithOptions';
   import BackLink from './BackLink';
 
   export default {
     name: 'QuizLessonDetailsHeader',
     components: {
-      HeaderWithOptions,
       MissingResourceAlert,
       BackLink,
     },
@@ -84,8 +78,15 @@
 <style lang="scss" scoped>
 
   .exam-title {
+    margin-top: 0;
     margin-bottom: 0;
-    font-size: 1.5rem;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
   }
 
   /deep/ .time-context {

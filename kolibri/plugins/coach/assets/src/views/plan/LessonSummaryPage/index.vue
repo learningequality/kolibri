@@ -38,7 +38,10 @@
           :topMargin="$isPrint ? 0 : 16"
         >
           <ReportsControls @export="exportCSV" />
-          <HeaderTabs :enablePrint="true">
+          <HeaderTabs
+            :enablePrint="true"
+            :style="{ marginBottom: '8px' }"
+          >
             <KTabsList
               ref="tabList"
               :tabsId="REPORTS_LESSON_TABS_ID"
