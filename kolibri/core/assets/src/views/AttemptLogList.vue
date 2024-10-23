@@ -65,7 +65,7 @@
         v-for="(section, index) in sections"
         :id="`section-questions-${index}`"
         :key="`section-questions-${index}`"
-        :title="displaySectionTitle(section, index) || sectionLabel$({ sectionNumber: index + 1 })"
+        :title="displaySectionTitle(section, index)"
         @focus="expand(index)"
       >
         <template
@@ -174,7 +174,7 @@
       AccordionItem,
     },
     setup(props, { emit }) {
-      const { questionsLabel$, quizSectionsLabel$, sectionLabel$ } = enhancedQuizManagementStrings;
+      const { questionsLabel$, quizSectionsLabel$ } = enhancedQuizManagementStrings;
       const { questionNumberLabel$ } = coreStrings;
       const { currentSectionIndex, sections, selectedQuestionNumber } = toRefs(props);
 
@@ -249,7 +249,6 @@
         displaySectionTitle,
         quizSectionsLabel$,
         questionsLabel$,
-        sectionLabel$,
         expand,
         isExpanded,
         toggle,
