@@ -4,7 +4,7 @@
     <div v-if="loading && !loadingMore">
       <KCircularLoader />
     </div>
-    <div v-else>
+    <div v-else-if="!showSearch">
       <h1
         v-if="selectPracticeQuiz"
         class="select-folder-style"
@@ -67,7 +67,7 @@
         </div>
       </div>
 
-      <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
+      <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks && !showSearch">
         <p>{{ coreString('selectFromBookmarks') }}</p>
 
         <div>
@@ -97,10 +97,10 @@
         :topicsLink="topicsLink"
       />
 
-      <LessonsSearchBox
+      <KButton
         v-if="!showBookmarks"
-        @clear="clearSearchTerm"
-        @searchterm="handleSearchTermChange"
+        text="👁️SEARCH👁️"
+        @click="showSearch = true"
       />
 
       <div
@@ -124,6 +124,7 @@
       </div>
 
       <ContentCardList
+        v-if="!showSearch"
         :contentList="contentList"
         :showSelectAll="showSelectAll"
         :viewMoreButtonState="viewMoreButtonState"
@@ -176,6 +177,19 @@
         />
       </div>
     </div>
+
+    <SearchFiltersPanel
+      v-if="showSearch"
+      ref="sidePanel"
+      v-model="searchTerms"
+      data-test="side-panel"
+      style="position: absolute"
+      width="100%"
+      :accordion="true"
+      :showActivities="false"
+      @close="showSearch = false"
+    />
+
     <KModal
       v-if="showCloseConfirmation"
       :submitText="coreString('continueAction')"
@@ -206,6 +220,8 @@
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
   import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import useBaseSearch from 'kolibri-common/composables/useBaseSearch';
+  import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
   import { exerciseToQuestionArray } from '../../../utils/selectQuestions';
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
   import BookmarkIcon from '../../lessons/LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
@@ -218,6 +234,7 @@
   export default {
     name: 'ResourceSelection',
     components: {
+      SearchFiltersPanel,
       ContentCardList,
       BookmarkIcon,
       LessonsSearchBox,
@@ -225,6 +242,7 @@
     },
     mixins: [commonCoreStrings],
     setup(props, context) {
+      const { searchTerms } = useBaseSearch({});
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
@@ -701,6 +719,7 @@
       }
 
       return {
+        showSearch: ref(false),
         nodeIsSelectableOrUnselectable,
         showCheckbox,
         displaySectionTitle,
@@ -765,6 +784,7 @@
         selectPracticeQuizLabel$,
         numberOfQuestionsLabel$,
         addNumberOfQuestions$,
+        searchTerms,
       };
     },
     props: {
