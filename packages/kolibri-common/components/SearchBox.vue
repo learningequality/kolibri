@@ -25,7 +25,7 @@
         class="search-input"
         :class="$computedClass(searchInputStyle)"
         dir="auto"
-        :placeholder="coreString(placeholder)"
+        :placeholder="placeholder"
       >
       <div class="search-buttons-wrapper">
         <KIconButton
@@ -62,6 +62,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import coreString from 'kolibri.utils.coreStrings';
 
   export default {
     name: 'SearchBox',
@@ -80,7 +81,7 @@
       },
       placeholder: {
         type: String,
-        default: 'searchLabel',
+        default: coreString.$tr('searchLabel'),
       },
       value: {
         type: String,

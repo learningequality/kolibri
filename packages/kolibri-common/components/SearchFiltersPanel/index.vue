@@ -24,89 +24,165 @@
       v-if="windowIsLarge || !currentCategory"
       :class="windowIsLarge ? '' : 'drawer-panel'"
     >
-      <!-- search by keyword -->
-      <h2 class="title">
-        {{ $tr('keywords') }}
-      </h2>
-      <SearchBox
-        key="channel-search"
-        ref="searchBox"
-        placeholder="findSomethingToLearn"
-        :value="value.keywords || ''"
-        @change="val => $emit('input', { ...value, keywords: val })"
-      />
       <div v-if="Object.keys(availableLibraryCategories).length">
-        <h2 class="section title">
-          {{ $tr('categories') }}
-        </h2>
-        <!-- list of category metadata - clicking prompts a filter modal -->
-        <div
-          v-for="(category, key) in availableLibraryCategories"
-          :key="key"
-          span="4"
-          class="category-list-item"
-        >
-          <KButton
-            :text="coreString(category.value)"
-            appearance="flat-button"
-            :appearanceOverrides="
-              isCategoryActive(category.value)
-                ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
-                : categoryListItemStyles
-            "
-            :disabled="
-              availableRootCategories &&
-                !availableRootCategories[category.value] &&
-                !isCategoryActive(category.value)
-            "
-            :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
-            @click="handleCategory(key)"
+        <div v-if="!accordion">
+          <!-- search by keyword -->
+          <h2 class="title">
+            {{ $tr('keywords') }}
+          </h2>
+          <SearchBox
+            key="channel-search"
+            ref="searchBox"
+            :placeholder="coreString('findSomethingToLearn')"
+            :value="value.keywords || ''"
+            @change="val => $emit('input', { ...value, keywords: val })"
           />
-        </div>
-        <div
-          span="4"
-          class="category-list-item"
-        >
-          <KButton
-            :text="coreString('uncategorized')"
-            appearance="flat-button"
-            :appearanceOverrides="
-              isCategoryActive('no_categories')
-                ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
-                : categoryListItemStyles
-            "
-            @click="noCategories"
+          <h2 class="section title">
+            {{ $tr('categories') }}
+          </h2>
+          <!-- list of category metadata - clicking prompts a filter modal -->
+          <div
+            v-for="(category, key) in availableLibraryCategories"
+            :key="key"
+            span="4"
+            class="category-list-item"
+          >
+            <KButton
+              :text="coreString(category.value)"
+              appearance="flat-button"
+              :appearanceOverrides="
+                isCategoryActive(category.value)
+                  ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+                  : categoryListItemStyles
+              "
+              :disabled="
+                availableRootCategories &&
+                  !availableRootCategories[category.value] &&
+                  !isCategoryActive(category.value)
+              "
+              :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
+              @click="handleCategory(key)"
+            />
+          </div>
+          <div
+            span="4"
+            class="category-list-item"
+          >
+            <KButton
+              :text="coreString('uncategorized')"
+              appearance="flat-button"
+              :appearanceOverrides="
+                isCategoryActive('no_categories')
+                  ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+                  : categoryListItemStyles
+              "
+              @click="noCategories"
+            />
+          </div>
+          <ActivityButtonsGroup
+            v-if="showActivities"
+            class="section"
+            @input="handleActivity"
           />
+          <!-- Filter results by learning activity, displaying all options -->
+          <SelectGroup
+            v-model="inputValue"
+            :showChannels="showChannels"
+            class="section"
+          />
+          <div
+            v-if="Object.keys(availableResourcesNeeded).length"
+            class="section"
+          >
+            <h2 class="title">
+              {{ coreString('showResources') }}
+            </h2>
+            <div
+              v-for="(val, activity) in availableResourcesNeeded"
+              :key="activity"
+              span="4"
+              alignment="center"
+            >
+              <KCheckbox
+                :checked="value.learner_needs[val]"
+                :label="coreString(activity)"
+                :disabled="availableNeeds && !availableNeeds[val]"
+                @change="handleNeed(val)"
+              />
+            </div>
+          </div>
         </div>
-      </div>
-      <ActivityButtonsGroup
-        class="section"
-        @input="handleActivity"
-      />
-      <!-- Filter results by learning activity, displaying all options -->
-      <SelectGroup
-        v-model="inputValue"
-        :showChannels="showChannels"
-        class="section"
-      />
-      <div
-        v-if="Object.keys(availableResourcesNeeded).length"
-        class="section"
-      >
-        <h2 class="title">
-          {{ coreString('showResources') }}
-        </h2>
-        <div
-          v-for="(val, activity) in availableResourcesNeeded"
-          :key="activity"
-          span="4"
-          alignment="center"
-        >
-          <KCheckbox
-            :checked="value.learner_needs[val]"
-            :label="coreString(activity)"
-            :disabled="availableNeeds && !availableNeeds[val]"
-            @change="handleNeed(val)"
+        <div v-if="accordion">
+          <!-- search by keyword -->
+          <h2 class="title">
+            {{ $tr('keywords') }}
+          </h2>
+          <SearchBox
+            key="channel-search"
+            ref="searchBox"
+            style="margin-bottom: 1em"
+            :placeholder="$tr('searchByKeyword')"
+            :value="value.keywords || ''"
+            @change="val => $emit('input', { ...value, keywords: val })"
+          />
+
+          <ActivityButtonsGroup
+            v-if="showActivities"
+            class="section"
+            @input="handleActivity"
+          />
+
+          <AccordionContainer style="margin-top: 1em">
+            <AccordionItem
+              :title="$tr('categoryLabel')"
+              :headerAppearanceOverrides="{
+                background: activeCategories.length
+                  ? selectedHighlightColor
+                  : $themePalette.grey.v_100,
+              }"
+            >
+              <template #content>
+                <KButton
+                  v-for="(category, key) in availableLibraryCategories"
+                  :key="'cat-' + key"
+                  appearance="flat-button"
+                  class="categoryButton"
+                  :style="{
+                    background: isCategoryActive(category.value) ? selectedHighlightColor : '',
+                  }"
+                  :text="coreString(category.value)"
+                  :disabled="
+                    availableRootCategories &&
+                      !availableRootCategories[category.value] &&
+                      !isCategoryActive(category.value)
+                  "
+                  @click="handleCategory(key)"
+                >
+                  <template #icon>
+                    <KIcon
+                      icon="categories"
+                      class="categoryIcon"
+                      :color="$themeTokens.primary"
+                    />
+                  </template>
+                  <template
+                    v-if="hasNestedCategories(key)"
+                    #iconAfter
+                  >
+                    <KIcon
+                      icon="chevronRight"
+                      class="categoryIconAfter"
+                    />
+                  </template>
+                </KButton>
+              </template>
+            </AccordionItem>
+          </AccordionContainer>
+
+          <AccordionSelectGroup
+            v-model="inputValue"
+            :showChannels="showChannels"
+            style="margin-top: 1em"
           />
         </div>
       </div>
@@ -127,14 +203,16 @@
 <script>
 
   //
-  // Usage of injectBaseSearch() in this component requires ancestor's use of useSearch
-  // Examples of it can be found in the following components:
+  // Usage of injectBaseSearch() in this component requires ancestor's use of useBaseSearch
+  // Examples of it can be found in the following components (Note: useSearch extends useBaseSearch):
   // - kolibri/plugins/learn/assets/src/views/LibraryPage/index.vue
   //   in https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/learn/assets/src/views/LibraryPage/index.vue#L238-L251
   // - kolibri/plugins/learn/assets/src/views/TopicsPage/index.vue
   //   in https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/learn/assets/src/views/TopicsPage/index.vue#L366-L378
   //
 
+  import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
+  import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import { NoCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
@@ -146,6 +224,7 @@
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import CategorySearchModal from './CategorySearchModal';
   import SelectGroup from './SelectGroup';
+  import AccordionSelectGroup from './AccordionSelectGroup';
 
   export default {
     name: 'SearchFiltersPanel',
@@ -155,6 +234,9 @@
       SelectGroup,
       CategorySearchModal,
       SidePanelModal,
+      AccordionItem,
+      AccordionContainer,
+      AccordionSelectGroup,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -175,9 +257,18 @@
         searchableLabels,
         activeSearchTerms,
         windowIsLarge,
+        // This color is not in KDS but was specifically requested in the design
+        selectedHighlightColor: '#ECF0FE',
       };
     },
     props: {
+      /**
+       * When true, options are presented using accordions rather than buttons & dropdowns
+       */
+      accordion: {
+        type: Boolean,
+        default: false,
+      },
       value: {
         type: Object,
         required: true,
@@ -199,6 +290,10 @@
         default: null,
       },
       showChannels: {
+        type: Boolean,
+        default: true,
+      },
+      showActivities: {
         type: Boolean,
         default: true,
       },
@@ -354,6 +449,15 @@
         message: 'Keywords',
         context: 'Section header label in the Library page sidebar.',
       },
+      searchByKeyword: {
+        message: 'Search by keyword',
+        context: 'Placeholder text in the search box, which is otherwise not labelled',
+      },
+      categoryLabel: {
+        message: 'Category',
+        context:
+          'When user can select the categories, this is the header for the categories section',
+      },
       categories: {
         message: 'Categories',
         context: 'Section header label in the Library page sidebar.',
@@ -411,14 +515,38 @@
     margin-left: 20px;
   }
 
-  /deep/ .prop-icon {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-  }
-
   .title {
     margin-bottom: 16px;
+  }
+
+  .categoryIcon {
+    position: absolute;
+    top: 50%;
+    left: 0.5em;
+    transform: translateY(-50%);
+  }
+
+  .categoryIconAfter {
+    position: absolute;
+    top: 50%;
+    right: 0.5em;
+    transform: translateY(-50%);
+  }
+
+  .categoryButton {
+    // Ensure the child KIcons' absolute positioning anchors to this button
+    position: relative;
+    width: 100%;
+    // 0.5em around except on the right where the category icon is
+    padding: 0 0.5em 0 2.25em;
+    font-weight: normal;
+    text-align: left;
+    // KButton text formatting overrides
+    text-transform: unset;
+  }
+
+  .categoryButton:not(:last-child) {
+    margin-bottom: 0.5em;
   }
 
 </style>
