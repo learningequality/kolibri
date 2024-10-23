@@ -120,7 +120,7 @@
               <template v-for="(c, i) in contentsForDisplay">
                 <hr
                   v-if="!c.children && i > 0"
-                  :key="i"
+                  :key="'divider_' + i"
                   class="divider"
                 >
                 <TopicSubsection
@@ -136,7 +136,7 @@
                 />
                 <LibraryAndChannelBrowserMainContent
                   v-else
-                  :key="i"
+                  :key="'grid_' + i"
                   :allowDownloads="allowDownloads"
                   data-test="search-results"
                   :contents="c"
@@ -632,10 +632,8 @@
         return this.contents
           .filter(
             c =>
-              c.kind !== ContentNodeKinds.TOPIC ||
-              ((this.subTopicId ? c.id === this.subTopicId : true) &&
-                c.children &&
-                c.children.results.length),
+              (this.subTopicId ? c.id === this.subTopicId : true) &&
+              (c.kind !== ContentNodeKinds.TOPIC || (c.children && c.children.results.length)),
           )
           .reduce((arr, c) => {
             // Reduce the list to objects representing topics,
@@ -900,6 +898,7 @@
               this.$store.dispatch('handleApiError', { error: err });
             });
         }
+        return Promise.resolve();
       },
       handleLoadMoreInSubtopic(topicId) {
         this.subTopicLoading = topicId;
