@@ -7,7 +7,7 @@ from requests.exceptions import Timeout
 
 from kolibri.core.analytics.utils import DEFAULT_SERVER_URL
 from kolibri.core.analytics.utils import ping_once
-from kolibri.core.errorreports.tasks import ping_error_reports
+from kolibri.core.error_reports.tasks import ping_error_reports
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.main import job_storage

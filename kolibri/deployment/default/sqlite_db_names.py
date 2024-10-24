@@ -10,7 +10,7 @@ NETWORK_LOCATION = "networklocation"
 
 NOTIFICATIONS = "notifications"
 
-ERROR_REPORTS = "errorreports"
+ERROR_REPORTS = "error_reports"
 
 
 ADDITIONAL_SQLITE_DATABASES = (

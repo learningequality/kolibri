@@ -13,5 +13,4 @@ urlpatterns = [
     re_path(r"^discovery/", include("kolibri.core.discovery.api_urls")),
     re_path(r"^notifications/", include("kolibri.core.analytics.api_urls")),
     re_path(r"^public/", include("kolibri.core.public.api_urls")),
-    re_path(r"^errorreports/", include("kolibri.core.errorreports.api_urls")),
 ]

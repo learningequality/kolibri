@@ -4,11 +4,8 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-from .constants import BACKEND
-from .constants import FRONTEND
 from .constants import POSSIBLE_ERRORS
-from .schemas import context_backend_schema
-from .schemas import context_frontend_schema
+from .schemas import SCHEMA_MAP
 from kolibri.core.fields import JSONField
 from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.deployment.default.sqlite_db_names import ERROR_REPORTS
@@ -23,28 +20,28 @@ class ErrorReportsRouter(object):
     """
 
     def db_for_read(self, model, **hints):
-        if model._meta.app_label == "errorreports":
+        if model._meta.app_label == "error_reports":
             return ERROR_REPORTS
         return None
 
     def db_for_write(self, model, **hints):
-        if model._meta.app_label == "errorreports":
+        if model._meta.app_label == "error_reports":
             return ERROR_REPORTS
         return None
 
     def allow_relation(self, obj1, obj2, **hints):
         if (
-            obj1._meta.app_label == "errorreports"
-            and obj2._meta.app_label == "errorreports"
+            obj1._meta.app_label == "error_reports"
+            and obj2._meta.app_label == "error_reports"
         ):
             return True
-        elif "errorreports" not in [obj1._meta.app_label, obj2._meta.app_label]:
+        elif "error_reports" not in [obj1._meta.app_label, obj2._meta.app_label]:
             return None
 
         return False
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
-        if app_label == "errorreports":
+        if app_label == "error_reports":
             return db == ERROR_REPORTS
         elif db == ERROR_REPORTS:
             return False
@@ -52,7 +49,7 @@ class ErrorReportsRouter(object):
         return None
 
 
-class ErrorReports(models.Model):
+class ErrorReport(models.Model):
     category = models.CharField(max_length=10, choices=POSSIBLE_ERRORS)
     error_message = models.CharField(max_length=255)
     traceback = models.TextField()
@@ -69,10 +66,10 @@ class ErrorReports(models.Model):
         return f"{self.error_message} ({self.category})"
 
     def clean(self):
-        if self.category == FRONTEND:
-            JSON_Schema_Validator(context_frontend_schema)(self.context)
-        elif self.category == BACKEND:
-            JSON_Schema_Validator(context_backend_schema)(self.context)
+        schema = SCHEMA_MAP.get(self.category, None)
+        if schema is None:
+            raise ValueError("Category not found in SCHEMA_MAP")
+        JSON_Schema_Validator(schema)(self.context)
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -81,17 +78,15 @@ class ErrorReports(models.Model):
     @classmethod
     def insert_or_update_error(cls, category, error_message, traceback, context):
         if getattr(settings, "DEVELOPER_MODE", False):
-            logger.info(
-                "ErrorReports: Database not updated, as DEVELOPER_MODE is True."
-            )
+            logger.info("ErrorReport: Database not updated, as DEVELOPER_MODE is True.")
             return
-        error_report, _ = cls.objects.get_or_create(
+        error_report, created = cls.objects.get_or_create(
             category=category,
             error_message=error_message,
             traceback=traceback,
             defaults={"context": context},
         )
-        if error_report is not None:
+        if not created:
             error_report.events += 1
             error_report.last_occurred = timezone.now()
             if error_report.context.get("avg_request_time_to_error", None):
@@ -103,7 +98,7 @@ class ErrorReports(models.Model):
                 error_report.context = context
 
         error_report.save()
-        logger.error("ErrorReports: Database updated.")
+        logger.error("ErrorReport: Database updated.")
         return error_report
 
     @classmethod
