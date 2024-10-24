@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import decorators
 from rest_framework import viewsets
@@ -20,6 +21,8 @@ from .utils.network.connections import update_network_location
 from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ValuesViewset
 from kolibri.core.device.permissions import NotProvisionedHasPermission
+from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
+from kolibri.core.discovery.well_known import DATA_PORTAL_BASE_INSTANCE_ID
 from kolibri.core.utils.urls import reverse_path
 
 
@@ -34,6 +37,27 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
         "instance_id",
     ]
 
+    def get_queryset(self):
+        syncable = self.request.query_params.get("syncable", None)
+        if syncable == "1":
+            # Include KDP's reserved location
+            queryset = NetworkLocation.objects.filter(
+                Q(location_type=LocationTypes.Static)
+                | Q(id=DATA_PORTAL_BASE_INSTANCE_ID)
+            )
+        elif syncable == "0":
+            # Include Studio's reserved location
+            queryset = NetworkLocation.objects.filter(
+                Q(location_type=LocationTypes.Static)
+                | Q(id=CENTRAL_CONTENT_BASE_INSTANCE_ID)
+            )
+        else:
+            # Exclude both KDP and Studio
+            queryset = NetworkLocation.objects.filter(
+                location_type__in=[LocationTypes.Static, LocationTypes.Dynamic]
+            )
+        return queryset
+
     def get_object(self, id_filter=None):
         """
         Override get_object to use the unrestricted queryset for the detail view
@@ -47,6 +71,7 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
         for filter_key in ("id", "instance_id"):
             try:
                 obj = queryset.get(**{filter_key: id_filter})
+                obj.dynamic = obj.location_type == LocationTypes.Dynamic
                 break
             except NetworkLocation.DoesNotExist:
                 pass

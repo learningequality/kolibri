@@ -3,8 +3,8 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 
 from .models import ConnectionStatus
-from .models import NetworkLocation
 from .models import PinnedDevice
+from .models import StaticNetworkLocation
 from .utils.network import errors
 from .utils.network.client import NetworkClient
 from kolibri.core.serializers import HexOnlyUUIDField
@@ -12,11 +12,10 @@ from kolibri.core.serializers import HexOnlyUUIDField
 
 class NetworkLocationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = NetworkLocation
+        model = StaticNetworkLocation
         fields = (
             "id",
             "available",
-            "dynamic",
             "nickname",
             "base_url",
             "device_name",
@@ -30,10 +29,10 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
             "subset_of_users_device",
             "connection_status",
             "is_local",
+            "location_type",
         )
         read_only_fields = (
             "available",
-            "dynamic",
             "device_name",
             "instance_id",
             "added",
@@ -45,6 +44,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
             "subset_of_users_device",
             "connection_status",
             "is_local",
+            "location_type",
         )
 
     def validate(self, data):
