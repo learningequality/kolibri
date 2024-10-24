@@ -32,7 +32,7 @@
         <template #default="{ items }">
           <CoreTable
             :selectable="true"
-            :emptyMessage="$tr('noUsersMatch')"
+            :emptyMessage="noLearnersEnrolled$({ className: className })"
           >
             <template #headers>
               <th class="table-checkbox-header">
@@ -92,6 +92,7 @@
   import { formatList } from 'kolibri.utils.i18n';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import flatMap from 'lodash/flatMap';
   import forEach from 'lodash/forEach';
@@ -106,6 +107,13 @@
     name: 'IndividualLearnerSelector',
     components: { CoreTable, PaginatedListContainer },
     mixins: [commonCoreStrings, commonCoachStrings],
+    setup() {
+      const { noLearnersEnrolled$ } = enhancedQuizManagementStrings;
+
+      return {
+        noLearnersEnrolled$,
+      };
+    },
     props: {
       // If true, the main checkbox is checked and the list of learners is shown
       isVisible: {
@@ -286,11 +294,6 @@
       searchPlaceholder: {
         message: 'Search for a user…',
         context: 'Indicates the search function which allows admins to import users.',
-      },
-      noUsersMatch: {
-        message: 'No users match',
-        context:
-          "When searching for individual learner to add to a lesson, if no search term matches a learner's name this message is displayed.",
       },
     },
   };
