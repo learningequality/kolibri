@@ -6,20 +6,24 @@
       <div
         v-show="!$isPrint"
         class="status-item visibility-item"
+        :style="{
+          display: 'flex',
+          alignItems: 'center',
+        }"
       >
         <KGridItem
           class="status-label"
           :style="{ marginBottom: 0 }"
           :layout4="{ span: 3 }"
           :layout8="{ span: 4 }"
-          :layout12="{ span: 8 }"
+          :layout12="{ span: 10 }"
         >
           {{ coachString('lessonVisibleLabel') }}
         </KGridItem>
         <KGridItem
           :layout4="{ span: 1 }"
           :layout8="{ span: 4 }"
-          :layout12="{ span: 4 }"
+          :layout12="{ span: 2 }"
         >
           <KSwitch
             name="toggle-lesson-visibility"
