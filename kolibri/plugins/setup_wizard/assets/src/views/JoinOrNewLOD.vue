@@ -1,33 +1,35 @@
 <template>
 
-  <OnboardingStepBase
-    :title="$tr('setUpFacilityTitle')"
-    :description="$tr('setUpFacilityDescription')"
-    @continue="handleContinue"
-  >
-    <KRadioButton
-      v-model="selected"
-      :label="$tr('joinFacilityLabel')"
-      :buttonValue="Options.JOIN"
-      class="radio-button"
-      :autofocus="isJoinSetup"
-    />
-    <KRadioButton
-      v-model="selected"
-      :label="$tr('importFromFacilityLabel')"
-      :buttonValue="Options.IMPORT"
-      class="radio-button"
-      :autofocus="isImportSetup"
-    />
-    <SelectDeviceModalGroup
-      v-if="showSelectAddressModal"
-      :filterLODAvailable="true"
-      :filterByFacilityCanSignUp="selected === Options.JOIN ? true : null"
-      :filterByHasFacilities="true"
-      @cancel="showSelectAddressModal = false"
-      @submit="handleContinueImport"
-    />
-  </OnboardingStepBase>
+  <KRadioButtonGroup>
+    <OnboardingStepBase
+      :title="$tr('setUpFacilityTitle')"
+      :description="$tr('setUpFacilityDescription')"
+      @continue="handleContinue"
+    >
+      <KRadioButton
+        v-model="selected"
+        :label="$tr('joinFacilityLabel')"
+        :buttonValue="Options.JOIN"
+        class="radio-button"
+        :autofocus="isJoinSetup"
+      />
+      <KRadioButton
+        v-model="selected"
+        :label="$tr('importFromFacilityLabel')"
+        :buttonValue="Options.IMPORT"
+        class="radio-button"
+        :autofocus="isImportSetup"
+      />
+      <SelectDeviceModalGroup
+        v-if="showSelectAddressModal"
+        :filterLODAvailable="true"
+        :filterByFacilityCanSignUp="selected === Options.JOIN ? true : null"
+        :filterByHasFacilities="true"
+        @cancel="showSelectAddressModal = false"
+        @submit="handleContinueImport"
+      />
+    </OnboardingStepBase>
+  </KRadioButtonGroup>
 
 </template>
 

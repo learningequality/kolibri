@@ -1,22 +1,24 @@
 <template>
 
-  <OnboardingForm
-    :header="getCommonSyncString('howAreYouUsingKolibri')"
-    @submit="handleSubmit"
-  >
-    <KRadioButton
-      v-model="selected"
-      :buttonValue="Options.PERSONAL"
-      :label="$tr('quickStartLabel')"
-      :description="getCommonSyncString('onMyOwn')"
-    />
-    <KRadioButton
-      v-model="selected"
-      :buttonValue="Options.PUBLIC"
-      :label="$tr('advancedSetupLabel')"
-      :description="$tr('advancedSetupDescription')"
-    />
-  </OnboardingForm>
+  <KRadioButtonGroup>
+    <OnboardingForm
+      :header="getCommonSyncString('howAreYouUsingKolibri')"
+      @submit="handleSubmit"
+    >
+      <KRadioButton
+        v-model="selected"
+        :buttonValue="Options.PERSONAL"
+        :label="$tr('quickStartLabel')"
+        :description="getCommonSyncString('onMyOwn')"
+      />
+      <KRadioButton
+        v-model="selected"
+        :buttonValue="Options.PUBLIC"
+        :label="$tr('advancedSetupLabel')"
+        :description="$tr('advancedSetupDescription')"
+      />
+    </OnboardingForm>
+  </KRadioButtonGroup>
 
 </template>
 
@@ -31,7 +33,6 @@
     PUBLIC: 'PUBLIC',
     PERSONAL: 'PERSONAL',
   });
-
   export default {
     name: 'GettingStartedForm',
     components: {
@@ -78,7 +79,6 @@
       advancedSetupDescription: {
         message:
           'For schools, educational programs, organizations, or other group learning settings that will share the use of Kolibri',
-
         context: "Option description text for 'Advanced setup'.",
       },
     },

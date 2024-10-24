@@ -52,7 +52,9 @@
         </th>
         <template v-if="showDemographicInfo">
           <th>
-            <span>{{ coreString('identifierLabel') }}</span>
+            <span>
+              {{ coreString('identifierLabel') }}
+            </span>
             <CoreInfoIcon
               class="tooltip"
               :iconAriaLabel="coreString('identifierAriaLabel')"
@@ -75,7 +77,6 @@
           </span>
         </th>
       </template>
-
       <template #tbody>
         <tbody>
           <tr
@@ -83,30 +84,31 @@
             :key="user.id"
             :style="isSelectedStyle(user.id)"
           >
-            <td>
-              <KCheckbox
-                v-if="selectable && enableMultipleSelection"
-                :disabled="disabled"
-                :checked="userIsSelected(user.id)"
-                class="user-checkbox"
-                data-test="userCheckbox"
-                @change="selectUser(user.id, $event)"
-              >
-                <KLabeledIcon
-                  :icon="isCoach ? 'coach' : 'person'"
-                  :label="user.full_name"
-                  data-test="fullName"
-                />
-                <UserTypeDisplay
-                  aria-hidden="true"
-                  :userType="user.kind"
-                  :omitLearner="true"
-                  class="role-badge"
-                  data-test="userRoleBadge"
-                  :class="$computedClass(userRoleBadgeStyle)"
-                />
-              </KCheckbox>
-              <!--
+            <KRadioButtonGroup>
+              <td>
+                <KCheckbox
+                  v-if="selectable && enableMultipleSelection"
+                  :disabled="disabled"
+                  :checked="userIsSelected(user.id)"
+                  class="user-checkbox"
+                  data-test="userCheckbox"
+                  @change="selectUser(user.id, $event)"
+                >
+                  <KLabeledIcon
+                    :icon="isCoach ? 'coach' : 'person'"
+                    :label="user.full_name"
+                    data-test="fullName"
+                  />
+                  <UserTypeDisplay
+                    aria-hidden="true"
+                    :userType="user.kind"
+                    :omitLearner="true"
+                    class="role-badge"
+                    data-test="userRoleBadge"
+                    :class="$computedClass(userRoleBadgeStyle)"
+                  />
+                </KCheckbox>
+                <!--
                 @MisRob: It's possible to pass `<label>` content to `KRadioButton`
                 via the default slot, however it's not what this slot has been
                 made for so doing so is hackish, even though resulting
@@ -116,52 +118,53 @@
                 not providing label content. Reported related KDS issue
                 https://github.com/learningequality/kolibri-design-system/issues/348
               -->
-              <KRadioButton
-                v-else-if="selectable && !enableMultipleSelection"
-                :disabled="disabled"
-                :buttonValue="user.id"
-                :currentValue="firstSelectedUser"
-                :label="''"
-                data-test="userRadioButton"
-                @change="selectSingleUser(user.id)"
-              >
-                <!--
+                <KRadioButton
+                  v-else-if="selectable && !enableMultipleSelection"
+                  :disabled="disabled"
+                  :buttonValue="user.id"
+                  :currentValue="firstSelectedUser"
+                  :label="''"
+                  data-test="userRadioButton"
+                  @change="selectSingleUser(user.id)"
+                >
+                  <!--
                   override muted color in the disabled state with
                   the normal text color in `style` (using `color`
                   prop won't work for this purpose)
                 -->
-                <KLabeledIcon
-                  :icon="isCoach ? 'coach' : 'person'"
-                  :label="user.full_name"
-                  data-test="fullName"
-                  :style="{ color: $themeTokens.text }"
-                />
-                <UserTypeDisplay
-                  aria-hidden="true"
-                  :userType="user.kind"
-                  :omitLearner="true"
-                  class="role-badge"
-                  data-test="userRoleBadge"
-                  :class="$computedClass(userRoleBadgeStyle)"
-                />
-              </KRadioButton>
-              <template v-else>
-                <KLabeledIcon
-                  :icon="isCoach ? 'coach' : 'person'"
-                  :label="user.full_name"
-                  :style="{ color: $themeTokens.text }"
-                  data-test="fullName"
-                />
-                <UserTypeDisplay
-                  aria-hidden="true"
-                  :userType="user.kind"
-                  :omitLearner="true"
-                  class="role-badge"
-                  data-test="userRoleBadge"
-                  :class="$computedClass(userRoleBadgeStyle)"
-                />
-              </template>
-            </td>
+                  <KLabeledIcon
+                    :icon="isCoach ? 'coach' : 'person'"
+                    :label="user.full_name"
+                    data-test="fullName"
+                    :style="{ color: $themeTokens.text }"
+                  />
+                  <UserTypeDisplay
+                    aria-hidden="true"
+                    :userType="user.kind"
+                    :omitLearner="true"
+                    class="role-badge"
+                    data-test="userRoleBadge"
+                    :class="$computedClass(userRoleBadgeStyle)"
+                  />
+                </KRadioButton>
+                <template v-else>
+                  <KLabeledIcon
+                    :icon="isCoach ? 'coach' : 'person'"
+                    :label="user.full_name"
+                    :style="{ color: $themeTokens.text }"
+                    data-test="fullName"
+                  />
+                  <UserTypeDisplay
+                    aria-hidden="true"
+                    :userType="user.kind"
+                    :omitLearner="true"
+                    class="role-badge"
+                    data-test="userRoleBadge"
+                    :class="$computedClass(userRoleBadgeStyle)"
+                  />
+                </template>
+              </td>
+            </KRadioButtonGroup>
             <td
               class="visuallyhidden"
               data-test="userRoleLabel"
@@ -191,7 +194,8 @@
               <slot
                 name="info"
                 :user="user"
-              ></slot>
+              >
+              </slot>
             </td>
             <td
               v-if="$scopedSlots.action"
@@ -200,7 +204,8 @@
               <slot
                 name="action"
                 :user="user"
-              ></slot>
+              >
+              </slot>
             </td>
           </tr>
         </tbody>
@@ -389,7 +394,6 @@
     font-size: 12px;
     font-weight: bold;
   }
-
   // consistent vertical alignment of checkboxes
   // and text in a row
   .user-checkbox {

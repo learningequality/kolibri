@@ -1,34 +1,36 @@
 <template>
 
-  <SelectSourceModal
-    :submitDisabled="formIsDisabled"
-    :showLoadingMessage="formIsDisabled && !initialDelay"
-    @submit="handleSubmit"
-    @cancel="handleCancel"
-  >
-    <KRadioButton
-      v-model="source"
-      :label="$tr('network')"
-      :buttonValue="ContentSources.KOLIBRI_STUDIO"
-      :disabled="kolibriStudioIsOffline || formIsDisabled"
-      :autofocus="!kolibriStudioIsOffline"
-      :description="$tr('studioDescription')"
-    />
-    <KRadioButton
-      v-model="source"
-      :label="$tr('localNetworkOrInternet')"
-      :buttonValue="ContentSources.PEER_KOLIBRI_SERVER"
-      :disabled="formIsDisabled"
-      :description="$tr('networkDescription')"
-    />
-    <KRadioButton
-      v-model="source"
-      :label="$tr('localDrives')"
-      :buttonValue="ContentSources.LOCAL_DRIVE"
-      :disabled="formIsDisabled"
-      :description="$tr('localDescription')"
-    />
-  </SelectSourceModal>
+  <KRadioButtonGroup>
+    <SelectSourceModal
+      :submitDisabled="formIsDisabled"
+      :showLoadingMessage="formIsDisabled && !initialDelay"
+      @submit="handleSubmit"
+      @cancel="handleCancel"
+    >
+      <KRadioButton
+        v-model="source"
+        :label="$tr('network')"
+        :buttonValue="ContentSources.KOLIBRI_STUDIO"
+        :disabled="kolibriStudioIsOffline || formIsDisabled"
+        :autofocus="!kolibriStudioIsOffline"
+        :description="$tr('studioDescription')"
+      />
+      <KRadioButton
+        v-model="source"
+        :label="$tr('localNetworkOrInternet')"
+        :buttonValue="ContentSources.PEER_KOLIBRI_SERVER"
+        :disabled="formIsDisabled"
+        :description="$tr('networkDescription')"
+      />
+      <KRadioButton
+        v-model="source"
+        :label="$tr('localDrives')"
+        :buttonValue="ContentSources.LOCAL_DRIVE"
+        :disabled="formIsDisabled"
+        :description="$tr('localDescription')"
+      />
+    </SelectSourceModal>
+  </KRadioButtonGroup>
 
 </template>
 

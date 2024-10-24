@@ -8,26 +8,32 @@
     @cancel="$emit('cancel')"
   >
     <!-- Classroom Selection Form -->
-    <div
-      v-if="stage === Stages.SELECT_CLASSROOM"
-      id="select-classroom"
-    >
-      <KRadioButton
-        v-for="classroom in availableClassrooms"
-        :key="classroom.id"
-        v-model="selectedClassroomId"
-        :label="classroomLabel(classroom)"
-        :buttonValue="classroom.id"
-        data-test="radio-button"
-      />
-    </div>
+    <KRadioButtonGroup>
+      <div
+        v-if="stage === Stages.SELECT_CLASSROOM"
+        id="select-classroom"
+      >
+        <KRadioButton
+          v-for="classroom in availableClassrooms"
+          :key="classroom.id"
+          v-model="selectedClassroomId"
+          :label="classroomLabel(classroom)"
+          :buttonValue="classroom.id"
+          data-test="radio-button"
+        />
+      </div>
+    </KRadioButtonGroup>
     <!-- Learner Group Selection Form -->
     <div
       v-else
       id="select-learnergroup"
     >
-      <p>{{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}</p>
-      <p>{{ assignmentQuestion }}</p>
+      <p>
+        {{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}
+      </p>
+      <p>
+        {{ assignmentQuestion }}
+      </p>
       <RecipientSelector
         v-model="selectedCollectionIds"
         :groups="availableGroups"
@@ -56,7 +62,6 @@
     SELECT_CLASSROOM: 'SELECT_CLASSROOM',
     SELECT_GROUPS: 'SELECT_GROUPS',
   };
-
   export default {
     name: 'AssignmentCopyModal',
     components: {

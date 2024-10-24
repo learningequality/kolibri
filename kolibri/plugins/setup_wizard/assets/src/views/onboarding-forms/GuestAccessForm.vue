@@ -1,32 +1,34 @@
 <template>
 
-  <OnboardingStepBase
-    :title="$tr('header')"
-    :footerMessageType="footerMessageType"
-    :step="2"
-    :steps="5"
-    :description="$tr('description')"
-    :eventOnGoBack="backEvent"
-    @continue="handleContinue"
-  >
-    <KRadioButton
-      ref="yesRadio"
-      v-model="setting"
-      :label="$tr('yesOptionLabel')"
-      :buttonValue="true"
-      :autofocus="setting"
-    />
-    <KRadioButton
-      ref="noRadio"
-      v-model="setting"
-      :label="$tr('noOptionLabel')"
-      :buttonValue="false"
-      :autofocus="!setting"
-    />
-    <p class="form">
-      {{ $tr('changeLater') }}
-    </p>
-  </OnboardingStepBase>
+  <KRadioButtonGroup>
+    <OnboardingStepBase
+      :title="$tr('header')"
+      :footerMessageType="footerMessageType"
+      :step="2"
+      :steps="5"
+      :description="$tr('description')"
+      :eventOnGoBack="backEvent"
+      @continue="handleContinue"
+    >
+      <KRadioButton
+        ref="yesRadio"
+        v-model="setting"
+        :label="$tr('yesOptionLabel')"
+        :buttonValue="true"
+        :autofocus="setting"
+      />
+      <KRadioButton
+        ref="noRadio"
+        v-model="setting"
+        :label="$tr('noOptionLabel')"
+        :buttonValue="false"
+        :autofocus="!setting"
+      />
+      <p class="form">
+        {{ $tr('changeLater') }}
+      </p>
+    </OnboardingStepBase>
+  </KRadioButtonGroup>
 
 </template>
 

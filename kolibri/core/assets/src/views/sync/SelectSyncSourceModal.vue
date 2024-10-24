@@ -1,27 +1,29 @@
 <template>
 
-  <SelectSourceModal
-    :submitDisabled="formIsDisabled"
-    :showLoadingMessage="formIsDisabled && !initialDelay"
-    @submit="handleSubmit"
-    @cancel="handleCancel"
-  >
-    <KRadioButton
-      v-model="source"
-      :label="$tr('dataPortalLabel')"
-      :buttonValue="SyncSources.PORTAL"
-      :disabled="portalIsOffline || formIsDisabled"
-      :autofocus="!portalIsOffline"
-      :description="$tr('dataPortalDescription')"
-    />
-    <KRadioButton
-      v-model="source"
-      :label="$tr('localNetworkLabel')"
-      :buttonValue="SyncSources.PEER"
-      :disabled="formIsDisabled"
-      :description="$tr('localNetworkDescription')"
-    />
-  </SelectSourceModal>
+  <KRadioButtonGroup>
+    <SelectSourceModal
+      :submitDisabled="formIsDisabled"
+      :showLoadingMessage="formIsDisabled && !initialDelay"
+      @submit="handleSubmit"
+      @cancel="handleCancel"
+    >
+      <KRadioButton
+        v-model="source"
+        :label="$tr('dataPortalLabel')"
+        :buttonValue="SyncSources.PORTAL"
+        :disabled="portalIsOffline || formIsDisabled"
+        :autofocus="!portalIsOffline"
+        :description="$tr('dataPortalDescription')"
+      />
+      <KRadioButton
+        v-model="source"
+        :label="$tr('localNetworkLabel')"
+        :buttonValue="SyncSources.PEER"
+        :disabled="formIsDisabled"
+        :description="$tr('localNetworkDescription')"
+      />
+    </SelectSourceModal>
+  </KRadioButtonGroup>
 
 </template>
 
@@ -34,7 +36,6 @@
     PORTAL: 'PORTAL',
     PEER: 'PEER',
   });
-
   export default {
     name: 'SelectSyncSourceModal',
     components: {
@@ -86,7 +87,6 @@
       localNetworkDescription: {
         message:
           'Sync facility data with another Kolibri server on your local network or the internet',
-
         context: 'Description of the sync option.',
       },
     },

@@ -1,33 +1,35 @@
 <template>
 
-  <OnboardingStepBase
-    :title="$tr('header')"
-    :footerMessageType="footerMessageType"
-    :step="3"
-    :steps="5"
-    :eventOnGoBack="backEvent"
-    @continue="handleContinue"
-  >
-    <KRadioButton
-      ref="yesRadio"
-      v-model="setting"
-      class="radio-button"
-      :label="$tr('yesOptionLabel')"
-      :buttonValue="true"
-      :autofocus="setting"
-    />
-    <KRadioButton
-      ref="noRadio"
-      v-model="setting"
-      class="radio-button"
-      :label="$tr('noOptionLabel')"
-      :buttonValue="false"
-      :autofocus="!setting"
-    />
-    <p class="description">
-      {{ getCommonSyncString('changeLater') }}
-    </p>
-  </OnboardingStepBase>
+  <KRadioButtonGroup>
+    <OnboardingStepBase
+      :title="$tr('header')"
+      :footerMessageType="footerMessageType"
+      :step="3"
+      :steps="5"
+      :eventOnGoBack="backEvent"
+      @continue="handleContinue"
+    >
+      <KRadioButton
+        ref="yesRadio"
+        v-model="setting"
+        class="radio-button"
+        :label="$tr('yesOptionLabel')"
+        :buttonValue="true"
+        :autofocus="setting"
+      />
+      <KRadioButton
+        ref="noRadio"
+        v-model="setting"
+        class="radio-button"
+        :label="$tr('noOptionLabel')"
+        :buttonValue="false"
+        :autofocus="!setting"
+      />
+      <p class="description">
+        {{ getCommonSyncString('changeLater') }}
+      </p>
+    </OnboardingStepBase>
+  </KRadioButtonGroup>
 
 </template>
 

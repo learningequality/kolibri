@@ -7,24 +7,27 @@
     :submitDisabled="loading"
     @submit="submit"
   >
-    <div>
-      <p>{{ $tr('modalDescription') }}</p>
-
-      <KRadioButton
-        v-model="selected"
-        :label="$tr('doNotUseMetered')"
-        :buttonValue="Options.DO_NOT_USE_METERED"
-        :disabled="loading"
-        class="radio-button"
-      />
-      <KRadioButton
-        v-model="selected"
-        :label="$tr('useMetered')"
-        :buttonValue="Options.USE_METERED"
-        :disabled="loading"
-        class="radio-button"
-      />
-    </div>
+    <KRadioButtonGroup>
+      <div>
+        <p>
+          {{ $tr('modalDescription') }}
+        </p>
+        <KRadioButton
+          v-model="selected"
+          :label="$tr('doNotUseMetered')"
+          :buttonValue="Options.DO_NOT_USE_METERED"
+          :disabled="loading"
+          class="radio-button"
+        />
+        <KRadioButton
+          v-model="selected"
+          :label="$tr('useMetered')"
+          :buttonValue="Options.USE_METERED"
+          :disabled="loading"
+          class="radio-button"
+        />
+      </div>
+    </KRadioButtonGroup>
   </KModal>
 
 </template>
@@ -40,14 +43,11 @@
   import useUser from 'kolibri.coreVue.composables.useUser';
 
   const logging = logger.getLogger(__filename);
-
   const Options = Object.freeze({
     DO_NOT_USE_METERED: 'DO_NOT_USE_METERED',
     USE_METERED: 'USE_METERED',
   });
-
   const meteredNetworkModalDismissedKey = 'METERED_NETWORK_MODAL_DISMISSED';
-
   export default {
     name: 'MeteredConnectionNotificationModal',
     mixins: [commonCoreStrings],
@@ -84,10 +84,8 @@
     mounted() {
       if (checkCapability('check_is_metered')) {
         this.loading = true;
-
         appCapabilities.checkIsMetered().then(isMetered => {
           this.activeConnectionIsMetered = isMetered;
-
           // Fetch the DeviceSettings#extra_settings value
           // We need the whole thing because when we PATCH it later, the API will throw a fit
           // if we only include one of the keys for the extra_settings object
@@ -108,12 +106,9 @@
     methods: {
       submit() {
         this.$emit('submit', this.selected);
-
         const allow_download_on_metered_connection = this.selected === Options.USE_METERED;
         const extra_settings = { ...this.extra_settings, allow_download_on_metered_connection };
-
         this.loading = true;
-
         client({
           method: 'PATCH',
           url: this.settingsUrl,
@@ -123,7 +118,6 @@
             this.$emit('update', allow_download_on_metered_connection);
             window.sessionStorage.setItem(meteredNetworkModalDismissedKey, true);
             this.dismissed = true;
-
             // TODO Uncomment this when strings are not frozen
             //this.$store.dispatch("createSnackbar", this.$tr("saveSuccessNotification"));
           })
@@ -157,7 +151,6 @@
       },
       /** TODO Uncomment these when strings are not frozen, then use them to fix the other TODO
         *  above in this file.
-
       saveFailureNotification: {
         message: 'Settings have not been updated',
         context: 'Error message that displays if device settings are not saved correctly.',
@@ -166,7 +159,6 @@
         message: 'Settings have been updated',
         context: 'Notification that displays if device settings have been saved correctly.\n',
       },
-
       */
     },
   };

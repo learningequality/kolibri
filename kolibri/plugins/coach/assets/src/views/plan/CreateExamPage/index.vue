@@ -13,7 +13,6 @@
     >
       {{ selectionIsInvalidText }}
     </UiAlert>
-
     <KPageContainer :style="{ maxWidth: '1000px', margin: '0 auto 2em', paddingTop: '2rem' }">
       <AssignmentDetailsModal
         v-if="quizInitialized"
@@ -24,50 +23,51 @@
         :groups="groups"
         @update="updateQuiz"
       />
-
       <div v-if="quizInitialized">
         <h5 class="section-order-header">
           {{ sectionOrderLabel$() }}
         </h5>
         <KGrid>
-          <KGridItem
-            :layout12="{ span: 6 }"
-            :layout8="{ span: 4 }"
-            :layout4="{ span: 2 }"
-          >
-            <KRadioButton
-              :currentValue="quiz.learners_see_fixed_order"
-              :label="randomizedLabel$()"
-              :buttonValue="false"
-              :description="randomizedSectionOptionDescription$()"
-              @input="value => updateQuiz({ learners_see_fixed_order: value })"
-            />
-          </KGridItem>
-          <KGridItem
-            :layout12="{ span: 6 }"
-            :layout8="{ span: 4 }"
-            :layout4="{ span: 2 }"
-          >
-            <KRadioButton
-              :currentValue="quiz.learners_see_fixed_order"
-              :label="fixedLabel$()"
-              :buttonValue="true"
-              :description="fixedSectionOptionDescription$()"
-              @input="value => updateQuiz({ learners_see_fixed_order: value })"
-            />
-            <KButton
-              v-if="quiz.learners_see_fixed_order"
-              :text="coreString('editAction') + ' - ' + sectionOrderLabel$()"
-              class="edit-section-order-btn"
-              appearance="basic-link"
-              @click="editSectionOrder"
-            />
-          </KGridItem>
+          <KRadioButtonGroup>
+            <KGridItem
+              :layout12="{ span: 6 }"
+              :layout8="{ span: 4 }"
+              :layout4="{ span: 2 }"
+            >
+              <KRadioButton
+                :currentValue="quiz.learners_see_fixed_order"
+                :label="randomizedLabel$()"
+                :buttonValue="false"
+                :description="randomizedSectionOptionDescription$()"
+                @input="value => updateQuiz({ learners_see_fixed_order: value })"
+              />
+            </KGridItem>
+          </KRadioButtonGroup>
+          <KRadioButtonGroup>
+            <KGridItem
+              :layout12="{ span: 6 }"
+              :layout8="{ span: 4 }"
+              :layout4="{ span: 2 }"
+            >
+              <KRadioButton
+                :currentValue="quiz.learners_see_fixed_order"
+                :label="fixedLabel$()"
+                :buttonValue="true"
+                :description="fixedSectionOptionDescription$()"
+                @input="value => updateQuiz({ learners_see_fixed_order: value })"
+              />
+              <KButton
+                v-if="quiz.learners_see_fixed_order"
+                :text="coreString('editAction') + ' - ' + sectionOrderLabel$()"
+                class="edit-section-order-btn"
+                appearance="basic-link"
+                @click="editSectionOrder"
+              />
+            </KGridItem>
+          </KRadioButtonGroup>
         </KGrid>
       </div>
-
       <CreateQuizSection v-if="quizInitialized && quiz.draft" />
-
       <BottomAppBar>
         <span
           v-if="allSectionsEmpty"
@@ -90,7 +90,6 @@
         </KButtonGroup>
       </BottomAppBar>
     </KPageContainer>
-
     <KModal
       v-if="closeConfirmationToRoute"
       :submitText="coreString('continueAction')"
@@ -101,7 +100,6 @@
     >
       {{ closeConfirmationMessage$() }}
     </KModal>
-
     <SectionSidePanel v-if="quizInitialized" />
   </CoachImmersivePage>
 
@@ -152,7 +150,6 @@
       } = useQuizCreation();
       const showError = ref(false);
       const quizInitialized = ref(false);
-
       const {
         saveAndClose$,
         allSectionsEmptyWarning$,
@@ -165,7 +162,6 @@
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
       } = enhancedQuizManagementStrings;
-
       return {
         closeConfirmationTitle$,
         closeConfirmationMessage$,

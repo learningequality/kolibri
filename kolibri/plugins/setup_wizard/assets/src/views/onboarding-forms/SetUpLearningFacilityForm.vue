@@ -1,31 +1,33 @@
 <template>
 
-  <OnboardingStepBase
-    :title="$tr('setUpFacilityTitle')"
-    :description="$tr('setUpFacilityDescription')"
-    @continue="handleContinue"
-  >
-    <KRadioButton
-      v-model="selected"
-      :label="$tr('createFacilityLabel')"
-      :buttonValue="Options.NEW"
-      class="radio-button"
-      :autofocus="isNewFacilitySetup"
-    />
-    <KRadioButton
-      v-model="selected"
-      :label="$tr('importFacilityLabel')"
-      :buttonValue="Options.IMPORT"
-      class="radio-button"
-      :autofocus="isImportFacilitySetup"
-    />
-    <SelectDeviceModalGroup
-      v-if="showSelectAddressModal"
-      :filterByOnMyOwnFacility="false"
-      @cancel="showSelectAddressModal = false"
-      @submit="handleContinueImport"
-    />
-  </OnboardingStepBase>
+  <KRadioButtonGroup>
+    <OnboardingStepBase
+      :title="$tr('setUpFacilityTitle')"
+      :description="$tr('setUpFacilityDescription')"
+      @continue="handleContinue"
+    >
+      <KRadioButton
+        v-model="selected"
+        :label="$tr('createFacilityLabel')"
+        :buttonValue="Options.NEW"
+        class="radio-button"
+        :autofocus="isNewFacilitySetup"
+      />
+      <KRadioButton
+        v-model="selected"
+        :label="$tr('importFacilityLabel')"
+        :buttonValue="Options.IMPORT"
+        class="radio-button"
+        :autofocus="isImportFacilitySetup"
+      />
+      <SelectDeviceModalGroup
+        v-if="showSelectAddressModal"
+        :filterByOnMyOwnFacility="false"
+        @cancel="showSelectAddressModal = false"
+        @submit="handleContinueImport"
+      />
+    </OnboardingStepBase>
+  </KRadioButtonGroup>
 
 </template>
 

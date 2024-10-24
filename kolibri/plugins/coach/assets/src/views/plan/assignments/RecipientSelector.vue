@@ -1,43 +1,43 @@
 <template>
 
-  <div>
-    <!-- Entire class -->
-    <KRadioButton
-      :buttonValue="true"
-      :currentValue="entireClassIsSelected"
-      :disabled="disabled"
-      @change="selectEntireClass()"
-    >
-      <KLabeledIcon
-        :label="coachString('entireClassLabel')"
-        icon="classes"
+  <KRadioButtonGroup>
+    <div>
+      <!-- Entire class -->
+      <KRadioButton
+        :buttonValue="true"
+        :currentValue="entireClassIsSelected"
+        :disabled="disabled"
+        @change="selectEntireClass()"
+      >
+        <KLabeledIcon
+          :label="coachString('entireClassLabel')"
+          icon="classes"
+        />
+      </KRadioButton>
+      <!-- Learner groups -->
+      <KCheckbox
+        v-for="group in groups"
+        :key="group.id"
+        :checked="groupIsSelected(group)"
+        :disabled="disabled"
+        @change="toggleGroup($event, group)"
+      >
+        <KLabeledIcon
+          :label="group.name"
+          icon="group"
+        />
+      </KCheckbox>
+      <!-- Individual learners -->
+      <IndividualLearnerSelector
+        :isVisible="individualSelectorIsVisible"
+        :selectedGroupIds="selectedGroupIds"
+        :selectedLearnerIds.sync="selectedLearnerIds"
+        :targetClassId="classId"
+        :disabled="disabled"
+        @togglevisibility="toggleIndividualSelector"
       />
-    </KRadioButton>
-
-    <!-- Learner groups -->
-    <KCheckbox
-      v-for="group in groups"
-      :key="group.id"
-      :checked="groupIsSelected(group)"
-      :disabled="disabled"
-      @change="toggleGroup($event, group)"
-    >
-      <KLabeledIcon
-        :label="group.name"
-        icon="group"
-      />
-    </KCheckbox>
-
-    <!-- Individual learners -->
-    <IndividualLearnerSelector
-      :isVisible="individualSelectorIsVisible"
-      :selectedGroupIds="selectedGroupIds"
-      :selectedLearnerIds.sync="selectedLearnerIds"
-      :targetClassId="classId"
-      :disabled="disabled"
-      @togglevisibility="toggleIndividualSelector"
-    />
-  </div>
+    </div>
+  </KRadioButtonGroup>
 
 </template>
 

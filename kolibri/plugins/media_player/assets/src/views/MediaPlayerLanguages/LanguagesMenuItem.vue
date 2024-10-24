@@ -1,16 +1,18 @@
 <template>
 
-  <li class="vjs-languages-menu-item vjs-menu-item">
-    <KRadioButton
-      ref="kRadioButton"
-      name="languages-menu-item"
-      :label="label"
-      :buttonValue="1"
-      :currentValue="selected ? 1 : 0"
-      @change="setLanguage(value)"
-      @keydown.enter="setLanguage(value), $emit('hide')"
-    />
-  </li>
+  <KRadioButtonGroup>
+    <li class="vjs-languages-menu-item vjs-menu-item">
+      <KRadioButton
+        ref="kRadioButton"
+        name="languages-menu-item"
+        :label="label"
+        :buttonValue="1"
+        :currentValue="selected ? 1 : 0"
+        @change="setLanguage(value)"
+        @keydown.enter="setLanguage(value), $emit('hide')"
+      />
+    </li>
+  </KRadioButtonGroup>
 
 </template>
 

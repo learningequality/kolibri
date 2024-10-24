@@ -7,7 +7,6 @@
     <h1 :style="{ color: $themeTokens.text }">
       {{ sectionSettings$() }}
     </h1>
-
     <KTextbox
       ref="sectionTitle"
       v-model="section_title"
@@ -16,7 +15,6 @@
       :invalidText="sectionTitleInvalidText"
       :maxlength="100"
     />
-
     <KTextbox
       v-model="description"
       :label="optionalDescriptionLabel$()"
@@ -24,43 +22,43 @@
       :textArea="true"
       class="description-ktextbox-style"
     />
-
     <hr :style="dividerStyle" >
-
     <div>
       <h5 class="section-settings-heading">
         {{ questionOrder$() }}
       </h5>
       <KGrid>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KRadioButton
-            v-model="learners_see_fixed_order"
-            :label="randomizedLabel$()"
-            :buttonValue="false"
-            :description="randomizedOptionDescription$()"
-          />
-        </KGridItem>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KRadioButton
-            v-model="learners_see_fixed_order"
-            :label="fixedLabel$()"
-            :buttonValue="true"
-            :description="fixedOptionDescription$()"
-          />
-        </KGridItem>
+        <KRadioButtonGroup>
+          <KGridItem
+            :layout12="{ span: 6 }"
+            :layout8="{ span: 4 }"
+            :layout4="{ span: 2 }"
+          >
+            <KRadioButton
+              v-model="learners_see_fixed_order"
+              :label="randomizedLabel$()"
+              :buttonValue="false"
+              :description="randomizedOptionDescription$()"
+            />
+          </KGridItem>
+        </KRadioButtonGroup>
+        <KRadioButtonGroup>
+          <KGridItem
+            :layout12="{ span: 6 }"
+            :layout8="{ span: 4 }"
+            :layout4="{ span: 2 }"
+          >
+            <KRadioButton
+              v-model="learners_see_fixed_order"
+              :label="fixedLabel$()"
+              :buttonValue="true"
+              :description="fixedOptionDescription$()"
+            />
+          </KGridItem>
+        </KRadioButtonGroup>
       </KGrid>
     </div>
-
     <hr :style="dividerStyle" >
-
     <h5 class="section-settings-heading">
       {{
         numberOfQuestionsSelected$({
@@ -68,7 +66,6 @@
         })
       }}
     </h5>
-
     <KRouterLink
       v-if="showResourceButton"
       appearance="raised-button"
@@ -146,7 +143,6 @@
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const { createSnackbar } = useSnackbar();
-
       const {
         sectionSettings$,
         sectionTitle$,
@@ -170,7 +166,6 @@
         sectionDeletedNotification$,
         maxNumberOfQuestions$,
       } = enhancedQuizManagementStrings;
-
       const {
         activeSectionIndex,
         activeSection,
@@ -181,25 +176,18 @@
         updateQuiz,
         removeSection,
       } = injectQuizCreation();
-
       const { moveDownOne, moveUpOne } = useDrag();
-
       const showCloseConfirmation = ref(false);
-
       function handleCancelClose() {
         showCloseConfirmation.value = false;
       }
-
       function handleConfirmClose() {
         context.emit('closePanel');
       }
-
       const showDeleteConfirmation = ref(false);
-
       function handleCancelDelete() {
         showDeleteConfirmation.value = false;
       }
-
       function handleConfirmDelete() {
         const section_title = displaySectionTitle(activeSection.value, activeSectionIndex.value);
         const newIndex = activeSectionIndex.value > 0 ? activeSectionIndex.value - 1 : 0;
@@ -214,19 +202,15 @@
         });
         createSnackbar(sectionDeletedNotification$({ section_title }));
       }
-
       function handleDeleteSection() {
         showDeleteConfirmation.value = true;
       }
-
       /* Note that the use of snake_case here is to map directly to the API */
       const learners_see_fixed_order = ref(activeSection?.value?.learners_see_fixed_order || false);
       const description = ref(activeSection?.value?.description || '');
       const section_title = ref(activeSection?.value?.section_title?.trim() || '');
-
       // This is used to track the section that was moved
       const reorderedSectionIndex = ref(null);
-
       const sectionTitleInvalidText = computed(() => {
         if (section_title.value.trim() === '') {
           // Always allow empty section titles
@@ -243,7 +227,6 @@
           return sectionTitleUniqueWarning$();
         }
       });
-
       const activeSectionChanged = computed(() => {
         return !isEqual(
           {
@@ -254,22 +237,17 @@
           pick(activeSection.value, ['learners_see_fixed_order', 'description', 'section_title']),
         );
       });
-
       const sectionOrderList = ref(allSections.value);
-
       const sectionOrderChanged = computed(() => {
         return !isEqual(
           allSections.value.map(section => section.section_id),
           sectionOrderList.value.map(section => section.section_id),
         );
       });
-
       const formDataHasChanged = computed(() => {
         return activeSectionChanged.value || sectionOrderChanged.value;
       });
-
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
-
       const resourceButtonLabel = computed(() => {
         if (activeQuestions.value.length === 0) {
           return addQuestionsLabel$();
@@ -277,15 +255,12 @@
           return addMoreQuestionsLabel$();
         }
       });
-
       const showResourceButton = computed(() => {
         return activeQuestions.value.length < MAX_QUESTIONS_PER_QUIZ_SECTION;
       });
-
       const maxQuestionsLabel = computed(() => {
         return maxNumberOfQuestions$({ count: MAX_QUESTIONS_PER_QUIZ_SECTION });
       });
-
       return {
         reorderedSectionIndex,
         sectionTitleInvalidText,
@@ -342,7 +317,6 @@
         randomizedOptionDescription$,
         fixedLabel$,
         fixedOptionDescription$,
-
         createSnackbar,
       };
     },
@@ -378,14 +352,12 @@
           this.$refs.sectionTitle.focus();
           return;
         }
-
         this.updateSection({
           sectionIndex: this.activeSectionIndex,
           section_title: this.section_title,
           description: this.description,
           learners_see_fixed_order: this.learners_see_fixed_order,
         });
-
         if (this.sectionOrderChanged) {
           // Apply the new sorting to the updated sections,
           // otherwise the edits we just made will be lost
@@ -397,14 +369,12 @@
             question_sources,
           });
         }
-
         if (nextRouteName) {
           const sectionIndex =
             this.reorderedSectionIndex !== null &&
             this.reorderedSectionIndex !== this.activeSectionIndex
               ? this.reorderedSectionIndex
               : this.activeSectionIndex;
-
           this.$router.push({
             name: nextRouteName,
             params: {

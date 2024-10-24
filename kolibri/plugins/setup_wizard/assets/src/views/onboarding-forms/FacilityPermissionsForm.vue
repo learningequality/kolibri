@@ -1,40 +1,42 @@
 <template>
 
-  <OnboardingStepBase
-    :title="$tr('learningEnvironmentHeader')"
-    :footerMessageType="footerMessageType"
-    :step="1"
-    :steps="5"
-    @continue="handleContinue"
-  >
-    <KRadioButton
-      ref="first-button"
-      v-model="selected"
-      class="permission-preset-radio-button"
-      :buttonValue="Presets.NONFORMAL"
-      :label="$tr('nonFormalLabel')"
-      :description="$tr('nonFormalDescription')"
-    />
-    <FacilityNameTextbox
-      v-if="selected === Presets.NONFORMAL"
-      ref="facility-name"
-      v-model="facilityName"
-      class="textbox"
-    />
-    <KRadioButton
-      v-model="selected"
-      class="permission-preset-radio-button"
-      :buttonValue="Presets.FORMAL"
-      :label="$tr('formalLabel')"
-      :description="$tr('formalDescription')"
-    />
-    <FacilityNameTextbox
-      v-if="selected === Presets.FORMAL"
-      ref="facility-name"
-      v-model="facilityName"
-      class="textbox"
-    />
-  </OnboardingStepBase>
+  <KRadioButtonGroup>
+    <OnboardingStepBase
+      :title="$tr('learningEnvironmentHeader')"
+      :footerMessageType="footerMessageType"
+      :step="1"
+      :steps="5"
+      @continue="handleContinue"
+    >
+      <KRadioButton
+        ref="first-button"
+        v-model="selected"
+        class="permission-preset-radio-button"
+        :buttonValue="Presets.NONFORMAL"
+        :label="$tr('nonFormalLabel')"
+        :description="$tr('nonFormalDescription')"
+      />
+      <FacilityNameTextbox
+        v-if="selected === Presets.NONFORMAL"
+        ref="facility-name"
+        v-model="facilityName"
+        class="textbox"
+      />
+      <KRadioButton
+        v-model="selected"
+        class="permission-preset-radio-button"
+        :buttonValue="Presets.FORMAL"
+        :label="$tr('formalLabel')"
+        :description="$tr('formalDescription')"
+      />
+      <FacilityNameTextbox
+        v-if="selected === Presets.FORMAL"
+        ref="facility-name"
+        v-model="facilityName"
+        class="textbox"
+      />
+    </OnboardingStepBase>
+  </KRadioButtonGroup>
 
 </template>
 
@@ -56,7 +58,6 @@
       const preset = this.wizardService.state.context['formalOrNonformal'];
       // preset inits to null, so either it'll be what the user selected or default to nonformal
       const selected = preset || Presets.NONFORMAL;
-
       const facilityName = this.wizardService.state.context['facilityName'];
       const footerMessageType = FooterMessageTypes.NEW_FACILITY;
       return {
@@ -112,7 +113,6 @@
       nonFormalDescription: {
         message:
           'Libraries, orphanages, youth centers, computer labs, and other non-formal learning contexts.',
-
         context: "Option description text for 'Non-formal' facility types.",
       },
     },

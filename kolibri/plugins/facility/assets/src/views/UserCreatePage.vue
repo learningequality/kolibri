@@ -16,87 +16,81 @@
         <h1>
           {{ $tr('createNewUserHeader') }}
         </h1>
-
-        <section>
-          <FullNameTextbox
-            ref="fullNameTextbox"
-            :autofocus="true"
-            :disabled="busy"
-            :value.sync="fullName"
-            :isValid.sync="fullNameValid"
-            :shouldValidate="formSubmitted"
-          />
-
-          <UsernameTextbox
-            ref="usernameTextbox"
-            :disabled="busy"
-            :value.sync="username"
-            :isValid.sync="usernameValid"
-            :shouldValidate="formSubmitted"
-            :isUniqueValidator="usernameIsUnique"
-            :errors.sync="caughtErrors"
-          />
-          <template v-if="showPasswordInput">
-            <PasswordTextbox
-              ref="passwordTextbox"
+        <KRadioButtonGroup>
+          <section>
+            <FullNameTextbox
+              ref="fullNameTextbox"
+              :autofocus="true"
               :disabled="busy"
-              :value.sync="password"
-              :isValid.sync="passwordValid"
+              :value.sync="fullName"
+              :isValid.sync="fullNameValid"
               :shouldValidate="formSubmitted"
             />
-          </template>
-          <KSelect
-            v-model="kind"
-            class="select"
-            :disabled="busy"
-            :label="coreString('userTypeLabel')"
-            :options="userTypeOptions"
-          />
-
-          <fieldset
-            v-if="coachIsSelected"
-            class="coach-selector"
-          >
-            <KRadioButton
-              v-model="classCoachIsSelected"
+            <UsernameTextbox
+              ref="usernameTextbox"
               :disabled="busy"
-              :label="coreString('classCoachLabel')"
-              :description="coreString('classCoachDescription')"
-              :buttonValue="true"
+              :value.sync="username"
+              :isValid.sync="usernameValid"
+              :shouldValidate="formSubmitted"
+              :isUniqueValidator="usernameIsUnique"
+              :errors.sync="caughtErrors"
             />
-            <KRadioButton
-              v-model="classCoachIsSelected"
+            <template v-if="showPasswordInput">
+              <PasswordTextbox
+                ref="passwordTextbox"
+                :disabled="busy"
+                :value.sync="password"
+                :isValid.sync="passwordValid"
+                :shouldValidate="formSubmitted"
+              />
+            </template>
+            <KSelect
+              v-model="kind"
+              class="select"
               :disabled="busy"
-              :label="coreString('facilityCoachLabel')"
-              :description="coreString('facilityCoachDescription')"
-              :buttonValue="false"
+              :label="coreString('userTypeLabel')"
+              :options="userTypeOptions"
             />
-          </fieldset>
-
-          <IdentifierTextbox
-            :value.sync="idNumber"
-            :disabled="busy"
-          />
-
-          <BirthYearSelect
-            :value.sync="birthYear"
-            :disabled="busy"
-            class="select"
-          />
-
-          <GenderSelect
-            :value.sync="gender"
-            :disabled="busy"
-            class="select"
-          />
-
-          <ExtraDemographics
-            v-model="extraDemographics"
-            :facilityDatasetExtraFields="facilityConfig.extra_fields"
-            :disabled="busy"
-          />
-        </section>
-
+            <fieldset
+              v-if="coachIsSelected"
+              class="coach-selector"
+            >
+              <KRadioButton
+                v-model="classCoachIsSelected"
+                :disabled="busy"
+                :label="coreString('classCoachLabel')"
+                :description="coreString('classCoachDescription')"
+                :buttonValue="true"
+              />
+              <KRadioButton
+                v-model="classCoachIsSelected"
+                :disabled="busy"
+                :label="coreString('facilityCoachLabel')"
+                :description="coreString('facilityCoachDescription')"
+                :buttonValue="false"
+              />
+            </fieldset>
+            <IdentifierTextbox
+              :value.sync="idNumber"
+              :disabled="busy"
+            />
+            <BirthYearSelect
+              :value.sync="birthYear"
+              :disabled="busy"
+              class="select"
+            />
+            <GenderSelect
+              :value.sync="gender"
+              :disabled="busy"
+              class="select"
+            />
+            <ExtraDemographics
+              v-model="extraDemographics"
+              :facilityDatasetExtraFields="facilityConfig.extra_fields"
+              :disabled="busy"
+            />
+          </section>
+        </KRadioButtonGroup>
         <div class="buttons">
           <KButtonGroup style="margin-top: 8px">
             <KButton
@@ -136,7 +130,6 @@
   import IdentifierTextbox from './IdentifierTextbox';
 
   const { NOT_SPECIFIED } = DemographicConstants;
-
   export default {
     name: 'UserCreatePage',
     metaInfo() {
@@ -236,12 +229,10 @@
       submitForm() {
         this.formSubmitted = true;
         let password = this.password;
-
         if (!this.showPasswordInput) {
           password = NOT_SPECIFIED;
           this.passwordValid = true;
         }
-
         if (!this.formIsValid) {
           return this.focusOnInvalidField();
         }
