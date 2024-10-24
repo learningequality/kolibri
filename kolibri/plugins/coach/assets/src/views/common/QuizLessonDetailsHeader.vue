@@ -19,7 +19,10 @@
           />
         </h1>
       </div>
-      <div>
+      <div
+        v-if="!$isPrint"
+        class="options"
+      >
         <slot name="dropdown"></slot>
       </div>
     </div>
@@ -84,9 +87,14 @@
 
   .header {
     display: flex;
+    gap: 16px;
     align-items: center;
     justify-content: space-between;
     margin-top: 16px;
+  }
+
+  .options {
+    flex-shrink: 0;
   }
 
   /deep/ .time-context {

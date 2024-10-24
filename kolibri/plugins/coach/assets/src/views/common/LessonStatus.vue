@@ -2,22 +2,6 @@
 
   <KPageContainer :topMargin="$isPrint ? 0 : 24">
     <KGrid gutter="16">
-      <!-- Class name, for print only -->
-      <div
-        v-if="$isPrint"
-        class="status-item"
-      >
-        <KGridItem
-          class="status-label"
-          :layout12="layout12Label"
-        >
-          {{ coachString('classLabel') }}
-        </KGridItem>
-        <KGridItem :layout12="layout12Value">
-          {{ className }}
-        </KGridItem>
-      </div>
-
       <!-- Visibility status/switch -->
       <div
         v-show="!$isPrint"
@@ -25,11 +9,18 @@
       >
         <KGridItem
           class="status-label"
+          :style="{ marginBottom: 0 }"
+          :layout4="{ span: 3 }"
+          :layout8="{ span: 4 }"
           :layout12="{ span: 8 }"
         >
           {{ coachString('lessonVisibleLabel') }}
         </KGridItem>
-        <KGridItem :layout12="{ span: 4 }">
+        <KGridItem
+          :layout4="{ span: 1 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 4 }"
+        >
           <KSwitch
             name="toggle-lesson-visibility"
             label=""
@@ -44,11 +35,17 @@
       <div class="status-item">
         <KGridItem
           class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
           :layout12="layout12Label"
         >
           {{ coachString('recipientsLabel') }}
         </KGridItem>
-        <KGridItem :layout12="layout12Value">
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
           <div>
             <Recipients
               :groupNames="groupNames"
@@ -62,11 +59,17 @@
       <div class="status-item">
         <KGridItem
           class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
           :layout12="layout12Label"
         >
           {{ coachString('descriptionLabel') }}
         </KGridItem>
-        <KGridItem :layout12="layout12Value">
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
           <KOptionalText>
             <template v-if="lesson.description">
               {{ lesson.description }}
@@ -100,11 +103,17 @@
       <div class="status-item">
         <KGridItem
           class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
           :layout12="layout12Label"
         >
           {{ coachString('sizeLabel') }}
         </KGridItem>
-        <KGridItem :layout12="layout12Value">
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
           <p v-if="lesson.size">
             {{ bytesForHumans(lesson.size) }}
           </p>
@@ -310,37 +319,30 @@
 
   .status-item {
     width: 100%;
-    padding: 10px 0;
     font-size: 0.925rem;
+
+    &:first-child {
+      margin-top: 16px;
+    }
+
+    &:not(:last-child) {
+      margin-bottom: 24px;
+    }
+
+    p {
+      margin: 0;
+    }
 
     @media print {
       padding: 2px 0;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
       font-size: inherit;
-
-      &:first-child {
-        padding-top: 0;
-      }
-
-      &:last-child {
-        padding-bottom: 0;
-      }
-    }
-  }
-
-  .visibility-item {
-    padding-top: 16px;
-    padding-bottom: 6px;
-
-    .grid-item {
-      vertical-align: middle;
-    }
-
-    .status-label {
-      padding-bottom: 3px;
     }
   }
 
   .status-label {
+    margin-bottom: 8px;
     font-weight: bold;
   }
 
