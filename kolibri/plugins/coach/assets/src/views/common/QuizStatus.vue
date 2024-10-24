@@ -530,7 +530,7 @@
   }
 
   .status-label {
-    padding-bottom: 8px;
+    margin-bottom: 8px;
     font-weight: bold;
 
     @media print {

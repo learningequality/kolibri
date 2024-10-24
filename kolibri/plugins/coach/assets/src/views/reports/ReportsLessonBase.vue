@@ -44,11 +44,11 @@
               @click="() => saveTabsClick(REPORTS_LESSON_TABS_ID)"
             />
           </HeaderTabs>
-          <ReportsLessonResourcesList
+          <ReportsLessonResourcesTable
             v-if="showResources"
             :entries="contentTable"
           />
-          <ReportsLessonLearnersList
+          <ReportsLessonLearnersTable
             v-else-if="showLearners"
             :entries="learnerTable"
           />
@@ -73,8 +73,8 @@
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';
   import ReportsControls from './ReportsControls';
-  import ReportsLessonLearnersList from './ReportsLessonLearnersList';
-  import ReportsLessonResourcesList from './ReportsLessonResourcesList';
+  import ReportsLessonLearnersTable from './ReportsLessonLearnersTable';
+  import ReportsLessonResourcesTable from './ReportsLessonResourcesTable.vue';
 
   export default {
     name: 'ReportsLessonBase',
@@ -82,8 +82,8 @@
       CoachAppBarPage,
       ReportsControls,
       LessonOptionsDropdownMenu,
-      ReportsLessonLearnersList,
-      ReportsLessonResourcesList,
+      ReportsLessonLearnersTable,
+      ReportsLessonResourcesTable,
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {

@@ -2,34 +2,29 @@
 
   <KPageContainer :topMargin="$isPrint ? 0 : 24">
     <KGrid gutter="16">
-      <!-- Class name, for print only -->
-      <div
-        v-if="$isPrint"
-        class="status-item"
-      >
-        <KGridItem
-          class="status-label"
-          :layout12="layout12Label"
-        >
-          {{ coachString('classLabel') }}
-        </KGridItem>
-        <KGridItem :layout12="layout12Value">
-          {{ className }}
-        </KGridItem>
-      </div>
-
       <!-- Visibility status/switch -->
       <div
         v-show="!$isPrint"
         class="status-item visibility-item"
+        :style="{
+          display: 'flex',
+          alignItems: 'center',
+        }"
       >
         <KGridItem
           class="status-label"
-          :layout12="{ span: 8 }"
+          :style="{ marginBottom: 0 }"
+          :layout4="{ span: 3 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 10 }"
         >
           {{ coachString('lessonVisibleLabel') }}
         </KGridItem>
-        <KGridItem :layout12="{ span: 4 }">
+        <KGridItem
+          :layout4="{ span: 1 }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 2 }"
+        >
           <KSwitch
             name="toggle-lesson-visibility"
             label=""
@@ -44,11 +39,17 @@
       <div class="status-item">
         <KGridItem
           class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
           :layout12="layout12Label"
         >
           {{ coachString('recipientsLabel') }}
         </KGridItem>
-        <KGridItem :layout12="layout12Value">
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
           <div>
             <Recipients
               :groupNames="groupNames"
@@ -62,11 +63,17 @@
       <div class="status-item">
         <KGridItem
           class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
           :layout12="layout12Label"
         >
           {{ coachString('descriptionLabel') }}
         </KGridItem>
-        <KGridItem :layout12="layout12Value">
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
           <KOptionalText>
             <template v-if="lesson.description">
               {{ lesson.description }}
@@ -75,19 +82,68 @@
         </KGridItem>
       </div>
 
+      <!-- Class name  -->
+      <div class="status-item">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Label"
+        >
+          {{ coachString('classLabel') }}
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
+          <div>
+            {{ className }}
+          </div>
+        </KGridItem>
+      </div>
+
       <!-- Lesson Sizes -->
       <div class="status-item">
         <KGridItem
           class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
           :layout12="layout12Label"
         >
           {{ coachString('sizeLabel') }}
         </KGridItem>
-        <KGridItem :layout12="layout12Value">
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
           <p v-if="lesson.size">
             {{ bytesForHumans(lesson.size) }}
           </p>
           <KEmptyPlaceholder v-else />
+        </KGridItem>
+      </div>
+
+      <!-- Date created -->
+      <div class="status-item">
+        <KGridItem
+          class="status-label"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Label"
+        >
+          {{ coreString('dateCreated') }}
+        </KGridItem>
+        <KGridItem
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 4 }"
+          :layout12="layout12Value"
+        >
+          <ElapsedTime
+            :date="lessonDateCreated"
+            style="margin-top: 8px"
+          />
         </KGridItem>
       </div>
     </KGrid>
@@ -135,6 +191,7 @@
   import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import Lockr from 'lockr';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
@@ -143,7 +200,7 @@
 
   export default {
     name: 'LessonStatus',
-    components: { Recipients },
+    components: { Recipients, ElapsedTime },
     mixins: [coachStringsMixin, commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
@@ -184,6 +241,13 @@
       },
       userHasDismissedModal() {
         return Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
+      },
+      lessonDateCreated() {
+        if (this.lesson.date_created) {
+          return new Date(this.lesson.date_created);
+        } else {
+          return null;
+        }
       },
     },
     mounted() {
@@ -259,37 +323,30 @@
 
   .status-item {
     width: 100%;
-    padding: 10px 0;
     font-size: 0.925rem;
+
+    &:first-child {
+      margin-top: 16px;
+    }
+
+    &:not(:last-child) {
+      margin-bottom: 24px;
+    }
+
+    p {
+      margin: 0;
+    }
 
     @media print {
       padding: 2px 0;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
       font-size: inherit;
-
-      &:first-child {
-        padding-top: 0;
-      }
-
-      &:last-child {
-        padding-bottom: 0;
-      }
-    }
-  }
-
-  .visibility-item {
-    padding-top: 16px;
-    padding-bottom: 6px;
-
-    .grid-item {
-      vertical-align: middle;
-    }
-
-    .status-label {
-      padding-bottom: 3px;
     }
   }
 
   .status-label {
+    margin-bottom: 8px;
     font-weight: bold;
   }
 

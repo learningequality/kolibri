@@ -40,14 +40,17 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { coachStringsMixin } from '../common/commonCoachStrings';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
   import StatusSimple from '../common/status/StatusSimple';
   import TruncatedItemList from '../common/TruncatedItemList';
+  import { coachStringsMixin } from '../common/commonCoachStrings';
 
   export default {
-    name: 'ReportsLessonLearnersList',
+    name: 'ReportsLessonLearnersTable',
     components: {
       CoreTable,
       StatusSimple,
@@ -62,6 +65,32 @@
       showGroupsColumn: {
         type: Boolean,
         default: true,
+      },
+      title: {
+        type: String,
+        default: '',
+      },
+    },
+    computed: {
+      ...mapState('classSummary', { className: 'name' }),
+    },
+    methods: {
+      /**
+       * @public
+       */
+      exportCSV() {
+        const columns = [
+          ...csvFields.name(),
+          ...csvFields.learnerProgress(),
+          ...csvFields.list('groups', 'groupsLabel'),
+        ];
+
+        const exporter = new CSVExporter(columns, this.className);
+        exporter.addNames({
+          lesson: this.title,
+          learners: this.coachString('learnersLabel'),
+        });
+        exporter.export(this.entries);
       },
     },
   };
