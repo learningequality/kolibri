@@ -7,16 +7,14 @@
         :tabsId="PLAN_TABS_ID"
         :activeTabId="PlanTabs.QUIZZES"
       >
-        <div class="filter-and-button">
-          <p v-if="filteredExams.length && filteredExams.length > 0">
-            {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
-          </p>
-          <KSelect
-            v-model="statusSelected"
-            :label="filterQuizStatus$()"
-            :options="statusOptions"
-            :inline="true"
-          />
+        <div class="classname-quiz-button-div">
+          <div>
+            <KIcon
+              icon="classes"
+              class="class-name-icon"
+            />
+            <span>{{ className }}</span>
+          </div>
           <KButtonGroup v-if="practiceQuizzesExist">
             <KButton
               primary
@@ -45,9 +43,36 @@
             />
           </div>
         </div>
+
+        <p v-if="filteredExams.length && filteredExams.length > 0">
+          {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
+        </p>
+
+        <ReportsControls
+          class="report-controls"
+          @export="exportCSV"
+        >
+          <KSelect
+            v-model="statusSelected"
+            :label="filterQuizStatus$()"
+            :options="statusOptions"
+            :inline="true"
+          />
+          <KSelect
+            v-model="recipientSelected"
+            :label="recipientsLabel$()"
+            :options="recipientOptions"
+            :inline="true"
+          />
+        </ReportsControls>
         <CoreTable>
           <template #headers>
             <th>{{ titleLabel$() }}</th>
+            <th style="position: relative">
+              {{ avgScoreLabel$() }}
+              <AverageScoreTooltip v-show="!$isPrint" />
+            </th>
+            <th>{{ coreString('progressLabel') }}</th>
             <th>{{ recipientsLabel$() }}</th>
             <th>{{ sizeLabel$() }}</th>
             <th class="center-text">
@@ -71,7 +96,16 @@
                     icon="quiz"
                   />
                 </td>
-
+                <td>
+                  <Score :value="exam.avgScore" />
+                </td>
+                <td>
+                  <StatusSummary
+                    :tally="exam.tally"
+                    :verbose="true"
+                    :includeNotStarted="true"
+                  />
+                </td>
                 <td>
                   <Recipients
                     :groupNames="getRecipientNamesForExam(exam)"
@@ -174,7 +208,7 @@
   import { ExamResource, UserSyncStatusResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import { mapGetters } from 'kolibri.lib.vuex';
+  import { mapState, mapGetters } from 'kolibri.lib.vuex';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { PageNames } from '../../../constants';
   import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
@@ -184,6 +218,12 @@
   import Recipients from '../../common/Recipients';
   import useCoreCoach from '../../../composables/useCoreCoach';
   import useQuizzes from '../../../composables/useQuizzes';
+  import AverageScoreTooltip from '../../common/AverageScoreTooltip';
+  import ReportsControls from '../../../views/reports/ReportsControls.vue';
+  import CSVExporter from '../../../csv/exporter';
+  import * as csvFields from '../../../csv/fields';
+  import Score from '../../common/Score.vue';
+  import StatusSummary from '../../common/status/StatusSummary';
 
   export default {
     name: 'CoachExamsPage',
@@ -192,6 +232,10 @@
       CoachAppBarPage,
       PlanHeader,
       Recipients,
+      AverageScoreTooltip,
+      ReportsControls,
+      Score,
+      StatusSummary,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -242,11 +286,18 @@
         filterQuizStatus$,
         quizClosedLabel$,
         canNoLongerEditQuizNotice$,
+        avgScoreLabel$,
+        entireClassLabel$,
       } = coachStrings;
 
       const statusSelected = ref({
         label: filterQuizAll$(),
         value: filterQuizAll$(),
+      });
+
+      const recipientSelected = ref({
+        label: entireClassLabel$(),
+        value: entireClassLabel$(),
       });
 
       return {
@@ -283,10 +334,21 @@
         filterQuizStatus$,
         quizClosedLabel$,
         createSnackbar,
+        avgScoreLabel$,
+        entireClassLabel$,
+        recipientSelected,
       };
     },
     computed: {
-      ...mapGetters('classSummary', ['getRecipientNamesForExam']),
+      ...mapGetters('classSummary', [
+        'learners',
+        'groups',
+        'getExamAvgScore',
+        'getExamStatusTally',
+        'getLearnersForExam',
+        'getRecipientNamesForExam',
+      ]),
+      ...mapState('classSummary', { className: 'name' }),
       practiceQuizzesExist() {
         return plugin_data.practice_quizzes_exist;
       },
@@ -310,7 +372,26 @@
           },
         ];
       },
+      recipientOptions() {
+        const groupOptions = this.groups.map(group => ({
+          label: group.name,
+          value: group.id,
+        }));
 
+        const learnerOptions = this.learners.map(learner => ({
+          label: learner.name,
+          value: learner.id,
+        }));
+
+        return [
+          {
+            label: this.entireClassLabel$(),
+            value: this.entireClassLabel$(),
+          },
+          ...groupOptions,
+          ...learnerOptions,
+        ];
+      },
       startedExams() {
         return this.quizzes.filter(exam => exam.active === true && exam.archive === false);
       },
@@ -322,14 +403,32 @@
       },
       filteredExams() {
         const filter = this.statusSelected.label;
+        let selectedExams;
         if (filter === this.filterQuizStarted$()) {
-          return this.startedExams;
+          selectedExams = this.startedExams;
         } else if (filter === this.filterQuizNotStarted$()) {
-          return this.notStartedExams;
+          selectedExams = this.notStartedExams;
         } else if (filter === this.filterQuizEnded$()) {
-          return this.endedExams;
+          selectedExams = this.endedExams;
+        } else {
+          selectedExams = this.quizzes;
         }
-        return this.quizzes;
+
+        const recipientsFilter = this.recipientSelected.value;
+
+        if (recipientsFilter !== this.entireClassLabel$()) {
+          selectedExams = selectedExams.filter(
+            exam =>
+              exam.groups.includes(recipientsFilter) || exam.learner_ids.includes(recipientsFilter),
+          );
+        }
+
+        return selectedExams.map(quiz => {
+          const learnersForQuiz = this.getLearnersForExam(quiz);
+          quiz.tally = this.getExamStatusTally(quiz.id, learnersForQuiz);
+          quiz.avgScore = this.getExamAvgScore(quiz.id, learnersForQuiz);
+          return quiz;
+        });
       },
       newExamRoute() {
         return {
@@ -344,17 +443,20 @@
         ];
       },
       calcTotalSizeOfVisibleQuizzes() {
-        if (this.filteredExams) {
-          let sum = 0;
-          for (const exam of this.filteredExams) {
-            if (exam.active) {
-              sum += exam.size;
-            }
-          }
-          const size = bytesForHumans(sum);
-          return size;
+        if (!this.filteredExams || this.filteredExams.length === 0) {
+          return '--';
         }
-        return '--';
+        let sum = 0;
+        for (const exam of this.filteredExams) {
+          if (exam.active && exam.size && !isNaN(exam.size)) {
+            sum += exam.size;
+          }
+        }
+        if (sum === 0) {
+          return '--';
+        }
+        const size = bytesForHumans(sum);
+        return size;
       },
     },
     mounted() {
@@ -382,6 +484,15 @@
           .catch(() => {
             this.createSnackbar(this.quizFailedToOpenMessage$());
           });
+      },
+      exportCSV() {
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.recipients(this.className),
+          ...csvFields.tally(),
+        ];
+        const fileName = this.$tr('printLabel', { className: this.className });
+        new CSVExporter(columns, fileName).export(this.filteredExams);
       },
       handleCloseQuiz(quizId) {
         const promise = ExamResource.saveModel({
@@ -431,6 +542,11 @@
         context:
           'Descriptive text at the top of the table that displays the calculated file size of all quiz resources (i.e. 120 MB)',
       },
+      printLabel: {
+        message: '{className} Lessons',
+        context:
+          "Title that displays on a printed copy of the 'Reports' > 'Lessons' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
+      },
     },
   };
 
@@ -439,22 +555,26 @@
 
 <style lang="scss" scoped>
 
-  .filter-and-button {
-    display: flex;
-    flex-wrap: wrap-reverse;
-    justify-content: space-between;
-
-    button {
-      align-self: flex-end;
-    }
-  }
-
   .center-text {
     text-align: center;
   }
 
   .button-col {
     vertical-align: middle;
+  }
+
+  .class-name-icon {
+    position: relative;
+    top: 0.5em;
+    width: 1.5em;
+    height: 1.5em;
+    margin-right: 0.5em;
+  }
+
+  .classname-quiz-button-div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5em;
   }
 
 </style>
