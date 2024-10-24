@@ -70,8 +70,8 @@
 
 <script>
 
-  import { validateLinkObject } from 'kolibri.utils.validators';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { validateLinkObject } from 'kolibri/utils/validators';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useChannels from '../../composables/useChannels';
   import LearningActivityLabel from '../LearningActivityLabel';
   import commonLearnStrings from '../commonLearnStrings';

@@ -126,13 +126,13 @@
 
 <script>
 
-  import { LessonResource } from 'kolibri.resources';
+  import LessonResource from 'kolibri-common/apiResources/LessonResource';
   import { mapActions } from 'vuex';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri/constants';
   import Lockr from 'lockr';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import commonCoach from '../common';
   import { REPORTS_TABS_ID, ReportsTabs } from '../../constants/tabsConstants';
   import CoachAppBarPage from '../CoachAppBarPage';

@@ -84,12 +84,12 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
-  import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
-  import { computed, inject } from 'kolibri.lib.vueCompositionApi';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { DemographicConstants } from 'kolibri/constants';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
+  import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
+  import { computed, inject } from '@vue/composition-api';
   import get from 'lodash/get';
 
   export default {

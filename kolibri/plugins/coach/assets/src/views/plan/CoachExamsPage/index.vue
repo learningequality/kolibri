@@ -202,14 +202,15 @@
 
 <script>
 
-  import { getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ExamResource, UserSyncStatusResource } from 'kolibri.resources';
-  import plugin_data from 'plugin_data';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import { mapState, mapGetters } from 'kolibri.lib.vuex';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import { getCurrentInstance, ref } from '@vue/composition-api';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import ExamResource from 'kolibri-common/apiResources/ExamResource';
+  import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
+  import plugin_data from 'kolibri-plugin-data';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import { mapState, mapGetters } from 'vuex';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../constants';
   import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
   import { coachStrings } from '../../common/commonCoachStrings';

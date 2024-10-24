@@ -31,8 +31,8 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
   import commonCoach from '../common';
   import { REPORTS_TABS_ID, ReportsTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';

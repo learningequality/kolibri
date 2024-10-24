@@ -143,16 +143,13 @@
 <script>
 
   import get from 'lodash/get';
-  import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import SlotTruncator from 'kolibri.coreVue.components.SlotTruncator';
-  import MasteryModel from 'kolibri.coreVue.components.MasteryModel';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import {
-    licenseLongName,
-    licenseDescriptionForConsumer,
-  } from 'kolibri.utils.licenseTranslations';
+  import MultiPaneLayout from 'kolibri-common/components/MultiPaneLayout';
+  import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
+  import InfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
+  import SlotTruncator from 'kolibri-common/components/SlotTruncator';
+  import MasteryModel from 'kolibri-common/components/labels/MasteryModel';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { licenseLongName, licenseDescriptionForConsumer } from 'kolibri/uiText/licenses';
   import markdownIt from 'markdown-it';
   import Modalities from 'kolibri-constants/Modalities';
   import commonCoach from '../../common';

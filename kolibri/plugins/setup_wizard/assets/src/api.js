@@ -1,6 +1,6 @@
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
-import { Resource } from 'kolibri.lib.apiResource';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
+import { Resource } from 'kolibri/apiResource';
 
 /**
  * The <Module>Resource classes here map directly to the <Module>ViewSet of the same

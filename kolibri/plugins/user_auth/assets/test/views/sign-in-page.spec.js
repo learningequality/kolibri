@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import SignInPage from '../../src/views/SignInPage';
 import makeStore from '../makeStore';
 
-jest.mock('kolibri.urls');
+jest.mock('kolibri/urls');
 
 function makeWrapper() {
   const store = makeStore();

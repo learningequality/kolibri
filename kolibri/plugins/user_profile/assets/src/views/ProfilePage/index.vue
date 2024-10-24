@@ -184,20 +184,20 @@
 
 <script>
 
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
+  import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
+  import AppBarPage from 'kolibri/components/pages/AppBarPage';
   import { mapGetters } from 'vuex';
-  import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { ref } from '@vue/composition-api';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
-  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
-  import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
-  import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
-  import useTotalProgress from 'kolibri.coreVue.composables.useTotalProgress';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import PermissionsIcon from 'kolibri-common/components/labels/PermissionsIcon';
+  import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
+  import { PermissionTypes } from 'kolibri/constants';
+  import useUser from 'kolibri/composables/useUser';
+  import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
+  import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
+  import useTotalProgress from 'kolibri/composables/useTotalProgress';
   import { RoutesMap } from '../../constants';
   import useCurrentUser from '../../composables/useCurrentUser';
   import useOnMyOwnSetup from '../../composables/useOnMyOwnSetup';

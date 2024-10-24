@@ -2,48 +2,30 @@ Shared core functionality
 =========================
 
 
-Kolibri provides a set of shared "core" functionality – including components, styles, and helper logic, and libraries – which can be re-used across apps and plugins.
+Kolibri provides a set of shared "core" functionality – including components, styles, and helper logic, and libraries – which can be re-used across apps and plugins. This forms a public API that others may depend on, so we keep it limited to ensure we can continue to support it.
+
+For code that needs to be reused across two plugins, it is recommended to put it in the `kolibri-common` package instead. This will allow easy reuse, but without expanding our API and increasing the number of things we potentially have to support for external users.
 
 JS libraries and Vue components
 -------------------------------
 
-The following libraries and components are available globally, in all module code:
+The following libraries and components are available for import, in all module code, without need for bundling, e.g.:
 
 - ``vue`` - the Vue.js object
 - ``vuex`` - the Vuex object
-- ``logging`` - our wrapper around the `loglevel logging module <https://github.com/pimterry/loglevel>`__
-- ``CoreBase`` - a shared base Vue.js component (*CoreBase.vue*)
+- ``kolibri-logging`` - our wrapper around the `loglevel logging module <https://github.com/pimterry/loglevel>`__
+- ``AppBarPage`` - a shared Vue.js page component (*AppBarPage.vue*)
 
-And **many** others. The complete specification for commonly shared modules can be found in ``kolibri/core/assets/src/core-app/apiSpec.js``. This object defines which modules are imported into the core object. These can then be imported throughout the codebase - e.g.:
+The complete specification for commonly shared modules can be found in ``packages/kolibri/package.json``. The "exports" field defines the things inside the package that can be imported, and the "exposes" field defines additional modules that are bundled into the core package.
 
 .. code-block:: javascript
 
-  import Vue from 'kolibri.lib.vue';
-  import CoreBase from 'kolibri.coreVue.components.CoreBase';
+  import Vue from 'vue';
+  import AppBarPage from 'kolibri/components/AppBarPage';
 
 Adding additional globally-available objects is relatively straightforward due to the :doc:`plugin and webpack build system <frontend_build_pipeline>`.
 
-To expose something in the core app, add the module to the object in ``apiSpec.js``, scoping it to the appropriate property for better organization - e.g.:
-
-.. code-block:: javascript
-
-  components: {
-    CoreTable,
-  },
-  utils: {
-    navComponents,
-  },
-
-These modules would now be available for import anywhere with the following statements:
-
-.. code-block:: javascript
-
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import navComponents from 'kolibri.utils.navComponents';
-
-.. note::
-
-  In order to avoid bloating the core api, only add modules that need to be used in multiple plugins.
+In general, code should not be added to the kolibri package unless it has been specified as required in planned work. This is to avoid cluttering the core package with unnecessary code.
 
 Styling
 -------
@@ -53,7 +35,7 @@ To help enforce style guide specs, we provide global variables that can be used 
 Dynamic core theme
 ------------------
 
-Vuex state is used to drive overall theming of the application, in order to allow for more flexible theming (either for accessibility or cosmetic purposes). All core colour styles are defined in Javascript variables kept in Vuex state, which are then applied inline to elements using Vue.js style bindings from Vuex getters.
+Reactive state is used to drive overall theming of the application, in order to allow for more flexible theming (either for accessibility or cosmetic purposes). All core colour styles are defined in Javascript variables kept in state, which are then applied inline to elements using Vue.js style bindings.
 
 There are two cases where dynamic styles cannot be directly applied to DOM elements:
 - inline styles cannot apply `pseudo-classes <https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes>`__ (e.g. ':hover', ':focus', '::before')
@@ -65,10 +47,7 @@ In order to apply a style using a computed class, define a style object as a com
 
 .. code-block:: javascript
 
-  import themeMixin from 'kolibri.coreVue.mixins.themeMixin';
-
   export default {
-    mixins: [themeMixin],
     computed: {
       pseudoStyle() {
         return {

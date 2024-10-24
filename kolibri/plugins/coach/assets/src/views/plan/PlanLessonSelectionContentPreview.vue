@@ -26,8 +26,8 @@
 
   import { mapState, mapActions } from 'vuex';
   import get from 'lodash/get';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import commonCoach from '../common';
   import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
   import CoachImmersivePage from '../../views/CoachImmersivePage';

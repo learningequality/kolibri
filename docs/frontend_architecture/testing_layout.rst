@@ -112,10 +112,10 @@ It any composable does not have an associated mock file, please do create one be
 
 .. code:: javascript
 
-   import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+   import useUser, { useUserMock } from 'kolibri/composables/useUser';
    import YourSampleComponent from '../YourSampleComponent.vue';
 
-   jest.mock('kolibri.coreVue.composables.useUser');
+   jest.mock('kolibri/composables/useUser');
 
    ...
 

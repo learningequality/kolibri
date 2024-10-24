@@ -81,11 +81,12 @@
   import { mapState, mapActions, mapGetters } from 'vuex';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import isEmpty from 'lodash/isEmpty';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import find from 'lodash/find';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { TaskResource } from 'kolibri.resources';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import plugin_data from 'kolibri-plugin-data';
   import commonDeviceStrings from '../commonDeviceStrings';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import useContentTasks from '../../composables/useContentTasks';
@@ -100,7 +101,6 @@
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
   import { startImportTask } from './api';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'SelectContentPage',

@@ -82,9 +82,9 @@
 
   import { mapGetters, mapState } from 'vuex';
   import TechnicalTextBlock from 'kolibri-common/components/AppError/TechnicalTextBlock';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import DeviceAppBarPage from './DeviceAppBarPage';
   import { deviceString } from './commonDeviceStrings';
   import DeviceNameModal from './DeviceNameModal';

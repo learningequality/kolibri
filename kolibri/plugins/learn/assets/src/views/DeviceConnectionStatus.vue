@@ -22,10 +22,10 @@
 <script>
 
   import { set, useTimeoutPoll } from '@vueuse/core';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { useDevices } from 'kolibri.coreVue.componentSets.sync';
-  import { RemoteChannelResource } from 'kolibri.resources';
-  import { ref, onBeforeUnmount } from 'kolibri.lib.vueCompositionApi';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useDevices from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
+  import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
+  import { ref, onBeforeUnmount } from '@vue/composition-api';
   import { KolibriStudioId } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
 

@@ -1,6 +1,6 @@
-import { ContentNodeResource } from 'kolibri.resources';
-import store from 'kolibri.coreVue.vuex.store';
-import { fetchExamWithContent } from 'kolibri.utils.exams';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import store from 'kolibri/store';
+import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 import { coachStrings } from '../../views/common/commonCoachStrings';
 
 export function questionRootRedirectHandler(params, name, next) {

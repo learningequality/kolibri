@@ -375,17 +375,17 @@
 
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
-  import urls from 'kolibri.urls';
-  import logger from 'kolibri.lib.logging';
-  import { ref, watch } from 'kolibri.lib.vueCompositionApi';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import urls from 'kolibri/urls';
+  import logger from 'kolibri-logging';
+  import { ref, watch } from '@vue/composition-api';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import { availableLanguages, currentLanguage, sortLanguages } from 'kolibri.utils.i18n';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import { availableLanguages, currentLanguage, sortLanguages } from 'kolibri/utils/i18n';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { checkCapability } from 'kolibri.utils.appCapabilities';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import { checkCapability } from 'kolibri/utils/appCapabilities';
+  import useUser from 'kolibri/composables/useUser';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import commonDeviceStrings from '../commonDeviceStrings';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';

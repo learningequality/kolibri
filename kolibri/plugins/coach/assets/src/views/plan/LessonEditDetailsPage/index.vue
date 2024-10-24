@@ -34,10 +34,10 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import { LessonResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import LessonResource from 'kolibri-common/apiResources/LessonResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';

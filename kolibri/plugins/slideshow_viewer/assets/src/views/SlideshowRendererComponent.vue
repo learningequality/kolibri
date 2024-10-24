@@ -85,12 +85,12 @@
   import has from 'lodash/has';
   import orderBy from 'lodash/orderBy';
   import objectFitImages from 'object-fit-images';
-  import client from 'kolibri.client';
+  import client from 'kolibri/client';
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
-  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
   import {
     Hooper,
     Slide,

@@ -47,7 +47,7 @@
 <script>
 
   import pickBy from 'lodash/pickBy';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import useUser from 'kolibri/composables/useUser';
   import commonCoach from '../common';
   import { ClassesPageNames } from '../../../../../learn/assets/src/constants';
   import { LastPages } from '../../constants/lastPagesConstants';

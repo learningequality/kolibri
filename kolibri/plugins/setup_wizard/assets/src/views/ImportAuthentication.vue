@@ -21,8 +21,8 @@
 
 <script>
 
-  import { FacilityAdminCredentialsForm } from 'kolibri.coreVue.componentSets.sync';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import FacilityAdminCredentialsForm from 'kolibri-common/components/syncComponentSet/FacilityAdminCredentialsForm';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import { FooterMessageTypes } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 
@@ -103,4 +103,4 @@
 </script>
 
 
-<style scoped lang="scss"></style>
+<style lang="scss" scoped></style>

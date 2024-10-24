@@ -12,7 +12,7 @@
 
 <script>
 
-  import { now } from 'kolibri.utils.serverClock';
+  import { now } from 'kolibri/utils/serverClock';
 
   const MINUTE = 60000;
   const HOUR = MINUTE * 60;
@@ -216,7 +216,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   .time-context {
     display: block;

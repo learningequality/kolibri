@@ -119,10 +119,10 @@
 
 <script>
 
-  import { validateLinkObject } from 'kolibri.utils.validators';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { now } from 'kolibri.utils.serverClock';
-  import { ContentLevels, Categories } from 'kolibri.coreVue.vuex.constants';
+  import { validateLinkObject } from 'kolibri/utils/validators';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { now } from 'kolibri/utils/serverClock';
+  import { ContentLevels, Categories } from 'kolibri/constants';
   import camelCase from 'lodash/camelCase';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useChannels from '../composables/useChannels';

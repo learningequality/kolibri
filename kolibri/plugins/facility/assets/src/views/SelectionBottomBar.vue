@@ -15,8 +15,8 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
 
   export default {
     name: 'SelectionBottomBar',

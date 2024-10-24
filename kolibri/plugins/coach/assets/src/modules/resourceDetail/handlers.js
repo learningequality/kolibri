@@ -1,5 +1,5 @@
-import { ContentNodeResource } from 'kolibri.resources';
-import store from 'kolibri.coreVue.vuex.store';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import store from 'kolibri/store';
 
 export function generateResourceHandler(paramsToCheck) {
   return function resourceHandler(to, from) {

@@ -34,7 +34,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../common';
   import { REPORTS_GROUP_TABS_ID, ReportsGroupTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';

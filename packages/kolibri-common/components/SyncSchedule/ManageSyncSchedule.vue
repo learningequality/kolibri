@@ -114,18 +114,19 @@
 
 <script>
 
-  import { computed } from 'kolibri.lib.vueCompositionApi';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import { TaskResource, FacilityResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { computed } from '@vue/composition-api';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import SyncFacilityModalGroup from 'kolibri-common/components/syncComponentSet/SyncFacilityModalGroup';
   import {
-    SyncFacilityModalGroup,
     useDeviceFacilityFilter,
     useDevicesWithFilter,
-  } from 'kolibri.coreVue.componentSets.sync';
-  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  } from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
+  import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import { KDP_ID, oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
   import { kdpNameTranslator } from './i18n';
 

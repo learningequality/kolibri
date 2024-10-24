@@ -1,8 +1,8 @@
 import { get } from '@vueuse/core';
-import { ref, onMounted } from 'kolibri.lib.vueCompositionApi';
-import useUser from 'kolibri.coreVue.composables.useUser';
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
+import { ref, onMounted } from '@vue/composition-api';
+import useUser from 'kolibri/composables/useUser';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 
 export default function onMyOwnSetup() {
   const onMyOwnSetup = ref(false);

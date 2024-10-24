@@ -1,5 +1,5 @@
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 import { downloadChannelMetadata } from '../utils';
 import { getChannelWithContentSizes } from '../apiChannelMetadata';
 

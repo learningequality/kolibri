@@ -3,6 +3,10 @@
   "description": "Learn Plugin for Kolibri",
   "private": true,
   "version": "0.0.1",
+  "dependencies": {
+    "deep-object-diff": "^1.1.9",
+    "tinycolor2": "^1.6.0"
+  },
   "devDependencies": {
     "flush-promises": "^1.0.2"
   }

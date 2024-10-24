@@ -52,9 +52,9 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import TimeDuration from 'kolibri-common/components/TimeDuration';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { coachStringsMixin } from '../common/commonCoachStrings';
   import StatusSummary from '../common/status/StatusSummary';
 

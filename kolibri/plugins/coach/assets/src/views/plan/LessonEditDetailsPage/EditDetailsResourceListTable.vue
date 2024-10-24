@@ -102,14 +102,14 @@
 <script>
 
   import { mapState } from 'vuex';
-  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
-  import DragContainer from 'kolibri.coreVue.components.DragContainer';
-  import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  import Draggable from 'kolibri.coreVue.components.Draggable';
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
+  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
+  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
+  import Draggable from 'kolibri-common/components/sortable/Draggable';
+  import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { coachStrings } from '../../common/commonCoachStrings';
 
   // This is a simplified version of ResourceListTable that is supposed to work

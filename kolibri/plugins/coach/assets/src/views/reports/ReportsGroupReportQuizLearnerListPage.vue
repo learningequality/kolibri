@@ -16,7 +16,7 @@
 <script>
 
   import sortBy from 'lodash/sortBy';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../common';
   import { PageNames } from '../../constants';
   import CSVExporter from '../../csv/exporter';

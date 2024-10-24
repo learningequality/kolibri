@@ -32,8 +32,8 @@
 
   import get from 'lodash/get';
   import Modalities from 'kolibri-constants/Modalities';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import ExamReport from 'kolibri.coreVue.components.ExamReport';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import ExamReport from 'kolibri-common/components/quizzes/QuizReport';
   import commonLearnStrings from '../commonLearnStrings';
 
   export default {

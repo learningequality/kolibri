@@ -4,7 +4,7 @@ import * as mockPDFJS from './mocks/pdfjsMock';
 
 const { methods } = PdfRendererIndex;
 
-jest.mock('kolibri.urls');
+jest.mock('kolibri/urls');
 
 jest.mock('pdfjs-dist/legacy/build/pdf', () => require('./mocks/pdfjsMock'));
 

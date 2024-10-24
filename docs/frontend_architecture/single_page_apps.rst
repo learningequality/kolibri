@@ -38,46 +38,47 @@ If you want to expose your new single page app as a top level navigation item in
 
 For more information on using `bundle_id` and connecting it to the relevant Javascript entry point read the documentation on the :ref:`Frontend build pipeline`. The entry point for the nav item should minimally do the following:
 
-.. code-block:: html
+.. code-block:: js
 
-  <template>
+  import { registerNavItem } from 'kolibri/composables/useNav';
+  import urls from 'kolibri/urls';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import baseRoutes from '../routes/baseRoutes';
+  import { learnStrings } from './commonLearnStrings';
 
-    <CoreMenuOption
-      :label="$tr('label')"
-      :link="url"
-      icon="learn"
-    />
-
-  </template>
-
-
-  <script>
-
-    import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
-    import navComponents from 'kolibri.utils.navComponents';
-    import urls from 'kolibri.urls';
-
-    const component = {
-      name: 'ExampleSideNavEntry',
-      components: {
-        CoreMenuOption,
-      },
-      computed: {
-        url() {
-          return urls['kolibri:kolibri.plugins.example:example']();
+  registerNavItem({
+    get url() {
+      return urls['kolibri:kolibri.plugins.learn:learn']();
+    },
+    get routes() {
+      return [
+        {
+          label: coreStrings.$tr('homeLabel'),
+          icon: 'dashboard',
+          route: baseRoutes.home.path,
+          name: baseRoutes.home.name,
         },
-      },
-      priority: 5,
-      $tr: {
-        label: 'Example',
-      },
-    };
+        {
+          label: coreStrings.$tr('libraryLabel'),
+          icon: 'library',
+          route: baseRoutes.library.path,
+          name: baseRoutes.library.name,
+        },
+        {
+          label: coreStrings.$tr('bookmarksLabel'),
+          icon: 'bookmark',
+          route: baseRoutes.bookmarks.path,
+          name: baseRoutes.bookmarks.name,
+        },
+      ];
+    },
+    get label() {
+      return learnStrings.$tr('learnLabel');
+    },
+    icon: 'learn',
+    bottomBar: true,
+  });
 
-    navComponents.register(component);
-
-    export default component;
-
-  </script>
 
 This will create a navigation component which will be registered to appear in the navigation side bar.
 

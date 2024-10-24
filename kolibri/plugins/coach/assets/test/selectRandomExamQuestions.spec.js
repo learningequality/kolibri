@@ -1,7 +1,5 @@
 import selectQuestions, { exerciseToQuestionArray } from '../src/utils/selectQuestions';
 
-jest.mock('kolibri.lib.logging');
-
 const EXERCISES = [
   {
     id: 'A',

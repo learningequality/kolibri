@@ -47,11 +47,11 @@
 <script>
 
   import { get } from '@vueuse/core';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import plugin_data from 'plugin_data';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import AppBarPage from 'kolibri/components/pages/AppBarPage';
+  import { computed, getCurrentInstance } from '@vue/composition-api';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import plugin_data from 'kolibri-plugin-data';
   import useDownloadRequests from '../../composables/useDownloadRequests';
   import useDevices from '../../composables/useDevices';
   import DownloadsList from './DownloadsList';

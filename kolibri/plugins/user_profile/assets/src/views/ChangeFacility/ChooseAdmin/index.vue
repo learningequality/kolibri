@@ -47,11 +47,11 @@
 <script>
 
   import get from 'lodash/get';
-  import { inject, computed, ref } from 'kolibri.lib.vueCompositionApi';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
-  import UserTable from 'kolibri.coreVue.components.UserTable';
+  import { inject, computed, ref } from '@vue/composition-api';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
+  import UserTable from 'kolibri-common/components/UserTable';
 
   export default {
     name: 'ChooseAdmin',

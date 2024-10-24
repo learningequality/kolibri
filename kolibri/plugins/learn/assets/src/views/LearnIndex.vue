@@ -13,9 +13,9 @@
 <script>
 
   import { mapState } from 'vuex';
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
-  import plugin_data from 'plugin_data';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
+  import plugin_data from 'kolibri-plugin-data';
+  import useUser from 'kolibri/composables/useUser';
   import { PageNames } from '../constants';
 
   export default {

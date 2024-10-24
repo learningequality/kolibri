@@ -1,6 +1,6 @@
 import { get, set } from '@vueuse/core';
-import { computed, ref } from 'kolibri.lib.vueCompositionApi';
-import { ContentNodeResource } from 'kolibri.resources';
+import { computed, ref } from '@vue/composition-api';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 
 /**
  * @deftype FetchTreeConfig

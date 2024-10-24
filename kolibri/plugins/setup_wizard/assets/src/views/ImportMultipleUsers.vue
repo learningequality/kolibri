@@ -59,13 +59,13 @@
 
 <script>
 
-  import { TaskResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
-  import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
-  import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
-  import UserTable from 'kolibri.coreVue.components.UserTable';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
+  import { DemographicConstants } from 'kolibri/constants';
+  import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
+  import UserTable from 'kolibri-common/components/UserTable';
   import { FooterMessageTypes, SoudQueue } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 

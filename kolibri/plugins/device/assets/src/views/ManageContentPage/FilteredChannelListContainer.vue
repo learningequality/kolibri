@@ -67,8 +67,8 @@
   import unionBy from 'lodash/unionBy';
   import uniqBy from 'lodash/uniqBy';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import FilterTextbox from 'kolibri/components/FilterTextbox';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'FilteredChannelListContainer',

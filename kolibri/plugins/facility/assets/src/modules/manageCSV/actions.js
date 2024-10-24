@@ -1,9 +1,10 @@
-import logger from 'kolibri.lib.logging';
-import { TaskResource, GenerateCSVLogRequestResource } from 'kolibri.resources';
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
-import { currentLanguage } from 'kolibri.utils.i18n';
-import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+import logger from 'kolibri-logging';
+import TaskResource from 'kolibri/apiResources/TaskResource';
+import GenerateCSVLogRequestResource from 'kolibri-common/apiResources/GenerateCSVLogRequestResource';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
+import { currentLanguage } from 'kolibri/utils/i18n';
+import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 
 const logging = logger.getLogger(__filename);
 

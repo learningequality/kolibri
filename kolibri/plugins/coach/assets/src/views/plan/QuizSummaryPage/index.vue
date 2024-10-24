@@ -89,12 +89,12 @@
   import { mapState } from 'vuex';
   import find from 'lodash/find';
   import sortBy from 'lodash/sortBy';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import CatchErrors from 'kolibri.utils.CatchErrors';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ExamResource } from 'kolibri.resources';
+  import { ERROR_CONSTANTS } from 'kolibri/constants';
+  import CatchErrors from 'kolibri/utils/CatchErrors';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import ExamResource from 'kolibri-common/apiResources/ExamResource';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../constants';
   import { QUIZZES_TABS_ID, QuizzesTabs } from '../../../constants/tabsConstants';
   import { useCoachTabs } from '../../../composables/useCoachTabs';

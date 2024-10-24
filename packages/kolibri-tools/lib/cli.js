@@ -726,6 +726,33 @@ _addPathOptions(program.command('i18n-audit'))
     );
   });
 
+// Core API migration
+
+program
+  .command('migrate')
+  .arguments('[files...]', 'List of custom file globs or file names to convert')
+  .option('-i, --ignore <string>', 'Ignore these comma separated patterns', list, ignoreDefaults)
+  .action(function (files, options) {
+    if (!files.length) {
+      program.help();
+    } else {
+      const { run: jscodeshift } = require('jscodeshift/src/Runner');
+      const glob = require('./glob');
+      const transformPath = require.resolve('./apiTransform.js');
+      const ignore = options.ignore;
+      Promise.all(
+        files.map(file => {
+          const matches = glob.sync(file, { ignore });
+          return jscodeshift(transformPath, matches, {
+            dry: false,
+            print: false,
+            verbose: 0,
+          });
+        }),
+      );
+    }
+  });
+
 // Check engines, then process args
 try {
   const engines = require(path.join(process.cwd(), 'package.json')).engines;

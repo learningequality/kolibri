@@ -81,10 +81,10 @@
 
   import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
-  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
-  import UserTable from 'kolibri.coreVue.components.UserTable';
+  import FilterTextbox from 'kolibri/components/FilterTextbox';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import filterUsersByNames from 'kolibri-common/utils/filterUsersByNames';
+  import UserTable from 'kolibri-common/components/UserTable';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
 

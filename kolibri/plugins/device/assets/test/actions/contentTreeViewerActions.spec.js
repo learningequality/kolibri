@@ -1,15 +1,15 @@
 import omit from 'lodash/fp/omit';
-import { ContentNodeGranularResource } from 'kolibri.resources';
-import client from 'kolibri.client';
+import ContentNodeGranularResource from 'kolibri-common/apiResources/ContentNodeGranularResource';
+import client from 'kolibri/client';
 import { makeNode, contentNodeGranularPayload } from '../utils/data';
 import { updateTreeViewTopic } from '../../src/modules/wizard/handlers';
 import { makeSelectContentPageStore } from '../utils/makeStore';
 
 const simplePath = (...ids) => ids.map(id => ({ id, title: `node_${id}` }));
 
-jest.mock('kolibri.urls');
-jest.mock('kolibri.client');
-jest.mock('kolibri.resources');
+jest.mock('kolibri/urls');
+jest.mock('kolibri/client');
+jest.mock('kolibri-common/apiResources/ContentNodeGranularResource');
 
 const ADD_NODE_ACTION = 'manageContent/wizard/addNodeForTransfer';
 const REMOVE_NODE_ACTION = 'manageContent/wizard/removeNodeForTransfer';

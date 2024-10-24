@@ -152,13 +152,12 @@
 
 <script>
 
-  import { ref, computed, toRefs, watch } from 'kolibri.lib.vueCompositionApi';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ref, computed, toRefs, watch } from '@vue/composition-api';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useAccordion from 'kolibri-common/components/useAccordion';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
-  import coreStrings from 'kolibri.utils.coreStrings';
-  import { annotateSections } from 'kolibri.utils.exams';
+  import { annotateSections } from 'kolibri-common/quizzes/utils';
   import {
     displayQuestionTitle,
     displaySectionTitle,

@@ -4,7 +4,7 @@
  * All data exposed by this function belong to a current learner.
  */
 
-import { ref, reactive, getCurrentInstance, onBeforeUnmount } from 'kolibri.lib.vueCompositionApi';
+import { ref, reactive, getCurrentInstance, onBeforeUnmount } from '@vue/composition-api';
 import { get, set } from '@vueuse/core';
 import fromPairs from 'lodash/fromPairs';
 import isNumber from 'lodash/isNumber';
@@ -12,11 +12,11 @@ import isPlainObject from 'lodash/isPlainObject';
 import isUndefined from 'lodash/isUndefined';
 import { diff } from 'deep-object-diff';
 import Modalities from 'kolibri-constants/Modalities';
-import client from 'kolibri.client';
-import logger from 'kolibri.lib.logging';
-import urls from 'kolibri.urls';
-import useUser from 'kolibri.coreVue.composables.useUser';
-import useTotalProgress from 'kolibri.coreVue.composables.useTotalProgress';
+import client from 'kolibri/client';
+import logger from 'kolibri-logging';
+import urls from 'kolibri/urls';
+import useUser from 'kolibri/composables/useUser';
+import useTotalProgress from 'kolibri/composables/useTotalProgress';
 
 const logging = logger.getLogger(__filename);
 

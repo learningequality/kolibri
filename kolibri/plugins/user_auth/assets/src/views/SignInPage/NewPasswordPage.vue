@@ -52,8 +52,8 @@
 <script>
 
   import pickBy from 'lodash/pickBy';
-  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AuthBase from '../AuthBase';
   import { ComponentMap } from '../../constants';
 

@@ -1,6 +1,6 @@
-import { ClassroomResource } from 'kolibri.resources';
-import logger from 'kolibri.lib.logging';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
+import logger from 'kolibri-logging';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import { pageNameToModuleMap } from '../constants';
 import { LessonsPageNames } from '../constants/lessonsConstants';

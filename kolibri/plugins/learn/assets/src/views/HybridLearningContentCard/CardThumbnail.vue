@@ -16,7 +16,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ContentNodeThumbnail from '../thumbnails/ContentNodeThumbnail.vue';
   import LearningActivityDuration from '../LearningActivityDuration';
 

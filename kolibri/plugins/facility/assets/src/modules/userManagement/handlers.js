@@ -1,6 +1,6 @@
 import pickBy from 'lodash/pickBy';
-import { FacilityUserResource } from 'kolibri.resources';
-import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
+import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import { _userState } from '../mappers';
 // An action for setting up the initial state of the app by fetching data from the server
 export function showUserPage(store, toRoute, fromRoute) {

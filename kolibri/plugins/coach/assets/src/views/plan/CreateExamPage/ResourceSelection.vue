@@ -201,10 +201,11 @@
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
-  import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
+  import { computed, ref, getCurrentInstance, watch } from '@vue/composition-api';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+  import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
+  import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { exerciseToQuestionArray } from '../../../utils/selectQuestions';
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
@@ -926,7 +927,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
 

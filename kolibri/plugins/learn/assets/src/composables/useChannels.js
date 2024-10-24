@@ -2,8 +2,8 @@
  * A composable function containing logic related to channels
  */
 import pickBy from 'lodash/pickBy';
-import { ref, reactive } from 'kolibri.lib.vueCompositionApi';
-import { ChannelResource } from 'kolibri.resources';
+import { ref, reactive } from '@vue/composition-api';
+import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import { get, set } from '@vueuse/core';
 
 // The refs are defined in the outer scope so they can be used as a shared store

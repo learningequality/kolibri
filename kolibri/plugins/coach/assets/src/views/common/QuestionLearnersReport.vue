@@ -73,10 +73,10 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import InteractionList from 'kolibri.coreVue.components.InteractionList';
-  import MultiPaneLayout from 'kolibri.coreVue.components.MultiPaneLayout';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import InteractionList from 'kolibri-common/components/quizzes/InteractionList';
+  import MultiPaneLayout from 'kolibri-common/components/MultiPaneLayout';
+  import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../common';
   import QuestionDetailLearnerList from './QuestionDetailLearnerList';
 

@@ -17,7 +17,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'UserRemoveConfirmationModal',

@@ -1,5 +1,5 @@
 import { mount, createLocalVue } from '@vue/test-utils';
-import { FacilityUserGender } from 'kolibri.coreVue.vuex.constants';
+import { FacilityUserGender } from 'kolibri/constants';
 import ConfirmAccountDetails from '../ConfirmAccountDetails';
 
 const localVue = createLocalVue();

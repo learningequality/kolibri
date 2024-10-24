@@ -101,7 +101,7 @@
 <script>
 
   import isUndefined from 'lodash/isUndefined';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../common';
   import * as csvFields from '../../csv/fields';
   import CSVExporter from '../../csv/exporter';

@@ -55,9 +55,9 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
-  import { now } from 'kolibri.utils.serverClock';
-  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import urls from 'kolibri/urls';
+  import { now } from 'kolibri/utils/serverClock';
+  import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
   import Hashi from 'hashi';
 
   const defaultContentHeight = '500px';

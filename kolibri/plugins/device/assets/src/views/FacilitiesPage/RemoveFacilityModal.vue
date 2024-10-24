@@ -40,11 +40,11 @@
 
 <script>
 
-  import { TaskResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import useUser from 'kolibri/composables/useUser';
 
   export default {
     name: 'RemoveFacilityModal',

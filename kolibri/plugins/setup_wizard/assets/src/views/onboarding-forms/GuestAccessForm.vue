@@ -33,7 +33,7 @@
 
 <script>
 
-  import { Presets } from 'kolibri.coreVue.vuex.constants';
+  import { Presets } from 'kolibri/constants';
   import { FooterMessageTypes } from '../../constants';
   import OnboardingStepBase from '../OnboardingStepBase';
 

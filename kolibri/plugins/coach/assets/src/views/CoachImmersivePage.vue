@@ -27,9 +27,9 @@
 <script>
 
   import { mapState } from 'vuex';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useCoreCoach from '../composables/useCoreCoach';
 
   export default {

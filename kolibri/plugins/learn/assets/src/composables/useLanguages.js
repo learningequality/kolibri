@@ -3,9 +3,9 @@
  */
 
 import sortBy from 'lodash/sortBy';
-import { computed, ref } from 'kolibri.lib.vueCompositionApi';
+import { computed, ref } from '@vue/composition-api';
 import { get } from '@vueuse/core';
-import plugin_data from 'plugin_data';
+import plugin_data from 'kolibri-plugin-data';
 
 const langArray = plugin_data.languages ? plugin_data.languages : [];
 const langMap = {};

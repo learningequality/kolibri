@@ -39,9 +39,9 @@
 
 <script>
 
-  import { TaskResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 
   export default {
     name: 'SyncAllFacilitiesModal',

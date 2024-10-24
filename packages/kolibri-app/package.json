@@ -1,0 +1,11 @@
+{
+  "name": "kolibri-app",
+  "version": "1.0.0",
+  "description": "The Kolibri app",
+  "main": "src/index.js",
+  "author": "Learning Equality",
+  "license": "MIT",
+  "dependencies": {
+    "vuex-router-sync": "^5.0.0"
+  }
+}
