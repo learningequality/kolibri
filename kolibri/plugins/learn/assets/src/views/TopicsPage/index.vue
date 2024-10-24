@@ -276,8 +276,8 @@
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
+  import useChannels from 'kolibri-common/composables/useChannels';
   import { PageNames } from '../../constants';
-  import useChannels from '../../composables/useChannels';
   import useSearch from '../../composables/useSearch';
   import useContentLink from '../../composables/useContentLink';
   import useContentNodeProgress from '../../composables/useContentNodeProgress';

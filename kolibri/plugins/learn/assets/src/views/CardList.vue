@@ -125,7 +125,7 @@
   import { ContentLevels, Categories } from 'kolibri.coreVue.vuex.constants';
   import camelCase from 'lodash/camelCase';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useChannels from '../composables/useChannels';
+  import useChannels from 'kolibri-common/composables/useChannels';
   import LearningActivityLabel from './LearningActivityLabel';
   import LearningActivityDuration from './LearningActivityDuration';
   import commonLearnStrings from './commonLearnStrings';

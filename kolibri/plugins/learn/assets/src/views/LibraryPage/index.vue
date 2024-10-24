@@ -176,6 +176,7 @@
   import { searchKeys } from 'kolibri-common/composables/useBaseSearch';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
+  import useChannels from 'kolibri-common/composables/useChannels';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
@@ -194,7 +195,6 @@
   import SearchResultsGrid from '../SearchResultsGrid';
   import LearnAppBarPage from '../LearnAppBarPage';
   import PostSetupModalGroup from '../../../../../device/assets/src/views/PostSetupModalGroup.vue';
-  import useChannels from './../../composables/useChannels';
   import ResumableContentGrid from './ResumableContentGrid';
   import OtherLibraries from './OtherLibraries';
 

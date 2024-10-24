@@ -33,16 +33,23 @@
   import flatMap from 'lodash/flatMap';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { NoCategories } from 'kolibri.coreVue.vuex.constants';
-  import useChannels from '../composables/useChannels';
-  import useLanguages from '../composables/useLanguages';
+  import useChannels from 'kolibri-common/composables/useChannels';
+  import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
 
   export default {
     name: 'SearchChips',
     mixins: [commonCoreStrings],
     setup() {
-      const { languagesMap } = useLanguages();
+      const { availableLanguages } = injectBaseSearch();
+      const languagesMap = availableLanguages.reduce((map, lang) => {
+        map[lang.id] = map;
+        return map;
+      }, {});
       const { channelsMap } = useChannels();
-      return { channelsMap, languagesMap };
+      return {
+        channelsMap,
+        languagesMap,
+      };
     },
     props: {
       searchTerms: {

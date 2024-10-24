@@ -9,12 +9,13 @@ import { ContentNodeResource } from 'kolibri.resources';
 import plugin_data from 'plugin_data';
 // eslint-disable-next-line import/named
 import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
+// eslint-disable-next-line import/named
+import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
 import makeStore from '../makeStore';
 import CustomContentRenderer from '../../src/views/ChannelRenderer/CustomContentRenderer';
 import { PageNames } from '../../src/constants';
 import TopicsPage from '../../src/views/TopicsPage';
 // eslint-disable-next-line import/named
-import useChannels, { useChannelsMock } from '../../src/composables/useChannels';
 
 jest.mock('kolibri.coreVue.componentSets.sync');
 jest.mock('plugin_data', () => {
@@ -89,7 +90,7 @@ jest.mock('kolibri.urls');
 jest.mock('kolibri.coreVue.composables.useUser');
 jest.mock('kolibri-common/composables/useBaseSearch');
 jest.mock('../../src/composables/useContentLink');
-jest.mock('../../src/composables/useChannels');
+jest.mock('kolibri-common/composables/useChannels');
 // Needed to test anything using mount() where children use this composable
 jest.mock('../../src/composables/useLearningActivities');
 

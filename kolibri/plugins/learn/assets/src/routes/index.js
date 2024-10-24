@@ -2,7 +2,7 @@ import { get } from '@vueuse/core';
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import useUser from 'kolibri.coreVue.composables.useUser';
-import useChannels from '../composables/useChannels';
+import useChannels from 'kolibri-common/composables/useChannels';
 import { PageNames, ClassesPageNames, KolibriStudioId } from '../constants';
 import LibraryPage from '../views/LibraryPage';
 import HomePage from '../views/HomePage';

@@ -9,10 +9,11 @@ import useTotalProgress, {
   useTotalProgressMock,
 } from 'kolibri.coreVue.composables.useTotalProgress';
 import { ref } from 'kolibri.lib.vueCompositionApi';
+// eslint-disable-next-line import/named
+import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
 import { ClassesPageNames, PageNames } from '../../../constants';
 import HomePage from '../index';
 /* eslint-disable import/named */
-import useChannels, { useChannelsMock } from '../../../composables/useChannels';
 import useDeviceSettings, { useDeviceSettingsMock } from '../../../composables/useDeviceSettings';
 import useLearnerResources, {
   useLearnerResourcesMock,
@@ -21,7 +22,7 @@ import useLearnerResources, {
 jest.mock('kolibri.client');
 jest.mock('kolibri.urls');
 jest.mock('kolibri.coreVue.componentSets.sync');
-jest.mock('../../../composables/useChannels');
+jest.mock('kolibri-common/composables/useChannels');
 jest.mock('kolibri.coreVue.composables.useUser');
 jest.mock('../../../composables/useDeviceSettings');
 jest.mock('../../../composables/useLearnerResources');

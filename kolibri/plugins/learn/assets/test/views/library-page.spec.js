@@ -8,12 +8,12 @@ import { ContentNodeResource } from 'kolibri.resources';
 import useUser from 'kolibri.coreVue.composables.useUser';
 /* eslint-disable import/named */
 import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
+import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
 /* eslint-enable import/named */
 import { PageNames } from '../../src/constants';
 import LibraryPage from '../../src/views/LibraryPage';
 import OtherLibraries from '../../src/views/LibraryPage/OtherLibraries';
 /* eslint-disable import/named */
-import useChannels, { useChannelsMock } from '../../src/composables/useChannels';
 import usePinnedDevices, { usePinnedDevicesMock } from '../../src/composables/usePinnedDevices';
 import useDevices, { useDevicesMock } from '../../src/composables/useDevices';
 /* eslint-enable import/named */
@@ -38,7 +38,7 @@ const CHANNEL = {
   thumbnail: 'test thumbnail',
 };
 
-jest.mock('../../src/composables/useChannels');
+jest.mock('kolibri-common/composables/useChannels');
 jest.mock('../../src/composables/useCardLayoutSpan');
 jest.mock('../../src/composables/useDevices');
 jest.mock('../../src/composables/useLearnerResources');

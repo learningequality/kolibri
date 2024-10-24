@@ -27,7 +27,7 @@
 <script>
 
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
-  import useChannels from '../../composables/useChannels';
+  import useChannels from 'kolibri-common/composables/useChannels';
   import Thumbnail from './Thumbnail';
 
   /**

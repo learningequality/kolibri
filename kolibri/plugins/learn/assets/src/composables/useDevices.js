@@ -15,9 +15,9 @@ import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKoli
 import useUser from 'kolibri.coreVue.composables.useUser';
 import { localeCompare } from 'kolibri.utils.i18n';
 import plugin_data from 'plugin_data';
+import useChannels from 'kolibri-common/composables/useChannels';
 import { KolibriStudioId } from '../constants';
 import { learnStrings } from '../views/commonLearnStrings';
-import useChannels from './useChannels';
 
 /**
  * The ref is defined in the outer scope so it can be used as a shared store
