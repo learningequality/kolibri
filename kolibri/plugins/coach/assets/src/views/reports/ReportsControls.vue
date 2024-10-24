@@ -82,7 +82,7 @@
           'QuizSummaryPage',
           'PLAN_LESSONS_ROOT',
           'PLAN_LESSONS_ROOT_BETTER',
-          'EXAMS'
+          'EXAMS',
         ].includes(this.$route.name);
       },
       classLearnersListRoute() {
