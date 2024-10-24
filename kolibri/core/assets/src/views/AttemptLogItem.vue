@@ -59,7 +59,7 @@
       v-if="attemptLog.missing_resource"
       class="coach-content-label"
       icon="warning"
-      :color="$themePalette.yellow.v_1100"
+      :color="$themePalette.yellow.v_500"
     />
   </span>
 

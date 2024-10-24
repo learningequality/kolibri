@@ -24,7 +24,7 @@
             <KIcon
               ref="warning"
               icon="warning"
-              :color="$themePalette.yellow.v_1100"
+              :color="$themePalette.yellow.v_500"
             />
             <KTooltip
               reference="warning"
