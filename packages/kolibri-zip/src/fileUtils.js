@@ -7,7 +7,9 @@ export function getAbsoluteFilePath(baseFilePath, relativeFilePath) {
   // Take substring to remove the leading slash to match the reference file paths
   // in packageFiles.
   try {
-    return new URL(relativeFilePath, new URL(baseFilePath, 'http://b.b/')).pathname.substring(1);
+    return decodeURI(
+      new URL(relativeFilePath, new URL(baseFilePath, 'http://b.b/')).pathname.substring(1),
+    );
   } catch (e) {
     console.debug('Error during URL handling', e); // eslint-disable-line no-console
   }
@@ -33,7 +35,7 @@ export class Mapper {
 const cssPathRegex = /(url\(['"]?)([^?"')]+)?(\?[^'"]+)?(['"]?\))/g;
 
 export function getCSSPaths(fileContents) {
-  return Array.from(fileContents.matchAll(cssPathRegex), ([, , p2]) => p2);
+  return Array.from(fileContents.matchAll(cssPathRegex), ([, , p2]) => decodeURI(p2));
 }
 
 export function replaceCSSPaths(fileContents, packageFiles) {
@@ -41,7 +43,7 @@ export function replaceCSSPaths(fileContents, packageFiles) {
     try {
       // Look to see if there is a URL in our packageFiles mapping that
       // that has this as the source path.
-      const newUrl = packageFiles[p2];
+      const newUrl = packageFiles[decodeURI(p2)];
       if (newUrl) {
         // If so, replace the instance with the new URL.
         return `${p1}${newUrl}${p4}`;

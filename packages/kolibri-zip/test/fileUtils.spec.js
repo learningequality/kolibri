@@ -16,6 +16,9 @@ describe('File Path replacement', () => {
         'package/fonts/test.woff',
       );
     });
+    it('should handle a path with a space in it', () => {
+      expect(getAbsoluteFilePath('test.htm', 'Basic Book.css')).toEqual('Basic Book.css');
+    });
   });
   describe('CSS path finding', () => {
     it('should find a simple relative path', () => {
@@ -29,6 +32,14 @@ describe('File Path replacement', () => {
     it('should find a more complex relative path with query parameters', () => {
       const packageFiles = ['../fonts/test.woff'];
       expect(getCSSPaths('url("../fonts/test.woff?iefix")')).toEqual(packageFiles);
+    });
+    it('should find a path with a space', () => {
+      const packageFiles = ['../fonts/test this.woff'];
+      expect(getCSSPaths('url("../fonts/test this.woff?iefix")')).toEqual(packageFiles);
+    });
+    it('should find a path with an encoded space', () => {
+      const packageFiles = ['../fonts/test this.woff'];
+      expect(getCSSPaths('url("../fonts/test%20this.woff?iefix")')).toEqual(packageFiles);
     });
     it('should find paths that use single quotes', () => {
       const packageFiles = ['../fonts/test.woff'];
@@ -59,6 +70,22 @@ describe('File Path replacement', () => {
         '../fonts/test.woff': 'different',
       };
       expect(replaceCSSPaths('url("../fonts/test.woff")', packageFiles)).toEqual(
+        'url("different")',
+      );
+    });
+    it('should replace a path with a space', () => {
+      const packageFiles = {
+        '../fonts/test this.woff': 'different',
+      };
+      expect(replaceCSSPaths('url("../fonts/test this.woff")', packageFiles)).toEqual(
+        'url("different")',
+      );
+    });
+    it('should replace a path with an encoded space', () => {
+      const packageFiles = {
+        '../fonts/test this.woff': 'different',
+      };
+      expect(replaceCSSPaths('url("../fonts/test%20this.woff")', packageFiles)).toEqual(
         'url("different")',
       );
     });
