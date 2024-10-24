@@ -109,6 +109,19 @@ def monkey_patch_distutils():
         sys.modules["distutils.version"] = module
 
 
+def forward_port_cgi_module():
+    """
+    Forward ports the required parts of the removed cgi module.
+    This can be removed when we upgrade to a version of Django that is Python 3.13 compatible.
+    """
+    if sys.version_info < (3, 13):
+        return
+    from importlib import import_module
+
+    module = import_module("kolibri.utils.compat_cgi")
+    sys.modules["cgi"] = module
+
+
 def set_env():
     """
     Sets the Kolibri environment for the CLI or other application worker
@@ -127,6 +140,9 @@ def set_env():
 
     # Add path for c extensions to sys.path
     prepend_cext_path(os.path.realpath(os.path.dirname(kolibri_dist.__file__)))
+
+    # Depends on Django, so we need to wait until our dist has been registered.
+    forward_port_cgi_module()
 
     # Set default env
     for key, value in ENVIRONMENT_VARIABLES.items():
