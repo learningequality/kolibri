@@ -46,7 +46,7 @@
             </p>
 
             <QuestionListPreview
-              :sections="quiz.question_sources || []"
+              :sections="exam.question_sources || []"
               :selectedExercises="selectedExercises"
             />
           </section>
@@ -55,7 +55,7 @@
     </KGrid>
     <ManageExamModals
       :currentAction="currentAction"
-      :quiz="quiz"
+      :quiz="exam"
       @submit_delete="handleSubmitDelete"
       @submit_copy="handleSubmitCopy"
       @cancel="closeModal"
@@ -70,6 +70,7 @@
   import { mapState } from 'vuex';
   import fromPairs from 'lodash/fromPairs';
   import find from 'lodash/find';
+  import { fetchExamWithContent } from 'kolibri.utils.exams';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -82,12 +83,7 @@
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';
-  import {
-    fetchQuizSummaryPageData,
-    serverAssignmentPayload,
-    clientAssigmentState,
-    deleteExam,
-  } from './api';
+  import { serverAssignmentPayload, clientAssigmentState, deleteExam } from './api';
 
   export default {
     name: 'QuizSummaryPage',
@@ -108,13 +104,6 @@
     },
     data() {
       return {
-        quiz: {
-          active: false,
-          assignments: [],
-          learners_see_fixed_order: false,
-          question_sources: [],
-          title: '',
-        },
         selectedExercises: {},
         loading: true,
         currentAction: '',
@@ -123,13 +112,13 @@
     computed: {
       ...mapState(['classList']),
       selectedQuestions() {
-        return this.quiz.question_sources.reduce((acc, section) => {
+        return this.exam.question_sources.reduce((acc, section) => {
           acc = [...acc, ...section.questions];
           return acc;
         }, []);
       },
       quizIsRandomized() {
-        return !this.quiz.learners_see_fixed_order;
+        return !this.exam.learners_see_fixed_order;
       },
       avgScore() {
         return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
@@ -149,21 +138,20 @@
         return this.$route.params.classId;
       },
     },
-    beforeRouteEnter(to, from, next) {
-      return fetchQuizSummaryPageData(to.params.quizId)
+    created() {
+      fetchExamWithContent(this.exam)
         .then(data => {
-          next(vm => vm.setData(data));
+          this.setData(data);
         })
-        .catch(error => {
-          next(vm => vm.setError(error));
+        .catch(e => {
+          this.setError(e);
         });
     },
     methods: {
       // @public
       setData(data) {
-        const { exam, exerciseContentNodes } = data;
-        this.quiz = exam;
-        this.selectedExercises = fromPairs(exerciseContentNodes.map(x => [x.id, x]));
+        const { exercises } = data;
+        this.selectedExercises = fromPairs(exercises.map(x => [x.id, x]));
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
@@ -197,7 +185,7 @@
           collection: classroomId,
           assignments,
           learner_ids: adHocLearnerIds,
-          question_sources: this.quiz.question_sources,
+          question_sources: this.exam.question_sources,
         };
 
         ExamResource.saveModel({ data: newQuiz })
@@ -240,15 +228,15 @@
           });
       },
       handleSubmitDelete() {
-        return deleteExam(this.quiz.id)
+        return deleteExam(this.$route.params.quizId)
           .then(() => {
-            this.$store.commit('classSummary/DELETE_ITEM', { map: 'examMap', id: this.quiz.id });
+            this.$store.commit('classSummary/DELETE_ITEM', { map: 'examMap', id: this.exam.id });
             this.$router.replace(this.$router.getRoute('EXAMS'), () => {
               this.showSnackbarNotification('quizDeleted');
             });
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', { error });
+            this.$store.dispatch('handleApiError', { error, reloadOnReconnect: true });
           });
       },
     },
