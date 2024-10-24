@@ -70,6 +70,7 @@
                 <div class="actions">
                   <KIconButton
                     icon="clear"
+                    :ariaLabel="coreString('removeAction')"
                     @click="() => handleRemoveEntry(tableRow)"
                   />
                 </div>
