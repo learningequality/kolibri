@@ -115,7 +115,7 @@
       },
       linkStyle() {
         const hoverBg = this.isFullscreen
-          ? this.$themeBrand.secondary.v_1100
+          ? this.$themeBrand.secondary.v_500
           : this.$themePalette.grey.v_600;
         const defaultBg = this.isFullscreen ? this.$themeTokens.appBar : this.$themePalette.black;
         return {
