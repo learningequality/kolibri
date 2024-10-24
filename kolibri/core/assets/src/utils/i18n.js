@@ -1,10 +1,10 @@
 import has from 'lodash/has';
 import Vue from 'kolibri.lib.vue';
 import logger from 'kolibri.lib.logging';
+import plugin_data from 'plugin_data';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
 import setupAndLoadFonts from './setupAndLoadFonts';
-import plugin_data from 'plugin_data';
 
 export const languageDirections = {
   LTR: 'ltr',

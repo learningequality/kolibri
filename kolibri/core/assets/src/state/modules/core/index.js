@@ -1,8 +1,8 @@
+import plugin_data from 'plugin_data';
 import sessionModule from '../session';
 import * as getters from './getters';
 import * as actions from './actions';
 import mutations from './mutations';
-import plugin_data from 'plugin_data';
 
 export default {
   state() {

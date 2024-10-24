@@ -70,7 +70,6 @@ import Draggable from '../views/sortable/Draggable';
 import DragHandle from '../views/sortable/DragHandle';
 import DragContainer from '../views/sortable/DragContainer';
 import DragSortWidget from '../views/sortable/DragSortWidget';
-import FocusTrap from '../views/FocusTrap';
 import BottomAppBar from '../views/BottomAppBar';
 import BaseToolbar from '../views/BaseToolbar';
 import GenderSelect from '../views/userAccounts/GenderSelect';

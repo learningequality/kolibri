@@ -1,7 +1,7 @@
 import isUndefined from 'lodash/isUndefined';
 import browsers from 'browserslist-config-kolibri';
-import { browser, passesRequirements } from './browserInfo';
 import plugin_data from 'plugin_data';
+import { browser, passesRequirements } from './browserInfo';
 
 const minimumBrowserRequirements = {};
 
