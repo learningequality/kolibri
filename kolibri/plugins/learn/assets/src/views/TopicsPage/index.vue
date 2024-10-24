@@ -117,40 +117,37 @@
               data-test="topics"
             >
               <!-- Rows of cards and links / show more for each Topic -->
-              <template v-for="t in topicsForDisplay">
+              <template v-for="(c, i) in contentsForDisplay">
+                <hr
+                  v-if="!c.children && i > 0"
+                  :key="'divider_' + i"
+                  class="divider"
+                >
                 <TopicSubsection
-                  :key="t.id"
-                  :topic="t"
-                  :subTopicLoading="t.id === subTopicLoading"
+                  v-if="c.children"
+                  :key="c.id"
+                  :topic="c"
+                  :subTopicLoading="c.id === subTopicLoading"
                   :gridType="gridType"
                   :allowDownloads="allowDownloads"
                   @showMore="handleShowMore"
                   @loadMoreInSubtopic="handleLoadMoreInSubtopic"
                   @toggleInfoPanel="toggleInfoPanel"
                 />
+                <LibraryAndChannelBrowserMainContent
+                  v-else
+                  :key="'grid_' + i"
+                  :allowDownloads="allowDownloads"
+                  data-test="search-results"
+                  :contents="c"
+                  :gridType="gridType"
+                  currentCardViewStyle="card"
+                  @toggleInfoPanel="toggleInfoPanel"
+                />
               </template>
 
-              <!-- display for each nested topic/folder  -->
-              <!-- display all resources at the top level of the folder -->
-              <LibraryAndChannelBrowserMainContent
-                v-if="resources.length"
-                :allowDownloads="allowDownloads"
-                data-test="search-results"
-                :contents="resourcesDisplayed"
-                :gridType="gridType"
-                currentCardViewStyle="card"
-                @toggleInfoPanel="toggleInfoPanel"
-              />
-              <KButton
-                v-if="moreResources"
-                class="more-after-grid"
-                appearance="basic-link"
-                @click="handleShowMoreResources"
-              >
-                {{ coreString('showMoreAction') }}
-              </KButton>
               <div
-                v-else-if="topicMore"
+                v-if="topicMore"
                 class="end-button-block"
               >
                 <KButton
@@ -259,6 +256,7 @@
 <script>
 
   import { get, set } from '@vueuse/core';
+  import isArray from 'lodash/isArray';
   import isEqual from 'lodash/isEqual';
   import lodashSet from 'lodash/set';
   import lodashGet from 'lodash/get';
@@ -577,7 +575,6 @@
     data: function () {
       return {
         sidePanelStyleOverrides: {},
-        showMoreResources: false,
         metadataSidePanelContent: null,
         expandedTopics: {},
         subTopicLoading: null,
@@ -620,56 +617,56 @@
       channelTitle() {
         return this.channel ? this.channel.name : '';
       },
-      resources() {
-        return this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
-      },
       childrenToDisplay() {
         return this.windowBreakpoint === 2 || this.windowBreakpoint > 4 ? 4 : 3;
       },
       gridType() {
         return this.windowBreakpoint > 4 ? 2 : 1;
       },
-      resourcesDisplayed() {
-        // if no folders are shown at this level, show more resources to fill the space
-        // or if the user has explicitly requested to show more resources
-        if (!this.topics.length || this.showMoreResources) {
-          return this.resources;
-        }
-        return this.resources.slice(0, this.childrenToDisplay);
-      },
-      moreResources() {
-        return this.resourcesDisplayed.length < this.resources.length;
-      },
       topics() {
         return this.contents
           .filter(content => content.kind === ContentNodeKinds.TOPIC)
-          .filter(t => t.children && t.children.results.length)
-          .map(t => {
-            let topicChildren = t.children.results;
+          .filter(t => t.children && t.children.results.length);
+      },
+      contentsForDisplay() {
+        return this.contents
+          .filter(
+            c =>
+              (this.subTopicId ? c.id === this.subTopicId : true) &&
+              (c.kind !== ContentNodeKinds.TOPIC || (c.children && c.children.results.length)),
+          )
+          .reduce((arr, c) => {
+            // Reduce the list to objects representing topics,
+            // and arrays representing runs of resources positioned between them.
+            if (c.kind !== ContentNodeKinds.TOPIC) {
+              const lastEntry = arr.slice(-1)[0];
+              // The final entry is either undefined or not an array
+              // so we have to create a new array for this run of resources
+              if (!lastEntry || !isArray(lastEntry)) {
+                return [...arr, [c]];
+              }
+              // Otherwise, just add this to the existing array to add to
+              // the ongoing run of resources.
+              return [...arr.slice(0, -1), [...lastEntry, c]];
+            }
+            let topicChildren = c.children.results;
             const prefixTitles = [];
             while (topicChildren.length === 1 && !topicChildren[0].is_leaf) {
               // If the topic has only one child, and that child is also a topic
               // we should collapse the topics to display the child topic instead.
-              prefixTitles.push(t.title);
-              t = topicChildren[0];
-              topicChildren = t.children ? t.children.results : [];
+              prefixTitles.push(c.title);
+              c = topicChildren[0];
+              topicChildren = c.children ? c.children.results : [];
             }
-            t.prefixTitles = prefixTitles;
-            return t;
-          });
-      },
-      topicsForDisplay() {
-        return this.topics
-          .filter(t => (this.subTopicId ? t.id === this.subTopicId : true))
-          .map(t => {
+            c.prefixTitles = prefixTitles;
             let childrenToDisplay;
-            const topicChildren = t.children ? t.children.results : [];
+            topicChildren = c.children ? c.children.results : [];
             if (this.subTopicId || this.topics.length === 1) {
               // If we are in a subtopic display, we should only be displaying this topic
               // so don't bother checking if the ids match.
               // Alternatively, if there is only one topic, we should display all of its children.
               childrenToDisplay = topicChildren.length;
-            } else if (this.expandedTopics[t.id]) {
+            } else if (this.expandedTopics[c.id]) {
               // If topic is expanded show three times as many children.
               childrenToDisplay = this.childrenToDisplay * 3;
             } else {
@@ -681,10 +678,10 @@
               !this.subTopicId &&
               this.topics.length != 1 &&
               topicChildren.length > this.childrenToDisplay &&
-              !this.expandedTopics[t.id];
+              !this.expandedTopics[c.id];
 
             // viewMore is the 'more' object that will be used to load more items from this topic.
-            const viewMore = t.children ? t.children.more : null;
+            const viewMore = c.children ? c.children.more : null;
 
             // viewAll is a flag + link object to link to a subpage which shows all initially
             // loaded topics content
@@ -694,19 +691,22 @@
                   ...this.$route,
                   params: {
                     ...this.$route.params,
-                    subtopic: t.id,
+                    subtopic: c.id,
                   },
                 }
                 : null;
-
-            return {
-              ...t,
-              viewAll,
-              children,
-              showMore,
-              viewMore,
-            };
-          });
+            // Having processed the topic, just add it to the end of the array.
+            return [
+              ...arr,
+              {
+                ...c,
+                viewAll,
+                children,
+                showMore,
+                viewMore,
+              },
+            ];
+          }, []);
       },
       subTopicId() {
         return this.subtopic;
@@ -898,6 +898,7 @@
               this.$store.dispatch('handleApiError', { error: err });
             });
         }
+        return Promise.resolve();
       },
       handleLoadMoreInSubtopic(topicId) {
         this.subTopicLoading = topicId;
@@ -933,9 +934,6 @@
         this.loadMoreTopics().then(() => {
           this.topicMoreLoading = false;
         });
-      },
-      handleShowMoreResources() {
-        this.showMoreResources = true;
       },
       findFirstEl() {
         if (this.$refs.embeddedPanel) {
@@ -1045,6 +1043,10 @@
   .page-loader {
     top: $toolbar-height;
     padding-top: 16px;
+  }
+
+  .divider {
+    margin-bottom: 24px;
   }
 
 </style>
