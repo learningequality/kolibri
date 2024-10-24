@@ -99,9 +99,11 @@ export default {
       }
       const groups = getters.getGroupIdsForAssignment(assignment);
       const adHocLearners = assignment.learner_ids;
-      return adHocLearners.length
-        ? uniq(adHocLearners.concat(getters.getLearnersForGroups(groups)))
-        : getters.getLearnersForGroups(groups);
+
+      // NOTE: getters.getLearnersForGroups returns the learner_ids of the whole class
+      // when no groups exist.
+      const learnersFromGroups = groups.length ? getters.getLearnersForGroups(groups) : [];
+      return uniq(adHocLearners.concat(learnersFromGroups));
     };
   },
   /*
