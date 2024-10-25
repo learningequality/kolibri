@@ -679,7 +679,7 @@ Feature: Kolibri critical workflows
 			And I see the *Project token* field
 		When I enter a valid project token
 			And I click *Continue*
-		The I see the *Select a source* modal
+		Then I see the *Select a source* modal
 			And I see *Register with <project_name>? Data will be saved in the cloud*
 		When I click *Register*
 		Then I see a task progress bar above the list with facilities

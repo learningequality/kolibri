@@ -151,8 +151,8 @@ Feature: Coach creates lessons
   Scenario: Preview a resource from the search results and add/remove it to and from the lesson
     Given I am on the search results page
       And there are resources in the search results page
-    When I click an exercise <exercise> card
-    Then I am on the preview page for exercise <exercise>
+    When I click an exercise card
+    Then I am on the preview page for the exercise
     When I click the *Add* button
     Then I see a snackbar confirmation *Added 1 resource to the lesson*
       And I see the *Remove* button

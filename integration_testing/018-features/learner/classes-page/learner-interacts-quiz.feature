@@ -1,5 +1,27 @@
-Feature: Learner sees sections and section descriptions on their quizzes
-  Learners need to be able to see each quiz section separated by a heading showing the section's title.
+Feature: Learner engages with an assigned quiz
+  Learner can access the quiz that has been assigned by coach, pause/resume it, and review the score/answers once completed
+
+  Background:
+    Given I am signed in as a learner user
+      And I am at *Learn > Home > Classes > '<class>'* page
+      And there is a quiz assigned to me
+
+  Scenario: Learner interacts with and closes a quiz without submitting it
+    When I click on a quiz card
+    Then I see the quiz modal
+    When I answer some of the questions
+      And I close the quiz modal
+    Then I am back at the *Learn > Home > Classes > '<class>'* page
+      And I see a blue clock icon at the lower left corner of the quiz card
+      And I see the number of questions left
+    When I click on the quiz card
+    Then I see the quiz modal
+      And I see all of my previously given answers
+    When I answer the remaining questions
+      And I clock the *Submit quiz* button
+    Then I am back at the *Learn > Home > Classes > '<class>'* page
+      And I see a yellow star icon at the lower left corner of the quiz card
+      And I see the score of the quiz in percents
 
   Scenario: Learner interacts with and completes a quiz with sections
   	Given I am signed in to Kolibri as a learner
@@ -40,23 +62,3 @@ Feature: Learner sees sections and section descriptions on their quizzes
     Then I see a *Show correct answer* check box
     When I check the *Show correct answer* check box
     Then I see the correct answer below
-
-  Scenario: Learner interacts with and closes a quiz without submitting it
-    Given I am signed in to Kolibri as a learner
-      And I am at *Learn > Home > Classes > <class>*
-      And there is an assigned quiz with sections
-    When I click on a quiz card
-    Then I see the quiz modal
-    When I answer some of the questions
-      And I close the quiz modal
-    Then I am back at the *Learn > Home > Classes > '<class>'* page
-      And I see a blue clock icon at the lower left corner of the quiz card
-      And I see the number of questions left
-    When I click on the quiz card
-    Then I see the quiz modal
-      And I see all of my previously given answers
-    When I answer the remaining questions
-      And I clock the *Submit quiz* button
-    Then I am back at the *Learn > Home > Classes > '<class>'* page
-      And I see a yellow star icon at the lower left corner of the quiz card
-      And I see the score of the quiz in percents
