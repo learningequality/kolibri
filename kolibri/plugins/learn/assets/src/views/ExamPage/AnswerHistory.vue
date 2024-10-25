@@ -79,7 +79,7 @@
                     v-if="question.missing"
                     class="dot"
                     icon="warning"
-                    :color="$themePalette.yellow.v_500"
+                    :color="$themePalette.yellow.v_600"
                   />
                   <KIcon
                     v-else

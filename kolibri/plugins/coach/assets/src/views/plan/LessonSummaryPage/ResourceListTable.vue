@@ -80,7 +80,7 @@
                     !getCachedResource(resource.contentnode_id).available
                 "
                 icon="warning"
-                :style="{ fill: $themePalette.yellow.v_500 }"
+                :style="{ fill: $themePalette.yellow.v_600 }"
               />
             </div>
 
