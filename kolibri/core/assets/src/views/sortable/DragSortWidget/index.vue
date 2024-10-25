@@ -3,6 +3,7 @@
   <div
     class="sort-widget"
     :class="{ focused: hasFocus, 'not-focused': !hasFocus }"
+    @mousedown="e => $emit('mousedown', e)"
   >
     <KIconButton
       v-show="!isFirst"
