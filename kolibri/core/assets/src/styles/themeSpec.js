@@ -8,7 +8,7 @@ function _brandColorScaleValidator(value) {
     logging.error(`Expected object but got '${value}'`);
     return false;
   }
-  const COLOR_NAMES = ['v_200', 'v_400', 'v_500', 'v_600', 'v_800', ];
+  const COLOR_NAMES = ['v_200', 'v_400', 'v_500', 'v_600', 'v_800'];
   for (const colorName of COLOR_NAMES) {
     if (!value[colorName]) {
       logging.error(`${colorName} '${name}' not defined by theme`);
