@@ -94,7 +94,7 @@ describe('auth message component', () => {
 
     it('shows correct link text if there is a user plugin', () => {
       const wrapper = makeWrapper();
-      const link = wrapper.find('kexternallink-stub');
+      const link = wrapper.find('[data-test=signinlink]');
       expect(link.attributes()).toMatchObject({
         href: 'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Ftest_url',
         text: 'Sign in to Kolibri',
@@ -104,7 +104,7 @@ describe('auth message component', () => {
     it('if the next param is in URL, it is what is used in the sign-in page link', () => {
       window.location.href = 'http://localhost:8000/#/some_other_url';
       const wrapper = makeWrapper();
-      const link = wrapper.find('kexternallink-stub');
+      const link = wrapper.find('[data-test=signinlink]');
       expect(link.attributes()).toMatchObject({
         href: 'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Fsome_other_url',
         text: 'Sign in to Kolibri',
@@ -113,8 +113,17 @@ describe('auth message component', () => {
   });
 
   it('shows correct link text if there is not a user plugin', () => {
-    const wrapper = makeWrapper();
-    const link = wrapper.find('kexternallink-stub');
+    // linkText checks to see if `userAuthPluginUrl` is truthy and it's either a
+    // function or undefined and if there is no user plugin, then it needs to be
+    // falsy for this test case
+    const wrapper = makeWrapper({
+      computed: {
+        userAuthPluginUrl() {
+          return false;
+        },
+      },
+    });
+    const link = wrapper.find('[data-test=signinlink]');
     expect(link.attributes()).toMatchObject({
       href: '/',
       text: 'Go to home page',
@@ -124,6 +133,6 @@ describe('auth message component', () => {
   it('does not show a link if the user is logged in', () => {
     useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
     const wrapper = makeWrapper();
-    expect(wrapper.find('kexternallink-stub').exists()).toBe(false);
+    expect(wrapper.find('[data-test=signinlink]').exists()).toBe(false);
   });
 });
