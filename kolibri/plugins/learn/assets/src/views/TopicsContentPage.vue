@@ -356,7 +356,7 @@
         default: null,
       },
       // Our linting doesn't detect usage in the setup function yet.
-      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      // eslint-disable-next-line vue/no-unused-properties
       id: {
         type: String,
         required: true,
