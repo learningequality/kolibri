@@ -3,7 +3,7 @@
   <div
     v-show="userDevicesUsingIE11"
     class="alert"
-    :style="{ backgroundColor: $themePalette.yellow.v_200 }"
+    :style="{ backgroundColor: $themePalette.yellow.v_100 }"
   >
     <div style="display: flex">
       <div>
