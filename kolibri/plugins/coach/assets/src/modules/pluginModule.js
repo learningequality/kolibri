@@ -131,9 +131,11 @@ export default {
         return Promise.all([
           // Make sure we load any class list data, so that we know
           // whether this user has access to multiple classes or not.
-          store
-            .dispatch('classSummary/loadClassSummary', classId)
-            .then(summary => store.dispatch('setClassList', summary.facility_id)),
+          store.dispatch('classSummary/loadClassSummary', classId).then(summary => {
+            if (summary?.facility_id) {
+              store.dispatch('setClassList', summary?.facility_id);
+            }
+          }),
           store.dispatch('coachNotifications/fetchNotificationsForClass', classId),
         ]).catch(error => {
           store.dispatch('handleApiError', { error, reloadOnReconnect: true });

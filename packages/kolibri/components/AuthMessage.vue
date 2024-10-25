@@ -17,9 +17,9 @@
       />
     </p>
     <p v-else>
-      <KRouterLink
+      <KExternalLink
         :text="$tr('goBackToHomeAction')"
-        :to="{ path: '/' }"
+        :href="rootUrl"
         appearance="basic-link"
       />
     </p>
@@ -68,6 +68,10 @@
       },
     },
     computed: {
+      ...mapGetters(['isUserLoggedIn']),
+      rootUrl() {
+        return urls['kolibri:core:redirect_user']();
+      },
       detailsText() {
         return this.details || this.$tr(this.authorizedRole);
       },
