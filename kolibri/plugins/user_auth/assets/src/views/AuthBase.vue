@@ -233,7 +233,7 @@
             filter: 'blur(2px)',
           };
         }
-        return { backgroundColor: this.$themeBrand.primary.v_800 };
+        return { backgroundColor: this.$themeBrand.primary.v_400 };
       },
       guestURL() {
         return urls['kolibri:core:guest']();

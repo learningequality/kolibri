@@ -49,7 +49,7 @@
           v-if="isExpanded(index)"
           class="spacing-items"
           :style="{
-            backgroundColor: $themePalette.grey.v_100,
+            backgroundColor: $themePalette.grey.v_200,
           }"
         >
           <span
@@ -79,7 +79,7 @@
                     v-if="question.missing"
                     class="dot"
                     icon="warning"
-                    :color="$themePalette.yellow.v_1100"
+                    :color="$themePalette.yellow.v_600"
                   />
                   <KIcon
                     v-else
@@ -260,7 +260,7 @@
         return this.$computedClass({
           backgroundColor: this.$themeTokens.surface,
           ':hover': {
-            backgroundColor: this.$themePalette.grey.v_100,
+            backgroundColor: this.$themePalette.grey.v_200,
           },
         });
       },

@@ -199,7 +199,7 @@
           padding: '15px 0',
           ':before': {
             content: "''",
-            backgroundColor: this.$themePalette.grey.v_100,
+            backgroundColor: this.$themePalette.grey.v_200,
             position: 'absolute',
             top: '0',
             bottom: '0',

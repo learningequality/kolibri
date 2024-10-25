@@ -19,7 +19,7 @@
     </div>
 
     <table>
-      <tr :style="{ color: $themePalette.grey.v_600 }">
+      <tr :style="{ color: $themePalette.grey.v_700 }">
         <th>scenario</th>
         <th>example tally</th>
         <th>status bar</th>
@@ -243,7 +243,7 @@
         return { border: `1px solid ${this.$themeTokens.fineLine}` };
       },
       thickBorderStyle() {
-        return { border: `2px solid ${this.$themePalette.grey.v_600}` };
+        return { border: `2px solid ${this.$themePalette.grey.v_700}` };
       },
     },
     mounted() {

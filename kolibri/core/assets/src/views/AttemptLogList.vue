@@ -76,7 +76,7 @@
             v-if="title"
             class="accordion-header"
             :style="{
-              backgroundColor: index === currentSectionIndex ? $themePalette.grey.v_100 : '',
+              backgroundColor: index === currentSectionIndex ? $themePalette.grey.v_200 : '',
             }"
           >
             <KButton
@@ -117,7 +117,7 @@
                 class="attempt-item"
                 :style="{
                   backgroundColor: isSelected(section.startQuestionNumber + qIndex)
-                    ? $themePalette.grey.v_100
+                    ? $themePalette.grey.v_200
                     : '',
                 }"
               >

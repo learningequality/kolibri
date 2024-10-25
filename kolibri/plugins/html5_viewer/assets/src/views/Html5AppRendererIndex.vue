@@ -8,7 +8,7 @@
   >
     <div
       class="fullscreen-header"
-      :style="{ backgroundColor: $themePalette.grey.v_100 }"
+      :style="{ backgroundColor: $themePalette.grey.v_200 }"
     >
       <KButton
         :primary="false"
@@ -36,7 +36,7 @@
         ref="iframe"
         class="iframe"
         sandbox="allow-scripts allow-same-origin"
-        :style="{ backgroundColor: $themePalette.grey.v_100 }"
+        :style="{ backgroundColor: $themePalette.grey.v_200 }"
         frameBorder="0"
         :src="rooturl"
         allow="fullscreen"
