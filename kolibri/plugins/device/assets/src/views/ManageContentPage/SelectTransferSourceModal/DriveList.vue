@@ -1,15 +1,15 @@
 <template>
 
   <div class="drive-list">
-    <div v-if="drives.length === 0">
-      <UiAlert
-        type="info"
-        :dismissible="false"
-      >
-        {{ noDrivesText }}
-      </UiAlert>
-    </div>
     <KRadioButtonGroup>
+      <div v-if="drives.length === 0">
+        <UiAlert
+          type="info"
+          :dismissible="false"
+        >
+          {{ noDrivesText }}
+        </UiAlert>
+      </div>
       <div v-else>
         <h2>
           {{ $tr('drivesFound') }}

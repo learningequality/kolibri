@@ -32,8 +32,8 @@
       </UiAlert>
       <!-- Static Devices -->
       <template v-for="(d, idx) in savedDevices">
-        <KRadioButtonGroup>
-          <div :key="`div-${idx}`">
+        <div :key="`div-${idx}`">
+          <KRadioButtonGroup>
             <KRadioButton
               :key="idx"
               v-model="selectedDeviceId"
@@ -50,8 +50,8 @@
               appearance="basic-link"
               @click="removeSavedDevice(d.id)"
             />
-          </div>
-        </KRadioButtonGroup>
+          </KRadioButtonGroup>
+        </div>
       </template>
       <hr
         v-if="savedDevices.length > 0 && discoveredDevices.length > 0"
@@ -59,19 +59,17 @@
       >
       <!-- Dynamic Devices -->
       <template v-for="d in discoveredDevices">
-        <KRadioButtonGroup>
-          <div :key="`div-${d.id}`">
-            <KRadioButton
-              :key="d.id"
-              v-model="selectedDeviceId"
-              class="radio-button"
-              :buttonValue="d.instance_id"
-              :label="formatNameAndId(d.device_name, d.id)"
-              :description="formatBaseDevice(d)"
-              :disabled="formDisabled || fetchFailed || !isDeviceAvailable(d.id)"
-            />
-          </div>
-        </KRadioButtonGroup>
+        <div :key="`div-${d.id}`">
+          <KRadioButton
+            :key="d.id"
+            v-model="selectedDeviceId"
+            class="radio-button"
+            :buttonValue="d.instance_id"
+            :label="formatNameAndId(d.device_name, d.id)"
+            :description="formatBaseDevice(d)"
+            :disabled="formDisabled || fetchFailed || !isDeviceAvailable(d.id)"
+          />
+        </div>
       </template>
     </template>
     <template #actions>
