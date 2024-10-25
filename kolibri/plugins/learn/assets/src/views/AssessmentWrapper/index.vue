@@ -56,7 +56,7 @@ oriented data synchronization.
       </UiAlert>
       <div
         class="content-wrapper"
-        :style="{ backgroundColor: $themePalette.grey.v_50 }"
+        :style="{ backgroundColor: $themePalette.grey.v_100 }"
       >
         <ContentRenderer
           ref="contentRenderer"
@@ -92,7 +92,7 @@ oriented data synchronization.
         >
           <KIcon
             icon="mastered"
-            :color="success ? $themeTokens.mastered : $themePalette.grey.v_200"
+            :color="success ? $themeTokens.mastered : $themePalette.grey.v_300"
           />
           <div class="overall-status-text">
             <span

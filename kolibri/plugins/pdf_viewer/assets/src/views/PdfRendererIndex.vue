@@ -22,7 +22,7 @@
       <transition name="slide">
         <div
           class="fullscreen-header pdf-controls-container"
-          :style="{ backgroundColor: $themePalette.grey.v_100 }"
+          :style="{ backgroundColor: $themePalette.grey.v_200 }"
         >
           <div>
             <KIconButton

@@ -57,7 +57,7 @@
         </div>
         <div
           :ref="slide.id"
-          :style="{ background: $themePalette.grey.v_200 }"
+          :style="{ background: $themePalette.grey.v_300 }"
           class="caption"
         >
           {{ slide.caption }}

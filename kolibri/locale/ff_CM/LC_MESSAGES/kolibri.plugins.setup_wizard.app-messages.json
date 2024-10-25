@@ -28,7 +28,7 @@
   "FacilityPermissionsForm.nonFormalLabel": "Naa' nder laawol janngirde ngomnati",
   "FullOrLearnOnlyDeviceForm.fullDeviceDescription": "Kompiita nga'a wonay serwar Kolibri ɗum dawrooɓe, jannginooɓe bee fukaraaɓe kuutinirta.",
   "FullOrLearnOnlyDeviceForm.fullDeviceLabel": "Kompiita bee Kolibri fuu",
-  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "",
+  "FullOrLearnOnlyDeviceForm.learnOnlyDeviceDescription": "Kompiita nga'a maray kuutinillum fukaraaɓe tan, nden nga cannjindiray data e kompiita bee Kolibri fuu bee hoore maaga.",
   "FullOrLearnOnlyDeviceForm.learnOnlyDeviceLabel": "Kompiita pukaraajo tan",
   "FullOrLearnOnlyDeviceForm.whatKindOfDeviceTitle": "Iri kompiita ngaye?",
   "GuestAccessForm.changeLater": "A waaway sannjugoɗum yeeso, nder settings kompiita maaɗa.",
@@ -75,6 +75,10 @@
   "RequirePasswordForLearnersForm.header": "Sigorɗum fukaraaɓe sey bee paltirgel na?",
   "RequirePasswordForLearnersForm.noOptionLabel": "A'a. Hokkugo junngo bee innde kuutiniroowo tan heƴay.",
   "RequirePasswordForLearnersForm.yesOptionLabel": "Ee",
+  "SelectFacility.addDeviceSnackbarText": "Kompiita ɓeydaama",
+  "SelectFacility.doNotSeeYourFacility": "A yi'aayi wuro bote maaɗa na?",
+  "SelectFacility.noFacilitiesText": "Gure bote ngalaa",
+  "SelectFacility.noPermissionToJoinFacility": "A walaa yerduye nastugo wuro bote ngo'o",
   "SelectFacilityForm.selectDifferentDeviceLabel": "A yi'aayi wuro bote maaɗa na?",
   "SelectSuperAdminAccountForm.accountFacilityExplanation": "Sigorɗum ɗuʼum hawteteema bee wuro bote {facility}",
   "SelectSuperAdminAccountForm.chooseAdminPrompt": "Suɓtugo dawroowo diga wuro bote '{facility}', koo waɗugo dawroowo mawɗo keso",
@@ -95,5 +99,5 @@
   "UserCredentialsForm.adminAccountCreationHeader": "Waɗugo dawroowo mawɗo",
   "UserCredentialsForm.learnerAccountCreationDescription": "Sigorɗum kesum ɗum wuro bote '{facility}'",
   "UserCredentialsForm.learnerAccountCreationHeader": "Waɗugo sigorɗum maaɗa",
-  "UserCredentialsForm.signInInstead": ""
+  "UserCredentialsForm.signInInstead": "Koo a hokkay junngo na?"
 }

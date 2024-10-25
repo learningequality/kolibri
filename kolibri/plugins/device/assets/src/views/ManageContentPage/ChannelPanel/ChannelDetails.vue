@@ -15,7 +15,7 @@
         v-else
         icon="channel"
         class="thumbnail-svg"
-        :style="{ backgroundColor: $themePalette.grey.v_200 }"
+        :style="{ backgroundColor: $themePalette.grey.v_300 }"
       />
     </div>
 

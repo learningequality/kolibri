@@ -636,13 +636,12 @@ function getMessagesFromFile(filePath, verbose = false) {
       logging.info(`Extracted ${Object.keys(messages).length} messages from  :: ${filePath}`);
       logging.info(JSON.stringify(messages));
     }
-    return messages;
   } catch (_) {
     logging.error(
       `Tried to find parsable Javascript in ${filePath} but could not. Will skip the file for now. This is a problem if you are expecting to translate any messages in that file - otherwise - you may ignore this message.`,
     );
-    return;
   }
+  return messages;
 }
 
 module.exports = {

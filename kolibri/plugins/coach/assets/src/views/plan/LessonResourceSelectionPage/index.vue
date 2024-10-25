@@ -18,6 +18,7 @@
           :selectAllChecked="addableContent.length === 0"
           :contentCardLink="bookmarkLink"
           :contentIsChecked="contentIsInLesson"
+          :selectAllIndeterminate="selectAllIsIndeterminate"
           :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
           :viewMoreButtonState="viewMoreButtonState"
           :contentCardMessage="selectionMetadata"
@@ -82,6 +83,7 @@
           :showSelectAll="selectAllIsVisible"
           :viewMoreButtonState="viewMoreButtonState"
           :selectAllChecked="addableContent.length === 0"
+          :selectAllIndeterminate="selectAllIsIndeterminate"
           :contentIsChecked="contentIsInLesson"
           :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
           :contentCardMessage="selectionMetadata"
@@ -247,6 +249,14 @@
       },
       debouncedSaveResources() {
         return debounce(this.saveResources, 1000);
+      },
+      selectAllIsIndeterminate() {
+        return Boolean(
+          // If anything is in the lesson, then something is selected
+          this.contentList.filter(this.contentIsInLesson).length &&
+            // if addableContent has length, something can still be added
+            this.addableContent.length,
+        );
       },
       selectAllIsVisible() {
         // Do not show 'Select All' if on Search Results, on Channels Page,

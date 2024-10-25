@@ -73,7 +73,7 @@
                 <p>
                   <KIcon
                     icon="warning"
-                    :style="{ fill: $themePalette.yellow.v_1100 }"
+                    :style="{ fill: $themePalette.yellow.v_600 }"
                   />
                   {{ resourceMissingText }}
                 </p>

@@ -106,7 +106,7 @@
         <!-- TODO This question mark thing should probably be an SVG for improved a11y -->
         <div
           class="question-mark-layout"
-          :style="{ backgroundColor: $themeBrand.secondary.v_200 }"
+          :style="{ backgroundColor: $themeBrand.secondary.v_100 }"
         >
           <span
             class="help-icon-style"

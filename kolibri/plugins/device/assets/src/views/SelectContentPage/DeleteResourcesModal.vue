@@ -17,9 +17,9 @@
         <p>{{ $tr('deleteEverywhereExplanationMultipleResources') }}</p>
       </template>
       <KCheckbox
-        v-model="deleteEverywhere"
+        :checked="deleteEverywhere"
         :label="$tr('deleteEverywhereLabel')"
-        @change="deleteEverywhere = $event"
+        @change="deleteEverywhere = !deleteEverywhere"
       />
       <p>{{ coreString('cannotUndoActionWarning') }}</p>
     </div>

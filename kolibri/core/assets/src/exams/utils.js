@@ -263,7 +263,7 @@ export function annotateSections(sections, questions = []) {
   if (!sections) {
     return [
       {
-        title: '',
+        section_title: '',
         questions: questions,
         startQuestionNumber: 0,
         endQuestionNumber: questions.length - 1,
