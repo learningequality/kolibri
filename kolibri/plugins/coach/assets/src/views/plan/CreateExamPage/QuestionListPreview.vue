@@ -82,7 +82,7 @@
             <div
               v-show="isExpanded(index)"
               :style="{
-                backgroundColor: $themePalette.grey.v_100,
+                backgroundColor: $themePalette.grey.v_200,
               }"
             >
               <ul class="question-list">

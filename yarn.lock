@@ -7736,7 +7736,7 @@ kolibri-design-system@4.4.0:
     vue2-teleport "1.1.4"
     xstate "4.38.3"
 
-kolibri-design-system@4.4.6:
+kolibri-design-system@4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-4.6.0.tgz#9142be6798e5f8c5df9c5f7884f1398f4c9441d3"
   integrity sha512-mZybyRcMXNtYN9iRTvhIcgtrzs8/i+ttfsH3NM7LJCXtbvB9rS5toIYGZ/vnffqxhAytQIlOmd3+v1T9K9gjFg==

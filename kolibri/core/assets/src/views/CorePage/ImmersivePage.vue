@@ -84,7 +84,7 @@
           : {
             width: '100%',
             display: 'inline-block',
-            backgroundColor: this.$themePalette.grey.v_50,
+            backgroundColor: this.$themePalette.grey.v_100,
             paddingLeft: '32px',
             paddingRight: '32px',
             paddingBottom: '72px',

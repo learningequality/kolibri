@@ -2,7 +2,7 @@
 
   <div
     class="top-bar"
-    :style="{ backgroundColor: $themePalette.grey.v_200 }"
+    :style="{ backgroundColor: $themePalette.grey.v_300 }"
   >
     <KGrid :style="{ marginTop: '2px', marginLeft: '3px', marginRight: '3px' }">
       <KGridItem

@@ -110,7 +110,7 @@
           padding: '1em',
           marginTop: '2em',
           marginBottom: '2em',
-          backgroundColor: $themePalette.grey.v_100,
+          backgroundColor: $themePalette.grey.v_200,
           position: 'sticky',
           insetBlockStart: '0',
           zIndex: '4',

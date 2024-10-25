@@ -222,7 +222,7 @@
       },
       categoryListItemActiveStyles() {
         return {
-          backgroundColor: this.$themeBrand.primary.v_200,
+          backgroundColor: this.$themeBrand.primary.v_100,
           border: '2px',
           borderColor: this.$themeTokens.primary,
           borderStyle: 'solid',
