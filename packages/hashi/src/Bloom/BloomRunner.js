@@ -115,7 +115,17 @@ export default class BloomRunner {
   initBloom() {
     try {
       this.loaded();
-      this.iframe.src = `../bloom/bloomplayer.htm?url=${this.contentUrl}&distributionUrl=${this.distributionUrl}&metaJsonUrl=${this.metaUrl}&independent=false`;
+      const options = new URLSearchParams({
+        url: this.contentUrl,
+        distributionUrl: this.distributionUrl,
+        metaJsonUrl: this.metaUrl,
+        independent: false,
+        hideFullScreenButton: true,
+        initiallyShowAppBar: false,
+        allowToggleAppBar: false,
+      });
+
+      this.iframe.src = `../bloom/bloomplayer.htm?${options.toString()}`;
     } catch (e) {
       this.errored(e);
     }
