@@ -63,7 +63,7 @@
         return {
           color: this.$themeTokens.text,
           ':hover': {
-            'background-color': this.$themeBrand.secondary.v_300,
+            'background-color': this.$themeBrand.secondary.v_600,
           },
           ':focus': {
             ...this.$coreOutline,
