@@ -141,6 +141,18 @@ describe('File Path replacement', () => {
       const packageFiles = ['../fonts/test.png'];
       expect(getDOMPaths(htmlTemplate(attr, '../fonts/test.png'), mimeType)).toEqual(packageFiles);
     });
+    it('should find a path with a space', () => {
+      const packageFiles = ['../fonts/test this.png'];
+      expect(getDOMPaths(htmlTemplate(attr, '../fonts/test this.png'), mimeType)).toEqual(
+        packageFiles,
+      );
+    });
+    it('should find a path with an encoded space', () => {
+      const packageFiles = ['../fonts/test this.png'];
+      expect(getDOMPaths(htmlTemplate(attr, '../fonts/test%20this.png'), mimeType)).toEqual(
+        packageFiles,
+      );
+    });
     it('should find a more complex relative path with query parameters', () => {
       const packageFiles = ['../fonts/test.png'];
       expect(getDOMPaths(htmlTemplate(attr, '../fonts/test.png?iefix'), mimeType)).toEqual(
@@ -166,6 +178,22 @@ describe('File Path replacement', () => {
         replaceDOMPaths(htmlTemplate(attr, '../fonts/test.png'), packageFiles, mimeType),
       ).toEqual(htmlTemplate(attr, 'different'));
     });
+    it('should replace a path with a space', () => {
+      const packageFiles = {
+        '../fonts/test this.png': 'different',
+      };
+      expect(
+        replaceDOMPaths(htmlTemplate(attr, '../fonts/test this.png'), packageFiles, mimeType),
+      ).toEqual(htmlTemplate(attr, 'different'));
+    });
+    it('should replace a path with an encoded space', () => {
+      const packageFiles = {
+        '../fonts/test this.png': 'different',
+      };
+      expect(
+        replaceDOMPaths(htmlTemplate(attr, '../fonts/test%20this.png'), packageFiles, mimeType),
+      ).toEqual(htmlTemplate(attr, 'different'));
+    });
     it('should replace paths with query parameters', () => {
       const packageFiles = {
         '../fonts/test.png': 'different',
@@ -186,6 +214,18 @@ describe('File Path replacement', () => {
     it('should find a more complex relative path', () => {
       const packageFiles = ['../fonts/test.png'];
       expect(getDOMPaths(xmlTemplate(attr, '../fonts/test.png'), mimeType)).toEqual(packageFiles);
+    });
+    it('should find a path with a space', () => {
+      const packageFiles = ['../fonts/test this.png'];
+      expect(getDOMPaths(xmlTemplate(attr, '../fonts/test this.png'), mimeType)).toEqual(
+        packageFiles,
+      );
+    });
+    it('should find a path with an encoded space', () => {
+      const packageFiles = ['../fonts/test this.png'];
+      expect(getDOMPaths(xmlTemplate(attr, '../fonts/test%20this.png'), mimeType)).toEqual(
+        packageFiles,
+      );
     });
     it('should find a more complex relative path with query parameters', () => {
       const packageFiles = ['../fonts/test.png'];
@@ -210,6 +250,22 @@ describe('File Path replacement', () => {
       };
       expect(
         replaceDOMPaths(xmlTemplate(attr, '../fonts/test.png'), packageFiles, mimeType),
+      ).toEqual(xmlTemplate(attr, 'different'));
+    });
+    it('should replace a path with a space', () => {
+      const packageFiles = {
+        '../fonts/test this.png': 'different',
+      };
+      expect(
+        replaceDOMPaths(xmlTemplate(attr, '../fonts/test this.png'), packageFiles, mimeType),
+      ).toEqual(xmlTemplate(attr, 'different'));
+    });
+    it('should replace a path with an encoded space', () => {
+      const packageFiles = {
+        '../fonts/test this.png': 'different',
+      };
+      expect(
+        replaceDOMPaths(xmlTemplate(attr, '../fonts/test%20this.png'), packageFiles, mimeType),
       ).toEqual(xmlTemplate(attr, 'different'));
     });
     it('should replace paths with query parameters', () => {

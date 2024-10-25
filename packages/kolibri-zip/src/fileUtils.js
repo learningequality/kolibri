@@ -70,13 +70,14 @@ const domParser = new DOMParser();
 
 const domSerializer = new XMLSerializer();
 
-const attributes = ['src', 'href'];
+const urlAttributes = ['src', 'href'];
 
-const attributesSelector = attributes.map(attr => `[${attr}]`).join(', ');
+const styleAttributes = ['style'];
 
-const urlStyleAttributeSelector = '[style*="url("]';
-
-const audioClassAttributeSelector = '[class*="audio-sentence"], [data-backgroundaudio]';
+const attributesSelector = urlAttributes
+  .concat(styleAttributes)
+  .map(attr => `[${attr}]`)
+  .join(', ');
 
 const queryParamRegex = /([^?)]+)?(\?.*)/g;
 
@@ -84,23 +85,13 @@ export function getDOMPaths(fileContents, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
   const elements = dom.querySelectorAll(attributesSelector);
   return flatten(
-    Array.from(elements).map(element =>
-      attributes
+    Array.from(elements).map(element => {
+      const fromUrlAttributes = urlAttributes
         .map(a => element.getAttribute(a))
         .filter(Boolean)
-        .map(url => url.replace(queryParamRegex, '$1')),
-    ),
-  );
-}
-
-export function getStyleUrlPaths(fileContents, mimeType) {
-  const dom = domParser.parseFromString(fileContents.trim(), mimeType);
-  const elements = dom.querySelectorAll(urlStyleAttributeSelector);
-  return flatten(
-    Array.from(elements).map(element => {
-      const styleAttr = element.getAttribute('style');
-      const styleUrl = styleAttr.split('url(').at(-1);
-      return styleUrl.substring(1, styleUrl.length - 2);
+        .map(url => decodeURI(url.replace(queryParamRegex, '$1')));
+      const fromStyleAttribute = getCSSPaths(element.getAttribute('style') || '');
+      return [...fromUrlAttributes, ...fromStyleAttribute];
     }),
   );
 }
@@ -109,76 +100,21 @@ export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
   const elements = Array.from(dom.querySelectorAll(attributesSelector));
   for (const element of elements) {
-    for (const attr of attributes) {
+    for (const attr of urlAttributes) {
       const value = element.getAttribute(attr);
       if (!value) {
         continue;
       }
-      const newUrl = packageFiles[value.replace(queryParamRegex, '$1')];
+      const newUrl = packageFiles[decodeURI(value.replace(queryParamRegex, '$1'))];
 
       if (newUrl) {
         element.setAttribute(attr, newUrl);
       }
     }
-  }
-  if (mimeType === 'text/html') {
-    // Remove the namespace attribute from the root element
-    // as serializeToString adds it by default and without this
-    // it gets repeated.
-    dom.documentElement.removeAttribute('xmlns');
-  }
-  return domSerializer.serializeToString(dom);
-}
-
-export function replaceStyleUrlPaths(fileContents, packageFiles, mimeType) {
-  const dom = domParser.parseFromString(fileContents.trim(), mimeType);
-  const elements = Array.from(dom.querySelectorAll(urlStyleAttributeSelector));
-  for (const element of elements) {
-    let styleAttr = element.getAttribute('style');
-    if (!styleAttr) {
-      continue;
-    }
-    styleAttr = styleAttr.split('url(');
-    const oldUrl = styleAttr[1];
-    const newUrl = packageFiles[oldUrl.substring(1, oldUrl.length - 2)];
-    styleAttr = styleAttr[0] + "url('" + newUrl + "')";
-
-    element.setAttribute('style', styleAttr);
-  }
-  if (mimeType === 'text/html') {
-    // Remove the namespace attribute from the root element
-    // as serializeToString adds it by default and without this
-    // it gets repeated.
-    dom.documentElement.removeAttribute('xmlns');
-  }
-  return domSerializer.serializeToString(dom);
-}
-
-export function getAudioId(fileContents, mimeType) {
-  const dom = domParser.parseFromString(fileContents.trim(), mimeType);
-  const elements = dom.querySelectorAll(audioClassAttributeSelector);
-  return Array.from(elements).map(element => {
-    let value = element.getAttribute('id');
-    const backgroundAudio = element.getAttribute('data-backgroundAudio');
-    if (backgroundAudio) {
-      value = backgroundAudio;
-    }
-    return value;
-  });
-}
-
-export function replaceAudioId(fileContents, packageFiles, mimeType) {
-  const dom = domParser.parseFromString(fileContents.trim(), mimeType);
-  const elements = Array.from(dom.querySelectorAll(audioClassAttributeSelector));
-  for (const element of elements) {
-    const backgroundAudio = element.getAttribute('data-backgroundAudio');
-    let id = element.getAttribute('id');
-    id = packageFiles[id];
-    if (backgroundAudio) {
-      id = packageFiles[backgroundAudio];
-      element.setAttribute('data-backgroundAudio', id);
-    } else {
-      element.setAttribute('id', id);
+    const styleValue = element.getAttribute('style');
+    if (styleValue) {
+      const newStyleValue = replaceCSSPaths(styleValue, packageFiles);
+      element.setAttribute('style', newStyleValue);
     }
   }
   if (mimeType === 'text/html') {
@@ -190,7 +126,7 @@ export function replaceAudioId(fileContents, packageFiles, mimeType) {
   return domSerializer.serializeToString(dom);
 }
 
-class DOMMapper extends Mapper {
+export class DOMMapper extends Mapper {
   getPaths() {
     return getDOMPaths(this.file.toString(), this.file.mimeType);
   }
