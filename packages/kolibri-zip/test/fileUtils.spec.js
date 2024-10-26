@@ -443,6 +443,156 @@ describe('File Path replacement', () => {
       expect(replaceDOMPaths(input, packageFiles, mimeType)).toEqual(expected);
     });
   });
+
+  const createImageWithSrcset = srcset =>
+    `<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body><img srcset="${srcset}" /></body></html>`;
+  describe('srcset path finding', () => {
+    const mimeType = 'text/html';
+
+    it('should find paths in srcset with width descriptors', () => {
+      const paths = getDOMPaths(
+        createImageWithSrcset('./small.jpg 300w, ./medium.jpg 600w, ./large.jpg 900w'),
+        mimeType,
+      );
+      expect(paths).toEqual(['./small.jpg', './medium.jpg', './large.jpg']);
+    });
+
+    it('should find paths in srcset with pixel density descriptors', () => {
+      const paths = getDOMPaths(createImageWithSrcset('./small.jpg 1x, ./medium.jpg 2x'), mimeType);
+      expect(paths).toEqual(['./small.jpg', './medium.jpg']);
+    });
+
+    it('should find paths with query parameters in srcset', () => {
+      const paths = getDOMPaths(
+        createImageWithSrcset('./image.jpg?v=123 1x, ./other.jpg?v=456 2x'),
+        mimeType,
+      );
+      expect(paths).toEqual(['./image.jpg', './other.jpg']);
+    });
+
+    it('should find encoded paths in srcset', () => {
+      const paths = getDOMPaths(
+        createImageWithSrcset('./my%20image.jpg 1x, ./other%20file.jpg 2x'),
+        mimeType,
+      );
+      expect(paths).toEqual(['./my image.jpg', './other file.jpg']);
+    });
+
+    it('should find encoded paths with special characters in srcset', () => {
+      const paths = getDOMPaths(
+        createImageWithSrcset(
+          './image%20with%20%23%26%3F.jpg 1x, ./file%20with%20%2B%20signs.jpg 2x',
+        ),
+        mimeType,
+      );
+      expect(paths).toEqual(['./image with #&?.jpg', './file with + signs.jpg']);
+    });
+
+    it('should find complex paths in srcset', () => {
+      const paths = getDOMPaths(
+        createImageWithSrcset(
+          '../path/to/my%20image.jpg?v=123 300w, ../../other%20dir/file.jpg?version=2 600w',
+        ),
+        mimeType,
+      );
+      expect(paths).toEqual(['../path/to/my image.jpg', '../../other dir/file.jpg']);
+    });
+  });
+
+  describe('srcset path replacement', () => {
+    const mimeType = 'text/html';
+
+    it('should replace paths in srcset with width descriptors', () => {
+      const packageFiles = {
+        './small.jpg': 'new-small.jpg',
+        './medium.jpg': 'new-medium.jpg',
+        './large.jpg': 'new-large.jpg',
+      };
+
+      const input = createImageWithSrcset('./small.jpg 300w, ./medium.jpg 600w, ./large.jpg 900w');
+      const expected = createImageWithSrcset(
+        'new-small.jpg 300w, new-medium.jpg 600w, new-large.jpg 900w',
+      );
+
+      expect(replaceDOMPaths(input, packageFiles, mimeType)).toEqual(expected);
+    });
+
+    it('should replace paths in srcset with pixel density descriptors', () => {
+      const packageFiles = {
+        './small.jpg': 'new-small.jpg',
+        './medium.jpg': 'new-medium.jpg',
+      };
+
+      const input = createImageWithSrcset('./small.jpg 1x, ./medium.jpg 2x');
+      const expected = createImageWithSrcset('new-small.jpg 1x, new-medium.jpg 2x');
+
+      expect(replaceDOMPaths(input, packageFiles, mimeType)).toEqual(expected);
+    });
+
+    it('should handle query parameters in srcset', () => {
+      const packageFiles = {
+        './image.jpg': 'new-image.jpg',
+        './other.jpg': 'new-other.jpg',
+      };
+
+      const input = createImageWithSrcset('./image.jpg?v=123 1x, ./other.jpg?v=456 2x');
+      const expected = createImageWithSrcset('new-image.jpg 1x, new-other.jpg 2x');
+
+      expect(replaceDOMPaths(input, packageFiles, mimeType)).toEqual(expected);
+    });
+
+    it('should handle encoded paths in srcset', () => {
+      const packageFiles = {
+        './my image.jpg': 'new-image.jpg',
+        './other file.jpg': 'new-other.jpg',
+      };
+
+      const input = createImageWithSrcset('./my%20image.jpg 1x, ./other%20file.jpg 2x');
+      const expected = createImageWithSrcset('new-image.jpg 1x, new-other.jpg 2x');
+
+      expect(replaceDOMPaths(input, packageFiles, mimeType)).toEqual(expected);
+    });
+
+    it('should handle encoded paths with special characters in srcset', () => {
+      const packageFiles = {
+        './image with #&?.jpg': 'new-special.jpg',
+        './file with + signs.jpg': 'new-plus.jpg',
+      };
+
+      const input = createImageWithSrcset(
+        './image%20with%20%23%26%3F.jpg 1x, ./file%20with%20%2B%20signs.jpg 2x',
+      );
+      const expected = createImageWithSrcset('new-special.jpg 1x, new-plus.jpg 2x');
+
+      expect(replaceDOMPaths(input, packageFiles, mimeType)).toEqual(expected);
+    });
+
+    it('should not replace unregistered paths in srcset', () => {
+      const packageFiles = {
+        './registered.jpg': 'new-image.jpg',
+      };
+
+      const srcset = './unregistered.jpg 1x, ./registered.jpg 2x';
+      const input = createImageWithSrcset(srcset);
+      const expected = createImageWithSrcset('./unregistered.jpg 1x, new-image.jpg 2x');
+
+      expect(replaceDOMPaths(input, packageFiles, mimeType)).toEqual(expected);
+    });
+
+    it('should handle complex paths in srcset', () => {
+      const packageFiles = {
+        '../path/to/my image.jpg': 'new-image.jpg',
+        '../../other dir/file.jpg': 'new-file.jpg',
+      };
+
+      const input = createImageWithSrcset(
+        '../path/to/my%20image.jpg?v=123 300w, ../../other%20dir/file.jpg?version=2 600w',
+      );
+      const expected = createImageWithSrcset('new-image.jpg 300w, new-file.jpg 600w');
+
+      expect(replaceDOMPaths(input, packageFiles, mimeType)).toEqual(expected);
+    });
+  });
   describe.each(['href', 'src'])('XML path replacement for %s', attr => {
     const mimeType = 'text/xml';
     it('should replace a simple relative path', () => {

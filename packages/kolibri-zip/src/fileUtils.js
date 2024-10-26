@@ -72,10 +72,11 @@ const domSerializer = new XMLSerializer();
 
 const urlAttributes = ['src', 'href'];
 
-const styleAttributes = ['style'];
+const styleAttribute = 'style';
 
-const attributesSelector = urlAttributes
-  .concat(styleAttributes)
+const srcsetAttribute = 'srcset';
+
+const attributesSelector = [...urlAttributes, styleAttribute, srcsetAttribute]
   .map(attr => `[${attr}]`)
   .join(', ');
 
@@ -91,7 +92,16 @@ export function getDOMPaths(fileContents, mimeType) {
         .filter(Boolean)
         .map(url => decodeURIComponent(url.replace(queryParamRegex, '$1')));
       const fromStyleAttribute = getCSSPaths(element.getAttribute('style') || '');
-      return [...fromUrlAttributes, ...fromStyleAttribute];
+      // Add srcset paths
+      const srcsetValue = element.getAttribute(srcsetAttribute);
+      const fromSrcset = srcsetValue
+        ? srcsetValue
+            .split(/,(?![^(]*\))/g)
+            .map(entry => entry.trim().split(/\s+/)[0])
+            .map(url => decodeURIComponent(url.replace(queryParamRegex, '$1')))
+        : [];
+
+      return [...fromUrlAttributes, ...fromStyleAttribute, ...fromSrcset];
     }),
   );
 
@@ -102,6 +112,29 @@ export function getDOMPaths(fileContents, mimeType) {
   );
 
   return [...attributePaths, ...styleBlockPaths];
+}
+
+function replaceSrcsetUrls(srcset, packageFiles) {
+  if (!srcset) {
+    return srcset;
+  }
+
+  // Split on commas, but not inside parentheses
+  // for future-proofing against more complex descriptors)
+  const entries = srcset.split(/,(?![^(]*\))/g);
+
+  return entries
+    .map(entry => {
+      const [url, ...descriptors] = entry.trim().split(/\s+/);
+      // Remove any query parameters and decode the URL
+      const baseUrl = decodeURIComponent(url.replace(queryParamRegex, '$1'));
+      const newUrl = packageFiles[baseUrl];
+      if (newUrl) {
+        return [newUrl, ...descriptors].join(' ');
+      }
+      return entry.trim();
+    })
+    .join(', ');
 }
 
 export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
@@ -123,6 +156,12 @@ export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
     if (styleValue) {
       const newStyleValue = replaceCSSPaths(styleValue, packageFiles);
       element.setAttribute('style', newStyleValue);
+    }
+    // Handle srcset attribute
+    const srcsetValue = element.getAttribute(srcsetAttribute);
+    if (srcsetValue) {
+      const newSrcsetValue = replaceSrcsetUrls(srcsetValue, packageFiles);
+      element.setAttribute(srcsetAttribute, newSrcsetValue);
     }
   }
 
