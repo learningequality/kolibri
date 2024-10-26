@@ -84,7 +84,7 @@ const queryParamRegex = /([^?)]+)?(\?.*)/g;
 export function getDOMPaths(fileContents, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
   const elements = dom.querySelectorAll(attributesSelector);
-  return flatten(
+  const attributePaths = flatten(
     Array.from(elements).map(element => {
       const fromUrlAttributes = urlAttributes
         .map(a => element.getAttribute(a))
@@ -94,6 +94,14 @@ export function getDOMPaths(fileContents, mimeType) {
       return [...fromUrlAttributes, ...fromStyleAttribute];
     }),
   );
+
+  // Get paths from inline style blocks
+  const styleElements = dom.getElementsByTagName('style');
+  const styleBlockPaths = flatten(
+    Array.from(styleElements).map(style => getCSSPaths(style.textContent)),
+  );
+
+  return [...attributePaths, ...styleBlockPaths];
 }
 
 export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
@@ -117,6 +125,13 @@ export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
       element.setAttribute('style', newStyleValue);
     }
   }
+
+  // Replace paths in inline style blocks
+  const styleElements = dom.getElementsByTagName('style');
+  for (const style of styleElements) {
+    style.textContent = replaceCSSPaths(style.textContent, packageFiles);
+  }
+
   if (mimeType === 'text/html') {
     // Remove the namespace attribute from the root element
     // as serializeToString adds it by default and without this
