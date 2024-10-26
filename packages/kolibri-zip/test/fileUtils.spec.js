@@ -19,6 +19,15 @@ describe('File Path replacement', () => {
     it('should handle a path with a space in it', () => {
       expect(getAbsoluteFilePath('test.htm', 'Basic Book.css')).toEqual('Basic Book.css');
     });
+    it('should decode special characters in paths', () => {
+      expect(getAbsoluteFilePath('package/test.css', './test%23%26%3F.woff')).toEqual(
+        'package/test#&?.woff',
+      );
+    });
+
+    it('should decode plus signs in paths', () => {
+      expect(getAbsoluteFilePath('test.htm', 'file%2Bname.css')).toEqual('file+name.css');
+    });
   });
   describe('CSS path finding', () => {
     it('should find a simple relative path', () => {
@@ -56,6 +65,12 @@ describe('File Path replacement', () => {
     it('should find paths with no quotes with query parameters', () => {
       const packageFiles = ['../fonts/test.woff'];
       expect(getCSSPaths('url(../fonts/test.woff?iefix)')).toEqual(packageFiles);
+    });
+    it('should find paths with special characters in CSS url()', () => {
+      expect(getCSSPaths('url("./test%23%26%3F.woff")')).toEqual(['./test#&?.woff']);
+    });
+    it('should handle plus signs in CSS urls', () => {
+      expect(getCSSPaths('url("./my%2Bfile.woff")')).toEqual(['./my+file.woff']);
     });
   });
   describe('CSS path replacement', () => {
@@ -128,6 +143,14 @@ describe('File Path replacement', () => {
         'url(flob a dob dib dob)',
       );
     });
+    it('should replace paths with special characters in CSS', () => {
+      const packageFiles = {
+        './test#&?.woff': 'new-file.woff',
+      };
+      expect(replaceCSSPaths('url("./test%23%26%3F.woff")', packageFiles)).toEqual(
+        'url("new-file.woff")',
+      );
+    });
   });
   const htmlTemplate = (attr, value) =>
     `<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body><img ${attr}="${value}" /></body></html>`;
@@ -159,6 +182,16 @@ describe('File Path replacement', () => {
         packageFiles,
       );
     });
+    it('should find paths with special characters', () => {
+      const packageFiles = ['./page#&?.html'];
+      expect(getDOMPaths(htmlTemplate(attr, './page%23%26%3F.html'), mimeType)).toEqual(
+        packageFiles,
+      );
+    });
+    it('should find paths with plus signs', () => {
+      const packageFiles = ['./image+name.jpg'];
+      expect(getDOMPaths(htmlTemplate(attr, './image%2Bname.jpg'), mimeType)).toEqual(packageFiles);
+    });
   });
   const inlineCSSHtmlTemplate = value =>
     `<html xmlns="http://www.w3.org/1999/xhtml"><head><style>background: url('${value}');</style></head><body></body></html>`;
@@ -189,6 +222,12 @@ describe('File Path replacement', () => {
     it('should find a more complex relative path with query parameters', () => {
       const packageFiles = ['../fonts/test.png'];
       expect(getDOMPaths(inlineCSSHtmlTemplate('../fonts/test.png?iefix'), mimeType)).toEqual(
+        packageFiles,
+      );
+    });
+    it('should find paths with special characters', () => {
+      const packageFiles = ['./bg#&?.png'];
+      expect(getDOMPaths(inlineCSSHtmlTemplate('./bg%23%26%3F.png'), mimeType)).toEqual(
         packageFiles,
       );
     });

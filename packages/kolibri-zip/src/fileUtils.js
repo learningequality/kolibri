@@ -7,7 +7,7 @@ export function getAbsoluteFilePath(baseFilePath, relativeFilePath) {
   // Take substring to remove the leading slash to match the reference file paths
   // in packageFiles.
   try {
-    return decodeURI(
+    return decodeURIComponent(
       new URL(relativeFilePath, new URL(baseFilePath, 'http://b.b/')).pathname.substring(1),
     );
   } catch (e) {
@@ -35,7 +35,7 @@ export class Mapper {
 const cssPathRegex = /(url\(['"]?)([^?"')]+)?(\?[^'"]+)?(['"]?\))/g;
 
 export function getCSSPaths(fileContents) {
-  return Array.from(fileContents.matchAll(cssPathRegex), ([, , p2]) => decodeURI(p2));
+  return Array.from(fileContents.matchAll(cssPathRegex), ([, , p2]) => decodeURIComponent(p2));
 }
 
 export function replaceCSSPaths(fileContents, packageFiles) {
@@ -43,7 +43,7 @@ export function replaceCSSPaths(fileContents, packageFiles) {
     try {
       // Look to see if there is a URL in our packageFiles mapping that
       // that has this as the source path.
-      const newUrl = packageFiles[decodeURI(p2)];
+      const newUrl = packageFiles[decodeURIComponent(p2)];
       if (newUrl) {
         // If so, replace the instance with the new URL.
         return `${p1}${newUrl}${p4}`;
@@ -89,7 +89,7 @@ export function getDOMPaths(fileContents, mimeType) {
       const fromUrlAttributes = urlAttributes
         .map(a => element.getAttribute(a))
         .filter(Boolean)
-        .map(url => decodeURI(url.replace(queryParamRegex, '$1')));
+        .map(url => decodeURIComponent(url.replace(queryParamRegex, '$1')));
       const fromStyleAttribute = getCSSPaths(element.getAttribute('style') || '');
       return [...fromUrlAttributes, ...fromStyleAttribute];
     }),
@@ -113,7 +113,7 @@ export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
       if (!value) {
         continue;
       }
-      const newUrl = packageFiles[decodeURI(value.replace(queryParamRegex, '$1'))];
+      const newUrl = packageFiles[decodeURIComponent(value.replace(queryParamRegex, '$1'))];
 
       if (newUrl) {
         element.setAttribute(attr, newUrl);
