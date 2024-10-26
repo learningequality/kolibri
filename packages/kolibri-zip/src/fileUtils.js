@@ -72,46 +72,43 @@ const domSerializer = new XMLSerializer();
 
 const urlAttributes = ['src', 'href'];
 
-const styleAttribute = 'style';
-
-const srcsetAttribute = 'srcset';
-
-const attributesSelector = [...urlAttributes, styleAttribute, srcsetAttribute]
-  .map(attr => `[${attr}]`)
-  .join(', ');
-
 const queryParamRegex = /([^?)]+)?(\?.*)/g;
 
 export function getDOMPaths(fileContents, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
-  const elements = dom.querySelectorAll(attributesSelector);
-  const attributePaths = flatten(
-    Array.from(elements).map(element => {
-      const fromUrlAttributes = urlAttributes
-        .map(a => element.getAttribute(a))
-        .filter(Boolean)
-        .map(url => decodeURIComponent(url.replace(queryParamRegex, '$1')));
-      const fromStyleAttribute = getCSSPaths(element.getAttribute('style') || '');
-      // Add srcset paths
-      const srcsetValue = element.getAttribute(srcsetAttribute);
-      const fromSrcset = srcsetValue
-        ? srcsetValue
-            .split(/,(?![^(]*\))/g)
-            .map(entry => entry.trim().split(/\s+/)[0])
-            .map(url => decodeURIComponent(url.replace(queryParamRegex, '$1')))
-        : [];
-
-      return [...fromUrlAttributes, ...fromStyleAttribute, ...fromSrcset];
+  // Get paths from URL attributes (src, href)
+  const urlPaths = flatten(
+    urlAttributes.map(attr => {
+      const elementsWithUrl = Array.from(dom.querySelectorAll(`[${attr}]`));
+      return elementsWithUrl.map(element =>
+        decodeURIComponent(element.getAttribute(attr).replace(queryParamRegex, '$1')),
+      );
     }),
   );
 
-  // Get paths from inline style blocks
-  const styleElements = dom.getElementsByTagName('style');
-  const styleBlockPaths = flatten(
-    Array.from(styleElements).map(style => getCSSPaths(style.textContent)),
+  // Get paths from style attributes
+  const elementsWithStyle = Array.from(dom.querySelectorAll('[style]'));
+  const stylePaths = flatten(
+    elementsWithStyle.map(element => getCSSPaths(element.getAttribute('style'))),
   );
 
-  return [...attributePaths, ...styleBlockPaths];
+  // Get paths from srcset attributes
+  const elementsWithSrcset = Array.from(dom.querySelectorAll('[srcset]'));
+  const srcsetPaths = flatten(
+    elementsWithSrcset.map(element => {
+      const srcset = element.getAttribute('srcset');
+      return srcset.split(/,(?![^(]*\))/g).map(entry => {
+        const url = entry.trim().split(/\s+/)[0];
+        return decodeURIComponent(url.replace(queryParamRegex, '$1'));
+      });
+    }),
+  );
+
+  // Get paths from style blocks
+  const styleElements = Array.from(dom.getElementsByTagName('style'));
+  const styleBlockPaths = flatten(styleElements.map(element => getCSSPaths(element.textContent)));
+
+  return [...urlPaths, ...stylePaths, ...srcsetPaths, ...styleBlockPaths];
 }
 
 function replaceSrcsetUrls(srcset, packageFiles) {
@@ -139,36 +136,41 @@ function replaceSrcsetUrls(srcset, packageFiles) {
 
 export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
-  const elements = Array.from(dom.querySelectorAll(attributesSelector));
-  for (const element of elements) {
-    for (const attr of urlAttributes) {
-      const value = element.getAttribute(attr);
-      if (!value) {
-        continue;
-      }
-      const newUrl = packageFiles[decodeURIComponent(value.replace(queryParamRegex, '$1'))];
 
+  // Replace URL attributes
+  for (const attr of urlAttributes) {
+    const urlElements = Array.from(dom.querySelectorAll(`[${attr}]`));
+    for (const element of urlElements) {
+      const value = element.getAttribute(attr);
+      const newUrl = packageFiles[decodeURIComponent(value.replace(queryParamRegex, '$1'))];
       if (newUrl) {
         element.setAttribute(attr, newUrl);
       }
     }
-    const styleValue = element.getAttribute('style');
-    if (styleValue) {
-      const newStyleValue = replaceCSSPaths(styleValue, packageFiles);
-      element.setAttribute('style', newStyleValue);
-    }
-    // Handle srcset attribute
-    const srcsetValue = element.getAttribute(srcsetAttribute);
-    if (srcsetValue) {
-      const newSrcsetValue = replaceSrcsetUrls(srcsetValue, packageFiles);
-      element.setAttribute(srcsetAttribute, newSrcsetValue);
-    }
   }
 
-  // Replace paths in inline style blocks
-  const styleElements = dom.getElementsByTagName('style');
+  // Replace style attributes
+  const elementsWithStyle = Array.from(dom.querySelectorAll('[style]'));
+  for (const element of elementsWithStyle) {
+    const styleValue = element.getAttribute('style');
+    const newStyleValue = replaceCSSPaths(styleValue, packageFiles);
+    element.setAttribute('style', newStyleValue);
+  }
+
+  // Replace srcset attributes
+  const elementsWithSrcset = Array.from(dom.querySelectorAll('[srcset]'));
+  for (const element of elementsWithSrcset) {
+    const srcsetValue = element.getAttribute('srcset');
+    const newSrcsetValue = replaceSrcsetUrls(srcsetValue, packageFiles);
+    element.setAttribute('srcset', newSrcsetValue);
+  }
+
+  // Replace style blocks
+  const styleElements = Array.from(dom.getElementsByTagName('style'));
   for (const style of styleElements) {
-    style.textContent = replaceCSSPaths(style.textContent, packageFiles);
+    const originalContent = style.textContent || '';
+    const newContent = replaceCSSPaths(originalContent, packageFiles);
+    style.textContent = newContent;
   }
 
   if (mimeType === 'text/html') {
