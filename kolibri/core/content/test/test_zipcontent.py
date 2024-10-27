@@ -279,6 +279,111 @@ class ZipContentTestCase(TestCase):
         response = self._get_file(self.test_name_1, REQUEST_METHOD="DELETE")
         self.assertEqual(response.status_code, 405)
 
+    def test_range_request_full_file(self):
+        """Ensure normal request works with Accept-Ranges header"""
+        response = self._get_file(self.test_name_1)
+        self.assertEqual(next(response.streaming_content).decode(), self.test_str_1)
+        self.assertEqual(response.headers["Accept-Ranges"], "bytes")
+        self.assertEqual(response.status_code, 200)
+
+    def test_range_request_partial_file(self):
+        """Test successful range request for partial file"""
+        response = self._get_file(self.test_name_1, HTTP_RANGE="bytes=2-5")
+        self.assertEqual(
+            next(response.streaming_content).decode(), self.test_str_1[2:6]
+        )
+        self.assertEqual(response.status_code, 206)
+        self.assertEqual(
+            response.headers["Content-Range"], f"bytes 2-5/{len(self.test_str_1)}"
+        )
+        self.assertEqual(response.headers["Content-Length"], "4")
+        self.assertEqual(response.headers["Accept-Ranges"], "bytes")
+
+    def test_range_request_end_of_file(self):
+        """Test range request for last few bytes of file"""
+        response = self._get_file(self.test_name_1, HTTP_RANGE="bytes=-4")
+        self.assertEqual(
+            next(response.streaming_content).decode(), self.test_str_1[-4:]
+        )
+        self.assertEqual(response.status_code, 206)
+
+    def test_range_request_beyond_eof(self):
+        """Test range request with start beyond file size"""
+        response = self._get_file(
+            self.test_name_1,
+            HTTP_RANGE=f"bytes={len(self.test_str_1) + 1}-{len(self.test_str_1) + 4}",
+        )
+        self.assertEqual(response.status_code, 200)  # Should return full file
+        self.assertEqual(next(response.streaming_content).decode(), self.test_str_1)
+
+    def test_range_request_malformed(self):
+        """Test malformed range header"""
+        response = self._get_file(self.test_name_1, HTTP_RANGE="bytes=invalid")
+        self.assertEqual(response.status_code, 200)  # Should return full file
+        self.assertEqual(next(response.streaming_content).decode(), self.test_str_1)
+
+    def test_range_request_multiple_ranges(self):
+        """Test multiple ranges - should return full file as we don't support multipart responses"""
+        response = self._get_file(self.test_name_1, HTTP_RANGE="bytes=0-2,4-6")
+        self.assertEqual(response.status_code, 200)  # Should return full file
+        self.assertEqual(next(response.streaming_content).decode(), self.test_str_1)
+
+    def test_range_request_html_file(self):
+        """Test range requests on HTML files that get modified - should return full file"""
+        response = self._get_file(self.script_name, HTTP_RANGE="bytes=0-10")
+        # Should return full modified file, not range
+        content = (
+            "<html><head>{}<script>test</script></head><body></body></html>".format(
+                hashi_injection
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode("utf-8"), content)
+
+    def test_range_request_large_file(self):
+        """Test range request on a larger file to verify streaming"""
+        large_str = "Large text file " * 1024  # ~16KB file
+        large_file = "large.txt"
+
+        with zipfile.ZipFile(self.zip_path, "a") as zf:
+            zf.writestr(large_file, large_str)
+
+        # Request middle section of file
+        start = 1024
+        end = 2048
+        response = self._get_file(large_file, HTTP_RANGE=f"bytes={start}-{end}")
+
+        content = next(response.streaming_content).decode()
+        self.assertEqual(content, large_str[start : end + 1])
+        self.assertEqual(response.status_code, 206)
+        self.assertEqual(response.headers["Content-Length"], str(end - start + 1))
+
+    def test_options_request_accept_ranges_html(self):
+        """Test OPTIONS request for HTML file returns Accept-Ranges: none"""
+        response = self._get_file(self.script_name, REQUEST_METHOD="OPTIONS")
+        self.assertEqual(response.headers["Accept-Ranges"], "none")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode(), "")
+
+    def test_options_request_accept_ranges_binary(self):
+        """Test OPTIONS request for non-HTML file returns Accept-Ranges: bytes"""
+        response = self._get_file(
+            self.test_name_1, REQUEST_METHOD="OPTIONS"  # This is a .txt file
+        )
+        self.assertEqual(response.headers["Accept-Ranges"], "bytes")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode(), "")
+
+    def test_accept_ranges_header_html(self):
+        """Test Accept-Ranges header is 'none' for HTML files"""
+        response = self._get_file(self.script_name)  # HTML file
+        self.assertEqual(response.headers["Accept-Ranges"], "none")
+
+    def test_accept_ranges_header_binary(self):
+        """Test Accept-Ranges header is 'bytes' for non-HTML files"""
+        response = self._get_file(self.test_name_1)  # txt file
+        self.assertEqual(response.headers["Accept-Ranges"], "bytes")
+
 
 @override_option("Deployment", "ZIP_CONTENT_URL_PATH_PREFIX", "prefix_test/")
 class UrlPrefixZipContentTestCase(ZipContentTestCase):

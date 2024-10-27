@@ -2,6 +2,7 @@ import logging
 import mimetypes
 import os
 import re
+import sys
 import time
 import zipfile
 from urllib.parse import unquote
@@ -20,6 +21,7 @@ from django.http.response import StreamingHttpResponse
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
 from django.utils.http import http_date
+from whitenoise.responders import StaticFile
 
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.utils.paths import get_content_storage_file_path
@@ -30,6 +32,61 @@ from kolibri.utils.urls import validator
 
 
 logger = logging.getLogger(__name__)
+
+
+def parse_byte_range(range_header, file_size):
+    """Parse Range header using whitenoise's implementation"""
+    try:
+        start, end = StaticFile.parse_byte_range(range_header)
+        if start >= file_size:
+            # If start is beyond EOF, return None to trigger full file response
+            return None
+
+        if end is None:
+            end = file_size - 1
+        else:
+            end = min(end, file_size - 1)
+
+        return (start if start >= 0 else file_size + start, end - start + 1)
+    except ValueError:
+        return None
+
+
+class RangeZipFileObjectWrapper:
+    """
+    A wrapper for a zip file object that supports byte range requests.
+    This is implemented for compatibility with Python 3.6, which does not
+    support seeking in file objects extracted from zip files.
+    This can be removed once Python 3.6 support is dropped.
+    """
+
+    def __init__(self, file_object, start=0, length=None):
+        self.file_object = file_object
+        self.remaining = length
+        # Python 3.7+ zipfile has seek support
+        if sys.version_info >= (3, 7):
+            self.file_object.seek(start)
+        else:
+            # Read and discard data until we reach start position
+            while start > 0:
+                chunk_size = min(start, 8192)
+                self.file_object.read(chunk_size)
+                start -= chunk_size
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.remaining is not None and self.remaining <= 0:
+            raise StopIteration()
+        chunk = self.file_object.read(
+            min(8192, self.remaining if self.remaining is not None else 8192)
+        )
+        if not chunk:
+            raise StopIteration()
+        if self.remaining is not None:
+            self.remaining -= len(chunk)
+        return chunk
 
 
 def add_security_headers(request, response):
@@ -127,7 +184,9 @@ def parse_html(content):
         return content
 
 
-def get_embedded_file(zipped_path, zipped_filename, embedded_filepath):
+def get_embedded_file(
+    zipped_path, zipped_filename, embedded_filepath, range_header=None
+):
     with zipfile.ZipFile(zipped_path) as zf:
         # if no path, or a directory, is being referenced, look for an index.html file
         if not embedded_filepath or embedded_filepath.endswith("/"):
@@ -143,26 +202,51 @@ def get_embedded_file(zipped_path, zipped_filename, embedded_filepath):
                 )
             )
 
-        # file size
-        file_size = 0
-
         # try to guess the MIME type of the embedded file being referenced
         content_type = (
             mimetypes.guess_type(embedded_filepath)[0] or "application/octet-stream"
         )
-        if embedded_filepath.endswith("htm") or embedded_filepath.endswith("html"):
-            content = zf.open(info).read()
+        zipped_file_object = zf.open(info)
+
+        is_html = embedded_filepath.lower().endswith(("html", "htm"))
+
+        if is_html:
+            content = zipped_file_object.read()
             html = parse_html(content)
             response = HttpResponse(html, content_type=content_type)
             file_size = len(response.content)
         else:
             # generate a streaming response object, pulling data from within the zip file
-            response = FileResponse(zf.open(info), content_type=content_type)
+            status = 200
             file_size = info.file_size
+            range_response_header = None
 
+            # handle byte-range requests
+            if range_header:
+                range_tuple = parse_byte_range(range_header, file_size)
+                if range_tuple:
+                    start, length = range_tuple
+                    zipped_file_object = RangeZipFileObjectWrapper(
+                        zipped_file_object, start, length
+                    )
+                    status = 206
+                    # Use the total file size of the object for the Content-Range header
+                    range_response_header = (
+                        f"bytes {start}-{start + length - 1}/{file_size}"
+                    )
+                    # Update the file size to the length of the requested range
+                    file_size = length
+
+            response = FileResponse(
+                zipped_file_object, content_type=content_type, status=status
+            )
+            if range_response_header:
+                response.headers["Content-Range"] = range_response_header
+
+        # Only accept byte ranges for files that are not HTML
+        response.headers["Accept-Ranges"] = "none" if is_html else "bytes"
         # set the content-length header to the size of the embedded file
-        if file_size:
-            response.headers["Content-Length"] = file_size
+        response.headers["Content-Length"] = file_size
         return response
 
 
@@ -208,10 +292,16 @@ def _zip_content_from_request(request):  # noqa: C901
             "Path not found: {path}".format(path=request.path_info)
         )
 
-    if request.method == "OPTIONS":
-        return HttpResponse()
-
     remote_baseurl, zipped_filename, embedded_filepath = match.groups()
+
+    if request.method == "OPTIONS":
+        response = HttpResponse()
+        # If path ends with html/htm, set Accept-Ranges to none
+        if embedded_filepath.lower().endswith(("html", "htm")):
+            response.headers["Accept-Ranges"] = "none"
+        else:
+            response.headers["Accept-Ranges"] = "bytes"
+        return response
 
     try:
         # calculate the local file path to the zip file
@@ -277,8 +367,12 @@ def _zip_content_from_request(request):  # noqa: C901
     if cached_response is not None:
         return cached_response
 
+    range_header = request.META.get("HTTP_RANGE")
+
     try:
-        response = get_embedded_file(zipped_path, zipped_filename, embedded_filepath)
+        response = get_embedded_file(
+            zipped_path, zipped_filename, embedded_filepath, range_header=range_header
+        )
     except Exception:
         if remote_baseurl:
             return create_error_response(
@@ -287,9 +381,6 @@ def _zip_content_from_request(request):  # noqa: C901
                 )
             )
         raise
-
-    # ensure the browser knows not to try byte-range requests, as we don't support them here
-    response.headers["Accept-Ranges"] = "none"
 
     response.headers["Last-Modified"] = http_date(time.time())
 
