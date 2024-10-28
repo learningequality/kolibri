@@ -1,14 +1,17 @@
-import { unzip, strFromU8, strToU8 } from 'fflate';
+import { inflate, strFromU8, strToU8 } from 'fflate';
 import isPlainObject from 'lodash/isPlainObject';
-import loadBinary from './loadBinary';
 import mimetypes from './mimetypes.json';
 import { getAbsoluteFilePath, defaultFilePathMappers } from './fileUtils';
+import ZipMetadata from './zipMetadata';
+import { LOCAL_FILE_HEADER_SIGNATURE, LOCAL_FILE_HEADER_FIXED_SIZE } from './constants';
+import { readUInt16LE, readUInt32LE } from './zipUtils';
 
 class ExtractedFile {
-  constructor(name, obj) {
+  constructor(name, obj, urlGenerator = null) {
     this.name = name;
     this.obj = obj;
     this._url = null;
+    this._urlGenerator = urlGenerator;
   }
 
   get fileNameExt() {
@@ -20,11 +23,19 @@ class ExtractedFile {
   }
 
   toString() {
+    if (this._urlGenerator) {
+      throw new Error('Cannot convert large file to string');
+    }
     return strFromU8(this.obj);
   }
 
   toUrl() {
-    if (!this._url) {
+    if (this._url) {
+      return this._url;
+    }
+    if (this._urlGenerator) {
+      this._url = this._urlGenerator(this.name);
+    } else {
       const blob = new Blob([this.obj.buffer], { type: this.mimeType });
       this._url = URL.createObjectURL(blob);
     }
@@ -32,118 +43,204 @@ class ExtractedFile {
   }
 
   close() {
-    if (this._url) {
+    if (this._url && !this._urlGenerator) {
       URL.revokeObjectURL(this._url);
     }
   }
 }
 
 export default class ZipFile {
-  constructor(url, { filePathMappers } = { filePathMappers: defaultFilePathMappers }) {
+  constructor(
+    url,
+    { filePathMappers, largeFileThreshold, largeFileUrlGenerator } = {
+      filePathMappers: defaultFilePathMappers,
+      largeFileThreshold: 500 * 1024,
+      largeFileUrlGenerator: null,
+    },
+  ) {
     this._loadingError = null;
     this._extractedFileCache = {};
-    this._fileLoadingPromise = loadBinary(url)
-      .then(data => {
-        this.zipData = new Uint8Array(data);
+    this._entriesMap = {};
+    this._segmentInfo = {};
+    this._segmentData = new Map();
+    this._zipFileSize = null;
+    this.largeFileUrlGenerator = largeFileUrlGenerator;
+    this.filePathMappers = isPlainObject(filePathMappers) ? filePathMappers : {};
+    this._metadata = new ZipMetadata(url, Object.keys(this.filePathMappers), largeFileThreshold);
+    // Initialize metadata loading
+    this._metadataPromise = this._metadata
+      .readCentralDirectory()
+      .then(({ entries, segments, totalSize }) => {
+        this._entriesMap = entries;
+        this._segmentInfo = segments;
+        this._zipFileSize = totalSize;
       })
       .catch(err => {
         this._loadingError = err;
+        throw err;
       });
-    this.filePathMappers = isPlainObject(filePathMappers) ? filePathMappers : {};
   }
 
-  /*
-   * @param {ExtractedFile} file - The file to carry out replacement of references in
-   * @param {Object} visitedPaths - A map of paths that have already been visited to prevent a loop
-   * @return {Promise[ExtractedFile]} - A promise that resolves to the file with references replaced
-   */
-  _replaceFiles(file, visitedPaths) {
+  async _loadSegment(segmentId) {
+    if (this._segmentData.has(segmentId)) {
+      return this._segmentData.get(segmentId);
+    }
+
+    const segment = this._segmentInfo[segmentId];
+    if (!segment) {
+      throw new Error(`Invalid segment ID: ${segmentId}`);
+    }
+
+    const segmentData = this._metadata.readRange(segment.start, segment.end - segment.start);
+    this._segmentData.set(segmentId, segmentData);
+    return segmentData;
+  }
+
+  async _replaceFiles(file, visitedPaths = {}) {
     const mapperClass = this.filePathMappers[file.fileNameExt];
     if (!mapperClass) {
-      return Promise.resolve(file);
+      return file;
     }
+
     visitedPaths = { ...visitedPaths };
     visitedPaths[file.name] = true;
+
     const mapper = new mapperClass(file);
-    // Filter out any paths that are in our already visited paths, as that means we are in a
-    // referential loop where one file has pointed us to another, which is now point us back
-    // to the source.
-    // Because we need to modify the file before we generate the URL, we can't resolve this loop.
     const paths = mapper
       .getPaths()
       .filter(path => !visitedPaths[getAbsoluteFilePath(file.name, path)]);
+
     const absolutePathsMap = paths.reduce((acc, path) => {
       acc[getAbsoluteFilePath(file.name, path)] = path;
       return acc;
     }, {});
-    return this._getFiles(file => absolutePathsMap[file.name], visitedPaths).then(
-      replacementFiles => {
-        const replacementFileMap = replacementFiles.reduce((acc, replacementFile) => {
-          acc[absolutePathsMap[replacementFile.name]] = replacementFile.toUrl();
-          return acc;
-        }, {});
-        const newFileContents = mapper.replacePaths(replacementFileMap);
-        file.obj = strToU8(newFileContents);
-        return file;
-      },
-    );
+
+    const promises = Object.keys(absolutePathsMap).map(async absPath => {
+      const entry = this._entriesMap[absPath];
+      if (!entry) return null;
+      return this._extractFile(entry, visitedPaths);
+    });
+
+    const replacementFiles = (await Promise.all(promises)).filter(Boolean);
+
+    const replacementFileMap = replacementFiles.reduce((acc, replacementFile) => {
+      acc[absolutePathsMap[replacementFile.name]] = replacementFile.toUrl();
+      return acc;
+    }, {});
+
+    const newFileContents = mapper.replacePaths(replacementFileMap);
+    file.obj = strToU8(newFileContents);
+
+    return file;
   }
 
-  _getFiles(filterPredicate, visitedPaths = {}) {
-    const filter = file => !this._extractedFileCache[file.name] && filterPredicate(file);
-    return this._fileLoadingPromise.then(() => {
-      return new Promise((resolve, reject) => {
-        unzip(this.zipData, { filter }, (err, unzipped) => {
-          if (err) {
-            reject(err);
-            return;
+  async _extractFile(entry, visitedPaths = {}) {
+    // Return cached file if available
+    if (this._extractedFileCache[entry.fileName]) {
+      return this._extractedFileCache[entry.fileName];
+    }
+
+    // For large files, create and cache a URL generator file
+    if (entry.loadFromUrl) {
+      const extractedFile = new ExtractedFile(entry.fileName, null, this.largeFileUrlGenerator);
+      this._extractedFileCache[entry.fileName] = extractedFile;
+      return extractedFile;
+    }
+
+    // Load the segment containing this file
+    const segmentData = await this._loadSegment(entry.segment);
+
+    // Calculate the file's offset within the segment
+    const fileOffset = entry.localHeaderOffset - this._segmentInfo[entry.segment].start;
+
+    // Verify local file header signature
+    const signature = readUInt32LE(segmentData, fileOffset);
+    if (signature !== LOCAL_FILE_HEADER_SIGNATURE) {
+      throw new Error(`Invalid local file header signature for ${entry.fileName}`);
+    }
+
+    // Read variable-length fields from local header
+    const fileNameLength = readUInt16LE(segmentData, fileOffset + 26);
+    const extraFieldLength = readUInt16LE(segmentData, fileOffset + 28);
+
+    // Calculate offset to compressed data
+    const dataOffset =
+      fileOffset + LOCAL_FILE_HEADER_FIXED_SIZE + fileNameLength + extraFieldLength;
+
+    // Extract the compressed data from the segment
+    const compressedData = segmentData.subarray(dataOffset, dataOffset + entry.compressedSize);
+
+    return new Promise((resolve, reject) => {
+      // Use inflate directly on the compressed data
+      inflate(compressedData, { size: entry.uncompressedSize }, async (err, inflated) => {
+        if (err) {
+          reject(new Error(`Failed to inflate ${entry.fileName}: ${err}`));
+          return;
+        }
+
+        try {
+          const extractedFile = new ExtractedFile(entry.fileName, inflated);
+
+          // Only do replacement if this file hasn't been visited in the current chain
+          if (!visitedPaths[entry.fileName]) {
+            await this._replaceFiles(extractedFile, visitedPaths);
           }
-          const alreadyUnzipped = Object.values(this._extractedFileCache).filter(filterPredicate);
-          if (!unzipped && !alreadyUnzipped.length) {
-            reject('No files found');
-            return;
-          }
-          Promise.all(
-            Object.entries(unzipped).map(([name, obj]) => {
-              const extractedFile = new ExtractedFile(name, obj);
-              return this._replaceFiles(extractedFile, visitedPaths).then(extractedFile => {
-                this._extractedFileCache[name] = extractedFile;
-                return extractedFile;
-              });
-            }),
-          ).then(extractedFiles => {
-            resolve(extractedFiles.concat(alreadyUnzipped));
-          });
-        });
+
+          this._extractedFileCache[entry.fileName] = extractedFile;
+          resolve(extractedFile);
+        } catch (e) {
+          reject(e);
+        }
       });
     });
   }
 
-  file(filename) {
+  async file(filename) {
     if (this._loadingError) {
       return Promise.reject(this._loadingError);
     }
-    if (this._extractedFileCache[filename]) {
-      return Promise.resolve(this._extractedFileCache[filename]);
+
+    await this._metadataPromise;
+    const entry = this._entriesMap[filename];
+
+    if (!entry) {
+      throw new Error(`File not found: ${filename}`);
     }
-    return this._getFiles(file => file.name === filename).then(files => files[0]);
+
+    return this._extractFile(entry);
   }
-  files(path) {
+
+  async files(path) {
     if (this._loadingError) {
       return Promise.reject(this._loadingError);
     }
-    return this._getFiles(file => file.name.startsWith(path));
+
+    await this._metadataPromise;
+    const promises = Object.values(this._entriesMap)
+      .filter(entry => entry.fileName.startsWith(path))
+      .map(entry => this._extractFile(entry));
+
+    return Promise.all(promises);
   }
-  filesFromExtension(extension) {
+
+  async filesFromExtension(extension) {
     if (this._loadingError) {
       return Promise.reject(this._loadingError);
     }
-    return this._getFiles(file => file.name.endsWith(extension));
+
+    await this._metadataPromise;
+    const promises = Object.values(this._entriesMap)
+      .filter(entry => entry.fileName.endsWith(extension))
+      .map(entry => this._extractFile(entry));
+
+    return Promise.all(promises);
   }
   close() {
     for (const file of Object.values(this._extractedFileCache)) {
       file.close();
     }
-    this.zipData = null;
+    this._extractedFileCache = {};
+    this._segmentData.clear();
+    this._metadata = null;
   }
 }

@@ -1,37 +1,70 @@
 /*
- * Vendored from https://github.com/Stuk/jszip-utils/blob/master/lib/index.js
+ * Vendored and modified from https://github.com/Stuk/jszip-utils/blob/master/lib/index.js
  */
 
 /**
- * @param  {string} path    The path to the resource to GET.
- * @return {Promise}
+ * Load binary data with support for HEAD requests and byte ranges
+ * @param  {string} path    The path to the resource to GET
+ * @param  {Object} options Request options
+ * @param  {string} options.method HTTP method (GET/HEAD)
+ * @param  {number} options.start Start byte for range request
+ * @param  {number} options.end End byte for range request
+ * @return {Promise<ArrayBuffer>}
  */
-export default function (path) {
+export default function loadBinary(path, options = {}) {
+  const { method = 'GET', start, end } = options;
+
   return new Promise((resolve, reject) => {
     try {
       const xhr = new window.XMLHttpRequest();
+      xhr.open(method, path, true);
 
-      xhr.open('GET', path, true);
+      // Only set responseType for GET requests
+      // HEAD requests with responseType can fail in some browsers
+      if (method === 'GET') {
+        xhr.responseType = 'arraybuffer';
+      }
 
-      xhr.responseType = 'arraybuffer';
+      // Add range header if both start and end are specified
+      if (typeof start === 'number' && typeof end === 'number') {
+        xhr.setRequestHeader('Range', `bytes=${start}-${end}`);
+      }
 
       xhr.onreadystatechange = function () {
-        // use `xhr` and not `this`... thanks IE
         if (xhr.readyState === 4) {
-          if (xhr.status === 200 || xhr.status === 0) {
+          if (
+            xhr.status === 200 ||
+            xhr.status === 206 ||
+            (method === 'HEAD' && xhr.status === 204)
+          ) {
             try {
-              resolve(xhr.response);
+              if (method === 'HEAD') {
+                // For HEAD requests, return useful headers
+                resolve({
+                  contentLength: parseInt(xhr.getResponseHeader('Content-Length')),
+                  acceptRanges: xhr.getResponseHeader('Accept-Ranges'),
+                });
+              } else {
+                // content response
+                resolve(xhr.response);
+              }
             } catch (err) {
-              reject(new Error(err));
+              reject(new Error(`Error processing response: ${err.message}`));
             }
           } else {
-            reject(new Error('Ajax error for ' + path + ' : ' + xhr.status + ' ' + xhr.statusText));
+            reject(new Error(`HTTP error for ${path}: ${xhr.status} ${xhr.statusText}`));
           }
         }
       };
+
+      // Handle network errors
+      xhr.onerror = function () {
+        reject(new Error(`Network error while loading ${path}`));
+      };
+
       xhr.send();
     } catch (e) {
-      reject(new Error(e), null);
+      reject(new Error(`Error initiating request: ${e.message}`));
     }
   });
 }
