@@ -152,7 +152,7 @@
       contentHeight: function () {
         return window.innerHeight * 0.7 + 'px';
       },
-      /* eslint-disable kolibri/vue-no-unused-properties */
+      /* eslint-disable vue/no-unused-properties */
       /**
        * @public
        * Note: the default duration historically for slidshows has been 5 min
@@ -160,7 +160,7 @@
       defaultDuration() {
         return 300;
       },
-      /* eslint-enable kolibri/vue-no-unused-properties */
+      /* eslint-enable vue/no-unused-properties */
     },
     watch: {
       defaultFile(newFile) {

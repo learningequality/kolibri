@@ -230,13 +230,13 @@
     },
     props: {
       // Facility filter only needed on SyncFacilityModalGroup
-      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      // eslint-disable-next-line vue/no-unused-properties
       filterByFacilityId: {
         type: String,
         default: null,
       },
       // Channel filter only needed on ManageContentPage/SelectNetworkDeviceModal
-      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      // eslint-disable-next-line vue/no-unused-properties
       filterByChannelId: {
         type: String,
         default: null,
@@ -247,19 +247,19 @@
         default: false,
       },
       // When looking for devices for which a learner can sign up
-      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      // eslint-disable-next-line vue/no-unused-properties
       filterByFacilityCanSignUp: {
         type: Boolean,
         default: null,
       },
       // In the setup wizard, to exclude importiing facilities that are "On My Own"
-      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      // eslint-disable-next-line vue/no-unused-properties
       filterByOnMyOwnFacility: {
         type: Boolean,
         default: null,
       },
       // In the setup wizard, to exclude devices that do not have a facility
-      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      // eslint-disable-next-line vue/no-unused-properties
       filterByHasFacilities: {
         type: Boolean,
         default: null,
