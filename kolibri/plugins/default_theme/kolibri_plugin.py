@@ -23,7 +23,7 @@ class DefaultThemeHook(theme_hook.ThemeHook):
             },
             "logos": [
                 {
-                    "src": static("assets/default_theme/logo.ico"),
+                    "src": static("assets/favicons/logo.ico"),
                     "content_type": "image/vnd.microsoft.icon",
                     "size": "32x32",
                 },
