@@ -281,6 +281,8 @@ def storage_option(value, *opts):
     if value == "gcs":
         try:
             from storages.backends.gcloud import GoogleCloudStorage  # noqa
+
+            return value
         except ModuleNotFoundError:
             logger.error(
                 "Google Cloud Storage backend is not available.",
