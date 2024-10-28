@@ -7,7 +7,7 @@
       <KCheckbox
         ref="kCheckbox"
         :label="$tr('consequences')"
-        :checked="false"
+        :checked="isConfirmed"
         @change="isConfirmed = !isConfirmed"
         @keydown.enter="handleContinue"
       />
