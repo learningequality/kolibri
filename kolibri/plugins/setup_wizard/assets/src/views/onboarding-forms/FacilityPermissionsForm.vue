@@ -58,6 +58,7 @@
       const preset = this.wizardService.state.context['formalOrNonformal'];
       // preset inits to null, so either it'll be what the user selected or default to nonformal
       const selected = preset || Presets.NONFORMAL;
+
       const facilityName = this.wizardService.state.context['facilityName'];
       const footerMessageType = FooterMessageTypes.NEW_FACILITY;
       return {
@@ -113,6 +114,7 @@
       nonFormalDescription: {
         message:
           'Libraries, orphanages, youth centers, computer labs, and other non-formal learning contexts.',
+
         context: "Option description text for 'Non-formal' facility types.",
       },
     },

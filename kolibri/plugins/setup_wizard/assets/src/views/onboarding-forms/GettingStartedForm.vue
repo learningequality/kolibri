@@ -33,6 +33,7 @@
     PUBLIC: 'PUBLIC',
     PERSONAL: 'PERSONAL',
   });
+
   export default {
     name: 'GettingStartedForm',
     components: {
@@ -79,6 +80,7 @@
       advancedSetupDescription: {
         message:
           'For schools, educational programs, organizations, or other group learning settings that will share the use of Kolibri',
+
         context: "Option description text for 'Advanced setup'.",
       },
     },

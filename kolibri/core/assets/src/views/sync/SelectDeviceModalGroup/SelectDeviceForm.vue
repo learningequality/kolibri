@@ -30,6 +30,7 @@
           @click="forceFetch"
         />
       </UiAlert>
+
       <!-- Static Devices -->
       <template v-for="(d, idx) in savedDevices">
         <div :key="`div-${idx}`">
@@ -53,10 +54,12 @@
           </KRadioButtonGroup>
         </div>
       </template>
+
       <hr
         v-if="savedDevices.length > 0 && discoveredDevices.length > 0"
         :style="{ border: 0, borderBottom: `1px solid ${$themeTokens.fineLine}` }"
       >
+
       <!-- Dynamic Devices -->
       <template v-for="d in discoveredDevices">
         <div :key="`div-${d.id}`">
@@ -72,6 +75,7 @@
         </div>
       </template>
     </template>
+
     <template #actions>
       <KFixedGrid
         class="actions"
@@ -113,8 +117,9 @@
         </KFixedGridItem>
       </KFixedGrid>
     </template>
+
     <KButtonGroup class="under-buttons">
-      <slot name="underbuttons"> </slot>
+      <slot name="underbuttons"></slot>
       <KButton
         v-show="!newDeviceButtonDisabled && !formDisabled"
         class="new-device-button"
@@ -156,9 +161,11 @@
     setup(props, context) {
       const apiParams = {};
       const deviceFilters = [];
+
       if (props.filterByChannelId !== null) {
         deviceFilters.push(useDeviceChannelFilter({ id: props.filterByChannelId }));
       }
+
       const pickNotNull = v => v !== null;
       // Either we build a facility filter or an empty object.
       // Passing the empty object to useDeviceFacilityFilter is asking "are there ANY facilities?"
@@ -170,15 +177,18 @@
         },
         pickNotNull,
       );
+
       // If we're filtering a particular facility
       if (Object.keys(facilityFilter).length > 0 || props.filterByHasFacilities) {
         apiParams.subset_of_users_device = false;
         deviceFilters.push(useDeviceFacilityFilter(facilityFilter));
       }
+
       if (props.filterLODAvailable) {
         apiParams.subset_of_users_device = false;
         deviceFilters.push(useDeviceMinimumVersionFilter(0, 15, 0));
       }
+
       const {
         devices: _devices,
         isFetching,
@@ -186,14 +196,19 @@
         fetchFailed,
         forceFetch,
       } = useDevicesWithFilter(apiParams, deviceFilters);
+
       const { devices, isDeleting, hasDeleted, deletingFailed, doDelete } = useDeviceDeletion(
         _devices,
         context,
       );
+
       const { isChecking, doCheck } = useConnectionChecker(devices);
+
       const storageDeviceId = useLocalStorage('kolibri-lastSelectedNetworkLocationId', '');
+
       const discoveredDevices = computed(() => get(devices).filter(d => d.dynamic));
       const savedDevices = computed(() => get(devices).filter(d => !d.dynamic));
+
       return {
         // useDevices
         devices,
@@ -360,13 +375,16 @@
         if (!this.selectedDeviceId) {
           return;
         }
+
         const match = find(this.devices, { id: this.selectedDeviceId });
         if (!match) {
           this.uiAlertText = this.$tr('fetchingFailedText');
           return this.forceFetch();
         }
+
         this.uiAlertText = null;
         this.isSubmitChecking = true;
+
         // TODO: implement `DeviceConnectingModal`
         this.doCheck(match.id).then(device => {
           this.$emit('submit', device);

@@ -13,6 +13,7 @@
     >
       {{ selectionIsInvalidText }}
     </UiAlert>
+
     <KPageContainer :style="{ maxWidth: '1000px', margin: '0 auto 2em', paddingTop: '2rem' }">
       <AssignmentDetailsModal
         v-if="quizInitialized"
@@ -23,6 +24,7 @@
         :groups="groups"
         @update="updateQuiz"
       />
+
       <div v-if="quizInitialized">
         <h5 class="section-order-header">
           {{ sectionOrderLabel$() }}
@@ -67,7 +69,9 @@
           </KRadioButtonGroup>
         </KGrid>
       </div>
+
       <CreateQuizSection v-if="quizInitialized && quiz.draft" />
+
       <BottomAppBar>
         <span
           v-if="allSectionsEmpty"
@@ -90,6 +94,7 @@
         </KButtonGroup>
       </BottomAppBar>
     </KPageContainer>
+
     <KModal
       v-if="closeConfirmationToRoute"
       :submitText="coreString('continueAction')"
@@ -100,6 +105,7 @@
     >
       {{ closeConfirmationMessage$() }}
     </KModal>
+
     <SectionSidePanel v-if="quizInitialized" />
   </CoachImmersivePage>
 
@@ -150,6 +156,7 @@
       } = useQuizCreation();
       const showError = ref(false);
       const quizInitialized = ref(false);
+
       const {
         saveAndClose$,
         allSectionsEmptyWarning$,
@@ -162,6 +169,7 @@
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
       } = enhancedQuizManagementStrings;
+
       return {
         closeConfirmationTitle$,
         closeConfirmationMessage$,

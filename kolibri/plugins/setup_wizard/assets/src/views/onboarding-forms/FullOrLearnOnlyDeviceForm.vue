@@ -33,6 +33,7 @@
     FULL: 'FULL',
     LOD: 'LOD',
   });
+
   export default {
     name: 'FullOrLearnOnlyDeviceForm',
     components: {

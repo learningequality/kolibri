@@ -164,6 +164,7 @@
     setup() {
       const { createSnackbar } = useSnackbar();
       const { currentUserId } = useUser();
+
       return {
         createSnackbar,
         currentUserId,
@@ -234,6 +235,7 @@
         if (devicePageUrl) {
           return `${devicePageUrl()}#/permissions/${this.userId}`;
         }
+
         return '';
       },
       newUserKind() {
@@ -323,6 +325,7 @@
             return value !== this.userCopy[key];
           },
         );
+
         // Roles are update via a different API than FacilityUsers, so pass
         // their update separately
         if (!this.editingSuperAdmin && this.newUserKind !== this.userCopy.kind) {
@@ -337,10 +340,13 @@
       },
       submitForm() {
         this.formSubmitted = true;
+
         if (!this.formIsValid) {
           return this.focusOnInvalidField();
         }
+
         this.status = 'BUSY';
+
         this.$store
           .dispatch('userManagement/updateFacilityUserDetails', {
             userId: this.userId,

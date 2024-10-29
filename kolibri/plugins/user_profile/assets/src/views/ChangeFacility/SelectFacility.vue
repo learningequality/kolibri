@@ -2,9 +2,7 @@
 
   <div>
     <span class="headercontainer">
-      <h1>
-        {{ getCommonSyncString('selectFacilityTitle') }}
-      </h1>
+      <h1>{{ getCommonSyncString('selectFacilityTitle') }}</h1>
       <transition name="spinner-fade">
         <div v-if="isFetching">
           <KLabeledIcon>
@@ -42,9 +40,7 @@
         borderTop: `1px solid ${$themeTokens.fineLine}`,
       }"
     >
-      <KGridItem>
-        {{ $tr('doNotSeeYourFacility') }}
-      </KGridItem>
+      <KGridItem>{{ $tr('doNotSeeYourFacility') }}</KGridItem>
       <KGridItem>
         <KButton
           :text="getCommonSyncString('addNewAddressAction')"
@@ -53,6 +49,7 @@
         />
       </KGridItem>
     </KGrid>
+
     <AddDeviceForm
       v-if="showAddAddressModal"
       @cancel="showAddAddressModal = false"
@@ -96,6 +93,7 @@
       };
     },
     components: { AddDeviceForm, BottomAppBar },
+
     mixins: [commonCoreStrings, commonSyncElements, commonProfileStrings],
     setup() {
       const {
@@ -107,17 +105,21 @@
       } = useDevices({
         subset_of_users_device: false,
       });
+
       const { devices, isDeleting, hasDeleted, deletingFailed, doDelete } =
         useDeviceDeletion(_devices);
+
       const storageFacilityId = useLocalStorage('kolibri-lastSelectedFacilityId', '');
       // data:
       const selectedFacilityId = ref('');
       const showAddAddressModal = ref(false);
       const isLoading = ref(false);
+
       const fetchDeviceFacilities = useMemoize(
         async device => {
           try {
             const { facilities } = await NetworkLocationResource.fetchFacilities(device.id);
+
             return facilities.map(facility => {
               return {
                 id: facility.id,
@@ -137,6 +139,7 @@
           getKey: device => device.id,
         },
       );
+
       // computed properties (functions):
       const isFetching = computed(() => get(_isFetching) || get(isLoading));
       const availableAddressIds = computed(() =>
@@ -178,6 +181,7 @@
         [],
         { evaluating: isLoading, shallow: false },
       );
+
       const { isMinimumKolibriVersion } = useMinimumKolibriVersion(0, 16, 0);
       const facilityDisabled = computed(() => {
         return function (facility) {
@@ -188,6 +192,7 @@
           );
         };
       });
+
       watch(availableFacilities, availableFacilities => {
         if (
           !get(availableFacilities)
@@ -200,12 +205,15 @@
           resetSelectedAddress();
         }
       });
+
       const { createSnackbar } = useSnackbar();
+
       function handleAddedAddress() {
         forceFetch();
         createSnackbar(this.$tr('addDeviceSnackbarText'));
         this.showAddAddressModal = false;
       }
+
       function resetSelectedAddress() {
         const enabledFacilities = availableFacilities.value.filter(f =>
           isMinimumKolibriVersion(f.kolibri_version),
@@ -218,11 +226,13 @@
           selectedFacilityId.value = '';
         }
       }
+
       function to_continue() {
         this.changeFacilityService.send({
           type: 'CONTINUE',
         });
       }
+
       return {
         // useDevices
         devices,
@@ -235,6 +245,7 @@
         hasDeleted,
         deletingFailed,
         doDelete,
+
         // internal
         fetchDeviceFacilities,
         availableFacilities,
@@ -249,6 +260,7 @@
       };
     },
     inject: ['changeFacilityService'],
+
     watch: {
       selectedFacilityId(newVal) {
         this.storageFacilityId = newVal;

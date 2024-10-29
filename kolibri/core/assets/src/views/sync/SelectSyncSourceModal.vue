@@ -36,6 +36,7 @@
     PORTAL: 'PORTAL',
     PEER: 'PEER',
   });
+
   export default {
     name: 'SelectSyncSourceModal',
     components: {
@@ -87,6 +88,7 @@
       localNetworkDescription: {
         message:
           'Sync facility data with another Kolibri server on your local network or the internet',
+
         context: 'Description of the sync option.',
       },
     },

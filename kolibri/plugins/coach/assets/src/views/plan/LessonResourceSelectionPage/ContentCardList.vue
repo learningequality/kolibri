@@ -60,6 +60,7 @@
         </li>
       </KRadioButtonGroup>
     </ul>
+
     <template>
       <KButton
         v-if="showButton && !loadingMoreState"
@@ -171,6 +172,7 @@
         default: false,
       },
     },
+
     computed: {
       showButton() {
         return this.viewMoreButtonState === this.ViewMoreButtonStates.HAS_MORE;

@@ -52,9 +52,7 @@
         </th>
         <template v-if="showDemographicInfo">
           <th>
-            <span>
-              {{ coreString('identifierLabel') }}
-            </span>
+            <span>{{ coreString('identifierLabel') }}</span>
             <CoreInfoIcon
               class="tooltip"
               :iconAriaLabel="coreString('identifierAriaLabel')"
@@ -77,6 +75,7 @@
           </span>
         </th>
       </template>
+
       <template #tbody>
         <tbody>
           <tr
@@ -194,8 +193,7 @@
               <slot
                 name="info"
                 :user="user"
-              >
-              </slot>
+              ></slot>
             </td>
             <td
               v-if="$scopedSlots.action"
@@ -204,8 +202,7 @@
               <slot
                 name="action"
                 :user="user"
-              >
-              </slot>
+              ></slot>
             </td>
           </tr>
         </tbody>
@@ -394,6 +391,7 @@
     font-size: 12px;
     font-weight: bold;
   }
+
   // consistent vertical alignment of checkboxes
   // and text in a row
   .user-checkbox {

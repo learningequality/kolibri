@@ -130,6 +130,7 @@
   import IdentifierTextbox from './IdentifierTextbox';
 
   const { NOT_SPECIFIED } = DemographicConstants;
+
   export default {
     name: 'UserCreatePage',
     metaInfo() {
@@ -229,10 +230,12 @@
       submitForm() {
         this.formSubmitted = true;
         let password = this.password;
+
         if (!this.showPasswordInput) {
           password = NOT_SPECIFIED;
           this.passwordValid = true;
         }
+
         if (!this.formIsValid) {
           return this.focusOnInvalidField();
         }

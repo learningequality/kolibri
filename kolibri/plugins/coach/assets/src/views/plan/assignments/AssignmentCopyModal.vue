@@ -62,6 +62,7 @@
     SELECT_CLASSROOM: 'SELECT_CLASSROOM',
     SELECT_GROUPS: 'SELECT_GROUPS',
   };
+
   export default {
     name: 'AssignmentCopyModal',
     components: {
