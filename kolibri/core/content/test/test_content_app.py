@@ -1892,6 +1892,116 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["content_id"], node.content_id)
 
+    def test_remote_content_node_missing_learner_needs(self):
+        with mock.patch("kolibri.core.content.api.NetworkClient") as nc:
+            mock_response = mock.Mock()
+            mock_response.headers = {}
+            mock_response.status_code = 200
+            expected = content.ContentNode.objects.get(title="c2c2")
+            assessmentmetadata = (
+                expected.assessmentmetadata.all()
+                .values(
+                    "assessment_item_ids",
+                    "number_of_assessments",
+                    "mastery_model",
+                    "randomize",
+                    "is_manipulable",
+                    "contentnode",
+                )
+                .first()
+            )
+            thumbnail = None
+            files = []
+            for f in expected.files.all():
+                "local_file__id",
+                "local_file__available",
+                "local_file__file_size",
+                "local_file__extension",
+                "lang_id",
+                file = {}
+                for field in [
+                    "id",
+                    "priority",
+                    "preset",
+                    "supplementary",
+                    "thumbnail",
+                ]:
+                    file[field] = getattr(f, field)
+                file["checksum"] = f.local_file_id
+                for field in [
+                    "available",
+                    "file_size",
+                    "extension",
+                ]:
+                    file[field] = getattr(f.local_file, field)
+                file["lang"] = self.map_language(f.lang)
+                file["storage_url"] = f.get_storage_url()
+                if self.baseurl and file["storage_url"]:
+                    file["storage_url"] += "?baseurl={}".format(self.baseurl)
+                files.append(file)
+                if f.thumbnail:
+                    thumbnail = f.get_storage_url()
+                    if self.baseurl and thumbnail:
+                        thumbnail += "?baseurl={}".format(self.baseurl)
+            expected_old_data = {
+                "id": expected.id,
+                "available": expected.available,
+                "author": expected.author,
+                "channel_id": expected.channel_id,
+                "coach_content": expected.coach_content,
+                "content_id": expected.content_id,
+                "description": expected.description,
+                "duration": expected.duration,
+                "learning_activities": expected.learning_activities.split(",")
+                if expected.learning_activities
+                else [],
+                "grade_levels": expected.grade_levels.split(",")
+                if expected.grade_levels
+                else [],
+                "resource_types": expected.resource_types.split(",")
+                if expected.resource_types
+                else [],
+                "accessibility_labels": expected.accessibility_labels.split(",")
+                if expected.accessibility_labels
+                else [],
+                "categories": expected.categories.split(",")
+                if expected.categories
+                else [],
+                "kind": expected.kind,
+                "lang": self.map_language(expected.lang),
+                "license_description": expected.license_description,
+                "license_name": expected.license_name,
+                "license_owner": expected.license_owner,
+                "num_coach_contents": expected.num_coach_contents,
+                "options": expected.options,
+                "parent": expected.parent_id,
+                "sort_order": expected.sort_order,
+                "title": expected.title,
+                "lft": expected.lft,
+                "rght": expected.rght,
+                "tree_id": expected.tree_id,
+                "ancestors": [],
+                "tags": list(
+                    expected.tags.all()
+                    .order_by("tag_name")
+                    .values_list("tag_name", flat=True)
+                ),
+                "thumbnail": thumbnail,
+                "assessmentmetadata": assessmentmetadata,
+                "is_leaf": expected.kind != "topic",
+                "files": files,
+                "admin_imported": bool(expected.admin_imported),
+            }
+            mock_response.json.return_value = expected_old_data
+            mock_client = mock.MagicMock()
+            mock_client.get.return_value = mock_response
+            nc.build_for_address.return_value = mock_client
+            response = self.client.get(
+                reverse("kolibri:core:contentnode-detail", kwargs={"pk": expected.id}),
+                data={"baseurl": "http://example.com/"},
+            )
+            self.assertEqual(response.data["learner_needs"], [])
+
     def tearDown(self):
         """
         clean up files/folders created during the test

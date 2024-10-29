@@ -195,8 +195,9 @@ class RemoteMixin(object):
         return headers
 
     def _cache_etag(self, baseurl, headers):
-        cache_key = REMOTE_ETAG_CACHE_KEY.format(baseurl)
-        cache.set(cache_key, headers["Etag"], 3600)
+        if "Etag" in headers:
+            cache_key = REMOTE_ETAG_CACHE_KEY.format(baseurl)
+            cache.set(cache_key, headers["Etag"], 3600)
 
     def update_data(self, response_data, baseurl):
         return response_data
@@ -792,6 +793,11 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
                 response_data["admin_imported"] = (
                     response_data["id"] in self.locally_admin_imported_ids
                 )
+                if "learner_needs" not in response_data:
+                    # We accidentally omitted learner_needs from previous versions
+                    # of the public API, so we add it back in here,
+                    # so that remote data and local data have consistent structure.
+                    response_data["learner_needs"] = []
                 if "children" in response_data:
                     response_data["children"] = self.update_data(
                         response_data["children"], baseurl
