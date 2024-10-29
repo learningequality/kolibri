@@ -320,6 +320,8 @@ class ContentNodeAPIBase(object):
                 thumbnail = f.get_storage_url()
                 if self.baseurl and thumbnail:
                     thumbnail += "?baseurl={}".format(self.baseurl)
+        files = sorted(files, key=lambda x: x["id"])
+        actual["files"] = sorted(actual["files"], key=lambda x: x["id"])
         self.assertEqual(
             actual,
             {
