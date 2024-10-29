@@ -132,56 +132,11 @@
             @input="handleActivity"
           />
 
-          <AccordionContainer style="margin-top: 1em">
-            <AccordionItem
-              :title="$tr('categoryLabel')"
-              :headerAppearanceOverrides="{
-                background: activeCategories.length
-                  ? selectedHighlightColor
-                  : $themePalette.grey.v_100,
-              }"
-            >
-              <template #content>
-                <KButton
-                  v-for="(category, key) in availableLibraryCategories"
-                  :key="'cat-' + key"
-                  appearance="flat-button"
-                  class="categoryButton"
-                  :style="{
-                    background: isCategoryActive(category.value) ? selectedHighlightColor : '',
-                  }"
-                  :text="coreString(category.value)"
-                  :disabled="
-                    availableRootCategories &&
-                      !availableRootCategories[category.value] &&
-                      !isCategoryActive(category.value)
-                  "
-                  @click="handleCategory(key)"
-                >
-                  <template #icon>
-                    <KIcon
-                      icon="categories"
-                      class="categoryIcon"
-                      :color="$themeTokens.primary"
-                    />
-                  </template>
-                  <template
-                    v-if="hasNestedCategories(key)"
-                    #iconAfter
-                  >
-                    <KIcon
-                      icon="chevronRight"
-                      class="categoryIconAfter"
-                    />
-                  </template>
-                </KButton>
-              </template>
-            </AccordionItem>
-          </AccordionContainer>
-
           <AccordionSelectGroup
             v-model="inputValue"
             :showChannels="showChannels"
+            :activeCategories="activeCategories"
+            :handleCategory="handleCategory"
             style="margin-top: 1em"
           />
         </div>
@@ -204,7 +159,8 @@
 
   //
   // Usage of injectBaseSearch() in this component requires ancestor's use of useBaseSearch
-  // Examples of it can be found in the following components (Note: useSearch extends useBaseSearch):
+  // Examples of it can be found in the following components
+  // (Note: useSearch extends useBaseSearch):
   // - kolibri/plugins/learn/assets/src/views/LibraryPage/index.vue
   //   in https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/learn/assets/src/views/LibraryPage/index.vue#L238-L251
   // - kolibri/plugins/learn/assets/src/views/TopicsPage/index.vue
@@ -452,11 +408,6 @@
       searchByKeyword: {
         message: 'Search by keyword',
         context: 'Placeholder text in the search box, which is otherwise not labelled',
-      },
-      categoryLabel: {
-        message: 'Category',
-        context:
-          'When user can select the categories, this is the header for the categories section',
       },
       categories: {
         message: 'Categories',

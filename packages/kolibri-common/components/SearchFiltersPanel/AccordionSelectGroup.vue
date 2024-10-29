@@ -2,14 +2,58 @@
 
   <div>
     <AccordionContainer
+      v-if="Object.keys(availableLibraryCategories).length"
+      class="accordion-select"
+    >
+      <AccordionItem
+        :title="$tr('categoryLabel')"
+        :headerAppearanceOverrides="accordionHeaderStyles(activeCategories.length)"
+      >
+        <template #content>
+          <KButton
+            v-for="(category, key) in availableLibraryCategories"
+            :key="'cat-' + key"
+            appearance="flat-button"
+            class="category-button"
+            :style="{
+              background: isCategoryActive(category.value) ? selectedHighlightColor : '',
+            }"
+            :text="coreString(category.value)"
+            :disabled="
+              availableRootCategories &&
+                !availableRootCategories[category.value] &&
+                !isCategoryActive(category.value)
+            "
+            @click="handleCategory(key)"
+          >
+            <template #icon>
+              <KIcon
+                class="category-icon"
+                :icon="categoryIcon(key)"
+                :color="$themeTokens.primary"
+              />
+            </template>
+            <template
+              v-if="category.nested"
+              #iconAfter
+            >
+              <KIcon
+                icon="chevronRight"
+                class="category-icon-after"
+              />
+            </template>
+          </KButton>
+        </template>
+      </AccordionItem>
+    </AccordionContainer>
+
+    <AccordionContainer
       v-if="languageOptionsList.length"
       class="accordion-select"
     >
       <AccordionItem
         :title="coreString('languageLabel')"
-        :headerAppearanceOverrides="{
-          background: langId ? selectedHighlightColor : $themePalette.grey.v_100,
-        }"
+        :headerAppearanceOverrides="accordionHeaderStyles(langId)"
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
@@ -36,9 +80,7 @@
     >
       <AccordionItem
         :title="coreString('levelLabel')"
-        :headerAppearanceOverrides="{
-          background: selectedLevel.value ? selectedHighlightColor : $themePalette.grey.v_100,
-        }"
+        :headerAppearanceOverrides="accordionHeaderStyles(selectedLevel.value)"
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
@@ -65,9 +107,7 @@
     >
       <AccordionItem
         :title="coreString('channelLabel')"
-        :headerAppearanceOverrides="{
-          background: selectedChannel.value ? selectedHighlightColor : $themePalette.grey.v_100,
-        }"
+        :headerAppearanceOverrides="accordionHeaderStyles(selectedChannel.value)"
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
@@ -94,11 +134,7 @@
     >
       <AccordionItem
         :title="coreString('accessibility')"
-        :headerAppearanceOverrides="{
-          background: selectedAccessibilityFilter.value
-            ? selectedHighlightColor
-            : $themePalette.grey.v_100,
-        }"
+        :headerAppearanceOverrides="accordionHeaderStyles(selectedAccessibilityFilter.value)"
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
@@ -107,13 +143,13 @@
         <template #content>
           <KRadioButtonGroup>
             <KRadioButton
-            v-for="a11y in accessibilityOptionsList"
-            :key="'a11y-' + a11y.value"
-            :buttonValue="a11y.value"
-            :currentValue"selectedAccessibilityFilter['value'] || ''"
-            :label="a11y.label"
-            @change="handleChange('accessibility_labels', a11y)"
-          />
+              v-for="a11y in accessibilityOptionsList"
+              :key="'a11y-' + a11y.value"
+              :buttonValue="a11y.value"
+              :currentValue="selectedAccessibilityFilter['value'] || ''"
+              :label="a11y.label"
+              @change="handleChange('accessibility_labels', a11y)"
+            />
           </KRadioButtonGroup>
         </template>
       </AccordionItem>
@@ -141,6 +177,7 @@
         availableGradeLevels,
         availableAccessibilityOptions,
         availableLanguages,
+        availableLibraryCategories,
         availableChannels,
         searchableLabels,
       } = injectBaseSearch();
@@ -148,6 +185,7 @@
         availableGradeLevels,
         availableAccessibilityOptions,
         availableLanguages,
+        availableLibraryCategories,
         availableChannels,
         searchableLabels,
         // This color is not in KDS but was specifically requested in the design
@@ -163,12 +201,31 @@
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
       },
+      handleCategory: {
+        type: Function,
+        required: true,
+      },
+      activeCategories: {
+        type: Array,
+        required: true,
+      },
       showChannels: {
         type: Boolean,
         default: true,
       },
     },
     computed: {
+      availableRootCategories() {
+        if (this.searchableLabels) {
+          const roots = {};
+          for (const key of this.searchableLabels.categories) {
+            const root = key.split('.')[0];
+            roots[root] = true;
+          }
+          return roots;
+        }
+        return null;
+      },
       languageOptionsList() {
         return this.availableLanguages.map(language => {
           return {
@@ -261,12 +318,50 @@
       },
     },
     methods: {
+      accordionHeaderStyles(selected) {
+        return {
+          padding: `0.25em 0 0.25em ${selected ? '0.5em' : '0.75em'}`,
+          background: selected ? this.selectedHighlightColor : this.$themePalette.grey.v_100,
+          borderLeft: selected ? `0.25em solid ${this.$themeTokens.primary}` : 'none',
+        };
+      },
       handleChange(field, value) {
         if (value && value.value) {
           this.$emit('input', { ...this.value, [field]: { [value.value]: true } });
         } else {
           this.$emit('input', { ...this.value, [field]: {} });
         }
+      },
+      isCategoryActive(categoryValue) {
+        // Takes the dot separated category value and checks if it is active
+        return this.activeCategories.some(k => k.includes(categoryValue));
+      },
+      categoryIcon(key) {
+        // 'language' icon is already in use and it doesn't follow the
+        // same naming pattern for category resources, so set separate
+        // case to return the correct icon
+        if (camelCase(key) === 'languageLearning') {
+          return 'language';
+        } else if (
+          camelCase(key) === 'technicalAndVocationalTraining' ||
+          camelCase(key) === 'professionalSkills'
+        ) {
+          // similarly, 'skills' icon is used for both of these resources
+          // and doesn't follow same pattern
+          return 'skillsResource';
+        } else if (camelCase(key) === 'foundationsLogicAndCriticalThinking') {
+          // naming mismatch
+          return 'logicCriticalThinkingResource';
+        } else {
+          return `${camelCase(key)}Resource`;
+        }
+      },
+    },
+    $trs: {
+      categoryLabel: {
+        message: 'Category',
+        context:
+          'When user can select the categories, this is the header for the categories section',
       },
     },
   };
@@ -322,6 +417,36 @@
 
   .accordion-select:not(:last-child) {
     margin-bottom: 1em;
+  }
+
+  .category-icon {
+    position: absolute;
+    top: 50%;
+    left: 0.5em;
+    transform: translateY(-50%);
+  }
+
+  .category-icon-after {
+    position: absolute;
+    top: 50%;
+    right: 0.5em;
+    transform: translateY(-50%);
+  }
+
+  .category-button {
+    // Ensure the child KIcons' absolute positioning anchors to this button
+    position: relative;
+    width: 100%;
+    // 0.5em around except on the right where the category icon is
+    padding: 0 0.5em 0 2.25em;
+    font-weight: normal;
+    text-align: left;
+    // KButton text formatting overrides
+    text-transform: unset;
+  }
+
+  .category-button:not(:last-child) {
+    margin-bottom: 0.5em;
   }
 
 </style>

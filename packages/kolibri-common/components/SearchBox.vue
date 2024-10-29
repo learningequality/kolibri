@@ -81,7 +81,7 @@
       },
       placeholder: {
         type: String,
-        default: coreString.$tr('searchLabel'),
+        default: coreString('searchLabel'),
       },
       value: {
         type: String,
