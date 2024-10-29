@@ -334,6 +334,9 @@ class ContentNodeAPIBase(object):
                 "learning_activities": expected.learning_activities.split(",")
                 if expected.learning_activities
                 else [],
+                "learner_needs": expected.learner_needs.split(",")
+                if expected.learner_needs
+                else [],
                 "grade_levels": expected.grade_levels.split(",")
                 if expected.grade_levels
                 else [],
