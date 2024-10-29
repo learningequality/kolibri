@@ -31,6 +31,7 @@
           </div>
           <div class="trailing-actions">
             <KIconButton
+              tabindex="-1"
               :icon="isExpanded ? 'chevronDown' : 'chevronRight'"
               @click.stop="toggle"
             />
