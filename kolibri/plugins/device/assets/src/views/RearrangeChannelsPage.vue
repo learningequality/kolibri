@@ -110,7 +110,7 @@
       itemClass() {
         return {
           ':hover': {
-            backgroundColor: this.$themePalette.grey.v_200,
+            backgroundColor: this.$themePalette.grey.v_300,
           },
         };
       },

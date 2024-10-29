@@ -98,7 +98,7 @@
         return this.$computedClass({
           ':focus': this.$coreOutline,
           ':hover': {
-            backgroundColor: this.$themePalette.blue.v_200,
+            backgroundColor: this.$themePalette.blue.v_100,
           },
         });
       },

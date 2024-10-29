@@ -18,6 +18,7 @@
             <KCheckbox
               :label="$tr('selectAll')"
               :checked="nodeIsChecked(annotatedTopicNode)"
+              :indeterminate="selectAllIndeterminate"
               :disabled="disableSelectAll"
               @change="toggleSelectAll"
             />
@@ -106,6 +107,16 @@
     },
     computed: {
       ...mapState('manageContent/wizard', ['nodesForTransfer']),
+      selectAllIndeterminate() {
+        if (this.annotatedChildNodes.every(n => this.nodeIsChecked(n))) {
+          // Be sure that we don't set indeterminate if every node is checked first
+          // because we'll use `some` below to return true
+          return false;
+        }
+        return this.annotatedChildNodes.some(
+          n => this.nodeIsChecked(n) || this.nodeIsIndeterminate(n),
+        );
+      },
       currentTopicNode() {
         if (this.node) {
           return this.node;

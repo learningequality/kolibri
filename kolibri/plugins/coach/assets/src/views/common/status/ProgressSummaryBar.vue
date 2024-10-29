@@ -2,7 +2,7 @@
 
   <div
     class="bar-wrapper"
-    :style="{ backgroundColor: $themePalette.grey.v_200 }"
+    :style="{ backgroundColor: $themePalette.grey.v_300 }"
   >
     <div
       class="bar help"

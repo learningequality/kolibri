@@ -326,7 +326,7 @@ describe('TopicsPage', () => {
           computed: {
             windowIsLarge: () => false,
             windowIsSmall: () => true,
-            topicsForDisplay: () => {
+            contentsForDisplay: () => {
               return [
                 {
                   id: '1',

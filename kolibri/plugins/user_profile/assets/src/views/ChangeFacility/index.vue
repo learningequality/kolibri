@@ -61,7 +61,7 @@
           maxWidth: '1064px',
           margin: '0px auto auto',
           padding: '96px 32px 72px',
-          backgroundColor: this.$themePalette.grey.v_50,
+          backgroundColor: this.$themePalette.grey.v_100,
         };
       },
     },

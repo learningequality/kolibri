@@ -2,7 +2,7 @@
 
   <div
     class="alert"
-    :style="{ backgroundColor: $themePalette.red.v_200, display: displayBanner }"
+    :style="{ backgroundColor: $themePalette.red.v_100, display: displayBanner }"
   >
     <h1 style="display: none">
       {{ $tr('insufficientStorageHeader') }}

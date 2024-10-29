@@ -498,7 +498,7 @@
       },
       suggestionStyle(i) {
         return {
-          backgroundColor: this.highlightedIndex === i ? this.$themePalette.grey.v_200 : '',
+          backgroundColor: this.highlightedIndex === i ? this.$themePalette.grey.v_300 : '',
         };
       },
     },

@@ -23,6 +23,10 @@
     margin-left: 16px;
   }
 
+  /deep/ .ui-toolbar__brand {
+    min-width: inherit;
+  }
+
   .ui-toolbar {
     padding: 0 16px;
   }

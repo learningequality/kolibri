@@ -8,6 +8,7 @@ from django.apps import apps
 from django.db.models.fields.related import ForeignKey
 from sqlalchemy import and_
 from sqlalchemy import or_
+from sqlalchemy import String as sa_String
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.exc import SQLAlchemyError
@@ -598,7 +599,14 @@ class ChannelImport(object):
         def generate_data_with_default(record):
             for col_name, column_obj in columns:
                 default = self.get_and_set_column_default(column_obj)
-                value = row_mapper(record, column_obj.name)
+                value = row_mapper(record, col_name)
+                if not column_obj.primary_key and isinstance(
+                    column_obj.type, sa_String
+                ):
+                    max_length = column_obj.type.length
+                    if max_length is not None:
+                        value = value[:max_length] if value is not None else default
+
                 yield value if value is not None else default
 
         if not merge:
@@ -624,7 +632,6 @@ class ChannelImport(object):
             )
         else:
             # Import here so that we don't need to depend on psycopg2 for Kolibri in general.
-            from psycopg2.extras import execute_values
 
             pk_name = DestinationTable.primary_key.columns.values()[0].name
 
@@ -647,13 +654,23 @@ class ChannelImport(object):
                         )
                     )
                 else:
-                    execute_values(
-                        cursor,
-                        # We want to overwrite new values that we are inserting here, so we use an ON CONFLICT DO UPDATE here
-                        # for the resulting SET statement, we generate a statement for each column we are trying to update
-                        "INSERT INTO {table} AS SOURCE ({column_names}) VALUES %s ON CONFLICT ({pk_name}) DO UPDATE SET {set_statement};".format(
+                    list_of_values = (
+                        tuple(datum for datum in generate_data_with_default(record))
+                        for record in results_slice
+                    )
+                    values_str = ", ".join(
+                        cursor.mogrify(
+                            f"({', '.join(['%s'] * len(column_names))})", v
+                        ).decode("utf-8")
+                        for v in list_of_values
+                    )
+                    insert_sql = (
+                        "INSERT INTO {table} AS SOURCE ({column_names}) "
+                        "VALUES {values_str} "
+                        "ON CONFLICT ({pk_name}) DO UPDATE SET {set_statement};".format(
                             table=DestinationTable.name,
                             column_names=", ".join(column_names),
+                            values_str=values_str,
                             pk_name=pk_name,
                             set_statement=", ".join(
                                 [
@@ -670,13 +687,10 @@ class ChannelImport(object):
                                     if column_name != pk_name
                                 ]
                             ),
-                        ),
-                        (
-                            tuple(datum for datum in generate_data_with_default(record))
-                            for record in results_slice
-                        ),
-                        template="(" + "%s, " * (len(columns) - 1) + "%s)",
+                        )
                     )
+                    cursor.execute(insert_sql)
+
                 i += BATCH_SIZE
                 results_slice = list(islice(results, i, i + BATCH_SIZE))
         cursor.close()

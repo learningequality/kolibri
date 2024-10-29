@@ -43,6 +43,7 @@
         class="select-all-checkbox"
         :label="$tr('selectAll')"
         :checked="selectAllIsChecked"
+        :indeterminate="selectAllIsIndeterminate"
         @change="handleChangeSelectAll({ isSelected: $event })"
       />
     </template>
@@ -107,6 +108,10 @@
     computed: {
       selectAllIsChecked() {
         return differenceBy(this.filteredItems, this.selectedChannels, 'id').length === 0;
+      },
+      selectAllIsIndeterminate() {
+        const diff = differenceBy(this.filteredItems, this.selectedChannels, 'id').length;
+        return diff > 0 && diff < this.filteredItems.length;
       },
       showItem() {
         return function (channel) {
