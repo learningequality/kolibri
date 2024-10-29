@@ -161,7 +161,7 @@
       /** TODO Uncomment these when strings are not frozen, then use them to fix the other TODO
         *  above in this file.
 
-        saveFailureNotification: {
+      saveFailureNotification: {
         message: 'Settings have not been updated',
         context: 'Error message that displays if device settings are not saved correctly.',
       },

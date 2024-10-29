@@ -3,6 +3,7 @@
   <div>
     <span class="headercontainer">
       <h1>{{ getCommonSyncString('selectFacilityTitle') }}</h1>
+
       <transition name="spinner-fade">
         <div v-if="isFetching">
           <KLabeledIcon>
@@ -110,6 +111,7 @@
         useDeviceDeletion(_devices);
 
       const storageFacilityId = useLocalStorage('kolibri-lastSelectedFacilityId', '');
+
       // data:
       const selectedFacilityId = ref('');
       const showAddAddressModal = ref(false);

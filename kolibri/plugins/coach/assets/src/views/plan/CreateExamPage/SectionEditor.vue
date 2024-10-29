@@ -16,6 +16,7 @@
       :invalidText="sectionTitleInvalidText"
       :maxlength="100"
     />
+
     <KTextbox
       v-model="description"
       :label="optionalDescriptionLabel$()"
