@@ -69,7 +69,7 @@
       };
     },
     props: {
-      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      // eslint-disable-next-line vue/no-unused-properties
       contentNode: {
         type: Object,
         required: true,

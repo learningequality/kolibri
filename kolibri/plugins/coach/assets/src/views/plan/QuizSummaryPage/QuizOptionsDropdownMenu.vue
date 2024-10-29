@@ -4,6 +4,7 @@
     hasDropdown
     icon="optionsHorizontal"
     appearance="flat-button"
+    :ariaLabel="coreString('optionsLabel')"
   >
     <template #menu>
       <KDropdownMenu

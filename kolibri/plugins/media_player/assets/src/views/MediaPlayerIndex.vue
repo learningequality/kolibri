@@ -208,7 +208,7 @@
       transcriptVisible() {
         return this.transcript && !this.loading && this.captionTracks.length > 0;
       },
-      /* eslint-disable kolibri/vue-no-unused-properties */
+      /* eslint-disable vue/no-unused-properties */
       /**
        * @public
        */

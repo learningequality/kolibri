@@ -222,6 +222,9 @@ module.exports = {
     'vue/space-infix-ops': ERROR,
     'vue/space-unary-ops': ERROR,
     'vue/no-lone-template': OFF,
+    'vue/match-component-file-name': ERROR,
+    'vue/component-options-name-casing': [ERROR, 'PascalCase'],
+    'vue/no-unused-properties': ERROR,
 
     'import/first': ERROR,
     'import/no-duplicates': ERROR,
@@ -229,9 +232,6 @@ module.exports = {
     'import/order': ERROR,
 
     // Custom vue rules
-    'kolibri/vue-filename-and-component-name-match': ERROR,
-    'kolibri/vue-component-registration-casing': ERROR,
-    'kolibri/vue-no-unused-properties': ERROR,
     'kolibri/vue-no-unused-vuex-properties': ERROR,
     'kolibri/vue-no-unused-methods': ERROR,
     'kolibri/vue-no-unused-vuex-methods': ERROR,

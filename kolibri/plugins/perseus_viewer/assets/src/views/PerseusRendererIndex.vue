@@ -264,7 +264,7 @@
       isMobile() {
         return this.windowBreakpoint < 3;
       },
-      /* eslint-disable kolibri/vue-no-unused-properties */
+      /* eslint-disable vue/no-unused-properties */
       availableHints() {
         /* eslint-enable */
         return this.totalHints - this.hintsVisible;

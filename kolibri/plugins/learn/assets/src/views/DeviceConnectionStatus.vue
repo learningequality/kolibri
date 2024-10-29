@@ -73,7 +73,7 @@
       }
     },
     props: {
-      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      // eslint-disable-next-line vue/no-unused-properties
       deviceId: {
         type: String,
         default: null,
