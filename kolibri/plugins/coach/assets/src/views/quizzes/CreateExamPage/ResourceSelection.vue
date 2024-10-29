@@ -186,7 +186,7 @@
       style="position: absolute"
       width="100%"
       :accordion="true"
-      :showActivities="false"
+      :showActivities="true"
       @close="showSearch = false"
     />
 

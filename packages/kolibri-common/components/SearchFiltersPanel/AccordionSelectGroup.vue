@@ -337,24 +337,8 @@
         return this.activeCategories.some(k => k.includes(categoryValue));
       },
       categoryIcon(key) {
-        // 'language' icon is already in use and it doesn't follow the
-        // same naming pattern for category resources, so set separate
-        // case to return the correct icon
-        if (camelCase(key) === 'languageLearning') {
-          return 'language';
-        } else if (
-          camelCase(key) === 'technicalAndVocationalTraining' ||
-          camelCase(key) === 'professionalSkills'
-        ) {
-          // similarly, 'skills' icon is used for both of these resources
-          // and doesn't follow same pattern
-          return 'skillsResource';
-        } else if (camelCase(key) === 'foundationsLogicAndCriticalThinking') {
-          // naming mismatch
-          return 'logicCriticalThinkingResource';
-        } else {
-          return `${camelCase(key)}Resource`;
-        }
+        // TODO Add icons to KDS then use them
+        return 'categories';
       },
     },
     $trs: {
