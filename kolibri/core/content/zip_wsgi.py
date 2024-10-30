@@ -21,6 +21,11 @@ from django.http.response import StreamingHttpResponse
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
 from django.utils.http import http_date
+from le_utils.constants.file_formats import BLOOMD
+from le_utils.constants.file_formats import BLOOMPUB
+from le_utils.constants.file_formats import H5P
+from le_utils.constants.file_formats import HTML5
+from le_utils.constants.file_formats import PERSEUS
 from whitenoise.responders import StaticFile
 
 from kolibri.core.content.errors import InvalidStorageFilenameError
@@ -250,6 +255,9 @@ def get_embedded_file(
         return response
 
 
+archive_file_types = (HTML5, H5P, BLOOMPUB, BLOOMD, PERSEUS)
+archive_file_extension_match = "|".join(archive_file_types)
+
 # Includes a prefix that is almost certain not to collide
 # with a filename embedded in a zip file. Prefix is:
 # @*._ followed by the encoded base url
@@ -260,7 +268,11 @@ def get_embedded_file(
 # the base URL, rather than having to load the entire zip file before
 # loading the HTML5 content.
 path_regex = re.compile(
-    r"/(?:(?P<base_url>(?![a-f0-9]{32}\.zip)[^/]+)/)?(?P<zipped_filename>[a-f0-9]{32}\.zip)/(?P<embedded_filepath>.*)"
+    r"/(?:(?P<base_url>(?![a-f0-9]{32}\.(?:"
+    + archive_file_extension_match
+    + r"))[^/]+)/)?(?P<zipped_filename>[a-f0-9]{32}\.(?:"
+    + archive_file_extension_match
+    + r"))/(?P<embedded_filepath>.*)"
 )
 
 YEAR_IN_SECONDS = 60 * 60 * 24 * 365
