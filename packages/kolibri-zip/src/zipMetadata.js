@@ -67,19 +67,27 @@ class ZipMetadata {
   }
 
   async findEndOfCentralDirectory() {
-    // Start with minimum EOCD size
-    let readSize = EOCD_SIZE;
+    // Start with 64KB instead of EOCD_SIZE
+    // To try to grab whole central directory in a single request
+    let readSize = 65536; // 64KB
     let startPos = -readSize;
 
-    // If first attempt fails, try progressively larger chunks to account for ZIP comment
-    while (-startPos <= MAX_COMMENT_SIZE + EOCD_SIZE) {
-      try {
-        const { contentLength, acceptRanges } = await loadBinary(this.url, { method: 'HEAD' });
-        this._fileSize = contentLength;
-        this._supportsRanges = acceptRanges === 'bytes';
-        if (!this._supportsRanges) {
-          throw new Error('Server does not support range requests.');
-        }
+    try {
+      const { contentLength, acceptRanges } = await loadBinary(this.url, { method: 'HEAD' });
+      this._fileSize = contentLength;
+      this._supportsRanges = acceptRanges === 'bytes';
+      if (!this._supportsRanges) {
+        throw new Error('Server does not support range requests.');
+      }
+
+      // If file is smaller than our read size, adjust
+      if (contentLength < readSize) {
+        readSize = contentLength;
+        startPos = -readSize;
+      }
+
+      // Search progressively larger chunks until we find EOCD
+      while (-startPos <= MAX_COMMENT_SIZE + EOCD_SIZE) {
         const chunk = await this.readRange(contentLength + startPos, readSize);
 
         // Search for EOCD signature in chunk
@@ -88,27 +96,56 @@ class ZipMetadata {
           if (signature === EOCD_SIGNATURE) {
             // Found EOCD
             const eocd = chunk.slice(i);
+            const centralDirSize = readUInt32LE(eocd, 12);
+            const centralDirOffset = readUInt32LE(eocd, 16);
+            const totalEntries = readUInt16LE(eocd, 8);
+
+            // Check if we already have the central directory in our chunk
+            if (
+              centralDirOffset >= contentLength + startPos &&
+              centralDirOffset + centralDirSize <= contentLength
+            ) {
+              // We already have the central directory data!
+              const centralDirData = chunk.slice(
+                centralDirOffset - (contentLength + startPos),
+                centralDirOffset - (contentLength + startPos) + centralDirSize,
+              );
+
+              // Cache the central directory data for later use
+              this._cachedCentralDir = centralDirData;
+            }
+
             return {
-              centralDirOffset: readUInt32LE(eocd, 16),
-              centralDirSize: readUInt32LE(eocd, 12),
-              totalEntries: readUInt16LE(eocd, 8),
+              centralDirOffset,
+              centralDirSize,
+              totalEntries,
             };
           }
         }
 
-        // Double the read size and try again
-        readSize *= 2;
+        // Double readSize but don't exceed file size
+        readSize = Math.min(readSize * 2, this._fileSize);
         startPos = -readSize;
-      } catch (error) {
-        throw new Error(`Failed to locate End of Central Directory record: ${error.message}`);
       }
+
+      throw new Error('Could not find ZIP central directory');
+    } catch (error) {
+      throw new Error(`Failed to locate End of Central Directory record: ${error.message}`);
     }
-    throw new Error('Could not find ZIP central directory');
   }
 
   async readCentralDirectory() {
     const eocd = await this.findEndOfCentralDirectory();
-    const centralDir = await this.readRange(eocd.centralDirOffset, eocd.centralDirSize);
+
+    // If we have cached central directory data, use it
+    let centralDir;
+    if (this._cachedCentralDir) {
+      centralDir = this._cachedCentralDir;
+      this._cachedCentralDir = null; // Free the memory
+    } else {
+      // Otherwise fetch it
+      centralDir = await this.readRange(eocd.centralDirOffset, eocd.centralDirSize);
+    }
 
     const entries = [];
     let offset = 0;

@@ -17,6 +17,12 @@ export default function loadBinary(path, options = {}) {
   return new Promise((resolve, reject) => {
     try {
       const xhr = new window.XMLHttpRequest();
+
+      // Handle network errors - needs to be set before open()
+      xhr.onerror = function () {
+        reject(new Error('Error initiating request: Network error'));
+      };
+
       xhr.open(method, path, true);
 
       // Only set responseType for GET requests
@@ -25,41 +31,37 @@ export default function loadBinary(path, options = {}) {
         xhr.responseType = 'arraybuffer';
       }
 
-      // Add range header if both start and end are specified
-      if (typeof start === 'number' && typeof end === 'number') {
+      // Only add range header if both start and end are explicitly defined numbers
+      if (typeof start === 'number' && typeof end === 'number' && !isNaN(start) && !isNaN(end)) {
         xhr.setRequestHeader('Range', `bytes=${start}-${end}`);
       }
 
       xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          if (
-            xhr.status === 200 ||
-            xhr.status === 206 ||
-            (method === 'HEAD' && xhr.status === 204)
-          ) {
-            try {
-              if (method === 'HEAD') {
-                // For HEAD requests, return useful headers
-                resolve({
-                  contentLength: parseInt(xhr.getResponseHeader('Content-Length')),
-                  acceptRanges: xhr.getResponseHeader('Accept-Ranges'),
-                });
-              } else {
-                // content response
-                resolve(xhr.response);
-              }
-            } catch (err) {
-              reject(new Error(`Error processing response: ${err.message}`));
-            }
-          } else {
-            reject(new Error(`HTTP error for ${path}: ${xhr.status} ${xhr.statusText}`));
-          }
-        }
-      };
+        if (xhr.readyState !== 4) return;
 
-      // Handle network errors
-      xhr.onerror = function () {
-        reject(new Error(`Network error while loading ${path}`));
+        // Success states
+        if (xhr.status === 200 || xhr.status === 206 || (method === 'HEAD' && xhr.status === 204)) {
+          try {
+            if (method === 'HEAD') {
+              resolve({
+                contentLength: parseInt(xhr.getResponseHeader('Content-Length')),
+                acceptRanges: xhr.getResponseHeader('Accept-Ranges'),
+              });
+            } else {
+              resolve(xhr.response);
+            }
+          } catch (err) {
+            reject(new Error(`Error processing response: ${err.message}`));
+          }
+          return;
+        }
+
+        // Any other status including 0 is treated as an error
+        if (xhr.status === 0) {
+          reject(new Error('Error initiating request: Network error'));
+        } else {
+          reject(new Error(`HTTP error for ${path}: ${xhr.status} ${xhr.statusText}`));
+        }
       };
 
       xhr.send();
