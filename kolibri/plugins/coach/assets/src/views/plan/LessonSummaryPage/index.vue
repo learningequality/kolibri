@@ -92,7 +92,6 @@
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import ReportsControls from '../../reports/ReportsControls';
-  import { selectionRootLink } from '../../../routes/planLessonsRouterUtils';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../../constants/tabsConstants';
   import ReportsLessonResourcesTable from '../../reports/ReportsLessonResourcesTable';
@@ -145,7 +144,7 @@
         return this.$route.params.lessonId;
       },
       lessonSelectionRootPage() {
-        return selectionRootLink({ lessonId: this.lessonId, classId: this.classId });
+        return this.classRoute(LessonsPageNames.SELECTION_ROOT, { lessonId: this.lessonId });
       },
       activeTabId() {
         const { tabId } = this.$route.params;

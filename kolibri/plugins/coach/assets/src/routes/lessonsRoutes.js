@@ -77,7 +77,7 @@ export default [
     component: LessonCreationPage,
   },
   {
-    name: PageNames.LESSON_CREATION_ROOT_BETTER,
+    name: LessonsPageNames.LESSON_CREATION_ROOT_BETTER,
     path: path(CLASS, LESSONS_TEMP, '/edit'),
     component: LessonCreationPage,
     children: [

@@ -82,7 +82,7 @@
           {
             id: PlanTabs.GROUPS,
             label: this.coachString('groupsLabel'),
-            to: this.classRoute('GroupsPage'),
+            to: this.classRoute(PageNames.GROUPS_ROOT),
           },
         ];
       },

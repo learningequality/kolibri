@@ -79,7 +79,7 @@
               >
                 <td>
                   <KRouterLink
-                    :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
+                    :to="lessonSummaryLink({ lessonId: lesson.id })"
                     :text="lesson.title"
                     icon="lesson"
                   />
@@ -221,7 +221,6 @@
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
-  import { lessonSummaryLink } from '../../../routes/planLessonsRouterUtils';
   import { useLessons } from '../../../composables/useLessons';
   import ReportsControls from '../../reports/ReportsControls';
   import * as csvFields from '../../../csv/fields';
@@ -346,7 +345,9 @@
             return true;
         }
       },
-      lessonSummaryLink,
+      lessonSummaryLink({ lessonId }) {
+        return this.classRoute(LessonsPageNames.SELECTION_ROOT, { lessonId });
+      },
       handleDetailsModalContinue(payload) {
         this.detailsModalIsDisabled = true;
         this.createLesson({

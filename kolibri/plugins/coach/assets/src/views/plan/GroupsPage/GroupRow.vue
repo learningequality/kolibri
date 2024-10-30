@@ -4,7 +4,7 @@
     <td>
       <KRouterLink
         :text="group.name"
-        :to="$router.getRoute('GroupMembersPage', { groupId: group.id })"
+        :to="$router.getRoute(PageNames.GROUP_SUMMARY, { groupId: group.id })"
         icon="group"
       />
     </td>
@@ -34,6 +34,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
+  import { PageNames } from '../../../constants';
 
   export default {
     name: 'GroupRow',
@@ -46,6 +47,11 @@
           return group.name && group.users;
         },
       },
+    },
+    data() {
+      return {
+        PageNames,
+      };
     },
     computed: {
       menuOptions() {

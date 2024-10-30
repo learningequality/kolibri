@@ -4,7 +4,7 @@
     <KPageContainer>
       <p>
         <BackLink
-          :to="$router.getRoute('GroupsPage')"
+          :to="$router.getRoute(PageNames.GROUPS_ROOT)"
           :text="$tr('back')"
         />
       </p>
@@ -37,7 +37,7 @@
               :primary="true"
               appearance="raised-button"
               :text="$tr('enrollButton')"
-              :to="$router.getRoute('GroupEnrollPage')"
+              :to="$router.getRoute(PageNames.GROUP_ENROLL)"
             />
 
             <KIconButton
@@ -126,7 +126,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
-  import { GroupModals } from '../../../constants';
+  import { GroupModals, PageNames } from '../../../constants';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import RenameGroupModal from '../GroupsPage/RenameGroupModal';
   import DeleteGroupModal from '../GroupsPage/DeleteGroupModal';
@@ -144,6 +144,7 @@
     mixins: [commonCoreStrings, commonCoach],
     data() {
       return {
+        PageNames,
         userForRemoval: null,
       };
     },
@@ -181,7 +182,7 @@
       handleSuccessDeleteGroup() {
         this.showSnackbarNotification('groupDeleted');
         this.displayModal(false);
-        this.$router.push(this.$router.getRoute('GroupsPage'));
+        this.$router.push(this.$router.getRoute(PageNames.GROUPS_ROOT));
       },
       handleOptionSelect(value) {
         switch (value) {

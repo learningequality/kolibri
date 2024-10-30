@@ -8,11 +8,7 @@ import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
 import { PageNames } from './constants';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
-import { LessonsPageNames } from './constants/lessonsConstants';
 import LessonEditDetailsPage from './views/plan/LessonEditDetailsPage';
-import GroupsPage from './views/plan/GroupsPage';
-import GroupMembersPage from './views/plan/GroupMembersPage';
-import GroupEnrollPage from './views/plan/GroupEnrollPage';
 import pages from './views/reports/allReportsPages';
 import HomeActivityPage from './views/home/HomeActivityPage';
 
@@ -102,20 +98,20 @@ class CoachToolsModule extends KolibriApp {
         to.name &&
         [
           PageNames.EXAMS,
-          LessonsPageNames.LESSONS_ROOT,
-          LessonsPageNames.LESSON_CREATION_ROOT,
-          LessonsPageNames.SUMMARY,
+          PageNames.LESSONS_ROOT,
+          PageNames.LESSON_CREATION_ROOT,
+          PageNames.SUMMARY,
           LessonEditDetailsPage.name,
-          LessonsPageNames.SELECTION_ROOT,
-          LessonsPageNames.SELECTION,
-          LessonsPageNames.SELECTION_SEARCH,
-          LessonsPageNames.LESSON_SELECTION_BOOKMARKS,
-          LessonsPageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
-          LessonsPageNames.SELECTION_CONTENT_PREVIEW,
-          LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
-          GroupsPage.name,
-          GroupMembersPage.name,
-          GroupEnrollPage.name,
+          PageNames.SELECTION_ROOT,
+          PageNames.SELECTION,
+          PageNames.SELECTION_SEARCH,
+          PageNames.LESSON_SELECTION_BOOKMARKS,
+          PageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
+          PageNames.SELECTION_CONTENT_PREVIEW,
+          PageNames.RESOURCE_CONTENT_PREVIEW,
+          PageNames.GROUP_SUMMARY,
+          PageNames.GROUP_ENROLL,
+          PageNames.GROUPS_ROOT,
           PageNames.HOME_PAGE,
           HomeActivityPage.name,
         ].includes(to.name)

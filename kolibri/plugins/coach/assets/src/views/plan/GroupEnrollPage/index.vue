@@ -4,7 +4,7 @@
     :appBarTitle="currentGroup.name"
     icon="back"
     :pageTitle="pageTitle"
-    :route="$router.getRoute('GroupMembersPage')"
+    :route="$router.getRoute(PageNames.GROUP_SUMMARY)"
     :primary="false"
   >
     <KPageContainer>
@@ -86,6 +86,7 @@
   import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
   import UserTable from 'kolibri.coreVue.components.UserTable';
   import commonCoach from '../../common';
+  import { PageNames } from '../../../constants';
   import CoachImmersivePage from '../../CoachImmersivePage';
 
   export default {
@@ -98,6 +99,7 @@
     mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
+        PageNames,
         filterInput: '',
         perPage: 10,
         pageNum: 1,
@@ -171,7 +173,7 @@
           groupId: this.currentGroup.id,
           userIds: this.selectedUsers,
         }).then(() => {
-          this.$router.push(this.$router.getRoute('GroupMembersPage'), () => {
+          this.$router.push(this.$router.getRoute(PageNames.GROUP_SUMMARY), () => {
             this.showSnackbarNotification('learnersEnrolledNoCount', {
               count: this.selectedUsers.length,
             });

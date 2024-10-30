@@ -53,7 +53,8 @@
                 @rename="openRenameGroupModal"
                 @delete="openDeleteGroupModal"
                 @enroll="
-                  () => $router.push($router.getRoute('GroupEnrollPage', { groupId: group.id }))
+                  () =>
+                    $router.push($router.getRoute(PageNames.GROUP_ENROLL, { groupId: group.id }))
                 "
               />
             </tbody>
@@ -114,7 +115,7 @@
   import { useGroups } from '../../../composables/useGroups';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import PlanHeader from '../../plan/PlanHeader';
-  import { GroupModals } from '../../../constants';
+  import { GroupModals, PageNames } from '../../../constants';
   import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
   import CreateGroupModal from './CreateGroupModal';
   import GroupRowTr from './GroupRow';
@@ -143,6 +144,7 @@
       return {
         PLAN_TABS_ID,
         PlanTabs,
+        PageNames,
         selectedGroup,
         setSelectedGroup(name, id) {
           selectedGroup.value = { name, id };
