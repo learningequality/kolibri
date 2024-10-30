@@ -1,6 +1,6 @@
 import Vuex from 'vuex';
 import { mount } from '@vue/test-utils';
-import AssignmentCopyModal from '../../src/views/plan/assignments/AssignmentCopyModal';
+import AssignmentCopyModal from '../../src/views/common/assignments/AssignmentCopyModal';
 
 const defaultProps = {
   modalTitle: '',

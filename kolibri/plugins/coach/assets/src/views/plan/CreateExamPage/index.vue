@@ -122,7 +122,7 @@
   import { PageNames } from '../../../constants';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import useQuizCreation from '../../../composables/useQuizCreation';
-  import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
+  import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import useCoreCoach from '../../../composables/useCoreCoach';
   import CreateQuizSection from './CreateQuizSection';
   import SectionSidePanel from './SectionSidePanel';

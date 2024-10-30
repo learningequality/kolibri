@@ -197,15 +197,15 @@
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import CoachAppBarPage from '../../CoachAppBarPage';
-  import { LessonsPageNames } from '../../../constants/lessonsConstants';
-  import commonCoach from '../../common';
-  import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
-  import { useLessons } from '../../../composables/useLessons';
-  import ReportsControls from '../../reports/ReportsControls';
-  import * as csvFields from '../../../csv/fields';
-  import CSVExporter from '../../../csv/exporter';
-  import CoachHeader from '../../common/CoachHeader.vue';
+  import CoachAppBarPage from '../CoachAppBarPage';
+  import { LessonsPageNames } from '../../constants/lessonsConstants';
+  import commonCoach from '../common';
+  import AssignmentDetailsModal from '../common/assignments/AssignmentDetailsModal';
+  import { useLessons } from '../../composables/useLessons';
+  import ReportsControls from '../reports/ReportsControls';
+  import * as csvFields from '../../csv/fields';
+  import CSVExporter from '../../csv/exporter';
+  import CoachHeader from '../common/CoachHeader.vue';
 
   export default {
     name: 'LessonsRootPage',
@@ -435,7 +435,7 @@
       noLessons: {
         message: 'You do not have any lessons',
         context:
-          "Text displayed in the 'Lessons' tab of the 'Plan' section if there are no lessons created",
+          "Text displayed in the 'Lessons' tab of the coach page if there are no lessons created",
       },
       dontShowAgain: {
         message: "Don't show this message again",

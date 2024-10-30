@@ -33,8 +33,8 @@
   import { LessonResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
-  import AssignmentCopyModal from '../../plan/assignments/AssignmentCopyModal';
-  import AssignmentDeleteModal from '../../plan/assignments/AssignmentDeleteModal';
+  import AssignmentCopyModal from '../../common/assignments/AssignmentCopyModal';
+  import AssignmentDeleteModal from '../../common/assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
 

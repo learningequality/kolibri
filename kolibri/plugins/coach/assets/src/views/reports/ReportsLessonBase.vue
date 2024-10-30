@@ -69,7 +69,7 @@
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import LessonOptionsDropdownMenu from '../plan/LessonSummaryPage/LessonOptionsDropdownMenu';
+  import LessonOptionsDropdownMenu from '../lessons/LessonSummaryPage/LessonOptionsDropdownMenu';
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';
   import ReportsControls from './ReportsControls';

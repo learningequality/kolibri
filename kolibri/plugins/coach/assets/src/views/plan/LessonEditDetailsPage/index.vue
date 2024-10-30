@@ -40,7 +40,7 @@
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import CoachImmersivePage from '../../CoachImmersivePage';
-  import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
+  import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import ResourceListTable from './EditDetailsResourceListTable';
 

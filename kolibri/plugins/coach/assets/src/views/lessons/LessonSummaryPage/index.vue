@@ -55,7 +55,7 @@
             :activeTabId="activeTabId"
           >
             <template #[ReportsLessonTabs.REPORTS]>
-              <ReportsLessonResourcesTable
+              <LessonResourcesTable
                 ref="table"
                 :title="currentLesson.title"
                 :editable="!$isPrint"
@@ -64,7 +64,7 @@
               />
             </template>
             <template #[ReportsLessonTabs.LEARNERS]>
-              <ReportsLessonLearnersTable
+              <LessonLearnersTable
                 ref="table"
                 :title="currentLesson.title"
                 :entries="learnersTable"
@@ -94,8 +94,8 @@
   import ReportsControls from '../../reports/ReportsControls';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../../constants/tabsConstants';
-  import ReportsLessonResourcesTable from '../../reports/ReportsLessonResourcesTable';
-  import ReportsLessonLearnersTable from '../../reports/ReportsLessonLearnersTable';
+  import LessonResourcesTable from './tables/LessonResourcesTable';
+  import LessonLearnersTable from './tables/LessonLearnersTable';
   import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
   import ManageLessonModals from './ManageLessonModals';
 
@@ -113,8 +113,8 @@
       CoachAppBarPage,
       ManageLessonModals,
       LessonOptionsDropdownMenu,
-      ReportsLessonLearnersTable,
-      ReportsLessonResourcesTable,
+      LessonLearnersTable,
+      LessonResourcesTable,
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {

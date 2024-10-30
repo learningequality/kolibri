@@ -49,7 +49,7 @@
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
+  import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
