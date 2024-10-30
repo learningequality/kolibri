@@ -65,7 +65,9 @@ def theme_favicon():
 
     # Choose the first available .ico file. It's unlikely there's more than
     # one specified in the theme.
-    favicon_url = favicon_urls[0] if favicon_urls else static("assets/logo.ico")
+    favicon_url = (
+        favicon_urls[0] if favicon_urls else static("assets/favicons/logo.ico")
+    )
 
     return format_html('<link rel="shortcut icon" href="{}">', favicon_url)
 
