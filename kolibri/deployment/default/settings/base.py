@@ -194,14 +194,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 # https://docs.djangoproject.com/en/3.2/ref/files/storage/
 
 if not os.environ.get("DEFAULT_FILE_STORAGE"):
-    if conf.OPTIONS["FileStorage"]["STORAGE_BACKEND"] == "file_system":
-        DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-    elif conf.OPTIONS["FileStorage"]["STORAGE_BACKEND"] == "gcs":
-        # https://django-storages.readthedocs.io/en/latest/backends/gcloud.html#google-cloud-storage
-        GS_DEFAULT_ACL = "publicRead"
-        DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-        # GS_PROJECT_ID, GS_CREDENTIALS, etc should be inferred from the environment
-
+    if conf.OPTIONS["FileStorage"]["STORAGE_BACKEND"] == "gcs":
+        if DEBUG:
+            DEFAULT_FILE_STORAGE = "kolibri.utils.file_storage.KolibriFileStorageDebug"
+        else:
+            DEFAULT_FILE_STORAGE = "kolibri.utils.file_storage.KolibriFileStorage"
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
