@@ -15,6 +15,8 @@ import reportRoutes from './reportRoutes';
 import { classIdParamRequiredGuard } from './utils';
 import examRoutes from './examRoutes';
 import lessonsRoutes from './lessonsRoutes';
+import learnersRoutes from './learnersRoutes';
+import groupsRoutes from './groupsRoutes';
 
 function showHomePage(toRoute) {
   const initClassInfoPromise = store.dispatch('initClassInfo', toRoute.params.classId);
@@ -30,6 +32,8 @@ function showHomePage(toRoute) {
 export default [
   ...examRoutes,
   ...lessonsRoutes,
+  ...learnersRoutes,
+  ...groupsRoutes,
   ...reportRoutes,
   {
     name: 'AllFacilitiesPage',

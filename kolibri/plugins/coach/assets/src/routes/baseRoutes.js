@@ -6,6 +6,8 @@ const baseRouteNames = {
   classHome: PageNames.HOME_PAGE,
   lessons: LessonsPageNames.LESSONS_ROOT,
   quizzes: PageNames.EXAMS,
+  learners: PageNames.LEARNERS_ROOT,
+  groups: PageNames.GROUPS_ROOT,
 };
 
 const baseRoutes = Object.entries(baseRouteNames).reduce((curr, baseRouteName) => {

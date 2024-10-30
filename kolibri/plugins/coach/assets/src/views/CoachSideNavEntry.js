@@ -29,6 +29,18 @@ registerNavItem({
         icon: 'quiz',
         name: baseRoutes.quizzes.name,
       },
+      {
+        label: coachStrings.$tr('learnersLabel'),
+        route: baseRoutes.learners.path,
+        icon: 'person',
+        name: baseRoutes.learners.name,
+      },
+      {
+        label: coachStrings.$tr('groupsLabel'),
+        route: baseRoutes.groups.path,
+        icon: 'group',
+        name: baseRoutes.groups.name,
+      },
     ];
   },
   get label() {
