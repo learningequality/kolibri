@@ -6,7 +6,7 @@
         <QuizLessonDetailsHeader
           examOrLesson="lesson"
           :backlinkLabel="coreString('allLessonsLabel')"
-          :backlink="$router.getRoute('PLAN_LESSONS_ROOT', { classId: classId })"
+          :backlink="$router.getRoute('LESSONS_ROOT', { classId: classId })"
         >
           <template #dropdown>
             <KRouterLink

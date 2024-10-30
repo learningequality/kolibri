@@ -102,7 +102,7 @@ class CoachToolsModule extends KolibriApp {
         to.name &&
         [
           PageNames.EXAMS,
-          LessonsPageNames.PLAN_LESSONS_ROOT,
+          LessonsPageNames.LESSONS_ROOT,
           LessonsPageNames.LESSON_CREATION_ROOT,
           LessonsPageNames.SUMMARY,
           LessonEditDetailsPage.name,

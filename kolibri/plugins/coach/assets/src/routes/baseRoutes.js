@@ -1,21 +1,21 @@
 import { PageNames } from '../constants';
+import { LessonsPageNames } from '../constants/lessonsConstants';
+import routes from '.';
 
-export default {
-  classes: {
-    name: PageNames.COACH_CLASS_LIST_PAGE,
-    path: '/classes',
-  },
-  classHome: {
-    name: PageNames.HOME_PAGE,
-    path: '/:classId?/home',
-  },
-  plan: {
-    name: PageNames.PLAN_PAGE,
-    path: '/:classId?/plan',
-    redirect: '/:classId?/plan/lessons',
-  },
-  reports: {
-    name: PageNames.REPORTS_PAGE,
-    path: '/:classId?/reports',
-  },
+const baseRouteNames = {
+  classHome: PageNames.HOME_PAGE,
+  lessons: LessonsPageNames.LESSONS_ROOT,
+  quizzes: PageNames.EXAMS,
 };
+
+const baseRoutes = Object.entries(baseRouteNames).reduce((curr, baseRouteName) => {
+  const [key, value] = baseRouteName;
+  const route = routes.find(({ name }) => name === value);
+  curr[key] = {
+    name: route.name,
+    path: route.path,
+  };
+  return curr;
+}, {});
+
+export default baseRoutes;

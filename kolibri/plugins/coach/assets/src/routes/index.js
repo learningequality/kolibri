@@ -12,8 +12,9 @@ import StatusTestPage from '../views/common/status/StatusTestPage';
 import { ClassesPageNames } from '../../../../learn/assets/src/constants';
 import { PageNames } from '../constants';
 import reportRoutes from './reportRoutes';
-import planRoutes from './planRoutes';
 import { classIdParamRequiredGuard } from './utils';
+import examRoutes from './examRoutes';
+import lessonsRoutes from './lessonsRoutes';
 
 function showHomePage(toRoute) {
   const initClassInfoPromise = store.dispatch('initClassInfo', toRoute.params.classId);
@@ -27,7 +28,8 @@ function showHomePage(toRoute) {
 }
 
 export default [
-  ...planRoutes,
+  ...examRoutes,
+  ...lessonsRoutes,
   ...reportRoutes,
   {
     name: 'AllFacilitiesPage',

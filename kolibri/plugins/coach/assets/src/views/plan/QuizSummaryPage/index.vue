@@ -198,7 +198,7 @@
         }
 
         tabsList.forEach(tab => {
-          tab.to = this.classRoute('QuizSummaryPage', { tabId: tab.id });
+          tab.to = this.classRoute(PageNames.EXAM_SUMMARY, { tabId: tab.id });
         });
 
         return tabsList;

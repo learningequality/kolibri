@@ -41,6 +41,7 @@
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
+  import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import ResourceListTable from './EditDetailsResourceListTable';
 
   export default {
@@ -94,7 +95,7 @@
         let route;
         if (this.$route.name === 'LessonEditDetailsPage') {
           // i.e. Lesson Summary
-          route = 'SUMMARY';
+          route = LessonsPageNames.SUMMARY;
         } else {
           route = 'ReportsLessonReportPage';
         }

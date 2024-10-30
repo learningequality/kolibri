@@ -6,7 +6,7 @@
     authorizedRole="adminOrCoach"
     icon="close"
     :pageTitle="coachString('createLessonAction')"
-    :route="{ name: 'PLAN_LESSONS_ROOT', params: { classId } }"
+    :route="{ name: 'LESSONS_ROOT', params: { classId } }"
   >
     <KPageContainer>
       <AssignmentDetailsModal

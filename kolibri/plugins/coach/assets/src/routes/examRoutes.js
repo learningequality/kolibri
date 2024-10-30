@@ -7,10 +7,18 @@ import CoachExamsPage from '../views/plan/CoachExamsPage';
 import QuizSummaryPage from '../views/plan/QuizSummaryPage';
 import SectionOrder from '../views/plan/CreateExamPage/SectionOrder';
 
+const CLASS = '/:classId';
+const QUIZ = '/quizzes/:quizId';
+const ALL_QUIZZES = '/quizzes';
+
+function path(...args) {
+  return args.join('');
+}
+
 export default [
   {
     name: PageNames.EXAMS,
-    path: '/:classId/plan/quizzes',
+    path: path(CLASS, ALL_QUIZZES),
     component: CoachExamsPage,
     meta: {
       titleParts: ['quizzesLabel', 'CLASS_NAME'],
@@ -18,7 +26,7 @@ export default [
   },
   {
     name: PageNames.EXAM_CREATION_ROOT,
-    path: '/:classId/plan/quizzes/:quizId/edit/:sectionIndex',
+    path: path(CLASS, QUIZ, '/edit/:sectionIndex'),
     component: CreateExamPage,
     children: [
       {
@@ -53,7 +61,7 @@ export default [
   },
   {
     name: PageNames.EXAM_SUMMARY,
-    path: '/:classId/plan/quizzes/:quizId/:tabId?',
+    path: path(CLASS, QUIZ, '/:tabId?'),
     component: QuizSummaryPage,
     meta: {
       titleParts: ['QUIZ_NAME', 'quizzesLabel', 'CLASS_NAME'],

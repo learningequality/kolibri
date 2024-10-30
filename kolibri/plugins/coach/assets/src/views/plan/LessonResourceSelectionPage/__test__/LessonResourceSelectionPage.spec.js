@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import { BookmarksResource } from 'kolibri.resources';
 import LessonResourceSelectionPage from '../index.vue';
 import makeStore from '../../../../../test/makeStore';
+import { LessonsPageNames } from '../../../../constants/lessonsConstants';
 
 jest.mock('kolibri.client');
 jest.mock('kolibri.urls');
@@ -11,7 +12,7 @@ jest.mock('kolibri.coreVue.composables.useUser');
 
 const router = new VueRouter({
   routes: [
-    { name: 'SUMMARY', path: '/summary' },
+    { name: LessonsPageNames.SUMMARY, path: '/summary' },
     { name: 'SELECT_RESOURCES', path: '/' },
     { name: 'SELECTION_ROOT', path: '/select' },
     { name: 'SELECTION', path: '/select/:topicId' },
@@ -28,7 +29,7 @@ const slotDiv = {
 };
 
 const store = makeStore();
-store.state.toolbarRoute = { name: 'SUMMARY' };
+store.state.toolbarRoute = { name: LessonsPageNames.SUMMARY };
 
 function makeWrapper() {
   const wrapper = shallowMount(LessonResourceSelectionPage, {
@@ -127,7 +128,7 @@ describe('LessonResourceSelectionPage', () => {
 
       const exitRoute = () => button.props().to.name;
       // Exit link goes to Lesson Summary page by default
-      expect(exitRoute()).toEqual('SUMMARY');
+      expect(exitRoute()).toEqual(LessonsPageNames.SUMMARY);
 
       // Exit link goes to report page if that's in the URL
       await router.replace({ query: { last: 'ReportsLessonReportPage' } });

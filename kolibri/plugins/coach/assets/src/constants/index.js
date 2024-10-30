@@ -8,6 +8,7 @@ export const PageNames = {
   NEW_COACH_PAGES: 'NEW_COACH_PAGES',
   EXAMS: 'EXAMS',
   EXAM_CREATION_ROOT: 'EXAM_CREATION_ROOT',
+  EXAM_SUMMARY: 'EXAM_SUMMARY',
 
   /** Newly added routes */
   QUIZ_SECTION_EDITOR: 'QUIZ_SECTION_EDITOR',
@@ -58,7 +59,7 @@ export const ViewMoreButtonStates = {
 
 export const pageNameToModuleMap = {
   [PageNames.EXAM_REPORT_DETAIL]: 'examReportDetail',
-  [LessonsPageNames.PLAN_LESSONS_ROOT]: 'lessonsRoot',
+  [LessonsPageNames.LESSONS_ROOT]: 'lessonsRoot',
   [LessonsPageNames.RESOURCE_USER_REPORT]: 'exerciseDetail',
   // Omitting modules for resource selection, exam creation, and preview to prevent
   // default module state resetting behavior.

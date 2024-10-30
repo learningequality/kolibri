@@ -121,7 +121,7 @@
         return LessonResource.deleteModel({ id })
           .then(() => {
             this.$router.replace(
-              this.$router.getRoute('PLAN_LESSONS_ROOT', { classId: this.classId }),
+              this.$router.getRoute('LESSONS_ROOT', { classId: this.classId }),
               () => {
                 this.showSnackbarNotification('lessonDeleted');
               },

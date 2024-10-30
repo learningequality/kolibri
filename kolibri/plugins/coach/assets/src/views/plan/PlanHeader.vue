@@ -72,7 +72,7 @@
           {
             id: PlanTabs.LESSONS,
             label: this.coreString('lessonsLabel'),
-            to: this.classRoute(this.LessonsPageNames.PLAN_LESSONS_ROOT),
+            to: this.classRoute(this.LessonsPageNames.LESSONS_ROOT),
           },
           {
             id: PlanTabs.QUIZZES,

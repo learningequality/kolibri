@@ -117,7 +117,7 @@
               >
                 <td>
                   <KRouterLink
-                    :to="$router.getRoute('QuizSummaryPage', { quizId: exam.id })"
+                    :to="$router.getRoute(PageNames.EXAM_SUMMARY, { quizId: exam.id })"
                     appearance="basic-link"
                     :text="exam.title"
                     icon="quiz"
@@ -336,6 +336,7 @@
         quizzes,
         refreshClassSummary,
         PLAN_TABS_ID,
+        PageNames,
         PlanTabs,
         showOpenConfirmationModal,
         showCloseConfirmationModal,
