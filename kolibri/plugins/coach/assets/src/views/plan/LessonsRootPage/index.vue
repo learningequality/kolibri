@@ -1,36 +1,18 @@
 <template>
 
-  <CoachAppBarPage :showSubNav="true">
+  <CoachAppBarPage showSubNav>
     <KPageContainer>
-      <PlanHeader :activeTabId="PlanTabs.LESSONS">
-        <template #header>
-          <div style="display: flex; justify-content: space-between">
-            <span>
-              <h1>{{ coreString('lessonsLabel') }}</h1>
-              <p>
-                <KIcon
-                  icon="classes"
-                  class="class-name-icon"
-                />
-                <span>{{ className }}</span>
-              </p>
-            </span>
-            <span>
-              <KRouterLink
-                :style="{ alignSelf: 'flex-end', marginTop: '1em' }"
-                :primary="true"
-                appearance="raised-button"
-                :text="coachString('newLessonAction')"
-                :to="newLessonRoute"
-              />
-            </span>
-          </div>
+      <CoachHeader :title="coreString('lessonsLabel')">
+        <template #actions>
+          <KRouterLink
+            primary
+            appearance="raised-button"
+            :text="coachString('newLessonAction')"
+            :to="newLessonRoute"
+          />
         </template>
-      </PlanHeader>
-      <KTabsPanel
-        :tabsId="PLAN_TABS_ID"
-        :activeTabId="PlanTabs.LESSONS"
-      >
+      </CoachHeader>
+      <div>
         <p
           v-if="calcTotalSizeOfVisibleLessons !== null"
           class="total-size"
@@ -190,7 +172,7 @@
             @cancel="showModal = false"
           />
         </KModal>
-      </KTabsPanel>
+      </div>
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -217,19 +199,18 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
-  import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
   import commonCoach from '../../common';
-  import PlanHeader from '../../plan/PlanHeader';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
   import { useLessons } from '../../../composables/useLessons';
   import ReportsControls from '../../reports/ReportsControls';
   import * as csvFields from '../../../csv/fields';
   import CSVExporter from '../../../csv/exporter';
+  import CoachHeader from '../../common/CoachHeader.vue';
 
   export default {
     name: 'LessonsRootPage',
     components: {
-      PlanHeader,
+      CoachHeader,
       CoreTable,
       CoachAppBarPage,
       AssignmentDetailsModal,
@@ -245,8 +226,6 @@
     },
     data() {
       return {
-        PLAN_TABS_ID,
-        PlanTabs,
         showModal: false,
         showLessonIsVisibleModal: false,
         showLessonIsNotVisibleModal: false,
@@ -486,15 +465,8 @@
 <style lang="scss" scoped>
 
   .total-size {
-    padding: 16px 0 0;
-  }
-
-  .class-name-icon {
-    position: relative;
-    top: 0.4em;
-    width: 1.5em;
-    height: 1.5em;
-    margin-right: 0.5em;
+    padding: 0;
+    margin-bottom: 16px;
   }
 
 </style>

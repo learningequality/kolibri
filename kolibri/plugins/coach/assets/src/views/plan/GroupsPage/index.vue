@@ -2,39 +2,24 @@
 
   <CoachAppBarPage>
     <KPageContainer>
-      <PlanHeader :activeTabId="PlanTabs.GROUPS">
-        <template #header>
-          <h1>{{ coachString('groupsLabel') }}</h1>
-          <p>
-            <KIcon
-              icon="classes"
-              class="class-name-icon"
-            />
-            <span>{{ className }}</span>
-          </p>
-
-          <p>
-            {{ $tr('groupsDescription') }}
-            <KButton
-              appearance="basic-link"
-              :text="coreString('learnMoreAction')"
-              @click="openAboutGroupModal"
-            />
-          </p>
-        </template>
-      </PlanHeader>
-      <KTabsPanel
-        :tabsId="PLAN_TABS_ID"
-        :activeTabId="PlanTabs.GROUPS"
-      >
-        <div class="ta-r">
+      <CoachHeader :title="coachString('groupsLabel')">
+        <template #actions>
           <KButton
+            primary
             :text="$tr('newGroupAction')"
-            :primary="true"
             @click="openCreateGroupModal"
           />
-        </div>
-
+        </template>
+      </CoachHeader>
+      <p>
+        {{ $tr('groupsDescription') }}
+        <KButton
+          appearance="basic-link"
+          :text="coreString('learnMoreAction')"
+          @click="openAboutGroupModal"
+        />
+      </p>
+      <div>
         <CoreTable
           :dataLoading="groupsAreLoading"
           :emptyMessage="$tr('noGroups')"
@@ -97,7 +82,7 @@
             </KButton>
           </template>
         </KModal>
-      </KTabsPanel>
+      </div>
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -114,9 +99,8 @@
   import commonCoach from '../../common';
   import { useGroups } from '../../../composables/useGroups';
   import CoachAppBarPage from '../../CoachAppBarPage';
-  import PlanHeader from '../../plan/PlanHeader';
   import { GroupModals, PageNames } from '../../../constants';
-  import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
+  import CoachHeader from '../../common/CoachHeader.vue';
   import CreateGroupModal from './CreateGroupModal';
   import GroupRowTr from './GroupRow';
   import RenameGroupModal from './RenameGroupModal';
@@ -127,11 +111,11 @@
     components: {
       CoachAppBarPage,
       CoreTable,
-      PlanHeader,
       GroupRowTr,
       CreateGroupModal,
       RenameGroupModal,
       DeleteGroupModal,
+      CoachHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
@@ -142,8 +126,6 @@
       });
 
       return {
-        PLAN_TABS_ID,
-        PlanTabs,
         PageNames,
         selectedGroup,
         setSelectedGroup(name, id) {
@@ -241,10 +223,6 @@
     height: 1.5em;
     // Space between icon and text
     margin-right: 0.5em;
-  }
-
-  .ta-r {
-    text-align: right;
   }
 
 </style>

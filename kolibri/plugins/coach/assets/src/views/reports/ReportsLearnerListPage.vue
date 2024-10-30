@@ -2,33 +2,18 @@
 
   <CoachAppBarPage>
     <KPageContainer>
-      <ReportsHeader
-        :activeTabId="ReportsTabs.LEARNERS"
+      <CoachHeader
         :title="$isPrint ? $tr('printLabel', { className }) : coachString('learnersLabel')"
-      >
-        <template #header>
-          <p>
-            <KIcon
-              icon="classes"
-              class="class-name-icon"
-            />
-            <span>{{ className }}</span>
-          </p>
-          <div class="filter">
-            <KSelect
-              v-model="filterSelection"
-              :label="coachString('recipientsLabel')"
-              :options="filterOptions"
-              :inline="true"
-            />
-          </div>
-        </template>
-      </ReportsHeader>
-
-      <KTabsPanel
-        :tabsId="REPORTS_TABS_ID"
-        :activeTabId="ReportsTabs.LEARNERS"
-      >
+      />
+      <div class="filter">
+        <KSelect
+          v-model="filterSelection"
+          :label="coachString('recipientsLabel')"
+          :options="filterOptions"
+          :inline="true"
+        />
+      </div>
+      <div>
         <ReportsControls @export="exportCSV" />
         <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
           <template #headers>
@@ -70,7 +55,7 @@
             </transition-group>
           </template>
         </CoreTable>
-      </KTabsPanel>
+      </div>
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -83,26 +68,23 @@
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
-  import { REPORTS_TABS_ID, ReportsTabs } from '../../constants/tabsConstants';
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
+  import CoachHeader from '../common/CoachHeader.vue';
   import ReportsControls from './ReportsControls';
-  import ReportsHeader from './ReportsHeader';
 
   export default {
     name: 'ReportsLearnerListPage',
     components: {
       CoachAppBarPage,
       ReportsControls,
-      ReportsHeader,
       ElapsedTime,
+      CoachHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
-        REPORTS_TABS_ID,
-        ReportsTabs,
         filterOptions: [
           {
             label: this.coreString('allLabel'),

@@ -4,7 +4,7 @@
     <div style="display: flex; justify-content: space-between">
       <p>
         <BackLink
-          :to="classRoute('ReportsLearnerListPage')"
+          :to="classRoute(PageNames.LEARNERS_ROOT)"
           :text="$tr('back')"
         />
       </p>

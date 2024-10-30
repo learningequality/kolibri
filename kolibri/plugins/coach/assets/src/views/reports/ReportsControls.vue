@@ -79,11 +79,11 @@
         return [
           'ReportsQuizListPage',
           'ReportsGroupListPage',
-          'ReportsLearnerListPage',
+          PageNames.LEARNERS_ROOT,
           'ReportsLessonListPage',
-          'LESSONS_ROOT',
-          'LESSONS_ROOT_BETTER',
-          'EXAMS',
+          PageNames.LESSONS_ROOT,
+          PageNames.LESSONS_ROOT_BETTER,
+          PageNames.EXAMS,
           PageNames.EXAM_SUMMARY,
           LessonsPageNames.SUMMARY,
         ].includes(this.$route.name);

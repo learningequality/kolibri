@@ -2,75 +2,58 @@
 
   <CoachAppBarPage>
     <KPageContainer>
-      <PlanHeader :activeTabId="PlanTabs.QUIZZES" />
-      <KTabsPanel
-        :tabsId="PLAN_TABS_ID"
-        :activeTabId="PlanTabs.QUIZZES"
+      <div
+        v-if="hasNoChannels && !isLoading"
+        class="alert banner-spacing"
+        :style="{ backgroundColor: $themePalette.yellow.v_200 }"
       >
+        <div>
+          <KIcon
+            icon="warning"
+            class="warning-icon"
+            :color="$themePalette.yellow.v_600"
+          />
+        </div>
+
         <div
-          v-if="hasNoChannels && !isLoading"
-          class="alert banner-spacing"
-          :style="{ backgroundColor: $themePalette.yellow.v_200 }"
+          v-if="hasNoChannels"
+          class="error-message"
         >
-          <div>
-            <KIcon
-              icon="warning"
-              class="warning-icon"
-              :color="$themePalette.yellow.v_600"
-            />
-          </div>
-
-          <div
-            v-if="hasNoChannels"
-            class="error-message"
-          >
-            <p>{{ noResourcesAvailable$() }}</p>
-            <KExternalLink
-              v-if="deviceContentUrl"
-              :text="$tr('adminLink')"
-              :href="deviceContentUrl"
-            />
-          </div>
+          <p>{{ noResourcesAvailable$() }}</p>
+          <KExternalLink
+            v-if="deviceContentUrl"
+            :text="$tr('adminLink')"
+            :href="deviceContentUrl"
+          />
         </div>
-        <div class="classname-quiz-button-div">
-          <div>
-            <KIcon
-              icon="classes"
-              class="class-name-icon"
-            />
-            <span>{{ className }}</span>
-          </div>
-          <KButtonGroup v-if="practiceQuizzesExist">
-            <KButton
-              v-if="!hasNoChannels"
-              primary
-              hasDropdown
-              appearance="raised-button"
-              :text="newQuizAction$()"
-            >
-              <template #menu>
-                <KDropdownMenu
-                  :options="dropdownOptions"
-                  class="options-btn"
-                  @select="handleSelect"
-                />
-              </template>
-            </KButton>
-          </KButtonGroup>
-          <div
-            v-else
-            class="button"
+      </div>
+      <CoachHeader :title="quizzesLabel$()">
+        <template #actions>
+          <KButton
+            v-if="practiceQuizzesExist && !hasNoChannels"
+            primary
+            hasDropdown
+            appearance="raised-button"
+            :text="newQuizAction$()"
           >
-            <KRouterLink
-              v-if="!hasNoChannels"
-              :primary="true"
-              appearance="raised-button"
-              :to="newExamRoute"
-              :text="newQuizAction$()"
-            />
-          </div>
-        </div>
-
+            <template #menu>
+              <KDropdownMenu
+                :options="dropdownOptions"
+                class="options-btn"
+                @select="handleSelect"
+              />
+            </template>
+          </KButton>
+          <KRouterLink
+            v-else-if="!hasNoChannels"
+            primary
+            appearance="raised-button"
+            :to="newExamRoute"
+            :text="newQuizAction$()"
+          />
+        </template>
+      </CoachHeader>
+      <div>
         <p v-if="filteredExams.length && filteredExams.length > 0">
           {{ $tr('totalQuizSize', { size: calcTotalSizeOfVisibleQuizzes }) }}
         </p>
@@ -220,7 +203,7 @@
         >
           <div>{{ closeQuizModalDetail$() }}</div>
         </KModal>
-      </KTabsPanel>
+      </div>
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -241,10 +224,8 @@
   import useUser from 'kolibri.coreVue.composables.useUser';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../constants';
-  import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
   import { coachStrings } from '../../common/commonCoachStrings';
   import CoachAppBarPage from '../../CoachAppBarPage';
-  import PlanHeader from '../../plan/PlanHeader';
   import Recipients from '../../common/Recipients';
   import useCoreCoach from '../../../composables/useCoreCoach';
   import useQuizzes from '../../../composables/useQuizzes';
@@ -254,18 +235,19 @@
   import * as csvFields from '../../../csv/fields';
   import Score from '../../common/Score.vue';
   import StatusSummary from '../../common/status/StatusSummary';
+  import CoachHeader from '../../common/CoachHeader.vue';
 
   export default {
     name: 'CoachExamsPage',
     components: {
       CoreTable,
       CoachAppBarPage,
-      PlanHeader,
       Recipients,
       AverageScoreTooltip,
       ReportsControls,
       Score,
       StatusSummary,
+      CoachHeader,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -320,6 +302,7 @@
         canNoLongerEditQuizNotice$,
         avgScoreLabel$,
         entireClassLabel$,
+        quizzesLabel$,
       } = coachStrings;
 
       const statusSelected = ref({
@@ -335,9 +318,7 @@
       return {
         quizzes,
         refreshClassSummary,
-        PLAN_TABS_ID,
         PageNames,
-        PlanTabs,
         showOpenConfirmationModal,
         showCloseConfirmationModal,
         activeQuiz,
@@ -370,6 +351,7 @@
         createSnackbar,
         avgScoreLabel$,
         entireClassLabel$,
+        quizzesLabel$,
         recipientSelected,
         canManageContent,
       };
@@ -638,12 +620,6 @@
     width: 1.5em;
     height: 1.5em;
     margin-right: 0.5em;
-  }
-
-  .classname-quiz-button-div {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5em;
   }
 
   .alert {
