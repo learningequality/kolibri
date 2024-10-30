@@ -62,7 +62,7 @@
             </td>
             <td
               class="numeric"
-              :style="{ color: $themePalette.green.v_1100 }"
+              :style="{ color: $themePalette.green.v_600 }"
             >
               {{ users_report.created }}
             </td>
@@ -87,7 +87,7 @@
             </td>
             <td
               class="numeric"
-              :style="{ color: $themePalette.green.v_1100 }"
+              :style="{ color: $themePalette.green.v_600 }"
             >
               {{ classes_report.created }}
             </td>

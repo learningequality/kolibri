@@ -71,7 +71,7 @@
         :value="pastTriesOptions[tryIndex]"
         :label="$tr('attemptDropdownLabel')"
         :options="pastTriesOptions"
-        :style="{ background: $themePalette.grey.v_100 }"
+        :style="{ background: $themePalette.grey.v_200 }"
         appearance="flat-button"
         class="try-selection"
         @change="navigateToTry"

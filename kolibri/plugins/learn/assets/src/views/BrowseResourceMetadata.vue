@@ -332,7 +332,7 @@
       },
       chipStyle() {
         return {
-          backgroundColor: this.$themeBrand.primary.v_800,
+          backgroundColor: this.$themeBrand.primary.v_400,
           color: this.$themeTokens.textInverted,
           '::selection': {
             color: this.$themeTokens.text,

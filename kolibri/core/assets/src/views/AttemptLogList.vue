@@ -38,15 +38,18 @@
           <AttemptLogItem
             class="attempt-selected"
             :isSurvey="isSurvey"
-            :attemptLog="attemptLogs[selectedQuestionNumber]"
+            :attemptLog="selectedAttemptLog"
+            :questionNumber="selectedQuestionNumber + 1"
             displayTag="span"
           />
         </template>
         <template #option="{ index }">
           <AttemptLogItem
+            v-if="attemptLogsForCurrentSection[index]"
             class="attempt-option"
             :isSurvey="isSurvey"
-            :attemptLog="attemptLogs[sections[currentSectionIndex].startQuestionNumber + index]"
+            :attemptLog="attemptLogsForCurrentSection[index]"
+            :questionNumber="index + 1"
             displayTag="span"
           />
         </template>
@@ -73,7 +76,7 @@
             v-if="title"
             class="accordion-header"
             :style="{
-              backgroundColor: index === currentSectionIndex ? $themePalette.grey.v_100 : '',
+              backgroundColor: index === currentSectionIndex ? $themePalette.grey.v_200 : '',
             }"
           >
             <KButton
@@ -114,7 +117,7 @@
                 class="attempt-item"
                 :style="{
                   backgroundColor: isSelected(section.startQuestionNumber + qIndex)
-                    ? $themePalette.grey.v_100
+                    ? $themePalette.grey.v_200
                     : '',
                 }"
               >
@@ -131,8 +134,10 @@
                   "
                 >
                   <AttemptLogItem
+                    v-if="attemptLogsForCurrentSection[qIndex]"
                     :isSurvey="isSurvey"
-                    :attemptLog="attemptLogs[section.startQuestionNumber + qIndex]"
+                    :attemptLog="attemptLogsForCurrentSection[qIndex]"
+                    :questionNumber="qIndex + 1"
                     displayTag="p"
                   />
                 </a>
@@ -193,10 +198,17 @@
         return sections.value[currentSectionIndex.value];
       });
 
+      // Computed property for attempt logs of the current section
+      const attemptLogsForCurrentSection = computed(() => {
+        const start = currentSection.value.startQuestionNumber;
+        return props.attemptLogs.slice(start, start + currentSection.value.questions.length);
+      });
+
       const questionSelectOptions = computed(() => {
         return currentSection.value.questions.map((question, index) => ({
           value: index,
           label: questionNumberLabel$({ questionNumber: index + 1 }),
+          disabled: !attemptLogsForCurrentSection.value[index],
         }));
       });
 
@@ -210,6 +222,11 @@
         return questionSelectOptions.value[
           selectedQuestionNumber.value - currentSection.value.startQuestionNumber
         ];
+      });
+
+      // Computed property for the selected attempt log
+      const selectedAttemptLog = computed(() => {
+        return props.attemptLogs[selectedQuestionNumber.value];
       });
 
       function handleQuestionChange(index) {
@@ -239,6 +256,8 @@
         sectionSelectOptions,
         selectedQuestion,
         questionSelectOptions,
+        attemptLogsForCurrentSection,
+        selectedAttemptLog,
       };
     },
     props: {

@@ -14,7 +14,7 @@
       <div class="default-folder-icon">
         <KIcon
           icon="topic"
-          :color="$themePalette.grey.v_600"
+          :color="$themePalette.grey.v_700"
         />
       </div>
     </template>
@@ -31,7 +31,7 @@
         />
         <p
           class="folder-header-text"
-          :style="{ color: $themePalette.grey.v_600 }"
+          :style="{ color: $themePalette.grey.v_700 }"
         >
           {{ coreString('folder') }}
         </p>
@@ -85,7 +85,7 @@
           height: '24px',
           width: '74px',
           margin: '0',
-          backgroundColor: this.$themePalette.grey.v_50,
+          backgroundColor: this.$themePalette.grey.v_100,
         };
       },
     },

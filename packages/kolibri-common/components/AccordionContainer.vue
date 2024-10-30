@@ -4,7 +4,7 @@
     <KGrid
       v-if="!hideTopActions"
       :style="{
-        backgroundColor: $themePalette.grey.v_100,
+        backgroundColor: $themePalette.grey.v_200,
       }"
     >
       <KGridItem

@@ -80,7 +80,7 @@
       themeClass() {
         return this.$computedClass({
           ':hover': {
-            backgroundColor: this.$themePalette.grey.v_100,
+            backgroundColor: this.$themePalette.grey.v_200,
             // Add equal and opposite margin and padding to give the highlighted
             // region more space without increasing the size of the parent div.
             margin: '-8px',

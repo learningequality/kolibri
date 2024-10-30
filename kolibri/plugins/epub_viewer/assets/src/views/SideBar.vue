@@ -2,7 +2,7 @@
 
   <div
     class="side-bar"
-    :style="{ backgroundColor: $themePalette.grey.v_100 }"
+    :style="{ backgroundColor: $themePalette.grey.v_200 }"
   >
     <slot></slot>
   </div>

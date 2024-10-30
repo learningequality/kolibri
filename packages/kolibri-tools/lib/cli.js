@@ -199,7 +199,7 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
 }
 
 // Build
-program
+const buildCommand = program
   .command('build')
   .description('Build frontend assets for Kolibri frontend plugins')
   .arguments('<mode>', 'Mode to run in, options are: d/dev/development, p/prod/production, c/clean')
@@ -252,7 +252,7 @@ program
     mode = modeMaps[mode];
     if (!mode) {
       cliLogging.error('Build mode invalid value');
-      program.help();
+      buildCommand.help();
     }
 
     if (options.hot && mode !== modes.DEV) {
@@ -338,8 +338,8 @@ program
 const ignoreDefaults = ['**/node_modules/**', '**/static/**'];
 
 // Lint
-program
-  .command('lint')
+const lintCommand = program.command('lint');
+lintCommand
   .arguments('[files...]', 'List of custom file globs or file names to lint')
   .description('Run linting on files or files matching glob patterns')
   .option('-w, --write', 'Write autofixes to file', false)
@@ -365,7 +365,7 @@ program
     const ignore = options.ignore;
 
     if (!files.length) {
-      program.help();
+      lintCommand.help();
     } else {
       const runLinting = file => lint(Object.assign({}, options, { file }));
       if (watchMode) {
@@ -437,13 +437,13 @@ program
   });
 
 // Compress
-program
-  .command('compress')
+const compressCommand = program.command('compress');
+compressCommand
   .arguments('[files...]', 'List of custom file globs or file names to compress')
   .allowUnknownOption()
   .action(function (files) {
     if (!files.length) {
-      program.command('compress').help();
+      compressCommand.help();
     } else {
       const glob = require('./glob');
       const compressFile = require('./compress');
@@ -619,26 +619,29 @@ function _addPathOptions(cmd) {
 }
 
 // I18N Message Handling
-_addPathOptions(program.command('i18n-extract-messages')).action(function (options) {
+const i18nExtractMessagesCommand = program.command('i18n-extract-messages');
+_addPathOptions(i18nExtractMessagesCommand).action(function (options) {
   const pathInfo = _generatePathInfo(options);
   if (!pathInfo) {
-    program.command('i18n-extract-messages').help();
+    i18nExtractMessagesCommand.help();
   }
   const extractMessages = require('./i18n/ExtractMessages');
   extractMessages(pathInfo, options.ignore, options.localeDataFolder, options.verbose);
 });
 
-_addPathOptions(program.command('i18n-transfer-context')).action(function (options) {
+const i18nTransferContextCommand = program.command('i18n-transfer-context');
+_addPathOptions(i18nTransferContextCommand).action(function (options) {
   const pathInfo = _generatePathInfo(options);
   if (!pathInfo) {
-    program.command('i18n-transfer-context').help();
+    i18nTransferContextCommand.help();
   }
   const syncContext = require('./i18n/SyncContext');
   syncContext(pathInfo, options.ignore, options.localeDataFolder, options.verbose);
 });
 
 // I18N Create runtime message files
-_addPathOptions(program.command('i18n-create-message-files'))
+const i18nCreateMessageFilesCommand = program.command('i18n-create-message-files');
+_addPathOptions(i18nCreateMessageFilesCommand)
   .option(
     '--lang-info <langInfo>',
     'Set path for file that contains language information',
@@ -648,7 +651,7 @@ _addPathOptions(program.command('i18n-create-message-files'))
   .action(function (options) {
     const pathInfo = _generatePathInfo(options);
     if (!pathInfo) {
-      program.command('i18n-create-message-files').help();
+      i18nCreateMessageFilesCommand.help();
     }
     const csvToJSON = require('./i18n/csvToJSON');
     csvToJSON(
@@ -661,7 +664,8 @@ _addPathOptions(program.command('i18n-create-message-files'))
   });
 
 // I18N Untranslated, used messages
-_addPathOptions(program.command('i18n-untranslated-messages'))
+const i18nUntranslatedMessagesCommand = program.command('i18n-untranslated-messages');
+_addPathOptions(i18nUntranslatedMessagesCommand)
   .option(
     '--lang-info <langInfo>',
     'Set path for file that contains language information',
@@ -671,7 +675,7 @@ _addPathOptions(program.command('i18n-untranslated-messages'))
   .action(function (options) {
     const pathInfo = _generatePathInfo(options);
     if (!pathInfo) {
-      program.command('i18n-untranslated-messages').help();
+      i18nUntranslatedMessagesCommand.help();
     }
     const untranslatedMessages = require('./i18n/untranslatedMessages');
     untranslatedMessages(
@@ -684,7 +688,8 @@ _addPathOptions(program.command('i18n-untranslated-messages'))
   });
 
 // I18N Profile
-_addPathOptions(program.command('i18n-profile'))
+const i18nProfileCommand = program.command('i18n-profile');
+_addPathOptions(i18nProfileCommand)
   .option(
     '--output-file <outputFile>',
     'File path and name to which to write out the profile to',
@@ -693,14 +698,15 @@ _addPathOptions(program.command('i18n-profile'))
   .action(function (options) {
     const pathInfo = _generatePathInfo(options);
     if (!pathInfo) {
-      program.command('i18n-profile').help();
+      i18nProfileCommand.help();
     }
     const profileStrings = require('./i18n/ProfileStrings');
     profileStrings(pathInfo, options.ignore, options.outputFile, options.verbose);
   });
 
 // I18N Ditto Audit
-_addPathOptions(program.command('i18n-audit'))
+const i18nAuditCommand = program.command('i18n-audit');
+_addPathOptions(i18nAuditCommand)
   .option(
     '--output-file <outputFile>',
     'File path and name to which to write out the audit to',
@@ -714,7 +720,7 @@ _addPathOptions(program.command('i18n-audit'))
   .action(function (options) {
     const pathInfo = _generatePathInfo(options);
     if (!pathInfo) {
-      program.command('i18n-audit').help();
+      i18nAuditCommand.help();
     }
     const auditStrings = require('./i18n/auditMessages');
     auditStrings(

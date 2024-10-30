@@ -82,7 +82,7 @@
             <div
               v-show="isExpanded(index)"
               :style="{
-                backgroundColor: $themePalette.grey.v_100,
+                backgroundColor: $themePalette.grey.v_200,
               }"
             >
               <ul class="question-list">
@@ -140,7 +140,7 @@
       <p v-else>
         <KIcon
           icon="warning"
-          :style="{ fill: $themePalette.yellow.v_1100 }"
+          :style="{ fill: $themePalette.yellow.v_600 }"
         />
         {{ resourceMissingText }}
       </p>

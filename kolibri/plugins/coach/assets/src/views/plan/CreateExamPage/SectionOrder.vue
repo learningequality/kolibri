@@ -239,7 +239,7 @@
       },
       activeSectionStyles() {
         return {
-          backgroundColor: this.$themePalette.grey.v_50,
+          backgroundColor: this.$themePalette.grey.v_100,
           border: `1px solid ${this.$themeTokens.fineLine}`,
         };
       },

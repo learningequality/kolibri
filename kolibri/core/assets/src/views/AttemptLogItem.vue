@@ -5,7 +5,7 @@
       :is="displayTag"
       class="item"
     >
-      {{ coreString('questionNumberLabel', { questionNumber: attemptLog.questionNumber }) }}
+      {{ coreString('questionNumberLabel', { questionNumber: questionNumber }) }}
     </component>
     <template v-if="!isSurvey">
       <AttemptIconDiff
@@ -59,7 +59,7 @@
       v-if="attemptLog.missing_resource"
       class="coach-content-label"
       icon="warning"
-      :color="$themePalette.yellow.v_1100"
+      :color="$themePalette.yellow.v_600"
     />
   </span>
 
@@ -90,6 +90,10 @@
       },
       isSurvey: {
         type: Boolean,
+        required: true,
+      },
+      questionNumber: {
+        type: Number,
         required: true,
       },
     },

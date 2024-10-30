@@ -135,7 +135,7 @@
                     v-if="currentQuestionOption.disabled"
                     class="dot"
                     icon="warning"
-                    :color="$themePalette.yellow.v_1100"
+                    :color="$themePalette.yellow.v_600"
                   />
                   <KIcon
                     v-else
@@ -160,7 +160,7 @@
                     v-if="option.disabled"
                     class="dot"
                     icon="warning"
-                    :color="$themePalette.yellow.v_1100"
+                    :color="$themePalette.yellow.v_600"
                   />
                   <KIcon
                     v-else

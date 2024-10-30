@@ -369,8 +369,8 @@
       cancelStyleOverrides() {
         return {
           color: this.$themeTokens.textInverted,
-          'background-color': this.$themePalette.red.v_1100,
-          ':hover': { 'background-color': this.$darken1(this.$themePalette.red.v_1100) },
+          'background-color': this.$themePalette.red.v_600,
+          ':hover': { 'background-color': this.$darken1(this.$themePalette.red.v_600) },
         };
       },
       examDateCreated() {

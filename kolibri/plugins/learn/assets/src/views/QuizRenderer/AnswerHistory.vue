@@ -83,12 +83,12 @@
       },
       buttonClass(index) {
         if (this.questionNumber === index) {
-          return this.$computedClass({ backgroundColor: this.$themePalette.grey.v_100 });
+          return this.$computedClass({ backgroundColor: this.$themePalette.grey.v_200 });
         }
         return this.$computedClass({
           backgroundColor: this.$themeTokens.surface,
           ':hover': {
-            backgroundColor: this.$themePalette.grey.v_100,
+            backgroundColor: this.$themePalette.grey.v_200,
           },
         });
       },

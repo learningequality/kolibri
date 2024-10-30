@@ -2,7 +2,7 @@
 
   <div
     class="activity-chip"
-    :style="{ backgroundColor: $themePalette.grey.v_100 }"
+    :style="{ backgroundColor: $themePalette.grey.v_200 }"
   >
     <KLabeledIcon
       :label="coreString(kind)"
