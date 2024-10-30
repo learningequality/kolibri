@@ -6,7 +6,7 @@
       class="header"
       :style="{
         borderColor: $themeTokens.fineLine,
-        backgroundColor: $themePalette.grey.v_50,
+        backgroundColor: $themePalette.grey.v_100,
         ...headerAppearanceOverrides,
       }"
     >

@@ -175,7 +175,7 @@
       boxStyle() {
         return {
           border: '1px solid',
-          borderColor: this.$themePalette.grey.v_100,
+          borderColor: this.$themePalette.grey.v_200,
           borderRadius: '4px',
           padding: '0px 16px',
           margin: '5px',
