@@ -1,5 +1,4 @@
 import logging
-import os
 import sys
 
 from django.core.management.base import CommandError
@@ -57,15 +56,13 @@ class Command(AsyncCommand):
         else:
             filename = options["output_file"]
 
-        filepath = os.path.join(os.getcwd(), filename)
-
         total_rows = FacilityUser.objects.filter(facility=facility).count()
 
         with self.start_progress(total=total_rows) as progress_update:
             try:
                 for row in csv_file_generator(
                     facility,
-                    filepath,
+                    filename,
                     overwrite=options["overwrite"],
                     demographic=options["demographic"],
                 ):
