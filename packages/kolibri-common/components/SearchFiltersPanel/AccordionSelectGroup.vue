@@ -15,8 +15,12 @@
             :key="'cat-' + key"
             appearance="flat-button"
             class="category-button"
+            :class="$computedClass({ ':hover': { background: selectedHighlightColor } })"
             :style="{
               background: isCategoryActive(category.value) ? selectedHighlightColor : '',
+              ':hover': {
+                background: 'orange!important',
+              },
             }"
             :text="coreString(category.value)"
             :disabled="
@@ -53,23 +57,21 @@
     >
       <AccordionItem
         :title="coreString('languageLabel')"
-        :headerAppearanceOverrides="accordionHeaderStyles(langId)"
+        :headerAppearanceOverrides="accordionHeaderStyles(selectedLanguage.value)"
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
         }"
       >
         <template #content>
-          <KRadioButtonGroup>
-            <KRadioButton
-              v-for="lang in languageOptionsList"
-              :key="'lang-' + lang.value"
-              :buttonValue="lang.value"
-              :currentValue="langId || ''"
-              :label="lang.label"
-              @change="handleChange('languages', lang)"
-            />
-          </KRadioButtonGroup>
+          <KCheckbox
+            v-for="lang in languageOptionsList"
+            :key="'lang-' + lang.value"
+            :checked="isChecked('languages', lang)"
+            :disabled="lang.disabled || isEnabledButNotSelected('languages', lang)"
+            :label="lang.label"
+            @change="handleChange('languages', lang)"
+          />
         </template>
       </AccordionItem>
     </AccordionContainer>
@@ -87,16 +89,14 @@
         }"
       >
         <template #content>
-          <KRadioButtonGroup>
-            <KRadioButton
-              v-for="level in contentLevelsList"
-              :key="'level-' + level.value"
-              :buttonValue="level.value"
-              :currentValue="selectedLevel['value'] || ''"
-              :label="level.label"
-              @change="handleChange('grade_levels', level)"
-            />
-          </KRadioButtonGroup>
+          <KCheckbox
+            v-for="level in contentLevelsList"
+            :key="'level-' + level.value"
+            :checked="isChecked('grade_levels', level)"
+            :disabled="level.disabled || isEnabledButNotSelected('grade_levels', level)"
+            :label="level.label"
+            @change="handleChange('grade_levels', level)"
+          />
         </template>
       </AccordionItem>
     </AccordionContainer>
@@ -141,16 +141,14 @@
         }"
       >
         <template #content>
-          <KRadioButtonGroup>
-            <KRadioButton
-              v-for="a11y in accessibilityOptionsList"
-              :key="'a11y-' + a11y.value"
-              :buttonValue="a11y.value"
-              :currentValue="selectedAccessibilityFilter['value'] || ''"
-              :label="a11y.label"
-              @change="handleChange('accessibility_labels', a11y)"
-            />
-          </KRadioButtonGroup>
+          <KCheckbox
+            v-for="a11y in accessibilityOptionsList"
+            :key="'a11y-' + a11y.value"
+            :checked="isChecked('accessibility_labels', a11y)"
+            :disabled="a11y.disabled || isEnabledButNotSelected('accessibility_labels', a11y)"
+            :label="a11y.label"
+            @change="handleChange('accessibility_labels', a11y)"
+          />
         </template>
       </AccordionItem>
     </AccordionContainer>
@@ -180,8 +178,10 @@
         availableLibraryCategories,
         availableChannels,
         searchableLabels,
+        activeSearchTerms,
       } = injectBaseSearch();
       return {
+        activeSearchTerms,
         availableGradeLevels,
         availableAccessibilityOptions,
         availableLanguages,
@@ -189,7 +189,7 @@
         availableChannels,
         searchableLabels,
         // This color is not in KDS but was specifically requested in the design
-        selectedHighlightColor: '#ECF0FE',
+        //selectedHighlightColor: '#ECF0FE',
       };
     },
     props: {
@@ -215,6 +215,10 @@
       },
     },
     computed: {
+      selectedHighlightColor() {
+        // get right color
+        return '#D9E1FD';
+      },
       availableRootCategories() {
         if (this.searchableLabels) {
           const roots = {};
@@ -292,6 +296,12 @@
       accessId() {
         return Object.keys(this.value.accessibility_labels)[0];
       },
+      selectedLanguage() {
+        if (!this.langId && this.enabledLanguageOptions.length === 1) {
+          return this.enabledLanguageOptions[0];
+        }
+        return this.languageOptionsList.find(o => o.value === this.langId) || {};
+      },
       selectedAccessibilityFilter() {
         if (!this.accessId && this.enabledAccessibilityOptions.length === 1) {
           return this.enabledAccessibilityOptions[0];
@@ -318,6 +328,23 @@
       },
     },
     methods: {
+      isChecked(inputKey, value) {
+        return this.isSelected(inputKey, value) || this.isEnabledButNotSelected(inputKey, value);
+      },
+      isSelected(inputKey, value) {
+        return this.value[inputKey][value.value] === true;
+      },
+      isEnabledButNotSelected(inputKey, value) {
+        return (
+          !this.isSelected(inputKey, value) &&
+          {
+            languages: this.enabledLanguageOptions,
+            channels: this.enabledChannelOptions,
+            accessibility_labels: this.enabledAccessibilityOptions,
+            grade_levels: this.enabledContentLevels,
+          }[inputKey].includes(value)
+        );
+      },
       accordionHeaderStyles(selected) {
         return {
           padding: `0.25em 0 0.25em ${selected ? '0.5em' : '0.75em'}`,
@@ -326,17 +353,22 @@
         };
       },
       handleChange(field, value) {
-        if (value && value.value) {
-          this.$emit('input', { ...this.value, [field]: { [value.value]: true } });
+        const prevFieldValue = this.value[field];
+        if (value && this.isSelected(field, value)) {
+          delete prevFieldValue[value.value];
+          this.$emit('input', { ...this.value, [field]: prevFieldValue });
         } else {
-          this.$emit('input', { ...this.value, [field]: {} });
+          this.$emit('input', {
+            ...this.value,
+            [field]: { ...prevFieldValue, [value.value]: true },
+          });
         }
       },
       isCategoryActive(categoryValue) {
         // Takes the dot separated category value and checks if it is active
         return this.activeCategories.some(k => k.includes(categoryValue));
       },
-      categoryIcon(key) {
+      categoryIcon() {
         // TODO Add icons to KDS then use them
         return 'categories';
       },
