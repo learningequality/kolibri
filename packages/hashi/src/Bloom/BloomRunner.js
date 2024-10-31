@@ -138,7 +138,7 @@ export default class BloomRunner {
         metaJsonUrl: this.metaUrl,
         independent: false,
         hideFullScreenButton: true,
-        initiallyShowAppBar: false,
+        initiallyShowAppBar: true,
         allowToggleAppBar: false,
       });
 
