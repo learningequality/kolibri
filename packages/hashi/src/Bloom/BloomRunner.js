@@ -6,36 +6,53 @@ const domParser = new DOMParser();
 
 const domSerializer = new XMLSerializer();
 
-const audioClassAttributeSelector = '[class*="audio-sentence"], [data-backgroundaudio]';
+const audioSentenceSelector = '.audio-sentence';
+
+const backgroundAudioSelector = '[data-backgroundaudio]';
 
 function getAudioFiles(fileContents, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
-  const elements = dom.querySelectorAll(audioClassAttributeSelector);
-  return Array.from(elements).map(element => {
-    const value = element.getAttribute('data-backgroundaudio')
-      ? element.getAttribute('data-backgroundaudio')
-      : element.getAttribute('id');
+  const audioSentenceElements = dom.querySelectorAll(audioSentenceSelector);
+  const audioSentencePaths = Array.from(audioSentenceElements).map(element => {
+    const value = element.getAttribute('id');
     // By convention all audio files are in a folder called "audio"
     // and have a .mp3 extension.
     return `audio/${value}.mp3`;
   });
+  const backgroundAudioElements = dom.querySelectorAll(backgroundAudioSelector);
+  const backgroundAudioPaths = Array.from(backgroundAudioElements).map(element => {
+    const value = element.getAttribute('data-backgroundaudio');
+    // These files already have their extension, so we don't need to add it.
+    return `audio/${value}`;
+  });
+  return audioSentencePaths.concat(backgroundAudioPaths);
+}
+
+function _setDehydratedUrlAttribute(element, attributeName, url) {
+  // We have seen cases where the audio file simply isn't in the archive, so we need to check
+  // if the URL is null before setting it.
+  if (!url) {
+    return;
+  }
+  // We cannot set the fully qualified URL as the attribute here, as it breaks subsequent
+  // attempts to use the id as a DOM selector by Bloom player.
+  // The URL is rehydrated inside Bloom player, thanks to our code modifications there.
+  element.setAttribute(attributeName, `_${url.split('/').at(-1)}`);
 }
 
 function replaceAudioFiles(fileContents, packageFiles, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
-  const elements = Array.from(dom.querySelectorAll(audioClassAttributeSelector));
-  for (const element of elements) {
-    const attributeName = element.getAttribute('data-backgroundaudio')
-      ? 'data-backgroundaudio'
-      : 'id';
-    const id = element.getAttribute(attributeName);
-    const url = packageFiles[`audio/${id}`]
-      ? packageFiles[`audio/${id}`]
-      : packageFiles[`audio/${id}.mp3`];
-    // We cannot set the fully qualified URL as the attribute here, as it breaks subsequent
-    // attempts to use the id as a DOM selector by Bloom player.
-    // The URL is rehydrated inside Bloom player, thanks to our code modifications there.
-    element.setAttribute(attributeName, `_${url.split('/').at(-1)}`);
+  const audioSentenceElements = dom.querySelectorAll(audioSentenceSelector);
+  for (const element of audioSentenceElements) {
+    const id = element.getAttribute('id');
+    const url = packageFiles[`audio/${id}.mp3`];
+    _setDehydratedUrlAttribute(element, 'id', url);
+  }
+  const backgroundAudioElements = dom.querySelectorAll(backgroundAudioSelector);
+  for (const element of backgroundAudioElements) {
+    const id = element.getAttribute('data-backgroundaudio');
+    const url = packageFiles[`audio/${id}`];
+    _setDehydratedUrlAttribute(element, 'data-backgroundaudio', url);
   }
   if (mimeType === 'text/html') {
     // Remove the namespace attribute from the root element
