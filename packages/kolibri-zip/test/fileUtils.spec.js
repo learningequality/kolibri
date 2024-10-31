@@ -72,6 +72,119 @@ describe('File Path replacement', () => {
     it('should handle plus signs in CSS urls', () => {
       expect(getCSSPaths('url("./my%2Bfile.woff")')).toEqual(['./my+file.woff']);
     });
+    test('handles URLs with parentheses in filename', () => {
+      const css = `
+        background: url('image(1).png');
+        background-image: url("file(with)brackets.jpg");
+        border-image: url(filename(final).gif);
+      `;
+      const paths = getCSSPaths(css);
+      expect(paths).toEqual(['image(1).png', 'file(with)brackets.jpg', 'filename(final).gif']);
+    });
+
+    test('handles query parameters correctly with parentheses in filename', () => {
+      const css = `
+        background: url('image(1).png?v=123');
+        background-image: url("file(with)brackets.jpg?version=2");
+        border-image: url(filename(final).gif?x=1&y=2);
+      `;
+      const paths = getCSSPaths(css);
+      expect(paths).toEqual(['image(1).png', 'file(with)brackets.jpg', 'filename(final).gif']);
+    });
+
+    test('handles complex filenames with multiple parentheses', () => {
+      const css = `
+        background: url('path/to/image(1)(2).png');
+        background-image: url("file(with)(more)brackets.jpg");
+        border-image: url(file(name(1))(v2).gif);
+      `;
+      const paths = getCSSPaths(css);
+      expect(paths).toEqual([
+        'path/to/image(1)(2).png',
+        'file(with)(more)brackets.jpg',
+        'file(name(1))(v2).gif',
+      ]);
+    });
+    test('handles mixed quotes and no quotes correctly', () => {
+      const css = `
+        background: url(plain.png);
+        background-image: url('single.jpg');
+        border-image: url("double.gif");
+      `;
+      const paths = getCSSPaths(css);
+      expect(paths).toEqual(['plain.png', 'single.jpg', 'double.gif']);
+    });
+    test('handles empty url() values', () => {
+      const css = `
+        background: url();
+        background: url('');
+        background: url("");
+      `;
+      const paths = getCSSPaths(css);
+      expect(paths).toEqual(['', '', '']);
+    });
+
+    test('handles escaped quotes in filenames', () => {
+      const css = `
+        background: url('file\\'s.png');
+        background: url("file\\".png");
+      `;
+      const paths = getCSSPaths(css);
+      expect(paths).toEqual(["file's.png", 'file".png']);
+    });
+
+    test('handles complex combinations of parentheses and query params', () => {
+      const css = `
+        background: url('img(v1)(final).png?v=(1)&x=(2)');
+        background: url(img((1)(2)(3)).png?v=1);
+      `;
+      const paths = getCSSPaths(css);
+      expect(paths).toEqual(['img(v1)(final).png', 'img((1)(2)(3)).png']);
+    });
+
+    test('handles URLs with spaces and special characters', () => {
+      const css = `
+        background: url('my image (1).png');
+        background: url("path/to/image (v2).jpg");
+        background: url(folder (old)/image.png);
+      `;
+      const paths = getCSSPaths(css);
+      expect(paths).toEqual([
+        'my image (1).png',
+        'path/to/image (v2).jpg',
+        'folder (old)/image.png',
+      ]);
+    });
+
+    test('handles malformed but recoverable URLs', () => {
+      const css = `
+        background: url('broken(but(fixable.png');
+        background: url("missing(paren.jpg?v=1");
+        background: url(extra)paren).gif);
+      `;
+      const paths = getCSSPaths(css);
+      expect(paths).toEqual(['broken(but(fixable.png', 'missing(paren.jpg', 'extra)paren).gif']);
+    });
+
+    test('handles query parameters with special characters', () => {
+      const css = `
+        background: url('image.jpg?param=(test)&other=(value)');
+        background: url("image.png?base64=abc()123");
+        background: url(image.gif?key=test(1)&key2=test(2));
+      `;
+      const paths = getCSSPaths(css);
+      expect(paths).toEqual(['image.jpg', 'image.png', 'image.gif']);
+    });
+
+    test('handles multiple consecutive parentheses', () => {
+      const css = `
+        background: url('image((((1)))).jpg');
+        background: url("file(()()).png");
+        background: url(multiple()()()().gif);
+      `;
+      const paths = getCSSPaths(css);
+      expect(paths).toEqual(['image((((1)))).jpg', 'file(()()).png', 'multiple()()()().gif']);
+    });
   });
   describe('CSS path replacement', () => {
     it('should replace a simple relative path', () => {
@@ -150,6 +263,41 @@ describe('File Path replacement', () => {
       expect(replaceCSSPaths('url("./test%23%26%3F.woff")', packageFiles)).toEqual(
         'url("new-file.woff")',
       );
+    });
+    test('replaces paths containing parentheses correctly', () => {
+      const css = `
+        background: url('image(1).png');
+        background-image: url("file(with)brackets.jpg?v=123");
+      `;
+      const packageFiles = {
+        'image(1).png': 'new/path/image(1).png',
+        'file(with)brackets.jpg': 'new/path/file(with)brackets.jpg',
+      };
+
+      const result = replaceCSSPaths(css, packageFiles);
+      expect(result).toBe(`
+        background: url('new/path/image(1).png');
+        background-image: url("new/path/file(with)brackets.jpg");
+      `);
+    });
+    test('preserves original url() format', () => {
+      const css = `
+        background: url(plain.png);
+        background-image: url('single.jpg');
+        border-image: url("double.gif");
+      `;
+      const packageFiles = {
+        'plain.png': 'new/plain.png',
+        'single.jpg': 'new/single.jpg',
+        'double.gif': 'new/double.gif',
+      };
+
+      const result = replaceCSSPaths(css, packageFiles);
+      expect(result).toBe(`
+        background: url(new/plain.png);
+        background-image: url('new/single.jpg');
+        border-image: url("new/double.gif");
+      `);
     });
   });
   const htmlTemplate = (attr, value) =>

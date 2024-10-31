@@ -32,21 +32,32 @@ export class Mapper {
 
 // Looks for any URLs referenced inside url()
 // Handle any query parameters separately.
-const cssPathRegex = /(url\(['"]?)([^?"')]+)?(\?[^'"]+)?(['"]?\))/g;
+const cssPathRegex = /(url\(['"]?)([^'"?]*(?:\([^'"?]*\)[^'"?]*)*)?(\?[^'"]+)?(['"]?\))/g;
 
 export function getCSSPaths(fileContents) {
-  return Array.from(fileContents.matchAll(cssPathRegex), ([, , p2]) => decodeURIComponent(p2));
+  // Replace escaped quotes with placeholders
+  const processed = fileContents
+    .replace(/\\'/g, '___ESCAPED_QUOTE___')
+    .replace(/\\"/g, '___ESCAPED_DQUOTE___');
+  return Array.from(processed.matchAll(cssPathRegex), ([, , p2]) =>
+    p2
+      ? decodeURIComponent(p2)
+          // Replace placeholders with original quotes
+          .replace(/___ESCAPED_QUOTE___/g, "'")
+          .replace(/___ESCAPED_DQUOTE___/g, '"')
+      : '',
+  );
 }
 
 export function replaceCSSPaths(fileContents, packageFiles) {
-  return fileContents.replace(cssPathRegex, function (match, p1, p2, p3, p4) {
+  return fileContents.replace(cssPathRegex, function (match, start, path, query, end) {
     try {
       // Look to see if there is a URL in our packageFiles mapping that
       // that has this as the source path.
-      const newUrl = packageFiles[decodeURIComponent(p2)];
+      const newUrl = packageFiles[decodeURIComponent(path)];
       if (newUrl) {
         // If so, replace the instance with the new URL.
-        return `${p1}${newUrl}${p4}`;
+        return `${start}${newUrl}${end}`;
       }
     } catch (e) {
       console.debug('Error during URL handling', e); // eslint-disable-line no-console
