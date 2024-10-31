@@ -1,61 +1,87 @@
-
-import { ref, computed } from 'kolibri.lib.vuex';
-import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
+import { ref, computed } from 'kolibri.lib.vueCompositionApi';
+import { ContentNodeResource } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import uniqWith from 'lodash/uniqWith';
+import isEqual from 'lodash/isEqual';
 
+    // Reactive state
+    const _selectedResources = ref([]);
+    const resourcePool = ref([]);
 
+    
+    const selectAllChecked = computed(() => {
+        return resourcePool.value.length && resourcePool.value.every(isResourceSelected);
+        });
 
+    const selectAllIndeterminate = computed(() => {
+        return (
+            !selectAllChecked.value &&
+            resourcePool.value.some(isResourceSelected)
+            );
+        });
 
-
-function useResourceSelections({
-    visibleResources,     // Ref<string[]> - Currently visible resources
-    disabledResources,    // Ref<string[]> - Resources that should be disabled
-    checkedResources,     // Ref<string[]> - Currently selected resources
-    handleChange,      // Function - Defined in the parent to handle a resource selection change
-    handleSelectAll       // Function - Defined in the parent to handle select all functionality
-}) {
-    // Data properties for access by child components
-    const allVisibleResources = visibleResources;     // For components to know what's visible
-    const allCheckedResources = checkedResources;     // To track currently selected resources
-    const allDisabledResources = disabledResources;   // To know which resources are unselectable
-
-    // Methods to determine selection state, directly reflecting the parent's props
-    function isSelected(ContentNodeResource) {
-        if (content.is_leaf) {
-            content = [content];
-    } else {
-        
-        if (!content.children.more && !content.children.results.some(n => !n.is_leaf)) {
-          content = content.children.results;
+    function isResourceSelected(content) {
+        return _selectedResources.value.includes(content.id);
         }
-        return allCheckedResources.includes(ContentNodeResource);
-    }
-}
 
-    function isDisabled(ContentNodeResource) {
-       
-        return allDisabledResources.includes(resourceId);
-    }
+    function toggleTopicSelection({ content, checked }) {
+        if (content.kind === ContentNodeKinds.TOPIC) {
 
-    // Method for handling individual selection change, calls parent handler
-    function onResourceChange(resourceId) {
-        handleChange(resourceId);
+            if (checked) {
+            fetchTopicResources(content).then(resources => {
+            addResourcesToPool(resources);
+            });
+    } else {
+    // Remove all child resources of this topic
+    removeResourcesFromPool(content);
     }
-
-    // Function to handle select all functionality
-    function onSelectAll() {
-        handleSelectAll();
+    } else {
+        toggleResource(content, checked);
+    }
     }
 
-    //  Then we can expose relevant data and functions for components
+    
+    function fetchTopicResources(topic) {
+        return ContentNodeResource.fetchCollection({
+            getParams: {
+            descendant_of: topic.id,
+            available: true,
+            },
+        });
+    }
+
+   
+    function addResourcesToPool(resources) {
+        resourcePool.value = uniqWith(
+        [...resourcePool.value, ...resources],
+        isEqual
+        );
+    }
+
+    function toggleResource(content, checked) {
+        if (checked) {
+        addResourcesToPool([content]);
+        } else {
+        removeResourcesFromPool(content);
+    }
+    }
+
+    function removeResourcesFromPool(content) {
+        resourcePool.value = resourcePool.value.filter(obj => obj.id !== content.id);
+    }
+
+  
+    function resetSelectedResources() {
+    resourcePool.value = [];
+    
+    }
+
     return {
-        allVisibleResources,
-        allCheckedResources,
-        allDisabledResources,
-        isSelected,
-        isDisabled,
-        onResourceChange,
-        onSelectAll,
+    selectAllChecked,
+    selectAllIndeterminate,
+    toggleTopicSelection,
+    resetSelectedResources,
+    isResourceSelected,
+    
     };
-}
-}
+
