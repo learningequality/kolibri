@@ -141,10 +141,10 @@
         const hashiProgress = data.progress;
         if (hashiProgress !== null && !this.forceDurationBasedProgress) {
           this.$emit('updateProgress', hashiProgress);
+          if (hashiProgress >= 1) {
+            this.$emit('finished');
+          }
         }
-      });
-      this.hashi.on('navigateTo', message => {
-        this.$emit('navigateTo', message);
       });
       this.hashi.on(this.hashi.events.RESIZE, scrollHeight => {
         this.iframeHeight = scrollHeight;
@@ -170,27 +170,6 @@
         clearTimeout(this.timeout);
       }
       this.$emit('stopTracking');
-    },
-    methods: {
-      recordProgress() {
-        let progress;
-        if (this.forceDurationBasedProgress) {
-          progress = this.durationBasedProgress;
-        } else {
-          const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
-          progress = hashiProgress === null ? this.durationBasedProgress : hashiProgress;
-        }
-        this.$emit('updateProgress', progress);
-        if (progress >= 1) {
-          this.$emit('finished');
-        }
-        this.pollProgress();
-      },
-      pollProgress() {
-        this.timeout = setTimeout(() => {
-          this.recordProgress();
-        }, 5000);
-      },
     },
     $trs: {
       exitFullscreen: {
