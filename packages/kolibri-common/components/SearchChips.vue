@@ -42,7 +42,7 @@
     setup() {
       const { availableLanguages } = injectBaseSearch();
       const languagesMap = availableLanguages.value.reduce((map, lang) => {
-        map[lang.id] = map;
+        map[lang.id] = lang;
         return map;
       }, {});
       const { channelsMap } = useChannels();
