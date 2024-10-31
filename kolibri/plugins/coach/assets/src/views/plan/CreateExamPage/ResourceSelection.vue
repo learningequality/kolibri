@@ -210,7 +210,6 @@
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import useQuizResources from '../../../composables/useQuizResources';
-  import useResourceSelection from '../../../composables/useResourceSelection';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import LessonsSearchBox from '../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
@@ -258,8 +257,6 @@
       const maxSectionQuestionOptions = computed(() => questionCount.value * 10);
 
       const selectPracticeQuiz = computed(() => props.selectPracticeQuiz);
-
-      const {  } = useResourceSelection();
 
       const {
         sectionSettings$,
@@ -443,37 +440,34 @@
        */
       async function toggleSelected({ content, checked }) {
         if (content.is_leaf) {
-          // content = [content];
-          console.log(content);
-          handleTopicSelection(content);
+          content = [content];
         } else {
-          handleResourceSelection(content);
-          // // If we already have all of the children locally, and every child is a leaf, we can
-          // // just add them all to the working resource pool
-          // if (!content.children.more && !content.children.results.some(n => !n.is_leaf)) {
-          //   content = content.children.results;
-          // } else {
-          //   // If we don't have all of the children locally, we need to fetch them
-          //   const children = await ContentNodeResource.fetchCollection({
-          //     getParams: {
-          //       descendant_of: content.id,
-          //       available: true,
-          //       kind: ContentNodeKinds.EXERCISE,
-          //     },
-          //   });
-          //   content = children;
-          // }
+          // If we already have all of the children locally, and every child is a leaf, we can
+          // just add them all to the working resource pool
+          if (!content.children.more && !content.children.results.some(n => !n.is_leaf)) {
+            content = content.children.results;
+          } else {
+            // If we don't have all of the children locally, we need to fetch them
+            const children = await ContentNodeResource.fetchCollection({
+              getParams: {
+                descendant_of: content.id,
+                available: true,
+                kind: ContentNodeKinds.EXERCISE,
+              },
+            });
+            content = children;
+          }
         }
-        // if (checked) {
-        //   if (selectPracticeQuiz.value) {
-        //     resetWorkingResourcePool();
-        //   }
-        //   addToWorkingResourcePool(content);
-        // } else {
-        //   content.forEach(c => {
-        //     removeFromWorkingResourcePool(c);
-        //   });
-        // }
+        if (checked) {
+          if (selectPracticeQuiz.value) {
+            resetWorkingResourcePool();
+          }
+          addToWorkingResourcePool(content);
+        } else {
+          content.forEach(c => {
+            removeFromWorkingResourcePool(c);
+          });
+        }
       }
 
       const {
