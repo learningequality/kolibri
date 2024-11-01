@@ -1,4 +1,3 @@
-import os
 import platform
 import uuid
 from collections import namedtuple
@@ -48,6 +47,7 @@ from kolibri.plugins.app.utils import GET_OS_USER
 from kolibri.plugins.app.utils import interface
 from kolibri.plugins.utils.test.helpers import plugin_disabled
 from kolibri.plugins.utils.test.helpers import plugin_enabled
+from kolibri.utils.conf import OPTIONS
 from kolibri.utils.tests.helpers import override_option
 
 
@@ -380,10 +380,10 @@ class FreeSpaceTestCase(APITestCase):
             diskusage_mock.return_value = diskusage_result(free=2)
 
             response = self.client.get(
-                reverse("kolibri:core:freespace"), {"path": "test"}
+                reverse("kolibri:core:freespace"), {"path": "Content"}
             )
 
-            diskusage_mock.assert_called_with(os.path.realpath("test"))
+            diskusage_mock.assert_called_with(OPTIONS["Paths"]["CONTENT_DIR"])
             self.assertEqual(response.data, {"freespace": 2})
 
 
