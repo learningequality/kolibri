@@ -53,7 +53,7 @@
   import AppError from 'kolibri-common/components/AppError';
   import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
   import useUser from 'kolibri/composables/useUser';
-  import UpdateNotification from './UpdateNotification';
+  import UpdateNotification from './internal/UpdateNotification';
 
   export default {
     name: 'NotificationsRoot',

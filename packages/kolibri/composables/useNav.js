@@ -4,7 +4,7 @@ import { get } from '@vueuse/core';
 import { UserKinds, NavComponentSections } from 'kolibri/constants';
 import logger from 'kolibri-logging';
 import { computed, getCurrentInstance } from '@vue/composition-api';
-import { generateNavRoute } from './generateNavRoutes';
+import { generateNavRoute } from './internal/generateNavRoutes';
 
 const logging = logger.getLogger(__filename);
 

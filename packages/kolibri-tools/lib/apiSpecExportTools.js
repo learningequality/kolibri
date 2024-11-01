@@ -1,22 +1,29 @@
 const path = require('node:path');
 const kolibriPackageJson = require('../../kolibri/package.json');
 const writeSourceToFile = require('./i18n/writeSourceToFile');
+const glob = require('./glob');
 
 const apiSpec = kolibriPackageJson.exports || {};
 
 const { kolibriName } = require('./kolibriName');
 
-// Generate a list of all the module imports that we need to expose
-// Iterate over all the exports in the kolibri package
-const apiKeys = Object.keys(apiSpec)
-  // Filter out the export for the root package '.' as we don't need to expose that
-  .filter(key => key !== '.')
-  // Add the kolibri prefix and remove the leading '.' to make a full import path
-  // e.g. './urls' -> 'kolibri/urls'
-  .map(key => 'kolibri' + key.slice(1))
-  // Add the list of modules that are exposed in the kolibri package.json
-  // Unmodified, as they are already full import paths, e.g. 'vue'
-  .concat(kolibriPackageJson.exposes);
+function generateApiKeys(apiSpec) {
+  // Generate a list of all the module imports that we need to expose
+  // Iterate over all the exports in the kolibri package
+  return (
+    Object.keys(apiSpec)
+      // Filter out the export for the root package '.' as we don't need to expose that
+      .filter(key => key !== '.')
+      // Add the kolibri prefix and remove the leading '.' to make a full import path
+      // e.g. './urls' -> 'kolibri/urls'
+      .map(key => 'kolibri' + key.slice(1))
+      // Add the list of modules that are exposed in the kolibri package.json
+      // Unmodified, as they are already full import paths, e.g. 'vue'
+      .concat(kolibriPackageJson.exposes)
+  );
+}
+
+const apiKeys = generateApiKeys(apiSpec);
 
 const coreExternals = {
   // The kolibri package itself is a special case, as it is the root of the package
@@ -38,10 +45,36 @@ const apiSpecHeader = `
 `;
 
 function rebuildApiSpec() {
-  const apiSpecFilePath = path.resolve(__dirname, '../../kolibri/apiSpec.js');
+  // First we read the directory structure of the kolibri folder to infer the list of modules
+  // that are available to be imported.
+  const kolibriFolder = path.resolve(__dirname, '../../kolibri');
+  const kolibriFiles = glob
+    .sync(`${kolibriFolder}/**/*.{js,vue}`, {
+      ignore: ['**/internal/**', '**/__tests__/**', '**/__mocks__/**'],
+    })
+    .map(f => f.split('.')[0])
+    .map(f => f.replace(kolibriFolder, ''))
+    .map(f => f.replace(/\/index$/, ''))
+    .sort();
+  // Then we generate the list of modules that are exposed in the kolibri package.json
+  const newApiSpec = {};
+  for (const key of kolibriFiles) {
+    const specValue = '.' + key;
+    // When we are able to move everything into a src folder
+    // we can update the right hand side of this
+    newApiSpec[specValue] = specValue === '.' ? './index' : specValue;
+  }
+  const updatedKolibriPackageJson = {
+    ...kolibriPackageJson,
+    exports: newApiSpec,
+  };
+  const kolibriPackageJsonFilePath = path.resolve(__dirname, '../../kolibri/package.json');
+  writeSourceToFile(kolibriPackageJsonFilePath, JSON.stringify(updatedKolibriPackageJson, null, 2));
+  const apiSpecFilePath = path.resolve(__dirname, '../../kolibri/internal/apiSpec.js');
+  const updatedApiKeys = generateApiKeys(updatedKolibriPackageJson.exports);
   let apiSpecContent = apiSpecHeader;
   apiSpecContent += 'export default {\n';
-  for (const key of apiKeys) {
+  for (const key of updatedApiKeys) {
     apiSpecContent += `  '${key}': require('${key}'),\n`;
   }
   apiSpecContent += '};\n';

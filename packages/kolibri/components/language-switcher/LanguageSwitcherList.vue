@@ -55,8 +55,8 @@
 
   import { availableLanguages, compareLanguages, currentLanguage } from 'kolibri/utils/i18n';
   import LanguageSwitcherModal from 'kolibri/components/language-switcher/LanguageSwitcherModal';
-  import languageSwitcherMixin from './mixin';
-  import SelectedLanguage from './SelectedLanguage';
+  import languageSwitcherMixin from './internal/mixin';
+  import SelectedLanguage from './internal/SelectedLanguage';
 
   const prioritizedLanguages = ['en', 'ar', 'es-419', 'hi-in', 'fr-fr', 'sw-tz'];
 
@@ -118,7 +118,7 @@
 
 <style lang="scss" scoped>
 
-  @import './language-names';
+  @import './internal/language-names';
 
   .globe {
     position: relative;

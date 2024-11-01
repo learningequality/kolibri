@@ -35,7 +35,7 @@
 
   import { mapGetters } from 'vuex';
   import ScrollingHeader from '../ScrollingHeader';
-  import ImmersiveToolbar from './ImmersiveToolbar';
+  import ImmersiveToolbar from './internal/ImmersiveToolbar';
 
   export default {
     name: 'ImmersivePage',

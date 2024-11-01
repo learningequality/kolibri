@@ -8,12 +8,12 @@ import useUser from 'kolibri/composables/useUser';
 import { DisconnectionErrorCodes, SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri/constants';
 import clientFactory from 'kolibri/utils/baseClient';
 import { browser, os } from 'kolibri/utils/browserInfo';
-import useConnection from './useConnection';
+import useConnection from './internal/useConnection';
 import {
   createTryingToReconnectSnackbar,
   createDisconnectedSnackbar,
   createReconnectedSnackbar,
-} from './disconnection';
+} from './internal/disconnection';
 
 const logging = logger.getLogger(__filename);
 

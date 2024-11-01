@@ -265,8 +265,7 @@
   import useNav from 'kolibri/composables/useNav';
   import useUser from 'kolibri/composables/useUser';
   import useUserSyncStatus from 'kolibri-common/composables/useUserSyncStatus';
-  import FocusTrap from 'kolibri-common/components/FocusTrap';
-  import SyncStatusDisplay from '../../SyncStatusDisplay';
+  import SyncStatusDisplay from '../../../SyncStatusDisplay';
   import LearnOnlyDeviceNotice from './LearnOnlyDeviceNotice';
   import TotalPoints from './TotalPoints';
   import SideNavDivider from './SideNavDivider';

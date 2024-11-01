@@ -2,9 +2,9 @@ import Vue from 'vue';
 import scriptLoader from 'kolibri-common/utils/scriptLoader';
 import { RENDERER_SUFFIX } from 'kolibri/constants';
 import { languageDirection, languageDirections } from 'kolibri/utils/i18n';
-import contentRendererMixin from './components/ContentRenderer/mixin';
-import ContentRendererLoading from './components/ContentRenderer/ContentRendererLoading';
-import ContentRendererError from './components/ContentRenderer/ContentRendererError';
+import contentRendererMixin from '../components/internal/ContentRenderer/mixin';
+import ContentRendererLoading from '../components/internal/ContentRenderer/ContentRendererLoading';
+import ContentRendererError from '../components/internal/ContentRenderer/ContentRendererError';
 
 /**
  * Array containing the names of all methods of the Mediator that

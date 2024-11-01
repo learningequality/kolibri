@@ -6,7 +6,7 @@ import SideNav from '../SideNav';
 // eslint-disable-next-line import/named
 // eslint-disable-next-line import/named
 import LearnOnlyDeviceNotice from '../LearnOnlyDeviceNotice';
-import SyncStatusDisplay from '../../../SyncStatusDisplay';
+import SyncStatusDisplay from '../../../../SyncStatusDisplay';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri/urls');

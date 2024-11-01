@@ -137,7 +137,7 @@
   import useTotalProgress from 'kolibri/composables/useTotalProgress';
   import useNav from 'kolibri/composables/useNav';
   import useUser from 'kolibri/composables/useUser';
-  import SkipNavigationLink from '../../SkipNavigationLink';
+  import SkipNavigationLink from '../../../SkipNavigationLink';
   import Navbar from './Navbar';
 
   const hashedValuePattern = /^[a-f0-9]{30}$/;

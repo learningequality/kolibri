@@ -46,7 +46,7 @@
   import { currentLanguage } from 'kolibri/utils/i18n';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import languageSwitcherMixin from './mixin';
+  import languageSwitcherMixin from './internal/mixin';
 
   export default {
     name: 'LanguageSwitcherModal',
@@ -96,7 +96,7 @@
 
 <style lang="scss" scoped>
 
-  @import './language-names';
+  @import './internal/language-names';
 
   .language-name {
     @include font-family-language-names;

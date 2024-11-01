@@ -231,7 +231,7 @@ i18n-pretranslate-approve-all:
 i18n-download-translations:
 	python packages/kolibri-tools/lib/i18n/crowdin.py rebuild-translations ${branch}
 	python packages/kolibri-tools/lib/i18n/crowdin.py download-translations ${branch}
-	yarn exec kolibri-tools i18n-code-gen -- --output-dir ./packages/kolibri/utils
+	yarn exec kolibri-tools i18n-code-gen -- --output-dir ./packages/kolibri/utils/internal
 	$(MAKE) i18n-django-compilemessages
 	yarn exec kolibri-tools i18n-create-message-files -- --pluginFile ./build_tools/build_plugins.txt
 

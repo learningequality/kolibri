@@ -60,8 +60,8 @@
   import useUserSyncStatus from 'kolibri-common/composables/useUserSyncStatus';
   import useUser from 'kolibri/composables/useUser';
   import ScrollingHeader from '../ScrollingHeader';
-  import AppBar from './AppBar';
-  import SideNav from './SideNav';
+  import AppBar from './internal/AppBar';
+  import SideNav from './internal/SideNav';
 
   export default {
     name: 'AppBarPage',

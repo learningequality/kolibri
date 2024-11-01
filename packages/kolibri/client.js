@@ -10,7 +10,7 @@ import { get } from '@vueuse/core';
 import useUser from 'kolibri/composables/useUser';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
 import clientFactory from 'kolibri/utils/baseClient';
-import useConnection from './useConnection';
+import useConnection from './internal/useConnection';
 
 export const logging = logger.getLogger(__filename);
 

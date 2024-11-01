@@ -4,10 +4,10 @@ import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import VueCompositionApi from '@vue/composition-api';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
-import ContentRenderer from './components/ContentRenderer';
-import initializeTheme from './styles/initializeTheme';
-import setupPluginMediator from './pluginMediator';
-import apiSpec from './apiSpec';
+import ContentRenderer from './components/internal/ContentRenderer';
+import initializeTheme from './styles/internal/initializeTheme';
+import setupPluginMediator from './internal/pluginMediator';
+import apiSpec from './internal/apiSpec';
 
 /**
  * Object that forms the public API for the Kolibri

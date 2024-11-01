@@ -7,7 +7,7 @@ import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; 
 import { ref } from '@vue/composition-api';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
 import { HeartBeat } from '../heartbeat.js';
-import { trs } from '../disconnection';
+import { trs } from '../internal/disconnection';
 import coreModule from '../../../kolibri/core/assets/src/state/modules/core';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
