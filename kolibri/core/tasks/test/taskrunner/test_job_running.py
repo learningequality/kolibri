@@ -3,7 +3,6 @@ import uuid
 
 import pytest
 
-from kolibri.core.tasks.compat import Event
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
@@ -13,6 +12,7 @@ from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.utils import import_path_to_callable
 from kolibri.core.tasks.worker import Worker
+from kolibri.utils.multiprocessing_compat import Event
 
 
 @pytest.fixture
