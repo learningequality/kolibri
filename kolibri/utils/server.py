@@ -32,6 +32,8 @@ from .system import become_daemon
 from .system import pid_exists
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
+from kolibri.utils.logger import cleanup_queue_logging
+from kolibri.utils.logger import setup_queue_logging
 
 try:
     FileNotFoundError
@@ -274,7 +276,9 @@ class ServicesPlugin(SimplePlugin):
         from kolibri.core.tasks.main import initialize_workers
 
         # Initialize the iceqube engine to handle queued tasks
-        self.worker = initialize_workers()
+        # Add a loose coupling between our LogPlugin and the ServicesPlugin
+        # by getting any log_queue that might be present on the bus
+        self.worker = initialize_workers(log_queue=getattr(self.bus, "log_queue", None))
 
     def STOP(self):
         if self.worker is not None:
@@ -534,8 +538,23 @@ class DaemonizePlugin(SimplePlugin):
 
 
 class LogPlugin(SimplePlugin):
+    def ENTER(self):
+        # Do this setup during INITIAL, so we wait
+        # until after any WSGI application has been
+        # imported, as that will trigger Django setup
+        # which will reinitialize logging, and override
+        # what we are doing here.
+        self.queue_listener = setup_queue_logging()
+        self.bus.log_queue = self.queue_listener.queue
+
     def log(self, msg, level):
         logger.log(level, msg)
+
+    def EXITED(self):
+        cleanup_queue_logging(self.queue_listener)
+
+    # Set this to priority 100 so that it gets executed after any other EXITED handlers.
+    EXITED.priority = 100
 
 
 class SignalHandler(BaseSignalHandler):

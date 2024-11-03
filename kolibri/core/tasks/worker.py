@@ -13,7 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 def execute_job(
-    job_id, worker_host=None, worker_process=None, worker_thread=None, worker_extra=None
+    job_id,
+    worker_host=None,
+    worker_process=None,
+    worker_thread=None,
+    worker_extra=None,
+    log_queue=None,
 ):
     """
     Call the function stored in the job.func.
@@ -36,7 +41,7 @@ def execute_job(
     django_connection.close()
 
 
-def execute_job_with_python_worker(job_id):
+def execute_job_with_python_worker(job_id, log_queue=None):
     """
     Call execute_job but additionally with the current host, process and thread information taken
     directly from python internals.
@@ -50,11 +55,12 @@ def execute_job_with_python_worker(job_id):
         worker_host=socket.gethostname(),
         worker_process=str(os.getpid()),
         worker_thread=str(threading.get_ident()),
+        log_queue=log_queue,
     )
 
 
 class Worker(object):
-    def __init__(self, connection, regular_workers=2, high_workers=1):
+    def __init__(self, connection, regular_workers=2, high_workers=1, log_queue=None):
         # Internally, we use concurrent.future.Future to run and track
         # job executions. We need to keep track of which future maps to which
         # job they were made from, and we use the job_future_mapping dict to do
@@ -74,6 +80,8 @@ class Worker(object):
         # High workers run only 'high' priority jobs.
         self.regular_workers = regular_workers
         self.max_workers = regular_workers + high_workers
+        # Track any log queue that is passed in
+        self.log_queue = log_queue
 
         self.workers = self.start_workers()
         self.job_checker = self.start_job_checker()
@@ -191,6 +199,7 @@ class Worker(object):
         future = self.workers.submit(
             execute_job_with_python_worker,
             job_id=job.job_id,
+            log_queue=self.log_queue,
         )
 
         # Check if the job ID already exists in the future_job_mapping dictionary

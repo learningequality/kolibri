@@ -1,6 +1,11 @@
 import logging
 import os
+from logging.handlers import QueueHandler
+from logging.handlers import QueueListener
 from logging.handlers import TimedRotatingFileHandler
+from typing import Dict
+from typing import List
+from typing import Optional
 
 
 GET_FILES_TO_DELETE = "getFilesToDelete"
@@ -16,6 +21,62 @@ LOG_COLORS = {
     "ERROR": "red",
     "CRITICAL": "bold_red",
 }
+
+
+# Type definition for mapping of logger names to their handlers
+LoggerHandlerMap = Dict[str, List[logging.Handler]]
+
+
+class LoggerAwareQueueHandler(QueueHandler):
+    """
+    A QueueHandler that adds the logger name to the record so that it
+    can be properly handled in the listener.
+    """
+
+    def __init__(self, queue, logger_name: str):
+        super().__init__(queue)
+        self.logger_name = logger_name
+
+    def prepare(self, record: logging.LogRecord) -> logging.LogRecord:
+        """Prepare a record for queuing, ensuring it can be pickled if needed"""
+        # Get Queue class at runtime to check if we need pickle safety
+        from kolibri.utils.multiprocessing_compat import use_multiprocessing
+
+        # Only do pickle-safety preparation for logging if we're using multiprocessing
+        if use_multiprocessing():
+            if hasattr(record, "exc_info") and record.exc_info:
+                record.exc_text = (
+                    logging.getLogger()
+                    .handlers[0]
+                    .formatter.formatException(record.exc_info)
+                )
+                record.exc_info = None
+            if hasattr(record, "args"):
+                record.args = tuple(str(arg) for arg in record.args)
+
+        record = super().prepare(record)
+        record._logger_name = self.logger_name
+        return record
+
+
+class LoggerAwareQueueListener(QueueListener):
+    """A QueueListener that routes records to their original logger's handlers"""
+
+    def __init__(self, queue, logger_handlers: LoggerHandlerMap):
+        super().__init__(queue)
+        self.logger_handlers = logger_handlers
+
+    def handle(self, record: logging.LogRecord) -> None:
+        """Handle a record by sending it to the original logger's handlers"""
+        logger_name = getattr(record, "_logger_name", "")
+        handlers = self.logger_handlers.get(logger_name, [])
+
+        for handler in handlers:
+            try:
+                if record.levelno >= handler.level:
+                    handler.handle(record)
+            except Exception:
+                handler.handleError(record)
 
 
 class EncodingStreamHandler(logging.StreamHandler):
@@ -312,3 +373,95 @@ def get_logging_config(LOG_ROOT, debug=False, debug_database=False):
         admin_logger_handlers = admin_logger.setdefault("handlers", [])
         admin_logger_handlers.append("mail_admins")
     return config
+
+
+# Track if queue logging has been initialized for the current process
+_queue_logging_initialized_for_process = False
+
+
+class QueueLoggingInitializedError(RuntimeError):
+    pass
+
+
+def _replace_handlers_with_queue(queue) -> LoggerHandlerMap:
+    """
+    Internal function to replace all logger handlers with queue handlers.
+    Returns a dict of the original logger handlers for the listener to consume.
+    """
+    global _queue_logging_initialized_for_process
+
+    if _queue_logging_initialized_for_process:
+        raise QueueLoggingInitializedError(
+            "Queue logging has already been initialized for this process"
+        )
+
+    logger_handlers: LoggerHandlerMap = {}
+
+    # Set up logging for all loggers
+    for logger_name in list(logging.root.manager.loggerDict.keys()) + [""]:
+        logger = logging.getLogger(logger_name)
+        if logger.handlers:
+            # Store the original handlers
+            logger_handlers[logger_name] = logger.handlers[:]
+
+            # Remove existing handlers
+            for handler in logger.handlers[:]:
+                logger.removeHandler(handler)
+
+            # Add queue handler
+            queue_handler = LoggerAwareQueueHandler(queue, logger_name)
+            logger.addHandler(queue_handler)
+
+    _queue_logging_initialized_for_process = True
+
+    return logger_handlers
+
+
+def setup_queue_logging() -> LoggerAwareQueueListener:
+    """
+    Sets up queue-based logging for the main process.
+    Returns the queue listener which can be used to stop logging and clean up.
+    """
+    # Import Queue at function scope to avoid import order issues
+    from kolibri.utils.multiprocessing_compat import Queue
+
+    # Create queue using Kolibri's compatibility Queue
+    log_queue = Queue()
+
+    # Replace handlers and get original configurations
+    logger_handlers = _replace_handlers_with_queue(log_queue)
+
+    # Create and start listener with collected handlers
+    listener = LoggerAwareQueueListener(log_queue, logger_handlers)
+    listener.start()
+
+    return listener
+
+
+def setup_worker_logging(queue) -> None:
+    """Sets up logging in a worker to use the queue if not already configured."""
+    try:
+        _replace_handlers_with_queue(queue)
+    except QueueLoggingInitializedError:
+        pass
+
+
+def cleanup_queue_logging(listener: Optional[LoggerAwareQueueListener]) -> None:
+    """
+    Stops the queue listener and cleans up multiprocessing resources if needed.
+    """
+    if not listener:
+        return
+
+    # Stop the listener to ensure pending logs are processed
+    listener.stop()
+
+    # Clean up queue if it's a multiprocessing queue
+    from kolibri.utils.multiprocessing_compat import use_multiprocessing
+
+    if use_multiprocessing():
+        try:
+            listener.queue.close()
+            listener.queue.join_thread()
+        except (ValueError, AttributeError):
+            pass
