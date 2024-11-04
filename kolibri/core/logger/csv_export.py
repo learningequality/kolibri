@@ -4,7 +4,6 @@ import logging
 import math
 import os
 from collections import OrderedDict
-from functools import partial
 
 from dateutil import parser
 from django.core.cache import cache
@@ -113,7 +112,25 @@ def get_max_ancestor_depth():
     return max_depth
 
 
-map_object = partial(output_mapper, labels=labels, output_mappings=mappings)
+def add_ancestors_info(row, ancestors, max_depth):
+    row.update(
+        {
+            f"Topic level {level + 1}": ancestors[level]["title"]
+            if level < len(ancestors)
+            else ""
+            for level in range(max_depth)
+        }
+    )
+
+
+def map_object(item):
+    mapped_item = output_mapper(item, labels=labels, output_mappings=mappings)
+    node = ContentNode.objects.filter(content_id=item["content_id"]).first()
+    if node and node.ancestors:
+        add_ancestors_info(mapped_item, node.ancestors, get_max_ancestor_depth())
+    else:
+        add_ancestors_info(mapped_item, [], get_max_ancestor_depth())
+    return mapped_item
 
 
 classes_info = {
