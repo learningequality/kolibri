@@ -67,8 +67,8 @@
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import useChannels from 'kolibri-common/composables/useChannels';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
-  import useChannels from '../../composables/useChannels';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources, {
     setClasses,

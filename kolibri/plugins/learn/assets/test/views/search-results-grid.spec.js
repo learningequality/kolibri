@@ -79,7 +79,7 @@ describe('when search results are loaded', () => {
           displayingSearchResults: true,
           searchLoading: false,
         },
-        stubs: ['LibraryAndChannelBrowserMainContent'],
+        stubs: ['LibraryAndChannelBrowserMainContent', 'SearchChips'],
       });
 
       const moreButton = wrapper.find('[data-test="more-results-button"]');

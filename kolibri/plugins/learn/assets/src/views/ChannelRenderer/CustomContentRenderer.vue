@@ -36,9 +36,9 @@
   import router from 'kolibri.coreVue.router';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { events, MessageStatuses } from 'hashi/src/hashiBase';
+  import useChannels from 'kolibri-common/composables/useChannels';
   import { validateChannelTheme } from '../../utils/validateChannelTheme';
   import useContentLink from '../../composables/useContentLink';
-  import useChannels from '../../composables/useChannels';
   import ContentModal from './ContentModal';
 
   const { channelsMap } = useChannels();
