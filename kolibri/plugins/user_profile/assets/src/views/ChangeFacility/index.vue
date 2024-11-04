@@ -21,7 +21,7 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { computed } from 'kolibri.lib.vueCompositionApi';
-  import { interpret } from 'xstate';
+  import { createActor } from 'xstate';
   import useUser from 'kolibri.coreVue.composables.useUser';
   import { changeFacilityMachine } from '../../machines/changeFacilityMachine';
 
@@ -40,7 +40,7 @@
     },
     data() {
       return {
-        service: interpret(changeFacilityMachine),
+        service: createActor(changeFacilityMachine),
         previousMachineStateName: '',
         state: changeFacilityMachine.initialState,
         currentRoute: this.$router.currentRoute.name,
@@ -67,24 +67,24 @@
     },
 
     beforeRouteUpdate(to, from, next) {
-      if (!this.internalNavigation) this.service.send('BACK');
+      if (!this.internalNavigation) this.service.send({ type: 'BACK' });
       next();
     },
     created() {
       this.service.start();
-      this.service.onTransition(state => {
+      this.service.subscribe(state => {
         if (state.value === 'error') {
           this.onMachineError(state);
           return;
         }
-        const stateID = Object.keys(state.meta)[0];
-        if (state.meta[stateID] !== undefined) {
-          const newRoute = state.meta[stateID].route;
+        const stateID = Object.keys(state.getMeta())[0];
+        if (state.getMeta()[stateID] !== undefined) {
+          const newRoute = state.getMeta()[stateID].route;
           if (newRoute != this.$router.currentRoute.name) {
-            if ('path' in state.meta[stateID]) {
+            if ('path' in state.getMeta()[stateID]) {
               this.internalNavigation = true;
               this.$router.push(
-                { name: newRoute, path: state.meta[stateID].path },
+                { name: newRoute, path: state.getMeta()[stateID].path },
                 function () {
                   this.internalNavigation = false;
                 }.bind(this),
@@ -127,7 +127,7 @@
           'CORE_SET_ERROR',
           `An error occured in the '${this.previousMachineStateName}' state of the change facility machine`,
         );
-        this.service.send('RESET');
+        this.service.send({ type: 'RESET' });
         this.previousMachineStateName = machineState.value;
       },
     },
