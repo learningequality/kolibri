@@ -66,6 +66,9 @@ class InitializeAppView(APIView):
                 user = FacilityUser.objects.get_or_create_os_user(auth_token)
                 if user is not None:
                     login(request, user)
+                else:
+                    # If the user is not found, then we should not persist the auth_token
+                    auth_token = None
             except ValidationError as e:
                 logger.error(e)
         redirect_url = request.GET.get("next", "/")
