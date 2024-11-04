@@ -103,6 +103,16 @@ labels = OrderedDict(
     )
 )
 
+
+def get_max_ancestor_depth():
+    max_depth = 0
+    for node in ContentNode.objects.filter(
+        content_id__in=ContentSummaryLog.objects.values_list("content_id", flat=True)
+    ):
+        max_depth = max(max_depth, len(node.ancestors))
+    return max_depth
+
+
 map_object = partial(output_mapper, labels=labels, output_mappings=mappings)
 
 
