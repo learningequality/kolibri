@@ -186,6 +186,13 @@ def csv_file_generator(
         for label in labels.values()
         if log_type == "summary" or label != labels["completion_timestamp"]
     )
+    # len of topic headers should be equal to the max depth of the content node
+    topic_headers = [
+        (f"Topic level {i+1}", _(f"Topic level {i+1}"))
+        for i in range(get_max_ancestor_depth())
+    ]
+
+    header_labels += [label for _, label in topic_headers]
 
     csv_file = open_csv_for_writing(filepath)
 
