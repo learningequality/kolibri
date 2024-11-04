@@ -181,7 +181,7 @@ def csv_file_generator(
         queryset = queryset.filter(start_timestamp__lte=end)
 
     # Exclude completion timestamp for the sessionlog CSV
-    header_labels = tuple(
+    header_labels = list(
         label
         for label in labels.values()
         if log_type == "summary" or label != labels["completion_timestamp"]
