@@ -26,8 +26,39 @@ CSV_EXPORT_FILENAMES = {
     "summary": "{}_{}_content_summary_logs_from_{}_to_{}.csv",
 }
 
+CACHE_TIMEOUT = 60 * 10
 
-def cache_channel_name(obj):
+
+def add_content_to_cache(content_id, **kwargs):
+    title_key = "{content_id}_ContentNode_title".format(content_id=content_id)
+    ancestors_key = "{content_id}_ContentNode_ancestors".format(content_id=content_id)
+
+    cache.set(title_key, kwargs.get("title", ""), CACHE_TIMEOUT)
+    cache.set(ancestors_key, kwargs.get("ancestors", []), CACHE_TIMEOUT)
+
+
+def get_cached_content_data(content_id):
+    title_key = f"{content_id}_ContentNode_title"
+    ancestors_key = f"{content_id}_ContentNode_ancestors"
+
+    title = cache.get(title_key)
+    ancestors = cache.get(ancestors_key)
+
+    if title is None or ancestors is None:
+        node = ContentNode.objects.filter(content_id=content_id).first()
+        if node:
+            title = node.title
+            ancestors = node.ancestors
+        else:
+            title = ""
+            ancestors = []
+
+        add_content_to_cache(content_id, title=title, ancestors=ancestors)
+
+    return title, ancestors
+
+
+def get_cached_channel_name(obj):
     channel_id = obj["channel_id"]
     key = "{id}_ChannelMetadata_name".format(id=channel_id)
     channel_name = cache.get(key)
@@ -36,27 +67,24 @@ def cache_channel_name(obj):
             channel_name = ChannelMetadata.objects.get(id=channel_id)
         except ChannelMetadata.DoesNotExist:
             channel_name = ""
-        cache.set(key, channel_name, 60 * 10)
+        cache.set(key, channel_name, CACHE_TIMEOUT)
     return channel_name
 
 
-def cache_content_title(obj):
+def get_cached_content_title(obj):
     content_id = obj["content_id"]
-    key = "{id}_ContentNode_title".format(id=content_id)
-    title = cache.get(key)
-    if title is None:
-        node = ContentNode.objects.filter(content_id=content_id).first()
-        if node:
-            title = node.title
-        else:
-            title = ""
-        cache.set(key, title, 60 * 10)
+    title, _ = get_cached_content_data(content_id)
     return title
 
 
+def get_cached_ancestors(content_id):
+    _, ancestors = get_cached_content_data(content_id)
+    return ancestors
+
+
 mappings = {
-    "channel_name": cache_channel_name,
-    "content_title": cache_content_title,
+    "channel_name": get_cached_channel_name,
+    "content_title": get_cached_content_title,
     "time_spent": lambda x: "{:.1f}".format(round(x["time_spent"], 1)),
     "progress": lambda x: "{:.4f}".format(math.floor(x["progress"] * 10000.0) / 10000),
 }
@@ -105,10 +133,15 @@ labels = OrderedDict(
 
 def get_max_ancestor_depth():
     max_depth = 0
-    for node in ContentNode.objects.filter(
-        content_id__in=ContentSummaryLog.objects.values_list("content_id", flat=True)
-    ):
-        max_depth = max(max_depth, len(node.ancestors))
+    content_ids = ContentSummaryLog.objects.values_list("content_id", flat=True)
+    nodes = ContentNode.objects.filter(content_id__in=content_ids).only(
+        "content_id", "title", "ancestors"
+    )
+    for node in nodes:
+        ancestors = node.ancestors
+        # cache it here so the retireival while adding ancestors info into csv is faster
+        add_content_to_cache(node.content_id, title=node.title, ancestors=ancestors)
+        max_depth = max(max_depth, len(ancestors))
     return max_depth
 
 
@@ -125,11 +158,8 @@ def add_ancestors_info(row, ancestors, max_depth):
 
 def map_object(item):
     mapped_item = output_mapper(item, labels=labels, output_mappings=mappings)
-    node = ContentNode.objects.filter(content_id=item["content_id"]).first()
-    if node and node.ancestors:
-        add_ancestors_info(mapped_item, node.ancestors, get_max_ancestor_depth())
-    else:
-        add_ancestors_info(mapped_item, [], get_max_ancestor_depth())
+    ancestors = get_cached_ancestors(item["content_id"])
+    add_ancestors_info(mapped_item, ancestors, get_max_ancestor_depth())
     return mapped_item
 
 
