@@ -83,7 +83,7 @@
           'ReportsLessonListPage',
           PageNames.LESSONS_ROOT,
           PageNames.LESSONS_ROOT_BETTER,
-          PageNames.EXAMS,
+          PageNames.EXAMS_ROOT,
           PageNames.EXAM_SUMMARY,
           LessonsPageNames.SUMMARY,
         ].includes(this.$route.name);

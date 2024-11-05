@@ -7,7 +7,7 @@
     >
       <KGridItem>
         <QuizLessonDetailsHeader
-          :backlink="$router.getRoute('EXAMS')"
+          :backlink="$router.getRoute(PageNames.EXAMS_ROOT)"
           :backlinkLabel="coachString('allQuizzesLabel')"
           examOrLesson="exam"
         >
@@ -17,7 +17,6 @@
               style="margin-right: 8px"
             />
             <QuizOptionsDropdownMenu
-              optionsFor="plan"
               :draft="exam && exam.draft"
               @select="setCurrentAction"
             />
@@ -155,6 +154,7 @@
         QUIZZES_TABS_ID,
         QuizzesTabs,
         difficultQuestions: [],
+        PageNames,
       };
     },
     computed: {
@@ -330,7 +330,7 @@
         return deleteExam(this.quiz.id)
           .then(() => {
             this.$store.commit('classSummary/DELETE_ITEM', { map: 'examMap', id: this.quiz.id });
-            this.$router.replace(this.$router.getRoute('EXAMS'), () => {
+            this.$router.replace(this.$router.getRoute(PageNames.EXAMS_ROOT), () => {
               this.showSnackbarNotification('quizDeleted');
             });
           })

@@ -16,7 +16,6 @@
         >
           <template #dropdown>
             <QuizOptionsDropdownMenu
-              optionsFor="report"
               :draft="exam && exam.draft"
               @select="handleSelectOption"
             />
@@ -67,7 +66,7 @@
   import { PageNames } from '../../constants';
   import { QUIZZES_TABS_ID, QuizzesTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';
-  import QuizOptionsDropdownMenu from '../plan/QuizSummaryPage/QuizOptionsDropdownMenu';
+  import QuizOptionsDropdownMenu from '../quizzes/QuizSummaryPage/QuizOptionsDropdownMenu';
   import ReportsControls from './ReportsControls';
 
   export default {

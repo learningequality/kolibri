@@ -5,7 +5,7 @@ import routes from '.';
 const baseRouteNames = {
   classHome: PageNames.HOME_PAGE,
   lessons: LessonsPageNames.LESSONS_ROOT,
-  quizzes: PageNames.EXAMS,
+  quizzes: PageNames.EXAMS_ROOT,
   learners: PageNames.LEARNERS_ROOT,
   groups: PageNames.GROUPS_ROOT,
 };

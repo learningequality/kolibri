@@ -15,10 +15,7 @@
               appearance="raised-button"
               style="margin-right: 8px"
             />
-            <LessonOptionsDropdownMenu
-              optionsFor="plan"
-              @select="handleSelectOption"
-            />
+            <LessonOptionsDropdownMenu @select="handleSelectOption" />
           </template>
         </QuizLessonDetailsHeader>
       </KGridItem>
@@ -94,6 +91,7 @@
   import ReportsControls from '../../reports/ReportsControls';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../../constants/tabsConstants';
+  import { PageNames } from '../../../constants';
   import LessonResourcesTable from './tables/LessonResourcesTable';
   import LessonLearnersTable from './tables/LessonLearnersTable';
   import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
@@ -236,7 +234,7 @@
       handleSelectOption(action) {
         switch (action) {
           case 'EDIT_DETAILS':
-            return this.$router.push(this.$router.getRoute('LessonEditDetailsPage'));
+            return this.$router.push(this.$router.getRoute(PageNames.LESSON_EDIT_DETAILS));
           case 'PRINT_REPORT':
             return this.$print();
           case 'EXPORT':

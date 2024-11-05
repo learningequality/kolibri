@@ -85,9 +85,9 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
   import UserTable from 'kolibri.coreVue.components.UserTable';
-  import commonCoach from '../../common';
-  import { PageNames } from '../../../constants';
-  import CoachImmersivePage from '../../CoachImmersivePage';
+  import commonCoach from '../common';
+  import { PageNames } from '../../constants';
+  import CoachImmersivePage from '../CoachImmersivePage';
 
   export default {
     name: 'GroupEnrollPage',

@@ -155,12 +155,12 @@
   } from 'kolibri.utils.licenseTranslations';
   import markdownIt from 'markdown-it';
   import Modalities from 'kolibri-constants/Modalities';
-  import commonCoach from '../../common';
+  import commonCoach from '../../../common';
   import QuestionList from './QuestionList';
   import ContentArea from './ContentArea';
 
   export default {
-    name: 'LessonContentPreviewPage',
+    name: 'LessonContentPreview',
     metaInfo() {
       return {
         title: this.currentContentNode.title,

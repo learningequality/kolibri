@@ -1,9 +1,9 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from '../constants';
 import { useGroups } from '../composables/useGroups';
-import GroupsPage from '../views/plan/GroupsPage';
-import GroupEnrollPage from '../views/plan/GroupEnrollPage';
-import GroupMembersPage from '../views/plan/GroupMembersPage';
+import GroupsRootPage from '../views/groups/GroupsRootPage';
+import GroupEnrollPage from '../views/groups/GroupEnrollPage';
+import GroupMembersPage from '../views/groups/GroupMembersPage';
 
 const CLASS = '/:classId';
 const ALL_GROUPS = '/groups';
@@ -19,7 +19,7 @@ export default [
   {
     name: PageNames.GROUPS_ROOT,
     path: path(CLASS, ALL_GROUPS),
-    component: GroupsPage,
+    component: GroupsRootPage,
     handler(to) {
       showGroupsPage(store, to.params.classId);
     },

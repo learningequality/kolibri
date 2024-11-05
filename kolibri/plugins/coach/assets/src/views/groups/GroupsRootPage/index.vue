@@ -185,7 +185,7 @@
       newGroupAction: {
         message: 'New group',
         context:
-          "Button used to create a new group of learners. Located on the 'Plan your class' page for coaches.",
+          "Button used to create a new group of learners. Located on the 'groups' page for coaches.",
       },
       noGroups: {
         message: 'You do not have any groups',

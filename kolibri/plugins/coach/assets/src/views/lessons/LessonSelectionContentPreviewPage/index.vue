@@ -7,7 +7,7 @@
     :primary="false"
   >
     <KPageContainer>
-      <LessonContentPreviewPage
+      <LessonContentPreview
         :currentContentNode="currentContentNode"
         :isSelected="isSelected"
         :questions="preview.questions"
@@ -28,16 +28,16 @@
   import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
-  import commonCoach from '../common';
-  import LessonContentPreviewPage from '../plan/LessonContentPreviewPage';
-  import CoachImmersivePage from '../../views/CoachImmersivePage';
+  import commonCoach from '../../common';
+  import CoachImmersivePage from '../../../views/CoachImmersivePage';
+  import LessonContentPreview from './LessonContentPreview';
 
   export default {
-    name: 'PlanLessonSelectionContentPreview',
+    name: 'LessonSelectionContentPreviewPage',
 
     components: {
       CoachImmersivePage,
-      LessonContentPreviewPage,
+      LessonContentPreview,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {

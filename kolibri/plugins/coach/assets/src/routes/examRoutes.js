@@ -1,11 +1,11 @@
 import { PageNames } from '../constants';
-import CreateExamPage from '../views/plan/CreateExamPage';
-import SectionEditor from '../views/plan/CreateExamPage/SectionEditor.vue';
-import ResourceSelection from '../views/plan/CreateExamPage/ResourceSelection.vue';
-import ReplaceQuestions from '../views/plan/CreateExamPage/ReplaceQuestions.vue';
-import CoachExamsPage from '../views/plan/CoachExamsPage';
-import QuizSummaryPage from '../views/plan/QuizSummaryPage';
-import SectionOrder from '../views/plan/CreateExamPage/SectionOrder';
+import CreateExamPage from '../views/quizzes/CreateExamPage';
+import SectionEditor from '../views/quizzes/CreateExamPage/SectionEditor.vue';
+import ResourceSelection from '../views/quizzes/CreateExamPage/ResourceSelection.vue';
+import ReplaceQuestions from '../views/quizzes/CreateExamPage/ReplaceQuestions.vue';
+import ExamsRootPage from '../views/quizzes/ExamsRootPage';
+import QuizSummaryPage from '../views/quizzes/QuizSummaryPage';
+import SectionOrder from '../views/quizzes/CreateExamPage/SectionOrder';
 
 const CLASS = '/:classId';
 const QUIZ = '/quizzes/:quizId';
@@ -17,9 +17,9 @@ function path(...args) {
 
 export default [
   {
-    name: PageNames.EXAMS,
+    name: PageNames.EXAMS_ROOT,
     path: path(CLASS, ALL_QUIZZES),
-    component: CoachExamsPage,
+    component: ExamsRootPage,
     meta: {
       titleParts: ['quizzesLabel', 'CLASS_NAME'],
     },

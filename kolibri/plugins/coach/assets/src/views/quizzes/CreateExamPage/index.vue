@@ -220,7 +220,7 @@
             params,
           };
         }
-        return { name: PageNames.EXAMS };
+        return { name: PageNames.EXAMS_ROOT };
       },
       title() {
         if (!this.quizInitialized) {
@@ -260,7 +260,7 @@
         from.name === PageNames.EXAM_CREATION_ROOT
       ) {
         this.closeConfirmationToRoute = {
-          name: PageNames.EXAMS,
+          name: PageNames.EXAMS_ROOT,
           params: {
             classId: to.params.classId,
           },
@@ -338,7 +338,7 @@
             this.createSnackbar(this.changesSavedSuccessfully$());
             if (close) {
               this.$router.replace({
-                name: PageNames.EXAMS,
+                name: PageNames.EXAMS_ROOT,
                 params: {
                   classId: this.$route.params.classId,
                 },

@@ -26,14 +26,6 @@
     name: 'QuizOptionsDropdownMenu',
     mixins: [coachStringsMixin, commonCoreStrings],
     props: {
-      // Should be either 'report' or 'plan',
-      optionsFor: {
-        type: String,
-        required: true,
-        validator(opt) {
-          return ['plan', 'report'].includes(opt);
-        },
-      },
       draft: {
         type: Boolean,
         default: false,
@@ -41,34 +33,18 @@
     },
     computed: {
       options() {
-        const edit = {
-          label: this.draft ? this.coreString('editAction') : this.coreString('editDetailsAction'),
-          value: 'EDIT_DETAILS',
-        };
-        if (this.optionsFor === 'plan') {
-          return [
-            edit,
-            {
-              label: this.$tr('copyQuizAction'),
-              value: 'COPY',
-            },
-            { label: this.coreString('deleteAction'), value: 'DELETE' },
-          ];
-        }
         return [
           {
-            label: this.coachString('previewAction'),
-            value: 'PREVIEW',
-          },
-          edit,
-          {
-            label: this.coachString('printReportAction'),
-            value: 'PRINT_REPORT',
+            label: this.draft
+              ? this.coreString('editAction')
+              : this.coreString('editDetailsAction'),
+            value: 'EDIT_DETAILS',
           },
           {
-            label: this.coachString('exportCSVAction'),
-            value: 'EXPORT',
+            label: this.$tr('copyQuizAction'),
+            value: 'COPY',
           },
+          { label: this.coreString('deleteAction'), value: 'DELETE' },
         ];
       },
     },

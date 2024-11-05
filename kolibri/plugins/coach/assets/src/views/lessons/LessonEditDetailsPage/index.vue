@@ -42,6 +42,7 @@
   import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
+  import { PageNames } from '../../../constants';
   import ResourceListTable from './EditDetailsResourceListTable';
 
   export default {
@@ -93,7 +94,7 @@
       },
       previousPageRoute() {
         let route;
-        if (this.$route.name === 'LessonEditDetailsPage') {
+        if (this.$route.name === PageNames.LESSON_EDIT_DETAILS) {
           // i.e. Lesson Summary
           route = LessonsPageNames.SUMMARY;
         } else {
@@ -170,12 +171,12 @@
       pageTitle: {
         message: `Edit lesson details for '{title}'`,
         context:
-          "Page title for page which coach accesses using the 'Edit details' option on the Plan > Lessons tab.",
+          "Page title for page which coach accesses using the 'Edit details' option on the Lessons tab.",
       },
       appBarTitle: {
         message: 'Edit lesson details',
         context:
-          "Title of window that displays when coach uses the 'Edit details' option on the 'Plan' tab.",
+          "Title of window that displays when coach uses the 'Edit details' option on the 'Lessons' tab.",
       },
       submitErrorMessage: {
         message: 'There was a problem saving your changes',

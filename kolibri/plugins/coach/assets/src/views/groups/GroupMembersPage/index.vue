@@ -128,8 +128,8 @@
   import commonCoach from '../../common';
   import { GroupModals, PageNames } from '../../../constants';
   import CoachAppBarPage from '../../CoachAppBarPage';
-  import RenameGroupModal from '../GroupsPage/RenameGroupModal';
-  import DeleteGroupModal from '../GroupsPage/DeleteGroupModal';
+  import RenameGroupModal from '../GroupsRootPage/RenameGroupModal';
+  import DeleteGroupModal from '../GroupsRootPage/DeleteGroupModal';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
 
   export default {

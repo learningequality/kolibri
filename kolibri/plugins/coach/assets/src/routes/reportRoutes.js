@@ -12,7 +12,7 @@ import {
 } from '../modules/questionDetail/handlers';
 import { generateQuestionListHandler } from '../modules/questionList/handlers';
 import { generateResourceHandler } from '../modules/resourceDetail/handlers';
-import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
+import LessonEditDetailsPage from '../views/lessons/LessonEditDetailsPage';
 import { classIdParamRequiredGuard } from './utils';
 
 const ACTIVITY = '/activity';
@@ -263,14 +263,6 @@ export default [
     handler: defaultHandler,
     meta: {
       titleParts: ['activityLabel', 'LEARNER_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
-    path: path(CLASS, LEARNERS),
-    component: pages.ReportsLearnerListPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['learnersLabel', 'CLASS_NAME'],
     },
   },
   {

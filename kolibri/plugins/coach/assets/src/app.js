@@ -8,7 +8,6 @@ import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
 import { PageNames } from './constants';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
-import LessonEditDetailsPage from './views/plan/LessonEditDetailsPage';
 import pages from './views/reports/allReportsPages';
 import HomeActivityPage from './views/home/HomeActivityPage';
 
@@ -97,11 +96,11 @@ class CoachToolsModule extends KolibriApp {
       if (
         to.name &&
         [
-          PageNames.EXAMS,
+          PageNames.EXAMS_ROOT,
           PageNames.LESSONS_ROOT,
           PageNames.LESSON_CREATION_ROOT,
           PageNames.SUMMARY,
-          LessonEditDetailsPage.name,
+          PageNames.LESSON_EDIT_DETAILS,
           PageNames.SELECTION_ROOT,
           PageNames.SELECTION,
           PageNames.SELECTION_SEARCH,

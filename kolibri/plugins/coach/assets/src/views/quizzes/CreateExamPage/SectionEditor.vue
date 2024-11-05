@@ -135,7 +135,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { PageNames } from '../../../constants/index';
-  import { injectQuizCreation } from '../../../composables/useQuizCreation';
+  import { injectQuizCreation } from '../../../composables/useQuizCreation.js';
   import useDrag from './useDrag.js';
 
   export default {

@@ -35,8 +35,8 @@
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoach from '../common';
   import CoachImmersivePage from '../CoachImmersivePage';
-  import QuestionListPreview from '../plan/CreateExamPage/QuestionListPreview';
-  import { fetchQuizSummaryPageData } from '../plan/QuizSummaryPage/api';
+  import QuestionListPreview from '../quizzes/CreateExamPage/QuestionListPreview';
+  import { fetchQuizSummaryPageData } from '../quizzes/QuizSummaryPage/api';
 
   export default {
     name: 'ReportsQuizPreviewPage',

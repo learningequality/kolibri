@@ -208,12 +208,12 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { exerciseToQuestionArray } from '../../../utils/selectQuestions';
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
-  import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
+  import BookmarkIcon from '../../lessons/LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import useQuizResources from '../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
-  import LessonsSearchBox from '../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
-  import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
-  import ResourceSelectionBreadcrumbs from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
+  import LessonsSearchBox from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
+  import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
+  import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
   export default {
     name: 'ResourceSelection',

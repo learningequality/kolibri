@@ -1,6 +1,6 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from '../constants';
-import ReportsLearnerListPage from '../views/reports/ReportsLearnerListPage.vue';
+import LearnersRootPage from '../views/learners/LearnersRootPage';
 
 const CLASS = '/:classId';
 const ALL_LEARNERS = '/learners';
@@ -13,7 +13,7 @@ export default [
   {
     name: PageNames.LEARNERS_ROOT,
     path: path(CLASS, ALL_LEARNERS),
-    component: ReportsLearnerListPage,
+    component: LearnersRootPage,
     handler: () => {
       store.dispatch('notLoading');
     },

@@ -71,11 +71,11 @@
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import CoachHeader from '../common/CoachHeader.vue';
-  import ReportsControls from './ReportsControls';
+  import CoachHeader from '../common/CoachHeader';
+  import ReportsControls from '../reports/ReportsControls';
 
   export default {
-    name: 'ReportsLearnerListPage',
+    name: 'LearnersRootPage',
     components: {
       CoachAppBarPage,
       ReportsControls,

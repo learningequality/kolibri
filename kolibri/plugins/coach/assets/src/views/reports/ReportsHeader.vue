@@ -86,11 +86,6 @@
             label: this.coachString('groupsLabel'),
             to: this.classRoute('ReportsGroupListPage'),
           },
-          {
-            id: ReportsTabs.LEARNERS,
-            label: this.coreString('learnersLabel'),
-            to: this.classRoute('ReportsLearnerListPage'),
-          },
         ];
       },
     },

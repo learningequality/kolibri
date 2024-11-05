@@ -223,22 +223,22 @@
   import urls from 'kolibri.urls';
   import useUser from 'kolibri.coreVue.composables.useUser';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { PageNames } from '../../../constants';
-  import { coachStrings } from '../../common/commonCoachStrings';
-  import CoachAppBarPage from '../../CoachAppBarPage';
-  import Recipients from '../../common/Recipients';
-  import useCoreCoach from '../../../composables/useCoreCoach';
-  import useQuizzes from '../../../composables/useQuizzes';
-  import AverageScoreTooltip from '../../common/AverageScoreTooltip';
-  import ReportsControls from '../../../views/reports/ReportsControls.vue';
-  import CSVExporter from '../../../csv/exporter';
-  import * as csvFields from '../../../csv/fields';
-  import Score from '../../common/Score.vue';
-  import StatusSummary from '../../common/status/StatusSummary';
-  import CoachHeader from '../../common/CoachHeader.vue';
+  import { PageNames } from '../../constants';
+  import { coachStrings } from '../common/commonCoachStrings';
+  import CoachAppBarPage from '../CoachAppBarPage';
+  import Recipients from '../common/Recipients';
+  import useCoreCoach from '../../composables/useCoreCoach';
+  import useQuizzes from '../../composables/useQuizzes';
+  import AverageScoreTooltip from '../common/AverageScoreTooltip';
+  import ReportsControls from '../common/ReportsControls';
+  import CSVExporter from '../../csv/exporter';
+  import * as csvFields from '../../csv/fields';
+  import Score from '../common/Score.vue';
+  import StatusSummary from '../common/status/StatusSummary';
+  import CoachHeader from '../common/CoachHeader.vue';
 
   export default {
-    name: 'CoachExamsPage',
+    name: 'ExamsRootPage',
     components: {
       CoreTable,
       CoachAppBarPage,

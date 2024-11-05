@@ -16,13 +16,13 @@ import { useLessons } from '../composables/useLessons';
 
 import LessonsRootPage from '../views/lessons/LessonsRootPage';
 import LessonSummaryPage from '../views/lessons/LessonSummaryPage';
-import LessonResourceSelectionPage from '../views/plan/LessonResourceSelectionPage';
-import PlanLessonSelectionContentPreview from '../views/plan/PlanLessonSelectionContentPreview';
-import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
-import LessonCreationPage from '../views/plan/LessonCreationPage';
-import EditLessonDetails from '../views/plan/LessonEditDetailsPage/EditLessonDetails';
-import PreviewSelectedResources from '../views/plan/LessonContentPreviewPage/PreviewSelectedResources';
-import LessonResourceSelection from '../views/plan/LessonResourceSelectionPage/LessonResourceSelection';
+import LessonResourceSelectionPage from '../views/lessons/LessonResourceSelectionPage';
+import LessonSelectionContentPreviewPage from '../views/lessons/LessonSelectionContentPreviewPage';
+import LessonEditDetailsPage from '../views/lessons/LessonEditDetailsPage';
+import LessonCreationPage from '../views/lessons/LessonCreationPage';
+import EditLessonDetails from '../views/lessons/LessonEditDetailsPage/EditLessonDetails';
+import PreviewSelectedResources from '../views/lessons/LessonSelectionContentPreviewPage/LessonContentPreview/PreviewSelectedResources';
+import LessonResourceSelection from '../views/lessons/LessonResourceSelectionPage/LessonResourceSelection';
 import { classIdParamRequiredGuard } from './utils';
 
 const OPTIONAL_CLASS = '/:classId?';
@@ -124,7 +124,7 @@ export default [
     },
   },
   {
-    name: LessonEditDetailsPage.name,
+    name: PageNames.LESSON_EDIT_DETAILS,
     path: path(CLASS, LESSON, '/edit'),
     component: LessonEditDetailsPage,
   },
@@ -141,7 +141,7 @@ export default [
     path: path(CLASS, LESSON, SELECTION, TOPIC),
     component: LessonResourceSelectionPage,
     handler(toRoute, fromRoute) {
-      // HACK if last page was LessonContentPreviewPage, then we need to make sure
+      // HACK if last page was LessonContentPreview, then we need to make sure
       // to immediately autosave just in case a change was made there. This gets
       // called whether or not a change is made, because we don't track changes
       // enough steps back.
@@ -197,7 +197,7 @@ export default [
   {
     name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
     path: path(CLASS, LESSON, SELECTION, PREVIEW),
-    component: PlanLessonSelectionContentPreview,
+    component: LessonSelectionContentPreviewPage,
     handler(toRoute) {
       showLessonSelectionContentPreview(store, toRoute.params, toRoute.query);
     },
@@ -205,7 +205,7 @@ export default [
   {
     name: LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
     path: path(CLASS, LESSON, '/resource', PREVIEW),
-    component: PlanLessonSelectionContentPreview,
+    component: LessonSelectionContentPreviewPage,
     props(data) {
       let backRoute;
       // If linked from the Reports section, go back there
