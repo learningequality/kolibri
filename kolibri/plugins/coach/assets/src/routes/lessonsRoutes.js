@@ -23,6 +23,10 @@ import LessonCreationPage from '../views/lessons/LessonCreationPage';
 import EditLessonDetails from '../views/lessons/LessonEditDetailsPage/EditLessonDetails';
 import PreviewSelectedResources from '../views/lessons/LessonSelectionContentPreviewPage/LessonContentPreview/PreviewSelectedResources';
 import LessonResourceSelection from '../views/lessons/LessonResourceSelectionPage/LessonResourceSelection';
+
+import { generateResourceHandler } from '../modules/resourceDetail/handlers';
+import LessonResourceLearnersPage from '../views/lessons/reports/LessonResourceLearnersPage';
+import LessonLearnerPage from '../views/lessons/reports/LessonLearnerPage.vue';
 import { classIdParamRequiredGuard } from './utils';
 
 const OPTIONAL_CLASS = '/:classId?';
@@ -35,12 +39,19 @@ const SELECTION = '/selection';
 const TOPIC = '/topic/:topicId';
 const SEARCH = '/search/:searchTerm';
 const PREVIEW = '/preview/:contentId';
+const RESOURCE = '/resources/:resourceId';
+const ALL_LEARNERS = '/learners';
+const LEARNER = '/learners/:learnerId';
 
 function path(...args) {
   return args.join('');
 }
 
 const { showLessonsRootPage } = useLessons();
+
+function defaultHandler() {
+  store.dispatch('notLoading');
+}
 
 export default [
   {
@@ -225,6 +236,24 @@ export default [
     },
     handler(toRoute) {
       showLessonResourceContentPreview(store, toRoute.params);
+    },
+  },
+  {
+    name: PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
+    path: path(CLASS, LESSON, RESOURCE, ALL_LEARNERS),
+    component: LessonResourceLearnersPage,
+    handler: generateResourceHandler(['resourceId']),
+    meta: {
+      titleParts: ['RESOURCE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    name: PageNames.LESSON_LEARNER_REPORT,
+    path: path(CLASS, LESSON, LEARNER),
+    component: LessonLearnerPage,
+    handler: defaultHandler,
+    meta: {
+      titleParts: ['LEARNER_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
   },
 ];

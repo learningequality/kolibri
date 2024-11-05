@@ -125,7 +125,7 @@
   import CoachAppBarPage from '../../CoachAppBarPage';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
-  import { ViewMoreButtonStates } from '../../../constants/index';
+  import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from './SearchTools/ResourceSelectionBreadcrumbs';
@@ -313,15 +313,10 @@
           return this.$router.getRoute(LessonsPageNames.SELECTION, { topicId: lastId }, queryCopy);
         } else if (this.inSearchMode) {
           return this.selectionRootLink({ ...this.routerParams });
-        } else if (this.$route.query.last === 'ReportsLessonReportPage') {
+        } else if (this.$route.query.last === PageNames.SUMMARY) {
           // HACK to fix #7583 and #7584
           return {
-            name: 'ReportsLessonReportPage',
-          };
-        } else if (this.$route.query.last === 'ReportsLessonLearnerListPage') {
-          // HACK to fix similar bug in Learner version of the report page
-          return {
-            name: 'ReportsLessonLearnerListPage',
+            name: PageNames.SUMMARY,
           };
         } else {
           return this.toolbarRoute;

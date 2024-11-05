@@ -41,7 +41,6 @@
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
-  import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { PageNames } from '../../../constants';
   import ResourceListTable from './EditDetailsResourceListTable';
 
@@ -93,14 +92,7 @@
         };
       },
       previousPageRoute() {
-        let route;
-        if (this.$route.name === PageNames.LESSON_EDIT_DETAILS) {
-          // i.e. Lesson Summary
-          route = LessonsPageNames.SUMMARY;
-        } else {
-          route = 'ReportsLessonReportPage';
-        }
-        return this.$router.getRoute(route);
+        return this.$router.getRoute(PageNames.SUMMARY);
       },
     },
     created() {

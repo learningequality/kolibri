@@ -1,5 +1,6 @@
 import find from 'lodash/find';
 import { CollectionTypes } from '../../constants/lessonsConstants';
+import { PageNames } from '../../constants';
 
 // Just makes an params object that should work with all the paths.
 // It has extra params that may not be used by some routes.
@@ -68,7 +69,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: true,
     },
-    value: 'ReportsLessonResourceLearnerListPage',
+    value: PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
   },
   {
     key: {
@@ -76,7 +77,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: true,
     },
-    value: 'ReportsLessonLearnerListPage',
+    value: PageNames.SUMMARY,
   },
   {
     key: {
@@ -100,7 +101,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: false,
       isWholeClass: false,
     },
-    value: 'ReportsLessonLearnerPage',
+    value: PageNames.LESSON_LEARNER_REPORT,
   },
   {
     key: {
@@ -124,7 +125,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: false,
       isWholeClass: true,
     },
-    value: 'ReportsLessonLearnerPage',
+    value: PageNames.LESSON_LEARNER_REPORT,
   },
   {
     key: {

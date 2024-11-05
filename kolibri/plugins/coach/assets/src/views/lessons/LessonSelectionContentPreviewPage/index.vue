@@ -30,6 +30,7 @@
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../../views/CoachImmersivePage';
+  import { PageNames } from '../../../constants';
   import LessonContentPreview from './LessonContentPreview';
 
   export default {
@@ -66,12 +67,9 @@
         const lastRoute = get(this.$route, ['query', 'last']);
         if (lastRoute) {
           // HACK to fix #7583 and #7584
-          if (
-            lastRoute === 'ReportsLessonReportPage' ||
-            lastRoute === 'ReportsLessonLearnerListPage'
-          ) {
+          if (lastRoute === PageNames.SUMMARY) {
             return {
-              name: 'SELECTION',
+              name: PageNames.SELECTION,
               params: {
                 topicId: this.currentContentNode.parent,
               },

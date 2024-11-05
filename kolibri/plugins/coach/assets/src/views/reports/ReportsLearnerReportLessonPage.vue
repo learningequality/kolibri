@@ -4,7 +4,7 @@
     <KPageContainer>
       <p>
         <BackLink
-          :to="classRoute('ReportsLearnerReportPage')"
+          :to="classRoute(PageNames.LEARNER_SUMMARY)"
           :text="learner.name"
         />
       </p>
@@ -103,7 +103,7 @@
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsControls from './ReportsControls';
+  import ReportsControls from '../common/ReportsControls';
 
   export default {
     name: 'ReportsLearnerReportLessonPage',
@@ -112,6 +112,11 @@
       ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
+    data() {
+      return {
+        PageNames,
+      };
+    },
     computed: {
       emptyMessage() {
         return this.coachString('noResourcesInLessonLabel');

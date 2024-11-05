@@ -102,9 +102,9 @@
 
   import isUndefined from 'lodash/isUndefined';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonCoach from '../common';
-  import * as csvFields from '../../csv/fields';
-  import CSVExporter from '../../csv/exporter';
+  import commonCoach from '../../common';
+  import * as csvFields from '../../../csv/fields';
+  import CSVExporter from '../../../csv/exporter';
 
   export default {
     name: 'ReportsLearnersTable',
@@ -225,7 +225,7 @@
 
 <style lang="scss" scoped>
 
-  @import '../common/print-table';
+  @import '../print-table';
 
   .small-answered-count {
     display: block;

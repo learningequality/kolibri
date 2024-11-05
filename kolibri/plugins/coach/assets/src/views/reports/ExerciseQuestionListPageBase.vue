@@ -59,8 +59,8 @@
   import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsResourceHeader from './ReportsResourceHeader';
-  import ReportsControls from './ReportsControls';
+  import ReportsResourceHeader from '../common/ReportsResourceHeader';
+  import ReportsControls from '../common/ReportsControls';
   import { PageNames } from './../../constants';
 
   export default {

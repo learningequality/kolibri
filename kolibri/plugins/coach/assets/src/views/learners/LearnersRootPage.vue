@@ -36,7 +36,7 @@
                 <td>
                   <KRouterLink
                     :text="tableRow.name"
-                    :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
+                    :to="classRoute(PageNames.LEARNER_SUMMARY, { learnerId: tableRow.id })"
                     icon="person"
                   />
                 </td>
@@ -72,7 +72,8 @@
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import CoachHeader from '../common/CoachHeader';
-  import ReportsControls from '../reports/ReportsControls';
+  import ReportsControls from '../common/ReportsControls';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'LearnersRootPage',
@@ -92,6 +93,7 @@
           },
         ],
         filterSelection: { label: this.coreString('allLabel'), value: this.coreString('allLabel') },
+        PageNames,
       };
     },
     computed: {

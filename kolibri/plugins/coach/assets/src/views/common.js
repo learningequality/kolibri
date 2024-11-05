@@ -204,12 +204,12 @@ export default {
             exerciseId: this.$route.query.exerciseId,
           });
         case LastPages.RESOURCE_LEARNER_LIST:
-          return this.classRoute('ReportsLessonResourceLearnerListPage', {
+          return this.classRoute(PageNames.LESSON_RESOURCE_LEARNERS_REPORT, {
             resourceId: this.$route.query.resourceId,
           });
         case LastPages.RESOURCE_LEARNER_LIST_BY_GROUPS:
           return this.classRoute(
-            'ReportsLessonResourceLearnerListPage',
+            PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
             {
               resourceId: this.$route.query.resourceId,
             },

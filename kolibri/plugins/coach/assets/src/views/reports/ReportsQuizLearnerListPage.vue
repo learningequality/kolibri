@@ -27,8 +27,8 @@
   import { QUIZZES_TABS_ID, QuizzesTabs } from '../../constants/tabsConstants';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
+  import ReportsLearnersTable from '../common/tables/ReportsLearnersTable';
   import ReportsQuizBaseListPage from './ReportsQuizBaseListPage';
-  import ReportsLearnersTable from './ReportsLearnersTable';
 
   export default {
     name: 'ReportsQuizLearnerListPage',

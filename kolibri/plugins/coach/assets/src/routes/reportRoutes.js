@@ -73,14 +73,6 @@ export default [
     },
   },
   {
-    path: path(CLASS, GROUP, LESSON, LEARNER),
-    component: pages.ReportsGroupReportLessonLearnerPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['learnersLabel', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
     path: path(CLASS, GROUP, LESSON, EXERCISE, LEARNERS),
     component: pages.ReportsGroupReportLessonExerciseLearnerListPage,
     handler: generateResourceHandler(['exerciseId']),
@@ -258,14 +250,6 @@ export default [
     },
   },
   {
-    path: path(CLASS, LEARNER, ACTIVITY),
-    component: pages.ReportsLearnerActivityPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['activityLabel', 'LEARNER_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
     path: path(CLASS, LEARNER, LESSON, EXERCISE),
     name: PageNames.REPORTS_LEARNER_REPORT_LESSON_EXERCISE_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
@@ -294,14 +278,6 @@ export default [
     handler: defaultHandler,
     meta: {
       titleParts: ['LESSON_NAME', 'LEARNER_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
-    path: path(CLASS, LEARNER, '/reports'),
-    component: pages.ReportsLearnerReportPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['reportsLabel', 'LEARNER_NAME', 'CLASS_NAME'],
     },
   },
   {
@@ -420,22 +396,6 @@ export default [
     },
   },
   {
-    path: path(CLASS, LESSON, LEARNERS),
-    component: pages.ReportsLessonLearnerListPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['learnersLabel', 'LESSON_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
-    path: path(CLASS, LESSON, LEARNER),
-    component: pages.ReportsLessonLearnerPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['LEARNER_NAME', 'LESSON_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
     path: path(OPTIONAL_CLASS, LESSONS),
     component: pages.ReportsLessonListPage,
     handler: (toRoute, fromRoute, next) => {
@@ -455,22 +415,6 @@ export default [
     handler: defaultHandler,
     meta: {
       titleParts: ['manageResourcesAction', 'LESSON_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
-    path: path(CLASS, LESSON, RESOURCES),
-    component: pages.ReportsLessonReportPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['reportLabel', 'LESSON_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
-    path: path(CLASS, LESSON, RESOURCE, LEARNERS),
-    component: pages.ReportsLessonResourceLearnerListPage,
-    handler: generateResourceHandler(['resourceId']),
-    meta: {
-      titleParts: ['RESOURCE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
   },
   {

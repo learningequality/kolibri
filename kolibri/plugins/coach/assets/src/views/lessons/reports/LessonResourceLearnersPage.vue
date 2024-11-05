@@ -100,18 +100,18 @@
   import sortBy from 'lodash/sortBy';
   import fromPairs from 'lodash/fromPairs';
   import { mapState } from 'vuex';
-  import { LastPages } from '../../constants/lastPagesConstants';
-  import commonCoach from '../common';
-  import CoachAppBarPage from '../CoachAppBarPage';
-  import CSVExporter from '../../csv/exporter';
-  import * as csvFields from '../../csv/fields';
-  import ReportsLearnersTable from './ReportsLearnersTable';
-  import ReportsResourcesStats from './ReportsResourcesStats';
-  import ReportsControls from './ReportsControls';
-  import ReportsResourceHeader from './ReportsResourceHeader';
+  import { LastPages } from '../../../constants/lastPagesConstants';
+  import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
+  import CSVExporter from '../../../csv/exporter';
+  import * as csvFields from '../../../csv/fields';
+  import ReportsLearnersTable from '../../common/tables/ReportsLearnersTable';
+  import ReportsResourcesStats from '../../common/tables/ReportsResourcesStats';
+  import ReportsControls from '../../common/ReportsControls';
+  import ReportsResourceHeader from '../../common/ReportsResourceHeader';
 
   export default {
-    name: 'ReportsLessonResourceLearnerListPage',
+    name: 'LessonResourceLearnersPage',
     components: {
       CoachAppBarPage,
       ReportsLearnersTable,
@@ -279,7 +279,7 @@
 
 <style lang="scss" scoped>
 
-  @import '../common/print-table';
+  @import '../../common/print-table';
 
   .group:not(:first-child) {
     margin-top: 42px;

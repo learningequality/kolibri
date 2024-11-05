@@ -2,7 +2,7 @@
 
   <CoachAppBarPage>
     <KPageContainer>
-      <ReportsLearnerHeader />
+      <LearnerHeader />
     </KPageContainer>
 
     <KPageContainer>
@@ -33,19 +33,20 @@
 
 <script>
 
-  import commonCoach from '../common';
-  import CoachAppBarPage from '../CoachAppBarPage';
-  import ActivityList from '../common/notifications/ActivityList';
-  import { REPORTS_LEARNERS_TABS_ID, ReportsLearnersTabs } from '../../constants/tabsConstants';
-  import { useCoachTabs } from '../../composables/useCoachTabs';
-  import ReportsLearnerHeader from './ReportsLearnerHeader';
+  import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
+  import ActivityList from '../../common/notifications/ActivityList';
+  import { REPORTS_LEARNERS_TABS_ID, ReportsLearnersTabs } from '../../../constants/tabsConstants';
+  import { useCoachTabs } from '../../../composables/useCoachTabs';
+  import { PageNames } from '../../../constants';
+  import LearnerHeader from './LearnerHeader';
 
   export default {
     name: 'ReportsLearnerActivityPage',
     components: {
       ActivityList,
       CoachAppBarPage,
-      ReportsLearnerHeader,
+      LearnerHeader,
     },
     mixins: [commonCoach],
     setup() {
@@ -67,7 +68,7 @@
           {
             id: ReportsLearnersTabs.REPORTS,
             label: this.coachString('reportsLabel'),
-            to: this.classRoute('ReportsLearnerReportPage', {}),
+            to: this.classRoute(PageNames.LEARNER_SUMMARY, {}),
           },
           {
             id: ReportsLearnersTabs.ACTIVITY,

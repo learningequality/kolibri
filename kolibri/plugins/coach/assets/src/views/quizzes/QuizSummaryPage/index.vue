@@ -101,8 +101,8 @@
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
-  import ReportsControls from '../../reports/ReportsControls';
-  import ReportsLearnersTable from '../../reports/ReportsLearnersTable';
+  import ReportsControls from '../../common/ReportsControls';
+  import ReportsLearnersTable from '../../common/tables/ReportsLearnersTable';
   import ReportsDifficultQuestionsTable from '../../reports/ReportsDifficultQuestionsTable';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';

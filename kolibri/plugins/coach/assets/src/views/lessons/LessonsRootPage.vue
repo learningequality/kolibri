@@ -202,7 +202,7 @@
   import commonCoach from '../common';
   import AssignmentDetailsModal from '../common/assignments/AssignmentDetailsModal';
   import { useLessons } from '../../composables/useLessons';
-  import ReportsControls from '../reports/ReportsControls';
+  import ReportsControls from '../common/ReportsControls';
   import * as csvFields from '../../csv/fields';
   import CSVExporter from '../../csv/exporter';
   import CoachHeader from '../common/CoachHeader.vue';
@@ -325,7 +325,7 @@
         }
       },
       lessonSummaryLink({ lessonId }) {
-        return this.classRoute(LessonsPageNames.SELECTION_ROOT, { lessonId });
+        return this.classRoute(LessonsPageNames.SUMMARY, { lessonId });
       },
       handleDetailsModalContinue(payload) {
         this.detailsModalIsDisabled = true;

@@ -47,7 +47,7 @@
                 <td>
                   <KRouterLink
                     :text="tableRow.title"
-                    :to="classRoute('ReportsLessonReportPage', { lessonId: tableRow.id })"
+                    :to="classRoute(PageNames.SUMMARY, { lessonId: tableRow.id })"
                     icon="lesson"
                   />
                 </td>
@@ -138,7 +138,8 @@
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsControls from './ReportsControls';
+  import ReportsControls from '../common/ReportsControls';
+  import { PageNames } from '../../constants';
   import ReportsHeader from './ReportsHeader';
 
   export default {
@@ -157,6 +158,7 @@
       return {
         REPORTS_TABS_ID,
         ReportsTabs,
+        PageNames,
         filter: 'allLessons',
         showLessonIsVisibleModal: false,
         showLessonIsNotVisibleModal: false,

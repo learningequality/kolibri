@@ -96,9 +96,9 @@
   import { LastPages } from '../../constants/lastPagesConstants';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsResourceHeader from './ReportsResourceHeader';
-  import ReportsLearnersTable from './ReportsLearnersTable';
-  import ReportsControls from './ReportsControls';
+  import ReportsResourceHeader from '../common/ReportsResourceHeader';
+  import ReportsLearnersTable from '../common/tables/ReportsLearnersTable';
+  import ReportsControls from '../common/ReportsControls';
 
   export default {
     name: 'ReportsLessonExerciseLearnerListPage',

@@ -35,9 +35,9 @@
   import { PageNames } from '../../constants';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsResourceHeader from './ReportsResourceHeader';
-  import ReportsControls from './ReportsControls';
-  import ReportsLearnersTable from './ReportsLearnersTable';
+  import ReportsResourceHeader from '../common/ReportsResourceHeader';
+  import ReportsControls from '../common/ReportsControls';
+  import ReportsLearnersTable from '../common/tables/ReportsLearnersTable';
 
   export default {
     name: 'ReportsGroupReportLessonExerciseLearnerListPage',

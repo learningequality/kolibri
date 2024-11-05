@@ -112,12 +112,12 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonCoach from '../common';
-  import { useCoachTabs } from '../../composables/useCoachTabs';
-  import ReportsControls from './ReportsControls';
+  import commonCoach from '../../common';
+  import { useCoachTabs } from '../../../composables/useCoachTabs';
+  import ReportsControls from '../../common/ReportsControls';
 
   export default {
-    name: 'ReportsLearnerHeader',
+    name: 'LearnerHeader',
     components: {
       ReportsControls,
     },

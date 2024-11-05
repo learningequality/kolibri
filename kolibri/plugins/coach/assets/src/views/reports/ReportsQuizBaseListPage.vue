@@ -67,7 +67,7 @@
   import { QUIZZES_TABS_ID, QuizzesTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';
   import QuizOptionsDropdownMenu from '../quizzes/QuizSummaryPage/QuizOptionsDropdownMenu';
-  import ReportsControls from './ReportsControls';
+  import ReportsControls from '../common/ReportsControls';
 
   export default {
     name: 'ReportsQuizBaseListPage',

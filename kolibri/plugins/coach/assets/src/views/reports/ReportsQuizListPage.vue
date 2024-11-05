@@ -159,7 +159,7 @@
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
-  import ReportsControls from './ReportsControls';
+  import ReportsControls from '../common/ReportsControls';
   import ReportsHeader from './ReportsHeader';
 
   export default {

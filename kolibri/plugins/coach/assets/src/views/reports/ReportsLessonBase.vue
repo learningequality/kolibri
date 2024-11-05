@@ -72,7 +72,8 @@
   import LessonOptionsDropdownMenu from '../lessons/LessonSummaryPage/LessonOptionsDropdownMenu';
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';
-  import ReportsControls from './ReportsControls';
+  import ReportsControls from '../common/ReportsControls';
+  import { PageNames } from '../../constants';
   import ReportsLessonLearnersTable from './ReportsLessonLearnersTable';
   import ReportsLessonResourcesTable from './ReportsLessonResourcesTable.vue';
 
@@ -155,7 +156,7 @@
             groups: this.getGroupNamesForLearner(learner.id),
             status: this.getLessonStatusStringForLearner(this.lesson.id, learner.id),
             link: this.classRoute(
-              this.group ? 'ReportsGroupReportLessonLearnerPage' : 'ReportsLessonLearnerPage',
+              this.group ? PageNames.GROUP_LESSON_LEARNER : PageNames.LESSON_LEARNER_REPORT,
               { learnerId: learner.id },
             ),
           };
@@ -170,14 +171,14 @@
             label: this.coachString('reportsLabel'),
             to: this.group
               ? this.classRoute('ReportsGroupReportLessonPage')
-              : this.classRoute('ReportsLessonReportPage'),
+              : this.classRoute(PageNames.SUMMARY),
           },
           {
             id: ReportsLessonTabs.LEARNERS,
             label: this.coachString('learnersLabel'),
             to: this.group
               ? this.classRoute('ReportsGroupReportLessonLearnerListPage')
-              : this.classRoute('ReportsLessonLearnerListPage'),
+              : this.classRoute(PageNames.SUMMARY, { tabId: 'tabLearners' }),
           },
         ];
       },
@@ -262,7 +263,7 @@
             return this.classRoute(
               this.group
                 ? 'ReportsGroupReportLessonResourceLearnerListPage'
-                : 'ReportsLessonResourceLearnerListPage',
+                : PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
               { resourceId: resource.content_id },
             );
           }

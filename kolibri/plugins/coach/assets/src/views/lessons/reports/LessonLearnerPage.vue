@@ -5,9 +5,9 @@
       <p>
         <BackLink
           :to="
-            classRoute(
-              group ? 'ReportsGroupReportLessonLearnerListPage' : 'ReportsLessonLearnerListPage',
-            )
+            classRoute(group ? 'ReportsGroupReportLessonLearnerListPage' : PageNames.SUMMARY, {
+              tabId: 'tabLearners',
+            })
           "
           :text="lesson.title"
         />
@@ -83,16 +83,16 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
-  import commonCoach from '../common';
-  import CoachAppBarPage from '../CoachAppBarPage';
-  import CSVExporter from '../../csv/exporter';
-  import * as csvFields from '../../csv/fields';
-  import { PageNames } from './../../constants';
-  import ReportsControls from './ReportsControls';
-  import ReportsResourcesStats from './ReportsResourcesStats';
+  import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
+  import CSVExporter from '../../../csv/exporter';
+  import * as csvFields from '../../../csv/fields';
+  import { PageNames } from '../../../constants';
+  import ReportsControls from '../../common/ReportsControls';
+  import ReportsResourcesStats from '../../common/tables/ReportsResourcesStats';
 
   export default {
-    name: 'ReportsLessonLearnerBase',
+    name: 'LessonLearnerPage',
     components: {
       CoachAppBarPage,
       MissingResourceAlert,
@@ -100,6 +100,11 @@
       ReportsResourcesStats,
     },
     mixins: [commonCoach, commonCoreStrings],
+    data() {
+      return {
+        PageNames,
+      };
+    },
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];

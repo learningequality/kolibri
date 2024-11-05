@@ -88,7 +88,7 @@
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
-  import ReportsControls from '../../reports/ReportsControls';
+  import ReportsControls from '../../common/ReportsControls';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../../constants/tabsConstants';
   import { PageNames } from '../../../constants';
@@ -120,7 +120,7 @@
       return { createSnackbar, clearSnackbar };
     },
     data() {
-      const workingResourcesBackup = [...this.$store.state.lessonSummary.workingResources];
+      const workingResourcesBackup = [...(this.$store.state.lessonSummary.workingResources || [])];
 
       return {
         currentAction: '',
@@ -204,7 +204,7 @@
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
             status: this.getLessonStatusStringForLearner(this.lessonId, learner.id),
-            link: this.classRoute('ReportsLessonLearnerPage', { learnerId: learner.id }),
+            link: this.classRoute(PageNames.LESSON_LEARNER_REPORT, { learnerId: learner.id }),
           };
           Object.assign(tableRow, learner);
           return tableRow;
@@ -261,7 +261,7 @@
             return this.classRoute(
               this.group
                 ? 'ReportsGroupReportLessonResourceLearnerListPage'
-                : 'ReportsLessonResourceLearnerListPage',
+                : PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
               { resourceId: resource.content_id },
             );
           }

@@ -17,8 +17,7 @@ const router = new VueRouter({
     { name: 'SELECTION_ROOT', path: '/select' },
     { name: 'SELECTION', path: '/select/:topicId' },
     { name: 'SELECTION_SEARCH', path: '/search/:searchTerm' },
-    { name: 'ReportsLessonReportPage', path: '/reportslessonreportpage' },
-    { name: 'ReportsLessonLearnerListPage', path: '/reportslessonlearnerlistpage' },
+    { name: 'LESSON_SUMMARY', path: '/reportslessonreportpage' },
   ],
 });
 
@@ -131,11 +130,8 @@ describe('LessonResourceSelectionPage', () => {
       expect(exitRoute()).toEqual(LessonsPageNames.SUMMARY);
 
       // Exit link goes to report page if that's in the URL
-      await router.replace({ query: { last: 'ReportsLessonReportPage' } });
-      expect(exitRoute()).toEqual('ReportsLessonReportPage');
-
-      await router.replace({ query: { last: 'ReportsLessonLearnerListPage' } });
-      expect(exitRoute()).toEqual('ReportsLessonLearnerListPage');
+      await router.replace({ query: { last: 'LESSON_SUMMARY' } });
+      expect(exitRoute()).toEqual('LESSON_SUMMARY');
     });
   });
 });

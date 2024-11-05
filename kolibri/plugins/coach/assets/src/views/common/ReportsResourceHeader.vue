@@ -9,7 +9,7 @@
               :to="
                 group
                   ? classRoute('ReportsGroupReportLessonPage', {})
-                  : classRoute('ReportsLessonReportPage')
+                  : classRoute(PageNames.SUMMARY)
               "
               :text="coachString('backToLessonLabel', { lesson: lesson.title })"
             />
@@ -150,6 +150,7 @@
   import markdownIt from 'markdown-it';
   import HeaderWithOptions from '../common/HeaderWithOptions';
   import commonCoach from '../common';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'ReportsResourceHeader',
@@ -165,6 +166,11 @@
         type: Object,
         required: true,
       },
+    },
+    data() {
+      return {
+        PageNames,
+      };
     },
     computed: {
       practiceQuiz() {

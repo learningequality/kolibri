@@ -2,7 +2,7 @@
 
   <CoachAppBarPage>
     <KPageContainer>
-      <ReportsLearnerHeader />
+      <LearnerHeader />
     </KPageContainer>
 
     <KPageContainer>
@@ -105,18 +105,18 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonCoach from '../common';
-  import CoachAppBarPage from '../CoachAppBarPage';
-  import { PageNames } from '../../constants';
-  import { REPORTS_LEARNERS_TABS_ID, ReportsLearnersTabs } from '../../constants/tabsConstants';
-  import { useCoachTabs } from '../../composables/useCoachTabs';
-  import ReportsLearnerHeader from './ReportsLearnerHeader';
+  import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
+  import { PageNames } from '../../../constants';
+  import { REPORTS_LEARNERS_TABS_ID, ReportsLearnersTabs } from '../../../constants/tabsConstants';
+  import { useCoachTabs } from '../../../composables/useCoachTabs';
+  import LearnerHeader from './LearnerHeader';
 
   export default {
-    name: 'ReportsLearnerReportPage',
+    name: 'LearnerSummaryPage',
     components: {
       CoachAppBarPage,
-      ReportsLearnerHeader,
+      LearnerHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
@@ -163,7 +163,7 @@
           {
             id: ReportsLearnersTabs.REPORTS,
             label: this.coachString('reportsLabel'),
-            to: this.classRoute('ReportsLearnerReportPage', {}),
+            to: this.classRoute(PageNames.LEARNER_SUMMARY, {}),
           },
           {
             id: ReportsLearnersTabs.ACTIVITY,
@@ -209,7 +209,7 @@
 
 <style lang="scss" scoped>
 
-  @import '../common/print-table';
+  @import '../../common/print-table';
 
   table {
     min-width: 0;

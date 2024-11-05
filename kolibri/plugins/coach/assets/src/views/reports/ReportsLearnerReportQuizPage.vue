@@ -16,6 +16,7 @@
   import commonCoach from '../common';
   import CoachImmersivePage from '../CoachImmersivePage';
   import LearnerQuizReport from '../common/LearnerQuizReport';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'ReportsLearnerReportQuizPage',
@@ -28,7 +29,7 @@
       ...mapState('examReportDetail', ['exam']),
       toolbarRoute() {
         const backRoute = this.backRouteForQuery(this.$route.query);
-        return backRoute || this.classRoute('ReportsLearnerReportPage', {});
+        return backRoute || this.classRoute(PageNames.LEARNER_SUMMARY, {});
       },
     },
     methods: {

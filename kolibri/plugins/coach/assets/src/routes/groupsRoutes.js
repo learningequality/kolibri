@@ -4,16 +4,23 @@ import { useGroups } from '../composables/useGroups';
 import GroupsRootPage from '../views/groups/GroupsRootPage';
 import GroupEnrollPage from '../views/groups/GroupEnrollPage';
 import GroupMembersPage from '../views/groups/GroupMembersPage';
+import LessonLearnerPage from '../views/lessons/reports/LessonLearnerPage.vue';
 
 const CLASS = '/:classId';
 const ALL_GROUPS = '/groups';
 const GROUP = '/groups/:groupId';
+const LESSON = '/lessons/:lessonId';
+const LEARNER = '/learners/:learnerId';
 
 function path(...args) {
   return args.join('');
 }
 
 const { showGroupsPage } = useGroups();
+
+function defaultHandler() {
+  store.dispatch('notLoading');
+}
 
 export default [
   {
@@ -44,6 +51,15 @@ export default [
     component: GroupEnrollPage,
     handler(to) {
       showGroupsPage(store, to.params.classId);
+    },
+  },
+  {
+    name: PageNames.GROUP_LESSON_LEARNER,
+    path: path(CLASS, GROUP, LESSON, LEARNER),
+    component: LessonLearnerPage,
+    handler: defaultHandler,
+    meta: {
+      titleParts: ['learnersLabel', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
     },
   },
 ];
