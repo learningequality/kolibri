@@ -71,7 +71,7 @@ jobs:
         zip Kolibri.zip images/Kolibri.img
     - name: Get ZIP filename
       id: get-zip-filename
-      run: echo "::set-output name=zip-file-name::Kolibri.zip"
+      run: echo "zip-file-name=Kolibri.zip" >> $GITHUB_OUTPUT
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.get-zip-filename.outputs.zip-file-name }}
