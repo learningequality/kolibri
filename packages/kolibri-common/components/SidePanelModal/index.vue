@@ -7,7 +7,7 @@
     @keyup.esc="closePanel"
   >
     <transition name="side-panel">
-      <FocusTrap
+      <KFocusTrap
         @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
         @shouldFocusLastEl="focusLastEl"
       >
@@ -45,7 +45,7 @@
             <slot></slot>
           </div>
         </section>
-      </FocusTrap>
+      </KFocusTrap>
     </transition>
 
     <Backdrop
@@ -64,13 +64,11 @@
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
 
   export default {
     name: 'SidePanelModal',
     components: {
       Backdrop,
-      FocusTrap,
     },
     mixins: [commonCoreStrings],
     setup() {

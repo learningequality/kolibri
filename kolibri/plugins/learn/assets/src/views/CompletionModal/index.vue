@@ -17,7 +17,7 @@
         aria-labelledby="modal-title"
         :style="[modalSizeStyles, { background: $themeTokens.surface }]"
       >
-        <FocusTrap
+        <KFocusTrap
           @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
           @shouldFocusLastEl="focusLastEl"
         >
@@ -142,7 +142,7 @@
             :tooltip="coreString('closeAction')"
             @click="$emit('close')"
           />
-        </FocusTrap>
+        </KFocusTrap>
       </div>
     </div>
   </transition>
@@ -155,7 +155,6 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { MaxPointsPerContent } from 'kolibri.coreVue.vuex.constants';
-  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useUser from 'kolibri.coreVue.composables.useUser';
@@ -180,7 +179,6 @@
   export default {
     name: 'CompletionModal',
     components: {
-      FocusTrap,
       CompletionModalSection,
       ResourceItem,
       UiAlert,

@@ -17,7 +17,7 @@
           backgroundColor: $themeTokens.surface,
         }"
       >
-        <FocusTrap
+        <KFocusTrap
           @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
           @shouldFocusLastEl="focusLastEl"
         >
@@ -214,7 +214,7 @@
               :style="{ color: $themeTokens.text }"
             >{{ sideNavTitleText }}</span>
           </div>
-        </FocusTrap>
+        </KFocusTrap>
       </div>
     </transition>
 
@@ -269,7 +269,6 @@
   import TotalPoints from './TotalPoints.vue';
   import SyncStatusDisplay from './SyncStatusDisplay';
   import SideNavDivider from './SideNavDivider';
-  import FocusTrap from './FocusTrap.vue';
   import BottomNavigationBar from './BottomNavigationBar';
 
   // Explicit ordered list of roles for nav item sorting
@@ -293,7 +292,6 @@
       SyncStatusDisplay,
       SideNavDivider,
       PrivacyInfoModal,
-      FocusTrap,
       TotalPoints,
       LanguageSwitcherModal,
       BottomNavigationBar,
