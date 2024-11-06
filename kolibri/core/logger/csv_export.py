@@ -132,6 +132,7 @@ labels = OrderedDict(
 
 
 def get_max_ancestor_depth():
+    """Returns one less than the maximum depth of the ancestors of all content nodes"""
     max_depth = 0
     content_ids = ContentSummaryLog.objects.values_list("content_id", flat=True)
     nodes = ContentNode.objects.filter(content_id__in=content_ids).only(
@@ -142,10 +143,11 @@ def get_max_ancestor_depth():
         # cache it here so the retireival while adding ancestors info into csv is faster
         add_content_to_cache(node.content_id, title=node.title, ancestors=ancestors)
         max_depth = max(max_depth, len(ancestors))
-    return max_depth
+    return max_depth - 1
 
 
 def add_ancestors_info(row, ancestors, max_depth):
+    ancestors = ancestors[1:]
     row.update(
         {
             f"Topic level {level + 1}": ancestors[level]["title"]
@@ -239,7 +241,10 @@ def csv_file_generator(
         for i in range(get_max_ancestor_depth())
     ]
 
-    header_labels += [label for _, label in topic_headers]
+    content_id_index = header_labels.index(labels["content_id"])
+    header_labels[content_id_index:content_id_index] = [
+        label for _, label in topic_headers
+    ]
 
     csv_file = open_csv_for_writing(filepath)
 
