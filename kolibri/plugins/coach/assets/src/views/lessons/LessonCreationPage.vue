@@ -64,7 +64,7 @@
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       showSidePanel() {
-        return !(this.$route.name === LessonsPageNames.LESSON_CREATION_ROOT_BETTER);
+        return this.$route.name === LessonsPageNames.LESSON_CREATION_ROOT_BETTER;
       },
       classId() {
         return this.$route.params.classId;
