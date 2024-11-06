@@ -28,9 +28,9 @@ jobs:
     outputs:
       zip-file-name: ${{ steps.get-zip-filename.outputs.zip-file-name }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       if: ${{ !inputs.ref }}
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       if: ${{ inputs.ref }}
       with:
         repository: learningequality/kolibri-image-pi
@@ -40,26 +40,26 @@ jobs:
       run: make get-deb deb=${{ github.event.inputs.deb-url }}
     - name: Download the debfile from artifacts
       if: ${{ inputs.deb-file-name }}
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.deb-file-name }}
         path: dist
     - name: Cache source image
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: 'images/source.img'
         key: ${{ runner.OS }}-source-${{ hashFiles('Makefile') }}
         restore-keys: |
           ${{ runner.OS }}-source-
     - name: Cache base image
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: 'images/base.img'
         key: ${{ runner.OS }}-base-${{ hashFiles('base.Pifle', 'files/*') }}
         restore-keys: |
           ${{ runner.OS }}-base-
     - name: Cache pimod
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: pimod
         key: ${{ runner.OS }}-pimod-${{ hashFiles('Makefile') }}
@@ -72,7 +72,7 @@ jobs:
     - name: Get ZIP filename
       id: get-zip-filename
       run: echo "::set-output name=zip-file-name::Kolibri.zip"
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.get-zip-filename.outputs.zip-file-name }}
         path: ${{ steps.get-zip-filename.outputs.zip-file-name }}
