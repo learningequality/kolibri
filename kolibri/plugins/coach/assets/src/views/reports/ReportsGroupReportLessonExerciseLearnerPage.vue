@@ -19,6 +19,7 @@
   import commonCoach from '../common';
   import CoachImmersivePage from '../CoachImmersivePage';
   import LearnerExerciseReport from '../common/LearnerExerciseReport';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'ReportsGroupReportLessonExerciseLearnerPage',
@@ -31,7 +32,7 @@
       ...mapState('exerciseDetail', ['exercise']),
       toolbarRoute() {
         const backRoute = this.backRouteForQuery(this.$route.query);
-        return backRoute || this.classRoute('ReportsGroupReportLessonExerciseLearnerListPage', {});
+        return backRoute || this.classRoute(PageNames.GROUP_LESSON_EXERCISE_LEARNER_REPORT, {});
       },
     },
     methods: {

@@ -5,7 +5,7 @@
       <p>
         <BackLink
           :to="
-            classRoute(group ? 'ReportsGroupReportLessonLearnerListPage' : PageNames.SUMMARY, {
+            classRoute(group ? PageNames.GROUP_LESSON_SUMMARY : PageNames.SUMMARY, {
               tabId: 'tabLearners',
             })
           "
@@ -134,7 +134,7 @@
         return this.classRoute(
           this.group
             ? PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT
-            : PageNames.REPORTS_LESSON_LEARNER_EXERCISE_PAGE_ROOT,
+            : PageNames.LESSON_LEARNER_EXERCISE_PAGE_ROOT,
           { exerciseId },
         );
       },

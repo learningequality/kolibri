@@ -168,7 +168,7 @@ export default {
       return router.getRoute(name, params, query);
     },
     // Set the backLinkQuery to set the correct exit behavior
-    // for ReportsLessonExerciseLearnerPage and ReportsQuizLearnerPage.
+    // for LessonExerciseLearnerPage and ReportsQuizLearnerPage.
     backRouteForQuery(query) {
       const lastPage = query.last;
 
@@ -186,12 +186,12 @@ export default {
             learnerId: this.$route.query.last_id,
           });
         case LastPages.EXERCISE_LEARNER_LIST:
-          return this.classRoute('ReportsLessonExerciseLearnerListPage', {
+          return this.classRoute(PageNames.LESSON_EXERCISE_LEARNERS_REPORT, {
             exerciseId: this.$route.query.exerciseId,
           });
         case LastPages.EXERCISE_LEARNER_LIST_BY_GROUPS:
           return this.classRoute(
-            'ReportsLessonExerciseLearnerListPage',
+            PageNames.LESSON_EXERCISE_LEARNERS_REPORT,
             {
               exerciseId: this.$route.query.exerciseId,
             },
@@ -200,7 +200,7 @@ export default {
             },
           );
         case LastPages.EXERCISE_QUESTION_LIST:
-          return this.classRoute('ReportsLessonExerciseQuestionListPage', {
+          return this.classRoute(PageNames.LESSON_EXERCISE_QUESTIONS_REPORT, {
             exerciseId: this.$route.query.exerciseId,
           });
         case LastPages.RESOURCE_LEARNER_LIST:

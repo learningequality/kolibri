@@ -50,7 +50,7 @@
   import { coachStringsMixin } from '../../../common/commonCoachStrings';
 
   export default {
-    name: 'ReportsLessonLearnersTable',
+    name: 'LessonLearnersTable',
     components: {
       CoreTable,
       StatusSimple,

@@ -1,13 +1,12 @@
 <template>
 
   <CoachImmersivePage
-    :appBarTitle="title"
+    :appBarTitle="exercise.title"
     icon="back"
-    :pageTitle="title"
     :primary="false"
     :route="toolbarRoute"
   >
-    <QuestionLearnersReport @navigate="handleNavigation" />
+    <LearnerExerciseReport @navigate="handleNavigation" />
   </CoachImmersivePage>
 
 </template>
@@ -16,22 +15,23 @@
 <script>
 
   import { mapState } from 'vuex';
-  import commonCoach from '../common';
-  import CoachImmersivePage from '../CoachImmersivePage';
-  import QuestionLearnersReport from '../common/QuestionLearnersReport';
+  import commonCoach from '../../common';
+  import CoachImmersivePage from '../../CoachImmersivePage';
+  import LearnerExerciseReport from '../../common/LearnerExerciseReport';
+  import { PageNames } from '../../../constants';
 
   export default {
-    name: 'ReportsLessonExerciseQuestionPage',
+    name: 'LessonExerciseLearnerPage',
     components: {
       CoachImmersivePage,
-      QuestionLearnersReport,
+      LearnerExerciseReport,
     },
     mixins: [commonCoach],
     computed: {
-      ...mapState('questionDetail', ['title']),
+      ...mapState('exerciseDetail', ['exercise']),
       toolbarRoute() {
         const backRoute = this.backRouteForQuery(this.$route.query);
-        return backRoute || this.classRoute('ReportsLessonExerciseQuestionListPage', {});
+        return backRoute || this.classRoute(PageNames.LESSON_EXERCISE_LEARNERS_REPORT, {});
       },
     },
     methods: {
@@ -43,6 +43,7 @@
             lessonId: this.$route.params.lessonId,
             ...params,
           },
+          query: this.$route.query,
         });
       },
     },

@@ -16,7 +16,7 @@
                 :key="lesson.id"
               >
                 <KRouterLink
-                  :to="classRoute('ReportsGroupReportLessonPage', { lessonId: lesson.id })"
+                  :to="classRoute(PageNames.GROUP_LESSON_SUMMARY, { lessonId: lesson.id })"
                   :text="lesson.title"
                   icon="lesson"
                 />
@@ -57,6 +57,7 @@
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
   import { REPORTS_GROUP_TABS_ID, ReportsGroupTabs } from '../../constants/tabsConstants';
+  import { PageNames } from '../../constants';
   import ReportsGroupHeader from './ReportsGroupHeader';
 
   export default {
@@ -68,6 +69,7 @@
     mixins: [commonCoach],
     data() {
       return {
+        PageNames,
         REPORTS_GROUP_TABS_ID,
         ReportsGroupTabs,
       };

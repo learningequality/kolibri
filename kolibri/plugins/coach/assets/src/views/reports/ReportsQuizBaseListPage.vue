@@ -9,7 +9,7 @@
         <QuizLessonDetailsHeader
           examOrLesson="exam"
           :backlink="
-            group ? classRoute('ReportsGroupReportPage') : classRoute('ReportsQuizListPage')
+            group ? classRoute('ReportsGroupReportPage') : classRoute(PageNames.EXAMS_ROOT)
           "
           :backlinkLabel="group ? group.name : coachString('allQuizzesLabel')"
           optionsFor="report"

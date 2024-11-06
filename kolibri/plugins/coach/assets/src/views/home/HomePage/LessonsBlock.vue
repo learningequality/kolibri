@@ -2,7 +2,7 @@
 
   <Block
     :allLinkText="coachString('viewAllAction')"
-    :allLinkRoute="classRoute('ReportsLessonListPage', {})"
+    :allLinkRoute="classRoute(PageNames.LESSONS_ROOT)"
     :showAllLink="table.length > 0"
   >
     <template #title>

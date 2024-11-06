@@ -15,12 +15,13 @@
 <script>
 
   import { mapState } from 'vuex';
-  import commonCoach from '../common';
-  import CoachImmersivePage from '../CoachImmersivePage';
-  import LearnerExerciseReport from '../common/LearnerExerciseReport';
+  import commonCoach from '../../common';
+  import CoachImmersivePage from '../../CoachImmersivePage';
+  import LearnerExerciseReport from '../../common/LearnerExerciseReport';
+  import { PageNames } from '../../../constants';
 
   export default {
-    name: 'ReportsLessonExerciseLearnerPage',
+    name: 'LessonLearnerExercisePage',
     components: {
       CoachImmersivePage,
       LearnerExerciseReport,
@@ -30,7 +31,7 @@
       ...mapState('exerciseDetail', ['exercise']),
       toolbarRoute() {
         const backRoute = this.backRouteForQuery(this.$route.query);
-        return backRoute || this.classRoute('ReportsLessonExerciseLearnerListPage', {});
+        return backRoute || this.classRoute(PageNames.LESSON_LEARNER_REPORT, {});
       },
     },
     methods: {
@@ -42,7 +43,6 @@
             lessonId: this.$route.params.lessonId,
             ...params,
           },
-          query: this.$route.query,
         });
       },
     },

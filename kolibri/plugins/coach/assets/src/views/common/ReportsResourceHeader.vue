@@ -7,9 +7,7 @@
           <p>
             <BackLink
               :to="
-                group
-                  ? classRoute('ReportsGroupReportLessonPage', {})
-                  : classRoute(PageNames.SUMMARY)
+                group ? classRoute(PageNames.GROUP_LESSON_SUMMARY) : classRoute(PageNames.SUMMARY)
               "
               :text="coachString('backToLessonLabel', { lesson: lesson.title })"
             />
@@ -117,16 +115,16 @@
         :text="coachString('reportLabel')"
         :to="
           group
-            ? classRoute('ReportsGroupReportLessonExerciseLearnerListPage')
-            : classRoute('ReportsLessonExerciseLearnerListPage')
+            ? classRoute(PageNames.GROUP_LESSON_EXERCISE_LEARNER_REPORT)
+            : classRoute(PageNames.LESSON_EXERCISE_LEARNERS_REPORT)
         "
       />
       <HeaderTab
         :text="coachString('difficultQuestionsLabel')"
         :to="
           group
-            ? classRoute('ReportsGroupReportLessonExerciseQuestionListPage')
-            : classRoute('ReportsLessonExerciseQuestionListPage')
+            ? classRoute(PageNames.GROUP_LESSON_EXERCISE_QUESTIONS_REPORT)
+            : classRoute(PageNames.LESSON_EXERCISE_QUESTIONS_REPORT)
         "
       />
     </HeaderTabs>

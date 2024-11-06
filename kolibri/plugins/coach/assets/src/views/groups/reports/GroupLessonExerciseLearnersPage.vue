@@ -30,17 +30,17 @@
   import sortBy from 'lodash/sortBy';
   import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonCoach from '../common';
-  import CoachAppBarPage from '../CoachAppBarPage';
-  import { PageNames } from '../../constants';
-  import CSVExporter from '../../csv/exporter';
-  import * as csvFields from '../../csv/fields';
-  import ReportsResourceHeader from '../common/ReportsResourceHeader';
-  import ReportsControls from '../common/ReportsControls';
-  import ReportsLearnersTable from '../common/tables/ReportsLearnersTable';
+  import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
+  import { PageNames } from '../../../constants';
+  import CSVExporter from '../../../csv/exporter';
+  import * as csvFields from '../../../csv/fields';
+  import ReportsResourceHeader from '../../common/ReportsResourceHeader';
+  import ReportsControls from '../../common/ReportsControls';
+  import ReportsLearnersTable from '../../common/tables/ReportsLearnersTable';
 
   export default {
-    name: 'ReportsGroupReportLessonExerciseLearnerListPage',
+    name: 'GroupLessonExerciseLearnersPage',
     components: {
       CoachAppBarPage,
       ReportsResourceHeader,
@@ -124,7 +124,7 @@
 
 <style lang="scss" scoped>
 
-  @import '../common/print-table';
+  @import '../../common/print-table';
 
   .stats {
     margin-right: 16px;

@@ -3,7 +3,7 @@
   <div>
     <p>
       <BackLink
-        :to="classRoute('ReportsGroupListPage')"
+        :to="classRoute(PageNames.GROUPS_ROOT)"
         :text="$tr('back')"
       />
     </p>
@@ -38,6 +38,7 @@
   import commonCoach from '../common';
   import { REPORTS_GROUP_TABS_ID, ReportsGroupTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'ReportsGroupHeader',
@@ -45,6 +46,7 @@
     setup() {
       const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
       return {
+        PageNames,
         saveTabsClick,
         wereTabsClickedRecently,
       };

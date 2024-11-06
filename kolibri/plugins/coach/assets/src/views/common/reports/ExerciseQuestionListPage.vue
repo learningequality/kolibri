@@ -54,17 +54,17 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import commonCoach from '../common';
-  import CoachAppBarPage from '../CoachAppBarPage';
-  import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
-  import CSVExporter from '../../csv/exporter';
-  import * as csvFields from '../../csv/fields';
-  import ReportsResourceHeader from '../common/ReportsResourceHeader';
-  import ReportsControls from '../common/ReportsControls';
-  import { PageNames } from './../../constants';
+  import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
+  import LearnerProgressRatio from '../../common/status/LearnerProgressRatio';
+  import CSVExporter from '../../../csv/exporter';
+  import * as csvFields from '../../../csv/fields';
+  import ReportsResourceHeader from '../../common/ReportsResourceHeader';
+  import ReportsControls from '../../common/ReportsControls';
+  import { PageNames } from '../../../constants';
 
   export default {
-    name: 'ExerciseQuestionListPageBase',
+    name: 'ExerciseQuestionListPage',
     components: {
       CoachAppBarPage,
       ReportsResourceHeader,
@@ -95,7 +95,7 @@
         return this.classRoute(
           this.group
             ? PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_QUESTION_PAGE_ROOT
-            : PageNames.REPORTS_LESSON_EXERCISE_QUESTION_PAGE_ROOT,
+            : PageNames.LESSON_EXERCISE_QUESTION_PAGE_ROOT,
           {
             questionId,
             exerciseId: this.$route.params.exerciseId,
@@ -139,7 +139,7 @@
 
 <style lang="scss" scoped>
 
-  @import '../common/print-table';
+  @import '../../common/print-table';
 
   .stats {
     margin-right: 16px;

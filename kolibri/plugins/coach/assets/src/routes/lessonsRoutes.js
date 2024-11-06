@@ -27,6 +27,20 @@ import LessonResourceSelection from '../views/lessons/LessonResourceSelectionPag
 import { generateResourceHandler } from '../modules/resourceDetail/handlers';
 import LessonResourceLearnersPage from '../views/lessons/reports/LessonResourceLearnersPage';
 import LessonLearnerPage from '../views/lessons/reports/LessonLearnerPage.vue';
+import LessonExerciseLearnersPage from '../views/lessons/reports/LessonExerciseLearnersPage.vue';
+import {
+  exerciseRootRedirectHandler,
+  generateExerciseDetailHandler,
+} from '../modules/exerciseDetail/handlers';
+import LessonExerciseLearnerPage from '../views/lessons/reports/LessonExerciseLearnerPage.vue';
+import { generateQuestionListHandler } from '../modules/questionList/handlers';
+import ExerciseQuestionListPage from '../views/common/reports/ExerciseQuestionListPage.vue';
+import {
+  generateQuestionDetailHandler,
+  questionRootRedirectHandler,
+} from '../modules/questionDetail/handlers';
+import LessonExerciseQuestionPage from '../views/lessons/reports/LessonExerciseQuestionPage.vue';
+import LessonLearnerExercisePage from '../views/lessons/reports/LessonLearnerExercisePage.vue';
 import { classIdParamRequiredGuard } from './utils';
 
 const OPTIONAL_CLASS = '/:classId?';
@@ -42,6 +56,11 @@ const PREVIEW = '/preview/:contentId';
 const RESOURCE = '/resources/:resourceId';
 const ALL_LEARNERS = '/learners';
 const LEARNER = '/learners/:learnerId';
+const EXERCISE = '/exercises/:exerciseId';
+const QUESTIONS = '/questions';
+const QUESTION = '/questions/:questionId';
+const TRY = '/try/:tryIndex';
+const INTERACTION = '/interactions/:interactionIndex';
 
 function path(...args) {
   return args.join('');
@@ -254,6 +273,88 @@ export default [
     handler: defaultHandler,
     meta: {
       titleParts: ['LEARNER_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    name: PageNames.LESSON_EXERCISE_LEARNERS_REPORT,
+    path: path(CLASS, LESSON, EXERCISE, ALL_LEARNERS),
+    component: LessonExerciseLearnersPage,
+    handler: generateResourceHandler(['exerciseId']),
+    meta: {
+      titleParts: ['learnersLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    name: PageNames.LESSON_EXERCISE_LEARNER_PAGE_ROOT,
+    path: path(CLASS, LESSON, EXERCISE, LEARNER),
+    beforeEnter: (to, from, next) => {
+      const { params, query } = to;
+      return exerciseRootRedirectHandler(
+        params,
+        PageNames.LESSON_EXERCISE_LEARNER_REPORT,
+        next,
+        query,
+      );
+    },
+    meta: {
+      titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    name: PageNames.LESSON_EXERCISE_LEARNER_REPORT,
+    path: path(CLASS, LESSON, EXERCISE, LEARNER, TRY, QUESTION, INTERACTION),
+    component: LessonExerciseLearnerPage,
+    handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
+    meta: {
+      titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    name: PageNames.LESSON_EXERCISE_QUESTIONS_REPORT,
+    path: path(CLASS, LESSON, EXERCISE, QUESTIONS),
+    component: ExerciseQuestionListPage,
+    handler: generateQuestionListHandler(['lessonId', 'exerciseId']),
+    meta: {
+      titleParts: ['questionsLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    path: path(CLASS, LESSON, EXERCISE, QUESTION),
+    name: PageNames.LESSON_EXERCISE_QUESTION_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return questionRootRedirectHandler(params, PageNames.LESSON_EXERCISE_QUESTION_REPORT, next);
+    },
+  },
+  {
+    name: PageNames.LESSON_EXERCISE_QUESTION_REPORT,
+    path: path(CLASS, LESSON, EXERCISE, QUESTION, LEARNER, INTERACTION),
+    component: LessonExerciseQuestionPage,
+    handler: generateQuestionDetailHandler(['lessonId', 'exerciseId', 'questionId']),
+    meta: {
+      // No info on question
+      titleParts: ['EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    path: path(CLASS, LESSON, LEARNER, EXERCISE),
+    name: PageNames.LESSON_LEARNER_EXERCISE_PAGE_ROOT,
+    beforeEnter: (to, from, next) => {
+      const { params } = to;
+      return exerciseRootRedirectHandler(params, PageNames.LESSON_LEARNER_EXERCISE_REPORT, next);
+    },
+    meta: {
+      titleParts: ['EXERCISE_NAME', 'LEARNER_NAME', 'LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    name: PageNames.LESSON_LEARNER_EXERCISE_REPORT,
+    path: path(CLASS, LESSON, LEARNER, EXERCISE, TRY, QUESTION, INTERACTION),
+    component: LessonLearnerExercisePage,
+    handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
+    meta: {
+      // Leaves out attempt and interaction numbers
+      titleParts: ['LEARNER_NAME', 'EXERCISE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
   },
 ];

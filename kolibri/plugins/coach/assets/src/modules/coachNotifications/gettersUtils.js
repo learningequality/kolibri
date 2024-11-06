@@ -29,7 +29,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: false,
     },
-    value: 'ReportsGroupReportLessonExerciseLearnerListPage',
+    value: PageNames.GROUP_LESSON_EXERCISE_LEARNER_REPORT,
   },
   {
     key: {
@@ -45,7 +45,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: false,
     },
-    value: 'ReportsGroupReportLessonPage',
+    value: PageNames.GROUP_LESSON_SUMMARY,
   },
   {
     key: {
@@ -61,7 +61,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: true,
     },
-    value: 'ReportsLessonExerciseLearnerListPage',
+    value: PageNames.LESSON_EXERCISE_LEARNERS_REPORT,
   },
   {
     key: {
@@ -117,7 +117,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: false,
       isWholeClass: true,
     },
-    value: 'REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT',
+    value: PageNames.LESSON_EXERCISE_LEARNER_PAGE_ROOT,
   },
   {
     key: {

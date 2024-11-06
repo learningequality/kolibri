@@ -90,18 +90,18 @@
   import sortBy from 'lodash/sortBy';
   import fromPairs from 'lodash/fromPairs';
   import { mapState } from 'vuex';
-  import commonCoach from '../common';
-  import CoachAppBarPage from '../CoachAppBarPage';
-  import { PageNames } from '../../constants';
-  import { LastPages } from '../../constants/lastPagesConstants';
-  import CSVExporter from '../../csv/exporter';
-  import * as csvFields from '../../csv/fields';
-  import ReportsResourceHeader from '../common/ReportsResourceHeader';
-  import ReportsLearnersTable from '../common/tables/ReportsLearnersTable';
-  import ReportsControls from '../common/ReportsControls';
+  import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
+  import { PageNames } from '../../../constants';
+  import { LastPages } from '../../../constants/lastPagesConstants';
+  import CSVExporter from '../../../csv/exporter';
+  import * as csvFields from '../../../csv/fields';
+  import ReportsResourceHeader from '../../common/ReportsResourceHeader';
+  import ReportsLearnersTable from '../../common/tables/ReportsLearnersTable';
+  import ReportsControls from '../../common/ReportsControls';
 
   export default {
-    name: 'ReportsLessonExerciseLearnerListPage',
+    name: 'LessonExerciseLearnersPage',
     components: {
       CoachAppBarPage,
       ReportsResourceHeader,
@@ -183,7 +183,7 @@
         this.$router.replace({ query });
       },
       getExerciseLearnerLink(learnerId) {
-        const link = this.classRoute(PageNames.REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT, {
+        const link = this.classRoute(PageNames.LESSON_EXERCISE_LEARNER_PAGE_ROOT, {
           learnerId,
         });
 
@@ -289,7 +289,7 @@
 
 <style lang="scss" scoped>
 
-  @import '../common/print-table';
+  @import '../../common/print-table';
 
   .group:not(:first-child) {
     margin-top: 42px;

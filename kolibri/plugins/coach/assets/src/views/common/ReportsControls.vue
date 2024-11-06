@@ -77,10 +77,7 @@
       },
       isMainReport() {
         return [
-          'ReportsQuizListPage',
-          'ReportsGroupListPage',
           PageNames.LEARNERS_ROOT,
-          'ReportsLessonListPage',
           PageNames.LESSONS_ROOT,
           PageNames.LESSONS_ROOT_BETTER,
           PageNames.EXAMS_ROOT,

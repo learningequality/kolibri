@@ -101,7 +101,7 @@
   import { coachStringsMixin } from '../../../common/commonCoachStrings';
 
   export default {
-    name: 'ReportsLessonResourcesTable',
+    name: 'LessonResourcesTable',
     components: {
       CoreTable,
       StatusSummary,
@@ -128,6 +128,9 @@
     },
     computed: {
       ...mapState('classSummary', { className: 'name' }),
+      group() {
+        return this.$route.params.groupId && this.groupMap[this.$route.params.groupId];
+      },
     },
     methods: {
       handleResourcesOrderChange({ newArray }) {
@@ -166,6 +169,12 @@
           lesson: this.title,
           resources: this.coreString('resourcesLabel'),
         });
+
+        if (this.group) {
+          exporter.addNames({
+            group: this.group.name,
+          });
+        }
 
         exporter.export(this.entries);
       },

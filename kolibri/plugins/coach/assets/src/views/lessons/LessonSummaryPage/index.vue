@@ -5,8 +5,10 @@
       <KGridItem>
         <QuizLessonDetailsHeader
           examOrLesson="lesson"
-          :backlinkLabel="coreString('allLessonsLabel')"
-          :backlink="$router.getRoute('LESSONS_ROOT', { classId: classId })"
+          :backlinkLabel="group ? group.name : coreString('allLessonsLabel')"
+          :backlink="
+            group ? classRoute('ReportsGroupReportPage') : classRoute(PageNames.LESSONS_ROOT)
+          "
         >
           <template #dropdown>
             <KRouterLink
@@ -55,7 +57,7 @@
               <LessonResourcesTable
                 ref="table"
                 :title="currentLesson.title"
-                :editable="!$isPrint"
+                :editable="editable && !$isPrint"
                 :entries="resourcesTable"
                 @change="handleResourcesChange"
               />
@@ -119,10 +121,17 @@
       const { createSnackbar, clearSnackbar } = useSnackbar();
       return { createSnackbar, clearSnackbar };
     },
+    props: {
+      editable: {
+        type: Boolean,
+        default: true,
+      },
+    },
     data() {
       const workingResourcesBackup = [...(this.$store.state.lessonSummary.workingResources || [])];
 
       return {
+        PageNames,
         currentAction: '',
         ReportsLessonTabs,
         workingResourcesBackup,
@@ -164,13 +173,21 @@
         ];
 
         tabsList.forEach(tab => {
-          tab.to = this.classRoute(LessonsPageNames.SUMMARY, { tabId: tab.id });
+          tab.to = this.classRoute(
+            this.group ? PageNames.GROUP_LESSON_SUMMARY : LessonsPageNames.SUMMARY,
+            { tabId: tab.id },
+          );
         });
 
         return tabsList;
       },
+      group() {
+        return this.$route.params.groupId && this.groupMap[this.$route.params.groupId];
+      },
       recipients() {
-        return this.getLearnersForLesson(this.currentLesson);
+        return this.group
+          ? this.getLearnersForGroups([this.group.id])
+          : this.getLearnersForLesson(this.lesson);
       },
       resourcesTable() {
         return this.workingResources.map(resource => {
@@ -204,7 +221,10 @@
           const tableRow = {
             groups: this.getGroupNamesForLearner(learner.id),
             status: this.getLessonStatusStringForLearner(this.lessonId, learner.id),
-            link: this.classRoute(PageNames.LESSON_LEARNER_REPORT, { learnerId: learner.id }),
+            link: this.classRoute(
+              this.group ? PageNames.GROUP_LESSON_LEARNER : PageNames.LESSON_LEARNER_REPORT,
+              { learnerId: learner.id },
+            ),
           };
           Object.assign(tableRow, learner);
           return tableRow;
@@ -253,8 +273,8 @@
           if (resource.kind === this.ContentNodeKinds.EXERCISE) {
             return this.classRoute(
               this.group
-                ? 'ReportsGroupReportLessonExerciseLearnerListPage'
-                : 'ReportsLessonExerciseLearnerListPage',
+                ? PageNames.GROUP_LESSON_EXERCISE_LEARNER_REPORT
+                : PageNames.LESSON_EXERCISE_LEARNERS_REPORT,
               { exerciseId: resource.content_id },
             );
           } else {
