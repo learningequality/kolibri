@@ -157,7 +157,7 @@ export default [
     component: LessonEditDetailsPage,
   },
   {
-    name: PageNames.SELECTION_ROOT,
+    name: PageNames.LESSON_RESOURCE_SELECTION_ROOT,
     path: CLASS + LESSON + SELECTION,
     component: LessonResourceSelectionPage,
     handler(toRoute) {
@@ -165,7 +165,7 @@ export default [
     },
   },
   {
-    name: PageNames.SELECTION,
+    name: PageNames.LESSON_RESOURCE_SELECTION,
     path: CLASS + LESSON + SELECTION + TOPIC,
     component: LessonResourceSelectionPage,
     handler(toRoute, fromRoute) {
@@ -174,7 +174,7 @@ export default [
       // called whether or not a change is made, because we don't track changes
       // enough steps back.
       let preHandlerPromise;
-      if (fromRoute.name === PageNames.SELECTION_CONTENT_PREVIEW) {
+      if (fromRoute.name === PageNames.LESSON_RESOURCE_SELECTION_CONTENT_PREVIEW) {
         preHandlerPromise = store.dispatch('lessonSummary/saveLessonResources', {
           lessonId: toRoute.params.lessonId,
           resources: store.state.lessonSummary.workingResources,
@@ -188,7 +188,7 @@ export default [
     },
   },
   {
-    name: PageNames.SELECTION_SEARCH,
+    name: PageNames.LESSON_RESOURCE_SELECTION_SEARCH,
     path: CLASS + LESSON + SELECTION + SEARCH,
     component: LessonResourceSelectionPage,
     handler(toRoute) {
@@ -201,7 +201,7 @@ export default [
     component: LessonResourceSelectionPage,
     handler(toRoute, fromRoute) {
       let preHandlerPromise;
-      if (fromRoute.name === PageNames.SELECTION_CONTENT_PREVIEW) {
+      if (fromRoute.name === PageNames.LESSON_RESOURCE_SELECTION_CONTENT_PREVIEW) {
         preHandlerPromise = store.dispatch('lessonSummary/saveLessonResources', {
           lessonId: toRoute.params.lessonId,
           resources: store.state.lessonSummary.workingResources,
@@ -223,7 +223,7 @@ export default [
     },
   },
   {
-    name: PageNames.SELECTION_CONTENT_PREVIEW,
+    name: PageNames.LESSON_RESOURCE_SELECTION_CONTENT_PREVIEW,
     path: CLASS + LESSON + SELECTION + PREVIEW,
     component: LessonSelectionContentPreviewPage,
     handler(toRoute) {

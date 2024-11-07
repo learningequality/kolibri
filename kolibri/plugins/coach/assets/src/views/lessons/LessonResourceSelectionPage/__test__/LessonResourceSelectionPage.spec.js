@@ -14,7 +14,7 @@ const router = new VueRouter({
   routes: [
     { name: PageNames.LESSON_SUMMARY, path: '/summary' },
     { name: 'SELECT_RESOURCES', path: '/' },
-    { name: 'SELECTION_ROOT', path: '/select' },
+    { name: 'LESSON_RESOURCE_SELECTION_ROOT', path: '/select' },
     { name: 'SELECTION', path: '/select/:topicId' },
     { name: 'SELECTION_SEARCH', path: '/search/:searchTerm' },
     { name: 'LESSON_SUMMARY', path: '/reportslessonreportpage' },
@@ -87,11 +87,11 @@ describe('LessonResourceSelectionPage', () => {
         },
       });
 
-      // If there is no last_id in query params, link to SELECTION_ROOT
+      // If there is no last_id in query params, link to LESSON_RESOURCE_SELECTION_ROOT
       const noLastIdQuery = { ...filterValues };
       await router.replace({ query: noLastIdQuery });
       expect(button.props().to).toEqual({
-        name: 'SELECTION_ROOT',
+        name: 'LESSON_RESOURCE_SELECTION_ROOT',
         params: {},
         query: {
           ...filterValues,
@@ -115,7 +115,7 @@ describe('LessonResourceSelectionPage', () => {
     it('the breadcrumbs are visible and have the correct links', () => {
       const breadcrumbs = wrapper.findComponent({ name: 'ResourceSelectionBreadcrumbs' });
       expect(breadcrumbs.exists()).toBe(true);
-      expect(breadcrumbs.props().channelsLink.name).toEqual('SELECTION_ROOT');
+      expect(breadcrumbs.props().channelsLink.name).toEqual('LESSON_RESOURCE_SELECTION_ROOT');
     });
 
     it('the bottom bar has the correct label and link if coming from reports page', async () => {

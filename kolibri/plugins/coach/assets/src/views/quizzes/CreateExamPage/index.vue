@@ -220,7 +220,7 @@
             params,
           };
         }
-        return { name: PageNames.EXAMS_ROOT };
+        return { name: PageNames.EXAMS_ROOT, params: { classId: this.classId } };
       },
       title() {
         if (!this.quizInitialized) {

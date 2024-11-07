@@ -69,7 +69,7 @@
           // HACK to fix #7583 and #7584
           if (lastRoute === PageNames.LESSON_SUMMARY) {
             return {
-              name: PageNames.SELECTION,
+              name: PageNames.LESSON_RESOURCE_SELECTION,
               params: {
                 topicId: this.currentContentNode.parent,
               },

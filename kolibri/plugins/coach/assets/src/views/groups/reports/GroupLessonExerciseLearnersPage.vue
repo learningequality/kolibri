@@ -83,7 +83,7 @@
     },
     methods: {
       link(learnerId) {
-        return this.classRoute(PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT, {
+        return this.classRoute(PageNames.LESSON_EXERCISE_LEARNER_PAGE_ROOT, {
           learnerId,
         });
       },

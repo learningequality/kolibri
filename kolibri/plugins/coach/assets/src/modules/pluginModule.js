@@ -114,7 +114,7 @@ export default {
       // If going from Lesson Summary to something other than Resource Selection, reset
       if (
         fromRoute.name === PageNames.LESSON_SUMMARY &&
-        ![PageNames.SELECTION_ROOT, PageNames.LESSON_SUMMARY].includes(toRoute.name)
+        ![PageNames.LESSON_RESOURCE_SELECTION_ROOT, PageNames.LESSON_SUMMARY].includes(toRoute.name)
       ) {
         return store.dispatch('lessonSummary/resetLessonSummaryState');
       }

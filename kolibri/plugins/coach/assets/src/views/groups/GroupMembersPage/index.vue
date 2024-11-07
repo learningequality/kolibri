@@ -4,7 +4,7 @@
     <KPageContainer>
       <p>
         <BackLink
-          :to="$router.getRoute(PageNames.GROUPS_ROOT)"
+          :to="classRoute(PageNames.GROUPS_ROOT)"
           :text="$tr('back')"
         />
       </p>
@@ -182,7 +182,7 @@
       handleSuccessDeleteGroup() {
         this.showSnackbarNotification('groupDeleted');
         this.displayModal(false);
-        this.$router.push(this.$router.getRoute(PageNames.GROUPS_ROOT));
+        this.$router.push(this.classRoute(PageNames.GROUPS_ROOT));
       },
       handleOptionSelect(value) {
         switch (value) {

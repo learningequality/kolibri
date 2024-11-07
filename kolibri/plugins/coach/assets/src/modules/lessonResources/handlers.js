@@ -74,9 +74,9 @@ async function showResourceSelectionPage(store, params) {
           store.commit('lessonSummary/resources/SET_SEARCH_RESULTS', params.searchResults);
         }
         store.commit('SET_PAGE_NAME', pageName);
-        if (pageName === PageNames.SELECTION_SEARCH) {
+        if (pageName === PageNames.LESSON_RESOURCE_SELECTION_SEARCH) {
           store.commit('SET_TOOLBAR_ROUTE', {
-            name: PageNames.SELECTION_ROOT,
+            name: PageNames.LESSON_RESOURCE_SELECTION_ROOT,
           });
         } else {
           store.commit('SET_TOOLBAR_ROUTE', {
@@ -107,7 +107,7 @@ export function showLessonResourceSelectionRootPage(store, params) {
           classId: params.classId,
           lessonId: params.lessonId,
           contentList: channelContentList,
-          pageName: PageNames.SELECTION_ROOT,
+          pageName: PageNames.LESSON_RESOURCE_SELECTION_ROOT,
           descendantCounts,
         });
       },
@@ -130,7 +130,7 @@ export function showLessonResourceSelectionTopicPage(store, params) {
         classId: params.classId,
         lessonId: params.lessonId,
         contentList: childNodes,
-        pageName: PageNames.SELECTION,
+        pageName: PageNames.LESSON_RESOURCE_SELECTION,
         descendantCounts,
         ancestors: [...topicNode.ancestors, topicNode],
       });
@@ -150,7 +150,7 @@ export function showLessonResourceBookmarks(store, params) {
         classId: params.classId,
         lessonId: params.lessonId,
         bookmarksList: childNodes,
-        pageName: PageNames.SELECTION,
+        pageName: PageNames.LESSON_RESOURCE_SELECTION,
         ancestors: [...topicNode.ancestors, topicNode],
       });
     });
@@ -222,7 +222,7 @@ export async function showLessonSelectionContentPreview(store, params, query = {
         const { searchTerm, ...otherQueryParams } = query;
         if (searchTerm) {
           store.commit('SET_TOOLBAR_ROUTE', {
-            name: PageNames.SELECTION_SEARCH,
+            name: PageNames.LESSON_RESOURCE_SELECTION_SEARCH,
             params: {
               searchTerm,
             },
@@ -230,7 +230,7 @@ export async function showLessonSelectionContentPreview(store, params, query = {
           });
         } else {
           store.commit('SET_TOOLBAR_ROUTE', {
-            name: PageNames.SELECTION,
+            name: PageNames.LESSON_RESOURCE_SELECTION,
             params: {
               topicId: contentNode.parent,
             },
@@ -273,7 +273,7 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
         });
       }
 
-      store.commit('SET_PAGE_NAME', PageNames.CONTENT_PREVIEW);
+      store.commit('SET_PAGE_NAME', PageNames.LESSON_CONTENT_PREVIEW);
       return contentNode;
     },
     error => {
@@ -298,7 +298,7 @@ export function showLessonResourceSearchPage(store, params, query = {}) {
         lessonId: params.lessonId,
         contentList: results.results,
         searchResults: results,
-        pageName: PageNames.SELECTION_SEARCH,
+        pageName: PageNames.LESSON_RESOURCE_SELECTION_SEARCH,
       });
     });
   });

@@ -230,7 +230,7 @@
         return this.currentLesson.id;
       },
       inSearchMode() {
-        return this.pageName === PageNames.SELECTION_SEARCH;
+        return this.pageName === PageNames.LESSON_RESOURCE_SELECTION_SEARCH;
       },
       page() {
         return this.getUserPermissions.can_manage_content
@@ -262,7 +262,7 @@
         // or if all contents are topics
         return (
           !this.inSearchMode &&
-          this.pageName !== PageNames.SELECTION_ROOT &&
+          this.pageName !== PageNames.LESSON_RESOURCE_SELECTION_ROOT &&
           !every(this.contentList, this.contentIsDirectoryKind)
         );
       },
@@ -309,7 +309,11 @@
         if (this.inSearchMode && lastId) {
           const queryCopy = { ...this.$route.query };
           delete queryCopy.last_id;
-          return this.$router.getRoute(PageNames.SELECTION, { topicId: lastId }, queryCopy);
+          return this.$router.getRoute(
+            PageNames.LESSON_RESOURCE_SELECTION,
+            { topicId: lastId },
+            queryCopy,
+          );
         } else if (this.inSearchMode) {
           return this.selectionRootLink({ ...this.routerParams });
         } else if (this.$route.query.last === PageNames.LESSON_SUMMARY) {
@@ -436,10 +440,18 @@
         return !is_leaf;
       },
       selectionRootLink() {
-        return this.$router.getRoute(PageNames.SELECTION_ROOT, {}, this.$route.query);
+        return this.$router.getRoute(
+          PageNames.LESSON_RESOURCE_SELECTION_ROOT,
+          {},
+          this.$route.query,
+        );
       },
       topicListingLink({ topicId }) {
-        return this.$router.getRoute(PageNames.SELECTION, { topicId }, this.$route.query);
+        return this.$router.getRoute(
+          PageNames.LESSON_RESOURCE_SELECTION,
+          { topicId },
+          this.$route.query,
+        );
       },
       bookmarkListingLink({ topicId }) {
         return this.$router.getRoute(
@@ -454,7 +466,7 @@
         }
         const { query } = this.$route;
         return {
-          name: PageNames.SELECTION_CONTENT_PREVIEW,
+          name: PageNames.LESSON_RESOURCE_SELECTION_CONTENT_PREVIEW,
           params: {
             ...this.routerParams,
             contentId: content.id,
@@ -473,7 +485,7 @@
         }
         const { query } = this.$route;
         return {
-          name: PageNames.SELECTION_CONTENT_PREVIEW,
+          name: PageNames.LESSON_RESOURCE_SELECTION_CONTENT_PREVIEW,
           params: {
             ...this.routerParams,
             contentId: content.id,
@@ -524,7 +536,7 @@
           query.last = lastPage;
         }
         this.$router.push({
-          name: PageNames.SELECTION_SEARCH,
+          name: PageNames.LESSON_RESOURCE_SELECTION_SEARCH,
           params: {
             searchTerm,
           },

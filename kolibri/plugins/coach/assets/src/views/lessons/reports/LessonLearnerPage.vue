@@ -131,12 +131,7 @@
     },
     methods: {
       exerciseLink(exerciseId) {
-        return this.classRoute(
-          this.group
-            ? PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_LEARNER_PAGE_ROOT
-            : PageNames.LESSON_LEARNER_EXERCISE_PAGE_ROOT,
-          { exerciseId },
-        );
+        return this.classRoute(PageNames.LESSON_LEARNER_EXERCISE_PAGE_ROOT, { exerciseId });
       },
       showLink(tableRow) {
         return (

@@ -150,7 +150,9 @@
         return this.$route.params.lessonId;
       },
       lessonSelectionRootPage() {
-        return this.classRoute(PageNames.SELECTION_ROOT, { lessonId: this.lessonId });
+        return this.classRoute(PageNames.LESSON_RESOURCE_SELECTION_ROOT, {
+          lessonId: this.lessonId,
+        });
       },
       activeTabId() {
         const { tabId } = this.$route.params;
