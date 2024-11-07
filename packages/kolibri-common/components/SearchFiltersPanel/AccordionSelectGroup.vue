@@ -119,7 +119,7 @@
               v-for="channel in channelOptionsList"
               :key="'channel-' + channel.value"
               :buttonValue="channel.value"
-              :currentValue="selectedChannel['value'] || ''"
+              :currentValue="selectedChannel['value'] || null"
               :label="channel.label"
               @change="handleChange('channels', channel)"
             />
@@ -337,12 +337,7 @@
       isEnabledButNotSelected(inputKey, value) {
         return (
           !this.isSelected(inputKey, value) &&
-          {
-            languages: this.enabledLanguageOptions,
-            channels: this.enabledChannelOptions,
-            accessibility_labels: this.enabledAccessibilityOptions,
-            grade_levels: this.enabledContentLevels,
-          }[inputKey].includes(value)
+          Object.values(this.activeSearchTerms[inputKey]).includes(value)
         );
       },
       accordionHeaderStyles(selected) {
@@ -354,14 +349,25 @@
       },
       handleChange(field, value) {
         const prevFieldValue = this.value[field];
-        if (value && this.isSelected(field, value)) {
-          delete prevFieldValue[value.value];
-          this.$emit('input', { ...this.value, [field]: prevFieldValue });
+        if (field === 'channels') {
+          // Channels are a radio button, so only when the user selects a new value
+          // will we emit the change
+          if (!prevFieldValue[value.value]) {
+            this.$emit('input', {
+              ...this.value,
+              [field]: { [value.value]: true },
+            });
+          }
         } else {
-          this.$emit('input', {
-            ...this.value,
-            [field]: { ...prevFieldValue, [value.value]: true },
-          });
+          if (value && this.isSelected(field, value)) {
+            delete prevFieldValue[value.value];
+            this.$emit('input', { ...this.value, [field]: prevFieldValue });
+          } else {
+            this.$emit('input', {
+              ...this.value,
+              [field]: { ...prevFieldValue, [value.value]: true },
+            });
+          }
         }
       },
       isCategoryActive(categoryValue) {

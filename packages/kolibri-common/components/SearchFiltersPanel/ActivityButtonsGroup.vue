@@ -4,28 +4,30 @@
     <h2 class="title">
       {{ $tr('activities') }}
     </h2>
-    <span
-      v-for="(key, activity) in availableLearningActivities"
-      :key="key"
-      alignment="center"
-    >
-      <KButton
-        appearance="flat-button"
-        :appearanceOverrides="
-          isKeyActive(key) ? { ...activityStyles, ...activityActiveStyles } : activityStyles
-        "
-        :disabled="availableActivities && !availableActivities[key] && !isKeyActive(key)"
-        @click="$emit('input', key)"
+    <div class="wrapper">
+      <span
+        v-for="(key, activity) in availableLearningActivities"
+        :key="key"
+        alignment="center"
       >
-        <KIcon
-          :icon="activityIcon(activity)"
-          class="activity-icon"
-        />
-        <p class="activity-button-text">
-          {{ coreString(camelCase(activity)) }}
-        </p>
-      </KButton>
-    </span>
+        <KButton
+          appearance="flat-button"
+          :appearanceOverrides="
+            isKeyActive(key) ? { ...activityStyles, ...activityActiveStyles } : activityStyles
+          "
+          :disabled="availableActivities && !availableActivities[key] && !isKeyActive(key)"
+          @click="$emit('input', key)"
+        >
+          <KIcon
+            :icon="activityIcon(activity)"
+            class="activity-icon"
+          />
+          <p class="activity-button-text">
+            {{ coreString(camelCase(activity)) }}
+          </p>
+        </KButton>
+      </span>
+    </div>
   </div>
 
 </template>
@@ -54,8 +56,8 @@
       activityStyles() {
         return {
           color: this.$themeTokens.text,
-          width: '50%',
-          height: '100px',
+          width: '120px',
+          height: '120px',
           border: '2px solid transparent',
           textTransform: 'capitalize',
           fontWeight: 'normal',
@@ -124,6 +126,11 @@
   .activity-button-text {
     margin: auto;
     margin-top: -12px;
+  }
+
+  .wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
   }
 
 </style>

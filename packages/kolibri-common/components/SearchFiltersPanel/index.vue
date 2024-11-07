@@ -1,10 +1,7 @@
 <template>
 
-  <component
-    :is="windowIsLarge ? 'section' : 'SidePanelModal'"
-    alignment="left"
+  <section
     role="region"
-    :class="windowIsLarge ? 'side-panel' : ''"
     :closeButtonIconType="closeButtonIcon"
     :aria-label="filterAndSearchLabel$()"
     :ariaLabel="filterAndSearchLabel$()"
@@ -112,7 +109,7 @@
             </div>
           </div>
         </div>
-        <div v-if="accordion">
+        <div v-if="accordion && !currentCategory">
           <!-- search by keyword -->
           <h2 class="title">
             {{ $tr('keywords') }}
@@ -150,7 +147,7 @@
       @cancel="currentCategory = null"
       @input="selectCategory"
     />
-  </component>
+  </section>
 
 </template>
 
@@ -167,8 +164,6 @@
   //   in https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/learn/assets/src/views/TopicsPage/index.vue#L366-L378
   //
 
-  import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
-  import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import { NoCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
@@ -176,7 +171,6 @@
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
   import SearchBox from '../SearchBox';
-  import SidePanelModal from '../SidePanelModal';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import CategorySearchModal from './CategorySearchModal';
   import SelectGroup from './SelectGroup';
@@ -189,9 +183,6 @@
       ActivityButtonsGroup,
       SelectGroup,
       CategorySearchModal,
-      SidePanelModal,
-      AccordionItem,
-      AccordionContainer,
       AccordionSelectGroup,
     },
     mixins: [commonCoreStrings],
@@ -425,18 +416,6 @@
 
   .drawer-panel {
     padding-bottom: 60px;
-  }
-
-  .side-panel {
-    @extend %dropshadow-2dp;
-
-    position: fixed;
-    top: 60px;
-    left: 0;
-    height: 100%;
-    padding: 24px 24px 0;
-    overflow-y: scroll;
-    font-size: 14px;
   }
 
   /*

@@ -23,6 +23,7 @@
           <KIcon
             :icon="icon(key)"
             size="large"
+            :color="$themeTokens.primary"
             :style="{ marginLeft: '8px' }"
           />
           <h3>

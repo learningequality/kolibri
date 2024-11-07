@@ -183,7 +183,6 @@
       ref="sidePanel"
       v-model="searchTerms"
       data-test="side-panel"
-      style="position: absolute"
       width="100%"
       :accordion="true"
       :showActivities="true"

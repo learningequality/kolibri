@@ -1,29 +1,10 @@
 <template>
 
-  <div>
-    <KModal
-      v-if="windowIsLarge"
-      appendToOverlay
-      :title="$tr('title')"
-      :cancelText="coreString('closeAction')"
-      size="large"
-      @cancel="$emit('cancel')"
-    >
-      <CategorySearchOptions
-        ref="searchOptions"
-        :selectedCategory="selectedCategory"
-        v-on="$listeners"
-      />
-    </KModal>
-    <div v-else>
-      <h2>{{ $tr('title') }}</h2>
-      <CategorySearchOptions
-        ref="searchOptions"
-        :selectedCategory="selectedCategory"
-        v-on="$listeners"
-      />
-    </div>
-  </div>
+  <CategorySearchOptions
+    ref="searchOptions"
+    :selectedCategory="selectedCategory"
+    v-on="$listeners"
+  />
 
 </template>
 
