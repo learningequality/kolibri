@@ -51,7 +51,6 @@
   import commonCoach from '../common';
   import { ClassesPageNames } from '../../../../../learn/assets/src/constants';
   import { LastPages } from '../../constants/lastPagesConstants';
-  import { LessonsPageNames } from '../../constants/lessonsConstants';
   import { PageNames } from '../../constants';
 
   export default {
@@ -82,7 +81,7 @@
           PageNames.LESSONS_ROOT_BETTER,
           PageNames.EXAMS_ROOT,
           PageNames.EXAM_SUMMARY,
-          LessonsPageNames.SUMMARY,
+          PageNames.LESSON_SUMMARY,
         ].includes(this.$route.name);
       },
       classLearnersListRoute() {

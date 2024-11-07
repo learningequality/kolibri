@@ -124,7 +124,6 @@
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import CoachImmersivePage from '../../CoachImmersivePage';
-  import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
   import LessonsSearchBox from './SearchTools/LessonsSearchBox';
   import LessonsSearchFilters from './SearchTools/LessonsSearchFilters';
@@ -231,7 +230,7 @@
         return this.currentLesson.id;
       },
       inSearchMode() {
-        return this.pageName === LessonsPageNames.SELECTION_SEARCH;
+        return this.pageName === PageNames.SELECTION_SEARCH;
       },
       page() {
         return this.getUserPermissions.can_manage_content
@@ -263,7 +262,7 @@
         // or if all contents are topics
         return (
           !this.inSearchMode &&
-          this.pageName !== LessonsPageNames.SELECTION_ROOT &&
+          this.pageName !== PageNames.SELECTION_ROOT &&
           !every(this.contentList, this.contentIsDirectoryKind)
         );
       },
@@ -310,13 +309,13 @@
         if (this.inSearchMode && lastId) {
           const queryCopy = { ...this.$route.query };
           delete queryCopy.last_id;
-          return this.$router.getRoute(LessonsPageNames.SELECTION, { topicId: lastId }, queryCopy);
+          return this.$router.getRoute(PageNames.SELECTION, { topicId: lastId }, queryCopy);
         } else if (this.inSearchMode) {
           return this.selectionRootLink({ ...this.routerParams });
-        } else if (this.$route.query.last === PageNames.SUMMARY) {
+        } else if (this.$route.query.last === PageNames.LESSON_SUMMARY) {
           // HACK to fix #7583 and #7584
           return {
-            name: PageNames.SUMMARY,
+            name: PageNames.LESSON_SUMMARY,
           };
         } else {
           return this.toolbarRoute;
@@ -393,7 +392,7 @@
       },
       getBookmarksLink() {
         return {
-          name: LessonsPageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
+          name: PageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
         };
       },
       lessonCardClicked() {
@@ -437,14 +436,14 @@
         return !is_leaf;
       },
       selectionRootLink() {
-        return this.$router.getRoute(LessonsPageNames.SELECTION_ROOT, {}, this.$route.query);
+        return this.$router.getRoute(PageNames.SELECTION_ROOT, {}, this.$route.query);
       },
       topicListingLink({ topicId }) {
-        return this.$router.getRoute(LessonsPageNames.SELECTION, { topicId }, this.$route.query);
+        return this.$router.getRoute(PageNames.SELECTION, { topicId }, this.$route.query);
       },
       bookmarkListingLink({ topicId }) {
         return this.$router.getRoute(
-          LessonsPageNames.LESSON_SELECTION_BOOKMARKS,
+          PageNames.LESSON_SELECTION_BOOKMARKS,
           { topicId },
           this.$route.query,
         );
@@ -455,7 +454,7 @@
         }
         const { query } = this.$route;
         return {
-          name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
+          name: PageNames.SELECTION_CONTENT_PREVIEW,
           params: {
             ...this.routerParams,
             contentId: content.id,
@@ -474,7 +473,7 @@
         }
         const { query } = this.$route;
         return {
-          name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
+          name: PageNames.SELECTION_CONTENT_PREVIEW,
           params: {
             ...this.routerParams,
             contentId: content.id,
@@ -525,7 +524,7 @@
           query.last = lastPage;
         }
         this.$router.push({
-          name: LessonsPageNames.SELECTION_SEARCH,
+          name: PageNames.SELECTION_SEARCH,
           params: {
             searchTerm,
           },

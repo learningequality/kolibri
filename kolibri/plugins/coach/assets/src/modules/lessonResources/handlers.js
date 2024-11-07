@@ -8,7 +8,7 @@ import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import chunk from 'lodash/chunk';
 import useUser from 'kolibri.coreVue.composables.useUser';
 import { get } from '@vueuse/core';
-import { LessonsPageNames } from '../../constants/lessonsConstants';
+import { PageNames } from '../../constants';
 
 async function showResourceSelectionPage(store, params) {
   const {
@@ -74,13 +74,13 @@ async function showResourceSelectionPage(store, params) {
           store.commit('lessonSummary/resources/SET_SEARCH_RESULTS', params.searchResults);
         }
         store.commit('SET_PAGE_NAME', pageName);
-        if (pageName === LessonsPageNames.SELECTION_SEARCH) {
+        if (pageName === PageNames.SELECTION_SEARCH) {
           store.commit('SET_TOOLBAR_ROUTE', {
-            name: LessonsPageNames.SELECTION_ROOT,
+            name: PageNames.SELECTION_ROOT,
           });
         } else {
           store.commit('SET_TOOLBAR_ROUTE', {
-            name: LessonsPageNames.SUMMARY,
+            name: PageNames.LESSON_SUMMARY,
           });
         }
         return setResourceCachePromise.then(() => {
@@ -107,7 +107,7 @@ export function showLessonResourceSelectionRootPage(store, params) {
           classId: params.classId,
           lessonId: params.lessonId,
           contentList: channelContentList,
-          pageName: LessonsPageNames.SELECTION_ROOT,
+          pageName: PageNames.SELECTION_ROOT,
           descendantCounts,
         });
       },
@@ -130,7 +130,7 @@ export function showLessonResourceSelectionTopicPage(store, params) {
         classId: params.classId,
         lessonId: params.lessonId,
         contentList: childNodes,
-        pageName: LessonsPageNames.SELECTION,
+        pageName: PageNames.SELECTION,
         descendantCounts,
         ancestors: [...topicNode.ancestors, topicNode],
       });
@@ -150,7 +150,7 @@ export function showLessonResourceBookmarks(store, params) {
         classId: params.classId,
         lessonId: params.lessonId,
         bookmarksList: childNodes,
-        pageName: LessonsPageNames.SELECTION,
+        pageName: PageNames.SELECTION,
         ancestors: [...topicNode.ancestors, topicNode],
       });
     });
@@ -222,7 +222,7 @@ export async function showLessonSelectionContentPreview(store, params, query = {
         const { searchTerm, ...otherQueryParams } = query;
         if (searchTerm) {
           store.commit('SET_TOOLBAR_ROUTE', {
-            name: LessonsPageNames.SELECTION_SEARCH,
+            name: PageNames.SELECTION_SEARCH,
             params: {
               searchTerm,
             },
@@ -230,7 +230,7 @@ export async function showLessonSelectionContentPreview(store, params, query = {
           });
         } else {
           store.commit('SET_TOOLBAR_ROUTE', {
-            name: LessonsPageNames.SELECTION,
+            name: PageNames.SELECTION,
             params: {
               topicId: contentNode.parent,
             },
@@ -273,7 +273,7 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
         });
       }
 
-      store.commit('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
+      store.commit('SET_PAGE_NAME', PageNames.CONTENT_PREVIEW);
       return contentNode;
     },
     error => {
@@ -298,7 +298,7 @@ export function showLessonResourceSearchPage(store, params, query = {}) {
         lessonId: params.lessonId,
         contentList: results.results,
         searchResults: results,
-        pageName: LessonsPageNames.SELECTION_SEARCH,
+        pageName: PageNames.SELECTION_SEARCH,
       });
     });
   });

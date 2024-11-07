@@ -92,7 +92,7 @@
         };
       },
       previousPageRoute() {
-        return this.$router.getRoute(PageNames.SUMMARY);
+        return this.$router.getRoute(PageNames.LESSON_SUMMARY);
       },
     },
     created() {

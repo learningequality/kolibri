@@ -1,5 +1,3 @@
-import { LessonsPageNames } from './lessonsConstants';
-
 export const PageNames = {
   HOME_PAGE: 'HomePage', // make sure this matches the Coach 'Home' page name
   REPORTS_PAGE: 'REPORTS_PAGE',
@@ -94,8 +92,8 @@ export const ViewMoreButtonStates = {
 
 export const pageNameToModuleMap = {
   [PageNames.EXAM_REPORT_DETAIL]: 'examReportDetail',
-  [LessonsPageNames.LESSONS_ROOT]: 'lessonsRoot',
-  [LessonsPageNames.RESOURCE_USER_REPORT]: 'exerciseDetail',
+  [PageNames.LESSONS_ROOT]: 'lessonsRoot',
+  [PageNames.RESOURCE_USER_REPORT]: 'exerciseDetail',
   // Omitting modules for resource selection, exam creation, and preview to prevent
   // default module state resetting behavior.
 };

@@ -98,7 +98,7 @@ class CoachToolsModule extends KolibriApp {
           PageNames.EXAMS_ROOT,
           PageNames.LESSONS_ROOT,
           PageNames.LESSON_CREATION_ROOT,
-          PageNames.SUMMARY,
+          PageNames.LESSON_SUMMARY,
           PageNames.LESSON_EDIT_DETAILS,
           PageNames.SELECTION_ROOT,
           PageNames.SELECTION,

@@ -198,7 +198,6 @@
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoachAppBarPage from '../CoachAppBarPage';
-  import { LessonsPageNames } from '../../constants/lessonsConstants';
   import commonCoach from '../common';
   import AssignmentDetailsModal from '../common/assignments/AssignmentDetailsModal';
   import { useLessons } from '../../composables/useLessons';
@@ -206,6 +205,7 @@
   import * as csvFields from '../../csv/fields';
   import CSVExporter from '../../csv/exporter';
   import CoachHeader from '../common/CoachHeader.vue';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'LessonsRootPage',
@@ -271,7 +271,7 @@
         return countBy(this.lessons, 'active');
       },
       newLessonRoute() {
-        return { name: LessonsPageNames.LESSON_CREATION_ROOT };
+        return { name: PageNames.LESSON_CREATION_ROOT };
       },
       hasVisibleLessons() {
         return this.activeLessonCounts.true;
@@ -325,7 +325,7 @@
         }
       },
       lessonSummaryLink({ lessonId }) {
-        return this.classRoute(LessonsPageNames.SUMMARY, { lessonId });
+        return this.classRoute(PageNames.LESSON_SUMMARY, { lessonId });
       },
       handleDetailsModalContinue(payload) {
         this.detailsModalIsDisabled = true;

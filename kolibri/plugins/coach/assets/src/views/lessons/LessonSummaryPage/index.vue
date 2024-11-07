@@ -91,7 +91,6 @@
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import ReportsControls from '../../common/ReportsControls';
-  import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../../constants/tabsConstants';
   import { PageNames } from '../../../constants';
   import LessonResourcesTable from './tables/LessonResourcesTable';
@@ -151,7 +150,7 @@
         return this.$route.params.lessonId;
       },
       lessonSelectionRootPage() {
-        return this.classRoute(LessonsPageNames.SELECTION_ROOT, { lessonId: this.lessonId });
+        return this.classRoute(PageNames.SELECTION_ROOT, { lessonId: this.lessonId });
       },
       activeTabId() {
         const { tabId } = this.$route.params;
@@ -174,7 +173,7 @@
 
         tabsList.forEach(tab => {
           tab.to = this.classRoute(
-            this.group ? PageNames.GROUP_LESSON_SUMMARY : LessonsPageNames.SUMMARY,
+            this.group ? PageNames.GROUP_LESSON_SUMMARY : PageNames.LESSON_SUMMARY,
             { tabId: tab.id },
           );
         });

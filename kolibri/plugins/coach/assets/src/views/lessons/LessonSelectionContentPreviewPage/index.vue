@@ -67,7 +67,7 @@
         const lastRoute = get(this.$route, ['query', 'last']);
         if (lastRoute) {
           // HACK to fix #7583 and #7584
-          if (lastRoute === PageNames.SUMMARY) {
+          if (lastRoute === PageNames.LESSON_SUMMARY) {
             return {
               name: PageNames.SELECTION,
               params: {

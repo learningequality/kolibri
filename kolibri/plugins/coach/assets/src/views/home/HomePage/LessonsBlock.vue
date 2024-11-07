@@ -26,7 +26,7 @@
         :tally="tableRow.tally"
         :groupNames="groupAndAdHocLearnerNames(tableRow.groups, tableRow.assignments)"
         :hasAssignments="tableRow.hasAssignments"
-        :to="classRoute(PageNames.SUMMARY, { lessonId: tableRow.key, tabId: 'tabLearners' })"
+        :to="classRoute(PageNames.LESSON_SUMMARY, { lessonId: tableRow.key, tabId: 'tabLearners' })"
       />
     </BlockItem>
   </Block>

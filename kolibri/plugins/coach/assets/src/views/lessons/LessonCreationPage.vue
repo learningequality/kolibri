@@ -52,7 +52,7 @@
   import AssignmentDetailsModal from '../common/assignments/AssignmentDetailsModal';
   import commonCoach from '../common';
   import CoachImmersivePage from '../CoachImmersivePage';
-  import { LessonsPageNames } from '../../constants/lessonsConstants';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'LessonCreationPage',
@@ -64,7 +64,7 @@
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       showSidePanel() {
-        return this.$route.name === LessonsPageNames.LESSON_CREATION_ROOT_BETTER;
+        return this.$route.name === PageNames.LESSON_CREATION_ROOT_BETTER;
       },
       classId() {
         return this.$route.params.classId;

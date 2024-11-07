@@ -2,8 +2,7 @@ import { ClassroomResource } from 'kolibri.resources';
 import logger from 'kolibri.lib.logging';
 import useUser from 'kolibri.coreVue.composables.useUser';
 import { get } from '@vueuse/core';
-import { pageNameToModuleMap } from '../constants';
-import { LessonsPageNames } from '../constants/lessonsConstants';
+import { PageNames, pageNameToModuleMap } from '../constants';
 import examReportDetail from './examReportDetail';
 import exerciseDetail from './exerciseDetail';
 import groups from './groups';
@@ -114,8 +113,8 @@ export default {
     resetModuleState(store, { toRoute, fromRoute }) {
       // If going from Lesson Summary to something other than Resource Selection, reset
       if (
-        fromRoute.name === LessonsPageNames.SUMMARY &&
-        ![LessonsPageNames.SELECTION_ROOT, LessonsPageNames.SUMMARY].includes(toRoute.name)
+        fromRoute.name === PageNames.LESSON_SUMMARY &&
+        ![PageNames.SELECTION_ROOT, PageNames.LESSON_SUMMARY].includes(toRoute.name)
       ) {
         return store.dispatch('lessonSummary/resetLessonSummaryState');
       }

@@ -69,7 +69,7 @@ export function createLesson(store, { classId, payload }) {
         // Update the class summary now that we have a new lesson in town!
         store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
           router.push({
-            name: PageNames.SUMMARY,
+            name: PageNames.LESSON_SUMMARY,
             params: {
               classId,
               lessonId: newLesson.id,

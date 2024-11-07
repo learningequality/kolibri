@@ -7,7 +7,9 @@
           <p>
             <BackLink
               :to="
-                group ? classRoute(PageNames.GROUP_LESSON_SUMMARY) : classRoute(PageNames.SUMMARY)
+                group
+                  ? classRoute(PageNames.GROUP_LESSON_SUMMARY)
+                  : classRoute(PageNames.LESSON_SUMMARY)
               "
               :text="coachString('backToLessonLabel', { lesson: lesson.title })"
             />

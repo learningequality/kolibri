@@ -9,7 +9,6 @@ import {
   showLessonResourceBookmarksMain,
 } from '../modules/lessonResources/handlers';
 import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
-import { LessonsPageNames } from '../constants/lessonsConstants';
 import { PageNames } from '../constants';
 
 import { useLessons } from '../composables/useLessons';
@@ -75,11 +74,11 @@ function defaultHandler() {
 
 export default [
   {
-    name: LessonsPageNames.LESSONS_ROOT,
+    name: PageNames.LESSONS_ROOT,
     path: path(OPTIONAL_CLASS, ALL_LESSONS),
     component: LessonsRootPage,
     handler(toRoute, fromRoute, next) {
-      if (classIdParamRequiredGuard(toRoute, LessonsPageNames.LESSONS_ROOT, next)) {
+      if (classIdParamRequiredGuard(toRoute, PageNames.LESSONS_ROOT, next)) {
         return;
       }
       showLessonsRootPage(store, toRoute.params.classId);
@@ -89,11 +88,11 @@ export default [
     },
   },
   {
-    name: LessonsPageNames.LESSONS_ROOT_BETTER,
+    name: PageNames.LESSONS_ROOT_BETTER,
     path: path(OPTIONAL_CLASS, ALL_LESSONS_TEMP),
     component: LessonsRootPage,
     handler(toRoute, fromRoute, next) {
-      if (classIdParamRequiredGuard(toRoute, LessonsPageNames.LESSONS_ROOT_BETTER, next)) {
+      if (classIdParamRequiredGuard(toRoute, PageNames.LESSONS_ROOT_BETTER, next)) {
         return;
       }
       showLessonsRootPage(store, toRoute.params.classId);
@@ -103,12 +102,12 @@ export default [
     },
   },
   {
-    name: LessonsPageNames.LESSON_CREATION_ROOT,
+    name: PageNames.LESSON_CREATION_ROOT,
     path: path(CLASS, ALL_LESSONS, '/new'),
     component: LessonCreationPage,
   },
   {
-    name: LessonsPageNames.LESSON_CREATION_ROOT_BETTER,
+    name: PageNames.LESSON_CREATION_ROOT_BETTER,
     path: path(CLASS, LESSONS_TEMP, '/edit'),
     component: LessonCreationPage,
     children: [
@@ -138,12 +137,12 @@ export default [
     ],
   },
   {
-    name: LessonsPageNames.SUMMARY,
+    name: PageNames.LESSON_SUMMARY,
     path: path(CLASS, LESSON, '/:tabId?'),
     component: LessonSummaryPage,
     handler(toRoute, fromRoute) {
       if (
-        fromRoute.name !== LessonsPageNames.SUMMARY ||
+        fromRoute.name !== PageNames.LESSON_SUMMARY ||
         toRoute.params.lessonId !== fromRoute.params.lessonId
       ) {
         return showLessonSummaryPage(store, toRoute.params);
@@ -160,7 +159,7 @@ export default [
     component: LessonEditDetailsPage,
   },
   {
-    name: LessonsPageNames.SELECTION_ROOT,
+    name: PageNames.SELECTION_ROOT,
     path: path(CLASS, LESSON, SELECTION),
     component: LessonResourceSelectionPage,
     handler(toRoute) {
@@ -168,7 +167,7 @@ export default [
     },
   },
   {
-    name: LessonsPageNames.SELECTION,
+    name: PageNames.SELECTION,
     path: path(CLASS, LESSON, SELECTION, TOPIC),
     component: LessonResourceSelectionPage,
     handler(toRoute, fromRoute) {
@@ -177,7 +176,7 @@ export default [
       // called whether or not a change is made, because we don't track changes
       // enough steps back.
       let preHandlerPromise;
-      if (fromRoute.name === LessonsPageNames.SELECTION_CONTENT_PREVIEW) {
+      if (fromRoute.name === PageNames.SELECTION_CONTENT_PREVIEW) {
         preHandlerPromise = store.dispatch('lessonSummary/saveLessonResources', {
           lessonId: toRoute.params.lessonId,
           resources: store.state.lessonSummary.workingResources,
@@ -191,7 +190,7 @@ export default [
     },
   },
   {
-    name: LessonsPageNames.SELECTION_SEARCH,
+    name: PageNames.SELECTION_SEARCH,
     path: path(CLASS, LESSON, SELECTION, SEARCH),
     component: LessonResourceSelectionPage,
     handler(toRoute) {
@@ -199,12 +198,12 @@ export default [
     },
   },
   {
-    name: LessonsPageNames.LESSON_SELECTION_BOOKMARKS,
+    name: PageNames.LESSON_SELECTION_BOOKMARKS,
     path: path(CLASS, LESSON, SELECTION, TOPIC),
     component: LessonResourceSelectionPage,
     handler(toRoute, fromRoute) {
       let preHandlerPromise;
-      if (fromRoute.name === LessonsPageNames.SELECTION_CONTENT_PREVIEW) {
+      if (fromRoute.name === PageNames.SELECTION_CONTENT_PREVIEW) {
         preHandlerPromise = store.dispatch('lessonSummary/saveLessonResources', {
           lessonId: toRoute.params.lessonId,
           resources: store.state.lessonSummary.workingResources,
@@ -218,7 +217,7 @@ export default [
     },
   },
   {
-    name: LessonsPageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
+    name: PageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
     path: path(CLASS, LESSON, SELECTION),
     component: LessonResourceSelectionPage,
     handler(toRoute) {
@@ -226,7 +225,7 @@ export default [
     },
   },
   {
-    name: LessonsPageNames.SELECTION_CONTENT_PREVIEW,
+    name: PageNames.SELECTION_CONTENT_PREVIEW,
     path: path(CLASS, LESSON, SELECTION, PREVIEW),
     component: LessonSelectionContentPreviewPage,
     handler(toRoute) {
@@ -234,7 +233,7 @@ export default [
     },
   },
   {
-    name: LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
+    name: PageNames.RESOURCE_CONTENT_PREVIEW,
     path: path(CLASS, LESSON, '/resource', PREVIEW),
     component: LessonSelectionContentPreviewPage,
     props(data) {
@@ -246,7 +245,7 @@ export default [
         };
       } else {
         backRoute = {
-          name: LessonsPageNames.SUMMARY,
+          name: PageNames.LESSON_SUMMARY,
         };
       }
       return {

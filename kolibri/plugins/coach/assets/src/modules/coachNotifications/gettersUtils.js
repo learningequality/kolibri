@@ -68,7 +68,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: true,
     },
-    value: PageNames.SUMMARY,
+    value: PageNames.LESSON_SUMMARY,
   },
   {
     key: {

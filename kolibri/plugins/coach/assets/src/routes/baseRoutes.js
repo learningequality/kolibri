@@ -1,10 +1,9 @@
 import { PageNames } from '../constants';
-import { LessonsPageNames } from '../constants/lessonsConstants';
 import routes from '.';
 
 const baseRouteNames = {
   classHome: PageNames.HOME_PAGE,
-  lessons: LessonsPageNames.LESSONS_ROOT,
+  lessons: PageNames.LESSONS_ROOT,
   quizzes: PageNames.EXAMS_ROOT,
   learners: PageNames.LEARNERS_ROOT,
   groups: PageNames.GROUPS_ROOT,
