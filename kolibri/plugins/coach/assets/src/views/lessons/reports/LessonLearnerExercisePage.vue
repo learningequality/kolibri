@@ -27,12 +27,25 @@
       LearnerExerciseReport,
     },
     mixins: [commonCoach],
+    data() {
+      return {
+        prevRoute: null,
+      };
+    },
     computed: {
       ...mapState('exerciseDetail', ['exercise']),
       toolbarRoute() {
         const backRoute = this.backRouteForQuery(this.$route.query);
-        return backRoute || this.classRoute(PageNames.LESSON_LEARNER_REPORT, {});
+        if (backRoute) {
+          return backRoute;
+        }
+        return this.prevRoute || this.classRoute(PageNames.LESSON_LEARNER_REPORT, {});
       },
+    },
+    beforeRouteEnter(to, from, next) {
+      next(vm => {
+        vm.prevRoute = from;
+      });
     },
     methods: {
       handleNavigation(params) {
