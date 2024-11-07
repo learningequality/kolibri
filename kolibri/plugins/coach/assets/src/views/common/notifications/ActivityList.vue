@@ -80,11 +80,7 @@
         type: String,
         required: true,
         validator(value) {
-          return [
-            'HomeActivityPage',
-            'ReportsLearnerActivityPage',
-            'ReportsGroupActivityPage',
-          ].includes(value);
+          return ['HomeActivityPage', 'ReportsLearnerActivityPage'].includes(value);
         },
       },
     },
@@ -117,8 +113,6 @@
             return { last: LastPages.HOME_ACTIVITY };
           case 'ReportsLearnerActivityPage':
             return { last: LastPages.LEARNER_ACTIVITY, last_id: this.$route.params.learnerId };
-          case 'ReportsGroupActivityPage':
-            return { last: LastPages.GROUP_ACTIVITY, last_id: this.$route.params.groupId };
           default:
             return {};
         }
@@ -127,8 +121,6 @@
         switch (this.embeddedPageName) {
           case 'ReportsLearnerActivityPage':
             return { learner_id: this.$route.params.learnerId };
-          case 'ReportsGroupActivityPage':
-            return { group_id: this.$route.params.groupId };
           default:
             return {};
         }
@@ -163,7 +155,6 @@
       // Filter incoming notifications according to the embedded page
       // For HomeActivityPage - no filter
       // For ReportsLearnerActivityPage - notification.user_id === current learnerId
-      // For ReportsGroupActivityPage - notification.user_id in group.users
       notificationsFilter(notification) {
         if (notification.event === 'Answered') {
           return false;
@@ -174,13 +165,7 @@
         if (this.embeddedPageName === 'ReportsLearnerActivityPage') {
           return notification.user_id === this.$route.params.learnerId;
         }
-        if (this.embeddedPageName === 'ReportsGroupActivityPage') {
-          return this.notificationBelongsToGroup(notification, this.$route.params.groupId);
-        }
         return true;
-      },
-      notificationBelongsToGroup(notification, groupId) {
-        return notification.assignment_collections.includes(groupId);
       },
       showNotification(notification) {
         if (this.noFiltersApplied) {

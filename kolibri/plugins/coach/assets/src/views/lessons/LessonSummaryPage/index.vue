@@ -7,7 +7,7 @@
           examOrLesson="lesson"
           :backlinkLabel="group ? group.name : coreString('allLessonsLabel')"
           :backlink="
-            group ? classRoute('ReportsGroupReportPage') : classRoute(PageNames.LESSONS_ROOT)
+            group ? classRoute(PageNames.GROUP_SUMMARY) : classRoute(PageNames.LESSONS_ROOT)
           "
         >
           <template #dropdown>
@@ -187,7 +187,7 @@
       recipients() {
         return this.group
           ? this.getLearnersForGroups([this.group.id])
-          : this.getLearnersForLesson(this.lesson);
+          : this.getLearnersForLesson(this.currentLesson);
       },
       resourcesTable() {
         return this.workingResources.map(resource => {
@@ -279,9 +279,7 @@
             );
           } else {
             return this.classRoute(
-              this.group
-                ? 'ReportsGroupReportLessonResourceLearnerListPage'
-                : PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
+              this.group ? PageNames.GROUPS_ROOT : PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
               { resourceId: resource.content_id },
             );
           }

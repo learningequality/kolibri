@@ -11,6 +11,7 @@ import { generateQuestionListHandler } from '../modules/questionList/handlers';
 import GroupLessonExerciseLearnersPage from '../views/groups/reports/GroupLessonExerciseLearnersPage.vue';
 import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
 import { generateResourceHandler } from '../modules/resourceDetail/handlers';
+import QuizSummaryPage from '../views/quizzes/QuizSummaryPage';
 
 const CLASS = '/:classId';
 const ALL_GROUPS = '/groups';
@@ -20,6 +21,7 @@ const LEARNER = '/learners/:learnerId';
 const LEARNERS = '/learners';
 const QUESTIONS = '/questions';
 const EXERCISE = '/exercises/:exerciseId';
+const QUIZ = '/quizzes/:quizId';
 
 function path(...args) {
   return args.join('');
@@ -75,6 +77,9 @@ export default [
       }
       store.dispatch('notLoading');
     },
+    props: {
+      editable: false,
+    },
     meta: {
       titleParts: ['LESSON_NAME', 'LEARNER_NAME', 'CLASS_NAME'],
     },
@@ -104,6 +109,14 @@ export default [
     handler: generateQuestionListHandler(['groupId', 'lessonId', 'exerciseId']),
     meta: {
       titleParts: ['questionsLabel', 'EXERCISE_NAME', 'LESSON_NAME', 'GROUP_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    name: PageNames.GROUP_EXAM_SUMMARY,
+    path: path(CLASS, GROUP, QUIZ, '/:tabId?'),
+    component: QuizSummaryPage,
+    meta: {
+      titleParts: ['QUIZ_NAME', 'quizzesLabel', 'CLASS_NAME'],
     },
   },
 ];

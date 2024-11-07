@@ -98,15 +98,15 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { PageNames } from '../../constants';
-  import commonCoach from '../common';
-  import CoachAppBarPage from '../CoachAppBarPage';
-  import CSVExporter from '../../csv/exporter';
-  import * as csvFields from '../../csv/fields';
-  import ReportsControls from '../common/ReportsControls';
+  import { PageNames } from '../../../constants';
+  import commonCoach from '../../common';
+  import CoachAppBarPage from '../../CoachAppBarPage';
+  import CSVExporter from '../../../csv/exporter';
+  import * as csvFields from '../../../csv/fields';
+  import ReportsControls from '../../common/ReportsControls';
 
   export default {
-    name: 'ReportsLearnerReportLessonPage',
+    name: 'LearnerLessonPage',
     components: {
       CoachAppBarPage,
       ReportsControls,
@@ -135,7 +135,7 @@
           }
           const tableRow = {
             statusObj: this.getContentStatusObjForLearner(content.content_id, this.learner.id),
-            link: this.classRoute(PageNames.REPORTS_LEARNER_REPORT_LESSON_EXERCISE_PAGE_ROOT, {
+            link: this.classRoute(PageNames.LESSON_LEARNER_EXERCISE_PAGE_ROOT, {
               exerciseId: content.content_id,
               learnerId: this.learner.id,
             }),
@@ -181,6 +181,6 @@
 
 <style lang="scss" scoped>
 
-  @import '../common/print-table';
+  @import '../../common/print-table';
 
 </style>

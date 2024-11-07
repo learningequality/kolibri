@@ -4,7 +4,6 @@ import { PageNames } from '../../constants';
 
 // Just makes an params object that should work with all the paths.
 // It has extra params that may not be used by some routes.
-// See reportRoutes.js for details on param naming.
 function makeParams(notification) {
   return {
     groupId: notification.collection.id,
@@ -33,14 +32,6 @@ const pageNameToNotificationPropsMap = [
   },
   {
     key: {
-      object: 'NonExercise',
-      isMultiple: true,
-      isWholeClass: false,
-    },
-    value: 'ReportsGroupReportLessonResourceLearnerListPage',
-  },
-  {
-    key: {
       object: 'Lesson',
       isMultiple: true,
       isWholeClass: false,
@@ -53,7 +44,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: false,
     },
-    value: 'ReportsGroupReportQuizLearnerListPage',
+    value: PageNames.GROUP_EXAM_SUMMARY,
   },
   {
     key: {
@@ -85,15 +76,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: true,
     },
-    value: 'ReportsQuizLearnerListPage',
-  },
-  {
-    key: {
-      object: 'Exercise',
-      isMultiple: false,
-      isWholeClass: false,
-    },
-    value: 'ReportsGroupReportLessonExerciseLearnerPage',
+    value: PageNames.EXAM_SUMMARY,
   },
   {
     key: {
@@ -109,7 +92,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: false,
       isWholeClass: false,
     },
-    value: 'ReportsLearnerReportQuizPage',
+    value: PageNames.QUIZ_LEARNER_PAGE_ROOT,
   },
   {
     key: {
@@ -133,7 +116,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: false,
       isWholeClass: true,
     },
-    value: 'ReportsQuizLearnerPage',
+    value: PageNames.QUIZ_LEARNER_PAGE_ROOT,
   },
 ];
 

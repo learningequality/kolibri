@@ -7,8 +7,12 @@
     >
       <KGridItem>
         <QuizLessonDetailsHeader
-          :backlink="$router.getRoute(PageNames.EXAMS_ROOT)"
-          :backlinkLabel="coachString('allQuizzesLabel')"
+          :backlink="
+            group
+              ? classRoute(classRoute(PageNames.GROUP_SUMMARY))
+              : classRoute(PageNames.EXAMS_ROOT)
+          "
+          :backlinkLabel="group ? group.name : coachString('allQuizzesLabel')"
           examOrLesson="exam"
         >
           <template #dropdown>
@@ -55,14 +59,14 @@
             :activeTabId="activeTabId"
           >
             <template #[QuizzesTabs.REPORT]>
-              <ReportsLearnersTable
+              <LearnersTable
                 ref="table"
                 :entries="learnersTable"
                 :questionCount="exam.question_count"
               />
             </template>
             <template #[QuizzesTabs.DIFFICULT_QUESTIONS]>
-              <ReportsDifficultQuestionsTable
+              <DifficultQuestionsTable
                 ref="table"
                 :entries="difficultQuestionsTable"
               />
@@ -102,8 +106,8 @@
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import ReportsControls from '../../common/ReportsControls';
-  import ReportsLearnersTable from '../../common/tables/ReportsLearnersTable';
-  import ReportsDifficultQuestionsTable from '../../reports/ReportsDifficultQuestionsTable';
+  import LearnersTable from '../../common/tables/ReportsLearnersTable';
+  import DifficultQuestionsTable from './tables/DifficultQuestionsTable';
   import QuizOptionsDropdownMenu from './QuizOptionsDropdownMenu';
   import ManageExamModals from './ManageExamModals';
   import {
@@ -119,9 +123,9 @@
       CoachAppBarPage,
       ReportsControls,
       ManageExamModals,
-      ReportsLearnersTable,
+      LearnersTable,
       QuizOptionsDropdownMenu,
-      ReportsDifficultQuestionsTable,
+      DifficultQuestionsTable,
     },
     mixins: [commonCoach, coachStringsMixin, commonCoreStrings],
     setup() {
@@ -175,6 +179,9 @@
       exam() {
         return this.examMap[this.quizId];
       },
+      group() {
+        return this.$route.params.groupId && this.groupMap[this.$route.params.groupId];
+      },
       recipients() {
         return this.getLearnersForExam(this.exam);
       },
@@ -198,7 +205,10 @@
         }
 
         tabsList.forEach(tab => {
-          tab.to = this.classRoute(PageNames.EXAM_SUMMARY, { tabId: tab.id });
+          tab.to = this.classRoute(
+            this.group ? PageNames.GROUP_EXAM_SUMMARY : PageNames.EXAM_SUMMARY,
+            { tabId: tab.id },
+          );
         });
 
         return tabsList;
@@ -339,7 +349,7 @@
           });
       },
       detailLink(learnerId) {
-        return this.classRoute(PageNames.REPORTS_QUIZ_LEARNER_PAGE_ROOT, {
+        return this.classRoute(PageNames.QUIZ_LEARNER_PAGE_ROOT, {
           learnerId,
         });
       },

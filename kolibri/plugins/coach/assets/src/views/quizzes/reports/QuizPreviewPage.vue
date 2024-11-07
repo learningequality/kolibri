@@ -33,13 +33,13 @@
 
   import fromPairs from 'lodash/fromPairs';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import commonCoach from '../common';
-  import CoachImmersivePage from '../CoachImmersivePage';
-  import QuestionListPreview from '../quizzes/CreateExamPage/QuestionListPreview';
-  import { fetchQuizSummaryPageData } from '../quizzes/QuizSummaryPage/api';
+  import commonCoach from '../../common';
+  import CoachImmersivePage from '../../CoachImmersivePage';
+  import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
+  import { fetchQuizSummaryPageData } from '../QuizSummaryPage/api';
 
   export default {
-    name: 'ReportsQuizPreviewPage',
+    name: 'QuizPreviewPage',
     components: {
       CoachImmersivePage,
       QuestionListPreview,

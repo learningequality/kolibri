@@ -43,12 +43,12 @@
 
 <script>
 
-  import commonCoach from '../common';
-  import LearnerProgressRatio from '../common/status/LearnerProgressRatio';
-  import { coachStrings } from '../common/commonCoachStrings';
-  import * as csvFields from '../../csv/fields';
-  import CSVExporter from '../../csv/exporter';
-  import { PageNames } from './../../constants';
+  import commonCoach from '../../../common';
+  import LearnerProgressRatio from '../../../common/status/LearnerProgressRatio';
+  import { coachStrings } from '../../../common/commonCoachStrings';
+  import * as csvFields from '../../../../csv/fields';
+  import CSVExporter from '../../../../csv/exporter';
+  import { PageNames } from '../../../../constants';
 
   export default {
     name: 'ReportsDifficultQuestionsTable',
@@ -83,15 +83,10 @@
     },
     methods: {
       questionLink(questionId) {
-        return this.classRoute(
-          this.group
-            ? PageNames.REPORTS_GROUP_REPORT_QUIZ_QUESTION_PAGE_ROOT
-            : PageNames.REPORTS_QUIZ_QUESTION_PAGE_ROOT,
-          {
-            questionId,
-            quizId: this.$route.params.quizId,
-          },
-        );
+        return this.classRoute(PageNames.QUIZ_QUESTION_PAGE_ROOT, {
+          questionId,
+          quizId: this.$route.params.quizId,
+        });
       },
       getQuestionTitle(question) {
         return this.nthExerciseName$({

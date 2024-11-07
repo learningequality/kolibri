@@ -92,15 +92,10 @@
     },
     methods: {
       questionLink(questionId) {
-        return this.classRoute(
-          this.group
-            ? PageNames.REPORTS_GROUP_REPORT_LESSON_EXERCISE_QUESTION_PAGE_ROOT
-            : PageNames.LESSON_EXERCISE_QUESTION_PAGE_ROOT,
-          {
-            questionId,
-            exerciseId: this.$route.params.exerciseId,
-          },
-        );
+        return this.classRoute(PageNames.LESSON_EXERCISE_QUESTION_PAGE_ROOT, {
+          questionId,
+          exerciseId: this.$route.params.exerciseId,
+        });
       },
       exportCSV() {
         const columns = [...csvFields.questionTitle(), ...csvFields.helpNeeded()];

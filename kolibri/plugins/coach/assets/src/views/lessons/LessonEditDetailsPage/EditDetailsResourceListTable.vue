@@ -50,7 +50,7 @@
                         {
                           contentId: resource.contentnode_id,
                         },
-                        { last: 'LessonReportEditDetailsPage' },
+                        { last: PageNames.LESSON_EDIT_DETAILS },
                       )
                     "
                   />
@@ -111,6 +111,7 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { coachStrings } from '../../common/commonCoachStrings';
+  import { PageNames } from '../../../constants';
 
   // This is a simplified version of ResourceListTable that is supposed to work
   // outside of the LessonSummaryPage workflow.
@@ -129,6 +130,7 @@
       const { createSnackbar, clearSnackbar } = useSnackbar();
       const { noResourcesInLessonLabel$ } = coachStrings;
       return {
+        PageNames,
         noResourcesInLessonLabel$,
         createSnackbar,
         clearSnackbar,

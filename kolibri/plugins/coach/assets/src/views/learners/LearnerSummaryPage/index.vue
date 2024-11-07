@@ -40,7 +40,7 @@
                     <td>
                       <KRouterLink
                         :to="
-                          classRoute('ReportsLearnerReportLessonPage', {
+                          classRoute(PageNames.LEARNER_LESSON_REPORT, {
                             lessonId: tableRow.id,
                           })
                         "
@@ -130,6 +130,7 @@
       return {
         REPORTS_LEARNERS_TABS_ID,
         ReportsLearnersTabs,
+        PageNames,
       };
     },
     computed: {
@@ -193,7 +194,7 @@
         return this.getLearnersForExam(quiz).includes(this.learner.id);
       },
       quizLink(quizId) {
-        return this.classRoute(PageNames.REPORTS_LEARNER_REPORT_QUIZ_PAGE_ROOT, { quizId });
+        return this.classRoute(PageNames.QUIZ_LEARNER_PAGE_ROOT, { quizId });
       },
     },
     $trs: {

@@ -8,7 +8,6 @@ import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
 import { PageNames } from './constants';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
-import pages from './views/reports/allReportsPages';
 import HomeActivityPage from './views/home/HomeActivityPage';
 
 function _channelListState(data) {
@@ -65,7 +64,7 @@ class CoachToolsModule extends KolibriApp {
         PageNames.QUIZ_SELECT_RESOURCES,
         PageNames.QUIZ_SECTION_ORDER,
         PageNames.BOOK_MARKED_RESOURCES,
-        pages.ReportsQuizLearnerPage.name,
+        PageNames.QUIZ_LEARNER_REPORT,
       ];
       // If we're navigating to the same page for a quiz summary page, don't set loading
       if (

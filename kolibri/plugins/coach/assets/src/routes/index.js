@@ -11,7 +11,6 @@ import HomeActivityPage from '../views/home/HomeActivityPage';
 import StatusTestPage from '../views/common/status/StatusTestPage';
 import { ClassesPageNames } from '../../../../learn/assets/src/constants';
 import { PageNames } from '../constants';
-import reportRoutes from './reportRoutes';
 import { classIdParamRequiredGuard } from './utils';
 import examRoutes from './examRoutes';
 import lessonsRoutes from './lessonsRoutes';
@@ -34,7 +33,6 @@ export default [
   ...lessonsRoutes,
   ...learnersRoutes,
   ...groupsRoutes,
-  ...reportRoutes,
   {
     name: 'AllFacilitiesPage',
     path: '/facilities/:subtopicName?',

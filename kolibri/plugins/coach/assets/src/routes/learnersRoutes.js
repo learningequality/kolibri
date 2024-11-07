@@ -3,10 +3,12 @@ import { PageNames } from '../constants';
 import LearnersRootPage from '../views/learners/LearnersRootPage';
 import LearnerSummaryPage from '../views/learners/LearnerSummaryPage';
 import ReportsLearnerActivityPage from '../views/learners/LearnerSummaryPage/ReportsLearnerActivityPage.vue';
+import LearnerLessonPage from '../views/learners/reports/LearnerLessonPage.vue';
 
 const CLASS = '/:classId';
 const ALL_LEARNERS = '/learners';
 const LEARNER = '/learners/:learnerId';
+const LESSON = '/lessons/:lessonId';
 
 function path(...args) {
   return args.join('');
@@ -42,6 +44,15 @@ export default [
     handler: defaultHandler,
     meta: {
       titleParts: ['activityLabel', 'LEARNER_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    name: PageNames.LEARNER_LESSON_REPORT,
+    path: path(CLASS, LEARNER, LESSON),
+    component: LearnerLessonPage,
+    handler: defaultHandler,
+    meta: {
+      titleParts: ['LESSON_NAME', 'LEARNER_NAME', 'CLASS_NAME'],
     },
   },
 ];
