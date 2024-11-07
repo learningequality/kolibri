@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
@@ -37,6 +37,12 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
+        exclude: [
+          // From: https://webpack.js.org/loaders/babel-loader/#exclude-libraries-that-should-not-be-transpiled
+          // \\ for Windows, / for macOS and Linux
+          /node_modules[\\/]core-js/,
+          /node_modules[\\/]webpack[\\/]buildin/,
+        ],
       },
       {
         test: /\.css$/,
@@ -49,18 +55,15 @@ module.exports = {
         ],
       },
       {
-        test: /\.(png|jpe?g|gif|svg)$/,
-        use: {
-          loader: 'url-loader',
-          options: { limit: 10000, name: '[name]-[contenthash].[ext]' },
+        test: /\.(png|jpe?g|gif|svg|eot|woff|ttf|woff2)$/,
+        type: 'asset',
+        generator: {
+          filename: '[name]-[contenthash][ext]',
         },
-      },
-      // Use url loader to load font files.
-      {
-        test: /\.(eot|woff|ttf|woff2)$/,
-        use: {
-          loader: 'url-loader',
-          options: { name: '[name]-[contenthash].[ext]', limit: 10000 },
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10000,
+          },
         },
       },
     ],
@@ -68,9 +71,7 @@ module.exports = {
   optimization: {
     minimizer: [
       new TerserPlugin({
-        cache: true,
         parallel: true,
-        sourceMap: true,
         terserOptions: {
           mangle: false,
           safari10: true,
@@ -79,8 +80,8 @@ module.exports = {
           },
         },
       }),
-      new OptimizeCSSAssetsPlugin({
-        cssProcessorPluginOptions: {
+      new CssMinimizerPlugin({
+        minimizerOptions: {
           preset: ['default', { reduceIdents: false, zindex: false }],
         },
       }),

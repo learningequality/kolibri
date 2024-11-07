@@ -1,13 +1,13 @@
-var fs = require('fs');
-var https = require('https');
-var path = require('path');
-var url = require('url');
+var fs = require('node:fs');
+var https = require('node:https');
+var path = require('node:path');
+var url = require('node:url');
 var JSZip = require('jszip');
 var { PurgeCSS } = require('purgecss');
 
 const purger = new PurgeCSS();
 
-const h5pCommit = 'eeefc1228b4294d75288be341e5dea97a10927cb';
+const h5pCommit = fs.readFileSync(path.resolve(__dirname, './.h5p-commit-sha'), 'utf8');
 
 const zipUrl = `https://codeload.github.com/h5p/h5p-php-library/zip/${h5pCommit}`;
 
