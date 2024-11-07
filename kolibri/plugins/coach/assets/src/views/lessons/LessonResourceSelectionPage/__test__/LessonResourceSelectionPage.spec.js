@@ -15,9 +15,8 @@ const router = new VueRouter({
     { name: PageNames.LESSON_SUMMARY, path: '/summary' },
     { name: 'SELECT_RESOURCES', path: '/' },
     { name: 'LESSON_RESOURCE_SELECTION_ROOT', path: '/select' },
-    { name: 'SELECTION', path: '/select/:topicId' },
-    { name: 'SELECTION_SEARCH', path: '/search/:searchTerm' },
-    { name: 'LESSON_SUMMARY', path: '/reportslessonreportpage' },
+    { name: 'LESSON_RESOURCE_SELECTION', path: '/select/:topicId' },
+    { name: 'LESSON_RESOURCE_SELECTION_SEARCH', path: '/search/:searchTerm' },
   ],
 });
 
@@ -52,9 +51,9 @@ describe('LessonResourceSelectionPage', () => {
     };
 
     beforeAll(() => {
-      store.state.pageName = 'SELECTION_SEARCH';
+      store.state.pageName = 'LESSON_RESOURCE_SELECTION_SEARCH';
       router.replace({
-        name: 'SELECTION_SEARCH',
+        name: 'LESSON_RESOURCE_SELECTION_SEARCH',
         params: { searchTerm: 'painting' },
         query: { last_id: 'last_topic_id', ...filterValues },
       });
@@ -77,7 +76,7 @@ describe('LessonResourceSelectionPage', () => {
 
       // If last_id is in URL, link back to the topic page
       expect(button.props().to).toEqual({
-        name: 'SELECTION',
+        name: 'LESSON_RESOURCE_SELECTION',
         params: {
           topicId: 'last_topic_id',
         },
@@ -104,9 +103,9 @@ describe('LessonResourceSelectionPage', () => {
     let wrapper;
 
     beforeAll(() => {
-      store.state.pageName = 'SELECTION';
+      store.state.pageName = 'LESSON_RESOURCE_SELECTION';
       router.replace({
-        name: 'SELECTION',
+        name: 'LESSON_RESOURCE_SELECTION',
         params: { topicId: 'topic_id' },
       });
       wrapper = makeWrapper().wrapper;

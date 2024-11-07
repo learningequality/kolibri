@@ -69,7 +69,7 @@ describe('NotificationCard component', () => {
   it('shows a link if a full targetPage prop is provided', () => {
     const { wrapper } = makeWrapper({ notification });
     const link = wrapper.findComponent({ name: 'KRouterLink' });
-    expect(link.props().to.name).toEqual(PageNames.LESSON_LEARNER_REPORT);
+    expect(link.props().to.name).toEqual(PageNames.LEARNER_LESSON_REPORT);
     expect(link.props('text')).toEqual("JB completed 'Lesson 1'");
   });
 
