@@ -115,9 +115,9 @@ export default class SandboxEnvironment {
     document.body.appendChild(this.iframe);
     const baseUrl = startUrl.split('?')[0];
     this.mediator.sendMessage({ nameSpace, event: events.LOADING, data: true });
-    if (baseUrl.indexOf('.h5p') === baseUrl.length - 4) {
+    if (baseUrl.endsWith('.h5p')) {
       this.H5P.init(this.iframe, startUrl);
-    } else if ([baseUrl.length - 7, baseUrl.length - 9].includes(baseUrl.indexOf('.bloom'))) {
+    } else if (baseUrl.endsWith('bloompub') || baseUrl.endsWith('bloomd')) {
       this.Bloom.init(this.iframe, startUrl);
     } else {
       this.iframe.onload = () => {
