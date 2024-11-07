@@ -15,7 +15,7 @@ import {
   generateQuestionDetailHandler,
   questionRootRedirectHandler,
 } from '../modules/questionDetail/handlers';
-import { classIdParamRequiredGuard, useRouteTerms } from './utils';
+import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {
   CLASS,
@@ -27,7 +27,7 @@ const {
   QUESTION,
   TRY,
   INTERACTION,
-} = useRouteTerms();
+} = RouteSegments;
 
 export default [
   {

@@ -4,9 +4,9 @@ import LearnersRootPage from '../views/learners/LearnersRootPage';
 import LearnerSummaryPage from '../views/learners/LearnerSummaryPage';
 import ReportsLearnerActivityPage from '../views/learners/LearnerSummaryPage/ReportsLearnerActivityPage.vue';
 import LearnerLessonPage from '../views/learners/reports/LearnerLessonPage.vue';
-import { classIdParamRequiredGuard, useRouteTerms } from './utils';
+import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
-const { CLASS, OPTIONAL_CLASS, ALL_LEARNERS, LEARNER, LESSON } = useRouteTerms();
+const { CLASS, OPTIONAL_CLASS, ALL_LEARNERS, LEARNER, LESSON } = RouteSegments;
 
 function defaultHandler() {
   store.dispatch('notLoading');

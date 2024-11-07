@@ -12,7 +12,7 @@ import GroupLessonExerciseLearnersPage from '../views/groups/reports/GroupLesson
 import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
 import { generateResourceHandler } from '../modules/resourceDetail/handlers';
 import QuizSummaryPage from '../views/quizzes/QuizSummaryPage';
-import { classIdParamRequiredGuard, useRouteTerms } from './utils';
+import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {
   CLASS,
@@ -25,7 +25,7 @@ const {
   QUESTIONS,
   EXERCISE,
   QUIZ,
-} = useRouteTerms();
+} = RouteSegments;
 
 const { showGroupsPage } = useGroups();
 

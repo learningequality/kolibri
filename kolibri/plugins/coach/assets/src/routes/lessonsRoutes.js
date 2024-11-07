@@ -40,7 +40,7 @@ import {
 } from '../modules/questionDetail/handlers';
 import LessonLearnerExercisePage from '../views/lessons/reports/LessonLearnerExercisePage.vue';
 import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.vue';
-import { classIdParamRequiredGuard, useRouteTerms } from './utils';
+import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {
   OPTIONAL_CLASS,
@@ -62,7 +62,7 @@ const {
   TRY,
   INTERACTION,
   OPTIONAL_GROUP,
-} = useRouteTerms();
+} = RouteSegments;
 
 const { showLessonsRootPage } = useLessons();
 
