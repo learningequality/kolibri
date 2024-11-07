@@ -4,15 +4,9 @@ import LearnersRootPage from '../views/learners/LearnersRootPage';
 import LearnerSummaryPage from '../views/learners/LearnerSummaryPage';
 import ReportsLearnerActivityPage from '../views/learners/LearnerSummaryPage/ReportsLearnerActivityPage.vue';
 import LearnerLessonPage from '../views/learners/reports/LearnerLessonPage.vue';
+import { useRouteTerms } from './utils';
 
-const CLASS = '/:classId';
-const ALL_LEARNERS = '/learners';
-const LEARNER = '/learners/:learnerId';
-const LESSON = '/lessons/:lessonId';
-
-function path(...args) {
-  return args.join('');
-}
+const { CLASS, ALL_LEARNERS, LEARNER, LESSON } = useRouteTerms();
 
 function defaultHandler() {
   store.dispatch('notLoading');
@@ -21,7 +15,7 @@ function defaultHandler() {
 export default [
   {
     name: PageNames.LEARNERS_ROOT,
-    path: path(CLASS, ALL_LEARNERS),
+    path: CLASS + ALL_LEARNERS,
     component: LearnersRootPage,
     handler: defaultHandler,
     meta: {
@@ -30,7 +24,7 @@ export default [
   },
   {
     name: PageNames.LEARNER_SUMMARY,
-    path: path(CLASS, LEARNER),
+    path: CLASS + LEARNER,
     component: LearnerSummaryPage,
     handler: defaultHandler,
     meta: {
@@ -39,7 +33,7 @@ export default [
   },
   {
     name: 'ReportsLearnerActivityPage', // Will be removed in #12733
-    path: path(CLASS, LEARNER, '/activity'),
+    path: CLASS + LEARNER + '/activity',
     component: ReportsLearnerActivityPage,
     handler: defaultHandler,
     meta: {
@@ -48,7 +42,7 @@ export default [
   },
   {
     name: PageNames.LEARNER_LESSON_REPORT,
-    path: path(CLASS, LEARNER, LESSON),
+    path: CLASS + LEARNER + LESSON,
     component: LearnerLessonPage,
     handler: defaultHandler,
     meta: {

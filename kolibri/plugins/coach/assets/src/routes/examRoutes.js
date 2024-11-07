@@ -15,24 +15,15 @@ import {
   generateQuestionDetailHandler,
   questionRootRedirectHandler,
 } from '../modules/questionDetail/handlers';
+import { useRouteTerms } from './utils';
 
-const CLASS = '/:classId';
-const QUIZ = '/quizzes/:quizId';
-const ALL_QUIZZES = '/quizzes';
-const OPTIONAL_GROUP = '/groups/:groupId?';
-const LEARNER = '/learners/:learnerId';
-const QUESTION = '/questions/:questionId';
-const TRY = '/try/:tryIndex';
-const INTERACTION = '/interactions/:interactionIndex';
-
-function path(...args) {
-  return args.join('');
-}
+const { CLASS, QUIZ, ALL_QUIZZES, OPTIONAL_GROUP, LEARNER, QUESTION, TRY, INTERACTION } =
+  useRouteTerms();
 
 export default [
   {
     name: PageNames.EXAMS_ROOT,
-    path: path(CLASS, ALL_QUIZZES),
+    path: CLASS + ALL_QUIZZES,
     component: ExamsRootPage,
     meta: {
       titleParts: ['quizzesLabel', 'CLASS_NAME'],
@@ -40,7 +31,7 @@ export default [
   },
   {
     name: PageNames.EXAM_CREATION_ROOT,
-    path: path(CLASS, QUIZ, '/edit/:sectionIndex'),
+    path: CLASS + QUIZ + '/edit/:sectionIndex',
     component: CreateExamPage,
     children: [
       {
@@ -75,14 +66,14 @@ export default [
   },
   {
     name: PageNames.EXAM_SUMMARY,
-    path: path(CLASS, QUIZ, '/:tabId?'),
+    path: CLASS + QUIZ + '/:tabId?',
     component: QuizSummaryPage,
     meta: {
       titleParts: ['QUIZ_NAME', 'quizzesLabel', 'CLASS_NAME'],
     },
   },
   {
-    path: path(CLASS, OPTIONAL_GROUP, QUIZ, LEARNER),
+    path: CLASS + OPTIONAL_GROUP + QUIZ + LEARNER,
     name: PageNames.QUIZ_LEARNER_PAGE_ROOT,
     redirect: to => {
       const { params } = to;
@@ -99,7 +90,7 @@ export default [
   },
   {
     name: PageNames.QUIZ_LEARNER_REPORT,
-    path: path(CLASS, OPTIONAL_GROUP, QUIZ, LEARNER, TRY, QUESTION, INTERACTION),
+    path: CLASS + OPTIONAL_GROUP + QUIZ + LEARNER + TRY + QUESTION + INTERACTION,
     component: LearnerQuizPage,
     handler: generateExamReportDetailHandler(['groupId', 'learnerId', 'quizId']),
     meta: {
@@ -108,7 +99,7 @@ export default [
   },
   {
     name: PageNames.QUIZ_PREVIEW,
-    path: path(CLASS, QUIZ, '/preview'),
+    path: CLASS + QUIZ + '/preview',
     component: QuizPreviewPage,
     handler() {
       store.dispatch('notLoading');
@@ -119,7 +110,7 @@ export default [
   },
   {
     name: PageNames.QUIZ_QUESTION_PAGE_ROOT,
-    path: path(CLASS, OPTIONAL_GROUP, QUIZ, QUESTION),
+    path: CLASS + OPTIONAL_GROUP + QUIZ + QUESTION,
     beforeEnter: (to, from, next) => {
       const { params } = to;
       return questionRootRedirectHandler(params, PageNames.QUIZ_QUESTION_REPORT, next);
@@ -127,7 +118,7 @@ export default [
   },
   {
     name: PageNames.QUIZ_QUESTION_REPORT,
-    path: path(CLASS, OPTIONAL_GROUP, QUIZ, QUESTION, LEARNER, INTERACTION),
+    path: CLASS + OPTIONAL_GROUP + QUIZ + QUESTION + LEARNER + INTERACTION,
     component: QuestionLearnersPage,
     handler: generateQuestionDetailHandler(['groupId', 'lessonId', 'exerciseId', 'questionId']),
     meta: {

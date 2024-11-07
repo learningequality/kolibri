@@ -40,31 +40,29 @@ import {
 } from '../modules/questionDetail/handlers';
 import LessonLearnerExercisePage from '../views/lessons/reports/LessonLearnerExercisePage.vue';
 import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.vue';
-import { classIdParamRequiredGuard } from './utils';
+import { classIdParamRequiredGuard, useRouteTerms } from './utils';
 
-const OPTIONAL_CLASS = '/:classId?';
-const CLASS = '/:classId';
-const LESSON = '/lessons/:lessonId';
-const ALL_LESSONS = '/lessons';
-const ALL_LESSONS_TEMP = '/lessonstemp';
-const LESSONS_TEMP = '/lessonstemp/:lessonId';
-const SELECTION = '/selection';
-const TOPIC = '/topic/:topicId';
-const SEARCH = '/search/:searchTerm';
-const PREVIEW = '/preview/:contentId';
-const RESOURCE = '/resources/:resourceId';
-const ALL_LEARNERS = '/learners';
-const LEARNER = '/learners/:learnerId';
-const EXERCISE = '/exercises/:exerciseId';
-const QUESTIONS = '/questions';
-const QUESTION = '/questions/:questionId';
-const TRY = '/try/:tryIndex';
-const INTERACTION = '/interactions/:interactionIndex';
-const OPTIONAL_GROUP = '/groups/:groupId?';
-
-function path(...args) {
-  return args.join('');
-}
+const {
+  OPTIONAL_CLASS,
+  CLASS,
+  LESSON,
+  ALL_LESSONS,
+  ALL_LESSONS_TEMP,
+  LESSONS_TEMP,
+  SELECTION,
+  TOPIC,
+  SEARCH,
+  PREVIEW,
+  RESOURCE,
+  ALL_LEARNERS,
+  LEARNER,
+  EXERCISE,
+  QUESTIONS,
+  QUESTION,
+  TRY,
+  INTERACTION,
+  OPTIONAL_GROUP,
+} = useRouteTerms();
 
 const { showLessonsRootPage } = useLessons();
 
@@ -75,7 +73,7 @@ function defaultHandler() {
 export default [
   {
     name: PageNames.LESSONS_ROOT,
-    path: path(OPTIONAL_CLASS, ALL_LESSONS),
+    path: OPTIONAL_CLASS + ALL_LESSONS,
     component: LessonsRootPage,
     handler(toRoute, fromRoute, next) {
       if (classIdParamRequiredGuard(toRoute, PageNames.LESSONS_ROOT, next)) {
@@ -89,7 +87,7 @@ export default [
   },
   {
     name: PageNames.LESSONS_ROOT_BETTER,
-    path: path(OPTIONAL_CLASS, ALL_LESSONS_TEMP),
+    path: OPTIONAL_CLASS + ALL_LESSONS_TEMP,
     component: LessonsRootPage,
     handler(toRoute, fromRoute, next) {
       if (classIdParamRequiredGuard(toRoute, PageNames.LESSONS_ROOT_BETTER, next)) {
@@ -103,12 +101,12 @@ export default [
   },
   {
     name: PageNames.LESSON_CREATION_ROOT,
-    path: path(CLASS, ALL_LESSONS, '/new'),
+    path: CLASS + ALL_LESSONS + '/new',
     component: LessonCreationPage,
   },
   {
     name: PageNames.LESSON_CREATION_ROOT_BETTER,
-    path: path(CLASS, LESSONS_TEMP, '/edit'),
+    path: CLASS + LESSONS_TEMP + '/edit',
     component: LessonCreationPage,
     children: [
       {
@@ -138,7 +136,7 @@ export default [
   },
   {
     name: PageNames.LESSON_SUMMARY,
-    path: path(CLASS, LESSON, '/:tabId?'),
+    path: CLASS + LESSON + '/:tabId?',
     component: LessonSummaryPage,
     handler(toRoute, fromRoute) {
       if (
@@ -155,12 +153,12 @@ export default [
   },
   {
     name: PageNames.LESSON_EDIT_DETAILS,
-    path: path(CLASS, LESSON, '/edit'),
+    path: CLASS + LESSON + '/edit',
     component: LessonEditDetailsPage,
   },
   {
     name: PageNames.SELECTION_ROOT,
-    path: path(CLASS, LESSON, SELECTION),
+    path: CLASS + LESSON + SELECTION,
     component: LessonResourceSelectionPage,
     handler(toRoute) {
       showLessonResourceSelectionRootPage(store, toRoute.params);
@@ -168,7 +166,7 @@ export default [
   },
   {
     name: PageNames.SELECTION,
-    path: path(CLASS, LESSON, SELECTION, TOPIC),
+    path: CLASS + LESSON + SELECTION + TOPIC,
     component: LessonResourceSelectionPage,
     handler(toRoute, fromRoute) {
       // HACK if last page was LessonContentPreview, then we need to make sure
@@ -191,7 +189,7 @@ export default [
   },
   {
     name: PageNames.SELECTION_SEARCH,
-    path: path(CLASS, LESSON, SELECTION, SEARCH),
+    path: CLASS + LESSON + SELECTION + SEARCH,
     component: LessonResourceSelectionPage,
     handler(toRoute) {
       showLessonResourceSearchPage(store, toRoute.params, toRoute.query);
@@ -199,7 +197,7 @@ export default [
   },
   {
     name: PageNames.LESSON_SELECTION_BOOKMARKS,
-    path: path(CLASS, LESSON, SELECTION, TOPIC),
+    path: CLASS + LESSON + SELECTION + TOPIC,
     component: LessonResourceSelectionPage,
     handler(toRoute, fromRoute) {
       let preHandlerPromise;
@@ -218,7 +216,7 @@ export default [
   },
   {
     name: PageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
-    path: path(CLASS, LESSON, SELECTION),
+    path: CLASS + LESSON + SELECTION,
     component: LessonResourceSelectionPage,
     handler(toRoute) {
       showLessonResourceBookmarksMain(store, toRoute.params, toRoute.query);
@@ -226,7 +224,7 @@ export default [
   },
   {
     name: PageNames.SELECTION_CONTENT_PREVIEW,
-    path: path(CLASS, LESSON, SELECTION, PREVIEW),
+    path: CLASS + LESSON + SELECTION + PREVIEW,
     component: LessonSelectionContentPreviewPage,
     handler(toRoute) {
       showLessonSelectionContentPreview(store, toRoute.params, toRoute.query);
@@ -234,7 +232,7 @@ export default [
   },
   {
     name: PageNames.RESOURCE_CONTENT_PREVIEW,
-    path: path(CLASS, LESSON, '/resource', PREVIEW),
+    path: CLASS + LESSON + '/resource' + PREVIEW,
     component: LessonSelectionContentPreviewPage,
     props(data) {
       let backRoute;
@@ -259,7 +257,7 @@ export default [
   },
   {
     name: PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
-    path: path(CLASS, LESSON, RESOURCE, ALL_LEARNERS),
+    path: CLASS + LESSON + RESOURCE + ALL_LEARNERS,
     component: LessonResourceLearnersPage,
     handler: generateResourceHandler(['resourceId']),
     meta: {
@@ -268,7 +266,7 @@ export default [
   },
   {
     name: PageNames.LESSON_LEARNER_REPORT,
-    path: path(CLASS, LESSON, LEARNER),
+    path: CLASS + LESSON + LEARNER,
     component: LessonLearnerPage,
     handler: defaultHandler,
     meta: {
@@ -277,7 +275,7 @@ export default [
   },
   {
     name: PageNames.LESSON_EXERCISE_LEARNERS_REPORT,
-    path: path(CLASS, LESSON, EXERCISE, ALL_LEARNERS),
+    path: CLASS + LESSON + EXERCISE + ALL_LEARNERS,
     component: LessonExerciseLearnersPage,
     handler: generateResourceHandler(['exerciseId']),
     meta: {
@@ -286,7 +284,7 @@ export default [
   },
   {
     name: PageNames.LESSON_EXERCISE_LEARNER_PAGE_ROOT,
-    path: path(CLASS, LESSON, EXERCISE, LEARNER),
+    path: CLASS + LESSON + EXERCISE + LEARNER,
     beforeEnter: (to, from, next) => {
       const { params, query } = to;
       return exerciseRootRedirectHandler(
@@ -302,7 +300,7 @@ export default [
   },
   {
     name: PageNames.LESSON_EXERCISE_LEARNER_REPORT,
-    path: path(CLASS, LESSON, EXERCISE, LEARNER, TRY, QUESTION, INTERACTION),
+    path: CLASS + LESSON + EXERCISE + LEARNER + TRY + QUESTION + INTERACTION,
     component: LessonExerciseLearnerPage,
     handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
     meta: {
@@ -311,7 +309,7 @@ export default [
   },
   {
     name: PageNames.LESSON_EXERCISE_QUESTIONS_REPORT,
-    path: path(CLASS, LESSON, EXERCISE, QUESTIONS),
+    path: CLASS + LESSON + EXERCISE + QUESTIONS,
     component: ExerciseQuestionListPage,
     handler: generateQuestionListHandler(['lessonId', 'exerciseId']),
     meta: {
@@ -319,7 +317,7 @@ export default [
     },
   },
   {
-    path: path(CLASS, LESSON, EXERCISE, QUESTION),
+    path: CLASS + LESSON + EXERCISE + QUESTION,
     name: PageNames.LESSON_EXERCISE_QUESTION_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
       const { params } = to;
@@ -327,7 +325,7 @@ export default [
     },
   },
   {
-    path: path(CLASS, LESSON, LEARNER, EXERCISE),
+    path: CLASS + LESSON + LEARNER + EXERCISE,
     name: PageNames.LESSON_LEARNER_EXERCISE_PAGE_ROOT,
     beforeEnter: (to, from, next) => {
       const { params } = to;
@@ -339,7 +337,7 @@ export default [
   },
   {
     name: PageNames.LESSON_LEARNER_EXERCISE_REPORT,
-    path: path(CLASS, LESSON, LEARNER, EXERCISE, TRY, QUESTION, INTERACTION),
+    path: CLASS + LESSON + LEARNER + EXERCISE + TRY + QUESTION + INTERACTION,
     component: LessonLearnerExercisePage,
     handler: generateExerciseDetailHandler(['learnerId', 'lessonId', 'exerciseId']),
     meta: {
@@ -349,7 +347,7 @@ export default [
   },
   {
     name: PageNames.LESSON_EXERCISE_QUESTION_PAGE_ROOT,
-    path: path(CLASS, OPTIONAL_GROUP, LESSON, EXERCISE, QUESTION),
+    path: CLASS + OPTIONAL_GROUP + LESSON + EXERCISE + QUESTION,
     beforeEnter: (to, from, next) => {
       const { params } = to;
       return questionRootRedirectHandler(params, PageNames.LESSON_EXERCISE_QUESTION_REPORT, next);
@@ -357,7 +355,7 @@ export default [
   },
   {
     name: PageNames.LESSON_EXERCISE_QUESTION_REPORT,
-    path: path(CLASS, OPTIONAL_GROUP, LESSON, EXERCISE, QUESTION, LEARNER, INTERACTION),
+    path: CLASS + OPTIONAL_GROUP + LESSON + EXERCISE + QUESTION + LEARNER + INTERACTION,
     component: QuestionLearnersPage,
     handler: generateQuestionDetailHandler(['groupId', 'lessonId', 'exerciseId', 'questionId']),
     meta: {

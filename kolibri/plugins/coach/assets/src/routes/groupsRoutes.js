@@ -12,20 +12,10 @@ import GroupLessonExerciseLearnersPage from '../views/groups/reports/GroupLesson
 import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
 import { generateResourceHandler } from '../modules/resourceDetail/handlers';
 import QuizSummaryPage from '../views/quizzes/QuizSummaryPage';
+import { useRouteTerms } from './utils';
 
-const CLASS = '/:classId';
-const ALL_GROUPS = '/groups';
-const GROUP = '/groups/:groupId';
-const LESSON = '/lessons/:lessonId';
-const LEARNER = '/learners/:learnerId';
-const LEARNERS = '/learners';
-const QUESTIONS = '/questions';
-const EXERCISE = '/exercises/:exerciseId';
-const QUIZ = '/quizzes/:quizId';
-
-function path(...args) {
-  return args.join('');
-}
+const { CLASS, ALL_GROUPS, GROUP, LESSON, LEARNER, ALL_LEARNERS, QUESTIONS, EXERCISE, QUIZ } =
+  useRouteTerms();
 
 const { showGroupsPage } = useGroups();
 
@@ -36,7 +26,7 @@ function defaultHandler() {
 export default [
   {
     name: PageNames.GROUPS_ROOT,
-    path: path(CLASS, ALL_GROUPS),
+    path: CLASS + ALL_GROUPS,
     component: GroupsRootPage,
     handler(to) {
       showGroupsPage(store, to.params.classId);
@@ -47,7 +37,7 @@ export default [
   },
   {
     name: PageNames.GROUP_SUMMARY,
-    path: path(CLASS, GROUP),
+    path: CLASS + GROUP,
     component: GroupMembersPage,
     handler(to) {
       showGroupsPage(store, to.params.classId);
@@ -58,7 +48,7 @@ export default [
   },
   {
     name: PageNames.GROUP_ENROLL,
-    path: path(CLASS, GROUP, '/enroll'),
+    path: CLASS + GROUP + '/enroll',
     component: GroupEnrollPage,
     handler(to) {
       showGroupsPage(store, to.params.classId);
@@ -66,7 +56,7 @@ export default [
   },
   {
     name: PageNames.GROUP_LESSON_SUMMARY,
-    path: path(CLASS, GROUP, LESSON, '/:tabId?'),
+    path: CLASS + GROUP + LESSON + '/:tabId?',
     component: LessonSummaryPage,
     handler(toRoute, fromRoute) {
       if (
@@ -86,7 +76,7 @@ export default [
   },
   {
     name: PageNames.GROUP_LESSON_LEARNER,
-    path: path(CLASS, GROUP, LESSON, LEARNER),
+    path: CLASS + GROUP + LESSON + LEARNER,
     component: LessonLearnerPage,
     handler: defaultHandler,
     meta: {
@@ -95,7 +85,7 @@ export default [
   },
   {
     name: PageNames.GROUP_LESSON_EXERCISE_LEARNER_REPORT,
-    path: path(CLASS, GROUP, LESSON, EXERCISE, LEARNERS),
+    path: CLASS + GROUP + LESSON + EXERCISE + ALL_LEARNERS,
     component: GroupLessonExerciseLearnersPage,
     handler: generateResourceHandler(['exerciseId']),
     meta: {
@@ -104,7 +94,7 @@ export default [
   },
   {
     name: PageNames.GROUP_LESSON_EXERCISE_QUESTIONS_REPORT,
-    path: path(CLASS, GROUP, LESSON, EXERCISE, QUESTIONS),
+    path: CLASS + GROUP + LESSON + EXERCISE + QUESTIONS,
     component: ExerciseQuestionListPage,
     handler: generateQuestionListHandler(['groupId', 'lessonId', 'exerciseId']),
     meta: {
@@ -113,7 +103,7 @@ export default [
   },
   {
     name: PageNames.GROUP_EXAM_SUMMARY,
-    path: path(CLASS, GROUP, QUIZ, '/:tabId?'),
+    path: CLASS + GROUP + QUIZ + '/:tabId?',
     component: QuizSummaryPage,
     meta: {
       titleParts: ['QUIZ_NAME', 'quizzesLabel', 'CLASS_NAME'],
