@@ -100,7 +100,7 @@ export default [
   },
   {
     name: ClassesPageNames.CLASS_LEARNERS_LIST_VIEWER,
-    path: '/:classId/learners',
+    path: '/:classId/learners/devices',
     component: ClassLearnersListPage,
     handler() {
       store.dispatch('notLoading');

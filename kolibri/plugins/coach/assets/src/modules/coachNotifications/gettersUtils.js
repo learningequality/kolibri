@@ -84,7 +84,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: false,
       isWholeClass: false,
     },
-    value: PageNames.LESSON_LEARNER_REPORT,
+    value: PageNames.LEARNER_LESSON_REPORT,
   },
   {
     key: {
@@ -108,7 +108,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: false,
       isWholeClass: true,
     },
-    value: PageNames.LESSON_LEARNER_REPORT,
+    value: PageNames.LEARNER_LESSON_REPORT,
   },
   {
     key: {

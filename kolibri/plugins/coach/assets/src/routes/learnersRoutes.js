@@ -4,9 +4,9 @@ import LearnersRootPage from '../views/learners/LearnersRootPage';
 import LearnerSummaryPage from '../views/learners/LearnerSummaryPage';
 import ReportsLearnerActivityPage from '../views/learners/LearnerSummaryPage/ReportsLearnerActivityPage.vue';
 import LearnerLessonPage from '../views/learners/reports/LearnerLessonPage.vue';
-import { useRouteTerms } from './utils';
+import { classIdParamRequiredGuard, useRouteTerms } from './utils';
 
-const { CLASS, ALL_LEARNERS, LEARNER, LESSON } = useRouteTerms();
+const { CLASS, OPTIONAL_CLASS, ALL_LEARNERS, LEARNER, LESSON } = useRouteTerms();
 
 function defaultHandler() {
   store.dispatch('notLoading');
@@ -15,9 +15,14 @@ function defaultHandler() {
 export default [
   {
     name: PageNames.LEARNERS_ROOT,
-    path: CLASS + ALL_LEARNERS,
+    path: OPTIONAL_CLASS + ALL_LEARNERS,
     component: LearnersRootPage,
-    handler: defaultHandler,
+    handler(toRoute, fromRoute, next) {
+      if (classIdParamRequiredGuard(toRoute, PageNames.LEARNERS_ROOT, next)) {
+        return;
+      }
+      defaultHandler();
+    },
     meta: {
       titleParts: ['learnersLabel', 'CLASS_NAME'],
     },

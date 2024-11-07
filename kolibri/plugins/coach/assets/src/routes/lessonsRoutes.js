@@ -317,14 +317,6 @@ export default [
     },
   },
   {
-    path: CLASS + LESSON + EXERCISE + QUESTION,
-    name: PageNames.LESSON_EXERCISE_QUESTION_PAGE_ROOT,
-    beforeEnter: (to, from, next) => {
-      const { params } = to;
-      return questionRootRedirectHandler(params, PageNames.LESSON_EXERCISE_QUESTION_REPORT, next);
-    },
-  },
-  {
     path: CLASS + LESSON + LEARNER + EXERCISE,
     name: PageNames.LESSON_LEARNER_EXERCISE_PAGE_ROOT,
     beforeEnter: (to, from, next) => {

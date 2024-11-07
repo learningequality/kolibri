@@ -15,16 +15,30 @@ import {
   generateQuestionDetailHandler,
   questionRootRedirectHandler,
 } from '../modules/questionDetail/handlers';
-import { useRouteTerms } from './utils';
+import { classIdParamRequiredGuard, useRouteTerms } from './utils';
 
-const { CLASS, QUIZ, ALL_QUIZZES, OPTIONAL_GROUP, LEARNER, QUESTION, TRY, INTERACTION } =
-  useRouteTerms();
+const {
+  CLASS,
+  OPTIONAL_CLASS,
+  QUIZ,
+  ALL_QUIZZES,
+  OPTIONAL_GROUP,
+  LEARNER,
+  QUESTION,
+  TRY,
+  INTERACTION,
+} = useRouteTerms();
 
 export default [
   {
     name: PageNames.EXAMS_ROOT,
-    path: CLASS + ALL_QUIZZES,
+    path: OPTIONAL_CLASS + ALL_QUIZZES,
     component: ExamsRootPage,
+    handler(toRoute, fromRoute, next) {
+      if (classIdParamRequiredGuard(toRoute, PageNames.EXAMS_ROOT, next)) {
+        return;
+      }
+    },
     meta: {
       titleParts: ['quizzesLabel', 'CLASS_NAME'],
     },

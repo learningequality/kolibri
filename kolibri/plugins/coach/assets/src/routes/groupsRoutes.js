@@ -12,10 +12,20 @@ import GroupLessonExerciseLearnersPage from '../views/groups/reports/GroupLesson
 import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
 import { generateResourceHandler } from '../modules/resourceDetail/handlers';
 import QuizSummaryPage from '../views/quizzes/QuizSummaryPage';
-import { useRouteTerms } from './utils';
+import { classIdParamRequiredGuard, useRouteTerms } from './utils';
 
-const { CLASS, ALL_GROUPS, GROUP, LESSON, LEARNER, ALL_LEARNERS, QUESTIONS, EXERCISE, QUIZ } =
-  useRouteTerms();
+const {
+  CLASS,
+  OPTIONAL_CLASS,
+  ALL_GROUPS,
+  GROUP,
+  LESSON,
+  LEARNER,
+  ALL_LEARNERS,
+  QUESTIONS,
+  EXERCISE,
+  QUIZ,
+} = useRouteTerms();
 
 const { showGroupsPage } = useGroups();
 
@@ -26,10 +36,13 @@ function defaultHandler() {
 export default [
   {
     name: PageNames.GROUPS_ROOT,
-    path: CLASS + ALL_GROUPS,
+    path: OPTIONAL_CLASS + ALL_GROUPS,
     component: GroupsRootPage,
-    handler(to) {
-      showGroupsPage(store, to.params.classId);
+    handler(toRoute, fromRoute, next) {
+      if (classIdParamRequiredGuard(toRoute, PageNames.GROUPS_ROOT, next)) {
+        return;
+      }
+      showGroupsPage(store, toRoute.params.classId);
     },
     meta: {
       titleParts: ['groupsLabel', 'CLASS_NAME'],
