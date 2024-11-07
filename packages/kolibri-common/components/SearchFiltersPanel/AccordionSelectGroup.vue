@@ -152,6 +152,28 @@
         </template>
       </AccordionItem>
     </AccordionContainer>
+
+    <AccordionContainer class="accordion-select">
+      <AccordionItem
+        :title="coreString('showResources')"
+        :headerAppearanceOverrides="accordionHeaderStyles(selectedLevel.value)"
+        :contentAppearanceOverrides="{
+          maxHeight: '256px',
+          overflowY: 'scroll',
+        }"
+      >
+        <template #content>
+          <KCheckbox
+            v-for="need in needsOptionsList"
+            :key="'resource-need-' + need.value"
+            :checked="isChecked('learner_needs', need)"
+            :disabled="need.disabled || isEnabledButNotSelected('learner_needs', need)"
+            :label="need.label"
+            @change="handleChange('learner_needs', need)"
+          />
+        </template>
+      </AccordionItem>
+    </AccordionContainer>
   </div>
 
 </template>
@@ -172,6 +194,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const {
+        availableResourcesNeeded,
         availableGradeLevels,
         availableAccessibilityOptions,
         availableLanguages,
@@ -181,6 +204,7 @@
         activeSearchTerms,
       } = injectBaseSearch();
       return {
+        availableResourcesNeeded,
         activeSearchTerms,
         availableGradeLevels,
         availableAccessibilityOptions,
@@ -215,6 +239,28 @@
       },
     },
     computed: {
+      availableNeeds() {
+        if (this.searchableLabels) {
+          const needs = {};
+          for (const key of this.searchableLabels.learner_needs) {
+            const root = key.split('.')[0];
+            needs[root] = true;
+            needs[key] = true;
+          }
+          return needs;
+        }
+        return [];
+      },
+      needsOptionsList() {
+        return Object.keys(this.availableResourcesNeeded).map(k => {
+          const val = this.availableResourcesNeeded[k];
+          return {
+            value: val,
+            disabled: this.searchableLabels && !this.searchableLabels.learner_needs.includes(val),
+            label: this.coreString(val),
+          };
+        });
+      },
       selectedHighlightColor() {
         // get right color
         return '#D9E1FD';
@@ -228,7 +274,7 @@
           }
           return roots;
         }
-        return null;
+        return [];
       },
       languageOptionsList() {
         return this.availableLanguages.map(language => {
