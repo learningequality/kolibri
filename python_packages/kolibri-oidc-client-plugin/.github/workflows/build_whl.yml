@@ -36,7 +36,7 @@ jobs:
         node-version: '10.x'
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
-      run: echo "::set-output name=dir::$(yarn cache dir)"
+      run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
     - name: Cache Node.js modules
       uses: actions/cache@v4
       with:
@@ -61,14 +61,14 @@ jobs:
       run: make dist
     - name: Get WHL filename
       id: get-whl-filename
-      run: echo "::set-output name=whl-file-name::$(ls dist | grep .whl | cat)"
+      run: echo "whl-file-name=$(ls dist | grep .whl | cat)" >> $GITHUB_OUTPUT
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.get-whl-filename.outputs.whl-file-name }}
         path: dist/${{ steps.get-whl-filename.outputs.whl-file-name }}
     - name: Get TAR filename
       id: get-tar-filename
-      run: echo "::set-output name=tar-file-name::$(ls dist | grep .tar | cat)"
+      run: echo "tar-file-name=$(ls dist | grep .tar | cat)" >> $GITHUB_OUTPUT
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.get-tar-filename.outputs.tar-file-name }}
