@@ -1,6 +1,7 @@
 import multiprocessing
 import threading
 from concurrent import futures
+from queue import Queue as ThreadingQueue
 
 from kolibri.utils.conf import OPTIONS
 
@@ -27,6 +28,12 @@ def Event(*args, **kwargs):
     if use_multiprocessing():
         return multiprocessing.Event(*args, **kwargs)
     return threading.Event(*args, **kwargs)
+
+
+def Queue(*args, **kwargs):
+    if use_multiprocessing():
+        return multiprocessing.Queue(*args, **kwargs)
+    return ThreadingQueue(*args, **kwargs)
 
 
 class _Local(object):

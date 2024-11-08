@@ -15,9 +15,9 @@ from sqlalchemy import exc
 
 from kolibri.core.sqlite.utils import check_sqlite_integrity
 from kolibri.core.sqlite.utils import repair_sqlite_db
-from kolibri.core.tasks import compat
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.utils import conf
+from kolibri.utils import multiprocessing_compat
 from kolibri.utils.options import FD_PER_THREAD
 from kolibri.utils.system import get_fd_limit
 
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 # An object on which to store data about the current job
 # So far the only use is to track the job, but other metadata
 # could be added.
-current_state_tracker = SimpleLazyObject(compat.local)
+current_state_tracker = SimpleLazyObject(multiprocessing_compat.local)
 
 
 def get_current_job():
@@ -76,7 +76,7 @@ class InfiniteLoopThread(Thread):
         :param thread_name: the name of the thread to use during logging and debugging
         :param wait_between_runs: how many seconds to wait in between func calls.
         """
-        self.shutdown_event = compat.Event()
+        self.shutdown_event = multiprocessing_compat.Event()
         self.thread_name = thread_name
         self.thread_id = uuid.uuid4().hex
         self.logger = logging.getLogger(

@@ -1,6 +1,6 @@
 import pytest
 
-from kolibri.core.tasks import compat
+from kolibri.utils import multiprocessing_compat
 
 
 @pytest.fixture(params=[False, True], autouse=True)
@@ -24,7 +24,7 @@ def mock_compat(request, monkeypatch):
         from threading import local  # noqa
         from concurrent.futures import ThreadPoolExecutor as PoolExecutor  # noqa
 
-    monkeypatch.setattr(compat, "Thread", Thread)
-    monkeypatch.setattr(compat, "Event", Event)
-    monkeypatch.setattr(compat, "local", local)
-    monkeypatch.setattr(compat, "PoolExecutor", PoolExecutor)
+    monkeypatch.setattr(multiprocessing_compat, "Thread", Thread)
+    monkeypatch.setattr(multiprocessing_compat, "Event", Event)
+    monkeypatch.setattr(multiprocessing_compat, "local", local)
+    monkeypatch.setattr(multiprocessing_compat, "PoolExecutor", PoolExecutor)
