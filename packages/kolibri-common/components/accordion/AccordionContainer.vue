@@ -1,6 +1,9 @@
 <template>
 
-  <div class="accordion">
+  <div
+    class="accordion"
+    :style="{ border: `1px solid ${$themeTokens.fineLine}` }"
+  >
     <div
       v-if="hasHeaderSlot"
       class="header"
@@ -58,12 +61,6 @@
 
 
 <style lang="scss" scoped>
-
-  @import '~kolibri-design-system/lib/styles/definitions';
-
-  .accordion {
-    @extend %dropshadow-1dp;
-  }
 
   .header {
     padding: 10px;
