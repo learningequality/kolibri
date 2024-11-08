@@ -9,7 +9,7 @@
         :layout12="{ span: 6 }"
         :layout8="{ span: 4 }"
       >
-        <KPageContainer class="left-container">
+        <KPageContainer class="content-spacing left-container">
           <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
           <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
             <template #headers>
@@ -56,7 +56,7 @@
         :layout12="{ span: 6 }"
         :layout8="{ span: 4 }"
       >
-        <KPageContainer class="right-container">
+        <KPageContainer class="content-spacing right-container">
           <h2>{{ coachString('quizzesAssignedLabel') }} </h2>
           <CoreTable :emptyMessage="coachString('quizListEmptyState')">
             <template #headers>
@@ -260,6 +260,9 @@
   .right-container {
     width: 100%;
     height: 100%;
+  }
+  .content-spacing {
+    padding: 24px 24px 16px 24px;
   }
 
 </style>
