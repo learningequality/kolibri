@@ -215,20 +215,16 @@ class WebpackBundleHook(hooks.KolibriHook):
         if self.plugin_data:
             return [
                 """
-                        <script>
-                            window['{name}'] = window['{name}'] || {{}};
-                            window['{name}']['{bundle}'] = JSON.parse({plugin_data});
-                        </script>
+                        <template data-plugin="{bundle}">
+                            {plugin_data}
+                        </template>
                         """.format(
-                    name="kolibriPluginDataGlobal",
                     bundle=self.unique_id,
                     plugin_data=json.dumps(
-                        json.dumps(
-                            self.plugin_data,
-                            separators=(",", ":"),
-                            ensure_ascii=False,
-                            cls=DjangoJSONEncoder,
-                        )
+                        self.plugin_data,
+                        separators=(",", ":"),
+                        ensure_ascii=False,
+                        cls=DjangoJSONEncoder,
                     ),
                 )
             ]
