@@ -16,8 +16,10 @@
           examOrLesson="exam"
         >
           <template #dropdown>
-            <KButton
+            <KRouterLink
+              :to="classRoute(PageNames.QUIZ_PREVIEW, {}, { last: PageNames.EXAM_SUMMARY })"
               :text="coachString('previewAction')"
+              appearance="raised-button"
               style="margin-right: 8px"
             />
             <QuizOptionsDropdownMenu
@@ -340,7 +342,7 @@
         return deleteExam(this.quiz.id)
           .then(() => {
             this.$store.commit('classSummary/DELETE_ITEM', { map: 'examMap', id: this.quiz.id });
-            this.$router.replace(this.$router.getRoute(PageNames.EXAMS_ROOT), () => {
+            this.$router.replace(this.classRoute(PageNames.EXAMS_ROOT), () => {
               this.showSnackbarNotification('quizDeleted');
             });
           })

@@ -110,7 +110,7 @@ export default [
     component: LessonCreationPage,
     children: [
       {
-        name: PageNames.LESSON_EDIT_DETAILS,
+        name: PageNames.LESSON_EDIT_DETAILS_BETTER,
         path: 'details/',
         component: EditLessonDetails,
         props: {
