@@ -180,9 +180,14 @@
       learner() {
         return this.learnerMap[this.$route.params.learnerId];
       },
+      getLessons(){
+        return this.lessons.filter(lesson => this.isAssignedLesson(lesson));
+      },
+      getExam(){
+        return this.exams.filter(exam => this.isAssignedQuiz(exam));
+      },
       lessonsTable() {
-        const filtered = this.lessons.filter(lesson => this.isAssignedLesson(lesson));
-        const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
+        const sorted = this._.orderBy(this.getLessons, ['date_created'], ['desc']);
         const limitedResults = sorted.slice(0, this.limit);
         return limitedResults.map(lesson => {
           const tableRow = {
@@ -193,12 +198,10 @@
         });
       },
       showViewMoreButton(){
-        const assignedlessons = this.lessons.filter(lesson => this.isAssignedLesson(lesson));
-        return (assignedlessons.length !== this.lessonsTable.length) || assignedlessons.length > 10;
+        return (this.getLessons.length !== this.lessonsTable.length) && this.getLessons.length > 10;
       },
       examsTable() {
-        const filtered = this.exams.filter(exam => this.isAssignedQuiz(exam));
-        const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
+        const sorted = this._.orderBy(this.getExam, ['date_created'], ['desc']);
         const limitedQuizResults = sorted.slice(0, this.quizLimit);
         return limitedQuizResults.map(exam => {
           const tableRow = {
@@ -209,8 +212,7 @@
         });
       },
       showQuizViewMoreButton(){
-        const quizzes = this.exams.filter(exam => this.isAssignedQuiz(exam));
-        return (quizzes.length !== this.examsTable.length) || quizzes.length > 10;
+        return (this.getExam.length !== this.examsTable.length) && this.getExam.length > 2;
       },
     },
     methods: {
@@ -224,9 +226,18 @@
         return this.classRoute(PageNames.REPORTS_LEARNER_REPORT_QUIZ_PAGE_ROOT, { quizId });
       },
       loadMoreLessonTable(){
+        if(this.limit > 20){
+          this.limit = this.getLessons.length;
+          return;
+        }
+
         this.limit += 10;
       },
       loadMoreQuizzes(){
+        if(this.quizLimit > 20){
+          this.quizLimit = this.getExam.length;
+          return;
+        }
         this.quizLimit += 10;
       }
     },
