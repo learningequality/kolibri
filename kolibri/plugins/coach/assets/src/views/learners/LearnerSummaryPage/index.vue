@@ -5,7 +5,10 @@
       <LearnerHeader />
     </KPageContainer>
     <KGrid >
-      <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
+      <KGridItem
+        :layout12="{ span: 6 }"
+        :layout8="{ span: 4 }"
+      >
         <KPageContainer class="left-container">
           <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
           <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
@@ -45,6 +48,53 @@
             :text="coreString('viewMoreAction')"
             appearance="raised-button"
             @click="loadMoreLessonTable()"
+          />
+        </KPageContainer>
+      </KGridItem>
+
+      <KGridItem
+        :layout12="{ span: 6 }"
+        :layout8="{ span: 4 }"
+      >
+        <KPageContainer class="right-container">
+          <h2>{{ coachString('quizzesAssignedLabel') }} </h2>
+          <CoreTable :emptyMessage="coachString('quizListEmptyState')">
+            <template #headers>
+              <th>{{ coachString('titleLabel') }}</th>
+              <th>{{ coreString('progressLabel') }}</th>
+              <th>{{ coreString('scoreLabel') }}</th>
+            </template>
+            <template #tbody>
+              <transition-group
+                tag="tbody"
+                name="list"
+              >
+                <tr
+                  v-for="tableRow in examsTable"
+                  :key="tableRow.id"
+                >
+                  <td>
+                    <KRouterLink
+                      :to="quizLink(tableRow.id)"
+                      :text="tableRow.title"
+                      icon="quiz"
+                    />
+                  </td>
+                  <td>
+                    <StatusSimple :status="tableRow.statusObj.status" />
+                  </td>
+                  <td>
+                      {{ tableRow.statusObj.score }}
+                  </td>
+                </tr>
+              </transition-group>
+            </template>
+          </CoreTable>
+          <KButton
+            v-if="showQuizViewMoreButton"
+            :text="coreString('viewMoreAction')"
+            appearance="raised-button"
+            @click="loadMoreQuizzes"
           />
         </KPageContainer>
       </KGridItem>
@@ -193,11 +243,11 @@
     min-width: 0;
   }
   .left-container {
-    width: 480px;
+    width: 100%;
     height: 100%;
   }
   .right-container {
-    width: 432px;
+    width: 100%;
     height: 100%;
   }
 
