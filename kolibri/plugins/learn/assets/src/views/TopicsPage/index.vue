@@ -972,8 +972,11 @@
   .side-panel {
     position: absolute;
     top: $total-height;
+    left: 0;
     min-height: calc(100vh - #{$toolbar-height});
-    padding-top: 16px;
+    // Padding & scroll to ensure user can scroll all the way down
+    padding: 1em 1em 6em;
+    overflow-y: scroll;
   }
 
   .main-content-grid {

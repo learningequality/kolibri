@@ -113,10 +113,12 @@
           :width="`${sidePanelWidth}px`"
         />
       </SidePanelModal>
+
       <div v-else-if="!isLocalLibraryEmpty || deviceId">
         <SearchFiltersPanel
           ref="sidePanel"
           v-model="searchTerms"
+          :class="windowIsLarge ? 'side-panel' : ''"
           data-test="side-panel"
           :width="`${sidePanelWidth}px`"
         />
@@ -658,6 +660,27 @@
   .chip {
     margin-bottom: 8px;
     margin-left: 8px;
+  }
+
+  .side-panel {
+    @extend %dropshadow-2dp;
+
+    position: fixed;
+    top: 60px;
+    left: 0;
+    height: 100%;
+    padding: 24px 24px 0;
+    overflow-y: scroll;
+    font-size: 14px;
+  }
+
+  /*
+  * Work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1417667
+  */
+  .side-panel::after {
+    display: block;
+    padding-bottom: 70px;
+    content: '';
   }
 
 </style>

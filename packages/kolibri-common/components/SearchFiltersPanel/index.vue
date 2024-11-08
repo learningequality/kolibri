@@ -418,15 +418,6 @@
     padding-bottom: 60px;
   }
 
-  /*
-  * Work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1417667
-  */
-  .side-panel::after {
-    display: block;
-    padding-bottom: 70px;
-    content: '';
-  }
-
   .side-panel-folder-link {
     margin-top: 12px;
     margin-bottom: 12px;
