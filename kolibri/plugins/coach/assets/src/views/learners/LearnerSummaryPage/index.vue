@@ -84,7 +84,7 @@
                     <StatusSimple :status="tableRow.statusObj.status" />
                   </td>
                   <td>
-                      {{ tableRow.statusObj.score }}
+                    <Score :value="tableRow.statusObj.score" />
                   </td>
                 </tr>
               </transition-group>
