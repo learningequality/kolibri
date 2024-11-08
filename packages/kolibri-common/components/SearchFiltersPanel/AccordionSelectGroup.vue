@@ -7,7 +7,9 @@
     >
       <AccordionItem
         :title="$tr('categoryLabel')"
-        :headerAppearanceOverrides="accordionHeaderStyles(activeCategories.length)"
+        :headerAppearanceOverrides="
+          accordionHeaderStyles(activeCategories.some(cat => isCategoryActive(cat)))
+        "
       >
         <template #content>
           <KButton
@@ -64,7 +66,10 @@
     >
       <AccordionItem
         :title="coreString('languageLabel')"
-        :headerAppearanceOverrides="accordionHeaderStyles(selectedLanguage.value)"
+        :headerAppearanceOverrides="
+          accordionHeaderStyles(anySelectedFor('languages', languageOptionsList))
+        "
+        :disabled="languageOptionsList.every(opt => opt.disabled)"
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
@@ -74,7 +79,7 @@
           <KCheckbox
             v-for="lang in languageOptionsList"
             :key="'lang-' + lang.value"
-            :checked="isChecked('languages', lang)"
+            :checked="isSelected('languages', lang)"
             :disabled="lang.disabled || isActiveButNotSelected('languages', lang)"
             :label="lang.label"
             @change="handleChange('languages', lang)"
@@ -84,12 +89,15 @@
     </AccordionContainer>
 
     <AccordionContainer
-      v-if="contentLevelsList.length"
+      v-if="contentLevelOptions.length"
       class="accordion-select"
     >
       <AccordionItem
         :title="coreString('levelLabel')"
-        :headerAppearanceOverrides="accordionHeaderStyles(selectedLevel.value)"
+        :disabled="contentLevelOptions.every(opt => opt.disabled)"
+        :headerAppearanceOverrides="
+          accordionHeaderStyles(anySelectedFor('grade_levels', contentLevelOptions))
+        "
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
@@ -97,9 +105,9 @@
       >
         <template #content>
           <KCheckbox
-            v-for="level in contentLevelsList"
+            v-for="level in contentLevelOptions"
             :key="'level-' + level.value"
-            :checked="isChecked('grade_levels', level)"
+            :checked="isSelected('grade_levels', level)"
             :disabled="level.disabled || isActiveButNotSelected('grade_levels', level)"
             :label="level.label"
             @change="handleChange('grade_levels', level)"
@@ -126,7 +134,7 @@
               v-for="channel in channelOptionsList"
               :key="'channel-' + channel.value"
               :buttonValue="channel.value"
-              :currentValue="selectedChannel['value'] || null"
+              :currentValue="selectedChannel['value'] || ''"
               :label="channel.label"
               @change="handleChange('channels', channel)"
             />
@@ -141,7 +149,10 @@
     >
       <AccordionItem
         :title="coreString('accessibility')"
-        :headerAppearanceOverrides="accordionHeaderStyles(selectedAccessibilityFilter.value)"
+        :headerAppearanceOverrides="
+          accordionHeaderStyles(anySelectedFor('accessibility_labels', accessibilityOptionsList))
+        "
+        :disabled="accessibilityOptionsList.every(opt => opt.disabled)"
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
@@ -151,7 +162,7 @@
           <KCheckbox
             v-for="a11y in accessibilityOptionsList"
             :key="'a11y-' + a11y.value"
-            :checked="isChecked('accessibility_labels', a11y)"
+            :checked="isSelected('accessibility_labels', a11y)"
             :disabled="a11y.disabled || isActiveButNotSelected('accessibility_labels', a11y)"
             :label="a11y.label"
             @change="handleChange('accessibility_labels', a11y)"
@@ -163,7 +174,10 @@
     <AccordionContainer class="accordion-select">
       <AccordionItem
         :title="coreString('showResources')"
-        :headerAppearanceOverrides="accordionHeaderStyles(selectedLevel.value)"
+        :headerAppearanceOverrides="
+          accordionHeaderStyles(anySelectedFor('learner_needs', needsOptionsList))
+        "
+        :disabled="needsOptionsList.every(opt => opt.disabled)"
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
@@ -173,7 +187,7 @@
           <KCheckbox
             v-for="need in needsOptionsList"
             :key="'resource-need-' + need.value"
-            :checked="isChecked('learner_needs', need)"
+            :checked="isSelected('learner_needs', need)"
             :disabled="need.disabled || isActiveButNotSelected('learner_needs', need)"
             :label="need.label"
             @change="handleChange('learner_needs', need)"
@@ -314,7 +328,7 @@
       enabledAccessibilityOptions() {
         return this.accessibilityOptionsList.filter(a => !a.disabled);
       },
-      contentLevelsList() {
+      contentLevelOptions() {
         return this.availableGradeLevels.map(key => {
           const value = ContentLevels[key];
           let translationKey;
@@ -335,7 +349,7 @@
         });
       },
       enabledContentLevels() {
-        return this.contentLevelsList.filter(c => !c.disabled);
+        return this.contentLevelOptions.filter(c => !c.disabled);
       },
       channelOptionsList() {
         return this.availableChannels.map(channel => ({
@@ -372,7 +386,7 @@
         if (!this.levelId && this.enabledContentLevels.length === 1) {
           return this.enabledContentLevels[0];
         }
-        return this.contentLevelsList.find(o => o.value === this.levelId) || {};
+        return this.contentLevelOptions.find(o => o.value === this.levelId) || {};
       },
       channelId() {
         return Object.keys(this.value.channels)[0];
@@ -388,8 +402,8 @@
       noCategories() {
         this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
       },
-      isChecked(inputKey, value) {
-        return this.isSelected(inputKey, value) || this.isActiveButNotSelected(inputKey, value);
+      anySelectedFor(inputKey, values) {
+        return values.some(value => this.isSelected(inputKey, value));
       },
       isSelected(inputKey, value) {
         return this.value[inputKey][value.value] === true;
