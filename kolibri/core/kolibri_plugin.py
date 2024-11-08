@@ -14,6 +14,7 @@ from kolibri.core.content.utils.paths import get_hashi_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
 from kolibri.core.content.utils.paths import get_zip_content_config
 from kolibri.core.device.utils import allow_other_browsers_to_connect
+from kolibri.core.hooks import FrontEndBaseHeadHook
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.theme_hook import ThemeHook
@@ -96,6 +97,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),
             "kolibriTheme": ThemeHook.get_theme(),
             "urls": url_data,
+            "unsupportedUrl": reverse("kolibri:core:unsupported"),
         }
 
     def language_globals(self):
@@ -123,26 +125,14 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
 
 
 @register_hook
-class FrontendHeadAssetsHook(WebpackBundleHook):
+class FrontendHeadAssetsHook(FrontEndBaseHeadHook):
     """
     Render these assets in the <head> tag of base.html, before other JS and assets.
     """
 
-    bundle_id = "frontend_head_assets"
-
-    def render_to_page_load_sync_html(self):
-        """
-        Add in the extra language font file tags needed
-        for preloading our custom font files.
-        """
-        tags = (
-            self.plugin_data_tag()
-            + self.language_font_file_tags()
-            + self.frontend_message_tag()
-            + list(self.js_and_css_tags())
-        )
-
-        return mark_safe("\n".join(tags))
+    @property
+    def head_html(self):
+        return mark_safe("\n".join(self.language_font_file_tags()))
 
     def language_font_file_tags(self):
         language_code = get_language()
@@ -162,7 +152,3 @@ class FrontendHeadAssetsHook(WebpackBundleHook):
                 subset_css_file=subset_file, version=kolibri.__version__
             ),
         ]
-
-    @property
-    def plugin_data(self):
-        return {"unsupportedUrl": reverse("kolibri:core:unsupported")}

@@ -2,6 +2,8 @@
  * Provides the public API for the Kolibri FrontEnd core app.
  * @module Facade
  */
+// Import this first to ensure that we do a browser compatibility check before anything else
+import './minimumBrowserRequirements';
 import 'core-js';
 import coreApp from 'kolibri';
 import logging from 'kolibri-logging';
