@@ -80,7 +80,7 @@
             v-for="lang in languageOptionsList"
             :key="'lang-' + lang.value"
             :checked="isSelected('languages', lang)"
-            :disabled="lang.disabled || isActiveButNotSelected('languages', lang)"
+            :disabled="lang.disabled"
             :label="lang.label"
             @change="handleChange('languages', lang)"
           />
@@ -108,7 +108,7 @@
             v-for="level in contentLevelOptions"
             :key="'level-' + level.value"
             :checked="isSelected('grade_levels', level)"
-            :disabled="level.disabled || isActiveButNotSelected('grade_levels', level)"
+            :disabled="level.disabled"
             :label="level.label"
             @change="handleChange('grade_levels', level)"
           />
@@ -163,7 +163,7 @@
             v-for="a11y in accessibilityOptionsList"
             :key="'a11y-' + a11y.value"
             :checked="isSelected('accessibility_labels', a11y)"
-            :disabled="a11y.disabled || isActiveButNotSelected('accessibility_labels', a11y)"
+            :disabled="a11y.disabled"
             :label="a11y.label"
             @change="handleChange('accessibility_labels', a11y)"
           />
@@ -188,7 +188,7 @@
             v-for="need in needsOptionsList"
             :key="'resource-need-' + need.value"
             :checked="isSelected('learner_needs', need)"
-            :disabled="need.disabled || isActiveButNotSelected('learner_needs', need)"
+            :disabled="need.disabled"
             :label="need.label"
             @change="handleChange('learner_needs', need)"
           />
@@ -407,17 +407,6 @@
       },
       isSelected(inputKey, value) {
         return this.value[inputKey][value.value] === true;
-      },
-      isActiveButNotSelected(inputKey, value) {
-        // When a filter is selected, the other filters are disabled if they are no longer
-        // applicable. Additionally, some filters are automatically selected because they're
-        // mutually inclusive with the user's selections.
-        // This basically just answers the question "is this filter active, but *not* because they
-        // directly selected it"
-        return (
-          !this.isSelected(inputKey, value) &&
-          Object.values(this.activeSearchTerms[inputKey]).includes(value)
-        );
       },
       accordionHeaderStyles(selected) {
         return {
