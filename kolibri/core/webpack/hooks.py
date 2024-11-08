@@ -194,18 +194,14 @@ class WebpackBundleHook(hooks.KolibriHook):
         if self.frontend_messages():
             return [
                 """
-                        <script>
-                            {kolibri_name}.registerLanguageAssets('{bundle}', '{lang_code}', JSON.parse({messages}));
-                        </script>""".format(
-                    kolibri_name="kolibriCoreAppGlobal",
+                        <template data-i18n="{bundle}">
+                            {messages}
+                        </template>""".format(
                     bundle=self.unique_id,
-                    lang_code=get_language(),
                     messages=json.dumps(
-                        json.dumps(
-                            self.frontend_messages(),
-                            separators=(",", ":"),
-                            ensure_ascii=False,
-                        )
+                        self.frontend_messages(),
+                        separators=(",", ":"),
+                        ensure_ascii=False,
                     ),
                 )
             ]

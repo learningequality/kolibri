@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import { currentLanguage } from '../../utils/i18n';
 import mediatorFactory from '../pluginMediator';
 
 if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
@@ -541,7 +542,6 @@ describe('Mediator', function () {
   });
   describe('registerLanguageAssets method', function () {
     const moduleName = 'test';
-    const language = 'test_lang';
     const messageMap = {
       test: 'test message',
     };
@@ -549,17 +549,19 @@ describe('Mediator', function () {
     beforeEach(function () {
       Vue.registerMessages = jest.fn();
       spy = Vue.registerMessages;
+      document.body.innerHTML =
+        '<template data-i18n="' + moduleName + '">' + JSON.stringify(messageMap) + '</template>';
     });
     afterEach(function () {
       spy.mockRestore();
     });
     it('should call Vue.registerMessages once', function () {
-      mediator.registerLanguageAssets(moduleName, language, messageMap);
+      mediator.registerLanguageAssets(moduleName);
       expect(spy).toHaveBeenCalledTimes(1);
     });
-    it('should call Vue.registerMessages with arguments language and messageMap', function () {
-      mediator.registerLanguageAssets(moduleName, language, messageMap);
-      expect(spy).toHaveBeenCalledWith(language, messageMap);
+    it('should call Vue.registerMessages with arguments currentLanguage and messageMap', function () {
+      mediator.registerLanguageAssets(moduleName);
+      expect(spy).toHaveBeenCalledWith(currentLanguage, messageMap);
     });
   });
 });

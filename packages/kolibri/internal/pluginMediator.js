@@ -1,10 +1,13 @@
 import Vue from 'vue';
+import logging from 'kolibri-logging';
 import scriptLoader from 'kolibri-common/utils/scriptLoader';
 import { RENDERER_SUFFIX } from 'kolibri/constants';
-import { languageDirection, languageDirections } from 'kolibri/utils/i18n';
+import { languageDirection, languageDirections, currentLanguage } from 'kolibri/utils/i18n';
 import contentRendererMixin from '../components/internal/ContentRenderer/mixin';
 import ContentRendererLoading from '../components/internal/ContentRenderer/ContentRendererLoading';
 import ContentRendererError from '../components/internal/ContentRenderer/ContentRendererError';
+
+const logger = logging.getLogger(__filename);
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -382,26 +385,37 @@ export default function pluginMediatorFactory(facade) {
      * @param  {String} language   language code whose messages we are registering.
      * @param  {Object} messageMap an object with message id to message mappings.
      */
-    registerLanguageAssets(moduleName, language, messageMap) {
+    registerLanguageAssets(moduleName) {
+      const messageElement = document.querySelector(`template[data-i18n="${moduleName}"]`);
+      if (!messageElement) {
+        return;
+      }
+      let messageMap;
+      try {
+        messageMap = JSON.parse(messageElement.innerHTML.trim());
+      } catch (e) {
+        logger.error(`Error parsing language assets for ${moduleName}`);
+      }
+      if (!messageMap || typeof messageMap !== 'object') {
+        logger.error(`Error parsing language assets for ${moduleName}`);
+        return;
+      }
       if (!Vue.registerMessages) {
         // Set this messageMap so that we can register it later when VueIntl
         // has finished loading.
         // Create empty entry in the language asset registry for this module if needed
-        this._languageAssetRegistry[moduleName] = this._languageAssetRegistry[moduleName] || {};
-        this._languageAssetRegistry[moduleName][language] = messageMap;
+        this._languageAssetRegistry[moduleName] = messageMap;
       } else {
-        Vue.registerMessages(language, messageMap);
+        Vue.registerMessages(currentLanguage, messageMap);
       }
     },
     /**
      * A method for taking all registered language assets and registering them against Vue Intl.
      */
     registerMessages() {
-      Object.keys(this._languageAssetRegistry).forEach(moduleName => {
-        Object.keys(this._languageAssetRegistry[moduleName]).forEach(language => {
-          Vue.registerMessages(language, this._languageAssetRegistry[moduleName][language]);
-        });
-      });
+      for (const moduleName in this._languageAssetRegistry) {
+        Vue.registerMessages(currentLanguage, this._languageAssetRegistry[moduleName]);
+      }
       delete this._languageAssetRegistry;
     },
     /**
