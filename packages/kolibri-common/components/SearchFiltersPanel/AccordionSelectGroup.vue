@@ -18,9 +18,6 @@
             :class="$computedClass({ ':hover': { background: selectedHighlightColor } })"
             :style="{
               background: isCategoryActive(category.value) ? selectedHighlightColor : '',
-              ':hover': {
-                background: 'orange!important',
-              },
             }"
             :text="coreString(category.value)"
             :disabled="
@@ -47,6 +44,16 @@
               />
             </template>
           </KButton>
+          <KButton
+            :text="coreString('uncategorized')"
+            class="category-button"
+            :class="$computedClass({ ':hover': { background: selectedHighlightColor } })"
+            :style="{
+              background: isCategoryActive('no_categories') ? selectedHighlightColor : '',
+            }"
+            appearance="flat-button"
+            @click="noCategories"
+          />
         </template>
       </AccordionItem>
     </AccordionContainer>
@@ -68,7 +75,7 @@
             v-for="lang in languageOptionsList"
             :key="'lang-' + lang.value"
             :checked="isChecked('languages', lang)"
-            :disabled="lang.disabled || isEnabledButNotSelected('languages', lang)"
+            :disabled="lang.disabled || isActiveButNotSelected('languages', lang)"
             :label="lang.label"
             @change="handleChange('languages', lang)"
           />
@@ -93,7 +100,7 @@
             v-for="level in contentLevelsList"
             :key="'level-' + level.value"
             :checked="isChecked('grade_levels', level)"
-            :disabled="level.disabled || isEnabledButNotSelected('grade_levels', level)"
+            :disabled="level.disabled || isActiveButNotSelected('grade_levels', level)"
             :label="level.label"
             @change="handleChange('grade_levels', level)"
           />
@@ -145,7 +152,7 @@
             v-for="a11y in accessibilityOptionsList"
             :key="'a11y-' + a11y.value"
             :checked="isChecked('accessibility_labels', a11y)"
-            :disabled="a11y.disabled || isEnabledButNotSelected('accessibility_labels', a11y)"
+            :disabled="a11y.disabled || isActiveButNotSelected('accessibility_labels', a11y)"
             :label="a11y.label"
             @change="handleChange('accessibility_labels', a11y)"
           />
@@ -167,7 +174,7 @@
             v-for="need in needsOptionsList"
             :key="'resource-need-' + need.value"
             :checked="isChecked('learner_needs', need)"
-            :disabled="need.disabled || isEnabledButNotSelected('learner_needs', need)"
+            :disabled="need.disabled || isActiveButNotSelected('learner_needs', need)"
             :label="need.label"
             @change="handleChange('learner_needs', need)"
           />
@@ -181,10 +188,14 @@
 
 <script>
 
+  import {
+    NoCategories,
+    ContentLevels,
+    AccessibilityCategories,
+  } from 'kolibri.coreVue.vuex.constants';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import camelCase from 'lodash/camelCase';
-  import { ContentLevels, AccessibilityCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
 
@@ -249,7 +260,7 @@
           }
           return needs;
         }
-        return [];
+        return null;
       },
       needsOptionsList() {
         return Object.keys(this.availableResourcesNeeded).map(k => {
@@ -274,7 +285,7 @@
           }
           return roots;
         }
-        return [];
+        return null;
       },
       languageOptionsList() {
         return this.availableLanguages.map(language => {
@@ -374,13 +385,21 @@
       },
     },
     methods: {
+      noCategories() {
+        this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
+      },
       isChecked(inputKey, value) {
-        return this.isSelected(inputKey, value) || this.isEnabledButNotSelected(inputKey, value);
+        return this.isSelected(inputKey, value) || this.isActiveButNotSelected(inputKey, value);
       },
       isSelected(inputKey, value) {
         return this.value[inputKey][value.value] === true;
       },
-      isEnabledButNotSelected(inputKey, value) {
+      isActiveButNotSelected(inputKey, value) {
+        // When a filter is selected, the other filters are disabled if they are no longer
+        // applicable. Additionally, some filters are automatically selected because they're
+        // mutually inclusive with the user's selections.
+        // This basically just answers the question "is this filter active, but *not* because they
+        // directly selected it"
         return (
           !this.isSelected(inputKey, value) &&
           Object.values(this.activeSearchTerms[inputKey]).includes(value)
