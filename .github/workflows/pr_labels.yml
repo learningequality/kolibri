@@ -3,6 +3,23 @@ name: PR Labels
 on: [pull_request_target]
 
 jobs:
+  size-labels:
+    runs-on: ubuntu-latest
+    name: Label the PR size
+    steps:
+      - uses: codelytv/pr-size-labeler@v1
+        with:
+          xs_label: 'SIZE: very small'
+          xs_max_size: '10'
+          s_label: 'SIZE: small'
+          s_max_size: '100'
+          m_label: 'SIZE: medium'
+          m_max_size: '500'
+          l_label: 'SIZE: large'
+          l_max_size: '1000'
+          xl_label: 'SIZE: very large'
+          fail_if_xl: 'false'
+          files_to_ignore: 'yarn.lock'
   other-labels:
     permissions:
       contents: read
