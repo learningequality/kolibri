@@ -302,35 +302,6 @@ class WebpackBundleHook(hooks.KolibriHook):
 
         return mark_safe("\n".join(tags))
 
-    def render_to_page_load_async_html(self):
-        """
-        Generates script tag containing Javascript to register an
-        asynchronously loading Javascript FrontEnd plugin against the core
-        front-end Kolibri app. It passes in the events that would trigger
-        loading the plugin, both multi-time firing events (events) and one time
-        firing events (once).
-
-        It also passes in information about the methods that the events should
-        be delegated to once the plugin has loaded.
-
-        TODO: What do we do with the extension parameter here?
-
-        :returns: HTML of a script tag to insert into a page.
-        """
-        urls = [chunk["url"] for chunk in self.sorted_chunks()]
-        tags = (
-            self.plugin_data_tag()
-            + self.frontend_message_tag()
-            + [
-                '<script>{kolibri_name}.registerKolibriModuleAsync("{bundle}", ["{urls}"]);</script>'.format(
-                    kolibri_name="kolibriCoreAppGlobal",
-                    bundle=self.unique_id,
-                    urls='","'.join(urls),
-                )
-            ]
-        )
-        return mark_safe("\n".join(tags))
-
 
 class WebpackInclusionMixin(object):
     @abstractproperty
@@ -354,12 +325,4 @@ class WebpackInclusionSyncMixin(hooks.KolibriHook, WebpackInclusionMixin):
     def bundle_html(self):
         bundle = self.bundle_class()
         html = bundle.render_to_page_load_sync_html()
-        return mark_safe(html)
-
-
-class WebpackInclusionASyncMixin(hooks.KolibriHook, WebpackInclusionMixin):
-    @property
-    def bundle_html(self):
-        bundle = self.bundle_class()
-        html = bundle.render_to_page_load_async_html()
         return mark_safe(html)
