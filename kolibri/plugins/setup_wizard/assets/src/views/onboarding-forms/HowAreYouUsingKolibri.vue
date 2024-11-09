@@ -1,12 +1,12 @@
 <template>
 
-  <KRadioButtonGroup>
-    <OnboardingStepBase
-      dir="auto"
-      :noBackAction="true"
-      :title="getCommonSyncString('howAreYouUsingKolibri')"
-      @continue="handleContinue"
-    >
+  <OnboardingStepBase
+    dir="auto"
+    :noBackAction="true"
+    :title="getCommonSyncString('howAreYouUsingKolibri')"
+    @continue="handleContinue"
+  >
+    <KRadioButtonGroup>
       <KRadioButton
         v-model="selected"
         style="margin-bottom: 1em"
@@ -22,8 +22,8 @@
         :description="$tr('groupLearningDescription')"
         :autofocus="selected === UsePresets.GROUP"
       />
-    </OnboardingStepBase>
-  </KRadioButtonGroup>
+    </KRadioButtonGroup>
+  </OnboardingStepBase>
 
 </template>
 

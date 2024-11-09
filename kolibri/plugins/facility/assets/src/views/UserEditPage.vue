@@ -13,52 +13,52 @@
         <h1>
           {{ $tr('editUserDetailsHeader') }}
         </h1>
-        <KRadioButtonGroup>
-          <section>
-            <FullNameTextbox
-              ref="fullNameTextbox"
-              :autofocus="true"
-              :disabled="formDisabled"
-              :value.sync="fullName"
-              :isValid.sync="fullNameValid"
-              :shouldValidate="formSubmitted"
+        <section>
+          <FullNameTextbox
+            ref="fullNameTextbox"
+            :autofocus="true"
+            :disabled="formDisabled"
+            :value.sync="fullName"
+            :isValid.sync="fullNameValid"
+            :shouldValidate="formSubmitted"
+          />
+          <UsernameTextbox
+            ref="usernameTextbox"
+            :disabled="formDisabled"
+            :value.sync="username"
+            :isValid.sync="usernameValid"
+            :shouldValidate="formSubmitted"
+            :isUniqueValidator="usernameIsUnique"
+            :errors.sync="caughtErrors"
+          />
+          <template v-if="editingSuperAdmin">
+            <h2 class="header user-type">
+              {{ coreString('userTypeLabel') }}
+            </h2>
+            <UserTypeDisplay
+              :userType="kind"
+              class="user-type"
             />
-            <UsernameTextbox
-              ref="usernameTextbox"
-              :disabled="formDisabled"
-              :value.sync="username"
-              :isValid.sync="usernameValid"
-              :shouldValidate="formSubmitted"
-              :isUniqueValidator="usernameIsUnique"
-              :errors.sync="caughtErrors"
+            <KExternalLink
+              v-if="devicePermissionsPageLink"
+              class="super-admin-description"
+              :text="editingSelf ? $tr('viewInDeviceTabPrompt') : $tr('changeInDeviceTabPrompt')"
+              :href="devicePermissionsPageLink"
             />
-            <template v-if="editingSuperAdmin">
-              <h2 class="header user-type">
-                {{ coreString('userTypeLabel') }}
-              </h2>
-              <UserTypeDisplay
-                :userType="kind"
-                class="user-type"
-              />
-              <KExternalLink
-                v-if="devicePermissionsPageLink"
-                class="super-admin-description"
-                :text="editingSelf ? $tr('viewInDeviceTabPrompt') : $tr('changeInDeviceTabPrompt')"
-                :href="devicePermissionsPageLink"
-              />
-            </template>
-            <template v-else>
-              <KSelect
-                v-model="typeSelected"
-                class="select"
-                :disabled="formDisabled"
-                :label="coreString('userTypeLabel')"
-                :options="userTypeOptions"
-              />
-              <fieldset
-                v-if="coachIsSelected"
-                class="coach-selector"
-              >
+          </template>
+          <template v-else>
+            <KSelect
+              v-model="typeSelected"
+              class="select"
+              :disabled="formDisabled"
+              :label="coreString('userTypeLabel')"
+              :options="userTypeOptions"
+            />
+            <fieldset
+              v-if="coachIsSelected"
+              class="coach-selector"
+            >
+              <KRadioButtonGroup>
                 <KRadioButton
                   v-model="classCoachIsSelected"
                   :disabled="formDisabled"
@@ -73,29 +73,29 @@
                   :description="coreString('facilityCoachDescription')"
                   :buttonValue="false"
                 />
-              </fieldset>
-            </template>
-            <IdentifierTextbox
-              :value.sync="idNumber"
-              :disabled="formDisabled"
-            />
-            <BirthYearSelect
-              :value.sync="birthYear"
-              :disabled="formDisabled"
-              class="select"
-            />
-            <GenderSelect
-              :value.sync="gender"
-              :disabled="formDisabled"
-              class="select"
-            />
-            <ExtraDemographics
-              v-model="extraDemographics"
-              :facilityDatasetExtraFields="facilityConfig.extra_fields"
-              :disabled="formDisabled"
-            />
-          </section>
-        </KRadioButtonGroup>
+              </KRadioButtonGroup>
+            </fieldset>
+          </template>
+          <IdentifierTextbox
+            :value.sync="idNumber"
+            :disabled="formDisabled"
+          />
+          <BirthYearSelect
+            :value.sync="birthYear"
+            :disabled="formDisabled"
+            class="select"
+          />
+          <GenderSelect
+            :value.sync="gender"
+            :disabled="formDisabled"
+            class="select"
+          />
+          <ExtraDemographics
+            v-model="extraDemographics"
+            :facilityDatasetExtraFields="facilityConfig.extra_fields"
+            :disabled="formDisabled"
+          />
+        </section>
         <p v-if="willBeLoggedOut">
           {{ $tr('forceLogoutWarning') }}
         </p>

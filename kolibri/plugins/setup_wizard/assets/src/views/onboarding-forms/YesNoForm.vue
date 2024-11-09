@@ -1,12 +1,12 @@
 <template>
 
-  <KRadioButtonGroup>
-    <OnboardingForm
-      :header="headerText"
-      :submitText="submitText"
-      :description="description"
-      @submit="emitSetting"
-    >
+  <OnboardingForm
+    :header="headerText"
+    :submitText="submitText"
+    :description="description"
+    @submit="emitSetting"
+  >
+    <KRadioButtonGroup>
       <KRadioButton
         ref="yesRadio"
         v-model="setting"
@@ -20,13 +20,13 @@
         :buttonValue="false"
         :description="noOptionDescription"
       />
-      <template #footer>
-        <p>
-          {{ $tr('details') }}
-        </p>
-      </template>
-    </OnboardingForm>
-  </KRadioButtonGroup>
+    </KRadioButtonGroup>
+    <template #footer>
+      <p>
+        {{ $tr('details') }}
+      </p>
+    </template>
+  </OnboardingForm>
 
 </template>
 

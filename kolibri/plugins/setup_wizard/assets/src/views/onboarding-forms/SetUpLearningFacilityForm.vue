@@ -1,11 +1,11 @@
 <template>
 
-  <KRadioButtonGroup>
-    <OnboardingStepBase
-      :title="$tr('setUpFacilityTitle')"
-      :description="$tr('setUpFacilityDescription')"
-      @continue="handleContinue"
-    >
+  <OnboardingStepBase
+    :title="$tr('setUpFacilityTitle')"
+    :description="$tr('setUpFacilityDescription')"
+    @continue="handleContinue"
+  >
+    <KRadioButtonGroup>
       <KRadioButton
         v-model="selected"
         :label="$tr('createFacilityLabel')"
@@ -20,14 +20,14 @@
         class="radio-button"
         :autofocus="isImportFacilitySetup"
       />
-      <SelectDeviceModalGroup
-        v-if="showSelectAddressModal"
-        :filterByOnMyOwnFacility="false"
-        @cancel="showSelectAddressModal = false"
-        @submit="handleContinueImport"
-      />
-    </OnboardingStepBase>
-  </KRadioButtonGroup>
+    </KRadioButtonGroup>
+    <SelectDeviceModalGroup
+      v-if="showSelectAddressModal"
+      :filterByOnMyOwnFacility="false"
+      @cancel="showSelectAddressModal = false"
+      @submit="handleContinueImport"
+    />
+  </OnboardingStepBase>
 
 </template>
 

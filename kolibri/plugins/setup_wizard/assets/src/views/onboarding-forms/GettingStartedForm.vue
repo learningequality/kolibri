@@ -1,10 +1,10 @@
 <template>
 
-  <KRadioButtonGroup>
-    <OnboardingForm
-      :header="getCommonSyncString('howAreYouUsingKolibri')"
-      @submit="handleSubmit"
-    >
+  <OnboardingForm
+    :header="getCommonSyncString('howAreYouUsingKolibri')"
+    @submit="handleSubmit"
+  >
+    <KRadioButtonGroup>
       <KRadioButton
         v-model="selected"
         :buttonValue="Options.PERSONAL"
@@ -17,8 +17,8 @@
         :label="$tr('advancedSetupLabel')"
         :description="$tr('advancedSetupDescription')"
       />
-    </OnboardingForm>
-  </KRadioButtonGroup>
+    </KRadioButtonGroup>
+  </OnboardingForm>
 
 </template>
 

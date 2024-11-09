@@ -1,19 +1,19 @@
 <template>
 
   <div class="drive-list">
-    <KRadioButtonGroup>
-      <div v-if="drives.length === 0">
-        <UiAlert
-          type="info"
-          :dismissible="false"
-        >
-          {{ noDrivesText }}
-        </UiAlert>
-      </div>
-      <div v-else>
-        <h2>
-          {{ $tr('drivesFound') }}
-        </h2>
+    <div v-if="drives.length === 0">
+      <UiAlert
+        type="info"
+        :dismissible="false"
+      >
+        {{ noDrivesText }}
+      </UiAlert>
+    </div>
+    <div v-else>
+      <h2>
+        {{ $tr('drivesFound') }}
+      </h2>
+      <KRadioButtonGroup>
         <KRadioButton
           v-for="drive in drives"
           :key="drive.id"
@@ -22,8 +22,8 @@
           :currentValue="value"
           @change="$emit('input', drive.id)"
         />
-      </div>
-    </KRadioButtonGroup>
+      </KRadioButtonGroup>
+    </div>
   </div>
 
 </template>

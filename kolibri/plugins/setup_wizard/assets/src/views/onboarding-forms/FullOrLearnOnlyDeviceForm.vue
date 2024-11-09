@@ -1,10 +1,10 @@
 <template>
 
-  <KRadioButtonGroup>
-    <OnboardingStepBase
-      :title="$tr('whatKindOfDeviceTitle')"
-      @continue="handleContinue"
-    >
+  <OnboardingStepBase
+    :title="$tr('whatKindOfDeviceTitle')"
+    @continue="handleContinue"
+  >
+    <KRadioButtonGroup>
       <KRadioButton
         v-model="selected"
         :label="$tr('fullDeviceLabel')"
@@ -19,8 +19,8 @@
         :description="$tr('learnOnlyDeviceDescription')"
         :autofocus="isLODSetup"
       />
-    </OnboardingStepBase>
-  </KRadioButtonGroup>
+    </KRadioButtonGroup>
+  </OnboardingStepBase>
 
 </template>
 

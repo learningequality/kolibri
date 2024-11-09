@@ -79,12 +79,12 @@
 
       <template #tbody>
         <tbody>
-          <tr
-            v-for="user in users"
-            :key="user.id"
-            :style="isSelectedStyle(user.id)"
-          >
-            <KRadioButtonGroup>
+          <KRadioButtonGroup v-if="selectable && !enableMultipleSelection">
+            <tr
+              v-for="user in users"
+              :key="user.id"
+              :style="isSelectedStyle(user.id)"
+            >
               <td>
                 <KCheckbox
                   v-if="selectable && enableMultipleSelection"
@@ -164,48 +164,48 @@
                   />
                 </template>
               </td>
-            </KRadioButtonGroup>
-            <td
-              class="visuallyhidden"
-              data-test="userRoleLabel"
-            >
-              {{ typeDisplayMap[user.kind] }}
-            </td>
-            <td
-              data-test="username"
-              :style="{ color: $themeTokens.text }"
-            >
-              <span dir="auto">
-                {{ user.username }}
-              </span>
-            </td>
-            <template v-if="showDemographicInfo">
-              <td class="id-col">
-                <KOptionalText :text="user.id_number ? user.id_number : ''" />
+              <td
+                class="visuallyhidden"
+                data-test="userRoleLabel"
+              >
+                {{ typeDisplayMap[user.kind] }}
               </td>
-              <td>
-                <GenderDisplayText :gender="user.gender" />
+              <td
+                data-test="username"
+                :style="{ color: $themeTokens.text }"
+              >
+                <span dir="auto">
+                  {{ user.username }}
+                </span>
               </td>
-              <td>
-                <BirthYearDisplayText :birthYear="user.birth_year" />
+              <template v-if="showDemographicInfo">
+                <td class="id-col">
+                  <KOptionalText :text="user.id_number ? user.id_number : ''" />
+                </td>
+                <td>
+                  <GenderDisplayText :gender="user.gender" />
+                </td>
+                <td>
+                  <BirthYearDisplayText :birthYear="user.birth_year" />
+                </td>
+              </template>
+              <td v-if="$scopedSlots.info">
+                <slot
+                  name="info"
+                  :user="user"
+                ></slot>
               </td>
-            </template>
-            <td v-if="$scopedSlots.info">
-              <slot
-                name="info"
-                :user="user"
-              ></slot>
-            </td>
-            <td
-              v-if="$scopedSlots.action"
-              class="core-table-button-col"
-            >
-              <slot
-                name="action"
-                :user="user"
-              ></slot>
-            </td>
-          </tr>
+              <td
+                v-if="$scopedSlots.action"
+                class="core-table-button-col"
+              >
+                <slot
+                  name="action"
+                  :user="user"
+                ></slot>
+              </td>
+            </tr>
+          </KRadioButtonGroup>
         </tbody>
       </template>
     </CoreTable>

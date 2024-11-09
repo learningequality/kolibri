@@ -8,11 +8,11 @@
     @cancel="$emit('cancel')"
   >
     <!-- Classroom Selection Form -->
-    <KRadioButtonGroup>
-      <div
-        v-if="stage === Stages.SELECT_CLASSROOM"
-        id="select-classroom"
-      >
+    <div
+      v-if="stage === Stages.SELECT_CLASSROOM"
+      id="select-classroom"
+    >
+      <KRadioButtonGroup>
         <KRadioButton
           v-for="classroom in availableClassrooms"
           :key="classroom.id"
@@ -21,28 +21,28 @@
           :buttonValue="classroom.id"
           data-test="radio-button"
         />
-      </div>
-      <!-- Learner Group Selection Form -->
-      <div
-        v-else
-        id="select-learnergroup"
-      >
-        <p>
-          {{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}
-        </p>
-        <p>
-          {{ assignmentQuestion }}
-        </p>
-        <RecipientSelector
-          v-model="selectedCollectionIds"
-          :groups="availableGroups"
-          :classId="selectedClassroomId"
-          :initialAdHocLearners="[]"
-          data-test="recipient-selector"
-          @updateLearners="learners => (adHocLearners = learners)"
-        />
-      </div>
-    </KRadioButtonGroup>
+      </KRadioButtonGroup>
+    </div>
+    <!-- Learner Group Selection Form -->
+    <div
+      v-else
+      id="select-learnergroup"
+    >
+      <p>
+        {{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}
+      </p>
+      <p>
+        {{ assignmentQuestion }}
+      </p>
+      <RecipientSelector
+        v-model="selectedCollectionIds"
+        :groups="availableGroups"
+        :classId="selectedClassroomId"
+        :initialAdHocLearners="[]"
+        data-test="recipient-selector"
+        @updateLearners="learners => (adHocLearners = learners)"
+      />
+    </div>
   </KModal>
 
 </template>

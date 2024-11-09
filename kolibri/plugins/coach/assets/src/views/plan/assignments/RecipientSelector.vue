@@ -1,8 +1,8 @@
 <template>
 
-  <KRadioButtonGroup>
-    <div>
-      <!-- Entire class -->
+  <div>
+    <!-- Entire class -->
+    <KRadioButtonGroup>
       <KRadioButton
         :buttonValue="true"
         :currentValue="entireClassIsSelected"
@@ -14,30 +14,30 @@
           icon="classes"
         />
       </KRadioButton>
-      <!-- Learner groups -->
-      <KCheckbox
-        v-for="group in groups"
-        :key="group.id"
-        :checked="groupIsSelected(group)"
-        :disabled="disabled"
-        @change="toggleGroup($event, group)"
-      >
-        <KLabeledIcon
-          :label="group.name"
-          icon="group"
-        />
-      </KCheckbox>
-      <!-- Individual learners -->
-      <IndividualLearnerSelector
-        :isVisible="individualSelectorIsVisible"
-        :selectedGroupIds="selectedGroupIds"
-        :selectedLearnerIds.sync="selectedLearnerIds"
-        :targetClassId="classId"
-        :disabled="disabled"
-        @togglevisibility="toggleIndividualSelector"
+    </KRadioButtonGroup>
+    <!-- Learner groups -->
+    <KCheckbox
+      v-for="group in groups"
+      :key="group.id"
+      :checked="groupIsSelected(group)"
+      :disabled="disabled"
+      @change="toggleGroup($event, group)"
+    >
+      <KLabeledIcon
+        :label="group.name"
+        icon="group"
       />
-    </div>
-  </KRadioButtonGroup>
+    </KCheckbox>
+    <!-- Individual learners -->
+    <IndividualLearnerSelector
+      :isVisible="individualSelectorIsVisible"
+      :selectedGroupIds="selectedGroupIds"
+      :selectedLearnerIds.sync="selectedLearnerIds"
+      :targetClassId="classId"
+      :disabled="disabled"
+      @togglevisibility="toggleIndividualSelector"
+    />
+  </div>
 
 </template>
 

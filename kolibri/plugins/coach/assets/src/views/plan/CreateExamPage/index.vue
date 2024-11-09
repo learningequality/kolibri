@@ -44,8 +44,6 @@
                 @input="value => updateQuiz({ learners_see_fixed_order: value })"
               />
             </KGridItem>
-          </KRadioButtonGroup>
-          <KRadioButtonGroup>
             <KGridItem
               :layout12="{ span: 6 }"
               :layout8="{ span: 4 }"

@@ -7,11 +7,11 @@
     :submitDisabled="loading"
     @submit="submit"
   >
-    <KRadioButtonGroup>
-      <div>
-        <p>
-          {{ $tr('modalDescription') }}
-        </p>
+    <div>
+      <p>
+        {{ $tr('modalDescription') }}
+      </p>
+      <KRadioButtonGroup>
         <KRadioButton
           v-model="selected"
           :label="$tr('doNotUseMetered')"
@@ -26,8 +26,8 @@
           :disabled="loading"
           class="radio-button"
         />
-      </div>
-    </KRadioButtonGroup>
+      </KRadioButtonGroup>
+    </div>
   </KModal>
 
 </template>

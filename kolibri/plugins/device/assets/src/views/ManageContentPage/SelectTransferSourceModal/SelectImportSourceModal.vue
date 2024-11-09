@@ -1,12 +1,12 @@
 <template>
 
-  <KRadioButtonGroup>
-    <SelectSourceModal
-      :submitDisabled="formIsDisabled"
-      :showLoadingMessage="formIsDisabled && !initialDelay"
-      @submit="handleSubmit"
-      @cancel="handleCancel"
-    >
+  <SelectSourceModal
+    :submitDisabled="formIsDisabled"
+    :showLoadingMessage="formIsDisabled && !initialDelay"
+    @submit="handleSubmit"
+    @cancel="handleCancel"
+  >
+    <KRadioButtonGroup>
       <KRadioButton
         v-model="source"
         :label="$tr('network')"
@@ -29,8 +29,8 @@
         :disabled="formIsDisabled"
         :description="$tr('localDescription')"
       />
-    </SelectSourceModal>
-  </KRadioButtonGroup>
+    </KRadioButtonGroup>
+  </SelectSourceModal>
 
 </template>
 

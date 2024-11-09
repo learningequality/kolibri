@@ -45,8 +45,6 @@
               :description="randomizedOptionDescription$()"
             />
           </KGridItem>
-        </KRadioButtonGroup>
-        <KRadioButtonGroup>
           <KGridItem
             :layout12="{ span: 6 }"
             :layout8="{ span: 4 }"

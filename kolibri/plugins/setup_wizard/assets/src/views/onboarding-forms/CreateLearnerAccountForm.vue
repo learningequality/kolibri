@@ -1,14 +1,14 @@
 <template>
 
-  <KRadioButtonGroup>
-    <OnboardingStepBase
-      :title="$tr('header')"
-      :footerMessageType="footerMessageType"
-      :step="3"
-      :steps="5"
-      :eventOnGoBack="backEvent"
-      @continue="handleContinue"
-    >
+  <OnboardingStepBase
+    :title="$tr('header')"
+    :footerMessageType="footerMessageType"
+    :step="3"
+    :steps="5"
+    :eventOnGoBack="backEvent"
+    @continue="handleContinue"
+  >
+    <KRadioButtonGroup>
       <KRadioButton
         ref="yesRadio"
         v-model="setting"
@@ -25,11 +25,11 @@
         :buttonValue="false"
         :autofocus="!setting"
       />
-      <p class="description">
-        {{ getCommonSyncString('changeLater') }}
-      </p>
-    </OnboardingStepBase>
-  </KRadioButtonGroup>
+    </KRadioButtonGroup>
+    <p class="description">
+      {{ getCommonSyncString('changeLater') }}
+    </p>
+  </OnboardingStepBase>
 
 </template>
 

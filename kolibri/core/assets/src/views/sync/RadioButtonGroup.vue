@@ -1,26 +1,23 @@
 <template>
 
-  <KRadioButtonGroup>
-    <div>
-      <KRadioButton
-        v-for="(item, idx) in items"
-        :key="idx"
-        :buttonValue="itemValue(item)"
-        :currentValue="currentValue"
-        :label="itemLabel(item)"
-        :description="description(item)"
-        v-bind="$attrs"
-        @input="$emit('update:currentValue', $event)"
-      >
-        <slot
-          v-if="showUnderButtonSlot(item)"
-          name="underbutton"
-          v-bind="{ selected }"
-        >
-        </slot>
-      </KRadioButton>
-    </div>
-  </KRadioButtonGroup>
+  <div>
+    <KRadioButton
+      v-for="(item, idx) in items"
+      :key="idx"
+      :buttonValue="itemValue(item)"
+      :currentValue="currentValue"
+      :label="itemLabel(item)"
+      :description="description(item)"
+      v-bind="$attrs"
+      @input="$emit('update:currentValue', $event)"
+    >
+      <slot
+        v-if="showUnderButtonSlot(item)"
+        name="underbutton"
+        v-bind="{ selected }"
+      ></slot>
+    </KRadioButton>
+  </div>
 
 </template>
 

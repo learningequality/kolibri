@@ -1,13 +1,13 @@
 <template>
 
-  <KRadioButtonGroup>
-    <OnboardingStepBase
-      :title="$tr('learningEnvironmentHeader')"
-      :footerMessageType="footerMessageType"
-      :step="1"
-      :steps="5"
-      @continue="handleContinue"
-    >
+  <OnboardingStepBase
+    :title="$tr('learningEnvironmentHeader')"
+    :footerMessageType="footerMessageType"
+    :step="1"
+    :steps="5"
+    @continue="handleContinue"
+  >
+    <KRadioButtonGroup>
       <KRadioButton
         ref="first-button"
         v-model="selected"
@@ -35,8 +35,8 @@
         v-model="facilityName"
         class="textbox"
       />
-    </OnboardingStepBase>
-  </KRadioButtonGroup>
+    </KRadioButtonGroup>
+  </OnboardingStepBase>
 
 </template>
 

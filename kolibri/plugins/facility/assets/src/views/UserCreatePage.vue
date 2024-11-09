@@ -16,45 +16,45 @@
         <h1>
           {{ $tr('createNewUserHeader') }}
         </h1>
-        <KRadioButtonGroup>
-          <section>
-            <FullNameTextbox
-              ref="fullNameTextbox"
-              :autofocus="true"
+        <section>
+          <FullNameTextbox
+            ref="fullNameTextbox"
+            :autofocus="true"
+            :disabled="busy"
+            :value.sync="fullName"
+            :isValid.sync="fullNameValid"
+            :shouldValidate="formSubmitted"
+          />
+          <UsernameTextbox
+            ref="usernameTextbox"
+            :disabled="busy"
+            :value.sync="username"
+            :isValid.sync="usernameValid"
+            :shouldValidate="formSubmitted"
+            :isUniqueValidator="usernameIsUnique"
+            :errors.sync="caughtErrors"
+          />
+          <template v-if="showPasswordInput">
+            <PasswordTextbox
+              ref="passwordTextbox"
               :disabled="busy"
-              :value.sync="fullName"
-              :isValid.sync="fullNameValid"
+              :value.sync="password"
+              :isValid.sync="passwordValid"
               :shouldValidate="formSubmitted"
             />
-            <UsernameTextbox
-              ref="usernameTextbox"
-              :disabled="busy"
-              :value.sync="username"
-              :isValid.sync="usernameValid"
-              :shouldValidate="formSubmitted"
-              :isUniqueValidator="usernameIsUnique"
-              :errors.sync="caughtErrors"
-            />
-            <template v-if="showPasswordInput">
-              <PasswordTextbox
-                ref="passwordTextbox"
-                :disabled="busy"
-                :value.sync="password"
-                :isValid.sync="passwordValid"
-                :shouldValidate="formSubmitted"
-              />
-            </template>
-            <KSelect
-              v-model="kind"
-              class="select"
-              :disabled="busy"
-              :label="coreString('userTypeLabel')"
-              :options="userTypeOptions"
-            />
-            <fieldset
-              v-if="coachIsSelected"
-              class="coach-selector"
-            >
+          </template>
+          <KSelect
+            v-model="kind"
+            class="select"
+            :disabled="busy"
+            :label="coreString('userTypeLabel')"
+            :options="userTypeOptions"
+          />
+          <fieldset
+            v-if="coachIsSelected"
+            class="coach-selector"
+          >
+            <KRadioButtonGroup>
               <KRadioButton
                 v-model="classCoachIsSelected"
                 :disabled="busy"
@@ -69,28 +69,28 @@
                 :description="coreString('facilityCoachDescription')"
                 :buttonValue="false"
               />
-            </fieldset>
-            <IdentifierTextbox
-              :value.sync="idNumber"
-              :disabled="busy"
-            />
-            <BirthYearSelect
-              :value.sync="birthYear"
-              :disabled="busy"
-              class="select"
-            />
-            <GenderSelect
-              :value.sync="gender"
-              :disabled="busy"
-              class="select"
-            />
-            <ExtraDemographics
-              v-model="extraDemographics"
-              :facilityDatasetExtraFields="facilityConfig.extra_fields"
-              :disabled="busy"
-            />
-          </section>
-        </KRadioButtonGroup>
+            </KRadioButtonGroup>
+          </fieldset>
+          <IdentifierTextbox
+            :value.sync="idNumber"
+            :disabled="busy"
+          />
+          <BirthYearSelect
+            :value.sync="birthYear"
+            :disabled="busy"
+            class="select"
+          />
+          <GenderSelect
+            :value.sync="gender"
+            :disabled="busy"
+            class="select"
+          />
+          <ExtraDemographics
+            v-model="extraDemographics"
+            :facilityDatasetExtraFields="facilityConfig.extra_fields"
+            :disabled="busy"
+          />
+        </section>
         <div class="buttons">
           <KButtonGroup style="margin-top: 8px">
             <KButton
