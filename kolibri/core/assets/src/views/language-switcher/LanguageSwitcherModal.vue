@@ -1,6 +1,6 @@
 <template>
 
-  <FocusTrap
+  <KFocusTrap
     @shouldFocusFirstEl="focusFirstEl"
     @shouldFocusLastEl="focusLastEl"
   >
@@ -36,7 +36,7 @@
         </KRadioButtonGroup>
       </KGrid>
     </KModal>
-  </FocusTrap>
+  </KFocusTrap>
 
 </template>
 
@@ -46,12 +46,10 @@
   import { currentLanguage } from 'kolibri.utils.i18n';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import languageSwitcherMixin from './mixin';
 
   export default {
     name: 'LanguageSwitcherModal',
-    components: { FocusTrap },
     mixins: [commonCoreStrings, languageSwitcherMixin],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();

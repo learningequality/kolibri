@@ -32,7 +32,7 @@
         <template #default="{ items }">
           <CoreTable
             :selectable="true"
-            :emptyMessage="$tr('noUsersMatch')"
+            :emptyMessage="emptyMessage"
           >
             <template #headers>
               <th class="table-checkbox-header">
@@ -92,6 +92,7 @@
   import { formatList } from 'kolibri.utils.i18n';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import flatMap from 'lodash/flatMap';
   import forEach from 'lodash/forEach';
@@ -106,6 +107,13 @@
     name: 'IndividualLearnerSelector',
     components: { CoreTable, PaginatedListContainer },
     mixins: [commonCoreStrings, commonCoachStrings],
+    setup() {
+      const { noLearnersEnrolled$ } = enhancedQuizManagementStrings;
+
+      return {
+        noLearnersEnrolled$,
+      };
+    },
     props: {
       // If true, the main checkbox is checked and the list of learners is shown
       isVisible: {
@@ -196,6 +204,11 @@
       },
       itemsPerPage() {
         return DEFAULT_ITEMS_PER_PAGE;
+      },
+      emptyMessage() {
+        return this.allLearners.length
+          ? this.$tr('noUsersMatch')
+          : this.noLearnersEnrolled$({ className: this.className });
       },
     },
     methods: {

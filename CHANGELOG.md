@@ -2,6 +2,30 @@
 
 List of the most important changes for each release.
 
+## 0.17.3
+
+### Changed
+- Improve learn folder contents display by @rtibbles in https://github.com/learningequality/kolibri/pull/12737
+- Update KDS theme token by @AllanOXDi in https://github.com/learningequality/kolibri/pull/12742
+- Final token updates by @marcellamaki in https://github.com/learningequality/kolibri/pull/12754
+
+### Added
+- Add Fulfulde translations by @radinamatic in https://github.com/learningequality/kolibri/pull/12738
+- Update morango for conditional indexes on store to improve deserialization performance. by @rtibbles in https://github.com/learningequality/kolibri/pull/12747
+
+### Fixed
+- Settings is not correct after tzlocal update by @jredrejo in https://github.com/learningequality/kolibri/pull/12683
+- Add missing `indeterminate` states on Select All checkboxes by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12587
+- Fix import channel in Postgresql  by @jredrejo in https://github.com/learningequality/kolibri/pull/12709
+- Branding tweaks by @rtibbles in https://github.com/learningequality/kolibri/pull/12736
+- Tweaks to CLI and message extraction utility function by @rtibbles in https://github.com/learningequality/kolibri/pull/12320
+- Delete resource from everywhere when force_delete is selected by @thesujai in https://github.com/learningequality/kolibri/pull/12680
+- Dont delete the entire channel when deleting a single content by @thesujai in https://github.com/learningequality/kolibri/pull/12740
+- Prevent access to undefined AttemptLogs while looking at reports by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/12723
+- Update StorageNotification.vue to prevent undefined access if device plugin is disabled by @rtibbles in https://github.com/learningequality/kolibri/pull/12724
+- Update favicon to be available when the default theme is disabled by @marcellamaki in https://github.com/learningequality/kolibri/pull/12760
+- Fix on my own merge account KCheckbox issue by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12761
+
 ## 0.17.2
 
 ### Changed

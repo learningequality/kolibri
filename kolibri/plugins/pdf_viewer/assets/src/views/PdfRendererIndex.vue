@@ -291,6 +291,7 @@
       const loadingPdf = PDFJSLib.getDocument({
         url: this.defaultFile.storage_url,
         worker: this.worker,
+        isEvalSupported: false,
       });
       // pass callback to update loading bar
       loadingPdf.onProgress = loadingProgress => {

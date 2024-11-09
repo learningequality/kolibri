@@ -72,7 +72,7 @@
 
   import { validateLinkObject } from 'kolibri.utils.validators';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useChannels from '../../composables/useChannels';
+  import useChannels from 'kolibri-common/composables/useChannels';
   import LearningActivityLabel from '../LearningActivityLabel';
   import commonLearnStrings from '../commonLearnStrings';
   import CardThumbnail from './CardThumbnail.vue';

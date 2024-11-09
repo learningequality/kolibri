@@ -16,7 +16,7 @@
         <slot name="header"></slot>
       </div>
 
-      <FocusTrap
+      <KFocusTrap
         ref="focusTrap"
         class="ui-menu-options"
         :disabled="!containFocus"
@@ -24,7 +24,7 @@
         @shouldFocusLastEl="focusLastEl"
       >
         <slot name="options"></slot>
-      </FocusTrap>
+      </KFocusTrap>
 
       <div
         v-if="$slots.footer"
@@ -42,13 +42,9 @@
 <script>
 
   import last from 'lodash/last';
-  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
 
   export default {
     name: 'CoreMenu',
-    components: {
-      FocusTrap,
-    },
     props: {
       // Whether to show if links are currently active
       showActive: {

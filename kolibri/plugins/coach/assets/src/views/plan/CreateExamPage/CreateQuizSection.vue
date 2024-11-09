@@ -290,22 +290,21 @@
         </AccordionContainer>
       </div>
     </KTabsPanel>
-    <FocusTrap>
-      <KModal
-        v-if="showDeleteConfirmation"
-        :title="deleteSectionLabel$()"
-        :submitText="coreString('deleteAction')"
-        :cancelText="coreString('cancelAction')"
-        @cancel="showDeleteConfirmation = false"
-        @submit="handleConfirmDelete"
-      >
-        {{
-          deleteConfirmation$({
-            section_title: displaySectionTitle(activeSection, activeSectionIndex),
-          })
-        }}
-      </KModal>
-    </FocusTrap>
+
+    <KModal
+      v-if="showDeleteConfirmation"
+      :title="deleteSectionLabel$()"
+      :submitText="coreString('deleteAction')"
+      :cancelText="coreString('cancelAction')"
+      @cancel="showDeleteConfirmation = false"
+      @submit="handleConfirmDelete"
+    >
+      {{
+        deleteConfirmation$({
+          section_title: displaySectionTitle(activeSection, activeSectionIndex),
+        })
+      }}
+    </KModal>
   </div>
 
 </template>
@@ -328,7 +327,6 @@
   import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
-  import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
@@ -348,7 +346,6 @@
       DragSortWidget,
       DragHandle,
       TabsWithOverflow,
-      FocusTrap,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {

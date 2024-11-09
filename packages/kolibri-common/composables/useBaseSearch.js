@@ -23,7 +23,6 @@ import {
 import useUser from 'kolibri.coreVue.composables.useUser';
 
 import { deduplicateResources } from '../utils/contentNode';
-import { setLanguages } from './useLanguages';
 
 export const logging = logger.getLogger(__filename);
 
@@ -384,7 +383,6 @@ export default function useBaseSearch({
           languagesList: labels.languages || [],
           channelsList: labels.channels || [],
         });
-        setLanguages(labels.languages || []);
       })
       .catch(err => logging.error('Failed to fetch search labels from remote', err))
       .then(() => {

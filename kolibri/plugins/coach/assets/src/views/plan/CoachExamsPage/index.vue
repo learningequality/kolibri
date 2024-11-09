@@ -7,6 +7,31 @@
         :tabsId="PLAN_TABS_ID"
         :activeTabId="PlanTabs.QUIZZES"
       >
+        <div
+          v-if="hasNoChannels && !isLoading"
+          class="alert banner-spacing"
+          :style="{ backgroundColor: $themePalette.yellow.v_200 }"
+        >
+          <div>
+            <KIcon
+              icon="warning"
+              class="warning-icon"
+              :color="$themePalette.yellow.v_600"
+            />
+          </div>
+
+          <div
+            v-if="hasNoChannels"
+            class="error-message"
+          >
+            <p>{{ noResourcesAvailable$() }}</p>
+            <KExternalLink
+              v-if="deviceContentUrl"
+              :text="$tr('adminLink')"
+              :href="deviceContentUrl"
+            />
+          </div>
+        </div>
         <div class="classname-quiz-button-div">
           <div>
             <KIcon
@@ -17,6 +42,7 @@
           </div>
           <KButtonGroup v-if="practiceQuizzesExist">
             <KButton
+              v-if="!hasNoChannels"
               primary
               hasDropdown
               appearance="raised-button"
@@ -36,6 +62,7 @@
             class="button"
           >
             <KRouterLink
+              v-if="!hasNoChannels"
               :primary="true"
               appearance="raised-button"
               :to="newExamRoute"
@@ -205,11 +232,14 @@
   import { getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ExamResource, UserSyncStatusResource } from 'kolibri.resources';
+  import { ExamResource, UserSyncStatusResource, ChannelResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { mapState, mapGetters } from 'kolibri.lib.vuex';
   import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import urls from 'kolibri.urls';
+  import useUser from 'kolibri.coreVue.composables.useUser';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../constants';
   import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
   import { coachStrings } from '../../common/commonCoachStrings';
@@ -247,6 +277,8 @@
       const showCloseConfirmationModal = ref(false);
       const activeQuiz = ref(null);
       const learnOnlyDevicesExist = ref(false);
+      const { noResourcesAvailable$ } = enhancedQuizManagementStrings;
+      const { canManageContent } = useUser();
 
       initClassInfo().then(() => store.dispatch('notLoading'));
 
@@ -329,6 +361,7 @@
         recipientsLabel$,
         sizeLabel$,
         canNoLongerEditQuizNotice$,
+        noResourcesAvailable$,
         statusLabel$,
         newQuizAction$,
         filterQuizStatus$,
@@ -337,6 +370,13 @@
         avgScoreLabel$,
         entireClassLabel$,
         recipientSelected,
+        canManageContent,
+      };
+    },
+    data() {
+      return {
+        channels: [],
+        isLoading: true,
       };
     },
     computed: {
@@ -458,8 +498,20 @@
         const size = bytesForHumans(sum);
         return size;
       },
+      deviceContentUrl() {
+        const deviceContentUrl = urls['kolibri:kolibri.plugins.device:device_management'];
+        if (deviceContentUrl && this.canManageContent) {
+          return `${deviceContentUrl()}#/content`;
+        }
+
+        return '';
+      },
+      hasNoChannels() {
+        return this.channels.length === 0;
+      },
     },
     mounted() {
+      this.fetchResources(); // Call the method to fetch the resources
       if (this.$route.query.snackbar) {
         this.createSnackbar(this.$route.query.snackbar);
       }
@@ -522,6 +574,18 @@
         nextRoute.name = nextRouteName;
         this.$router.push(nextRoute);
       },
+      fetchResources() {
+        this.isLoading = true;
+        ChannelResource.fetchCollection({
+          getParams: {
+            contains_exercise: true,
+            available: true,
+          },
+        }).then(data => {
+          this.channels = data;
+          this.isLoading = false;
+        });
+      },
     },
     $trs: {
       noExams: {
@@ -546,6 +610,10 @@
         message: '{className} Lessons',
         context:
           "Title that displays on a printed copy of the 'Reports' > 'Lessons' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
+      },
+      adminLink: {
+        message: 'Import channels to your device',
+        context: 'Message for admin indicating the possibility of importing channels into Kolibri.',
       },
     },
   };
@@ -575,6 +643,32 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 0.5em;
+  }
+
+  .alert {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    padding: 0.5em;
+    padding-left: 2em;
+    margin: 1em auto 0;
+  }
+
+  .warning-icon {
+    position: absolute;
+    top: 1em;
+    left: 1em;
+    width: 24px;
+    height: 24px;
+  }
+
+  .error-message {
+    margin-left: 3em;
+    font-size: 14px;
+  }
+
+  .banner-spacing {
+    margin: 0 0 1em;
   }
 
 </style>
