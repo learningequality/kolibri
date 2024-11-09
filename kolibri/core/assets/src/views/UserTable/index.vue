@@ -79,7 +79,136 @@
 
       <template #tbody>
         <tbody>
-          <KRadioButtonGroup v-if="selectable && !enableMultipleSelection">
+          <KradioButtonGroup v-if="selectable && !enableMultipleSelection">
+            <template v-if="users && users.length">
+              <tr
+                v-for="user in users"
+                :key="user.id"
+                :style="isSelectedStyle(user.id)"
+              >
+                <td>
+                  <KCheckbox
+                    v-if="selectable && enableMultipleSelection"
+                    :disabled="disabled"
+                    :checked="userIsSelected(user.id)"
+                    class="user-checkbox"
+                    data-test="userCheckbox"
+                    @change="selectUser(user.id, $event)"
+                  >
+                    <KLabeledIcon
+                      :icon="isCoach ? 'coach' : 'person'"
+                      :label="user.full_name"
+                      data-test="fullName"
+                    />
+                    <UserTypeDisplay
+                      aria-hidden="true"
+                      :userType="user.kind"
+                      :omitLearner="true"
+                      class="role-badge"
+                      data-test="userRoleBadge"
+                      :class="$computedClass(userRoleBadgeStyle)"
+                    />
+                  </KCheckbox>
+                  <!--
+                  @MisRob: It's possible to pass `<label>` content to `KRadioButton`
+                  via the default slot, however it's not what this slot has been
+                  made for so doing so is hackish, even though resulting
+                  markup seems fine. To be able to do this, I also needed to pass
+                  the empty label to required `label` prop to avoid Vue warnings.
+                  I still find this to be better solution in regards to a11y than
+                  not providing label content. Reported related KDS issue
+                  https://github.com/learningequality/kolibri-design-system/issues/348
+                -->
+                  <KRadioButton
+                    v-else-if="selectable && !enableMultipleSelection"
+                    :disabled="disabled"
+                    :buttonValue="user.id"
+                    :currentValue="firstSelectedUser"
+                    :label="''"
+                    data-test="userRadioButton"
+                    @change="selectSingleUser(user.id)"
+                  >
+                    <!--
+                    override muted color in the disabled state with
+                    the normal text color in `style` (using `color`
+                    prop won't work for this purpose)
+                  -->
+                    <KLabeledIcon
+                      :icon="isCoach ? 'coach' : 'person'"
+                      :label="user.full_name"
+                      data-test="fullName"
+                      :style="{ color: $themeTokens.text }"
+                    />
+                    <UserTypeDisplay
+                      aria-hidden="true"
+                      :userType="user.kind"
+                      :omitLearner="true"
+                      class="role-badge"
+                      data-test="userRoleBadge"
+                      :class="$computedClass(userRoleBadgeStyle)"
+                    />
+                  </KRadioButton>
+                  <template v-else>
+                    <KLabeledIcon
+                      :icon="isCoach ? 'coach' : 'person'"
+                      :label="user.full_name"
+                      :style="{ color: $themeTokens.text }"
+                      data-test="fullName"
+                    />
+                    <UserTypeDisplay
+                      aria-hidden="true"
+                      :userType="user.kind"
+                      :omitLearner="true"
+                      class="role-badge"
+                      data-test="userRoleBadge"
+                      :class="$computedClass(userRoleBadgeStyle)"
+                    />
+                  </template>
+                </td>
+                <td
+                  class="visuallyhidden"
+                  data-test="userRoleLabel"
+                >
+                  {{ typeDisplayMap[user.kind] }}
+                </td>
+                <td
+                  data-test="username"
+                  :style="{ color: $themeTokens.text }"
+                >
+                  <span dir="auto">
+                    {{ user.username }}
+                  </span>
+                </td>
+                <template v-if="showDemographicInfo">
+                  <td class="id-col">
+                    <KOptionalText :text="user.id_number ? user.id_number : ''" />
+                  </td>
+                  <td>
+                    <GenderDisplayText :gender="user.gender" />
+                  </td>
+                  <td>
+                    <BirthYearDisplayText :birthYear="user.birth_year" />
+                  </td>
+                </template>
+                <td v-if="$scopedSlots.info">
+                  <slot
+                    name="info"
+                    :user="user"
+                  ></slot>
+                </td>
+                <td
+                  v-if="$scopedSlots.action"
+                  class="core-table-button-col"
+                >
+                  <slot
+                    name="action"
+                    :user="user"
+                  ></slot>
+                </td>
+              </tr>
+            </template>
+          </KradioButtonGroup>
+          <template v-else>
             <tr
               v-for="user in users"
               :key="user.id"
@@ -205,7 +334,7 @@
                 ></slot>
               </td>
             </tr>
-          </KRadioButtonGroup>
+          </template>
         </tbody>
       </template>
     </CoreTable>
