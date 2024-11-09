@@ -9,6 +9,7 @@
         {{ noDrivesText }}
       </UiAlert>
     </div>
+
     <div v-else>
       <h2>
         {{ $tr('drivesFound') }}

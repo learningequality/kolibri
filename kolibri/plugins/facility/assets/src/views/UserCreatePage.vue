@@ -16,6 +16,7 @@
         <h1>
           {{ $tr('createNewUserHeader') }}
         </h1>
+
         <section>
           <FullNameTextbox
             ref="fullNameTextbox"
@@ -25,6 +26,7 @@
             :isValid.sync="fullNameValid"
             :shouldValidate="formSubmitted"
           />
+
           <UsernameTextbox
             ref="usernameTextbox"
             :disabled="busy"
@@ -50,6 +52,7 @@
             :label="coreString('userTypeLabel')"
             :options="userTypeOptions"
           />
+
           <fieldset
             v-if="coachIsSelected"
             class="coach-selector"
@@ -71,26 +74,31 @@
               />
             </KRadioButtonGroup>
           </fieldset>
+
           <IdentifierTextbox
             :value.sync="idNumber"
             :disabled="busy"
           />
+
           <BirthYearSelect
             :value.sync="birthYear"
             :disabled="busy"
             class="select"
           />
+
           <GenderSelect
             :value.sync="gender"
             :disabled="busy"
             class="select"
           />
+
           <ExtraDemographics
             v-model="extraDemographics"
             :facilityDatasetExtraFields="facilityConfig.extra_fields"
             :disabled="busy"
           />
         </section>
+
         <div class="buttons">
           <KButtonGroup style="margin-top: 8px">
             <KButton

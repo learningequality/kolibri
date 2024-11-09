@@ -28,6 +28,7 @@
         icon="group"
       />
     </KCheckbox>
+
     <!-- Individual learners -->
     <IndividualLearnerSelector
       :isVisible="individualSelectorIsVisible"

@@ -13,6 +13,7 @@
         <h1>
           {{ $tr('editUserDetailsHeader') }}
         </h1>
+
         <section>
           <FullNameTextbox
             ref="fullNameTextbox"
@@ -22,6 +23,7 @@
             :isValid.sync="fullNameValid"
             :shouldValidate="formSubmitted"
           />
+
           <UsernameTextbox
             ref="usernameTextbox"
             :disabled="formDisabled"
@@ -31,14 +33,17 @@
             :isUniqueValidator="usernameIsUnique"
             :errors.sync="caughtErrors"
           />
+
           <template v-if="editingSuperAdmin">
             <h2 class="header user-type">
               {{ coreString('userTypeLabel') }}
             </h2>
+
             <UserTypeDisplay
               :userType="kind"
               class="user-type"
             />
+
             <KExternalLink
               v-if="devicePermissionsPageLink"
               class="super-admin-description"
@@ -46,6 +51,7 @@
               :href="devicePermissionsPageLink"
             />
           </template>
+
           <template v-else>
             <KSelect
               v-model="typeSelected"
@@ -54,6 +60,7 @@
               :label="coreString('userTypeLabel')"
               :options="userTypeOptions"
             />
+
             <fieldset
               v-if="coachIsSelected"
               class="coach-selector"
@@ -76,26 +83,31 @@
               </KRadioButtonGroup>
             </fieldset>
           </template>
+
           <IdentifierTextbox
             :value.sync="idNumber"
             :disabled="formDisabled"
           />
+
           <BirthYearSelect
             :value.sync="birthYear"
             :disabled="formDisabled"
             class="select"
           />
+
           <GenderSelect
             :value.sync="gender"
             :disabled="formDisabled"
             class="select"
           />
+
           <ExtraDemographics
             v-model="extraDemographics"
             :facilityDatasetExtraFields="facilityConfig.extra_fields"
             :disabled="formDisabled"
           />
         </section>
+
         <p v-if="willBeLoggedOut">
           {{ $tr('forceLogoutWarning') }}
         </p>

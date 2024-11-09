@@ -28,12 +28,8 @@
       v-else
       id="select-learnergroup"
     >
-      <p>
-        {{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}
-      </p>
-      <p>
-        {{ assignmentQuestion }}
-      </p>
+      <p>{{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}</p>
+      <p>{{ assignmentQuestion }}</p>
       <RecipientSelector
         v-model="selectedCollectionIds"
         :groups="availableGroups"
