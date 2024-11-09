@@ -93,6 +93,7 @@ export default function pluginMediatorFactory(facade) {
      */
     ready() {
       this.registerMessages();
+      this.registerAllContentRenderers();
       this.setReady();
     },
 
@@ -450,6 +451,27 @@ export default function pluginMediatorFactory(facade) {
           }));
         }
       });
+    },
+
+    /**
+     * A method for reading all templates that contain metadata about content renderers
+     * and registering them.
+     */
+    registerAllContentRenderers() {
+      const contentRendererElements = Array.from(
+        document.querySelectorAll('template[data-viewer]') || [],
+      );
+      for (const element of contentRendererElements) {
+        const moduleName = element.getAttribute('data-viewer');
+        try {
+          const data = JSON.parse(element.innerHTML.trim());
+          const presets = data.presets;
+          const urls = data.urls;
+          this.registerContentRenderer(moduleName, urls, presets);
+        } catch (e) {
+          logger.error(`Error parsing content renderer for ${moduleName}`);
+        }
+      }
     },
 
     /**
