@@ -322,6 +322,16 @@
         return this.$tr('down'); // Corrected typo here
       },
     },
+    $trs: {
+      up: {
+        message: 'up',
+        context: 'Move a section up in the list',
+      },
+      down: {
+        message: 'down',
+        context: 'Move a section down in the list',
+      },
+    },
   };
 
 </script>

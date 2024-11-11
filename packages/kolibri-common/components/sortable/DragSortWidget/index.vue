@@ -55,14 +55,22 @@
         type: Function,
         required: true,
         validator: (value)=>{
-          return isWrappedString(value);
+          if(isWrappedString(value)){
+            return true;
+          }else{
+            throw new Error('moveUpText must be a function that returns a wrapped string');
+          }
         }
       },
       moveDownText: {
         type: Function,
         required: true,
         validator: (value)=>{
-          return this.isWrappedString(value);
+          if(isWrappedString(value)){
+            return true;
+          }else{
+            throw new Error('moveDownText must be a function that returns a wrapped string');
+          }
         }
       },
       isFirst: {
