@@ -3,6 +3,7 @@ from uuid import UUID
 from django.db import connection
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.viewsets import GenericViewSet
@@ -50,6 +51,8 @@ class ImportMetadataViewset(GenericViewSet):
         :param pk: id parent node
         :return: an object with keys for each content metadata table and a schema_version key
         """
+        if pk is None:
+            raise status.HTTP_400_BAD_REQUEST
 
         content_schema = request.query_params.get(
             "schema_version", self.default_content_schema

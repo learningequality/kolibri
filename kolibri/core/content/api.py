@@ -861,7 +861,7 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
 
     def retrieve(self, request, pk=None):
         if pk is None:
-            raise Http404
+            raise status.HTTP_400_BAD_REQUEST
         if self._should_proxy_request(request):
             if self.get_queryset().filter(admin_imported=True, pk=pk).exists():
                 # Used in the update method for remote request retrieval
