@@ -422,7 +422,7 @@
           ...csvFields.allLearners('totalLearners'),
         ];
         const fileName = this.$tr('printLabel', { className: this.className });
-        new CSVExporter(columns, fileName).export(this.table);
+        new CSVExporter(columns, fileName).export(this.sortedLessons);
       },
       bytesForHumans,
     },
