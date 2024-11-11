@@ -5,6 +5,9 @@
     class="languages-menu"
   >
     <!-- Languages get added dynamically through video.js -->
+    <KRadioButtonGroup>
+      <slot></slot>
+    </KRadioButtonGroup>
   </MediaPlayerMenu>
 
 </template>
