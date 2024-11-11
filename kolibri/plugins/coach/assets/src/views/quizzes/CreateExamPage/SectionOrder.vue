@@ -319,7 +319,7 @@
         return this.$tr('up');
       },
       moveDownLabel() {
-        return this.$tr('down'); // Corrected typo here
+        return this.$tr('down'); 
       },
     },
     $trs: {
