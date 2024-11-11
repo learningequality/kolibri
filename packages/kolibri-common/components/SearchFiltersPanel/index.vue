@@ -139,14 +139,24 @@
         </div>
       </div>
     </div>
-    <CategorySearchModal
-      v-if="currentCategory"
-      ref="searchModal"
-      :class="windowIsLarge ? '' : 'drawer-panel'"
-      :selectedCategory="currentCategory"
+    <!-- When accordion mode is NOT activated, show as KModal, otherwise, just a div -->
+    <component
+      :is="accordion ? 'div' : 'KModal'"
+      v-if="windowIsLarge && currentCategory"
+      appendToOverlay
+      :title="$tr('chooseACategory')"
+      :cancelText="coreString('closeAction')"
+      size="large"
       @cancel="currentCategory = null"
-      @input="selectCategory"
-    />
+    >
+      <CategorySearchModal
+        v-if="currentCategory"
+        ref="searchModal"
+        :class="windowIsLarge ? '' : 'drawer-panel'"
+        :selectedCategory="currentCategory"
+        @input="selectCategory"
+      />
+    </component>
   </section>
 
 </template>
@@ -403,6 +413,10 @@
       categories: {
         message: 'Categories',
         context: 'Section header label in the Library page sidebar.',
+      },
+      chooseACategory: {
+        message: 'Choose a category',
+        context: 'Title of the category selection window',
       },
     },
   };

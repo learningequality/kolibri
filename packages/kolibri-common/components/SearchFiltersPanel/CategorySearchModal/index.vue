@@ -11,7 +11,6 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CategorySearchOptions from './CategorySearchOptions';
 
@@ -20,7 +19,6 @@
     components: {
       CategorySearchOptions,
     },
-    mixins: [commonCoreStrings],
     setup() {
       const { windowIsLarge } = useKResponsiveWindow();
       return {
@@ -42,12 +40,6 @@
        */
       focusFirstEl() {
         this.$refs.searchOptions.$el.querySelector('.filter-list-title > h2 > a').focus();
-      },
-    },
-    $trs: {
-      title: {
-        message: 'Choose a category',
-        context: 'Title of the category selection window',
       },
     },
   };
