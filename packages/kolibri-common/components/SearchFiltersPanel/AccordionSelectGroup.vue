@@ -448,7 +448,7 @@
             // ALL_CHANNELS is selected
             this.$emit('input', {
               ...this.value,
-              [field]: { [prevFieldValue.value]: false },
+              [field]: {},
             });
           } else if (!prevFieldValue[value.value]) {
             // Channels are a radio button, so only when the user selects a new value
