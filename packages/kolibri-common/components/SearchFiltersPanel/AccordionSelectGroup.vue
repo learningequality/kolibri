@@ -400,7 +400,14 @@
     },
     methods: {
       noCategories() {
-        this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
+        if (this.isCategoryActive(NoCategories)) {
+          // NoCategories is it's own key for the "Uncategorized" category
+          const categories = this.value.categories;
+          delete categories[NoCategories];
+          this.$emit('input', { ...this.value, categories });
+        } else {
+          this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
+        }
       },
       anySelectedFor(inputKey, values) {
         return values.some(value => this.isSelected(inputKey, value));
