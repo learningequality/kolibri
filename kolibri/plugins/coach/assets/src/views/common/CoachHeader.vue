@@ -39,7 +39,7 @@
 </script>
 
 
-<style>
+<style scoped>
 
   .header {
     display: flex;
