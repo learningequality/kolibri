@@ -27,8 +27,8 @@
                     <!-- Mousedown.prevent is needed to avoid user selection -->
                     <DragSortWidget
                       class="sort-widget"
-                      :moveUpText="$tr('moveResourceUpButtonDescription')"
-                      :moveDownText="$tr('moveResourceDownButtonDescription')"
+                      :moveUpText="moveResourceUpLabel"
+                      :moveDownText="moveResourceDownLabel"
                       :isFirst="index === 0"
                       :isLast="index === entries.length - 1"
                       @moveUp="moveUpOne(index)"
@@ -177,6 +177,12 @@
         }
 
         exporter.export(this.entries);
+      },
+      moveResourceUpLabel() {
+        return this.$tr('moveResourceUpButtonDescription');
+      },
+      moveResourceDownLabel() {
+        return this.$tr('moveResourceDownButtonDescription');
       },
     },
     $trs: {

@@ -245,8 +245,8 @@
                       <div>
                         <DragSortWidget
                           class="sort-widget"
-                          moveUpText="up"
-                          moveDownText="down"
+                          :moveUpText="upLabel"
+                          :moveDownText="downLabel"
                           :noDrag="true"
                           :isFirst="index === 0"
                           :isLast="index === activeQuestions.length - 1"
@@ -652,6 +652,12 @@
         this.deleteActiveSelectedQuestions();
         this.createSnackbar(this.questionsDeletedNotification$({ count }));
       },
+    },
+    upLabel(){
+      return "up";
+    },
+    downLabel(){
+      return "down";
     },
   };
 

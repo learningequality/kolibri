@@ -28,8 +28,8 @@
             >
               <DragSortWidget
                 class="drag-title"
-                moveUpText="up"
-                moveDownText="down"
+                :moveUpText="moveUplabel"
+                :moveDownText="moveDownLabel"
                 :noDrag="true"
                 :isFirst="index === 0"
                 :isLast="index === sectionOrderList.length - 1"
@@ -313,6 +313,13 @@
           s => s.section_id === section.section_id,
         );
         return displaySectionTitle(section, sectionIndexOrder).toUpperCase();
+      },
+
+      moveUplabel() {
+        return this.$tr('up');
+      },
+      moveDownLabel() {
+        return this.$tr('down'); // Corrected typo here
       },
     },
   };

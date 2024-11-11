@@ -36,8 +36,8 @@
                 >
                   <DragSortWidget
                     class="sort-widget"
-                    :moveUpText="$tr('upLabel', { name: channel.name })"
-                    :moveDownText="$tr('downLabel', { name: channel.name })"
+                    :moveUpText="moveUplabel(channel.name)"
+                    :moveDownText="moveDownlabel(channel.name)"
                     :isFirst="index === 0"
                     :isLast="index === channels.length - 1"
                     @moveUp="shiftOne(index, -1)"
@@ -169,6 +169,12 @@
             });
             this.createSnackbar(this.$tr('failureNotification'));
           });
+      },
+      moveUplabel(channelName) {
+        return this.$tr('upLabel', { name: channelName });
+      },
+      moveDownlabel(channelName) {
+        return this.$tr('downLabel', { name: channelName });
       },
     },
     $trs: {
