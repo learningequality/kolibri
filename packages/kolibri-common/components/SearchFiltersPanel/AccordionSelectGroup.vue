@@ -122,7 +122,9 @@
     >
       <AccordionItem
         :title="coreString('channelLabel')"
-        :headerAppearanceOverrides="accordionHeaderStyles(selectedChannel.value)"
+        :headerAppearanceOverrides="
+          accordionHeaderStyles(selectedChannel.value && selectedChannel.value !== ALL_CHANNELS)
+        "
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
@@ -134,7 +136,7 @@
               v-for="channel in channelOptionsList"
               :key="'channel-' + channel.value"
               :buttonValue="channel.value"
-              :currentValue="selectedChannel['value'] || ''"
+              :currentValue="selectedChannel['value'] || ALL_CHANNELS"
               :label="channel.label"
               @change="handleChange('channels', channel)"
             />
@@ -228,7 +230,11 @@
         searchableLabels,
         activeSearchTerms,
       } = injectBaseSearch();
+
+      const ALL_CHANNELS = 'ALL_CHANNELS';
+
       return {
+        ALL_CHANNELS,
         availableResourcesNeeded,
         activeSearchTerms,
         availableGradeLevels,
@@ -352,11 +358,17 @@
         return this.contentLevelOptions.filter(c => !c.disabled);
       },
       channelOptionsList() {
-        return this.availableChannels.map(channel => ({
+        const allChannels = {
+          value: this.ALL_CHANNELS,
+          disabled: false,
+          label: this.$tr('allChannels'),
+        };
+        const options = this.availableChannels.map(channel => ({
           value: channel.id,
           disabled: this.searchableLabels && !this.searchableLabels.channels.includes(channel.id),
           label: channel.name,
         }));
+        return [allChannels, ...options];
       },
       enabledChannelOptions() {
         return this.channelOptionsList.filter(c => !c.disabled);
@@ -425,9 +437,22 @@
       handleChange(field, value) {
         const prevFieldValue = this.value[field];
         if (field === 'channels') {
-          // Channels are a radio button, so only when the user selects a new value
-          // will we emit the change
-          if (!prevFieldValue[value.value]) {
+          if (value.value === this.ALL_CHANNELS) {
+            // TODO This is a sort of hack-in-place as there is no handled option for "all channels"
+            // useBaseSearch basically treats "no channels selected" as "search all channels" -
+            // which works great in a non-radio-button context but it's wonky UX for a radio button
+            // This will be hashed out with Jessica et al
+
+            // The user selected ALL_CHANNELS but we don't want to emit it to search it
+            // so we just disable the active one, which lets this component default to showing
+            // ALL_CHANNELS is selected
+            this.$emit('input', {
+              ...this.value,
+              [field]: { [prevFieldValue.value]: false },
+            });
+          } else if (!prevFieldValue[value.value]) {
+            // Channels are a radio button, so only when the user selects a new value
+            // will we emit the change
             this.$emit('input', {
               ...this.value,
               [field]: { [value.value]: true },
@@ -459,6 +484,10 @@
         message: 'Category',
         context:
           'When user can select the categories, this is the header for the categories section',
+      },
+      allChannels: {
+        message: 'All channels',
+        context: 'A label for an option to see items from all channels',
       },
     },
   };
