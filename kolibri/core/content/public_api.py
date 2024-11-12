@@ -51,8 +51,12 @@ class ImportMetadataViewset(GenericViewSet):
         :param pk: id parent node
         :return: an object with keys for each content metadata table and a schema_version key
         """
-        if pk is None:
-            raise status.HTTP_400_BAD_REQUEST
+        try:
+            UUID(pk)
+        except ValueError:
+            return Response(
+                {"error": "Invalid UUID format."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         content_schema = request.query_params.get(
             "schema_version", self.default_content_schema
