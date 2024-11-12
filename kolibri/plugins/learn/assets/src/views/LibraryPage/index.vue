@@ -119,7 +119,7 @@
           ref="sidePanel"
           v-model="searchTerms"
           :class="windowIsLarge ? 'side-panel' : ''"
-          data-test="side-panel"
+          data-test="side-panel-local"
           :width="`${sidePanelWidth}px`"
         />
       </div>
