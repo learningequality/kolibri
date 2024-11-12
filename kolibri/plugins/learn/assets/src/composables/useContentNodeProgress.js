@@ -17,7 +17,7 @@ export function setContentNodeProgress(progress) {
   // Avoid setting stale progress data - assume that progress increases monotonically
   if (
     !contentNodeProgressMap[progress.content_id] ||
-    progress.progress > contentNodeProgressMap[progress.content_id]
+    progress.progress >= contentNodeProgressMap[progress.content_id]
   ) {
     set(contentNodeProgressMap, progress.content_id, progress.progress);
     // this should have been conditional
