@@ -117,35 +117,6 @@
     </AccordionContainer>
 
     <AccordionContainer
-      v-if="showChannels && channelOptionsList.length"
-      class="accordion-select"
-    >
-      <AccordionItem
-        :title="coreString('channelLabel')"
-        :headerAppearanceOverrides="
-          accordionHeaderStyles(selectedChannel.value && selectedChannel.value !== ALL_CHANNELS)
-        "
-        :contentAppearanceOverrides="{
-          maxHeight: '256px',
-          overflowY: 'scroll',
-        }"
-      >
-        <template #content>
-          <KRadioButtonGroup>
-            <KRadioButton
-              v-for="channel in channelOptionsList"
-              :key="'channel-' + channel.value"
-              :buttonValue="channel.value"
-              :currentValue="selectedChannel['value'] || ALL_CHANNELS"
-              :label="channel.label"
-              @change="handleChange('channels', channel)"
-            />
-          </KRadioButtonGroup>
-        </template>
-      </AccordionItem>
-    </AccordionContainer>
-
-    <AccordionContainer
       v-if="accessibilityOptionsList.length"
       class="accordion-select"
     >
@@ -226,22 +197,17 @@
         availableAccessibilityOptions,
         availableLanguages,
         availableLibraryCategories,
-        availableChannels,
         searchableLabels,
         activeSearchTerms,
       } = injectBaseSearch();
 
-      const ALL_CHANNELS = 'ALL_CHANNELS';
-
       return {
-        ALL_CHANNELS,
         availableResourcesNeeded,
         activeSearchTerms,
         availableGradeLevels,
         availableAccessibilityOptions,
         availableLanguages,
         availableLibraryCategories,
-        availableChannels,
         searchableLabels,
         // This color is not in KDS but was specifically requested in the design
         //selectedHighlightColor: '#ECF0FE',
@@ -263,10 +229,6 @@
       activeCategories: {
         type: Array,
         required: true,
-      },
-      showChannels: {
-        type: Boolean,
-        default: true,
       },
     },
     computed: {
@@ -357,22 +319,6 @@
       enabledContentLevels() {
         return this.contentLevelOptions.filter(c => !c.disabled);
       },
-      channelOptionsList() {
-        const allChannels = {
-          value: this.ALL_CHANNELS,
-          disabled: false,
-          label: this.$tr('allChannels'),
-        };
-        const options = this.availableChannels.map(channel => ({
-          value: channel.id,
-          disabled: this.searchableLabels && !this.searchableLabels.channels.includes(channel.id),
-          label: channel.name,
-        }));
-        return [allChannels, ...options];
-      },
-      enabledChannelOptions() {
-        return this.channelOptionsList.filter(c => !c.disabled);
-      },
       langId() {
         return Object.keys(this.value.languages)[0];
       },
@@ -399,9 +345,6 @@
           return this.enabledContentLevels[0];
         }
         return this.contentLevelOptions.find(o => o.value === this.levelId) || {};
-      },
-      channelId() {
-        return Object.keys(this.value.channels)[0];
       },
       selectedChannel() {
         if (!this.channelId && this.enabledChannelOptions.length === 1) {
@@ -436,38 +379,14 @@
       },
       handleChange(field, value) {
         const prevFieldValue = this.value[field];
-        if (field === 'channels') {
-          if (value.value === this.ALL_CHANNELS) {
-            // TODO This is a sort of hack-in-place as there is no handled option for "all channels"
-            // useBaseSearch basically treats "no channels selected" as "search all channels" -
-            // which works great in a non-radio-button context but it's wonky UX for a radio button
-            // This will be hashed out with Jessica et al
-
-            // The user selected ALL_CHANNELS but we don't want to emit it to search it
-            // so we just disable the active one, which lets this component default to showing
-            // ALL_CHANNELS is selected
-            this.$emit('input', {
-              ...this.value,
-              [field]: {},
-            });
-          } else if (!prevFieldValue[value.value]) {
-            // Channels are a radio button, so only when the user selects a new value
-            // will we emit the change
-            this.$emit('input', {
-              ...this.value,
-              [field]: { [value.value]: true },
-            });
-          }
+        if (value && this.isSelected(field, value)) {
+          delete prevFieldValue[value.value];
+          this.$emit('input', { ...this.value, [field]: prevFieldValue });
         } else {
-          if (value && this.isSelected(field, value)) {
-            delete prevFieldValue[value.value];
-            this.$emit('input', { ...this.value, [field]: prevFieldValue });
-          } else {
-            this.$emit('input', {
-              ...this.value,
-              [field]: { ...prevFieldValue, [value.value]: true },
-            });
-          }
+          this.$emit('input', {
+            ...this.value,
+            [field]: { ...prevFieldValue, [value.value]: true },
+          });
         }
       },
       isCategoryActive(categoryValue) {
@@ -484,10 +403,6 @@
         message: 'Category',
         context:
           'When user can select the categories, this is the header for the categories section',
-      },
-      allChannels: {
-        message: 'All channels',
-        context: 'A label for an option to see items from all channels',
       },
     },
   };
