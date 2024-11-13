@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import makeStore from '../makeStore';
-import AssignmentDetailsModal from '../../src/views/plan/assignments/AssignmentDetailsModal';
+import AssignmentDetailsModal from '../../src/views/common/assignments/AssignmentDetailsModal';
 
 // HACK to avoid having to mock this property's dependencies on vuex and vue router
 AssignmentDetailsModal.computed.titleIsInvalidText = () => '';

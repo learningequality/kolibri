@@ -168,7 +168,7 @@ export default {
       return router.getRoute(name, params, query);
     },
     // Set the backLinkQuery to set the correct exit behavior
-    // for ReportsLessonExerciseLearnerPage and ReportsQuizLearnerPage.
+    // for LessonExerciseLearnerPage and QUIZ_LEARNER_PAGE_ROOT.
     backRouteForQuery(query) {
       const lastPage = query.last;
 
@@ -177,21 +177,17 @@ export default {
           return this.classRoute('HomePage', {});
         case LastPages.HOME_ACTIVITY:
           return this.classRoute('HomeActivityPage', {});
-        case LastPages.GROUP_ACTIVITY:
-          return this.classRoute('ReportsGroupActivityPage', {
-            groupId: this.$route.query.last_id,
-          });
         case LastPages.LEARNER_ACTIVITY:
           return this.classRoute('ReportsLearnerActivityPage', {
             learnerId: this.$route.query.last_id,
           });
         case LastPages.EXERCISE_LEARNER_LIST:
-          return this.classRoute('ReportsLessonExerciseLearnerListPage', {
+          return this.classRoute(PageNames.LESSON_EXERCISE_LEARNERS_REPORT, {
             exerciseId: this.$route.query.exerciseId,
           });
         case LastPages.EXERCISE_LEARNER_LIST_BY_GROUPS:
           return this.classRoute(
-            'ReportsLessonExerciseLearnerListPage',
+            PageNames.LESSON_EXERCISE_LEARNERS_REPORT,
             {
               exerciseId: this.$route.query.exerciseId,
             },
@@ -200,16 +196,16 @@ export default {
             },
           );
         case LastPages.EXERCISE_QUESTION_LIST:
-          return this.classRoute('ReportsLessonExerciseQuestionListPage', {
+          return this.classRoute(PageNames.LESSON_EXERCISE_QUESTIONS_REPORT, {
             exerciseId: this.$route.query.exerciseId,
           });
         case LastPages.RESOURCE_LEARNER_LIST:
-          return this.classRoute('ReportsLessonResourceLearnerListPage', {
+          return this.classRoute(PageNames.LESSON_RESOURCE_LEARNERS_REPORT, {
             resourceId: this.$route.query.resourceId,
           });
         case LastPages.RESOURCE_LEARNER_LIST_BY_GROUPS:
           return this.classRoute(
-            'ReportsLessonResourceLearnerListPage',
+            PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
             {
               resourceId: this.$route.query.resourceId,
             },

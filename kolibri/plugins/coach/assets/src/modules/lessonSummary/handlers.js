@@ -1,7 +1,7 @@
 import { LearnerGroupResource } from 'kolibri.resources';
 import useUser from 'kolibri.coreVue.composables.useUser';
 import { get } from '@vueuse/core';
-import { LessonsPageNames } from '../../constants/lessonsConstants';
+import { PageNames } from '../../constants';
 
 export async function setLessonSummaryState(store, params) {
   const { classId, lessonId } = params;
@@ -37,7 +37,7 @@ export async function setLessonSummaryState(store, params) {
       return store.dispatch('lessonSummary/getResourceCache', resourceIds).then(() => {
         store.commit('lessonSummary/SET_WORKING_RESOURCES', currentLesson.resources);
         store.commit('lessonSummary/SET_LEARNER_GROUPS', learnerGroups);
-        store.commit('SET_PAGE_NAME', LessonsPageNames.SUMMARY);
+        store.commit('SET_PAGE_NAME', PageNames.LESSON_SUMMARY);
       });
     })
     .catch(error => {

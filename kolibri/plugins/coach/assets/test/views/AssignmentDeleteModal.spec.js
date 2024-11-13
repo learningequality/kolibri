@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import AssignmentDeleteModal from '../../src/views/plan/assignments/AssignmentDeleteModal';
+import AssignmentDeleteModal from '../../src/views/common/assignments/AssignmentDeleteModal';
 
 const defaultProps = {
   modalTitle: '',

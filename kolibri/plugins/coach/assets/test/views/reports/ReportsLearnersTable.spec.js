@@ -1,7 +1,7 @@
 import { shallowMount, mount, RouterLinkStub } from '@vue/test-utils';
 
 import { STATUSES } from '../../../src/modules/classSummary/constants';
-import ReportsLearnersTable from '../../../src/views/reports/ReportsLearnersTable';
+import ReportsLearnersTable from '../../../src/views/common/tables/ReportsLearnersTable';
 
 const entries = [
   {

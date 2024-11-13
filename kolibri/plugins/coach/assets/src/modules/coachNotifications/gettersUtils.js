@@ -1,9 +1,9 @@
 import find from 'lodash/find';
 import { CollectionTypes } from '../../constants/lessonsConstants';
+import { PageNames } from '../../constants';
 
 // Just makes an params object that should work with all the paths.
 // It has extra params that may not be used by some routes.
-// See reportRoutes.js for details on param naming.
 function makeParams(notification) {
   return {
     groupId: notification.collection.id,
@@ -28,15 +28,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: false,
     },
-    value: 'ReportsGroupReportLessonExerciseLearnerListPage',
-  },
-  {
-    key: {
-      object: 'NonExercise',
-      isMultiple: true,
-      isWholeClass: false,
-    },
-    value: 'ReportsGroupReportLessonResourceLearnerListPage',
+    value: PageNames.GROUP_LESSON_EXERCISE_LEARNER_REPORT,
   },
   {
     key: {
@@ -44,7 +36,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: false,
     },
-    value: 'ReportsGroupReportLessonPage',
+    value: PageNames.GROUP_LESSON_SUMMARY,
   },
   {
     key: {
@@ -52,7 +44,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: false,
     },
-    value: 'ReportsGroupReportQuizLearnerListPage',
+    value: PageNames.GROUP_EXAM_SUMMARY,
   },
   {
     key: {
@@ -60,7 +52,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: true,
     },
-    value: 'ReportsLessonExerciseLearnerListPage',
+    value: PageNames.LESSON_EXERCISE_LEARNERS_REPORT,
   },
   {
     key: {
@@ -68,7 +60,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: true,
     },
-    value: 'ReportsLessonResourceLearnerListPage',
+    value: PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
   },
   {
     key: {
@@ -76,7 +68,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: true,
     },
-    value: 'ReportsLessonLearnerListPage',
+    value: PageNames.LESSON_SUMMARY,
   },
   {
     key: {
@@ -84,15 +76,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: true,
       isWholeClass: true,
     },
-    value: 'ReportsQuizLearnerListPage',
-  },
-  {
-    key: {
-      object: 'Exercise',
-      isMultiple: false,
-      isWholeClass: false,
-    },
-    value: 'ReportsGroupReportLessonExerciseLearnerPage',
+    value: PageNames.EXAM_SUMMARY,
   },
   {
     key: {
@@ -100,7 +84,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: false,
       isWholeClass: false,
     },
-    value: 'ReportsLessonLearnerPage',
+    value: PageNames.LEARNER_LESSON_REPORT,
   },
   {
     key: {
@@ -108,7 +92,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: false,
       isWholeClass: false,
     },
-    value: 'ReportsLearnerReportQuizPage',
+    value: PageNames.QUIZ_LEARNER_PAGE_ROOT,
   },
   {
     key: {
@@ -116,7 +100,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: false,
       isWholeClass: true,
     },
-    value: 'REPORTS_LESSON_EXERCISE_LEARNER_PAGE_ROOT',
+    value: PageNames.LESSON_EXERCISE_LEARNER_PAGE_ROOT,
   },
   {
     key: {
@@ -124,7 +108,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: false,
       isWholeClass: true,
     },
-    value: 'ReportsLessonLearnerPage',
+    value: PageNames.LEARNER_LESSON_REPORT,
   },
   {
     key: {
@@ -132,7 +116,7 @@ const pageNameToNotificationPropsMap = [
       isMultiple: false,
       isWholeClass: true,
     },
-    value: 'ReportsQuizLearnerPage',
+    value: PageNames.QUIZ_LEARNER_PAGE_ROOT,
   },
 ];
 

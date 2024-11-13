@@ -112,6 +112,7 @@
     mixins: [commonCoreStrings],
     data: function () {
       return {
+        prevRoute: null,
         displayTroubleshootModal: false,
         classSyncStatusList: {},
         // poll every 10 seconds
@@ -137,8 +138,10 @@
       backlink() {
         if (this.$route.query.last === 'homepage') {
           return { name: PageNames.HOME_PAGE, params: { classId: this.$route.params.classId } };
+        } else if (this.prevRoute) {
+          return this.prevRoute;
         } else {
-          return { name: 'ReportsQuizListPage', params: { classId: this.$route.params.classId } };
+          return { name: PageNames.LESSONS_ROOT, params: { classId: this.$route.params.classId } };
         }
       },
       learnerHasInsufficientStorage() {
@@ -150,6 +153,11 @@
         }
         return false;
       },
+    },
+    beforeRouteEnter(to, from, next) {
+      next(vm => {
+        vm.prevRoute = from;
+      });
     },
     mounted() {
       this.isPolling = true;

@@ -1,21 +1,24 @@
 import { PageNames } from '../constants';
 
 export default {
-  classes: {
-    name: PageNames.COACH_CLASS_LIST_PAGE,
-    path: '/classes',
-  },
   classHome: {
     name: PageNames.HOME_PAGE,
     path: '/:classId?/home',
   },
-  plan: {
-    name: PageNames.PLAN_PAGE,
-    path: '/:classId?/plan',
-    redirect: '/:classId?/plan/lessons',
+  lessons: {
+    name: PageNames.LESSONS_ROOT,
+    path: '/:classId?/lessons',
   },
-  reports: {
-    name: PageNames.REPORTS_PAGE,
-    path: '/:classId?/reports',
+  quizzes: {
+    name: PageNames.EXAMS_ROOT,
+    path: '/:classId?/quizzes',
+  },
+  learners: {
+    name: PageNames.LEARNERS_ROOT,
+    path: '/:classId?/learners',
+  },
+  groups: {
+    name: PageNames.GROUPS_ROOT,
+    path: '/:classId?/groups',
   },
 };

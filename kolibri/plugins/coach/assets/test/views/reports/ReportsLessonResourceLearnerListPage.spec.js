@@ -3,7 +3,9 @@ import VueRouter from 'vue-router';
 
 import { STATUSES } from '../../../src/modules/classSummary/constants';
 import makeStore from '../../makeStore';
-import ReportsLessonResourceLearnerListPage from '../../../src/views/reports/ReportsLessonResourceLearnerListPage';
+import LessonResourceLearnersPage from '../../../src/views/lessons/reports/LessonResourceLearnersPage';
+
+LessonResourceLearnersPage;
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -25,7 +27,7 @@ jest.mock('../../../src/composables/useCoreCoach', () => {
   };
 });
 
-const ROUTE_NAME = 'FakeReportsLessonResourceLearnerListPage';
+const ROUTE_NAME = 'FakeLessonResourceLearnersPage';
 
 const LESSON_ID = 'lesson-id';
 const RESOURCE_ID = 'resource-id';
@@ -195,7 +197,7 @@ const initWrapper = lessonMap => {
   // TODO find way to reduce unnecessary navigations to speed up test
   router.push(ROUTE_ALL_LEARNERS).catch(() => {});
 
-  const wrapper = mount(ReportsLessonResourceLearnerListPage, {
+  const wrapper = mount(LessonResourceLearnersPage, {
     store,
     localVue,
     router,
@@ -208,7 +210,7 @@ const initWrapper = lessonMap => {
   return wrapper;
 };
 
-describe('ReportsLessonResourceLearnerListPage', () => {
+describe('LessonResourceLearnersPage', () => {
   let wrapper;
 
   beforeEach(() => {
