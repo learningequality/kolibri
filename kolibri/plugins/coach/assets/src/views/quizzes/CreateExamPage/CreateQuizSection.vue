@@ -245,8 +245,8 @@
                       <div>
                         <DragSortWidget
                           class="sort-widget"
-                          :moveUpText="upLabel"
-                          :moveDownText="downLabel"
+                          :moveUpText="()=> $tr('up')"
+                          :moveDownText="()=> $tr('down')"
                           :noDrag="true"
                           :isFirst="index === 0"
                           :isLast="index === activeQuestions.length - 1"
@@ -653,11 +653,15 @@
         this.createSnackbar(this.questionsDeletedNotification$({ count }));
       },
     },
-    upLabel(){
-      return "up";
-    },
-    downLabel(){
-      return "down";
+    $trs: {
+      up: {
+        message: 'Up',
+        context: 'Move a section up in the list',
+      },
+      down: {
+        message: 'Down',
+        context: 'Move a section down in the list',
+      },
     },
   };
 

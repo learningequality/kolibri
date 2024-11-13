@@ -52,7 +52,7 @@
     name: 'DragSortWidget',
     props: {
       moveUpText: {
-        type: Function,
+        type: [ Function],
         required: true,
         validator: (value)=>{
           if(isWrappedString(value)){
@@ -63,7 +63,7 @@
         }
       },
       moveDownText: {
-        type: Function,
+        type: [ Function],
         required: true,
         validator: (value)=>{
           if(isWrappedString(value)){

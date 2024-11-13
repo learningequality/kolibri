@@ -29,8 +29,8 @@
             >
               <div class="move-handle">
                 <DragSortWidget
-                  :moveUpText="moveUpResourceLabel"
-                  :moveDownText="moveDownResourceLabel"
+                  :moveUpText="()=>$tr('moveResourceUpButtonDescription')"
+                  :moveDownText="()=> $tr('moveResourceDownButtonDescription')"
                   :isFirst="index === 0"
                   :isLast="index === resourceListItems.length - 1"
                   @moveUp="moveUpOne(index)"
@@ -238,12 +238,6 @@
       },
       handleDrag({ newArray }) {
         this.emitUpdatedResources(newArray);
-      },
-      moveUpResourceLabel(){
-        return this.$tr('moveResourceUpButtonDescription');
-      },
-      moveDownResourceLabel(){
-        return this.$tr('moveResourceDownButtonDescription');
       },
     },
     $trs: {
