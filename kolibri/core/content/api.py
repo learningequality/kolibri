@@ -5,7 +5,6 @@ from base64 import urlsafe_b64decode
 from collections import OrderedDict
 from functools import reduce
 from random import sample
-from uuid import UUID
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -861,13 +860,8 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
     pagination_class = OptionalContentNodePagination
 
     def retrieve(self, request, pk=None):
-
-        try:
-            UUID(pk)
-        except ValueError:
-            return Response(
-                {"error": "Invalid UUID format."}, status=status.HTTP_400_BAD_REQUEST
-            )
+        if pk is None:
+            raise Http404
 
         if self._should_proxy_request(request):
             if self.get_queryset().filter(admin_imported=True, pk=pk).exists():

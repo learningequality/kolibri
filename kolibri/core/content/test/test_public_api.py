@@ -102,7 +102,7 @@ class ImportMetadataTestCase(APITestCase):
                 kwargs={"pk": None},
             )
         )
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 404)
 
     def test_import_metadata_bad_pk(self):
         response = self.client.get(
