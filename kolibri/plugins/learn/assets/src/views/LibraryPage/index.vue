@@ -102,20 +102,9 @@
       </main>
 
       <!-- Side Panels for filtering and searching  -->
-      <SidePanelModal
-        v-if="mobileSidePanelIsOpen && !windowIsLarge"
-        @closePanel="toggleSidePanelVisibility"
-      >
+      <div v-if="(!isLocalLibraryEmpty || deviceId) && windowIsLarge">
         <SearchFiltersPanel
-          ref="sidePanel"
-          v-model="searchTerms"
-          data-test="side-panel"
-          :width="`${sidePanelWidth}px`"
-        />
-      </SidePanelModal>
-
-      <div v-else-if="!isLocalLibraryEmpty || deviceId">
-        <SearchFiltersPanel
+          key="hi"
           ref="sidePanel"
           v-model="searchTerms"
           :class="windowIsLarge ? 'side-panel' : ''"
@@ -123,6 +112,20 @@
           :width="`${sidePanelWidth}px`"
         />
       </div>
+
+      <SidePanelModal
+        v-else-if="mobileSidePanelIsOpen && !windowIsLarge"
+        alignment="left"
+        @closePanel="toggleSidePanelVisibility"
+      >
+        <SearchFiltersPanel
+          key="bye"
+          ref="sidePanel"
+          v-model="searchTerms"
+          data-test="side-panel"
+          :width="`${sidePanelWidth}px`"
+        />
+      </SidePanelModal>
 
       <!-- Side Panel for metadata -->
       <SidePanelModal
