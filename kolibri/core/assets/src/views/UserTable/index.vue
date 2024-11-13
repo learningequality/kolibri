@@ -79,7 +79,7 @@
 
       <template #tbody>
         <tbody>
-          <KradioButtonGroup v-if="selectable && !enableMultipleSelection">
+          <KRadioButtonGroup v-if="selectable && !enableMultipleSelection">
             <template v-if="users && users.length">
               <tr
                 v-for="user in users"
@@ -207,7 +207,7 @@
                 </td>
               </tr>
             </template>
-          </KradioButtonGroup>
+          </KRadioButtonGroup>
           <template v-else>
             <tr
               v-for="user in users"
