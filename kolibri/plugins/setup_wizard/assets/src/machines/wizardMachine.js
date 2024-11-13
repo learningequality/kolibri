@@ -33,18 +33,18 @@ import { DeviceTypePresets, FacilityTypePresets, LodTypePresets, UsePresets } fr
  *
  * However, to truly emulate the machine, you will need to use the `Events` tab. If you are ever
  * on a node that says `DO/` then that transition expects an event to be sent with a `value`
- * property. You can use the "Send Event" button to open a little dialog where you can enter
+ * property. You can use the "raise Event" button to open a little dialog where you can enter
  * JSON. One downside here is that you'll have to reference the *value* of the constants as you
  * cannot reference the code in this dialog.
  *
- * You can click on events to send them, but if there is a `DO/` it implies actions with
+ * You can click on events to raise them, but if there is a `DO/` it implies actions with
  * side effects will occur. Those actions will take in the whole JSON object that you send
  * in the `Events` tab. Note that the use of `value` as a property is just a preference and
  * the only required property is the `type` property indicating what kind of event is sent.
  */
 
 /* eslint-disable-next-line */
-import { assign, createMachine } from 'xstate';
+import { createMachine, assign } from 'xstate';
 
 // NOTE: Uncomment the following function if you're using the visualizer
 // const checkCapability = capabilityToCheck => ["get_os_user"].includes(capabilityToCheck);
@@ -77,7 +77,6 @@ export const wizardMachine = createMachine(
     id: 'wizard',
     initial: 'initializeContext',
     context: initialContext,
-    predictableActionArguments: true,
     on: {
       START_OVER: { target: 'howAreYouUsingKolibri', actions: 'resetContext' },
     },
@@ -103,11 +102,11 @@ export const wizardMachine = createMachine(
           {
             // `cond` takes a function that returns a Boolean, continuing to the
             // `target` when it returns truthy
-            cond: 'isOnMyOwnOrGroup',
+            guard: 'isOnMyOwnOrGroup',
             target: 'defaultLanguage',
           },
           {
-            cond: 'isGroupSetup',
+            guard: 'isGroupSetup',
             target: 'deviceName',
           },
           // There is no fallback path here; if neither `cond` above is truthy, this will break
@@ -127,7 +126,7 @@ export const wizardMachine = createMachine(
         on: { BACK: 'defaultLanguage' },
         always: [
           {
-            cond: 'canGetOsUser',
+            guard: 'canGetOsUser',
             target: 'finalizeSetup',
           },
           {
@@ -167,11 +166,11 @@ export const wizardMachine = createMachine(
         on: { BACK: 'fullOrLearnOnlyDevice' },
         always: [
           {
-            cond: 'isLodSetup',
+            guard: 'isLodSetup',
             target: 'importLodUsers',
           },
           {
-            cond: 'isFullSetup',
+            guard: 'isFullSetup',
             target: 'fullDeviceNewOrImportFacility',
           },
         ],
@@ -191,11 +190,11 @@ export const wizardMachine = createMachine(
         on: { BACK: 'fullDeviceNewOrImportFacility' },
         always: [
           {
-            cond: 'isNewFacility',
+            guard: 'isNewFacility',
             target: 'setFacilityPermissions',
           },
           {
-            cond: 'isImportFacility',
+            guard: 'isImportFacility',
             target: 'importFacility',
           },
         ],
@@ -343,7 +342,7 @@ export const wizardMachine = createMachine(
           lodProceedJoinOrNew: {
             always: [
               {
-                cond: ctx => ctx.lodImportOrJoin === LodTypePresets.JOIN,
+                guard: ctx => ctx.lodImportOrJoin === LodTypePresets.JOIN,
                 target: 'lodJoinFacility',
               },
               {
@@ -424,45 +423,33 @@ export const wizardMachine = createMachine(
   {
     actions: {
       // The `assign` function takes an object that maps keys that match those in the machine's
-      // `context`to functions that take two parameters `(context, event)` - where the context
+      // `context`to functions that take two parameters `({context, event})` - where the context
       // is the current context and event refers to the event sent to the machine to initiate a
       // transition.
-      setOnMyOwnOrGroup: assign({
-        onMyOwnOrGroup: (_, event) => event.value,
-      }),
-      setDeviceName: assign({
-        deviceName: (_, event) => event.value,
-      }),
-      setFullOrLOD: assign({
-        fullOrLOD: (_, event) => event.value,
-      }),
-      setCanGetOsUser: assign({
-        canGetOsUser: (_, event) => event.value,
-      }),
-      setFacilityNewOrImport: assign({
-        facilityNewOrImport: (_, event) => {
-          return event.value.importOrNew;
-        },
-        importDeviceId: (_, event) => {
-          return event.value.importDeviceId;
-        },
-      }),
-      setSuperuser: assign({
-        superuser: (_, event) => {
-          return event.value;
-        },
-      }),
-      setSelectedImportDeviceFacility: assign({
-        selectedFacility: (_, event) => {
-          return event.value.selectedFacility;
-        },
-        importDevice: (_, event) => {
-          return event.value.importDevice;
-        },
-        facilitiesOnDeviceCount: (_, event) => {
-          return event.value.facilitiesCount;
-        },
-      }),
+      setOnMyOwnOrGroup: assign((_, event) => ({
+        onMyOwnOrGroup: event.value,
+      })),
+      setDeviceName: assign((_, event) => ({
+        deviceName: event.value,
+      })),
+      setFullOrLOD: assign((_, event) => ({
+        fullOrLOD: event.value,
+      })),
+      setCanGetOsUser: assign((_, event) => ({
+        canGetOsUser: event.value,
+      })),
+      setFacilityNewOrImport: assign((_, event) => ({
+        facilityNewOrImport: event.value.importOrNew,
+        importDeviceId: event.value.importDeviceId,
+      })),
+      setSuperuser: assign((_, event) => ({
+        superuser: event.value,
+      })),
+      setSelectedImportDeviceFacility: assign((_, event) => ({
+        selectedFacility: event.value.selectedFacility,
+        importDevice: event.value.importDevice,
+        facilitiesOnDeviceCount: event.value.facilitiesCount,
+      })),
       clearSelectedSetupType: assign({
         facilityNewOrImport: () => null,
       }),
@@ -475,97 +462,67 @@ export const wizardMachine = createMachine(
         selectedFacility: () => null,
         importDeviceId: () => null,
       }),
-      setFacilityTypeAndName: assign({
-        formalOrNonformal: (_, event) => event.value.selected,
-        facilityName: (_, event) => event.value.facilityName,
-      }),
-      setGuestAccess: assign({
-        guestAccess: (_, event) => event.value,
-      }),
-      setLearnerCanCreateAccount: assign({
-        learnerCanCreateAccount: (_, event) => event.value,
-      }),
-      setRequirePassword: assign({
-        requirePassword: (_, event) => event.value,
-      }),
-      setLodType: assign({
-        lodImportOrJoin: (_, event) => event.value.importOrJoin,
-        importDeviceId: (_, event) => event.value.importDeviceId,
-      }),
-      setLodImportDeviceId: assign({
-        importDeviceId: (_, event) => event.value,
-      }),
-      addImportedUser: assign({
-        importedUsers: (ctx, event) => {
-          const users = ctx.importedUsers;
-          users.push(event.value);
-          return uniq(users);
+      setFacilityTypeAndName: assign((_, event) => ({
+        formalOrNonformal: event.value.selected,
+        facilityName: event.value.facilityName,
+      })),
+      setGuestAccess: assign((_, event) => ({
+        guestAccess: event.value,
+      })),
+      setLearnerCanCreateAccount: assign((_, event) => ({
+        learnerCanCreateAccount: event.value,
+      })),
+      setRequirePassword: assign((_, event) => ({
+        requirePassword: event.value,
+      })),
+      setLodType: assign((_, event) => ({
+        lodImportOrJoin: event.value.importOrJoin,
+        importDeviceId: event.value.importDeviceId,
+      })),
+      addImportedUser: assign((ctx, event) => ({
+        importedUsers: uniq([...ctx.importedUsers, event.value]),
+      })),
+      setFirstLodUser: assign((_, event) => ({
+        firstImportedLodUser: event.value,
+      })),
+      setLodAdmin: assign((_, event) => ({
+        lodAdmin: {
+          username: event.value.adminUsername,
+          password: event.value.adminPassword,
+          id: event.value.id,
         },
-      }),
-      setFirstLodUser: assign({
-        firstImportedLodUser: (_, event) => event.value,
-      }),
-      setLodAdmin: assign({
-        // Used when setting the Admin user for multiple import
-        lodAdmin: (_, event) => {
-          return {
-            username: event.value.adminUsername,
-            password: event.value.adminPassword,
-            id: event.value.id,
-          };
-        },
-      }),
-      setLodSuperAdmin: assign({
+      })),
+      setLodSuperAdmin: assign((ctx, event) => ({
         // Sets the super admin to be set as the device super admin -- the first LOD user imported
-        superuser: (ctx, event) => {
-          if (!ctx.superuser) {
-            return {
-              username: event.value.username,
-              password: event.value.password,
-            };
-          } else {
-            return ctx.superuser;
-          }
+        superuser: ctx.superuser || {
+          username: event.value.username,
+          password: event.value.password,
         },
-      }),
-      setRemoteUsers: assign({
-        remoteUsers: (_, event) => event.value.users,
-      }),
+      })),
+      setRemoteUsers: assign((_, event) => ({
+        remoteUsers: event.value.users,
+      })),
       /**
        * Assigns the machine to have the initial context again while maintaining the value of
        * canGetOsUser.
 
        * This effectively resets the machine's state
        */
-      resetContext: assign(initialContext),
+      resetContext: assign(() => initialContext),
       setImportedFacility: assign({
-        isImportedFacility: () => {
-          return true;
-        },
+        isImportedFacility: () => true,
       }),
     },
     guards: {
       // Functions used to return a true/false value. When the functions are called, they are passed
       // the current value of the machine's context as the only parameter
-      isOnMyOwnOrGroup: context => {
-        return context.onMyOwnOrGroup === Presets.PERSONAL;
-      },
-      isGroupSetup: context => {
-        return context.onMyOwnOrGroup === UsePresets.GROUP;
-      },
+      isOnMyOwnOrGroup: context => context.onMyOwnOrGroup === Presets.PERSONAL,
+      isGroupSetup: context => context.onMyOwnOrGroup === UsePresets.GROUP,
       canGetOsUser: () => checkCapability('get_os_user'),
-      isNewFacility: context => {
-        return context.facilityNewOrImport === FacilityTypePresets.NEW;
-      },
-      isImportFacility: context => {
-        return context.facilityNewOrImport === FacilityTypePresets.IMPORT;
-      },
-      isLodSetup: context => {
-        return context.fullOrLOD === DeviceTypePresets.LOD;
-      },
-      isFullSetup: context => {
-        return context.fullOrLOD === DeviceTypePresets.FULL;
-      },
+      isNewFacility: context => context.facilityNewOrImport === FacilityTypePresets.NEW,
+      isImportFacility: context => context.facilityNewOrImport === FacilityTypePresets.IMPORT,
+      isLodSetup: context => context.fullOrLOD === DeviceTypePresets.LOD,
+      isFullSetup: context => context.fullOrLOD === DeviceTypePresets.FULL,
     },
   },
 );

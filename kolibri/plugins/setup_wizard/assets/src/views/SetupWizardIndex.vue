@@ -23,7 +23,7 @@
 
 <script>
 
-  import { interpret } from 'xstate';
+  import { createActor } from 'xstate';
   import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -51,7 +51,7 @@
     },
     data() {
       return {
-        service: interpret(wizardMachine),
+        service: createActor(wizardMachine),
       };
     },
     provide() {
@@ -117,7 +117,7 @@
 
       this.service.start(savedState);
 
-      this.service.onTransition(state => {
+      this.service.subscribe(state => {
         synchronizeRouteAndMachine(state);
         Lockr.set('savedState', this.service._state);
       });
