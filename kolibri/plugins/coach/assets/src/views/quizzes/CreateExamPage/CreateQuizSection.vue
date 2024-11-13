@@ -245,8 +245,8 @@
                       <div>
                         <DragSortWidget
                           class="sort-widget"
-                          :moveUpText="()=> $tr('up')"
-                          :moveDownText="()=> $tr('down')"
+                          :moveUpText="()=> upLabel()"
+                          :moveDownText="()=> downLabel()"
                           :noDrag="true"
                           :isFirst="index === 0"
                           :isLast="index === activeQuestions.length - 1"
@@ -508,6 +508,7 @@
           },
         ];
       },
+      
     },
     created() {
       const { query } = this.$route;
@@ -651,6 +652,12 @@
         const count = this.selectedActiveQuestions.length;
         this.deleteActiveSelectedQuestions();
         this.createSnackbar(this.questionsDeletedNotification$({ count }));
+      },
+      upLabel(){
+        return this.$tr('up');
+      },
+      downLabel(){
+        return this.$tr('down');
       },
     },
     $trs: {
