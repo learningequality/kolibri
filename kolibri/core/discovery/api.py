@@ -71,7 +71,6 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
         for filter_key in ("id", "instance_id"):
             try:
                 obj = queryset.get(**{filter_key: id_filter})
-                obj.dynamic = obj.location_type == LocationTypes.Dynamic
                 break
             except NetworkLocation.DoesNotExist:
                 pass
