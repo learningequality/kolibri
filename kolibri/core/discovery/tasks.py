@@ -412,11 +412,3 @@ def reset_connection_states(broadcast_id):
             job_id=generate_job_id(TYPE_CONNECT, static_location_id),
             args=(static_location_id,),
         )
-
-    # For KDP, set the application to 'Kolibri Data Portal' without enqueuing update task
-    kdp_location = NetworkLocation.objects.filter(
-        id=DATA_PORTAL_BASE_INSTANCE_ID
-    ).first()
-    if kdp_location:
-        kdp_location.application = "Kolibri Data Portal"
-        kdp_location.save()
