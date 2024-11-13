@@ -104,12 +104,12 @@
 
   export default {
     name: 'SectionOrder',
-    components: {
-      Draggable,
-      DragContainer,
-      DragHandle,
-      DragSortWidget,
-    },
+  components: {
+    Draggable,
+    DragContainer,
+    DragHandle,
+    DragSortWidget,
+  },
     mixins: [commonCoreStrings],
     setup(_, context) {
       const {
