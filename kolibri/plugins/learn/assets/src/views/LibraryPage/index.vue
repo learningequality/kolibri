@@ -515,6 +515,14 @@
       searchTerms() {
         this.mobileSidePanelIsOpen = false;
       },
+      windowIsLarge(newVal) {
+        // Be sure we set the side panel closed if the screen size changes
+        // otherwise the watcher on mobileSidePanelIsOpen will leave the
+        // document stuck in `position: fixed;` so we won't see the scrollbar
+        if (newVal) {
+          this.mobileSidePanelIsOpen = false;
+        }
+      },
       mobileSidePanelIsOpen() {
         if (this.mobileSidePanelIsOpen) {
           document.documentElement.style.position = 'fixed';
