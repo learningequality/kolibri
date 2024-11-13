@@ -104,7 +104,6 @@
       <!-- Side Panels for filtering and searching  -->
       <div v-if="(!isLocalLibraryEmpty || deviceId) && windowIsLarge">
         <SearchFiltersPanel
-          key="hi"
           ref="sidePanel"
           v-model="searchTerms"
           :class="windowIsLarge ? 'side-panel' : ''"
@@ -119,7 +118,6 @@
         @closePanel="toggleSidePanelVisibility"
       >
         <SearchFiltersPanel
-          key="bye"
           ref="sidePanel"
           v-model="searchTerms"
           data-test="side-panel"
