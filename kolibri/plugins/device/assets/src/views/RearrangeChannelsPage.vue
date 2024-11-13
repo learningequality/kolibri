@@ -125,7 +125,7 @@
           this.loading = false;
         })
         .catch(error => {
-          this.$store.disptch('CORE_SET_ERROR', error);
+          this.$store.dispatch('CORE_SET_ERROR', error);
         });
     },
     methods: {
