@@ -57,18 +57,16 @@ RUN debconf-set-selections <<EOF
 $(cat files/debconf)
 EOF
 
+INSTALL files/wlan0 /etc/network/interfaces.d/wlan0
+RUN systemctl restart networking
+
 INSTALL files/dnsmasq_hotspot.conf /etc/dnsmasq.d/hotspot.conf
 INSTALL files/hostapd.conf /etc/hostapd/hostapd.conf
 INSTALL files/hostapd_5ghz.conf /etc/hostapd/hostapd_5ghz.conf
 
+INSTALL 644 files/99-usb.rules /etc/udev/rules.d/99-usb.rules
 INSTALL 755 files/usb-mount.sh /usr/local/bin/usb-mount.sh
-INSTALL files/usb-mount@.service /etc/systemd/system/usb-mount@.service
-
-RUN tee /etc/dhcpcd.conf <<EOF
-interface wlan0
-    static ip_address=10.10.10.10/24
-    nohook resolv.conf, wpa_supplicant
-EOF
+INSTALL 755 files/usb-mount@.service /etc/systemd/system/usb-mount@.service
 
 RUN tee /etc/default/hostapd <<EOF
 DAEMON_CONF="/etc/hostapd/hostapd.conf"
@@ -76,11 +74,6 @@ EOF
 
 RUN tee /etc/default/dnsmasq <<EOF
 DNSMASQ_EXCEPT=lo
-EOF
-
-RUN tee /etc/udev/rules.d/99-local.rules <<EOF
-KERNEL=="sd[a-z]*[0-9]", SUBSYSTEMS=="usb", ACTION=="add", RUN+="/bin/systemctl start usb-mount@%k.service"
-KERNEL=="sd[a-z]*[0-9]", SUBSYSTEMS=="usb", ACTION=="remove", RUN+="/bin/systemctl stop usb-mount@%k.service"
 EOF
 
 RUN rm /etc/nginx/sites-enabled/default
