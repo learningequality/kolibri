@@ -97,12 +97,6 @@
         :topicsLink="topicsLink"
       />
 
-      <KButton
-        v-if="!showBookmarks"
-        text="👁️SEARCH👁️"
-        @click="showSearch = true"
-      />
-
       <div
         v-if="showNumberOfQuestionsWarning"
         class="shadow"
@@ -185,7 +179,7 @@
       data-test="side-panel"
       width="100%"
       :accordion="true"
-      :showActivities="true"
+      :showActivities="false"
       @close="showSearch = false"
     />
 
@@ -227,7 +221,6 @@
   import BookmarkIcon from '../../lessons/LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import useQuizResources from '../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
-  import LessonsSearchBox from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
@@ -237,7 +230,6 @@
       SearchFiltersPanel,
       ContentCardList,
       BookmarkIcon,
-      LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
     },
     mixins: [commonCoreStrings],
@@ -929,20 +921,6 @@
         return this.questionsUnusedInSection$({
           count,
         });
-      },
-      handleSearchTermChange(searchTerm) {
-        const query = {
-          ...this.$route.query,
-          search: searchTerm,
-        };
-        this.$router.push({ query });
-      },
-      clearSearchTerm() {
-        const query = {
-          ...this.$route.query,
-        };
-        delete query.search;
-        this.$router.push({ query });
       },
     },
   };
