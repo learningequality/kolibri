@@ -14,11 +14,6 @@ import coreModule from './state/modules/core';
 // Do this before any async imports to ensure that public paths
 // are set correctly
 urls.setUp();
-if (process.env.NODE_ENV === 'production') {
-  /* eslint-disable no-undef */
-  __webpack_public_path__ = urls.static(`${__kolibriModuleName}/`);
-  /* eslint-enable */
-}
 
 // Shim window.location.origin for IE.
 if (!window.location.origin) {
