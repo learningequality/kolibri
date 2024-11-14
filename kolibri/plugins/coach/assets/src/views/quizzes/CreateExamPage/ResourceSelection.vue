@@ -203,7 +203,6 @@
   import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
-  import flatMap from 'lodash/flatMap';
   import { useMemoize } from '@vueuse/core';
   import {
     displaySectionTitle,
@@ -234,11 +233,6 @@
     },
     mixins: [commonCoreStrings],
     setup(props, context) {
-      const { searchTerms, search } = useBaseSearch({});
-      // Search if we already have search terms when we load up
-      if (flatMap(searchTerms.value, term => Object.keys(term)).length) {
-        search();
-      }
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
@@ -495,6 +489,9 @@
         setResources,
         loadingMore,
       } = useQuizResources({ topicId, practiceQuiz: selectPracticeQuiz.value });
+
+      const { searchTerms, search } = useBaseSearch({ descendant: topic });
+      search();
 
       const _loading = ref(true);
 
