@@ -30,7 +30,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import ExamReport from 'kolibri.coreVue.components.ExamReport';
+  import ExamReport from 'kolibri-common/components/quizzes/QuizReport';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import { PageNames } from '../../../constants';

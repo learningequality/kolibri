@@ -4,10 +4,10 @@
  * All data exposed by this function belong to a current learner.
  */
 
-import { reactive } from 'kolibri.lib.vueCompositionApi';
+import { reactive } from '@vue/composition-api';
 import { set } from '@vueuse/core';
 
-import { ContentNodeProgressResource } from 'kolibri.resources';
+import ContentNodeProgressResource from 'kolibri-common/apiResources/ContentNodeProgressResource';
 
 // The reactive is defined in the outer scope so it can be used as a shared store
 const contentNodeProgressMap = reactive({});

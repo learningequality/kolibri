@@ -31,7 +31,7 @@
 
 <script>
 
-  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import { computed } from '@vue/composition-api';
   import useAccordion from './useAccordion';
 
   export default {

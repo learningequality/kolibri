@@ -107,7 +107,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   .accordion-item {
     border-bottom: 1px solid;

@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 import Modalities from 'kolibri-constants/Modalities';
-import { AttemptLogResource } from 'kolibri.resources';
+import AttemptLogResource from 'kolibri-common/apiResources/AttemptLogResource';
 
 export function setLearners(store, params) {
   const { questionId, exerciseId, quizId, classId, groupId, learnerId } = params;

@@ -11,7 +11,7 @@
   /**
    * This file includes context object definitions.
    */
-  import { createTranslator } from 'kolibri.utils.i18n';
+  import { createTranslator } from 'kolibri/utils/i18n';
 
   /* eslint-disable-next-line */
   const extraTranslator = createTranslator('Context03', {

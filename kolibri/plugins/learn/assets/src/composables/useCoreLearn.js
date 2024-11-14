@@ -1,8 +1,8 @@
-import { ref } from 'kolibri.lib.vueCompositionApi';
+import { ref } from '@vue/composition-api';
 import { set } from '@vueuse/core';
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
-import plugin_data from 'plugin_data';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
+import plugin_data from 'kolibri-plugin-data';
 
 /**
  * Whether the user is in any classes

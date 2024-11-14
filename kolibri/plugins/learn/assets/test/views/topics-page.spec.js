@@ -3,10 +3,10 @@ import VueRouter from 'vue-router';
 import { createLocalVue, shallowMount, mount } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
-import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { useDevicesWithFilter } from 'kolibri.coreVue.componentSets.sync';
-import { ContentNodeResource } from 'kolibri.resources';
-import plugin_data from 'plugin_data';
+import { ContentNodeKinds } from 'kolibri/constants';
+import { useDevicesWithFilter } from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import plugin_data from 'kolibri-plugin-data';
 // eslint-disable-next-line import/named
 import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
 // eslint-disable-next-line import/named
@@ -17,8 +17,8 @@ import { PageNames } from '../../src/constants';
 import TopicsPage from '../../src/views/TopicsPage';
 // eslint-disable-next-line import/named
 
-jest.mock('kolibri.coreVue.componentSets.sync');
-jest.mock('plugin_data', () => {
+jest.mock('kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices');
+jest.mock('kolibri-plugin-data', () => {
   return {
     __esModule: true,
     default: {
@@ -84,10 +84,10 @@ const DEFAULT_TOPIC = {
   },
 };
 
-jest.mock('kolibri.client');
-jest.mock('kolibri.resources');
-jest.mock('kolibri.urls');
-jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri/client');
+jest.mock('kolibri-common/apiResources/ContentNodeResource');
+jest.mock('kolibri/urls');
+jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri-common/composables/useBaseSearch');
 jest.mock('../../src/composables/useContentLink');
 jest.mock('kolibri-common/composables/useChannels');

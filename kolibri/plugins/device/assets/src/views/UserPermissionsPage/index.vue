@@ -117,12 +117,12 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import UserType from 'kolibri.utils.UserType';
-  import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
-  import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import UserType from 'kolibri-common/utils/userType';
+  import PermissionsIcon from 'kolibri-common/components/labels/PermissionsIcon';
+  import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import useUser from 'kolibri/composables/useUser';
   import { PageNames } from '../../constants';
 
   export default {

@@ -1,5 +1,6 @@
-import { MembershipResource, RoleResource } from 'kolibri.resources';
-import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
+import RoleResource from 'kolibri-common/apiResources/RoleResource';
+import { UserKinds } from 'kolibri/constants';
 import uniq from 'lodash/uniq';
 
 export function enrollLearnersInClass(store, { classId, users }) {

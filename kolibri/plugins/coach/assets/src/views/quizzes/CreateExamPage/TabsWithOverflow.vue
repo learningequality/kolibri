@@ -109,7 +109,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   .tabs-wrapper {
     display: flex;
@@ -127,8 +127,8 @@
     text-overflow: ellipsis;
 
     /* We *need* the overflow to be hidden for our calculations of which to show work properly.
-       The default value clips the outline during keyboard navigation so this ensures it is fully
-       visible without overlapping the actual content */
+     The default value clips the outline during keyboard navigation so this ensures it is fully
+     visible without overlapping the actual content */
     outline-offset: -0.25em !important;
   }
 

@@ -19,8 +19,8 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import urls from 'kolibri/urls';
+  import useUser from 'kolibri/composables/useUser';
   import LearnAppBarPage from './LearnAppBarPage';
   import commonLearnStrings from './commonLearnStrings';
 

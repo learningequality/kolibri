@@ -1,8 +1,10 @@
 import find from 'lodash/find';
-import { TaskResource, RemoteChannelResource, NetworkLocationResource } from 'kolibri.resources';
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
-import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+import TaskResource from 'kolibri/apiResources/TaskResource';
+import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
+import { NetworkLocationResource } from 'kolibri-common/apiResources/NetworkLocationResource';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
+import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import ChannelResource from '../../apiResources/deviceChannel';
 
 function getChannelOnDrive(driveId, channelId) {

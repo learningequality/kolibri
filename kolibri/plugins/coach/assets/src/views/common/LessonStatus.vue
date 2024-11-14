@@ -187,14 +187,14 @@
 
 <script>
 
-  import { LessonResource } from 'kolibri.resources';
+  import LessonResource from 'kolibri-common/apiResources/LessonResource';
   import { mapActions } from 'vuex';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import ElapsedTime from 'kolibri-common/components/ElapsedTime';
+  import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri/constants';
   import Lockr from 'lockr';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import Recipients from './Recipients';
   import { coachStringsMixin } from './commonCoachStrings';
 
@@ -319,7 +319,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   .status-item {
     width: 100%;

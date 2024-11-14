@@ -1,4 +1,4 @@
-import { currentLanguage } from 'kolibri.utils.i18n';
+import { currentLanguage } from 'kolibri/utils/i18n';
 
 export default {
   namespace: 'SetupWizard',

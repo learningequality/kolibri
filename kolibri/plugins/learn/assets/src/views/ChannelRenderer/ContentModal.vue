@@ -40,8 +40,8 @@
 
 <script>
 
-  import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import Backdrop from 'kolibri.coreVue.components.Backdrop';
+  import UiToolbar from 'kolibri-common/components/keen/UiToolbar';
+  import Backdrop from 'kolibri-common/components/Backdrop';
   import ContentItem from './ContentItem';
 
   export default {

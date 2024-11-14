@@ -1,4 +1,4 @@
-import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
+import { coreStoreFactory } from 'kolibri/store';
 import pluginModule from '../src/modules/pluginModule';
 import coreModule from '../../../../core/assets/src/state/modules/core';
 

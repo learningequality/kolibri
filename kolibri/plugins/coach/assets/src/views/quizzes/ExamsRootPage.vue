@@ -212,16 +212,18 @@
 
 <script>
 
-  import { getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ExamResource, UserSyncStatusResource, ChannelResource } from 'kolibri.resources';
-  import plugin_data from 'plugin_data';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import { mapState, mapGetters } from 'kolibri.lib.vuex';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
-  import urls from 'kolibri.urls';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import { getCurrentInstance, ref } from '@vue/composition-api';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import urls from 'kolibri/urls';
+  import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
+  import ExamResource from 'kolibri-common/apiResources/ExamResource';
+  import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
+  import plugin_data from 'kolibri-plugin-data';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import { mapState, mapGetters } from 'vuex';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
+  import useUser from 'kolibri/composables/useUser';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../constants';
   import { coachStrings } from '../common/commonCoachStrings';

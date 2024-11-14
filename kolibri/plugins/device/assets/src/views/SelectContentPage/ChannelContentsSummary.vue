@@ -85,10 +85,10 @@
 
 <script>
 
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import plugin_data from 'plugin_data';
+  import plugin_data from 'kolibri-plugin-data';
 
   export default {
     name: 'ChannelContentsSummary',

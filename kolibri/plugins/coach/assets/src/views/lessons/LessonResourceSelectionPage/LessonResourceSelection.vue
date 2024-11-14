@@ -1,6 +1,3 @@
-<!-- NOTE!! IMPORTANT
-should not be developed independently of the other ResourceSelection component associated with quiz
--->
 <template>
 
   <div>

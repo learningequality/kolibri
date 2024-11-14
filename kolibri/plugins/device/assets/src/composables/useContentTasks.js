@@ -1,6 +1,6 @@
 import { useIntervalFn } from '@vueuse/core';
-import { getCurrentInstance, onMounted, onUnmounted } from 'kolibri.lib.vueCompositionApi';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import { getCurrentInstance, onMounted, onUnmounted } from '@vue/composition-api';
+import useUser from 'kolibri/composables/useUser';
 
 export default function useContentTasks() {
   const $store = getCurrentInstance().proxy.$store;

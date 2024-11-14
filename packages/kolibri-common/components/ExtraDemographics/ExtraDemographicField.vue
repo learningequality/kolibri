@@ -13,7 +13,7 @@
 
 <script>
 
-  import { currentLanguage } from 'kolibri.utils.i18n';
+  import { currentLanguage } from 'kolibri/utils/i18n';
 
   function getTranslatedString(spec) {
     return (spec.translations || {})[currentLanguage];

@@ -5,8 +5,7 @@ import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResp
 import makeStore from '../../../../test/makeStore';
 import UserPage from '../index';
 
-jest.mock('kolibri.lib.logging');
-jest.mock('kolibri.urls');
+jest.mock('kolibri/urls');
 jest.mock('lockr');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 

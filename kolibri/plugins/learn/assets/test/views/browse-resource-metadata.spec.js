@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import { ContentNodeResource } from 'kolibri.resources';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import KRouterLink from 'kolibri-design-system/lib/buttons-and-links/KRouterLink';
 import LearnerNeeds from 'kolibri-constants/labels/Needs';
 import AccessibilityCategories from 'kolibri-constants/labels/AccessibilityCategories';
@@ -16,7 +16,7 @@ const localVue = createLocalVue();
 localVue.use(VueRouter);
 
 jest.mock('../../src/composables/useContentLink');
-jest.mock('plugin_data', () => {
+jest.mock('kolibri-plugin-data', () => {
   return {
     __esModule: true,
     default: {

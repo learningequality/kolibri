@@ -1,10 +1,10 @@
 import { get } from '@vueuse/core';
-import useUser from 'kolibri.coreVue.composables.useUser';
-import redirectBrowser from 'kolibri.utils.redirectBrowser';
-import router from 'kolibri.coreVue.router';
-import { ChannelResource } from 'kolibri.resources';
-import KolibriApp from 'kolibri_app';
-import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+import useUser from 'kolibri/composables/useUser';
+import redirectBrowser from 'kolibri/utils/redirectBrowser';
+import router from 'kolibri/router';
+import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
+import KolibriApp from 'kolibri-app';
+import useSnackbar from 'kolibri/composables/useSnackbar';
 import { PageNames } from './constants';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';

@@ -1,4 +1,4 @@
-import store from 'kolibri.coreVue.vuex.store';
+import store from 'kolibri/store';
 import { showResourceView } from '../resourceDetail/handlers';
 
 export function generateQuestionListHandler(paramsToCheck) {

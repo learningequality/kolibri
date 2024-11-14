@@ -33,6 +33,7 @@
   import invert from 'lodash/invert';
   import get from 'lodash/get';
   import ZipFile from 'kolibri-zip';
+  import logger from 'kolibri-logging';
   import { Mapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { defer } from 'underscore';
@@ -61,7 +62,7 @@
     },
   });
 
-  const logging = require('kolibri.lib.logging').getLogger(__filename);
+  const logging = logger.getLogger(__filename);
 
   const sorterWidgetRegex = /sorter [0-9]+/;
 
@@ -757,7 +758,7 @@
   /* Perseus Hacks */
 
   /* The rest in this <style> block are mostly styles that
-     help force Perseus exercises to render within the allotted space. */
+   help force Perseus exercises to render within the allotted space. */
 
   .framework-perseus {
     position: relative; /* Make it a positioning context */

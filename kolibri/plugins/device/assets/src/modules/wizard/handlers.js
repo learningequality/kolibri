@@ -1,9 +1,10 @@
 import find from 'lodash/find';
-import router from 'kolibri.coreVue.router';
-import logger from 'kolibri.lib.logging';
-import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
-import { ContentNodeGranularResource, RemoteChannelResource } from 'kolibri.resources';
+import router from 'kolibri/router';
+import logger from 'kolibri-logging';
+import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
+import { TransferTypes } from 'kolibri-common/utils/syncTaskUtils';
+import ContentNodeGranularResource from 'kolibri-common/apiResources/ContentNodeGranularResource';
+import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
 import { ContentWizardPages, ContentWizardErrors } from '../../constants';
 import { manageContentPageLink } from '../../views/ManageContentPage/manageContentLinks';
 import { getAvailableSpaceOnDrive, loadChannelMetadata } from './actions/selectContentActions';

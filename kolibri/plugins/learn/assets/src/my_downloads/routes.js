@@ -1,5 +1,5 @@
-import redirectBrowser from 'kolibri.utils.redirectBrowser';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import redirectBrowser from 'kolibri/utils/redirectBrowser';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import MyDownloadsPage from './views/MyDownloads';
 

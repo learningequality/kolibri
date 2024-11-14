@@ -1,10 +1,10 @@
-import Vuex from 'vuex';
+import { Store } from 'vuex';
 import summaryModule from '../index';
 import sampleState from './sampleState2';
 
 describe('coach summary data helpers', () => {
   summaryModule.state = sampleState;
-  const store = new Vuex.Store(summaryModule);
+  const store = new Store(summaryModule);
   describe('getGroupNames', () => {
     it('returns the names of groups given a list of group IDs', () => {
       expect(store.getters.getGroupNames(['group_id_1', 'group_id_3'])).toEqual([

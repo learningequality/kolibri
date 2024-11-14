@@ -1,6 +1,6 @@
-import router from 'kolibri.coreVue.router';
-import KolibriApp from 'kolibri_app';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import router from 'kolibri/router';
+import KolibriApp from 'kolibri-app';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import RootVue from './views/LearnIndex';
 import routes from './routes';

@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import { get } from '@vueuse/core';
-import { ExamResource } from 'kolibri.resources';
-import { objectWithDefaults } from 'kolibri.utils.objectSpecs';
-import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
+import ExamResource from 'kolibri-common/apiResources/ExamResource';
+import { objectWithDefaults } from 'kolibri/utils/objectSpecs';
+import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
 import { QuizExercise, QuizQuestion } from '../src/composables/quizCreationSpecs.js';
 import useQuizCreation from '../src/composables/useQuizCreation.js';
 

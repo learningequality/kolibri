@@ -1,5 +1,5 @@
-import { TaskResource } from 'kolibri.resources';
-import Vue from 'kolibri.lib.vue';
+import TaskResource from 'kolibri/apiResources/TaskResource';
+import Vue from 'vue';
 import { CSVImportStatuses } from '../../constants';
 import actions from './actions';
 

@@ -89,11 +89,11 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { formatList } from 'kolibri.utils.i18n';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
+  import { formatList } from 'kolibri/utils/i18n';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import flatMap from 'lodash/flatMap';
   import forEach from 'lodash/forEach';
   import countBy from 'lodash/countBy';

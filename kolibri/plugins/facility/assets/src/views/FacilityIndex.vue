@@ -13,9 +13,9 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
   import { PageNames } from '../constants';
 
   export default {

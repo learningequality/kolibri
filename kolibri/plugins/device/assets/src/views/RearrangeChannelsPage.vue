@@ -60,15 +60,15 @@
 
 <script>
 
-  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
-  import DragContainer from 'kolibri.coreVue.components.DragContainer';
-  import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  import Draggable from 'kolibri.coreVue.components.Draggable';
-  import client from 'kolibri.client';
-  import urls from 'kolibri.urls';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
+  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
+  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
+  import Draggable from 'kolibri-common/components/sortable/Draggable';
+  import client from 'kolibri/client';
+  import urls from 'kolibri/urls';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import useUser from 'kolibri/composables/useUser';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import DeviceChannelResource from '../apiResources/deviceChannel';
   import useContentTasks from '../composables/useContentTasks';
   import { PageNames } from '../constants';

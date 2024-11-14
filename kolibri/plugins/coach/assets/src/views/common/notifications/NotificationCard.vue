@@ -63,9 +63,9 @@
 
 <script>
 
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
+  import ElapsedTime from 'kolibri-common/components/ElapsedTime';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import CoachStatusIcon from '../status/CoachStatusIcon';
   import {
     NotificationEvents,

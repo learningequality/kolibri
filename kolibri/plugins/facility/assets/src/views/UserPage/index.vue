@@ -113,13 +113,13 @@
   import { mapState, mapGetters } from 'vuex';
   import debounce from 'lodash/debounce';
   import pickBy from 'lodash/pickBy';
-  import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
-  import UserTable from 'kolibri.coreVue.components.UserTable';
+  import { UserKinds } from 'kolibri/constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import FilterTextbox from 'kolibri/components/FilterTextbox';
+  import UserTable from 'kolibri-common/components/UserTable';
   import cloneDeep from 'lodash/cloneDeep';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import useUser from 'kolibri/composables/useUser';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ResetUserPasswordModal from './ResetUserPasswordModal';

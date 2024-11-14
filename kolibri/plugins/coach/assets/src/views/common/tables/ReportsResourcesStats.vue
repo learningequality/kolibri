@@ -32,7 +32,7 @@
 
 <script>
 
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+  import TimeDuration from 'kolibri-common/components/TimeDuration';
   import { coachStringsMixin } from '../commonCoachStrings';
   import HeaderTable from '../HeaderTable';
   import HeaderTableRow from '../HeaderTable/HeaderTableRow';

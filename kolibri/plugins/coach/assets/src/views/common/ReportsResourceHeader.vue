@@ -139,14 +139,11 @@
 
   import get from 'lodash/get';
   import Modalities from 'kolibri-constants/Modalities';
-  import InfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import SlotTruncator from 'kolibri.coreVue.components.SlotTruncator';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import InfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
+  import SlotTruncator from 'kolibri-common/components/SlotTruncator';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
-  import {
-    licenseLongName,
-    licenseDescriptionForConsumer,
-  } from 'kolibri.utils.licenseTranslations';
+  import { licenseLongName, licenseDescriptionForConsumer } from 'kolibri/uiText/licenses';
   import markdownIt from 'markdown-it';
   import HeaderWithOptions from '../common/HeaderWithOptions';
   import commonCoach from '../common';

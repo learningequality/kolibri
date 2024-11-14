@@ -25,9 +25,9 @@
 <script>
 
   import { mapState, mapActions, mapGetters } from 'vuex';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import ClassEnrollForm from './ClassEnrollForm';
 
   export default {

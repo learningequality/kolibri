@@ -107,13 +107,13 @@
 <script>
 
   import get from 'lodash/get';
-  import { currentLanguage } from 'kolibri.utils.i18n';
-  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import { TaskResource } from 'kolibri.resources';
-  import CatchErrors from 'kolibri.utils.CatchErrors';
+  import { currentLanguage } from 'kolibri/utils/i18n';
+  import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri/constants';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import CatchErrors from 'kolibri/utils/CatchErrors';
   import { FacilityImportResource } from '../api';
   import { FooterMessageTypes } from '../constants';
   import commonProfileStrings from '../../../../user_profile/assets/src/views/commonProfileStrings';

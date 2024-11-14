@@ -31,10 +31,10 @@
 
 <script>
 
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
+  import AppBarPage from 'kolibri/components/pages/AppBarPage';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { LearnerDeviceStatus } from 'kolibri/constants';
   import DeviceConnectionStatus from './DeviceConnectionStatus.vue';
   import StorageNotification from './StorageNotification';
 

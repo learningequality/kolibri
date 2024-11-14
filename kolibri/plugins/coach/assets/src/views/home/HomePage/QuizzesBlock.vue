@@ -36,7 +36,7 @@
 <script>
 
   import orderBy from 'lodash/orderBy';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
   import Block from './Block';

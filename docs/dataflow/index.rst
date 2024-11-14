@@ -58,7 +58,7 @@ In order to access a particular REST API endpoint, a Javascript Resource has to 
   :caption: channel.js
   :emphasize-lines: 5
 
-  import { Resource } from 'kolibri.lib.apiResource';
+  import { Resource } from 'kolibri/apiResource';
 
   export default new Resource({
     name: 'channel',

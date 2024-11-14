@@ -1,5 +1,5 @@
-import router from 'kolibri.coreVue.router';
-import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
+import router from 'kolibri/router';
+import { TransferTypes } from 'kolibri-common/utils/syncTaskUtils';
 import { ContentSources, ContentWizardPages } from '../../../constants';
 import {
   availableChannelsPageLink,

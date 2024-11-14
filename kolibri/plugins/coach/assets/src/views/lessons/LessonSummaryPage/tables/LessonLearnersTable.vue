@@ -41,8 +41,8 @@
 <script>
 
   import { mapState } from 'vuex';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import CSVExporter from '../../../../csv/exporter';
   import * as csvFields from '../../../../csv/fields';
   import StatusSimple from '../../../common/status/StatusSimple';

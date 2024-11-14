@@ -39,9 +39,9 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
   import commonCoach from './common';
   import CoachAppBarPage from './CoachAppBarPage';
 

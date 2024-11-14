@@ -1,6 +1,7 @@
-import { DevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
-import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import DevicePermissionsResource from 'kolibri-common/apiResources/DevicePermissionsResource';
+import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 
 /**

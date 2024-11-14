@@ -1,4 +1,4 @@
-import { ClassroomResource } from 'kolibri.resources';
+import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 
 /**
  * Do a POST to create new class
