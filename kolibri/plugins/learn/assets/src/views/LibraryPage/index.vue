@@ -263,6 +263,7 @@
         setCategory,
         currentRoute,
       } = useSearch();
+      search();
       const {
         resumableContentNodes,
         moreResumableContentNodes,
@@ -534,7 +535,6 @@
     created() {
       const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
-      this.search();
       if (window.sessionStorage.getItem(welcomeDismissalKey) !== 'true') {
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
       }
