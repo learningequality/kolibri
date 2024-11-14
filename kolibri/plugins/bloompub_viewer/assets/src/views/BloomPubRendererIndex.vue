@@ -127,12 +127,6 @@
         return 300;
       },
       /* eslint-enable vue/no-unused-properties */
-      entry() {
-        return (this.options && this.options.entry) || 'index.htm';
-      },
-      isBloom() {
-        return this.defaultFile.extension === 'bloompub';
-      },
     },
     watch: {
       userData(newValue) {
@@ -147,10 +141,10 @@
         const hashiProgress = data.progress;
         if (hashiProgress !== null && !this.forceDurationBasedProgress) {
           this.$emit('updateProgress', hashiProgress);
+          if (hashiProgress >= 1) {
+            this.$emit('finished');
+          }
         }
-      });
-      this.hashi.on('navigateTo', message => {
-        this.$emit('navigateTo', message);
       });
       this.hashi.on(this.hashi.events.RESIZE, scrollHeight => {
         this.iframeHeight = scrollHeight;
@@ -162,57 +156,20 @@
         this.loading = false;
         this.$emit('error', err);
       });
-      let storageUrl = this.defaultFile.storage_url;
-      if (!this.isBloom) {
-        // In the case that this is being routed via a remote URL
-        // ensure we preserve that for the zip endpoint.
-        const url = new URL(this.defaultFile.storage_url, window.location.href);
-        const baseurl = url.searchParams.get('baseurl');
-        storageUrl = urls.zipContentUrl(
-          this.defaultFile.checksum,
-          this.defaultFile.extension,
-          this.entry,
-          baseurl ? encodeURIComponent(baseurl) : undefined,
-        );
-      }
 
       this.hashi.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
         this.userData,
-        storageUrl,
+        this.defaultFile.storage_url,
         this.defaultFile.checksum,
       );
       this.$emit('startTracking');
-      if (!this.isBloom) {
-        this.pollProgress();
-      }
     },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
       this.$emit('stopTracking');
-    },
-    methods: {
-      recordProgress() {
-        let progress;
-        if (this.forceDurationBasedProgress) {
-          progress = this.durationBasedProgress;
-        } else {
-          const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
-          progress = hashiProgress === null ? this.durationBasedProgress : hashiProgress;
-        }
-        this.$emit('updateProgress', progress);
-        if (progress >= 1) {
-          this.$emit('finished');
-        }
-        this.pollProgress();
-      },
-      pollProgress() {
-        this.timeout = setTimeout(() => {
-          this.recordProgress();
-        }, 5000);
-      },
     },
     $trs: {
       exitFullscreen: {
