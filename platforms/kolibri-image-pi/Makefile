@@ -1,5 +1,8 @@
 .PHONY: get-deb clean-deb clean-images clean-tools clean install-dependencies
 
+SOURCE_FILE = images/source.xz
+SOURCE_URL = https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-10-28/2024-10-22-raspios-bookworm-arm64-lite.img.xz
+
 clean: clean-deb clean-images clean-tools
 	@echo "Deleted all build targets"
 
@@ -22,17 +25,22 @@ get-deb: clean-deb
 
 
 images/source.img:
-	wget -O images/source.zip https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-01-28/2022-01-28-raspios-bullseye-armhf-lite.zip
-	unzip images/source.zip -d images/
-	rm images/source.zip
-	mv images/2022-01-28-raspios-bullseye-armhf-lite.img images/source.img
+	@echo "Checking if $(SOURCE_FILE) exists..."
+	@if [ ! -f $(SOURCE_FILE) ]; then \
+		echo "$(SOURCE_FILE) not found. Downloading..."; \
+		wget -O $(SOURCE_FILE) $(SOURCE_URL); \
+	else \
+		echo "$(SOURCE_FILE) already exists. Skipping download."; \
+	fi
+	unxz -c $(SOURCE_FILE) > images/source.img
+	rm $(SOURCE_FILE)
 
 pimod:
-	git clone --depth=1 https://github.com/Nature40/pimod.git -b v0.6.0
+	git clone --depth=1 https://github.com/Nature40/pimod.git -b v0.6.1
 
 install-dependencies:
 	sudo apt-get update -y
-	sudo apt-get install -y binfmt-support fdisk file kpartx qemu qemu-user-static unzip p7zip-full wget xz-utils units
+	sudo apt-get install -y binfmt-support fdisk file kpartx qemu-utils qemu-user-static unzip p7zip-full wget xz-utils units
 	$(MAKE) pimod
 
 images/base.img:
