@@ -26,11 +26,20 @@ EOF
 
 echo "Done."
 
-INSTALL 644 files/learningequality-ubuntu-kolibri-bionic.list /etc/apt/sources.list.d/
+INSTALL 644 files/learningequality-ubuntu-kolibri-noble.list /etc/apt/sources.list.d/
 
-RUN apt-key add - <<EOF
-$(cat files/learningequality.gpg.key)
-EOF
+# Copy the GPG key file into the Docker image
+INSTALL 644 files/learningequality.gpg.key /tmp/learningequality.gpg.key
+
+# Convert the GPG key to binary format
+RUN bash -c 'gpg --dearmor < /tmp/learningequality.gpg.key > /tmp/learningequality.gpg'
+
+# Install the binary GPG key to the trusted directory
+RUN install -m 644 /tmp/learningequality.gpg /etc/apt/trusted.gpg.d/
+
+# Clean up temporary files
+RUN rm -f /tmp/learningequality.gpg /tmp/learningequality.gpg.key
+
 
 RUN mkdir -p "/home/${user}/.kolibri"
 RUN mkdir -p /KOLIBRI_DATA/content
@@ -76,7 +85,6 @@ EOF
 
 RUN rm /etc/nginx/sites-enabled/default
 
-RUN systemctl enable dhcpcd
 RUN systemctl enable hostapd
 RUN systemctl enable dnsmasq
 RUN systemctl enable nginx
