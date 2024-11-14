@@ -102,14 +102,28 @@
       </main>
 
       <!-- Side Panels for filtering and searching  -->
-      <SearchFiltersPanel
-        v-if="(!isLocalLibraryEmpty || deviceId) && (windowIsLarge || mobileSidePanelIsOpen)"
-        ref="sidePanel"
-        v-model="searchTerms"
-        data-test="side-panel"
-        :width="`${sidePanelWidth}px`"
-        @close="toggleSidePanelVisibility"
-      />
+      <div v-if="(!isLocalLibraryEmpty || deviceId) && windowIsLarge">
+        <SearchFiltersPanel
+          ref="sidePanel"
+          v-model="searchTerms"
+          :class="windowIsLarge ? 'side-panel' : ''"
+          data-test="side-panel-local"
+          :width="`${sidePanelWidth}px`"
+        />
+      </div>
+
+      <SidePanelModal
+        v-else-if="mobileSidePanelIsOpen && !windowIsLarge"
+        alignment="left"
+        @closePanel="toggleSidePanelVisibility"
+      >
+        <SearchFiltersPanel
+          ref="sidePanel"
+          v-model="searchTerms"
+          data-test="side-panel"
+          :width="`${sidePanelWidth}px`"
+        />
+      </SidePanelModal>
 
       <!-- Side Panel for metadata -->
       <SidePanelModal
@@ -249,6 +263,7 @@
         setCategory,
         currentRoute,
       } = useSearch();
+      search();
       const {
         resumableContentNodes,
         moreResumableContentNodes,
@@ -501,6 +516,14 @@
       searchTerms() {
         this.mobileSidePanelIsOpen = false;
       },
+      windowIsLarge(newVal) {
+        // Be sure we set the side panel closed if the screen size changes
+        // otherwise the watcher on mobileSidePanelIsOpen will leave the
+        // document stuck in `position: fixed;` so we won't see the scrollbar
+        if (newVal) {
+          this.mobileSidePanelIsOpen = false;
+        }
+      },
       mobileSidePanelIsOpen() {
         if (this.mobileSidePanelIsOpen) {
           document.documentElement.style.position = 'fixed';
@@ -512,7 +535,6 @@
     created() {
       const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
-      this.search();
       if (window.sessionStorage.getItem(welcomeDismissalKey) !== 'true') {
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
       }
@@ -647,6 +669,27 @@
   .chip {
     margin-bottom: 8px;
     margin-left: 8px;
+  }
+
+  .side-panel {
+    @extend %dropshadow-2dp;
+
+    position: fixed;
+    top: 60px;
+    left: 0;
+    height: 100%;
+    padding: 24px 24px 0;
+    overflow-y: scroll;
+    font-size: 14px;
+  }
+
+  /*
+  * Work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1417667
+  */
+  .side-panel::after {
+    display: block;
+    padding-bottom: 70px;
+    content: '';
   }
 
 </style>

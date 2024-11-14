@@ -186,26 +186,24 @@
 
         <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
         <template v-if="!windowIsLarge && sidePanelIsOpen">
-          <SearchFiltersPanel
-            v-if="searchActive"
-            ref="embeddedPanel"
-            v-model="searchTerms"
-            class="full-screen-side-panel"
-            :showChannels="false"
-            :style="sidePanelStyleOverrides"
-            @close="sidePanelIsOpen = false"
-          />
-          <TopicsPanelModal
-            v-else
-            ref="embeddedPanel"
-            class="full-screen-side-panel"
-            :topics="topics"
-            :topicMore="Boolean(topicMore)"
-            :topicsLoading="topicMoreLoading"
-            :style="sidePanelStyleOverrides"
-            @loadMoreTopics="handleLoadMoreInTopic"
-            @close="sidePanelIsOpen = false"
-          />
+          <SidePanelModal @closePanel="sidePanelIsOpen = false">
+            <SearchFiltersPanel
+              v-if="searchActive"
+              ref="embeddedPanel"
+              v-model="searchTerms"
+              :showChannels="false"
+              :style="sidePanelStyleOverrides"
+            />
+            <TopicsPanelModal
+              v-else
+              ref="embeddedPanel"
+              :topics="topics"
+              :topicMore="Boolean(topicMore)"
+              :topicsLoading="topicMoreLoading"
+              :style="sidePanelStyleOverrides"
+              @loadMoreTopics="handleLoadMoreInTopic"
+            />
+          </SidePanelModal>
         </template>
       </div>
 
@@ -974,8 +972,11 @@
   .side-panel {
     position: absolute;
     top: $total-height;
+    left: 0;
     min-height: calc(100vh - #{$toolbar-height});
-    padding-top: 16px;
+    // Padding & scroll to ensure user can scroll all the way down
+    padding: 1em 1em 6em;
+    overflow-y: scroll;
   }
 
   .main-content-grid {
@@ -1047,6 +1048,15 @@
 
   .divider {
     margin-bottom: 24px;
+  }
+
+  /deep/ .activities-wrapper {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  }
+
+  /deep/ .btn-activity {
+    width: 80px;
+    height: 80px;
   }
 
 </style>

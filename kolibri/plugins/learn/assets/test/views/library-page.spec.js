@@ -140,7 +140,7 @@ describe('LibraryPage', () => {
         options: { stubs: ['SidePanelModal'] },
       });
       // not displayed by default
-      expect(wrapper.findComponent({ name: 'SearchFiltersPanel' }).element).toBeUndefined();
+      expect(wrapper.find('[data-test="side-panel"]').element).toBeUndefined();
       wrapper.find('[data-test="filter-button"]').trigger('click');
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent({ name: 'SearchFiltersPanel' }).element).toBeTruthy();
@@ -355,7 +355,7 @@ describe('LibraryPage', () => {
         windowIsLarge: true,
       }));
       const wrapper = await makeWrapper();
-      expect(wrapper.find('[data-test="side-panel"').element).toBeTruthy();
+      expect(wrapper.find('[data-test="side-panel-local"').element).toBeTruthy();
     });
   });
 

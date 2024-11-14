@@ -4,7 +4,7 @@
     <div v-if="loading && !loadingMore">
       <KCircularLoader />
     </div>
-    <div v-else>
+    <div v-else-if="!showSearch">
       <h1
         v-if="selectPracticeQuiz"
         class="select-folder-style"
@@ -67,7 +67,7 @@
         </div>
       </div>
 
-      <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
+      <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks && !showSearch">
         <p>{{ coreString('selectFromBookmarks') }}</p>
 
         <div>
@@ -97,12 +97,6 @@
         :topicsLink="topicsLink"
       />
 
-      <LessonsSearchBox
-        v-if="!showBookmarks"
-        @clear="clearSearchTerm"
-        @searchterm="handleSearchTermChange"
-      />
-
       <div
         v-if="showNumberOfQuestionsWarning"
         class="shadow"
@@ -124,6 +118,7 @@
       </div>
 
       <ContentCardList
+        v-if="!showSearch"
         :contentList="contentList"
         :showSelectAll="showSelectAll"
         :viewMoreButtonState="viewMoreButtonState"
@@ -176,6 +171,18 @@
         />
       </div>
     </div>
+
+    <SearchFiltersPanel
+      v-if="showSearch"
+      ref="sidePanel"
+      v-model="searchTerms"
+      data-test="side-panel"
+      width="100%"
+      :accordion="true"
+      :showActivities="false"
+      @close="showSearch = false"
+    />
+
     <KModal
       v-if="showCloseConfirmation"
       :submitText="coreString('continueAction')"
@@ -206,21 +213,22 @@
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
   import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import useBaseSearch from 'kolibri-common/composables/useBaseSearch';
+  import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
   import { exerciseToQuestionArray } from '../../../utils/selectQuestions';
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
   import BookmarkIcon from '../../lessons/LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import useQuizResources from '../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
-  import LessonsSearchBox from '../../lessons/LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
   export default {
     name: 'ResourceSelection',
     components: {
+      SearchFiltersPanel,
       ContentCardList,
       BookmarkIcon,
-      LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
     },
     mixins: [commonCoreStrings],
@@ -482,6 +490,9 @@
         loadingMore,
       } = useQuizResources({ topicId, practiceQuiz: selectPracticeQuiz.value });
 
+      const { searchTerms, search } = useBaseSearch({ descendant: topic });
+      search();
+
       const _loading = ref(true);
 
       const channels = ref([]);
@@ -701,6 +712,7 @@
       }
 
       return {
+        showSearch: ref(false),
         nodeIsSelectableOrUnselectable,
         showCheckbox,
         displaySectionTitle,
@@ -765,6 +777,7 @@
         selectPracticeQuizLabel$,
         numberOfQuestionsLabel$,
         addNumberOfQuestions$,
+        searchTerms,
       };
     },
     props: {
@@ -905,20 +918,6 @@
         return this.questionsUnusedInSection$({
           count,
         });
-      },
-      handleSearchTermChange(searchTerm) {
-        const query = {
-          ...this.$route.query,
-          search: searchTerm,
-        };
-        this.$router.push({ query });
-      },
-      clearSearchTerm() {
-        const query = {
-          ...this.$route.query,
-        };
-        delete query.search;
-        this.$router.push({ query });
       },
     },
   };

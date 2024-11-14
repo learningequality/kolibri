@@ -25,18 +25,6 @@
       @change="val => handleChange('grade_levels', val)"
     />
     <KSelect
-      v-if="showChannels && channelOptionsList.length"
-      :options="channelOptionsList"
-      :disabled="!channelId && enabledChannelOptions.length < 2"
-      class="selector"
-      :clearable="!(!channelId && enabledChannelOptions.length < 2)"
-      :clearText="coreString('clearAction')"
-      :value="selectedChannel"
-      :label="coreString('channelLabel')"
-      :style="selectorStyle"
-      @change="val => handleChange('channels', val)"
-    />
-    <KSelect
       v-if="accessibilityOptionsList.length"
       :options="accessibilityOptionsList"
       :disabled="!accessId && enabledAccessibilityOptions.length < 2"
@@ -68,14 +56,12 @@
         availableGradeLevels,
         availableAccessibilityOptions,
         availableLanguages,
-        availableChannels,
         searchableLabels,
       } = injectBaseSearch();
       return {
         availableGradeLevels,
         availableAccessibilityOptions,
         availableLanguages,
-        availableChannels,
         searchableLabels,
       };
     },
@@ -87,10 +73,6 @@
           const inputKeys = ['channels', 'accessibility_labels', 'languages', 'grade_levels'];
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
-      },
-      showChannels: {
-        type: Boolean,
-        default: true,
       },
     },
     computed: {
@@ -151,16 +133,6 @@
       enabledContentLevels() {
         return this.contentLevelsList.filter(c => !c.disabled);
       },
-      channelOptionsList() {
-        return this.availableChannels.map(channel => ({
-          value: channel.id,
-          disabled: this.searchableLabels && !this.searchableLabels.channels.includes(channel.id),
-          label: channel.name,
-        }));
-      },
-      enabledChannelOptions() {
-        return this.channelOptionsList.filter(c => !c.disabled);
-      },
       langId() {
         return Object.keys(this.value.languages)[0];
       },
@@ -187,15 +159,6 @@
           return this.enabledContentLevels[0];
         }
         return this.contentLevelsList.find(o => o.value === this.levelId) || {};
-      },
-      channelId() {
-        return Object.keys(this.value.channels)[0];
-      },
-      selectedChannel() {
-        if (!this.channelId && this.enabledChannelOptions.length === 1) {
-          return this.enabledChannelOptions[0];
-        }
-        return this.channelOptionsList.find(o => o.value === this.channelId) || {};
       },
     },
     methods: {

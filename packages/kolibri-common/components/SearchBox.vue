@@ -25,7 +25,7 @@
         class="search-input"
         :class="$computedClass(searchInputStyle)"
         dir="auto"
-        :placeholder="coreString(placeholder)"
+        :placeholder="placeholder || coreString('searchLabel')"
       >
       <div class="search-buttons-wrapper">
         <KIconButton
@@ -80,7 +80,7 @@
       },
       placeholder: {
         type: String,
-        default: 'searchLabel',
+        default: null,
       },
       value: {
         type: String,
