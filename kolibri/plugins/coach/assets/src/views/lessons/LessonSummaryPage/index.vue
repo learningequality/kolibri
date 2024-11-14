@@ -74,6 +74,33 @@
             :currentAction="currentAction"
             @cancel="currentAction = ''"
           />
+
+          <SidePanelModal
+            v-if="false"
+            ref="resourcePanel"
+            alignment="right"
+            sidePanelWidth="700px"
+            closeButtonIconType="close"
+            @closePanel="() => $router.go(-1)"
+            @shouldFocusFirstEl="() => null"
+          >
+            <template #header>
+              <KIconButton
+                v-if="true"
+                icon="back"
+                @click="$router.go(-1)"
+              />
+              <span :style="{ fontWeight: '600' }">
+                {{ $tr('numberOfSelectedResource', { count: resourcesTable.length }) }}
+              </span>
+            </template>
+            <router-view @closePanel="() => $router.go(-1)" />
+            <ManageSelectedLessonResources
+              :lessonResourceList="resourcesTable"
+              :lessonObject="currentLesson"
+              @handleSavingResources="showSidePanel === false"
+            />
+          </SidePanelModal>
         </KPageContainer>
       </KGridItem>
     </KGrid>
@@ -150,6 +177,7 @@
         ReportsLessonTabs,
         workingResourcesBackup,
         REPORTS_LESSON_TABS_ID,
+        showSidePanel:true,
       };
     },
     computed: {
@@ -359,6 +387,10 @@
         message: 'Undo',
         context: 'Allows user to undo an action.',
       },
+      numberOfSelectedResource: {
+        message: '{count, number, integer} {count, plural, one {resource selected} other {resources selected}}',
+        context:'Indicates the number of resources selected'
+      }
     },
   };
 
