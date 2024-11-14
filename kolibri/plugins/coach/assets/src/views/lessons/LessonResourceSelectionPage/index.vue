@@ -97,6 +97,13 @@
 
     <BottomAppBar>
       <KRouterLink
+        :text="$tr('numbeOfSelectedResourcesLabel', { count: workingResources.length })"
+        :primary="true"
+        :to="goToPreviewSelection()"
+        :style="{ marginRight: '1em' , marginTop: '0.5em' }"
+      />
+
+      <KRouterLink
         :text="bottomBarButtonText"
         :primary="true"
         appearance="raised-button"
@@ -561,11 +568,19 @@
       topicsLink(topicId) {
         return this.topicListingLink({ ...this.$route.params, topicId });
       },
+      goToPreviewSelection(){
+        return{
+           name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES
+        }
+      }
     },
     $trs: {
       resources: {
         message: '{count} {count, plural, one {resource} other {resources}}',
         context: "Only translate 'resource' and 'resources'.",
+      },
+      numbeOfSelectedResourcesLabel:{
+        message:'{count, number, integer} {count, plural, one {resource selected} other {resources selected}} '
       },
       selectionInformation: {
         message:
