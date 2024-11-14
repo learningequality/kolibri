@@ -86,8 +86,10 @@ def _get_available_channels(base_queryset, include_labels=False):
 
     if include_labels:
         for channel in channels:
-            channel['labels'] = list(
-                ChannelMetadata.objects.filter(id=channel['id']).values_list('labels', flat=True)
+            channel["labels"] = list(
+                ChannelMetadata.objects.filter(id=channel["id"]).values_list(
+                    "labels", flat=True
+                )
             )
 
     return list(channels)

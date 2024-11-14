@@ -828,9 +828,10 @@ class OptionalContentNodePagination(OptionalPagination):
     def paginate_queryset(self, queryset, request, view=None):
         # Record the queryset for use in returning available filters
         self.queryset = queryset
-        self.use_deprecated_channels_labels = request.query_params.get(
-            "use_deprecated_channels_labels", "false"
-        ).lower() == "true"
+        self.use_deprecated_channels_labels = (
+            request.query_params.get("use_deprecated_channels_labels", "false").lower()
+            == "true"
+        )
         return super(OptionalContentNodePagination, self).paginate_queryset(
             queryset, request, view=view
         )
@@ -877,6 +878,7 @@ class OptionalContentNodePagination(OptionalPagination):
             def paginate_queryset(self, queryset, request, view=None):
                 self.use_deprecated_channels_labels = True
                 return super().paginate_queryset(queryset, request, view)
+
 
 @method_decorator(remote_metadata_cache, name="dispatch")
 class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesViewset):
