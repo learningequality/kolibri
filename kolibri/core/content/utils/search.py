@@ -77,14 +77,20 @@ def _get_available_languages(base_queryset):
     return list(langs)
 
 
-def _get_available_channels(base_queryset):
+def _get_available_channels(base_queryset, include_labels=False):
     from kolibri.core.content.models import ChannelMetadata
 
-    return list(
-        ChannelMetadata.objects.filter(
-            id__in=base_queryset.values_list("channel_id", flat=True).distinct()
-        ).values("id", "name")
-    )
+    channels = ChannelMetadata.objects.filter(
+        id__in=base_queryset.values_list("channel_id", flat=True).distinct()
+    ).values("id", "name")
+
+    if include_labels:
+        for channel in channels:
+            channel['labels'] = list(
+                ChannelMetadata.objects.filter(id=channel['id']).values_list('labels', flat=True)
+            )
+
+    return list(channels)
 
 
 class SQLiteBitwiseORAggregate(Aggregate):

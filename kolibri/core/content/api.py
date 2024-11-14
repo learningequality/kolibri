@@ -828,40 +828,55 @@ class OptionalContentNodePagination(OptionalPagination):
     def paginate_queryset(self, queryset, request, view=None):
         # Record the queryset for use in returning available filters
         self.queryset = queryset
+        self.use_deprecated_channels_labels = request.query_params.get(
+            "use_deprecated_channels_labels", "false"
+        ).lower() == "true"
         return super(OptionalContentNodePagination, self).paginate_queryset(
             queryset, request, view=view
         )
 
     def get_paginated_response(self, data):
+        labels = get_available_metadata_labels(self.queryset)
+        if self.use_deprecated_channels_labels:
+            labels["channels"] = list(
+                self.queryset.values_list("channel_id", flat=True).distinct()
+            )
         return Response(
             OrderedDict(
                 [
                     ("more", self.get_more()),
                     ("results", data),
-                    ("labels", get_available_metadata_labels(self.queryset)),
+                    ("labels", labels),
                 ]
             )
         )
 
     def get_paginated_response_schema(self, schema):
-        return {
-            "type": "object",
-            "properties": {
-                "more": {
-                    "type": "object",
-                    "nullable": True,
-                    "example": {
-                        "cursor": "asdadshjashjadh",
-                    },
-                },
-                "results": schema,
-                "labels": {
-                    "type": "object",
-                    "example": {"accessibility_labels": ["id1", "id2"]},
+        properties = {
+            "more": {
+                "type": "object",
+                "nullable": True,
+                "example": {
+                    "cursor": "asdadshjashjadh",
                 },
             },
+            "results": schema,
+            "labels": {
+                "type": "object",
+                "example": {"accessibility_labels": ["id1", "id2"]},
+            },
+        }
+        if self.use_deprecated_channels_labels:
+            properties["labels"]["example"]["channels"] = ["channel_id1", "channel_id2"]
+        return {
+            "type": "object",
+            "properties": properties,
         }
 
+        class DeprecatedChannelsLabelsPagination(OptionalContentNodePagination):
+            def paginate_queryset(self, queryset, request, view=None):
+                self.use_deprecated_channels_labels = True
+                return super().paginate_queryset(queryset, request, view)
 
 @method_decorator(remote_metadata_cache, name="dispatch")
 class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesViewset):
@@ -949,6 +964,18 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
             kind=content_kinds.TOPIC
         )
         return Response(self.serialize(queryset))
+
+    def get_paginated_response(self, data):
+        labels = get_available_metadata_labels(self.queryset)
+        return Response(
+            OrderedDict(
+                [
+                    ("more", self.get_more()),
+                    ("results", data),
+                    ("labels", labels),
+                ]
+            )
+        )
 
 
 # The max recursed page size should be less than 25 for a couple of reasons:
