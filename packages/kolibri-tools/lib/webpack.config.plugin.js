@@ -31,6 +31,7 @@ const WebpackMessages = require('./webpackMessages');
  * @param {boolean} hot - Activate hot module reloading
  * @param {Number} port - port that the dev server is served on
  * @param {string} address - address that the dev server is served on
+ * @param {boolean} setDevServerPublicPath - whether to set the public path for the dev server
  * @returns {Object} bundle - An object defining the webpack config.
  */
 module.exports = (
@@ -44,6 +45,7 @@ module.exports = (
     transpile = false,
     devServer = false,
     kdsPath = '',
+    setDevServerPublicPath = true,
   } = {},
 ) => {
   if (
@@ -191,8 +193,10 @@ module.exports = (
   bundle = merge(bundle, baseConfig({ mode, hot, cache, transpile }), webpackConfig);
 
   if (devServer) {
-    const publicPath = `http://${address}:${port}/${data.name}/`;
-    bundle.output.publicPath = publicPath;
+    if (setDevServerPublicPath) {
+      const publicPath = `http://${address}:${port}/${data.name}/`;
+      bundle.output.publicPath = publicPath;
+    }
     bundle.watch = true;
     bundle.watchOptions = {
       aggregateTimeout: 300,
