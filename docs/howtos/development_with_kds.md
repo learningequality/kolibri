@@ -12,4 +12,5 @@ yarn run devserver-with-kds <kds-path>
 
 where `<kds-path>` is the path of the local `kolibri-design-system` repository.
 
-It is recommended to use an absolute KDS path as some developers observed problems when running the command with a relative path.
+.. warning::
+  Some developers have reported issues when running the command with a relative path. If you encounter any problems, try using an absolute KDS path.
