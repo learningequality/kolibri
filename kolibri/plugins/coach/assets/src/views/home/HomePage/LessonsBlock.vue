@@ -2,7 +2,7 @@
 
   <Block
     :allLinkText="coachString('viewAllAction')"
-    :allLinkRoute="classRoute('ReportsLessonListPage', {})"
+    :allLinkRoute="classRoute(PageNames.LESSONS_ROOT)"
     :showAllLink="table.length > 0"
   >
     <template #title>
@@ -26,7 +26,7 @@
         :tally="tableRow.tally"
         :groupNames="groupAndAdHocLearnerNames(tableRow.groups, tableRow.assignments)"
         :hasAssignments="tableRow.hasAssignments"
-        :to="classRoute('ReportsLessonLearnerListPage', { lessonId: tableRow.key })"
+        :to="classRoute(PageNames.LESSON_SUMMARY, { lessonId: tableRow.key, tabId: 'tabLearners' })"
       />
     </BlockItem>
   </Block>
@@ -37,8 +37,9 @@
 <script>
 
   import orderBy from 'lodash/orderBy';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../../common';
+  import { PageNames } from '../../../constants';
   import Block from './Block';
   import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
@@ -53,6 +54,11 @@
       BlockItem,
     },
     mixins: [commonCoach, commonCoreStrings],
+    data() {
+      return {
+        PageNames,
+      };
+    },
     computed: {
       table() {
         const recent = orderBy(this.lessons, this.lastActivity, ['desc']).slice(0, MAX_LESSONS);

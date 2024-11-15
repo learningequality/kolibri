@@ -73,11 +73,11 @@
 
   import some from 'lodash/some';
   import { mapGetters } from 'vuex';
-  import { TaskResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import commonDeviceStrings from '../commonDeviceStrings';
   import useContentTasks from '../../composables/useContentTasks';
   import { PageNames } from '../../constants';

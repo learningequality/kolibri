@@ -1,5 +1,5 @@
 import { createMachine, assign, send } from 'xstate';
-import { FacilityUserResource } from 'kolibri.resources';
+import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import {
   default as remoteFacilityUserData,
   remoteFacilityUsers,

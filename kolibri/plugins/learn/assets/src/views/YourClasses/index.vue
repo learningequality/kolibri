@@ -54,7 +54,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { ClassesPageNames } from '../../constants';
   import { classAssignmentsLink } from '../classes/classPageLinks';
   import CardGrid from '../cards/CardGrid';

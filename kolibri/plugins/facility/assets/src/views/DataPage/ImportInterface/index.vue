@@ -53,7 +53,7 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
+  import urls from 'kolibri/urls';
   import { mapState, mapActions, mapGetters } from 'vuex';
   import { UsersExportStatuses } from '../../../constants';
   import DataPageTaskProgress from '../DataPageTaskProgress';

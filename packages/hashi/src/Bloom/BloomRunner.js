@@ -1,16 +1,89 @@
 import ZipFile from 'kolibri-zip';
-import { strToU8 } from 'fflate';
-import {
-  getAudioId,
-  getDOMPaths,
-  getStyleUrlPaths,
-  replaceAudioId,
-  replaceDOMPaths,
-  replaceStyleUrlPaths,
-} from 'kolibri-zip/src/fileUtils';
+import { DOMMapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
 import { events } from '../hashiBase';
 
-const CONTENT_ID = '1234567890';
+const domParser = new DOMParser();
+
+const domSerializer = new XMLSerializer();
+
+const audioSentenceSelector = '.audio-sentence';
+
+const backgroundAudioSelector = '[data-backgroundaudio]';
+
+function getAudioFiles(fileContents, mimeType) {
+  const dom = domParser.parseFromString(fileContents.trim(), mimeType);
+  const audioSentenceElements = dom.querySelectorAll(audioSentenceSelector);
+  const audioSentencePaths = Array.from(audioSentenceElements).map(element => {
+    const value = element.getAttribute('id');
+    // By convention all audio files are in a folder called "audio"
+    // and have a .mp3 extension.
+    return `audio/${value}.mp3`;
+  });
+  const backgroundAudioElements = dom.querySelectorAll(backgroundAudioSelector);
+  const backgroundAudioPaths = Array.from(backgroundAudioElements).map(element => {
+    const value = element.getAttribute('data-backgroundaudio');
+    // These files already have their extension, so we don't need to add it.
+    return `audio/${value}`;
+  });
+  return audioSentencePaths.concat(backgroundAudioPaths);
+}
+
+function _setDehydratedUrlAttribute(element, attributeName, url) {
+  // We have seen cases where the audio file simply isn't in the archive, so we need to check
+  // if the URL is null before setting it.
+  if (!url) {
+    return;
+  }
+  // We cannot set the fully qualified URL as the attribute here, as it breaks subsequent
+  // attempts to use the id as a DOM selector by Bloom player.
+  // The URL is rehydrated inside Bloom player, thanks to our code modifications there.
+  element.setAttribute(attributeName, `_${url.split('/').at(-1)}`);
+}
+
+function replaceAudioFiles(fileContents, packageFiles, mimeType) {
+  const dom = domParser.parseFromString(fileContents.trim(), mimeType);
+  const audioSentenceElements = dom.querySelectorAll(audioSentenceSelector);
+  for (const element of audioSentenceElements) {
+    const id = element.getAttribute('id');
+    const url = packageFiles[`audio/${id}.mp3`];
+    _setDehydratedUrlAttribute(element, 'id', url);
+  }
+  const backgroundAudioElements = dom.querySelectorAll(backgroundAudioSelector);
+  for (const element of backgroundAudioElements) {
+    const id = element.getAttribute('data-backgroundaudio');
+    const url = packageFiles[`audio/${id}`];
+    _setDehydratedUrlAttribute(element, 'data-backgroundaudio', url);
+  }
+  if (mimeType === 'text/html') {
+    // Remove the namespace attribute from the root element
+    // as serializeToString adds it by default and without this
+    // it gets repeated.
+    dom.documentElement.removeAttribute('xmlns');
+  }
+  return domSerializer.serializeToString(dom);
+}
+
+class BloomDOMMapper extends DOMMapper {
+  getPaths() {
+    const paths = super.getPaths();
+    return paths.concat(getAudioFiles(this.file.toString(), this.file.mimeType));
+  }
+
+  replacePaths(packageFiles) {
+    const newFileContents = super.replacePaths(packageFiles);
+    return replaceAudioFiles(newFileContents, packageFiles, this.file.mimeType);
+  }
+}
+
+// Override the default file path mappers to include our custom BloomDOMMapper
+// which handles the special audio file references.
+const filePathMappers = {
+  ...defaultFilePathMappers,
+  htm: BloomDOMMapper,
+  html: BloomDOMMapper,
+  xml: BloomDOMMapper,
+  xhtml: BloomDOMMapper,
+};
 
 /*
  * Class that manages loading, parsing, and running an Bloom file.
@@ -38,19 +111,12 @@ export default class BloomRunner {
     this.iframe = iframe;
     // This is the path to the Bloompub file which we load in its entirety.
     this.filepath = filepath;
-    // A fallback URL to the zipcontent endpoint for this H5P file
-    this.zipcontentUrl = new URL(
-      `../../zipcontent/${this.filepath.substring(this.filepath.lastIndexOf('/') + 1)}`,
-      window.location,
-    ).href;
     // Callback to call when Bloom Player has finished loading
     this.loaded = loaded;
     // Callback to call when Bloom errors
     this.errored = errored;
-    this.contentNamespace = CONTENT_ID;
-    this.zip = new ZipFile(this.filepath);
+    this.zip = new ZipFile(this.filepath, { filePathMappers });
     return this.processFiles().then(() => {
-      this.processContent();
       if (this.iframe.contentDocument && this.iframe.contentDocument.readyState === 'complete') {
         return this.initBloom();
       }
@@ -66,67 +132,37 @@ export default class BloomRunner {
   initBloom() {
     try {
       this.loaded();
-      this.iframe.src = `../bloom/bloomplayer.htm?url=${this.contentUrl}&distributionUrl=${this.distributionUrl}&metaJsonUrl=${this.metaUrl}&independent=false`;
+      const options = new URLSearchParams({
+        url: this.contentUrl,
+        distributionUrl: this.distributionUrl,
+        metaJsonUrl: this.metaUrl,
+        independent: false,
+        hideFullScreenButton: true,
+        initiallyShowAppBar: true,
+        allowToggleAppBar: false,
+      });
+
+      this.iframe.src = `../bloom/bloomplayer.htm?${options.toString()}`;
     } catch (e) {
       this.errored(e);
     }
   }
 
-  processContent() {
-    const domPaths = getDOMPaths(this.contentfile.toString(), this.contentfile.mimeType).filter(
-      file => !file.startsWith('blob:'),
-    );
-    const stylePaths = getStyleUrlPaths(this.contentfile.toString(), this.contentfile.mimeType);
-    const files = [...new Set([...domPaths, ...stylePaths])];
-    const audioIds = getAudioId(this.contentfile.toString(), this.contentfile.mimeType);
-    const replacementFileMap = {};
-    if (files.length > 0 || audioIds.length > 0) {
-      for (const file of this.packageFiles) {
-        if (files.includes(file.name)) {
-          replacementFileMap[file.name] = file.toUrl();
-        }
-        if (files.includes(encodeURI(file.name))) {
-          replacementFileMap[encodeURI(file.name)] = file.toUrl();
-        }
-        const audioFile = file.name.substring(6);
-        const audioFileName = audioFile.split('.')[0];
-        const url = file.toUrl();
-        if (audioIds.includes(audioFileName)) {
-          replacementFileMap[audioFileName] = `_${url.split('/').at(-1)}`;
-        }
-        if (audioIds.includes(audioFile)) {
-          replacementFileMap[audioFile] = `_${url.split('/').at(-1)}`;
-        }
-      }
-    }
-    let newHtmlFile = replaceDOMPaths(
-      this.contentfile.toString(),
-      replacementFileMap,
-      this.contentfile.mimeType,
-    );
-    newHtmlFile = replaceStyleUrlPaths(newHtmlFile, replacementFileMap, this.contentfile.mimeType);
-    newHtmlFile = replaceAudioId(newHtmlFile, replacementFileMap, this.contentfile.mimeType);
-
-    this.contentfile.obj = strToU8(newHtmlFile);
-    this.contentUrl = this.contentfile.toUrl();
-  }
-
   /*
-   * Process all files in the zip, content files and files in the packages
+   * Get the htm file, distribution file, and meta.json file from the zip.
    */
   processFiles() {
     return Promise.all([
-      this.zip.files('').then(files => {
-        this.packageFiles = files;
-      }),
+      // The htm file does not have a predictable name, so we find
+      // the first one in the zip.
       this.zip.filesFromExtension('.htm').then(htmFile => {
-        this.contentfile = htmFile[0];
+        this.contentUrl = htmFile[0].toUrl();
       }),
-      this.zip.filesFromExtension('.distribution').then(distributionFile => {
-        this.distributionUrl = distributionFile[0].toUrl();
+      this.zip.file('.distribution').then(distributionFile => {
+        this.distributionUrl = distributionFile.toUrl();
       }),
-      this.zip.filesFromExtension('meta.json').then(meta => {
-        this.metaUrl = meta[0].toUrl();
+      this.zip.file('meta.json').then(meta => {
+        this.metaUrl = meta.toUrl();
       }),
     ]);
   }

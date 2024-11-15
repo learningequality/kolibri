@@ -149,12 +149,13 @@
 
 <script>
 
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import { NetworkLocationResource, TaskResource } from 'kolibri.resources';
-  import { now } from 'kolibri.utils.serverClock';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import { NetworkLocationResource } from 'kolibri-common/apiResources/NetworkLocationResource';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import { now } from 'kolibri/utils/serverClock';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import { KDP_ID, oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
   import { kdpNameTranslator } from './i18n';
 

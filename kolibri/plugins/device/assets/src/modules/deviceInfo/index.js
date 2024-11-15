@@ -1,6 +1,6 @@
-import urls from 'kolibri.urls';
-import client from 'kolibri.client';
-import plugin_data from 'plugin_data';
+import urls from 'kolibri/urls';
+import client from 'kolibri/client';
+import plugin_data from 'kolibri-plugin-data';
 
 export default {
   namespaced: true,

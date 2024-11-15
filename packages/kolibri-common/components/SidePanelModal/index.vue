@@ -61,8 +61,8 @@
 <script>
 
   import { get } from '@vueuse/core';
-  import Backdrop from 'kolibri.coreVue.components.Backdrop';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import Backdrop from 'kolibri-common/components/Backdrop';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {
@@ -117,7 +117,7 @@
         return get(this.windowBreakpoint) <= 2;
       },
       /* Returns an object with properties left or right set to the appropriate value
-           depending on isRtl and this.alignment */
+         depending on isRtl and this.alignment */
       rtlAlignment() {
         if (this.isRtl && this.alignment === 'left') {
           return 'right';
@@ -221,8 +221,8 @@
       this.lastFocus = document.activeElement;
     },
     /* this is the easiest way I could think to avoid having dual scroll bars and to avoid
-       strange screen-squeezing behavior noted here:
-       https://user-images.githubusercontent.com/79847249/164241012-b161bad7-8a46-4221-a391-a375899ed9a9.mp4 */
+     strange screen-squeezing behavior noted here:
+     https://user-images.githubusercontent.com/79847249/164241012-b161bad7-8a46-4221-a391-a375899ed9a9.mp4 */
     mounted() {
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'hidden';

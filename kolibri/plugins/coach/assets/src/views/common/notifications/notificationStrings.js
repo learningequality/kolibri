@@ -1,4 +1,4 @@
-import { createTranslator } from 'kolibri.utils.i18n';
+import { createTranslator } from 'kolibri/utils/i18n';
 import { CollectionTypes } from '../../../constants/lessonsConstants';
 import { NotificationEvents, NotificationObjects } from '../../../constants/notificationsConstants';
 

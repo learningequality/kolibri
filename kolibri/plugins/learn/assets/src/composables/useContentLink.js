@@ -1,7 +1,7 @@
 import { get } from '@vueuse/core';
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
-import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+import { computed, getCurrentInstance } from '@vue/composition-api';
 import { ExternalPagePaths, PageNames } from '../constants';
 
 function _decodeBackLinkQuery(query) {
@@ -49,7 +49,7 @@ export default function useContentLink(store) {
    * @return {Object} VueRouter link object
    */
   function genContentLinkBackLinkCurrentPage(id, isResource = false, deviceId) {
-    if (!route) {
+    if (!route.value) {
       return null;
     }
 
@@ -62,7 +62,7 @@ export default function useContentLink(store) {
     const pathname = window.location.pathname;
     const learnIndex = pathname.indexOf('/learn');
     const base = pathname.slice(0, learnIndex) + '/learn/#';
-    if (!route) {
+    if (!route.value) {
       return base;
     }
 
@@ -86,7 +86,7 @@ export default function useContentLink(store) {
    * @return {Object} VueRouter link object
    */
   function genContentLinkKeepCurrentBackLink(id, isResource = false, deviceId) {
-    if (!route) {
+    if (!route.value) {
       return null;
     }
     const oldQuery = get(route).query || {};
@@ -107,7 +107,7 @@ export default function useContentLink(store) {
    * @return {Object} VueRouter link object
    */
   function genContentLinkKeepPreviousBackLink(id, deviceId) {
-    if (!route) {
+    if (!route.value) {
       return null;
     }
     const oldQuery = _decodeBackLinkQuery(get(route).query);
@@ -148,7 +148,7 @@ export default function useContentLink(store) {
   }
 
   function genLibraryPageBackLink(deviceId) {
-    if (!route) {
+    if (!route.value) {
       return null;
     }
 
@@ -161,7 +161,7 @@ export default function useContentLink(store) {
   }
 
   function genExploreLibrariesPageBackLink() {
-    if (!route) {
+    if (!route.value) {
       return null;
     }
 

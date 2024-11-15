@@ -24,7 +24,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonDeviceStrings from '../commonDeviceStrings';
 
   export default {

@@ -1,7 +1,7 @@
 import { get } from '@vueuse/core';
-import useUser from 'kolibri.coreVue.composables.useUser';
-import store from 'kolibri.coreVue.vuex.store';
-import router from 'kolibri.coreVue.router';
+import useUser from 'kolibri/composables/useUser';
+import store from 'kolibri/store';
+import router from 'kolibri/router';
 import { showSignInPage } from './modules/signIn/handlers';
 import { showSignUpPage } from './modules/signUp/handlers';
 import { ComponentMap } from './constants';

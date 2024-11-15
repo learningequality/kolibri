@@ -1,9 +1,7 @@
-import {
-  ContentNodeGranularResource,
-  RemoteChannelResource,
-  TaskResource,
-} from 'kolibri.resources';
-import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+import ContentNodeGranularResource from 'kolibri-common/apiResources/ContentNodeGranularResource';
+import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
+import TaskResource from 'kolibri/apiResources/TaskResource';
+import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import { getChannelWithContentSizes } from '../../../modules/wizard/apiChannelMetadata';
 import { getDeviceInfo } from '../../../modules/deviceInfo/handlers';
 

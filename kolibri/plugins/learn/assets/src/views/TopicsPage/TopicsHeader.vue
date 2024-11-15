@@ -76,7 +76,7 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ChannelThumbnail from '../ChannelThumbnail';

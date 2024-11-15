@@ -2,8 +2,8 @@ import sumBy from 'lodash/sumBy';
 import map from 'lodash/fp/map';
 import partition from 'lodash/partition';
 import find from 'lodash/find';
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 
 const pluckIds = map('id');
 

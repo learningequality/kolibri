@@ -1,5 +1,5 @@
 import { createLocalVue, mount, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import Vuex, { Store } from 'vuex';
 import VueRouter from 'vue-router';
 import ExploreLibrariesPage from '../../src/views/ExploreLibrariesPage';
 
@@ -14,7 +14,7 @@ jest.mock('../../src/composables/useContentLink');
 jest.mock('../../src/composables/usePinnedDevices');
 
 function makeWrapper({ getters, options, fullMount = false } = {}) {
-  const store = new Vuex.Store({
+  const store = new Store({
     state: { core: { loading: false } },
     getters: {
       isSuperuser: jest.fn(),

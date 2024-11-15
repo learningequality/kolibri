@@ -1,23 +1,18 @@
-import { ref } from 'kolibri.lib.vueCompositionApi';
-import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import coreStrings from 'kolibri.utils.coreStrings';
-import commonCoreStringsMixin from 'kolibri.coreVue.mixins.commonCoreStrings';
+import { ref } from '@vue/composition-api';
+import { ContentNodeKinds } from 'kolibri/constants';
+import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
 
 export function useCoachMetadataTags(contentNode) {
   const tags = ref([]);
 
   const getCategoryTags = () => {
     if (!contentNode.categories) return [];
-    return contentNode.categories.map(category =>
-      commonCoreStringsMixin.methods.coreString(category),
-    );
+    return contentNode.categories.map(category => coreString(category));
   };
 
   const getLevelTags = () => {
     if (!contentNode.grade_levels) return [];
-    return contentNode.grade_levels.map(grade_levels =>
-      commonCoreStringsMixin.methods.coreString(grade_levels),
-    );
+    return contentNode.grade_levels.map(grade_levels => coreString(grade_levels));
   };
 
   const getLanguageTag = () => {
@@ -30,9 +25,7 @@ export function useCoachMetadataTags(contentNode) {
 
     return contentNode.learning_activities.length > 1
       ? [coreStrings.$tr('multipleLearningActivities')]
-      : contentNode.learning_activities.map(activity =>
-          commonCoreStringsMixin.methods.coreString(activity),
-        );
+      : contentNode.learning_activities.map(activity => coreString(activity));
   };
 
   const getDurationTag = () => {
@@ -45,7 +38,7 @@ export function useCoachMetadataTags(contentNode) {
     const specificCategories = contentNode.categories.filter(
       category => category.split('.').length > 2,
     );
-    return specificCategories.map(category => commonCoreStringsMixin.methods.coreString(category));
+    return specificCategories.map(category => coreString(category));
   };
 
   if (

@@ -60,11 +60,12 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import { crossComponentTranslator } from 'kolibri/utils/i18n';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import { SelectDeviceModalGroup, RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
+  import SelectDeviceModalGroup from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup';
+  import RadioButtonGroup from 'kolibri-common/components/syncComponentSet/RadioButtonGroup';
   import SelectFacility from '../../../../user_profile/assets/src/views/ChangeFacility/SelectFacility';
   import { FooterMessageTypes } from '../constants';
 

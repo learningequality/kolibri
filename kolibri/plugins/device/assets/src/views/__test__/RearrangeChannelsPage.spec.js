@@ -1,12 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
-import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
-import useSnackbar, { useSnackbarMock } from 'kolibri.coreVue.composables.useSnackbar';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
+import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
 import makeStore from '../../../test/utils/makeStore';
 import RearrangeChannelsPage from '../RearrangeChannelsPage';
 
 jest.mock('../../composables/useContentTasks');
-jest.mock('kolibri.coreVue.composables.useUser');
-jest.mock('kolibri.coreVue.composables.useSnackbar');
+jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri/composables/useSnackbar');
 
 RearrangeChannelsPage.methods.postNewOrder = () => Promise.resolve();
 RearrangeChannelsPage.methods.fetchChannels = () => {

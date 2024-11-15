@@ -154,10 +154,10 @@
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import { MaxPointsPerContent } from 'kolibri.coreVue.vuex.constants';
-  import { ContentNodeResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import { MaxPointsPerContent } from 'kolibri/constants';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
   import { currentDeviceData } from '../../composables/useDevices';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';

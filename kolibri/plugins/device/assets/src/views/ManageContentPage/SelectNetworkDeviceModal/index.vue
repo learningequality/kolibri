@@ -12,7 +12,7 @@
 <script>
 
   import { mapGetters, mapMutations, mapState } from 'vuex';
-  import { SelectDeviceModalGroup } from 'kolibri.coreVue.componentSets.sync';
+  import SelectDeviceModalGroup from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup';
   import { availableChannelsPageLink, selectContentPageLink } from '../manageContentLinks';
 
   export default {

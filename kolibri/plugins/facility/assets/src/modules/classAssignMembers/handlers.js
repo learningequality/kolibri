@@ -1,6 +1,7 @@
 import pickBy from 'lodash/pickBy';
-import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { ClassroomResource, FacilityUserResource } from 'kolibri.resources';
+import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
+import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
+import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { _userState } from '../mappers';
 
 export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {

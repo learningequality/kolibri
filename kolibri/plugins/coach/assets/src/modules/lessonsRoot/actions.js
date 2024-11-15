@@ -1,8 +1,8 @@
-import { LessonResource } from 'kolibri.resources';
-import router from 'kolibri.coreVue.router';
-import { createTranslator } from 'kolibri.utils.i18n';
-import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
-import { lessonSummaryLink } from '../../routes/planLessonsRouterUtils';
+import LessonResource from 'kolibri-common/apiResources/LessonResource';
+import router from 'kolibri/router';
+import { createTranslator } from 'kolibri/utils/i18n';
+import useSnackbar from 'kolibri/composables/useSnackbar';
+import { PageNames } from '../../constants';
 
 const translator = createTranslator('LessonRootActionTexts', {
   newLessonCreated: {
@@ -68,7 +68,13 @@ export function createLesson(store, { classId, payload }) {
         createSnackbar(translator.$tr('newLessonCreated'));
         // Update the class summary now that we have a new lesson in town!
         store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
-          router.push(lessonSummaryLink({ classId, lessonId: newLesson.id }));
+          router.push({
+            name: PageNames.LESSON_SUMMARY,
+            params: {
+              classId,
+              lessonId: newLesson.id,
+            },
+          });
           resolve();
         });
       })

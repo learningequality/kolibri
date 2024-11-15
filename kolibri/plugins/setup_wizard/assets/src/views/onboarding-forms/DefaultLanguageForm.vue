@@ -12,7 +12,7 @@
 
 <script>
 
-  import LanguageSwitcherList from 'kolibri.coreVue.components.LanguageSwitcherList';
+  import LanguageSwitcherList from 'kolibri/components/language-switcher/LanguageSwitcherList';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {

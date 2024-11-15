@@ -1,8 +1,8 @@
-import { FacilityUserResource } from 'kolibri.resources';
+import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { mount, RouterLinkStub, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import ProfilePage from '../../src/views/ProfilePage';
 import makeStore from '../makeStore';
 import useOnMyOwnSetup, {
@@ -10,10 +10,11 @@ import useOnMyOwnSetup, {
   useOnMyOwnSetupMock,
 } from '../../src/composables/useOnMyOwnSetup';
 
-jest.mock('kolibri.resources');
+jest.mock('kolibri-common/apiResources/FacilityUserResource');
 jest.mock('../../src/composables/useOnMyOwnSetup');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
-jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri/urls');
 
 FacilityUserResource.fetchModel = jest.fn().mockResolvedValue({});
 

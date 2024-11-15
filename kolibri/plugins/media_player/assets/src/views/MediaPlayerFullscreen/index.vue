@@ -13,7 +13,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
 
   export default {
     name: 'MediaPlayerFullscreen',

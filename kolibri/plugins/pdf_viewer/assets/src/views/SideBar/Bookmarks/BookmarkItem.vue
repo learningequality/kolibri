@@ -84,7 +84,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   .bookmark-item {
     position: relative;

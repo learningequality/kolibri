@@ -1,14 +1,12 @@
 import pickBy from 'lodash/pickBy';
-import {
-  BookmarksResource,
-  ContentNodeResource,
-  ContentNodeSearchResource,
-} from 'kolibri.resources';
-import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import ContentNodeSearchResource from 'kolibri-common/apiResources/ContentNodeSearchResource';
+import { ContentNodeKinds } from 'kolibri/constants';
 import chunk from 'lodash/chunk';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
-import { LessonsPageNames } from '../../constants/lessonsConstants';
+import { PageNames } from '../../constants';
 
 async function showResourceSelectionPage(store, params) {
   const {
@@ -74,13 +72,13 @@ async function showResourceSelectionPage(store, params) {
           store.commit('lessonSummary/resources/SET_SEARCH_RESULTS', params.searchResults);
         }
         store.commit('SET_PAGE_NAME', pageName);
-        if (pageName === LessonsPageNames.SELECTION_SEARCH) {
+        if (pageName === PageNames.LESSON_RESOURCE_SELECTION_SEARCH) {
           store.commit('SET_TOOLBAR_ROUTE', {
-            name: LessonsPageNames.SELECTION_ROOT,
+            name: PageNames.LESSON_RESOURCE_SELECTION_ROOT,
           });
         } else {
           store.commit('SET_TOOLBAR_ROUTE', {
-            name: LessonsPageNames.SUMMARY,
+            name: PageNames.LESSON_SUMMARY,
           });
         }
         return setResourceCachePromise.then(() => {
@@ -107,7 +105,7 @@ export function showLessonResourceSelectionRootPage(store, params) {
           classId: params.classId,
           lessonId: params.lessonId,
           contentList: channelContentList,
-          pageName: LessonsPageNames.SELECTION_ROOT,
+          pageName: PageNames.LESSON_RESOURCE_SELECTION_ROOT,
           descendantCounts,
         });
       },
@@ -130,7 +128,7 @@ export function showLessonResourceSelectionTopicPage(store, params) {
         classId: params.classId,
         lessonId: params.lessonId,
         contentList: childNodes,
-        pageName: LessonsPageNames.SELECTION,
+        pageName: PageNames.LESSON_RESOURCE_SELECTION,
         descendantCounts,
         ancestors: [...topicNode.ancestors, topicNode],
       });
@@ -150,7 +148,7 @@ export function showLessonResourceBookmarks(store, params) {
         classId: params.classId,
         lessonId: params.lessonId,
         bookmarksList: childNodes,
-        pageName: LessonsPageNames.SELECTION,
+        pageName: PageNames.LESSON_RESOURCE_SELECTION,
         ancestors: [...topicNode.ancestors, topicNode],
       });
     });
@@ -222,7 +220,7 @@ export async function showLessonSelectionContentPreview(store, params, query = {
         const { searchTerm, ...otherQueryParams } = query;
         if (searchTerm) {
           store.commit('SET_TOOLBAR_ROUTE', {
-            name: LessonsPageNames.SELECTION_SEARCH,
+            name: PageNames.LESSON_RESOURCE_SELECTION_SEARCH,
             params: {
               searchTerm,
             },
@@ -230,7 +228,7 @@ export async function showLessonSelectionContentPreview(store, params, query = {
           });
         } else {
           store.commit('SET_TOOLBAR_ROUTE', {
-            name: LessonsPageNames.SELECTION,
+            name: PageNames.LESSON_RESOURCE_SELECTION,
             params: {
               topicId: contentNode.parent,
             },
@@ -273,7 +271,7 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
         });
       }
 
-      store.commit('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
+      store.commit('SET_PAGE_NAME', PageNames.LESSON_CONTENT_PREVIEW);
       return contentNode;
     },
     error => {
@@ -298,7 +296,7 @@ export function showLessonResourceSearchPage(store, params, query = {}) {
         lessonId: params.lessonId,
         contentList: results.results,
         searchResults: results,
-        pageName: LessonsPageNames.SELECTION_SEARCH,
+        pageName: PageNames.LESSON_RESOURCE_SELECTION_SEARCH,
       });
     });
   });

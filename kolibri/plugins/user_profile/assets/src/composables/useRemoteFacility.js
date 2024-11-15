@@ -1,5 +1,5 @@
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 
 function remoteFacilityUserData(baseurl, facility_id, username, password, userAdmin = null) {
   const params = {

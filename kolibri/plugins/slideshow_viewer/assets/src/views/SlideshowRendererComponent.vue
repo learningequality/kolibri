@@ -85,12 +85,12 @@
   import has from 'lodash/has';
   import orderBy from 'lodash/orderBy';
   import objectFitImages from 'object-fit-images';
-  import client from 'kolibri.client';
+  import client from 'kolibri/client';
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
-  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
   import {
     Hooper,
     Slide,
@@ -209,9 +209,9 @@
          */
         if (has(defaultFile, 'storage_url') && defaultFile.extension === 'json') {
           /*
-            Using the manifest file, get the JSON from the manifest, then
-            use the manifest JSON to get all slide images and metadata.
-          */
+          Using the manifest file, get the JSON from the manifest, then
+          use the manifest JSON to get all slide images and metadata.
+        */
           const url = defaultFile.storage_url;
           const method = 'get';
           client({ url, method }).then(({ data }) => {
@@ -258,10 +258,10 @@
       },
       setHooperListWidth() {
         /*
-          Hooper generates a wrapper with the .hooper-list class, which originally uses flexbox.
-          In order to implement the same functionality without flexbox, we must use some vanilla JS
-          to adjust the width of that element.
-        */
+        Hooper generates a wrapper with the .hooper-list class, which originally uses flexbox.
+        In order to implement the same functionality without flexbox, we must use some vanilla JS
+        to adjust the width of that element.
+      */
         try {
           window.document
             .getElementsByClassName('hooper-list')[0]
@@ -279,9 +279,9 @@
       },
       initializeHooper() {
         /*
-          Hooper emits a "loaded" event. We initialize the object-fit polyfill and set the width of
-          the wrapping container for the slides
-        */
+        Hooper emits a "loaded" event. We initialize the object-fit polyfill and set the width of
+        the wrapping container for the slides
+      */
         this.polyfillSlideObjectFit();
         this.setHooperListWidth();
         // Do this on nextTick to avoid sliding into position without proper resizing occurring.

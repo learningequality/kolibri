@@ -1,8 +1,8 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
-import { ContentNodeResource } from 'kolibri.resources';
 // eslint-disable-next-line import/named
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import makeStore from '../makeStore';
 import TopicsContentPage from '../../src/views/TopicsContentPage';
 /* eslint-disable import/named */
@@ -12,9 +12,9 @@ import useDownloadRequests, {
 import useCoreLearn, { useCoreLearnMock } from '../../src/composables/useCoreLearn';
 /* eslint-enable import/named */
 
-jest.mock('kolibri.urls');
-jest.mock('kolibri.client');
-jest.mock('kolibri.resources');
+jest.mock('kolibri/urls');
+jest.mock('kolibri/client');
+jest.mock('kolibri-common/apiResources/ContentNodeResource');
 jest.mock('../../src/composables/useDownloadRequests');
 jest.mock('kolibri-common/composables/useChannels');
 jest.mock('../../src/composables/useCoreLearn');

@@ -1,7 +1,7 @@
-import { ref } from 'kolibri.lib.vueCompositionApi';
-import { LearnerGroupResource } from 'kolibri.resources';
-import useUser from 'kolibri.coreVue.composables.useUser';
-import { LessonsPageNames } from '../constants/lessonsConstants';
+import { ref } from '@vue/composition-api';
+import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
+import useUser from 'kolibri/composables/useUser';
+import { PageNames } from '../constants';
 
 // Place outside the function to keep the state
 const lessonsAreLoading = ref(false);
@@ -37,7 +37,7 @@ export function useLessons() {
     return Promise.all(loadRequirements).then(
       ([learnerGroups]) => {
         store.commit('lessonsRoot/SET_LEARNER_GROUPS', learnerGroups);
-        store.commit('SET_PAGE_NAME', LessonsPageNames.PLAN_LESSONS_ROOT);
+        store.commit('SET_PAGE_NAME', PageNames.LESSONS_ROOT);
         setLessonsLoading(false);
       },
       error => {

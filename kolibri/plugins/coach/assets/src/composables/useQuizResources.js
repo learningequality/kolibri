@@ -1,8 +1,8 @@
 import { get, set } from '@vueuse/core';
-import { computed, ref } from 'kolibri.lib.vueCompositionApi';
-import { ContentNodeResource } from 'kolibri.resources';
-import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import logging from 'kolibri.lib.logging';
+import { computed, ref } from '@vue/composition-api';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import { ContentNodeKinds } from 'kolibri/constants';
+import logging from 'kolibri-logging';
 import useFetchTree from './useFetchTree';
 
 const logger = logging.getLogger(__filename);

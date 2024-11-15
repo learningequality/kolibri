@@ -1,6 +1,6 @@
-import { ref, onMounted } from 'kolibri.lib.vueCompositionApi';
-import { FacilityUserResource } from 'kolibri.resources';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import { ref, onMounted } from '@vue/composition-api';
+import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 
 // A usable that returns the Facility user tied to the session

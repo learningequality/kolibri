@@ -1,15 +1,3 @@
-<!--
-  This file has been modified to adapt the component to the needs of Kolibri
-  The original file is available at:
-  https://github.com/Akryum/vue-virtual-scroller/blob/master/packages/vue-virtual-scroller/src/components/RecycleScroller.vue
-
-  Modifications:
-    - file reformmatted
-    - class names with underscores (_) have been replaced by a hyphen (-)
-    - sizeField in variable height mode can now be a number
-      or a function returning a number (Line 264, Original 198)
- -->
-
 <template>
 
   <div
@@ -105,7 +93,7 @@
   import { ResizeObserver } from 'vue-resize';
   import { ObserveVisibility } from 'vue-observe-visibility';
   import ScrollParent from 'scrollparent';
-  import logger from 'kolibri.lib.logging';
+  import logger from 'kolibri-logging';
 
   const logging = logger.getLogger(__filename);
 

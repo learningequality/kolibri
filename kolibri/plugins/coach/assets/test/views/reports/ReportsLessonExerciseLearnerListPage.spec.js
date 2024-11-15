@@ -3,13 +3,13 @@ import VueRouter from 'vue-router';
 
 import { STATUSES } from '../../../src/modules/classSummary/constants';
 import makeStore from '../../makeStore';
-import ReportsLessonExerciseLearnerListPage from '../../../src/views/reports/ReportsLessonExerciseLearnerListPage';
+import LessonExerciseLearnersPage from '../../../src/views/lessons/reports/LessonExerciseLearnersPage.vue';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 
 // commonCoach mixin imports kolibri customized router and uses getRoute method
-jest.mock('kolibri.coreVue.router', () => {
+jest.mock('kolibri/router', () => {
   return {
     getRoute: (name, params, query) => {
       return { name, params, query };
@@ -68,7 +68,7 @@ const GROUP_3 = {
 };
 
 const ROUTE_ALL_LEARNERS = {
-  name: 'FakeReportsLessonExerciseLearnerListPage',
+  name: 'FakeLessonExerciseLearnersPage',
   params: {
     lessonId: LESSON_ID,
     exerciseId: EXERCISE_ID,
@@ -86,7 +86,7 @@ const router = new VueRouter({
   routes: [
     {
       path: '/reports/lessons/:lessonId/exercises/:exerciseId/learners',
-      name: 'FakeReportsLessonExerciseLearnerListPage',
+      name: 'FakeLessonExerciseLearnersPage',
     },
   ],
 });
@@ -180,7 +180,7 @@ const initWrapper = lessonMap => {
 
   router.push(ROUTE_ALL_LEARNERS).catch(() => {});
 
-  const wrapper = mount(ReportsLessonExerciseLearnerListPage, {
+  const wrapper = mount(LessonExerciseLearnersPage, {
     store,
     localVue,
     router,
@@ -193,7 +193,7 @@ const initWrapper = lessonMap => {
   return wrapper;
 };
 
-describe('ReportsLessonExerciseLearnerListPage', () => {
+describe('LessonExerciseLearnersPage', () => {
   let wrapper;
 
   beforeEach(() => {

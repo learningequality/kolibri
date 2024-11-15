@@ -2,16 +2,16 @@
  * A composable function containing logic related to download requests
  */
 
-import { getCurrentInstance, onBeforeUnmount, reactive, ref } from 'kolibri.lib.vueCompositionApi';
-import { ContentRequestResource } from 'kolibri.resources';
-import { createTranslator } from 'kolibri.utils.i18n';
+import { getCurrentInstance, onBeforeUnmount, reactive, ref } from '@vue/composition-api';
+import ContentRequestResource from 'kolibri-common/apiResources/ContentRequestResource';
+import { createTranslator } from 'kolibri/utils/i18n';
 import { get, set } from '@vueuse/core';
-import redirectBrowser from 'kolibri.utils.redirectBrowser';
-import urls from 'kolibri.urls';
-import client from 'kolibri.client';
-import Vue from 'kolibri.lib.vue';
-import useUser from 'kolibri.coreVue.composables.useUser';
-import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+import redirectBrowser from 'kolibri/utils/redirectBrowser';
+import urls from 'kolibri/urls';
+import client from 'kolibri/client';
+import Vue from 'vue';
+import useUser from 'kolibri/composables/useUser';
+import useSnackbar from 'kolibri/composables/useSnackbar';
 import { currentDeviceData } from '../composables/useDevices';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {

@@ -39,14 +39,14 @@
   import omitBy from 'lodash/omitBy';
   import get from 'lodash/get';
   import AppError from 'kolibri-common/components/AppError';
-  import { currentLanguage } from 'kolibri.utils.i18n';
-  import { checkCapability } from 'kolibri.utils.appCapabilities';
-  import redirectBrowser from 'kolibri.utils.redirectBrowser';
-  import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { Presets } from 'kolibri.coreVue.vuex.constants';
-  import urls from 'kolibri.urls';
-  import client from 'kolibri.client';
+  import { currentLanguage } from 'kolibri/utils/i18n';
+  import { checkCapability } from 'kolibri/utils/appCapabilities';
+  import redirectBrowser from 'kolibri/utils/redirectBrowser';
+  import KolibriLoadingSnippet from 'kolibri-common/components/KolibriLoadingSnippet';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { Presets } from 'kolibri/constants';
+  import urls from 'kolibri/urls';
+  import client from 'kolibri/client';
   import Lockr from 'lockr';
   import { DeviceTypePresets } from '../../constants';
 
@@ -238,7 +238,7 @@
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
   .alert {
     position: relative;

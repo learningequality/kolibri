@@ -318,13 +318,13 @@
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import debounce from 'lodash/debounce';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
-  import { annotateSections } from 'kolibri.utils.exams';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import TimeDuration from 'kolibri-common/components/TimeDuration';
+  import { annotateSections } from 'kolibri-common/quizzes/utils';
+  import useUser from 'kolibri/composables/useUser';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
   import { PageNames, ClassesPageNames } from '../../constants';

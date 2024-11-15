@@ -1,19 +1,19 @@
 import { mapState, mapGetters } from 'vuex';
-import coreStrings from 'kolibri.utils.coreStrings';
-import CoreTable from 'kolibri.coreVue.components.CoreTable';
-import { ContentNodeKinds, CollectionKinds } from 'kolibri.coreVue.vuex.constants';
-import router from 'kolibri.coreVue.router';
-import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import CoreTable from 'kolibri/components/CoreTable';
+import { ContentNodeKinds, CollectionKinds } from 'kolibri/constants';
+import router from 'kolibri/router';
+import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
+import TimeDuration from 'kolibri-common/components/TimeDuration';
 import meanBy from 'lodash/meanBy';
 import maxBy from 'lodash/maxBy';
 import map from 'lodash/map';
-import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-import MasteryModel from 'kolibri.coreVue.components.MasteryModel';
+import ElapsedTime from 'kolibri-common/components/ElapsedTime';
+import MasteryModel from 'kolibri-common/components/labels/MasteryModel';
 import filter from 'lodash/filter';
 import get from 'lodash/get';
 import orderBy from 'lodash/orderBy';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import useUser from 'kolibri/composables/useUser';
 import { PageNames } from '../constants';
 import { LastPages } from '../constants/lastPagesConstants';
 import { STATUSES } from '../modules/classSummary/constants';
@@ -168,7 +168,7 @@ export default {
       return router.getRoute(name, params, query);
     },
     // Set the backLinkQuery to set the correct exit behavior
-    // for ReportsLessonExerciseLearnerPage and ReportsQuizLearnerPage.
+    // for LessonExerciseLearnerPage and QUIZ_LEARNER_PAGE_ROOT.
     backRouteForQuery(query) {
       const lastPage = query.last;
 
@@ -177,21 +177,17 @@ export default {
           return this.classRoute('HomePage', {});
         case LastPages.HOME_ACTIVITY:
           return this.classRoute('HomeActivityPage', {});
-        case LastPages.GROUP_ACTIVITY:
-          return this.classRoute('ReportsGroupActivityPage', {
-            groupId: this.$route.query.last_id,
-          });
         case LastPages.LEARNER_ACTIVITY:
           return this.classRoute('ReportsLearnerActivityPage', {
             learnerId: this.$route.query.last_id,
           });
         case LastPages.EXERCISE_LEARNER_LIST:
-          return this.classRoute('ReportsLessonExerciseLearnerListPage', {
+          return this.classRoute(PageNames.LESSON_EXERCISE_LEARNERS_REPORT, {
             exerciseId: this.$route.query.exerciseId,
           });
         case LastPages.EXERCISE_LEARNER_LIST_BY_GROUPS:
           return this.classRoute(
-            'ReportsLessonExerciseLearnerListPage',
+            PageNames.LESSON_EXERCISE_LEARNERS_REPORT,
             {
               exerciseId: this.$route.query.exerciseId,
             },
@@ -200,16 +196,16 @@ export default {
             },
           );
         case LastPages.EXERCISE_QUESTION_LIST:
-          return this.classRoute('ReportsLessonExerciseQuestionListPage', {
+          return this.classRoute(PageNames.LESSON_EXERCISE_QUESTIONS_REPORT, {
             exerciseId: this.$route.query.exerciseId,
           });
         case LastPages.RESOURCE_LEARNER_LIST:
-          return this.classRoute('ReportsLessonResourceLearnerListPage', {
+          return this.classRoute(PageNames.LESSON_RESOURCE_LEARNERS_REPORT, {
             resourceId: this.$route.query.resourceId,
           });
         case LastPages.RESOURCE_LEARNER_LIST_BY_GROUPS:
           return this.classRoute(
-            'ReportsLessonResourceLearnerListPage',
+            PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
             {
               resourceId: this.$route.query.resourceId,
             },

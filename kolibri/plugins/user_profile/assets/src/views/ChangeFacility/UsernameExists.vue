@@ -35,9 +35,9 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import { computed, inject } from 'kolibri.lib.vueCompositionApi';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import { computed, inject } from '@vue/composition-api';
   import get from 'lodash/get';
   import commonProfileStrings from '../commonProfileStrings';
 

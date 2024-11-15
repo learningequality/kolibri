@@ -1,4 +1,5 @@
-import { DevicePermissionsResource, FacilityUserResource } from 'kolibri.resources';
+import DevicePermissionsResource from 'kolibri-common/apiResources/DevicePermissionsResource';
+import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 
 /**
  * Adds or modifies a DevicePermissions model.

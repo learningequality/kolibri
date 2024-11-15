@@ -1,4 +1,4 @@
-import UserType from 'kolibri.utils.UserType';
+import UserType from 'kolibri-common/utils/userType';
 
 /**
  * Vuex State Mappers

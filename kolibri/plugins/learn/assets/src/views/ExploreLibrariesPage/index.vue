@@ -76,9 +76,9 @@
 <script>
 
   import { get, set } from '@vueuse/core';
-  import { ref, watch } from 'kolibri.lib.vueCompositionApi';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ref, watch } from '@vue/composition-api';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonLearnStrings from '../commonLearnStrings';
   import FadeInTransitionGroup from '../FadeInTransitionGroup';
   import useCardLayoutSpan from '../../composables/useCardLayoutSpan';

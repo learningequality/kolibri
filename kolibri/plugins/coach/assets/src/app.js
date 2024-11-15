@@ -1,19 +1,13 @@
 import { get } from '@vueuse/core';
-import useUser from 'kolibri.coreVue.composables.useUser';
-import redirectBrowser from 'kolibri.utils.redirectBrowser';
-import router from 'kolibri.coreVue.router';
-import { ChannelResource } from 'kolibri.resources';
-import KolibriApp from 'kolibri_app';
-import useSnackbar from 'kolibri.coreVue.composables.useSnackbar';
+import useUser from 'kolibri/composables/useUser';
+import redirectBrowser from 'kolibri/utils/redirectBrowser';
+import router from 'kolibri/router';
+import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
+import KolibriApp from 'kolibri-app';
+import useSnackbar from 'kolibri/composables/useSnackbar';
 import { PageNames } from './constants';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
-import { LessonsPageNames } from './constants/lessonsConstants';
-import LessonEditDetailsPage from './views/plan/LessonEditDetailsPage';
-import GroupsPage from './views/plan/GroupsPage';
-import GroupMembersPage from './views/plan/GroupMembersPage';
-import GroupEnrollPage from './views/plan/GroupEnrollPage';
-import pages from './views/reports/allReportsPages';
 import HomeActivityPage from './views/home/HomeActivityPage';
 
 function _channelListState(data) {
@@ -69,8 +63,8 @@ class CoachToolsModule extends KolibriApp {
         PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
         PageNames.QUIZ_SELECT_RESOURCES,
         PageNames.QUIZ_SECTION_ORDER,
-        PageNames.BOOK_MARKED_RESOURCES,
-        pages.ReportsQuizLearnerPage.name,
+        PageNames.QUIZ_BOOK_MARKED_RESOURCES,
+        PageNames.QUIZ_LEARNER_REPORT,
       ];
       // If we're navigating to the same page for a quiz summary page, don't set loading
       if (
@@ -101,21 +95,21 @@ class CoachToolsModule extends KolibriApp {
       if (
         to.name &&
         [
-          PageNames.EXAMS,
-          LessonsPageNames.PLAN_LESSONS_ROOT,
-          LessonsPageNames.LESSON_CREATION_ROOT,
-          LessonsPageNames.SUMMARY,
-          LessonEditDetailsPage.name,
-          LessonsPageNames.SELECTION_ROOT,
-          LessonsPageNames.SELECTION,
-          LessonsPageNames.SELECTION_SEARCH,
-          LessonsPageNames.LESSON_SELECTION_BOOKMARKS,
-          LessonsPageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
-          LessonsPageNames.SELECTION_CONTENT_PREVIEW,
-          LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
-          GroupsPage.name,
-          GroupMembersPage.name,
-          GroupEnrollPage.name,
+          PageNames.EXAMS_ROOT,
+          PageNames.LESSONS_ROOT,
+          PageNames.LESSON_CREATION_ROOT,
+          PageNames.LESSON_SUMMARY,
+          PageNames.LESSON_EDIT_DETAILS,
+          PageNames.LESSON_RESOURCE_SELECTION_ROOT,
+          PageNames.LESSON_RESOURCE_SELECTION,
+          PageNames.LESSON_RESOURCE_SELECTION_SEARCH,
+          PageNames.LESSON_SELECTION_BOOKMARKS,
+          PageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
+          PageNames.LESSON_RESOURCE_SELECTION_CONTENT_PREVIEW,
+          PageNames.RESOURCE_CONTENT_PREVIEW,
+          PageNames.GROUP_SUMMARY,
+          PageNames.GROUP_ENROLL,
+          PageNames.GROUPS_ROOT,
           PageNames.HOME_PAGE,
           HomeActivityPage.name,
         ].includes(to.name)

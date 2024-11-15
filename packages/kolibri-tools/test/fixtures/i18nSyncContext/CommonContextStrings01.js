@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { createTranslator } from 'kolibri.utils.i18n';
+import { createTranslator } from 'kolibri/utils/i18n';
 
 /**
  * This file defines some strings without initial context in place.

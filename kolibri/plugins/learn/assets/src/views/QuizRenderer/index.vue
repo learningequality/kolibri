@@ -174,12 +174,12 @@
 
   import isEqual from 'lodash/isEqual';
   import debounce from 'lodash/debounce';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import shuffled from 'kolibri.utils.shuffled';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import shuffled from 'kolibri-common/utils/shuffled';
   import { LearnerClassroomResource } from '../../apiResources';
   import AnswerHistory from './AnswerHistory';
   import QuizReport from './QuizReport';

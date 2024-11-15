@@ -66,12 +66,12 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
+  import PermissionsIcon from 'kolibri-common/components/labels/PermissionsIcon';
   import memoize from 'lodash/memoize';
-  import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import { PermissionTypes } from 'kolibri/constants';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
 
   export default {
     name: 'UserGrid',

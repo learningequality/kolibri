@@ -1,6 +1,7 @@
-import { RemoteChannelResource, TaskResource } from 'kolibri.resources';
-import coreStore from 'kolibri.coreVue.vuex.store';
-import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
+import TaskResource from 'kolibri/apiResources/TaskResource';
+import coreStore from 'kolibri/store';
+import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import { ErrorTypes } from '../../constants';
 import { waitForTaskToComplete } from '../manageContent/utils';
 import { getChannelWithContentSizes } from './apiChannelMetadata';
