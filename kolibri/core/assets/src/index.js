@@ -15,13 +15,6 @@ import coreModule from './state/modules/core';
 // are set correctly
 urls.setUp();
 
-// Shim window.location.origin for IE.
-if (!window.location.origin) {
-  window.location.origin = `${window.location.protocol}//${window.location.hostname}${
-    window.location.port ? `:${window.location.port}` : ''
-  }`;
-}
-
 // set up logging
 logging.setDefaultLevel(process.env.NODE_ENV === 'production' ? 2 : 0);
 
