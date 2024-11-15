@@ -1,4 +1,4 @@
-## Running Kolibri with local Kolibri Design System
+# Running Kolibri with local Kolibri Design System
 
 Kolibri uses components from [Kolibri Design System](https://github.com/learningequality/kolibri-design-system) (KDS). KDS is installed in Kolibri as a usual npm dependency.
 

@@ -1,10 +1,10 @@
-## Installing pyenv
+# Installing pyenv
 
-### Prerequisites
+## Prerequisites
 
 [Git](https://git-scm.com/) installed.
 
-### Install
+## Install
 
 First check to see if you already have `pyenv` installed by running this in a terminal window:
 
@@ -91,7 +91,7 @@ The output of the command tells you to add certain lines to your startup files f
 
   **Proxy note**: If you use a proxy, export `http_proxy` and `https_proxy`, too.
 
-### Installation of pyenv on Windows
+## Installation of pyenv on Windows
 
 1. Run PowerShell terminal as Administrator
 2. Run the following installation command in the PowerShell terminal :
@@ -110,7 +110,7 @@ press Y not A, to execute Policy Change for this power shell only.
 
 then run the previous command again
 
-### Restart your shell
+## Restart your shell
 
 For the `PATH` changes to take effect, run the following command.
 
@@ -124,13 +124,13 @@ To check if pyenv is installed correctly, type:
 
   `pyenv version`
 
-### Install Python build dependencies
+## Install Python build dependencies
 
 [**Install Python build dependencies**](https://github.com/pyenv/pyenv/wiki#suggested-build-environment) before attempting to install a new Python version.
 
 You can now begin using Pyenv.
 
-### Installing a Python Version with PyEnv
+## Installing a Python Version with PyEnv
 
 Use the `pyenv` command in your terminal to install a recent version of Python:
 
