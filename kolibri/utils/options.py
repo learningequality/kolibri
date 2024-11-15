@@ -358,6 +358,32 @@ def lazy_import_callback_list(value):
     return out
 
 
+def _process_csp_source(value):
+    if not isinstance(value, str):
+        raise VdtValueError(value)
+    value = value.strip()
+    url = urlparse(value)
+    if not url.scheme or not url.netloc:
+        raise VdtValueError(value)
+    return value
+
+
+def csp_source_list(value):
+    value = _process_list(value)
+    out = []
+    errors = []
+    for entry in value:
+        try:
+            entry_list = _process_csp_source(entry)
+            out.append(entry_list)
+        except ValueError:
+            errors.append(entry)
+    if errors:
+        raise VdtValueError(errors)
+
+    return out
+
+
 base_option_spec = {
     "Cache": {
         "CACHE_BACKEND": {
@@ -688,6 +714,15 @@ base_option_spec = {
                 Boolean Flag to check Whether to enable Zeroconf discovery.
             """,
         },
+        "CSP_HOST_SOURCES": {
+            "type": "csp_source_list",
+            "description": """
+                List of host sources to use in the Content Security Policy header. This should be a list of
+                host sources as described by in:
+                https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources#host-source
+                Allowing deployed Kolibri servers to specify additional hosts from which content can be loaded.
+            """,
+        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
@@ -746,6 +781,7 @@ def _get_validator():
             "multiprocess_bool": multiprocess_bool,
             "cache_option": cache_option,
             "lazy_import_callback_list": lazy_import_callback_list,
+            "csp_source_list": csp_source_list,
         }
     )
 

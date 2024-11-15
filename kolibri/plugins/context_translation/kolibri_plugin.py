@@ -25,7 +25,7 @@ class JIPTHeadHook(FrontEndBaseHeadHook):
             "\n".join(
                 [
                     f"""<script type="text/javascript" src="{js_url}"></script>""",
-                    """<script type="text/javascript" src="//cdn.crowdin.com/jipt/jipt.js"></script>""",
+                    """<script type="text/javascript" src="https://cdn.crowdin.com/jipt/jipt.js"></script>""",
                 ]
             )
         )
