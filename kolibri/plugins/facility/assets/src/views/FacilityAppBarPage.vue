@@ -12,9 +12,9 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import AppBarPage from 'kolibri/components/pages/AppBarPage';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
 
   export default {
     name: 'FacilityAppBarPage',
@@ -33,8 +33,8 @@
     computed: {
       ...mapGetters(['currentFacilityName']),
       /* Returns the given appBarTitle prop if given, otherwise will return
-         the facility label appropriate to whether there are multiple facilities
-         and the current user is the correct kind of admin */
+       the facility label appropriate to whether there are multiple facilities
+       and the current user is the correct kind of admin */
       title() {
         return (
           this.appBarTitle ||

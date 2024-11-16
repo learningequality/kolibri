@@ -1,6 +1,6 @@
-import { getExamReport } from 'kolibri.utils.exams';
-import { createTranslator } from 'kolibri.utils.i18n';
-import store from 'kolibri.coreVue.vuex.store';
+import { getExamReport } from 'kolibri-common/quizzes/utils';
+import { createTranslator } from 'kolibri/utils/i18n';
+import store from 'kolibri/store';
 
 const translator = createTranslator('ExamReportPageTitles', {
   examReportTitle: {

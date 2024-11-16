@@ -1,4 +1,4 @@
-import logger from 'kolibri.lib.logging';
+import logger from 'kolibri-logging';
 import categorizer from './categorizer';
 import dropdown from './dropdown';
 import expression from './expression';

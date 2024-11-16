@@ -1,6 +1,6 @@
-import { computed, ref } from 'kolibri.lib.vueCompositionApi';
-import store from 'kolibri.coreVue.vuex.store';
-import plugin_data from 'plugin_data';
+import { computed, ref } from '@vue/composition-api';
+import store from 'kolibri/store';
+import plugin_data from 'kolibri-plugin-data';
 
 const allowDownloadOnMeteredConnection = ref(plugin_data.allowDownloadOnMeteredConnection);
 

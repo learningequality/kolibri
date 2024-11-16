@@ -24,9 +24,9 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { RadioButtonGroup } from 'kolibri.coreVue.componentSets.sync';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import RadioButtonGroup from 'kolibri-common/components/syncComponentSet/RadioButtonGroup';
 
   export default {
     name: 'SelectFacilityModal',

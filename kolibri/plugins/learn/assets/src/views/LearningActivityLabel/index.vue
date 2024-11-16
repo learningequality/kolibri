@@ -34,7 +34,7 @@
 
 <script>
 
-  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import { computed } from '@vue/composition-api';
   import { get } from '@vueuse/core';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import useLearningActivities from '../../composables/useLearningActivities';

@@ -87,10 +87,10 @@
   import get from 'lodash/get';
   import sortBy from 'lodash/sortBy';
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { TaskResource } from 'kolibri.resources';
-  import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import useUser from 'kolibri/composables/useUser';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import taskNotificationMixin from '../taskNotificationMixin';
   import useContentTasks from '../../composables/useContentTasks';

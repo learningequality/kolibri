@@ -1,36 +1,16 @@
 <template>
 
-  <div>
-    <KModal
-      v-if="windowIsLarge"
-      appendToOverlay
-      :title="$tr('title')"
-      :cancelText="coreString('closeAction')"
-      size="large"
-      @cancel="$emit('cancel')"
-    >
-      <CategorySearchOptions
-        ref="searchOptions"
-        :selectedCategory="selectedCategory"
-        v-on="$listeners"
-      />
-    </KModal>
-    <div v-else>
-      <h2>{{ $tr('title') }}</h2>
-      <CategorySearchOptions
-        ref="searchOptions"
-        :selectedCategory="selectedCategory"
-        v-on="$listeners"
-      />
-    </div>
-  </div>
+  <CategorySearchOptions
+    ref="searchOptions"
+    :selectedCategory="selectedCategory"
+    v-on="$listeners"
+  />
 
 </template>
 
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CategorySearchOptions from './CategorySearchOptions';
 
@@ -39,7 +19,6 @@
     components: {
       CategorySearchOptions,
     },
-    mixins: [commonCoreStrings],
     setup() {
       const { windowIsLarge } = useKResponsiveWindow();
       return {
@@ -61,12 +40,6 @@
        */
       focusFirstEl() {
         this.$refs.searchOptions.$el.querySelector('.filter-list-title > h2 > a').focus();
-      },
-    },
-    $trs: {
-      title: {
-        message: 'Choose a category',
-        context: 'Title of the category selection window',
       },
     },
   };

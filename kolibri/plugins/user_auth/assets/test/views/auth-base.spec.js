@@ -3,7 +3,7 @@ import VueRouter from 'vue-router';
 import AuthBase from '../../src/views/AuthBase';
 import makeStore from '../makeStore';
 
-jest.mock('kolibri.urls');
+jest.mock('kolibri/urls');
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 const router = new VueRouter({

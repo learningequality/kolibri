@@ -1,8 +1,9 @@
 import get from 'lodash/get';
 import pickBy from 'lodash/pickBy';
 import Modalities from 'kolibri-constants/Modalities';
-import { ContentNodeResource, ExamResource } from 'kolibri.resources';
-import { fetchExamWithContent } from 'kolibri.utils.exams';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import ExamResource from 'kolibri-common/apiResources/ExamResource';
+import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 import { coachStrings } from '../../views/common/commonCoachStrings';
 import ExerciseDifficulties from './../../apiResources/exerciseDifficulties';
 import QuizDifficulties from './../../apiResources/quizDifficulties';

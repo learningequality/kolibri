@@ -1,6 +1,6 @@
-import store from 'kolibri.coreVue.vuex.store';
-import router from 'kolibri.coreVue.router';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import store from 'kolibri/store';
+import router from 'kolibri/router';
+import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import AllFacilitiesPage from '../views/AllFacilitiesPage';
 import CoachClassListPage from '../views/CoachClassListPage';
@@ -11,9 +11,11 @@ import HomeActivityPage from '../views/home/HomeActivityPage';
 import StatusTestPage from '../views/common/status/StatusTestPage';
 import { ClassesPageNames } from '../../../../learn/assets/src/constants';
 import { PageNames } from '../constants';
-import reportRoutes from './reportRoutes';
-import planRoutes from './planRoutes';
 import { classIdParamRequiredGuard } from './utils';
+import examRoutes from './examRoutes';
+import lessonsRoutes from './lessonsRoutes';
+import learnersRoutes from './learnersRoutes';
+import groupsRoutes from './groupsRoutes';
 
 function showHomePage(toRoute) {
   const initClassInfoPromise = store.dispatch('initClassInfo', toRoute.params.classId);
@@ -27,8 +29,10 @@ function showHomePage(toRoute) {
 }
 
 export default [
-  ...planRoutes,
-  ...reportRoutes,
+  ...examRoutes,
+  ...lessonsRoutes,
+  ...learnersRoutes,
+  ...groupsRoutes,
   {
     name: 'AllFacilitiesPage',
     path: '/facilities/:subtopicName?',
@@ -96,7 +100,7 @@ export default [
   },
   {
     name: ClassesPageNames.CLASS_LEARNERS_LIST_VIEWER,
-    path: '/:classId/learners',
+    path: '/:classId/learners/devices',
     component: ClassLearnersListPage,
     handler() {
       store.dispatch('notLoading');

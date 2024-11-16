@@ -5,12 +5,12 @@
  * All data exposed by this function belong to a current learner.
  */
 
-import { computed, ref } from 'kolibri.lib.vueCompositionApi';
+import { computed, ref } from '@vue/composition-api';
 import { get, set } from '@vueuse/core';
 import flatMap from 'lodash/flatMap';
 import flatMapDepth from 'lodash/flatMapDepth';
 
-import { ContentNodeResource } from 'kolibri.resources';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { deduplicateResources } from 'kolibri-common/utils/contentNode';
 import { LearnerClassroomResource, LearnerLessonResource } from '../apiResources';
 import { ClassesPageNames } from '../constants';

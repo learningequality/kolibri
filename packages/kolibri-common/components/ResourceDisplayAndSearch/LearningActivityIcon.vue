@@ -10,7 +10,7 @@
 
 <script>
 
-  import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
+  import { LearningActivities } from 'kolibri/constants';
 
   const AllActivitiesIcon = 'allActivities';
   const LearningActivityToIconMap = {

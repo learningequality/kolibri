@@ -1,4 +1,5 @@
-import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
+import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
+import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 
 export function showFacilityConfigPage(store, toRoute) {
   const facilityId = toRoute.params.facility_id || store.getters.activeFacilityId;

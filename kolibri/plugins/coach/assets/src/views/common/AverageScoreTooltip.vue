@@ -10,7 +10,7 @@
 
 <script>
 
-  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
+  import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
 
   export default {
     name: 'AverageScoreTooltip',

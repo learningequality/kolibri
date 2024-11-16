@@ -1,6 +1,6 @@
-import Vuex from 'vuex';
+import { Store } from 'vuex';
 import { mount } from '@vue/test-utils';
-import AssignmentCopyModal from '../../src/views/plan/assignments/AssignmentCopyModal';
+import AssignmentCopyModal from '../../src/views/common/assignments/AssignmentCopyModal';
 
 const defaultProps = {
   modalTitle: '',
@@ -27,7 +27,7 @@ function makeWrapper(options) {
 describe('AssignmentCopyModal', () => {
   let store;
   beforeEach(() => {
-    store = new Vuex.Store();
+    store = new Store();
   });
 
   it('starts on the Select Classroom form', () => {

@@ -55,9 +55,9 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
-  import { now } from 'kolibri.utils.serverClock';
-  import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import urls from 'kolibri/urls';
+  import { now } from 'kolibri/utils/serverClock';
+  import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
   import Hashi from 'hashi';
 
   const defaultContentHeight = '500px';
@@ -148,6 +148,9 @@
         const hashiProgress = this.hashi.getProgress();
         if (hashiProgress !== null && !this.forceDurationBasedProgress) {
           this.$emit('updateProgress', hashiProgress);
+          if (hashiProgress >= 1) {
+            this.$emit('finished');
+          }
         }
       });
       this.hashi.on('navigateTo', message => {

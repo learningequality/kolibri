@@ -1,0 +1,8 @@
+{
+  "name": "kolibri-viewer",
+  "version": "1.0.0",
+  "description": "The Kolibri viewer",
+  "main": "src/index.js",
+  "author": "Learning Equality",
+  "license": "MIT"
+}

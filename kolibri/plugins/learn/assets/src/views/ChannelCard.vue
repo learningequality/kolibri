@@ -78,10 +78,10 @@
 
 <script>
 
-  import { validateLinkObject } from 'kolibri.utils.validators';
+  import { validateLinkObject } from 'kolibri/utils/validators';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
+  import useUser from 'kolibri/composables/useUser';
   import ChannelThumbnail from './ChannelThumbnail';
 
   export default {

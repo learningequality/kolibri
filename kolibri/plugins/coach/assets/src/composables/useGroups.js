@@ -1,7 +1,8 @@
-import { ref } from 'kolibri.lib.vueCompositionApi';
-import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { LearnerGroupResource, FacilityUserResource } from 'kolibri.resources';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import { ref } from '@vue/composition-api';
+import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
+import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
+import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import useUser from 'kolibri/composables/useUser';
 
 // Place outside the function to keep the state
 const groupsAreLoading = ref(false);

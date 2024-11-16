@@ -25,9 +25,9 @@
 
   import { interpret } from 'xstate';
   import { mapState } from 'vuex';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { checkCapability } from 'kolibri.utils.appCapabilities';
+  import { checkCapability } from 'kolibri/utils/appCapabilities';
   import Lockr from 'lockr';
   import { wizardMachine } from '../machines/wizardMachine';
   import LoadingPage from './submission-states/LoadingPage';

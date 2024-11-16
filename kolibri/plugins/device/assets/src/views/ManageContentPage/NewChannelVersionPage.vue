@@ -124,12 +124,12 @@
   import map from 'lodash/map';
   import get from 'lodash/get';
   import { mapState } from 'vuex';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { TaskResource } from 'kolibri.resources';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
+  import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import { PageNames } from '../../constants';
   import useContentTasks from '../../composables/useContentTasks';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';

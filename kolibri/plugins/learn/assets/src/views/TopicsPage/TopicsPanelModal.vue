@@ -49,7 +49,7 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonLearnStrings from '../commonLearnStrings';
   import useContentLink from '../../composables/useContentLink';
@@ -120,8 +120,8 @@
   }
 
   /*
-  * Work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1417667
-  */
+* Work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1417667
+*/
   .side-panel::after {
     display: block;
     padding-bottom: 70px;

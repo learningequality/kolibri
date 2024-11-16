@@ -1,5 +1,5 @@
 // import { LastPages } from './../constants/lastPagesConstants';
-import plugin_data from 'plugin_data';
+import plugin_data from 'kolibri-plugin-data';
 import mutations from './coreLearn/mutations';
 import * as getters from './coreLearn/getters';
 import * as actions from './coreLearn/actions';

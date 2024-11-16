@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const recast = require('recast');
+const resolve = require('resolve');
 const babylonParser = require('recast/parsers/babylon');
 const traverse = require('ast-traverse');
 const vueCompiler = require('vue-template-compiler');
@@ -10,7 +11,6 @@ const isString = require('lodash/isString');
 const isArray = require('lodash/isArray');
 const glob = require('../glob');
 const logging = require('../logging');
-const { resolve } = require('../alias_import_resolver');
 const { CONTEXT_LINE } = require('./constants');
 const { checkForDuplicateIds } = require('./utils');
 

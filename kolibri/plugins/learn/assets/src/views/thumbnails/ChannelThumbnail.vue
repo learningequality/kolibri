@@ -10,7 +10,6 @@
       class="image"
       :src="thumbnailUrl"
       alt=""
-      loading="lazy"
     >
   </span>
 

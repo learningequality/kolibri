@@ -1,6 +1,6 @@
-import { ref, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+import { ref, getCurrentInstance } from '@vue/composition-api';
 import { set } from '@vueuse/core';
-import { ClassroomResource } from 'kolibri.resources';
+import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 
 // Usable that manages the state for "Delete Class" workflow
 export default function useDeleteClass(classroomProp) {

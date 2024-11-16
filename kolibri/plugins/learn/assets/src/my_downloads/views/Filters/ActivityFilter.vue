@@ -30,8 +30,8 @@
 <script>
 
   import pickBy from 'lodash/pickBy';
-  import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { LearningActivities } from 'kolibri/constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useLearningActivities from '../../../composables/useLearningActivities';
 

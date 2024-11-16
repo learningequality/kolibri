@@ -37,7 +37,7 @@
 
 <script>
 
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
+  import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoach from './../../../../kolibri/plugins/coach/assets/src/views/common';
 

@@ -4,10 +4,10 @@
  * All data exposed by this function belong to a current learner.
  */
 
-import { reactive } from 'kolibri.lib.vueCompositionApi';
+import { reactive } from '@vue/composition-api';
 import { set } from '@vueuse/core';
 
-import { ContentNodeProgressResource } from 'kolibri.resources';
+import ContentNodeProgressResource from 'kolibri-common/apiResources/ContentNodeProgressResource';
 
 // The reactive is defined in the outer scope so it can be used as a shared store
 const contentNodeProgressMap = reactive({});
@@ -17,7 +17,7 @@ export function setContentNodeProgress(progress) {
   // Avoid setting stale progress data - assume that progress increases monotonically
   if (
     !contentNodeProgressMap[progress.content_id] ||
-    progress.progress > contentNodeProgressMap[progress.content_id]
+    progress.progress >= contentNodeProgressMap[progress.content_id]
   ) {
     set(contentNodeProgressMap, progress.content_id, progress.progress);
     // this should have been conditional

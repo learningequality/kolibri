@@ -58,7 +58,7 @@
       ...mapState('classSummary', { classId: 'id' }),
       url() {
         return {
-          name: PageNames.PLAN_PAGE,
+          name: PageNames.LESSONS_ROOT,
           classId: this.classId,
         };
       },

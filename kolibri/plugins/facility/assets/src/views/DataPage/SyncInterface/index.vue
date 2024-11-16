@@ -109,20 +109,19 @@
 
 <script>
 
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import {
-    FacilityNameAndSyncStatus,
-    ConfirmationRegisterModal,
-    RegisterFacilityModal,
-    SyncFacilityModalGroup,
-  } from 'kolibri.coreVue.componentSets.sync';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import CoreTable from 'kolibri/components/CoreTable';
+  import FacilityNameAndSyncStatus from 'kolibri-common/components/syncComponentSet/FacilityNameAndSyncStatus';
+  import ConfirmationRegisterModal from 'kolibri-common/components/syncComponentSet/ConfirmationRegisterModal';
+  import RegisterFacilityModal from 'kolibri-common/components/syncComponentSet/RegisterFacilityModal';
+  import SyncFacilityModalGroup from 'kolibri-common/components/syncComponentSet/SyncFacilityModalGroup';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { TaskResource, FacilityResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
-  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
-  import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
+  import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import CoreMenu from 'kolibri-common/components/CoreMenu';
+  import CoreMenuOption from 'kolibri-common/components/CoreMenu/CoreMenuOption';
+  import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
   import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
   import PrivacyModal from './PrivacyModal';
 

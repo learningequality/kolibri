@@ -186,26 +186,24 @@
 
         <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
         <template v-if="!windowIsLarge && sidePanelIsOpen">
-          <SearchFiltersPanel
-            v-if="searchActive"
-            ref="embeddedPanel"
-            v-model="searchTerms"
-            class="full-screen-side-panel"
-            :showChannels="false"
-            :style="sidePanelStyleOverrides"
-            @close="sidePanelIsOpen = false"
-          />
-          <TopicsPanelModal
-            v-else
-            ref="embeddedPanel"
-            class="full-screen-side-panel"
-            :topics="topics"
-            :topicMore="Boolean(topicMore)"
-            :topicsLoading="topicMoreLoading"
-            :style="sidePanelStyleOverrides"
-            @loadMoreTopics="handleLoadMoreInTopic"
-            @close="sidePanelIsOpen = false"
-          />
+          <SidePanelModal @closePanel="sidePanelIsOpen = false">
+            <SearchFiltersPanel
+              v-if="searchActive"
+              ref="embeddedPanel"
+              v-model="searchTerms"
+              :showChannels="false"
+              :style="sidePanelStyleOverrides"
+            />
+            <TopicsPanelModal
+              v-else
+              ref="embeddedPanel"
+              :topics="topics"
+              :topicMore="Boolean(topicMore)"
+              :topicsLoading="topicMoreLoading"
+              :style="sidePanelStyleOverrides"
+              @loadMoreTopics="handleLoadMoreInTopic"
+            />
+          </SidePanelModal>
         </template>
       </div>
 
@@ -261,16 +259,16 @@
   import lodashSet from 'lodash/set';
   import lodashGet from 'lodash/get';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
-  import { getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
+  import { getCurrentInstance, ref, watch } from '@vue/composition-api';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
+  import { ContentNodeKinds } from 'kolibri/constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { throttle } from 'frame-throttle';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-  import { ContentNodeResource } from 'kolibri.resources';
-  import plugin_data from 'plugin_data';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+  import plugin_data from 'kolibri-plugin-data';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
@@ -733,16 +731,16 @@
       gridStyle() {
         let style = {};
         /*
-            Fixes jumping scrollbar when reaching the bottom of the page
-            for certain page heights and when side bar is present.
-            The issue is caused by the document scroll height being changed
-            by the sidebar's switching position from absolute to fixed in
-            the sticky calculation, resulting in an endless cycle
-            of the calculation being called and the sidepanel alternating between
-            fixed and absolute position over and over. Setting min height prevents
-            this by making sure that the document scroll height won't change
-            on the sidebar positioning updates.
-          */
+          Fixes jumping scrollbar when reaching the bottom of the page
+          for certain page heights and when side bar is present.
+          The issue is caused by the document scroll height being changed
+          by the sidebar's switching position from absolute to fixed in
+          the sticky calculation, resulting in an endless cycle
+          of the calculation being called and the sidepanel alternating between
+          fixed and absolute position over and over. Setting min height prevents
+          this by making sure that the document scroll height won't change
+          on the sidebar positioning updates.
+        */
         if (this.windowIsLarge) {
           style = {
             minHeight: '900px',
@@ -974,8 +972,11 @@
   .side-panel {
     position: absolute;
     top: $total-height;
+    left: 0;
     min-height: calc(100vh - #{$toolbar-height});
-    padding-top: 16px;
+    // Padding & scroll to ensure user can scroll all the way down
+    padding: 1em 1em 6em;
+    overflow-y: scroll;
   }
 
   .main-content-grid {
@@ -1047,6 +1048,15 @@
 
   .divider {
     margin-bottom: 24px;
+  }
+
+  /deep/ .activities-wrapper {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  }
+
+  /deep/ .btn-activity {
+    width: 80px;
+    height: 80px;
   }
 
 </style>

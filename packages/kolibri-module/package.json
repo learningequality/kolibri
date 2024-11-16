@@ -1,0 +1,8 @@
+{
+  "name": "kolibri-module",
+  "version": "1.0.0",
+  "description": "The Kolibri module",
+  "main": "src/index.js",
+  "author": "Learning Equality",
+  "license": "MIT"
+}

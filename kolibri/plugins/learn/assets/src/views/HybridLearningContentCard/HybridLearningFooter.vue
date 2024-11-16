@@ -94,11 +94,11 @@
 
 <script>
 
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
-  import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import CoreMenu from 'kolibri-common/components/CoreMenu';
+  import CoreMenuOption from 'kolibri-common/components/CoreMenu/CoreMenuOption';
+  import useUser from 'kolibri/composables/useUser';
   import ProgressBar from '../ProgressBar';
   import commonLearnStrings from '../commonLearnStrings';
   import useDownloadRequests from '../../composables/useDownloadRequests';

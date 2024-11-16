@@ -1,7 +1,7 @@
 import { shallowMount, mount, RouterLinkStub } from '@vue/test-utils';
 
 import { STATUSES } from '../../../src/modules/classSummary/constants';
-import ReportsLearnersTable from '../../../src/views/reports/ReportsLearnersTable';
+import ReportsLearnersTable from '../../../src/views/common/tables/ReportsLearnersTable';
 
 const entries = [
   {
@@ -56,7 +56,7 @@ const getCol = (row, colIndex) => {
   return row.findAll('td').at(colIndex);
 };
 
-jest.mock('kolibri.utils.serverClock', () => {
+jest.mock('kolibri/utils/serverClock', () => {
   return {
     now: () => new Date('2019-05-05T11:00:00Z'),
   };

@@ -156,26 +156,26 @@
   import { mapState } from 'vuex';
   import { get, set } from '@vueuse/core';
   import lodashGet from 'lodash/get';
-  import { getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
+  import { getCurrentInstance, ref, watch } from '@vue/composition-api';
   import Modalities from 'kolibri-constants/Modalities';
 
-  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import { ContentNodeResource } from 'kolibri.resources';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
-  import { ContentNodeKinds, ContentErrorConstants } from 'kolibri.coreVue.vuex.constants';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-  import client from 'kolibri.client';
-  import urls from 'kolibri.urls';
+  import AuthMessage from 'kolibri/components/AuthMessage';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+  import useUser from 'kolibri/composables/useUser';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import AddDeviceForm from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/AddDeviceForm';
+  import { ContentNodeKinds, ContentErrorConstants } from 'kolibri/constants';
+  import { crossComponentTranslator } from 'kolibri/utils/i18n';
+  import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
+  import client from 'kolibri/client';
+  import urls from 'kolibri/urls';
   import AppError from 'kolibri-common/components/AppError';
   import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useChannels from 'kolibri-common/composables/useChannels';
+  import SkipNavigationLink from 'kolibri/components/SkipNavigationLink';
   import { PageNames, ClassesPageNames } from '../constants';
-  import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
@@ -731,9 +731,9 @@
 
     @media print {
       /* Without this, things won't print correctly
-       *  - Firefox: Tables will get cutoff
-       *  - Chrome: Table header won't repeat correctly on each page
-       */
+     *  - Firefox: Tables will get cutoff
+     *  - Chrome: Table header won't repeat correctly on each page
+     */
       display: block;
     }
   }

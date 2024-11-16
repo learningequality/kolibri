@@ -28,8 +28,8 @@
 
 <script>
 
-  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'ResetUserPasswordModal',

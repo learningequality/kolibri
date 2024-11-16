@@ -56,9 +56,9 @@
 
 <script>
 
-  import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
-  import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
+  import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
+  import { ContentNodeKinds } from 'kolibri/constants';
   import ChannelUpdateAnnotations from './ChannelUpdateAnnotations';
 
   export default {

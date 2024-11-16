@@ -85,6 +85,7 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
     devServer,
     requireKdsPath: options.requireKdsPath,
     kdsPath: options.kdsPath,
+    setDevServerPublicPath: !options.writeToDisk,
   };
 
   const webpackConfig = require('./webpack.config.plugin');
@@ -129,6 +130,9 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
       },
       headers: {
         'Access-Control-Allow-Origin': '*',
+      },
+      devMiddleware: {
+        writeToDisk: options.writeToDisk,
       },
       setupMiddlewares: (middlewares, devServer) => {
         if (!devServer) {
@@ -285,6 +289,10 @@ const buildCommand = program
       cliLogging.error('Can only specify watchonly for dev builds');
       process.exit(1);
     }
+    if (options.writeToDisk && options.hot) {
+      cliLogging.error('Hot module reloading cannot be used with write-to-disk mode.');
+      process.exit(1);
+    }
     if (options.watchonly.length) {
       const unwatchedBundles = [];
       // Watch core for changes if KDS option is provided; all KDS components are linked to core.
@@ -332,7 +340,7 @@ const buildCommand = program
       );
     }
 
-    runWebpackBuild(mode, bundleData, !options.writeToDisk && mode === modes.DEV, options);
+    runWebpackBuild(mode, bundleData, mode === modes.DEV, options);
   });
 
 const ignoreDefaults = ['**/node_modules/**', '**/static/**'];
@@ -730,6 +738,33 @@ _addPathOptions(i18nAuditCommand)
       options.outputFile,
       options.verbose,
     );
+  });
+
+// Core API migration
+
+program
+  .command('migrate')
+  .arguments('[files...]', 'List of custom file globs or file names to convert')
+  .option('-i, --ignore <string>', 'Ignore these comma separated patterns', list, ignoreDefaults)
+  .action(function (files, options) {
+    if (!files.length) {
+      program.help();
+    } else {
+      const { run: jscodeshift } = require('jscodeshift/src/Runner');
+      const glob = require('./glob');
+      const transformPath = require.resolve('./apiTransform.js');
+      const ignore = options.ignore;
+      Promise.all(
+        files.map(file => {
+          const matches = glob.sync(file, { ignore });
+          return jscodeshift(transformPath, matches, {
+            dry: false,
+            print: false,
+            verbose: 0,
+          });
+        }),
+      );
+    }
   });
 
 // Check engines, then process args

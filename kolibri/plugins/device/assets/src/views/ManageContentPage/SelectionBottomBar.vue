@@ -37,9 +37,9 @@
 
   import sumBy from 'lodash/sumBy';
   import isEmpty from 'lodash/isEmpty';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
 
   // Shows a 'EXPORT', 'IMPORT', or 'DELETE' button next to a message
   // of how many items are selected plus their size.

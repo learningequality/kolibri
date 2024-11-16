@@ -16,6 +16,7 @@ export default class Bloom extends BaseShim {
     this.on(this.events.STATEUPDATE, this.__setData);
     this.on(this.events.USERDATAUPDATE, this.__setUserData);
     this.on(this.events.BLOOMPAGESREAD, this.__getProgress);
+    this._hasBeenFlaggedAsComplete = false;
   }
 
   init(iframe, filepath) {
@@ -39,6 +40,10 @@ export default class Bloom extends BaseShim {
     let progress = this.userData.progress || 0;
     if (data.totalNumberedPages) {
       progress = (data.audioPages + data.nonAudioPages + data.videoPages) / data.totalNumberedPages;
+      if (!this._hasBeenFlaggedAsComplete && progress >= 1) {
+        progress = 0.95;
+      }
+      this._hasBeenFlaggedAsComplete = data.lastNumberedPageRead;
       this.userData.progress = progress;
     }
     this.__mediator.sendMessage({

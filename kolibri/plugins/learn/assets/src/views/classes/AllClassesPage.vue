@@ -23,9 +23,9 @@
 
   import { mapState } from 'vuex';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
-  import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import AuthMessage from 'kolibri/components/AuthMessage';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
   import YourClasses from '../YourClasses';
   import { PageNames } from '../../constants';
   import commonLearnStrings from './../commonLearnStrings';

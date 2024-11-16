@@ -206,16 +206,6 @@ describe('ActivityList component', () => {
       last: LastPages.LEARNER_ACTIVITY,
       last_id: 'learner_001',
     });
-
-    // Embed in Group Activity Page
-    wrapper.setProps({
-      embeddedPageName: 'ReportsGroupActivityPage',
-    });
-    await wrapper.vm.$nextTick();
-    expect(wrapper.vm.backLinkQuery).toEqual({
-      last: LastPages.GROUP_ACTIVITY,
-      last_id: 'group_001',
-    });
   });
 
   // Not tested:

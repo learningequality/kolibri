@@ -1,6 +1,6 @@
 import find from 'lodash/find';
 import findLastIndex from 'lodash/findLastIndex';
-import { TaskTypes, TaskStatuses } from 'kolibri.utils.syncTaskUtils';
+import { TaskTypes, TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
 import wizard from '../wizard';
 import actions from './actions';
 
@@ -62,12 +62,13 @@ export default {
             return task.scheduled_datetime === maxScheduledDatetime;
           };
           return (
+            // corresponds to latest changes on channel
             ![TaskTypes.DISKCONTENTEXPORT, TaskTypes.DISKEXPORT, TaskTypes.DELETECHANNEL].includes(
               task.type,
             ) &&
             task.extra_metadata.channel_id === channel.id &&
             task.status === TaskStatuses.COMPLETED &&
-            isLatest(task) // corresponds to latest changes on channel
+            isLatest(task)
           );
         });
         return {

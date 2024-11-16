@@ -13,10 +13,10 @@
 /* eslint-disable */
 
 import { mapState } from 'vuex';
-import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-import urls from 'kolibri.urls';
+import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+import urls from 'kolibri/urls';
 import commonCoach from './common';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import useUser from 'kolibri/composables/useUser';
 
 export default {
   name: 'TestComponent',

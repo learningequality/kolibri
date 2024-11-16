@@ -1,9 +1,9 @@
-import logger from 'kolibri.lib.logging';
-import { TaskResource } from 'kolibri.resources';
+import logger from 'kolibri-logging';
+import TaskResource from 'kolibri/apiResources/TaskResource';
+import KolibriApp from 'kolibri-app';
 import RootVue from './views/SetupWizardIndex';
 import pluginModule from './modules/pluginModule';
 import routes from './routes';
-import KolibriApp from 'kolibri_app';
 
 const logging = logger.getLogger(__filename);
 

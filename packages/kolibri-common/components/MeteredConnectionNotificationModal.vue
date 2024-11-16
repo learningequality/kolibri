@@ -32,12 +32,12 @@
 
 <script>
 
-  import urls from 'kolibri.urls';
-  import client from 'kolibri.client';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import appCapabilities, { checkCapability } from 'kolibri.utils.appCapabilities';
-  import logger from 'kolibri.lib.logging';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import urls from 'kolibri/urls';
+  import client from 'kolibri/client';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import appCapabilities, { checkCapability } from 'kolibri/utils/appCapabilities';
+  import logger from 'kolibri-logging';
+  import useUser from 'kolibri/composables/useUser';
 
   const logging = logger.getLogger(__filename);
 
@@ -156,18 +156,18 @@
         context: 'An option that a user can select in a form',
       },
       /** TODO Uncomment these when strings are not frozen, then use them to fix the other TODO
-        *  above in this file.
+      *  above in this file.
 
-      saveFailureNotification: {
-        message: 'Settings have not been updated',
-        context: 'Error message that displays if device settings are not saved correctly.',
-      },
-      saveSuccessNotification: {
-        message: 'Settings have been updated',
-        context: 'Notification that displays if device settings have been saved correctly.\n',
-      },
+    saveFailureNotification: {
+      message: 'Settings have not been updated',
+      context: 'Error message that displays if device settings are not saved correctly.',
+    },
+    saveSuccessNotification: {
+      message: 'Settings have been updated',
+      context: 'Notification that displays if device settings have been saved correctly.\n',
+    },
 
-      */
+    */
     },
   };
 

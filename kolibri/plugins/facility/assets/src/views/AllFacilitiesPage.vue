@@ -40,11 +40,11 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import AppBarPage from 'kolibri/components/pages/AppBarPage';
+  import CoreTable from 'kolibri/components/CoreTable';
   import cloneDeep from 'lodash/cloneDeep';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
 
   export default {
     name: 'AllFacilitiesPage',

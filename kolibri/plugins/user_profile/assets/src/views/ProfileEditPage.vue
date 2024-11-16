@@ -73,18 +73,18 @@
 
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
-  import redirectBrowser from 'kolibri.utils.redirectBrowser';
+  import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import { mapGetters } from 'vuex';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import CatchErrors from 'kolibri.utils.CatchErrors';
-  import GenderSelect from 'kolibri.coreVue.components.GenderSelect';
-  import BirthYearSelect from 'kolibri.coreVue.components.BirthYearSelect';
-  import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
-  import useUser from 'kolibri.coreVue.composables.useUser';
-  import { FacilityUserResource } from 'kolibri.resources';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ERROR_CONSTANTS } from 'kolibri/constants';
+  import CatchErrors from 'kolibri/utils/CatchErrors';
+  import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
+  import BirthYearSelect from 'kolibri-common/components/userAccounts/BirthYearSelect';
+  import FullNameTextbox from 'kolibri-common/components/userAccounts/FullNameTextbox';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import UsernameTextbox from 'kolibri-common/components/userAccounts/UsernameTextbox';
+  import useUser from 'kolibri/composables/useUser';
+  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { RoutesMap } from '../constants';
 
   export default {

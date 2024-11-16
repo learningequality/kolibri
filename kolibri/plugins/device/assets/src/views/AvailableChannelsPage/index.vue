@@ -137,11 +137,12 @@
   import omit from 'lodash/omit';
   import some from 'lodash/some';
   import uniqBy from 'lodash/uniqBy';
-  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { TaskResource } from 'kolibri.resources';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import TaskResource from 'kolibri/apiResources/TaskResource';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import { TransferTypes, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import { TransferTypes, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import plugin_data from 'kolibri-plugin-data';
   import commonDeviceStrings from '../commonDeviceStrings';
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
@@ -154,7 +155,6 @@
   import ChannelTokenModal from './ChannelTokenModal';
   import ChannelUpdateModal from './ChannelUpdateModal';
   import { getFreeSpaceOnServer } from './api';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'AvailableChannelsPage',

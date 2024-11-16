@@ -1,11 +1,11 @@
 import { mount, shallowMount, createLocalVue } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
-import Vuex from 'vuex';
+import Vuex, { Store } from 'vuex';
 import VueRouter from 'vue-router';
 import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-import { ContentNodeResource } from 'kolibri.resources';
-import useUser from 'kolibri.coreVue.composables.useUser';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import useUser from 'kolibri/composables/useUser';
 /* eslint-disable import/named */
 import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
@@ -46,13 +46,13 @@ jest.mock('../../src/composables/useLearningActivities');
 jest.mock('../../src/composables/useContentLink');
 jest.mock('../../src/composables/usePinnedDevices');
 jest.mock('kolibri-common/composables/useBaseSearch');
-jest.mock('kolibri.coreVue.composables.useUser');
+jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
-jest.mock('kolibri.resources');
-jest.mock('kolibri.urls');
+jest.mock('kolibri-common/apiResources/ContentNodeResource');
+jest.mock('kolibri/urls');
 
 async function makeWrapper({ options, fullMount = false } = {}) {
-  const store = new Vuex.Store({
+  const store = new Store({
     state: { core: { loading: false } },
     getters: {
       isUserLoggedIn: jest.fn(),
@@ -140,7 +140,7 @@ describe('LibraryPage', () => {
         options: { stubs: ['SidePanelModal'] },
       });
       // not displayed by default
-      expect(wrapper.findComponent({ name: 'SearchFiltersPanel' }).element).toBeUndefined();
+      expect(wrapper.find('[data-test="side-panel"]').element).toBeUndefined();
       wrapper.find('[data-test="filter-button"]').trigger('click');
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent({ name: 'SearchFiltersPanel' }).element).toBeTruthy();
@@ -355,7 +355,7 @@ describe('LibraryPage', () => {
         windowIsLarge: true,
       }));
       const wrapper = await makeWrapper();
-      expect(wrapper.find('[data-test="side-panel"').element).toBeTruthy();
+      expect(wrapper.find('[data-test="side-panel-local"').element).toBeTruthy();
     });
   });
 

@@ -2,7 +2,7 @@ import Vue from 'vue';
 import makeStore from '../makeStore';
 import assessmentWrapper from '../../src/views/AssessmentWrapper';
 
-jest.mock('plugin_data', () => {
+jest.mock('kolibri-plugin-data', () => {
   return {
     __esModule: true,
     default: {

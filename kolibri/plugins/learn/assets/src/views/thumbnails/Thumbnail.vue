@@ -17,7 +17,6 @@
       class="image"
       :src="thumbnailUrl"
       alt=""
-      loading="lazy"
     >
     <slot name="labels"></slot>
   </span>
@@ -69,9 +68,9 @@
 <style lang="scss" scoped>
 
   /*
-    16:9 aspect ratio with letterboxing (9 / 16 = 0.5625 = 56.25%)
-    https://www.sitepoint.com/maintain-image-aspect-ratios-responsive-web-design/
-  */
+  16:9 aspect ratio with letterboxing (9 / 16 = 0.5625 = 56.25%)
+  https://www.sitepoint.com/maintain-image-aspect-ratios-responsive-web-design/
+*/
   .thumbnail {
     position: relative;
     display: block;

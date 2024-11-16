@@ -19,6 +19,9 @@ export default {
         return rootState.channels.list.find(({ id }) => id === node.channel_id);
       };
     },
+    workingResources(state) {
+      return state.workingResources || [];
+    },
   },
   mutations: {
     SET_STATE(state, payload) {
