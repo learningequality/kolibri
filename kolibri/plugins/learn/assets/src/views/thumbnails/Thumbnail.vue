@@ -1,4 +1,5 @@
 <template>
+
   <span
     class="thumbnail"
     :style="thumbnailStyles"
@@ -17,12 +18,15 @@
       :src="thumbnailUrl"
       alt=""
       loading="lazy"
-    />
+    >
     <slot name="labels"></slot>
   </span>
+
 </template>
 
+
 <script>
+
   /**
    * Displays a thumbnail in 16:9 ratio. A thumbnail image with
    * a different aspect ratio will be letterboxed to fit 16:9.
@@ -58,9 +62,12 @@
       },
     },
   };
+
 </script>
 
+
 <style lang="scss" scoped>
+
   /*
     16:9 aspect ratio with letterboxing (9 / 16 = 0.5625 = 56.25%)
     https://www.sitepoint.com/maintain-image-aspect-ratios-responsive-web-design/
@@ -99,4 +106,5 @@
       opacity: 0.3;
     }
   }
+
 </style>
