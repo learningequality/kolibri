@@ -288,6 +288,9 @@
         }
       },
     },
+    mounted(){
+      console.log(this.route.params);
+    },
     methods: {
       ...mapActions('lessonSummary', [
         'saveLessonResources',

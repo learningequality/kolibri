@@ -22,6 +22,7 @@ import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
 import LessonCreationPage from '../views/plan/LessonCreationPage';
 import EditLessonDetails from '../views/plan/LessonEditDetailsPage/EditLessonDetails.vue';
 import PreviewSelectedResources from '../views/plan/LessonContentPreviewPage/PreviewSelectedResources.vue';
+import ManageSelectedResourcePanel from '../views/plan/LessonContentPreviewPage/ManageSelectedResourcePanel.vue';
 import LessonResourceSelection from '../views/plan/LessonResourceSelectionPage/LessonResourceSelection.vue';
 import { classIdParamRequiredGuard } from './utils';
 
@@ -97,7 +98,7 @@ export default [
       {
         name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
         path: 'preview-resources/',
-        component: PreviewSelectedResources,
+        component: ManageSelectedResourcePanel,
       },
       {
         name: PageNames.LESSON_PREVIEW_RESOURCE,

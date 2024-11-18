@@ -65,7 +65,6 @@
               icon="minus"
               @click="removeResource(lesson.id)"              
             />
-             
           </span>
         </KGridItem>
 
