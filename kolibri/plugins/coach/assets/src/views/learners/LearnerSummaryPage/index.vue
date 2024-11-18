@@ -8,8 +8,9 @@
       <KGridItem
         :layout12="{ span: 6 }"
         :layout8="{ span: 4 }"
+        :layout4="{ span: 2 }"
       >
-        <KPageContainer class="content-spacing left-container">
+        <KPageContainer class="content-spacing">
           <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
           <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
             <template #headers>
@@ -55,8 +56,9 @@
       <KGridItem
         :layout12="{ span: 6 }"
         :layout8="{ span: 4 }"
+        :layout4="{ span: 2 }"
       >
-        <KPageContainer class="content-spacing right-container">
+        <KPageContainer class="content-spacing">
           <h2>{{ coachString('quizzesAssignedLabel') }} </h2>
           <CoreTable :emptyMessage="coachString('quizListEmptyState')">
             <template #headers>
@@ -172,7 +174,7 @@
     mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
-        limit: 10,
+        lessonLimit: 10,
         quizLimit:10,
       };
     },
@@ -188,7 +190,7 @@
       },
       lessonsTable() {
         const sorted = this._.orderBy(this.getLessons, ['date_created'], ['desc']);
-        const limitedResults = sorted.slice(0, this.limit);
+        const limitedResults = sorted.slice(0, this.lessonLimit);
         return limitedResults.map(lesson => {
           const tableRow = {
             status: this.getLessonStatusStringForLearner(lesson.id, this.learner.id),
@@ -226,12 +228,12 @@
         return this.classRoute(PageNames.REPORTS_LEARNER_REPORT_QUIZ_PAGE_ROOT, { quizId });
       },
       loadMoreLessonTable(){
-        if(this.limit > 20){
-          this.limit = this.getLessons.length;
+        if(this.lessonLimit > 20){
+          this.lessonLimit = this.getLessons.length;
           return;
         }
 
-        this.limit += 10;
+        this.lessonLimit += 10;
       },
       loadMoreQuizzes(){
         if(this.quizLimit > 20){
@@ -253,16 +255,10 @@
   table {
     min-width: 0;
   }
-  .left-container {
-    width: 100%;
-    height: 100%;
-  }
-  .right-container {
-    width: 100%;
-    height: 100%;
-  }
   .content-spacing {
     padding: 24px 24px 16px 24px;
+    width: 100%;
+    height: 100%;
   }
 
 </style>
