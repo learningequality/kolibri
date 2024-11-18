@@ -45,6 +45,33 @@
       classId() {
         return this.$route.params.classId;
       },
+      recipients() {
+        return this.getLearnersForLesson(this.currentLesson);
+      },
+      resourcesTable() {
+        return this.workingResources.map(resource => {
+          const content = this.resourceCache[resource.contentnode_id];
+          if (!content) {
+            return this.missingResourceObj(resource.contentnode_id);
+          }
+
+          const tally = this.getContentStatusTally(content.content_id, this.recipients);
+          const tableRow = {
+            ...content,
+            node_id: content.id,
+            avgTimeSpent: this.getContentAvgTimeSpent(content.content_id, this.recipients),
+            tally,
+            hasAssignments: Object.values(tally).reduce((a, b) => a + b, 0),
+          };
+
+          const link = this.resourceLink(tableRow);
+          if (link) {
+            tableRow.link = link;
+          }
+
+          return tableRow;
+        });
+      },
     },
     created() {
       const initClassInfoPromise = this.$store.dispatch('initClassInfo', this.classId);
@@ -76,6 +103,25 @@
               this.$refs.detailsModal.handleSubmitFailure();
             }
           });
+      },
+      resourceLink(resource) {
+        if (resource.hasAssignments) {
+          if (resource.kind === this.ContentNodeKinds.EXERCISE) {
+            return this.classRoute(
+              this.group
+                ? 'ReportsGroupReportLessonExerciseLearnerListPage'
+                : 'ReportsLessonExerciseLearnerListPage',
+              { exerciseId: resource.content_id },
+            );
+          } else {
+            return this.classRoute(
+              this.group
+                ? 'ReportsGroupReportLessonResourceLearnerListPage'
+                : 'ReportsLessonResourceLearnerListPage',
+              { resourceId: resource.content_id },
+            );
+          }
+        }
       },
     },
   };
