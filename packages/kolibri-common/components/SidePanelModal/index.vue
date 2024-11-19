@@ -43,6 +43,12 @@
             :style="contentStyles"
           >
             <slot></slot>
+            <div
+              v-if="$slots.bottomNavigation"
+              class="bottom-navigation"
+            >
+              <slot name="bottomNavigation"></slot>
+            </div>
           </div>
         </section>
       </KFocusTrap>
@@ -71,14 +77,18 @@
       Backdrop,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(_, { slots }) {
       const { windowBreakpoint } = useKResponsiveWindow();
+      const hasBottomNavigationSlot = () => {
+        return !!slots.bottomNavigation;
+      };
       return {
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
         // @type {RefImpl<number>}
         windowBreakpoint,
         fixedHeaderHeight: '0px',
         lastFocus: null,
+        hasBottomNavigationSlot,
       };
     },
     props: {
@@ -270,6 +280,21 @@
   /** Need to be sure a KDropdownMenu shows up on the Side Panel */
   /deep/ .tippy-popper {
     z-index: 24;
+  }
+
+  .bottom-navigation {
+    @extend %dropshadow-2dp;
+
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1em;
+    line-height: 2.5em;
+    text-align: center;
   }
 
 </style>
