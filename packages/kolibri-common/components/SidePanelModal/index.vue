@@ -77,18 +77,14 @@
       Backdrop,
     },
     mixins: [commonCoreStrings],
-    setup(_, { slots }) {
+    setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
-      const hasBottomNavigationSlot = () => {
-        return !!slots.bottomNavigation;
-      };
       return {
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
         // @type {RefImpl<number>}
         windowBreakpoint,
         fixedHeaderHeight: '0px',
         lastFocus: null,
-        hasBottomNavigationSlot,
       };
     },
     props: {
