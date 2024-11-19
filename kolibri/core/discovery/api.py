@@ -1,4 +1,3 @@
-from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import decorators
 from rest_framework import viewsets
@@ -29,7 +28,6 @@ from kolibri.core.utils.urls import reverse_path
 class NetworkLocationViewSet(viewsets.ModelViewSet):
     permission_classes = [NetworkLocationPermissions | NotProvisionedHasPermission]
     serializer_class = NetworkLocationSerializer
-    queryset = NetworkLocation.objects.exclude(location_type=LocationTypes.Reserved)
     filter_backends = [DjangoFilterBackend]
     filterset_fields = [
         "id",
@@ -39,23 +37,24 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         syncable = self.request.query_params.get("syncable", None)
+        base_queryset = NetworkLocation.objects.filter(
+            location_type__in=[LocationTypes.Static, LocationTypes.Dynamic]
+        )
+        reserved_ids = []
         if syncable == "1":
             # Include KDP's reserved location
-            queryset = NetworkLocation.objects.filter(
-                Q(location_type=LocationTypes.Static)
-                | Q(id=DATA_PORTAL_BASE_INSTANCE_ID)
-            )
+            reserved_ids.append(DATA_PORTAL_BASE_INSTANCE_ID)
         elif syncable == "0":
             # Include Studio's reserved location
-            queryset = NetworkLocation.objects.filter(
-                Q(location_type=LocationTypes.Static)
-                | Q(id=CENTRAL_CONTENT_BASE_INSTANCE_ID)
+            reserved_ids.append(CENTRAL_CONTENT_BASE_INSTANCE_ID)
+        if reserved_ids:
+            reserved_queryset = NetworkLocation.objects.filter(
+                id__in=reserved_ids,
             )
+            queryset = base_queryset | reserved_queryset
         else:
-            # Exclude both KDP and Studio
-            queryset = NetworkLocation.objects.filter(
-                location_type__in=[LocationTypes.Static, LocationTypes.Dynamic]
-            )
+            # By default, exclude KDP/Studio reserved locations
+            queryset = base_queryset
         return queryset
 
     def get_object(self, id_filter=None):
