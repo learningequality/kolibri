@@ -51,11 +51,8 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
             reserved_queryset = NetworkLocation.objects.filter(
                 id__in=reserved_ids,
             )
-            queryset = base_queryset | reserved_queryset
-        else:
-            # By default, exclude KDP/Studio reserved locations
-            queryset = base_queryset
-        return queryset
+            return base_queryset | reserved_queryset
+        return base_queryset
 
     def get_object(self, id_filter=None):
         """
