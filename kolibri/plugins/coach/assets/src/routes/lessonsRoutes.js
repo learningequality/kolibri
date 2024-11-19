@@ -8,7 +8,6 @@ import {
   showLessonResourceBookmarks,
   showLessonResourceBookmarksMain,
 } from '../modules/lessonResources/handlers';
-import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
 import { PageNames } from '../constants';
 
 import { useLessons } from '../composables/useLessons';
@@ -108,15 +107,6 @@ export default [
     name: PageNames.LESSON_SUMMARY,
     path: CLASS + LESSON + '/:tabId?',
     component: LessonSummaryPage,
-    handler(toRoute, fromRoute) {
-      if (
-        fromRoute.name !== PageNames.LESSON_SUMMARY ||
-        toRoute.params.lessonId !== fromRoute.params.lessonId
-      ) {
-        return showLessonSummaryPage(store, toRoute.params);
-      }
-      store.dispatch('notLoading');
-    },
     meta: {
       titleParts: ['LESSON_NAME', 'CLASS_NAME'],
     },
@@ -127,15 +117,6 @@ export default [
     component: LessonSummaryPage,
     props: {
       isTemp: true,
-    },
-    handler(toRoute, fromRoute) {
-      if (
-        fromRoute.name !== PageNames.LESSON_SUMMARY ||
-        toRoute.params.lessonId !== fromRoute.params.lessonId
-      ) {
-        return showLessonSummaryPage(store, toRoute.params);
-      }
-      store.dispatch('notLoading');
     },
     meta: {
       titleParts: ['LESSON_NAME', 'CLASS_NAME'],
