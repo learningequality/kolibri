@@ -6,6 +6,7 @@
         v-if="channel.thumbnail"
         class="thumbnail"
         :src="channel.thumbnail"
+        loading="lazy"
       >
       <div class="channel-name">
         <KTooltip
