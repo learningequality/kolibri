@@ -169,6 +169,7 @@
 <style scoped>
 
   .side-panel-title {
+    margin-top: 20px;
     font-size: 18px;
   }
 
