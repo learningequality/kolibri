@@ -15,14 +15,7 @@ hostname=kolibri
 RUN sed -i "s/raspberrypi/${hostname}/g" /etc/hostname
 RUN sed -i "s/raspberrypi/${hostname}/g" /etc/hosts
   
-# Set password for specified user (pi by default)
 
-echo "Changing password of pi..."
-
-# Redirect output to prevent echoing sensitive information to stdout
-RUN << EOF &> /dev/null
-bash -c "echo ${user}:kolibrifly | chpasswd"
-EOF
 
 echo "Done."
 
@@ -76,10 +69,24 @@ RUN tee /etc/default/dnsmasq <<EOF
 DNSMASQ_EXCEPT=lo
 EOF
 
+# latest debian version seems to have this line commented
+RUN bash -c "sed -i 's/^#conf-dir=\\/etc\\/dnsmasq.d\\/,.*/conf-dir=\\/etc\\/dnsmasq.d\\/,*.conf/' /etc/dnsmasq.conf"
+
 RUN rm /etc/nginx/sites-enabled/default
 
 RUN systemctl enable hostapd
 RUN systemctl enable dnsmasq
 RUN systemctl enable nginx
+RUN systemctl enable ssh
+
+
+# Set kolibryfly password for specified user (pi by default)
+RUN bash -c 'echo pi:\$6\$OUzfiWw5K8RdwdFV\$7Skel9ojIekqNSE/KVPIhemg9D.tQqoOF2BwZwIgZ/X0CTC0MJPbcUmzvnSSE3CkBdG2zsD1rCHSQ9yQCqVfr/ > /boot/firmware/userconf.txt'
+
+# avoid keyboard setup questions blocking first boot:
+RUN sh -c 'echo "keyboard-configuration keyboard-configuration/layout select English (US)" | sudo debconf-set-selections'
+RUN tee -a /boot/firmware/cmdline.txt<<EOF
+debconf=low
+EOF
 
 ENV DEBIAN_FRONTEND

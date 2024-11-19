@@ -7,6 +7,15 @@ ENV DEBIAN_FRONTEND noninteractive
 
 echo "--- Using Kolibri deb"
 
+# Preseeding package config
+RUN sh -c '
+echo "kolibri kolibri/init boolean false" | debconf-set-selections; \
+echo "kolibri kolibri/user string pi" | debconf-set-selections; \
+echo "kolibri-server kolibri-server/port select 80" | debconf-set-selections; \
+echo "kolibri-server kolibri-server/zip_content_port select 81" | debconf-set-selections
+'
+
+
 # All files copied at build stage to /pi-gen
 INSTALL dist/*.deb /tmp/kolibri.deb
 
