@@ -64,7 +64,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: 'images/base.img'
-        key: ${{ runner.OS }}-base-${{ hashFiles('base.Pifle', 'files/*') }}
+        key: ${{ runner.OS }}-base-${{ hashFiles('base.Pifile', 'files/*') }}
         restore-keys: |
           ${{ runner.OS }}-base-
     - name: Cache pimod
