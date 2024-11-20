@@ -35,7 +35,6 @@
               />
               <slot name="header"> </slot>
               <KIconButton
-                v-if="closeButtonIconType"
                 icon="close"
                 class="close-button"
                 :style="closeButtonStyle"
@@ -158,7 +157,11 @@
           top: 0,
           backgroundColor: this.$themeTokens.surface,
           borderBottom: `1px solid ${this.$themePalette.grey.v_400}`,
-          padding: '0 1em',
+          padding: '0',
+          paddingLeft: this.showBackButton ? '4em' : '2em',
+          paddingRight: this.showBackButton ? '2em' : '4em',
+          display: 'flex',
+          alignItems: 'center',
           // Header border stays over content with this, but under any tooltips
           'z-index': 16,
         };

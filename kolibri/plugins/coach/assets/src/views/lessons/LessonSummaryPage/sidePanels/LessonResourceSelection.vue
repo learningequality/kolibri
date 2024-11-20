@@ -3,7 +3,6 @@
   <SidePanelModal
     alignment="right"
     sidePanelWidth="700px"
-    closeButtonIconType="close"
     @closePanel="closeSidePanel"
     @shouldFocusFirstEl="() => null"
   >

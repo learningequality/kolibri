@@ -1,85 +1,96 @@
 <template>
 
-  <div
-    v-if="activeSection"
-    class="section-settings-content"
+  <SidePanelModal
+    alignment="right"
+    sidePanelWidth="700px"
+    @closePanel="handleClosePanel"
   >
-    <h1>
-      {{ coreString('editAction') + ' - ' + sectionOrderLabel$() }}
-    </h1>
+    <template #header>
+      <h1>
+        {{ coreString('editAction') + ' - ' + sectionOrderLabel$() }}
+      </h1>
+    </template>
 
-    <DragContainer
-      v-if="sectionOrderList.length > 0"
-      :items="sectionOrderList"
-      @sort="handleSectionSort"
+    <div
+      v-if="activeSection"
+      class="section-settings-content"
     >
-      <transition-group>
-        <Draggable
-          v-for="(section, index) in sectionOrderList"
-          :key="section.section_id"
-          :style="draggableStyle"
-        >
-          <DragHandle>
-            <div
-              :style="
-                activeSection.section_id === section.section_id ? activeSectionStyles : borderStyle
-              "
-              class="section-order-list"
-            >
-              <DragSortWidget
-                class="drag-title"
-                moveUpText="up"
-                moveDownText="down"
-                :noDrag="true"
-                :isFirst="index === 0"
-                :isLast="index === sectionOrderList.length - 1"
-                @moveUp="() => handleKeyboardDragUp(index, sectionOrderList)"
-                @moveDown="() => handleKeyboardDragDown(index, sectionOrderList)"
-              />
-              <span
-                class="drag-title"
-                style="flex: 1"
+      <DragContainer
+        v-if="sectionOrderList.length > 0"
+        :items="sectionOrderList"
+        @sort="handleSectionSort"
+      >
+        <transition-group>
+          <Draggable
+            v-for="(section, index) in sectionOrderList"
+            :key="section.section_id"
+            :style="draggableStyle"
+          >
+            <DragHandle>
+              <div
+                :style="
+                  activeSection.section_id === section.section_id
+                    ? activeSectionStyles
+                    : borderStyle
+                "
+                class="section-order-list"
               >
-                {{ sectionOrderingTitle(section) }}
-              </span>
-              <span
-                v-if="section.description"
-                class="current-section-style"
-                style="flex: 2; text-overflow: ellipsis"
-              >
-                {{ section.description }}
-              </span>
-              <span
-                v-if="section.section_id === activeSection.section_id"
-                class="current-section-text"
-              >
-                ({{ currentSection$() }})
-              </span>
-            </div>
-          </DragHandle>
-        </Draggable>
-      </transition-group>
-    </DragContainer>
+                <DragSortWidget
+                  class="drag-title"
+                  moveUpText="up"
+                  moveDownText="down"
+                  :noDrag="true"
+                  :isFirst="index === 0"
+                  :isLast="index === sectionOrderList.length - 1"
+                  @moveUp="() => handleKeyboardDragUp(index, sectionOrderList)"
+                  @moveDown="() => handleKeyboardDragDown(index, sectionOrderList)"
+                />
+                <span
+                  class="drag-title"
+                  style="flex: 1"
+                >
+                  {{ sectionOrderingTitle(section) }}
+                </span>
+                <span
+                  v-if="section.description"
+                  class="current-section-style"
+                  style="flex: 2; text-overflow: ellipsis"
+                >
+                  {{ section.description }}
+                </span>
+                <span
+                  v-if="section.section_id === activeSection.section_id"
+                  class="current-section-text"
+                >
+                  ({{ currentSection$() }})
+                </span>
+              </div>
+            </DragHandle>
+          </Draggable>
+        </transition-group>
+      </DragContainer>
 
-    <div class="bottom-buttons-style">
-      <KButton
-        :primary="true"
-        :text="applySettings$()"
-        @click="applySettings()"
-      />
+      <div class="bottom-buttons-style">
+        <KButton
+          :primary="true"
+          :text="applySettings$()"
+          @click="applySettings()"
+        />
+      </div>
+
+      <KModal
+        v-if="showCloseConfirmation"
+        appendToOverlay
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        :title="closeConfirmationTitle$()"
+        @cancel="handleCancelClose"
+        @submit="handleConfirmClose"
+      >
+        {{ closeConfirmationMessage$() }}
+      </KModal>
     </div>
-
-    <KModal
-      v-if="showCloseConfirmation"
-      :submitText="coreString('continueAction')"
-      :cancelText="coreString('cancelAction')"
-      :title="closeConfirmationTitle$()"
-      @cancel="handleCancelClose"
-      @submit="handleConfirmClose"
-    >
-      {{ closeConfirmationMessage$() }}
-    </KModal>
-  </div>
+  </SidePanelModal>
 
 </template>
 
@@ -92,6 +103,7 @@
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import Draggable from 'kolibri-common/components/sortable/Draggable';
@@ -109,9 +121,10 @@
       DragContainer,
       DragHandle,
       DragSortWidget,
+      SidePanelModal,
     },
     mixins: [commonCoreStrings],
-    setup(_, context) {
+    setup() {
       const {
         sectionSettings$,
         sectionTitle$,
@@ -155,7 +168,7 @@
       }
 
       function handleConfirmClose() {
-        context.emit('closePanel');
+        this.$router.back();
       }
 
       // This is used to track the section that was moved
@@ -249,7 +262,8 @@
         };
       },
     },
-    beforeRouteLeave(to, __, next) {
+    /* eslint-disable-line no-unused-vars */
+    beforeRouteLeave(_, __, next) {
       if (this.formDataHasChanged && !this.showCloseConfirmation) {
         this.showCloseConfirmation = true;
         next(false);
@@ -258,6 +272,9 @@
       }
     },
     methods: {
+      handleClosePanel() {
+        this.$router.push({ name: PageNames.EXAM_CREATION_ROOT });
+      },
       handleSectionSort(e) {
         this.sectionOrderList = e.newArray;
         const reorderedId = this.allSections[this.activeSectionIndex].section_id;

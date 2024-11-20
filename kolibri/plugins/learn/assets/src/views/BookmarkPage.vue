@@ -46,7 +46,6 @@
       v-if="sidePanelContent"
       class="fix-pos"
       alignment="right"
-      closeButtonIconType="close"
       @closePanel="sidePanelContent = null"
       @shouldFocusFirstEl="findFirstEl()"
     >

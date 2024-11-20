@@ -3,7 +3,6 @@
   <SidePanelModal
     alignment="right"
     sidePanelWidth="700px"
-    closeButtonIconType="close"
     @closePanel="() => $router.go(-1)"
     @shouldFocusFirstEl="() => null"
   >

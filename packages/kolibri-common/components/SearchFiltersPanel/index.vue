@@ -2,7 +2,6 @@
 
   <section
     role="region"
-    :closeButtonIconType="closeButtonIcon"
     :aria-label="filterAndSearchLabel$()"
     :ariaLabel="filterAndSearchLabel$()"
     :style="
@@ -256,9 +255,6 @@
       },
     },
     computed: {
-      closeButtonIcon() {
-        return this.currentCategory ? 'back' : 'close';
-      },
       inputValue: {
         get() {
           return this.value;

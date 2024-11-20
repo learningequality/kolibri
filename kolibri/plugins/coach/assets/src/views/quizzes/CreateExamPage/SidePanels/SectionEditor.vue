@@ -1,122 +1,132 @@
 <template>
 
-  <div
-    v-if="activeSection"
-    class="section-settings-content"
+  <SidePanelModal
+    alignment="right"
+    sidePanelWidth="700px"
+    @closePanel="handleClosePanel"
   >
-    <h1 :style="{ color: $themeTokens.text }">
-      {{ sectionSettings$() }}
-    </h1>
+    <template #header>
+      <h1 :style="{ color: $themeTokens.text }">
+        {{ sectionSettings$() }}
+      </h1>
+    </template>
 
-    <KTextbox
-      ref="sectionTitle"
-      v-model="section_title"
-      :label="sectionTitle$()"
-      :invalid="sectionTitleInvalid"
-      :invalidText="sectionTitleInvalidText"
-      :maxlength="100"
-    />
+    <div
+      v-if="activeSection"
+      class="section-settings-content"
+    >
+      <KTextbox
+        ref="sectionTitle"
+        v-model="section_title"
+        :label="sectionTitle$()"
+        :invalid="sectionTitleInvalid"
+        :invalidText="sectionTitleInvalidText"
+        :maxlength="100"
+      />
 
-    <KTextbox
-      v-model="description"
-      :label="optionalDescriptionLabel$()"
-      :maxlength="400"
-      :textArea="true"
-      class="description-ktextbox-style"
-    />
+      <KTextbox
+        v-model="description"
+        :label="optionalDescriptionLabel$()"
+        :maxlength="400"
+        :textArea="true"
+        class="description-ktextbox-style"
+      />
 
-    <hr :style="dividerStyle" >
+      <hr :style="dividerStyle" >
 
-    <div>
+      <div>
+        <h5 class="section-settings-heading">
+          {{ questionOrder$() }}
+        </h5>
+        <KGrid>
+          <KGridItem
+            :layout12="{ span: 6 }"
+            :layout8="{ span: 4 }"
+            :layout4="{ span: 2 }"
+          >
+            <KRadioButton
+              v-model="learners_see_fixed_order"
+              :label="randomizedLabel$()"
+              :buttonValue="false"
+              :description="randomizedOptionDescription$()"
+            />
+          </KGridItem>
+          <KGridItem
+            :layout12="{ span: 6 }"
+            :layout8="{ span: 4 }"
+            :layout4="{ span: 2 }"
+          >
+            <KRadioButton
+              v-model="learners_see_fixed_order"
+              :label="fixedLabel$()"
+              :buttonValue="true"
+              :description="fixedOptionDescription$()"
+            />
+          </KGridItem>
+        </KGrid>
+      </div>
+
+      <hr :style="dividerStyle" >
+
       <h5 class="section-settings-heading">
-        {{ questionOrder$() }}
+        {{
+          numberOfQuestionsSelected$({
+            count: activeQuestions.length,
+          })
+        }}
       </h5>
-      <KGrid>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KRadioButton
-            v-model="learners_see_fixed_order"
-            :label="randomizedLabel$()"
-            :buttonValue="false"
-            :description="randomizedOptionDescription$()"
-          />
-        </KGridItem>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KRadioButton
-            v-model="learners_see_fixed_order"
-            :label="fixedLabel$()"
-            :buttonValue="true"
-            :description="fixedOptionDescription$()"
-          />
-        </KGridItem>
-      </KGrid>
+
+      <KRouterLink
+        v-if="showResourceButton"
+        appearance="raised-button"
+        :to="selectResourcesRoute"
+        style="margin-bottom: 1em"
+        iconAfter="forward"
+      >
+        {{ resourceButtonLabel }}
+      </KRouterLink>
+      <p v-else>
+        {{ maxQuestionsLabel }}
+      </p>
+      <div class="bottom-navigation">
+        <KButton
+          :text="deleteSectionLabel$()"
+          @click="handleDeleteSection()"
+        />
+        <KButton
+          :primary="true"
+          :text="applySettings$()"
+          @click="applySettings()"
+        />
+      </div>
+      <KModal
+        v-if="showCloseConfirmation"
+        appendToOverlay
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        :title="closeConfirmationTitle$()"
+        @cancel="handleCancelClose"
+        @submit="handleConfirmClose"
+      >
+        {{ closeConfirmationMessage$() }}
+      </KModal>
+      <KModal
+        v-if="showDeleteConfirmation"
+        appendToOverlay
+        :title="deleteSectionLabel$()"
+        :submitText="coreString('deleteAction')"
+        :cancelText="coreString('cancelAction')"
+        @cancel="handleCancelDelete"
+        @submit="handleConfirmDelete"
+      >
+        {{
+          deleteConfirmation$({
+            section_title: displaySectionTitle(activeSection, activeSectionIndex),
+          })
+        }}
+      </KModal>
     </div>
-
-    <hr :style="dividerStyle" >
-
-    <h5 class="section-settings-heading">
-      {{
-        numberOfQuestionsSelected$({
-          count: activeQuestions.length,
-        })
-      }}
-    </h5>
-
-    <KRouterLink
-      v-if="showResourceButton"
-      appearance="raised-button"
-      :to="selectResourcesRoute"
-      style="margin-bottom: 1em"
-      iconAfter="forward"
-    >
-      {{ resourceButtonLabel }}
-    </KRouterLink>
-    <p v-else>
-      {{ maxQuestionsLabel }}
-    </p>
-    <div class="bottom-navigation">
-      <KButton
-        :text="deleteSectionLabel$()"
-        @click="handleDeleteSection()"
-      />
-      <KButton
-        :primary="true"
-        :text="applySettings$()"
-        @click="applySettings()"
-      />
-    </div>
-    <KModal
-      v-if="showCloseConfirmation"
-      :submitText="coreString('continueAction')"
-      :cancelText="coreString('cancelAction')"
-      :title="closeConfirmationTitle$()"
-      @cancel="handleCancelClose"
-      @submit="handleConfirmClose"
-    >
-      {{ closeConfirmationMessage$() }}
-    </KModal>
-    <KModal
-      v-if="showDeleteConfirmation"
-      :title="deleteSectionLabel$()"
-      :submitText="coreString('deleteAction')"
-      :cancelText="coreString('cancelAction')"
-      @cancel="handleCancelDelete"
-      @submit="handleConfirmDelete"
-    >
-      {{
-        deleteConfirmation$({
-          section_title: displaySectionTitle(activeSection, activeSectionIndex),
-        })
-      }}
-    </KModal>
-  </div>
+  </SidePanelModal>
 
 </template>
 
@@ -130,6 +140,7 @@
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -140,8 +151,9 @@
 
   export default {
     name: 'SectionEditor',
+    components: { SidePanelModal },
     mixins: [commonCoreStrings],
-    setup(_, context) {
+    setup() {
       const router = getCurrentInstance().proxy.$router;
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
@@ -191,7 +203,7 @@
       }
 
       function handleConfirmClose() {
-        context.emit('closePanel');
+        this.$router.back();
       }
 
       const showDeleteConfirmation = ref(false);
@@ -355,6 +367,7 @@
         return { name: PageNames.QUIZ_SELECT_RESOURCES };
       },
     },
+    /* eslint-disable-line no-unused-vars */
     beforeRouteLeave(to, __, next) {
       if (this.formDataHasChanged && !this.showDeleteConfirmation) {
         if (this.showCloseConfirmation) {
@@ -374,6 +387,9 @@
       next();
     },
     methods: {
+      handleClosePanel() {
+        this.$router.push({ name: PageNames.EXAM_CREATION_ROOT });
+      },
       applySettings(nextRouteName = PageNames.EXAM_CREATION_ROOT) {
         if (this.sectionTitleInvalid) {
           this.$refs.sectionTitle.focus();

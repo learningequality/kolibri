@@ -117,7 +117,6 @@
       ref="resourcePanel"
       class="also-in-this-side-panel"
       alignment="right"
-      closeButtonIconType="close"
       @closePanel="showViewResourcesSidePanel = false"
       @shouldFocusFirstEl="findFirstEl()"
     >

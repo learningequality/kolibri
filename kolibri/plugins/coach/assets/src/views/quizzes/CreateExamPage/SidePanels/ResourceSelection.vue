@@ -1,10 +1,13 @@
 <template>
 
-  <div class="select-resource">
-    <div v-if="loading && !loadingMore">
-      <KCircularLoader />
-    </div>
-    <div v-else-if="!showSearch">
+  <SidePanelModal
+    alignment="right"
+    sidePanelWidth="700px"
+    :showBackButton="canGoBack"
+    @goBack="handleGoBack"
+    @closePanel="handleClosePanel"
+  >
+    <template #header>
       <h1
         v-if="selectPracticeQuiz"
         class="select-folder-style"
@@ -12,188 +15,180 @@
         {{ selectPracticeQuizLabel$() }}
       </h1>
       <div v-else>
-        <h1 class="select-folder-style">
+        <h1>
           {{
             selectResourcesDescription$({
               sectionTitle: displaySectionTitle(activeSection, activeSectionIndex),
             })
           }}
         </h1>
-        <p>
+        <p style="margin: 0">
           {{ numberOfQuestionsSelected$({ count: activeQuestions.length }) }}
-          <span
-            class="divider"
-            :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
-          >
-          </span>
         </p>
-        <p>{{ numberOfQuestionsToAdd$() }}</p>
-        <div class="number-question">
-          <div>
-            <KTextbox
-              ref="numQuest"
-              v-model.number="questionCount"
-              type="number"
-              :label="numberOfQuestionsLabel$()"
-              :max="maxQuestions"
-              :min="1"
-              :invalid="questionCount > maxQuestions"
-              :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
-              :showInvalidText="true"
-            />
-          </div>
-          <div>
-            <div
-              :style="borderStyle"
-              class="group-button-border"
-            >
-              <KIconButton
-                icon="minus"
-                aria-hidden="true"
-                class="number-btn"
-                :disabled="questionCount === 1"
-                @click="questionCount -= 1"
-              />
-              <span :style="dividerStyle"> | </span>
-              <KIconButton
-                icon="plus"
-                aria-hidden="true"
-                class="number-btn"
-                :disabled="questionCount >= maxQuestions"
-                @click="questionCount += 1"
+      </div>
+    </template>
+    <div class="select-resource">
+      <div v-if="loading && !loadingMore">
+        <KCircularLoader />
+      </div>
+      <div v-else>
+        <div>
+          <p style="margin-top: 0">{{ numberOfQuestionsToAdd$() }}</p>
+          <div class="number-question">
+            <div>
+              <KTextbox
+                ref="numQuest"
+                v-model.number="questionCount"
+                type="number"
+                :label="numberOfQuestionsLabel$()"
+                :max="maxQuestions"
+                :min="1"
+                :invalid="questionCount > maxQuestions"
+                :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
+                :showInvalidText="true"
               />
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks && !showSearch">
-        <p>{{ coreString('selectFromBookmarks') }}</p>
-
-        <div>
-          <KRouterLink
-            :appearanceOverrides="{
-              width: '100%',
-              textDecoration: 'none',
-              color: $themeTokens.text,
-            }"
-            :to="getBookmarksLink"
-          >
-            <div :class="windowIsSmall ? 'mobile-bookmark-container' : 'bookmark-container'">
-              <BookmarkIcon :class="windowIsSmall ? 'mobile-bookmark-icon' : ''" />
-              <div :class="windowIsSmall ? 'mobile-text' : 'text'">
-                <h3>{{ coreString('bookmarksLabel') }}</h3>
-                <p>{{ numberOfSelectedBookmarks$({ count: bookmarks.length }) }}</p>
+            <div>
+              <div
+                :style="borderStyle"
+                class="group-button-border"
+              >
+                <KIconButton
+                  icon="minus"
+                  aria-hidden="true"
+                  class="number-btn"
+                  :disabled="questionCount === 1"
+                  @click="questionCount -= 1"
+                />
+                <span :style="dividerStyle"> | </span>
+                <KIconButton
+                  icon="plus"
+                  aria-hidden="true"
+                  class="number-btn"
+                  :disabled="questionCount >= maxQuestions"
+                  @click="questionCount += 1"
+                />
               </div>
             </div>
-          </KRouterLink>
+          </div>
         </div>
-      </div>
 
-      <ResourceSelectionBreadcrumbs
-        v-if="isTopicIdSet"
-        :ancestors="[...topic.ancestors, topic]"
-        :channelsLink="channelsLink"
-        :topicsLink="topicsLink"
-      />
+        <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
+          <p>{{ coreString('selectFromBookmarks') }}</p>
 
-      <div
-        v-if="showNumberOfQuestionsWarning"
-        class="shadow"
-        :style="{
-          padding: '1em',
-          marginTop: '2em',
-          marginBottom: '2em',
-          backgroundColor: $themePalette.grey.v_200,
-          position: 'sticky',
-          insetBlockStart: '0',
-          zIndex: '4',
-        }"
-      >
-        {{
-          cannotSelectSomeTopicWarning$({
-            count: Math.max(maxSectionQuestionOptions, workingPoolUnusedQuestions),
-          })
-        }}
-      </div>
-
-      <ContentCardList
-        v-if="!showSearch"
-        :contentList="contentList"
-        :showSelectAll="showSelectAll"
-        :viewMoreButtonState="viewMoreButtonState"
-        :selectAllChecked="selectAllChecked"
-        :selectAllIndeterminate="selectAllIndeterminate"
-        :contentIsChecked="contentPresentInWorkingResourcePool"
-        :contentIsIndeterminate="contentPartlyPresentInWorkingResourcePool"
-        :contentHasCheckbox="showCheckbox"
-        :contentCheckboxDisabled="
-          c =>
-            !nodeIsSelectableOrUnselectable(c) && !(c.is_leaf && workingPoolUnusedQuestions === 0)
-        "
-        :contentCardMessage="selectionMetadata"
-        :contentCardLink="contentLink"
-        :loadingMoreState="loadingMore"
-        :showRadioButtons="selectPracticeQuiz"
-        @changeselectall="handleSelectAll"
-        @change_content_card="toggleSelected"
-        @moreresults="fetchMoreResources"
-      />
-
-      <div class="bottom-navigation">
-        <div>
-          <span v-if="!selectPracticeQuiz">
-            <span v-if="tooManyQuestions">
-              {{
-                tooManyQuestions$({
-                  count: maxSectionQuestionOptions,
-                })
-              }}
-            </span>
-            <span v-else>
-              {{
-                questionsFromResources$({
-                  questions: workingPoolUnusedQuestions,
-                })
-              }}
-            </span>
-          </span>
+          <div>
+            <KRouterLink
+              :appearanceOverrides="{
+                width: '100%',
+                textDecoration: 'none',
+                color: $themeTokens.text,
+              }"
+              :to="getBookmarksLink"
+            >
+              <div :class="windowIsSmall ? 'mobile-bookmark-container' : 'bookmark-container'">
+                <BookmarkIcon :class="windowIsSmall ? 'mobile-bookmark-icon' : ''" />
+                <div :class="windowIsSmall ? 'mobile-text' : 'text'">
+                  <h3>{{ coreString('bookmarksLabel') }}</h3>
+                  <p>{{ numberOfSelectedBookmarks$({ count: bookmarks.length }) }}</p>
+                </div>
+              </div>
+            </KRouterLink>
+          </div>
         </div>
-        <KButton
-          :text="
-            selectPracticeQuiz
-              ? selectQuiz$()
-              : addNumberOfQuestions$({ count: Math.max(1, questionCount) })
-          "
-          :primary="true"
-          :disabled="disableSave"
-          @click="saveSelectedResource"
+
+        <ResourceSelectionBreadcrumbs
+          v-if="isTopicIdSet"
+          :ancestors="[...topic.ancestors, topic]"
+          :channelsLink="channelsLink"
+          :topicsLink="topicsLink"
         />
+
+        <div
+          v-if="showNumberOfQuestionsWarning"
+          class="shadow"
+          :style="{
+            padding: '1em',
+            marginTop: '2em',
+            marginBottom: '2em',
+            backgroundColor: $themePalette.grey.v_200,
+            position: 'sticky',
+            insetBlockStart: '0',
+            zIndex: '4',
+          }"
+        >
+          {{
+            cannotSelectSomeTopicWarning$({
+              count: Math.max(maxSectionQuestionOptions, workingPoolUnusedQuestions),
+            })
+          }}
+        </div>
+
+        <ContentCardList
+          :contentList="contentList"
+          :showSelectAll="showSelectAll"
+          :viewMoreButtonState="viewMoreButtonState"
+          :selectAllChecked="selectAllChecked"
+          :selectAllIndeterminate="selectAllIndeterminate"
+          :contentIsChecked="contentPresentInWorkingResourcePool"
+          :contentIsIndeterminate="contentPartlyPresentInWorkingResourcePool"
+          :contentHasCheckbox="showCheckbox"
+          :contentCheckboxDisabled="
+            c =>
+              !nodeIsSelectableOrUnselectable(c) && !(c.is_leaf && workingPoolUnusedQuestions === 0)
+          "
+          :contentCardMessage="selectionMetadata"
+          :contentCardLink="contentLink"
+          :loadingMoreState="loadingMore"
+          :showRadioButtons="selectPracticeQuiz"
+          @changeselectall="handleSelectAll"
+          @change_content_card="toggleSelected"
+          @moreresults="fetchMoreResources"
+        />
+
+        <div class="bottom-navigation">
+          <div>
+            <span v-if="!selectPracticeQuiz">
+              <span v-if="tooManyQuestions">
+                {{
+                  tooManyQuestions$({
+                    count: maxSectionQuestionOptions,
+                  })
+                }}
+              </span>
+              <span v-else>
+                {{
+                  questionsFromResources$({
+                    questions: workingPoolUnusedQuestions,
+                  })
+                }}
+              </span>
+            </span>
+          </div>
+          <KButton
+            :text="
+              selectPracticeQuiz
+                ? selectQuiz$()
+                : addNumberOfQuestions$({ count: Math.max(1, questionCount) })
+            "
+            :primary="true"
+            :disabled="disableSave"
+            @click="saveSelectedResource"
+          />
+        </div>
       </div>
+      <KModal
+        v-if="showCloseConfirmation"
+        appendToOverlay
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
+        :title="closeConfirmationTitle$()"
+        @cancel="handleCancelClose"
+        @submit="handleConfirmClose"
+      >
+        {{ closeConfirmationMessage$() }}
+      </KModal>
     </div>
-
-    <SearchFiltersPanel
-      v-if="showSearch"
-      ref="sidePanel"
-      v-model="searchTerms"
-      data-test="side-panel"
-      width="100%"
-      :accordion="true"
-      :showActivities="false"
-      @close="showSearch = false"
-    />
-
-    <KModal
-      v-if="showCloseConfirmation"
-      :submitText="coreString('continueAction')"
-      :cancelText="coreString('cancelAction')"
-      :title="closeConfirmationTitle$()"
-      @cancel="handleCancelClose"
-      @submit="handleConfirmClose"
-    >
-      {{ closeConfirmationMessage$() }}
-    </KModal>
-  </div>
+  </SidePanelModal>
 
 </template>
 
@@ -214,8 +209,7 @@
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
   import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useBaseSearch from 'kolibri-common/composables/useBaseSearch';
-  import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { exerciseToQuestionArray } from '../../../../utils/selectQuestions';
   import { PageNames, ViewMoreButtonStates } from '../../../../constants/index';
   import BookmarkIcon from '../../../lessons/LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
@@ -227,13 +221,13 @@
   export default {
     name: 'ResourceSelection',
     components: {
-      SearchFiltersPanel,
+      SidePanelModal,
       ContentCardList,
       BookmarkIcon,
       ResourceSelectionBreadcrumbs,
     },
     mixins: [commonCoreStrings],
-    setup(props, context) {
+    setup(props) {
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
@@ -491,9 +485,6 @@
         loadingMore,
       } = useQuizResources({ topicId, practiceQuiz: selectPracticeQuiz.value });
 
-      const { searchTerms, search } = useBaseSearch({ descendant: topic });
-      search();
-
       const _loading = ref(true);
 
       const channels = ref([]);
@@ -631,10 +622,10 @@
 
       const contentList = computed(() => {
         /*
-      if (!topicId.value) {
-        return channels.value;
-      }
-      */
+          if (!topicId.value) {
+            return channels.value;
+          }
+          */
         if (showBookmarks.value) {
           return bookmarks.value.map(item => ({ ...item, is_leaf: true }));
         }
@@ -668,7 +659,8 @@
       }
 
       function handleConfirmClose() {
-        context.emit('closePanel');
+        // When the user is saying "yes lose my changes", then we can close the panel
+        this.$router.push({ name: PageNames.EXAM_CREATION_ROOT });
       }
 
       const workingPoolHasChanged = computed(() => {
@@ -712,8 +704,26 @@
         }
       }
 
+      const prevRoute = ref({ name: PageNames.EXAM_CREATION_ROOT });
+
+      // Can only go back w/ the arrow if the last route isn't the root,
+      // otherwise we only allow close
+      const canGoBack = computed(() => {
+        return Boolean(
+          // If we can go back to the section editor (another side panel) we can go back from here
+          // The beforeRouteLeave will catch and ask the user to confirm that navigation if needed
+          (prevRoute.value.name && prevRoute.value.name === PageNames.QUIZ_SECTION_EDITOR) ||
+            // prevRoute.value.name is falsy if we only just loaded, so we'll never show the back
+            // arrow in that case. Here we check if there is a valid prevRoute and if there is,
+            // then we know we can go back if we have a topicId or are showing bookmarks
+            // TODO When we add search it'll probably want to be here too
+            (prevRoute.value.name && (topicId.value || showBookmarks.value)),
+        );
+      });
+
       return {
-        showSearch: ref(false),
+        canGoBack,
+        prevRoute,
         nodeIsSelectableOrUnselectable,
         showCheckbox,
         displaySectionTitle,
@@ -778,7 +788,6 @@
         selectPracticeQuizLabel$,
         numberOfQuestionsLabel$,
         addNumberOfQuestions$,
-        searchTerms,
       };
     },
     props: {
@@ -823,20 +832,34 @@
         return `color : ${this.$themeTokens.fineLine}`;
       },
       /*
-    selectAllIsVisible() {
-      TO BE IMPLEMENTED IN https://github.com/learningequality/kolibri/issues/11734
-      Should only be visible if there are any checkboxes at all -- we'll only be showing
-      checkboxes for Exercises, not topics
-    },
-    */
+        selectAllIsVisible() {
+          TO BE IMPLEMENTED IN https://github.com/learningequality/kolibri/issues/11734
+          Should only be visible if there are any checkboxes at all -- we'll only be showing
+          checkboxes for Exercises, not topics
+        },
+        */
     },
     watch: {
       bookmarks(newVal) {
         this.bookmarksCount = newVal.length;
       },
     },
-    beforeRouteLeave(_, __, next) {
-      if (!this.showCloseConfirmation && this.workingPoolHasChanged) {
+    beforeRouteEnter(to, from, next) {
+      next(vm => {
+        vm.prevRoute = from;
+      });
+    },
+    /* eslint-disable-line no-unused-vars */
+    beforeRouteLeave(to, __, next) {
+      if (
+        // Not showing the modal already
+        !this.showCloseConfirmation &&
+        // User has changes
+        this.workingPoolHasChanged &&
+        // User is not trying to navigate within ResourceSelection
+        to.name !== this.$route.name
+      ) {
+        // Don't navigate, show confirmation modal
         this.showCloseConfirmation = true;
         next(false);
       } else {
@@ -847,6 +870,12 @@
       /** @public */
       focusFirstEl() {
         this.$refs.textbox.focus();
+      },
+      handleGoBack() {
+        this.$router.back();
+      },
+      handleClosePanel() {
+        this.$router.push({ name: PageNames.EXAM_CREATION_ROOT });
       },
       contentLink(content) {
         const { name, params, query } = this.$route;
@@ -926,7 +955,7 @@
 </script>
 
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
@@ -1002,15 +1031,6 @@
     text-align: center;
     background-color: white;
     border-top: 1px solid black;
-  }
-
-  .select-folder-style {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-  }
-
-  .align-select-folder-style {
-    margin-top: 2em;
   }
 
   .shadow {

@@ -1,117 +1,126 @@
 <template>
 
-  <div class="wrapper">
-    <h1 class="section-header">
-      {{
-        replaceQuestions$({
-          sectionTitle: displaySectionTitle(activeSection, activeSectionIndex),
-        })
-      }}
-    </h1>
-    <p>{{ replaceQuestionsHeading$() }}</p>
-    <span
-      class="divider"
-      :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
-    >
-    </span>
-    <AccordionContainer :items="replacementQuestionPool">
-      <template #left-actions>
-        <KCheckbox
-          ref="selectAllCheckbox"
-          class="select-all-box"
-          :label="selectAllLabel$()"
-          :checked="selectAllIsChecked"
-          :indeterminate="selectAllIsIndeterminate"
-          @change="selectAllReplacementQuestions"
-        />
-      </template>
-      <template #right-actions>
-        <KIconButton
-          icon="expandAll"
-          :tooltip="expandAll$()"
-          :disabled="!canExpandAll"
-          @click="expandAll"
-        />
-        <KIconButton
-          icon="collapseAll"
-          :tooltip="collapseAll$()"
-          :disabled="!canCollapseAll"
-          @click="collapseAll"
-        />
-      </template>
-      <AccordionItem
-        v-for="(question, index) in replacementQuestionPool"
-        :id="`replacement-question-${question.item}`"
-        :key="`replacement-question-${question.item}`"
-        :title="displayQuestionTitle(question, activeResourceMap[question.exercise_id].title)"
-        :aria-selected="
-          replacements.length && replacements.length === selectedActiveQuestions.length
-        "
+  <SidePanelModal
+    alignment="right"
+    sidePanelWidth="700px"
+    @closePanel="handleClosePanel"
+  >
+    <template #header>
+      <h1>
+        {{
+          replaceQuestions$({
+            sectionTitle: displaySectionTitle(activeSection, activeSectionIndex),
+          })
+        }}
+      </h1>
+    </template>
+    <div class="wrapper">
+      <p>{{ replaceQuestionsHeading$() }}</p>
+      <span
+        class="divider"
+        :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
       >
-        <template #heading="{ title }">
-          <h3 class="accordion-header">
-            <KCheckbox
-              class="accordion-checkbox"
-              :checked="replacements.map(r => r.item).includes(question.item)"
-              @change="() => toggleInReplacements(question)"
-            />
-            <KButton
-              tabindex="0"
-              appearance="basic-link"
-              :style="accordionStyleOverrides"
-              class="accordion-header-label"
-              :aria-expanded="isExpanded(question.item)"
-              :aria-controls="`question-panel-${question.item}`"
-              @click="toggle(index)"
-            >
-              <span>{{ title }}</span>
-              <KIcon
-                class="chevron-icon"
-                :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
+      </span>
+      <AccordionContainer :items="replacementQuestionPool">
+        <template #left-actions>
+          <KCheckbox
+            ref="selectAllCheckbox"
+            class="select-all-box"
+            :label="selectAllLabel$()"
+            :checked="selectAllIsChecked"
+            :indeterminate="selectAllIsIndeterminate"
+            @change="selectAllReplacementQuestions"
+          />
+        </template>
+        <template #right-actions>
+          <KIconButton
+            icon="expandAll"
+            :tooltip="expandAll$()"
+            :disabled="!canExpandAll"
+            @click="expandAll"
+          />
+          <KIconButton
+            icon="collapseAll"
+            :tooltip="collapseAll$()"
+            :disabled="!canCollapseAll"
+            @click="collapseAll"
+          />
+        </template>
+        <AccordionItem
+          v-for="(question, index) in replacementQuestionPool"
+          :id="`replacement-question-${question.item}`"
+          :key="`replacement-question-${question.item}`"
+          :title="displayQuestionTitle(question, activeResourceMap[question.exercise_id].title)"
+          :aria-selected="
+            replacements.length && replacements.length === selectedActiveQuestions.length
+          "
+        >
+          <template #heading="{ title }">
+            <h3 class="accordion-header">
+              <KCheckbox
+                class="accordion-checkbox"
+                :checked="replacements.map(r => r.item).includes(question.item)"
+                @change="() => toggleInReplacements(question)"
               />
-            </KButton>
-          </h3>
-        </template>
-        <template #content>
-          <div
-            v-if="isExpanded(index)"
-            :id="`question-panel-${question.item}`"
-            :ref="`question-panel-${question.item}`"
-            :style="{ userSelect: dragActive ? 'none!important' : 'text' }"
-          >
-            <ContentRenderer
-              :ref="`contentRenderer-${question.item}`"
-              :kind="activeResourceMap[question.exercise_id].kind"
-              :lang="activeResourceMap[question.exercise_id].lang"
-              :files="activeResourceMap[question.exercise_id].files"
-              :available="activeResourceMap[question.exercise_id].available"
-              :itemId="question.question_id"
-              :assessment="true"
-              :allowHints="false"
-              :interactive="false"
-              @interaction="() => null"
-              @updateProgress="() => null"
-              @updateContentState="() => null"
-              @error="err => $emit('error', err)"
-            />
-          </div>
-        </template>
-      </AccordionItem>
-    </AccordionContainer>
+              <KButton
+                tabindex="0"
+                appearance="basic-link"
+                :style="accordionStyleOverrides"
+                class="accordion-header-label"
+                :aria-expanded="isExpanded(question.item)"
+                :aria-controls="`question-panel-${question.item}`"
+                @click="toggle(index)"
+              >
+                <span>{{ title }}</span>
+                <KIcon
+                  class="chevron-icon"
+                  :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
+                />
+              </KButton>
+            </h3>
+          </template>
+          <template #content>
+            <div
+              v-if="isExpanded(index)"
+              :id="`question-panel-${question.item}`"
+              :ref="`question-panel-${question.item}`"
+              :style="{ userSelect: dragActive ? 'none!important' : 'text' }"
+            >
+              <ContentRenderer
+                :ref="`contentRenderer-${question.item}`"
+                :kind="activeResourceMap[question.exercise_id].kind"
+                :lang="activeResourceMap[question.exercise_id].lang"
+                :files="activeResourceMap[question.exercise_id].files"
+                :available="activeResourceMap[question.exercise_id].available"
+                :itemId="question.question_id"
+                :assessment="true"
+                :allowHints="false"
+                :interactive="false"
+                @interaction="() => null"
+                @updateProgress="() => null"
+                @updateContentState="() => null"
+                @error="err => $emit('error', err)"
+              />
+            </div>
+          </template>
+        </AccordionItem>
+      </AccordionContainer>
 
-    <div class="bottom-navigation">
-      <div>
-        {{ replaceSelectedQuestionsString }}
+      <div class="bottom-navigation">
+        <div>
+          {{ replaceSelectedQuestionsString }}
+        </div>
+        <KButton
+          :primary="true"
+          :text="replaceAction$()"
+          :disabled="!canProceedToReplace"
+          @click="confirmReplacement"
+        />
       </div>
-      <KButton
-        :primary="true"
-        :text="replaceAction$()"
-        :disabled="!canProceedToReplace"
-        @click="confirmReplacement"
-      />
     </div>
     <KModal
       v-if="showReplacementConfirmation"
+      appendToOverlay
       :submitText="coreString('confirmAction')"
       :cancelText="coreString('cancelAction')"
       :title="
@@ -129,6 +138,7 @@
     </KModal>
     <KModal
       v-if="showCloseConfirmation"
+      appendToOverlay
       :submitText="coreString('continueAction')"
       :cancelText="coreString('cancelAction')"
       :title="closeConfirmationTitle$()"
@@ -137,7 +147,7 @@
     >
       {{ closeConfirmationMessage$() }}
     </KModal>
-  </div>
+  </SidePanelModal>
 
 </template>
 
@@ -153,6 +163,7 @@
   import { get } from '@vueuse/core';
   import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import useAccordion from 'kolibri-common/components/useAccordion';
@@ -165,9 +176,10 @@
     components: {
       AccordionContainer,
       AccordionItem,
+      SidePanelModal,
     },
     mixins: [commonCoreStrings],
-    setup(_, context) {
+    setup() {
       const { createSnackbar } = useSnackbar();
 
       const router = getCurrentInstance().proxy.$router;
@@ -217,7 +229,14 @@
 
       function handleConfirmClose() {
         replacements.value = [];
-        context.emit('closePanel');
+        router.push({
+          name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: this.$route.params.classId,
+            quizId: this.$route.params.quizId,
+            sectionIndex: this.$route.params.sectionIndex,
+          },
+        });
       }
 
       function submitReplacement() {
@@ -329,10 +348,10 @@
         };
       },
       /**
-      If we don't have replacement.length then there are no changes to prompt about.
-      But if there are we only show if the number of replacements is the same as the number
-      of selected questions to be replaced
-    */
+        If we don't have replacement.length then there are no changes to prompt about.
+        But if there are we only show if the number of replacements is the same as the number
+        of selected questions to be replaced
+      */
       canProceedToReplace() {
         return (
           this.replacements.length &&
@@ -353,6 +372,7 @@
         }
       },
     },
+    /* eslint-disable-line no-unused-vars */
     beforeRouteLeave(_, __, next) {
       if (
         !this.showCloseConfirmation && // We aren't here because the user confirmed closing
@@ -365,6 +385,11 @@
       } else {
         next();
       }
+    },
+    methods: {
+      handleClosePanel() {
+        this.$router.push({ name: PageNames.EXAM_CREATION_ROOT });
+      },
     },
   };
 
