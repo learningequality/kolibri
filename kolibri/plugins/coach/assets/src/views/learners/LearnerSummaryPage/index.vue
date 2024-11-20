@@ -4,7 +4,7 @@
     <KPageContainer>
       <LearnerHeader />
     </KPageContainer>
-    <KGrid >
+    <KGrid>
       <KGridItem
         :layout12="{ span: 6 }"
         :layout8="{ span: 4 }"
@@ -59,7 +59,7 @@
         :layout4="{ span: 2 }"
       >
         <KPageContainer class="content-spacing">
-          <h2>{{ coachString('quizzesAssignedLabel') }} </h2>
+          <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
           <CoreTable :emptyMessage="coachString('quizListEmptyState')">
             <template #headers>
               <th>{{ coachString('titleLabel') }}</th>
@@ -124,17 +124,17 @@
     data() {
       return {
         lessonLimit: 10,
-        quizLimit:10,
+        quizLimit: 10,
       };
     },
     computed: {
       learner() {
         return this.learnerMap[this.$route.params.learnerId];
       },
-      getLessons(){
+      getLessons() {
         return this.lessons.filter(lesson => this.isAssignedLesson(lesson));
       },
-      getExam(){
+      getExam() {
         return this.exams.filter(exam => this.isAssignedQuiz(exam));
       },
       lessonsTable() {
@@ -148,8 +148,8 @@
           return tableRow;
         });
       },
-      showViewMoreButton(){
-        return (this.getLessons.length !== this.lessonsTable.length) && this.getLessons.length > 10;
+      showViewMoreButton() {
+        return this.getLessons.length !== this.lessonsTable.length && this.getLessons.length > 10;
       },
       examsTable() {
         const sorted = this._.orderBy(this.getExam, ['date_created'], ['desc']);
@@ -162,8 +162,8 @@
           return tableRow;
         });
       },
-      showQuizViewMoreButton(){
-        return (this.getExam.length !== this.examsTable.length) && this.getExam.length > 2;
+      showQuizViewMoreButton() {
+        return this.getExam.length !== this.examsTable.length && this.getExam.length > 2;
       },
     },
     methods: {
@@ -176,21 +176,21 @@
       quizLink(quizId) {
         return this.classRoute(PageNames.REPORTS_LEARNER_REPORT_QUIZ_PAGE_ROOT, { quizId });
       },
-      loadMoreLessonTable(){
-        if(this.lessonLimit > 20){
+      loadMoreLessonTable() {
+        if (this.lessonLimit > 20) {
           this.lessonLimit = this.getLessons.length;
           return;
         }
 
         this.lessonLimit += 10;
       },
-      loadMoreQuizzes(){
-        if(this.quizLimit > 20){
+      loadMoreQuizzes() {
+        if (this.quizLimit > 20) {
           this.quizLimit = this.getExam.length;
           return;
         }
         this.quizLimit += 10;
-      }
+      },
     },
   };
 
@@ -199,15 +199,14 @@
 
 <style lang="scss" scoped>
 
-  
-
   table {
     min-width: 0;
   }
+
   .content-spacing {
-    padding: 24px 24px 16px 24px;
     width: 100%;
     height: 100%;
+    padding: 24px 24px 16px;
   }
 
 </style>
