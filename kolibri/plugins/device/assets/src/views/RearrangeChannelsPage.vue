@@ -36,8 +36,8 @@
                 >
                   <DragSortWidget
                     class="sort-widget"
-                    :moveUpText="() => moveChannelUpLabel$({ name: channel.name })"
-                    :moveDownText="() => moveChanneldownLabel$({ name: channel.name })"
+                    :moveUpText="moveChannelUpLabel$"
+                    :moveDownText="moveChannelDownLabel$"
                     :isFirst="index === 0"
                     :isLast="index === channels.length - 1"
                     @moveUp="shiftOne(index, -1)"
@@ -94,14 +94,14 @@
       const { createSnackbar } = useSnackbar();
       const{
           moveChannelUpLabel$,
-          moveChanneldownLabel$
+          moveChannelDownLabel$,
         } = searchAndFilterStrings;
 
       return {
         canManageContent,
         createSnackbar,
         moveChannelUpLabel$,
-        moveChanneldownLabel$
+        moveChannelDownLabel$,
       };
     },
     data() {
@@ -196,14 +196,6 @@
         message: 'There are no channels',
         context:
           "This message will display on the 'Edit channel order' page if there are no channels available.",
-      },
-      upLabel: {
-        message: 'Move {name} up one',
-        context: 'Label to rearrange channel order. Not seen on UI.',
-      },
-      downLabel: {
-        message: 'Move {name} down one',
-        context: 'Label to rearrange channel order. Not seen on UI.',
       },
       editChannelOrderTitle: {
         message: 'Edit channel order',

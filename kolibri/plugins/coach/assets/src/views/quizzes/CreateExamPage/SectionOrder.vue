@@ -28,8 +28,8 @@
             >
               <DragSortWidget
                 class="drag-title"
-                :moveUpText="()=> upLabel$()"
-                :moveDownText="()=> downLabel$()"
+                :moveUpText="upLabel$"
+                :moveDownText="downLabel$"
                 :noDrag="true"
                 :isFirst="index === 0"
                 :isLast="index === sectionOrderList.length - 1"
@@ -322,23 +322,7 @@
         );
         return displaySectionTitle(section, sectionIndexOrder).toUpperCase();
       },
-      upLabel(){
-        return this.$tr('up');
-      },
-      downLabel(){
-        return this.$tr('down');
-      },
     },     
-    $trs: {
-      up: {
-        message: 'Up',
-        context: 'Move a section up in the list',
-      },
-      down: {
-        message: 'Down',
-        context: 'Move a section down in the list',
-      },
-    },
   };
 
 </script>

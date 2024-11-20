@@ -29,8 +29,8 @@
             >
               <div class="move-handle">
                 <DragSortWidget
-                  :moveUpText="()=>moveResourceUpButtonDescription$()"
-                  :moveDownText="()=>moveResourceDownButtonDescription$()"
+                  :moveUpText="moveResourceUpButtonDescription$"
+                  :moveDownText="moveResourceDownButtonDescription$"
                   :isFirst="index === 0"
                   :isLast="index === resourceListItems.length - 1"
                   @moveUp="moveUpOne(index)"
@@ -260,14 +260,6 @@
         message: 'Removed { numberOfRemovals } resources',
         context:
           'Confirmation message when user removes a specific amount of resources from a lesson.',
-      },
-      moveResourceUpButtonDescription: {
-        message: 'Move this resource one position up in this lesson',
-        context: 'Refers to changing the order of resources in a lesson.',
-      },
-      moveResourceDownButtonDescription: {
-        message: 'Move this resource one position down in this lesson',
-        context: 'Refers to changing the order of resources in a lesson.',
       },
       parentChannelLabel: {
         message: 'Parent channel:',

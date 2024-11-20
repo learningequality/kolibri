@@ -14,8 +14,8 @@
           <div style="display:flex;">
             <div>
               <DragSortWidget
-                :moveUpText="()=> upLabel$()"
-                :moveDownText="()=> downLabel$()"
+                :moveUpText="upLabel$"
+                :moveDownText="downLabel$"
                 :noDrag="true"
                 :isFirst="index === 0"
                 :isLast="index === resources.length - 1"

@@ -27,8 +27,8 @@
                     <!-- Mousedown.prevent is needed to avoid user selection -->
                     <DragSortWidget
                       class="sort-widget"
-                      :moveUpText="()=>moveResourceUpButtonDescription$()"
-                      :moveDownText="()=>moveResourceDownButtonDescription$()"
+                      :moveUpText="moveResourceUpButtonDescription$"
+                      :moveDownText="moveResourceDownButtonDescription$"
                       :isFirst="index === 0"
                       :isLast="index === entries.length - 1"
                       @moveUp="moveUpOne(index)"
@@ -187,16 +187,6 @@
         }
 
         exporter.export(this.entries);
-      },
-    },
-    $trs: {
-      moveResourceUpButtonDescription: {
-        message: 'Move this resource one position up in this lesson',
-        context: 'Refers to ordering resources.',
-      },
-      moveResourceDownButtonDescription: {
-        message: 'Move this resource one position down in this lesson',
-        context: 'Refers to ordering resources.',
       },
     },
   };

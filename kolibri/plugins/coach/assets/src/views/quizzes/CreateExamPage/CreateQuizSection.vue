@@ -245,8 +245,8 @@
                       <div>
                         <DragSortWidget
                           class="sort-widget"
-                          :moveUpText="()=> upLabel$()"
-                          :moveDownText="()=>downLabel$()"
+                          :moveUpText="upLabel$"
+                          :moveDownText="downLabel$"
                           :noDrag="true"
                           :isFirst="index === 0"
                           :isLast="index === activeQuestions.length - 1"
@@ -663,16 +663,6 @@
       },
       downLabel(){
         return this.$tr('down');
-      },
-    },
-    $trs: {
-      up: {
-        message: 'Up',
-        context: 'Move a section up in the list',
-      },
-      down: {
-        message: 'Down',
-        context: 'Move a section down in the list',
       },
     },
   };

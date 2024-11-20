@@ -11,7 +11,7 @@
       icon="chevronUp"
       class="btn up"
       size="mini"
-      :ariaLabel="upLabel"
+      :ariaLabel="moveUpText()"
       :class="{ visuallyhidden: !hasFocus }"
       @click="clickUp"
       @keyup.space="clickUp"
@@ -31,7 +31,7 @@
       icon="chevronDown"
       class="btn dn"
       size="mini"
-      :ariaLabel="downLabel"
+      :ariaLabel="moveDownText()"
       :class="{ visuallyhidden: !hasFocus }"
       @click="clickDown"
       @keyup.space="clickDown"
@@ -74,14 +74,6 @@
       return {
         hasFocus: false,
       };
-    },
-    computed: {
-      upLabel() {
-        return this.moveUpText();
-      },
-      downLabel() {
-        return this.moveDownText();
-      },
     },
     mounted() {
       window.addEventListener('focus', this.updateFocus, true);

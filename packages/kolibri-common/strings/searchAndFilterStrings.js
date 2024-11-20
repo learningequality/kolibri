@@ -8,11 +8,11 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
       'Label for a section of the page that contains options for searching and filtering content',
   },
   moveChannelUpLabel: {
-    message: 'Move {name} up one',
+    message: 'Move up one',
     context: 'Label to rearrange channel order. Not seen on UI.',
   },
-  moveChanneldownLabel: {
-    message: 'Move {name} down one',
+  moveChannelDownLabel: {
+    message: 'Move down one',
     context: 'Label to rearrange channel order. Not seen on UI.',
   },
 
