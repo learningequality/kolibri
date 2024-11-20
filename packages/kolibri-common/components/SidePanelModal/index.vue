@@ -24,10 +24,19 @@
             :style="fixedHeaderStyles"
           >
             <div class="header-content">
+              <KIconButton
+                v-if="showBackButton"
+                icon="back"
+                class="back-button"
+                :style="backButtonStyle"
+                :ariaLabel="backButtonMessage"
+                :tooltip="backButtonMessage"
+                @click="goBack"
+              />
               <slot name="header"> </slot>
               <KIconButton
                 v-if="closeButtonIconType"
-                :icon="closeButtonIconType"
+                icon="close"
                 class="close-button"
                 :style="closeButtonStyle"
                 :ariaLabel="closeButtonMessage"
@@ -88,14 +97,11 @@
       };
     },
     props: {
-      /* CloseButtonIconType icon from parent component */
-      closeButtonIconType: {
-        type: String,
+      /* Whether or not we should show the back button */
+      showBackButton: {
+        type: Boolean,
         required: false,
-        default: 'close',
-        validator: value => {
-          return ['close', 'back'].includes(value);
-        },
+        default: false,
       },
       /* Optionally override the default width of the side panel with valid CSS value */
       sidePanelWidth: {
@@ -168,33 +174,34 @@
           'z-index': 12,
         };
       },
+      backButtonMessage() {
+        return this.coreString('backAction');
+      },
       closeButtonMessage() {
-        return this.closeButtonIconType === 'back'
-          ? this.coreString('backAction')
-          : this.coreString('closeAction');
+        return this.coreString('closeAction');
+      },
+      backButtonStyle() {
+        if (this.isRtl) {
+          return {
+            position: 'absolute',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            right: '1em',
+            'z-index': '24',
+          };
+        } else {
+          return {
+            position: 'absolute',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            left: '1em',
+            'z-index': '24',
+          };
+        }
       },
       /* Change of position with change of close button type, default is close */
       closeButtonStyle() {
         if (this.isRtl) {
-          if (this.closeButtonIconType === 'close') {
-            return {
-              position: 'absolute',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              left: '1em',
-              'z-index': '24',
-            };
-          } else {
-            return {
-              position: 'absolute',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              right: '1em',
-              'z-index': '24',
-            };
-          }
-        }
-        if (this.closeButtonIconType === 'back') {
           return {
             position: 'absolute',
             top: '50%',
@@ -246,6 +253,9 @@
       window.setTimeout(() => this.lastFocus.focus());
     },
     methods: {
+      goBack() {
+        this.$emit('goBack');
+      },
       closePanel() {
         this.$emit('closePanel');
       },
@@ -291,6 +301,13 @@
     padding: 1em;
     line-height: 2.5em;
     text-align: center;
+  }
+
+  /** When an h1 is passed to the header slot we set it's styles here */
+  /deep/ h1 {
+    display: inline;
+    margin: 0;
+    font-size: 1.25rem;
   }
 
 </style>
