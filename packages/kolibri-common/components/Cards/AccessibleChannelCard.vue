@@ -25,7 +25,7 @@
       <div>
         <p style="margin-top: 0">
           <KTextTruncator
-            :text="coachString('numberOfResources', { value: contentNode.num_coach_contents })"
+            :text="coachString('numberOfResources', { value: contentNode.total_resource_count })"
             :maxLines="1"
           />
         </p>
