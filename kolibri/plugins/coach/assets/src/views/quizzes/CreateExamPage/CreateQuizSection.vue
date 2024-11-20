@@ -658,12 +658,6 @@
         this.deleteActiveSelectedQuestions();
         this.createSnackbar(this.questionsDeletedNotification$({ count }));
       },
-      upLabel(){
-        return this.$tr('up');
-      },
-      downLabel(){
-        return this.$tr('down');
-      },
     },
   };
 
