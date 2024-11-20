@@ -1,12 +1,12 @@
 import store from 'kolibri/store';
 import { PageNames } from '../constants';
 import CreateExamPage from '../views/quizzes/CreateExamPage';
-import SectionEditor from '../views/quizzes/CreateExamPage/SectionEditor.vue';
-import ResourceSelection from '../views/quizzes/CreateExamPage/ResourceSelection.vue';
-import ReplaceQuestions from '../views/quizzes/CreateExamPage/ReplaceQuestions.vue';
+import SectionEditor from '../views/quizzes/CreateExamPage/SidePanels/SectionEditor.vue';
+import ResourceSelection from '../views/quizzes/CreateExamPage/SidePanels/ResourceSelection.vue';
+import ReplaceQuestions from '../views/quizzes/CreateExamPage/SidePanels/ReplaceQuestions.vue';
+import SectionOrder from '../views/quizzes/CreateExamPage/SidePanels/SectionOrder';
 import ExamsRootPage from '../views/quizzes/ExamsRootPage';
 import QuizSummaryPage from '../views/quizzes/QuizSummaryPage';
-import SectionOrder from '../views/quizzes/CreateExamPage/SectionOrder';
 import LearnerQuizPage from '../views/common/reports/LearnerQuizPage.vue';
 import QuizPreviewPage from '../views/quizzes/reports/QuizPreviewPage.vue';
 import { generateExamReportDetailHandler } from '../modules/examReportDetail/handlers';

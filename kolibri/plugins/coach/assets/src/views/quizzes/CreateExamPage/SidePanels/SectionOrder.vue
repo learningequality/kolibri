@@ -98,9 +98,9 @@
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
-  import { PageNames } from '../../../constants/index';
-  import { injectQuizCreation } from '../../../composables/useQuizCreation';
-  import useDrag from './useDrag.js';
+  import { PageNames } from '../../../../constants/index';
+  import { injectQuizCreation } from '../../../../composables/useQuizCreation';
+  import useDrag from '../useDrag.js';
 
   export default {
     name: 'SectionOrder',

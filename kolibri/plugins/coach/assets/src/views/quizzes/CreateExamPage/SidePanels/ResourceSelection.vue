@@ -216,13 +216,13 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useBaseSearch from 'kolibri-common/composables/useBaseSearch';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
-  import { exerciseToQuestionArray } from '../../../utils/selectQuestions';
-  import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
-  import BookmarkIcon from '../../lessons/LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
-  import useQuizResources from '../../../composables/useQuizResources';
-  import { injectQuizCreation } from '../../../composables/useQuizCreation';
-  import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
-  import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
+  import { exerciseToQuestionArray } from '../../../../utils/selectQuestions';
+  import { PageNames, ViewMoreButtonStates } from '../../../../constants/index';
+  import BookmarkIcon from '../../../lessons/LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
+  import useQuizResources from '../../../../composables/useQuizResources';
+  import { injectQuizCreation } from '../../../../composables/useQuizCreation';
+  import ContentCardList from '../../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
+  import ResourceSelectionBreadcrumbs from '../../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
   export default {
     name: 'ResourceSelection',
