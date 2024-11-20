@@ -100,50 +100,6 @@
           />
         </KPageContainer>
       </KGridItem>
-      <KPageContainer class="right-container">
-        <KGrid>
-          <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
-            <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
-            <CoreTable
-              :class="{ print: $isPrint }"
-              :emptyMessage="coachString('quizListEmptyState')"
-            >
-              <template #headers>
-                <th>{{ coachString('titleLabel') }}</th>
-                <th>{{ coreString('progressLabel') }}</th>
-              </template>
-              <template #tbody>
-                <transition-group
-                  tag="tbody"
-                  name="list"
-                >
-                  <tr
-                    v-for="tableRow in examsTable"
-                    :key="tableRow.id"
-                  >
-                    <td>
-                      <KRouterLink
-                        :to="quizLink(tableRow.id)"
-                        :text="tableRow.title"
-                        icon="quiz"
-                      />
-                    </td>
-                    <td>
-                      <StatusSimple :status="tableRow.statusObj" />
-                    </td>
-                  </tr>
-                </transition-group>
-              </template>
-            </CoreTable>
-            <KButton
-              v-if="showQuizViewMoreButton"
-              :text="coreString('viewMoreAction')"
-              appearance="raised-button"
-              @click="loadMoreQuizzes"
-            />
-          </KGridItem>
-        </KGrid>
-      </KPageContainer>
     </KGrid>
   </CoachAppBarPage>
 
@@ -152,17 +108,10 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import commonCoach from '../common';
-  import CoachAppBarPage from '../CoachAppBarPage';
-  import { PageNames } from '../../constants';
-  import ReportsLearnerHeader from './ReportsLearnerHeader';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { PageNames } from '../../../constants';
-  import { REPORTS_LEARNERS_TABS_ID, ReportsLearnersTabs } from '../../../constants/tabsConstants';
-  import { useCoachTabs } from '../../../composables/useCoachTabs';
   import LearnerHeader from './LearnerHeader';
 
   export default {
@@ -250,7 +199,7 @@
 
 <style lang="scss" scoped>
 
-  @import '../common/print-table';
+  
 
   table {
     min-width: 0;
