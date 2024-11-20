@@ -29,8 +29,8 @@
             >
               <div class="move-handle">
                 <DragSortWidget
-                  :moveUpText="()=>$tr('moveResourceUpButtonDescription')"
-                  :moveDownText="()=> $tr('moveResourceDownButtonDescription')"
+                  :moveUpText="()=>moveResourceUpButtonDescription$()"
+                  :moveDownText="()=>moveResourceDownButtonDescription$()"
                   :isFirst="index === 0"
                   :isLast="index === resourceListItems.length - 1"
                   @moveUp="moveUpOne(index)"
@@ -112,6 +112,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { coachStrings } from '../../common/commonCoachStrings';
   import { PageNames } from '../../../constants';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
 
   // This is a simplified version of ResourceListTable that is supposed to work
   // outside of the LessonSummaryPage workflow.
@@ -129,11 +130,15 @@
     setup() {
       const { createSnackbar, clearSnackbar } = useSnackbar();
       const { noResourcesInLessonLabel$ } = coachStrings;
+      const { moveResourceUpButtonDescription$, moveResourceDownButtonDescription$ } =
+        searchAndFilterStrings;
       return {
         PageNames,
         noResourcesInLessonLabel$,
         createSnackbar,
         clearSnackbar,
+        moveResourceUpButtonDescription$, 
+        moveResourceDownButtonDescription$ 
       };
     },
     props: {

@@ -11,7 +11,7 @@
       icon="chevronUp"
       class="btn up"
       size="mini"
-      :ariaLabel="moveUpText"
+      :ariaLabel="upLabel"
       :class="{ visuallyhidden: !hasFocus }"
       @click="clickUp"
       @keyup.space="clickUp"
@@ -31,7 +31,7 @@
       icon="chevronDown"
       class="btn dn"
       size="mini"
-      :ariaLabel="moveDownText"
+      :ariaLabel="downLabel"
       :class="{ visuallyhidden: !hasFocus }"
       @click="clickDown"
       @keyup.space="clickDown"
@@ -54,24 +54,12 @@
       moveUpText: {
         type: Function,
         required: true,
-        validator: (value)=>{
-          if(isWrappedString(value)){
-            return true;
-          }else{
-            throw new Error('moveUpText must be a function that returns a wrapped string');
-          }
-        }
+        validator:isWrappedString
       },
       moveDownText: {
         type: Function,
         required: true,
-        validator: (value)=>{
-          if(isWrappedString(value)){
-            return true;
-          }else{
-            throw new Error('moveDownText must be a function that returns a wrapped string');
-          }
-        }
+        validator:isWrappedString
       },
       isFirst: {
         type: Boolean,
@@ -86,6 +74,14 @@
       return {
         hasFocus: false,
       };
+    },
+    computed: {
+      upLabel() {
+        return this.moveUpText();
+      },
+      downLabel() {
+        return this.moveDownText();
+      },
     },
     mounted() {
       window.addEventListener('focus', this.updateFocus, true);

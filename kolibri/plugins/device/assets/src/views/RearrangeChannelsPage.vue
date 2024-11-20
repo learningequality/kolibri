@@ -36,8 +36,8 @@
                 >
                   <DragSortWidget
                     class="sort-widget"
-                    :moveUpText="()=>$tr('upLabel', { name: channel.name })"
-                    :moveDownText="()=>$tr('downLabel', { name: channel.name })"
+                    :moveUpText="() => moveChannelUpLabel$({ name: channel.name })"
+                    :moveDownText="() => moveChanneldownLabel$({ name: channel.name })"
                     :isFirst="index === 0"
                     :isLast="index === channels.length - 1"
                     @moveUp="shiftOne(index, -1)"
@@ -72,6 +72,7 @@
   import DeviceChannelResource from '../apiResources/deviceChannel';
   import useContentTasks from '../composables/useContentTasks';
   import { PageNames } from '../constants';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
 
   export default {
     name: 'RearrangeChannelsPage',
@@ -91,10 +92,16 @@
       useContentTasks();
       const { canManageContent } = useUser();
       const { createSnackbar } = useSnackbar();
+      const{
+          moveChannelUpLabel$,
+          moveChanneldownLabel$
+        } = searchAndFilterStrings;
 
       return {
         canManageContent,
         createSnackbar,
+        moveChannelUpLabel$,
+        moveChanneldownLabel$
       };
     },
     data() {
