@@ -45,7 +45,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jest": "^28.9.0",
-    "eslint-plugin-jest-dom": "^5.4.0",
+    "eslint-plugin-jest-dom": "^5.5.0",
     "eslint-plugin-kolibri": "0.16.1-dev.1",
     "eslint-plugin-vue": "^9.31.0",
     "espree": "10.3.0",
