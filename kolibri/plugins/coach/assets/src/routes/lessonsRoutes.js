@@ -8,7 +8,6 @@ import {
   showLessonResourceBookmarks,
   showLessonResourceBookmarksMain,
 } from '../modules/lessonResources/handlers';
-import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
 import { PageNames } from '../constants';
 
 import { useLessons } from '../composables/useLessons';
@@ -19,9 +18,6 @@ import LessonResourceSelectionPage from '../views/lessons/LessonResourceSelectio
 import LessonSelectionContentPreviewPage from '../views/lessons/LessonSelectionContentPreviewPage';
 import LessonEditDetailsPage from '../views/lessons/LessonEditDetailsPage';
 import LessonCreationPage from '../views/lessons/LessonCreationPage';
-import EditLessonDetails from '../views/lessons/LessonEditDetailsPage/EditLessonDetails';
-import PreviewSelectedResources from '../views/lessons/LessonSelectionContentPreviewPage/LessonContentPreview/PreviewSelectedResources';
-import LessonResourceSelection from '../views/lessons/LessonResourceSelectionPage/LessonResourceSelection';
 
 import { generateResourceHandler } from '../modules/resourceDetail/handlers';
 import LessonResourceLearnersPage from '../views/lessons/reports/LessonResourceLearnersPage';
@@ -40,6 +36,9 @@ import {
 } from '../modules/questionDetail/handlers';
 import LessonLearnerExercisePage from '../views/lessons/reports/LessonLearnerExercisePage.vue';
 import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.vue';
+import EditLessonDetails from '../views/lessons/LessonSummaryPage/sidePanels/EditLessonDetails';
+import PreviewSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/PreviewSelectedResources';
+import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection';
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {
@@ -105,9 +104,23 @@ export default [
     component: LessonCreationPage,
   },
   {
-    name: PageNames.LESSON_CREATION_ROOT_BETTER,
-    path: CLASS + LESSONS_TEMP + '/edit',
-    component: LessonCreationPage,
+    name: PageNames.LESSON_SUMMARY,
+    path: CLASS + LESSON + '/:tabId?',
+    component: LessonSummaryPage,
+    meta: {
+      titleParts: ['LESSON_NAME', 'CLASS_NAME'],
+    },
+  },
+  {
+    name: PageNames.LESSON_SUMMARY_BETTER,
+    path: CLASS + LESSONS_TEMP + '/:tabId?',
+    component: LessonSummaryPage,
+    props: {
+      isTemp: true,
+    },
+    meta: {
+      titleParts: ['LESSON_NAME', 'CLASS_NAME'],
+    },
     children: [
       {
         name: PageNames.LESSON_EDIT_DETAILS_BETTER,
@@ -133,23 +146,6 @@ export default [
         component: PreviewSelectedResources,
       },
     ],
-  },
-  {
-    name: PageNames.LESSON_SUMMARY,
-    path: CLASS + LESSON + '/:tabId?',
-    component: LessonSummaryPage,
-    handler(toRoute, fromRoute) {
-      if (
-        fromRoute.name !== PageNames.LESSON_SUMMARY ||
-        toRoute.params.lessonId !== fromRoute.params.lessonId
-      ) {
-        return showLessonSummaryPage(store, toRoute.params);
-      }
-      store.dispatch('notLoading');
-    },
-    meta: {
-      titleParts: ['LESSON_NAME', 'CLASS_NAME'],
-    },
   },
   {
     name: PageNames.LESSON_EDIT_DETAILS,

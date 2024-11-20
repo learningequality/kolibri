@@ -5,9 +5,12 @@
     :orientation="windowBreakpoint === 0 ? 'vertical' : 'horizontal'"
     thumbnailDisplay="small"
     thumbnailAlign="right"
-    :thumbnailSrc="thumbnailSrc"
-    :title="title"
+    :thumbnailSrc="contentNode.thumbnail"
+    :title="contentNode.name"
     :headingLevel="headingLevel"
+    :style="{
+      minHeight: '150px',
+    }"
   >
     <template #thumbnailPlaceholder>
       <div>
@@ -20,14 +23,18 @@
     </template>
     <template #belowTitle>
       <div>
-        <KTextTruncator
-          :text="coachString('numberOfResources', { value: contentNode.num_coach_contents })"
-          :maxLines="1"
-        />
-        <KTextTruncator
-          :text="contentNode.description"
-          :maxLines="2"
-        />
+        <p style="margin-top: 0">
+          <KTextTruncator
+            :text="coachString('numberOfResources', { value: contentNode.total_resource_count })"
+            :maxLines="1"
+          />
+        </p>
+        <p>
+          <KTextTruncator
+            :text="contentNode.description"
+            :maxLines="3"
+          />
+        </p>
       </div>
     </template>
   </KCard>
@@ -58,10 +65,6 @@
         type: Object,
         required: true,
       },
-      title: {
-        type: String,
-        required: true,
-      },
       headingLevel: {
         type: Number,
         required: false,
@@ -70,10 +73,6 @@
       contentNode: {
         type: Object,
         required: true,
-      },
-      thumbnailSrc: {
-        type: String,
-        default: null,
       },
     },
   };
