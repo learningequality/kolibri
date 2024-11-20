@@ -18,6 +18,10 @@ from kolibri.core.auth.test.helpers import DUMMY_PASSWORD
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
+from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
+from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
+from kolibri.core.discovery.well_known import DATA_PORTAL_BASE_INSTANCE_ID
+from kolibri.core.discovery.well_known import DATA_PORTAL_SYNCING_BASE_URL
 
 
 @mock.patch.object(requests.Session, "request", mock_request)
@@ -40,11 +44,36 @@ class NetworkLocationAPITestCase(APITestCase):
         cls.existing_sad_netloc = models.NetworkLocation.objects.create(
             base_url="https://sadurl.qqq/"
         )
+        cls.kdp_reserved_location = models.NetworkLocation.objects.create(
+            id=DATA_PORTAL_BASE_INSTANCE_ID,
+            base_url=DATA_PORTAL_SYNCING_BASE_URL,
+            location_type=models.LocationTypes.Reserved,
+        )
+        cls.studio_reserved_location = models.NetworkLocation.objects.create(
+            id=CENTRAL_CONTENT_BASE_INSTANCE_ID,
+            base_url=CENTRAL_CONTENT_BASE_URL,
+            location_type=models.LocationTypes.Reserved,
+        )
+        cls.dynamic_location = models.DynamicNetworkLocation.objects.create(
+            id="a" * 32,
+            base_url="http://dynamiclocation.qqq",
+            instance_id="a" * 32,
+        )
 
     def login(self, user):
         self.client.login(
             username=user.username, password=DUMMY_PASSWORD, facility=user.facility
         )
+
+    def assert_network_location_list(self, syncable_value, expected_ids):
+        params = {"syncable": syncable_value} if syncable_value is not None else {}
+        response = self.client.get(
+            reverse("kolibri:core:networklocation-list"),
+            params,
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        location_ids = [location["id"] for location in response.data]
+        self.assertCountEqual(location_ids, expected_ids)
 
     def test_get__pk(self):
         self.login(self.superuser)
@@ -131,6 +160,47 @@ class NetworkLocationAPITestCase(APITestCase):
         )
         for location in response.data:
             self.assertFalse(location["subset_of_users_device"])
+
+    def test_return_kdp_reserved_location(self):
+        """
+        Tests the API for fetching dynamic, static, and KDP reserved network locations
+        """
+        self.login(self.superuser)
+        expected_ids = [
+            self.existing_happy_netloc.id,
+            self.existing_nonkolibri_netloc.id,
+            self.existing_sad_netloc.id,
+            self.dynamic_location.id,
+            self.kdp_reserved_location.id,
+        ]
+        self.assert_network_location_list("1", expected_ids)
+
+    def test_return_studio_reserved_location(self):
+        """
+        Tests the API for fetching dynamic, static, and Studio reserved network locations
+        """
+        self.login(self.superuser)
+        expected_ids = [
+            self.existing_happy_netloc.id,
+            self.existing_nonkolibri_netloc.id,
+            self.existing_sad_netloc.id,
+            self.dynamic_location.id,
+            self.studio_reserved_location.id,
+        ]
+        self.assert_network_location_list("0", expected_ids)
+
+    def test_return_no_reserved_locations(self):
+        """
+        Tests the API for fetching only dynamic and static network locations
+        """
+        self.login(self.superuser)
+        expected_ids = [
+            self.existing_happy_netloc.id,
+            self.existing_nonkolibri_netloc.id,
+            self.existing_sad_netloc.id,
+            self.dynamic_location.id,
+        ]
+        self.assert_network_location_list(None, expected_ids)
 
 
 class PinnedDeviceAPITestCase(APITestCase):
