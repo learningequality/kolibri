@@ -379,10 +379,10 @@ def version_matches_range(version, version_range):
 
     # extract and normalize version strings
     operator, range_version = get_version_and_operator_from_range(version_range)
-    version = normalize_version_to_semver(version)
+    version = semver.VersionInfo.parse(normalize_version_to_semver(version))
 
     # check whether the version is in the range
-    return semver.match(version, operator + range_version)
+    return version.match(operator + range_version)
 
 
 def normalize_version_to_semver(version):
@@ -405,10 +405,6 @@ def normalize_version_to_semver(version):
     if after_pieces:
         after = ".".join([piece for piece in after_pieces.group() if piece])
 
-    # position final releases between alphas, betas, and further dev
-    if not dev:
-        after = (after + ".c").strip(".")
-
     # make sure dev versions are sorted nicely relative to one another
     dev = (dev or "").replace("+", ".").replace("-", ".")
 
@@ -430,19 +426,21 @@ def truncate_version(version, truncation_level=PATCH_VERSION):
     """
     import semver
 
-    v = semver.parse_version_info(
+    v = semver.VersionInfo.parse(
         normalize_version_to_semver(version).replace(".dev", "+dev")
     )
 
     if truncation_level == MAJOR_VERSION:
-        return semver.format_version(v.major, 0, 0)
+        return str(semver.VersionInfo(major=v.major, minor=0, patch=0))
     if truncation_level == MINOR_VERSION:
-        return semver.format_version(v.major, v.minor, 0)
+        return str(semver.VersionInfo(major=v.major, minor=v.minor, patch=0))
     if truncation_level == PATCH_VERSION:
-        return semver.format_version(v.major, v.minor, v.patch)
+        return str(semver.VersionInfo(major=v.major, minor=v.minor, patch=v.patch))
     if truncation_level == PRERELEASE_VERSION:
-        truncated_version = semver.format_version(
-            v.major, v.minor, v.patch, prerelease=v.prerelease
+        truncated_version = str(
+            semver.VersionInfo(
+                major=v.major, minor=v.minor, patch=v.patch, prerelease=v.prerelease
+            )
         )
         # ensure prerelease formatting matches our convention
         truncated_version, prerelease_version = truncated_version.split("-")
