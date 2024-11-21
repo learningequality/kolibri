@@ -69,10 +69,10 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import DeviceChannelResource from '../apiResources/deviceChannel';
   import useContentTasks from '../composables/useContentTasks';
   import { PageNames } from '../constants';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
 
   export default {
     name: 'RearrangeChannelsPage',
@@ -92,10 +92,7 @@
       useContentTasks();
       const { canManageContent } = useUser();
       const { createSnackbar } = useSnackbar();
-      const{
-          moveChannelUpLabel$,
-          moveChannelDownLabel$,
-        } = searchAndFilterStrings;
+      const { moveChannelUpLabel$, moveChannelDownLabel$ } = searchAndFilterStrings;
 
       return {
         canManageContent,

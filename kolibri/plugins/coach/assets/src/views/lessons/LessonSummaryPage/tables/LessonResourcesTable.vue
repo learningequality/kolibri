@@ -117,10 +117,10 @@
       const { moveResourceUpButtonDescription$, moveResourceDownButtonDescription$ } =
         searchAndFilterStrings;
 
-      return  {
+      return {
         moveResourceUpButtonDescription$,
-        moveResourceDownButtonDescription$
-      }
+        moveResourceDownButtonDescription$,
+      };
     },
     props: {
       title: {

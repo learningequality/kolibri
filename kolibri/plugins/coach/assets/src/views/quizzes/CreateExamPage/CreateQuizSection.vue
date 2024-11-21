@@ -450,7 +450,7 @@
 
         createSnackbar,
         upLabel$,
-        downLabel$
+        downLabel$,
       };
     },
     data() {
@@ -513,7 +513,6 @@
           },
         ];
       },
-      
     },
     created() {
       const { query } = this.$route;

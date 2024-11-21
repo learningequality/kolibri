@@ -110,9 +110,9 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { coachStrings } from '../../common/commonCoachStrings';
   import { PageNames } from '../../../constants';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
 
   // This is a simplified version of ResourceListTable that is supposed to work
   // outside of the LessonSummaryPage workflow.
@@ -137,8 +137,8 @@
         noResourcesInLessonLabel$,
         createSnackbar,
         clearSnackbar,
-        moveResourceUpButtonDescription$, 
-        moveResourceDownButtonDescription$ 
+        moveResourceUpButtonDescription$,
+        moveResourceDownButtonDescription$,
       };
     },
     props: {

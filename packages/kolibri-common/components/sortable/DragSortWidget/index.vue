@@ -43,10 +43,9 @@
 
 <script>
 
-  function isWrappedString(value){
+  function isWrappedString(value) {
     return typeof value === 'function' && value.KOLIBRI_I18N_WRAPPED_STRING;
   }
-
 
   export default {
     name: 'DragSortWidget',
@@ -54,12 +53,12 @@
       moveUpText: {
         type: Function,
         required: true,
-        validator:isWrappedString
+        validator: isWrappedString,
       },
       moveDownText: {
         type: Function,
         required: true,
-        validator:isWrappedString
+        validator: isWrappedString,
       },
       isFirst: {
         type: Boolean,
