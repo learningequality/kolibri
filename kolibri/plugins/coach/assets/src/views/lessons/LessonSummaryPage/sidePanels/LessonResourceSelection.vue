@@ -8,69 +8,88 @@
     @shouldFocusFirstEl="() => null"
   >
     <template #header>
-      <h1 class="side-panel-title">{{ $tr('manageLessonResourcesTitle') }}</h1>
+      <h1 class="side-panel-title">
+        {{ !showSearch ? $tr('searchFiltersTitle') : $tr('manageLessonResourcesTitle') }}
+      </h1>
     </template>
-    <div v-if="loading">
-      <KCircularLoader />
+
+    <div v-if="!showSearch">
+      <SearchFiltersPanel
+        ref="SearchPanel"
+        v-model="searchTerms"
+        :accordion="true"
+        :showChannels="true"
+        :showActivities="true"
+        @close="showSearch = true"
+      />
     </div>
     <div v-else>
-      <div v-if="bookmarks.length > 0">
-        <h2 class="side-panel-subtitle">
-          {{ selectFromBookmarks$() }}
-        </h2>
-        <KCardGrid layout="1-1-1">
-          <KCard
-            :title="bookmarksLabel$()"
-            :headingLevel="3"
-            :to="{}"
-            orientation="horizontal"
-            thumbnailDisplay="large"
-            thumbnailAlign="right"
-            :style="{
-              height: '172px',
-            }"
-          >
-            <template #thumbnailPlaceholder>
-              <KIcon
-                :style="{
-                  fontSize: '48px',
-                }"
-                icon="bookmark"
-                :color="$themePalette.grey.v_700"
-              />
-            </template>
-            <template #belowTitle>
-              <span>
-                {{ numberOfBookmarks$({ count: bookmarks.length }) }}
-              </span>
-            </template>
-          </KCard>
-        </KCardGrid>
+      <div v-if="loading">
+        <KCircularLoader />
       </div>
-      <div>
-        <div class="channels-header">
+      <div v-else>
+        <div v-if="bookmarks.length > 0">
           <h2 class="side-panel-subtitle">
-            {{ selectFromChannels$() }}
+            {{ selectFromBookmarks$() }}
           </h2>
-          <KButton
-            icon="filter"
-            :text="searchLabel$()"
-          />
+          <KCardGrid layout="1-1-1">
+            <KCard
+              :title="bookmarksLabel$()"
+              :headingLevel="3"
+              :to="{}"
+              orientation="horizontal"
+              thumbnailDisplay="large"
+              thumbnailAlign="right"
+              :style="{
+                height: '172px',
+              }"
+            >
+              <template #thumbnailPlaceholder>
+                <KIcon
+                  :style="{
+                    fontSize: '48px',
+                  }"
+                  icon="bookmark"
+                  :color="$themePalette.grey.v_700"
+                />
+              </template>
+              <template #belowTitle>
+                <span>
+                  {{ numberOfBookmarks$({ count: bookmarks.length }) }}
+                </span>
+              </template>
+            </KCard>
+          </KCardGrid>
         </div>
-        <KCardGrid layout="1-1-1">
-          <AccessibleChannelCard
-            v-for="channel of channels"
-            :key="channel.id"
-            :contentNode="channel"
-            :to="{}"
-            :headingLevel="3"
-          />
-        </KCardGrid>
+        <div>
+          <div class="channels-header">
+            <h2 class="side-panel-subtitle">
+              {{ selectFromChannels$() }}
+            </h2>
+            <KButton
+              icon="filter"
+              :text="searchLabel$()"
+              @click="showSearch = false"
+            />
+          </div>
+          <KCardGrid layout="1-1-1">
+            <AccessibleChannelCard
+              v-for="channel of channels"
+              :key="channel.id"
+              :contentNode="channel"
+              :to="{}"
+              :headingLevel="3"
+            />
+          </KCardGrid>
+        </div>
       </div>
     </div>
 
     <template #bottomNavigation>
-      <div class="bottom-nav-container">
+      <div
+        v-if="showSearch"
+        class="bottom-nav-container"
+      >
         <KButton
           primary
           :text="saveAndFinishAction$()"
@@ -91,17 +110,24 @@
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';
+  import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel/index.vue';
+  import useBaseSearch from 'kolibri-common/composables/useBaseSearch';
 
   export default {
     name: 'LessonResourceSelection',
     components: {
       SidePanelModal,
       AccessibleChannelCard,
+      SearchFiltersPanel,
     },
     setup() {
       const loading = ref(false);
       const bookmarks = ref([]);
       const channels = ref([]);
+      const showSearch = ref(true);
+      const topic = ref(null);
+
+      const { searchTerms } = useBaseSearch(topic);
 
       const loadBookmarks = async () => {
         const data = await ContentNodeResource.fetchBookmarks({
@@ -141,6 +167,8 @@
         loading,
         bookmarks,
         channels,
+        showSearch,
+        searchTerms,
         selectFromChannels$,
         numberOfBookmarks$,
         bookmarksLabel$,
@@ -151,7 +179,11 @@
     },
     methods: {
       closeSidePanel() {
-        this.$router.go(-1);
+        if (this.showSearch == true) {
+          this.$router.go(-1);
+        } else {
+          this.showSearch = true;
+        }
       },
     },
     $trs: {
@@ -159,6 +191,10 @@
         message: 'Manage lesson resources',
         context:
           "In the 'Manage lesson resources' coaches can add new/remove resource material to a lesson.",
+      },
+      searchFiltersTitle: {
+        message: 'Search',
+        context: 'TO DO',
       },
     },
   };
