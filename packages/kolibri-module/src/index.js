@@ -5,13 +5,6 @@
  */
 
 import coreApp from 'kolibri';
-import urls from 'kolibri/urls';
-
-if (process.env.NODE_ENV === 'production') {
-  /* eslint-disable no-undef */
-  __webpack_public_path__ = urls.static(`${__kolibriModuleName}/`);
-  /* eslint-enable */
-}
 
 export default class KolibriModule {
   /**

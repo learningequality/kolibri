@@ -119,7 +119,8 @@ module.exports = (
       // webpack properly handles that or not.
       chunkLoadingGlobal: 'webpackChunkwebpack__' + data.name.replace('.', ''),
       scriptType: 'text/javascript',
-      pathinfo: mode === 'production',
+      pathinfo: false,
+      publicPath: 'auto',
     },
     resolve: {
       alias,
