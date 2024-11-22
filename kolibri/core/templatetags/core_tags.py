@@ -6,7 +6,6 @@ from django import template
 from django.templatetags.static import static
 from django.utils.html import format_html
 
-from kolibri.core.hooks import FrontEndBaseASyncHook
 from kolibri.core.hooks import FrontEndBaseHeadHook
 from kolibri.core.hooks import FrontEndBaseSyncHook
 from kolibri.core.theme_hook import ThemeHook
@@ -25,18 +24,6 @@ def frontend_base_assets():
     :return: HTML of script tags to insert into base.html
     """
     return FrontEndBaseSyncHook.html()
-
-
-@register.simple_tag()
-def frontend_base_async_assets():
-    """
-    This is a script tag for all ``FrontEndAssetHook`` hooks that implement a
-    render_to_html() method - this is used in ``/base.html`` template to
-    populate any Javascript and CSS that should be loaded at page load.
-
-    :return: HTML of script tags to insert into base.html
-    """
-    return FrontEndBaseASyncHook.html()
 
 
 @register.simple_tag()

@@ -1,10 +1,13 @@
 import Vue from 'vue';
+import logging from 'kolibri-logging';
 import scriptLoader from 'kolibri-common/utils/scriptLoader';
 import { RENDERER_SUFFIX } from 'kolibri/constants';
-import { languageDirection, languageDirections } from 'kolibri/utils/i18n';
+import { languageDirection, languageDirections, currentLanguage } from 'kolibri/utils/i18n';
 import contentRendererMixin from '../components/internal/ContentRenderer/mixin';
 import ContentRendererLoading from '../components/internal/ContentRenderer/ContentRendererLoading';
 import ContentRendererError from '../components/internal/ContentRenderer/ContentRendererError';
+
+const logger = logging.getLogger(__filename);
 
 /**
  * Array containing the names of all methods of the Mediator that
@@ -12,7 +15,6 @@ import ContentRendererError from '../components/internal/ContentRenderer/Content
  * @type {string[]}
  */
 const publicMethods = [
-  'registerKolibriModuleAsync',
   'registerKolibriModuleSync',
   'stopListening',
   'emit',
@@ -46,24 +48,11 @@ export default function pluginMediatorFactory(facade) {
     _kolibriModuleRegistry: {},
 
     /**
-     * Keep track of all callbacks that have been fired for as yet unloaded modules.
-     * kolibriModuleName: {Function[]} of callbacks
-     **/
-    _callbackBuffer: {},
-
-    /**
      * Keep track of all registered callbacks bound to events - this allows for easier
      * stopListening later.
      * kolibriModuleName: {object} - event: {object} - method: callback function
      **/
     _callbackRegistry: {},
-
-    /**
-     * Keep track of all registered async callbacks bound to events - this allows for
-     * easier stopListening later.
-     * kolibriModuleName: {object[]} - with keys 'event' and 'callback'.
-     **/
-    _asyncCallbackRegistry: {},
 
     // we use a Vue object solely for its event functionality
     _eventDispatcher: new Vue(),
@@ -90,6 +79,7 @@ export default function pluginMediatorFactory(facade) {
      */
     ready() {
       this.registerMessages();
+      this.registerAllContentRenderers();
       this.setReady();
     },
 
@@ -117,13 +107,7 @@ export default function pluginMediatorFactory(facade) {
       // Create an entry in the kolibriModule registry.
       this._kolibriModuleRegistry[kolibriModule.name] = kolibriModule;
 
-      // Clear any previously bound asynchronous callbacks for this kolibriModule.
-      this._clearAsyncCallbacks(kolibriModule);
-
-      // Execute any callbacks that were called before the kolibriModule had loaded,
-      // in the order that they happened.
-      this._executeCallbackBuffer(kolibriModule);
-      console.info(`Kolibri Modules: ${kolibriModule.name} registered`); // eslint-disable-line no-console
+      logger.info(`Kolibri Modules: ${kolibriModule.name} registered`);
       this.emit('kolibri_register', kolibriModule);
       if (this._ready) {
         kolibriModule.ready();
@@ -247,106 +231,6 @@ export default function pluginMediatorFactory(facade) {
     },
 
     /**
-     * Finds all callbacks that were called before the kolibriModule was loaded
-     * and registered synchronously and
-     * executes them in order of creation.
-     * @param {KolibriModule} kolibriModule - object of KolibriModule class
-     * @private
-     */
-    _executeCallbackBuffer(kolibriModule) {
-      if (typeof this._callbackBuffer[kolibriModule.name] !== 'undefined') {
-        this._callbackBuffer[kolibriModule.name].forEach(buffer => {
-          // Do this to ensure proper 'this'ness.
-          kolibriModule[buffer.method](...buffer.args);
-        });
-        delete this._callbackBuffer[kolibriModule.name];
-      }
-    },
-
-    /**
-     * Registers a kolibriModule before it has been loaded into the page. Buffers
-     * any events that are fired, causing the
-     * arguments to be saved in the callback buffer array for this kolibriModule.
-     * @param {string} kolibriModuleName - the name of the kolibriModule
-     * @param {string[]} kolibriModuleUrls - the URLs of the Javascript and CSS
-     * files that constitute the kolibriModule
-     * @param {object} events - key, value pairs of event names and methods for
-     * repeating callbacks.
-     * @param {object} once - key value pairs of event names and methods for one
-     * time callbacks.
-     */
-    registerKolibriModuleAsync(kolibriModuleName, kolibriModuleUrls, events, once) {
-      const self = this;
-      // Create a buffer for events that are fired before a kolibriModule has
-      // loaded. Keep track of the method and the arguments passed to the callback.
-      this._callbackBuffer[kolibriModuleName] = [];
-      const callbackBuffer = this._callbackBuffer[kolibriModuleName];
-      // Look at all events, whether listened to once or multiple times.
-      const eventArray = [];
-      for (let i = 0; i < Object.getOwnPropertyNames(events).length; i += 1) {
-        const key = Object.getOwnPropertyNames(events)[i];
-        eventArray.push([key, events[key]]);
-      }
-      for (let i = 0; i < Object.getOwnPropertyNames(once).length; i += 1) {
-        const key = Object.getOwnPropertyNames(once)[i];
-        eventArray.push([key, once[key]]);
-      }
-      if (typeof this._asyncCallbackRegistry[kolibriModuleName] === 'undefined') {
-        this._asyncCallbackRegistry[kolibriModuleName] = [];
-      }
-      eventArray.forEach(tuple => {
-        const key = tuple[0];
-        const value = tuple[1];
-        // Create a callback function that will push objects to the callback buffer,
-        // and also cause loading of the the frontend assets that the kolibriModule
-        // needs, should an event it is listening for be emitted.
-        const callback = (...args) => {
-          const promise = new Promise((resolve, reject) => {
-            // First check that the kolibriModule hasn't already been loaded.
-            if (typeof self._kolibriModuleRegistry[kolibriModuleName] === 'undefined') {
-              // Add the details about the event callback to the buffer.
-              callbackBuffer.push({
-                args,
-                method: value,
-              });
-              // Load all the kolibriModule files.
-              Promise.all(kolibriModuleUrls.map(scriptLoader))
-                .then(() => {
-                  resolve();
-                })
-                .catch(() => {
-                  const errorText = `Kolibri Modules: ${kolibriModuleName} failed to load`;
-                  console.error(errorText); // eslint-disable-line no-console
-                  reject(errorText);
-                });
-            }
-          });
-          return promise;
-        };
-        // Listen to the event and call the above function
-        self._eventDispatcher.$on(key, callback);
-        // Keep track of all these functions for easy cleanup after
-        // the kolibriModule has been loaded.
-        self._asyncCallbackRegistry[kolibriModuleName].push({
-          event: key,
-          callback,
-        });
-      });
-    },
-
-    /**
-     * Function to unbind and remove all callbacks created by the registerKolibriModuleAsync method.
-     * @param {KolibriModule} kolibriModule - object of KolibriModule class
-     * @private
-     */
-    _clearAsyncCallbacks(kolibriModule) {
-      (this._asyncCallbackRegistry[kolibriModule.name] || []).forEach(async => {
-        this._eventDispatcher.$off(async.event, async.callback);
-      });
-      delete this._asyncCallbackRegistry[kolibriModule.name];
-    },
-
-    /**
      * Proxy to the Vue object that is the global dispatcher.
      * Takes any arguments and passes them on.
      */
@@ -382,26 +266,37 @@ export default function pluginMediatorFactory(facade) {
      * @param  {String} language   language code whose messages we are registering.
      * @param  {Object} messageMap an object with message id to message mappings.
      */
-    registerLanguageAssets(moduleName, language, messageMap) {
+    registerLanguageAssets(moduleName) {
+      const messageElement = document.querySelector(`template[data-i18n="${moduleName}"]`);
+      if (!messageElement) {
+        return;
+      }
+      let messageMap;
+      try {
+        messageMap = JSON.parse(messageElement.innerHTML.trim());
+      } catch (e) {
+        logger.error(`Error parsing language assets for ${moduleName}`);
+      }
+      if (!messageMap || typeof messageMap !== 'object') {
+        logger.error(`Error parsing language assets for ${moduleName}`);
+        return;
+      }
       if (!Vue.registerMessages) {
         // Set this messageMap so that we can register it later when VueIntl
         // has finished loading.
         // Create empty entry in the language asset registry for this module if needed
-        this._languageAssetRegistry[moduleName] = this._languageAssetRegistry[moduleName] || {};
-        this._languageAssetRegistry[moduleName][language] = messageMap;
+        this._languageAssetRegistry[moduleName] = messageMap;
       } else {
-        Vue.registerMessages(language, messageMap);
+        Vue.registerMessages(currentLanguage, messageMap);
       }
     },
     /**
      * A method for taking all registered language assets and registering them against Vue Intl.
      */
     registerMessages() {
-      Object.keys(this._languageAssetRegistry).forEach(moduleName => {
-        Object.keys(this._languageAssetRegistry[moduleName]).forEach(language => {
-          Vue.registerMessages(language, this._languageAssetRegistry[moduleName][language]);
-        });
-      });
+      for (const moduleName in this._languageAssetRegistry) {
+        Vue.registerMessages(currentLanguage, this._languageAssetRegistry[moduleName]);
+      }
       delete this._languageAssetRegistry;
     },
     /**
@@ -416,7 +311,7 @@ export default function pluginMediatorFactory(facade) {
       this._contentRendererUrls[kolibriModuleName] = kolibriModuleUrls;
       contentPresets.forEach(preset => {
         if (this._contentRendererRegistry[preset]) {
-          console.warn(`Kolibri Modules: Two content renderers are registering for ${preset}`); // eslint-disable-line no-console
+          logger.warn(`Kolibri Modules: Two content renderers are registering for ${preset}`);
         } else {
           this._contentRendererRegistry[preset] = kolibriModuleName;
           Vue.component(preset + RENDERER_SUFFIX, () => ({
@@ -436,6 +331,27 @@ export default function pluginMediatorFactory(facade) {
           }));
         }
       });
+    },
+
+    /**
+     * A method for reading all templates that contain metadata about content renderers
+     * and registering them.
+     */
+    registerAllContentRenderers() {
+      const contentRendererElements = Array.from(
+        document.querySelectorAll('template[data-viewer]') || [],
+      );
+      for (const element of contentRendererElements) {
+        const moduleName = element.getAttribute('data-viewer');
+        try {
+          const data = JSON.parse(element.innerHTML.trim());
+          const presets = data.presets;
+          const urls = data.urls;
+          this.registerContentRenderer(moduleName, urls, presets);
+        } catch (e) {
+          logger.error(`Error parsing content renderer for ${moduleName}`);
+        }
+      }
     },
 
     /**
@@ -501,7 +417,7 @@ export default function pluginMediatorFactory(facade) {
               }
             })
             .catch(error => {
-              console.error('Kolibri Modules: ' + error); // eslint-disable-line no-console
+              logger.error('Kolibri Modules: ' + error);
               reject('Content renderer failed to load properly');
             });
         }

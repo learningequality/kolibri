@@ -4,7 +4,7 @@ import urls from 'kolibri/urls';
 export default new Resource({
   name: 'portal',
   validateToken(token) {
-    const url = urls['kolibri:core:portal-validate-token']();
+    const url = urls['kolibri:core:portal_validate_token']();
     return this.client({
       url,
       method: 'get',
@@ -12,7 +12,7 @@ export default new Resource({
     });
   },
   registerFacility({ facility_id, token }) {
-    const url = urls['kolibri:core:portal-register']();
+    const url = urls['kolibri:core:portal_register']();
     return this.client({
       url,
       method: 'post',

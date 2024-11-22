@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import { currentLanguage } from '../../utils/i18n';
 import mediatorFactory from '../pluginMediator';
 
 if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
@@ -8,7 +9,6 @@ if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
 
 describe('Mediator', function () {
   let mediator, kolibriModule, facade;
-  const kolibriModuleName = 'test';
   beforeEach(function () {
     facade = {};
     mediator = mediatorFactory({ Vue, facade });
@@ -22,19 +22,9 @@ describe('Mediator', function () {
       expect(mediator._kolibriModuleRegistry).toEqual({});
     });
   });
-  describe('callback buffer', function () {
-    it('should be empty', function () {
-      expect(mediator._callbackBuffer).toEqual({});
-    });
-  });
   describe('callback registry', function () {
     it('should be empty', function () {
       expect(mediator._callbackRegistry).toEqual({});
-    });
-  });
-  describe('async callback registry', function () {
-    it('should be empty', function () {
-      expect(mediator._asyncCallbackRegistry).toEqual({});
     });
   });
   describe('event dispatcher', function () {
@@ -51,19 +41,17 @@ describe('Mediator', function () {
     });
   });
   describe('registerKolibriModuleSync method', function () {
-    let _registerMultipleEvents, _registerOneTimeEvents, emit, _executeCallbackBuffer;
+    let _registerMultipleEvents, _registerOneTimeEvents, emit;
     beforeEach(function () {
       _registerMultipleEvents = jest.spyOn(mediator, '_registerMultipleEvents');
       _registerOneTimeEvents = jest.spyOn(mediator, '_registerOneTimeEvents');
       emit = jest.spyOn(mediator, 'emit');
-      _executeCallbackBuffer = jest.spyOn(mediator, '_executeCallbackBuffer');
     });
     afterEach(function () {
       mediator._kolibriModuleRegistry = {};
       _registerMultipleEvents.mockRestore();
       _registerOneTimeEvents.mockRestore();
       emit.mockRestore();
-      _executeCallbackBuffer.mockRestore();
     });
     describe('called with valid input', function () {
       let consoleMock;
@@ -94,12 +82,6 @@ describe('Mediator', function () {
       });
       it('should pass the kolibriModule to the emit method', function () {
         expect(emit).toHaveBeenCalledWith('kolibri_register', kolibriModule);
-      });
-      it('should call the _executeCallbackBuffer method', function () {
-        expect(_executeCallbackBuffer).toHaveBeenCalled();
-      });
-      it('should call pass the kolibriModule to the _executeCallbackBuffer method', function () {
-        expect(_executeCallbackBuffer).toHaveBeenCalledWith(kolibriModule);
       });
       it('should put the kolibriModule into the kolibriModule registry', function () {
         expect(mediator._kolibriModuleRegistry[kolibriModule.name]).toEqual(kolibriModule);
@@ -133,9 +115,6 @@ describe('Mediator', function () {
       });
       it('should not call the trigger method', function () {
         expect(emit).not.toHaveBeenCalled();
-      });
-      it('should not call the _executeCallbackBuffer method', function () {
-        expect(_executeCallbackBuffer).not.toHaveBeenCalled();
       });
       it('should leave the kolibriModule registry empty', function () {
         expect(mediator._kolibriModuleRegistry).toEqual({});
@@ -412,113 +391,6 @@ describe('Mediator', function () {
       });
     });
   });
-  describe('_executeCallbackBuffer method', function () {
-    let spy, args;
-    beforeEach(function () {
-      spy = jest.fn();
-      kolibriModule = {
-        name: 'test',
-        method: spy,
-      };
-      args = ['this', 'that'];
-      mediator._callbackBuffer.test = [
-        {
-          method: 'method',
-          args: args,
-        },
-      ];
-      mediator._executeCallbackBuffer(kolibriModule);
-    });
-    it('should call the callback ', function () {
-      expect(spy).toHaveBeenCalled();
-    });
-    it('should pass the args to the callback ', function () {
-      expect(spy).toHaveBeenLastCalledWith(...args);
-    });
-    it('should remove the entry from callback registry', function () {
-      expect(typeof mediator._callbackBuffer.test === 'undefined').toEqual(true);
-    });
-  });
-  describe('registerKolibriModuleAsync method', function () {
-    let stub;
-    beforeEach(function () {
-      const kolibriModuleUrls = ['test.js', 'test1.js'];
-      const events = {
-        event: 'method',
-      };
-      const once = {
-        once: 'once_method',
-      };
-      stub = jest.spyOn(mediator._eventDispatcher, '$on');
-      mediator.registerKolibriModuleAsync(kolibriModuleName, kolibriModuleUrls, events, once);
-    });
-    afterEach(function () {
-      stub.mockRestore();
-    });
-    it('should add create a callback buffer for the kolibriModule', function () {
-      expect(typeof mediator._callbackBuffer[kolibriModuleName] !== 'undefined').toEqual(true);
-    });
-    it('should put two entries in the async callback registry', function () {
-      expect(mediator._asyncCallbackRegistry[kolibriModuleName].length).toEqual(2);
-    });
-    it('should put a callback  in each entry in the async callback registry', function () {
-      const registry = mediator._asyncCallbackRegistry;
-      expect(registry[kolibriModuleName][0].callback).toBeInstanceOf(Function);
-      expect(registry[kolibriModuleName][1].callback).toBeInstanceOf(Function);
-    });
-    it('should call $on twice', function () {
-      expect(stub).toHaveBeenCalledTimes(2);
-    });
-    it('should pass both events to $on', function () {
-      expect(stub).toHaveBeenCalledWith('event', expect.any(Function));
-      expect(stub).toHaveBeenCalledWith('once', expect.any(Function));
-    });
-    describe('async callbacks', function () {
-      let args;
-      beforeEach(function () {
-        args = ['this', 'that'];
-        mediator._asyncCallbackRegistry[kolibriModuleName][0].callback(...args);
-      });
-      it('should add an entry to the callback buffer when called', function () {
-        expect(mediator._callbackBuffer[kolibriModuleName].length).toEqual(1);
-      });
-      it('should add args in the callback buffer when called', function () {
-        expect(mediator._callbackBuffer[kolibriModuleName][0].args).toEqual(args);
-      });
-    });
-  });
-  describe('_clearAsyncCallbacks method', function () {
-    let event, stub, callback;
-    beforeEach(function () {
-      kolibriModule = {
-        name: 'test',
-      };
-      event = 'event';
-      callback = function () {};
-      mediator._asyncCallbackRegistry[kolibriModule.name] = [
-        {
-          event: event,
-          callback: callback,
-        },
-      ];
-      stub = jest.spyOn(mediator._eventDispatcher, '$off');
-      mediator._clearAsyncCallbacks(kolibriModule);
-    });
-    afterEach(function () {
-      stub.mockRestore();
-    });
-    it('should clear the callbacks', function () {
-      expect(typeof mediator._asyncCallbackRegistry[kolibriModule.name] === 'undefined').toEqual(
-        true,
-      );
-    });
-    it('should call $off once', function () {
-      expect(stub).toHaveBeenCalledTimes(1);
-    });
-    it('should call $off with two args', function () {
-      expect(stub).toHaveBeenCalledWith(event, callback);
-    });
-  });
   describe('emit method', function () {
     let stub;
     beforeEach(function () {
@@ -541,7 +413,6 @@ describe('Mediator', function () {
   });
   describe('registerLanguageAssets method', function () {
     const moduleName = 'test';
-    const language = 'test_lang';
     const messageMap = {
       test: 'test message',
     };
@@ -549,17 +420,19 @@ describe('Mediator', function () {
     beforeEach(function () {
       Vue.registerMessages = jest.fn();
       spy = Vue.registerMessages;
+      document.body.innerHTML =
+        '<template data-i18n="' + moduleName + '">' + JSON.stringify(messageMap) + '</template>';
     });
     afterEach(function () {
       spy.mockRestore();
     });
     it('should call Vue.registerMessages once', function () {
-      mediator.registerLanguageAssets(moduleName, language, messageMap);
+      mediator.registerLanguageAssets(moduleName);
       expect(spy).toHaveBeenCalledTimes(1);
     });
-    it('should call Vue.registerMessages with arguments language and messageMap', function () {
-      mediator.registerLanguageAssets(moduleName, language, messageMap);
-      expect(spy).toHaveBeenCalledWith(language, messageMap);
+    it('should call Vue.registerMessages with arguments currentLanguage and messageMap', function () {
+      mediator.registerLanguageAssets(moduleName);
+      expect(spy).toHaveBeenCalledWith(currentLanguage, messageMap);
     });
   });
 });

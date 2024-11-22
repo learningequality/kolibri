@@ -15,7 +15,6 @@ from abc import abstractproperty
 from django.utils.safestring import mark_safe
 
 from kolibri.core.webpack.hooks import WebpackBundleHook
-from kolibri.core.webpack.hooks import WebpackInclusionASyncMixin
 from kolibri.core.webpack.hooks import WebpackInclusionSyncMixin
 from kolibri.plugins.hooks import define_hook
 from kolibri.plugins.hooks import KolibriHook
@@ -53,14 +52,6 @@ class RoleBasedRedirectHook(KolibriHook):
 
 @define_hook
 class FrontEndBaseSyncHook(WebpackInclusionSyncMixin):
-    """
-    Inherit a hook defining assets to be loaded in kolibri/base.html, that means
-    ALL pages. Use with care.
-    """
-
-
-@define_hook
-class FrontEndBaseASyncHook(WebpackInclusionASyncMixin):
     """
     Inherit a hook defining assets to be loaded in kolibri/base.html, that means
     ALL pages. Use with care.

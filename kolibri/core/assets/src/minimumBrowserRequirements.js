@@ -1,10 +1,7 @@
 import isUndefined from 'lodash/isUndefined';
 import browsers from 'browserslist-config-kolibri';
 import plugin_data from 'kolibri-plugin-data';
-// Do this to ensure that we sidestep the 'externals' configuration, and this code is
-// directly bundled, and doesn't defer to the default bundle externals, which are
-// loaded after this code is run.
-import { browser, passesRequirements } from '../../../../packages/kolibri/utils/browserInfo';
+import { browser, passesRequirements } from 'kolibri/utils/browserInfo';
 
 const minimumBrowserRequirements = {};
 
