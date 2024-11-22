@@ -14,16 +14,16 @@ import { PageNames } from '../constants';
 
 import { useLessons } from '../composables/useLessons';
 
-import LessonsRootPage from '../views/plan/LessonsRootPage';
-import LessonSummaryPage from '../views/plan/LessonSummaryPage';
-import LessonResourceSelectionPage from '../views/plan/LessonResourceSelectionPage';
-import PlanLessonSelectionContentPreview from '../views/plan/PlanLessonSelectionContentPreview';
-import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
-import LessonCreationPage from '../views/plan/LessonCreationPage';
-import EditLessonDetails from '../views/plan/LessonEditDetailsPage/EditLessonDetails.vue';
-import PreviewSelectedResources from '../views/plan/LessonContentPreviewPage/PreviewSelectedResources.vue';
-import ManageSelectedResourcePanel from '../views/plan/LessonContentPreviewPage/ManageSelectedResourcePanel.vue';
-import LessonResourceSelection from '../views/plan/LessonResourceSelectionPage/LessonResourceSelection.vue';
+import LessonsRootPage from '../views/lessons/LessonsRootPage';
+import LessonSummaryPage from '../views/lessons/LessonSummaryPage';
+import LessonResourceSelectionPage from '../views/lessons/LessonResourceSelectionPage';
+import PlanLessonSelectionContentPreview from '../views/lessons/LessonSelectionContentPreviewPage';
+import LessonEditDetailsPage from '../views/lessons/LessonEditDetailsPage';
+import LessonCreationPage from '../views/lessons/LessonCreationPage';
+import EditLessonDetails from '../views/lessons/LessonEditDetailsPage/EditDetailsResourceListTable.vue';
+import PreviewSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/PreviewSelectedResources';
+import ManageSelectedResourcePanel from '../views/lessons/LessonSummaryPage/sidePanels/ManageSelectedLessonResource';
+import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection';
 import { classIdParamRequiredGuard } from './utils';
 
 const OPTIONAL_CLASS = '/:classId?/plan';
