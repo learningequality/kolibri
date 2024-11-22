@@ -41,7 +41,7 @@ export function saveFacilityConfig(store) {
 export function resetFacilityConfig(store) {
   const { facilityDatasetId } = store.state;
   return client({
-    url: urls['kolibri:core:facilitydataset-resetsettings'](facilityDatasetId),
+    url: urls['kolibri:core:facilitydataset_resetsettings'](facilityDatasetId),
     method: 'POST',
   }).then(({ data }) => {
     store.commit('CONFIG_PAGE_MODIFY_ALL_SETTINGS', {
@@ -59,7 +59,7 @@ export function resetFacilityConfig(store) {
 export function setPin(store, payload) {
   const { facilityDatasetId } = store.state;
   return client({
-    url: urls['kolibri:core:facilitydataset-update-pin'](facilityDatasetId),
+    url: urls['kolibri:core:facilitydataset_update_pin'](facilityDatasetId),
     method: 'POST',
     data: payload,
   }).then(({ data }) => {
@@ -71,7 +71,7 @@ export function setPin(store, payload) {
 export function unsetPin(store) {
   const { facilityDatasetId } = store.state;
   return client({
-    url: urls['kolibri:core:facilitydataset-update-pin'](facilityDatasetId),
+    url: urls['kolibri:core:facilitydataset_update_pin'](facilityDatasetId),
     method: 'PATCH',
   }).then(({ data }) => {
     store.commit('UPDATE_FACILITY_EXTRA_SETTINGS', { extra_fields: data.extra_fields });
