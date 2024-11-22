@@ -74,33 +74,6 @@
             :currentAction="currentAction"
             @cancel="currentAction = ''"
           />
-
-          <SidePanelModal
-            v-if="false"
-            ref="resourcePanel"
-            alignment="right"
-            sidePanelWidth="700px"
-            closeButtonIconType="close"
-            @closePanel="() => $router.go(-1)"
-            @shouldFocusFirstEl="() => null"
-          >
-            <template #header>
-              <KIconButton
-                v-if="true"
-                icon="back"
-                @click="$router.go(-1)"
-              />
-              <span :style="{ fontWeight: '600' }">
-                {{ $tr('numberOfSelectedResource', { count: resourcesTable.length }) }}
-              </span>
-            </template>
-            <router-view @closePanel="() => $router.go(-1)" />
-            <ManageSelectedLessonResources
-              :lessonResourceList="resourcesTable"
-              :lessonObject="currentLesson"
-              @handleSavingResources="showSidePanel === false"
-            />
-          </SidePanelModal>
         </KPageContainer>
       </KGridItem>
     </KGrid>
@@ -287,9 +260,6 @@
           this.workingResourcesBackup = [...this.$store.state.lessonSummary.workingResources];
         }
       },
-    },
-    mounted(){
-      console.log(this.route.params);
     },
     methods: {
       ...mapActions('lessonSummary', [
