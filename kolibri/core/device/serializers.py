@@ -11,6 +11,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import FacilitySerializer
 from kolibri.core.content.tasks import automatic_resource_import
 from kolibri.core.content.tasks import automatic_synchronize_content_requests_and_import
+from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.models import OSUser
@@ -18,8 +19,6 @@ from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import provision_device
 from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.device.utils import valid_app_key_on_request
-from kolibri.plugins.app.utils import GET_OS_USER
-from kolibri.plugins.app.utils import interface
 from kolibri.utils.filesystem import check_is_directory
 from kolibri.utils.filesystem import get_path_permission
 
@@ -77,7 +76,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
 
     def validate(self, data):
         if (
-            GET_OS_USER in interface
+            GetOSUserHook.is_registered
             and "request" in self.context
             and valid_app_key_on_request(self.context["request"])
         ):
@@ -192,10 +191,15 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                 if auth_token:
                     # If we have an auth token, we need to create an OSUser for the superuser
                     # so that we can associate the user with the OSUser
-                    os_username, _ = interface.get_os_user(auth_token)
-                    OSUser.objects.update_or_create(
-                        os_username=os_username, defaults={"user": superuser}
-                    )
+                    try:
+                        os_username, _ = GetOSUserHook.retrieve_os_user(auth_token)
+                        OSUser.objects.update_or_create(
+                            os_username=os_username, defaults={"user": superuser}
+                        )
+                    except NotImplementedError:
+                        raise ParseError(
+                            "Getting the OS user is not supported on this platform"
+                        )
 
             elif auth_token:
                 superuser = FacilityUser.objects.get_or_create_os_user(
@@ -234,6 +238,8 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                 "default_facility": facility,
                 "allow_guest_access": allow_guest_access,
                 "allow_learner_download_resources": allow_learner_download_resources,
+                # If we're setting up in an app context, set this to False
+                "allow_other_browsers_to_connect": not auth_token,
             }
 
             if is_soud:

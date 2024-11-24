@@ -96,7 +96,6 @@ from kolibri.core.query import SQCount
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.urls import reverse_path
-from kolibri.plugins.app.utils import interface
 from kolibri.utils.urls import validator
 
 logger = logging.getLogger(__name__)
@@ -928,10 +927,8 @@ class SessionViewSet(viewsets.ViewSet):
         facility_id = request.data.get("facility", None)
 
         # Only enforce this when running in an app
-        if (
-            interface.enabled
-            and not allow_other_browsers_to_connect()
-            and not valid_app_key_on_request(request)
+        if not allow_other_browsers_to_connect() and not valid_app_key_on_request(
+            request
         ):
             return Response(
                 [{"id": error_constants.INVALID_CREDENTIALS, "metadata": {}}],
@@ -939,7 +936,7 @@ class SessionViewSet(viewsets.ViewSet):
             )
 
         user = None
-        if interface.enabled and valid_app_key_on_request(request):
+        if valid_app_key_on_request(request):
             # If we are in app context, then try to get the automatically created OS User
             # if it matches the username, without needing a password.
             user = self._check_os_user(request, username)

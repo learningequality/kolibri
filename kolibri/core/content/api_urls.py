@@ -14,6 +14,7 @@ from .api import ContentNodeViewset
 from .api import ContentRequestViewset
 from .api import FileViewset
 from .api import RemoteChannelViewSet
+from .api import ShareFileView
 from .api import UserContentNodeViewset
 
 router = routers.SimpleRouter()
@@ -54,5 +55,6 @@ urlpatterns = [
         ChannelThumbnailView.as_view(),
         name="channel-thumbnail",
     ),
+    path("sharefile/", ShareFileView.as_view(), name="sharefile"),
     re_path(r"^", include(router.urls)),
 ]

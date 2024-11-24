@@ -1,7 +1,9 @@
 from django.urls import include
+from django.urls import path
 from django.urls import re_path
 from rest_framework import routers
 
+from .api import CheckMeteredConnectionView
 from .api import DeviceInfoView
 from .api import DeviceNameView
 from .api import DevicePermissionsViewSet
@@ -10,6 +12,7 @@ from .api import DeviceRestartView
 from .api import DeviceSettingsView
 from .api import DriveInfoViewSet
 from .api import FreeSpaceView
+from .api import InitializeAppView
 from .api import PathPermissionView
 from .api import UserSyncStatusViewSet
 
@@ -34,4 +37,14 @@ urlpatterns = [
     re_path(r"^devicename/", DeviceNameView.as_view(), name="devicename"),
     re_path(r"^devicerestart/", DeviceRestartView.as_view(), name="devicerestart"),
     re_path(r"^pathpermission/", PathPermissionView.as_view(), name="pathpermission"),
+    re_path(
+        r"^initialize/([0-9a-f]{32})$",
+        InitializeAppView.as_view(),
+        name="initialize_app",
+    ),
+    path(
+        "check_metered_connection/",
+        CheckMeteredConnectionView.as_view(),
+        name="check_metered_connection",
+    ),
 ]
