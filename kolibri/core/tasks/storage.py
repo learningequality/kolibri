@@ -24,7 +24,7 @@ from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.exceptions import JobRunning
-from kolibri.core.tasks.hooks import StorageHook
+from kolibri.core.tasks.hooks import JobHook
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.validation import validate_interval
@@ -102,7 +102,7 @@ class Storage(object):
         self.Base = Base
         self.Base.metadata.create_all(self.engine)
         self.sessionmaker = sessionmaker(bind=self.engine)
-        self._hooks = list(StorageHook.registered_hooks)
+        self._hooks = list(JobHook.registered_hooks)
 
     @contextmanager
     def session_scope(self):
