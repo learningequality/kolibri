@@ -1,4 +1,4 @@
-from abc import abstractproperty
+from abc import abstractmethod
 
 from kolibri.plugins.hooks import define_hook
 from kolibri.plugins.hooks import KolibriHook
@@ -9,7 +9,9 @@ from kolibri.plugins.utils import plugin_url
 class SetupHook(KolibriHook):
     # A hook for a plugin to use to define a url to redirect to
     # when Kolibri has not yet been provisioned
-    @abstractproperty
+
+    @property
+    @abstractmethod
     def url(self):
         pass
 
