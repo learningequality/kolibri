@@ -1,5 +1,4 @@
 <template>
-
   <AuthBase>
     <div style="text-align: left">
       <KButton
@@ -25,6 +24,7 @@
 
       <p>{{ $tr('needToMakeNewPasswordLabel', { user: username }) }}</p>
 
+      <!-- Password input field with dynamic type based on showPassword -->
       <PasswordTextbox
         ref="createPassword"
         :autofocus="true"
@@ -33,7 +33,19 @@
         :isValid.sync="passwordIsValid"
         :shouldValidate="busy"
         @submitNewPassword="updatePassword"
+        :type="showPassword ? 'text' : 'password'"  <!-- Toggle between 'text' and 'password' -->
       />
+
+      <!-- Button to toggle password visibility -->
+      <KButton
+        appearance="basic-link"
+        style="margin-top: 8px; text-align: left;"
+        @click="togglePassword"
+        data-test="togglePasswordVisibility"
+      >
+        {{ showPassword ? 'Hide' : 'Show' }} Password
+      </KButton>
+
       <KButton
         appearance="raised-button"
         :primary="true"
@@ -45,12 +57,9 @@
       />
     </div>
   </AuthBase>
-
 </template>
 
-
 <script>
-
   import pickBy from 'lodash/pickBy';
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -79,6 +88,7 @@
         busy: false,
         password: '',
         passwordIsValid: false,
+        showPassword: false,  // New data property to control password visibility
       };
     },
     computed: {
@@ -120,6 +130,10 @@
           name: ComponentMap.SIGN_IN,
         });
       },
+      // Method to toggle password visibility
+      togglePassword() {
+        this.showPassword = !this.showPassword;  // Toggle between true/false
+      },
     },
     $trs: {
       needToMakeNewPasswordLabel: {
@@ -128,8 +142,6 @@
       },
     },
   };
-
 </script>
-
 
 <style lang="scss" scoped></style>
