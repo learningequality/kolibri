@@ -296,6 +296,13 @@ class KolibriHookMeta(SingletonMeta):
         for hook in cls._registered_hooks.values():
             yield hook
 
+    @property
+    def is_registered(cls):
+        """
+        Check if any instances of the class have been registered or not.
+        """
+        return any(cls.registered_hooks)
+
     def _setup_base_class(cls, only_one_registered=False):
         """
         Do any setup required specifically if this class is being setup as a hook definition
