@@ -6,7 +6,6 @@ Hooks for managing the display and rendering of content.
 """
 import json
 from abc import abstractmethod
-from abc import abstractproperty
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
@@ -25,7 +24,8 @@ class ContentRendererHook(WebpackBundleHook, WebpackInclusionMixin):
     """
 
     #: Set tuple of format presets that this content renderer can handle
-    @abstractproperty
+    @property
+    @abstractmethod
     def presets(self):
         pass
 

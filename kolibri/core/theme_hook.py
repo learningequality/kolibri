@@ -1,5 +1,5 @@
 import logging
-from abc import abstractproperty
+from abc import abstractmethod
 
 from kolibri.plugins import hooks
 
@@ -35,10 +35,15 @@ class ThemeHook(hooks.KolibriHook):
 
     @classmethod
     def get_theme(cls):
-        theme = list(cls.registered_hooks)[0].theme
+        try:
+            theme = next(cls.registered_hooks).theme
+        except StopIteration:
+            logger.warning("No theme hooks registered, using default theme")
+            theme = {}
         _initFields(theme)
         return theme
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def theme(self):
         pass
