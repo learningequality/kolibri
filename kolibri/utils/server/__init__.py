@@ -31,7 +31,6 @@ from magicbus.plugins.servers import ServerPlugin as BaseServerPlugin
 from magicbus.plugins.servers import wait_for_free_port
 from magicbus.plugins.servers import wait_for_occupied_port
 from magicbus.plugins.signalhandler import SignalHandler as BaseSignalHandler
-from magicbus.plugins.tasks import Autoreloader
 from magicbus.plugins.tasks import Monitor
 from zeroconf import get_all_addresses
 from zeroconf import InterfaceChoice
@@ -768,14 +767,6 @@ class BaseKolibriProcessBus(ProcessBus):
         signal_handler = SignalHandler(self)
 
         signal_handler.subscribe()
-
-        if getattr(settings, "DEVELOPER_MODE", False):
-            autoreloader = Autoreloader(self)
-            plugins = os.path.join(conf.KOLIBRI_HOME, "plugins.json")
-            options = os.path.join(conf.KOLIBRI_HOME, "options.ini")
-            autoreloader.files.add(plugins)
-            autoreloader.files.add(options)
-            autoreloader.subscribe()
 
         reload_plugin = ProcessControlPlugin(self)
         reload_plugin.subscribe()

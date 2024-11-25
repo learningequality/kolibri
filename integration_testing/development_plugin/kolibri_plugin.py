@@ -1,6 +1,8 @@
 import logging
+import os
 
 from magicbus.plugins import SimplePlugin
+from magicbus.plugins.tasks import Autoreloader
 
 from kolibri.core.content.hooks import ShareFileHook
 from kolibri.core.device.hooks import CheckIsMeteredHook
@@ -70,3 +72,19 @@ class AppUrlLoggerPlugin(SimplePlugin):
 @register_hook
 class DeveloperAppUrlLogger(KolibriProcessHook):
     MagicBusPluginClass = AppUrlLoggerPlugin
+
+
+class KolibriAutoReloader(Autoreloader):
+    def __init__(self, bus):
+        super().__init__(bus)
+        from kolibri.utils import conf
+
+        plugins = os.path.join(conf.KOLIBRI_HOME, "plugins.json")
+        options = os.path.join(conf.KOLIBRI_HOME, "options.ini")
+        self.files.add(plugins)
+        self.files.add(options)
+
+
+@register_hook
+class KolibriAutoReloadHook(KolibriProcessHook):
+    MagicBusPluginClass = KolibriAutoReloader
