@@ -4,6 +4,7 @@ Tests for `kolibri` module.
 import unittest
 
 import mock
+from parameterized import parameterized
 
 import kolibri
 from kolibri.utils import version
@@ -12,6 +13,25 @@ from kolibri.utils import version
 #: caching and will return the result of the first call always. We call
 #: the wrapped function `__wrapped__` directly.
 get_version = version.get_version.__wrapped__  # @UndefinedVariable
+
+
+def _sanitize(name):
+    name = name.replace(" ", "_")
+    name = name.replace(">=", "gte")
+    name = name.replace(">", "gt")
+    name = name.replace("<=", "lte")
+    name = name.replace("<", "lt")
+    name = name.replace("==", "eq")
+    name = name.replace("!=", "ne")
+    name = name.replace(".", "_")
+    name = name.replace("+", "_")
+    name = name.replace("-", "_")
+    name = name.replace(",", "_")
+    return name
+
+
+def _name_func(test_func, param_num, params):
+    return f"{test_func.__name__}_{param_num}_{_sanitize(params.args[0])}_{_sanitize(params.args[1])}_{params.args[2]}"
 
 
 class TestKolibriVersion(unittest.TestCase):
@@ -342,7 +362,7 @@ class TestKolibriVersion(unittest.TestCase):
             version.normalize_version_to_semver(
                 "0.15.0",
             ),
-            "0.15.0-c",
+            "0.15.0",
         )
 
     def test_normalize_version_to_semver_bipartite(self):
@@ -350,7 +370,7 @@ class TestKolibriVersion(unittest.TestCase):
             version.normalize_version_to_semver(
                 "1.10",
             ),
-            "1.10-c",
+            "1.10",
         )
 
     def test_normalize_version_to_semver_alpa(self):
@@ -358,7 +378,7 @@ class TestKolibriVersion(unittest.TestCase):
             version.normalize_version_to_semver(
                 "0.14a1",
             ),
-            "0.14-a.1.c",
+            "0.14-a.1",
         )
 
     def test_normalize_version_to_semver_beta(self):
@@ -366,7 +386,7 @@ class TestKolibriVersion(unittest.TestCase):
             version.normalize_version_to_semver(
                 "0.16b1",
             ),
-            "0.16-b.1.c",
+            "0.16-b.1",
         )
 
     @mock.patch("kolibri.utils.version.get_git_describe", return_value="v0.15.8")
@@ -385,3 +405,83 @@ class TestKolibriVersion(unittest.TestCase):
             "0.15.8",
         )
         assert describe_mock.call_count == 1
+
+    @parameterized.expand(
+        [
+            ("0.15.8", ">=0.15.8", True),
+            ("0.15.7", ">=0.15.8", False),
+            ("0.15.8a5", ">=0.15.8", False),
+            ("0.15.9a5", ">=0.15.8", True),
+            ("0.15.8a5.dev0+git.682.g0be46de2", ">=0.15.8", False),
+            ("0.15.9a5.dev0+git.682.g0be46de2", ">=0.15.8", True),
+            ("0.15.9", ">0.15.8", True),
+            ("0.15.8", ">0.15.8", False),
+            ("0.15.9a5.dev0+git.682.g0be46de2", ">0.15.8", True),
+            ("0.15.8a5.dev0+git.682.g0be46de2", ">0.15.8", False),
+            ("0.15.9a5", ">0.15.8", True),
+            ("0.15.8a5", ">0.15.8", False),
+            ("0.15.9b5", ">0.15.8", True),
+            ("0.15.8b5", ">0.15.8", False),
+            ("0.15.9rc5", ">0.15.8", True),
+            ("0.15.8rc5", ">0.15.8", False),
+            ("0.15.8", "<=0.15.8", True),
+            ("0.15.9", "<=0.15.8", False),
+            ("0.15.9a5.dev0+git.682.g0be46de2", "<=0.15.8", False),
+            ("0.15.8a5.dev0+git.682.g0be46de2", "<=0.15.8", True),
+            ("0.15.9a5", "<=0.15.8", False),
+            ("0.15.8a5", "<=0.15.8", True),
+            ("0.15.9b5", "<=0.15.8", False),
+            ("0.15.8b5", "<=0.15.8", True),
+            ("0.15.9rc5", "<=0.15.8", False),
+            ("0.15.8rc5", "<=0.15.8", True),
+            ("0.15.7", "<0.15.8", True),
+            ("0.15.8", "<0.15.8", False),
+            ("0.15.8a5.dev0+git.682.g0be46de2", "<0.15.8", True),
+            ("0.15.9a5.dev0+git.682.g0be46de2", "<0.15.8", False),
+            ("0.15.8a5", "<0.15.8", True),
+            ("0.15.9a5", "<0.15.8", False),
+            ("0.15.8b5", "<0.15.8", True),
+            ("0.15.9b5", "<0.15.8", False),
+            ("0.15.8rc5", "<0.15.8", True),
+            ("0.15.9rc5", "<0.15.8", False),
+            ("0.15.8", "==0.15.8", True),
+            ("0.15.9", "==0.15.8", False),
+            ("0.15.7", "!=0.15.8", True),
+            ("0.15.8", "!=0.15.8", False),
+        ],
+        name_func=_name_func,
+    )
+    def test_version_matches_simple_range(self, version_string, version_range, matches):
+        self.assertEqual(
+            version.version_matches_range(version_string, version_range), matches
+        )
+
+    @parameterized.expand(
+        [
+            ("0.15.8", ">0.15.8,<0.16.0", False),
+            ("0.15.7", ">0.15.8,<0.16.0", False),
+            ("0.15.8a5.dev+git.682.g0be46de2", ">0.15.8,<0.16.0", False),
+            ("0.15.9a5.dev+git.682.g0be46de2", ">0.15.8,<0.16.0", True),
+            ("0.15.8a5", ">0.15.8,<0.16.0", False),
+            ("0.15.9a5", ">0.15.8,<0.16.0", True),
+            ("0.15.8b5", ">0.15.8,<0.16.0", False),
+            ("0.15.9b5", ">0.15.8,<0.16.0", True),
+            ("0.15.8rc5", ">0.15.8,<0.16.0", False),
+            ("0.15.9rc5", ">0.15.8,<0.16.0", True),
+            ("0.15.9", ">0.15.8,<0.16.0", True),
+            ("0.16.0", ">0.15.8,<0.16.0", False),
+            ("0.15.9", ">0.15.8,<0.16.0", True),
+            ("0.15.8", ">=0.15.8,<0.16.0", True),
+            ("0.15.7", ">=0.15.8,<0.16.0", False),
+            ("0.16.0", ">=0.15.8,<0.16.0", False),
+            ("0.16.0", ">=0.15.8,<=0.16.0", True),
+            ("0.16.1", ">=0.15.8,<=0.16.0", False),
+        ],
+        name_func=_name_func,
+    )
+    def test_version_matches_compound_range(
+        self, version_string, compound_range, matches
+    ):
+        self.assertEqual(
+            version.version_matches_range(version_string, compound_range), matches
+        )
