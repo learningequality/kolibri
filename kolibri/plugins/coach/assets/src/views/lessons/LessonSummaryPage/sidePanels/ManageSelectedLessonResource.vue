@@ -77,12 +77,6 @@
         });
       },
     },
-    mounted(){
-      setTimeout(() => {
-        
-        console.log(this.currentLesson);
-      }, 1000);
-    },
     methods:{
       closeSidePanel() {
         this.$router.go(-2);
