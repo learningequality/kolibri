@@ -9,7 +9,7 @@
   >
     <template #header>
       <h1 class="side-panel-title">
-        {{ !showSearch ? $tr('searchFiltersTitle') : $tr('manageLessonResourcesTitle') }}
+        {{ !showSearch ? searchLabel$() : $tr('manageLessonResourcesTitle') }}
       </h1>
     </template>
 
@@ -191,10 +191,6 @@
         message: 'Manage lesson resources',
         context:
           "In the 'Manage lesson resources' coaches can add new/remove resource material to a lesson.",
-      },
-      searchFiltersTitle: {
-        message: 'Search',
-        context: 'TO DO',
       },
     },
   };
