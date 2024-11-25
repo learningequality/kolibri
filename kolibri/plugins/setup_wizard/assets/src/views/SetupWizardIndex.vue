@@ -25,9 +25,10 @@
 
   import { interpret } from 'xstate';
   import { mapState } from 'vuex';
+  import pluginData from 'kolibri-plugin-data';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { checkCapability } from 'kolibri/utils/appCapabilities';
   import Lockr from 'lockr';
   import { wizardMachine } from '../machines/wizardMachine';
   import LoadingPage from './submission-states/LoadingPage';
@@ -47,7 +48,8 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsLarge } = useKResponsiveWindow();
-      return { windowIsLarge };
+      const { isAppContext } = useUser();
+      return { isAppContext, windowIsLarge };
     },
     data() {
       return {
@@ -112,7 +114,10 @@
         synchronizeRouteAndMachine(savedState);
       } else {
         // Or set the app context state on the machine and proceed to the first state
-        this.service.send({ type: 'CONTINUE', value: checkCapability('get_os_user') });
+        this.service.send({
+          type: 'CONTINUE',
+          value: this.isAppContext && pluginData.canGetOSUser,
+        });
       }
 
       this.service.start(savedState);
