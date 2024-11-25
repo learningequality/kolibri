@@ -233,7 +233,6 @@
           const inputKeys = [
             'learning_activities',
             'learner_needs',
-            'channels',
             'accessibility_labels',
             'languages',
             'grade_levels',
