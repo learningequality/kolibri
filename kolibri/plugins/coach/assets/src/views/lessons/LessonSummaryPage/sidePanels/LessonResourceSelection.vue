@@ -8,9 +8,17 @@
     @shouldFocusFirstEl="() => null"
   >
     <template #header>
-      <h1 class="side-panel-title">
-        {{ !showSearch ? searchLabel$() : $tr('manageLessonResourcesTitle') }}
-      </h1>
+      <div :class="{ 'back-button-class': !showSearch }">
+        <KIconButton
+          v-if="!showSearch"
+          icon="back"
+          class="back-button-style"
+          @click="showSearch = true"
+        />
+        <h1 class="side-panel-title">
+          {{ !showSearch ? searchLabel$() : $tr('manageLessonResourcesTitle') }}
+        </h1>
+      </div>
     </template>
 
     <div v-if="!showSearch">
@@ -179,11 +187,7 @@
     },
     methods: {
       closeSidePanel() {
-        if (this.showSearch == true) {
-          this.$router.go(-1);
-        } else {
-          this.showSearch = true;
-        }
+        this.$router.go(-1);
       },
     },
     $trs: {
@@ -221,6 +225,18 @@
     display: flex;
     justify-content: flex-end;
     width: 100%;
+  }
+
+  .back-button-class {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 6.5rem;
+  }
+
+  .back-button-style {
+    position: relative;
+    top: 3.8px;
   }
 
 </style>
