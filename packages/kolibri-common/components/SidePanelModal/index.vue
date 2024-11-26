@@ -294,4 +294,3 @@
   }
 
 </style>
-section
