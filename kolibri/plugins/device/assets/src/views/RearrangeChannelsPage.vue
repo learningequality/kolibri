@@ -36,8 +36,8 @@
                 >
                   <DragSortWidget
                     class="sort-widget"
-                    :moveUpText="$tr('upLabel', { name: channel.name })"
-                    :moveDownText="$tr('downLabel', { name: channel.name })"
+                    :moveUpText="moveChannelUpLabel$"
+                    :moveDownText="moveChannelDownLabel$"
                     :isFirst="index === 0"
                     :isLast="index === channels.length - 1"
                     @moveUp="shiftOne(index, -1)"
@@ -69,6 +69,7 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import DeviceChannelResource from '../apiResources/deviceChannel';
   import useContentTasks from '../composables/useContentTasks';
   import { PageNames } from '../constants';
@@ -91,10 +92,13 @@
       useContentTasks();
       const { canManageContent } = useUser();
       const { createSnackbar } = useSnackbar();
+      const { moveChannelUpLabel$, moveChannelDownLabel$ } = searchAndFilterStrings;
 
       return {
         canManageContent,
         createSnackbar,
+        moveChannelUpLabel$,
+        moveChannelDownLabel$,
       };
     },
     data() {
@@ -189,14 +193,6 @@
         message: 'There are no channels',
         context:
           "This message will display on the 'Edit channel order' page if there are no channels available.",
-      },
-      upLabel: {
-        message: 'Move {name} up one',
-        context: 'Label to rearrange channel order. Not seen on UI.',
-      },
-      downLabel: {
-        message: 'Move {name} down one',
-        context: 'Label to rearrange channel order. Not seen on UI.',
       },
       editChannelOrderTitle: {
         message: 'Edit channel order',

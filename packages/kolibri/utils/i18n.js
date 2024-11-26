@@ -157,6 +157,7 @@ class Translator {
     this._defaultMessages = defaultMessages;
     for (const key in defaultMessages) {
       this[`${key}$`] = this.$tr.bind(this, key);
+      this[`${key}$`].KOLIBRI_I18N_WRAPPED_STRING = true;
     }
   }
   $tr(messageId, args) {

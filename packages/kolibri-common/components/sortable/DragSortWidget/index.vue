@@ -11,7 +11,7 @@
       icon="chevronUp"
       class="btn up"
       size="mini"
-      :ariaLabel="moveUpText"
+      :ariaLabel="moveUpText()"
       :class="{ visuallyhidden: !hasFocus }"
       @click="clickUp"
       @keyup.space="clickUp"
@@ -31,7 +31,7 @@
       icon="chevronDown"
       class="btn dn"
       size="mini"
-      :ariaLabel="moveDownText"
+      :ariaLabel="moveDownText()"
       :class="{ visuallyhidden: !hasFocus }"
       @click="clickDown"
       @keyup.space="clickDown"
@@ -43,16 +43,22 @@
 
 <script>
 
+  function isWrappedString(value) {
+    return typeof value === 'function' && value.KOLIBRI_I18N_WRAPPED_STRING;
+  }
+
   export default {
     name: 'DragSortWidget',
     props: {
       moveUpText: {
-        type: String,
+        type: Function,
         required: true,
+        validator: isWrappedString,
       },
       moveDownText: {
-        type: String,
+        type: Function,
         required: true,
+        validator: isWrappedString,
       },
       isFirst: {
         type: Boolean,
