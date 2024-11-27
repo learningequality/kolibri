@@ -16,12 +16,12 @@
 <script>
 
   /**
-   * A simple toolbar with appearance derived from UiToolbar.
+   * A simple toolbar with appearance derived from KToolbar.
    * It behaves like a container that doesn't provide any implementation
    * of its internal content layout. Insted, its content area is expected
    * to be fully controlled from components that use this toolbar.
-   * It is suitable for toolbar layouts that don't conform to typical UiToolbar
-   * use-cases or when using UiToolbar may be possible but is complicated
+   * It is suitable for toolbar layouts that don't conform to typical KToolbar
+   * use-cases or when using KToolbar may be possible but is complicated
    * and requires many /deep/ overrides and fixes.
    */
   export default {

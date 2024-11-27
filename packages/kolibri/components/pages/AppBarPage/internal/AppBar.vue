@@ -7,7 +7,7 @@
     <header>
       <SkipNavigationLink />
 
-      <UiToolbar
+      <KToolbar
         :removeNavIcon="showAppNavView"
         type="clear"
         textColor="black"
@@ -107,7 +107,7 @@
             </span>
           </div>
         </template>
-      </UiToolbar>
+      </KToolbar>
     </header>
     <div
       v-if="showNavigation && !windowIsLarge && !showAppNavView"
@@ -130,7 +130,7 @@
   import { get } from '@vueuse/core';
   import { computed, getCurrentInstance } from '@vue/composition-api';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import UiToolbar from 'kolibri-common/components/keen/UiToolbar';
+  import KToolbar from 'kolibri-design-system/lib/KToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import themeConfig from 'kolibri/styles/themeConfig';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -145,7 +145,7 @@
   export default {
     name: 'AppBar',
     components: {
-      UiToolbar,
+      KToolbar,
       KIconButton,
       SkipNavigationLink,
       Navbar,
