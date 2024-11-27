@@ -1,3 +1,4 @@
+import uniqBy from 'lodash/uniqBy';
 import { ref, provide, inject } from '@vue/composition-api';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
@@ -6,6 +7,7 @@ export default function useResourceSelection() {
   const loading = ref(false);
   const bookmarks = ref([]);
   const channels = ref([]);
+  const selectedResources = ref([]);
 
   const loadBookmarks = async () => {
     const data = await ContentNodeResource.fetchBookmarks({
@@ -32,8 +34,28 @@ export default function useResourceSelection() {
 
   loadData();
 
-  provide('bookmarks', bookmarks);
+  const selectResources = (resources = []) => {
+    if (resources.length === 1) {
+      const [newResource] = resources;
+      if (!selectedResources.value.find(res => res.id === newResource.id)) {
+        selectedResources.value = [...selectedResources.value, newResource];
+      }
+    } else {
+      selectedResources.value = uniqBy([...selectedResources.value, ...resources], 'id');
+    }
+  };
+
+  const deselectResources = (resources = []) => {
+    selectedResources.value = selectedResources.value.filter(res => {
+      return !resources.find(unselectedResource => unselectedResource.id === res.id);
+    });
+  };
+
   provide('channels', channels);
+  provide('bookmarks', bookmarks);
+  provide('selectedResources', selectedResources);
+  provide('selectResources', selectResources);
+  provide('deselectResources', deselectResources);
 
   return {
     loading,
@@ -41,11 +63,17 @@ export default function useResourceSelection() {
 }
 
 export function injectResourceSelection() {
-  const bookmarks = inject('bookmarks');
   const channels = inject('channels');
+  const bookmarks = inject('bookmarks');
+  const selectedResources = inject('selectedResources');
+  const selectResources = inject('selectResources');
+  const deselectResources = inject('deselectResources');
 
   return {
-    bookmarks,
     channels,
+    bookmarks,
+    selectResources,
+    deselectResources,
+    selectedResources,
   };
 }
