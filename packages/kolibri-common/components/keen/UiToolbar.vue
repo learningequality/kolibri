@@ -1,10 +1,10 @@
 <script>
 
-  import UiToolbar from 'kolibri-design-system/lib/keen/UiToolbar';
+  import KToolbar from 'kolibri-design-system/lib/KToolbar';
 
   export default {
     name: 'UiToolbar',
-    extends: UiToolbar,
+    extends: KToolbar,
   };
 
 </script>
