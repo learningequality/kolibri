@@ -132,7 +132,7 @@ export default [
       },
       {
         name: PageNames.LESSON_SELECT_RESOURCES,
-        path: 'select-resources/:topicId?',
+        path: 'select-resources/:viewId?',
         component: LessonResourceSelection,
       },
       {
