@@ -139,9 +139,16 @@ class CoachToolsModule extends KolibriApp {
       }
 
       if (promises.length > 0) {
-        Promise.all(promises).then(next, error => {
-          this.store.dispatch('handleApiError', { error });
-        });
+        Promise.all(promises)
+          .catch(error => {
+            this.store.dispatch('handleApiError', { error });
+          })
+          .catch(() => {
+            // We catch here because `handleApiError` throws the error back again, in this case,
+            // we just want things to keep moving so that the AuthMessage shows as expected
+            next();
+          })
+          .then(next);
       } else {
         next();
       }
