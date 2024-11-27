@@ -15,7 +15,11 @@
       :key="index"
     >
       <KGrid :style="lessonOrderListButtonBorder">
-        <KGridItem :layout12="{ span: 6 }">
+        <KGridItem 
+          :layout12="{ span: 6 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 2 }"
+        >
           <div style="display:flex;">
             <div>
               <DragSortWidget
@@ -88,18 +92,18 @@
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   
   export default {
-    name:"SelectedResource",
+    name:"SelectedResources",
     components:{
       DragSortWidget,
       LearningActivityIcon
     },
     mixins:[commonCoreStrings],
     setup(){
-     const { upLabel$, downLabel$ } = searchAndFilterStrings;
-        return {
+      const { upLabel$, downLabel$ } = searchAndFilterStrings;
+      return {
         upLabel$,
         downLabel$
-        };
+      };
     },
     props:{
       resourceList:{
@@ -125,7 +129,7 @@
         return {
           borderBottom: `1px solid ${this.$themePalette.grey.v_200}`, 
           height:`4em`,
-          marginTop:`0.5em`
+         
         };
       },
     },
