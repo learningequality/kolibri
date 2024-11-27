@@ -12,8 +12,6 @@
         <slot></slot>
       </div>
     </AppBarPage>
-
-    <router-view />
   </NotificationsRoot>
 
 </template>
