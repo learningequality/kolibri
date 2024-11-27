@@ -124,10 +124,17 @@
         };
       },
       selectAllIndeterminate() {
-        return false;
+        return (
+          !this.selectAllChecked &&
+          this.contentList.some(resource =>
+            this.selectedResources.some(selectedResource => selectedResource.id === resource.id),
+          )
+        );
       },
       selectAllChecked() {
-        return false;
+        return this.contentList.every(resource =>
+          this.selectedResources.some(selectedResource => selectedResource.id === resource.id),
+        );
       },
     },
     methods: {
@@ -149,14 +156,18 @@
       topicsLink(topic_id) {
         return this.contentLink({ id: topic_id });
       },
-      handleSelectAll() {
-        return 'select all';
+      handleSelectAll(checked) {
+        if (checked) {
+          this.selectResources(this.contentList);
+        } else {
+          this.deselectResources(this.contentList);
+        }
       },
-      contentCheckboxDisabled() {
-        return false;
+      contentCheckboxDisabled(resource) {
+        return !this.selectionRules.every(rule => rule(resource) === true);
       },
       contentIsChecked(resource) {
-        return this.selectedResources.find(res => res.id === resource.id);
+        return this.selectedResources.some(res => res.id === resource.id);
       },
       contentIsIndeterminate(resource) {
         return !resource;
@@ -180,10 +191,6 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-
-  .select-resource {
-    padding-bottom: 6em;
-  }
 
   .title-style {
     font-size: 1.4em;
