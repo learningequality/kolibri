@@ -12,7 +12,10 @@
         icon="back"
         @click="$router.go(-1)"
       />
-      <span :style="{ fontWeight: '600' }" class="side-panel-title"> {{ $tr('numberOfSelectedResource',{ count : fetchResources.length })}}</span>
+      <span :style="{ fontWeight: '600' }" class="side-panel-title">
+         {{ $tr('numberOfSelectedResource',
+         { count : fetchResources.length })}}
+         </span>
     </template>
 
     <SelectedResource
@@ -26,7 +29,7 @@
       <div class="bottom-buttons-style">
         <KButton
           :primary="true"
-          text="save & finish"
+          :text="saveLessonResources$()"
           @click="closeSidePanel()"
         />
       </div>
@@ -40,6 +43,7 @@
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { mapState } from 'vuex';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import SelectedResource from './SelectedResource';
 
   export default {
@@ -47,6 +51,13 @@
     components: {
       SidePanelModal,
       SelectedResource
+    },
+    setup() {
+      const { saveLessonResources$ } =
+        searchAndFilterStrings;
+      return {
+        saveLessonResources$ 
+      };
     },
     computed: {
       ...mapState('lessonSummary', ['currentLesson', 'workingResources','resourceCache']),
