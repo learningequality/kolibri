@@ -17,7 +17,7 @@
     "html-webpack-plugin": "5.6.3",
     "jquery": "3.5.1",
     "mutationobserver-shim": "^0.3.7",
-    "purgecss": "^6.0.0"
+    "purgecss": "^7.0.2"
   },
   "dependencies": {
     "core-js": "3.39",
