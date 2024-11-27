@@ -62,7 +62,9 @@
         topic,
         bookmarks,
         selectionRules = [],
-        selectedResources = [],
+        selectedResources,
+        selectResources,
+        deselectResources,
       } = injectResourceSelection();
 
       const contentList = computed(() => {
@@ -90,6 +92,8 @@
         selectedResources,
         fetchMoreResources,
         viewMoreButtonState,
+        selectResources,
+        deselectResources,
       };
     },
     props: {
@@ -99,7 +103,7 @@
       },
       multi: {
         type: Boolean,
-        deafult: true,
+        default: true,
       },
       source: {
         type: String,
@@ -152,13 +156,17 @@
         return false;
       },
       contentIsChecked(resource) {
-        return !!resource;
+        return this.selectedResources.find(res => res.id === resource.id);
       },
       contentIsIndeterminate(resource) {
         return !resource;
       },
       toggleSelected({ content, checked }) {
-        return content && checked;
+        if (checked) {
+          this.selectResources([content]);
+        } else {
+          this.deselectResources([content]);
+        }
       },
       showCheckbox(node) {
         return node.kind !== ContentNodeKinds.TOPIC;
