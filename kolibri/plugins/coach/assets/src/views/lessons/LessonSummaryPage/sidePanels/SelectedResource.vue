@@ -19,8 +19,8 @@
           <div style="display:flex;">
             <div>
               <DragSortWidget
-                moveUpText="up"
-                moveDownText="down"
+                :moveUpText="upLabel$"
+                :moveDownText="downLabel$"
                 :noDrag="true"
                 :isFirst="index === 0"
                 :isLast="index === resources.length - 1"
@@ -85,6 +85,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   
   export default {
     name:"SelectedResource",
@@ -93,6 +94,13 @@
       LearningActivityIcon
     },
     mixins:[commonCoreStrings],
+    setup(){
+     const { upLabel$, downLabel$ } = searchAndFilterStrings;
+        return {
+        upLabel$,
+        downLabel$
+        };
+    },
     props:{
       resourceList:{
         type: Array,
