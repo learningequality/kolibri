@@ -45,7 +45,9 @@
             <slot></slot>
             <div
               v-if="$slots.bottomNavigation"
+              ref="fixedBottombar"
               class="bottom-navigation"
+              :style="{ backgroundColor: $themeTokens.surface }"
             >
               <slot name="bottomNavigation"></slot>
             </div>
@@ -83,7 +85,8 @@
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
         // @type {RefImpl<number>}
         windowBreakpoint,
-        fixedHeaderHeight: '0px',
+        fixedHeaderHeight: 0,
+        fixedBottombarHeight: 0,
         lastFocus: null,
       };
     },
@@ -213,13 +216,14 @@
         }
       },
       contentStyles() {
+        const fixedHeights = this.fixedHeaderHeight + this.fixedBottombarHeight;
         return {
-          /* When the header margin is 0px from top, add 24 to accomodate close button */
-          'margin-top': this.fixedHeaderHeight === '0px' ? '16px' : this.fixedHeaderHeight,
+          marginTop: `${this.fixedHeaderHeight || 16}px`,
+          marginBottom: `${this.fixedBottombarHeight}px`,
           padding: '24px 32px 16px',
-          'overflow-y': 'scroll',
-          'overflow-x': 'hidden',
-          height: `calc(100vh - ${this.fixedHeaderHeight})`,
+          overflowY: 'scroll',
+          overflowX: 'hidden',
+          height: `calc(100vh - ${fixedHeights}px)`,
         };
       },
     },
@@ -233,7 +237,10 @@
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'hidden';
       // Gets the height of the fixed header - adds 40 to account for padding + 24 for closeButton
-      this.fixedHeaderHeight = `${this.$refs.fixedHeader.clientHeight}px`;
+      this.fixedHeaderHeight = this.$refs.fixedHeader.clientHeight;
+      if (this.$refs.fixedBottombar) {
+        this.fixedBottombarHeight = this.$refs.fixedBottombar.clientHeight;
+      }
       this.$nextTick(() => {
         this.$emit('shouldFocusFirstEl');
       });

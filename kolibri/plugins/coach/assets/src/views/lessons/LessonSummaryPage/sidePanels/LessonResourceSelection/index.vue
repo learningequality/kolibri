@@ -14,7 +14,7 @@
           icon="back"
           @click="goBack"
         />
-        <h1 class="side-panel-title">{{ view.title || $tr('manageLessonResourcesTitle') }}</h1>
+        <h1 class="side-panel-title">{{ view.title }}</h1>
       </div>
     </template>
     <div v-if="loading">
@@ -66,10 +66,11 @@
     setup() {
       const { loading } = useResourceSelection();
 
-      const { saveAndFinishAction$ } = coreStrings;
+      const { saveAndFinishAction$, selectFromBookmarks$ } = coreStrings;
 
       return {
         loading,
+        selectFromBookmarks$,
         saveAndFinishAction$,
       };
     },
@@ -84,16 +85,16 @@
       view() {
         const componentMap = {
           [ResourceSelectionView.SELECTION_INDEX]: {
-            title: 'Select resources',
+            title: this.$tr('manageLessonResourcesTitle'),
             component: SelectionIndex,
           },
           [ResourceSelectionView.SELECT_FROM_BOOKMARKS]: {
-            title: 'Select from bookmarks',
+            title: this.selectFromBookmarks$(),
             component: SelectFromBookmarks,
             back: ResourceSelectionView.SELECTION_INDEX,
           },
           [ResourceSelectionView.SELECT_FROM_CHANNELS]: {
-            title: 'Select from channels',
+            title: this.$tr('manageLessonResourcesTitle'),
             component: SelectFromChannels,
             back: ResourceSelectionView.SELECTION_INDEX,
           },
