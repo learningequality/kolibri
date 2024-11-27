@@ -70,7 +70,6 @@
       },
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
       rootUrl() {
         return urls['kolibri:core:redirect_user']();
       },
