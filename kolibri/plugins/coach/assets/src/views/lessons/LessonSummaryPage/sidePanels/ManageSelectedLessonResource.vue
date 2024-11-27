@@ -18,7 +18,7 @@
          </span>
     </template>
 
-    <SelectedResource
+    <SelectedResources
       :resourceList="fetchResources"
       :currentLesson="currentLesson"
       :loading="fetchResources.length === 0"
@@ -44,19 +44,20 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { mapState } from 'vuex';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import SelectedResource from './SelectedResource';
+  import SelectedResources from './SelectedResources';
 
   export default {
     name:'ManageSelectedLessonResources',
     components: {
       SidePanelModal,
-      SelectedResource
+      SelectedResources
     },
     setup() {
-      const { saveLessonResources$ } =
+      const { saveLessonResources$ , } =
         searchAndFilterStrings;
       return {
         saveLessonResources$ 
+        
       };
     },
     computed: {
