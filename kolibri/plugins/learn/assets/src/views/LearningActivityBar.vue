@@ -1,7 +1,7 @@
 <template>
 
   <nav :aria-label="$tr('optionsLabel')">
-    <UiToolbar
+    <KToolbar
       style="z-index: 8"
       :style="contentSpecificStyles"
       class="toolbar"
@@ -171,7 +171,7 @@
           </CoreMenu>
         </span>
       </template>
-    </UiToolbar>
+    </KToolbar>
   </nav>
 
 </template>
@@ -185,7 +185,7 @@
   import { ContentNodeKinds } from 'kolibri/constants';
   import CoreMenuOption from 'kolibri-common/components/CoreMenu/CoreMenuOption';
   import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
-  import UiToolbar from 'kolibri-common/components/keen/UiToolbar';
+  import KToolbar from 'kolibri-design-system/lib/KToolbar';
   import { validateLearningActivity } from 'kolibri/utils/validators';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import TimeDuration from 'kolibri-common/components/TimeDuration';
@@ -203,7 +203,7 @@
       CoreMenuOption,
       LearningActivityIcon,
       ProgressIcon,
-      UiToolbar,
+      KToolbar,
       TimeDuration,
       SuggestedTime,
       DeviceConnectionStatus,
@@ -466,7 +466,7 @@
         return this.allActions.slice(this.numBarActions);
       },
       contentSpecificStyles() {
-        // The prime difference is that Exercises won't have shadows under the UiToolbar
+        // The prime difference is that Exercises won't have shadows under the KToolbar
         // because the LessonMasteryBar lives under it and has its own drop shadow.
         if (this.contentKind === ContentNodeKinds.EXERCISE) {
           return { border: `1px solid ${this.$themeTokens.fineLine}`, 'box-shadow': 'none' };
