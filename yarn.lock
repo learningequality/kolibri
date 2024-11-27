@@ -6564,11 +6564,6 @@ imurmurhash@^0.1.4:
   resolved "https://registry.yarnpkg.com/imurmurhash/-/imurmurhash-0.1.4.tgz#9218b9b2b928a238b13dc4fb6b6d576f231453ea"
   integrity sha1-khi5srkoojixPcT7a21XbyMUU+o=
 
-indent-string@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/indent-string/-/indent-string-3.2.0.tgz#4a5fd6d27cc332f37e5419a504dbb837105c9289"
-  integrity sha512-BYqTHXTGUIvg7t1r4sJNKcbDZkL92nkXA8YtRpbjFHRHGDL/NtUeiBJMeE60kIFN/Mg8ESaWQvftaYMGJzQZCQ==
-
 indent-string@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/indent-string/-/indent-string-4.0.0.tgz#624f8f4497d619b2d9768531d58f4122854d7251"
@@ -11847,12 +11842,12 @@ vue-router@^3.6.5:
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.6.5.tgz#95847d52b9a7e3f1361cb605c8e6441f202afad8"
   integrity sha512-VYXZQLtjuvKxxcshuRAwjHnciqZVoXAjTjcqBTz4rKc8qih9g9pI3hbDjmqXaHdgL3v8pV6P8Z335XvHzESxLQ==
 
-vue-sfc-descriptor-to-string@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/vue-sfc-descriptor-to-string/-/vue-sfc-descriptor-to-string-1.0.0.tgz#71e0a648508da9b43a995a595f1e9e570fda92bd"
-  integrity sha512-VYNMsrIPZQZau5Gk8IVtgonN1quOznP9/pLIF5m2c4R30KCDDe3NwthrsM7lSUY2K4lezcb8j3Wu8cQhBuZEMQ==
+vue-sfc-descriptor-to-string@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/vue-sfc-descriptor-to-string/-/vue-sfc-descriptor-to-string-2.0.0.tgz#a188605919d0dee7beed38ca4983ea0526b63a66"
+  integrity sha512-IZi09AwxC9rDH9yhGfmgWelaHxSBABGEZuwDjn7Yv1JwXHgLectYh9Jw6PAxuaSFA5iZ34g3M35EE+L+/sStwA==
   dependencies:
-    indent-string "^3.2.0"
+    indent-string "^5.0.0"
 
 vue-style-loader@^4.1.0, vue-style-loader@^4.1.3:
   version "4.1.3"

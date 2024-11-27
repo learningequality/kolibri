@@ -94,7 +94,7 @@
     "url-loader": "^4.1.1",
     "vue-jest": "^3.0.0",
     "vue-loader": "^15.11.1",
-    "vue-sfc-descriptor-to-string": "1.0.0",
+    "vue-sfc-descriptor-to-string": "2.0.0",
     "vue-style-loader": "^4.1.3",
     "vue-template-compiler": "2.6.14",
     "webpack": "^5.96.1",
