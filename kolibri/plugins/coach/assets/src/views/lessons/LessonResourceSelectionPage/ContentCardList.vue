@@ -153,7 +153,8 @@
       // Function that returns a string that appears in the corner of the card
       contentCardMessage: {
         type: Function, // ContentNode => String
-        required: true,
+        required: false,
+        default: () => '',
       },
       // Function that returns a route object to which the card navigates
       contentCardLink: {
