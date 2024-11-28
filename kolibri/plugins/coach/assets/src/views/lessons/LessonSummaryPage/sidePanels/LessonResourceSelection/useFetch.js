@@ -2,15 +2,17 @@ import get from 'lodash/get';
 import { ref, computed } from '@vue/composition-api';
 import { ViewMoreButtonStates } from '../../../../../constants';
 
+window.get = get;
+
 export default function useFetch(options) {
-  const { fetchMethod, fetchMoreMethod, dataKey, moreKey, countKey } = options || {};
+  const { fetchMethod, fetchMoreMethod, dataKey, moreKey, additionalDataKeys } = options || {};
 
   const loading = ref(false);
   const data = ref(null);
-  const count = ref(null);
   const error = ref(null);
   const more = ref(null);
   const loadingMore = ref(false);
+  const additionalData = ref(null);
 
   const moreState = computed(() => {
     if (loadingMore.value) {
@@ -22,7 +24,7 @@ export default function useFetch(options) {
     return ViewMoreButtonStates.NO_MORE;
   });
 
-  const _setFromKeys = response => {
+  const _setFromKeys = (response, loadingMore) => {
     let responseData;
     if (!dataKey) {
       responseData = response;
@@ -30,8 +32,8 @@ export default function useFetch(options) {
       responseData = get(response, dataKey);
     }
 
-    if (loadingMore.value) {
-      data.value = [...data.value, ...responseData];
+    if (loadingMore) {
+      data.value = [...data.value, ...(responseData || [])];
     } else {
       data.value = responseData;
     }
@@ -40,8 +42,11 @@ export default function useFetch(options) {
       more.value = get(response, moreKey) || null;
     }
 
-    if (countKey) {
-      count.value = get(response, countKey);
+    if (additionalDataKeys) {
+      additionalData.value = Object.entries(additionalDataKeys).reduce((agg, [key, value]) => {
+        agg[key] = value === '' ? response : get(response, value);
+        return agg;
+      }, {});
     }
   };
 
@@ -69,7 +74,7 @@ export default function useFetch(options) {
 
     try {
       const response = await fetchMoreMethod(more.value, ...args);
-      _setFromKeys(response);
+      _setFromKeys(response, loadingMore.value);
     } catch (err) {
       error.value = err;
     }
@@ -79,10 +84,10 @@ export default function useFetch(options) {
 
   return {
     data,
-    count,
     error,
     loading,
     moreState,
+    additionalData,
     fetchData,
     fetchMore,
   };
