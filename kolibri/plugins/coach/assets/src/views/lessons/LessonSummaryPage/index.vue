@@ -150,7 +150,6 @@
         ReportsLessonTabs,
         workingResourcesBackup,
         REPORTS_LESSON_TABS_ID,
-        showSidePanel:true,
       };
     },
     computed: {
