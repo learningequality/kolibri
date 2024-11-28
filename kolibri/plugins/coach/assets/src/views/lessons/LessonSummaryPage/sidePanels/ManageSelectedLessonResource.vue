@@ -7,21 +7,23 @@
     @shouldFocusFirstEl="() => null"
   >
     <template #header>
-      <KIconButton
-        v-if="true"
-        icon="back"
-        @click="$router.go(-1)"
-      />
-      <span :style="{ fontWeight: '600' }" class="side-panel-title">
-         {{ $tr('numberOfSelectedResource',
-         { count : fetchResources.length })}}
-         </span>
+      <div :style="{ display:'inline-flex' }">
+        <KIconButton
+          v-if="true"
+          icon="back"
+          @click="$router.go(-1)"
+        />
+        <h1 :style="{ fontWeight: '600', fontSize: '18px' }" class="side-panel-title">
+           {{ numberOfSelectedResource$({ count : resources.length })}}
+        </h1>
+      </div>
     </template>
 
     <SelectedResources
-      :resourceList="fetchResources"
+      :resourceList="resources"
       :currentLesson="currentLesson"
-      :loading="fetchResources.length === 0"
+      :loading="resources.length === 0"
+      @removeResource="removeResource"
     />
 
 
@@ -45,6 +47,8 @@
   import { mapState } from 'vuex';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import SelectedResources from './SelectedResources';
+  import { PageNames } from '../../../../constants';
+  import commonCoach from '../../../common';
 
   export default {
     name:'ManageSelectedLessonResources',
@@ -52,14 +56,15 @@
       SidePanelModal,
       SelectedResources
     },
+    mixins: [commonCoach],
     setup() {
-      const { saveLessonResources$ , } =
+      const { saveLessonResources$,numberOfSelectedResource$ } =
         searchAndFilterStrings;
       return {
-        saveLessonResources$ 
-        
+        saveLessonResources$,
+        numberOfSelectedResource$
       };
-    },
+  },
     computed: {
       ...mapState('lessonSummary', ['currentLesson', 'workingResources','resourceCache']),
       lessonOrderListButtonBorder(){
@@ -69,16 +74,42 @@
           marginTop:`0.5em`
         };
       },
-      fetchResources(){
-        return this.workingResources.map(resource => {
+    },
+    data(){
+      return {
+        PageNames,
+        resources :[]
+      }
+    },
+    mounted(){
+      setTimeout(() => {
+        this.getResources();
+      }, 2000);
+    },
+    methods:{
+      removeResource(id){
+        this.resources = this.resources.filter(lesson => lesson.id !== id);
+      },
+      recipients() {
+        return this.group
+          ? this.getLearnersForGroups([this.group.id])
+          : this.getLearnersForLesson(this.currentLesson);
+      },
+      getResources(){
+        const response = this.workingResources.map(resource => {
           const content = this.resourceCache[resource.contentnode_id];
           if (!content) {
             return this.missingResourceObj(resource.contentnode_id);
           }
+          // const tally = this.getContentStatusTally(content.content_id, this.recipients);
+
           const tableRow = {
             ...content,
             node_id: content.id,
+            // hasAssignments: Object.values(tally).reduce((a, b) => a + b, 0),
+            // tally,
           };
+
 
           const link = {};
           if (link) {
@@ -87,18 +118,36 @@
 
           return tableRow;
         });
+
+        Promise.all(response).then((results) => {
+          this.resources = results;
+        }).catch((error) => {
+          console.error("An error occurred:", error);
+        });
       },
-    },
-    methods:{
+      resourceLink(resource) {
+        if (resource.hasAssignments) {
+          if (resource.kind === this.ContentNodeKinds.EXERCISE) {
+            return this.classRoute(
+              this.group
+                ? PageNames.GROUP_LESSON_EXERCISE_LEARNER_REPORT
+                : PageNames.LESSON_EXERCISE_LEARNERS_REPORT,
+              { exerciseId: resource.content_id },
+            );
+          } else {
+            return this.classRoute(
+              this.group ? PageNames.GROUPS_ROOT : PageNames.LESSON_RESOURCE_LEARNERS_REPORT,
+              { resourceId: resource.content_id },
+            );
+          }
+        }
+      },
       closeSidePanel() {
-        this.$router.go(-2);
+        this.$router.push({ name: PageNames.LESSONS_ROOT , params: { classId: this.$route.params.classId }});
       },
     },
     $trs:{
-      numberOfSelectedResource: {
-        message: '{count, number, integer} {count, plural, one {resource selected} other {resources selected}}',
-        context:'Indicates the number of resources selected'
-      }
+      
     }
   }
 
