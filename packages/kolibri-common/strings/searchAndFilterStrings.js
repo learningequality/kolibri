@@ -42,5 +42,5 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
   numberOfSelectedResource: {
     message: '{count, number, integer} {count, plural, one {resource selected} other {resources selected}}',
     context:'Indicates the number of resources selected'
-  }
+  },
 });

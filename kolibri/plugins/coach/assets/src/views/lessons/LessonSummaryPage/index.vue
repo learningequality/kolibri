@@ -360,10 +360,6 @@
         message: 'Undo',
         context: 'Allows user to undo an action.',
       },
-      numberOfSelectedResource: {
-        message: '{count, number, integer} {count, plural, one {resource selected} other {resources selected}}',
-        context:'Indicates the number of resources selected'
-      }
     },
   };
 
