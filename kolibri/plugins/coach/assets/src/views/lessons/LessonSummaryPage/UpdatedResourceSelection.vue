@@ -20,7 +20,6 @@
         :contentHasCheckbox="showCheckbox"
         :contentCheckboxDisabled="contentCheckboxDisabled"
         :contentCardLink="contentLink"
-        :loadingMoreState="loadingMore"
         :showRadioButtons="!multi"
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
@@ -37,16 +36,10 @@
   import { computed } from '@vue/composition-api';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds } from 'kolibri/constants';
-  import { ViewMoreButtonStates } from '../../../constants/index';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
   import { injectResourceSelection } from './sidePanels/LessonResourceSelection/useResourceSelection';
-
-  const ContentSource = {
-    BOOKMARKS: 'bookmarks',
-    TOPIC_TREE: 'topicTree',
-    SEARCH: 'search',
-  };
+  import { ResourceContentSource } from './sidePanels/LessonResourceSelection/constants';
 
   export default {
     name: 'UpdatedResourceSelection',
@@ -56,37 +49,40 @@
     },
     mixins: [commonCoreStrings],
     setup(props) {
-      const loadingMore = computed(() => false);
-
       const {
         topic,
-        bookmarks,
+        bookmarksFetch,
         selectionRules = [],
         selectedResources,
         selectResources,
         deselectResources,
       } = injectResourceSelection();
 
-      const contentList = computed(() => {
+      const contentFetch = computed(() => {
         const contentSources = {
-          [ContentSource.BOOKMARKS]: bookmarks.value,
+          [ResourceContentSource.BOOKMARKS]: bookmarksFetch,
         };
 
-        return contentSources[props.source] || [];
+        return contentSources[props.source];
       });
 
-      // TODO let's not use text for this
+      const contentList = computed(() => {
+        const { data } = contentFetch.value;
+        return data.value;
+      });
+
       const viewMoreButtonState = computed(() => {
-        return ViewMoreButtonStates.NO_MORE;
+        const { moreState } = contentFetch.value;
+        return moreState.value;
       });
 
       function fetchMoreResources() {
-        return [];
+        const { fetchMore } = contentFetch.value;
+        fetchMore?.();
       }
 
       return {
         topic,
-        loadingMore,
         contentList,
         selectionRules,
         selectedResources,
@@ -109,7 +105,7 @@
         type: String,
         required: true,
         validator(value) {
-          return Object.values(ContentSource).includes(value);
+          return Object.values(ResourceContentSource).includes(value);
         },
       },
     },

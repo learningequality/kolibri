@@ -22,7 +22,7 @@
     </div>
     <component
       :is="view.component"
-      v-else
+      v-else-if="!view.guard || view.guard()"
     />
 
     <template #bottomNavigation>
@@ -48,12 +48,7 @@
   import useResourceSelection from './useResourceSelection';
   import SelectFromBookmarks from './subPages/SelectFromBookmarks.vue';
   import SelectFromChannels from './subPages/SelectFromChannels.vue';
-
-  const ResourceSelectionView = {
-    SELECTION_INDEX: 'selectionIndex',
-    SELECT_FROM_BOOKMARKS: 'selectFromBookmarks',
-    SELECT_FROM_CHANNELS: 'selectFromChannels',
-  };
+  import { ResourceSelectionView } from './constants';
 
   export default {
     name: 'LessonResourceSelection',
@@ -75,6 +70,10 @@
       };
     },
     computed: {
+      topicId() {
+        const { topicId } = this.$route.query;
+        return topicId;
+      },
       viewId() {
         const { viewId } = this.$route.params;
         if (Object.values(ResourceSelectionView).includes(viewId)) {
@@ -97,6 +96,7 @@
             title: this.$tr('manageLessonResourcesTitle'),
             component: SelectFromChannels,
             back: ResourceSelectionView.SELECTION_INDEX,
+            guard: () => !!this.topicId,
           },
         };
 
@@ -110,6 +110,20 @@
         return () => {
           this.$router.push({ name: 'LESSON_SELECT_RESOURCES', params: { viewId: back } });
         };
+      },
+    },
+    watch: {
+      view(newView) {
+        if (newView.guard && !newView.guard()) {
+          if (this.goBack) {
+            this.goBack();
+          } else {
+            this.$router.push({
+              name: PageNames.LESSON_SELECT_RESOURCES,
+              params: { viewId: ResourceSelectionView.SELECTION_INDEX },
+            });
+          }
+        }
       },
     },
     methods: {

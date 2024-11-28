@@ -1,38 +1,48 @@
 import uniqBy from 'lodash/uniqBy';
-import { ref, provide, inject } from '@vue/composition-api';
+import { ref, provide, inject, computed } from '@vue/composition-api';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
+import useFetch from './useFetch';
 
 export default function useResourceSelection() {
-  const loading = ref(false);
-  const bookmarks = ref([]);
-  const channels = ref([]);
   const selectedResources = ref([]);
 
-  const loadBookmarks = async () => {
-    const data = await ContentNodeResource.fetchBookmarks({
-      params: { limit: 25, available: true },
-    });
+  const bookmarksFetch = useFetch({
+    fetchMethod: () =>
+      ContentNodeResource.fetchBookmarks({
+        params: { limit: 25, available: true },
+      }),
+    fetchMoreMethod: more =>
+      ContentNodeResource.fetchBookmarks({
+        params: more,
+      }),
+    dataKey: 'results',
+    countKey: 'count',
+    moreKey: 'more',
+  });
 
-    bookmarks.value = data.results || [];
+  const channelsFetch = useFetch({
+    fetchMethod: () =>
+      ChannelResource.fetchCollection({
+        getParams: {
+          available: true,
+        },
+      }),
+  });
+
+  const loading = computed(() => {
+    const { loading: bookmarksLoading } = bookmarksFetch;
+    const { loading: channelsLoading } = channelsFetch;
+
+    return bookmarksLoading.value || channelsLoading.value;
+  });
+
+  const fetchInitialData = async () => {
+    bookmarksFetch.fetchData();
+    channelsFetch.fetchData();
   };
 
-  const loadChannels = async () => {
-    const response = await ChannelResource.fetchCollection({
-      getParams: {
-        available: true,
-      },
-    });
-    channels.value = response;
-  };
-
-  const loadData = async () => {
-    loading.value = true;
-    await Promise.all([loadBookmarks(), loadChannels()]);
-    loading.value = false;
-  };
-
-  loadData();
+  fetchInitialData();
 
   const selectResources = (resources = []) => {
     if (resources.length === 1) {
@@ -51,8 +61,8 @@ export default function useResourceSelection() {
     });
   };
 
-  provide('channels', channels);
-  provide('bookmarks', bookmarks);
+  provide('channelsFetch', channelsFetch);
+  provide('bookmarksFetch', bookmarksFetch);
   provide('selectedResources', selectedResources);
   provide('selectResources', selectResources);
   provide('deselectResources', deselectResources);
@@ -63,15 +73,15 @@ export default function useResourceSelection() {
 }
 
 export function injectResourceSelection() {
-  const channels = inject('channels');
-  const bookmarks = inject('bookmarks');
+  const channelsFetch = inject('channelsFetch');
+  const bookmarksFetch = inject('bookmarksFetch');
   const selectedResources = inject('selectedResources');
   const selectResources = inject('selectResources');
   const deselectResources = inject('deselectResources');
 
   return {
-    channels,
-    bookmarks,
+    channelsFetch,
+    bookmarksFetch,
     selectResources,
     deselectResources,
     selectedResources,

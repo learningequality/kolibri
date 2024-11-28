@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <div v-if="bookmarks.length > 0">
+    <div v-if="bookmarksCount > 0">
       <h2 class="side-panel-subtitle">
         {{ selectFromBookmarks$() }}
       </h2>
@@ -28,7 +28,7 @@
           </template>
           <template #belowTitle>
             <span>
-              {{ numberOfBookmarks$({ count: bookmarks.length }) }}
+              {{ numberOfBookmarks$({ count: bookmarksCount }) }}
             </span>
           </template>
         </KCard>
@@ -49,7 +49,7 @@
           v-for="channel of channels"
           :key="channel.id"
           :contentNode="channel"
-          :to="{}"
+          :to="selectFromChannelsLink(channel)"
           :headingLevel="3"
         />
       </KCardGrid>
@@ -64,6 +64,8 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';
   import { injectResourceSelection } from '../useResourceSelection';
+  import { PageNames } from '../../../../../../constants';
+  import { ResourceSelectionView } from '../constants';
 
   export default {
     name: 'SelectionIndex',
@@ -71,7 +73,10 @@
       AccessibleChannelCard,
     },
     setup() {
-      const { bookmarks, channels } = injectResourceSelection();
+      const { bookmarksFetch, channelsFetch } = injectResourceSelection();
+
+      const { count: bookmarksCount } = bookmarksFetch;
+      const { data: channels } = channelsFetch;
 
       const {
         selectFromChannels$,
@@ -82,7 +87,7 @@
       } = coreStrings;
 
       return {
-        bookmarks,
+        bookmarksCount,
         channels,
         selectFromChannels$,
         numberOfBookmarks$,
@@ -93,7 +98,19 @@
     },
     computed: {
       selectFromBookmarksLink() {
-        return { name: 'LESSON_SELECT_RESOURCES', params: { viewId: 'selectFromBookmarks' } };
+        return {
+          name: PageNames.LESSON_SELECT_RESOURCES,
+          params: { viewId: ResourceSelectionView.SELECT_FROM_BOOKMARKS },
+        };
+      },
+    },
+    methods: {
+      selectFromChannelsLink(channel) {
+        return {
+          name: PageNames.LESSON_SELECT_RESOURCES,
+          params: { viewId: ResourceSelectionView.SELECT_FROM_CHANNELS },
+          query: { topicId: channel.id },
+        };
       },
     },
   };
