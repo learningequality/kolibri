@@ -96,7 +96,7 @@
     <template #bottomNavigation>
       <div class="bottom-nav-container">
         <KRouterLink
-          :text="$tr('numbeOfSelectedResourcesLabel', { count: workingResources.length })"
+          :text="numberOfSelectedResource$({ count: workingResources.length })"
           :primary="true"
           :to="{ name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES }"
           :style="{ marginRight: '1em' , marginTop: '0.5em' }"
@@ -123,6 +123,7 @@
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';
   import { mapState } from 'vuex';
   import { PageNames } from '../../../../constants';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
 
   export default {
     name: 'LessonResourceSelection',
@@ -135,10 +136,7 @@
       const loading = ref(false);
       const bookmarks = ref([]);
       const channels = ref([]);
-      const showSearch = ref(true);
-      const topic = ref(null);
-
-      const { searchTerms } = useBaseSearch(topic);
+      const { numberOfSelectedResource$ } = searchAndFilterStrings;
 
       const loadBookmarks = async () => {
         const data = await ContentNodeResource.fetchBookmarks({
@@ -186,6 +184,7 @@
         selectFromBookmarks$,
         searchLabel$,
         saveAndFinishAction$,
+        numberOfSelectedResource$
       };
     },
     data(){
@@ -206,10 +205,6 @@
         message: 'Manage lesson resources',
         context:
           "In the 'Manage lesson resources' coaches can add new/remove resource material to a lesson.",
-      },
-      numbeOfSelectedResourcesLabel:{
-        message:'{count, number, integer} {count, plural, one {resource selected} other {resources selected}} ',
-        context:"This is the label that shows the number of resources selected in the lesson resource selection page"
       }
     },
   };

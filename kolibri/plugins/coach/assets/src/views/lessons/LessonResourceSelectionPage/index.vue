@@ -97,7 +97,7 @@
 
     <BottomAppBar>
       <KRouterLink
-        :text="$tr('numbeOfSelectedResourcesLabel', { count: workingResources.length })"
+        :text="numberOfSelectedResource$({ count: workingResources.length })"
         :primary="true"
         :to="goToPreviewSelection()"
         :style="{ marginRight: '1em' , marginTop: '0.5em' }"
@@ -137,6 +137,7 @@
   import ResourceSelectionBreadcrumbs from './SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from './ContentCardList';
   import BookmarkIcon from './LessonContentCard/BookmarkIcon';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
 
   export default {
     // this is inaccurately named because it applies to exams also
@@ -161,11 +162,13 @@
       const { windowIsSmall } = useKResponsiveWindow();
       const { getUserPermissions } = useUser();
       const { createSnackbar, clearSnackbar } = useSnackbar();
+      const {numberOfSelectedResource$ } = searchAndFilterStrings;
       return {
         windowIsSmall,
         getUserPermissions,
         createSnackbar,
         clearSnackbar,
+        numberOfSelectedResource$,
       };
     },
     data() {
@@ -578,9 +581,6 @@
       resources: {
         message: '{count} {count, plural, one {resource} other {resources}}',
         context: "Only translate 'resource' and 'resources'.",
-      },
-      numbeOfSelectedResourcesLabel:{
-        message:'{count, number, integer} {count, plural, one {resource selected} other {resources selected}} '
       },
       selectionInformation: {
         message:
