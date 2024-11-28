@@ -39,7 +39,10 @@
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
   import { injectResourceSelection } from './sidePanels/LessonResourceSelection/useResourceSelection';
-  import { ResourceContentSource } from './sidePanels/LessonResourceSelection/constants';
+  import {
+    ResourceContentSource,
+    ResourceSelectionView,
+  } from './sidePanels/LessonResourceSelection/constants';
 
   export default {
     name: 'UpdatedResourceSelection',
@@ -52,6 +55,7 @@
       const {
         topic,
         bookmarksFetch,
+        treeFetch,
         selectionRules = [],
         selectedResources,
         selectResources,
@@ -61,6 +65,7 @@
       const contentFetch = computed(() => {
         const contentSources = {
           [ResourceContentSource.BOOKMARKS]: bookmarksFetch,
+          [ResourceContentSource.TOPIC_TREE]: treeFetch,
         };
 
         return contentSources[props.source];
@@ -114,8 +119,7 @@
         return {
           name: this.$route.name,
           params: {
-            ...this.$route.params,
-            topic_id: null,
+            viewId: ResourceSelectionView.SELECTION_INDEX,
           },
         };
       },
@@ -137,20 +141,21 @@
       contentLink(content) {
         const { name, params, query } = this.$route;
         if (!content.is_leaf) {
-          // Link folders to their page
-          return {
-            name,
-            query: {
-              ...query,
-              topic_id: content.id,
-            },
-          };
+          return this.topicsLink(content.id);
         }
         // Just return the current route; router-link will handle the no-op from here
         return { name, params, query };
       },
-      topicsLink(topic_id) {
-        return this.contentLink({ id: topic_id });
+      topicsLink(topicId) {
+        const { name, params, query } = this.$route;
+        return {
+          name,
+          params: params,
+          query: {
+            ...query,
+            topicId,
+          },
+        };
       },
       handleSelectAll(checked) {
         if (checked) {
