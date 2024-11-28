@@ -60,13 +60,13 @@
 
     <template>
       <KButton
-        v-if="showButton && !loadingMoreState"
+        v-if="showButton"
         :text="coreString('viewMoreAction')"
         :primary="false"
         @click="$emit('moreresults')"
       />
       <KCircularLoader
-        v-if="(viewMoreButtonState === ViewMoreButtonStates.LOADING) & loadingMoreState"
+        v-if="viewMoreButtonState === ViewMoreButtonStates.LOADING"
         :delay="false"
       />
       <!-- TODO introduce messages in next version -->
@@ -164,10 +164,6 @@
       contentCardLink: {
         type: Function, // ContentNode => Route
         required: true,
-      },
-      loadingMoreState: {
-        type: Boolean,
-        default: false,
       },
     },
 
