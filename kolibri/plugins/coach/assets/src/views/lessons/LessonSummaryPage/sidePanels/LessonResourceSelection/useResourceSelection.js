@@ -1,10 +1,14 @@
 import uniqBy from 'lodash/uniqBy';
-import { ref, provide, inject, computed } from '@vue/composition-api';
+import { ref, provide, inject, computed, getCurrentInstance, watch } from '@vue/composition-api';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import useFetch from './useFetch';
 
 export default function useResourceSelection() {
+  const store = getCurrentInstance().proxy.$store;
+  const route = computed(() => store.state.route);
+  const topicId = computed(() => route.value.query.topicId);
+
   const selectedResources = ref([]);
 
   const bookmarksFetch = useFetch({
@@ -17,8 +21,10 @@ export default function useResourceSelection() {
         params: more,
       }),
     dataKey: 'results',
-    countKey: 'count',
     moreKey: 'more',
+    additionalDataKeys: {
+      count: 'count',
+    },
   });
 
   const channelsFetch = useFetch({
@@ -30,16 +36,44 @@ export default function useResourceSelection() {
       }),
   });
 
-  const loading = computed(() => {
-    const { loading: bookmarksLoading } = bookmarksFetch;
-    const { loading: channelsLoading } = channelsFetch;
+  const treeFetch = useFetch({
+    fetchMethod: () =>
+      ContentNodeResource.fetchTree({ id: topicId.value, params: { include_coach_content: true } }),
+    fetchMoreMethod: more => ContentNodeResource.fetchTree({ id: topicId.value, params: more }),
+    dataKey: 'children.results',
+    moreKey: 'children.more.params',
+    additionalDataKeys: {
+      topic: '', // return the whole response as topic
+    },
+  });
 
-    return bookmarksLoading.value || channelsLoading.value;
+  const topic = computed(() => {
+    if (topicId.value) {
+      const { additionalData } = treeFetch;
+      const { topic } = additionalData.value;
+      return topic;
+    }
+    return null;
+  });
+
+  watch(topicId, () => {
+    if (topicId.value) {
+      treeFetch.fetchData();
+    }
+  });
+
+  const loading = computed(() => {
+    const sources = [bookmarksFetch, channelsFetch, treeFetch];
+
+    return sources.some(sourceFetch => sourceFetch.loading.value);
   });
 
   const fetchInitialData = async () => {
     bookmarksFetch.fetchData();
     channelsFetch.fetchData();
+    if (topicId.value) {
+      treeFetch.fetchData();
+    }
   };
 
   fetchInitialData();
@@ -61,8 +95,10 @@ export default function useResourceSelection() {
     });
   };
 
+  provide('topic', topic);
   provide('channelsFetch', channelsFetch);
   provide('bookmarksFetch', bookmarksFetch);
+  provide('treeFetch', treeFetch);
   provide('selectedResources', selectedResources);
   provide('selectResources', selectResources);
   provide('deselectResources', deselectResources);
@@ -73,15 +109,19 @@ export default function useResourceSelection() {
 }
 
 export function injectResourceSelection() {
+  const topic = inject('topic');
   const channelsFetch = inject('channelsFetch');
   const bookmarksFetch = inject('bookmarksFetch');
+  const treeFetch = inject('treeFetch');
   const selectedResources = inject('selectedResources');
   const selectResources = inject('selectResources');
   const deselectResources = inject('deselectResources');
 
   return {
+    topic,
     channelsFetch,
     bookmarksFetch,
+    treeFetch,
     selectResources,
     deselectResources,
     selectedResources,
