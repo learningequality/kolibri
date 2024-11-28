@@ -1,4 +1,5 @@
 <template>
+
   <SidePanelModal
     alignment="right"
     sidePanelWidth="700px"
@@ -7,14 +8,17 @@
     @shouldFocusFirstEl="() => null"
   >
     <template #header>
-      <div :style="{ display:'inline-flex' }">
+      <div :style="{ display: 'inline-flex' }">
         <KIconButton
           v-if="true"
           icon="back"
           @click="$router.go(-1)"
         />
-        <h1 :style="{ fontWeight: '600', fontSize: '18px' }" class="side-panel-title">
-           {{ numberOfSelectedResource$({ count : resources.length })}}
+        <h1
+          :style="{ fontWeight: '600', fontSize: '18px' }"
+          class="side-panel-title"
+        >
+          {{ numberOfSelectedResource$({ count: resources.length }) }}
         </h1>
       </div>
     </template>
@@ -25,7 +29,6 @@
       :loading="resources.length === 0"
       @removeResource="removeResource"
     />
-
 
     <template #bottomNavigation>
       <div class="bottom-buttons-style">
@@ -46,48 +49,47 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { mapState } from 'vuex';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import SelectedResources from './SelectedResources';
   import { PageNames } from '../../../../constants';
   import commonCoach from '../../../common';
+  import SelectedResources from './SelectedResources';
 
   export default {
-    name:'ManageSelectedLessonResources',
+    name: 'ManageSelectedLessonResources',
     components: {
       SidePanelModal,
-      SelectedResources
+      SelectedResources,
     },
     mixins: [commonCoach],
     setup() {
-      const { saveLessonResources$,numberOfSelectedResource$ } =
-        searchAndFilterStrings;
+      const { saveLessonResources$, numberOfSelectedResource$ } = searchAndFilterStrings;
       return {
         saveLessonResources$,
-        numberOfSelectedResource$
+        numberOfSelectedResource$,
       };
-  },
+    },
     computed: {
-      ...mapState('lessonSummary', ['currentLesson', 'workingResources','resourceCache']),
-      lessonOrderListButtonBorder(){
+      ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
+      lessonOrderListButtonBorder() {
         return {
           borderBottom: `1px solid ${this.$themePalette.grey.v_200}`,
-          height:`4em`,
-          marginTop:`0.5em`
+          height: `4em`,
+          marginTop: `0.5em`,
         };
       },
     },
-    data(){
+    data() {
       return {
         PageNames,
-        resources :[]
-      }
+        resources: [],
+      };
     },
-    mounted(){
+    mounted() {
       setTimeout(() => {
         this.getResources();
       }, 2000);
     },
-    methods:{
-      removeResource(id){
+    methods: {
+      removeResource(id) {
         this.resources = this.resources.filter(lesson => lesson.id !== id);
       },
       recipients() {
@@ -95,7 +97,7 @@
           ? this.getLearnersForGroups([this.group.id])
           : this.getLearnersForLesson(this.currentLesson);
       },
-      getResources(){
+      getResources() {
         const response = this.workingResources.map(resource => {
           const content = this.resourceCache[resource.contentnode_id];
           if (!content) {
@@ -110,7 +112,6 @@
             // tally,
           };
 
-
           const link = {};
           if (link) {
             tableRow.link = link;
@@ -119,11 +120,13 @@
           return tableRow;
         });
 
-        Promise.all(response).then((results) => {
-          this.resources = results;
-        }).catch((error) => {
-          console.error("An error occurred:", error);
-        });
+        Promise.all(response)
+          .then(results => {
+            this.resources = results;
+          })
+          .catch(error => {
+            console.error('An error occurred:', error);
+          });
       },
       resourceLink(resource) {
         if (resource.hasAssignments) {
@@ -143,13 +146,14 @@
         }
       },
       closeSidePanel() {
-        this.$router.push({ name: PageNames.LESSONS_ROOT , params: { classId: this.$route.params.classId }});
+        this.$router.push({
+          name: PageNames.LESSONS_ROOT,
+          params: { classId: this.$route.params.classId },
+        });
       },
     },
-    $trs:{
-      
-    }
-  }
+    $trs: {},
+  };
 
 </script>
 
