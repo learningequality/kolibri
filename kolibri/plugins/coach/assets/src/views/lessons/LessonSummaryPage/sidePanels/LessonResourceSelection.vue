@@ -99,7 +99,7 @@
           :text="numberOfSelectedResource$({ count: workingResources.length })"
           :primary="true"
           :to="{ name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES }"
-          :style="{ marginRight: '1em' , marginTop: '0.5em' }"
+          :style="{ marginRight: '1em', marginTop: '0.5em' }"
         />
         <KButton
           primary
@@ -122,8 +122,8 @@
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';
   import { mapState } from 'vuex';
-  import { PageNames } from '../../../../constants';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import { PageNames } from '../../../../constants';
 
   export default {
     name: 'LessonResourceSelection',
@@ -184,15 +184,15 @@
         selectFromBookmarks$,
         searchLabel$,
         saveAndFinishAction$,
-        numberOfSelectedResource$
+        numberOfSelectedResource$,
       };
     },
-    data(){
+    data() {
       return {
         PageNames,
-      }
+      };
     },
-    computed:{
+    computed: {
       ...mapState('lessonSummary', ['workingResources']),
     },
     methods: {
@@ -205,7 +205,7 @@
         message: 'Manage lesson resources',
         context:
           "In the 'Manage lesson resources' coaches can add new/remove resource material to a lesson.",
-      }
+      },
     },
   };
 

@@ -3,11 +3,11 @@
   <div v-if="loading">
     <KCircularLoader />
   </div>
-  <div 
+  <div
     v-else
     class="resource-list-style"
   >
-    <p>{{ coreString('lessonsLabel') }} : {{ currentLesson.title }} </p>
+    <p>{{ coreString('lessonsLabel') }} : {{ currentLesson.title }}</p>
     <p>{{ $tr('sizeLabel') }} : {{ bytesForHumans(currentLesson.size) }}</p>
 
     <DragContainer
@@ -19,12 +19,12 @@
         name="list"
       >
         <Draggable
-          v-for="(lesson , index) in resourceList"
+          v-for="(lesson, index) in resourceList"
           :key="lesson.id"
           :style="lessonOrderListButtonBorder"
         >
           <KGrid>
-            <KGridItem 
+            <KGridItem
               :layout12="{ span: 10 }"
               :layout8="{ span: 5 }"
               :layout4="{ span: 3 }"
@@ -41,10 +41,8 @@
                     @moveDown="() => {}"
                   />
                 </DragHandle>
-                <div style="padding:0px 10px">
-                  <span
-                    style="flex: 1"
-                  >
+                <div style="padding: 0 10px">
+                  <span style="flex: 1">
                     <LearningActivityIcon
                       :kind="lesson.learning_activities[0]"
                       class="icon-style"
@@ -52,39 +50,35 @@
                   </span>
                 </div>
                 <div>
-                  <span
-                    class="arrange-item-block"
-                  >
+                  <span class="arrange-item-block">
                     <span>
                       <KRouterLink
                         v-if="lesson.link"
                         :text="lesson.title"
                         :to="lesson.link"
-                        style="font-size:14px"
+                        style="font-size: 14px"
                       />
                     </span>
-                    <p style="font-size:12px"> {{ bytesForHumans(lesson.files[0].file_size) }} </p>
+                    <p style="font-size: 12px">{{ bytesForHumans(lesson.files[0].file_size) }}</p>
                   </span>
                 </div>
               </div>
             </KGridItem>
-    
-            <KGridItem 
+
+            <KGridItem
               :layout12="{ span: 2 }"
               :layout8="{ span: 3 }"
               :layout4="{ span: 1 }"
             >
-              <span
-                class="add-minus-button"
-              >
+              <span class="add-minus-button">
                 <KIconButton
                   icon="emptyTopic"
-                  @click="()=>{ }"
+                  @click="() => {}"
                 />
-    
+
                 <KIconButton
                   icon="minus"
-                  @click="$emit('removeResource',lesson.id)"
+                  @click="$emit('removeResource', lesson.id)"
                 />
               </span>
             </KGridItem>
@@ -107,79 +101,79 @@
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  
+
   export default {
-    name:"SelectedResources",
-    components:{
+    name: 'SelectedResources',
+    components: {
       DragSortWidget,
       DragContainer,
       DragHandle,
       Draggable,
-      LearningActivityIcon
+      LearningActivityIcon,
     },
-    mixins:[commonCoreStrings],
-    setup(){
+    mixins: [commonCoreStrings],
+    setup() {
       const { upLabel$, downLabel$ } = searchAndFilterStrings;
       return {
         upLabel$,
-        downLabel$
+        downLabel$,
       };
     },
-    props:{
-      resourceList:{
+    props: {
+      resourceList: {
         type: Array,
-        required:true
+        required: true,
       },
-      currentLesson:{
-        type:Object,
-        required:true
+      currentLesson: {
+        type: Object,
+        required: true,
       },
-      loading:{
-        type:Boolean,
-        required:true
-      }
+      loading: {
+        type: Boolean,
+        required: true,
+      },
     },
 
-    computed:{
-      lessonOrderListButtonBorder(){
+    computed: {
+      lessonOrderListButtonBorder() {
         return {
-          borderBottom: `1px solid ${this.$themePalette.grey.v_200}`, 
-          height:`auto`,
-          width:`100%`
+          borderBottom: `1px solid ${this.$themePalette.grey.v_200}`,
+          height: `auto`,
+          width: `100%`,
         };
       },
     },
 
-    methods:{
-      bytesForHumans
+    methods: {
+      bytesForHumans,
     },
-    $trs:{
-      sizeLabel:{
+    $trs: {
+      sizeLabel: {
         message: 'Size',
-        context: 'Size of the lesson'
+        context: 'Size of the lesson',
       },
-    }
-  }
+    },
+  };
 
 </script>
 
 
-<style scoped >
+<style scoped>
 
- .add-minus-button{
-    float:right;
+  .add-minus-button {
+    float: right;
   }
 
-  .arrange-item-block{
-    display:block;
+  .arrange-item-block {
+    display: block;
   }
 
-  .icon-style{
-    font-size:24px;
+  .icon-style {
+    font-size: 24px;
   }
 
-  .resource-list-style{
+  .resource-list-style {
     margin-bottom: 3.5em;
   }
-  
+
 </style>

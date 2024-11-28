@@ -40,7 +40,8 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     context: 'Button to save resources in a lesson',
   },
   numberOfSelectedResource: {
-    message: '{count, number, integer} {count, plural, one {resource selected} other {resources selected}}',
-    context:'Indicates the number of resources selected'
+    message:
+      '{count, number, integer} {count, plural, one {resource selected} other {resources selected}}',
+    context: 'Indicates the number of resources selected',
   },
 });
