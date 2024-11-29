@@ -59,7 +59,7 @@
   "dependencies": {
     "@vue/composition-api": "^1.7.2",
     "@vueuse/core": "^9.13.0",
-    "axios": "^1.7.7",
+    "axios": "^1.7.8",
     "fontfaceobserver": "^2.3.0",
     "frame-throttle": "^3.0.0",
     "intl": "^1.2.4",
