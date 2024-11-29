@@ -27,11 +27,19 @@
 
     <template #bottomNavigation>
       <div class="bottom-nav-container">
-        <KButton
-          primary
-          :text="saveAndFinishAction$()"
-          @click="closeSidePanel"
-        />
+        <KButtonGroup>
+          <KRouterLink
+            v-if="selectedResources.length > 0"
+            :to="{}"
+          >
+            {{ selectedResourcesMessage }}
+          </KRouterLink>
+          <KButton
+            primary
+            :text="saveAndFinishAction$()"
+            @click="closeSidePanel"
+          />
+        </KButtonGroup>
       </div>
     </template>
   </SidePanelModal>
@@ -43,7 +51,9 @@
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { PageNames } from '../../../../../constants';
+  import { coachStrings } from '../../../../common/commonCoachStrings';
   import SelectionIndex from './subPages/SelectionIndex';
   import useResourceSelection from './useResourceSelection';
   import SelectFromBookmarks from './subPages/SelectFromBookmarks.vue';
@@ -59,12 +69,13 @@
       SelectFromChannels,
     },
     setup() {
-      const { loading } = useResourceSelection();
+      const { selectedResources, loading } = useResourceSelection();
 
       const { saveAndFinishAction$, selectFromBookmarks$ } = coreStrings;
 
       return {
         loading,
+        selectedResources,
         selectFromBookmarks$,
         saveAndFinishAction$,
       };
@@ -110,6 +121,23 @@
         return () => {
           this.$router.push({ name: 'LESSON_SELECT_RESOURCES', params: { viewId: back } });
         };
+      },
+      totalSize() {
+        let size = 0;
+        this.selectedResources.forEach(resource => {
+          const { files = [] } = resource;
+          files.forEach(file => {
+            size += file.file_size || 0;
+          });
+        });
+        return size;
+      },
+      selectedResourcesMessage() {
+        const { someResourcesSelected$ } = coachStrings;
+        return someResourcesSelected$({
+          count: this.selectedResources.length,
+          bytesText: bytesForHumans(this.totalSize),
+        });
       },
     },
     watch: {

@@ -624,6 +624,12 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     message: 'Report lesson',
     context: 'Labels the Reports > Lesson tab for screen reader users',
   },
+  someResourcesSelected: {
+    message:
+      '{count} {count, plural, one {resource selected} other {resources selected}} ({bytesText})',
+    context:
+      "Indicates the amount of resources selected along with the file size. For example:\n\n'727 resources selected (22 GB)'",
+  },
 });
 
 // Strings for the Missing Content modals, tooltips, alerts, etc.
