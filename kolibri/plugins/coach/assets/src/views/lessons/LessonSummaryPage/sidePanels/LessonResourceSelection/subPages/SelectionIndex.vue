@@ -2,9 +2,9 @@
 
   <div>
     <div v-if="bookmarksCount > 0">
-      <h2 class="side-panel-subtitle">
+      <div class="mb-16 side-panel-subtitle">
         {{ selectFromBookmarks$() }}
-      </h2>
+      </div>
       <KCardGrid layout="1-1-1">
         <KCard
           :title="bookmarksLabel$()"
@@ -36,9 +36,9 @@
     </div>
     <div>
       <div class="channels-header">
-        <h2 class="side-panel-subtitle">
+        <div class="side-panel-subtitle">
           {{ selectFromChannels$() }}
-        </h2>
+        </div>
         <KButton
           icon="filter"
           :text="searchLabel$()"
@@ -119,10 +119,15 @@
 </script>
 
 
-<style>
+<style scoped>
+
+  .mb-16 {
+    margin-bottom: 16px;
+  }
 
   .side-panel-subtitle {
     font-size: 16px;
+    font-weight: 600;
   }
 
   .channels-header {
