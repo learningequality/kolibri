@@ -95,16 +95,25 @@ export default function useResourceSelection() {
     });
   };
 
+  const setSelectedResources = (resources = []) => {
+    selectedResources.value = resources;
+  };
+
+  const selectionRules = [];
+
   provide('topic', topic);
   provide('channelsFetch', channelsFetch);
   provide('bookmarksFetch', bookmarksFetch);
   provide('treeFetch', treeFetch);
+  provide('selectionRules', selectionRules);
   provide('selectedResources', selectedResources);
   provide('selectResources', selectResources);
   provide('deselectResources', deselectResources);
+  provide('setSelectedResources', setSelectedResources);
 
   return {
     loading,
+    selectedResources,
   };
 }
 
@@ -113,17 +122,21 @@ export function injectResourceSelection() {
   const channelsFetch = inject('channelsFetch');
   const bookmarksFetch = inject('bookmarksFetch');
   const treeFetch = inject('treeFetch');
+  const selectionRules = inject('selectionRules');
   const selectedResources = inject('selectedResources');
   const selectResources = inject('selectResources');
   const deselectResources = inject('deselectResources');
+  const setSelectedResources = inject('setSelectedResources');
 
   return {
     topic,
     channelsFetch,
     bookmarksFetch,
     treeFetch,
+    selectionRules,
     selectResources,
     deselectResources,
     selectedResources,
+    setSelectedResources,
   };
 }
