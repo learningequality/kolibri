@@ -11,7 +11,7 @@
 
       <ContentCardList
         :contentList="contentList"
-        :showSelectAll="canSelectAll"
+        :showSelectAll="showSelectAll"
         :viewMoreButtonState="viewMoreButtonState"
         :selectAllChecked="selectAllChecked"
         :selectAllIndeterminate="selectAllIndeterminate"
@@ -60,6 +60,7 @@
         selectedResources,
         selectResources,
         deselectResources,
+        setSelectedResources,
       } = injectResourceSelection();
 
       const contentFetch = computed(() => {
@@ -95,6 +96,7 @@
         viewMoreButtonState,
         selectResources,
         deselectResources,
+        setSelectedResources,
       };
     },
     props: {
@@ -126,15 +128,23 @@
       selectAllIndeterminate() {
         return (
           !this.selectAllChecked &&
-          this.contentList.some(resource =>
+          this.selectableContentList.some(resource =>
             this.selectedResources.some(selectedResource => selectedResource.id === resource.id),
           )
         );
       },
       selectAllChecked() {
-        return this.contentList.every(resource =>
+        return this.selectableContentList.every(resource =>
           this.selectedResources.some(selectedResource => selectedResource.id === resource.id),
         );
+      },
+      selectableContentList() {
+        return this.contentList.filter(
+          content => this.showCheckbox(content) && !this.contentCheckboxDisabled(content),
+        );
+      },
+      showSelectAll() {
+        return this.canSelectAll && this.multi && this.selectableContentList.length > 0;
       },
     },
     methods: {
@@ -159,9 +169,9 @@
       },
       handleSelectAll(checked) {
         if (checked) {
-          this.selectResources(this.contentList);
+          this.selectResources(this.selectableContentList);
         } else {
-          this.deselectResources(this.contentList);
+          this.deselectResources(this.selectableContentList);
         }
       },
       contentCheckboxDisabled(resource) {
@@ -174,6 +184,9 @@
         return !resource;
       },
       toggleSelected({ content, checked }) {
+        if (!this.multi) {
+          return this.setSelectedResources(checked ? [content] : []);
+        }
         if (checked) {
           this.selectResources([content]);
         } else {
