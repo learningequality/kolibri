@@ -1,4 +1,4 @@
-name: PR Event Workflow
+name: Update community pull requests spreadsheet
 on:
   pull_request_target:
     types: [opened, reopened, edited, closed, synchronize, assigned, unassigned, review_requested, review_request_removed]
