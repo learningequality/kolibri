@@ -324,7 +324,7 @@ function getVueTemplateAST(filePath) {
    * a `with(this) {}` expression which returns an array of valid JS expressions in
    * an array.
    *
-   * It's a string - which is what espree wants anyway - so we can strip the `with()`
+   * It's a string - which is what ast-traverse wants anyway - so we can strip the `with()`
    * altogether, leaving us with a stringified array containing everything we need to
    * create a thorough AST of the compiled Vue template.               *
    */
