@@ -67,7 +67,7 @@
 <script>
 
   import { get } from '@vueuse/core';
-  import Backdrop from 'kolibri-common/components/Backdrop';
+  import Backdrop from 'kolibri/components/Backdrop';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 

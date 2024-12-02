@@ -6,8 +6,8 @@ import { coreStoreFactory as makeStore } from '../../../store';
 import coreModule from '../../../../../kolibri/core/assets/src/state/modules/core';
 
 jest.mock('kolibri/composables/useUser');
-jest.mock('kolibri-common/apiResources/PingbackNotificationResource');
-jest.mock('kolibri-common/apiResources/PingbackNotificationDismissedResource');
+jest.mock('../NotificationsRoot/internal/PingbackNotificationResource');
+jest.mock('../NotificationsRoot/internal/PingbackNotificationDismissedResource');
 
 function makeWrapper(useUserMockObj = null) {
   const store = makeStore();

@@ -44,15 +44,15 @@
 
   import { mapState } from 'vuex';
   import Lockr from 'lockr';
-  import PingbackNotificationResource from 'kolibri-common/apiResources/PingbackNotificationResource';
-  import PingbackNotificationDismissedResource from 'kolibri-common/apiResources/PingbackNotificationDismissedResource';
   import { UPDATE_MODAL_DISMISSED } from 'kolibri/constants';
   import { currentLanguage, defaultLanguage } from 'kolibri/utils/i18n';
   import AuthMessage from 'kolibri/components/AuthMessage';
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
-  import AppError from 'kolibri-common/components/AppError';
-  import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
+  import AppError from 'kolibri/components/error/AppError';
+  import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
   import useUser from 'kolibri/composables/useUser';
+  import PingbackNotificationDismissedResource from './internal/PingbackNotificationDismissedResource';
+  import PingbackNotificationResource from './internal/PingbackNotificationResource';
   import UpdateNotification from './internal/UpdateNotification';
 
   export default {

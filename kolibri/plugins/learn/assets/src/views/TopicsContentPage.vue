@@ -169,8 +169,8 @@
   import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
   import client from 'kolibri/client';
   import urls from 'kolibri/urls';
-  import AppError from 'kolibri-common/components/AppError';
-  import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
+  import AppError from 'kolibri/components/error/AppError';
+  import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useChannels from 'kolibri-common/composables/useChannels';

@@ -41,7 +41,7 @@
 <script>
 
   import KToolbar from 'kolibri-design-system/lib/KToolbar';
-  import Backdrop from 'kolibri-common/components/Backdrop';
+  import Backdrop from 'kolibri/components/Backdrop';
   import ContentItem from './ContentItem';
 
   export default {

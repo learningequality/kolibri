@@ -234,7 +234,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import camelCase from 'lodash/camelCase';
   import { ContentLevels } from 'kolibri/constants';
-  import DownloadButton from 'kolibri-common/components/DownloadButton';
+  import DownloadButton from 'kolibri/components/DownloadButton';
   import get from 'lodash/get';
   import {
     licenseShortName,

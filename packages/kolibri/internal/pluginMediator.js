@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import logging from 'kolibri-logging';
-import scriptLoader from 'kolibri-common/utils/scriptLoader';
+import scriptLoader from 'kolibri/utils/scriptLoader';
 import { RENDERER_SUFFIX } from 'kolibri/constants';
 import { languageDirection, languageDirections, currentLanguage } from 'kolibri/utils/i18n';
 import contentRendererMixin from '../components/internal/ContentRenderer/mixin';

@@ -21,8 +21,8 @@
 <script>
 
   import useUser from 'kolibri/composables/useUser';
-  import { getFilePresetString } from '../uiText/filePresetStrings';
-  import { getRenderableFiles } from '../utils/contentViewer';
+  import { getRenderableFiles } from './internal/ContentRenderer/utils';
+  import { getFilePresetString } from './internal/filePresetStrings';
 
   export default {
     name: 'DownloadButton',

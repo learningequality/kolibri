@@ -19,7 +19,7 @@ module.exports = {
   'kolibri.coreVue.components.Backdrop': 'kolibri-common/components/Backdrop',
   'kolibri.coreVue.components.CoachContentLabel':
     'kolibri-common/components/labels/CoachContentLabel',
-  'kolibri.coreVue.components.DownloadButton': 'kolibri-common/components/DownloadButton',
+  'kolibri.coreVue.components.DownloadButton': 'kolibri/components/DownloadButton',
   'kolibri.coreVue.components.ProgressBar': null, // Not used
   'kolibri.coreVue.components.ContentIcon': 'kolibri-common/components/labels/ContentIcon',
   'kolibri.coreVue.components.ProgressIcon': 'kolibri-common/components/labels/ProgressIcon',
@@ -41,10 +41,9 @@ module.exports = {
   'kolibri.coreVue.components.AuthMessage': 'kolibri/components/AuthMessage',
   'kolibri.coreVue.components.FilterTextbox': 'kolibri/components/FilterTextbox',
   'kolibri.coreVue.components.CoreSnackbar': null, // Only used in GlobalSnackbar
-  'kolibri.coreVue.components.CoreMenu': 'kolibri-common/components/CoreMenu',
-  'kolibri.coreVue.components.CoreMenuDivider':
-    'kolibri-common/components/CoreMenu/CoreMenuDivider',
-  'kolibri.coreVue.components.CoreMenuOption': 'kolibri-common/components/CoreMenu/CoreMenuOption',
+  'kolibri.coreVue.components.CoreMenu': 'kolibri/components/CoreMenu',
+  'kolibri.coreVue.components.CoreMenuDivider': null,
+  'kolibri.coreVue.components.CoreMenuOption': 'kolibri/components/CoreMenu/CoreMenuOption',
   'kolibri.coreVue.components.CoreTable': 'kolibri/components/CoreTable',
   'kolibri.coreVue.components.UserTable': 'kolibri-common/components/UserTable',
   'kolibri.coreVue.components.CoreInfoIcon': 'kolibri-common/components/labels/CoreInfoIcon',
@@ -58,7 +57,7 @@ module.exports = {
   'kolibri.coreVue.components.UiAlert': 'kolibri-design-system/lib/keen/UiAlert',
   'kolibri.coreVue.components.UiIconButton': 'kolibri-design-system/lib/keen/UiIconButton',
   'kolibri.coreVue.components.UiToolbar': 'kolibri-design-system/lib/KToolbar',
-  'kolibri.coreVue.components.PrivacyInfoModal': 'kolibri-common/components/PrivacyInfoModal',
+  'kolibri.coreVue.components.PrivacyInfoModal': 'kolibri/components/PrivacyInfoModal',
   'kolibri.coreVue.components.UserTypeDisplay': 'kolibri-common/components/UserTypeDisplay',
   'kolibri.coreVue.components.Draggable': 'kolibri-common/components/sortable/Draggable',
   'kolibri.coreVue.components.DragHandle': 'kolibri-common/components/sortable/DragHandle',
@@ -130,7 +129,7 @@ module.exports = {
     'kolibri/composables/useMinimumKolibriVersion',
   'kolibri.coreVue.composables.useSnackbar': 'kolibri/composables/useSnackbar',
   'kolibri.coreVue.composables.useUser': 'kolibri/composables/useUser',
-  'kolibri.coreVue.composables.useUserSyncStatus': 'kolibri-common/composables/useUserSyncStatus',
+  'kolibri.coreVue.composables.useUserSyncStatus': 'kolibri/composables/useUserSyncStatus',
   'kolibri.coreVue.composables.useNow': 'kolibri/composables/useNow',
   'kolibri.coreVue.composables.useTotalProgress': 'kolibri/composables/useTotalProgress',
   'kolibri.resources': {

@@ -29,6 +29,14 @@ repos:
         entry: yarn run lint-frontend:format
         language: system
         files: \.(js|vue|scss|css)$
+-   repo: local
+    hooks:
+    -   id: core-js-api
+        name: Rebuild kolibri package
+        description: Rebuilds kolibri package on changes to core js api
+        entry: yarn run build-kolibri-tools
+        language: system
+        files: ^packages/kolibri/.*\.(js|vue)$
 - repo: local
   hooks:
   - id: no-auto-migrations
@@ -75,6 +83,12 @@ repos:
     entry: settings\.AUTH_USER_MODEL
     language: pygrep
     files: migrations/.*\.py$
+  - id: no-kolibri-common-imports
+    name: No imports from kolibri-common (which is unpublished) in any other packages
+    entry: kolibri-common
+    language: pygrep
+    exclude: (^packages/kolibri-common/|moduleMapping\.js|test/fixtures)
+    files: ^packages/.*\.(js|vue)$
 -   repo: https://github.com/isidentical/teyit
     rev: 0.4.3
     hooks:
