@@ -3,30 +3,43 @@
  * @module logging
  */
 
-import loglevel from 'loglevel';
+const loglevel = require('loglevel');
+
+const logMethodNames = ['trace', 'debug', 'log', 'info', 'warn', 'error'];
 
 class Logger {
   constructor(loggerName) {
     this.loggerName = loggerName;
     this.logger = loglevel.getLogger(loggerName);
+    this.logColors = {};
+    if (!process.browser) {
+      const chalk = require('chalk');
+      this.logColors = {
+        log: chalk.white,
+        info: chalk.green,
+        warn: chalk.yellow,
+        error: chalk.red,
+      };
+    }
     this.setMessagePrefix();
-    Object.keys(loglevel.levels).forEach(methodName => {
-      const name = methodName.toLowerCase();
+    for (const name of logMethodNames) {
       const logFunction = this.logger[name];
       if (logFunction) {
         this[name] = (...params) => {
           return this.logger[name](...params);
         };
       }
-    });
+    }
   }
 
   setMessagePrefix() {
     var originalFactory = this.logger.methodFactory;
+    var self = this;
     this.logger.methodFactory = function (methodName, logLevel, loggerName) {
       var rawMethod = originalFactory(methodName, logLevel, loggerName);
+      var colorMethod = self.logColors[methodName] || (msg => msg);
       return function (message, ...args) {
-        rawMethod(`[${methodName.toUpperCase()}: ${loggerName}] ` + message, ...args);
+        rawMethod(colorMethod(`[${methodName.toUpperCase()}: ${loggerName}] ` + message), ...args);
       };
     };
     this.logger.setLevel(this.logger.getLevel());
@@ -53,10 +66,9 @@ class Logging {
   constructor() {
     this.registeredLoggers = {};
     this.defaultLogger = new Logger('root');
-    Object.keys(loglevel.levels).forEach(methodName => {
-      const name = methodName.toLowerCase();
+    for (const name of logMethodNames) {
       this[name] = (...msgs) => this.defaultLogger[name](...msgs);
-    });
+    }
   }
 
   getLogger(loggerName) {
@@ -101,4 +113,4 @@ class Logging {
 
 const logging = new Logging();
 
-export default logging;
+module.exports = logging;

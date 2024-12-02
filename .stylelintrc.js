@@ -1,1 +1,1 @@
-module.exports = require('kolibri-tools/.stylelintrc');
+module.exports = require('kolibri-format/.stylelintrc');

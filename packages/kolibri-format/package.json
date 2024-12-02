@@ -1,0 +1,43 @@
+{
+  "name": "kolibri-format",
+  "version": "1.0.0",
+  "description": "A module for formatting frontend code to Kolibri standards",
+  "repository": "github.com/learningequality/kolibri",
+  "author": "Learning Equality",
+  "license": "MIT",
+  "private": false,
+  "bin": {
+    "kolibri-format": "./cli.js"
+  },
+  "dependencies": {
+    "chalk": "4.1.2",
+    "commander": "^12.1.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jest": "^28.9.0",
+    "eslint-plugin-jest-dom": "^5.5.0",
+    "eslint-plugin-kolibri": "0.16.1-dev.1",
+    "eslint-plugin-vue": "^9.31.0",
+    "fast-glob": "3.3.2",
+    "kolibri-logging": "^1.0.0",
+    "postcss-html": "^1.7.0",
+    "postcss-less": "^6.0.0",
+    "postcss-sass": "^0.5.0",
+    "postcss-scss": "^4.0.9",
+    "prettier": "^3.3.3",
+    "stylelint": "^15.11.0",
+    "stylelint-config-html": "^1.1.0",
+    "stylelint-config-prettier": "9.0.5",
+    "stylelint-config-recess-order": "4.6.0",
+    "stylelint-config-recommended-scss": "14.1.0",
+    "stylelint-config-sass-guidelines": "11.1.0",
+    "stylelint-config-standard": "34.0.0",
+    "stylelint-csstree-validator": "3.0.0",
+    "stylelint-scss": "5.3.2"
+  },
+  "engines": {
+    "node": "18.x",
+    "npm": ">= 8"
+  }
+}

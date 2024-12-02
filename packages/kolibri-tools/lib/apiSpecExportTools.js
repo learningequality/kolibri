@@ -1,6 +1,6 @@
 const path = require('node:path');
+const { writeSourceToFile } = require('kolibri-format');
 const kolibriPackageJson = require('../../kolibri/package.json');
-const writeSourceToFile = require('./i18n/writeSourceToFile');
 const glob = require('./glob');
 
 const apiSpec = kolibriPackageJson.exports || {};

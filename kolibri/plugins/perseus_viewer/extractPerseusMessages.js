@@ -12,7 +12,7 @@ const lodash = require('lodash');
 
 const typescript = require('typescript');
 
-const { writeSourceToFile } = require('kolibri-tools/lib/i18n/utils');
+const { writeSourceToFile } = require('kolibri-format');
 
 const { replacePiText } = require('./assets/src/translationUtils');
 const packageJson = require('./package.json');

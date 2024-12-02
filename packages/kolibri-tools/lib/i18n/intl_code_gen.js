@@ -1,6 +1,6 @@
 const path = require('path');
+const { writeSourceToFile } = require('kolibri-format');
 const logger = require('../logging');
-const writeSourceToFile = require('./writeSourceToFile');
 
 const logging = logger.getLogger('Kolibri Intl Data');
 

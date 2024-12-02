@@ -6,6 +6,7 @@
   "author": "Learning Equality",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^4.1.2",
     "loglevel": "^1.9.1"
   }
 }

@@ -7,6 +7,7 @@ const { ESLint } = require('eslint');
 const stylelint = require('stylelint');
 const chalk = require('chalk');
 const stylelintFormatter = require('stylelint').formatters.string;
+const logger = require('kolibri-logging');
 
 // check for host project's linting configs, otherwise use defaults
 const hostProjectDir = process.cwd();
@@ -15,26 +16,26 @@ let esLintConfig;
 try {
   esLintConfig = require(`${hostProjectDir}/.eslintrc.js`);
 } catch (e) {
-  esLintConfig = require('../.eslintrc.js');
+  esLintConfig = require('./.eslintrc.js');
 }
 
 let stylelintConfig;
 try {
   stylelintConfig = require(`${hostProjectDir}/.stylelintrc.js`);
 } catch (e) {
-  stylelintConfig = require('../.stylelintrc.js');
+  stylelintConfig = require('./.stylelintrc.js');
 }
 
 let prettierConfig;
 try {
   prettierConfig = require(`${hostProjectDir}/.prettierrc.js`);
 } catch (e) {
-  prettierConfig = require('../.prettierrc.js');
+  prettierConfig = require('./.prettierrc.js');
 }
 
-const logger = require('./logging');
+const logging = logger.getLogger('Kolibri Format');
 
-const logging = logger.getLogger('Kolibri Linter');
+logging.setLevel(2);
 
 const esLinter = new ESLint({
   baseConfig: esLintConfig,
@@ -140,22 +141,24 @@ async function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
 
   const { formatted, messages } = await lintSource({ file, source });
 
-  if (formatted !== source) {
-    messages.push(chalk.yellow(`${file} did not conform to formatting standards`));
-  }
+  const reformatRequired = formatted !== source;
 
-  if (!messages.length) {
+  if (!reformatRequired && !messages.length) {
     // Nothing to lint, return noChange.
     return noChange;
   }
-  if (messages.length && !silent) {
-    logging.info(`Linting errors for ${file}`);
+  if ((reformatRequired || messages.length) && !silent) {
+    logging.error(`Linting errors for ${chalk.underline(file)}`);
+    if (reformatRequired) {
+      logging.warn(`${file} needs to be reformatted.`);
+    }
     messages.forEach(msg => {
-      logging.log(msg);
+      // Use console.log for non-prefixed output for linting messages
+      console.log(msg); // eslint-disable-line no-console
     });
   }
   // Only write if the formatted file is different to the source file.
-  if (write && formatted !== source) {
+  if (write && reformatRequired) {
     try {
       fs.writeFileSync(file, formatted, { encoding });
       if (!silent) {
@@ -168,9 +171,20 @@ async function lint({ file, write, encoding = 'utf-8', silent = false } = {}) {
   return errorOrChange;
 }
 
+function writeSourceToFile(filePath, fileSource) {
+  fs.writeFileSync(filePath, fileSource, { encoding: 'utf-8' });
+
+  lint({
+    file: filePath,
+    write: true,
+    silent: true,
+  });
+}
+
 module.exports = {
   lint,
   lintSource,
   logging,
   noChange,
+  writeSourceToFile,
 };
