@@ -96,8 +96,8 @@
 
   import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import CoreMenu from 'kolibri-common/components/CoreMenu';
-  import CoreMenuOption from 'kolibri-common/components/CoreMenu/CoreMenuOption';
+  import CoreMenu from 'kolibri/components/CoreMenu';
+  import CoreMenuOption from 'kolibri/components/CoreMenu/CoreMenuOption';
   import useUser from 'kolibri/composables/useUser';
   import ProgressBar from '../ProgressBar';
   import commonLearnStrings from '../commonLearnStrings';

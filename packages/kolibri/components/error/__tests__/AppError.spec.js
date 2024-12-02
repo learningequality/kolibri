@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { coreStoreFactory as makeStore } from 'kolibri/store';
-import AppError from '../index.vue';
+import AppError from '../AppError';
 import coreModule from '../../../../../kolibri/core/assets/src/state/modules/core';
 
 function makeWrapper() {

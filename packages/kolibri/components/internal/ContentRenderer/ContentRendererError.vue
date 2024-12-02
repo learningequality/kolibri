@@ -32,9 +32,9 @@
 
   import { crossComponentTranslator } from 'kolibri/utils/i18n';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import AppError from 'kolibri-common/components/AppError';
-  import ReportErrorModal from 'kolibri-common/components/AppError/ReportErrorModal';
-  import DownloadButton from 'kolibri-common/components/DownloadButton';
+  import AppError from 'kolibri/components/error/AppError';
+  import ReportErrorModal from 'kolibri/components/error/ReportErrorModal';
+  import DownloadButton from 'kolibri/components/DownloadButton';
 
   export default {
     name: 'ContentRendererError',
