@@ -453,6 +453,7 @@
           quiz.tally = this.getExamStatusTally(quiz.id, learnersForQuiz);
           quiz.avgScore = this.getExamAvgScore(quiz.id, learnersForQuiz);
           quiz.recipientNames = this.getRecipientNamesForExam(quiz);
+          quiz.totalLearners = this.getLearnersForExam(quiz).length;
           return quiz;
         });
       },
@@ -527,7 +528,7 @@
         const columns = [
           ...csvFields.title(),
           ...csvFields.avgScore(),
-          ...csvFields.allLearners(),
+          ...csvFields.allLearners('totalLearners'),
           ...csvFields.recipients(this.className),
           ...csvFields.tally(),
         ];
