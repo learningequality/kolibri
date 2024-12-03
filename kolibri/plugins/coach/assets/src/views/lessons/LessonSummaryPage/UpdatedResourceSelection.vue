@@ -39,7 +39,7 @@
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
   import { PageNames } from '../../../constants';
-  import { injectResourceSelection } from './sidePanels/LessonResourceSelection/useResourceSelection';
+  import { injectResourceSelection } from '../../../composables/useResourceSelection';
   import { ResourceContentSource } from './sidePanels/LessonResourceSelection/constants';
 
   export default {

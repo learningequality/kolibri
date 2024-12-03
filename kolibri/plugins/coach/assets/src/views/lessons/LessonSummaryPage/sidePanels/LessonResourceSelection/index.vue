@@ -60,7 +60,7 @@
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { PageNames } from '../../../../../constants';
   import { coachStrings } from '../../../../common/commonCoachStrings';
-  import useResourceSelection from './useResourceSelection';
+  import useResourceSelection from '../../../../../composables/useResourceSelection';
 
   export default {
     name: 'LessonResourceSelection',
