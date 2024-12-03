@@ -38,11 +38,9 @@
   import { ContentNodeKinds } from 'kolibri/constants';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
+  import { PageNames } from '../../../constants';
   import { injectResourceSelection } from './sidePanels/LessonResourceSelection/useResourceSelection';
-  import {
-    ResourceContentSource,
-    ResourceSelectionView,
-  } from './sidePanels/LessonResourceSelection/constants';
+  import { ResourceContentSource } from './sidePanels/LessonResourceSelection/constants';
 
   export default {
     name: 'UpdatedResourceSelection',
@@ -119,10 +117,7 @@
     computed: {
       channelsLink() {
         return {
-          name: this.$route.name,
-          params: {
-            viewId: ResourceSelectionView.SELECTION_INDEX,
-          },
+          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
         };
       },
       selectAllIndeterminate() {

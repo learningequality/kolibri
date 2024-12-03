@@ -65,14 +65,14 @@
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';
   import { injectResourceSelection } from '../useResourceSelection';
   import { PageNames } from '../../../../../../constants';
-  import { ResourceSelectionView } from '../constants';
+  import { coachStrings } from '../../../../../common/commonCoachStrings';
 
   export default {
     name: 'SelectionIndex',
     components: {
       AccessibleChannelCard,
     },
-    setup() {
+    setup(props) {
       const { bookmarksFetch, channelsFetch } = injectResourceSelection();
       const { additionalData } = bookmarksFetch;
       const { count: bookmarksCount } = additionalData.value;
@@ -87,6 +87,11 @@
         searchLabel$,
       } = coreStrings;
 
+      const { manageLessonResourcesTitle$ } = coachStrings;
+
+      props.setTitle(manageLessonResourcesTitle$());
+      props.setGoBack(null);
+
       return {
         bookmarksCount,
         channels,
@@ -97,19 +102,27 @@
         searchLabel$,
       };
     },
+    props: {
+      setTitle: {
+        type: Function,
+        default: () => {},
+      },
+      setGoBack: {
+        type: Function,
+        default: () => {},
+      },
+    },
     computed: {
       selectFromBookmarksLink() {
         return {
-          name: PageNames.LESSON_SELECT_RESOURCES,
-          params: { viewId: ResourceSelectionView.SELECT_FROM_BOOKMARKS },
+          name: PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
         };
       },
     },
     methods: {
       selectFromChannelsLink(channel) {
         return {
-          name: PageNames.LESSON_SELECT_RESOURCES,
-          params: { viewId: ResourceSelectionView.SELECT_FROM_CHANNELS },
+          name: PageNames.LESSON_SELECT_RESOURCES_CHANNELS,
           query: { topicId: channel.id },
         };
       },
