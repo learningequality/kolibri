@@ -2,7 +2,11 @@
   "name": "kolibri-format",
   "version": "1.0.0",
   "description": "A module for formatting frontend code to Kolibri standards",
-  "repository": "github.com/learningequality/kolibri",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/learningequality/kolibri.git",
+    "directory": "packages/kolibri-format"
+  },
   "author": "Learning Equality",
   "license": "MIT",
   "private": false,

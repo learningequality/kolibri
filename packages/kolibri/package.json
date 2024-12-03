@@ -2,7 +2,11 @@
   "name": "kolibri",
   "version": "0.18.0",
   "description": "The Kolibri core API",
-  "repository": "github.com/learningequality/kolibri",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/learningequality/kolibri.git",
+    "directory": "packages/kolibri"
+  },
   "author": "Learning Equality",
   "license": "MIT",
   "private": false,

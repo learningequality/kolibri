@@ -4,6 +4,11 @@
   "description": "The Kolibri logging module",
   "main": "src/index.js",
   "author": "Learning Equality",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/learningequality/kolibri.git",
+    "directory": "packages/kolibri-logging"
+  },
   "license": "MIT",
   "dependencies": {
     "chalk": "^4.1.2",
