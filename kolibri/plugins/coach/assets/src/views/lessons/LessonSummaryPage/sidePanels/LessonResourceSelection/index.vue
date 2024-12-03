@@ -12,18 +12,24 @@
         <KIconButton
           v-if="goBack"
           icon="back"
-          @click="goBack"
+          @click="goBack()"
         />
-        <h1 class="side-panel-title">{{ view.title }}</h1>
+        <h1 class="side-panel-title">{{ title }}</h1>
       </div>
     </template>
     <div v-if="loading">
       <KCircularLoader />
     </div>
-    <component
+
+    <router-view
+      v-else
+      :setTitle="setTitle"
+      :setGoBack="setGoBack"
+    />
+    <!-- <component
       :is="view.component"
       v-else-if="!view.guard || view.guard()"
-    />
+    /> -->
 
     <template #bottomNavigation>
       <div class="bottom-nav-container">
@@ -54,19 +60,12 @@
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { PageNames } from '../../../../../constants';
   import { coachStrings } from '../../../../common/commonCoachStrings';
-  import SelectionIndex from './subPages/SelectionIndex';
   import useResourceSelection from './useResourceSelection';
-  import SelectFromBookmarks from './subPages/SelectFromBookmarks.vue';
-  import SelectFromChannels from './subPages/SelectFromChannels.vue';
-  import { ResourceSelectionView } from './constants';
 
   export default {
     name: 'LessonResourceSelection',
     components: {
       SidePanelModal,
-      SelectionIndex,
-      SelectFromBookmarks,
-      SelectFromChannels,
     },
     setup() {
       const { selectedResources, loading } = useResourceSelection();
@@ -80,47 +79,16 @@
         saveAndFinishAction$,
       };
     },
+    data() {
+      return {
+        title: '',
+        goBack: null,
+      };
+    },
     computed: {
       topicId() {
         const { topicId } = this.$route.query;
         return topicId;
-      },
-      viewId() {
-        const { viewId } = this.$route.params;
-        if (Object.values(ResourceSelectionView).includes(viewId)) {
-          return viewId;
-        }
-        return ResourceSelectionView.SELECTION_INDEX;
-      },
-      view() {
-        const componentMap = {
-          [ResourceSelectionView.SELECTION_INDEX]: {
-            title: this.$tr('manageLessonResourcesTitle'),
-            component: SelectionIndex,
-          },
-          [ResourceSelectionView.SELECT_FROM_BOOKMARKS]: {
-            title: this.selectFromBookmarks$(),
-            component: SelectFromBookmarks,
-            back: ResourceSelectionView.SELECTION_INDEX,
-          },
-          [ResourceSelectionView.SELECT_FROM_CHANNELS]: {
-            title: this.$tr('manageLessonResourcesTitle'),
-            component: SelectFromChannels,
-            back: ResourceSelectionView.SELECTION_INDEX,
-            guard: () => !!this.topicId,
-          },
-        };
-
-        return componentMap[this.viewId];
-      },
-      goBack() {
-        const { back } = this.view;
-        if (!back) {
-          return null;
-        }
-        return () => {
-          this.$router.push({ name: 'LESSON_SELECT_RESOURCES', params: { viewId: back } });
-        };
       },
       totalSize() {
         let size = 0;
@@ -140,32 +108,17 @@
         });
       },
     },
-    watch: {
-      view(newView) {
-        if (newView.guard && !newView.guard()) {
-          if (this.goBack) {
-            this.goBack();
-          } else {
-            this.$router.push({
-              name: PageNames.LESSON_SELECT_RESOURCES,
-              params: { viewId: ResourceSelectionView.SELECTION_INDEX },
-            });
-          }
-        }
-      },
-    },
     methods: {
       closeSidePanel() {
         this.$router.push({
           name: PageNames.LESSON_SUMMARY_BETTER,
         });
       },
-    },
-    $trs: {
-      manageLessonResourcesTitle: {
-        message: 'Manage lesson resources',
-        context:
-          "In the 'Manage lesson resources' coaches can add new/remove resource material to a lesson.",
+      setTitle(title) {
+        this.title = title;
+      },
+      setGoBack(goBack) {
+        this.goBack = goBack;
       },
     },
   };
