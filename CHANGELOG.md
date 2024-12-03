@@ -2,6 +2,12 @@
 
 List of the most important changes for each release.
 
+## 0.17.4
+
+### Fixed
+- Ensures users can 'Continue' from the SelectFacilityForm component in SetupWizard by @rtibbles in https://github.com/learningequality/kolibri/pull/12893
+
+
 ## 0.17.3
 
 ### Changed
