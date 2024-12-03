@@ -4,6 +4,11 @@
   "description": "Custom linting rules for kolibri",
   "author": "Learning Equality",
   "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/learningequality/kolibri.git",
+    "directory": "packages/eslint-plugin-kolibri"
+  },
   "dependencies": {
     "requireindex": "^1.1.0"
   },
