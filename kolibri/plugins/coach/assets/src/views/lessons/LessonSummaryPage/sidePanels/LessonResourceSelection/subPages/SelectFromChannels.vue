@@ -41,15 +41,25 @@
   import { ResourceContentSource } from '../constants';
   import UpdatedResourceSelection from '../../../UpdatedResourceSelection.vue';
   import { injectResourceSelection } from '../useResourceSelection';
+  import { coachStrings } from '../../../../../common/commonCoachStrings';
+  import { PageNames } from '../../../../../../constants';
 
   export default {
     name: 'SelectFromChannels',
     components: {
       UpdatedResourceSelection,
     },
-    setup() {
+    setup(props, { root }) {
       const { selectFromChannels$, searchLabel$ } = coreStrings;
+      const { manageLessonResourcesTitle$ } = coachStrings;
       const { topic } = injectResourceSelection();
+
+      props.setTitle(manageLessonResourcesTitle$());
+      props.setGoBack(() => {
+        root.$router.push({
+          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+        });
+      });
 
       return {
         topic,
@@ -57,10 +67,32 @@
         selectFromChannels$,
       };
     },
+    props: {
+      setTitle: {
+        type: Function,
+        default: () => {},
+      },
+      setGoBack: {
+        type: Function,
+        default: () => {},
+      },
+    },
     data() {
       return {
         ResourceContentSource,
       };
+    },
+    beforeRouteEnter(to, _, next) {
+      const { topicId } = to.query;
+      if (!topicId) {
+        return next({
+          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+          params: {
+            ...to.params,
+          },
+        });
+      }
+      return next();
     },
   };
 
