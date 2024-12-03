@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 import { ref, computed } from '@vue/composition-api';
-import { ViewMoreButtonStates } from '../../../../../constants';
+import { ViewMoreButtonStates } from '../constants';
 
 export default function useFetch(options) {
   const { fetchMethod, fetchMoreMethod, dataKey, moreKey, additionalDataKeys } = options || {};

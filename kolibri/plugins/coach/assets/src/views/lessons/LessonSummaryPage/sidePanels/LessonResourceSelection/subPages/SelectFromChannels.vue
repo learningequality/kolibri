@@ -40,7 +40,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { ResourceContentSource } from '../constants';
   import UpdatedResourceSelection from '../../../UpdatedResourceSelection.vue';
-  import { injectResourceSelection } from '../useResourceSelection';
+  import { injectResourceSelection } from '../../../../../../composables/useResourceSelection';
   import { coachStrings } from '../../../../../common/commonCoachStrings';
   import { PageNames } from '../../../../../../constants';
 
