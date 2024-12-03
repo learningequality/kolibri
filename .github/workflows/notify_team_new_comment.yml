@@ -6,6 +6,6 @@ on:
 
 jobs:
   contributor_issue_comment:
-    uses: rparadowski/.github/.github/workflows/notify_team_new_comment.yml@12567_issue
+    uses: learningequality/.github/.github/workflows/notify_team_new_comment.yml@main
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
