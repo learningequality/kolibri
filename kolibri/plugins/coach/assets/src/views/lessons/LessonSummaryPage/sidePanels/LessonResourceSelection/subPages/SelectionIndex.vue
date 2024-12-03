@@ -63,7 +63,7 @@
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';
-  import { injectResourceSelection } from '../useResourceSelection';
+  import { injectResourceSelection } from '../../../../../../composables/useResourceSelection';
   import { PageNames } from '../../../../../../constants';
   import { coachStrings } from '../../../../../common/commonCoachStrings';
 
