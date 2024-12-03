@@ -35,7 +35,6 @@
     "lint-frontend:watch:format": "yarn run lint-frontend --monitor --write",
     "build-kolibri-tools": "yarn workspace kolibri-tools run build-kolibri-tools",
     "migrate-core-api": "kolibri-tools migrate  '{kolibri*/**/assets,packages}/**/*.{js,vue}' --ignore '**/dist/**,**/node_modules/**,**/static/**'",
-    "publish-packages": "node ./packages/publish.js",
     "hashi-dev": "yarn workspace hashi run dev",
     "hashi-build": "yarn workspace hashi run build",
     "compress": "kolibri-tools compress 'kolibri/*/**/static/**/*.{html,js,css,svg,map,eot,ttf}'"
