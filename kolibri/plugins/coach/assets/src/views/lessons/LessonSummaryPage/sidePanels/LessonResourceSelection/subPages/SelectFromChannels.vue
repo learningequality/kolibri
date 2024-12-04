@@ -28,7 +28,14 @@
 
     <UpdatedResourceSelection
       canSelectAll
-      :source="ResourceContentSource.TOPIC_TREE"
+      :topic="topic"
+      :contentList="contentList"
+      :viewMoreButtonState="viewMoreButtonState"
+      :fetchMore="fetchMore"
+      :selectionRules="selectionRules"
+      :selectedResources="selectedResources"
+      @selectResources="$emit('selectResources', $event)"
+      @deselectResources="$emit('deselectResources', $event)"
     />
   </div>
 
@@ -38,9 +45,7 @@
 <script>
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import { ResourceContentSource } from '../constants';
   import UpdatedResourceSelection from '../../../UpdatedResourceSelection.vue';
-  import { injectResourceSelection } from '../../../../../../composables/useResourceSelection';
   import { coachStrings } from '../../../../../common/commonCoachStrings';
   import { PageNames } from '../../../../../../constants';
 
@@ -52,7 +57,6 @@
     setup(props, { root }) {
       const { selectFromChannels$, searchLabel$ } = coreStrings;
       const { manageLessonResourcesTitle$ } = coachStrings;
-      const { topic } = injectResourceSelection();
 
       props.setTitle(manageLessonResourcesTitle$());
       props.setGoBack(() => {
@@ -61,8 +65,11 @@
         });
       });
 
+      const { data, moreState, fetchMore } = props.treeFetch;
       return {
-        topic,
+        contentList: data,
+        viewMoreButtonState: moreState,
+        fetchMore,
         searchLabel$,
         selectFromChannels$,
       };
@@ -76,11 +83,23 @@
         type: Function,
         default: () => {},
       },
-    },
-    data() {
-      return {
-        ResourceContentSource,
-      };
+      topic: {
+        type: Object,
+        required: true,
+      },
+      treeFetch: {
+        type: Object,
+        required: true,
+      },
+      selectionRules: {
+        type: Array,
+        required: false,
+        default: () => [],
+      },
+      selectedResources: {
+        type: Array,
+        required: true,
+      },
     },
     beforeRouteEnter(to, _, next) {
       const { topicId } = to.query;

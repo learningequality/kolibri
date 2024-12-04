@@ -3,7 +3,13 @@
   <div>
     <UpdatedResourceSelection
       canSelectAll
-      :source="ResourceContentSource.BOOKMARKS"
+      :contentList="contentList"
+      :viewMoreButtonState="viewMoreButtonState"
+      :fetchMore="fetchMore"
+      :selectionRules="selectionRules"
+      :selectedResources="selectedResources"
+      @selectResources="$emit('selectResources', $event)"
+      @deselectResources="$emit('deselectResources', $event)"
     />
   </div>
 
@@ -14,7 +20,6 @@
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import UpdatedResourceSelection from '../../../UpdatedResourceSelection.vue';
-  import { ResourceContentSource } from '../constants';
   import { PageNames } from '../../../../../../constants';
 
   export default {
@@ -31,6 +36,14 @@
           name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
         });
       });
+
+      const { data, moreState, fetchMore } = props.bookmarksFetch;
+
+      return {
+        contentList: data,
+        viewMoreButtonState: moreState,
+        fetchMore,
+      };
     },
     props: {
       setTitle: {
@@ -41,11 +54,19 @@
         type: Function,
         default: () => {},
       },
-    },
-    data() {
-      return {
-        ResourceContentSource,
-      };
+      bookmarksFetch: {
+        type: Object,
+        required: true,
+      },
+      selectionRules: {
+        type: Array,
+        required: false,
+        default: () => [],
+      },
+      selectedResources: {
+        type: Array,
+        required: true,
+      },
     },
     methods: {
       /**

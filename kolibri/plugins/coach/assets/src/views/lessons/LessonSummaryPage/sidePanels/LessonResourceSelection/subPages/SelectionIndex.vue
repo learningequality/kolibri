@@ -63,7 +63,6 @@
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';
-  import { injectResourceSelection } from '../../../../../../composables/useResourceSelection';
   import { PageNames } from '../../../../../../constants';
   import { coachStrings } from '../../../../../common/commonCoachStrings';
 
@@ -73,7 +72,7 @@
       AccessibleChannelCard,
     },
     setup(props) {
-      const { bookmarksFetch, channelsFetch } = injectResourceSelection();
+      const { bookmarksFetch, channelsFetch } = props;
       const { additionalData } = bookmarksFetch;
       const { count: bookmarksCount } = additionalData.value;
 
@@ -110,6 +109,14 @@
       setGoBack: {
         type: Function,
         default: () => {},
+      },
+      channelsFetch: {
+        type: Object,
+        required: true,
+      },
+      bookmarksFetch: {
+        type: Object,
+        required: true,
       },
     },
     computed: {

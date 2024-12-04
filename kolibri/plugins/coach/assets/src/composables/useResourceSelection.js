@@ -1,5 +1,5 @@
 import uniqBy from 'lodash/uniqBy';
-import { ref, provide, inject, computed, getCurrentInstance, watch } from '@vue/composition-api';
+import { ref, computed, getCurrentInstance, watch } from '@vue/composition-api';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import useFetch from './useFetch';
@@ -101,42 +101,16 @@ export default function useResourceSelection() {
 
   const selectionRules = [];
 
-  provide('topic', topic);
-  provide('channelsFetch', channelsFetch);
-  provide('bookmarksFetch', bookmarksFetch);
-  provide('treeFetch', treeFetch);
-  provide('selectionRules', selectionRules);
-  provide('selectedResources', selectedResources);
-  provide('selectResources', selectResources);
-  provide('deselectResources', deselectResources);
-  provide('setSelectedResources', setSelectedResources);
-
-  return {
-    loading,
-    selectedResources,
-  };
-}
-
-export function injectResourceSelection() {
-  const topic = inject('topic');
-  const channelsFetch = inject('channelsFetch');
-  const bookmarksFetch = inject('bookmarksFetch');
-  const treeFetch = inject('treeFetch');
-  const selectionRules = inject('selectionRules');
-  const selectedResources = inject('selectedResources');
-  const selectResources = inject('selectResources');
-  const deselectResources = inject('deselectResources');
-  const setSelectedResources = inject('setSelectedResources');
-
   return {
     topic,
+    loading,
     channelsFetch,
     bookmarksFetch,
     treeFetch,
     selectionRules,
+    selectedResources,
     selectResources,
     deselectResources,
-    selectedResources,
     setSelectedResources,
   };
 }

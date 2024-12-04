@@ -25,6 +25,15 @@
       v-else
       :setTitle="setTitle"
       :setGoBack="setGoBack"
+      :topic="topic"
+      :channelsFetch="channelsFetch"
+      :bookmarksFetch="bookmarksFetch"
+      :treeFetch="treeFetch"
+      :selectionRules="selectionRules"
+      :selectedResources="selectedResources"
+      @selectResources="selectResources"
+      @deselectResources="deselectResources"
+      @setSelectedResources="setSelectedResources"
     />
     <!-- <component
       :is="view.component"
@@ -68,13 +77,32 @@
       SidePanelModal,
     },
     setup() {
-      const { selectedResources, loading } = useResourceSelection();
+      const {
+        loading,
+        topic,
+        channelsFetch,
+        bookmarksFetch,
+        treeFetch,
+        selectionRules,
+        selectedResources,
+        selectResources,
+        deselectResources,
+        setSelectedResources,
+      } = useResourceSelection();
 
       const { saveAndFinishAction$, selectFromBookmarks$ } = coreStrings;
 
       return {
         loading,
         selectedResources,
+        topic,
+        channelsFetch,
+        bookmarksFetch,
+        treeFetch,
+        selectionRules,
+        selectResources,
+        deselectResources,
+        setSelectedResources,
         selectFromBookmarks$,
         saveAndFinishAction$,
       };
