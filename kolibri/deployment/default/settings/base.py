@@ -99,6 +99,7 @@ MIDDLEWARE = [
     "kolibri.core.auth.middleware.KolibriSessionMiddleware",
     "kolibri.core.device.middleware.KolibriLocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "csp.middleware.CSPMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "kolibri.core.auth.middleware.CustomAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -441,3 +442,31 @@ MORANGO_CLEANUP_OPERATIONS = (
 
 # whether Kolibri is running within tests
 TESTING = False
+
+
+# Content Security Policy header settings
+# https://django-csp.readthedocs.io/en/latest/configuration.html
+CSP_DEFAULT_SRC = ("'self'", "data:", "blob:") + tuple(
+    conf.OPTIONS["Deployment"]["CSP_HOST_SOURCES"]
+)
+
+# Use a stricter script source policy to prevent blob: and data: from being used
+CSP_SCRIPT_SRC = ("'self'",) + tuple(conf.OPTIONS["Deployment"]["CSP_HOST_SOURCES"])
+
+# Allow inline styles, as we rely on them heavily in our templates
+# and the Aphrodite CSS in JS library generates inline styles
+CSP_STYLE_SRC = CSP_DEFAULT_SRC + ("'unsafe-inline'",)
+
+# Explicitly allow iframe embedding from the our zipcontent origin
+# This is necessary for the zipcontent app to work
+if conf.OPTIONS["Deployment"]["ZIP_CONTENT_ORIGIN"]:
+    # An explicit origin has been specified, just allow that as the iframe source.
+    frame_src = (conf.OPTIONS["Deployment"]["ZIP_CONTENT_ORIGIN"],)
+else:
+    # Otherwise, we allow any http origin to be the iframe source.
+    # Because we 'self:<port>' is not a valid CSP source value.
+    frame_src = ("http:", "https:")
+
+# Always allow 'self' and 'data' sources to allow for the kind of
+# iframe manipulation needed for epub.js.
+CSP_FRAME_SRC = CSP_DEFAULT_SRC + frame_src

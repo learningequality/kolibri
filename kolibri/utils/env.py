@@ -48,6 +48,24 @@ ENVIRONMENT_VARIABLES = {
             See the sd_notify(3) man page for more details.
         """,
     },
+    "KOLIBRI_PLUGIN_APPLY": {
+        "description": """
+            A comma-separated list of plugins to apply. If this variable is set,
+            only the specified plugins will be applied.
+        """,
+    },
+    "KOLIBRI_PLUGIN_ENABLE": {
+        "description": """
+            A comma-separated list of plugins to enable. If this variable is set,
+            the specified plugins will be enabled, overriding plugins disabled via the CLI.
+        """,
+    },
+    "KOLIBRI_PLUGIN_DISABLE": {
+        "description": """
+            A comma-separated list of plugins to disable. If this variable is set,
+            the specified plugins will be disabled, overriding plugins enabled via the CLI.
+        """,
+    },
 }
 
 

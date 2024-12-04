@@ -8,7 +8,7 @@ import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import ChannelResource from '../../apiResources/deviceChannel';
 
 function getChannelOnDrive(driveId, channelId) {
-  return client({ url: urls['kolibri:core:driveinfo-detail'](driveId) })
+  return client({ url: urls['kolibri:core:driveinfo_detail'](driveId) })
     .then(({ data }) => {
       const channelMatch = find(data.metadata.channels, { id: channelId });
       if (!channelMatch) {

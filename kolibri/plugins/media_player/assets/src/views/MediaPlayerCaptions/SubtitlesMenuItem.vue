@@ -8,7 +8,7 @@
       role="menuitem"
       @change="toggleSubtitles"
       @keydown.space="toggleSubtitles"
-      @keydown.enter="toggleSubtitles(), $emit('hide')"
+      @keydown.enter="(toggleSubtitles(), $emit('hide'))"
     />
   </li>
 

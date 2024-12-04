@@ -147,7 +147,6 @@ export const searchKeys = [
   'learning_activities',
   'categories',
   'learner_needs',
-  'channels',
   'accessibility_labels',
   'languages',
   'grade_levels',
@@ -226,7 +225,6 @@ export default function useBaseSearch({
     if (searchableLabels) {
       set(labels, {
         ...searchableLabels,
-        channels: searchableLabels.channels ? searchableLabels.channels.map(c => c.id) : [],
         languages: searchableLabels.languages ? searchableLabels.languages.map(l => l.id) : [],
       });
     }
@@ -374,7 +372,6 @@ export default function useBaseSearch({
           gradeLevelsList: _generateGradeLevelsList(labels.grade_levels || []),
           accessibilityOptionsList: _generateAccessibilityOptionsList(labels.accessibility_labels),
           languagesList: labels.languages || [],
-          channelsList: labels.channels || [],
         });
       })
       .catch(err => logging.error('Failed to fetch search labels from remote', err))
@@ -414,9 +411,6 @@ export default function useBaseSearch({
   const languagesList = computed(() => {
     return _getGlobalLabels('languagesList', []);
   });
-  const channelsList = computed(() => {
-    return _getGlobalLabels('channelsList', []);
-  });
 
   provide('availableLearningActivities', learningActivitiesShown);
   provide('availableLibraryCategories', libraryCategories);
@@ -424,7 +418,6 @@ export default function useBaseSearch({
   provide('availableGradeLevels', gradeLevelsList);
   provide('availableAccessibilityOptions', accessibilityOptionsList);
   provide('availableLanguages', languagesList);
-  provide('availableChannels', channelsList);
 
   // Provide an object of searchable labels
   // This is a manifest of all the labels that could still be selected and produce search results
@@ -461,7 +454,6 @@ export function injectBaseSearch() {
   const availableGradeLevels = inject('availableGradeLevels');
   const availableAccessibilityOptions = inject('availableAccessibilityOptions');
   const availableLanguages = inject('availableLanguages');
-  const availableChannels = inject('availableChannels');
   const searchableLabels = inject('searchableLabels');
   const activeSearchTerms = inject('activeSearchTerms');
   return {
@@ -471,7 +463,6 @@ export function injectBaseSearch() {
     availableGradeLevels,
     availableAccessibilityOptions,
     availableLanguages,
-    availableChannels,
     searchableLabels,
     activeSearchTerms,
   };

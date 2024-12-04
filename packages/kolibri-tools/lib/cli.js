@@ -85,6 +85,7 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
     devServer,
     requireKdsPath: options.requireKdsPath,
     kdsPath: options.kdsPath,
+    setDevServerPublicPath: !options.writeToDisk,
   };
 
   const webpackConfig = require('./webpack.config.plugin');
@@ -129,6 +130,9 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
       },
       headers: {
         'Access-Control-Allow-Origin': '*',
+      },
+      devMiddleware: {
+        writeToDisk: options.writeToDisk,
       },
       setupMiddlewares: (middlewares, devServer) => {
         if (!devServer) {
@@ -285,6 +289,10 @@ const buildCommand = program
       cliLogging.error('Can only specify watchonly for dev builds');
       process.exit(1);
     }
+    if (options.writeToDisk && options.hot) {
+      cliLogging.error('Hot module reloading cannot be used with write-to-disk mode.');
+      process.exit(1);
+    }
     if (options.watchonly.length) {
       const unwatchedBundles = [];
       // Watch core for changes if KDS option is provided; all KDS components are linked to core.
@@ -332,84 +340,17 @@ const buildCommand = program
       );
     }
 
-    runWebpackBuild(mode, bundleData, !options.writeToDisk && mode === modes.DEV, options);
+    runWebpackBuild(mode, bundleData, mode === modes.DEV, options);
   });
 
 const ignoreDefaults = ['**/node_modules/**', '**/static/**'];
 
 // Lint
-const lintCommand = program.command('lint');
-lintCommand
-  .arguments('[files...]', 'List of custom file globs or file names to lint')
-  .description('Run linting on files or files matching glob patterns')
-  .option('-w, --write', 'Write autofixes to file', false)
-  .option('-e, --encoding <string>', 'Text encoding of file', 'utf-8')
-  .option('-m, --monitor', 'Monitor files and check on change', false)
-  .option('-i, --ignore <string>', 'Ignore these comma separated patterns', list, ignoreDefaults)
-  .option('-p, --pattern <string>', 'Lint only files that match this comma separated pattern', null)
-  .action(function (files, options) {
-    let patternCheck;
-    if (!files.length && !options.pattern) {
-      cliLogging.error('Must specify files or glob patterns to lint!');
-      process.exit(1);
-    } else if (!files.length) {
-      files.push(options.pattern);
-    } else {
-      const Minimatch = require('minimatch').Minimatch;
-      patternCheck = new Minimatch(options.pattern, {});
-    }
-    const glob = require('./glob');
-    const { logging, lint, noChange } = require('./lint');
-    const chokidar = require('chokidar');
-    const watchMode = options.monitor;
-    const ignore = options.ignore;
-
-    if (!files.length) {
-      lintCommand.help();
-    } else {
-      const runLinting = file => lint(Object.assign({}, options, { file }));
-      if (watchMode) {
-        if (patternCheck) {
-          cliLogging.error('Must not specify files and --pattern in watch mode');
-          process.exit(1);
-        }
-        logging.info('Initializing watcher for the following patterns: ' + files.join(', '));
-        const watcher = chokidar.watch(files, { ignored: ignore });
-        watcher.on('change', runLinting);
-      } else {
-        Promise.all(
-          files.map(file => {
-            const matches = glob.sync(file, {
-              ignore,
-            });
-            return Promise.all(
-              matches.map(globbedFile => {
-                if (!patternCheck || patternCheck.match(globbedFile)) {
-                  return runLinting(globbedFile).catch(error => {
-                    logging.error(`Error processing file: ${globbedFile}`);
-                    logging.error(error.error ? error.error : error);
-                    return error.code;
-                  });
-                } else {
-                  return Promise.resolve(0);
-                }
-              }),
-            ).then(sources => {
-              return sources.reduce((code, result) => {
-                return Math.max(code, result);
-              }, noChange);
-            });
-          }),
-        ).then(sources => {
-          process.exit(
-            sources.reduce((code, result) => {
-              return Math.max(code, result);
-            }, noChange),
-          );
-        });
-      }
-    }
-  });
+program.command('lint').action(function () {
+  cliLogging.error('The lint command has been removed!');
+  cliLogging.error('Please use the kolibri-format package instead.');
+  process.exit(1);
+});
 
 // Test
 program

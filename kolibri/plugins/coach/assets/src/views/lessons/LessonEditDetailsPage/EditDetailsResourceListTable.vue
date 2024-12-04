@@ -29,8 +29,8 @@
             >
               <div class="move-handle">
                 <DragSortWidget
-                  :moveUpText="$tr('moveResourceUpButtonDescription')"
-                  :moveDownText="$tr('moveResourceDownButtonDescription')"
+                  :moveUpText="moveResourceUpButtonDescription$"
+                  :moveDownText="moveResourceDownButtonDescription$"
                   :isFirst="index === 0"
                   :isLast="index === resourceListItems.length - 1"
                   @moveUp="moveUpOne(index)"
@@ -110,6 +110,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { coachStrings } from '../../common/commonCoachStrings';
   import { PageNames } from '../../../constants';
 
@@ -129,11 +130,15 @@
     setup() {
       const { createSnackbar, clearSnackbar } = useSnackbar();
       const { noResourcesInLessonLabel$ } = coachStrings;
+      const { moveResourceUpButtonDescription$, moveResourceDownButtonDescription$ } =
+        searchAndFilterStrings;
       return {
         PageNames,
         noResourcesInLessonLabel$,
         createSnackbar,
         clearSnackbar,
+        moveResourceUpButtonDescription$,
+        moveResourceDownButtonDescription$,
       };
     },
     props: {
@@ -255,14 +260,6 @@
         message: 'Removed { numberOfRemovals } resources',
         context:
           'Confirmation message when user removes a specific amount of resources from a lesson.',
-      },
-      moveResourceUpButtonDescription: {
-        message: 'Move this resource one position up in this lesson',
-        context: 'Refers to changing the order of resources in a lesson.',
-      },
-      moveResourceDownButtonDescription: {
-        message: 'Move this resource one position down in this lesson',
-        context: 'Refers to changing the order of resources in a lesson.',
       },
       parentChannelLabel: {
         message: 'Parent channel:',

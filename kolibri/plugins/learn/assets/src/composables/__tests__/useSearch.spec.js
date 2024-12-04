@@ -51,7 +51,6 @@ describe(`useSearch`, () => {
       expect(get(searchTerms)).toEqual({
         accessibility_labels: {},
         categories: {},
-        channels: {},
         grade_levels: {},
         languages: {},
         learner_needs: {},
@@ -69,7 +68,6 @@ describe(`useSearch`, () => {
       expect(get(searchTerms)).toEqual({
         accessibility_labels: {},
         categories: {},
-        channels: {},
         grade_levels: {},
         languages: {},
         learner_needs: {},
@@ -82,7 +80,6 @@ describe(`useSearch`, () => {
         accessibility_labels: 'test1,test2',
         keywords: 'I love paris in the springtime!',
         categories: 'notatest,reallynotatest,absolutelynotatest',
-        channels: 'channelid1,channelid2,channelid3',
         grade_levels: 'lowerprimary,uppersecondary,adult',
         languages: 'ar-jk,en-pr,en-gb',
         learner_needs: 'internet,pencil,rolodex',
@@ -97,11 +94,6 @@ describe(`useSearch`, () => {
           notatest: true,
           reallynotatest: true,
           absolutelynotatest: true,
-        },
-        channels: {
-          channelid1: true,
-          channelid2: true,
-          channelid3: true,
         },
         grade_levels: {
           lowerprimary: true,
@@ -185,7 +177,6 @@ describe(`useSearch`, () => {
       'learning_activities',
       'categories',
       'learner_needs',
-      'channels',
       'accessibility_labels',
       'languages',
       'grade_levels',
@@ -250,7 +241,6 @@ describe(`useSearch`, () => {
       const { labels, more, search } = prep({}, ref({ tree_id: 1, lft: 10, rght: 20 }));
       const labelsSet = {
         available: ['labels'],
-        channels: [],
         languages: [],
       };
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({ labels: labelsSet }));
@@ -288,27 +278,6 @@ describe(`useSearch`, () => {
         getParams: { categories__isnull: true, max_results: 25, include_coach_content: false },
       });
     });
-    it('should ignore channels when descendant is set', () => {
-      const { search } = prep(
-        {
-          categories: `test1,test2`,
-          channels: 'test1',
-        },
-        ref({ tree_id: 1, lft: 10, rght: 20 }),
-      );
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      search();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: {
-          categories: ['test1', 'test2'],
-          max_results: 25,
-          tree_id: 1,
-          lft__gt: 10,
-          rght__lt: 20,
-          include_coach_content: false,
-        },
-      });
-    });
     it('should set keywords when defined', () => {
       const { search } = prep({ keywords: `this is just a test` });
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
@@ -325,7 +294,6 @@ describe(`useSearch`, () => {
       const { labels, more, results, search } = prep({ categories: 'test1,test2' });
       const expectedLabels = {
         available: ['labels'],
-        channels: [],
         languages: [],
       };
       const expectedMore = {
@@ -385,7 +353,6 @@ describe(`useSearch`, () => {
       });
       const expectedLabels = {
         available: ['labels'],
-        channels: [],
         languages: [],
       };
       const expectedMore = {
@@ -443,14 +410,14 @@ describe(`useSearch`, () => {
     it('should not remove any other filters', () => {
       const { removeFilterTag, router } = prep({
         categories: 'test1,test2',
-        channels: 'channel1',
+        learning_activities: 'watch',
       });
       removeFilterTag({ value: 'test1', key: 'categories' });
       expect(router.push).toHaveBeenCalledWith({
         name,
         query: {
           categories: 'test2',
-          channels: 'channel1',
+          learning_activities: 'watch',
         },
       });
     });
@@ -459,7 +426,7 @@ describe(`useSearch`, () => {
     it('should remove all filters from the searchTerms', () => {
       const { clearSearch, router } = prep({
         categories: 'test1,test2',
-        channels: 'channel1',
+        learning_activities: 'watch',
         keywords: 'this',
       });
       clearSearch();

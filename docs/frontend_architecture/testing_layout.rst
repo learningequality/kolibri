@@ -54,7 +54,7 @@ This section lists down some code snippets that can be used as reference to see 
 Vue Router
 ~~~~~~~~~~
 
-You can pass a ``routes`` prop to the ``render`` function with the value as a new ``VueRouter`` object to mock Vue Router and to test navigation in your components. The same is included in the template by default (with no routes configured). To add additional routes to the name, you can pass it an array of objects containg the keys ``name`` and ``path`` for the required paths needed to be mocked.
+You can pass a ``routes`` prop to the ``render`` function with the value as a new ``VueRouter`` object to mock Vue Router and to test navigation in your components. The same is included in the template by default (with no routes configured). To add additional routes to the name, you can pass it an array of objects containing the keys ``name`` and ``path`` for the required paths needed to be mocked.
 
 .. code:: javascript
 
@@ -77,7 +77,7 @@ Store
 ~~~~~
 
 A store object for a component can be mocked by simply providing the methods and properties accessed by the component as a ``store`` object. For example, in the
-`TotalPoints <https://github.com/learningequality/kolibri/blob/develop/kolibri/core/assets/src/views/TotalPoints.vue>`__ component, we need to mock some getters (``totalPoints``, ``currentUserId``, ``isUserLoggedIn``) and the ``fetchPoints`` action.
+`TotalPoints <https://github.com/learningequality/kolibri/blob/develop/packages/kolibri/components/pages/AppBarPage/internal/TotalPoints.vue>`__ component, we need to mock some getters (``totalPoints``, ``currentUserId``, ``isUserLoggedIn``) and the ``fetchPoints`` action.
 
 The same can be done via:
 
@@ -106,7 +106,7 @@ The ``props`` object passed to the render function can contain the store object,
 Composables
 ~~~~~~~~~~~
 
-Each composable (like `useUser <https://github.com/learningequality/kolibri/blob/develop/kolibri/core/assets/src/composables/useUser.js>`__) must have an associated mock file (like `useUserMock <https://github.com/learningequality/kolibri/blob/develop/kolibri/core/assets/src/composables/__mocks__/useUser.js>`__) that gives the required functionality, as well as the documentation of how to use it and what parameters does it support.
+Each composable (like `useUser <https://github.com/learningequality/kolibri/blob/develop/packages/kolibri/composables/useUser.js>`__) must have an associated mock file (like `useUserMock <https://github.com/learningequality/kolibri/blob/develop/packages/kolibri/composables/__mocks__/useUser.js>`__) that gives the required functionality, as well as the documentation of how to use it and what parameters does it support.
 
 It any composable does not have an associated mock file, please do create one before using the same in tests. It would help in future maintainability and eaxe of testing. Here is small snippet of what a mock of composable would look like:
 
@@ -153,7 +153,7 @@ Mixins
 
 Sometimes the components make use of `mixins <https://v2.vuejs.org/v2/guide/mixins.html?redirect=true>`__ to reuse functionality across components, and may be required to be mocked sometimes. To overwrite the mixins passed to a component in testing, you can make use of the ``mixins`` property to the ``render`` function object, and pass it the array of your custom mocked mixins.
 
-The following example mocks the `commonCoreStrings <https://github.com/learningequality/kolibri/blob/develop/kolibri/core/assets/src/mixins/commonCoreStrings.js>`__ mixin used in many components:
+The following example mocks the `commonCoreStrings <https://github.com/learningequality/kolibri/blob/develop/packages/kolibri/uiText/commonCoreStrings.js>`__ mixin used in many components:
 
 .. code:: javascript
 

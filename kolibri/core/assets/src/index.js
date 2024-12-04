@@ -2,30 +2,15 @@
  * Provides the public API for the Kolibri FrontEnd core app.
  * @module Facade
  */
+// Import this first to ensure that we do a browser compatibility check before anything else
+import './minimumBrowserRequirements';
 import 'core-js';
 import coreApp from 'kolibri';
-import urls from 'kolibri/urls';
 import logging from 'kolibri-logging';
 import store from 'kolibri/store';
 import heartbeat from 'kolibri/heartbeat';
 import { i18nSetup } from 'kolibri/utils/i18n';
 import coreModule from './state/modules/core';
-
-// Do this before any async imports to ensure that public paths
-// are set correctly
-urls.setUp();
-if (process.env.NODE_ENV === 'production') {
-  /* eslint-disable no-undef */
-  __webpack_public_path__ = urls.static(`${__kolibriModuleName}/`);
-  /* eslint-enable */
-}
-
-// Shim window.location.origin for IE.
-if (!window.location.origin) {
-  window.location.origin = `${window.location.protocol}//${window.location.hostname}${
-    window.location.port ? `:${window.location.port}` : ''
-  }`;
-}
 
 // set up logging
 logging.setDefaultLevel(process.env.NODE_ENV === 'production' ? 2 : 0);

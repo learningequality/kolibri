@@ -245,8 +245,8 @@
                       <div>
                         <DragSortWidget
                           class="sort-widget"
-                          moveUpText="up"
-                          moveDownText="down"
+                          :moveUpText="upLabel$"
+                          :moveDownText="downLabel$"
                           :noDrag="true"
                           :isFirst="index === 0"
                           :isLast="index === activeQuestions.length - 1"
@@ -327,6 +327,7 @@
   import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
@@ -370,6 +371,8 @@
         collapseAll$,
         questionDeletionConfirmation$,
       } = enhancedQuizManagementStrings;
+
+      const { upLabel$, downLabel$ } = searchAndFilterStrings;
 
       const {
         // Methods
@@ -446,6 +449,8 @@
         selectedActiveQuestions,
 
         createSnackbar,
+        upLabel$,
+        downLabel$,
       };
     },
     data() {

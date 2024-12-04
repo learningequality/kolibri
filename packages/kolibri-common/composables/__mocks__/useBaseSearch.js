@@ -36,7 +36,6 @@ const MOCK_DEFAULTS = {
     learning_activities: {},
     categories: {},
     learner_needs: {},
-    channels: {},
     accessibility_labels: {},
     languages: {},
     grade_levels: {},

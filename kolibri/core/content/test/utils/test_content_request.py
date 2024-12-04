@@ -34,6 +34,7 @@ from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.errors import NetworkError
+from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 
 
 _module = "kolibri.core.content.utils.content_request."
@@ -589,10 +590,19 @@ class PreferredDevicesTestCase(BaseTestCase):
         instance = PreferredDevices([netloc.instance_id])
         self.assertEqual(len(list(instance)), 0)
 
-    def test_one_peer__reserved__connection_status(self):
+    def test_no_peer__reserved__connection_status(self):
         netloc = self._create_network_location(
             location_type="reserved",
             connection_status=ConnectionStatus.ConnectionFailure,
+        )
+        instance = PreferredDevices([netloc.instance_id])
+        self.assertEqual(len(list(instance)), 0)
+
+    def test__peer__studio__reserved__connection_status(self):
+        netloc = self._create_network_location(
+            location_type="reserved",
+            connection_status=ConnectionStatus.ConnectionFailure,
+            instance_id=CENTRAL_CONTENT_BASE_INSTANCE_ID,
         )
         instance = PreferredDevices([netloc.instance_id])
         peers = list(instance)

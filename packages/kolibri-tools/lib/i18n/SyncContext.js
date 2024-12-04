@@ -4,6 +4,7 @@ const path = require('path');
 const traverse = require('ast-traverse');
 const get = require('lodash/get');
 const vueCompiler = require('vue-template-compiler');
+const { writeSourceToFile } = require('kolibri-format');
 const glob = require('../glob');
 const logging = require('../logging');
 const { insertContent } = require('../vueTools');
@@ -16,7 +17,6 @@ const {
   printAST,
 } = require('./astUtils');
 const { forEachPathInfo, parseCSVDefinitions } = require('./utils');
-const writeSourceToFile = require('./writeSourceToFile');
 
 // Glob path patterns
 // All JS files

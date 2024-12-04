@@ -4,99 +4,103 @@
     <KPageContainer>
       <LearnerHeader />
     </KPageContainer>
-
-    <KPageContainer>
-      <HeaderTabs>
-        <KTabsList
-          ref="tabList"
-          :tabsId="REPORTS_LEARNERS_TABS_ID"
-          :ariaLabel="$tr('reportLearners')"
-          :activeTabId="ReportsLearnersTabs.REPORTS"
-          :tabs="tabs"
-          @click="() => saveTabsClick(REPORTS_LEARNERS_TABS_ID)"
-        />
-      </HeaderTabs>
-      <KTabsPanel
-        :tabsId="REPORTS_LEARNERS_TABS_ID"
-        :activeTabId="ReportsLearnersTabs.REPORTS"
+    <KGrid>
+      <KGridItem
+        :layout12="{ span: 6 }"
+        :layout8="{ span: 4 }"
+        :layout4="{ span: 2 }"
       >
-        <KGrid>
-          <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
-            <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
-            <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
-              <template #headers>
-                <th>{{ coachString('titleLabel') }}</th>
-                <th>{{ coreString('progressLabel') }}</th>
-              </template>
-              <template #tbody>
-                <transition-group
-                  tag="tbody"
-                  name="list"
+        <KPageContainer class="content-spacing">
+          <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
+          <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
+            <template #headers>
+              <th>{{ coachString('titleLabel') }}</th>
+              <th>{{ coreString('progressLabel') }}</th>
+            </template>
+            <template #tbody>
+              <transition-group
+                tag="tbody"
+                name="list"
+              >
+                <tr
+                  v-for="tableRow in lessonsTable"
+                  :key="tableRow.id"
                 >
-                  <tr
-                    v-for="tableRow in lessonsTable"
-                    :key="tableRow.id"
-                  >
-                    <td>
-                      <KRouterLink
-                        :to="
-                          classRoute(PageNames.LEARNER_LESSON_REPORT, {
-                            lessonId: tableRow.id,
-                          })
-                        "
-                        :text="tableRow.title"
-                        icon="lesson"
-                      />
-                    </td>
-                    <td>
-                      <StatusSimple :status="tableRow.status" />
-                    </td>
-                  </tr>
-                </transition-group>
-              </template>
-            </CoreTable>
-          </KGridItem>
-          <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
-            <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
-            <CoreTable
-              :class="{ print: $isPrint }"
-              :emptyMessage="coachString('quizListEmptyState')"
-            >
-              <template #headers>
-                <th>{{ coachString('titleLabel') }}</th>
-                <th>{{ coreString('progressLabel') }}</th>
-                <th>{{ coreString('scoreLabel') }}</th>
-              </template>
-              <template #tbody>
-                <transition-group
-                  tag="tbody"
-                  name="list"
+                  <td>
+                    <KRouterLink
+                      :to="
+                        classRoute('ReportsLearnerReportLessonPage', {
+                          lessonId: tableRow.id,
+                        })
+                      "
+                      :text="tableRow.title"
+                      icon="lesson"
+                    />
+                  </td>
+                  <td>
+                    <StatusSimple :status="tableRow.status" />
+                  </td>
+                </tr>
+              </transition-group>
+            </template>
+          </CoreTable>
+          <KButton
+            v-if="showViewMoreButton"
+            :text="coreString('viewMoreAction')"
+            appearance="raised-button"
+            @click="loadMoreLessonTable()"
+          />
+        </KPageContainer>
+      </KGridItem>
+
+      <KGridItem
+        :layout12="{ span: 6 }"
+        :layout8="{ span: 4 }"
+        :layout4="{ span: 2 }"
+      >
+        <KPageContainer class="content-spacing">
+          <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
+          <CoreTable :emptyMessage="coachString('quizListEmptyState')">
+            <template #headers>
+              <th>{{ coachString('titleLabel') }}</th>
+              <th>{{ coreString('progressLabel') }}</th>
+              <th>{{ coreString('scoreLabel') }}</th>
+            </template>
+            <template #tbody>
+              <transition-group
+                tag="tbody"
+                name="list"
+              >
+                <tr
+                  v-for="tableRow in examsTable"
+                  :key="tableRow.id"
                 >
-                  <tr
-                    v-for="tableRow in examsTable"
-                    :key="tableRow.id"
-                  >
-                    <td>
-                      <KRouterLink
-                        :to="quizLink(tableRow.id)"
-                        :text="tableRow.title"
-                        icon="quiz"
-                      />
-                    </td>
-                    <td>
-                      <StatusSimple :status="tableRow.statusObj.status" />
-                    </td>
-                    <td>
-                      <Score :value="tableRow.statusObj.score" />
-                    </td>
-                  </tr>
-                </transition-group>
-              </template>
-            </CoreTable>
-          </KGridItem>
-        </KGrid>
-      </KTabsPanel>
-    </KPageContainer>
+                  <td>
+                    <KRouterLink
+                      :to="quizLink(tableRow.id)"
+                      :text="tableRow.title"
+                      icon="quiz"
+                    />
+                  </td>
+                  <td>
+                    <StatusSimple :status="tableRow.statusObj.status" />
+                  </td>
+                  <td>
+                    <Score :value="tableRow.statusObj.score" />
+                  </td>
+                </tr>
+              </transition-group>
+            </template>
+          </CoreTable>
+          <KButton
+            v-if="showQuizViewMoreButton"
+            :text="coreString('viewMoreAction')"
+            appearance="raised-button"
+            @click="loadMoreQuizzes"
+          />
+        </KPageContainer>
+      </KGridItem>
+    </KGrid>
   </CoachAppBarPage>
 
 </template>
@@ -108,8 +112,6 @@
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { PageNames } from '../../../constants';
-  import { REPORTS_LEARNERS_TABS_ID, ReportsLearnersTabs } from '../../../constants/tabsConstants';
-  import { useCoachTabs } from '../../../composables/useCoachTabs';
   import LearnerHeader from './LearnerHeader';
 
   export default {
@@ -119,28 +121,26 @@
       LearnerHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
-    setup() {
-      const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
-      return {
-        saveTabsClick,
-        wereTabsClickedRecently,
-      };
-    },
     data() {
       return {
-        REPORTS_LEARNERS_TABS_ID,
-        ReportsLearnersTabs,
-        PageNames,
+        lessonLimit: 10,
+        quizLimit: 10,
       };
     },
     computed: {
       learner() {
         return this.learnerMap[this.$route.params.learnerId];
       },
+      getLessons() {
+        return this.lessons.filter(lesson => this.isAssignedLesson(lesson));
+      },
+      getExam() {
+        return this.exams.filter(exam => this.isAssignedQuiz(exam));
+      },
       lessonsTable() {
-        const filtered = this.lessons.filter(lesson => this.isAssignedLesson(lesson));
-        const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
-        return sorted.map(lesson => {
+        const sorted = this._.orderBy(this.getLessons, ['date_created'], ['desc']);
+        const limitedResults = sorted.slice(0, this.lessonLimit);
+        return limitedResults.map(lesson => {
           const tableRow = {
             status: this.getLessonStatusStringForLearner(lesson.id, this.learner.id),
           };
@@ -148,10 +148,13 @@
           return tableRow;
         });
       },
+      showViewMoreButton() {
+        return this.getLessons.length !== this.lessonsTable.length && this.getLessons.length > 10;
+      },
       examsTable() {
-        const filtered = this.exams.filter(exam => this.isAssignedQuiz(exam));
-        const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
-        return sorted.map(exam => {
+        const sorted = this._.orderBy(this.getExam, ['date_created'], ['desc']);
+        const limitedQuizResults = sorted.slice(0, this.quizLimit);
+        return limitedQuizResults.map(exam => {
           const tableRow = {
             statusObj: this.getExamStatusObjForLearner(exam.id, this.learner.id),
           };
@@ -159,32 +162,9 @@
           return tableRow;
         });
       },
-      tabs() {
-        return [
-          {
-            id: ReportsLearnersTabs.REPORTS,
-            label: this.coachString('reportsLabel'),
-            to: this.classRoute(PageNames.LEARNER_SUMMARY, {}),
-          },
-          {
-            id: ReportsLearnersTabs.ACTIVITY,
-            label: this.coachString('activityLabel'),
-            to: this.classRoute('ReportsLearnerActivityPage', {}),
-          },
-        ];
+      showQuizViewMoreButton() {
+        return this.getExam.length !== this.examsTable.length && this.getExam.length > 2;
       },
-    },
-    mounted() {
-      // focus the active tab but only when it's likely
-      // that this header was re-mounted as a result
-      // of navigation after clicking a tab (focus shouldn't
-      // be manipulated programatically in other cases, e.g.
-      // when visiting the page for the first time)
-      if (this.wereTabsClickedRecently(this.REPORTS_LEARNERS_TABS_ID)) {
-        this.$nextTick(() => {
-          this.$refs.tabList.focusActiveTab();
-        });
-      }
     },
     methods: {
       isAssignedLesson(lesson) {
@@ -194,13 +174,22 @@
         return this.getLearnersForExam(quiz).includes(this.learner.id);
       },
       quizLink(quizId) {
-        return this.classRoute(PageNames.QUIZ_LEARNER_PAGE_ROOT, { quizId });
+        return this.classRoute(PageNames.REPORTS_LEARNER_REPORT_QUIZ_PAGE_ROOT, { quizId });
       },
-    },
-    $trs: {
-      reportLearners: {
-        message: 'Report learners',
-        context: 'Labels the Reports > Learners tab for screen reader users',
+      loadMoreLessonTable() {
+        if (this.lessonLimit > 20) {
+          this.lessonLimit = this.getLessons.length;
+          return;
+        }
+
+        this.lessonLimit += 10;
+      },
+      loadMoreQuizzes() {
+        if (this.quizLimit > 20) {
+          this.quizLimit = this.getExam.length;
+          return;
+        }
+        this.quizLimit += 10;
       },
     },
   };
@@ -210,10 +199,14 @@
 
 <style lang="scss" scoped>
 
-  @import '../../common/print-table';
-
   table {
     min-width: 0;
+  }
+
+  .content-spacing {
+    width: 100%;
+    height: 100%;
+    padding: 24px 24px 16px;
   }
 
 </style>

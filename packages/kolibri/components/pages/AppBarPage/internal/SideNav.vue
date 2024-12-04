@@ -528,8 +528,8 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  // Matches the Keen-UI/UiToolbar box-shadow property
-  %ui-toolbar-box-shadow {
+  // Matches the KToolbar box-shadow property
+  %k-toolbar-box-shadow {
     box-shadow:
       0 0 2px rgba(0, 0, 0, 0.12),
       0 2px 2px rgba(0, 0, 0, 0.2);
@@ -574,7 +574,7 @@
   }
 
   .side-nav-header {
-    @extend %ui-toolbar-box-shadow;
+    @extend %k-toolbar-box-shadow;
 
     position: fixed;
     top: 0;

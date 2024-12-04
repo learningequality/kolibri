@@ -18,6 +18,7 @@ const { coreExternals } = require('./apiSpecExportTools');
 const WebpackRTLPlugin = require('./webpackRtlPlugin');
 const { kolibriName } = require('./kolibriName');
 const WebpackMessages = require('./webpackMessages');
+const MessageRegistrationPlugin = require('./webpackMessageRegistrationPlugin');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle
@@ -31,6 +32,7 @@ const WebpackMessages = require('./webpackMessages');
  * @param {boolean} hot - Activate hot module reloading
  * @param {Number} port - port that the dev server is served on
  * @param {string} address - address that the dev server is served on
+ * @param {boolean} setDevServerPublicPath - whether to set the public path for the dev server
  * @returns {Object} bundle - An object defining the webpack config.
  */
 module.exports = (
@@ -44,6 +46,7 @@ module.exports = (
     transpile = false,
     devServer = false,
     kdsPath = '',
+    setDevServerPublicPath = true,
   } = {},
 ) => {
   if (
@@ -117,7 +120,8 @@ module.exports = (
       // webpack properly handles that or not.
       chunkLoadingGlobal: 'webpackChunkwebpack__' + data.name.replace('.', ''),
       scriptType: 'text/javascript',
-      pathinfo: mode === 'production',
+      pathinfo: false,
+      publicPath: 'auto',
     },
     resolve: {
       alias,
@@ -157,6 +161,14 @@ module.exports = (
         __version: JSON.stringify(data.version),
         __copyrightYear: new Date().getFullYear(),
       }),
+      // Inject code to register frontend messages
+      new MessageRegistrationPlugin({
+        // For the core plugin, because it sets up the i18n
+        // machinery, we need to inject the registration code
+        // afterwards to avoid a kerfuffle.
+        injectAfterBundle: isCoreBundle,
+        moduleName: data.name,
+      }),
       // Add custom messages per bundle.
       new WebpackMessages({
         name: data.name,
@@ -191,8 +203,10 @@ module.exports = (
   bundle = merge(bundle, baseConfig({ mode, hot, cache, transpile }), webpackConfig);
 
   if (devServer) {
-    const publicPath = `http://${address}:${port}/${data.name}/`;
-    bundle.output.publicPath = publicPath;
+    if (setDevServerPublicPath) {
+      const publicPath = `http://${address}:${port}/${data.name}/`;
+      bundle.output.publicPath = publicPath;
+    }
     bundle.watch = true;
     bundle.watchOptions = {
       aggregateTimeout: 300,

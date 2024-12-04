@@ -273,7 +273,7 @@ export class HeartBeat {
     redirectBrowser(null, true);
   }
   _sessionUrl(id) {
-    return urls['kolibri:core:session-detail'](id);
+    return urls['kolibri:core:session_detail'](id);
   }
   /*
    * Method to reset activity listeners clear timeouts waiting to

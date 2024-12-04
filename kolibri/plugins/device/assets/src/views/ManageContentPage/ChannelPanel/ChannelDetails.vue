@@ -10,6 +10,7 @@
         v-if="channel.thumbnail"
         class="thumbnail"
         :src="channel.thumbnail"
+        loading="lazy"
       >
       <KIcon
         v-else

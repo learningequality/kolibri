@@ -90,7 +90,7 @@ export default {
     },
     fetchNetworkLocationFacilities(locationId) {
       return client({
-        url: urls['kolibri:core:networklocation_facilities-detail'](locationId),
+        url: urls['kolibri:core:networklocation_facilities_detail'](locationId),
       })
         .then(response => {
           return response.data;

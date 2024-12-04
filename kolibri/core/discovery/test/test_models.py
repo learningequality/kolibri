@@ -28,14 +28,6 @@ class NetworkLocationTestCase(TestCase):
         location.application = "kolibri"
         self.assertTrue(location.is_kolibri)
 
-    def test_property__dynamic(self):
-        static = StaticNetworkLocation()
-        self.assertFalse(static.dynamic)
-        dynamic = DynamicNetworkLocation()
-        self.assertTrue(dynamic.dynamic)
-        reserved = NetworkLocation(location_type=LocationTypes.Reserved)
-        self.assertFalse(reserved.dynamic)
-
     def test_property__reserved(self):
         static = StaticNetworkLocation()
         self.assertFalse(static.reserved)

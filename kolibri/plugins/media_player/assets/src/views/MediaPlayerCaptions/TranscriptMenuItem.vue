@@ -11,7 +11,7 @@
       role="menuitem"
       @change="toggleTranscript"
       @keydown.space="toggleTranscript"
-      @keydown.enter="toggleTranscript(), $emit('hide')"
+      @keydown.enter="(toggleTranscript(), $emit('hide'))"
     />
   </li>
 

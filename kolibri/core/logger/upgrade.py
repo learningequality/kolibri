@@ -1,9 +1,15 @@
 """
 A file to contain specific logic to handle version upgrades in Kolibri.
 """
+from django.db.models import F
+from django.db.models import Max
+from django.db.models import OuterRef
+from django.db.models import Subquery
+
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.utils.attempt_log_consolidation import (
     consolidate_quiz_attempt_logs,
 )
@@ -57,3 +63,32 @@ def fix_duplicated_attempt_logs():
     item and non-null masterylog_id.
     """
     consolidate_quiz_attempt_logs(AttemptLog.objects.all())
+
+
+@version_upgrade(old_version=">0.15.0,<0.18.0")
+def fix_masterylog_end_timestamps():
+    """
+    Fix any MasteryLogs that have an end_timestamp that was not updated after creation due to a bug in the
+    integrated logging API endpoint.
+    """
+    # Fix the MasteryLogs that that have attempts - infer from the end_timestamp of the last attempt.
+    attempt_subquery = (
+        AttemptLog.objects.filter(masterylog=OuterRef("pk"))
+        .values("masterylog")
+        .annotate(max_end=Max("end_timestamp"))
+        .values("max_end")
+    )
+
+    MasteryLog.objects.filter(
+        end_timestamp=F("start_timestamp"), attemptlogs__isnull=False
+    ).update(end_timestamp=Subquery(attempt_subquery))
+    # Fix the MasteryLogs that don't have any attempts - just set the end_timestamp to the end_timestamp of the summary log.
+    summary_subquery = ContentSummaryLog.objects.filter(
+        masterylogs=OuterRef("pk")
+    ).values("end_timestamp")
+
+    MasteryLog.objects.filter(
+        end_timestamp=F("start_timestamp"),
+        completion_timestamp__isnull=True,
+        attemptlogs__isnull=True,
+    ).update(end_timestamp=Subquery(summary_subquery))

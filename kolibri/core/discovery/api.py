@@ -20,19 +20,39 @@ from .utils.network.connections import update_network_location
 from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ValuesViewset
 from kolibri.core.device.permissions import NotProvisionedHasPermission
+from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
+from kolibri.core.discovery.well_known import DATA_PORTAL_BASE_INSTANCE_ID
 from kolibri.core.utils.urls import reverse_path
 
 
 class NetworkLocationViewSet(viewsets.ModelViewSet):
     permission_classes = [NetworkLocationPermissions | NotProvisionedHasPermission]
     serializer_class = NetworkLocationSerializer
-    queryset = NetworkLocation.objects.exclude(location_type=LocationTypes.Reserved)
     filter_backends = [DjangoFilterBackend]
     filterset_fields = [
         "id",
         "subset_of_users_device",
         "instance_id",
     ]
+
+    def get_queryset(self):
+        syncable = self.request.query_params.get("syncable", None)
+        base_queryset = NetworkLocation.objects.filter(
+            location_type__in=[LocationTypes.Static, LocationTypes.Dynamic]
+        )
+        reserved_ids = []
+        if syncable == "1":
+            # Include KDP's reserved location
+            reserved_ids.append(DATA_PORTAL_BASE_INSTANCE_ID)
+        elif syncable == "0":
+            # Include Studio's reserved location
+            reserved_ids.append(CENTRAL_CONTENT_BASE_INSTANCE_ID)
+        if reserved_ids:
+            reserved_queryset = NetworkLocation.objects.filter(
+                id__in=reserved_ids,
+            )
+            return base_queryset | reserved_queryset
+        return base_queryset
 
     def get_object(self, id_filter=None):
         """

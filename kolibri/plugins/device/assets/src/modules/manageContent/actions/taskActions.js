@@ -49,7 +49,7 @@ export function refreshTaskList(store) {
 }
 
 export function refreshDriveList(store) {
-  return client({ url: urls['kolibri:core:driveinfo-list']() }).then(({ data }) => {
+  return client({ url: urls['kolibri:core:driveinfo_list']() }).then(({ data }) => {
     store.commit('wizard/SET_DRIVE_LIST', data);
     return data;
   });

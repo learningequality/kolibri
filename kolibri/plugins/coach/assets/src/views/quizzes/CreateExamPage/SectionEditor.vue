@@ -32,30 +32,32 @@
         {{ questionOrder$() }}
       </h5>
       <KGrid>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KRadioButton
-            v-model="learners_see_fixed_order"
-            :label="randomizedLabel$()"
-            :buttonValue="false"
-            :description="randomizedOptionDescription$()"
-          />
-        </KGridItem>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <KRadioButton
-            v-model="learners_see_fixed_order"
-            :label="fixedLabel$()"
-            :buttonValue="true"
-            :description="fixedOptionDescription$()"
-          />
-        </KGridItem>
+        <KRadioButtonGroup>
+          <KGridItem
+            :layout12="{ span: 6 }"
+            :layout8="{ span: 4 }"
+            :layout4="{ span: 2 }"
+          >
+            <KRadioButton
+              v-model="learners_see_fixed_order"
+              :label="randomizedLabel$()"
+              :buttonValue="false"
+              :description="randomizedOptionDescription$()"
+            />
+          </KGridItem>
+          <KGridItem
+            :layout12="{ span: 6 }"
+            :layout8="{ span: 4 }"
+            :layout4="{ span: 2 }"
+          >
+            <KRadioButton
+              v-model="learners_see_fixed_order"
+              :label="fixedLabel$()"
+              :buttonValue="true"
+              :description="fixedOptionDescription$()"
+            />
+          </KGridItem>
+        </KRadioButtonGroup>
       </KGrid>
     </div>
 

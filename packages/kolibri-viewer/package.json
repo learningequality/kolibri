@@ -4,5 +4,10 @@
   "description": "The Kolibri viewer",
   "main": "src/index.js",
   "author": "Learning Equality",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/learningequality/kolibri.git",
+    "directory": "packages/kolibri-viewer"
+  },
   "license": "MIT"
 }

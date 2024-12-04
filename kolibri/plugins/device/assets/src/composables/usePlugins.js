@@ -10,7 +10,7 @@ export default function usePlugins() {
   const plugins = ref(null);
   const fetchPlugins = Promise.resolve(
     client({
-      url: urls['kolibri:core:plugins-list'](),
+      url: urls['kolibri:core:plugins_list'](),
     }).then(response => {
       plugins.value = response.data;
     }),
@@ -23,7 +23,7 @@ export default function usePlugins() {
       if (plugin.enabled !== value) {
         return client({
           method: 'PATCH',
-          url: urls['kolibri:core:plugins-detail'](pluginId),
+          url: urls['kolibri:core:plugins_detail'](pluginId),
           data: {
             enabled: value,
           },

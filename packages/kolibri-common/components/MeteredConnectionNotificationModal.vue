@@ -8,22 +8,25 @@
     @submit="submit"
   >
     <div>
-      <p>{{ $tr('modalDescription') }}</p>
-
-      <KRadioButton
-        v-model="selected"
-        :label="$tr('doNotUseMetered')"
-        :buttonValue="Options.DO_NOT_USE_METERED"
-        :disabled="loading"
-        class="radio-button"
-      />
-      <KRadioButton
-        v-model="selected"
-        :label="$tr('useMetered')"
-        :buttonValue="Options.USE_METERED"
-        :disabled="loading"
-        class="radio-button"
-      />
+      <p>
+        {{ $tr('modalDescription') }}
+      </p>
+      <KRadioButtonGroup>
+        <KRadioButton
+          v-model="selected"
+          :label="$tr('doNotUseMetered')"
+          :buttonValue="Options.DO_NOT_USE_METERED"
+          :disabled="loading"
+          class="radio-button"
+        />
+        <KRadioButton
+          v-model="selected"
+          :label="$tr('useMetered')"
+          :buttonValue="Options.USE_METERED"
+          :disabled="loading"
+          class="radio-button"
+        />
+      </KRadioButtonGroup>
     </div>
   </KModal>
 

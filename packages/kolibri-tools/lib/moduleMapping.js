@@ -57,7 +57,7 @@ module.exports = {
   'kolibri.coreVue.components.CoreLogo': 'kolibri/components/CoreLogo',
   'kolibri.coreVue.components.UiAlert': 'kolibri-design-system/lib/keen/UiAlert',
   'kolibri.coreVue.components.UiIconButton': 'kolibri-design-system/lib/keen/UiIconButton',
-  'kolibri.coreVue.components.UiToolbar': 'kolibri-common/components/keen/UiToolbar',
+  'kolibri.coreVue.components.UiToolbar': 'kolibri-design-system/lib/KToolbar',
   'kolibri.coreVue.components.PrivacyInfoModal': 'kolibri-common/components/PrivacyInfoModal',
   'kolibri.coreVue.components.UserTypeDisplay': 'kolibri-common/components/UserTypeDisplay',
   'kolibri.coreVue.components.Draggable': 'kolibri-common/components/sortable/Draggable',

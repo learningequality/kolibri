@@ -27,8 +27,8 @@
                     <!-- Mousedown.prevent is needed to avoid user selection -->
                     <DragSortWidget
                       class="sort-widget"
-                      :moveUpText="$tr('moveResourceUpButtonDescription')"
-                      :moveDownText="$tr('moveResourceDownButtonDescription')"
+                      :moveUpText="moveResourceUpButtonDescription$"
+                      :moveDownText="moveResourceDownButtonDescription$"
                       :isFirst="index === 0"
                       :isLast="index === entries.length - 1"
                       @moveUp="moveUpOne(index)"
@@ -94,6 +94,7 @@
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import Draggable from 'kolibri-common/components/sortable/Draggable';
   import CSVExporter from '../../../../csv/exporter';
   import * as csvFields from '../../../../csv/fields';
@@ -112,6 +113,15 @@
       Draggable,
     },
     mixins: [coachStringsMixin, commonCoreStrings],
+    setup() {
+      const { moveResourceUpButtonDescription$, moveResourceDownButtonDescription$ } =
+        searchAndFilterStrings;
+
+      return {
+        moveResourceUpButtonDescription$,
+        moveResourceDownButtonDescription$,
+      };
+    },
     props: {
       title: {
         type: String,
@@ -177,16 +187,6 @@
         }
 
         exporter.export(this.entries);
-      },
-    },
-    $trs: {
-      moveResourceUpButtonDescription: {
-        message: 'Move this resource one position up in this lesson',
-        context: 'Refers to ordering resources.',
-      },
-      moveResourceDownButtonDescription: {
-        message: 'Move this resource one position down in this lesson',
-        context: 'Refers to ordering resources.',
       },
     },
   };

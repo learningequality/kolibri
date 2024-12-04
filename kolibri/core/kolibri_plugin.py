@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.template.loader import render_to_string
 from django.templatetags.static import static
 from django.urls import get_resolver
 from django.urls import reverse
@@ -7,9 +6,7 @@ from django.utils.html import mark_safe
 from django.utils.translation import get_language
 from django.utils.translation import get_language_bidi
 from django.utils.translation import get_language_info
-from django_js_reverse.core import _safe_json
 from django_js_reverse.core import generate_json
-from django_js_reverse.rjsmin import jsmin
 
 import kolibri
 from kolibri.core.content.utils.paths import get_content_storage_url
@@ -17,6 +14,7 @@ from kolibri.core.content.utils.paths import get_hashi_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
 from kolibri.core.content.utils.paths import get_zip_content_config
 from kolibri.core.device.utils import allow_other_browsers_to_connect
+from kolibri.core.hooks import FrontEndBaseHeadHook
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.theme_hook import ThemeHook
@@ -30,57 +28,6 @@ from kolibri.utils.conf import OPTIONS
 @register_hook
 class FrontEndCoreAppAssetHook(WebpackBundleHook):
     bundle_id = "default_frontend"
-
-    def url_tag(self):
-        # Modified from:
-        # https://github.com/ierror/django-js-reverse/blob/master/django_js_reverse/core.py#L101
-        js_name = "window.kolibriPluginDataGlobal['{bundle}'].urls".format(
-            bundle=self.unique_id
-        )
-        default_urlresolver = get_resolver(None)
-
-        data = generate_json(default_urlresolver)
-
-        # Generate the JS that exposes functions to reverse all Django URLs
-        # in the frontend.
-        js = render_to_string(
-            "django_js_reverse/urls_js.tpl",
-            {"data": _safe_json(data), "js_name": "__placeholder__"},
-            # For some reason the js_name gets escaped going into the template
-            # so this was the easiest way to inject it.
-        ).replace("__placeholder__", js_name)
-        zip_content_origin, zip_content_port = get_zip_content_config()
-        return [
-            mark_safe(
-                """<script type="text/javascript">"""
-                # Minify the generated Javascript
-                + jsmin(js)
-                # Add URL references for our base static URL, the Django media URL
-                # and our content storage URL - this allows us to calculate
-                # the path at which to access a local file on the frontend if needed.
-                + """
-            {js_name}.__staticUrl = '{static_url}';
-            {js_name}.__mediaUrl = '{media_url}';
-            {js_name}.__contentUrl = '{content_url}';
-            {js_name}.__zipContentUrl = '{zip_content_url}';
-            {js_name}.__hashiUrl = '{hashi_url}';
-            {js_name}.__zipContentOrigin = '{zip_content_origin}';
-            {js_name}.__zipContentPort = '{zip_content_port}';
-            </script>
-            """.format(
-                    js_name=js_name,
-                    static_url=settings.STATIC_URL,
-                    media_url=settings.MEDIA_URL,
-                    content_url=get_content_storage_url(
-                        baseurl=OPTIONS["Deployment"]["URL_PATH_PREFIX"]
-                    ),
-                    zip_content_url=get_zip_content_base_path(),
-                    hashi_url=get_hashi_path(),
-                    zip_content_origin=zip_content_origin,
-                    zip_content_port=zip_content_port,
-                )
-            )
-        ]
 
     def navigation_tags(self):
         return [
@@ -96,7 +43,6 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
         """
         tags = (
             self.plugin_data_tag()
-            + self.url_tag()
             + list(self.js_and_css_tags())
             + self.navigation_tags()
         )
@@ -108,6 +54,35 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
         language_code = get_language()
         static_root = static("assets/fonts/noto-full")
         full_file = "{}.{}.{}.css?v={}"
+
+        default_urlresolver = get_resolver(None)
+
+        url_data = generate_json(default_urlresolver)
+
+        # Convert the urls key, value pairs to a dictionary
+        # Turn all dashes in keys into underscores
+        # This should maintain consistency with our naming, as all namespaces
+        # are either 'kolibri:core' or 'kolibri:plugin_module_path'
+        # neither of which can contain dashes.
+        url_data["urls"] = {
+            key.replace("-", "_"): value for key, value in url_data["urls"]
+        }
+
+        zip_content_origin, zip_content_port = get_zip_content_config()
+
+        url_data.update(
+            {
+                "__staticUrl": settings.STATIC_URL,
+                "__mediaUrl": settings.MEDIA_URL,
+                "__contentUrl": get_content_storage_url(
+                    baseurl=OPTIONS["Deployment"]["URL_PATH_PREFIX"]
+                ),
+                "__zipContentUrl": get_zip_content_base_path(),
+                "__hashiUrl": get_hashi_path(),
+                "__zipContentOrigin": zip_content_origin,
+                "__zipContentPort": zip_content_port,
+            }
+        )
         return {
             "fullCSSFileModern": full_file.format(
                 static_root, language_code, "modern", kolibri.__version__
@@ -121,6 +96,8 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             "languageGlobals": self.language_globals(),
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),
             "kolibriTheme": ThemeHook.get_theme(),
+            "urls": url_data,
+            "unsupportedUrl": reverse("kolibri:core:unsupported"),
         }
 
     def language_globals(self):
@@ -148,26 +125,14 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
 
 
 @register_hook
-class FrontendHeadAssetsHook(WebpackBundleHook):
+class FrontendHeadAssetsHook(FrontEndBaseHeadHook):
     """
     Render these assets in the <head> tag of base.html, before other JS and assets.
     """
 
-    bundle_id = "frontend_head_assets"
-
-    def render_to_page_load_sync_html(self):
-        """
-        Add in the extra language font file tags needed
-        for preloading our custom font files.
-        """
-        tags = (
-            self.plugin_data_tag()
-            + self.language_font_file_tags()
-            + self.frontend_message_tag()
-            + list(self.js_and_css_tags())
-        )
-
-        return mark_safe("\n".join(tags))
+    @property
+    def head_html(self):
+        return mark_safe("\n".join(self.language_font_file_tags()))
 
     def language_font_file_tags(self):
         language_code = get_language()
@@ -187,7 +152,3 @@ class FrontendHeadAssetsHook(WebpackBundleHook):
                 subset_css_file=subset_file, version=kolibri.__version__
             ),
         ]
-
-    @property
-    def plugin_data(self):
-        return {"unsupportedUrl": reverse("kolibri:core:unsupported")}

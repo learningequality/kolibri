@@ -32,7 +32,7 @@ export default {
       return Promise.resolve(null);
     }
 
-    const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands-check-is-metered'];
+    const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands_check_is_metered'];
     if (!urlFunction || !checkCapability('check_is_metered')) {
       logging.warn('Checking if the device is metered is not supported on this platform');
       return Promise.resolve(null);
@@ -49,7 +49,7 @@ export default {
     // It would be more elegant to use a proxy for this, but that would require
     // adding a polyfill for this specific usage, so this works just as well.
     return ({ filename, message }) => {
-      const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands-share-file'];
+      const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands_share_file'];
       if (!urlFunction) {
         logging.warn('Sharing a file is not supported on this platform');
         return Promise.reject();

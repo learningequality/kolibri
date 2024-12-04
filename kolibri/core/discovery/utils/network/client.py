@@ -9,6 +9,7 @@ from .urls import get_normalized_url_variations
 from .urls import HTTP_PORTS
 from .urls import HTTPS_PORTS
 from kolibri.core.discovery.models import ConnectionStatus
+from kolibri.core.discovery.models import LocationTypes
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.urls import join_url
 from kolibri.utils.server import get_urls
@@ -98,7 +99,7 @@ class NetworkClient(requests.Session):
         # expect that static network locations have an exact base_url, and only try different
         # variations if we haven't already
         if (
-            network_location.dynamic
+            network_location.location_type is LocationTypes.Dynamic
             and network_location.connection_status == ConnectionStatus.Unknown
         ):
             return cls.build_for_address(network_location.base_url, timeout=timeout)

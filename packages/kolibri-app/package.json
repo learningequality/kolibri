@@ -4,6 +4,11 @@
   "description": "The Kolibri app",
   "main": "src/index.js",
   "author": "Learning Equality",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/learningequality/kolibri.git",
+    "directory": "packages/kolibri-app"
+  },
   "license": "MIT",
   "dependencies": {
     "vuex-router-sync": "^5.0.0"

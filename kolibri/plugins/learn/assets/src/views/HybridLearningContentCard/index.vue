@@ -34,6 +34,7 @@
           :src="channelThumbnail"
           :alt="learnString('logo', { channelTitle: channelTitle })"
           class="channel-logo"
+          loading="lazy"
         >
       </div>
       <CardThumbnail

@@ -3,7 +3,11 @@
   "version": "0.16.1-dev.1",
   "description": "Browsers list configuration for Kolibri",
   "main": "index.js",
-  "repository": "github.com/learningequality/kolibri",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/learningequality/kolibri.git",
+    "directory": "packages/browserslist-config-kolibri"
+  },
   "author": "Learning Equality",
   "license": "MIT",
   "private": false

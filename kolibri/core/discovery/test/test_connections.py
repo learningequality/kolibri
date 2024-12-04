@@ -2,6 +2,7 @@ import mock
 from django.test import TestCase
 
 from ..models import ConnectionStatus
+from ..models import LocationTypes
 from ..models import NetworkLocation
 from ..utils.network import errors
 from ..utils.network.client import NetworkClient
@@ -19,7 +20,6 @@ class BaseTestCase(TestCase):
         self.mock_location = mock.MagicMock(
             spec=NetworkLocation(),
             id="mock_location_id",
-            dynamic=False,
             instance_id=None,
             connection_status=ConnectionStatus.Unknown,
             connection_faults=0,
@@ -141,12 +141,12 @@ class UpdateNetworkLocationTestCase(BaseTestCase):
         self.assertEqual(self.mock_location.connection_faults, 0)
 
     def test_okay__dynamic(self):
-        self.mock_location.dynamic = True
+        self.mock_location.location_type = LocationTypes.Dynamic
         update_network_location(self.mock_location)
         self.assertNotEqual(self.mock_location.last_known_ip, "192.168.101.101")
 
     def test_okay__static(self):
-        self.mock_location.dynamic = False
+        self.mock_location.location_type = LocationTypes.Static
         update_network_location(self.mock_location)
         self.assertEqual(self.mock_location.last_known_ip, "192.168.101.101")
         self.assertTrue(self.mock_location.is_local)

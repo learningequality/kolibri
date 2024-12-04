@@ -17,6 +17,7 @@
       class="image"
       :src="thumbnailUrl"
       alt=""
+      loading="lazy"
     >
     <slot name="labels"></slot>
   </span>

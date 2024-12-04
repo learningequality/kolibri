@@ -28,8 +28,8 @@
             >
               <DragSortWidget
                 class="drag-title"
-                moveUpText="up"
-                moveDownText="down"
+                :moveUpText="upLabel$"
+                :moveDownText="downLabel$"
                 :noDrag="true"
                 :isFirst="index === 0"
                 :isLast="index === sectionOrderList.length - 1"
@@ -98,6 +98,7 @@
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { PageNames } from '../../../constants/index';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import useDrag from './useDrag.js';
@@ -145,6 +146,8 @@
         updateSection,
         updateQuiz,
       } = injectQuizCreation();
+
+      const { upLabel$, downLabel$ } = searchAndFilterStrings;
 
       const { moveDownOne, moveUpOne } = useDrag();
 
@@ -230,6 +233,8 @@
         randomizedLabel$,
         randomizedOptionDescription$,
         fixedLabel$,
+        upLabel$,
+        downLabel$,
         fixedOptionDescription$,
       };
     },

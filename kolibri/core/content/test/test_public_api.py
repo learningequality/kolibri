@@ -95,6 +95,25 @@ class ImportMetadataTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+    def test_import_metadata_none_pk(self):
+        response = self.client.get(
+            reverse(
+                "kolibri:core:importmetadata-detail",
+                kwargs={"pk": None},
+            )
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_import_metadata_bad_pk(self):
+        response = self.client.get(
+            reverse(
+                "kolibri:core:importmetadata-detail",
+                kwargs={"pk": "this is not a UUID"},
+            )
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data["error"], "Invalid UUID format.")
+
     def test_schema_version_just_right(self):
         response = self.client.get(
             reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.node.id})

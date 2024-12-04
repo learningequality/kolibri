@@ -4,20 +4,22 @@
     :title="$tr('whatKindOfDeviceTitle')"
     @continue="handleContinue"
   >
-    <KRadioButton
-      v-model="selected"
-      :label="$tr('fullDeviceLabel')"
-      :buttonValue="Options.FULL"
-      :description="$tr('fullDeviceDescription')"
-      :autofocus="isFullSetup"
-    />
-    <KRadioButton
-      v-model="selected"
-      :label="$tr('learnOnlyDeviceLabel')"
-      :buttonValue="Options.LOD"
-      :description="$tr('learnOnlyDeviceDescription')"
-      :autofocus="isLODSetup"
-    />
+    <KRadioButtonGroup>
+      <KRadioButton
+        v-model="selected"
+        :label="$tr('fullDeviceLabel')"
+        :buttonValue="Options.FULL"
+        :description="$tr('fullDeviceDescription')"
+        :autofocus="isFullSetup"
+      />
+      <KRadioButton
+        v-model="selected"
+        :label="$tr('learnOnlyDeviceLabel')"
+        :buttonValue="Options.LOD"
+        :description="$tr('learnOnlyDeviceDescription')"
+        :autofocus="isLODSetup"
+      />
+    </KRadioButtonGroup>
   </OnboardingStepBase>
 
 </template>

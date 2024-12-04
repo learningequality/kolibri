@@ -3,6 +3,8 @@ from uuid import UUID
 from django.db import connection
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.viewsets import GenericViewSet
@@ -50,6 +52,13 @@ class ImportMetadataViewset(GenericViewSet):
         :param pk: id parent node
         :return: an object with keys for each content metadata table and a schema_version key
         """
+        try:
+            UUID(pk)
+        except ValueError:
+            return Response(
+                {"error": "Invalid UUID format."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         content_schema = request.query_params.get(
             "schema_version", self.default_content_schema
@@ -72,7 +81,7 @@ class ImportMetadataViewset(GenericViewSet):
 
         # Get the model for the target node here - we do this so that we trigger a 404 immediately if the node
         # does not exist.
-        node = self.get_object()
+        node = get_object_or_404(models.ContentNode.objects.all(), pk=pk)
 
         nodes = node.get_ancestors(include_self=True)
 

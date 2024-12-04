@@ -8,6 +8,7 @@ import json
 from abc import abstractmethod
 from abc import abstractproperty
 
+from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
 
 from kolibri.core.webpack.hooks import WebpackBundleHook
@@ -32,14 +33,14 @@ class ContentRendererHook(WebpackBundleHook, WebpackInclusionMixin):
     def html(cls):
         tags = []
         for hook in cls.registered_hooks:
-            tags.append(hook.render_to_page_load_async_html())
+            tags.append(hook.template_html())
         return mark_safe("\n".join(tags))
 
-    def render_to_page_load_async_html(self):
+    def template_html(self):
         """
-        Generates script tag containing Javascript to register a content renderer.
+        Generates template tags containing data to register a content renderer.
 
-        :returns: HTML of a script tag to insert into a page.
+        :returns: HTML of a template tags to insert into a page.
         """
         # Note, while most plugins use sorted chunks to filter by text direction
         # content renderers do not, as they may need to have styling for a different
@@ -49,11 +50,14 @@ class ContentRendererHook(WebpackBundleHook, WebpackInclusionMixin):
             self.frontend_message_tag()
             + self.plugin_data_tag()
             + [
-                '<script>{kolibri_name}.registerContentRenderer("{bundle}", ["{urls}"], {presets});</script>'.format(
-                    kolibri_name="kolibriCoreAppGlobal",
+                '<template data-viewer="{bundle}">{data}</template>'.format(
                     bundle=self.unique_id,
-                    urls='","'.join(urls),
-                    presets=json.dumps(self.presets),
+                    data=json.dumps(
+                        {"urls": urls, "presets": self.presets},
+                        separators=(",", ":"),
+                        ensure_ascii=False,
+                        cls=DjangoJSONEncoder,
+                    ),
                 )
             ]
         )
