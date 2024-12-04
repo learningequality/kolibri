@@ -395,6 +395,6 @@ def log_status(job, orm_job, state=None, **kwargs):
 
     status = job.status(translation.get_language())
     if status:
-        logging.info(status.title)
+        logging.debug(status.title)
         if status.text:
-            logging.info(status.text)
+            logging.debug(status.text)

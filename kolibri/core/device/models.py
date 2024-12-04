@@ -33,7 +33,6 @@ from kolibri.core.utils.cache import process_cache as cache
 from kolibri.core.utils.lock import retry_on_db_lock
 from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.deployment.default.sqlite_db_names import SYNC_QUEUE
-from kolibri.plugins.app.utils import interface
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.options import update_options_file
@@ -89,10 +88,6 @@ def get_device_hostname():
 
     # make sure the default name does not exceed max length of the field
     return hostname[:50]
-
-
-def app_is_enabled():
-    return interface.enabled
 
 
 DEFAULT_DEMOGRAPHIC_FIELDS_KEY = "default_demographic_field_schema"
@@ -161,7 +156,7 @@ class DeviceSettings(models.Model):
     # What's the name of this device?
     name = models.CharField(max_length=50, default=get_device_hostname)
     # Should this device allow browser sessions from non-localhost devices?
-    allow_other_browsers_to_connect = models.BooleanField(default=app_is_enabled)
+    allow_other_browsers_to_connect = models.BooleanField(default=True)
     # Is this a device that only synchronizes data about a subset of users?
     subset_of_users_device = models.BooleanField(default=False)
 

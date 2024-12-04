@@ -10,7 +10,7 @@ module?
 
 Anyways, for now to get hooks started, we have some defined here...
 """
-from abc import abstractproperty
+from abc import abstractmethod
 
 from django.utils.safestring import mark_safe
 
@@ -37,12 +37,14 @@ class RoleBasedRedirectHook(KolibriHook):
     require_no_on_my_own_facility = False
 
     # User role to redirect for
-    @abstractproperty
+    @property
+    @abstractmethod
     def roles(self):
         pass
 
     # URL to redirect to
-    @abstractproperty
+    @property
+    @abstractmethod
     def url(self):
         pass
 
@@ -65,7 +67,8 @@ class FrontEndBaseHeadHook(KolibriHook):
     kolibri/base.html, that means ALL pages. Use with care.
     """
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def head_html(self):
         pass
 
@@ -87,7 +90,8 @@ class LogoutRedirectHook(KolibriHook):
     def is_enabled(cls):
         return len(list(cls.registered_hooks)) == 1
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def url(self):
         """
         A property to be overriden by the class using this hook to provide the needed url to redirect

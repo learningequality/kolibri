@@ -21,19 +21,20 @@ from magicbus.plugins.servers import ServerPlugin as BaseServerPlugin
 from magicbus.plugins.servers import wait_for_free_port
 from magicbus.plugins.servers import wait_for_occupied_port
 from magicbus.plugins.signalhandler import SignalHandler as BaseSignalHandler
-from magicbus.plugins.tasks import Autoreloader
 from magicbus.plugins.tasks import Monitor
 from zeroconf import get_all_addresses
 from zeroconf import InterfaceChoice
 
 import kolibri
-from .constants import installation_types
-from .system import become_daemon
-from .system import pid_exists
 from kolibri.utils import conf
 from kolibri.utils.android import on_android
+from kolibri.utils.constants import installation_types
 from kolibri.utils.logger import cleanup_queue_logging
 from kolibri.utils.logger import setup_queue_logging
+from kolibri.utils.server.hooks import KolibriProcessHook
+from kolibri.utils.system import become_daemon
+from kolibri.utils.system import pid_exists
+
 
 try:
     FileNotFoundError
@@ -296,7 +297,6 @@ class ZeroConfPlugin(Monitor):
             # Otherwise do a dummy initialization
             # A frequency of less than 0 will prevent the monitor from running
             Monitor.__init__(self, bus, None, frequency=-1)
-        self.bus.subscribe("SERVING", self.SERVING)
         self.bus.subscribe("UPDATE_ZEROCONF", self.UPDATE_ZEROCONF)
         self.broadcast = None
 
@@ -386,8 +386,6 @@ class PIDPlugin(SimplePlugin):
 
         # Do this during initialization to set a startup lock
         self.set_pid_file(STATUS_STARTING_UP)
-        self.bus.subscribe("SERVING", self.SERVING)
-        self.bus.subscribe("ZIP_SERVING", self.ZIP_SERVING)
         for bus_status, status in status_map.items():
             handler = partial(self.set_pid_file, status)
             handler.priority = 10
@@ -716,6 +714,9 @@ def stop():
 
 
 class BaseKolibriProcessBus(ProcessBus):
+
+    extra_channels = ("SERVING", "ZIP_SERVING")
+
     def __init__(
         self,
         port=0,
@@ -727,6 +728,8 @@ class BaseKolibriProcessBus(ProcessBus):
         self.zip_port = int(zip_port)
 
         super(BaseKolibriProcessBus, self).__init__()
+        for c in self.extra_channels:
+            self.listeners[c] = set()
         # This can be removed when a new version of magicbus is released that
         # includes their fix for Python 3.9 compatibility.
         self.thread_wait.unsubscribe()
@@ -750,14 +753,6 @@ class BaseKolibriProcessBus(ProcessBus):
         signal_handler = SignalHandler(self)
 
         signal_handler.subscribe()
-
-        if getattr(settings, "DEVELOPER_MODE", False):
-            autoreloader = Autoreloader(self)
-            plugins = os.path.join(conf.KOLIBRI_HOME, "plugins.json")
-            options = os.path.join(conf.KOLIBRI_HOME, "options.ini")
-            autoreloader.files.add(plugins)
-            autoreloader.files.add(options)
-            autoreloader.subscribe()
 
         reload_plugin = ProcessControlPlugin(self)
         reload_plugin.subscribe()
@@ -806,6 +801,10 @@ class KolibriProcessBus(KolibriServicesProcessBus):
 
     def __init__(self, *args, **kwargs):
         super(KolibriProcessBus, self).__init__(*args, **kwargs)
+
+        for process_hook in KolibriProcessHook.registered_hooks:
+            process_plugin = process_hook.MagicBusPluginClass(self)
+            process_plugin.subscribe()
 
         kolibri_server = KolibriServerPlugin(
             self,
