@@ -6,20 +6,21 @@
     :description="description"
     @submit="emitSetting"
   >
-    <KRadioButton
-      ref="yesRadio"
-      v-model="setting"
-      :label="yesOptionLabel"
-      :buttonValue="true"
-    />
-    <KRadioButton
-      ref="noRadio"
-      v-model="setting"
-      :label="noOptionLabel"
-      :buttonValue="false"
-      :description="noOptionDescription"
-    />
-
+    <KRadioButtonGroup>
+      <KRadioButton
+        ref="yesRadio"
+        v-model="setting"
+        :label="yesOptionLabel"
+        :buttonValue="true"
+      />
+      <KRadioButton
+        ref="noRadio"
+        v-model="setting"
+        :label="noOptionLabel"
+        :buttonValue="false"
+        :description="noOptionDescription"
+      />
+    </KRadioButtonGroup>
     <template #footer>
       <p>
         {{ $tr('details') }}

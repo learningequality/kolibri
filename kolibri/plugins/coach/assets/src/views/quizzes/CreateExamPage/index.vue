@@ -30,39 +30,41 @@
           {{ sectionOrderLabel$() }}
         </h5>
         <KGrid>
-          <KGridItem
-            :layout12="{ span: 6 }"
-            :layout8="{ span: 4 }"
-            :layout4="{ span: 2 }"
-          >
-            <KRadioButton
-              :currentValue="quiz.learners_see_fixed_order"
-              :label="randomizedLabel$()"
-              :buttonValue="false"
-              :description="randomizedSectionOptionDescription$()"
-              @input="value => updateQuiz({ learners_see_fixed_order: value })"
-            />
-          </KGridItem>
-          <KGridItem
-            :layout12="{ span: 6 }"
-            :layout8="{ span: 4 }"
-            :layout4="{ span: 2 }"
-          >
-            <KRadioButton
-              :currentValue="quiz.learners_see_fixed_order"
-              :label="fixedLabel$()"
-              :buttonValue="true"
-              :description="fixedSectionOptionDescription$()"
-              @input="value => updateQuiz({ learners_see_fixed_order: value })"
-            />
-            <KButton
-              v-if="quiz.learners_see_fixed_order"
-              :text="coreString('editAction') + ' - ' + sectionOrderLabel$()"
-              class="edit-section-order-btn"
-              appearance="basic-link"
-              @click="editSectionOrder"
-            />
-          </KGridItem>
+          <KRadioButtonGroup>
+            <KGridItem
+              :layout12="{ span: 6 }"
+              :layout8="{ span: 4 }"
+              :layout4="{ span: 2 }"
+            >
+              <KRadioButton
+                :currentValue="quiz.learners_see_fixed_order"
+                :label="randomizedLabel$()"
+                :buttonValue="false"
+                :description="randomizedSectionOptionDescription$()"
+                @input="value => updateQuiz({ learners_see_fixed_order: value })"
+              />
+            </KGridItem>
+            <KGridItem
+              :layout12="{ span: 6 }"
+              :layout8="{ span: 4 }"
+              :layout4="{ span: 2 }"
+            >
+              <KRadioButton
+                :currentValue="quiz.learners_see_fixed_order"
+                :label="fixedLabel$()"
+                :buttonValue="true"
+                :description="fixedSectionOptionDescription$()"
+                @input="value => updateQuiz({ learners_see_fixed_order: value })"
+              />
+              <KButton
+                v-if="quiz.learners_see_fixed_order"
+                :text="coreString('editAction') + ' - ' + sectionOrderLabel$()"
+                class="edit-section-order-btn"
+                appearance="basic-link"
+                @click="editSectionOrder"
+              />
+            </KGridItem>
+          </KRadioButtonGroup>
         </KGrid>
       </div>
 

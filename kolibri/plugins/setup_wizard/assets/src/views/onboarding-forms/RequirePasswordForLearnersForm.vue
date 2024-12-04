@@ -8,22 +8,24 @@
     :eventOnGoBack="backEvent"
     @continue="handleContinue"
   >
-    <KRadioButton
-      ref="yesRadio"
-      v-model="setting"
-      class="radio-button"
-      :label="$tr('yesOptionLabel')"
-      :buttonValue="true"
-      :autofocus="setting"
-    />
-    <KRadioButton
-      ref="noRadio"
-      v-model="setting"
-      class="radio-button"
-      :label="$tr('noOptionLabel')"
-      :buttonValue="false"
-      :autofocus="!setting"
-    />
+    <KRadioButtonGroup>
+      <KRadioButton
+        ref="yesRadio"
+        v-model="setting"
+        class="radio-button"
+        :label="$tr('yesOptionLabel')"
+        :buttonValue="true"
+        :autofocus="setting"
+      />
+      <KRadioButton
+        ref="noRadio"
+        v-model="setting"
+        class="radio-button"
+        :label="$tr('noOptionLabel')"
+        :buttonValue="false"
+        :autofocus="!setting"
+      />
+    </KRadioButtonGroup>
     <p class="description">
       {{ getCommonSyncString('changeLater') }}
     </p>

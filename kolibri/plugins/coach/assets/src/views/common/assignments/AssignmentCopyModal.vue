@@ -12,14 +12,16 @@
       v-if="stage === Stages.SELECT_CLASSROOM"
       id="select-classroom"
     >
-      <KRadioButton
-        v-for="classroom in availableClassrooms"
-        :key="classroom.id"
-        v-model="selectedClassroomId"
-        :label="classroomLabel(classroom)"
-        :buttonValue="classroom.id"
-        data-test="radio-button"
-      />
+      <KRadioButtonGroup>
+        <KRadioButton
+          v-for="classroom in availableClassrooms"
+          :key="classroom.id"
+          v-model="selectedClassroomId"
+          :label="classroomLabel(classroom)"
+          :buttonValue="classroom.id"
+          data-test="radio-button"
+        />
+      </KRadioButtonGroup>
     </div>
     <!-- Learner Group Selection Form -->
     <div

@@ -4,18 +4,20 @@
     :header="getCommonSyncString('howAreYouUsingKolibri')"
     @submit="handleSubmit"
   >
-    <KRadioButton
-      v-model="selected"
-      :buttonValue="Options.PERSONAL"
-      :label="$tr('quickStartLabel')"
-      :description="getCommonSyncString('onMyOwn')"
-    />
-    <KRadioButton
-      v-model="selected"
-      :buttonValue="Options.PUBLIC"
-      :label="$tr('advancedSetupLabel')"
-      :description="$tr('advancedSetupDescription')"
-    />
+    <KRadioButtonGroup>
+      <KRadioButton
+        v-model="selected"
+        :buttonValue="Options.PERSONAL"
+        :label="$tr('quickStartLabel')"
+        :description="getCommonSyncString('onMyOwn')"
+      />
+      <KRadioButton
+        v-model="selected"
+        :buttonValue="Options.PUBLIC"
+        :label="$tr('advancedSetupLabel')"
+        :description="$tr('advancedSetupDescription')"
+      />
+    </KRadioButtonGroup>
   </OnboardingForm>
 
 </template>
