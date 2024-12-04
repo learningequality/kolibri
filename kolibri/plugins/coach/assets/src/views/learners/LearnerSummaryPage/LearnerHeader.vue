@@ -8,7 +8,7 @@
           :text="$tr('back')"
         />
       </p>
-      <ReportsControls />
+      <ReportsControls @export="exportCSV" />
     </div>
     <h1>
       <KLabeledIcon
@@ -114,6 +114,8 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../../common';
   import ReportsControls from '../../common/ReportsControls';
+  import CSVExporter from '../../../csv/exporter';
+  import * as csvFields from '../../../csv/fields';
 
   export default {
     name: 'LearnerHeader',
@@ -174,6 +176,42 @@
         };
       },
     },
+    methods: {
+      exportCSV() {
+        let filteredExams = this.exams.filter(exam =>
+          this.getLearnersForExam(exam).includes(this.learner.id),
+        );
+
+        let filteredLessons = this.lessons.filter(lesson =>
+          this.getLearnersForLesson(lesson).includes(this.learner.id),
+        );
+
+        filteredLessons = filteredLessons.map(lesson => {
+          lesson.status = this.getLessonStatusStringForLearner(lesson.id, this.learner.id);
+          return lesson;
+        });
+
+        filteredExams = filteredExams.map(exam => {
+          exam.tally = this.getExamStatusObjForLearner(exam.id, this.learner.id);
+          return exam;
+        });
+
+        const columns = [
+          ...csvFields.title(),
+          ...csvFields.learnerProgress(),
+          ...csvFields.avgScore(),
+          // ...csvFields.tally(),
+        ];
+
+        const fileName = this.$tr('printLabel', { className: this.className });
+        const exporter = new CSVExporter(columns, fileName);
+        exporter.addNames({
+          LearnerTitle: 'Learner',
+          learner: this.learner.name,
+        });
+        exporter.export([...filteredLessons, ...filteredExams]);
+      },
+    },
     $trs: {
       back: {
         message: 'All learners',
@@ -181,6 +219,11 @@
           "Link that takes user back to the list of learners on the 'Reports' tab, from the individual learner's information page.",
       },
       totalLessons: 'of {total}',
+      printLabel: {
+        message: '{className} Quizzes',
+        context:
+          "Title that displays on a printed copy of the 'Coach' > 'Quizzes' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
+      },
     },
   };
 
