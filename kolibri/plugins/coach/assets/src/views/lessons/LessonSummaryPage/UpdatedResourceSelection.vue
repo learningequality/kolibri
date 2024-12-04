@@ -23,7 +23,7 @@
         :showRadioButtons="!multi"
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
-        @moreresults="fetchMoreResources"
+        @moreresults="fetchMore"
       />
     </div>
   </div>
@@ -33,14 +33,11 @@
 
 <script>
 
-  import { computed } from '@vue/composition-api';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds } from 'kolibri/constants';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
   import { PageNames } from '../../../constants';
-  import { injectResourceSelection } from '../../../composables/useResourceSelection';
-  import { ResourceContentSource } from './sidePanels/LessonResourceSelection/constants';
 
   export default {
     name: 'UpdatedResourceSelection',
@@ -49,54 +46,6 @@
       ResourceSelectionBreadcrumbs,
     },
     mixins: [commonCoreStrings],
-    setup(props) {
-      const {
-        topic,
-        bookmarksFetch,
-        treeFetch,
-        selectionRules = [],
-        selectedResources,
-        selectResources,
-        deselectResources,
-        setSelectedResources,
-      } = injectResourceSelection();
-
-      const contentFetch = computed(() => {
-        const contentSources = {
-          [ResourceContentSource.BOOKMARKS]: bookmarksFetch,
-          [ResourceContentSource.TOPIC_TREE]: treeFetch,
-        };
-
-        return contentSources[props.source];
-      });
-
-      const contentList = computed(() => {
-        const { data } = contentFetch.value;
-        return data.value;
-      });
-
-      const viewMoreButtonState = computed(() => {
-        const { moreState } = contentFetch.value;
-        return moreState.value;
-      });
-
-      function fetchMoreResources() {
-        const { fetchMore } = contentFetch.value;
-        fetchMore?.();
-      }
-
-      return {
-        topic,
-        contentList,
-        selectionRules,
-        selectedResources,
-        fetchMoreResources,
-        viewMoreButtonState,
-        selectResources,
-        deselectResources,
-        setSelectedResources,
-      };
-    },
     props: {
       canSelectAll: {
         type: Boolean,
@@ -106,12 +55,32 @@
         type: Boolean,
         default: true,
       },
-      source: {
-        type: String,
+      topic: {
+        type: Object,
         required: true,
-        validator(value) {
-          return Object.values(ResourceContentSource).includes(value);
-        },
+      },
+      contentList: {
+        type: Array,
+        required: true,
+      },
+      viewMoreButtonState: {
+        type: String,
+        required: false,
+        default: null,
+      },
+      fetchMore: {
+        type: Function,
+        required: false,
+        default: null,
+      },
+      selectionRules: {
+        type: Array,
+        required: false,
+        default: () => [],
+      },
+      selectedResources: {
+        type: Array,
+        required: true,
       },
     },
     computed: {
@@ -164,9 +133,9 @@
       },
       handleSelectAll(checked) {
         if (checked) {
-          this.selectResources(this.selectableContentList);
+          this.$emit('selectResources', this.selectableContentList);
         } else {
-          this.deselectResources(this.selectableContentList);
+          this.$emit('deselectResources', this.selectableContentList);
         }
       },
       contentCheckboxDisabled(resource) {
@@ -180,12 +149,12 @@
       },
       toggleSelected({ content, checked }) {
         if (!this.multi) {
-          return this.setSelectedResources(checked ? [content] : []);
+          return this.$emit('setSelectedResources', checked ? [content] : []);
         }
         if (checked) {
-          this.selectResources([content]);
+          this.$emit('selectResources', [content]);
         } else {
-          this.deselectResources([content]);
+          this.$emit('deselectResources', [content]);
         }
       },
       showCheckbox(node) {
