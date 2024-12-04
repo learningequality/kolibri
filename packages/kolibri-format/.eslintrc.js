@@ -226,7 +226,7 @@ module.exports = {
     'vue/no-lone-template': OFF,
     'vue/match-component-file-name': ERROR,
     'vue/component-options-name-casing': [ERROR, 'PascalCase'],
-    'vue/no-unused-properties': ERROR,
+    'vue/no-unused-properties': [ERROR, { groups: ['props', 'data', 'computed', 'methods', 'setup'], deepData: true, ignorePublicMembers: true }],
 
     'import/first': ERROR,
     'import/no-duplicates': ERROR,
@@ -235,7 +235,6 @@ module.exports = {
 
     // Custom vue rules
     'kolibri/vue-no-unused-vuex-properties': ERROR,
-    'kolibri/vue-no-unused-methods': ERROR,
     'kolibri/vue-no-unused-vuex-methods': ERROR,
     'kolibri/vue-watch-no-string': ERROR,
     'kolibri/vue-no-unused-translations': ERROR,
