@@ -102,7 +102,10 @@
       },
     },
     methods: {
-      // @public. Returns Promise<Boolean>
+      /**
+       * @public
+       * @return {Promise<Boolean>}
+       */
       startImport() {
         this.shouldValidate = true;
         if (this.formIsValid) {

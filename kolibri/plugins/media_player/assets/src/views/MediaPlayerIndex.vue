@@ -208,7 +208,6 @@
       transcriptVisible() {
         return this.transcript && !this.loading && this.captionTracks.length > 0;
       },
-      /* eslint-disable vue/no-unused-properties */
       /**
        * @public
        */

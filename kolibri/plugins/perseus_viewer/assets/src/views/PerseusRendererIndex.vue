@@ -592,7 +592,7 @@
           this.setCorrectAnswer();
         }
       },
-      /*
+      /**
        * @public
        */
       checkAnswer() {
@@ -631,7 +631,7 @@
           this.$emit('answerGiven', answer);
         }
       },
-      /*
+      /**
        * @public
        */
       takeHint() {

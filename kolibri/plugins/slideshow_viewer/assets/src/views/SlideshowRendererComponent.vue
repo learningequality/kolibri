@@ -87,8 +87,6 @@
   import objectFitImages from 'object-fit-images';
   import client from 'kolibri/client';
 
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-
   import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
   import {
@@ -107,13 +105,6 @@
       Slide,
       HooperPagination,
       HooperNavigation,
-    },
-    setup() {
-      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
-      return {
-        windowIsLarge,
-        windowIsSmall,
-      };
     },
     data: () => ({
       isInFullscreen: false,
@@ -152,7 +143,6 @@
       contentHeight: function () {
         return window.innerHeight * 0.7 + 'px';
       },
-      /* eslint-disable vue/no-unused-properties */
       /**
        * @public
        * Note: the default duration historically for slidshows has been 5 min
@@ -160,7 +150,6 @@
       defaultDuration() {
         return 300;
       },
-      /* eslint-enable vue/no-unused-properties */
     },
     watch: {
       defaultFile(newFile) {

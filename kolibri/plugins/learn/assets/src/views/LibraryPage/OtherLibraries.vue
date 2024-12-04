@@ -203,13 +203,11 @@
       const explore$ = coreStrings.$tr ? coreStrings.$tr('explore') : '';
 
       return {
-        networkDevicesWithChannels,
         devicesWithChannelsExist,
         deviceChannelsMap,
         searchingOtherLibraries: isLoadingChannels,
         windowIsSmall,
         fullLibrariesToDisplay,
-        pinnedDevices,
         unpinnedDevices,
         userPinsMap,
         threeLibrariesOrFewer,

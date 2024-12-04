@@ -118,7 +118,6 @@
         }
         return {};
       },
-      /* eslint-disable vue/no-unused-properties */
       /**
        * @public
        * Note: the default duration historically for HTML5 Apps has been 5 min
@@ -126,7 +125,6 @@
       defaultDuration() {
         return 300;
       },
-      /* eslint-enable vue/no-unused-properties */
     },
     watch: {
       userData(newValue) {

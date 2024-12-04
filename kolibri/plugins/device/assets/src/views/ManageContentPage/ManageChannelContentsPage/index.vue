@@ -311,7 +311,10 @@
         this.selectSourcePageName = null;
         this.shownModal = null;
       },
-      // @public (used by taskNotificationMixin)
+      /**
+       * @public
+       * Used by the taskNotificationMixin to handle the completion of the task
+       */
       onWatchedTaskFinished() {
         // clear out the nodeCache
         this.nodeCache = {};
