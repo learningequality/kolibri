@@ -127,7 +127,8 @@ describe('LessonResourceSelectionPage', () => {
 
       const exitRoute = () => button.props().to.name;
       // Exit link goes to Lesson Summary page by default
-      expect(exitRoute()).toEqual(PageNames.LESSON_SUMMARY);
+      expect(exitRoute()).toBe(PageNames.LESSON_SUMMARY);
+      expect(exitRoute()).toBe(PageNames.LESSON_PREVIEW_SELECTED_RESOURCES);
 
       // Exit link goes to report page if that's in the URL
       await router.replace({ query: { last: 'LESSON_SUMMARY' } });
