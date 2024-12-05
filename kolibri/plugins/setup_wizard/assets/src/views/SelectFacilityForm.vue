@@ -8,7 +8,7 @@
     :footerMessageType="loading ? null : footerMessageType"
     :step="loading ? null : 1"
     :steps="loading ? null : 5"
-    :hideContinue="true"
+    :hideContinue="Boolean(errorMessage)"
     @continue="handleContinue"
   >
     <UiAlert
