@@ -6,30 +6,6 @@ on:
 
 jobs:
   contributor_issue_comment:
-    name: Contributor issue comment
-
-    if: >-
-      ${{
-        !github.event.issue.pull_request &&
-        github.event.comment.author_association != 'MEMBER' &&
-        github.event.comment.author_association != 'OWNER'
-      }}
-
-    runs-on: ubuntu-latest
-    steps:
-      - name: Escape title double quotes
-        id: escape_title
-        env:
-          ISSUE_TITLE: ${{ github.event.issue.title }}
-        run: echo "ISSUE_TITLE=${ISSUE_TITLE//\"/\\\"}" >> "$GITHUB_OUTPUT"
-
-      - name: Send message to Slack channel
-        env:
-            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-            SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-        uses: slackapi/slack-github-action@v1.27.0
-        with:
-          payload: |
-            {
-              "text": "*[Kolibri] New comment on issue: <${{ github.event.issue.html_url }}#issuecomment-${{ github.event.comment.id }}|${{ steps.escape_title.outputs.ISSUE_TITLE }} by ${{ github.event.comment.user.login }}>*"
-            }
+    uses: learningequality/.github/.github/workflows/notify_team_new_comment.yml@main
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
