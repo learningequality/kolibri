@@ -232,8 +232,8 @@
         activeLesson: null,
         filterSelection: {},
         filterRecipents: {
-            label: this.entireClassLabel$(),
-            value: this.entireClassLabel$(),
+          label: this.entireClassLabel$(),
+          value: this.entireClassLabel$(),
         },
         detailsModalIsDisabled: false,
         dontShowAgainChecked: false,
@@ -261,10 +261,10 @@
           return sortedLesson;
         });
 
-        if(this.filterRecipents.label === this.entireClassLabel$()){
+        if (this.filterRecipents.label === this.entireClassLabel$()) {
           return allLessons;
         }
-        return allLessons.filter(lesson=>{
+        return allLessons.filter(lesson => {
           return lesson.recipientNames.includes(this.filterRecipents.label);
         });
       },
@@ -315,7 +315,7 @@
         }
         return null;
       },
-      recipientOptions(){
+      recipientOptions() {
         const groupOptions = this.groups.map(group => ({
           label: group.name,
           value: group.id,
@@ -334,7 +334,6 @@
           ...groupOptions,
           ...learnerOptions,
         ];
-
       },
     },
     beforeMount() {
