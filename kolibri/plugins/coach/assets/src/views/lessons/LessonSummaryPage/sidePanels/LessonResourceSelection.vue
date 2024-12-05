@@ -130,7 +130,6 @@
     components: {
       SidePanelModal,
       AccessibleChannelCard,
-      SearchFiltersPanel,
     },
     setup() {
       const loading = ref(false);
@@ -176,8 +175,6 @@
         loading,
         bookmarks,
         channels,
-        showSearch,
-        searchTerms,
         selectFromChannels$,
         numberOfBookmarks$,
         bookmarksLabel$,
