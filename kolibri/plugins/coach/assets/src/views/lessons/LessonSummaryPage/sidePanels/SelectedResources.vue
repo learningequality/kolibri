@@ -23,7 +23,7 @@
           :key="lesson.id"
           :style="lessonOrderListButtonBorder"
         >
-          <KGrid>
+          <KGrid :style="{ paddingTop: '1em' }">
             <KGridItem
               :layout12="{ span: 10 }"
               :layout8="{ span: 5 }"
@@ -73,7 +73,7 @@
               <span class="add-minus-button">
                 <KIconButton
                   icon="emptyTopic"
-                  @click="() => {}"
+                  @click="$emit('navigateToParent',lesson.id)"
                 />
 
                 <KIconButton

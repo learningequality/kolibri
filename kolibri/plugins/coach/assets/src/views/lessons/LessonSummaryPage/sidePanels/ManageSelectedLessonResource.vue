@@ -28,6 +28,7 @@
       :currentLesson="currentLesson"
       :loading="resources.length === 0"
       @removeResource="removeResource"
+      @navigateToParent="navigateToParent"
     />
 
     <template #bottomNavigation>
@@ -67,6 +68,11 @@
         numberOfSelectedResource$,
       };
     },
+    data() {
+      return {
+        resources: [],
+      };
+    },
     computed: {
       ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
       lessonOrderListButtonBorder() {
@@ -77,12 +83,6 @@
         };
       },
     },
-    data() {
-      return {
-        PageNames,
-        resources: [],
-      };
-    },
     mounted() {
       setTimeout(() => {
         this.getResources();
@@ -92,10 +92,11 @@
       removeResource(id) {
         this.resources = this.resources.filter(lesson => lesson.id !== id);
       },
-      recipients() {
-        return this.group
-          ? this.getLearnersForGroups([this.group.id])
-          : this.getLearnersForLesson(this.currentLesson);
+      navigateToParent(id) {
+        this.$router.push({
+          name: PageNames.LESSONS_ROOT,
+          params: { classId: this.$route.params.classId, lessonId: id },
+        });
       },
       getResources() {
         const response = this.workingResources.map(resource => {
@@ -103,16 +104,19 @@
           if (!content) {
             return this.missingResourceObj(resource.contentnode_id);
           }
-          // const tally = this.getContentStatusTally(content.content_id, this.recipients);
+          const tally = this.getContentStatusTally(
+            content.content_id,
+            this.getLearnersForLesson(this.currentLesson)
+          );
 
           const tableRow = {
             ...content,
             node_id: content.id,
-            // hasAssignments: Object.values(tally).reduce((a, b) => a + b, 0),
-            // tally,
+            hasAssignments: Object.values(tally).reduce((a, b) => a + b, 0),
+            tally,
           };
 
-          const link = {};
+          const link = this.resourceLink(tableRow);
           if (link) {
             tableRow.link = link;
           }
@@ -124,9 +128,6 @@
           .then(results => {
             this.resources = results;
           })
-          .catch(error => {
-            console.error('An error occurred:', error);
-          });
       },
       resourceLink(resource) {
         if (resource.hasAssignments) {
