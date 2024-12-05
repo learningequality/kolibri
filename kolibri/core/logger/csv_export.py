@@ -7,6 +7,10 @@ from collections import OrderedDict
 
 from dateutil import parser
 from django.core.cache import cache
+from django.db.models import F
+from django.db.models import Max
+from django.db.models import OuterRef
+from django.db.models import Subquery
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 from le_utils.constants import content_kinds
@@ -29,23 +33,47 @@ CSV_EXPORT_FILENAMES = {
 CACHE_TIMEOUT = 60 * 10
 
 
-def add_content_to_cache(content_id, **kwargs):
-    title_key = "{content_id}_ContentNode_title".format(content_id=content_id)
-    ancestors_key = "{content_id}_ContentNode_ancestors".format(content_id=content_id)
+def _optional_node_id(item):
+    if (
+        "most_recent_session_log_extra_fields" in item
+        and item["most_recent_session_log_extra_fields"]
+        and "context" in item["most_recent_session_log_extra_fields"]
+    ):
+        return item["most_recent_session_log_extra_fields"]["context"].get("node_id")
 
-    cache.set(title_key, kwargs.get("title", ""), CACHE_TIMEOUT)
-    cache.set(ancestors_key, kwargs.get("ancestors", []), CACHE_TIMEOUT)
+
+def _key_gen(item, name):
+    node_id = _optional_node_id(item)
+    if node_id:
+        return f"{node_id}_ContentNode_{name}"
+    return f"{item['content_id']}_{item['channel_id']}_ContentNode_{name}"
 
 
-def get_cached_content_data(content_id):
-    title_key = f"{content_id}_ContentNode_title"
-    ancestors_key = f"{content_id}_ContentNode_ancestors"
+def _title_key(item):
+    return _key_gen(item, "title")
 
-    title = cache.get(title_key)
-    ancestors = cache.get(ancestors_key)
+
+def _ancestors_key(item):
+    return _key_gen(item, "ancestors")
+
+
+def add_content_to_cache(item, title, ancestors):
+    cache.set(_title_key(item), title, CACHE_TIMEOUT)
+    cache.set(_ancestors_key(item), ancestors, CACHE_TIMEOUT)
+
+
+def get_cached_content_data(item):
+    title = cache.get(_title_key(item))
+    ancestors = cache.get(_ancestors_key(item))
 
     if title is None or ancestors is None:
-        node = ContentNode.objects.filter(content_id=content_id).first()
+        node_id = _optional_node_id(item)
+        if node_id:
+            node = ContentNode.objects.filter(pk=node_id).first()
+        else:
+            node = ContentNode.objects.filter(
+                content_id=item["content_id"], channel_id=item["channel_id"]
+            ).first()
         if node:
             title = node.title
             ancestors = node.ancestors
@@ -53,7 +81,7 @@ def get_cached_content_data(content_id):
             title = ""
             ancestors = []
 
-        add_content_to_cache(content_id, title=title, ancestors=ancestors)
+        add_content_to_cache(item, title, ancestors)
 
     return title, ancestors
 
@@ -72,8 +100,7 @@ def get_cached_channel_name(obj):
 
 
 def get_cached_content_title(obj):
-    content_id = obj["content_id"]
-    title, _ = get_cached_content_data(content_id)
+    title, _ = get_cached_content_data(obj)
     return title
 
 
@@ -131,19 +158,17 @@ labels = OrderedDict(
 )
 
 
-def get_max_ancestor_depth():
-    """Returns one less than the maximum depth of the ancestors of all content nodes"""
-    max_depth = 0
-    content_ids = ContentSummaryLog.objects.values_list("content_id", flat=True)
+def get_max_ancestor_depth(queryset):
+    """
+    Returns one less than the maximum depth of the ancestors of all content nodes.
+    Because we are maxing the level attribute, we don't need to subtract 1 from the result,
+    as it is zero indexed.
+    """
+    content_ids = queryset.values_list("content_id", flat=True)
     nodes = ContentNode.objects.filter(content_id__in=content_ids).only(
         "content_id", "title", "ancestors"
     )
-    for node in nodes:
-        ancestors = node.ancestors
-        # cache it here so the retireival while adding ancestors info into csv is faster
-        add_content_to_cache(node.content_id, title=node.title, ancestors=ancestors)
-        max_depth = max(max_depth, len(ancestors))
-    return max_depth - 1
+    return (nodes.aggregate(max_depth=Max("level"))["max_depth"] or 1) - 1
 
 
 def add_ancestors_info(row, ancestors, max_depth):
@@ -158,16 +183,18 @@ def add_ancestors_info(row, ancestors, max_depth):
     )
 
 
-def map_object(item):
+def map_object(item, topic_headers_length):
     mapped_item = output_mapper(item, labels=labels, output_mappings=mappings)
-    ancestors = get_cached_ancestors(item["content_id"])
-    add_ancestors_info(mapped_item, ancestors, get_max_ancestor_depth())
+    ancestors = get_cached_ancestors(item)
+    add_ancestors_info(mapped_item, ancestors, topic_headers_length)
     return mapped_item
 
 
 classes_info = {
     "session": {
-        "queryset": ContentSessionLog.objects.exclude(kind=content_kinds.QUIZ),
+        "queryset": ContentSessionLog.objects.exclude(kind=content_kinds.QUIZ).annotate(
+            most_recent_session_log_extra_fields=F("extra_fields")
+        ),
         "filename": CSV_EXPORT_FILENAMES["session"],
         "db_columns": (
             "user__username",
@@ -179,10 +206,21 @@ classes_info = {
             "time_spent",
             "progress",
             "kind",
+            "most_recent_session_log_extra_fields",
         ),
     },
     "summary": {
-        "queryset": ContentSummaryLog.objects.exclude(kind=content_kinds.QUIZ),
+        "queryset": ContentSummaryLog.objects.exclude(kind=content_kinds.QUIZ).annotate(
+            most_recent_session_log_extra_fields=Subquery(
+                ContentSessionLog.objects.filter(
+                    user=OuterRef("user"),
+                    content_id=OuterRef("content_id"),
+                    channel_id=OuterRef("channel_id"),
+                )
+                .order_by("-end_timestamp")
+                .values("extra_fields")[:1]
+            )
+        ),
         "filename": CSV_EXPORT_FILENAMES["summary"],
         "db_columns": (
             "user__username",
@@ -195,6 +233,7 @@ classes_info = {
             "time_spent",
             "progress",
             "kind",
+            "most_recent_session_log_extra_fields",
         ),
     },
 }
@@ -238,7 +277,7 @@ def csv_file_generator(
     # len of topic headers should be equal to the max depth of the content node
     topic_headers = [
         (f"Topic level {i+1}", _(f"Topic level {i+1}"))
-        for i in range(get_max_ancestor_depth())
+        for i in range(get_max_ancestor_depth(queryset))
     ]
 
     content_id_index = header_labels.index(labels["content_id"])
@@ -255,5 +294,5 @@ def csv_file_generator(
         for item in queryset.select_related("user", "user__facility").values(
             *log_info["db_columns"]
         ):
-            writer.writerow(map_object(item))
+            writer.writerow(map_object(item, len(topic_headers)))
             yield
