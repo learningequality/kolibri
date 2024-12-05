@@ -1,27 +1,26 @@
 import mock from 'xhr-mock';
-import coreStore from 'kolibri/store';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import * as serverClock from 'kolibri/utils/serverClock';
 import { get, set } from '@vueuse/core';
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
 import { ref } from '@vue/composition-api';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import { HeartBeat } from '../heartbeat.js';
 import { trs } from '../internal/disconnection';
-import coreModule from '../../../kolibri/core/assets/src/state/modules/core';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri/utils/redirectBrowser');
 jest.mock('kolibri/urls');
 jest.mock('lockr');
 jest.mock('kolibri/composables/useSnackbar');
+jest.mock('kolibri/composables/useUser');
 
-coreStore.registerModule('core', coreModule);
 
 describe('HeartBeat', function () {
   stubWindowLocation(beforeAll, afterAll);
   // replace the real XHR object with the mock XHR object before each test
-  beforeEach(() => mock.setup());
+  beforeEach(() => useUser.mockImplementation(() => useUserMock()));
 
   // put the real XHR object back and clear the mocks after each test
   afterEach(() => mock.teardown());
@@ -206,7 +205,8 @@ describe('HeartBeat', function () {
       jest.spyOn(heartBeat, '_sessionUrl').mockReturnValue('url');
     });
     it('should sign out if an auto logout is detected', function () {
-      coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
+      const { setSession } = useUser();
+      setSession({ session: { user_id: 'test', id: 'current' } });
       mock.put(/.*/, {
         status: 200,
         body: JSON.stringify({ user_id: null, id: 'current' }),
@@ -218,7 +218,8 @@ describe('HeartBeat', function () {
       });
     });
     it('should redirect if a change in user is detected', function () {
-      coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
+      const { setSession } = useUser();
+      setSession({ session: { user_id: 'test', id: 'current' } });
       redirectBrowser.mockReset();
       mock.put(/.*/, {
         status: 200,
@@ -230,7 +231,8 @@ describe('HeartBeat', function () {
       });
     });
     it('should not sign out if user_id changes but session is being set for first time', function () {
-      coreStore.commit('CORE_SET_SESSION', { user_id: undefined, id: undefined });
+      const { setSession } = useUser();
+      setSession({ session: { user_id: undefined, id: undefined } });
       mock.put(/.*/, {
         status: 200,
         body: JSON.stringify({ user_id: null, id: 'current' }),
@@ -242,7 +244,8 @@ describe('HeartBeat', function () {
       });
     });
     it('should call setServerTime with a clientNow value that is between the start and finish of the poll', function () {
-      coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
+      const { setSession } = useUser();
+      setSession({ session: { user_id: 'test', id: 'current' } });
       const serverTime = new Date().toJSON();
       mock.put(/.*/, {
         status: 200,
