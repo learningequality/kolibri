@@ -123,7 +123,7 @@ describe('LessonResourceSelectionPage', () => {
         .findComponent({ name: 'BottomAppBar' })
         .findComponent({ name: 'KRouterLink' });
 
-      expect(button.props().text).toEqual('Close');
+      expect(button.props().primary).toEqual(true);
 
       const exitRoute = () => button.props().to.name;
       // Exit link goes to Lesson Summary page by default
