@@ -73,7 +73,7 @@
               <span class="add-minus-button">
                 <KIconButton
                   icon="emptyTopic"
-                  @click="$emit('navigateToParent',lesson.id)"
+                  @click="$emit('navigateToParent', lesson.id)"
                 />
 
                 <KIconButton

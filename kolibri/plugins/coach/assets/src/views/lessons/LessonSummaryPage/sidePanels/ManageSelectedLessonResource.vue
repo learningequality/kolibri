@@ -106,7 +106,7 @@
           }
           const tally = this.getContentStatusTally(
             content.content_id,
-            this.getLearnersForLesson(this.currentLesson)
+            this.getLearnersForLesson(this.currentLesson),
           );
 
           const tableRow = {
@@ -124,10 +124,9 @@
           return tableRow;
         });
 
-        Promise.all(response)
-          .then(results => {
-            this.resources = results;
-          })
+        Promise.all(response).then(results => {
+          this.resources = results;
+        });
       },
       resourceLink(resource) {
         if (resource.hasAssignments) {
