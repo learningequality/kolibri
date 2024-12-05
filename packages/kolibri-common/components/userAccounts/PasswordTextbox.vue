@@ -111,7 +111,9 @@
       },
     },
     methods: {
-      // @public
+      /**
+       * @public
+       */
       focus() {
         if (this.shownPasswordInvalidText) {
           this.$refs.password.focus();
@@ -119,7 +121,9 @@
           this.$refs.confirm.focus();
         }
       },
-      // @public
+      /**
+       * @public
+       */
       resetAndFocus() {
         this.passwordBlurred = false;
         this.$emit('update:value', '');

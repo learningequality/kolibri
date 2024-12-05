@@ -74,7 +74,11 @@
       return {
         allTasks: [],
         isPolling: false,
-        lastLoadingTask: { status: null },
+        lastLoadingTask: {
+          /* eslint-disable vue/no-unused-properties */
+          status: null,
+          /* eslint-enable */
+        },
       };
     },
     computed: {

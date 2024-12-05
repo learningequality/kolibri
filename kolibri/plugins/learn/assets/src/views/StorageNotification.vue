@@ -84,22 +84,13 @@
         local_storage_lastDownloadRemoved.value = newLastDownloadRemovedValue;
       };
 
-      const {
-        status,
-        lastSynced,
-        deviceStatus,
-        deviceStatusSentiment,
-        hasDownloads,
-        lastDownloadRemoved,
-      } = useUserSyncStatus();
+      const { lastSynced, deviceStatus, hasDownloads, lastDownloadRemoved } = useUserSyncStatus();
 
       const { sendAssertiveMessage } = useKLiveRegion();
 
       return {
         lastSynced,
-        status,
         deviceStatus,
-        deviceStatusSentiment,
         hasDownloads,
         lastDownloadRemoved,
         isAdmin,

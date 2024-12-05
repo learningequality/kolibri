@@ -98,7 +98,6 @@
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ExamResource from 'kolibri-common/apiResources/ExamResource';
-  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../constants';
   import { QUIZZES_TABS_ID, QuizzesTabs } from '../../../constants/tabsConstants';
@@ -131,15 +130,11 @@
     },
     mixins: [commonCoach, coachStringsMixin, commonCoreStrings],
     setup() {
-      const { randomizedSectionOptionDescription$, fixedSectionOptionDescription$ } =
-        enhancedQuizManagementStrings;
       const { createSnackbar, clearSnackbar } = useSnackbar();
 
       const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
 
       return {
-        randomizedSectionOptionDescription$,
-        fixedSectionOptionDescription$,
         wereTabsClickedRecently,
         createSnackbar,
         clearSnackbar,
@@ -258,7 +253,9 @@
       }
     },
     methods: {
-      // @public
+      /**
+       * @public
+       */
       setData(data) {
         const { exam, difficultQuestions } = data;
         this.quiz = exam;
@@ -266,7 +263,9 @@
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
-      // @public
+      /**
+       * @public
+       */
       setError(error) {
         this.$store.dispatch('handleApiError', { error });
         this.loading = false;

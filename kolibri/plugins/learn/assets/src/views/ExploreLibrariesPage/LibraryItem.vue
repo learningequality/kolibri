@@ -78,13 +78,11 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { genContentLinkBackLinkCurrentPage, genLibraryPageBackLink } = useContentLink();
-      const { windowIsSmall, windowBreakpoint } = useKResponsiveWindow();
+      const { genLibraryPageBackLink } = useContentLink();
+      const { windowIsSmall } = useKResponsiveWindow();
 
       return {
-        genContentLinkBackLinkCurrentPage,
         genLibraryPageBackLink,
-        windowBreakpoint,
         windowIsSmall,
       };
     },

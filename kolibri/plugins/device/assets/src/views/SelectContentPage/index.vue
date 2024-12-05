@@ -314,7 +314,10 @@
           query: { ...this.$route.query, last: PageNames.SELECT_CONTENT },
         });
       },
-      // @public (used by taskNotificationMixin)
+      /**
+       * @public
+       * Used by the taskNotificationMixin to handle the completion of the task
+       */
       onWatchedTaskFinished() {
         // After import task has finished, refresh so those nodes will be disabled
         updateTreeViewTopic(this.$store, this.currentTopicNode);

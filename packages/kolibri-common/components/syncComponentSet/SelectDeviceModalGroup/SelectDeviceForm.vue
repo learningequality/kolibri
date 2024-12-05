@@ -199,7 +199,7 @@
         forceFetch,
       } = useDevicesWithFilter(apiParams, deviceFilters);
 
-      const { devices, isDeleting, hasDeleted, deletingFailed, doDelete } = useDeviceDeletion(
+      const { devices, isDeleting, deletingFailed, doDelete } = useDeviceDeletion(
         _devices,
         context,
       );
@@ -220,7 +220,6 @@
         forceFetch,
         // useDeviceDeletion
         isDeleting,
-        hasDeleted,
         deletingFailed,
         doDelete,
         // useConnectionChecker

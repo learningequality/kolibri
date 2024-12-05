@@ -11,19 +11,12 @@
 
 <script>
 
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CategorySearchOptions from './CategorySearchOptions';
 
   export default {
     name: 'CategorySearchModal',
     components: {
       CategorySearchOptions,
-    },
-    setup() {
-      const { windowIsLarge } = useKResponsiveWindow();
-      return {
-        windowIsLarge,
-      };
     },
     props: {
       selectedCategory: {
