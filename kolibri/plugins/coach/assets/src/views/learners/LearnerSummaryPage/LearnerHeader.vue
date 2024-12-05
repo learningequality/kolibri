@@ -192,24 +192,34 @@
         });
 
         filteredExams = filteredExams.map(exam => {
-          exam.tally = this.getExamStatusObjForLearner(exam.id, this.learner.id);
+          exam.statusObj = this.getExamStatusObjForLearner(exam.id, this.learner.id);
           return exam;
         });
 
-        const columns = [
+        const LessonColumn = [...csvFields.title(), ...csvFields.learnerProgress()];
+
+        const ExamColumn = [
           ...csvFields.title(),
-          ...csvFields.learnerProgress(),
-          ...csvFields.avgScore(),
-          // ...csvFields.tally(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.score(),
         ];
 
-        const fileName = this.$tr('printLabel', { className: this.className });
-        const exporter = new CSVExporter(columns, fileName);
-        exporter.addNames({
-          LearnerTitle: 'Learner',
+        const LessonfileName = this.$tr('printLabel', { className: this.className });
+        const ExamfileName = this.$tr('printLabel', { className: this.className });
+
+        const LessonExporter = new CSVExporter(LessonColumn, LessonfileName);
+        LessonExporter.addNames({
           learner: this.learner.name,
+          report: 'Lesson',
         });
-        exporter.export([...filteredLessons, ...filteredExams]);
+        const ExamExporter = new CSVExporter(ExamColumn, ExamfileName);
+        ExamExporter.addNames({
+          learner: this.learner.name,
+          report: 'Quizzes',
+        });
+
+        LessonExporter.export(filteredLessons);
+        ExamExporter.export(filteredExams);
       },
     },
     $trs: {
@@ -220,7 +230,7 @@
       },
       totalLessons: 'of {total}',
       printLabel: {
-        message: '{className} Quizzes',
+        message: '{className} Learners',
         context:
           "Title that displays on a printed copy of the 'Coach' > 'Quizzes' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
       },
