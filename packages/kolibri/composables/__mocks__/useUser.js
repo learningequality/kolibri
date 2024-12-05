@@ -30,10 +30,11 @@
  * useUser.mockImplementation(() => useUserMock())
  * ```
  */
-import { computed } from '@vue/composition-api';
-import { UserKinds } from 'kolibri/constants';
+ import { ref, computed } from '@vue/composition-api';
+ import { UserKinds } from 'kolibri/constants';
+ import { jest } from '@jest/globals'; // Ensure jest is imported for mocking functions
 
-const session = {
+const MOCK_DEFAULT_SESSION = {
   app_context: false,
   can_manage_content: false,
   facility_id: undefined,
@@ -63,9 +64,9 @@ const MOCK_DEFAULTS = {
   userFacilityId: undefined,
   getUserKind: UserKinds.ANONYMOUS,
   userHasPermissions: false,
-  session,
-  //state
-  ...session,
+  session: { ...MOCK_DEFAULT_SESSION },
+  // Mock state
+  ...MOCK_DEFAULT_SESSION,
 };
 
 export function useUserMock(overrides = {}) {
@@ -77,7 +78,29 @@ export function useUserMock(overrides = {}) {
   for (const key in mocks) {
     computedMocks[key] = computed(() => mocks[key]);
   }
-  return computedMocks;
+
+  // Module-level state reference for actions
+  const session = ref({ ...mocks.session });
+
+  // Mock implementation of `useUser` methods
+  return {
+    ...computedMocks,
+    session, // Make session mutable for test scenarios
+
+    // Actions
+    setSession: jest.fn(({ session: newSession, clientNow }) => {
+      session.value = {
+        ...MOCK_DEFAULT_SESSION,
+        ...newSession,
+      };
+    }),
+
+    kolibriLogin: jest.fn(async () => Promise.resolve()),
+
+    kolibriLogout: jest.fn(() => {}),
+
+    kolibrisetUnspecifiedPassword: jest.fn(async () => Promise.resolve()),
+  };
 }
 
 export default jest.fn(() => useUserMock());
