@@ -185,6 +185,7 @@ jobs:
       with:
         path: 'dist/${{ matrix.filename }}'
         destination: '${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}/downloads/kolibri/${{ github.event.release.name }}'
+        process_gcloudignore: false
   bck_prerelease_gcs_upload:
     name: Upload WHL file to Google Cloud Storage for BCK Pre-release
     runs-on: ubuntu-latest
@@ -208,6 +209,7 @@ jobs:
         path: 'dist/kolibri.zip'
         destination: '${{ secrets.BCK_PRERELEASE_BUILD_ARTIFACT_GCS_BUCKET }}'
         parent: false
+        process_gcloudignore: false
     - name: Unzip content static files from whl file
       run: |
         unzip dist/${{ needs.whl.outputs.whl-file-name }} 'kolibri/core/content/static/*' -d static
@@ -221,6 +223,7 @@ jobs:
       with:
         path: 'static'
         destination: '${{ secrets.STUDIO_BCK_CONTENT_STATIC_BUCKET }}'
+        process_gcloudignore: false
   block_release_step:
   # This step ties to the release environment which requires manual approval
   # before it can execute. Once manual approval has been granted, the release is
@@ -270,6 +273,7 @@ jobs:
         path: 'dist/kolibri.zip'
         destination: '${{ secrets.BCK_PROD_BUILD_ARTIFACT_GCS_BUCKET }}'
         parent: false
+        process_gcloudignore: false
   android_release:
     name: Release Android App
     if: ${{ !github.event.release.prerelease }}
