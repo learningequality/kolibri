@@ -7,12 +7,7 @@ import Lockr from 'lockr';
 import some from 'lodash/some';
 import pick from 'lodash/pick';
 import { setServerTime } from 'kolibri/utils/serverClock';
-import {
-  UserKinds,
-  ERROR_CONSTANTS,
-  LoginErrors,
-  UPDATE_MODAL_DISMISSED
-} from 'kolibri/constants';
+import { UserKinds, ERROR_CONSTANTS, LoginErrors, UPDATE_MODAL_DISMISSED } from 'kolibri/constants';
 import { browser, os } from 'kolibri/utils/browserInfo';
 
 // Module level state
@@ -34,25 +29,22 @@ export default function useUser() {
   const currentUserId = computed(() => session.value.user_id);
   const isLearnerOnlyImport = computed(() => !session.value.full_facility_import);
   const isCoach = computed(() =>
-    session.value.kind.some(kind =>
-      [UserKinds.COACH, UserKinds.ASSIGNABLE_COACH].includes(kind)
-    )
+    session.value.kind.some(kind => [UserKinds.COACH, UserKinds.ASSIGNABLE_COACH].includes(kind)),
   );
   const isAdmin = computed(() =>
-    session.value.kind.some(kind =>
-      [UserKinds.ADMIN, UserKinds.SUPERUSER].includes(kind)
-    )
+    session.value.kind.some(kind => [UserKinds.ADMIN, UserKinds.SUPERUSER].includes(kind)),
   );
   const isSuperuser = computed(() => session.value.kind.includes(UserKinds.SUPERUSER));
   const canManageContent = computed(() =>
-    session.value.kind.includes(UserKinds.CAN_MANAGE_CONTENT)
+    session.value.kind.includes(UserKinds.CAN_MANAGE_CONTENT),
   );
   const isAppContext = computed(() => session.value.app_context);
   const isClassCoach = computed(() => session.value.kind.includes(UserKinds.ASSIGNABLE_COACH));
   const isFacilityCoach = computed(() => session.value.kind.includes(UserKinds.COACH));
   const isFacilityAdmin = computed(() => session.value.kind.includes(UserKinds.ADMIN));
-  const userIsMultiFacilityAdmin = computed((rootState) =>
-    isSuperuser.value && rootState.core.facilities.length > 1);
+  const userIsMultiFacilityAdmin = computed(
+    rootState => isSuperuser.value && rootState.core.facilities.length > 1,
+  );
   const getUserPermissions = computed(() => {
     const permissions = {};
     permissions.can_manage_content = canManageContent.value;
@@ -62,7 +54,6 @@ export default function useUser() {
   const userFacilityId = computed(() => session.value.facility_id);
   const getUserKind = computed(() => session.value.kind[0]);
   const userHasPermissions = computed(() => some(getUserPermissions.value));
-
 
   // Actions
   async function kolibriLogin(sessionPayload) {
@@ -126,7 +117,6 @@ export default function useUser() {
     };
   }
 
-
   async function kolibrisetUnspecifiedPassword({ username, password, facility }) {
     return client({
       url: urls['kolibri:core:setnonspecifiedpassword'](),
@@ -136,7 +126,6 @@ export default function useUser() {
   }
 
   return {
-
     // Computed
     isLearnerOnlyImport,
     isUserLoggedIn,
