@@ -232,7 +232,7 @@
       printLabel: {
         message: '{className} Learners',
         context:
-          "Title that displays on a printed copy of the 'Coach' > 'Quizzes' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
+          "Title that displays on a printed copy of the 'Learners' > 'Learner' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
       },
     },
   };
