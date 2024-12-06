@@ -39,6 +39,7 @@ import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.v
 import EditLessonDetails from '../views/lessons/LessonSummaryPage/sidePanels/EditLessonDetails';
 import PreviewSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/PreviewSelectedResources';
 import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection';
+import ManageSelectedLessonResources from '../views/lessons/LessonSummaryPage/sidePanels/ManageSelectedLessonResource';
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {
@@ -138,7 +139,7 @@ export default [
       {
         name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
         path: 'preview-resources/',
-        component: PreviewSelectedResources,
+        component: ManageSelectedLessonResources,
       },
       {
         name: PageNames.LESSON_PREVIEW_RESOURCE,

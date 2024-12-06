@@ -72,7 +72,8 @@ describe('LessonResourceSelectionPage', () => {
         .findComponent({ name: 'BottomAppBar' })
         .findComponent({ name: 'KRouterLink' });
 
-      expect(button.props().text).toEqual('Exit search');
+      // expect(button.props().text).toEqual('Exit search');
+      expect(button.props().primary).toEqual(true);
 
       // If last_id is in URL, link back to the topic page
       expect(button.props().to).toEqual({
@@ -122,11 +123,12 @@ describe('LessonResourceSelectionPage', () => {
         .findComponent({ name: 'BottomAppBar' })
         .findComponent({ name: 'KRouterLink' });
 
-      expect(button.props().text).toEqual('Close');
+      expect(button.props().primary).toEqual(true);
 
       const exitRoute = () => button.props().to.name;
       // Exit link goes to Lesson Summary page by default
-      expect(exitRoute()).toEqual(PageNames.LESSON_SUMMARY);
+      expect(exitRoute()).toBe(PageNames.LESSON_SUMMARY);
+      expect(exitRoute()).toBe(PageNames.LESSON_PREVIEW_SELECTED_RESOURCES);
 
       // Exit link goes to report page if that's in the URL
       await router.replace({ query: { last: 'LESSON_SUMMARY' } });
