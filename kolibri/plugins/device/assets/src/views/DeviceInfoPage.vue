@@ -81,7 +81,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import TechnicalTextBlock from 'kolibri-common/components/AppError/TechnicalTextBlock';
+  import TechnicalTextBlock from 'kolibri/components/error/TechnicalTextBlock';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';

@@ -13,7 +13,7 @@ import PropTypes from 'prop-types';
 import katex from 'katex';
 import katexA11y from 'katex/dist/contrib/render-a11y-string';
 import createReactClass from 'create-react-class';
-import scriptLoader from 'kolibri-common/utils/scriptLoader';
+import scriptLoader from 'kolibri/utils/scriptLoader';
 import urls from 'kolibri/urls';
 
 let pendingScripts = [];

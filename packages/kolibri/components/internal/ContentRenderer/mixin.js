@@ -8,7 +8,7 @@ import {
   getContentLangDir,
   languageDirections,
 } from 'kolibri/utils/i18n';
-import { getRenderableFiles, getDefaultFile } from 'kolibri-common/utils/contentViewer';
+import { getRenderableFiles, getDefaultFile } from './utils';
 import ContentRendererError from './ContentRendererError';
 
 const logging = logger.getLogger(__filename);
