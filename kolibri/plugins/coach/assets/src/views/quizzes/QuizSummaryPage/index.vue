@@ -268,9 +268,14 @@
       },
       // @public
       setError(error) {
-        this.$store.dispatch('handleApiError', { error });
-        this.loading = false;
-        this.$store.dispatch('notLoading');
+        try {
+          this.$store.dispatch('handleApiError', { error });
+          this.loading = false;
+          this.$store.dispatch('notLoading');
+        } catch (e) {
+          // nothing to do here, just catching the error to avoid
+          // unhandled errors in the dispatch to handleApiError
+        }
       },
       setCurrentAction(action) {
         if (action === 'EDIT_DETAILS') {
