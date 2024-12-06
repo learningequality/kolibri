@@ -36,11 +36,18 @@ export const getContentLangActive = language => {
   const langCode = languageIdToCode(currentLanguage);
   const additionalCodes = contentLanguageCodes[langCode] || [];
   if (language.id.toLowerCase() === currentLanguage.toLowerCase()) {
-    // Best possible match, return a 2 to have it still be truthy, but distinguishable
-    // from a 1 which is a lang_code match
+    // Best possible match, return a 3 to sort first
+    // Exact match between content and the language the user is using
+    return 3;
+  }
+  if (language.id === langCode || additionalCodes.includes(language.id)) {
+    // Here the language for the content has no region code, and we have an exact
+    // match with the language we are using.
     return 2;
   }
   if (language.lang_code === langCode || additionalCodes.includes(language.lang_code)) {
+    // Here the language for the content has a region code, but the language itself
+    // matches, even if the region is different.
     return 1;
   }
   return 0;
