@@ -29,10 +29,11 @@
               :inline="true"
             />
             <KSelect
+              v-model="filterRecipents"
               :value="{ label: coreString('allLabel'), value: coreString('allLabel') }"
               class="select"
               :label="coachString('recipientsLabel')"
-              :options="[]"
+              :options="recipientOptions"
               :inline="true"
             />
           </div>
@@ -196,6 +197,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import CoachAppBarPage from '../CoachAppBarPage';
   import commonCoach from '../common';
+  import { coachStrings } from '../common/commonCoachStrings';
   import AssignmentDetailsModal from '../common/assignments/AssignmentDetailsModal';
   import { useLessons } from '../../composables/useLessons';
   import ReportsControls from '../common/ReportsControls';
@@ -216,10 +218,11 @@
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { show } = useKShow();
+      const { entireClassLabel$ } = coachStrings;
       const { lessonsAreLoading } = useLessons();
       const { createSnackbar } = useSnackbar();
       const { windowIsSmall } = useKResponsiveWindow();
-      return { show, lessonsAreLoading, createSnackbar, windowIsSmall };
+      return { show, lessonsAreLoading, createSnackbar, windowIsSmall, entireClassLabel$ };
     },
     data() {
       return {
@@ -228,6 +231,10 @@
         showLessonIsNotVisibleModal: false,
         activeLesson: null,
         filterSelection: {},
+        filterRecipents: {
+          label: this.entireClassLabel$(),
+          value: this.entireClassLabel$(),
+        },
         detailsModalIsDisabled: false,
         dontShowAgainChecked: false,
         learnOnlyDevicesExist: false,
@@ -241,7 +248,7 @@
       ...mapState('lessonsRoot', ['lessons', 'learnerGroups']),
       sortedLessons() {
         const sorted = this._.orderBy(this.lessons, ['date_created'], ['desc']);
-        return sorted.map(lesson => {
+        const allLessons = sorted.map(lesson => {
           const learners = this.getLearnersForLesson(lesson);
           const sortedLesson = {
             totalLearners: learners.length,
@@ -252,6 +259,13 @@
           };
           Object.assign(sortedLesson, lesson);
           return sortedLesson;
+        });
+
+        if (this.filterRecipents.label === this.entireClassLabel$()) {
+          return allLessons;
+        }
+        return allLessons.filter(lesson => {
+          return lesson.recipientNames.includes(this.filterRecipents.label);
         });
       },
       userHasDismissedModal() {
@@ -300,6 +314,26 @@
           return bytesForHumans(sum);
         }
         return null;
+      },
+      recipientOptions() {
+        const groupOptions = this.groups.map(group => ({
+          label: group.name,
+          value: group.id,
+        }));
+
+        const learnerOptions = this.learners.map(learner => ({
+          label: learner.name,
+          value: learner.id,
+        }));
+
+        return [
+          {
+            label: this.entireClassLabel$(),
+            value: this.entireClassLabel$(),
+          },
+          ...groupOptions,
+          ...learnerOptions,
+        ];
       },
     },
     beforeMount() {
