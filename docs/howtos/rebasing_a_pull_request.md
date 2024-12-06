@@ -1,4 +1,4 @@
-## Rebasing a Pull Request
+# Rebasing a Pull Request
 
 On certain occasions, it might be necessary to redirect a pull request from the develop branch to the latest release branch, such as `release-v*` (e.g., `release-v0.16.x` when working on version 0.16), or vice versa. This guide outlines the steps for rebasing a feature branch related to your pull request while maintaining a clean commit history.
 
