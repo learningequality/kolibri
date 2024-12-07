@@ -96,10 +96,14 @@
                         :style="{ display: 'inline-block', marginLeft: '6px' }"
                         :size="26"
                       />
+                      <span :id="`toggle-lesson-visibility-label-${lesson.id}`">
+                        Toggle visibility for lesson {{ lesson.name }}
+                      </span>
                       <KSwitch
-                        v-else
-                        :key="`switch-${lesson.id}`"
+                        v-else:
+                        key="`switch-${lesson.id}`"
                         name="toggle-lesson-visibility"
+                        :ariaLabelledBy="`toggle-lesson-visibility-label-${lesson.id}`"
                         label=""
                         :checked="lesson.active"
                         :value="lesson.active"
