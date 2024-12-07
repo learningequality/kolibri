@@ -100,8 +100,10 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 2 }"
         >
+          <span id="toggle-quiz-visibility-label">Toggle quiz visibility</span>
           <KSwitch
             name="toggle-quiz-visibility"
+            :aria-labelledby="'toggle-quiz-visibility'"
             label=""
             style="display: inline"
             :checked="exam.active"
