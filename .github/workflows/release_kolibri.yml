@@ -105,10 +105,10 @@ jobs:
   zip:
     name: Build Raspberry Pi Image
     needs: deb
-    uses: learningequality/pi-gen/.github/workflows/build_zip.yml@v0.16.1
+    uses: learningequality/kolibri-image-pi/.github/workflows/build_img.yml@v1.0.0
     with:
       deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
-      ref: v0.16.1
+      ref: v1.0.0
   upload_zip:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: zip

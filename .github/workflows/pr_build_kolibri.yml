@@ -59,3 +59,10 @@ jobs:
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
       ref: v0.1.4
+  zip:
+    name: Build Raspberry Pi Image
+    needs: deb
+    uses: learningequality/kolibri-image-pi/.github/workflows/build_img.yml@v1.0.0
+    with:
+      deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
+      ref: v1.0.0
