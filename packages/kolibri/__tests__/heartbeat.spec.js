@@ -20,7 +20,11 @@ jest.mock('kolibri/composables/useUser');
 describe('HeartBeat', function () {
   stubWindowLocation(beforeAll, afterAll);
   // replace the real XHR object with the mock XHR object before each test
-  beforeEach(() => useUser.mockImplementation(() => useUserMock()));
+
+  beforeEach(() => {
+    mock.setup();
+    useUser.mockImplementation(() => useUserMock());
+  });
 
   // put the real XHR object back and clear the mocks after each test
   afterEach(() => mock.teardown());
