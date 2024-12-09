@@ -83,10 +83,24 @@
       value: {
         type: Object,
         required: true,
-        validator(value) {
-          const inputKeys = ['channels', 'accessibility_labels', 'languages', 'grade_levels'];
-          return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
-        },
+        validator: objectValidator({
+          channels: {
+            type: Array,
+            required: true,
+          },
+          accessibility_labels: {
+            type: Array,
+            required: true,
+          },
+          languages: {
+            type: Array,
+            required: true,
+          },
+          grade_levels: {
+            type: Array,
+            required: true,
+          },
+        }),
       },
       showChannels: {
         type: Boolean,

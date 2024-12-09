@@ -60,9 +60,20 @@
       device: {
         type: Object,
         required: true,
-        validator(val) {
-          return val.name && val.id && val.baseurl;
-        },
+        validator: objectValidator({
+          name: {
+            type: String,
+            required: true,
+          },
+          id: {
+            type: String,
+            required: true,
+          },
+          baseurl: {
+            type: String,
+            required: true,
+          },
+        }),
       },
       facility: {
         type: Object,

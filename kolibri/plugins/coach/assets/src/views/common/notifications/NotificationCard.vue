@@ -93,12 +93,16 @@
       notification: {
         type: Object,
         required: true,
-        validator(notification) {
-          return (
-            Object.values(NotificationEvents).includes(notification.event) &&
-            Object.values(NotificationObjects).includes(notification.object)
-          );
-        },
+        validator: objectValidator({
+          event: {
+            required: true,
+            validator: value => Object.values(NotificationEvents).includes(value),
+          },
+          object: {
+            required: true,
+            validator: value => Object.values(NotificationObjects).includes(value),
+          },
+        }),
       },
       lastQuery: {
         type: Object,

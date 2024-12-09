@@ -42,9 +42,18 @@
       group: {
         type: Object,
         required: true,
-        validator(group) {
-          return group.name && group.users;
-        },
+        validator: objectValidator({
+          name: {
+            type: String,
+            required: true,
+            validator: value => value !== null && value !== '',
+          },
+          users: {
+            type: Array,
+            required: true,
+            validator: value => Array.isArray(value) && value.length > 0,
+          },
+        }),
       },
     },
     computed: {
