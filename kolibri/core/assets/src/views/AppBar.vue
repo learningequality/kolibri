@@ -41,8 +41,8 @@
             :class="showAppNavView ? 'brand-logo-left' : 'brand-logo'"
           >
         </template>
-
-        <template
+        
+            <template
           v-if="showNavigation && windowIsLarge"
           #navigation
         >
@@ -267,16 +267,57 @@
 
 </script>
 
-
 <style lang="scss" scoped>
+@import '~kolibri-design-system/lib/styles/definitions';
 
-  @import '~kolibri-design-system/lib/styles/definitions';
+// General AppBar container styles
+header {
+  display: flex;
+  align-items: center; // Ensures vertical alignment of all elements
+  background-color: #f5f5f5; // Light gray background
+  color: #000000; // Black text color
+  padding: 0 16px; // Add padding for spacing
+  height: 60px; // Set consistent height for the AppBar
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); // Add subtle shadow
+  border-bottom: 1px solid #ddd; // Optional: border for visual separation
+}
 
-  .user-menu-button {
-    text-transform: none;
-    vertical-align: middle;
-  }
+// Navigation bar styles
+.subpage-nav {
+  display: flex;
+  align-items: center; // Vertically align items
+  gap: 24px; // Consistent spacing between items
+  flex-grow: 1; // Ensure it expands to fill available space
+  margin-left: 16px; // Add space after the logo
+}
 
+// Navigation link styles
+.nav-link {
+  display: flex;
+  align-items: flex-end; // Align icons and text vertically
+  gap: 8px; // Space between icons and text
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500; // Semi-bold for better readability
+  color: #000000; // Black text color
+  padding: 8px; // Add padding around each link
+  border-radius: 4px; // Slight rounding for better visuals
+  transition: background-color 0.3s; // Smooth hover effect
+}
+
+.nav-link:hover {
+  background-color: #eeeeee; // Light gray hover background
+}
+
+.brand-logo {
+  display: inline-block;
+  max-width: 48px;
+  max-height: 48px;
+  margin-right: 8px; // Space between the logo and text
+  vertical-align: middle; // Align with the text
+}
+
+// Username display styles
   .username {
     position: relative;
     bottom: 3px;
@@ -292,100 +333,93 @@
     text-overflow: ellipsis;
   }
 
-  @media (max-width: 750px) {
+// Points popover styles
+.points-popover {
+  position: absolute;
+  top: 50px;
+  right: 16px;
+  z-index: 10;
+  background-color: #ffffff; // White background for popover
+  color: #000000; // Black text color
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); // Subtle shadow for popover
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+// Points description
+.points-description {
+  font-size: 14px;
+  font-weight: normal;
+  color: #1976d2; // Blue color for points
+  margin-left: 8px;
+}
+
+// Spacing for user menu button
+.user-menu-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: none;
+  padding: 0 8px;
+  cursor: pointer; // Make it clear it's clickable
+}
+
+// Responsive design for smaller screens
+@media (max-width: 750px) {
     .username {
-      max-width: 50px;
-    }
+    max-width: 80px; // Smaller max width for narrow screens
+    font-size: 14px; // Smaller font size for better fit
   }
 
-  // Holdover from keen-ui to keep dropdown profile correctly formatted.
-  /deep/ .ui-menu {
-    min-width: 10.5rem;
-    max-width: 17rem;
-    max-height: 100vh;
-    padding: 0.25rem 0;
-    margin: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    list-style: none;
-    background-color: inherit;
-    border: 0.0625rem solid rgba(0, 0, 0, 0.08);
-    outline: none;
-  }
-
-  .user-menu-dropdown {
-    position: fixed;
-    right: 8px;
-    z-index: 8;
-  }
-
-  .role {
-    margin-bottom: 8px;
-    font-size: small;
-    font-weight: bold;
-  }
-
-  .total-points {
-    display: inline-block;
-    margin-left: 16px;
-  }
-
-  /deep/ .ui-toolbar__body {
-    display: inline-block;
-    margin-bottom: 12px;
-  }
-
-  /deep/ .ui-toolbar__title {
-    display: flex;
-    align-items: center;
-  }
-
-  /deep/ .ui-toolbar__nav-icon {
-    display: flex;
-    align-items: center;
-  }
-
-  /deep/ .ui-toolbar__right {
-    display: flex;
-    align-items: center;
-  }
-
-  /deep/ .ui-toolbar__left {
-    display: flex;
-    align-items: center;
-    margin-left: 8px;
-  }
-
-  .brand-logo {
-    max-width: 48px;
-    max-height: 48px;
-    margin-right: 8px;
-    vertical-align: middle;
-  }
-
-  .brand-logo-left {
-    margin-left: -16px !important;
-  }
-
-  // Hide the UiButton focus ring
-  /deep/ .ui-button__focus-ring {
-    display: none;
-  }
-
-  .points-popover {
-    @extend %dropshadow-6dp;
-
-    position: absolute;
-    right: 50px;
-    z-index: 24;
-    font-size: 12px;
-    border-radius: 8px;
+  .nav-link {
+    font-size: 14px; // Reduce font size for smaller screens
+    padding: 6px; // Adjust padding for better fit
   }
 
   .points-description {
-    display: inline-block;
-    margin-left: 8px;
-    font-size: 14px;
+    display: none; // Hide points description on small screens
   }
 
+  .subpage-nav {
+    flex-wrap: wrap; // Allow navigation items to wrap for smaller screens
+    justify-content: flex-start; // Align items to the left
+  }
+}
+
+// Align and space elements in UiToolbar
+/deep/ .ui-toolbar__body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// Adjust spacing between left and right sections
+/deep/ .ui-toolbar__left,
+.ui-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: 16px; // Add consistent spacing between elements
+}
+/deep/ .ui-toolbar__right {
+    display: flex;
+    align-items: center;
+ }
+// Style adjustments for KIconButton
+/deep/ .k-icon-button {
+  color: #000000; // Black icon color
+  margin: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// General text and spacing improvements
+.text-normal {
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 1.4;
+  color: #757575; // Secondary gray text color
+}
 </style>

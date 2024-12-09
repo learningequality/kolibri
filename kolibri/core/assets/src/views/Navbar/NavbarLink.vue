@@ -78,11 +78,10 @@
           borderBottomWidth: '2px',
         };
       },
-      activeClasses() {
+      aactiveTabClasses() {
         // return both fixed and dynamic classes
-        return `router-link-active ${this.$computedClass({
-          color: this.$themeTokens.text,
-        })}`;
+        return `router-link-active ${this.$computedClass({ color: this.$themeTokens.primary })}`;
+      
       },
     },
   };

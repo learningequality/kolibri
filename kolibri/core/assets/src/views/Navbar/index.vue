@@ -164,3 +164,5 @@
   }
 
 </style>
+
+for context, this is attached image is what the navbar currently looks like (with your changes from the navbar.vue file and the current format of index.vue)
