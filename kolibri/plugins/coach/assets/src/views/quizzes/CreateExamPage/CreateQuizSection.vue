@@ -351,7 +351,6 @@
     mixins: [commonCoreStrings, commonCoach],
     setup() {
       const {
-        sectionLabel$,
         selectAllLabel$,
         addSectionLabel$,
         quizSectionsLabel$,
@@ -369,7 +368,6 @@
         questionsDeletedNotification$,
         expandAll$,
         collapseAll$,
-        questionDeletionConfirmation$,
       } = enhancedQuizManagementStrings;
 
       const { upLabel$, downLabel$ } = searchAndFilterStrings;
@@ -382,7 +380,6 @@
         deleteActiveSelectedQuestions,
         addSection,
         removeSection,
-        updateQuiz,
         selectAllQuestions,
         replacementQuestionPool,
         // Computed
@@ -391,7 +388,6 @@
         activeSectionIndex,
         activeSection,
         activeResourceMap,
-        activeResourcePool,
         activeQuestions,
         selectedActiveQuestions,
       } = injectQuizCreation();
@@ -403,7 +399,6 @@
 
       return {
         dragActive,
-        sectionLabel$,
         expandAll$,
         collapseAll$,
         selectAllLabel$,
@@ -415,7 +410,6 @@
         addQuizSectionQuestionsInstructions$,
         editSectionLabel$,
         deleteSectionLabel$,
-        questionDeletionConfirmation$,
         replaceAction$,
         questionsLabel$,
         numberOfReplacementsAvailable$,
@@ -431,7 +425,6 @@
         deleteActiveSelectedQuestions,
         addSection,
         removeSection,
-        updateQuiz,
         displaySectionTitle,
         displayQuestionTitle,
 
@@ -443,7 +436,6 @@
         activeSectionIndex,
         activeSection,
         activeResourceMap,
-        activeResourcePool,
         replacementQuestionPool,
         activeQuestions,
         selectedActiveQuestions,

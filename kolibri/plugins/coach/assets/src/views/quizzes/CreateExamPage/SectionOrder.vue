@@ -93,7 +93,6 @@
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import Draggable from 'kolibri-common/components/sortable/Draggable';
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
@@ -114,38 +113,14 @@
     mixins: [commonCoreStrings],
     setup(_, context) {
       const {
-        sectionSettings$,
-        sectionTitle$,
-        numberOfQuestionsLabel$,
-        optionalDescriptionLabel$,
-        numberOfQuestionsSelected$,
-        deleteSectionLabel$,
         applySettings$,
-        sectionOrder$,
         sectionOrderLabel$,
-        questionOrder$,
-        randomizedLabel$,
         currentSection$,
-        randomizedOptionDescription$,
-        fixedLabel$,
-        fixedOptionDescription$,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
-        deleteConfirmation$,
-        addQuestionsLabel$,
-        addMoreQuestionsLabel$,
-        sectionDeletedNotification$,
       } = enhancedQuizManagementStrings;
 
-      const {
-        activeSectionIndex,
-        activeSection,
-        activeResourcePool,
-        activeQuestions,
-        allSections,
-        updateSection,
-        updateQuiz,
-      } = injectQuizCreation();
+      const { activeSectionIndex, activeSection, allSections, updateQuiz } = injectQuizCreation();
 
       const { upLabel$, downLabel$ } = searchAndFilterStrings;
 
@@ -177,16 +152,6 @@
         return sectionOrderChanged.value;
       });
 
-      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
-
-      const resourceButtonLabel = computed(() => {
-        if (activeQuestions.value.length === 0) {
-          return addQuestionsLabel$();
-        } else {
-          return addMoreQuestionsLabel$();
-        }
-      });
-
       return {
         reorderedSectionIndex,
         formDataHasChanged,
@@ -197,45 +162,20 @@
         // useQuizCreation
         activeSectionIndex,
         activeSection,
-        activeResourcePool,
-        activeQuestions,
         allSections,
         sectionOrderList,
-        updateSection,
         updateQuiz,
         // dragging a11y
         moveDownOne,
         moveUpOne,
-        // Form models
-        resourceButtonLabel,
-        // Responsiveness
-        windowIsLarge,
-        windowIsSmall,
         // i18n
-        displaySectionTitle,
-        addQuestionsLabel$,
-        sectionSettings$,
-        sectionTitle$,
-        numberOfQuestionsLabel$,
-        optionalDescriptionLabel$,
-        numberOfQuestionsSelected$,
-        sectionDeletedNotification$,
         currentSection$,
-        deleteSectionLabel$,
         sectionOrderLabel$,
         applySettings$,
         closeConfirmationTitle$,
         closeConfirmationMessage$,
-        deleteConfirmation$,
-        addMoreQuestionsLabel$,
-        sectionOrder$,
-        questionOrder$,
-        randomizedLabel$,
-        randomizedOptionDescription$,
-        fixedLabel$,
         upLabel$,
         downLabel$,
-        fixedOptionDescription$,
       };
     },
     computed: {

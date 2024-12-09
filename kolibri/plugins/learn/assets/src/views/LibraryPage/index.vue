@@ -260,23 +260,17 @@
         searchMore,
         removeFilterTag,
         clearSearch,
-        setCategory,
         currentRoute,
       } = useSearch();
       search();
-      const {
-        resumableContentNodes,
-        moreResumableContentNodes,
-        fetchResumableContentNodes,
-        fetchMoreResumableContentNodes,
-      } = useLearnerResources();
+      const { fetchResumableContentNodes } = useLearnerResources();
 
       const { windowBreakpoint, windowIsLarge, windowIsMedium, windowIsSmall } =
         useKResponsiveWindow();
       const { canAddDownloads, canDownloadExternally } = useCoreLearn();
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
-      const { baseurl, deviceName } = currentDeviceData();
+      const { deviceName } = currentDeviceData();
       const { fetchChannels } = useChannels();
 
       onMounted(() => {
@@ -404,22 +398,15 @@
         moreLoading,
         results,
         more,
-        search,
         searchMore,
         removeFilterTag,
         clearSearch,
-        setCategory,
-        resumableContentNodes,
-        moreResumableContentNodes,
-        fetchMoreResumableContentNodes,
         windowBreakpoint,
         windowIsLarge,
         windowIsMedium,
         windowIsSmall,
         currentCardViewStyle,
-        baseurl,
         deviceName,
-        fetchChannels,
         back,
         rootNodesLoading,
         rootNodes,

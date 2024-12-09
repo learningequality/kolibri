@@ -58,7 +58,9 @@
 
   const Stages = {
     SELECT_CLASSROOM: 'SELECT_CLASSROOM',
+    /* eslint-disable vue/no-unused-properties */
     SELECT_GROUPS: 'SELECT_GROUPS',
+    /* eslint-enable */
   };
 
   export default {
