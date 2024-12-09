@@ -8,7 +8,7 @@
           :text="$tr('back')"
         />
       </p>
-      <ReportsControls />
+      <ReportsControls @export="exportCSV" />
     </div>
     <h1>
       <KLabeledIcon
@@ -115,6 +115,8 @@
   import commonCoach from '../../common';
   import { useCoachTabs } from '../../../composables/useCoachTabs';
   import ReportsControls from '../../common/ReportsControls';
+  import CSVExporter from '../../../csv/exporter';
+  import * as csvFields from '../../../csv/fields';
 
   export default {
     name: 'LearnerHeader',
@@ -182,6 +184,52 @@
         };
       },
     },
+    methods: {
+      exportCSV() {
+        let filteredExams = this.exams.filter(exam =>
+          this.getLearnersForExam(exam).includes(this.learner.id),
+        );
+
+        let filteredLessons = this.lessons.filter(lesson =>
+          this.getLearnersForLesson(lesson).includes(this.learner.id),
+        );
+
+        filteredLessons = filteredLessons.map(lesson => {
+          lesson.status = this.getLessonStatusStringForLearner(lesson.id, this.learner.id);
+          return lesson;
+        });
+
+        filteredExams = filteredExams.map(exam => {
+          exam.statusObj = this.getExamStatusObjForLearner(exam.id, this.learner.id);
+          return exam;
+        });
+
+        const LessonColumn = [...csvFields.title(), ...csvFields.learnerProgress()];
+
+        const ExamColumn = [
+          ...csvFields.title(),
+          ...csvFields.learnerProgress('statusObj.status'),
+          ...csvFields.score(),
+        ];
+
+        const LessonfileName = this.$tr('printLabel', { className: this.className });
+        const ExamfileName = this.$tr('printLabel', { className: this.className });
+
+        const LessonExporter = new CSVExporter(LessonColumn, LessonfileName);
+        LessonExporter.addNames({
+          learner: this.learner.name,
+          report: 'Lesson',
+        });
+        const ExamExporter = new CSVExporter(ExamColumn, ExamfileName);
+        ExamExporter.addNames({
+          learner: this.learner.name,
+          report: 'Quizzes',
+        });
+
+        LessonExporter.export(filteredLessons);
+        ExamExporter.export(filteredExams);
+      },
+    },
     $trs: {
       back: {
         message: 'All learners',
@@ -189,6 +237,11 @@
           "Link that takes user back to the list of learners on the 'Reports' tab, from the individual learner's information page.",
       },
       totalLessons: 'of {total}',
+      printLabel: {
+        message: '{className} Learners',
+        context:
+          "Title that displays on a printed copy of the 'Learners' > 'Learner' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
+      },
     },
   };
 
