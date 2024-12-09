@@ -16,7 +16,6 @@ jest.mock('lockr');
 jest.mock('kolibri/composables/useSnackbar');
 jest.mock('kolibri/composables/useUser');
 
-
 describe('HeartBeat', function () {
   stubWindowLocation(beforeAll, afterAll);
   // replace the real XHR object with the mock XHR object before each test

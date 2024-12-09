@@ -30,9 +30,9 @@
  * useUser.mockImplementation(() => useUserMock())
  * ```
  */
- import { ref, computed } from '@vue/composition-api';
- import { UserKinds } from 'kolibri/constants';
- import { jest } from '@jest/globals'; // Ensure jest is imported for mocking functions
+import { ref, computed } from '@vue/composition-api';
+import { UserKinds } from 'kolibri/constants';
+import { jest } from '@jest/globals'; // Ensure jest is imported for mocking functions
 
 const MOCK_DEFAULT_SESSION = {
   app_context: false,
