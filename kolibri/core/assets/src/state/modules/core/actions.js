@@ -67,39 +67,6 @@ export function handleApiError(store, { error, reloadOnReconnect = false } = {})
   throw error;
 }
 
-
-
-/**
- * Sets a password that is currently not specified
- * due to an account that was created while passwords
- * were not required.
- *
- * @param {object} store The store.
- * @param {object} sessionPayload The session payload.
- */
-export function kolibriSetUnspecifiedPassword(store, { username, password, facility }) {
-  const data = {
-    username,
-    password,
-    facility,
-  };
-  return client({
-    url: urls['kolibri:core:setnonspecifiedpassword'](),
-    data,
-    method: 'post',
-  });
-}
-
-/**
- * Signs in user.
- *
- * @param {object} store The store.
- * @param {object} sessionPayload The session payload.
- */
-
-
-
-
 const _setPageVisibility = debounce((store, visibility) => {
   store.commit('CORE_SET_PAGE_VISIBILITY', visibility);
 }, 500);
