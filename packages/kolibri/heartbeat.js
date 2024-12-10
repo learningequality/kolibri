@@ -161,7 +161,7 @@ export class HeartBeat {
    * @return {Promise} promise that resolves when the endpoint check is complete.
    */
   _checkSession() {
-    const { id, currentUserId } = useUser();
+    const { id, currentUserId, setSession } = useUser();
     // Record the current user id to check if a different one is returned by the server.
     if (!get(this._connection.connected)) {
       // If not currently connected to the server, flag that we are currently trying to reconnect.
@@ -196,17 +196,8 @@ export class HeartBeat {
             redirectBrowser();
           }
         }
-        store.dispatch('setSession', {
-          session,
-          // Calculate an approximation of the client 'now' that was simultaneous to the server
-          // 'now' that was sent back with the request. We calculate this as the mean of the
-          // start of the request and the end of the request, which assumes that the calculation
-          // of the local_now on the server side happens at the midpoint of the request response
-          // cycle. Evidently this is not completely accurate, but it is the best that we can do.
-          // Further, this fails to account for relativity, as simultaneity depends on your specific
-          // frame of reference. If the client is moving relative to the server at speeds
-          // approaching the speed of light, this may produce some odd results,
-          // but I think that was always true.
+        setSession({
+          session: session,
           clientNow: new Date((pollEnd + pollStart) / 2),
         });
       })
