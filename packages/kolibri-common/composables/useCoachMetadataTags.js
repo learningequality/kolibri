@@ -1,4 +1,4 @@
-import { ref } from '@vue/composition-api';
+import { ref } from 'vue';
 import { ContentNodeKinds } from 'kolibri/constants';
 import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
 

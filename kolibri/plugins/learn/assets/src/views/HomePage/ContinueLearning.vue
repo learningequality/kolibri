@@ -59,7 +59,7 @@
 
   import last from 'lodash/last';
   import uniqBy from 'lodash/uniqBy';
-  import { computed } from '@vue/composition-api';
+  import { computed } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { get } from '@vueuse/core';
   import CardGrid from '../cards/CardGrid';

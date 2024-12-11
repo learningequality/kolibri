@@ -212,7 +212,7 @@
 
 <script>
 
-  import { getCurrentInstance, ref } from '@vue/composition-api';
+  import { getCurrentInstance, ref } from 'vue';
   import CoreTable from 'kolibri/components/CoreTable';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import urls from 'kolibri/urls';

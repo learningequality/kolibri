@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, computed } from '@vue/composition-api';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
 import store from 'kolibri/store';
 import { SyncStatus } from 'kolibri/constants';

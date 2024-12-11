@@ -1,4 +1,4 @@
-import { ref } from '@vue/composition-api';
+import { ref } from 'vue';
 import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';

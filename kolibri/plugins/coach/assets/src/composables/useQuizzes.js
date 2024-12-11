@@ -1,5 +1,5 @@
 import orderBy from 'lodash/orderBy';
-import { computed, getCurrentInstance } from '@vue/composition-api';
+import { computed, getCurrentInstance } from 'vue';
 
 export default function useQuizzes(store) {
   store = store || getCurrentInstance().proxy.$store;

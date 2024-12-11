@@ -147,7 +147,7 @@
 
 <script>
 
-  import { ref, computed, toRefs, watch } from '@vue/composition-api';
+  import { ref, computed, toRefs, watch } from 'vue';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useAccordion from 'kolibri-common/components/useAccordion';
   import AccordionItem from 'kolibri-common/components/AccordionItem';

@@ -1,5 +1,5 @@
 import { get } from '@vueuse/core';
-import { computed, getCurrentInstance } from '@vue/composition-api';
+import { computed, getCurrentInstance } from 'vue';
 
 const cardViewStyleQueryParam = 'cardViewStyle';
 

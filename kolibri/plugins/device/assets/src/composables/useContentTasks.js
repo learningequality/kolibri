@@ -1,5 +1,5 @@
 import { useIntervalFn } from '@vueuse/core';
-import { getCurrentInstance, onMounted, onUnmounted } from '@vue/composition-api';
+import { getCurrentInstance, onMounted, onUnmounted } from 'vue';
 import useUser from 'kolibri/composables/useUser';
 
 export default function useContentTasks() {

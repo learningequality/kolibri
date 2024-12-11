@@ -20,7 +20,7 @@
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { computed } from '@vue/composition-api';
+  import { computed } from 'vue';
   import { interpret } from 'xstate';
   import useUser from 'kolibri/composables/useUser';
   import { changeFacilityMachine } from '../../machines/changeFacilityMachine';

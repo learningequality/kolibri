@@ -62,7 +62,7 @@
 
 <script>
 
-  import { computed, getCurrentInstance } from '@vue/composition-api';
+  import { computed, getCurrentInstance } from 'vue';
   import { get, set } from '@vueuse/core';
   import client from 'kolibri/client';
   import urls from 'kolibri/urls';

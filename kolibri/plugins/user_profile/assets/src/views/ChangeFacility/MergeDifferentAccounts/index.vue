@@ -58,7 +58,7 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
-  import { computed, inject, ref } from '@vue/composition-api';
+  import { computed, inject, ref } from 'vue';
   import get from 'lodash/get';
   import { remoteFacilityUsers } from '../../../composables/useRemoteFacility';
   import commonProfileStrings from '../../commonProfileStrings';

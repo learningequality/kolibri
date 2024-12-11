@@ -93,7 +93,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
-  import { computed, inject, onMounted, ref } from '@vue/composition-api';
+  import { computed, inject, onMounted, ref } from 'vue';
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import get from 'lodash/get';
   import { syncStatusToDescriptionMap, TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';

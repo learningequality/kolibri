@@ -89,7 +89,7 @@
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
-  import { computed, inject } from '@vue/composition-api';
+  import { computed, inject } from 'vue';
   import get from 'lodash/get';
 
   export default {

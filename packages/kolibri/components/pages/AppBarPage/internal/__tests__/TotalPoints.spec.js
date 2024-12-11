@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/vue';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useTotalProgress, { useTotalProgressMock } from 'kolibri/composables/useTotalProgress'; // eslint-disable-line
 import '@testing-library/jest-dom';
-import { ref } from '@vue/composition-api';
+import { ref } from 'vue';
 import { get, set } from '@vueuse/core';
 import TotalPoints from '../TotalPoints.vue';
 

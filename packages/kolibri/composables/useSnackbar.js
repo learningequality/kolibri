@@ -1,4 +1,4 @@
-import { ref } from '@vue/composition-api';
+import { ref } from 'vue';
 import { get, set } from '@vueuse/core';
 
 const snackbarIsVisible = ref(false);

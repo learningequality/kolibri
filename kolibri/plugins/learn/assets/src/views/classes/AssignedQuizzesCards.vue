@@ -30,7 +30,7 @@
 
 <script>
 
-  import { computed } from '@vue/composition-api';
+  import { computed } from 'vue';
   import useLearnerResources from '../../composables/useLearnerResources';
   import QuizCard from '../cards/QuizCard';
   import CardGrid from '../cards/CardGrid';

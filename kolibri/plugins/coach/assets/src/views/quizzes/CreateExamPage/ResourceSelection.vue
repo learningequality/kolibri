@@ -208,7 +208,7 @@
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { computed, ref, getCurrentInstance, watch } from '@vue/composition-api';
+  import { computed, ref, getCurrentInstance, watch } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';

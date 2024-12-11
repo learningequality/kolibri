@@ -30,7 +30,7 @@
 
 <script>
 
-  import { computed, onBeforeMount, onBeforeUnmount } from '@vue/composition-api';
+  import { computed, onBeforeMount, onBeforeUnmount } from 'vue';
   import { get } from '@vueuse/core';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';

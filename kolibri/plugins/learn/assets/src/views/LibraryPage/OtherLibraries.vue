@@ -140,7 +140,7 @@
 <script>
 
   import { get } from '@vueuse/core';
-  import { computed } from '@vue/composition-api';
+  import { computed } from 'vue';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useCardLayoutSpan from '../../composables/useCardLayoutSpan';

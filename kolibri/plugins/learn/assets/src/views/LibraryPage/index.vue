@@ -177,7 +177,7 @@
 
   import { get, set } from '@vueuse/core';
 
-  import { onMounted, getCurrentInstance, ref, watch } from '@vue/composition-api';
+  import { onMounted, getCurrentInstance, ref, watch } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';

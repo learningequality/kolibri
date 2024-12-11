@@ -76,7 +76,7 @@
 <script>
 
   import { get, set } from '@vueuse/core';
-  import { ref, watch } from '@vue/composition-api';
+  import { ref, watch } from 'vue';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonLearnStrings from '../commonLearnStrings';
