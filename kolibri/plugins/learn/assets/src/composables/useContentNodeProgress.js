@@ -4,7 +4,7 @@
  * All data exposed by this function belong to a current learner.
  */
 
-import { reactive } from '@vue/composition-api';
+import { reactive } from 'vue';
 import { set } from '@vueuse/core';
 
 import ContentNodeProgressResource from 'kolibri-common/apiResources/ContentNodeProgressResource';

@@ -245,30 +245,42 @@ describe('LibraryPage', () => {
 
     describe('Loading status', () => {
       it('display "searching" label', async () => {
+        useDevices.mockImplementation(() =>
+          useDevicesMock({
+            isLoadingChannels: true,
+          }),
+        );
         wrapper = await makeOtherLibrariesWrapper();
-        await wrapper.setData({ searchingOtherLibraries: true });
         expect(wrapper.find('[data-test="searching"').isVisible()).toBe(true);
         expect(wrapper.find('[data-test="searching-label"').text()).toEqual(
           translations.searchingOtherLibrary,
         );
       });
       it('display "showing all" label', async () => {
-        wrapper = await makeOtherLibrariesWrapper({
-          options: {
-            computed: {
-              devicesWithChannelsExist: jest.fn(() => true),
-            },
-          },
-        });
-        await wrapper.setData({ searchingOtherLibraries: false });
+        useDevices.mockImplementation(() =>
+          useDevicesMock({
+            isLoadingChannels: false,
+            networkDevicesWithChannels: [
+              { instance_id: '1' },
+              { instance_id: '2' },
+              { instance_id: '3' },
+              { instance_id: '4' },
+            ],
+          }),
+        );
+        wrapper = await makeOtherLibrariesWrapper();
         expect(wrapper.find('[data-test="showing-all"').isVisible()).toBe(true);
         expect(wrapper.find('[data-test="showing-all-label"').text()).toEqual(
           translations.showingAllLibraries,
         );
       });
       it('display "no other" label', async () => {
+        useDevices.mockImplementation(() =>
+          useDevicesMock({
+            isLoadingChannels: false,
+          }),
+        );
         wrapper = await makeOtherLibrariesWrapper();
-        await wrapper.setData({ searchingOtherLibraries: false });
         expect(wrapper.find('[data-test="no-other"').isVisible()).toBe(true);
         expect(wrapper.find('[data-test="no-other-label"').text()).toEqual(
           translations.noOtherLibraries,

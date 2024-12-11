@@ -1,5 +1,5 @@
 import { get } from '@vueuse/core';
-import { ref, onMounted } from '@vue/composition-api';
+import { ref, onMounted } from 'vue';
 import useUser from 'kolibri/composables/useUser';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';

@@ -93,7 +93,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
-  import { computed, inject, onMounted, ref } from '@vue/composition-api';
+  import { computed, inject, onMounted, ref } from 'vue';
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import get from 'lodash/get';
   import { syncStatusToDescriptionMap, TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
@@ -275,7 +275,7 @@
         };
         // if the user was created in the target facility, we need to gets its id:
         if (params.pk === undefined) {
-          params.pk = this.task.extra_metadata.remote_user_pk;
+          params.pk = task.value.extra_metadata.remote_user_pk;
         }
         client({
           url: urls['kolibri:kolibri.plugins.user_profile:loginmergeduser'](),

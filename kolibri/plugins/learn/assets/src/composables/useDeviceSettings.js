@@ -1,4 +1,4 @@
-import { computed, ref } from '@vue/composition-api';
+import { computed, ref } from 'vue';
 import store from 'kolibri/store';
 import plugin_data from 'kolibri-plugin-data';
 

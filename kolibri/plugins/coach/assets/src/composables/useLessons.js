@@ -1,4 +1,4 @@
-import { ref } from '@vue/composition-api';
+import { ref } from 'vue';
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import useUser from 'kolibri/composables/useUser';
 import { PageNames } from '../constants';

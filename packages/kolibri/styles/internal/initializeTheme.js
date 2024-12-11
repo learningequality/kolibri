@@ -1,7 +1,7 @@
 import './main.scss'; // attaches styles globally
 import { setBrandColors, setTokenMapping } from 'kolibri-design-system/lib/styles/theme';
 import generateGlobalStyles from 'kolibri-design-system/lib/styles/generateGlobalStyles';
-import Vue from 'vue';
+import { set } from 'vue';
 import trackInputModality from 'kolibri-design-system/lib/styles/trackInputModality';
 import trackMediaType from 'kolibri-design-system/lib/styles/trackMediaType';
 import themeConfig from 'kolibri/styles/themeConfig';
@@ -11,7 +11,7 @@ import themeSpec from './themeSpec';
 
 export function setThemeConfig(theme) {
   Object.keys(themeConfig).forEach(key => {
-    Vue.set(themeConfig, key, theme[key]);
+    set(themeConfig, key, theme[key]);
   });
 }
 

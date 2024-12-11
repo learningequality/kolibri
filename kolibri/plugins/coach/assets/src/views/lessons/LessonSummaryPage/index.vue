@@ -89,7 +89,7 @@
   import { mapState, mapActions, mapMutations } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { computed, getCurrentInstance, watch } from '@vue/composition-api';
+  import { computed, getCurrentInstance, watch } from 'vue';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import ReportsControls from '../../common/ReportsControls';

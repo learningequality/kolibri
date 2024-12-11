@@ -6,7 +6,7 @@ import { useDevicesWithFilter } from 'kolibri-common/components/syncComponentSet
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import useTotalProgress, { useTotalProgressMock } from 'kolibri/composables/useTotalProgress'; // eslint-disable-line
-import { ref } from '@vue/composition-api';
+import { ref } from 'vue';
 // eslint-disable-next-line import/named
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
 import { ClassesPageNames, PageNames } from '../../../constants';

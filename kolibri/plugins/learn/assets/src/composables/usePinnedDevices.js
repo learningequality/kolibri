@@ -3,7 +3,7 @@
  */
 
 import { get, set } from '@vueuse/core';
-import { computed, ref } from '@vue/composition-api';
+import { computed, ref } from 'vue';
 import PinnedDeviceResource from 'kolibri-common/apiResources/PinnedDeviceResource';
 import { crossComponentTranslator } from 'kolibri/utils/i18n';
 import useSnackbar from 'kolibri/composables/useSnackbar';

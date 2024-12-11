@@ -10,7 +10,7 @@ import { setServerTime } from 'kolibri/utils/serverClock';
 import urls from 'kolibri/urls';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import CatchErrors from 'kolibri/utils/CatchErrors';
-import Vue from 'vue';
+import { nextTick } from 'vue';
 import Lockr from 'lockr';
 import {
   DisconnectionErrorCodes,
@@ -202,7 +202,7 @@ export function getFacilityConfig(store, facilityId) {
 export function loading(store) {
   return new Promise(resolve => {
     store.commit('CORE_SET_PAGE_LOADING', true);
-    Vue.nextTick(() => {
+    nextTick(() => {
       resolve();
     });
   });
@@ -211,7 +211,7 @@ export function loading(store) {
 export function notLoading(store) {
   return new Promise(resolve => {
     store.commit('CORE_SET_PAGE_LOADING', false);
-    Vue.nextTick(() => {
+    nextTick(() => {
       resolve();
     });
   });

@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import { nextTick } from 'vue';
 import { get } from '@vueuse/core';
 import ExamResource from 'kolibri-common/apiResources/ExamResource';
 import { objectWithDefaults } from 'kolibri/utils/objectSpecs';
@@ -157,7 +157,7 @@ describe('useQuizCreation', () => {
           resourcePool: [exercise],
           questionCount: 10,
         });
-        await Vue.nextTick();
+        await nextTick();
         expect(get(activeQuestions).length).toEqual(10);
 
         // Now let's change the question count and see if the questions array is updated
@@ -167,7 +167,7 @@ describe('useQuizCreation', () => {
           resourcePool: [exercise],
           questionCount: newQuestionCount,
         });
-        await Vue.nextTick();
+        await nextTick();
         // Now questions should only be as long as 10 + newQuestionCount
         expect(get(activeQuestions)).toHaveLength(10 + newQuestionCount);
 
@@ -179,7 +179,7 @@ describe('useQuizCreation', () => {
           resourcePool: [exercise],
           questionCount: newQuestionCount2,
         });
-        await Vue.nextTick();
+        await nextTick();
         expect(get(activeQuestions)).toHaveLength(20);
       });
 

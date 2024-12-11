@@ -182,7 +182,7 @@
 
 <script>
 
-  import Vue from 'vue';
+  import Vue, { set } from 'vue';
   import { mapState, mapActions } from 'vuex';
   import LessonResource from 'kolibri-common/apiResources/LessonResource';
   import countBy from 'lodash/countBy';
@@ -392,7 +392,7 @@
           : this.coachString('lessonNotVisibleToLearnersLabel');
         this.manageModalVisibilityAndPreferences();
 
-        Vue.set(this.updatingVisibilityLessons, lesson.id, lesson.id);
+        set(this.updatingVisibilityLessons, lesson.id, lesson.id);
         return LessonResource.saveModel({
           id: lesson.id,
           data: {

@@ -149,7 +149,7 @@
     enhancedQuizManagementStrings,
     displayQuestionTitle,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { getCurrentInstance, computed, ref } from '@vue/composition-api';
+  import { getCurrentInstance, computed, ref } from 'vue';
   import { get } from '@vueuse/core';
   import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';

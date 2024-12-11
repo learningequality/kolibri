@@ -2,7 +2,7 @@
  * A composable function containing logic related to channels
  */
 
-import { ref } from '@vue/composition-api';
+import { ref } from 'vue';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
 

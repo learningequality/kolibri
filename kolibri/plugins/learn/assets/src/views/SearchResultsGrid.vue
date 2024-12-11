@@ -73,7 +73,7 @@
 
 <script>
 
-  import { ref } from '@vue/composition-api';
+  import { ref } from 'vue';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import SearchChips from 'kolibri-common/components/SearchChips';

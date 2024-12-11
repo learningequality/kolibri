@@ -1,7 +1,6 @@
 import { get, set } from '@vueuse/core';
 import VueRouter from 'vue-router';
-import Vue from 'vue';
-import { ref } from '@vue/composition-api';
+import Vue, { nextTick, ref } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { coreStoreFactory } from 'kolibri/store';
 import { AllCategories, NoCategories } from 'kolibri/constants';
@@ -199,7 +198,7 @@ describe(`useBaseSearch`, () => {
       const { store } = prep();
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       store.commit('SET_QUERY', { categories: 'test1,test2' });
-      await Vue.nextTick();
+      await nextTick();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
         getParams: {
           categories: ['test1', 'test2'],
@@ -246,7 +245,7 @@ describe(`useBaseSearch`, () => {
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({ labels: labelsSet }));
       set(more, { test: 'test' });
       search();
-      await Vue.nextTick();
+      await nextTick();
       expect(get(more)).toBeNull();
       expect(get(labels)).toEqual(labelsSet);
     });
@@ -308,7 +307,7 @@ describe(`useBaseSearch`, () => {
         }),
       );
       search();
-      await Vue.nextTick();
+      await nextTick();
       expect(get(labels)).toEqual(expectedLabels);
       expect(get(results)).toEqual(expectedResults);
       expect(get(more)).toEqual(expectedMore);
@@ -367,7 +366,7 @@ describe(`useBaseSearch`, () => {
         }),
       );
       search();
-      await Vue.nextTick();
+      await nextTick();
       const expectedResults = [{ id: 'node-id1', content_id: 'second' }];
       ContentNodeResource.fetchCollection.mockReturnValue(
         Promise.resolve({
@@ -378,7 +377,7 @@ describe(`useBaseSearch`, () => {
       );
       set(more, {});
       searchMore();
-      await Vue.nextTick();
+      await nextTick();
       expect(get(labels)).toEqual(expectedLabels);
       expect(get(results)).toEqual(originalResults.concat(expectedResults));
       expect(get(more)).toEqual(expectedMore);

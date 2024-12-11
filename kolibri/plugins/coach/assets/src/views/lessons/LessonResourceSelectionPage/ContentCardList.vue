@@ -88,7 +88,7 @@
 
 <script>
 
-  import { computed, toRefs } from '@vue/composition-api';
+  import { computed, toRefs } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { ViewMoreButtonStates } from '../../../constants/index';
   import LessonContentCard from './LessonContentCard';

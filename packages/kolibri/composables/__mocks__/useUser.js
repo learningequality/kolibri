@@ -30,7 +30,7 @@
  * useUser.mockImplementation(() => useUserMock())
  * ```
  */
-import { computed } from '@vue/composition-api';
+import { computed } from 'vue';
 import { UserKinds } from 'kolibri/constants';
 
 const session = {

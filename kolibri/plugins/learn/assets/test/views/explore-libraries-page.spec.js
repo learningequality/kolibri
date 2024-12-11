@@ -2,6 +2,7 @@ import { createLocalVue, mount, shallowMount } from '@vue/test-utils';
 import Vuex, { Store } from 'vuex';
 import VueRouter from 'vue-router';
 import ExploreLibrariesPage from '../../src/views/ExploreLibrariesPage';
+import usePinnedDevices from '../../src/composables/usePinnedDevices';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -41,12 +42,16 @@ describe('ExploreLibrariesPage', () => {
       displayShowMoreButton: jest.fn(() => true),
       pageHeaderStyle: jest.fn(),
     },
-    methods: {
-      refreshDevices: jest.fn(),
-    },
     $trs: translations,
   };
   beforeEach(() => {
+    usePinnedDevices.mockImplementation(() => ({
+      pinnedDevicesExist: false,
+      displayShowButton: true,
+      fetchPinsForUser: jest.fn(() => Promise.resolve([])),
+      unpinnedDevices: [],
+      pinnedDevices: [],
+    }));
     wrapper = makeWrapper({
       options,
     });
@@ -64,15 +69,15 @@ describe('ExploreLibrariesPage', () => {
   });
 
   it('show more libraries section if pinned devices exist', () => {
+    usePinnedDevices.mockImplementation(() => ({
+      pinnedDevicesExist: true,
+      displayShowButton: true,
+      fetchPinsForUser: jest.fn(() => Promise.resolve([])),
+      unpinnedDevices: [],
+      pinnedDevices: [],
+    }));
     wrapper = makeWrapper({
-      options: {
-        ...options,
-        computed: {
-          ...options.computed,
-          pinnedDevicesExist: jest.fn(() => true),
-          displayShowButton: jest.fn(() => true),
-        },
-      },
+      options,
     });
     const moreLibraries = wrapper.find('[data-test="more-libraries"]');
     expect(moreLibraries.element).toBeTruthy();

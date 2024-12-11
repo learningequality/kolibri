@@ -1,6 +1,6 @@
 import { get } from '@vueuse/core';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-import { computed } from '@vue/composition-api';
+import { computed } from 'vue';
 
 export default function useCardLayoutSpan() {
   const { windowBreakpoint, windowIsSmall } = useKResponsiveWindow();

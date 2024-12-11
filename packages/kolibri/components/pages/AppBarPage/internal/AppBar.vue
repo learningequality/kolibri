@@ -128,7 +128,7 @@
 <script>
 
   import { get } from '@vueuse/core';
-  import { computed, getCurrentInstance } from '@vue/composition-api';
+  import { computed, getCurrentInstance } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import KToolbar from 'kolibri-design-system/lib/KToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';

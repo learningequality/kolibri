@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import { set } from 'vue';
 import * as actions from './actions';
 
 function defaultState() {
@@ -30,7 +30,7 @@ export default {
           for (const [key, val] of Object.entries(sizeItem)) {
             const lesson = state.lessons.find(lesson => lesson.id === key);
             if (lesson) {
-              Vue.set(lesson, 'size', val);
+              set(lesson, 'size', val);
             }
           }
         }

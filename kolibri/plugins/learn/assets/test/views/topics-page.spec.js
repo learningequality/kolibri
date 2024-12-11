@@ -6,6 +6,7 @@ import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
 import { ContentNodeKinds } from 'kolibri/constants';
 import { useDevicesWithFilter } from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import plugin_data from 'kolibri-plugin-data';
 // eslint-disable-next-line import/named
 import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
@@ -91,6 +92,7 @@ jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri-common/composables/useBaseSearch');
 jest.mock('../../src/composables/useContentLink');
 jest.mock('kolibri-common/composables/useChannels');
+jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 // Needed to test anything using mount() where children use this composable
 jest.mock('../../src/composables/useLearningActivities');
 
@@ -156,6 +158,11 @@ describe('TopicsPage', () => {
 
       useBaseSearch.mockImplementation(() => useBaseSearchMock());
 
+      useKResponsiveWindow.mockImplementation(() => ({
+        windowIsSmall: false,
+        windowIsLarge: true,
+      }));
+
       ContentNodeResource.fetchTree.mockResolvedValue({
         ...DEFAULT_TOPIC,
         options: { modality: 'CUSTOM_NAVIGATION' },
@@ -173,11 +180,14 @@ describe('TopicsPage', () => {
 
   describe('Displaying the header', () => {
     it('displays breadcrumbs when not on a small screen', async () => {
+      useKResponsiveWindow.mockImplementation(() => ({
+        windowIsSmall: false,
+        windowIsLarge: true,
+      }));
       const wrapper = shallowMount(TopicsPage, {
         store: store,
         localVue,
         router,
-        computed: { windowIsSmall: () => false },
       });
       await flushPromises();
       expect(wrapper.find("[data-test='header-breadcrumbs']").exists()).toBe(true);
@@ -185,22 +195,28 @@ describe('TopicsPage', () => {
   });
 
   it('displays the header with tabs when not on a small screen', async () => {
+    useKResponsiveWindow.mockImplementation(() => ({
+      windowIsSmall: false,
+      windowIsLarge: true,
+    }));
     const wrapper = shallowMount(TopicsPage, {
       store: store,
       localVue,
       router,
-      computed: { windowIsSmall: () => false },
     });
     await flushPromises();
     expect(wrapper.findComponent({ name: 'TopicsHeader' }).exists()).toBe(true);
   });
 
   it('displays the topic title when page is not small', async () => {
+    useKResponsiveWindow.mockImplementation(() => ({
+      windowIsSmall: false,
+      windowIsLarge: true,
+    }));
     const wrapper = mount(TopicsPage, {
       store: store,
       localVue,
       router,
-      computed: { windowIsSmall: () => false },
     });
     await flushPromises();
     expect(wrapper.find("[data-test='header-title']").element).toHaveTextContent(
@@ -209,11 +225,14 @@ describe('TopicsPage', () => {
   });
 
   it('displays the topic title when page is small', async () => {
+    useKResponsiveWindow.mockImplementation(() => ({
+      windowIsSmall: true,
+      windowIsLarge: false,
+    }));
     const smallScreenWrapper = mount(TopicsPage, {
       store: store,
       localVue,
       router,
-      computed: { windowIsSmall: () => true },
     });
     await flushPromises();
     expect(smallScreenWrapper.find("[data-test='mobile-title']").element).toHaveTextContent(
@@ -224,13 +243,15 @@ describe('TopicsPage', () => {
   describe('showing cards', () => {
     let wrapper;
     beforeEach(async () => {
+      useKResponsiveWindow.mockImplementation(() => ({
+        windowIsSmall: true,
+        windowIsLarge: false,
+      }));
       wrapper = shallowMount(TopicsPage, {
         store: store,
         localVue,
         router,
         computed: {
-          windowIsLarge: () => false,
-          windowIsSmall: () => true,
           breadcrumbs: () => [{}],
         },
       });
@@ -287,15 +308,15 @@ describe('TopicsPage', () => {
           }),
         );
 
+        useKResponsiveWindow.mockImplementation(() => ({
+          windowIsSmall: true,
+          windowIsLarge: false,
+        }));
+
         wrapper = mount(TopicsPage, {
           store: store,
           localVue,
           router,
-
-          computed: {
-            windowIsLarge: () => false,
-            windowIsSmall: () => true,
-          },
         });
         await flushPromises();
       });
@@ -320,13 +341,15 @@ describe('TopicsPage', () => {
             searchError: null,
           }),
         );
+        useKResponsiveWindow.mockImplementation(() => ({
+          windowIsSmall: true,
+          windowIsLarge: false,
+        }));
         wrapper = mount(TopicsPage, {
           store: store,
           localVue,
           router,
           computed: {
-            windowIsLarge: () => false,
-            windowIsSmall: () => true,
             contentsForDisplay: () => {
               return [
                 {

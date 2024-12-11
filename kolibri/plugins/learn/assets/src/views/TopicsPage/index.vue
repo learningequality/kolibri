@@ -259,7 +259,7 @@
   import lodashSet from 'lodash/set';
   import lodashGet from 'lodash/get';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
-  import { getCurrentInstance, ref, watch } from '@vue/composition-api';
+  import { getCurrentInstance, ref, watch } from 'vue';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';
   import { ContentNodeKinds } from 'kolibri/constants';
