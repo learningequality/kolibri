@@ -109,8 +109,7 @@
         subset_of_users_device: false,
       });
 
-      const { devices, isDeleting, hasDeleted, deletingFailed, doDelete } =
-        useDeviceDeletion(_devices);
+      const { devices } = useDeviceDeletion(_devices);
 
       const storageFacilityId = useLocalStorage('kolibri-lastSelectedFacilityId', '');
 
@@ -239,27 +238,16 @@
 
       return {
         // useDevices
-        devices,
         isFetching,
         hasFetched,
-        fetchFailed,
-        forceFetch,
-        // useDeviceDeletion
-        isDeleting,
-        hasDeleted,
-        deletingFailed,
-        doDelete,
 
         // internal
-        fetchDeviceFacilities,
         availableFacilities,
-        availableAddressIds,
         storageFacilityId,
         selectedFacilityId,
         showAddAddressModal,
         facilityDisabled,
         handleAddedAddress,
-        resetSelectedAddress,
         to_continue,
       };
     },

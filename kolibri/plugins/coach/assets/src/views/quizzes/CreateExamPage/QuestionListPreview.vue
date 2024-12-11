@@ -269,7 +269,6 @@
 
       return {
         content,
-        questions,
         currentQuestion,
         annotatedSections,
 

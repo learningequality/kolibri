@@ -194,19 +194,15 @@
         availableLanguages,
         availableLibraryCategories,
         searchableLabels,
-        activeSearchTerms,
       } = injectBaseSearch();
 
       return {
         availableResourcesNeeded,
-        activeSearchTerms,
         availableGradeLevels,
         availableAccessibilityOptions,
         availableLanguages,
         availableLibraryCategories,
         searchableLabels,
-        // This color is not in KDS but was specifically requested in the design
-        //selectedHighlightColor: '#ECF0FE',
       };
     },
     props: {
@@ -228,18 +224,6 @@
       },
     },
     computed: {
-      availableNeeds() {
-        if (this.searchableLabels) {
-          const needs = {};
-          for (const key of this.searchableLabels.learner_needs) {
-            const root = key.split('.')[0];
-            needs[root] = true;
-            needs[key] = true;
-          }
-          return needs;
-        }
-        return null;
-      },
       needsOptionsList() {
         return Object.keys(this.availableResourcesNeeded).map(k => {
           const val = this.availableResourcesNeeded[k];
@@ -275,9 +259,6 @@
           };
         });
       },
-      enabledLanguageOptions() {
-        return this.languageOptionsList.filter(l => !l.disabled);
-      },
       accessibilityOptionsList() {
         return this.availableAccessibilityOptions.map(key => {
           const value = AccessibilityCategories[key];
@@ -288,9 +269,6 @@
             label: this.coreString(camelCase(key)),
           };
         });
-      },
-      enabledAccessibilityOptions() {
-        return this.accessibilityOptionsList.filter(a => !a.disabled);
       },
       contentLevelOptions() {
         return this.availableGradeLevels.map(key => {
@@ -311,42 +289,6 @@
             label: this.coreString(translationKey),
           };
         });
-      },
-      enabledContentLevels() {
-        return this.contentLevelOptions.filter(c => !c.disabled);
-      },
-      langId() {
-        return Object.keys(this.value.languages)[0];
-      },
-      accessId() {
-        return Object.keys(this.value.accessibility_labels)[0];
-      },
-      selectedLanguage() {
-        if (!this.langId && this.enabledLanguageOptions.length === 1) {
-          return this.enabledLanguageOptions[0];
-        }
-        return this.languageOptionsList.find(o => o.value === this.langId) || {};
-      },
-      selectedAccessibilityFilter() {
-        if (!this.accessId && this.enabledAccessibilityOptions.length === 1) {
-          return this.enabledAccessibilityOptions[0];
-        }
-        return this.accessibilityOptionsList.find(o => o.value === this.accessId) || {};
-      },
-      levelId() {
-        return Object.keys(this.value.grade_levels)[0];
-      },
-      selectedLevel() {
-        if (!this.levelId && this.enabledContentLevels.length === 1) {
-          return this.enabledContentLevels[0];
-        }
-        return this.contentLevelOptions.find(o => o.value === this.levelId) || {};
-      },
-      selectedChannel() {
-        if (!this.channelId && this.enabledChannelOptions.length === 1) {
-          return this.enabledChannelOptions[0];
-        }
-        return this.channelOptionsList.find(o => o.value === this.channelId) || {};
       },
     },
     methods: {

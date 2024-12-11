@@ -229,8 +229,7 @@
       const store = currentInstance.$store;
       const router = currentInstance.$router;
       const { canDownloadExternally, canAddDownloads } = useCoreLearn();
-      const { fetchContentNodeProgress, fetchContentNodeTreeProgress, contentNodeProgressMap } =
-        useContentNodeProgress();
+      const { fetchContentNodeTreeProgress, contentNodeProgressMap } = useContentNodeProgress();
       const { channelsMap, fetchChannels } = useChannels();
       const { fetchLesson } = useLearnerResources();
       const { back, genExternalBackURL } = useContentLink();
@@ -318,7 +317,6 @@
         deviceName,
         canDownloadExternally,
         contentNodeProgressMap,
-        fetchContentNodeProgress,
         fetchContentNodeTreeProgress,
         fetchLesson,
         canAddDownloads,
@@ -329,7 +327,6 @@
         downloadRequestsTranslator,
         deviceFormTranslator,
         content,
-        channel,
         loading,
         downloadRequestLoading,
         isUserLoggedIn,

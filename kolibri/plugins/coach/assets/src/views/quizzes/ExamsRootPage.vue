@@ -324,7 +324,6 @@
         showOpenConfirmationModal,
         showCloseConfirmationModal,
         activeQuiz,
-        learnOnlyDevicesExist,
         statusSelected,
         filterQuizAll$,
         filterQuizStarted$,
