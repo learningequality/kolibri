@@ -181,7 +181,7 @@
 
   import { mapGetters } from 'vuex';
   import CoreLogo from 'kolibri/components/CoreLogo';
-  import PrivacyInfoModal from 'kolibri-common/components/PrivacyInfoModal';
+  import PrivacyInfoModal from 'kolibri/components/PrivacyInfoModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
   import themeConfig from 'kolibri/styles/themeConfig';

@@ -41,7 +41,7 @@
 <script>
 
   import UiSnackbar from 'kolibri-design-system/lib/keen/UiSnackbar.vue';
-  import Backdrop from 'kolibri-common/components/Backdrop';
+  import Backdrop from 'kolibri/components/Backdrop';
   import useSnackbar from 'kolibri/composables/useSnackbar';
 
   /* Snackbars are used to display notification. */

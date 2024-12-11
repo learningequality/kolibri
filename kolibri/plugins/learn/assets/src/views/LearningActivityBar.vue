@@ -181,9 +181,9 @@
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
-  import CoreMenu from 'kolibri-common/components/CoreMenu';
+  import CoreMenu from 'kolibri/components/CoreMenu';
   import { ContentNodeKinds } from 'kolibri/constants';
-  import CoreMenuOption from 'kolibri-common/components/CoreMenu/CoreMenuOption';
+  import CoreMenuOption from 'kolibri/components/CoreMenu/CoreMenuOption';
   import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
   import KToolbar from 'kolibri-design-system/lib/KToolbar';
   import { validateLearningActivity } from 'kolibri/utils/validators';

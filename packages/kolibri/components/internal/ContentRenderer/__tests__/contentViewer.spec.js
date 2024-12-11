@@ -1,11 +1,6 @@
 import Vue from 'vue';
 import { RENDERER_SUFFIX } from 'kolibri/constants';
-import {
-  canRenderContent,
-  getRenderableFiles,
-  getDefaultFile,
-  getFilePreset,
-} from '../contentViewer';
+import { canRenderContent, getRenderableFiles, getDefaultFile, getFilePreset } from '../utils';
 
 // Add a component to the Vue instance that can be used to test the utility functions
 const addRegisterableComponents = (...presets) => {

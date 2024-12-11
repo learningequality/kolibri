@@ -147,7 +147,7 @@
   import camelCase from 'lodash/camelCase';
 
   import LearnerNeeds from 'kolibri-constants/labels/Needs';
-  import DownloadButton from 'kolibri-common/components/DownloadButton';
+  import DownloadButton from 'kolibri/components/DownloadButton';
   import TimeDuration from 'kolibri-common/components/TimeDuration';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import get from 'lodash/get';
