@@ -57,11 +57,15 @@
         required: true,
         validator: validateLinkObject,
       },
+      textColor: {
+        type: String,
+        default: null,
+      },
     },
     computed: {
       tabStyles() {
         return {
-          color: this.$themeTokens.text,
+          color: this.textColor || this.$themeTokens.text,
           ':hover': {
             'background-color': this.$themeBrand.secondary.v_600,
           },
@@ -81,7 +85,7 @@
       activeClasses() {
         // return both fixed and dynamic classes
         return `router-link-active ${this.$computedClass({
-          color: this.$themeTokens.text,
+          color: this.textColor || this.$themeTokens.text,
         })}`;
       },
     },

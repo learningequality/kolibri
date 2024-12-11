@@ -10,9 +10,12 @@
       <UiToolbar
         :removeNavIcon="showAppNavView"
         type="clear"
-        textColor="black"
+        :textColor="$themeTokens.appBarText || $themeTokens.text"
         class="app-bar"
-        :style="{ height: topBarHeight + 'px' }"
+        :style="{
+          height: topBarHeight + 'px',
+          color: $themeTokens.appBarText || $themeTokens.text,
+        }"
         :raised="false"
         :removeBrandDivider="true"
       >
@@ -26,7 +29,7 @@
         >
           <KIconButton
             icon="menu"
-            :color="$themeTokens.text"
+            :color="$themeTokens.appBarText || $themeTokens.text"
             :ariaLabel="$tr('openNav')"
             @click="$emit('toggleSideNav')"
           />
@@ -49,6 +52,7 @@
           <slot name="sub-nav">
             <Navbar
               v-if="links.length > 0"
+              :textColor="$themeTokens.appBarText || $themeTokens.text"
               :navigationLinks="links"
             />
           </slot>
@@ -94,7 +98,7 @@
               <KIcon
                 icon="person"
                 :style="{
-                  fill: $themeTokens.text,
+                  fill: $themeTokens.appBarText || $themeTokens.text,
                   height: '24px',
                   width: '24px',
                   margin: '4px',

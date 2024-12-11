@@ -13,10 +13,11 @@
         ref="navLinks"
         :title="link.title"
         :link="link.link"
+        :textColor="textColor || $themeTokens.text"
       >
         <KIcon
           :icon="link.icon"
-          :color="$themeTokens.text"
+          :color="textColor || $themeTokens.text"
         />
       </NavbarLink>
     </ul>
@@ -27,7 +28,7 @@
       :ariaLabel="coreString('moreOptions')"
       icon="optionsHorizontal"
       appearance="flat-button"
-      :color="$themeTokens.text"
+      :color="textColor || $themeTokens.text"
       :primary="false"
       class="kiconbutton-style"
     >
@@ -80,6 +81,10 @@
         validator(values) {
           return values.every(value => value.link.name);
         },
+      },
+      textColor: {
+        type: String,
+        default: null,
       },
     },
     data() {
