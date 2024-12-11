@@ -21,7 +21,6 @@
       v-if="windowIsLarge || !currentCategory"
       :class="windowIsLarge ? '' : 'drawer-panel'"
     >
-      <div v-if="Object.keys(availableLibraryCategories).length">
         <div v-if="!accordion">
           <!-- search by keyword -->
           <h2 class="title">
@@ -108,7 +107,7 @@
               />
             </div>
           </div>
-        </div>
+       
         <div v-if="accordion && !currentCategory">
           <!-- search by keyword -->
           <h2 class="title">
