@@ -335,7 +335,7 @@ To ensure a more efficient workflow, install appropriate editor plugins for Vue.
 Sample resources and data
 -------------------------
 
-Once you have the server running, proceed to import some channels and resources. To quickly import all available and supported Kolibri resource types, use the token ``nakav-mafak`` for the `Kolibri QA channel <https://kolibri-beta.learningequality.org/en/learn/#/topics/95a52b386f2c485cb97dd60901674a98>`__ (~350MB).
+Once you have the server running, proceed to import some channels and resources. To quickly import all available and supported Kolibri resource types, `import with the token <https://kolibri.readthedocs.io/en/latest/manage/resources.html?highlight=import#import-with-token>`__  ``nakav-mafak`` for the `Kolibri QA channel <https://kolibri-beta.learningequality.org/en/learn/#/topics/95a52b386f2c485cb97dd60901674a98>`__ (~350MB).
 
 
 Now you can create users, classes, lessons, etc manually. To auto-generate some sample user data you can also run:
