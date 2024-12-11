@@ -1,7 +1,7 @@
 import { get, set } from '@vueuse/core';
 import invert from 'lodash/invert';
 import logger from 'kolibri-logging';
-import { computed, getCurrentInstance, inject, provide, ref, watch } from '@vue/composition-api';
+import { computed, getCurrentInstance, inject, provide, ref, watch } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import {
   AllCategories,

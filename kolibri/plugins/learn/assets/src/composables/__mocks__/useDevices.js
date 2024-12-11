@@ -31,7 +31,7 @@
  * ```
  */
 
-import { ref } from '@vue/composition-api';
+import { ref } from 'vue';
 
 const MOCK_DEFAULTS = {
   fetchDevices: jest.fn(() => Promise.resolve([])),

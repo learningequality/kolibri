@@ -156,7 +156,7 @@
   import { mapState } from 'vuex';
   import { get, set } from '@vueuse/core';
   import lodashGet from 'lodash/get';
-  import { getCurrentInstance, ref, watch } from '@vue/composition-api';
+  import { getCurrentInstance, ref, watch } from 'vue';
   import Modalities from 'kolibri-constants/Modalities';
 
   import AuthMessage from 'kolibri/components/AuthMessage';

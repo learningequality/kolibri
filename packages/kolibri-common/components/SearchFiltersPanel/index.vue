@@ -178,7 +178,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { ref } from '@vue/composition-api';
+  import { ref } from 'vue';
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
   import SearchBox from '../SearchBox';
   import ActivityButtonsGroup from './ActivityButtonsGroup';

@@ -4,7 +4,7 @@ import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import * as serverClock from 'kolibri/utils/serverClock';
 import { get, set } from '@vueuse/core';
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
-import { ref } from '@vue/composition-api';
+import { ref } from 'vue';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
 import { HeartBeat } from '../heartbeat.js';
 import { trs } from '../internal/disconnection';

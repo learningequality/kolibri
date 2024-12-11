@@ -5,7 +5,7 @@ import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
 import ExamResource from 'kolibri-common/apiResources/ExamResource';
 import { validateObject, objectWithDefaults } from 'kolibri/utils/objectSpecs';
 import { get, set } from '@vueuse/core';
-import { computed, ref, provide, inject, getCurrentInstance, watch } from '@vue/composition-api';
+import { computed, ref, provide, inject, getCurrentInstance, watch } from 'vue';
 import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 // TODO: Probably move this to this file's local dir
 import selectQuestions, { getExerciseQuestionsMap } from '../utils/selectQuestions.js';

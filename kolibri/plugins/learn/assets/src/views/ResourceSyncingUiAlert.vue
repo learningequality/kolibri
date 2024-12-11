@@ -15,7 +15,7 @@
 <script>
 
   import { get } from '@vueuse/core';
-  import { computed, watch } from '@vue/composition-api';
+  import { computed, watch } from 'vue';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert.vue';
   import useUserSyncStatus from 'kolibri-common/composables/useUserSyncStatus';
   import { SyncStatus } from 'kolibri/constants';

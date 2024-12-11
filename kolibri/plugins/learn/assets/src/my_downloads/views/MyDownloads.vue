@@ -49,7 +49,7 @@
   import { get } from '@vueuse/core';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
-  import { computed, getCurrentInstance } from '@vue/composition-api';
+  import { computed, getCurrentInstance } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import plugin_data from 'kolibri-plugin-data';
   import useDownloadRequests from '../../composables/useDownloadRequests';

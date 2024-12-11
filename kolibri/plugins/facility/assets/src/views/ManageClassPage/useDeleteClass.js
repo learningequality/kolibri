@@ -1,4 +1,4 @@
-import { ref, getCurrentInstance } from '@vue/composition-api';
+import { ref, getCurrentInstance } from 'vue';
 import { set } from '@vueuse/core';
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 

@@ -2,7 +2,6 @@ import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
-import VueCompositionApi from '@vue/composition-api';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 import ContentRenderer from './components/internal/ContentRenderer';
 import initializeTheme from './styles/internal/initializeTheme';
@@ -27,7 +26,6 @@ initializeTheme();
 Vue.use(Vuex);
 Vue.use(VueRouter);
 Vue.use(VueMeta);
-Vue.use(VueCompositionApi);
 
 // - Installs helpers on Vue instances: $themeBrand, $themeTokens, $themePalette
 // - Set up global state, listeners, and styles

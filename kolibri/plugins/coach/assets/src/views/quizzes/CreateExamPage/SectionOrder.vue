@@ -87,7 +87,7 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import { computed, ref } from '@vue/composition-api';
+  import { computed, ref } from 'vue';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,

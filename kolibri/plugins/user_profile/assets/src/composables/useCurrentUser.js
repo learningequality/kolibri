@@ -1,4 +1,4 @@
-import { ref, onMounted } from '@vue/composition-api';
+import { ref, onMounted } from 'vue';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';

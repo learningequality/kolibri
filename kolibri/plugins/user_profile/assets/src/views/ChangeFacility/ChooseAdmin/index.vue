@@ -47,7 +47,7 @@
 <script>
 
   import get from 'lodash/get';
-  import { inject, computed, ref } from '@vue/composition-api';
+  import { inject, computed, ref } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';

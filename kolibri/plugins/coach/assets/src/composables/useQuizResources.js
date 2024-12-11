@@ -1,5 +1,5 @@
 import { get, set } from '@vueuse/core';
-import { computed, ref } from '@vue/composition-api';
+import { computed, ref } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { ContentNodeKinds } from 'kolibri/constants';
 import logging from 'kolibri-logging';

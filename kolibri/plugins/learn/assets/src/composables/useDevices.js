@@ -2,7 +2,7 @@
  * A composable function containing logic related to channels
  */
 
-import { computed, getCurrentInstance, ref, onBeforeUnmount, watch } from '@vue/composition-api';
+import { computed, getCurrentInstance, ref, onBeforeUnmount, watch } from 'vue';
 import { NetworkLocationResource } from 'kolibri-common/apiResources/NetworkLocationResource';
 import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
 import { get, set, useTimeoutPoll } from '@vueuse/core';

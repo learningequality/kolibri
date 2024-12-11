@@ -8,7 +8,7 @@ module.exports = {
   'kolibri.lib.logging': 'kolibri-logging',
   'kolibri.lib.vue': 'vue',
   'kolibri.lib.vuex': 'vuex',
-  'kolibri.lib.vueCompositionApi': '@vue/composition-api',
+  'kolibri.lib.vueCompositionApi': 'vue',
   'kolibri.lib.apiResource': 'kolibri/apiResource',
   'kolibri.coreVue.vuex.constants': 'kolibri/constants',
   'kolibri.coreVue.vuex.getters': null,

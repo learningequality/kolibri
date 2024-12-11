@@ -2,7 +2,7 @@
  * A composable function containing logic related to restarting the device
  */
 
-import { ref } from '@vue/composition-api';
+import { ref } from 'vue';
 import heartbeat from 'kolibri/heartbeat';
 import client from 'kolibri/client';
 import clientFactory from 'kolibri/utils/baseClient';

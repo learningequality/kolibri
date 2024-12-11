@@ -186,16 +186,19 @@ module.exports = (
 
   if (isCoreBundle) {
     bundle.plugins.push(
-      // We need to do this to sidestep the janky @vue/composition-api package's index.js which
+      // I thought we would be able to stop doing this once we dropped @vue/composition-api
+      // and upgraded to Vue 2.7 - but apparently this janky aliasing was _so_ good it was put
+      // into Vue 2.7 too!
+      // We need to do this to sidestep the janky vue main export dist/vue.runtime.common.js which
       // conditionally imports the prod or dev version of the package based on the NODE_ENV, but
       // only exposes the common JS builds, and reassigns them to the module.exports, thereby
       // preventing webpack from importing it consistently in both how we use it internally
       // in the core bundle, and also then access it via externals in the plugin bundles.
       new webpack.NormalModuleReplacementPlugin(
-        /^@vue\/composition-api$/,
+        /^vue$/,
         mode === 'production'
-          ? '@vue/composition-api/dist/vue-composition-api.prod.js'
-          : '@vue/composition-api/dist/vue-composition-api.js',
+          ? 'vue/dist/vue.runtime.common.prod.js'
+          : 'vue/dist/vue.runtime.common.dev.js',
       ),
     );
   }

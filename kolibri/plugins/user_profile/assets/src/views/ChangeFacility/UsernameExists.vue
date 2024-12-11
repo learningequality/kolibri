@@ -37,7 +37,7 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
-  import { computed, inject } from '@vue/composition-api';
+  import { computed, inject } from 'vue';
   import get from 'lodash/get';
   import commonProfileStrings from '../commonProfileStrings';
 
