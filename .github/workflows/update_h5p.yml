@@ -1,0 +1,104 @@
+name: Update H5P JS library
+
+on:
+  schedule:
+    # Runs at 00:00 UTC on Wednesday
+    - cron: '0 0 * * 3'
+  # Optional: Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  check-commits:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: 'develop'
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Get latest commit from target repo
+        id: get-commit
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/{owner}/{repo}/branches/{branch}
+          owner: h5p
+          repo: h5p-php-library
+          branch: master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check commit status
+        id: check-commit
+        run: |
+            import os
+            from pathlib import Path
+            # Get the latest commit from the API response
+            latest_commit = "${{ fromJson(steps.get-commit.outputs.data).commit.sha }}".strip()
+            # Check stored commit
+            commit_file = Path('packages/hashi/.h5p-commit-sha')
+            stored_commit = ""
+            if commit_file.exists():
+                stored_commit = commit_file.read_text().strip()
+                has_changed = stored_commit != latest_commit
+            else:
+                print("No stored commit found, treating as new")
+                has_changed = True
+            # Set outputs for GitHub Actions
+            with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                print(f"stored_commit={stored_commit}", file=f)
+                print(f"latest_commit={latest_commit}", file=f)
+                print(f"changed={'true' if has_changed else 'false'}", file=f)
+        shell: python
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Update commit file and run script
+        if: steps.check-commit.outputs.changed == 'true'
+        run: |
+          # Update the commit file
+          echo "${{ steps.check-commit.outputs.latest_commit }}" > packages/hashi/.h5p-commit-sha
+
+          # Run your script here
+          yarn workspace hashi run build-h5p
+
+      - name: Generate App Token
+        if: steps.check-commit.outputs.changed == 'true'
+        id: generate-token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.LE_BOT_APP_ID }}
+          private_key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
+
+      - name: Create Pull Request
+        if: steps.check-commit.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          commit-message: |
+            Update commit SHA and run script
+
+            Target repo commit: ${{ steps.check-commit.outputs.latest_commit }}
+          branch: h5p_update
+          delete-branch: true
+          title: 'Update from target repository commit'
+          body: |
+            This PR was automatically created by the Update H5P JS library Github Action.
+            Updates from target repository commit: ${{ steps.check-commit.outputs.latest_commit }}
+            https://github.com/h5p/h5p-php-library/compare/${{ steps.check-commit.outputs.stored_commit }}...${{ steps.check-commit.outputs.latest_commit }}
+          base: develop
