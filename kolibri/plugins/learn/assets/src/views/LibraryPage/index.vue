@@ -49,9 +49,22 @@
           v-else-if="!displayingSearchResults && !rootNodesLoading"
           data-test="channels"
         >
-          <h1 class="channels-label">
-            {{ channelsLabel }}
-          </h1>
+          <KFixedGrid numCols="4">
+            <KFixedGridItem span="3">
+              <h1 class="channels-label">
+                {{ channelsLabel }}
+              </h1>
+            </KFixedGridItem>
+            <KFixedGridItem span="1">
+              <KSelect
+                v-model="currentChannelLanguage"
+                data-test="channel-language-select"
+                :label="'Show channels for language:'"
+                :options="languageFilterOptions"
+                clearable
+              />
+            </KFixedGridItem>
+          </KFixedGrid>
           <p
             v-if="isLocalLibraryEmpty"
             data-test="nothing-in-lib-label"
@@ -175,12 +188,16 @@
 
 <script>
 
+  import isEmpty from 'lodash/isEmpty';
+  import sortBy from 'lodash/sortBy';
+  import uniqBy from 'lodash/uniqBy';
   import { get, set } from '@vueuse/core';
 
-  import { onMounted, getCurrentInstance, ref, watch } from '@vue/composition-api';
+  import { computed, onMounted, getCurrentInstance, ref, watch } from '@vue/composition-api';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';
+  import { getContentLangActive } from 'kolibri/utils/i18n';
   import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { mapState } from 'vuex';
@@ -286,8 +303,10 @@
         }
       });
 
-      const rootNodes = ref([]);
+      const _rootNodes = ref([]);
       const rootNodesLoading = ref(false);
+
+      const routeChannelLanguage = computed(() => currentRoute().query.channelLanguage);
 
       function _showChannels(channels, baseurl) {
         if (get(isUserLoggedIn) && !baseurl) {
@@ -305,7 +324,7 @@
             if (shouldResolve()) {
               // we want them to be in the same order as the channels list
               set(
-                rootNodes,
+                _rootNodes,
                 channels
                   .map(channel => {
                     const node = channelCollection.find(n => n.channel_id === channel.id);
@@ -316,6 +335,7 @@
                       node.title = channel.name || node.title;
                       node.thumbnail = channel.thumbnail;
                       node.description = channel.tagline || channel.description;
+                      node.included_languages = channel.included_languages;
                       return node;
                     }
                   })
@@ -326,6 +346,22 @@
               store.commit('CORE_SET_ERROR', null);
               store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
               set(rootNodesLoading, false);
+              if (!get(routeChannelLanguage)) {
+                // If we have no currently selected channel language, we should try to select one
+                // based on the user's preferred language.
+                const closestMatchChannelLanguage = get(channelLanguages)[0];
+                const channelLanguage =
+                  closestMatchChannelLanguage &&
+                  getContentLangActive(closestMatchChannelLanguage) > 1
+                    ? closestMatchChannelLanguage.id
+                    : _allChannelsFlag;
+                router.replace({
+                  query: {
+                    ...currentRoute().query,
+                    channelLanguage,
+                  },
+                });
+              }
             }
           },
           error => {
@@ -387,9 +423,59 @@
       watch(() => props.deviceId, showLibrary);
 
       watch(displayingSearchResults, () => {
-        if (!displayingSearchResults.value && !rootNodes.value.length) {
+        if (!displayingSearchResults.value && !_rootNodes.value.length) {
           showLibrary();
         }
+      });
+
+      const channelLanguages = computed(() => {
+        return sortBy(
+          uniqBy(
+            get(_rootNodes).map(node => node.lang),
+            'id',
+          ),
+          l => -getContentLangActive(l),
+        );
+      });
+
+      const languageFilterOptions = computed(() => {
+        return get(channelLanguages).map(lang => ({
+          label: lang.lang_name,
+          value: lang.id,
+        }));
+      });
+
+      const _allChannelsFlag = 'all';
+
+      const currentChannelLanguage = computed({
+        get() {
+          if (!get(routeChannelLanguage) || get(routeChannelLanguage) === _allChannelsFlag) {
+            return {};
+          }
+          return get(languageFilterOptions).find(o => o.value === get(routeChannelLanguage)) || {};
+        },
+        set(newValue) {
+          const channelLanguage = newValue?.value || _allChannelsFlag;
+          if (channelLanguage !== currentRoute().query.channelLanguage) {
+            router.push({
+              query: {
+                ...currentRoute().query,
+                channelLanguage,
+              },
+            });
+          }
+        },
+      });
+
+      const rootNodes = computed(() => {
+        if (isEmpty(get(currentChannelLanguage))) {
+          return get(_rootNodes);
+        }
+        return get(_rootNodes).filter(
+          node =>
+            node.lang.id === get(currentChannelLanguage).value ||
+            node.included_languages.includes(get(currentChannelLanguage).value),
+        );
       });
 
       showLibrary();
@@ -426,6 +512,9 @@
         isUserLoggedIn,
         canManageContent,
         isLearnerOnlyImport,
+        channelLanguages,
+        languageFilterOptions,
+        currentChannelLanguage,
       };
     },
     props: {
