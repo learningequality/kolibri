@@ -78,16 +78,6 @@
         required: true,
       },
     },
-    methods: {
-      /**
-       * @public
-       */
-      goBack() {
-        this.$router.push({
-          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
-        });
-      },
-    },
   };
 
 </script>

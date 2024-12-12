@@ -13,7 +13,6 @@
       <KIconButton
         v-if="canGoBack"
         icon="back"
-        :style="backButtonStyles"
         @click="$router.go(-1)"
       />
     </template>
@@ -73,27 +72,6 @@
         showSidePanel,
         handleClosePanel,
       };
-    },
-    computed: {
-      backButtonStyles() {
-        if (this.isRtl) {
-          return {
-            position: 'absolute',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            right: '1em',
-            'z-index': '24',
-          };
-        } else {
-          return {
-            position: 'absolute',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            left: '1em',
-            'z-index': '24',
-          };
-        }
-      },
     },
     methods: {
       /**

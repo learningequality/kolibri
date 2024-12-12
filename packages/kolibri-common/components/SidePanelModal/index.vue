@@ -20,16 +20,22 @@
           <!-- Fixed header -->
           <div
             ref="fixedHeader"
-            class="fixed-header"
-            :style="fixedHeaderStyles"
+            class="side-panel-header"
+            :style="headerStyles"
           >
-            <div class="header-content">
-              <slot name="header"> </slot>
+            <div
+              class="header-content"
+              :style="{
+                flexDirection: closeButtonIconType === 'close' ? 'row' : 'row-reverse',
+              }"
+            >
+              <div>
+                <slot name="header"> </slot>
+              </div>
               <KIconButton
                 v-if="closeButtonIconType"
                 :icon="closeButtonIconType"
                 class="close-button"
-                :style="closeButtonStyle"
                 :ariaLabel="closeButtonMessage"
                 :tooltip="closeButtonMessage"
                 @click="closePanel"
@@ -38,19 +44,16 @@
           </div>
 
           <!-- Default slot for inserting content which will scroll on overflow -->
-          <div
-            class="side-panel-content"
-            :style="contentStyles"
-          >
+          <div class="side-panel-content">
             <slot></slot>
-            <div
-              v-if="$slots.bottomNavigation"
-              ref="fixedBottombar"
-              class="bottom-navigation"
-              :style="{ backgroundColor: $themeTokens.surface }"
-            >
-              <slot name="bottomNavigation"></slot>
-            </div>
+          </div>
+          <div
+            v-if="$slots.bottomNavigation"
+            ref="fixedBottombar"
+            class="bottom-navigation"
+            :style="{ backgroundColor: $themeTokens.surface }"
+          >
+            <slot name="bottomNavigation"></slot>
           </div>
         </section>
       </KFocusTrap>
@@ -146,18 +149,10 @@
         return this.isMobile ? '100vw' : this.sidePanelWidth;
       },
       /** Styling Properties */
-      fixedHeaderStyles() {
+      headerStyles() {
         return {
-          ...this.langDirStyles,
-          width: this.responsiveWidth,
-          minHeight: '60px',
-          position: 'fixed',
-          top: 0,
           backgroundColor: this.$themeTokens.surface,
           borderBottom: `1px solid ${this.$themePalette.grey.v_400}`,
-          padding: '0 1em',
-          // Header border stays over content with this, but under any tooltips
-          'z-index': 16,
         };
       },
       sidePanelStyles() {
@@ -215,17 +210,6 @@
           };
         }
       },
-      contentStyles() {
-        const fixedHeights = this.fixedHeaderHeight + this.fixedBottombarHeight;
-        return {
-          marginTop: `${this.fixedHeaderHeight || 16}px`,
-          marginBottom: `${this.fixedBottombarHeight}px`,
-          padding: '24px 32px 16px',
-          overflowY: 'scroll',
-          overflowX: 'hidden',
-          height: `calc(100vh - ${fixedHeights}px)`,
-        };
-      },
     },
     beforeMount() {
       this.lastFocus = document.activeElement;
@@ -277,7 +261,11 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .header-content {
-    width: calc(100% - 20px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
   }
 
   /** Need to be sure a KDropdownMenu shows up on the Side Panel */
@@ -285,19 +273,35 @@
     z-index: 24;
   }
 
-  .bottom-navigation {
-    @extend %dropshadow-2dp;
-
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
+  .side-panel {
     display: flex;
-    justify-content: space-between;
-    width: 100%;
-    padding: 1em;
-    line-height: 2.5em;
-    text-align: center;
+    flex-direction: column;
+    height: 100vh;
+
+    .side-panel-header {
+      width: 100%;
+      min-height: 60px;
+      padding: 0 1em;
+    }
+
+    .side-panel-content {
+      flex-grow: 1;
+      padding: 24px 32px 16px;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    .bottom-navigation {
+      @extend %dropshadow-2dp;
+
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding: 1em;
+      line-height: 2.5em;
+      text-align: center;
+    }
   }
 
 </style>
