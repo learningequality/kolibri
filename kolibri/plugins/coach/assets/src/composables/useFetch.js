@@ -1,5 +1,5 @@
 import get from 'lodash/get';
-import { ref, computed } from '@vue/composition-api';
+import { ref, computed } from 'vue';
 import { ViewMoreButtonStates } from '../constants';
 
 /**

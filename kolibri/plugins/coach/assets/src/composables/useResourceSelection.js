@@ -1,5 +1,5 @@
 import uniqBy from 'lodash/uniqBy';
-import { ref, computed, getCurrentInstance, watch } from '@vue/composition-api';
+import { ref, computed, getCurrentInstance, watch } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import useFetch from './useFetch';
