@@ -21,95 +21,95 @@
       v-if="windowIsLarge || !currentCategory"
       :class="windowIsLarge ? '' : 'drawer-panel'"
     >
-        <div v-if="!accordion">
-          <!-- search by keyword -->
-          <h2 class="title">
-            {{ $tr('keywords') }}
+      <div v-if="!accordion">
+        <!-- search by keyword -->
+        <h2 class="title">
+          {{ $tr('keywords') }}
+        </h2>
+        <SearchBox
+          key="channel-search"
+          ref="searchBox"
+          :placeholder="coreString('findSomethingToLearn')"
+          :value="value.keywords || ''"
+          @change="val => $emit('input', { ...value, keywords: val })"
+        />
+        <div v-if="Object.keys(availableLibraryCategories).length">
+          <h2 class="section title">
+            {{ $tr('categories') }}
           </h2>
-          <SearchBox
-            key="channel-search"
-            ref="searchBox"
-            :placeholder="coreString('findSomethingToLearn')"
-            :value="value.keywords || ''"
-            @change="val => $emit('input', { ...value, keywords: val })"
-          />
-          <div v-if="Object.keys(availableLibraryCategories).length">
-            <h2 class="section title">
-              {{ $tr('categories') }}
-            </h2>
-            <!-- list of category metadata - clicking prompts a filter modal -->
-            <div
-              v-for="(category, key) in availableLibraryCategories"
-              :key="key"
-              span="4"
-              class="category-list-item"
-            >
-              <KButton
-                :text="coreString(category.value)"
-                appearance="flat-button"
-                :appearanceOverrides="
-                  isCategoryActive(category.value)
-                    ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
-                    : categoryListItemStyles
-                "
-                :disabled="
-                  availableRootCategories &&
-                    !availableRootCategories[category.value] &&
-                    !isCategoryActive(category.value)
-                "
-                :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
-                @click="handleCategory(key)"
-              />
-            </div>
-            <div
-              span="4"
-              class="category-list-item"
-            >
-              <KButton
-                :text="coreString('uncategorized')"
-                appearance="flat-button"
-                :appearanceOverrides="
-                  isCategoryActive('no_categories')
-                    ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
-                    : categoryListItemStyles
-                "
-                @click="noCategories"
-              />
-            </div>
-        </div>
-          <ActivityButtonsGroup
-            v-if="showActivities"
-            class="section"
-            @input="handleActivity"
-          />
-          <!-- Filter results by learning activity, displaying all options -->
-          <SelectGroup
-            v-model="inputValue"
-            :showChannels="showChannels"
-            class="section"
-          />
+          <!-- list of category metadata - clicking prompts a filter modal -->
           <div
-            v-if="Object.keys(availableResourcesNeeded).length"
-            class="section"
+            v-for="(category, key) in availableLibraryCategories"
+            :key="key"
+            span="4"
+            class="category-list-item"
           >
-            <h2 class="title">
-              {{ coreString('showResources') }}
-            </h2>
-            <div
-              v-for="(val, activity) in availableResourcesNeeded"
-              :key="activity"
-              span="4"
-              alignment="center"
-            >
-              <KCheckbox
-                :checked="value.learner_needs[val]"
-                :label="coreString(activity)"
-                :disabled="availableNeeds && !availableNeeds[val]"
-                @change="handleNeed(val)"
-              />
-            </div>
+            <KButton
+              :text="coreString(category.value)"
+              appearance="flat-button"
+              :appearanceOverrides="
+                isCategoryActive(category.value)
+                  ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+                  : categoryListItemStyles
+              "
+              :disabled="
+                availableRootCategories &&
+                  !availableRootCategories[category.value] &&
+                  !isCategoryActive(category.value)
+              "
+              :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
+              @click="handleCategory(key)"
+            />
           </div>
-       
+          <div
+            span="4"
+            class="category-list-item"
+          >
+            <KButton
+              :text="coreString('uncategorized')"
+              appearance="flat-button"
+              :appearanceOverrides="
+                isCategoryActive('no_categories')
+                  ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+                  : categoryListItemStyles
+              "
+              @click="noCategories"
+            />
+          </div>
+        </div>
+        <ActivityButtonsGroup
+          v-if="showActivities"
+          class="section"
+          @input="handleActivity"
+        />
+        <!-- Filter results by learning activity, displaying all options -->
+        <SelectGroup
+          v-model="inputValue"
+          :showChannels="showChannels"
+          class="section"
+        />
+        <div
+          v-if="Object.keys(availableResourcesNeeded).length"
+          class="section"
+        >
+          <h2 class="title">
+            {{ coreString('showResources') }}
+          </h2>
+          <div
+            v-for="(val, activity) in availableResourcesNeeded"
+            :key="activity"
+            span="4"
+            alignment="center"
+          >
+            <KCheckbox
+              :checked="value.learner_needs[val]"
+              :label="coreString(activity)"
+              :disabled="availableNeeds && !availableNeeds[val]"
+              @change="handleNeed(val)"
+            />
+          </div>
+        </div>
+
         <div v-if="accordion && !currentCategory">
           <!-- search by keyword -->
           <h2 class="title">
