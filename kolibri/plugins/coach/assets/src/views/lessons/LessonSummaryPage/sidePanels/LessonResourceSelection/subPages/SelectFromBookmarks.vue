@@ -18,6 +18,7 @@
 
 <script>
 
+  import { getCurrentInstance } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import UpdatedResourceSelection from '../../../UpdatedResourceSelection.vue';
   import { PageNames } from '../../../../../../constants';
@@ -31,12 +32,13 @@
     components: {
       UpdatedResourceSelection,
     },
-    setup(props, { root }) {
+    setup(props) {
       const { selectFromBookmarks$ } = coreStrings;
+      const instance = getCurrentInstance();
 
       props.setTitle(selectFromBookmarks$());
       props.setGoBack(() => {
-        root.$router.push({
+        instance.proxy.$router.push({
           name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
         });
       });
