@@ -33,32 +33,34 @@
             :value="value.keywords || ''"
             @change="val => $emit('input', { ...value, keywords: val })"
           />
-          <h2 class="section title">
-            {{ $tr('categories') }}
-          </h2>
-          <!-- list of category metadata - clicking prompts a filter modal -->
-          <div
-            v-for="(category, key) in availableLibraryCategories"
-            :key="key"
-            span="4"
-            class="category-list-item"
-          >
-            <KButton
-              :text="coreString(category.value)"
-              appearance="flat-button"
-              :appearanceOverrides="
-                isCategoryActive(category.value)
-                  ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
-                  : categoryListItemStyles
-              "
-              :disabled="
-                availableRootCategories &&
-                  !availableRootCategories[category.value] &&
-                  !isCategoryActive(category.value)
-              "
-              :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
-              @click="handleCategory(key)"
-            />
+          <div v-if="Object.keys(availableLibraryCategories).length">
+            <h2 class="section title">
+              {{ $tr('categories') }}
+            </h2>
+            <!-- list of category metadata - clicking prompts a filter modal -->
+            <div
+              v-for="(category, key) in availableLibraryCategories"
+              :key="key"
+              span="4"
+              class="category-list-item"
+            >
+              <KButton
+                :text="coreString(category.value)"
+                appearance="flat-button"
+                :appearanceOverrides="
+                  isCategoryActive(category.value)
+                    ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+                    : categoryListItemStyles
+                "
+                :disabled="
+                  availableRootCategories &&
+                    !availableRootCategories[category.value] &&
+                    !isCategoryActive(category.value)
+                "
+                :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
+                @click="handleCategory(key)"
+              />
+            </div>
           </div>
           <div
             span="4"
