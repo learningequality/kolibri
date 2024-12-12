@@ -1,4 +1,5 @@
 import logger from 'kolibri.lib.logging';
+import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
 import isObject from 'lodash/isObject';
 
 const logging = logger.getLogger(__filename);
@@ -48,11 +49,11 @@ export default {
     spec: {
       background: {
         type: String,
-        default: null,
+        default: themeTokens.appBar,
       },
       textColor: {
         type: String,
-        default: null,
+        default: themeTokens.text,
       },
       topLogo: {
         type: Object,
