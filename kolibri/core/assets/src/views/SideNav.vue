@@ -196,7 +196,7 @@
               height: topBarHeight + 'px',
               width: `${width}`,
               paddingTop: windowIsSmall ? '4px' : '8px',
-              backgroundColor: $themeTokens.appBar,
+              backgroundColor: $themeConfig.appBar.background,
             }"
           >
             <KIconButton
