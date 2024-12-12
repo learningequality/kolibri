@@ -61,22 +61,22 @@
                 @click="handleCategory(key)"
               />
             </div>
-          </div>
-          <div
-            span="4"
-            class="category-list-item"
-          >
-            <KButton
-              :text="coreString('uncategorized')"
-              appearance="flat-button"
-              :appearanceOverrides="
-                isCategoryActive('no_categories')
-                  ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
-                  : categoryListItemStyles
-              "
-              @click="noCategories"
-            />
-          </div>
+            <div
+              span="4"
+              class="category-list-item"
+            >
+              <KButton
+                :text="coreString('uncategorized')"
+                appearance="flat-button"
+                :appearanceOverrides="
+                  isCategoryActive('no_categories')
+                    ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+                    : categoryListItemStyles
+                "
+                @click="noCategories"
+              />
+            </div>
+        </div>
           <ActivityButtonsGroup
             v-if="showActivities"
             class="section"
