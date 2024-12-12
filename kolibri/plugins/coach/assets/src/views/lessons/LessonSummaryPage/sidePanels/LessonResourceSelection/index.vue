@@ -35,10 +35,6 @@
       @deselectResources="deselectResources"
       @setSelectedResources="setSelectedResources"
     />
-    <!-- <component
-      :is="view.component"
-      v-else-if="!view.guard || view.guard()"
-    /> -->
 
     <template #bottomNavigation>
       <div class="bottom-nav-container">

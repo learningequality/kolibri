@@ -4,11 +4,46 @@ import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import useFetch from './useFetch';
 
+/**
+ * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
+ */
+
+/**
+ * Composable for managing the selection of resources within a topic tree.
+ * This utility handles selection rules, manages fetch states for channels, bookmarks,
+ * and topic trees, and offers methods to add, remove, or override selected resources.
+ *
+ * @typedef {Object} UseResourceSelectionResponse
+ * @property {Object} topic Topic tree object, contains the information of the topic,
+ *   its ascendants and children.
+ *   Defined only if the `topicId` query in the route is set.
+ * @property {boolean} loading Indicates whether the main topic tree, channels, and bookmarks
+ *   data are currently loading. This does not account for loading more data. For such cases,
+ *   use the fetch objects of each entity.
+ * @property {FetchObject} channelsFetch Channels fetch object to manage the process of
+ *   fetching channels. We currently don't support fetching more channels.
+ * @property {FetchObject} bookmarksFetch Bookmarks fetch object to manage the process of
+ *   fetching bookmarks. Fetching more bookmarks is supported.
+ * @property {FetchObject} treeFetch Topic tree fetch object to manage the process of
+ *   fetching topic trees and their resources. Fetching more resources is supported.
+ * @property {Array<(node: Object) => boolean>} selectionRules An array of functions that determine
+ *   whether a node can be selected.
+ * @property {Array<Object>} selectedResources An array of currently selected resources.
+ * @property {(resources: Array<Object>) => void} selectResources Adds the specified resources
+ *   to the `selectedResources` array.
+ * @property {(resources: Array<Object>) => void} deselectResources Removes the specified resources
+ *   from the `selectedResources` array.
+ * @property {(resources: Array<Object>) => void} setSelectedResources Replaces the current
+ *   `selectedResources` array with the provided resources array.
+ *
+ * @returns {UseResourceSelectionResponse}
+ */
 export default function useResourceSelection() {
   const store = getCurrentInstance().proxy.$store;
   const route = computed(() => store.state.route);
   const topicId = computed(() => route.value.query.topicId);
 
+  const selectionRules = ref([]);
   const selectedResources = ref([]);
 
   const bookmarksFetch = useFetch({
@@ -79,6 +114,9 @@ export default function useResourceSelection() {
   fetchInitialData();
 
   const selectResources = (resources = []) => {
+    if (!resources || !resources.length) {
+      return;
+    }
     if (resources.length === 1) {
       const [newResource] = resources;
       if (!selectedResources.value.find(res => res.id === newResource.id)) {
@@ -90,6 +128,9 @@ export default function useResourceSelection() {
   };
 
   const deselectResources = (resources = []) => {
+    if (!resources || !resources.length) {
+      return;
+    }
     selectedResources.value = selectedResources.value.filter(res => {
       return !resources.find(unselectedResource => unselectedResource.id === res.id);
     });
@@ -98,8 +139,6 @@ export default function useResourceSelection() {
   const setSelectedResources = (resources = []) => {
     selectedResources.value = resources;
   };
-
-  const selectionRules = [];
 
   return {
     topic,

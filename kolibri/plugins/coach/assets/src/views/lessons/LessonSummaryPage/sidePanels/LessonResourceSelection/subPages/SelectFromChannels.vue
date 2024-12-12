@@ -49,6 +49,10 @@
   import { coachStrings } from '../../../../../common/commonCoachStrings';
   import { PageNames } from '../../../../../../constants';
 
+  /**
+   * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
+   */
+
   export default {
     name: 'SelectFromChannels',
     components: {
@@ -87,6 +91,10 @@
         type: Object,
         required: true,
       },
+      /**
+       * Fetch object for fetching resource tree.
+       * @type {FetchObject}
+       */
       treeFetch: {
         type: Object,
         required: true,

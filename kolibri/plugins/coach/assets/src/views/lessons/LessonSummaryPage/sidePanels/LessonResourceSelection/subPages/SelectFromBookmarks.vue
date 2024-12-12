@@ -22,6 +22,10 @@
   import UpdatedResourceSelection from '../../../UpdatedResourceSelection.vue';
   import { PageNames } from '../../../../../../constants';
 
+  /**
+   * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
+   */
+
   export default {
     name: 'SelectFromBookmarks',
     components: {
@@ -54,6 +58,10 @@
         type: Function,
         default: () => {},
       },
+      /**
+       * Fetch object for fetching bookmarks.
+       * @type {FetchObject}
+       */
       bookmarksFetch: {
         type: Object,
         required: true,
