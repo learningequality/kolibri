@@ -25,7 +25,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useDevices from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
   import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
-  import { ref, onBeforeUnmount } from '@vue/composition-api';
+  import { ref, onBeforeUnmount } from 'vue';
   import { KolibriStudioId } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
 

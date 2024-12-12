@@ -1,4 +1,4 @@
-import { ref, computed } from '@vue/composition-api';
+import { ref, computed } from 'vue';
 import { get, set } from '@vueuse/core';
 import useUser from 'kolibri/composables/useUser';
 import UserProgressResource from 'kolibri-common/apiResources/UserProgressResource';

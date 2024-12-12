@@ -3,7 +3,7 @@
  * and their duration.
  */
 
-import { computed } from '@vue/composition-api';
+import { computed } from 'vue';
 import { get } from '@vueuse/core';
 import CompletionCriteria from 'kolibri-constants/CompletionCriteria';
 import lodashGet from 'lodash/get';

@@ -1,7 +1,7 @@
 import logger from 'kolibri-logging';
 import _get from 'lodash/get';
 import isArray from 'lodash/isArray';
-import { ref, reactive, computed, onBeforeUnmount, watch } from '@vue/composition-api';
+import { ref, reactive, computed, onBeforeUnmount, watch } from 'vue';
 import { get, set, useMemoize, useTimeoutPoll } from '@vueuse/core';
 
 import useMinimumKolibriVersion from 'kolibri/composables/useMinimumKolibriVersion';

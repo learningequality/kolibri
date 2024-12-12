@@ -70,7 +70,7 @@
 
 <script>
 
-  import { ref } from '@vue/composition-api';
+  import { ref } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useLearnerResources from '../../composables/useLearnerResources';

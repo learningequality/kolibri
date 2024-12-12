@@ -4,7 +4,7 @@ import client from 'kolibri/client';
 import { coreStoreFactory as makeStore } from 'kolibri/store';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useTotalProgress, { useTotalProgressMock } from 'kolibri/composables/useTotalProgress'; // eslint-disable-line
-import { ref } from '@vue/composition-api';
+import { ref } from 'vue';
 import useProgressTracking from '../useProgressTracking';
 import coreModule from '../../../../../../core/assets/src/state/modules/core';
 

@@ -1,17 +1,25 @@
 import { mount, shallowMount } from '@vue/test-utils';
 import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 import { createTranslator } from 'kolibri/utils/i18n';
+import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import SearchResultsGrid from '../../src/views/SearchResultsGrid.vue';
 
 const SearchStrings = createTranslator('SearchResultsGrid', SearchResultsGrid.$trs);
 const coreStrings = commonCoreStrings.methods.coreString;
 
 jest.mock('kolibri-common/composables/useBaseSearch');
+jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 
 describe('when search results are loaded', () => {
+  beforeEach(() => {
+    useKResponsiveWindow.mockImplementation(() => ({
+      windowIsSmall: false,
+      windowIsLarge: true,
+    }));
+  });
   /* useBaseSearch#displayingSearchResults is truthy and isLoading is false */
   it('does not display a list of channels', () => {
-    const wrapper = shallowMount(SearchResultsGrid, {});
+    const wrapper = shallowMount(SearchResultsGrid);
     expect(wrapper.findComponent({ name: 'ChannelCardGroupGrid' }).exists()).toBe(false);
   });
 
@@ -46,9 +54,11 @@ describe('when search results are loaded', () => {
   describe('when there are search results', () => {
     describe('when the windowIsSmall', () => {
       it('does not show toggle buttons between list and grid views', () => {
-        const wrapper = shallowMount(SearchResultsGrid, {
-          computed: { windowIsSmall: () => true },
-        });
+        useKResponsiveWindow.mockImplementation(() => ({
+          windowIsSmall: true,
+          windowIsLarge: false,
+        }));
+        const wrapper = shallowMount(SearchResultsGrid);
         expect(wrapper.find('[data-test="toggle-view-buttons"]').exists()).toBeFalsy();
       });
     });
@@ -60,7 +70,6 @@ describe('when search results are loaded', () => {
             results: [{ result: 1 }],
             searchLoading: false,
           },
-          computed: { windowIsSmall: () => false },
         });
         expect(wrapper.find('[data-test="toggle-view-buttons"]').exists()).toBeTruthy();
       });

@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import { set } from 'vue';
 import { CSVGenerationStatuses, UsersExportStatuses } from '../../constants';
 import actions from './actions';
 
@@ -95,7 +95,7 @@ export default {
     SET_REGISTERED(state, facility) {
       const match = state.facilities.find(f => f.id === facility.id);
       if (match) {
-        Vue.set(match.dataset, 'registered', true);
+        set(match.dataset, 'registered', true);
       }
     },
     /*State for export users tasks*/

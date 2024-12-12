@@ -91,7 +91,7 @@
 
 <script>
 
-  import { ref } from '@vue/composition-api';
+  import { ref } from 'vue';
   import { mapState, mapActions } from 'vuex';
   import orderBy from 'lodash/orderBy';
   import CoreTable from 'kolibri/components/CoreTable';

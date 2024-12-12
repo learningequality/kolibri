@@ -104,7 +104,7 @@
 
   import get from 'lodash/get';
   import { mapState } from 'vuex';
-  import { ref } from '@vue/composition-api';
+  import { ref } from 'vue';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import router from 'kolibri/router';

@@ -114,7 +114,7 @@
 
 <script>
 
-  import { computed } from '@vue/composition-api';
+  import { computed } from 'vue';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import CoreTable from 'kolibri/components/CoreTable';
   import TaskResource from 'kolibri/apiResources/TaskResource';

@@ -377,7 +377,7 @@
   import find from 'lodash/find';
   import urls from 'kolibri/urls';
   import logger from 'kolibri-logging';
-  import { ref, watch } from '@vue/composition-api';
+  import { ref, watch } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { availableLanguages, currentLanguage, sortLanguages } from 'kolibri/utils/i18n';

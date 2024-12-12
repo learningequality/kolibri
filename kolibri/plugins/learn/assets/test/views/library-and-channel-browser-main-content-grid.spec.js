@@ -1,13 +1,18 @@
 import { shallowMount } from '@vue/test-utils';
+import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import LibraryAndChannelBrowserMainContent from '../../src/views/LibraryAndChannelBrowserMainContent';
 
 jest.mock('../../src/composables/useContentLink');
+jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 
 describe('Library and Channel Browser Main Content', () => {
   let wrapper;
   beforeEach(() => {
+    useKResponsiveWindow.mockImplementation(() => ({
+      windowIsSmall: false,
+    }));
     wrapper = shallowMount(LibraryAndChannelBrowserMainContent, {
-      computed: { windowIsSmall: () => false, backRoute: 'test' },
+      computed: { backRoute: 'test' },
       propsData: {
         contents: [{ node: 1 }, { node: 2 }, { node: 3 }],
         currentCardViewStyle: 'card',
@@ -37,7 +42,7 @@ describe('Library and Channel Browser Main Content', () => {
     describe('When `currentCardViewStyle` is a list', () => {
       beforeEach(() => {
         wrapper = shallowMount(LibraryAndChannelBrowserMainContent, {
-          computed: { windowIsSmall: () => false, backRoute: 'test' },
+          computed: { backRoute: 'test' },
           propsData: { contents: [{ node: 1 }], currentCardViewStyle: 'list' },
         });
       });
@@ -58,8 +63,11 @@ describe('Library and Channel Browser Main Content', () => {
   });
   describe('When the user is on a mobile device', () => {
     beforeEach(() => {
+      useKResponsiveWindow.mockImplementation(() => ({
+        windowIsSmall: true,
+      }));
       wrapper = shallowMount(LibraryAndChannelBrowserMainContent, {
-        computed: { windowIsSmall: () => true, backRoute: 'test' },
+        computed: { backRoute: 'test' },
         propsData: { contents: [{ node: 1 }] },
       });
     });

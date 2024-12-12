@@ -26,7 +26,7 @@
 <script>
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import { ref, watch, computed, getCurrentInstance } from '@vue/composition-api';
+  import { ref, watch, computed, getCurrentInstance } from 'vue';
   import { PageNames } from '../../../constants';
 
   export default {

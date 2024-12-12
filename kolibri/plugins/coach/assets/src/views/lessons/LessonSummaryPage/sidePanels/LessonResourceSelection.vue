@@ -114,7 +114,7 @@
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import { ref } from '@vue/composition-api';
+  import { ref } from 'vue';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';

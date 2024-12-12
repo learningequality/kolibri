@@ -127,7 +127,7 @@
 
   import isEqual from 'lodash/isEqual';
   import pick from 'lodash/pick';
-  import { getCurrentInstance, computed, ref } from '@vue/composition-api';
+  import { getCurrentInstance, computed, ref } from 'vue';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,

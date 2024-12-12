@@ -1,7 +1,7 @@
 import { get } from '@vueuse/core';
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
-import { computed, getCurrentInstance } from '@vue/composition-api';
+import { computed, getCurrentInstance } from 'vue';
 import { ExternalPagePaths, PageNames } from '../constants';
 
 function _decodeBackLinkQuery(query) {

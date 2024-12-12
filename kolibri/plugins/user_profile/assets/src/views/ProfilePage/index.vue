@@ -187,7 +187,7 @@
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
   import { mapGetters } from 'vuex';
-  import { ref } from '@vue/composition-api';
+  import { ref } from 'vue';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';

@@ -1,7 +1,7 @@
 import find from 'lodash/find';
 import logger from 'kolibri-logging';
 import { get } from '@vueuse/core';
-import { computed, getCurrentInstance } from '@vue/composition-api';
+import { computed, getCurrentInstance } from 'vue';
 import { currentLanguage, isRtl } from 'kolibri/utils/i18n';
 import useUser from 'kolibri/composables/useUser';
 import { coachStrings } from '../views/common/commonCoachStrings';

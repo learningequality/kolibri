@@ -4,7 +4,7 @@
  * All data exposed by this function belong to a current learner.
  */
 
-import { ref, reactive, getCurrentInstance, onBeforeUnmount } from '@vue/composition-api';
+import { ref, reactive, getCurrentInstance, onBeforeUnmount } from 'vue';
 import { get, set } from '@vueuse/core';
 import fromPairs from 'lodash/fromPairs';
 import isNumber from 'lodash/isNumber';

@@ -8,7 +8,6 @@ import * as AphroditeNoImportant from 'aphrodite/no-important';
 import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
-import VueCompositionApi from '@vue/composition-api';
 import Vuex from 'vuex';
 import logging from 'kolibri-logging';
 import { i18nSetup } from 'kolibri/utils/i18n';
@@ -46,7 +45,6 @@ Vue.mixin({
 Vue.use(VueRouter);
 Vue.use(VueMeta);
 Vue.use(KThemePlugin);
-Vue.use(VueCompositionApi);
 
 Vue.component('ContentRenderer', {
   render(h) {

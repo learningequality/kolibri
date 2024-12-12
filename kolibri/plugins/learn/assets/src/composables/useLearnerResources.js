@@ -5,7 +5,7 @@
  * All data exposed by this function belong to a current learner.
  */
 
-import { computed, ref } from '@vue/composition-api';
+import { computed, ref } from 'vue';
 import { get, set } from '@vueuse/core';
 import flatMap from 'lodash/flatMap';
 import flatMapDepth from 'lodash/flatMapDepth';

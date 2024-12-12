@@ -1,4 +1,4 @@
-import { computed } from '@vue/composition-api';
+import { computed } from 'vue';
 import { get } from '@vueuse/core';
 
 export default function useScrollPosition() {

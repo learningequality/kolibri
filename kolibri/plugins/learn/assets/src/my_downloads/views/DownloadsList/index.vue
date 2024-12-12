@@ -154,7 +154,7 @@
   import CoreTable from 'kolibri/components/CoreTable';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
-  import { computed, getCurrentInstance } from '@vue/composition-api';
+  import { computed, getCurrentInstance } from 'vue';
   import { get } from '@vueuse/core';
   import { createTranslator } from 'kolibri/utils/i18n';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';

@@ -42,7 +42,7 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
-  import { inject, ref } from '@vue/composition-api';
+  import { inject, ref } from 'vue';
   import commonProfileStrings from '../commonProfileStrings';
 
   export default {

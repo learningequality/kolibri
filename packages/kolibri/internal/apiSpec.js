@@ -49,5 +49,4 @@ export default {
   'kolibri-logging': require('kolibri-logging'),
   vue: require('vue'),
   vuex: require('vuex'),
-  '@vue/composition-api': require('@vue/composition-api'),
 };
