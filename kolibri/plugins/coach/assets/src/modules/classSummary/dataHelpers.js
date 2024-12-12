@@ -90,6 +90,8 @@ export default {
       if (!assignment) {
         throw new Error('getLearnersForAssignment: invalid parameter(s)');
       }
+      assignment.assignments = assignment.assignments || [];
+      assignment.learner_ids = assignment.learner_ids || [];
       if (!assignment.assignments.length && !assignment.learner_ids.length) {
         return [];
       }
