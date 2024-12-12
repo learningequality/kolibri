@@ -42,6 +42,25 @@ const _imageSpec = {
 };
 
 export default {
+  appBar: {
+    type: Object,
+    default: null,
+    spec: {
+      background: {
+        type: String,
+        default: null,
+      },
+      textColor: {
+        type: String,
+        default: null,
+      },
+      topLogo: {
+        type: Object,
+        default: null,
+        spec: _imageSpec,
+      },
+    },
+  },
   brandColors: {
     type: Object,
     default: null,
