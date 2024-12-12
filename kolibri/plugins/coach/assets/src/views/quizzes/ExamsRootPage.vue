@@ -269,7 +269,7 @@
       // TODO: refactor to a more robust check
       UserSyncStatusResource.fetchCollection({
         force: true,
-        getParams: { member_of: classId },
+        getParams: { member_of: classId.value },
       }).then(data => {
         if (data && data.length > 0) {
           learnOnlyDevicesExist.value = true;
