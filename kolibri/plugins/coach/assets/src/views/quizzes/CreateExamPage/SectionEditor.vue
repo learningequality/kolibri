@@ -134,11 +134,9 @@
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../constants/index';
   import { injectQuizCreation } from '../../../composables/useQuizCreation.js';
-  import useDrag from './useDrag.js';
 
   export default {
     name: 'SectionEditor',
@@ -153,12 +151,10 @@
         sectionSettings$,
         sectionTitle$,
         sectionTitleUniqueWarning$,
-        numberOfQuestionsLabel$,
         optionalDescriptionLabel$,
         numberOfQuestionsSelected$,
         deleteSectionLabel$,
         applySettings$,
-        sectionOrder$,
         questionOrder$,
         randomizedLabel$,
         randomizedOptionDescription$,
@@ -176,15 +172,12 @@
       const {
         activeSectionIndex,
         activeSection,
-        activeResourcePool,
         activeQuestions,
         allSections,
         updateSection,
         updateQuiz,
         removeSection,
       } = injectQuizCreation();
-
-      const { moveDownOne, moveUpOne } = useDrag();
 
       const showCloseConfirmation = ref(false);
 
@@ -271,8 +264,6 @@
         return activeSectionChanged.value || sectionOrderChanged.value;
       });
 
-      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
-
       const resourceButtonLabel = computed(() => {
         if (activeQuestions.value.length === 0) {
           return addQuestionsLabel$();
@@ -304,16 +295,12 @@
         // useQuizCreation
         activeSectionIndex,
         activeSection,
-        activeResourcePool,
         activeQuestions,
         allSections,
         sectionOrderList,
         updateSection,
         updateQuiz,
         handleDeleteSection,
-        // dragging a11y
-        moveDownOne,
-        moveUpOne,
         // Form models
         learners_see_fixed_order,
         description,
@@ -321,32 +308,22 @@
         resourceButtonLabel,
         showResourceButton,
         maxQuestionsLabel,
-        // Responsiveness
-        windowIsLarge,
-        windowIsSmall,
         // i18n
         displaySectionTitle,
-        addQuestionsLabel$,
         sectionSettings$,
         sectionTitle$,
-        numberOfQuestionsLabel$,
         optionalDescriptionLabel$,
         numberOfQuestionsSelected$,
-        sectionDeletedNotification$,
         deleteSectionLabel$,
         applySettings$,
         closeConfirmationTitle$,
         closeConfirmationMessage$,
         deleteConfirmation$,
-        addMoreQuestionsLabel$,
-        sectionOrder$,
         questionOrder$,
         randomizedLabel$,
         randomizedOptionDescription$,
         fixedLabel$,
         fixedOptionDescription$,
-
-        createSnackbar,
       };
     },
     computed: {

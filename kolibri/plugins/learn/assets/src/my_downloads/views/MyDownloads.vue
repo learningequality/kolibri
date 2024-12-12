@@ -49,11 +49,10 @@
   import { get } from '@vueuse/core';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
-  import { computed, getCurrentInstance } from 'vue';
+  import { computed } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import plugin_data from 'kolibri-plugin-data';
   import useDownloadRequests from '../../composables/useDownloadRequests';
-  import useDevices from '../../composables/useDevices';
   import DownloadsList from './DownloadsList';
   import ActivityFilter from './Filters/ActivityFilter.vue';
   import SortFilter from './Filters/SortFilter.vue';
@@ -76,13 +75,6 @@
         availableSpace,
         removeDownloadRequest,
       } = useDownloadRequests();
-      const { fetchDevices } = useDevices();
-
-      const store = getCurrentInstance().proxy.$store;
-      const route = computed(() => store.state.route);
-      const query = computed(() => get(route).query);
-
-      const sort = computed(() => query.value.sort);
 
       const availableStorage = computed(() => {
         let space = get(availableSpace);
@@ -98,10 +90,6 @@
       return {
         downloadRequestMap,
         loading,
-        availableSpace,
-        fetchAvailableFreespace,
-        fetchDevices,
-        sort,
         removeDownloadRequest,
         availableStorage,
       };

@@ -259,7 +259,10 @@
       handleClickClearAll() {
         TaskResource.clearAll();
       },
-      // @public (used by taskNotificationMixin)
+      /**
+       * @public
+       * Used by the taskNotificationMixin to handle the completion of the task
+       */
       onWatchedTaskFinished() {
         this.refreshChannelList();
       },

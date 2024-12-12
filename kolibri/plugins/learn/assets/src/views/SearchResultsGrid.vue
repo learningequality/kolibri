@@ -73,7 +73,6 @@
 
 <script>
 
-  import { ref } from 'vue';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import SearchChips from 'kolibri-common/components/SearchChips';
@@ -89,12 +88,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const sidePanelContent = ref(null);
-      const toggleInfoPanel = content => (sidePanelContent.value = content);
       const { windowIsSmall } = useKResponsiveWindow();
       return {
-        sidePanelContent,
-        toggleInfoPanel,
         windowIsSmall,
       };
     },

@@ -57,7 +57,6 @@
 
       return {
         status,
-        syncDownloadsInProgress,
         isLearnerOnlyImport,
         isSyncing,
       };

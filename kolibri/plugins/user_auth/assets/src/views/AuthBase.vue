@@ -183,7 +183,6 @@
   import CoreLogo from 'kolibri/components/CoreLogo';
   import PrivacyInfoModal from 'kolibri/components/PrivacyInfoModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useUser from 'kolibri/composables/useUser';
   import themeConfig from 'kolibri/styles/themeConfig';
   import loginComponents from 'kolibri-common/utils/loginComponents';
   import urls from 'kolibri/urls';
@@ -198,8 +197,7 @@
     components: { CoreLogo, LanguageSwitcherFooter, PrivacyInfoModal },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
-      const { isLearnerOnlyImport } = useUser();
-      return { isLearnerOnlyImport, themeConfig };
+      return { themeConfig };
     },
     props: {
       hideCreateAccount: {

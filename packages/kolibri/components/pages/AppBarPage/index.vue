@@ -57,7 +57,6 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
-  import useUserSyncStatus from 'kolibri/composables/useUserSyncStatus';
   import useUser from 'kolibri/composables/useUser';
   import ScrollingHeader from '../ScrollingHeader';
   import AppBar from './internal/AppBar';
@@ -72,11 +71,9 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const userDeviceStatus = useUserSyncStatus().deviceStatus;
       const { windowBreakpoint, windowIsSmall } = useKResponsiveWindow();
       const { isAppContext } = useUser();
       return {
-        userDeviceStatus,
         windowBreakpoint,
         windowIsSmall,
         isAppContext,

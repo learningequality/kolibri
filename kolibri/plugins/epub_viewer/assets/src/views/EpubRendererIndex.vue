@@ -358,7 +358,6 @@
       increaseFontSizeDisabled() {
         return this.fontSize === `${FONT_SIZE_MAX}px`;
       },
-      /* eslint-disable vue/no-unused-properties */
       /**
        * @public
        */
@@ -369,7 +368,6 @@
         const seconds = (numberOfWords * 60) / WORDS_PER_MINUTE;
         return seconds;
       },
-      /* eslint-enable vue/no-unused-properties */
       locationsAreReady() {
         return this.locations && this.locations.length > 0;
       },

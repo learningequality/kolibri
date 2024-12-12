@@ -113,7 +113,6 @@
 
       return {
         formData,
-        isFormSubmitted,
         userDoesNotExist,
         username,
         fullName,
