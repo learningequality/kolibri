@@ -44,6 +44,7 @@
 
 <script>
 
+  import { getCurrentInstance } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import UpdatedResourceSelection from '../../../UpdatedResourceSelection.vue';
   import { coachStrings } from '../../../../../common/commonCoachStrings';
@@ -58,13 +59,14 @@
     components: {
       UpdatedResourceSelection,
     },
-    setup(props, { root }) {
+    setup(props) {
       const { selectFromChannels$, searchLabel$ } = coreStrings;
       const { manageLessonResourcesTitle$ } = coachStrings;
+      const instance = getCurrentInstance();
 
       props.setTitle(manageLessonResourcesTitle$());
       props.setGoBack(() => {
-        root.$router.push({
+        instance.proxy.$router.push({
           name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
         });
       });
