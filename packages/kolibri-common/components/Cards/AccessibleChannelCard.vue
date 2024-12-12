@@ -8,9 +8,6 @@
     :thumbnailSrc="contentNode.thumbnail"
     :title="contentNode.name"
     :headingLevel="headingLevel"
-    :style="{
-      minHeight: '150px',
-    }"
   >
     <template #thumbnailPlaceholder>
       <div>

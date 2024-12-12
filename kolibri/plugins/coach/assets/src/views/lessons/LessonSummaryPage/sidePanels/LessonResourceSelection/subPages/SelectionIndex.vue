@@ -66,6 +66,10 @@
   import { PageNames } from '../../../../../../constants';
   import { coachStrings } from '../../../../../common/commonCoachStrings';
 
+  /**
+   * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
+   */
+
   export default {
     name: 'SelectionIndex',
     components: {
@@ -110,10 +114,18 @@
         type: Function,
         default: () => {},
       },
+      /**
+       * Fetch object for fetching channels.
+       * @type {FetchObject}
+       */
       channelsFetch: {
         type: Object,
         required: true,
       },
+      /**
+       * Fetch object for fetching bookmarks.
+       * @type {FetchObject}
+       */
       bookmarksFetch: {
         type: Object,
         required: true,
