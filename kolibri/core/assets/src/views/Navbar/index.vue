@@ -13,11 +13,10 @@
         ref="navLinks"
         :title="link.title"
         :link="link.link"
-        :textColor="textColor || $themeTokens.text"
       >
         <KIcon
           :icon="link.icon"
-          :color="textColor || $themeTokens.text"
+          :color="themeConfig.appBar.textColor"
         />
       </NavbarLink>
     </ul>
@@ -28,7 +27,7 @@
       :ariaLabel="coreString('moreOptions')"
       icon="optionsHorizontal"
       appearance="flat-button"
-      :color="textColor || $themeTokens.text"
+      :color="themeConfig.appBar.textColor"
       :primary="false"
       class="kiconbutton-style"
     >
@@ -52,6 +51,7 @@
   import isUndefined from 'lodash/isUndefined';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import themeConfig from 'kolibri.themeConfig';
   import NavbarLink from './NavbarLink';
   /**
    * Used for navigation between sub-pages of a top-level Kolibri section
@@ -68,6 +68,7 @@
         windowIsLarge,
         windowIsMedium,
         windowWidth,
+        themeConfig,
       };
     },
     props: {
@@ -81,10 +82,6 @@
         validator(values) {
           return values.every(value => value.link.name);
         },
-      },
-      textColor: {
-        type: String,
-        default: null,
       },
     },
     data() {

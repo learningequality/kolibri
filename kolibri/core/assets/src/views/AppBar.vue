@@ -55,7 +55,6 @@
           <slot name="sub-nav">
             <Navbar
               v-if="links.length > 0"
-              :textColor="themeConfig.appBar.textColor"
               :navigationLinks="links"
             />
           </slot>
