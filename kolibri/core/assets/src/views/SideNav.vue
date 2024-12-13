@@ -204,7 +204,7 @@
               ref="closeButton"
               tabindex="0"
               icon="close"
-              :color="$themeTokens.text"
+              :color="themeConfig.appBar.textColor"
               class="side-nav-header-icon"
               :ariaLabel="$tr('closeNav')"
               size="large"
@@ -212,7 +212,7 @@
             />
             <span
               class="side-nav-header-name"
-              :style="{ color: $themeTokens.text }"
+              :style="{ color: themeConfig.appBar.textColor }"
             >{{ sideNavTitleText }}</span>
           </div>
         </FocusTrap>
