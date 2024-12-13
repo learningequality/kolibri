@@ -4,6 +4,7 @@ import os
 from itertools import groupby
 from math import ceil
 
+from django.db.models import Count
 from django.db.models import Max
 from django.db.models import Sum
 from le_utils.constants import content_kinds
@@ -814,7 +815,14 @@ def calculate_included_languages(channel):
     content_nodes = ContentNode.objects.filter(
         channel_id=channel.id, available=True
     ).exclude(lang=None)
-    languages = content_nodes.order_by("lang").values_list("lang", flat=True).distinct()
+    languages = (
+        content_nodes.values("lang")
+        .annotate(count=Count("lang"))
+        .order_by("-count")
+        .values_list("lang", flat=True)
+        .distinct()
+    )
+    channel.included_languages.clear()
     channel.included_languages.add(*list(languages))
 
 
