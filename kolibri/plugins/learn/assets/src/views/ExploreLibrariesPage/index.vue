@@ -107,7 +107,6 @@
       const {
         handlePinToggle,
         fetchPinsForUser,
-        userPinsMap,
         pinnedDevices,
         unpinnedDevices,
         pinnedDevicesExist,
@@ -138,9 +137,7 @@
         pinnedDevices,
         unpinnedDevices,
         pinnedDevicesExist,
-        userPinsMap,
         deviceChannelsMap,
-        networkDevicesWithChannels,
         back,
         loading: isLoadingChannels,
         moreDevices,

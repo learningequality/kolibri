@@ -88,7 +88,6 @@
 
 <script>
 
-  import { computed, toRefs } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { ViewMoreButtonStates } from '../../../constants/index';
   import LessonContentCard from './LessonContentCard';
@@ -99,14 +98,8 @@
       LessonContentCard,
     },
     mixins: [commonCoreStrings],
-    setup(props) {
-      const { selectAllChecked, selectAllIndeterminate } = toRefs(props);
-      // Code too long to display in template
-      const ariaChecked = computed(() => {
-        return selectAllChecked.value ? true : selectAllIndeterminate.value ? 'mixed' : false;
-      });
+    setup() {
       return {
-        ariaChecked,
         ViewMoreButtonStates,
       };
     },

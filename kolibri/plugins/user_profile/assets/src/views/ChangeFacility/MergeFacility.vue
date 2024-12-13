@@ -327,8 +327,6 @@
       return {
         percentage,
         taskError,
-        taskId,
-        task,
         taskCompleted,
         taskInfo,
         to_finish,

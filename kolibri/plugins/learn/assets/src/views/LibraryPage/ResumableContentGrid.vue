@@ -70,7 +70,6 @@
 
 <script>
 
-  import { ref } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useLearnerResources from '../../composables/useLearnerResources';
@@ -88,24 +87,8 @@
       const { resumableContentNodes, moreResumableContentNodes, fetchMoreResumableContentNodes } =
         useLearnerResources();
 
-      var sidePanelContent = ref(null);
-      const toggleInfoPanel = content => (sidePanelContent.value = content);
-
-      const activityRefs = {};
-
-      const findFirstEl = () => {
-        const activityKeys = Object.keys(activityRefs);
-        const firstActivity = activityKeys.find(key => key.endsWith('0'));
-        if (firstActivity) {
-          activityKeys[firstActivity].value.focusFirstEl();
-        }
-      };
       const { windowIsSmall } = useKResponsiveWindow();
       return {
-        activityRefs,
-        findFirstEl,
-        sidePanelContent,
-        toggleInfoPanel,
         resumableContentNodes,
         moreResumableContentNodes,
         fetchMoreResumableContentNodes,

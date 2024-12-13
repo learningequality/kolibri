@@ -113,7 +113,6 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../../common';
-  import { useCoachTabs } from '../../../composables/useCoachTabs';
   import ReportsControls from '../../common/ReportsControls';
 
   export default {
@@ -122,13 +121,6 @@
       ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
-    setup() {
-      const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
-      return {
-        saveTabsClick,
-        wereTabsClickedRecently,
-      };
-    },
     computed: {
       learner() {
         return this.learnerMap[this.$route.params.learnerId];

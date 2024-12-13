@@ -184,7 +184,7 @@
     setup() {
       const { genExternalContentURLBackLinkCurrentPage } = useContentLink();
       const { getLearningActivityIcon } = useLearningActivities();
-      const { downloadRequestMap, availableSpace } = useDownloadRequests();
+      const { downloadRequestMap } = useDownloadRequests();
       const { networkDevices } = useDevices();
       const { windowIsLarge } = useKResponsiveWindow();
       const store = getCurrentInstance().proxy.$store;
@@ -196,7 +196,6 @@
         pageSizeNumber,
         getLearningActivityIcon,
         networkDevices,
-        availableSpace,
         windowIsLarge,
         genExternalContentURLBackLinkCurrentPage,
       };

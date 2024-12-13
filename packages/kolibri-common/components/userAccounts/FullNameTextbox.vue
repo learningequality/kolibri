@@ -66,7 +66,9 @@
       },
     },
     methods: {
-      // @public
+      /**
+       * @public
+       */
       focus() {
         return this.$refs.textbox.focus();
       },

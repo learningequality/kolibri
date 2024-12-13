@@ -164,7 +164,6 @@
         );
       });
       return {
-        devices,
         devicesById,
       };
     },

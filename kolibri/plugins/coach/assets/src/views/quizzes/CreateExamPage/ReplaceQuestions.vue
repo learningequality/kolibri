@@ -151,7 +151,6 @@
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { getCurrentInstance, computed, ref } from 'vue';
   import { get } from '@vueuse/core';
-  import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
@@ -174,7 +173,6 @@
 
       const {
         replaceQuestions$,
-        deleteSectionLabel$,
         replaceAction$,
         selectAllLabel$,
         closeConfirmationMessage$,
@@ -185,7 +183,6 @@
         numberOfQuestionsReplaced$,
         noUndoWarning$,
         selectQuestionsToContinue$,
-        selectFewerQuestion$,
         collapseAll$,
         expandAll$,
       } = enhancedQuizManagementStrings;
@@ -198,18 +195,8 @@
         activeResourceMap,
         replacementQuestionPool,
         clearSelectedQuestions,
-        replaceSelectedQuestions,
-        toggleQuestionInSelection,
         handleReplacement,
-        allSections,
       } = injectQuizCreation();
-
-      const activeSectionTitle = computed(() => {
-        const activeSectionIndex = allSections.value.findIndex(section =>
-          isEqual(JSON.stringify(section), JSON.stringify(activeSection.value)),
-        );
-        return displaySectionTitle(activeSection.value, activeSectionIndex);
-      });
 
       const showCloseConfirmation = ref(false);
       const showReplacementConfirmation = ref(false);
@@ -273,8 +260,6 @@
         useAccordion(replacementQuestionPool);
 
       return {
-        createSnackbar,
-
         toggle,
         isExpanded,
         collapseAll,
@@ -285,24 +270,20 @@
         toggleInReplacements,
         activeSection,
         activeSectionIndex,
-        activeSectionTitle,
         selectAllReplacementQuestions,
         selectedActiveQuestions,
         replacementQuestionPool,
         selectAllIsIndeterminate,
         selectAllIsChecked,
-        replaceSelectedQuestions,
         activeResourceMap,
         showCloseConfirmation,
         showReplacementConfirmation,
         confirmReplacement,
 
         handleConfirmClose,
-        toggleQuestionInSelection,
         submitReplacement,
         replacements,
         replaceQuestions$,
-        deleteSectionLabel$,
         replaceAction$,
         selectAllLabel$,
         numberOfSelectedReplacements$,
@@ -312,7 +293,6 @@
         replaceQuestionsExplaination$,
         replaceQuestionsHeading$,
         selectQuestionsToContinue$,
-        selectFewerQuestion$,
         collapseAll$,
         expandAll$,
         displayQuestionTitle,

@@ -53,19 +53,12 @@
 
 <script>
 
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'UnPinnedDevices',
     components: {},
     mixins: [commonCoreStrings],
-    setup() {
-      const { windowGutter } = useKResponsiveWindow();
-      return {
-        windowGutter,
-      };
-    },
     props: {
       device: {
         type: Object,

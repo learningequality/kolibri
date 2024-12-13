@@ -206,7 +206,6 @@
       });
 
       return {
-        isUserLoggedIn,
         channels: localChannelsCache,
         classes,
         activeClassesLessons,

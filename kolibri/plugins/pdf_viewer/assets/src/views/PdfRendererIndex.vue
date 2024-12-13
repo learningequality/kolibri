@@ -217,14 +217,12 @@
       fullscreenText() {
         return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
       },
-      /* eslint-disable vue/no-unused-properties */
       /**
        * @public
        */
       defaultDuration() {
         return this.totalPages * 30;
       },
-      /* eslint-enable vue/no-unused-properties */
       debouncedShowVisiblePages() {
         // So as not to share debounced functions between instances of the same component
         // and also to allow access to the cancel method of the debounced function

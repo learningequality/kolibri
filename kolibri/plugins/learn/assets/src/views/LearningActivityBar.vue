@@ -549,7 +549,7 @@
           this.$refs.menu.focusFirstEl();
         });
       },
-      /*
+      /**
        * @public
        */
       animateNextSteps() {

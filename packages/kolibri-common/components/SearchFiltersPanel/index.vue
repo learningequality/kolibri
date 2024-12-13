@@ -215,8 +215,6 @@
         searchableLabels,
         activeSearchTerms,
         windowIsLarge,
-        // This color is not in KDS but was specifically requested in the design
-        selectedHighlightColor: '#ECF0FE',
       };
     },
     props: {
