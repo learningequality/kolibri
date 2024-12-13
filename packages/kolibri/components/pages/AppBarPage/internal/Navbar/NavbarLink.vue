@@ -124,12 +124,6 @@ Links for use inside the Navbar
     }
   }
 
-  // Getting this class to work correctly with our theme system is not currently
-  // possible. Some options:
-  //  1. Update vueAphrodite to handle nested classes (to handle .dimmable)
-  //  2. Wait for <router-link> to support scoped slots as described in
-  //     https://github.com/vuejs/rfcs/pull/34
-  //  3. Somehow refactor the tab styling to not require nested active classes
   .router-link-active {
     font-weight: bold;
     border-bottom-style: solid;
