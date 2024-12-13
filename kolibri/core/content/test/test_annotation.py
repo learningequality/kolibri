@@ -17,6 +17,8 @@ from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.test.test_channel_upgrade import ChannelBuilder
 from kolibri.core.content.utils.annotation import calculate_included_languages
+from kolibri.core.content.utils.annotation import calculate_ordered_categories
+from kolibri.core.content.utils.annotation import calculate_ordered_grade_levels
 from kolibri.core.content.utils.annotation import calculate_published_size
 from kolibri.core.content.utils.annotation import calculate_total_resource_count
 from kolibri.core.content.utils.annotation import mark_local_files_as_available
@@ -961,6 +963,119 @@ class SetChannelMetadataFieldsTestCase(TestCase):
         self.assertEqual(
             list(self.channel.included_languages.values_list("id", flat=True)), ["en"]
         )
+
+    def test_calculate_ordered_categories(self):
+        # Test with no categories
+        calculate_ordered_categories(self.channel)
+        self.assertIsNone(self.channel.included_categories)
+
+        # Create nodes with different categories
+        ContentNode.objects.filter(id=self.node.id).update(categories="math,science")
+        ContentNode.objects.create(
+            title="test2",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=self.node.channel_id,
+            categories="math,history",
+            available=True,
+        )
+        node3 = ContentNode.objects.create(
+            title="test3",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=self.node.channel_id,
+            categories="math",
+            available=True,
+        )
+
+        # Test ordering by frequency
+        calculate_ordered_categories(self.channel)
+        self.assertEqual(self.channel.included_categories, "math,science,history")
+
+        # Test with unavailable node
+        node3.available = False
+        node3.save()
+        calculate_ordered_categories(self.channel)
+        self.assertEqual(self.channel.included_categories, "math,science,history")
+
+    def test_calculate_ordered_grade_levels(self):
+        # Test with no grade levels
+        calculate_ordered_grade_levels(self.channel)
+        self.assertIsNone(self.channel.included_grade_levels)
+
+        # Create nodes with different grade levels
+        ContentNode.objects.filter(id=self.node.id).update(grade_levels="1,2")
+        ContentNode.objects.create(
+            title="test2",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=self.node.channel_id,
+            grade_levels="2,3",
+            available=True,
+        )
+        node3 = ContentNode.objects.create(
+            title="test3",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=self.node.channel_id,
+            grade_levels="2",
+            available=True,
+        )
+
+        # Test ordering by frequency
+        calculate_ordered_grade_levels(self.channel)
+        self.assertEqual(self.channel.included_grade_levels, "2,1,3")
+
+        # Test with unavailable node
+        node3.available = False
+        node3.save()
+        calculate_ordered_grade_levels(self.channel)
+        self.assertEqual(self.channel.included_grade_levels, "2,1,3")
+
+    def test_calculate_included_languages_frequency(self):
+        # Create additional languages
+        Language.objects.create(id="es", lang_code="es")
+        Language.objects.create(id="fr", lang_code="fr")
+
+        # Create nodes with different languages
+        self.node.lang_id = "en"
+        self.node.save()
+        ContentNode.objects.create(
+            title="test2",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=self.node.channel_id,
+            lang_id="es",
+            available=True,
+        )
+        node3 = ContentNode.objects.create(
+            title="test3",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=self.node.channel_id,
+            lang_id="es",
+            available=True,
+        )
+        ContentNode.objects.create(
+            title="test4",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=self.node.channel_id,
+            lang_id="fr",
+            available=True,
+        )
+
+        # Test ordering by frequency
+        calculate_included_languages(self.channel)
+        languages = set(self.channel.included_languages.values_list("id", flat=True))
+        self.assertEqual(languages, {"en", "es", "fr"})
+
+        # Test with unavailable node
+        node3.available = False
+        node3.save()
+        calculate_included_languages(self.channel)
+        languages = set(self.channel.included_languages.values_list("id", flat=True))
+        self.assertEqual(languages, {"en", "es", "fr"})
 
     def test_calculate_total_resources(self):
         local_file = LocalFile.objects.create(
