@@ -123,6 +123,8 @@ class WebpackBundleHook(hooks.KolibriHook):
             if getattr(settings, "DEVELOPER_MODE", False):
                 try:
                     f["url"] = f["publicPath"]
+                    if f["url"].startswith("auto"):
+                        raise KeyError
                 except KeyError:
                     f["url"] = staticfiles_storage.url(relpath)
             else:
