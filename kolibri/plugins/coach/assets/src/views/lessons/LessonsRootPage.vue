@@ -5,6 +5,7 @@
       <CoachHeader :title="coreString('lessonsLabel')">
         <template #actions>
           <KRouterLink
+            id="new-lesson-button"
             primary
             appearance="raised-button"
             :text="coachString('newLessonAction')"
@@ -19,7 +20,10 @@
         >
           {{ coachString('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
         </p>
-        <ReportsControls @export="exportCSV">
+        <ReportsControls
+          @export="exportCSV"
+          @printToPDF="printToPDF"
+        >
           <div :style="windowIsSmall ? { display: 'grid' } : {}">
             <KSelect
               v-model="filterSelection"
@@ -454,6 +458,15 @@
         ];
         const fileName = this.$tr('printLabel', { className: this.className });
         new CSVExporter(columns, fileName).export(this.sortedLessons);
+      },
+      printToPDF() {
+        const lessonButton = document.getElementById('new-lesson-button');
+        lessonButton.style.display = 'none';
+
+        this.$print();
+        setTimeout(() => {
+          lessonButton.style.display = 'block';
+        }, 500);
       },
       bytesForHumans,
     },

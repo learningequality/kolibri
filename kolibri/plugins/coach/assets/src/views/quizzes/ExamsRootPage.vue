@@ -31,6 +31,7 @@
         <template #actions>
           <KButton
             v-if="practiceQuizzesExist && !hasNoChannels"
+            id="new-quiz-button"
             primary
             hasDropdown
             appearance="raised-button"
@@ -61,6 +62,7 @@
         <ReportsControls
           class="report-controls"
           @export="exportCSV"
+          @printToPDF="printToPDF"
         >
           <KSelect
             v-model="statusSelected"
@@ -570,6 +572,15 @@
           this.channels = data;
           this.isLoading = false;
         });
+      },
+      printToPDF() {
+        const quizButton = document.getElementById('new-quiz-button');
+        quizButton.style.display = 'none';
+
+        this.$print();
+        setTimeout(() => {
+          quizButton.style.display = 'block';
+        }, 500);
       },
     },
     $trs: {
