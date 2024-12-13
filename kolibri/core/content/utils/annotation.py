@@ -774,6 +774,8 @@ def set_channel_metadata_fields(channel_id, public=None):
         calculate_published_size(channel)
         calculate_total_resource_count(channel)
         calculate_included_languages(channel)
+        calculate_ordered_categories(channel)
+        calculate_ordered_grade_levels(channel)
         calculate_next_order(channel)
 
         if public is not None:
@@ -807,6 +809,38 @@ def calculate_total_resource_count(channel):
     content_nodes = ContentNode.objects.filter(channel_id=channel.id)
     channel.total_resource_count = (
         content_nodes.filter(available=True).exclude(kind=content_kinds.TOPIC).count()
+    )
+    channel.save()
+
+
+def _calculate_ordered_field_values(channel, field_name):
+    content_nodes = ContentNode.objects.filter(
+        channel_id=channel.id, available=True
+    ).exclude(**{field_name: None})
+    all_values = []
+    for node in content_nodes.values_list(field_name, flat=True):
+        if node:  # just in case some field is an empty string
+            all_values.extend(node.split(","))
+
+    value_counts = {}
+    for value in all_values:
+        value_counts[value] = value_counts.get(value, 0) + 1
+
+    return sorted(value_counts.keys(), key=lambda x: value_counts[x], reverse=True)
+
+
+def calculate_ordered_categories(channel):
+    ordered_categories = _calculate_ordered_field_values(channel, "categories")
+    channel.included_categories = (
+        ",".join(ordered_categories) if ordered_categories else None
+    )
+    channel.save()
+
+
+def calculate_ordered_grade_levels(channel):
+    ordered_grade_levels = _calculate_ordered_field_values(channel, "grade_levels")
+    channel.included_grade_levels = (
+        ",".join(ordered_grade_levels) if ordered_grade_levels else None
     )
     channel.save()
 
