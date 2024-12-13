@@ -49,11 +49,11 @@ export default {
     spec: {
       background: {
         type: String,
-        default: themeTokens.appBar,
+        default: themeTokens().appBar,
       },
       textColor: {
         type: String,
-        default: themeTokens.text,
+        default: themeTokens().text,
       },
       topLogo: {
         type: Object,
