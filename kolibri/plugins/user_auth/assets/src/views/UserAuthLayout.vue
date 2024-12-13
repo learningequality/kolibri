@@ -50,8 +50,8 @@
   import AuthMessage from 'kolibri/components/AuthMessage';
   import coreBannerContent from 'kolibri-common/utils/coreBannerContent';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import AppError from 'kolibri-common/components/AppError';
-  import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
+  import AppError from 'kolibri/components/error/AppError';
+  import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
   import { ComponentMap } from '../constants';
   import CoreBanner from './CoreBanner';
 

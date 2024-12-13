@@ -160,7 +160,7 @@
   import CoreLogo from 'kolibri/components/CoreLogo';
   import LanguageSwitcherModal from 'kolibri/components/language-switcher/LanguageSwitcherModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import AppError from 'kolibri-common/components/AppError';
+  import AppError from 'kolibri/components/error/AppError';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { availableLanguages, currentLanguage } from 'kolibri/utils/i18n';
   import { FooterMessageTypes } from '../constants';

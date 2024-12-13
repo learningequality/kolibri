@@ -119,8 +119,8 @@
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import CoreMenu from 'kolibri-common/components/CoreMenu';
-  import CoreMenuOption from 'kolibri-common/components/CoreMenu/CoreMenuOption';
+  import CoreMenu from 'kolibri/components/CoreMenu';
+  import CoreMenuOption from 'kolibri/components/CoreMenu/CoreMenuOption';
   import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
   import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
   import PrivacyModal from './PrivacyModal';

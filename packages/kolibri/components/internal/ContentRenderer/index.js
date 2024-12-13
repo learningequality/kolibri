@@ -1,10 +1,5 @@
 import { RENDERER_SUFFIX } from 'kolibri/constants';
-import {
-  canRenderContent,
-  getRenderableFiles,
-  getDefaultFile,
-  getFilePreset,
-} from 'kolibri-common/utils/contentViewer';
+import { canRenderContent, getRenderableFiles, getDefaultFile, getFilePreset } from './utils';
 import ContentRendererError from './ContentRendererError';
 
 export default {

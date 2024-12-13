@@ -64,7 +64,7 @@
   import { LearnerDeviceStatus } from 'kolibri/constants';
   import urls from 'kolibri/urls';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
-  import useUserSyncStatus from 'kolibri-common/composables/useUserSyncStatus';
+  import useUserSyncStatus from 'kolibri/composables/useUserSyncStatus';
 
   export default {
     name: 'StorageNotification',

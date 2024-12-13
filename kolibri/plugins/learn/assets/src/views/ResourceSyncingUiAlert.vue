@@ -17,7 +17,7 @@
   import { get } from '@vueuse/core';
   import { computed, watch } from 'vue';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert.vue';
-  import useUserSyncStatus from 'kolibri-common/composables/useUserSyncStatus';
+  import useUserSyncStatus from 'kolibri/composables/useUserSyncStatus';
   import { SyncStatus } from 'kolibri/constants';
   import { createTranslator } from 'kolibri/utils/i18n';
   import useUser from 'kolibri/composables/useUser';

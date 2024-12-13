@@ -19,7 +19,7 @@
 <script>
 
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import CoreSnackbar from './CoreSnackbar';
+  import CoreSnackbar from './internal/CoreSnackbar';
 
   export default {
     name: 'GlobalSnackbar',

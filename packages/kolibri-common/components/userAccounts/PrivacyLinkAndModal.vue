@@ -19,7 +19,7 @@
 
 <script>
 
-  import PrivacyInfoModal from 'kolibri-common/components/PrivacyInfoModal';
+  import PrivacyInfoModal from 'kolibri/components/PrivacyInfoModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {

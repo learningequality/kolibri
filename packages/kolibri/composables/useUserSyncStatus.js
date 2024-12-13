@@ -1,9 +1,13 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue';
-import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
+import { Resource } from 'kolibri/apiResource';
 import store from 'kolibri/store';
 import { SyncStatus } from 'kolibri/constants';
 import { get, useTimeoutPoll } from '@vueuse/core';
 import useUser from 'kolibri/composables/useUser';
+
+const UserSyncStatusResource = new Resource({
+  name: 'usersyncstatus',
+});
 
 const { isLearnerOnlyImport, isUserLoggedIn, currentUserId } = useUser();
 

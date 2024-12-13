@@ -38,7 +38,7 @@
 
   import omitBy from 'lodash/omitBy';
   import get from 'lodash/get';
-  import AppError from 'kolibri-common/components/AppError';
+  import AppError from 'kolibri/components/error/AppError';
   import { currentLanguage } from 'kolibri/utils/i18n';
   import { checkCapability } from 'kolibri/utils/appCapabilities';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
