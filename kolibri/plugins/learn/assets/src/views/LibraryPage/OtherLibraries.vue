@@ -4,6 +4,7 @@
     <KGrid
       gutter="0"
       class="grid"
+      style="margin-bottom:-25px ;"
     >
       <KGridItem
         :layout12="{ span: 6 }"
@@ -13,13 +14,8 @@
         <h1 :style="{ marginLeft: '-8px' }">
           {{ injectedtr('otherLibraries') }}
         </h1>
-      </KGridItem>
-      <KGridItem
-        :layout12="{ span: 6 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 4 }"
-      >
-        <div class="sync-status">
+     
+        <div class="sync-status" >
           <span
             v-show="searchingOtherLibraries"
             data-test="searching"
@@ -43,7 +39,7 @@
                 icon="wifi"
                 class="wifi-svg"
               />
-            </span>
+            </span> 
             &nbsp;&nbsp;
             <span data-test="showing-all-label">{{ injectedtr('showingAllLibraries') }}</span>
             &nbsp;&nbsp;
@@ -55,16 +51,22 @@
               />
             </span>
           </span>
+          <div class="a" v-show="!searchingOtherLibraries && !devicesWithChannelsExist" >
           <span
-            v-show="!searchingOtherLibraries && !devicesWithChannelsExist"
+            
             data-test="no-other"
-          >
-            <span>
-              <KIcon icon="disconnected" />
-            </span>
+            
+          > <div  >
+            <span >
+              <KIcon class="disco"  icon="disconnected" />
+            </span >
+          </div>
             &nbsp;&nbsp;
-            <span data-test="no-other-label">{{ injectedtr('noOtherLibraries') }}</span>
+            <div class="b">
+            <span   data-test="no-other-label">{{ injectedtr('noOtherLibraries') }}</span>
+          </div>
           </span>
+        </div>
         </div>
       </KGridItem>
     </KGrid>
@@ -233,16 +235,20 @@
 
 <style lang="scss" scoped>
 
-  .sync-status {
-    display: flex;
-    justify-content: flex-end;
-    margin: 30px 0 10px;
+.sync-status {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 30px;
+  margin-left: -300px;
+ 
+  span {
 
-    span {
-      display: inline-flex;
-      vertical-align: bottom;
-    }
+   
+    display: inline-block;
+    vertical-align: bottom;
+    margin-left: -8px;
   }
+}
 
   .wifi-svg {
     top: 0;
@@ -251,10 +257,149 @@
 
   .grid {
     margin: 8px;
+    
   }
 
   .other-libraries-grid {
     margin-left: 0.75em;
   }
+
+@media screen  and (max-width: 600px)  {
+  .sync-status {
+  display: flex;
+  justify-content: flex-end;
+  margin-top:-20px ;
+   margin-left: 0px;
+   padding-left: 10px;
+   margin-bottom: 25px;
+   min-width: 400px;
+   max-width: 400px;
+   
+   .a {
+    display: flex; // Use flex to align items if needed
+    align-items: center; // Center items vertically
+    margin-top: -5px; // Add some margin for spacing
+     margin-left: 100px; 
+     margin-right: 13px;
+    }
+    .disco {
+      margin-left: 1000px;
+      margin-right: -640px; // Space between icon and text
+    }
+
+    .b {
+      margin-left: 500px;
+      padding-left: 00px;
+      min-width: 200px;
+    }
+
+   span {
+      margin-left: -191px;
+      margin-bottom:10px ;
+      display: inline-flex;
+      word-wrap: break-word;
+
+      
+      vertical-align: bottom;
+      margin-top: 10px;
+    }
+  }
+  .wifi-svg {
+    top: 0;
+    transform: scale(1.5);
+    margin-left: -213px;
+  }
+}
+@media screen and (min-width: 600px) and (max-width:1100px)  {
+  .sync-status {
+  display: flex;
+  justify-content: flex-end;
+  margin-top:-20px ;
+   margin-left: 0px;
+   padding-left: 10px;
+   margin-bottom: 25px;
+   min-width: 400px;
+
+   .a {
+    display: flex; // Use flex to align items if needed
+    align-items: center; // Center items vertically
+    margin-top: -5px; // Add some margin for spacing
+     margin-left: 100px; 
+     margin-right: 13px;
+    }
+    .disco {
+      margin-left: 1000px;
+      margin-right: -640px; // Space between icon and text
+    }
+
+    .b {
+      margin-left: 500px;
+      padding-left: 00px;
+      min-width: 200px;
+    }
+
+    span {
+      margin-left: -190px;
+      margin-bottom:10px ;
+      display: inline-flex;
+      
+      
+      vertical-align: bottom;
+      margin-top: 10px;
+    }
+  }
+  .wifi-svg {
+    top: 0;
+    transform: scale(1.5);
+    margin-left: -160px;
+  }
+}
+
+@media screen and (min-width: 1100px)  {
+  .sync-status {
+  display: flex;
+  justify-content: flex-end;
+  margin-top:-20px ;
+   margin-left: 0px;
+   padding-left: 10px;
+   margin-bottom: 25px;
+   min-width: 400px;
+    span {
+      margin-left: -220px;
+      margin-bottom:10px ;
+      display: inline-flex;
+      padding-left: -50px;
+      
+      vertical-align: bottom;
+      margin-top: 10px;
+    }
+    .a {
+    display: flex; // Use flex to align items if needed
+    align-items: center; // Center items vertically
+    margin-top: -5px; // Add some margin for spacing
+     margin-left: 100px; 
+     margin-right: 50px;
+    
+    }
+    .disco {
+      margin-left: 1000px;
+      margin-right: -610px; // Space between icon and text
+    
+    }
+
+    
+    .b {
+      margin-left: 500px;
+      padding-left: 00px;
+      min-width: 200px;
+    }
+  }
+  .wifi-svg {
+    top: 0;
+    transform: scale(1.5);
+    margin-left: -140px;
+  }
+  
+}
 
 </style>
