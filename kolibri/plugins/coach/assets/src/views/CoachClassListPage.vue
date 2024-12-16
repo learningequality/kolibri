@@ -1,7 +1,7 @@
 <template>
 
   <CoachAppBarPage :appBarTitle="appBarTitle">
-    <KPageContainer>
+    <KPageContainer v-if="!dataLoading">
       <p>
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
