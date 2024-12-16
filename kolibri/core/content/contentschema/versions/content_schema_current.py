@@ -6,6 +6,7 @@ from sqlalchemy import CheckConstraint
 from sqlalchemy import Column
 from sqlalchemy import Float
 from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy import Index
 from sqlalchemy import Integer
 from sqlalchemy import String
@@ -46,8 +47,22 @@ class ContentLocalfile(Base):
 class ContentContentnode(Base):
     __tablename__ = "content_contentnode"
     __table_args__ = (
-        CheckConstraint(
-            '"lft" >= 0), "tree_id" integer unsigned NOT NULL CHECK ("tree_id" >= 0), "level" integer unsigned NOT NULL CHECK ("level" >= 0), "lang_id" varchar(14) NULL REFERENCES "content_language" ("id") DEFERRABLE INITIALLY DEFERRED, "license_description" text NULL, "license_name" varchar(50) NULL, "coach_content" bool NOT NULL, "num_coach_contents" integer NULL, "on_device_resources" integer NULL, "options" text NULL, "accessibility_labels" text NULL, "categories" text NULL, "duration" integer unsigned NULL CHECK ("duration" >= 0), "grade_levels" text NULL, "learner_needs" text NULL, "learning_activities" text NULL, "resource_types" text NULL, "accessibility_labels_bitmask_0" bigint NULL, "categories_bitmask_0" bigint NULL, "grade_levels_bitmask_0" bigint NULL, "learner_needs_bitmask_0" bigint NULL, "learning_activities_bitmask_0" bigint NULL, "ancestors" text NULL, "admin_imported" bool NULL, "rght" integer unsigned NOT NULL CHECK ("rght" >= 0), "parent_id" char(32) NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED'  # noqa: E501
+        CheckConstraint("lft >= 0"),
+        CheckConstraint("tree_id >= 0"),
+        CheckConstraint("level >= 0"),
+        CheckConstraint("duration >= 0"),
+        CheckConstraint("rght >= 0"),
+        ForeignKeyConstraint(
+            ["lang_id"],
+            ["content_language.id"],
+            deferrable=True,
+            initially="DEFERRED",
+        ),
+        ForeignKeyConstraint(
+            ["parent_id"],
+            ["content_contentnode.id"],
+            deferrable=True,
+            initially="DEFERRED",
         ),
         Index(
             "content_contentnode_level_channel_id_available_29f0bb18_idx",
@@ -76,7 +91,7 @@ class ContentContentnode(Base):
     lft = Column(Integer, nullable=False)
     tree_id = Column(Integer, nullable=False, index=True)
     level = Column(Integer, nullable=False)
-    lang_id = Column(ForeignKey("content_language.id"), index=True)
+    lang_id = Column(String(14), index=True)
     license_description = Column(Text)
     license_name = Column(String(50))
     coach_content = Column(Boolean, nullable=False)
@@ -98,7 +113,7 @@ class ContentContentnode(Base):
     ancestors = Column(Text)
     admin_imported = Column(Boolean)
     rght = Column(Integer, nullable=False)
-    parent_id = Column(ForeignKey("content_contentnode.id"), index=True)
+    parent_id = Column(CHAR(32), index=True)
 
     lang = relationship("ContentLanguage")
     parent = relationship("ContentContentnode", remote_side=[id])
@@ -123,8 +138,10 @@ class ContentAssessmentmetadata(Base):
 class ContentChannelmetadata(Base):
     __tablename__ = "content_channelmetadata"
     __table_args__ = (
-        CheckConstraint(
-            '"order" >= 0), "public" bool NULL, "tagline" varchar(150) NULL, "partial" bool NULL, "included_categories" text NULL, "included_grade_levels" text NULL'  # noqa: E501
+        CheckConstraint('"order" >= 0'),
+        ForeignKeyConstraint(
+            ["root_id"],
+            ["content_contentnode.id"],
         ),
     )
 
@@ -136,7 +153,7 @@ class ContentChannelmetadata(Base):
     thumbnail = Column(Text, nullable=False)
     last_updated = Column(String)
     min_schema_version = Column(String(50), nullable=False)
-    root_id = Column(ForeignKey("content_contentnode.id"), nullable=False, index=True)
+    root_id = Column(CHAR(32), nullable=False, index=True)
     published_size = Column(BigInteger)
     total_resource_count = Column(Integer)
     order = Column(Integer)
