@@ -5,7 +5,7 @@ django-js-reverse==0.10.2
 djangorestframework==3.14.0
 django==3.2.25
 colorlog==6.8.2
-configobj==5.0.8
+configobj==5.0.9
 django-mptt==0.14.0
 requests==2.27.1
 cheroot==10.0.1
