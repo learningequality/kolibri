@@ -13,6 +13,7 @@
         :to="classLearnersListRoute"
       />
       <KIconButton
+        v-if="!disablePrint"
         ref="printButton"
         icon="print"
         :aria-label="coachString('printReportAction')"
@@ -65,6 +66,10 @@
     },
     props: {
       disableExport: {
+        type: Boolean,
+        default: false,
+      },
+      disablePrint: {
         type: Boolean,
         default: false,
       },
