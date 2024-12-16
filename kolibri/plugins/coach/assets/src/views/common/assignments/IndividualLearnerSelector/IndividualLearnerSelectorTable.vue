@@ -1,87 +1,62 @@
 <template>
 
-  <div>
-    <!-- Main checkbox -->
-    <KCheckbox
-      key="adHocLearners"
-      :checked="isVisible"
-      :disabled="disabled"
-      @change="$emit('togglevisibility', $event)"
-    >
-      <KLabeledIcon
-        icon="people"
-        :label="$tr('individualLearnersLabel')"
-      />
-    </KCheckbox>
-
-    <!-- Paginated list of learners -->
-    <div v-if="isVisible">
-      <div class="table-title">
-        {{ $tr('selectedIndividualLearnersLabel') }}
-      </div>
-      <div class="table-description">
-        {{ $tr('onlyShowingEnrolledLabel') }}
-      </div>
-
-      <PaginatedListContainer
-        :items="allLearners"
-        :filterPlaceholder="$tr('searchPlaceholder')"
-        :itemsPerPage="itemsPerPage"
-        @pageChanged="currentPageLearners = $event.items"
+  <PaginatedListContainer
+    :items="allLearners"
+    :filterPlaceholder="$tr('searchPlaceholder')"
+    :itemsPerPage="itemsPerPage"
+    @pageChanged="currentPageLearners = $event.items"
+  >
+    <template #default="{ items }">
+      <CoreTable
+        :selectable="true"
+        :emptyMessage="emptyMessage"
       >
-        <template #default="{ items }">
-          <CoreTable
-            :selectable="true"
-            :emptyMessage="emptyMessage"
-          >
-            <template #headers>
-              <th class="table-checkbox-header">
-                <KCheckbox
-                  key="selectAllOnPage"
-                  :label="$tr('selectAllLabel')"
-                  :checked="selectAllCheckboxProps.checked"
-                  :indeterminate="selectAllCheckboxProps.indeterminate"
-                  :disabled="selectAllCheckboxProps.disabled"
-                  @change="selectVisiblePage"
-                />
-              </th>
-              <th class="table-header">
-                {{ coreString('usernameLabel') }}
-              </th>
-              <th class="table-header">
-                {{ coachString('groupsLabel') }}
-              </th>
-            </template>
-
-            <template #tbody>
-              <tbody>
-                <tr
-                  v-for="learner in items"
-                  :key="learner.id"
-                >
-                  <td>
-                    <KCheckbox
-                      :key="`select-learner-${learner.id}`"
-                      :label="learner.name"
-                      :checked="learnerIsSelected(learner)"
-                      :disabled="learnerIsNotSelectable(learner)"
-                      @change="toggleLearner($event, learner)"
-                    />
-                  </td>
-                  <td class="table-data">
-                    {{ learner.username }}
-                  </td>
-                  <td class="table-data">
-                    {{ groupNamesForLearner(learner) }}
-                  </td>
-                </tr>
-              </tbody>
-            </template>
-          </CoreTable>
+        <template #headers>
+          <th class="table-checkbox-header">
+            <KCheckbox
+              key="selectAllOnPage"
+              :label="$tr('selectAllLabel')"
+              :checked="selectAllCheckboxProps.checked"
+              :indeterminate="selectAllCheckboxProps.indeterminate"
+              :disabled="selectAllCheckboxProps.disabled"
+              @change="selectVisiblePage"
+            />
+          </th>
+          <th class="table-header">
+            {{ coreString('usernameLabel') }}
+          </th>
+          <th class="table-header">
+            {{ coachString('groupsLabel') }}
+          </th>
         </template>
-      </PaginatedListContainer>
-    </div>
-  </div>
+
+        <template #tbody>
+          <tbody>
+            <tr
+              v-for="learner in items"
+              :key="learner.id"
+            >
+              <td>
+                <KCheckbox
+                  :key="`select-learner-${learner.id}`"
+                  :label="learner.name"
+                  :checked="learnerIsSelected(learner)"
+                  :disabled="learnerIsNotSelectable(learner)"
+                  @change="toggleLearner($event, learner)"
+                />
+              </td>
+              <td class="table-data">
+                {{ learner.username }}
+              </td>
+              <td class="table-data">
+                {{ groupNamesForLearner(learner) }}
+              </td>
+            </tr>
+          </tbody>
+        </template>
+      </CoreTable>
+    </template>
+  </PaginatedListContainer>
 
 </template>
 
@@ -98,8 +73,8 @@
   import forEach from 'lodash/forEach';
   import countBy from 'lodash/countBy';
   import every from 'lodash/every';
-  import ClassSummaryResource from '../../../apiResources/classSummary';
-  import commonCoachStrings from '../../common';
+  import ClassSummaryResource from '../../../../apiResources/classSummary';
+  import commonCoachStrings from '../../../common';
 
   const DEFAULT_ITEMS_PER_PAGE = 30;
 
@@ -115,11 +90,6 @@
       };
     },
     props: {
-      // If true, the main checkbox is checked and the list of learners is shown
-      isVisible: {
-        type: Boolean,
-        required: true,
-      },
       // Used to disable learner rows if already assigned via learner group
       selectedGroupIds: {
         type: Array,
@@ -180,7 +150,10 @@
       learnerIdsFromSelectedGroups() {
         // If a learner is part of a Learner Group that has already been selected
         // in RecipientSelector, then disable their row
-        return flatMap(this.selectedGroupIds, groupId => this.currentGroupMap[groupId].member_ids);
+        return flatMap(
+          this.selectedGroupIds,
+          groupId => this.currentGroupMap[groupId]?.member_ids || [],
+        );
       },
       selectAllCheckboxProps() {
         const currentCount = this.currentPageLearners.length;
@@ -277,24 +250,9 @@
       },
     },
     $trs: {
-      selectedIndividualLearnersLabel: {
-        message: 'Select individual learners',
-        context:
-          'A bolded header for the table where a Coach will select individual learners who will have access to a quiz.',
-      },
-      onlyShowingEnrolledLabel: {
-        message: 'Only showing learners that are enrolled in this class',
-        context:
-          "Shows beneath 'Select individual learners' explaining that the table only includes enrolled learners.",
-      },
       selectAllLabel: {
         message: 'Select all on page',
         context: 'A checkbox label that will select all visible rows in the table',
-      },
-      individualLearnersLabel: {
-        message: 'Individual learners',
-        context:
-          'A label for a checkbox that allows the Coach to assign the quiz to individual learners who may not be in a selected group.',
       },
       searchPlaceholder: {
         message: 'Search for a user…',

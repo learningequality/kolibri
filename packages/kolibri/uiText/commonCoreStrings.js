@@ -1550,6 +1550,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Your library',
     context: '',
   },
+  selectAction: {
+    message: 'Select',
+    context: '',
+  },
 });
 
 /**
