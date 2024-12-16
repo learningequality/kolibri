@@ -1,9 +1,10 @@
 import csv
+import io
 import logging
-import os
 from collections import OrderedDict
 from functools import partial
 
+from django.core.files.storage import DefaultStorage
 from django.db.models import OuterRef
 from django.db.models import Q
 
@@ -14,8 +15,9 @@ from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.query import SQCount
-from kolibri.core.utils.csv import open_csv_for_writing
 from kolibri.core.utils.csv import output_mapper
+
+# from kolibri.core.utils.csv import open_csv_for_writing
 
 
 logger = logging.getLogger(__name__)
@@ -159,9 +161,11 @@ db_columns = (
 )
 
 
-def csv_file_generator(facility, filepath, overwrite=True, demographic=False):
-    if not overwrite and os.path.exists(filepath):
-        raise ValueError("{} already exists".format(filepath))
+def csv_file_generator(facility, filename, overwrite=True, demographic=False):
+    fs = DefaultStorage()
+
+    # if not overwrite and os.path.exists(filename):
+    #     raise ValueError("{} already exists".format(filepath))
     queryset = FacilityUser.objects.filter(facility=facility)
 
     header_labels = tuple(
@@ -174,7 +178,7 @@ def csv_file_generator(facility, filepath, overwrite=True, demographic=False):
         column for column in db_columns if demographic or column not in DEMO_FIELDS
     )
 
-    csv_file = open_csv_for_writing(filepath)
+    csv_file = io.StringIO()  # open_csv_for_writing(filepath)
 
     mappings = {}
 
@@ -184,27 +188,29 @@ def csv_file_generator(facility, filepath, overwrite=True, demographic=False):
 
     map_output = partial(output_mapper, labels=labels, output_mappings=mappings)
 
-    with csv_file as f:
-        writer = csv.DictWriter(f, header_labels)
-        logger.info("Creating csv file {filename}".format(filename=filepath))
-        writer.writeheader()
-        usernames = set()
-        for item in (
-            queryset.select_related("facility")
-            .annotate(
-                classroom_count=SQCount(
-                    Classroom.objects.filter(membership__user=OuterRef("id")),
-                    field="id",
-                )
+    writer = csv.DictWriter(csv_file, header_labels)
+    logger.info("Creating csv file {filename}".format(filename=filename))
+    writer.writeheader()
+    usernames = set()
+    for item in (
+        queryset.select_related("facility")
+        .annotate(
+            classroom_count=SQCount(
+                Classroom.objects.filter(membership__user=OuterRef("id")),
+                field="id",
             )
-            .prefetch_related("memberships__collection")
-            .filter(
-                Q(memberships__collection__kind=CLASSROOM)
-                | Q(memberships__collection__isnull=True)
-            )
-            .values(*columns)
-        ):
-            if item["username"] not in usernames:
-                writer.writerow(map_output(item))
-                usernames.add(item["username"])
-                yield
+        )
+        .prefetch_related("memberships__collection")
+        .filter(
+            Q(memberships__collection__kind=CLASSROOM)
+            | Q(memberships__collection__isnull=True)
+        )
+        .values(*columns)
+    ):
+        if item["username"] not in usernames:
+            writer.writerow(map_output(item))
+            usernames.add(item["username"])
+            yield
+    csv_file.seek(0)
+    file = fs.save(filename, csv_file)
+    logger.info("File saved - Path: {} URL: {}".format(fs.path(file), fs.url(file)))

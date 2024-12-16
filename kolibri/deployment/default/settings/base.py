@@ -190,6 +190,16 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 
+# File Storage Backend
+# https://docs.djangoproject.com/en/3.2/ref/files/storage/
+
+if not os.environ.get("DEFAULT_FILE_STORAGE"):
+    if conf.OPTIONS["FileStorage"]["STORAGE_BACKEND"] == "gcs":
+        if DEBUG:
+            DEFAULT_FILE_STORAGE = "kolibri.utils.file_storage.KolibriFileStorageDebug"
+        else:
+            DEFAULT_FILE_STORAGE = "kolibri.utils.file_storage.KolibriFileStorage"
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
