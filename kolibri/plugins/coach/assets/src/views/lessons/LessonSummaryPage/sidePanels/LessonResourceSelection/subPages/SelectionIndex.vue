@@ -77,8 +77,7 @@
     },
     setup(props) {
       const { bookmarksFetch, channelsFetch } = props;
-      const { additionalData } = bookmarksFetch;
-      const { count: bookmarksCount } = additionalData.value;
+      const { count: bookmarksCount } = bookmarksFetch;
 
       const { data: channels } = channelsFetch;
 

@@ -36,7 +36,7 @@
   import { ContentNodeKinds } from 'kolibri/constants';
   import ContentCardList from '../../lessons/LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from '../../lessons/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
-  import { PageNames } from '../../../constants';
+  import { PageNames, ViewMoreButtonStates } from '../../../constants';
 
   export default {
     name: 'UpdatedResourceSelection',
@@ -62,15 +62,18 @@
         type: Array,
         required: true,
       },
-      viewMoreButtonState: {
-        type: String,
-        required: false,
-        default: null,
+      hasMore: {
+        type: Boolean,
+        default: false,
       },
       fetchMore: {
         type: Function,
         required: false,
         default: null,
+      },
+      loadingMore: {
+        type: Boolean,
+        default: false,
       },
       selectionRules: {
         type: Array,
@@ -108,6 +111,15 @@
       },
       showSelectAll() {
         return this.canSelectAll && this.multi && this.selectableContentList.length > 0;
+      },
+      viewMoreButtonState() {
+        if (this.loadingMore) {
+          return ViewMoreButtonStates.LOADING;
+        }
+        if (this.hasMore) {
+          return ViewMoreButtonStates.HAS_MORE;
+        }
+        return ViewMoreButtonStates.NO_MORE;
       },
     },
     methods: {
