@@ -6,21 +6,23 @@
     @submit="handleSubmit"
     @cancel="handleCancel"
   >
-    <KRadioButton
-      v-model="source"
-      :label="$tr('dataPortalLabel')"
-      :buttonValue="SyncSources.PORTAL"
-      :disabled="portalIsOffline || formIsDisabled"
-      :autofocus="!portalIsOffline"
-      :description="$tr('dataPortalDescription')"
-    />
-    <KRadioButton
-      v-model="source"
-      :label="$tr('localNetworkLabel')"
-      :buttonValue="SyncSources.PEER"
-      :disabled="formIsDisabled"
-      :description="$tr('localNetworkDescription')"
-    />
+    <KRadioButtonGroup>
+      <KRadioButton
+        v-model="source"
+        :label="$tr('dataPortalLabel')"
+        :buttonValue="SyncSources.PORTAL"
+        :disabled="portalIsOffline || formIsDisabled"
+        :autofocus="!portalIsOffline"
+        :description="$tr('dataPortalDescription')"
+      />
+      <KRadioButton
+        v-model="source"
+        :label="$tr('localNetworkLabel')"
+        :buttonValue="SyncSources.PEER"
+        :disabled="formIsDisabled"
+        :description="$tr('localNetworkDescription')"
+      />
+    </KRadioButtonGroup>
   </SelectSourceModal>
 
 </template>

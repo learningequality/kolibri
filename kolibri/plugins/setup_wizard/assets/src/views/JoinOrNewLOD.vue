@@ -5,20 +5,22 @@
     :description="$tr('setUpFacilityDescription')"
     @continue="handleContinue"
   >
-    <KRadioButton
-      v-model="selected"
-      :label="$tr('joinFacilityLabel')"
-      :buttonValue="Options.JOIN"
-      class="radio-button"
-      :autofocus="isJoinSetup"
-    />
-    <KRadioButton
-      v-model="selected"
-      :label="$tr('importFromFacilityLabel')"
-      :buttonValue="Options.IMPORT"
-      class="radio-button"
-      :autofocus="isImportSetup"
-    />
+    <KRadioButtonGroup>
+      <KRadioButton
+        v-model="selected"
+        :label="$tr('joinFacilityLabel')"
+        :buttonValue="Options.JOIN"
+        class="radio-button"
+        :autofocus="isJoinSetup"
+      />
+      <KRadioButton
+        v-model="selected"
+        :label="$tr('importFromFacilityLabel')"
+        :buttonValue="Options.IMPORT"
+        class="radio-button"
+        :autofocus="isImportSetup"
+      />
+    </KRadioButtonGroup>
     <SelectDeviceModalGroup
       v-if="showSelectAddressModal"
       :filterLODAvailable="true"

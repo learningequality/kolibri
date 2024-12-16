@@ -511,14 +511,19 @@ class ContentNodeAPIBase(object):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_contentnode_tree_none_pk(self):
+        response = self.client.get("/api/content/contentnode_tree/")
+        self.assertEqual(response.status_code, 404)
+
     def test_contentnode_tree_bad_pk(self):
         response = self.client.get(
             reverse(
                 "kolibri:core:contentnode_tree-detail",
-                kwargs={"pk": "this is not a UUID"},
+                kwargs={"pk": "this is not UUID"},
             )
         )
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data["error"], "Invalid UUID format.")
 
     @unittest.skipIf(
         getattr(settings, "DATABASES")["default"]["ENGINE"]

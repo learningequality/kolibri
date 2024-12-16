@@ -9,53 +9,56 @@
         :indeterminate="selectAllIndeterminate"
         @change="$emit('changeselectall', $event)"
       />
-      <li
-        v-for="content in contentList"
-        :key="content.id"
-        class="content-list-item"
-        :aria-selected="contentIsChecked(content)"
-      >
-        <KCheckbox
-          v-if="contentHasCheckbox(content) && !showRadioButtons"
-          class="content-checkbox"
-          :label="content.title"
-          :showLabel="false"
-          :checked="contentIsChecked(content)"
-          :indeterminate="contentIsIndeterminate(content)"
-          :disabled="contentCheckboxDisabled(content)"
-          @change="handleCheckboxChange(content, $event)"
-        />
-        <KRadioButton
-          v-else-if="contentHasCheckbox(content) && showRadioButtons"
-          class="content-checkbox"
-          :label="content.title"
-          :showLabel="false"
-          :currentValue="contentIsChecked(content) ? content.id : 'none'"
-          :buttonValue="content.id"
-          :disabled="contentCheckboxDisabled(content)"
-          @change="handleCheckboxChange(content, true)"
-        />
-        <!--
+      <KRadioButtonGroup>
+        <li
+          v-for="content in contentList"
+          :key="content.id"
+          class="content-list-item"
+          :aria-selected="contentIsChecked(content)"
+        >
+          <KCheckbox
+            v-if="contentHasCheckbox(content) && !showRadioButtons"
+            class="content-checkbox"
+            :label="content.title"
+            :showLabel="false"
+            :checked="contentIsChecked(content)"
+            :indeterminate="contentIsIndeterminate(content)"
+            :disabled="contentCheckboxDisabled(content)"
+            @change="handleCheckboxChange(content, $event)"
+          />
+          <KRadioButton
+            v-else-if="contentHasCheckbox(content) && showRadioButtons"
+            class="content-checkbox"
+            :label="content.title"
+            :showLabel="false"
+            :currentValue="contentIsChecked(content) ? content.id : 'none'"
+            :buttonValue="content.id"
+            :disabled="contentCheckboxDisabled(content)"
+            @change="handleCheckboxChange(content, true)"
+          />
+          <!--
           disabled, tabindex, is-leaf class set here to hack making the card not clickable
           if you're trying to make the card clickable remove these properties
         -->
-        <LessonContentCard
-          class="content-card"
-          :disabled="content.is_leaf"
-          :tabindex="content.is_leaf ? -1 : 0"
-          :class="{ 'with-checkbox': needCheckboxes }"
-          :content="content"
-          :message="contentCardMessage(content)"
-          :link="contentCardLink(content)"
-        >
-          <template #notice>
-            <slot
-              name="notice"
-              :content="content"
-            ></slot>
-          </template>
-        </LessonContentCard>
-      </li>
+          <LessonContentCard
+            class="content-card"
+            :disabled="content.is_leaf"
+            :tabindex="content.is_leaf ? -1 : 0"
+            :class="{ 'with-checkbox': needCheckboxes }"
+            :content="content"
+            :message="contentCardMessage(content)"
+            :link="contentCardLink(content)"
+          >
+            <template #notice>
+              <slot
+                name="notice"
+                :content="content"
+              >
+              </slot>
+            </template>
+          </LessonContentCard>
+        </li>
+      </KRadioButtonGroup>
     </ul>
 
     <template>

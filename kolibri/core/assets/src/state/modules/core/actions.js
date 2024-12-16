@@ -112,7 +112,7 @@ export function kolibriLogin(store, sessionPayload) {
       browser,
       os,
     },
-    url: urls['kolibri:core:session-list'](),
+    url: urls['kolibri:core:session_list'](),
     method: 'post',
   })
     .then(() => {

@@ -39,6 +39,24 @@ class ConfigDict(dict):
                 )
         self.save()
         logger.info("Initialized plugins.json")
+        if self.ENV_VAR_APPLIED_PLUGINS:
+            logger.info(
+                "Applied plugins from environment variable: {}".format(
+                    self.ENV_VAR_APPLIED_PLUGINS
+                )
+            )
+        if self.ENV_VAR_ENABLED_PLUGINS:
+            logger.info(
+                "Enabled plugins from environment variable: {}".format(
+                    self.ENV_VAR_ENABLED_PLUGINS
+                )
+            )
+        if self.ENV_VAR_DISABLED_PLUGINS:
+            logger.info(
+                "Disabled plugins from environment variable: {}".format(
+                    self.ENV_VAR_DISABLED_PLUGINS
+                )
+            )
 
     def set_defaults(self):
         self.update(
@@ -56,8 +74,39 @@ class ConfigDict(dict):
         )
 
     @property
+    def ENV_VAR_APPLIED_PLUGINS(self):
+        return [
+            p.strip()
+            for p in os.environ.get("KOLIBRI_PLUGIN_APPLY", "").split(",")
+            if p.strip()
+        ]
+
+    @property
+    def ENV_VAR_ENABLED_PLUGINS(self):
+        return set(
+            p.strip()
+            for p in os.environ.get("KOLIBRI_PLUGIN_ENABLE", "").split(",")
+            if p.strip()
+        )
+
+    @property
+    def ENV_VAR_DISABLED_PLUGINS(self):
+        return set(
+            p.strip()
+            for p in os.environ.get("KOLIBRI_PLUGIN_DISABLE", "").split(",")
+            if p.strip()
+        )
+
+    @property
     def ACTIVE_PLUGINS(self):
-        return list(self["INSTALLED_PLUGINS"] - self["DISABLED_PLUGINS"])
+        if self.ENV_VAR_APPLIED_PLUGINS:
+            return self.ENV_VAR_APPLIED_PLUGINS
+        return list(
+            (self["INSTALLED_PLUGINS"] - self["DISABLED_PLUGINS"]).union(
+                self.ENV_VAR_ENABLED_PLUGINS
+            )
+            - self.ENV_VAR_DISABLED_PLUGINS
+        )
 
     def update(self, new_values):
         """

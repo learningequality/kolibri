@@ -77,6 +77,7 @@
         </KPageContainer>
       </KGridItem>
     </KGrid>
+    <router-view />
   </CoachAppBarPage>
 
 </template>
@@ -88,11 +89,13 @@
   import { mapState, mapActions, mapMutations } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { computed, getCurrentInstance, watch } from '@vue/composition-api';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import ReportsControls from '../../common/ReportsControls';
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../../constants/tabsConstants';
   import { PageNames } from '../../../constants';
+  import { showLessonSummaryPage } from '../../../modules/lessonSummary/handlers';
   import LessonResourcesTable from './tables/LessonResourcesTable';
   import LessonLearnersTable from './tables/LessonLearnersTable';
   import LessonOptionsDropdownMenu from './LessonOptionsDropdownMenu';
@@ -117,13 +120,25 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
+      const store = getCurrentInstance().proxy.$store;
+      const routeParams = computed(() => store.state.route.params);
+      const lessonId = computed(() => routeParams.value.lessonId);
+
+      showLessonSummaryPage(store, routeParams.value);
+
+      watch(lessonId, () => showLessonSummaryPage(store, routeParams.value));
+
       const { createSnackbar, clearSnackbar } = useSnackbar();
-      return { createSnackbar, clearSnackbar };
+      return { lessonId, createSnackbar, clearSnackbar };
     },
     props: {
       editable: {
         type: Boolean,
         default: true,
+      },
+      isTemp: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -146,10 +161,12 @@
       loading() {
         return this.$store.state.core.loading;
       },
-      lessonId() {
-        return this.$route.params.lessonId;
-      },
       lessonSelectionRootPage() {
+        if (this.isTemp) {
+          return this.classRoute(PageNames.LESSON_SELECT_RESOURCES, {
+            lessonId: this.lessonId,
+          });
+        }
         return this.classRoute(PageNames.LESSON_RESOURCE_SELECTION_ROOT, {
           lessonId: this.lessonId,
         });

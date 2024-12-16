@@ -8,7 +8,7 @@
       :buttonValue="1"
       :currentValue="selected ? 1 : 0"
       @change="setLanguage(value)"
-      @keydown.enter="setLanguage(value), $emit('hide')"
+      @keydown.enter="(setLanguage(value), $emit('hide'))"
     />
   </li>
 

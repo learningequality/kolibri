@@ -1,0 +1,16 @@
+name: Update community pull requests spreadsheet
+on:
+  pull_request_target:
+    types: [opened, reopened, edited, closed, synchronize, assigned, unassigned, review_requested, review_request_removed]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+  issue_comment:
+    types: [created, edited, deleted]
+
+jobs:
+  call-update-spreadsheet:
+    uses: learningequality/.github/.github/workflows/update-pr-spreadsheet.yml@main
+    secrets:
+      CONTRIBUTIONS_SPREADSHEET_ID: ${{ secrets.CONTRIBUTIONS_SPREADSHEET_ID }}
+      CONTRIBUTIONS_SHEET_NAME: ${{ secrets.CONTRIBUTIONS_SHEET_NAME }}
+      GH_UPLOADER_GCP_SA_CREDENTIALS: ${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}

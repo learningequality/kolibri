@@ -529,7 +529,7 @@
           }
           client({
             method: 'get',
-            url: urls['kolibri:core:bookmarks-list'](),
+            url: urls['kolibri:core:bookmarks_list'](),
             params: { contentnode_id: this.content.id },
           }).then(response => {
             // As the component never gets fully torn down
@@ -652,7 +652,7 @@
           const id = this.content.id;
           client({
             method: 'post',
-            url: urls['kolibri:core:bookmarks-list'](),
+            url: urls['kolibri:core:bookmarks_list'](),
             data: {
               contentnode_id: id,
               user: this.currentUserId,

@@ -628,6 +628,9 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 else:
                     self._check_quiz_log_permissions(masterylog)
                 if update_fields:
+                    if end_timestamp:
+                        masterylog.end_timestamp = end_timestamp
+                        update_fields += ("end_timestamp",)
                     masterylog.save(
                         update_fields=update_fields + ("_morango_dirty_bit",)
                     )

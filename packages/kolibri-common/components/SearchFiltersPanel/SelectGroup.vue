@@ -70,7 +70,7 @@
         type: Object,
         required: true,
         validator(value) {
-          const inputKeys = ['channels', 'accessibility_labels', 'languages', 'grade_levels'];
+          const inputKeys = ['accessibility_labels', 'languages', 'grade_levels'];
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
       },

@@ -1,12 +1,12 @@
 from importlib import import_module
 
 from django.apps import apps
-from semver import match
 from semver import VersionInfo
 
 import kolibri
 from kolibri.utils.version import get_version_and_operator_from_range
 from kolibri.utils.version import normalize_version_to_semver
+from kolibri.utils.version import version_matches_range
 
 
 CURRENT_VERSION = VersionInfo.parse(normalize_version_to_semver(kolibri.__version__))
@@ -110,10 +110,7 @@ def version_upgrade(old_version=None, new_version=None):
 def matches_version(version, version_range):
     if version_range is None or not version:
         return True
-    # For the purposes of upgrade comparison, treat dev versions as alphas
-    version = normalize_version_to_semver(version).replace("dev", "a")
-    version_range = "".join(get_version_and_operator_from_range(version_range))
-    return match(version, version_range)
+    return version_matches_range(version, version_range)
 
 
 def get_upgrades(app_configs=None):

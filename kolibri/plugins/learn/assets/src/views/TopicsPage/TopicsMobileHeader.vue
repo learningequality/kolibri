@@ -20,6 +20,7 @@
       <img
         :src="topic.thumbnail"
         class="channel-logo"
+        loading="lazy"
       >
     </KGridItem>
   </KGrid>

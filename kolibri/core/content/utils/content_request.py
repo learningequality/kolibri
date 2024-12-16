@@ -44,6 +44,7 @@ from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.connections import capture_connection_state
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
+from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 from kolibri.core.utils.urls import reverse_path
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import bytes_for_humans
@@ -267,8 +268,11 @@ class PreferredDevices(object):
                 )
             )
             return None
-        # ensure peer is available, unless reserved
-        if not peer.reserved and peer.connection_status != ConnectionStatus.Okay:
+        # ensure peer is available, unless it's Studio
+        if (
+            not instance_id == CENTRAL_CONTENT_BASE_INSTANCE_ID
+            and peer.connection_status != ConnectionStatus.Okay
+        ):
             logger.debug("Peer {} is not available".format(instance_id))
             return None
         # ensure version is applicable according to filter

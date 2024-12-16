@@ -81,6 +81,7 @@
                     :alt="learnString('logo', { channelTitle: channelTitle })"
                     class="channel-logo"
                     :style="{ color: $themePalette.grey.v_800 }"
+                    loading="lazy"
                   >
                   <p
                     v-else

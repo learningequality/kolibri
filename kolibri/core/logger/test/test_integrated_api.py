@@ -2145,6 +2145,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
             mastery_criterion=mastery_model,
             summarylog=self.summary_log,
             start_timestamp=self.summary_log.start_timestamp,
+            end_timestamp=self.summary_log.start_timestamp,
             user=self.user,
             mastery_level=1,
         )
@@ -2175,6 +2176,9 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
         self.assertEqual(response.status_code, 200)
         self.mastery_log.refresh_from_db()
         self.assertEqual(self.mastery_log.time_spent, 5)
+        self.assertNotEqual(
+            self.mastery_log.end_timestamp, self.mastery_log.start_timestamp
+        )
 
     def test_update_assessment_session_create_attempt_in_lesson_succeeds(self):
         lesson = create_assigned_lesson_for_user(self.user)

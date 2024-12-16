@@ -2,7 +2,11 @@
   "name": "kolibri",
   "version": "0.18.0",
   "description": "The Kolibri core API",
-  "repository": "github.com/learningequality/kolibri",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/learningequality/kolibri.git",
+    "directory": "packages/kolibri"
+  },
   "author": "Learning Equality",
   "license": "MIT",
   "private": false,
@@ -59,12 +63,12 @@
   "dependencies": {
     "@vue/composition-api": "^1.7.2",
     "@vueuse/core": "^9.13.0",
-    "axios": "^1.7.7",
+    "axios": "^1.7.8",
     "fontfaceobserver": "^2.3.0",
     "frame-throttle": "^3.0.0",
     "intl": "^1.2.4",
     "kolibri-constants": "0.2.8",
-    "kolibri-design-system": "5.0.0-rc9",
+    "kolibri-design-system": "5.0.0-rc10",
     "lockr": "0.8.5",
     "lodash": "^4.17.21",
     "path-to-regexp": "1.9.0",

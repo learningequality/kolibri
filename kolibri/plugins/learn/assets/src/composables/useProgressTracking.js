@@ -148,7 +148,7 @@ export default function useProgressTracking(store) {
   function _makeInitContentSessionRequest(data) {
     return client({
       method: 'post',
-      url: urls['kolibri:core:trackprogress-list'](),
+      url: urls['kolibri:core:trackprogress_list'](),
       data: data,
     }).then(response => {
       const data = response.data;
@@ -278,7 +278,7 @@ export default function useProgressTracking(store) {
     const wasComplete = get(complete);
     return client({
       method: 'put',
-      url: urls['kolibri:core:trackprogress-detail'](get(session_id)),
+      url: urls['kolibri:core:trackprogress_detail'](get(session_id)),
       data,
     }).then(response => {
       if (response.data.attempts) {

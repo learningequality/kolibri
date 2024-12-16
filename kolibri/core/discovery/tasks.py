@@ -21,6 +21,8 @@ from kolibri.core.discovery.utils.network.broadcast import KolibriInstance
 from kolibri.core.discovery.utils.network.connections import update_network_location
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
+from kolibri.core.discovery.well_known import DATA_PORTAL_BASE_INSTANCE_ID
+from kolibri.core.discovery.well_known import DATA_PORTAL_SYNCING_BASE_URL
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.main import job_storage
@@ -135,7 +137,10 @@ def _update_connection_status(network_location):
         logger.error(e)
         logger.warning(
             "Failed to update connection status for {} location {}".format(
-                "dynamic" if network_location.dynamic else "static", network_location.id
+                "dynamic"
+                if network_location.location_type is LocationTypes.Dynamic
+                else "static",
+                network_location.id,
             )
         )
 
@@ -184,6 +189,14 @@ def _enqueue_network_location_update_with_backoff(network_location):
     dependent on how many connection faults have occurred
     :type network_location: NetworkLocation
     """
+    # Check if the network location is local before proceeding
+    if not network_location.is_local:
+        logger.info(
+            "Network location {} is not local. Skipping enqueue.".format(
+                network_location.id
+            )
+        )
+        return
     # exponential backoff depending on how many faults/attempts we've had
     next_attempt_minutes = 2 ** network_location.connection_faults
     logger.debug(
@@ -332,17 +345,36 @@ def dispatch_broadcast_hooks(hook_type, instance):
 
 def _refresh_reserved_locations():
     """
-    TODO handle this a bit smarter with: https://github.com/learningequality/kolibri/issues/10431
+    Refreshes the reserved network locations for Studio and Kolibri Data Portal
     """
+    # Delete existing reserved locations
     NetworkLocation.objects.filter(location_type=LocationTypes.Reserved).delete()
-    NetworkLocation.objects.create(
+
+    # Create or update Studio reserved location
+    NetworkLocation.objects.update_or_create(
         id=CENTRAL_CONTENT_BASE_INSTANCE_ID,
-        instance_id=CENTRAL_CONTENT_BASE_INSTANCE_ID,
-        nickname="Kolibri Studio",
-        base_url=CENTRAL_CONTENT_BASE_URL,
-        location_type=LocationTypes.Reserved,
-        is_local=False,
-        kolibri_version="0.16.0",
+        defaults={
+            "instance_id": CENTRAL_CONTENT_BASE_INSTANCE_ID,
+            "nickname": "Kolibri Studio",
+            "base_url": CENTRAL_CONTENT_BASE_URL,
+            "location_type": LocationTypes.Reserved,
+            "is_local": False,
+            "kolibri_version": "0.16.0",
+        },
+    )
+
+    # Create or update Kolibri Data Portal reserved location
+    NetworkLocation.objects.update_or_create(
+        id=DATA_PORTAL_BASE_INSTANCE_ID,
+        defaults={
+            "instance_id": DATA_PORTAL_BASE_INSTANCE_ID,
+            "nickname": "Kolibri Data Portal",
+            "base_url": DATA_PORTAL_SYNCING_BASE_URL,
+            "location_type": LocationTypes.Reserved,
+            "is_local": False,
+            "application": "Kolibri Data Portal",
+            "kolibri_version": "0.16.0",
+        },
     )
 
 

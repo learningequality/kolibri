@@ -6,7 +6,7 @@ import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import AuthMessage from '../AuthMessage';
 
-jest.mock('urls', () => ({}));
+jest.mock('kolibri/urls', () => ({}));
 jest.mock('kolibri/composables/useUser');
 
 const localVue = createLocalVue();

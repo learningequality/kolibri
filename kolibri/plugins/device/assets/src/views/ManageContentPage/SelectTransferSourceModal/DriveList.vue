@@ -11,15 +11,19 @@
     </div>
 
     <div v-else>
-      <h2>{{ $tr('drivesFound') }}</h2>
-      <KRadioButton
-        v-for="drive in drives"
-        :key="drive.id"
-        :label="enabledDriveLabel(drive)"
-        :buttonValue="drive.id"
-        :currentValue="value"
-        @change="$emit('input', drive.id)"
-      />
+      <h2>
+        {{ $tr('drivesFound') }}
+      </h2>
+      <KRadioButtonGroup>
+        <KRadioButton
+          v-for="drive in drives"
+          :key="drive.id"
+          :label="enabledDriveLabel(drive)"
+          :buttonValue="drive.id"
+          :currentValue="value"
+          @change="$emit('input', drive.id)"
+        />
+      </KRadioButtonGroup>
     </div>
   </div>
 

@@ -1,7 +1,7 @@
 <template>
 
   <header>
-    <UiToolbar
+    <KToolbar
       :title="appBarTitle"
       :textColor="isFullscreen ? 'black' : 'white'"
       type="clear"
@@ -56,7 +56,7 @@
       <template #actions>
         <slot name="actions"></slot>
       </template>
-    </UiToolbar>
+    </KToolbar>
   </header>
 
 </template>
@@ -64,7 +64,7 @@
 
 <script>
 
-  import UiToolbar from 'kolibri-common/components/keen/UiToolbar';
+  import KToolbar from 'kolibri-design-system/lib/KToolbar';
   import { validateLinkObject } from 'kolibri/utils/validators';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useNav from 'kolibri/composables/useNav';
@@ -72,7 +72,7 @@
   export default {
     name: 'ImmersiveToolbar',
     components: {
-      UiToolbar,
+      KToolbar,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -133,7 +133,7 @@
 
 <style lang="scss" scoped>
 
-  // only used when using a link. Otherwise, uses UiToolbar's styles
+  // only used when using a link. Otherwise, uses KToolbar's styles
   .icon {
     // copied from keen
     width: 3em;

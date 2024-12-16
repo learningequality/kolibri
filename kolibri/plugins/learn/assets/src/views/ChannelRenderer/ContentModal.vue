@@ -10,7 +10,7 @@
       :style="bodyStyle"
     >
       <nav>
-        <UiToolbar
+        <KToolbar
           ref="toolbar"
           :showIcon="true"
           :style="toolbarStyle"
@@ -26,7 +26,7 @@
           <span :style="titleStyle">
             {{ title }}
           </span>
-        </UiToolbar>
+        </KToolbar>
       </nav>
 
       <main>
@@ -40,7 +40,7 @@
 
 <script>
 
-  import UiToolbar from 'kolibri-common/components/keen/UiToolbar';
+  import KToolbar from 'kolibri-design-system/lib/KToolbar';
   import Backdrop from 'kolibri-common/components/Backdrop';
   import ContentItem from './ContentItem';
 
@@ -49,7 +49,7 @@
     components: {
       Backdrop,
       ContentItem,
-      UiToolbar,
+      KToolbar,
     },
     props: {
       contentNode: {

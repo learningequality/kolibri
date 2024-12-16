@@ -37,7 +37,7 @@ function updateConnectionStatus(id) {
  */
 function fetchFacilities(id) {
   return this.client({
-    url: urls['kolibri:core:networklocation_facilities-detail'](id),
+    url: urls['kolibri:core:networklocation_facilities_detail'](id),
   }).then(response => {
     return response.data;
   });

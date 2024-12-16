@@ -11,14 +11,6 @@
   <meta name="google" content="notranslate">
   {% theme_favicon %}
   <title>{% site_title %}</title>
-  {% if LANGUAGE_CODE == "ach-ug" %}
-    <script type="text/javascript">
-      var _jipt = [];
-      _jipt.push(['project', 'kolibri']);
-    </script>
-    <script type="text/javascript" src="//cdn.crowdin.com/jipt/jipt.js"></script>
-  {% endif %}
-  {% webpack_asset 'kolibri.core.frontend_head_assets' %}
   {% frontend_base_head_markup %}
 </head>
 <body>
@@ -52,10 +44,9 @@
   </div>
 </rootvue>
 {% block frontend_assets %}
+{% content_renderer_assets %}
 {% webpack_asset 'kolibri.core.default_frontend' %}
 {% frontend_base_assets %}
-{% frontend_base_async_assets %}
-{% content_renderer_assets %}
 {% endblock %}
 
 {% block content %}

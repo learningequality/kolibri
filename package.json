@@ -29,13 +29,12 @@
     "devserver-with-kds": "concurrently --passthrough-arguments --kill-others \"yarn:watch --watchonly={2} --require-kds-path --kds-path={1}\" yarn:python-devserver yarn:hashi-dev --",
     "bundle-stats": "kolibri-tools build stats --file ./build_tools/build_plugins.txt --transpile",
     "clean": "rm -fr kolibri/core/content/static/hashi/ && kolibri-tools build clean --file ./build_tools/build_plugins.txt",
-    "lint-frontend": "kolibri-tools lint --pattern '{kolibri*/**/assets,packages,build_tools}/**/*.{js,vue,scss,less,css}' --ignore '**/dist/**,**/node_modules/**,**/static/**'",
+    "lint-frontend": "kolibri-format --pattern '{kolibri*/**/assets,packages,build_tools}/**/*.{js,vue,scss,less,css}' --ignore '**/dist/**' '**/node_modules/**' '**/static/**'",
     "lint-frontend:format": "yarn run lint-frontend --write",
     "lint-frontend:watch": "yarn run lint-frontend --monitor",
     "lint-frontend:watch:format": "yarn run lint-frontend --monitor --write",
     "build-kolibri-tools": "yarn workspace kolibri-tools run build-kolibri-tools",
     "migrate-core-api": "kolibri-tools migrate  '{kolibri*/**/assets,packages}/**/*.{js,vue}' --ignore '**/dist/**,**/node_modules/**,**/static/**'",
-    "publish-packages": "node ./packages/publish.js",
     "hashi-dev": "yarn workspace hashi run dev",
     "hashi-build": "yarn workspace hashi run build",
     "compress": "kolibri-tools compress 'kolibri/*/**/static/**/*.{html,js,css,svg,map,eot,ttf}'"
@@ -68,6 +67,6 @@
   ],
   "volta": {
     "node": "18.19.0",
-    "yarn": "1.12.3"
+    "yarn": "1.22.22"
   }
 }

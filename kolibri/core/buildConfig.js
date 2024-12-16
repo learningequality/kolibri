@@ -13,10 +13,4 @@ module.exports = [
       },
     },
   },
-  {
-    bundle_id: 'frontend_head_assets',
-    webpack_config: {
-      entry: './assets/src/minimumBrowserRequirements.js',
-    },
-  },
 ];

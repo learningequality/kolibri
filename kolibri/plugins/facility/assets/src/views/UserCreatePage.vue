@@ -57,20 +57,22 @@
             v-if="coachIsSelected"
             class="coach-selector"
           >
-            <KRadioButton
-              v-model="classCoachIsSelected"
-              :disabled="busy"
-              :label="coreString('classCoachLabel')"
-              :description="coreString('classCoachDescription')"
-              :buttonValue="true"
-            />
-            <KRadioButton
-              v-model="classCoachIsSelected"
-              :disabled="busy"
-              :label="coreString('facilityCoachLabel')"
-              :description="coreString('facilityCoachDescription')"
-              :buttonValue="false"
-            />
+            <KRadioButtonGroup>
+              <KRadioButton
+                v-model="classCoachIsSelected"
+                :disabled="busy"
+                :label="coreString('classCoachLabel')"
+                :description="coreString('classCoachDescription')"
+                :buttonValue="true"
+              />
+              <KRadioButton
+                v-model="classCoachIsSelected"
+                :disabled="busy"
+                :label="coreString('facilityCoachLabel')"
+                :description="coreString('facilityCoachDescription')"
+                :buttonValue="false"
+              />
+            </KRadioButtonGroup>
           </fieldset>
 
           <IdentifierTextbox

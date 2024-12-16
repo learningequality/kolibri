@@ -9,20 +9,22 @@
     :eventOnGoBack="backEvent"
     @continue="handleContinue"
   >
-    <KRadioButton
-      ref="yesRadio"
-      v-model="setting"
-      :label="$tr('yesOptionLabel')"
-      :buttonValue="true"
-      :autofocus="setting"
-    />
-    <KRadioButton
-      ref="noRadio"
-      v-model="setting"
-      :label="$tr('noOptionLabel')"
-      :buttonValue="false"
-      :autofocus="!setting"
-    />
+    <KRadioButtonGroup>
+      <KRadioButton
+        ref="yesRadio"
+        v-model="setting"
+        :label="$tr('yesOptionLabel')"
+        :buttonValue="true"
+        :autofocus="setting"
+      />
+      <KRadioButton
+        ref="noRadio"
+        v-model="setting"
+        :label="$tr('noOptionLabel')"
+        :buttonValue="false"
+        :autofocus="!setting"
+      />
+    </KRadioButtonGroup>
     <p class="form">
       {{ $tr('changeLater') }}
     </p>

@@ -1,0 +1,53 @@
+name: Publish package to npm
+
+on:
+    workflow_dispatch:
+      # Inputs the workflow accepts.
+      inputs:
+        npm_package:
+          description: 'Package to publish to NPM'
+          required: true
+          type: choice
+          options:
+            - 'browserslist-config-kolibri'
+            - 'eslint-plugin-kolibri'
+            - 'kolibri'
+            - 'kolibri-app'
+            - 'kolibri-format'
+            - 'kolibri-logging'
+            - 'kolibri-module'
+            - 'kolibri-plugin-data'
+            - 'kolibri-viewer'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write  # Required for npm provenance
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Create tag
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const packageJson = require(`./packages/${{ github.event.inputs.npm_package }}/package.json`)
+            const version = packageJson.version
+            const tagname = `npm/${{ github.event.inputs.npm_package }}/${version}`
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${tagname}`,
+              sha: context.sha
+            })
+      - run: |
+          cd packages/${{ github.event.inputs.npm_package }}
+          npm build | true
+          npm publish --provenance --access public
+        env:
+          # NPM_API_TOKEN is an organization-level secret
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_TOKEN }}

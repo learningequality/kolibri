@@ -7,33 +7,35 @@
     :steps="5"
     @continue="handleContinue"
   >
-    <KRadioButton
-      ref="first-button"
-      v-model="selected"
-      class="permission-preset-radio-button"
-      :buttonValue="Presets.NONFORMAL"
-      :label="$tr('nonFormalLabel')"
-      :description="$tr('nonFormalDescription')"
-    />
-    <FacilityNameTextbox
-      v-if="selected === Presets.NONFORMAL"
-      ref="facility-name"
-      v-model="facilityName"
-      class="textbox"
-    />
-    <KRadioButton
-      v-model="selected"
-      class="permission-preset-radio-button"
-      :buttonValue="Presets.FORMAL"
-      :label="$tr('formalLabel')"
-      :description="$tr('formalDescription')"
-    />
-    <FacilityNameTextbox
-      v-if="selected === Presets.FORMAL"
-      ref="facility-name"
-      v-model="facilityName"
-      class="textbox"
-    />
+    <KRadioButtonGroup>
+      <KRadioButton
+        ref="first-button"
+        v-model="selected"
+        class="permission-preset-radio-button"
+        :buttonValue="Presets.NONFORMAL"
+        :label="$tr('nonFormalLabel')"
+        :description="$tr('nonFormalDescription')"
+      />
+      <FacilityNameTextbox
+        v-if="selected === Presets.NONFORMAL"
+        ref="facility-name"
+        v-model="facilityName"
+        class="textbox"
+      />
+      <KRadioButton
+        v-model="selected"
+        class="permission-preset-radio-button"
+        :buttonValue="Presets.FORMAL"
+        :label="$tr('formalLabel')"
+        :description="$tr('formalDescription')"
+      />
+      <FacilityNameTextbox
+        v-if="selected === Presets.FORMAL"
+        ref="facility-name"
+        v-model="facilityName"
+        class="textbox"
+      />
+    </KRadioButtonGroup>
   </OnboardingStepBase>
 
 </template>

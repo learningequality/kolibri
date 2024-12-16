@@ -18,6 +18,7 @@ const { coreExternals } = require('./apiSpecExportTools');
 const WebpackRTLPlugin = require('./webpackRtlPlugin');
 const { kolibriName } = require('./kolibriName');
 const WebpackMessages = require('./webpackMessages');
+const MessageRegistrationPlugin = require('./webpackMessageRegistrationPlugin');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle
@@ -119,7 +120,8 @@ module.exports = (
       // webpack properly handles that or not.
       chunkLoadingGlobal: 'webpackChunkwebpack__' + data.name.replace('.', ''),
       scriptType: 'text/javascript',
-      pathinfo: mode === 'production',
+      pathinfo: false,
+      publicPath: 'auto',
     },
     resolve: {
       alias,
@@ -158,6 +160,14 @@ module.exports = (
         __kolibriModuleName: JSON.stringify(data.name),
         __version: JSON.stringify(data.version),
         __copyrightYear: new Date().getFullYear(),
+      }),
+      // Inject code to register frontend messages
+      new MessageRegistrationPlugin({
+        // For the core plugin, because it sets up the i18n
+        // machinery, we need to inject the registration code
+        // afterwards to avoid a kerfuffle.
+        injectAfterBundle: isCoreBundle,
+        moduleName: data.name,
       }),
       // Add custom messages per bundle.
       new WebpackMessages({
