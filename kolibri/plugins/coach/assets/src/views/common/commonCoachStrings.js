@@ -200,6 +200,16 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       'A group is a collection of learners created by a coach inside a class to help with differentiated learning. Quizzes and lessons can be assigned to individual groups as well as to the whole class.',
   },
+  individualLearnersLabel: {
+    message: 'Individual learners',
+    context:
+      'A label for a checkbox that allows the Coach to assign the quiz to individual learners who may not be in a selected group.',
+  },
+  onlyShowingEnrolledLabel: {
+    message: 'Only showing learners that are enrolled in this class',
+    context:
+      "Shows beneath 'Select individual learners' explaining that the table only includes enrolled learners.",
+  },
   helpNeededLabel: {
     message: 'Help needed',
     context:
@@ -623,6 +633,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   coachReportsLesson: {
     message: 'Report lesson',
     context: 'Labels the Reports > Lesson tab for screen reader users',
+  },
+  groupsAndLearnersLabel: {
+    message: 'Groups and individual learners',
+    context:
+      'Label for the radio button that allows the coach to select groups or individual learners to assign a quiz to.',
   },
 });
 

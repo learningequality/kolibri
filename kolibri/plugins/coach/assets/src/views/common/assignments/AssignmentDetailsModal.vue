@@ -11,6 +11,10 @@
         {{ submitErrorMessage }}
       </UiAlert>
 
+      <!--
+        TODO: Refactor or rename this component, setting a title or a description
+        is not part of an "assignment" process (?)
+      -->
       <fieldset>
         <KGrid>
           <KGridItem
@@ -79,12 +83,21 @@
           {{ recipientsLabel$() }}
         </legend>
         <RecipientSelector
+          v-if="false"
           v-model="selectedCollectionIds"
           :groups="groups"
           :classId="classId"
           :disabled="disabled || formIsSubmitted"
           :initialAdHocLearners="adHocLearners"
           @updateLearners="learners => (adHocLearners = learners)"
+        />
+        <SidePanelRecipientsSelector
+          v-model="selectedCollectionIds"
+          :groups="groups"
+          :classId="classId"
+          :disabled="disabled || formIsSubmitted"
+          :adHocLearners.sync="adHocLearners"
+          :selectedCollectionIds.sync="selectedCollectionIds"
         />
       </fieldset>
     </form>
@@ -118,6 +131,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { coachStrings } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
+  import SidePanelRecipientsSelector from './SidePanelRecipientsSelector';
 
   export default {
     name: 'AssignmentDetailsModal',
@@ -125,6 +139,7 @@
       BottomAppBar,
       RecipientSelector,
       UiAlert,
+      SidePanelRecipientsSelector,
     },
     mixins: [commonCoreStrings],
     setup() {
