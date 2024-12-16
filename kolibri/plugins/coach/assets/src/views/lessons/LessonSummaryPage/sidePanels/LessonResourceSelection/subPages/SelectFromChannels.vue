@@ -30,8 +30,9 @@
       canSelectAll
       :topic="topic"
       :contentList="contentList"
-      :viewMoreButtonState="viewMoreButtonState"
+      :hasMore="hasMore"
       :fetchMore="fetchMore"
+      :loadingMore="loadingMore"
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
       @selectResources="$emit('selectResources', $event)"
@@ -71,11 +72,12 @@
         });
       });
 
-      const { data, moreState, fetchMore } = props.treeFetch;
+      const { data, hasMore, fetchMore, loadingMore } = props.treeFetch;
       return {
         contentList: data,
-        viewMoreButtonState: moreState,
+        hasMore,
         fetchMore,
+        loadingMore,
         searchLabel$,
         selectFromChannels$,
       };

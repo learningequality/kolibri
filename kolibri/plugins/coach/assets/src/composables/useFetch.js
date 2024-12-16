@@ -1,6 +1,5 @@
 import get from 'lodash/get';
 import { ref, computed } from 'vue';
-import { ViewMoreButtonStates } from '../constants';
 
 /**
  * A composable for managing fetch operations with optional methods for additional data fetching.
@@ -43,7 +42,7 @@ import { ViewMoreButtonStates } from '../constants';
  * ```js
  * // Suppose the response object looks like this:
  * const response = {
- *   payload: [...],
+ *   results: [...],
  *   more: { page: 2 }
  * };
  *
@@ -52,6 +51,22 @@ import { ViewMoreButtonStates } from '../constants';
  * useFetch({ moreKey: "more" });
  * ```
  *
+ * @param {string} [options.countKey] The key in the response object where the count of
+ * the data is located. Count is the total number of items.
+ * * You can use `lodash.get`-compatible keys to access nested objects (e.g., "data.count").
+ *
+ * Example:
+ * ```js
+ * // Suppose the response object looks like this:
+ * const response = {
+ *   results: [...],
+ *   count: 100
+ * };
+ *
+ * // By specifying `countKey`, you tell the composable where to find the count of the data:
+ * const { count } = useFetch({ countKey: "count" });
+ * console.log(count); // Outputs: 100
+ * ```
  *
  * @param {(more, ...args) => Promise<any>} [options.fetchMoreMethod] Function to fetch more data.
  * * This function receives a "more" object as its first argument. This "more" object is specified
@@ -68,57 +83,31 @@ import { ViewMoreButtonStates } from '../constants';
  * ```
  *
  *
- * @param {Object.<string, string>} [options.additionalDataKeys] An object that maps additional
- * data keys for the response object.
- * * In the `{ key: value }` pair:
- *   - The `key` will be used as the property name in the returned `additionalData` object.
- *   - The `value` specifies the key in the response object from which the data will be retrieved.
- *
- * Example:
- * ```js
- * const additionalDataKeys = {
- *   userId: "user_id", // The `userId` property in `additionalData` will map to `response.user_id`
- *   userName: "name" // The `userName` property in `additionalData` will map to `response.name`
- * };
- *
- * const { additionalData } = useFetch({ additionalDataKeys });
- * console.log(additionalData.userId);  // Outputs the value of `response.user_id`
- * console.log(additionalData.userName); // Outputs the value of `response.name`
- * ```
- *
- *
  * @typedef {Object} FetchObject
  * @property {any} data The main fetched data.
  * @property {Object} error Error object if a fetch data failed.
+ * @property {any} count The count of the fetched data. E.g., the total number of items.
  * @property {boolean} loading Data loading state. This loading doesnt reflect the loading when
- *   fetching more data. refer to moreState for that.
- * @property {string} moreState State of the fetch more data, it could be LOADING, HAS_MORE,
- *   NO_MORE or ERROR.
- * @property {Object<string, any>} additionalData Extra data specified by `additionalDataKeys`.
+ *   fetching more data. refer to `loadingMore` for that.
+ * @property {boolean} loadingMore Loading state when fetching more data. This is different from
+ *  `loading` which is for the main data fetch.
+ * @property {boolean} hasMore A computed property to check if there is more data to fetch.
  * @property {(...args) => Promise<void>} fetchData A method to manually trigger the main fetch.
  * @property {(...args) => Promise<void>} fetchMore A method to manually trigger fetch more data.
  *
  * @returns {FetchObject} An object with properties and methods for managing the fetch process.
  */
 export default function useFetch(options) {
-  const { fetchMethod, fetchMoreMethod, dataKey, moreKey, additionalDataKeys } = options || {};
+  const { fetchMethod, fetchMoreMethod, dataKey, moreKey, countKey } = options || {};
 
   const loading = ref(false);
   const data = ref(null);
   const error = ref(null);
   const more = ref(null);
+  const count = ref(null);
   const loadingMore = ref(false);
-  const additionalData = ref(null);
 
-  const moreState = computed(() => {
-    if (loadingMore.value) {
-      return ViewMoreButtonStates.LOADING;
-    }
-    if (more.value) {
-      return ViewMoreButtonStates.HAS_MORE;
-    }
-    return ViewMoreButtonStates.NO_MORE;
-  });
+  const hasMore = computed(() => more.value != null);
 
   const _setFromKeys = (response, loadingMore) => {
     let responseData;
@@ -141,17 +130,8 @@ export default function useFetch(options) {
       more.value = get(response, moreKey) || null;
     }
 
-    if (additionalDataKeys) {
-      const newAdditionalData = {};
-      // The `key` will be used as the property name in the returned `additionalData` object.
-      // The `value` specifies the key in the response object from which the data will be get.
-      for (const [key, value] of Object.entries(additionalDataKeys)) {
-        // if value is an empty string, that means that no specific data is required,
-        // but the whole response object.
-        newAdditionalData[key] = value === '' ? response : get(response, value);
-      }
-
-      additionalData.value = newAdditionalData;
+    if (countKey) {
+      count.value = get(response, countKey) || null;
     }
   };
 
@@ -190,9 +170,10 @@ export default function useFetch(options) {
   return {
     data,
     error,
+    count,
     loading,
-    moreState,
-    additionalData,
+    hasMore,
+    loadingMore,
     fetchData,
     fetchMore,
   };

@@ -45,6 +45,7 @@ export default function useResourceSelection() {
 
   const selectionRules = ref([]);
   const selectedResources = ref([]);
+  const topic = ref(null);
 
   const bookmarksFetch = useFetch({
     fetchMethod: () =>
@@ -57,9 +58,7 @@ export default function useResourceSelection() {
       }),
     dataKey: 'results',
     moreKey: 'more',
-    additionalDataKeys: {
-      count: 'count',
-    },
+    countKey: 'count',
   });
 
   const channelsFetch = useFetch({
@@ -71,24 +70,16 @@ export default function useResourceSelection() {
       }),
   });
 
-  const treeFetch = useFetch({
-    fetchMethod: () =>
-      ContentNodeResource.fetchTree({ id: topicId.value, params: { include_coach_content: true } }),
-    fetchMoreMethod: more => ContentNodeResource.fetchTree({ id: topicId.value, params: more }),
-    dataKey: 'children.results',
-    moreKey: 'children.more.params',
-    additionalDataKeys: {
-      topic: '', // return the whole response as topic
-    },
-  });
+  const fetchTree = async (params = {}) => {
+    topic.value = await ContentNodeResource.fetchTree(params);
+    return topic.value.children;
+  };
 
-  const topic = computed(() => {
-    if (topicId.value) {
-      const { additionalData } = treeFetch;
-      const { topic } = additionalData.value;
-      return topic;
-    }
-    return null;
+  const treeFetch = useFetch({
+    fetchMethod: () => fetchTree({ id: topicId.value, params: { include_coach_content: true } }),
+    fetchMoreMethod: more => fetchTree(more),
+    dataKey: 'results',
+    moreKey: 'more',
   });
 
   watch(topicId, () => {

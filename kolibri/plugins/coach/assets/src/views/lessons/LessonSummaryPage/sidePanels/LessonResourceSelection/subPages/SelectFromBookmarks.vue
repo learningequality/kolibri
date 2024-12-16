@@ -4,8 +4,9 @@
     <UpdatedResourceSelection
       canSelectAll
       :contentList="contentList"
-      :viewMoreButtonState="viewMoreButtonState"
+      :hasMore="hasMore"
       :fetchMore="fetchMore"
+      :loadingMore="loadingMore"
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
       @selectResources="$emit('selectResources', $event)"
@@ -43,12 +44,13 @@
         });
       });
 
-      const { data, moreState, fetchMore } = props.bookmarksFetch;
+      const { data, hasMore, fetchMore, loadingMore } = props.bookmarksFetch;
 
       return {
         contentList: data,
-        viewMoreButtonState: moreState,
+        hasMore,
         fetchMore,
+        loadingMore,
       };
     },
     props: {
