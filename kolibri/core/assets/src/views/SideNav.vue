@@ -196,14 +196,15 @@
               height: topBarHeight + 'px',
               width: `${width}`,
               paddingTop: windowIsSmall ? '4px' : '8px',
-              backgroundColor: $themeTokens.appBar,
+              backgroundColor: themeConfig.appBar.background,
+              color: themeConfig.appBar.textColor,
             }"
           >
             <KIconButton
               ref="closeButton"
               tabindex="0"
               icon="close"
-              :color="$themeTokens.text"
+              :color="themeConfig.appBar.textColor"
               class="side-nav-header-icon"
               :ariaLabel="$tr('closeNav')"
               size="large"
@@ -211,7 +212,7 @@
             />
             <span
               class="side-nav-header-name"
-              :style="{ color: $themeTokens.text }"
+              :style="{ color: themeConfig.appBar.textColor }"
             >{{ sideNavTitleText }}</span>
           </div>
         </FocusTrap>

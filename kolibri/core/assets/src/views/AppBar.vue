@@ -2,7 +2,10 @@
 
   <div
     v-show="!$isPrint"
-    :style="{ backgroundColor: $themeTokens.appBar }"
+    :style="{
+      backgroundColor: themeConfig.appBar.background,
+      color: themeConfig.appBar.textColor,
+    }"
   >
     <header>
       <SkipNavigationLink />
@@ -10,9 +13,12 @@
       <UiToolbar
         :removeNavIcon="showAppNavView"
         type="clear"
-        textColor="black"
+        :textColor="themeConfig.appBar.textColor"
         class="app-bar"
-        :style="{ height: topBarHeight + 'px' }"
+        :style="{
+          height: topBarHeight + 'px',
+          color: themeConfig.appBar.textColor,
+        }"
         :raised="false"
         :removeBrandDivider="true"
       >
@@ -26,7 +32,7 @@
         >
           <KIconButton
             icon="menu"
-            :color="$themeTokens.text"
+            :color="themeConfig.appBar.textColor"
             :ariaLabel="$tr('openNav')"
             @click="$emit('toggleSideNav')"
           />
@@ -94,7 +100,7 @@
               <KIcon
                 icon="person"
                 :style="{
-                  fill: $themeTokens.text,
+                  fill: themeConfig.appBar.textColor,
                   height: '24px',
                   width: '24px',
                   margin: '4px',

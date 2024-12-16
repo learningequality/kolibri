@@ -29,6 +29,7 @@
 
   import { validateLinkObject } from 'kolibri.utils.validators';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import themeConfig from 'kolibri.themeConfig';
 
   /**
      Links for use inside the Navbar
@@ -38,6 +39,7 @@
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
       return {
+        themeConfig,
         windowIsSmall,
       };
     },
@@ -61,7 +63,7 @@
     computed: {
       tabStyles() {
         return {
-          color: this.$themeTokens.text,
+          color: this.themeConfig.appBar.textColor,
           ':hover': {
             'background-color': this.$themeBrand.secondary.v_600,
           },
@@ -81,7 +83,7 @@
       activeClasses() {
         // return both fixed and dynamic classes
         return `router-link-active ${this.$computedClass({
-          color: this.$themeTokens.text,
+          color: this.themeConfig.appBar.textColor,
         })}`;
       },
     },

@@ -16,7 +16,7 @@
       >
         <KIcon
           :icon="link.icon"
-          :color="$themeTokens.text"
+          :color="themeConfig.appBar.textColor"
         />
       </NavbarLink>
     </ul>
@@ -27,7 +27,7 @@
       :ariaLabel="coreString('moreOptions')"
       icon="optionsHorizontal"
       appearance="flat-button"
-      :color="$themeTokens.text"
+      :color="themeConfig.appBar.textColor"
       :primary="false"
       class="kiconbutton-style"
     >
@@ -51,6 +51,7 @@
   import isUndefined from 'lodash/isUndefined';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import themeConfig from 'kolibri.themeConfig';
   import NavbarLink from './NavbarLink';
   /**
    * Used for navigation between sub-pages of a top-level Kolibri section
@@ -67,6 +68,7 @@
         windowIsLarge,
         windowIsMedium,
         windowWidth,
+        themeConfig,
       };
     },
     props: {

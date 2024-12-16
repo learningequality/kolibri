@@ -2,6 +2,8 @@ import Vue from 'vue';
 
 const themeConfig = Vue.observable({
   appBar: {
+    background: null,
+    textColor: null,
     topLogo: {
       src: null,
       alt: null,
