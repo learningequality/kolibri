@@ -251,6 +251,8 @@
         }
         this.quizLimit += 10;
       },
+    },
+    $trs: {
       printLabel: {
         message: '{className} Learners',
         context:

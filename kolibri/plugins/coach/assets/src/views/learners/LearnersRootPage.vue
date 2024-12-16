@@ -67,7 +67,7 @@
   import sortBy from 'lodash/sortBy';
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { ref } from '@vue/composition-api';
+  import { ref } from 'vue';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
