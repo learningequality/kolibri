@@ -22,18 +22,25 @@ Since browser development tools only offer an approximation, some tasks may requ
 
 1. Ensure that the mobile device you wish to use for previewing Kolibri is connected to the same local network as your computer where you run the development server.
 2. Run the development server with `yarn python-devserver` and `yarn run watch --write-to-disk`
-3. Find your computer's IP address
-4. Open a browser on the mobile device and navigate to your computer's IP address with port `:8000`, `http://x.x.x.x:8000`. There, you should see Kolibri.
+3. In the section with URLs in the ``yarn python-devserver`` terminal output, locate Kolibri's ``http://A.B.C.D:8000/`` URL on the first line. Open a browser on the mobile device and navigate to that URL, where you should see Kolibri.
 
-.. tip::
-   In ``yarn run watch --write-to-disk`` command terminal output, you can find your computer's IP address on the line ``[webpack-dev-server] On Your Network (IPv4): http://x.x.x.x:3000/``.
+```bash
+INFO     2024-11-19 15:14:21,967 Kolibri running on: http://A.B.C.D:8000/ # use this URL
+...
+INFO     2024-11-19 15:14:21,967 Kolibri running on: http://127.0.0.1:8000/
+```
 
 ### Option 2
 
 1. Ensure that the mobile device you wish to use for previewing Kolibri is connected to the same local network as your computer where you run the development server.
 2. Run the development server with `yarn python-devserver` and `yarn build`
-3. Find your computer's IP address
-4. Open a browser on the mobile device and navigate to your computer's IP address with port `:8000`, `http://x.x.x.x:8000`. There, you should see Kolibri.
+3. In the section with URLs in the ``yarn python-devserver`` terminal output, locate Kolibri's ``http://A.B.C.D:8000/`` URL on the first line. Open a browser on the mobile device and navigate to that URL, where you should see Kolibri.
+
+```bash
+INFO     2024-11-19 15:14:21,967 Kolibri running on: http://A.B.C.D:8000/ # use this URL
+...
+INFO     2024-11-19 15:14:21,967 Kolibri running on: http://127.0.0.1:8000/
+```
 
 .. warning::
    When running the development server as described above, you will need to rebuild frontend assets manually using ``yarn build`` after every change.
