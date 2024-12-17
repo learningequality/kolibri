@@ -60,6 +60,9 @@ export default function useFetch(options) {
   const count = ref(null);
   const loadingMore = ref(false);
 
+  // useFetch metadata to manage synchronization of fetches
+  const _fetchCount = ref(0);
+
   const hasMore = computed(() => moreParams.value != null);
 
   const _setData = (response, loadingMore) => {
@@ -80,12 +83,25 @@ export default function useFetch(options) {
 
   const fetchData = async (...args) => {
     loading.value = true;
+    loadingMore.value = false; // Reset loading more state
     error.value = null;
+    _fetchCount.value += 1;
+    const currentFetchCount = _fetchCount.value;
+
+    // If the fetch count has changed, it means that a new fetch has been triggered
+    // and this fetch is no longer relevant
+    const newFetchHasStarted = () => currentFetchCount !== _fetchCount.value;
 
     try {
       const response = await fetchMethod(...args);
+      if (newFetchHasStarted()) {
+        return;
+      }
       _setData(response);
     } catch (err) {
+      if (newFetchHasStarted()) {
+        return;
+      }
       error.value = err;
     }
 
@@ -93,17 +109,28 @@ export default function useFetch(options) {
   };
 
   const fetchMore = async (...args) => {
-    if (!moreParams.value || !fetchMoreMethod) {
+    if (!moreParams.value || !fetchMoreMethod || loadingMore.value || loading.value) {
       return;
     }
 
     loadingMore.value = true;
     error.value = null;
+    const currentFetchCount = _fetchCount.value;
+
+    // If the fetch count or fetch more count has changed, it means that a new fetch has been
+    // triggered and this fetch is no longer relevant
+    const newFetchHasStarted = () => currentFetchCount !== _fetchCount.value;
 
     try {
       const response = await fetchMoreMethod(moreParams.value, ...args);
-      _setData(response, loadingMore.value);
+      if (newFetchHasStarted()) {
+        return;
+      }
+      _setData(response, true);
     } catch (err) {
+      if (newFetchHasStarted()) {
+        return;
+      }
       error.value = err;
     }
 
