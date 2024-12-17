@@ -173,7 +173,11 @@
       },
     },
     mounted() {
-      this.selectedRecipients = ClassRecipients.ENTIRE_CLASS;
+      if (this.selectedCollectionIds.includes(this.classId)) {
+        this.selectedRecipients = ClassRecipients.ENTIRE_CLASS;
+      } else {
+        this.selectedRecipients = ClassRecipients.GROUP_OR_INDIVIDUAL;
+      }
     },
     methods: {
       updateAdHocLearners(newVal) {
