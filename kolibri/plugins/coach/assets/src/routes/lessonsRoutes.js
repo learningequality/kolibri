@@ -151,7 +151,7 @@ export default [
             component: SelectFromBookmarks,
           },
           {
-            name: PageNames.LESSON_SELECT_RESOURCES_CHANNELS,
+            name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
             path: 'channels',
             component: SelectFromChannels,
           },
