@@ -85,7 +85,7 @@
         <!-- Filter results by learning activity, displaying all options -->
         <SelectGroup
           v-model="inputValue"
-          :showChannels="showChannels"
+          :showLanguages="showLanguages"
           class="section"
         />
         <div
@@ -132,7 +132,7 @@
 
           <AccordionSelectGroup
             v-model="inputValue"
-            :showChannels="showChannels"
+            :showLanguages="showLanguages"
             :activeCategories="activeCategories"
             :handleCategory="handleCategory"
             style="margin-top: 1em"
@@ -244,7 +244,7 @@
         required: false,
         default: null,
       },
-      showChannels: {
+      showLanguages: {
         type: Boolean,
         default: true,
       },

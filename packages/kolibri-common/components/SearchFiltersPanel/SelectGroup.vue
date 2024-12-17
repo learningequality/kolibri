@@ -1,16 +1,9 @@
 <template>
 
   <div>
-    <KSelect
-      v-if="languageOptionsList.length"
-      :options="languageOptionsList"
-      :disabled="!langId && enabledLanguageOptions.length < 2"
-      :clearable="!(!langId && enabledLanguageOptions.length < 2)"
-      :clearText="coreString('clearAction')"
-      :value="selectedLanguage"
-      :label="coreString('languageLabel')"
+    <LanguageSelector
+      v-if="showLanguages"
       :style="selectorStyle"
-      @change="val => handleChange('languages', val)"
     />
     <KSelect
       v-if="contentLevelsList.length"
@@ -22,7 +15,7 @@
       :value="selectedLevel"
       :label="coreString('levelLabel')"
       :style="selectorStyle"
-      @change="val => handleChange('grade_levels', val)"
+      @change="val => handleChange('grade_levels', val && val.value)"
     />
     <KSelect
       v-if="accessibilityOptionsList.length"
@@ -34,7 +27,7 @@
       :value="selectedAccessibilityFilter"
       :label="coreString('accessibility')"
       :style="selectorStyle"
-      @change="val => handleChange('accessibility_labels', val)"
+      @change="val => handleChange('accessibility_labels', val && val.value)"
     />
   </div>
 
@@ -47,21 +40,20 @@
   import { ContentLevels, AccessibilityCategories } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
+  import LanguageSelector from './LanguageSelector';
 
   export default {
     name: 'SelectGroup',
+    components: {
+      LanguageSelector,
+    },
     mixins: [commonCoreStrings],
     setup() {
-      const {
-        availableGradeLevels,
-        availableAccessibilityOptions,
-        availableLanguages,
-        searchableLabels,
-      } = injectBaseSearch();
+      const { availableGradeLevels, availableAccessibilityOptions, searchableLabels } =
+        injectBaseSearch();
       return {
         availableGradeLevels,
         availableAccessibilityOptions,
-        availableLanguages,
         searchableLabels,
       };
     },
@@ -74,6 +66,10 @@
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
       },
+      showLanguages: {
+        type: Boolean,
+        default: true,
+      },
     },
     computed: {
       selectorStyle() {
@@ -82,19 +78,6 @@
           paddingTop: '10px',
           borderRadius: '2px',
         };
-      },
-      languageOptionsList() {
-        return this.availableLanguages.map(language => {
-          return {
-            value: language.id,
-            disabled:
-              this.searchableLabels && !this.searchableLabels.languages.includes(language.id),
-            label: language.lang_name,
-          };
-        });
-      },
-      enabledLanguageOptions() {
-        return this.languageOptionsList.filter(l => !l.disabled);
       },
       accessibilityOptionsList() {
         return this.availableAccessibilityOptions.map(key => {
@@ -132,15 +115,6 @@
       },
       enabledContentLevels() {
         return this.contentLevelsList.filter(c => !c.disabled);
-      },
-      langId() {
-        return Object.keys(this.value.languages)[0];
-      },
-      selectedLanguage() {
-        if (!this.langId && this.enabledLanguageOptions.length === 1) {
-          return this.enabledLanguageOptions[0];
-        }
-        return this.languageOptionsList.find(o => o.value === this.langId) || {};
       },
       accessId() {
         return Object.keys(this.value.accessibility_labels)[0];

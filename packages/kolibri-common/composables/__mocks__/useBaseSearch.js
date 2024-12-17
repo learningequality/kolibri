@@ -61,6 +61,8 @@ const MOCK_DEFAULTS = {
       meta: {},
     };
   }),
+  ensurePrimaryLanguage: jest.fn(() => Promise.resolve(true)),
+  createBaseSearchGetParams: jest.fn(() => ({})),
 };
 
 export function useBaseSearchMock(overrides = {}) {
@@ -82,6 +84,9 @@ export const injectBaseSearch = jest.fn(() => ({
   availableChannels: [],
   searchableLabels: [],
   activeSearchTerms: [],
+  languageOptions: [],
+  enabledLanguageOptions: [],
+  removeSearchTerm: jest.fn(),
 }));
 
 export const searchKeys = [];
