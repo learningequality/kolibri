@@ -36,6 +36,7 @@ from le_utils.constants import format_presets
 from morango.models.fields import UUIDField
 from mptt.managers import TreeManager
 from mptt.querysets import TreeQuerySet
+from sortedm2m.fields import SortedManyToManyField
 
 from .utils import paths
 from kolibri.core.auth.models import Facility
@@ -376,9 +377,14 @@ class ChannelMetadata(base_models.ChannelMetadata):
     # precalculated fields during annotation/migration
     published_size = models.BigIntegerField(default=0, null=True, blank=True)
     total_resource_count = models.IntegerField(default=0, null=True, blank=True)
-    included_languages = models.ManyToManyField(
-        "Language", related_name="channels", verbose_name="languages", blank=True
+    included_languages = SortedManyToManyField(
+        Language,
+        related_name="channels",
+        verbose_name="languages",
+        blank=True,
     )
+    included_categories = models.TextField(null=True, blank=True)
+    included_grade_levels = models.TextField(null=True, blank=True)
     order = models.PositiveIntegerField(default=0, null=True, blank=True)
     public = models.BooleanField(null=True)
     # Has only a subset of this channel's metadata been imported?

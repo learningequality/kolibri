@@ -2,9 +2,11 @@
 from sqlalchemy import BigInteger
 from sqlalchemy import Boolean
 from sqlalchemy import CHAR
+from sqlalchemy import CheckConstraint
 from sqlalchemy import Column
 from sqlalchemy import Float
 from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy import Index
 from sqlalchemy import Integer
 from sqlalchemy import String
@@ -45,6 +47,23 @@ class ContentLocalfile(Base):
 class ContentContentnode(Base):
     __tablename__ = "content_contentnode"
     __table_args__ = (
+        CheckConstraint("lft >= 0"),
+        CheckConstraint("tree_id >= 0"),
+        CheckConstraint("level >= 0"),
+        CheckConstraint("duration >= 0"),
+        CheckConstraint("rght >= 0"),
+        ForeignKeyConstraint(
+            ["lang_id"],
+            ["content_language.id"],
+            deferrable=True,
+            initially="DEFERRED",
+        ),
+        ForeignKeyConstraint(
+            ["parent_id"],
+            ["content_contentnode.id"],
+            deferrable=True,
+            initially="DEFERRED",
+        ),
         Index(
             "content_contentnode_level_channel_id_available_29f0bb18_idx",
             "level",
@@ -69,11 +88,10 @@ class ContentContentnode(Base):
     author = Column(String(200), nullable=False)
     kind = Column(String(200), nullable=False)
     available = Column(Boolean, nullable=False)
-    lft = Column(Integer, nullable=False, index=True)
-    rght = Column(Integer, nullable=False, index=True)
+    lft = Column(Integer, nullable=False)
     tree_id = Column(Integer, nullable=False, index=True)
-    level = Column(Integer, nullable=False, index=True)
-    lang_id = Column(ForeignKey("content_language.id"), index=True)
+    level = Column(Integer, nullable=False)
+    lang_id = Column(String(14), index=True)
     license_description = Column(Text)
     license_name = Column(String(50))
     coach_content = Column(Boolean, nullable=False)
@@ -94,7 +112,8 @@ class ContentContentnode(Base):
     learning_activities_bitmask_0 = Column(BigInteger)
     ancestors = Column(Text)
     admin_imported = Column(Boolean)
-    parent_id = Column(ForeignKey("content_contentnode.id"), index=True)
+    rght = Column(Integer, nullable=False)
+    parent_id = Column(CHAR(32), index=True)
 
     lang = relationship("ContentLanguage")
     parent = relationship("ContentContentnode", remote_side=[id])
@@ -118,6 +137,13 @@ class ContentAssessmentmetadata(Base):
 
 class ContentChannelmetadata(Base):
     __tablename__ = "content_channelmetadata"
+    __table_args__ = (
+        CheckConstraint('"order" >= 0'),
+        ForeignKeyConstraint(
+            ["root_id"],
+            ["content_contentnode.id"],
+        ),
+    )
 
     id = Column(CHAR(32), primary_key=True)
     name = Column(String(200), nullable=False)
@@ -127,13 +153,15 @@ class ContentChannelmetadata(Base):
     thumbnail = Column(Text, nullable=False)
     last_updated = Column(String)
     min_schema_version = Column(String(50), nullable=False)
-    root_id = Column(ForeignKey("content_contentnode.id"), nullable=False, index=True)
+    root_id = Column(CHAR(32), nullable=False, index=True)
     published_size = Column(BigInteger)
     total_resource_count = Column(Integer)
     order = Column(Integer)
     public = Column(Boolean)
     tagline = Column(String(150))
     partial = Column(Boolean)
+    included_categories = Column(Text)
+    included_grade_levels = Column(Text)
 
     root = relationship("ContentContentnode")
 
@@ -242,12 +270,21 @@ class ContentFile(Base):
 
 class ContentChannelmetadataIncludedLanguages(Base):
     __tablename__ = "content_channelmetadata_included_languages"
+    __table_args__ = (
+        Index(
+            "content_channelmetadata_included_languages_channelmetadata_id_language_id_51f20415_uniq",
+            "channelmetadata_id",
+            "language_id",
+            unique=True,
+        ),
+    )
 
     id = Column(Integer, primary_key=True)
     channelmetadata_id = Column(
-        ForeignKey("content_channelmetadata.id"), nullable=False
+        ForeignKey("content_channelmetadata.id"), nullable=False, index=True
     )
-    language_id = Column(ForeignKey("content_language.id"), nullable=False)
+    language_id = Column(ForeignKey("content_language.id"), nullable=False, index=True)
+    sort_value = Column(Integer, nullable=False)
 
     channelmetadata = relationship("ContentChannelmetadata")
     language = relationship("ContentLanguage")

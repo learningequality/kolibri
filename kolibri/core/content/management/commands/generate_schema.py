@@ -1,3 +1,4 @@
+import inspect
 import io
 import json
 import os
@@ -10,6 +11,30 @@ from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.db import connections
+
+# Compatibility layer for Python 3.12+ where ArgSpec is removed
+if not hasattr(inspect, "ArgSpec"):
+
+    class ArgSpec:
+        def __init__(self, args, varargs, keywords, defaults):
+            self.args = args
+            self.varargs = varargs
+            self.keywords = keywords
+            self.defaults = defaults
+
+    def getargspec(func):
+        spec = inspect.getfullargspec(func)
+        return ArgSpec(
+            args=spec.args,
+            varargs=spec.varargs,
+            keywords=spec.varkw,
+            defaults=spec.defaults,
+        )
+
+    inspect.ArgSpec = ArgSpec
+    inspect.getargspec = getargspec
+
+
 from sqlacodegen.codegen import CodeGenerator
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
