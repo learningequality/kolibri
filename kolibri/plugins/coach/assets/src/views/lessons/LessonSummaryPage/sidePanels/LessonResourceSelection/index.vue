@@ -86,7 +86,7 @@
         setSelectedResources,
       } = useResourceSelection();
 
-      const { saveAndFinishAction$, selectFromBookmarks$ } = coreStrings;
+      const { saveAndFinishAction$ } = coreStrings;
 
       return {
         loading,
@@ -99,7 +99,6 @@
         selectResources,
         deselectResources,
         setSelectedResources,
-        selectFromBookmarks$,
         saveAndFinishAction$,
       };
     },
@@ -110,10 +109,6 @@
       };
     },
     computed: {
-      topicId() {
-        const { topicId } = this.$route.query;
-        return topicId;
-      },
       totalSize() {
         let size = 0;
         this.selectedResources.forEach(resource => {
