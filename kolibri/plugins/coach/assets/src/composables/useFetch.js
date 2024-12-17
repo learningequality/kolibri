@@ -5,26 +5,33 @@ import { ref, computed } from 'vue';
  *
  * @param {Object} options **Required** Configuration options for the fetch operation.
  * @param {(...args) => Promise<any>} options.fetchMethod **Required** Function to fetch the
- * initial data. Should return a Promise resolving to the fetched data.
+ * initial data.
+ * * Should return a Promise resolving to the fetched data or a `{ results: any[], more: any }`
+ *   object. The "results" property should be the fetched data and the "more" property should be
+ *   the next "more" object to use in the fetchMore method.
  *
  * Example:
  * ```js
- * const fetchMethod = () => ContentNodeResource.fetchBookmarks({
- *   params: { limit: 25, available: true, },
+ * const { data, loading, error, fetchData } = useFetch({
+ *  fetchMethod: () => ContentNodeResource.fetchBookmarks()
  * })
+ * ```
  *
  *
  * @param {(more, ...args) => Promise<any>} [options.fetchMoreMethod] Function to fetch more data.
- * * This function receives a "more" object as its first argument. This "more" object is specified
- *   by the `moreKey` param.
- * * Should return a Promise resolving to the additional data.
+ * * This function receives a "moreParams" object as its first argument. This moreParams object is
+ *   from the "more" property of the response from the previous fetch to fetch more data.
+ * * Should return a Promise resolving to { results: any[], more: any }. The "results" property
+ *   should be the fetched data and the "more" property should be the next "more" object to use
+ *   in the next fetchMore method.
  * * FetchMore just works if the fetched data is an array
  *
  * Example:
  *
  * ```js
- * const fetchMoreMethod = (more) => ContentNodeResource.fetchBookmarks({
- *  params: more
+ * const { data, loading, error, fetchData } = useFetch({
+ *   fetchMethod: () => ContentNodeResource.fetchBookmarks(),
+ *   fetchMoreMethod: moreParams => ContentNodeResource.fetchBookmarks(moreParams)
  * })
  * ```
  *
