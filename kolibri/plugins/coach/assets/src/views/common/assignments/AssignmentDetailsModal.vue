@@ -366,6 +366,11 @@
           error = recipientsError;
           this.$refs.recipientsSelector?.handleSubmitRecipientsFailure();
         }
+
+        if (error) {
+          this.showServerError = true;
+        }
+
         return error;
       },
     },
