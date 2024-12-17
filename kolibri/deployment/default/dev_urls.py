@@ -1,6 +1,6 @@
-from django.conf import settings
 from django.http.response import HttpResponseRedirect
 from django.urls import include
+from django.urls import path
 from django.urls import re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -48,10 +48,5 @@ urlpatterns = urlpatterns + [
         name="schema-redoc",
     ),
     re_path(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]
-
-if getattr(settings, "DEBUG_PANEL_ACTIVE", False):
-
-    import debug_toolbar
-
-    urlpatterns = [re_path(r"^__debug__/", include(debug_toolbar.urls))] + urlpatterns
