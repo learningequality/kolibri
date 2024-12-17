@@ -5,17 +5,8 @@
     v-else
     class="items-label"
   >
-    <span v-if="items.length === 1">
-      {{ items[0] }}
-    </span>
-    <span v-else-if="items.length === 2">
-      {{ $tr('twoItems', { item1: items[0], item2: items[1] }) }}
-    </span>
-    <span v-else-if="items.length === 3">
-      {{ $tr('threeItems', { item1: items[0], item2: items[1], item3: items[2] }) }}
-    </span>
-    <span v-else>
-      {{ $tr('manyItems', { item1: items[0], item2: items[1], count: items.length - 2 }) }}
+    <span>
+      {{ getTruncatedItemsString(items) }}
     </span>
   </div>
 
@@ -23,6 +14,8 @@
 
 
 <script>
+
+  import { getTruncatedItemsString } from './commonCoachStrings';
 
   export default {
     name: 'TruncatedItemList',
@@ -32,21 +25,8 @@
         required: true,
       },
     },
-    $trs: {
-      twoItems: {
-        message: '{item1}, {item2}',
-        context:
-          "DO NOT TRANSLATE\nCopy the source string.\n\nFor reference: 'item' will be replaced by the name of the coach(es) in the list of classes.",
-      },
-      threeItems: {
-        message: '{item1}, {item2}, {item3}',
-        context:
-          "DO NOT TRANSLATE\nCopy the source string.\n\nFor reference: 'item' will be replaced by the name of the coach(es) in the list of classes.",
-      },
-      manyItems: {
-        message: '{item1}, {item2}, and {count, number, integer} others',
-        context: "'item' will be replaced by the name of the coach(es) in the list of classes.",
-      },
+    methods: {
+      getTruncatedItemsString,
     },
   };
 

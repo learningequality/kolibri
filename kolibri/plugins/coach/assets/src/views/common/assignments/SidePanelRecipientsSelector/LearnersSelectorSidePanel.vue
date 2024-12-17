@@ -40,14 +40,23 @@
           {{ coachString('onlyShowingEnrolledLabel') }}
         </div>
         <IndividualLearnerSelectorTable
-          :selectedGroupIds="selectedGroupIds"
-          :selectedLearnerIds="adHocLearners"
+          :selectedGroupIds="workingSelectedGroupIds"
+          :selectedLearnerIds.sync="workingAdHocLearners"
           :disabled="disabled"
           :targetClassId="classId"
           @update:selectedLearnerIds="updateAdHocLearners"
         />
       </section>
     </div>
+    <template #bottomNavigation>
+      <div class="bottom-nav-container">
+        <KButton
+          primary
+          :text="coreString('saveAction')"
+          @click="save"
+        />
+      </div>
+    </template>
   </SidePanelModal>
 
 </template>
@@ -55,8 +64,10 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import uniq from 'lodash/uniq';
+  import { mapGetters, mapState } from 'vuex';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { coachStringsMixin } from '../../../common/commonCoachStrings';
   import IndividualLearnerSelectorTable from '../IndividualLearnerSelector/IndividualLearnerSelectorTable';
 
@@ -66,7 +77,7 @@
       SidePanelModal,
       IndividualLearnerSelectorTable,
     },
-    mixins: [coachStringsMixin],
+    mixins: [coachStringsMixin, commonCoreStrings],
     props: {
       groups: {
         type: Array,
@@ -90,38 +101,62 @@
         required: true,
       },
     },
+    data() {
+      return {
+        workingAdHocLearners: this.adHocLearners,
+        workingSelectedGroupIds: this.selectedGroupIds,
+      };
+    },
     computed: {
       ...mapGetters('classSummary', ['learners']),
+      ...mapState('classSummary', ['groupMap']),
       ungroupedLearnersIds() {
-        return this.learners.filter(learner => !learner.group_id).map(learner => learner.id);
+        return this.learners
+          .filter(learner => {
+            return Object.values(this.groupMap).every(
+              group => !group.member_ids.includes(learner.id),
+            );
+          })
+          .map(learner => learner.id);
       },
       allUngroupedLearnresIsSelected() {
-        return this.adHocLearners.length === this.ungroupedLearnersIds.length;
+        return this.ungroupedLearnersIds.every(learnerId =>
+          this.workingAdHocLearners.includes(learnerId),
+        );
       },
     },
     methods: {
       groupIsSelected({ id }) {
-        return this.selectedGroupIds.includes(id);
+        return this.workingSelectedGroupIds.includes(id);
       },
       toggleGroup(isChecked, { id }) {
         if (isChecked) {
-          this.$emit('update:selectedGroupIds', [...this.selectedGroupIds, id]);
+          this.workingSelectedGroupIds = [...this.workingSelectedGroupIds, id];
         } else {
-          this.$emit(
-            'update:selectedGroupIds',
-            this.selectedGroupIds.filter(groupId => groupId !== id),
+          this.workingSelectedGroupIds = this.workingSelectedGroupIds.filter(
+            groupId => groupId !== id,
           );
         }
       },
       updateAdHocLearners(learnerIds) {
-        this.$emit('update:adHocLearners', learnerIds);
+        this.workingAdHocLearners = learnerIds;
       },
       selectAllUngroupedLearners(isChecked) {
         if (isChecked) {
-          this.updateAdHocLearners(this.ungroupedLearnersIds);
+          this.workingAdHocLearners = uniq([
+            ...this.workingAdHocLearners,
+            ...this.ungroupedLearnersIds,
+          ]);
         } else {
-          this.updateAdHocLearners([]);
+          this.workingAdHocLearners = this.workingAdHocLearners.filter(
+            learnerId => !this.ungroupedLearnersIds.includes(learnerId),
+          );
         }
+      },
+      save() {
+        this.$emit('update:adHocLearners', this.workingAdHocLearners);
+        this.$emit('update:selectedGroupIds', this.workingSelectedGroupIds);
+        this.$emit('close');
       },
     },
     $trs: {
@@ -137,3 +172,15 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .bottom-nav-container {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+</style>

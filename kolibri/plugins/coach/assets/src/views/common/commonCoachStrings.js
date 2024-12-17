@@ -671,6 +671,24 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
   },
 });
 
+// Strings for showing lists of items that can be truncated
+const truncatedItemsStrings = createTranslator('TruncatedItemsStrings', {
+  twoItems: {
+    message: '{item1}, {item2}',
+    context:
+      "DO NOT TRANSLATE\nCopy the source string.\n\nFor reference: 'item' will be replaced by the name of the coach(es) in the list of classes.",
+  },
+  threeItems: {
+    message: '{item1}, {item2}, {item3}',
+    context:
+      "DO NOT TRANSLATE\nCopy the source string.\n\nFor reference: 'item' will be replaced by the name of the coach(es) in the list of classes.",
+  },
+  manyItems: {
+    message: '{item1}, {item2}, and {count, number, integer} others',
+    context: "'item' will be replaced by the name of the coach(es) in the list of classes.",
+  },
+});
+
 function coachString(key, args) {
   return coachStrings.$tr(key, args);
 }
@@ -684,4 +702,28 @@ const coachStringsMixin = {
   },
 };
 
-export { coachString, coachStrings, coachStringsMixin };
+function getTruncatedItemsString(items) {
+  if (items.length <= 1) {
+    return items[0] || '';
+  }
+  if (items.length === 2) {
+    return truncatedItemsStrings.$tr('twoItems', {
+      item1: items[0],
+      item2: items[1],
+    });
+  }
+  if (items.length === 3) {
+    return truncatedItemsStrings.$tr('threeItems', {
+      item1: items[0],
+      item2: items[1],
+      item3: items[2],
+    });
+  }
+  return truncatedItemsStrings.$tr('manyItems', {
+    item1: items[0],
+    item2: items[1],
+    count: items.length - 2,
+  });
+}
+
+export { coachString, coachStrings, coachStringsMixin, getTruncatedItemsString };
