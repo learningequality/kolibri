@@ -39,7 +39,6 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoachStrings from '../../../common';
   import IndividualLearnerSelectorTable from './IndividualLearnerSelectorTable';
 
@@ -47,13 +46,6 @@
     name: 'IndividualLearnerSelector',
     components: { IndividualLearnerSelectorTable },
     mixins: [commonCoreStrings, commonCoachStrings],
-    setup() {
-      const { noLearnersEnrolled$ } = enhancedQuizManagementStrings;
-
-      return {
-        noLearnersEnrolled$,
-      };
-    },
     props: {
       // If true, the main checkbox is checked and the list of learners is shown
       isVisible: {
