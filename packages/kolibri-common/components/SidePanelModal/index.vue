@@ -46,6 +46,9 @@
             <div
               v-if="$slots.bottomNavigation"
               class="bottom-navigation"
+              :style="{
+                backgroundColor: $themeTokens.surface,
+              }"
             >
               <slot name="bottomNavigation"></slot>
             </div>
