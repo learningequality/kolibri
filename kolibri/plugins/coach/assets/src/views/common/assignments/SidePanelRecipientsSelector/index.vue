@@ -14,32 +14,43 @@
         />
       </KRadioButton>
       <KRadioButton
+        ref="groupOrIndividualRadioButton"
         v-model="selectedRecipients"
         :buttonValue="ClassRecipients.GROUP_OR_INDIVIDUAL"
         :disabled="disabled"
       >
-        <div
-          :style="{
-            display: 'flex',
-            columnGap: '8px',
-            flexDirection: hasGroupOrIndividualRecipients ? 'column' : 'row',
-            alignItems: hasGroupOrIndividualRecipients ? 'flex-start' : 'center',
-          }"
-        >
-          <KLabeledIcon
-            :label="coachString('groupsAndLearnersLabel')"
-            icon="people"
-            style="width: auto"
-          />
-          <span v-if="hasGroupOrIndividualRecipients">
-            {{ selectedMessage }}
-          </span>
-          <KButton
-            v-if="selectedRecipients === ClassRecipients.GROUP_OR_INDIVIDUAL"
-            appearance="basic-link"
-            :text="hasGroupOrIndividualRecipients ? $tr('changeAction') : $tr('selectAction')"
-            @click="isLearnersSelectorOpen = true"
-          />
+        <div>
+          <div
+            :style="{
+              display: 'flex',
+              columnGap: '8px',
+              flexDirection: hasGroupOrIndividualRecipients ? 'column' : 'row',
+              alignItems: hasGroupOrIndividualRecipients ? 'flex-start' : 'center',
+            }"
+          >
+            <KLabeledIcon
+              :label="coachString('groupsAndLearnersLabel')"
+              icon="people"
+              style="width: auto"
+            />
+            <span v-if="hasGroupOrIndividualRecipients">
+              {{ selectedMessage }}
+            </span>
+            <KButton
+              v-if="selectedRecipients === ClassRecipients.GROUP_OR_INDIVIDUAL"
+              appearance="basic-link"
+              :text="hasGroupOrIndividualRecipients ? $tr('changeAction') : $tr('selectAction')"
+              @click="isLearnersSelectorOpen = true"
+            />
+          </div>
+          <div
+            v-if="assignmentInvalidText"
+            :style="{
+              color: $themeTokens.error,
+            }"
+          >
+            {{ assignmentInvalidText }}
+          </div>
         </div>
       </KRadioButton>
     </KRadioButtonGroup>
@@ -51,7 +62,7 @@
       :selectedGroupIds.sync="selectedGroupIds"
       :disabled="disabled"
       :classId="classId"
-      @close="isLearnersSelectorOpen = false"
+      @close="closeSidePanel"
       @update:adHocLearners="updateAdHocLearners"
     />
   </div>
@@ -64,6 +75,7 @@
   import { mapGetters } from 'vuex';
   import every from 'lodash/every';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { coachStringsMixin, getTruncatedItemsString } from '../../../common/commonCoachStrings';
   import LearnersSelectorSidePanel from './LearnersSelectorSidePanel';
 
@@ -76,6 +88,10 @@
     name: 'SidePanelRecipientsSelector',
     components: { LearnersSelectorSidePanel },
     mixins: [coachStringsMixin, commonCoreStrings],
+    setup() {
+      const { sendAssertiveMessage } = useKLiveRegion();
+      return { sendAssertiveMessage };
+    },
     props: {
       // Needs to equal [classId] if entire class is selected
       // Otherwise, [groupId_1, groupId_2] for individual Learner Groups
@@ -114,6 +130,7 @@
         // learners are selectable in IndividualLearnerSelector
         selectedGroupIds: this.selectedCollectionIds.filter(id => id !== this.classId),
         isLearnersSelectorOpen: false,
+        assignmentInvalidText: '',
       };
     },
     computed: {
@@ -162,6 +179,38 @@
       updateAdHocLearners(newVal) {
         this.$emit('update:adHocLearners', newVal);
       },
+      async closeSidePanel() {
+        this.isLearnersSelectorOpen = false;
+        await this.$nextTick();
+        if (this.assignmentInvalidText) {
+          this.validate();
+        }
+      },
+      /**
+       * Validates the selected recipients and sets the error message if invalid
+       * @public
+       */
+      validate() {
+        if (!this.hasRecipients) {
+          this.assignmentInvalidText = this.$tr('noRecipientsSelected');
+        } else {
+          this.assignmentInvalidText = '';
+        }
+        return this.assignmentInvalidText;
+      },
+      /**
+       * @public
+       */
+      async handleSubmitRecipientsFailure() {
+        await this.$nextTick();
+        if (!this.assignmentInvalidText) {
+          return;
+        }
+        this.sendAssertiveMessage(this.assignmentInvalidText);
+        this.$refs.groupOrIndividualRadioButton.focus();
+        // Scroll to the radio button in case focus() didn't do that immediately
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
     },
     $trs: {
       selectedLabel: {
@@ -175,6 +224,10 @@
       changeAction: {
         message: 'Change',
         context: 'Button to change selected groups and learners',
+      },
+      noRecipientsSelected: {
+        message: 'Please select at least one group or learner',
+        context: 'Error message when no recipients are selected',
       },
     },
   };
