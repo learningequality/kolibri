@@ -4,13 +4,14 @@
     <KPageContainer>
       <CoachHeader :title="coreString('lessonsLabel')">
         <template #actions>
-          <KRouterLink
-            id="new-lesson-button"
-            primary
-            appearance="raised-button"
-            :text="coachString('newLessonAction')"
-            :to="newLessonRoute"
-          />
+          <div class="lesson-button">
+            <KRouterLink
+              primary
+              appearance="raised-button"
+              :text="coachString('newLessonAction')"
+              :to="newLessonRoute"
+            />
+          </div>
         </template>
       </CoachHeader>
       <div>
@@ -20,10 +21,7 @@
         >
           {{ coachString('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
         </p>
-        <ReportsControls
-          @export="exportCSV"
-          @printToPDF="printToPDF"
-        >
+        <ReportsControls @export="exportCSV">
           <div :style="windowIsSmall ? { display: 'grid' } : {}">
             <KSelect
               v-model="filterSelection"
@@ -459,15 +457,6 @@
         const fileName = this.$tr('printLabel', { className: this.className });
         new CSVExporter(columns, fileName).export(this.sortedLessons);
       },
-      printToPDF() {
-        const lessonButton = document.getElementById('new-lesson-button');
-        lessonButton.style.display = 'none';
-
-        this.$print();
-        setTimeout(() => {
-          lessonButton.style.display = 'block';
-        }, 500);
-      },
       bytesForHumans,
     },
     $trs: {
@@ -511,6 +500,12 @@
   .total-size {
     padding: 0;
     margin-bottom: 16px;
+  }
+
+  @media print {
+    .lesson-button {
+      display: none;
+    }
   }
 
 </style>

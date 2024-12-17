@@ -16,7 +16,7 @@
         ref="printButton"
         icon="print"
         :aria-label="coachString('printReportAction')"
-        @click.prevent="$emit('printToPDF')"
+        @click.prevent="$print()"
       />
       <KTooltip
         reference="printButton"
