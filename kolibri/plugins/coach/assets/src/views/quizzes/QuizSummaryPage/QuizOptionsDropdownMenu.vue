@@ -26,26 +26,30 @@
     name: 'QuizOptionsDropdownMenu',
     mixins: [coachStringsMixin, commonCoreStrings],
     props: {
-      draft: {
-        type: Boolean,
-        default: false,
+      exam: {
+        type: Object,
+        required: false,
+        default: null,
       },
     },
     computed: {
       options() {
-        return [
-          {
-            label: this.draft
-              ? this.coreString('editAction')
-              : this.coreString('editDetailsAction'),
-            value: 'EDIT_DETAILS',
-          },
+        const options = [
           {
             label: this.$tr('copyQuizAction'),
             value: 'COPY',
           },
           { label: this.coreString('deleteAction'), value: 'DELETE' },
         ];
+        if (!this.exam?.archive) {
+          options.unshift({
+            label: this.exam?.draft
+              ? this.coreString('editAction')
+              : this.coreString('editDetailsAction'),
+            value: 'EDIT_DETAILS',
+          });
+        }
+        return options;
       },
     },
     $trs: {
