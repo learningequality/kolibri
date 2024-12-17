@@ -56,9 +56,6 @@ export default function useResourceSelection() {
       ContentNodeResource.fetchBookmarks({
         params: more,
       }),
-    dataKey: 'results',
-    moreKey: 'more',
-    countKey: 'count',
   });
 
   const channelsFetch = useFetch({
@@ -78,8 +75,6 @@ export default function useResourceSelection() {
   const treeFetch = useFetch({
     fetchMethod: () => fetchTree({ id: topicId.value, params: { include_coach_content: true } }),
     fetchMoreMethod: more => fetchTree(more),
-    dataKey: 'results',
-    moreKey: 'more',
   });
 
   watch(topicId, () => {
