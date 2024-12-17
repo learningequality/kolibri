@@ -171,45 +171,6 @@
           ? this.coreString('backAction')
           : this.coreString('closeAction');
       },
-      /* Change of position with change of close button type, default is close */
-      closeButtonStyle() {
-        if (this.isRtl) {
-          if (this.closeButtonIconType === 'close') {
-            return {
-              position: 'absolute',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              left: '1em',
-              'z-index': '24',
-            };
-          } else {
-            return {
-              position: 'absolute',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              right: '1em',
-              'z-index': '24',
-            };
-          }
-        }
-        if (this.closeButtonIconType === 'back') {
-          return {
-            position: 'absolute',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            left: '1em',
-            'z-index': '24',
-          };
-        } else {
-          return {
-            position: 'absolute',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            right: '1em',
-            'z-index': '24',
-          };
-        }
-      },
     },
     beforeMount() {
       this.lastFocus = document.activeElement;
