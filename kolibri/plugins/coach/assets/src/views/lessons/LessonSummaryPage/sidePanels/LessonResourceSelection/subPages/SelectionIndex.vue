@@ -140,7 +140,7 @@
     methods: {
       selectFromChannelsLink(channel) {
         return {
-          name: PageNames.LESSON_SELECT_RESOURCES_CHANNELS,
+          name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
           query: { topicId: channel.id },
         };
       },

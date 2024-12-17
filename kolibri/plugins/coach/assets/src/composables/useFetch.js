@@ -22,8 +22,8 @@ import { ref, computed } from 'vue';
  * * This function receives a "moreParams" object as its first argument. This moreParams object is
  *   from the "more" property of the response from the previous fetch to fetch more data.
  * * Should return a Promise resolving to { results: any[], more: any }. The "results" property
- *   should be the fetched data and the "more" property should be the next "more" object to use
- *   in the next fetchMore method.
+ *   should be the fetched data and the "more" property should be the next "moreParams" object to
+ *   use in the next fetchMore method.
  * * FetchMore just works if the fetched data is an array
  *
  * Example:
@@ -56,11 +56,11 @@ export default function useFetch(options) {
   const loading = ref(false);
   const data = ref(null);
   const error = ref(null);
-  const more = ref(null);
+  const moreParams = ref(null);
   const count = ref(null);
   const loadingMore = ref(false);
 
-  const hasMore = computed(() => more.value != null);
+  const hasMore = computed(() => moreParams.value != null);
 
   const _setData = (response, loadingMore) => {
     const responseData = fetchMoreMethod ? response.results : response;
@@ -74,7 +74,7 @@ export default function useFetch(options) {
       data.value = responseData;
     }
 
-    more.value = response.more || null;
+    moreParams.value = response.more || null;
     count.value = response.count || null;
   };
 
@@ -93,7 +93,7 @@ export default function useFetch(options) {
   };
 
   const fetchMore = async (...args) => {
-    if (!more.value || !fetchMoreMethod) {
+    if (!moreParams.value || !fetchMoreMethod) {
       return;
     }
 
@@ -101,7 +101,7 @@ export default function useFetch(options) {
     error.value = null;
 
     try {
-      const response = await fetchMoreMethod(more.value, ...args);
+      const response = await fetchMoreMethod(moreParams.value, ...args);
       _setData(response, loadingMore.value);
     } catch (err) {
       error.value = err;
