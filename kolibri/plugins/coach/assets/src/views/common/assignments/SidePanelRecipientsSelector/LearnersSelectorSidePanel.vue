@@ -5,6 +5,7 @@
     sidePanelWidth="700px"
     closeButtonIconType="close"
     @closePanel="$emit('close')"
+    @shouldFocusFirstEl="focusFirstEl"
   >
     <template #header>
       <h1>
@@ -126,6 +127,11 @@
       },
     },
     methods: {
+      focusFirstEl() {
+        this.$nextTick(() => {
+          this.$el.querySelector('input').focus();
+        });
+      },
       groupIsSelected({ id }) {
         return this.workingSelectedGroupIds.includes(id);
       },

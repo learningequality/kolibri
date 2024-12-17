@@ -82,22 +82,25 @@
         <legend>
           {{ recipientsLabel$() }}
         </legend>
-        <RecipientSelector
-          v-if="false"
-          v-model="selectedCollectionIds"
-          :groups="groups"
-          :classId="classId"
-          :disabled="disabled || formIsSubmitted"
-          :initialAdHocLearners="adHocLearners"
-          @updateLearners="learners => (adHocLearners = learners)"
-        />
+
         <SidePanelRecipientsSelector
+          v-if="selectRecipientsWithSidePanel"
+          ref="recipientsSelector"
           v-model="selectedCollectionIds"
           :groups="groups"
           :classId="classId"
           :disabled="disabled || formIsSubmitted"
           :adHocLearners.sync="adHocLearners"
           :selectedCollectionIds.sync="selectedCollectionIds"
+        />
+        <RecipientSelector
+          v-else
+          v-model="selectedCollectionIds"
+          :groups="groups"
+          :classId="classId"
+          :disabled="disabled || formIsSubmitted"
+          :initialAdHocLearners="adHocLearners"
+          @updateLearners="learners => (adHocLearners = learners)"
         />
       </fieldset>
     </form>
@@ -195,6 +198,10 @@
       },
       // If set to true, all of the forms are disabled
       disabled: {
+        type: Boolean,
+        default: false,
+      },
+      selectRecipientsWithSidePanel: {
         type: Boolean,
         default: false,
       },
@@ -341,6 +348,25 @@
       handleSubmitSuccess() {
         this.showTitleError = false;
         this.showServerError = false;
+      },
+      /**
+       * @public
+       */
+      validate() {
+        let error = '';
+        // Validate title
+        if (this.title === '') {
+          this.handleSubmitTitleFailure();
+          error = this.coreString('requiredFieldError');
+        }
+
+        // Validate recipients
+        const recipientsError = this.$refs.recipientsSelector?.validate();
+        if (!error && recipientsError) {
+          error = recipientsError;
+          this.$refs.recipientsSelector?.handleSubmitRecipientsFailure();
+        }
+        return error;
       },
     },
   };

@@ -19,6 +19,7 @@
         v-if="quizInitialized"
         ref="detailsModal"
         assignmentType="quiz"
+        :selectRecipientsWithSidePanel="true"
         :assignment="quiz"
         :classId="classId"
         :groups="groups"
@@ -334,6 +335,10 @@
         }
       },
       saveQuizAndRedirect(close = true) {
+        const errorText = this.$refs.detailsModal.validate();
+        if (errorText) {
+          return;
+        }
         this.saveQuiz()
           .then(exam => {
             this.$refs.detailsModal.handleSubmitSuccess();
