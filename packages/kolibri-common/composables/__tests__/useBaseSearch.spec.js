@@ -39,6 +39,12 @@ function prep(query = {}, descendant = null) {
 }
 
 describe(`useBaseSearch`, () => {
+  async function waitThreeTicks() {
+    // Because of async behaviour in search method, we need to wait for three ticks
+    await nextTick();
+    await nextTick();
+    await nextTick();
+  }
   beforeEach(() => {
     ContentNodeResource.fetchCollection = jest.fn();
     ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
@@ -196,9 +202,8 @@ describe(`useBaseSearch`, () => {
   describe('search method', () => {
     it('should call ContentNodeResource.fetchCollection when searchTerms changes', async () => {
       const { store } = prep();
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       store.commit('SET_QUERY', { categories: 'test1,test2' });
-      await nextTick();
+      await waitThreeTicks();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
         getParams: {
           categories: ['test1', 'test2'],
@@ -207,25 +212,28 @@ describe(`useBaseSearch`, () => {
         },
       });
     });
-    it('should not call ContentNodeResource.fetchCollection if there is no search', () => {
+    it('should not call ContentNodeResource.fetchCollection if there is no search', async () => {
       const { search } = prep();
       ContentNodeResource.fetchCollection.mockClear();
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
+      await waitThreeTicks();
       expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
     });
-    it('should clear labels and more if there is no search', () => {
+    it('should clear labels and more if there is no search', async () => {
       const { search, labels, more } = prep();
       set(labels, ['test']);
       set(more, { test: 'test' });
       search();
+      await waitThreeTicks();
       expect(get(labels)).toBeNull();
       expect(get(more)).toBeNull();
     });
-    it('should call ContentNodeResource.fetchCollection if there is no search but a descendant is set', () => {
+    it('should call ContentNodeResource.fetchCollection if there is no search but a descendant is set', async () => {
       const { search } = prep({}, ref({ tree_id: 1, lft: 10, rght: 20 }));
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
+      await waitThreeTicks();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
         getParams: {
           tree_id: 1,
@@ -245,14 +253,16 @@ describe(`useBaseSearch`, () => {
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({ labels: labelsSet }));
       set(more, { test: 'test' });
       search();
-      await nextTick();
+      await waitThreeTicks();
       expect(get(more)).toBeNull();
       expect(get(labels)).toEqual(labelsSet);
     });
-    it('should call ContentNodeResource.fetchCollection when searchTerms exist', () => {
+    it('should call ContentNodeResource.fetchCollection when searchTerms exist', async () => {
       const { search } = prep({ categories: 'test1,test2' });
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      await nextTick();
       search();
+      await waitThreeTicks();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
         getParams: {
           categories: ['test1', 'test2'],
@@ -261,26 +271,29 @@ describe(`useBaseSearch`, () => {
         },
       });
     });
-    it('should ignore other categories when AllCategories is set and search for isnull false', () => {
+    it('should ignore other categories when AllCategories is set and search for isnull false', async () => {
       const { search } = prep({ categories: `test1,test2,${NoCategories},${AllCategories}` });
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
+      await waitThreeTicks();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
         getParams: { categories__isnull: false, max_results: 25, include_coach_content: false },
       });
     });
-    it('should ignore other categories when NoCategories is set and search for isnull true', () => {
+    it('should ignore other categories when NoCategories is set and search for isnull true', async () => {
       const { search } = prep({ categories: `test1,test2,${NoCategories}` });
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
+      await waitThreeTicks();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
         getParams: { categories__isnull: true, max_results: 25, include_coach_content: false },
       });
     });
-    it('should set keywords when defined', () => {
+    it('should set keywords when defined', async () => {
       const { search } = prep({ keywords: `this is just a test` });
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
+      await waitThreeTicks();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
         getParams: {
           keywords: `this is just a test`,
@@ -307,7 +320,7 @@ describe(`useBaseSearch`, () => {
         }),
       );
       search();
-      await nextTick();
+      await waitThreeTicks();
       expect(get(labels)).toEqual(expectedLabels);
       expect(get(results)).toEqual(expectedResults);
       expect(get(more)).toEqual(expectedMore);
@@ -366,7 +379,7 @@ describe(`useBaseSearch`, () => {
         }),
       );
       search();
-      await nextTick();
+      await waitThreeTicks();
       const expectedResults = [{ id: 'node-id1', content_id: 'second' }];
       ContentNodeResource.fetchCollection.mockReturnValue(
         Promise.resolve({
@@ -377,18 +390,18 @@ describe(`useBaseSearch`, () => {
       );
       set(more, {});
       searchMore();
-      await nextTick();
+      await waitThreeTicks();
       expect(get(labels)).toEqual(expectedLabels);
       expect(get(results)).toEqual(originalResults.concat(expectedResults));
       expect(get(more)).toEqual(expectedMore);
     });
   });
-  describe('removeFilterTag method', () => {
+  describe('removeSearchTerm method', () => {
     it('should remove a filter from the searchTerms', () => {
-      const { removeFilterTag, router } = prep({
+      const { removeSearchTerm, router } = prep({
         categories: 'test1,test2',
       });
-      removeFilterTag({ value: 'test1', key: 'categories' });
+      removeSearchTerm({ value: 'test1', key: 'categories' });
       expect(router.push).toHaveBeenCalledWith({
         name,
         query: {
@@ -397,21 +410,21 @@ describe(`useBaseSearch`, () => {
       });
     });
     it('should remove keywords from the searchTerms', () => {
-      const { removeFilterTag, router } = prep({
+      const { removeSearchTerm, router } = prep({
         keywords: 'test',
       });
-      removeFilterTag({ value: 'test', key: 'keywords' });
+      removeSearchTerm({ value: 'test', key: 'keywords' });
       expect(router.push).toHaveBeenCalledWith({
         name,
         query: {},
       });
     });
     it('should not remove any other filters', () => {
-      const { removeFilterTag, router } = prep({
+      const { removeSearchTerm, router } = prep({
         categories: 'test1,test2',
         learning_activities: 'watch',
       });
-      removeFilterTag({ value: 'test1', key: 'categories' });
+      removeSearchTerm({ value: 'test1', key: 'categories' });
       expect(router.push).toHaveBeenCalledWith({
         name,
         query: {

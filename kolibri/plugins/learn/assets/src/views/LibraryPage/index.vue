@@ -49,9 +49,16 @@
           v-else-if="!displayingSearchResults && !rootNodesLoading"
           data-test="channels"
         >
-          <h1 class="channels-label">
-            {{ channelsLabel }}
-          </h1>
+          <KFixedGrid numCols="4">
+            <KFixedGridItem span="3">
+              <h1 class="channels-label">
+                {{ channelsLabel }}
+              </h1>
+            </KFixedGridItem>
+            <KFixedGridItem span="1">
+              <LanguageSelector :primary="true" />
+            </KFixedGridItem>
+          </KFixedGrid>
           <p
             v-if="isLocalLibraryEmpty"
             data-test="nothing-in-lib-label"
@@ -109,6 +116,7 @@
           :class="windowIsLarge ? 'side-panel' : ''"
           data-test="side-panel-local"
           :width="`${sidePanelWidth}px`"
+          :showLanguages="displayingSearchResults"
         />
       </div>
 
@@ -122,6 +130,7 @@
           v-model="searchTerms"
           data-test="side-panel"
           :width="`${sidePanelWidth}px`"
+          :showLanguages="displayingSearchResults"
         />
       </SidePanelModal>
 
@@ -176,20 +185,22 @@
 <script>
 
   import { get, set } from '@vueuse/core';
+  import orderBy from 'lodash/orderBy';
 
   import { onMounted, getCurrentInstance, ref, watch } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';
   import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
+  import { getContentLangActive } from 'kolibri/utils/i18n';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { mapState } from 'vuex';
   import MeteredConnectionNotificationModal from 'kolibri-common/components/MeteredConnectionNotificationModal.vue';
   import appCapabilities, { checkCapability } from 'kolibri/utils/appCapabilities';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
-  import { searchKeys } from 'kolibri-common/composables/useBaseSearch';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
+  import LanguageSelector from 'kolibri-common/components/SearchFiltersPanel/LanguageSelector';
   import useChannels from 'kolibri-common/composables/useChannels';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
@@ -233,6 +244,7 @@
       LearnAppBarPage,
       OtherLibraries,
       PostSetupModalGroup,
+      LanguageSelector,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
@@ -261,6 +273,9 @@
         removeFilterTag,
         clearSearch,
         currentRoute,
+        createBaseSearchGetParams,
+        ensurePrimaryLanguage,
+        primaryLanguage,
       } = useSearch();
       search();
       const { fetchResumableContentNodes } = useLearnerResources();
@@ -300,20 +315,35 @@
               // we want them to be in the same order as the channels list
               set(
                 rootNodes,
-                channels
-                  .map(channel => {
-                    const node = channelCollection.find(n => n.channel_id === channel.id);
-                    if (node) {
-                      // The `channel` comes with additional data that is
-                      // not returned from the ContentNodeResource.
-                      // Namely thumbnail, description and tagline (so far)
-                      node.title = channel.name || node.title;
-                      node.thumbnail = channel.thumbnail;
-                      node.description = channel.tagline || channel.description;
-                      return node;
-                    }
-                  })
-                  .filter(Boolean),
+                // Sort channels by relevance to the current user interface language
+                orderBy(
+                  channels
+                    .map(channel => {
+                      const node = channelCollection.find(n => n.channel_id === channel.id);
+                      if (node) {
+                        // The `channel` comes with additional data that is
+                        // not returned from the ContentNodeResource.
+                        // Namely thumbnail, description and tagline (so far)
+                        node.title = channel.name || node.title;
+                        node.thumbnail = channel.thumbnail;
+                        node.description = channel.tagline || channel.description;
+                        node.included_languages = channel.included_languages;
+                        return node;
+                      }
+                    })
+                    .filter(Boolean),
+                  [
+                    c => getContentLangActive(c.lang, get(primaryLanguage)),
+                    c =>
+                      Math.max(
+                        ...c.included_languages.map(l =>
+                          getContentLangActive(l, get(primaryLanguage)),
+                        ),
+                      ),
+                    'title',
+                  ],
+                  ['desc', 'desc', 'asc'],
+                ),
               );
 
               store.commit('CORE_SET_PAGE_LOADING', false);
@@ -332,7 +362,8 @@
       }
 
       function _showLibrary(baseurl) {
-        return fetchChannels({ baseurl }).then(channels => {
+        const params = createBaseSearchGetParams();
+        return fetchChannels(params).then(channels => {
           if (!channels.length && isUserLoggedIn) {
             router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
             return;
@@ -342,9 +373,7 @@
             return;
           }
 
-          const query = currentRoute().query;
-
-          if (searchKeys.some(key => query[key])) {
+          if (get(displayingSearchResults)) {
             // If currently on a route with search terms
             // just finish early and let the component handle loading
             store.commit('CORE_SET_PAGE_LOADING', false);
@@ -357,7 +386,10 @@
         });
       }
 
-      function showLibrary() {
+      async function showLibrary() {
+        if (!(await ensurePrimaryLanguage())) {
+          return;
+        }
         set(rootNodesLoading, true);
         store.commit('CORE_SET_PAGE_LOADING', true);
         if (props.deviceId) {
@@ -382,6 +414,12 @@
 
       watch(displayingSearchResults, () => {
         if (!displayingSearchResults.value && !rootNodes.value.length) {
+          showLibrary();
+        }
+      });
+
+      watch(primaryLanguage, () => {
+        if (!displayingSearchResults.value) {
           showLibrary();
         }
       });
