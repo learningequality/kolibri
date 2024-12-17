@@ -100,6 +100,7 @@
   import ExamResource from 'kolibri-common/apiResources/ExamResource';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { convertExamQuestionSources } from 'kolibri-common/quizzes/utils';
   import { QUIZZES_TABS_ID, QuizzesTabs } from '../../../constants/tabsConstants';
   import { useCoachTabs } from '../../../composables/useCoachTabs';
 
@@ -275,7 +276,7 @@
       closeModal() {
         this.currentAction = '';
       },
-      handleSubmitCopy({ classroomId, groupIds, adHocLearnerIds, examTitle }) {
+      async handleSubmitCopy({ classroomId, groupIds, adHocLearnerIds, examTitle }) {
         const title = examTitle.trim().substring(0, 100).trim();
 
         const assignments = serverAssignmentPayload(groupIds, classroomId);
@@ -286,7 +287,8 @@
           collection: classroomId,
           assignments,
           learner_ids: adHocLearnerIds,
-          question_sources: this.quiz.question_sources,
+          // This ensures backward compatibility for all question_sources versions
+          question_sources: (await convertExamQuestionSources(this.exam)).question_sources,
         };
 
         ExamResource.saveModel({ data: newQuiz })
