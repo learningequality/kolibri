@@ -36,6 +36,14 @@ const CHANNEL = {
   name: 'test channel',
   root: 'test root',
   thumbnail: 'test thumbnail',
+  lang: {
+    id: 'es-es',
+    lang_name: 'Español',
+    lang_code: 'es',
+    lang_subcode: 'es',
+    lang_direction: 'ltr',
+  },
+  included_languages: ['es-es'],
 };
 
 jest.mock('kolibri-common/composables/useChannels');
@@ -53,7 +61,13 @@ jest.mock('kolibri/urls');
 
 async function makeWrapper({ options, fullMount = false } = {}) {
   const store = new Store({
-    state: { core: { loading: false } },
+    state: {
+      core: { loading: false },
+      route: {
+        query: {},
+        name: PageNames.TOPICS_TOPIC,
+      },
+    },
     getters: {
       isUserLoggedIn: jest.fn(),
       isLearner: jest.fn(),
@@ -70,6 +84,9 @@ async function makeWrapper({ options, fullMount = false } = {}) {
       SET_PAGE_NAME: jest.fn(),
       CORE_SET_PAGE_LOADING: jest.fn(),
       CORE_SET_ERROR: jest.fn(),
+      SET_QUERY(state, query) {
+        state.route.query = query;
+      },
     },
   });
   let wrapper;
@@ -94,8 +111,10 @@ describe('LibraryPage', () => {
       }),
     );
     ContentNodeResource.fetchCollection.mockImplementation(() =>
-      Promise.resolve([{ id: 'test', title: 'test', channel_id: CHANNEL_ID }]),
+      Promise.resolve([{ id: 'test', title: 'test', channel_id: CHANNEL_ID, lang: CHANNEL.lang }]),
     );
+    router.push = jest.fn().mockReturnValue(Promise.resolve());
+    router.replace = jest.fn().mockReturnValue(Promise.resolve());
   });
   describe('filters button', () => {
     it('is visible when the page is not large and channels are available', async () => {

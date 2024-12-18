@@ -2,6 +2,7 @@ import { get } from '@vueuse/core';
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
 import { computed, getCurrentInstance } from 'vue';
+import { primaryLanguageKey } from 'kolibri-common/composables/useBaseSearch';
 import { ExternalPagePaths, PageNames } from '../constants';
 
 function _decodeBackLinkQuery(query) {
@@ -17,6 +18,10 @@ export default function useContentLink(store) {
 
   function _makeNodeLink(id, isResource, query, deviceId) {
     const params = get(route).params;
+    const oldQuery = get(route).query || {};
+    if (!isResource && oldQuery[primaryLanguageKey]) {
+      query[primaryLanguageKey] = oldQuery[primaryLanguageKey];
+    }
     return {
       name: isResource ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
       params: pick({ id, deviceId: deviceId || params.deviceId }, ['id', 'deviceId']),

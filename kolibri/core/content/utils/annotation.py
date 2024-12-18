@@ -530,6 +530,7 @@ def recurse_annotation_up_tree(channel_id):
     bridge = Bridge(app_name=CONTENT_APP_NAME)
 
     ContentNodeTable = bridge.get_table(ContentNode)
+    IncludedLanguagesTable = bridge.get_table(ContentNode.included_languages.through)
 
     connection = bridge.get_connection()
 
@@ -580,6 +581,31 @@ def recurse_annotation_up_tree(channel_id):
         .values(
             available=False,
             on_device_resources=0,
+        )
+    )
+
+    # First clear out all existing language relationships for nodes in this channel
+    connection.execute(
+        IncludedLanguagesTable.delete().where(
+            IncludedLanguagesTable.c.contentnode_id.in_(
+                select([ContentNodeTable.c.id]).where(
+                    ContentNodeTable.c.channel_id == channel_id
+                )
+            )
+        )
+    )
+
+    # For non-topic nodes only, set included_languages based on their lang_id
+    connection.execute(
+        IncludedLanguagesTable.insert().from_select(
+            ["contentnode_id", "language_id"],
+            select([ContentNodeTable.c.id, ContentNodeTable.c.lang_id]).where(
+                and_(
+                    ContentNodeTable.c.channel_id == channel_id,
+                    ContentNodeTable.c.kind != content_kinds.TOPIC,
+                    ContentNodeTable.c.lang_id.isnot(None),
+                )
+            ),
         )
     )
 
@@ -658,6 +684,36 @@ def recurse_annotation_up_tree(channel_id):
                 coach_content=coach_content_nodes.scalar_subquery(),
                 num_coach_contents=coach_content_num.scalar_subquery(),
                 on_device_resources=on_device_num.scalar_subquery(),
+            )
+        )
+
+        # Update included languages for all topics at this level by combining
+        # their own language with their children's languages in one query
+        connection.execute(
+            IncludedLanguagesTable.insert().from_select(
+                ["contentnode_id", "language_id"],
+                # Languages from children
+                select([ContentNodeTable.c.id, IncludedLanguagesTable.c.language_id])
+                .select_from(ContentNodeTable)
+                .join(
+                    child,
+                    and_(
+                        child.c.parent_id == ContentNodeTable.c.id,
+                        child.c.available == True,  # noqa
+                    ),
+                )
+                .join(
+                    IncludedLanguagesTable,
+                    IncludedLanguagesTable.c.contentnode_id == child.c.id,
+                )
+                .where(
+                    and_(
+                        ContentNodeTable.c.level == level - 1,
+                        ContentNodeTable.c.channel_id == channel_id,
+                        ContentNodeTable.c.kind == content_kinds.TOPIC,
+                    )
+                )
+                .distinct(),
             )
         )
 
