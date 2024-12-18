@@ -7733,10 +7733,10 @@ jszip@*, jszip@^3.1.5:
     readable-stream "~2.3.6"
     setimmediate "^1.0.5"
 
-katex@^0.16, katex@^0.16.15:
-  version "0.16.15"
-  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.15.tgz#16b0d235aae8dfa3b2d5d63fd9874bfa394abfab"
-  integrity sha512-yE9YJIEAk2aZ+FL/G8r+UGw0CTUzEA8ZFy6E+8tc3spHUKq3qBnzCkI1CQwGoI9atJhVyFPEypQsTY7mJ1Pi9w==
+katex@^0.16, katex@^0.16.17:
+  version "0.16.17"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.17.tgz#72c588a0beca0cac10c30f447c2fb14647f773ed"
+  integrity sha512-OyzSrXBllz+Jdc9Auiw0kt21gbZ4hkz8Q5srVAb2U9INcYIfGKbxe+bvNvEz1bQ/NrDeRRho5eLCyk/L03maAw==
   dependencies:
     commander "^8.3.0"
 
