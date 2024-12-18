@@ -140,7 +140,7 @@
     computed: {
       lessonOrderListButtonBorder() {
         return {
-          borderBottom: `1px solid ${this.$themePalette.grey.v_200}`,
+          borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
           height: `auto`,
           width: `100%`,
         };
