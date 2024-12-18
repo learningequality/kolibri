@@ -1,6 +1,9 @@
 <template>
 
-  <div v-if="loading">
+  <div
+    v-if="loading"
+    class="resource-list-style"
+  >
     <KCircularLoader />
   </div>
   <div

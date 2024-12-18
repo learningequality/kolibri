@@ -64,7 +64,7 @@
   import { mapState } from 'vuex';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { ref, getCurrentInstance, computed } from 'vue';
+  import { ref, getCurrentInstance } from 'vue';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../../constants';
   import commonCoach from '../../../common';
@@ -79,11 +79,9 @@
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const showModal = ref(false);
-      const backupResources = ref([]);
-      const store = getCurrentInstance().proxy.$store;
+      const hasArrayChanged = ref(false);
       const router = getCurrentInstance().proxy.$router;
 
-      const workingResourcePool = computed(() => store.state.lessonSummary.workingResources);
       const { saveLessonResources$, numberOfSelectedResource$ } = searchAndFilterStrings;
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = enhancedQuizManagementStrings;
 
@@ -91,18 +89,17 @@
         showModal.value = false;
       }
 
+      function hasModifiedArray() {
+        hasArrayChanged.value = true;
+      }
+
       function closeSidePanel() {
-        if (workingResourcePool.value !== backupResources.value) {
+        if (hasArrayChanged.value) {
+          showModal.value = true;
+        } else {
           router.go(-1);
         }
-        showModal.value = true;
       }
-
-      function saveResourcesCopy() {
-        backupResources.value = workingResourcePool;
-      }
-
-      saveResourcesCopy();
 
       return {
         saveLessonResources$,
@@ -112,6 +109,7 @@
         showModal,
         closeModal,
         closeSidePanel,
+        hasModifiedArray,
       };
     },
     data() {
@@ -121,13 +119,6 @@
     },
     computed: {
       ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
-      lessonOrderListButtonBorder() {
-        return {
-          borderBottom: `1px solid ${this.$themePalette.grey.v_200}`,
-          height: `4em`,
-          marginTop: `0.5em`,
-        };
-      },
     },
     mounted() {
       setTimeout(() => {
@@ -137,6 +128,7 @@
     methods: {
       removeResource(id) {
         this.resources = this.resources.filter(lesson => lesson.id !== id);
+        this.hasModifiedArray();
       },
       navigateToParent(id) {
         this.$router.push({
