@@ -1,46 +1,60 @@
 <template>
 
-  <SidePanelModal
-    alignment="right"
-    sidePanelWidth="700px"
-    closeButtonIconType="close"
-    @closePanel="closeSidePanel"
-    @shouldFocusFirstEl="() => null"
-  >
-    <template #header>
-      <div :style="{ display: 'inline-flex' }">
-        <KIconButton
-          v-if="true"
-          icon="back"
-          @click="$router.go(-1)"
-        />
-        <h1
-          :style="{ fontWeight: '600', fontSize: '18px' }"
-          class="side-panel-title"
-        >
-          {{ numberOfSelectedResource$({ count: resources.length }) }}
-        </h1>
-      </div>
-    </template>
+  <div>
 
-    <SelectedResources
-      :resourceList="resources"
-      :currentLesson="currentLesson"
-      :loading="resources.length === 0"
-      @removeResource="removeResource"
-      @navigateToParent="navigateToParent"
-    />
+    <SidePanelModal
+      alignment="right"
+      sidePanelWidth="700px"
+      closeButtonIconType="close"
+      @closePanel="closeSidePanel"
+      @shouldFocusFirstEl="() => null"
+    >
+      <template #header>
+        <div :style="{ display: 'inline-flex' }">
+          <KIconButton
+            v-if="true"
+            icon="back"
+            @click="closeSidePanel"
+          />
+          <h1
+            :style="{ fontWeight: '600', fontSize: '18px' }"
+            class="side-panel-title"
+          >
+            {{ numberOfSelectedResource$({ count: resources.length }) }}
+          </h1>
+        </div>
+      </template>
 
-    <template #bottomNavigation>
-      <div class="bottom-buttons-style">
-        <KButton
-          :primary="true"
-          :text="saveLessonResources$()"
-          @click="closeSidePanel()"
-        />
-      </div>
-    </template>
-  </SidePanelModal>
+      <SelectedResources
+        :resourceList="resources"
+        :currentLesson="currentLesson"
+        :loading="resources.length === 0"
+        @removeResource="removeResource"
+        @navigateToParent="navigateToParent"
+      />
+
+      <template #bottomNavigation>
+        <div class="bottom-buttons-style">
+          <KButton
+            :primary="true"
+            :text="saveLessonResources$()"
+            @click="closeSidePanel()"
+          />
+        </div>
+      </template>
+    </SidePanelModal>
+
+    <KModal
+      v-if="showModal"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
+      :title="closeConfirmationTitle$()"
+      @cancel="closeModal"
+      @submit="$router.go(-1)"
+    >
+      {{ closeConfirmationMessage$() }}
+    </KModal>
+  </div>
 
 </template>
 
@@ -50,6 +64,11 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { mapState } from 'vuex';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { ref , getCurrentInstance, computed } from 'vue';
+  import {
+    enhancedQuizManagementStrings,
+  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../../constants';
   import commonCoach from '../../../common';
   import SelectedResources from './SelectedResources';
@@ -60,12 +79,45 @@
       SidePanelModal,
       SelectedResources,
     },
-    mixins: [commonCoach],
+    mixins: [commonCoach,commonCoreStrings],
     setup() {
+      const showModal = ref(false);
+      const backupResources = ref([]);
+      const store = getCurrentInstance().proxy.$store;
+      const router = getCurrentInstance().proxy.$router;
+
+      const workingResourcePool = computed(()=> store.state.lessonSummary.workingResources);
       const { saveLessonResources$, numberOfSelectedResource$ } = searchAndFilterStrings;
+      const {
+        closeConfirmationTitle$,
+        closeConfirmationMessage$
+      } = enhancedQuizManagementStrings;
+
+      function closeModal(){
+        showModal.value = false;
+      }
+
+      function closeSidePanel() {
+        if(workingResourcePool.value !== backupResources.value){
+          router.go(-1);
+        }
+        showModal.value = true;
+      }
+
+      function saveResourcesCopy(){
+        backupResources.value = workingResourcePool;
+      }
+
+      saveResourcesCopy();
+
       return {
         saveLessonResources$,
         numberOfSelectedResource$,
+        closeConfirmationTitle$,
+        closeConfirmationMessage$,
+        showModal,
+        closeModal,
+        closeSidePanel,
       };
     },
     data() {
@@ -145,12 +197,6 @@
             );
           }
         }
-      },
-      closeSidePanel() {
-        this.$router.push({
-          name: PageNames.LESSONS_ROOT,
-          params: { classId: this.$route.params.classId },
-        });
       },
     },
     $trs: {},

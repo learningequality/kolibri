@@ -97,6 +97,7 @@
 
     <BottomAppBar>
       <KRouterLink
+        v-if="workingResources.length > 0"
         :text="numberOfSelectedResource$({ count: workingResources.length })"
         :primary="true"
         :to="goToPreviewSelection()"

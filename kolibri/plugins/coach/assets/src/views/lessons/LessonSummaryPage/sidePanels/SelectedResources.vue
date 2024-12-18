@@ -174,6 +174,7 @@
 
   .resource-list-style {
     margin-bottom: 3.5em;
+    margin-top:2em;
   }
 
 </style>
