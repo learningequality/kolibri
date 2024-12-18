@@ -73,7 +73,7 @@
               <span class="add-minus-button">
                 <KIconButton
                   icon="emptyTopic"
-                  @click="$emit('navigateToParent',lesson.id)"
+                  @click="$emit('navigateToParent', lesson.id)"
                 />
 
                 <KIconButton
@@ -173,8 +173,8 @@
   }
 
   .resource-list-style {
+    margin-top: 2em;
     margin-bottom: 3.5em;
-    margin-top:2em;
   }
 
 </style>

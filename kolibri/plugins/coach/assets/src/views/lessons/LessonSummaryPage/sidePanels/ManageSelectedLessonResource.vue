@@ -1,7 +1,6 @@
 <template>
 
   <div>
-
     <SidePanelModal
       alignment="right"
       sidePanelWidth="700px"
@@ -65,10 +64,8 @@
   import { mapState } from 'vuex';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { ref , getCurrentInstance, computed } from 'vue';
-  import {
-    enhancedQuizManagementStrings,
-  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { ref, getCurrentInstance, computed } from 'vue';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../../constants';
   import commonCoach from '../../../common';
   import SelectedResources from './SelectedResources';
@@ -79,32 +76,29 @@
       SidePanelModal,
       SelectedResources,
     },
-    mixins: [commonCoach,commonCoreStrings],
+    mixins: [commonCoach, commonCoreStrings],
     setup() {
       const showModal = ref(false);
       const backupResources = ref([]);
       const store = getCurrentInstance().proxy.$store;
       const router = getCurrentInstance().proxy.$router;
 
-      const workingResourcePool = computed(()=> store.state.lessonSummary.workingResources);
+      const workingResourcePool = computed(() => store.state.lessonSummary.workingResources);
       const { saveLessonResources$, numberOfSelectedResource$ } = searchAndFilterStrings;
-      const {
-        closeConfirmationTitle$,
-        closeConfirmationMessage$
-      } = enhancedQuizManagementStrings;
+      const { closeConfirmationTitle$, closeConfirmationMessage$ } = enhancedQuizManagementStrings;
 
-      function closeModal(){
+      function closeModal() {
         showModal.value = false;
       }
 
       function closeSidePanel() {
-        if(workingResourcePool.value !== backupResources.value){
+        if (workingResourcePool.value !== backupResources.value) {
           router.go(-1);
         }
         showModal.value = true;
       }
 
-      function saveResourcesCopy(){
+      function saveResourcesCopy() {
         backupResources.value = workingResourcePool;
       }
 
@@ -158,7 +152,7 @@
           }
           const tally = this.getContentStatusTally(
             content.content_id,
-            this.getLearnersForLesson(this.currentLesson)
+            this.getLearnersForLesson(this.currentLesson),
           );
 
           const tableRow = {
@@ -176,10 +170,9 @@
           return tableRow;
         });
 
-        Promise.all(response)
-          .then(results => {
-            this.resources = results;
-          })
+        Promise.all(response).then(results => {
+          this.resources = results;
+        });
       },
       resourceLink(resource) {
         if (resource.hasAssignments) {
