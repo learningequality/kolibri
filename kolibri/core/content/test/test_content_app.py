@@ -463,6 +463,210 @@ class ContentNodeAPIBase(object):
         self.assertEqual(len(response.data), expected_output)
         self._assert_nodes(response.data, nodes)
 
+    def test_filter_by_single_included_language(self):
+        """
+        Test filtering ContentNodes by a single included language
+        """
+        c1 = content.ContentNode.objects.get(title="c1")
+        language = content.Language.objects.create(
+            id="en",
+            lang_code="en",
+            lang_subcode="",
+            lang_name="English",
+            lang_direction="ltr",
+        )
+        c1.included_languages.set([language])
+        c1.save()
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"languages": "en"}
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "c1")
+
+    def test_filter_by_multiple_included_languages(self):
+        """
+        Test filtering ContentNodes that match any of the provided languages
+        """
+        c1 = content.ContentNode.objects.get(title="c1")
+        c2 = content.ContentNode.objects.get(title="c2")
+        english = content.Language.objects.create(
+            id="en",
+            lang_code="en",
+            lang_subcode="",
+            lang_name="English",
+            lang_direction="ltr",
+        )
+        spanish = content.Language.objects.create(
+            id="es",
+            lang_code="es",
+            lang_subcode="",
+            lang_name="Spanish",
+            lang_direction="ltr",
+        )
+        c1.included_languages.set([english])
+        c2.included_languages.set([spanish])
+        c1.save()
+        c2.save()
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"languages": "en,es"}
+        )
+        self.assertEqual(len(response.data), 2)
+        titles = [node["title"] for node in response.data]
+        self.assertIn("c1", titles)
+        self.assertIn("c2", titles)
+
+    def test_filter_by_non_existent_language(self):
+        """
+        Test filtering by a language that no ContentNode has
+        """
+        c1 = content.ContentNode.objects.get(title="c1")
+        english = content.Language.objects.create(
+            id="en",
+            lang_code="en",
+            lang_subcode="",
+            lang_name="English",
+            lang_direction="ltr",
+        )
+        c1.included_languages.set([english])
+        c1.save()
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"languages": "fr"}
+        )
+        self.assertEqual(len(response.data), 0)
+
+    def test_filter_by_multiple_languages_per_node(self):
+        """
+        Test filtering nodes that have multiple languages assigned
+        """
+        c1 = content.ContentNode.objects.get(title="c1")
+        english = content.Language.objects.create(
+            id="en",
+            lang_code="en",
+            lang_subcode="",
+            lang_name="English",
+            lang_direction="ltr",
+        )
+        spanish = content.Language.objects.create(
+            id="es",
+            lang_code="es",
+            lang_subcode="",
+            lang_name="Spanish",
+            lang_direction="ltr",
+        )
+        c1.included_languages.set([english, spanish])
+        c1.save()
+
+        # Should match when searching for either language
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"languages": "en"}
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "c1")
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"languages": "es"}
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "c1")
+
+    def test_filter_by_empty_included_languages(self):
+        """
+        Test that nodes with empty included_languages are not returned when filtering
+        """
+        c1 = content.ContentNode.objects.get(title="c1")
+        c1.included_languages.set([])
+        c1.save()
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"languages": "en"}
+        )
+        self.assertEqual(len(response.data), 0)
+
+    def test_filter_by_language_subcodes(self):
+        """
+        Test filtering by language codes with subcodes, ensuring that:
+        1. Searching by base language code returns all variants
+        2. Searching by specific subcode only returns exact matches
+        """
+        nodes = {
+            "es_node": content.ContentNode.objects.get(title="c1"),
+            "es_es_node": content.ContentNode.objects.get(title="c2"),
+            "es_419_node": content.ContentNode.objects.get(title="c2c1"),
+            "en_gb_node": content.ContentNode.objects.get(title="c2c2"),
+        }
+
+        english = content.Language.objects.create(
+            id="en-gb",
+            lang_code="en",
+            lang_subcode="gb",
+            lang_name="English",
+            lang_direction="ltr",
+        )
+        spanish = content.Language.objects.create(
+            id="es",
+            lang_code="es",
+            lang_subcode="",
+            lang_name="Spanish",
+            lang_direction="ltr",
+        )
+
+        spanish_spanish = content.Language.objects.create(
+            id="es-es",
+            lang_code="es",
+            lang_subcode="es",
+            lang_name="Spanish",
+            lang_direction="ltr",
+        )
+
+        latin_american_spanish = content.Language.objects.create(
+            id="es-419",
+            lang_code="es",
+            lang_subcode="419",
+            lang_name="Spanish",
+            lang_direction="ltr",
+        )
+
+        # Set up nodes with different language codes
+        nodes["es_node"].included_languages.set([spanish])
+        nodes["es_es_node"].included_languages.set([spanish_spanish])
+        nodes["es_419_node"].included_languages.set([latin_american_spanish])
+        nodes["en_gb_node"].included_languages.set([english])
+
+        for node in nodes.values():
+            node.save()
+
+        # Test that searching by 'es' returns only the unpreifxed spanish variaent
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"languages": "es"}
+        )
+        self.assertEqual(len(response.data), 1)
+        title = response.data[0]["title"]
+        self.assertEqual(title, "c1")
+
+        # Test that searching by specific Spanish variant only returns exact match
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"languages": "es-419"}
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "c2c1")
+
+        # Test that searching by 'en' returns nothing
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"languages": "en"}
+        )
+        self.assertEqual(len(response.data), 0)
+
+        # Test searching for multiple specific variants
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"languages": "es-es,es-419"}
+        )
+        self.assertEqual(len(response.data), 2)
+        titles = {node["title"] for node in response.data}
+        self.assertEqual(titles, {"c2", "c2c1"})
+
     def _recurse_and_assert(self, data, nodes, recursion_depth=0):
         recursion_depths = []
         for actual, expected in zip(data, nodes):

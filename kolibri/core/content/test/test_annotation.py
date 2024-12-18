@@ -745,6 +745,268 @@ class AnnotationTreeRecursion(TransactionTestCase):
         self.assertFalse(root_node.available)
         self.assertFalse(root_node.coach_content)
 
+    def test_non_topic_node_included_languages(self):
+        """
+        Test that non-topic nodes get their lang_id properly set as their included_language
+        """
+        test_node = ContentNode.objects.exclude(kind=content_kinds.TOPIC).first()
+        test_language = Language.objects.create(
+            id="te-st",
+            lang_code="te",
+            lang_subcode="st",
+            lang_name="Test Language",
+            lang_direction="ltr",
+        )
+
+        # Set a language on our test node
+        test_node.lang = test_language
+        test_node.save()
+
+        recurse_annotation_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+
+        # Verify the node has exactly one included language matching its lang_id
+        self.assertEqual(test_node.included_languages.count(), 1)
+        self.assertEqual(test_node.included_languages.first(), test_language)
+
+    def test_topic_node_not_includes_own_language(self):
+        """
+        Test that topic nodes do not include their own language in included_languages
+        """
+        topic_node = ContentNode.objects.filter(kind=content_kinds.TOPIC).first()
+        test_language = Language.objects.create(
+            id="te-st",
+            lang_code="te",
+            lang_subcode="st",
+            lang_name="Test Language",
+            lang_direction="ltr",
+        )
+
+        # Set a language on the topic
+        topic_node.lang = test_language
+        topic_node.save()
+
+        recurse_annotation_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+
+        # Verify the topic includes its own language
+        self.assertNotIn(test_language, topic_node.included_languages.all())
+
+    def test_topic_node_includes_child_languages(self):
+        """
+        Test that topic nodes include languages from their child nodes
+        """
+        topic_node = ContentNode.objects.filter(kind=content_kinds.TOPIC).first()
+
+        # Create two test languages
+        lang1 = Language.objects.create(
+            id="te-st",
+            lang_code="te",
+            lang_subcode="st",
+            lang_name="Test Language 1",
+            lang_direction="ltr",
+        )
+        lang2 = Language.objects.create(
+            id="tt-se",
+            lang_code="tt",
+            lang_subcode="se",
+            lang_name="Test Language 2",
+            lang_direction="ltr",
+        )
+
+        # Create two child nodes with different languages
+        ContentNode.objects.create(
+            title="test1",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=topic_node.channel_id,
+            parent=topic_node,
+            kind=content_kinds.VIDEO,
+            available=True,
+            lang=lang1,
+        )
+
+        ContentNode.objects.create(
+            title="test2",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=topic_node.channel_id,
+            parent=topic_node,
+            kind=content_kinds.VIDEO,
+            available=True,
+            lang=lang2,
+        )
+
+        recurse_annotation_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+
+        # Verify the topic includes both child languages
+        included_languages = topic_node.included_languages.all()
+        self.assertEqual(len(included_languages), 2)
+        self.assertIn(lang1, included_languages)
+        self.assertIn(lang2, included_languages)
+
+    def test_topic_node_includes_grandchild_languages(self):
+        """
+        Test that topic nodes include languages from their grandchild nodes
+        """
+        root_topic = ContentNode.objects.filter(kind=content_kinds.TOPIC).first()
+
+        # Create test language
+        test_language = Language.objects.create(
+            id="te-st",
+            lang_code="te",
+            lang_subcode="st",
+            lang_name="Test Language",
+            lang_direction="ltr",
+        )
+
+        # Create child topic
+        child_topic = ContentNode.objects.create(
+            title="test_topic",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_topic.channel_id,
+            parent=root_topic,
+            kind=content_kinds.TOPIC,
+            available=True,
+        )
+
+        # Create grandchild with language
+        ContentNode.objects.create(
+            title="test_content",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=root_topic.channel_id,
+            parent=child_topic,
+            kind=content_kinds.VIDEO,
+            available=True,
+            lang=test_language,
+        )
+
+        recurse_annotation_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+
+        # Verify both the child topic and root topic include the grandchild's language
+        self.assertIn(test_language, child_topic.included_languages.all())
+        self.assertIn(test_language, root_topic.included_languages.all())
+
+    def test_topic_deduplicates_languages(self):
+        """
+        Test that topic nodes don't duplicate languages when multiple children have the same language
+        """
+        topic_node = ContentNode.objects.filter(kind=content_kinds.TOPIC).first()
+        test_language = Language.objects.create(
+            id="te-st",
+            lang_code="te",
+            lang_subcode="st",
+            lang_name="Test Language",
+            lang_direction="ltr",
+        )
+
+        # Create multiple children with the same language
+        for i in range(3):
+            ContentNode.objects.create(
+                title=f"test{i}",
+                id=uuid.uuid4().hex,
+                content_id=uuid.uuid4().hex,
+                channel_id=topic_node.channel_id,
+                parent=topic_node,
+                kind=content_kinds.VIDEO,
+                available=True,
+                lang=test_language,
+            )
+
+        recurse_annotation_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+
+        # Verify the language only appears once
+        self.assertEqual(topic_node.included_languages.count(), 1)
+        self.assertEqual(topic_node.included_languages.first(), test_language)
+
+    def test_non_available_child_languages_excluded(self):
+        """
+        Test that languages from non-available children are not included in the topic's languages
+        """
+        topic_node = ContentNode.objects.filter(kind=content_kinds.TOPIC).first()
+        test_language = Language.objects.create(
+            id="te-st",
+            lang_code="te",
+            lang_subcode="st",
+            lang_name="Test Language",
+            lang_direction="ltr",
+        )
+
+        # Create a non-available child with a language
+        ContentNode.objects.create(
+            title="test",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=topic_node.channel_id,
+            parent=topic_node,
+            kind=content_kinds.VIDEO,
+            available=False,
+            lang=test_language,
+        )
+
+        recurse_annotation_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+
+        # Verify the topic doesn't include the language from the non-available child
+        self.assertEqual(topic_node.included_languages.count(), 0)
+
+    def test_duplicate_language_handling_in_recursion(self):
+        """
+        Test that the recursion handles cases where a topic might receive the same
+        language multiple times (from own lang_id and from children)
+        """
+        # Create a topic with two levels of children
+        root_topic = ContentNode.objects.create(
+            title="root",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id="6199dde695db4ee4ab392222d5af1e5c",
+            kind=content_kinds.TOPIC,
+            available=True,
+        )
+
+        test_language = Language.objects.create(
+            id="te-st",
+            lang_code="te",
+            lang_subcode="st",
+            lang_name="Test Language",
+            lang_direction="ltr",
+        )
+
+        # Set the root topic's language
+        root_topic.lang = test_language
+        root_topic.save()
+
+        # Create a child topic with the same language
+        child_topic = ContentNode.objects.create(
+            title="child",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id="6199dde695db4ee4ab392222d5af1e5c",
+            parent=root_topic,
+            kind=content_kinds.TOPIC,
+            available=True,
+            lang=test_language,
+        )
+
+        # Create a grandchild with the same language
+        ContentNode.objects.create(
+            title="grandchild",
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id="6199dde695db4ee4ab392222d5af1e5c",
+            parent=child_topic,
+            kind=content_kinds.VIDEO,
+            available=True,
+            lang=test_language,
+        )
+
+        # This should not raise an IntegrityError
+        recurse_annotation_up_tree(channel_id="6199dde695db4ee4ab392222d5af1e5c")
+
+        # Verify the relationships are correct
+        self.assertEqual(root_topic.included_languages.count(), 1)
+        self.assertEqual(child_topic.included_languages.count(), 1)
+
     def tearDown(self):
         call_command("flush", interactive=False)
         super(AnnotationTreeRecursion, self).tearDown()

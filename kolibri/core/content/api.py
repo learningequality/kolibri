@@ -258,12 +258,19 @@ class RemoteViewSet(ReadOnlyValuesViewset, RemoteMixin):
         return super(RemoteViewSet, self).list(request, *args, **kwargs)
 
 
+class CharInFilter(BaseInFilter, CharFilter):
+    pass
+
+
 class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available", label="Available")
     contains_exercise = BooleanFilter(
         method="filter_contains_exercise", label="Has exercises"
     )
     contains_quiz = BooleanFilter(method="filter_contains_quiz", label="Has quizzes")
+    languages = CharInFilter(
+        field_name="included_languages", label="Languages", distinct=True
+    )
 
     class Meta:
         model = models.ChannelMetadata
@@ -417,10 +424,6 @@ class UUIDInFilter(BaseInFilter, UUIDFilter):
     pass
 
 
-class CharInFilter(BaseInFilter, CharFilter):
-    pass
-
-
 contentnode_filter_fields = [
     "parent",
     "parent__isnull",
@@ -470,7 +473,7 @@ class ContentNodeFilter(FilterSet):
     learner_needs = CharFilter(method="bitmask_contains_and")
     keywords = CharFilter(method="filter_keywords")
     channels = UUIDInFilter(field_name="channel_id")
-    languages = CharInFilter(field_name="lang_id")
+    languages = CharInFilter(field_name="included_languages")
     categories__isnull = BooleanFilter(field_name="categories", lookup_expr="isnull")
     lft__gt = NumberFilter(field_name="lft", lookup_expr="gt")
     rght__lt = NumberFilter(field_name="rght", lookup_expr="lt")
@@ -671,10 +674,11 @@ class BaseContentNodeMixin(object):
         return models.ContentNode.objects.filter(available=True)
 
     def get_related_data_maps(self, items, queryset):
+        ids = [item["id"] for item in items]
         assessmentmetadata_map = {
             a["contentnode"]: a
             for a in models.AssessmentMetaData.objects.filter(
-                contentnode__in=queryset
+                contentnode__in=ids
             ).values(
                 "assessment_item_ids",
                 "number_of_assessments",
@@ -688,7 +692,7 @@ class BaseContentNodeMixin(object):
         files_map = {}
 
         files = list(
-            models.File.objects.filter(contentnode__in=queryset).values(
+            models.File.objects.filter(contentnode__in=ids).values(
                 "id",
                 "contentnode",
                 "local_file__id",
@@ -723,7 +727,7 @@ class BaseContentNodeMixin(object):
         tags_map = {}
 
         for t in (
-            models.ContentTag.objects.filter(tagged_content__in=queryset)
+            models.ContentTag.objects.filter(tagged_content__in=ids)
             .values(
                 "tag_name",
                 "tagged_content",
