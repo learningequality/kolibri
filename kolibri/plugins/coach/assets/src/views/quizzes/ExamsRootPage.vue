@@ -31,6 +31,7 @@
         <template #actions>
           <KButton
             v-if="practiceQuizzesExist && !hasNoChannels"
+            class="new-quiz-button"
             primary
             hasDropdown
             appearance="raised-button"
@@ -647,6 +648,12 @@
 
   .banner-spacing {
     margin: 0 0 1em;
+  }
+
+  @media print {
+    .new-quiz-button {
+      display: none;
+    }
   }
 
 </style>
