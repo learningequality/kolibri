@@ -22,11 +22,16 @@ class Migration(migrations.Migration):
             name="included_grade_levels",
             field=models.TextField(blank=True, null=True),
         ),
-        sortedm2m.operations.AlterSortedManyToManyField(
+        migrations.RemoveField(
+            model_name="channelmetadata",
+            name="included_languages",
+        ),
+        migrations.AddField(
             model_name="channelmetadata",
             name="included_languages",
             field=sortedm2m.fields.SortedManyToManyField(
                 blank=True,
+                help_text=None,
                 related_name="channels",
                 to="content.Language",
                 verbose_name="languages",
