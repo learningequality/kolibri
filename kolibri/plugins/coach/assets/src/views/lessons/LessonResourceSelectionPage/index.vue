@@ -97,6 +97,14 @@
 
     <BottomAppBar>
       <KRouterLink
+        v-if="workingResources.length > 0"
+        :text="numberOfSelectedResource$({ count: workingResources.length })"
+        :primary="true"
+        :to="goToPreviewSelection()"
+        :style="{ marginRight: '1em', marginTop: '0.5em' }"
+      />
+
+      <KRouterLink
         :text="bottomBarButtonText"
         :primary="true"
         appearance="raised-button"
@@ -121,6 +129,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import CoachImmersivePage from '../../CoachImmersivePage';
@@ -154,11 +163,13 @@
       const { windowIsSmall } = useKResponsiveWindow();
       const { getUserPermissions } = useUser();
       const { createSnackbar, clearSnackbar } = useSnackbar();
+      const { numberOfSelectedResource$ } = searchAndFilterStrings;
       return {
         windowIsSmall,
         getUserPermissions,
         createSnackbar,
         clearSnackbar,
+        numberOfSelectedResource$,
       };
     },
     data() {
@@ -560,6 +571,11 @@
       },
       topicsLink(topicId) {
         return this.topicListingLink({ ...this.$route.params, topicId });
+      },
+      goToPreviewSelection() {
+        return {
+          name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
+        };
       },
     },
     $trs: {

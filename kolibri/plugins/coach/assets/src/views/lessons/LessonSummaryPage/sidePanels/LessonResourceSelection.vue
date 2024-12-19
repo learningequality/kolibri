@@ -94,10 +94,13 @@
     </div>
 
     <template #bottomNavigation>
-      <div
-        v-if="showSearch"
-        class="bottom-nav-container"
-      >
+      <div class="bottom-nav-container">
+        <KRouterLink
+          :text="numberOfSelectedResource$({ count: workingResources.length })"
+          :primary="true"
+          :to="{ name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES }"
+          :style="{ marginRight: '1em', marginTop: '0.5em' }"
+        />
         <KButton
           primary
           :text="saveAndFinishAction$()"
@@ -118,24 +121,21 @@
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';
-  import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel/index.vue';
-  import useBaseSearch from 'kolibri-common/composables/useBaseSearch';
+  import { mapState } from 'vuex';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import { PageNames } from '../../../../constants';
 
   export default {
     name: 'LessonResourceSelection',
     components: {
       SidePanelModal,
       AccessibleChannelCard,
-      SearchFiltersPanel,
     },
     setup() {
       const loading = ref(false);
       const bookmarks = ref([]);
       const channels = ref([]);
-      const showSearch = ref(true);
-      const topic = ref(null);
-
-      const { searchTerms } = useBaseSearch(topic);
+      const { numberOfSelectedResource$ } = searchAndFilterStrings;
 
       const loadBookmarks = async () => {
         const data = await ContentNodeResource.fetchBookmarks({
@@ -175,15 +175,22 @@
         loading,
         bookmarks,
         channels,
-        showSearch,
-        searchTerms,
         selectFromChannels$,
         numberOfBookmarks$,
         bookmarksLabel$,
         selectFromBookmarks$,
         searchLabel$,
         saveAndFinishAction$,
+        numberOfSelectedResource$,
       };
+    },
+    data() {
+      return {
+        PageNames,
+      };
+    },
+    computed: {
+      ...mapState('lessonSummary', ['workingResources']),
     },
     methods: {
       closeSidePanel() {
