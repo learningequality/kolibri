@@ -38,9 +38,10 @@
 
   import omitBy from 'lodash/omitBy';
   import get from 'lodash/get';
+  import pluginData from 'kolibri-plugin-data';
   import AppError from 'kolibri/components/error/AppError';
+  import useUser from 'kolibri/composables/useUser';
   import { currentLanguage } from 'kolibri/utils/i18n';
-  import { checkCapability } from 'kolibri/utils/appCapabilities';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import KolibriLoadingSnippet from 'kolibri-common/components/KolibriLoadingSnippet';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -55,6 +56,10 @@
     components: { AppError, KolibriLoadingSnippet },
     inject: ['wizardService'],
     mixins: [commonCoreStrings],
+    setup() {
+      const { isAppContext } = useUser();
+      return { isAppContext };
+    },
     computed: {
       coreError() {
         if (this.$store) {
@@ -111,7 +116,7 @@
           // Learner cannot edit a password they cannot set
           this.learnerCanLoginWithNoPassword ||
           // OS on my own users don't use password to sign in
-          (this.isOnMyOwnSetup && checkCapability('get_os_user'))
+          (this.isOnMyOwnSetup && this.isAppContext && pluginData.canGetOSUser)
         ) {
           return false; // Learner cannot edit a password they cannot set
         } else {
@@ -123,7 +128,7 @@
         let superuser = null;
         // We need the superuser information unless the superuser will be created at login,
         // based on the os user - this is only the case for on my own setup.
-        if (!(this.isOnMyOwnSetup && checkCapability('get_os_user'))) {
+        if (!(this.isOnMyOwnSetup && this.isAppContext && pluginData.canGetOSUser)) {
           // Here we see if we've set a firstImportedLodUser -- if they exist, they must be the
           // superuser as they were the first imported user.
           if (this.wizardContext('firstImportedLodUser')) {

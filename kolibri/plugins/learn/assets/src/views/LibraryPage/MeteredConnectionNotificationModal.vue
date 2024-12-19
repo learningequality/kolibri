@@ -35,12 +35,13 @@
 
 <script>
 
+  import pluginData from 'kolibri-plugin-data';
   import urls from 'kolibri/urls';
   import client from 'kolibri/client';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import appCapabilities, { checkCapability } from 'kolibri/utils/appCapabilities';
   import logger from 'kolibri-logging';
   import useUser from 'kolibri/composables/useUser';
+  import checkMeteredConnection from 'kolibri-common/utils/checkMeteredConnection';
 
   const logging = logger.getLogger(__filename);
 
@@ -85,10 +86,10 @@
       },
     },
     mounted() {
-      if (checkCapability('check_is_metered')) {
+      if (pluginData.canCheckMeteredConnection) {
         this.loading = true;
 
-        appCapabilities.checkIsMetered().then(isMetered => {
+        checkMeteredConnection().then(isMetered => {
           this.activeConnectionIsMetered = isMetered;
 
           // Fetch the DeviceSettings#extra_settings value

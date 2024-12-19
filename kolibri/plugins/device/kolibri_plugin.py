@@ -1,4 +1,5 @@
 from kolibri.core.auth.constants.user_kinds import SUPERUSER
+from kolibri.core.device.hooks import CheckIsMeteredHook
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
@@ -28,6 +29,7 @@ class DeviceManagementAsset(WebpackBundleHook):
         return {
             "isRemoteContent": OPTIONS["Deployment"]["REMOTE_CONTENT"],
             "canRestart": bool(OPTIONS["Deployment"]["RESTART_HOOKS"]),
+            "canCheckMeteredConnection": CheckIsMeteredHook.is_registered,
             "deprecationWarnings": {
                 "ie11": any_ie11_users(),
             },
