@@ -4,6 +4,7 @@
     :items="allLearners"
     :filterPlaceholder="$tr('searchPlaceholder')"
     :itemsPerPage="itemsPerPage"
+    :searchFieldBlock="searchFieldBlock"
     @pageChanged="currentPageLearners = $event.items"
   >
     <template #default="{ items }">
@@ -111,6 +112,10 @@
         type: String,
         required: false,
         default: null,
+      },
+      searchFieldBlock: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {

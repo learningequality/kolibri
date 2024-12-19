@@ -8,7 +8,7 @@
     @shouldFocusFirstEl="focusFirstEl"
   >
     <template #header>
-      <h1>
+      <h1 class="side-panel-title">
         {{ $tr('selectGroupsAndIndividualLearnersTitle') }}
       </h1>
     </template>
@@ -26,21 +26,28 @@
           <KLabeledIcon
             :label="group.name"
             icon="group"
+            class="font-size-14"
           />
         </KCheckbox>
         <KCheckbox
-          :label="$tr('allUngroupedLearnres')"
           :checked="allUngroupedLearnresIsSelected"
           :disabled="disabled"
           @change="selectAllUngroupedLearners($event)"
-        />
+        >
+          <KLabeledIcon
+            :label="$tr('allUngroupedLearnres')"
+            icon="people"
+            class="font-size-14"
+          />
+        </KCheckbox>
       </section>
       <section>
         <h2>{{ coachString('individualLearnersLabel') }}</h2>
-        <div>
+        <div class="font-size-14">
           {{ coachString('onlyShowingEnrolledLabel') }}
         </div>
         <IndividualLearnerSelectorTable
+          searchFieldBlock
           :selectedGroupIds="workingSelectedGroupIds"
           :selectedLearnerIds.sync="workingAdHocLearners"
           :disabled="disabled"
@@ -187,6 +194,21 @@
     justify-content: flex-end;
     width: 100%;
     margin-bottom: 16px;
+  }
+
+  .side-panel-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  section h2 {
+    margin-top: 24px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .font-size-14 {
+    font-size: 14px;
   }
 
 </style>
