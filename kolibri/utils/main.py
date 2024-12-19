@@ -9,7 +9,6 @@ from diskcache.fanout import FanoutCache
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
-from django.core.management.base import handle_default_options
 from django.db.utils import DatabaseError
 
 import kolibri
@@ -110,14 +109,6 @@ def _migrate_databases():
 
     # load morango fixtures needed for certificate related operations
     call_command("loaddata", "scopedefinitions")
-
-
-class DefaultDjangoOptions(object):
-    __slots__ = ["settings", "pythonpath"]
-
-    def __init__(self, settings, pythonpath):
-        self.settings = settings
-        self.pythonpath = pythonpath
 
 
 def setup_logging(debug=False, debug_database=False):
@@ -291,6 +282,15 @@ def _upgrades_after_django_setup(updated, version):
             logging.error(e)
 
 
+def set_django_settings_and_python_path(django_settings, pythonpath):
+
+    if django_settings:
+        os.environ["DJANGO_SETTINGS_MODULE"] = django_settings
+
+    if pythonpath and pythonpath not in sys.path:
+        sys.path.insert(0, pythonpath)
+
+
 def initialize(  # noqa C901
     skip_update=False,
     settings=None,
@@ -307,9 +307,7 @@ def initialize(  # noqa C901
 
     setup_logging(debug=debug, debug_database=debug_database)
 
-    default_options = DefaultDjangoOptions(settings, pythonpath)
-
-    handle_default_options(default_options)
+    set_django_settings_and_python_path(settings, pythonpath)
 
     version = get_version()
 
