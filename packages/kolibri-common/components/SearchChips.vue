@@ -40,26 +40,21 @@
     name: 'SearchChips',
     mixins: [commonCoreStrings],
     setup() {
-      const { availableLanguages } = injectBaseSearch();
-      const languagesMap = availableLanguages.value.reduce((map, lang) => {
-        map[lang.id] = lang;
+      const { languageOptions, activeSearchTerms } = injectBaseSearch();
+      const languagesMap = languageOptions.value.reduce((map, lang) => {
+        map[lang.value] = lang.label;
         return map;
       }, {});
       const { channelsMap } = useChannels();
       return {
         channelsMap,
         languagesMap,
+        activeSearchTerms,
       };
-    },
-    props: {
-      searchTerms: {
-        type: Object,
-        default: () => ({}),
-      },
     },
     computed: {
       items() {
-        return flatMap(this.searchTerms, (value, key) => {
+        return flatMap(this.activeSearchTerms, (value, key) => {
           if (key === 'keywords' && value && value.length) {
             return [
               {
@@ -82,7 +77,7 @@
     methods: {
       translate(key, value) {
         if (key === 'languages') {
-          return this.languagesMap[value].lang_name;
+          return this.languagesMap[value];
         }
         if (key === 'channels') {
           return this.channelsMap[value].name;

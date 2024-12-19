@@ -1,5 +1,6 @@
-import { get, set } from '@vueuse/core';
+import { get, set, until } from '@vueuse/core';
 import invert from 'lodash/invert';
+import orderBy from 'lodash/orderBy';
 import logger from 'kolibri-logging';
 import { computed, getCurrentInstance, inject, provide, ref, watch } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
@@ -13,6 +14,7 @@ import {
   NoCategories,
   ResourcesNeededTypes,
 } from 'kolibri/constants';
+import { getContentLangActive } from 'kolibri/utils/i18n';
 import useUser from 'kolibri/composables/useUser';
 
 import { deduplicateResources } from '../utils/contentNode';
@@ -152,13 +154,17 @@ export const searchKeys = [
   'grade_levels',
 ];
 
+export const primaryLanguageKey = 'primaryLanguage';
+
+const allLanguagesValue = 'allLangs';
+
 export default function useBaseSearch({
   descendant,
   store,
   router,
   baseurl,
   fetchContentNodeProgress,
-}) {
+} = {}) {
   // Get store and router references from the curent instance
   // but allow them to be passed in to allow for dependency
   // injection, primarily for tests.
@@ -213,6 +219,24 @@ export default function useBaseSearch({
     },
   });
 
+  const primaryLanguage = computed({
+    get() {
+      if (get(route).query[primaryLanguageKey] === allLanguagesValue) {
+        return;
+      }
+      return get(route).query[primaryLanguageKey];
+    },
+    set(value) {
+      const query = { ...get(route).query };
+      if (value) {
+        query[primaryLanguageKey] = value;
+      } else {
+        query[primaryLanguageKey] = allLanguagesValue;
+      }
+      router.push({ ...get(route), query }).catch(() => {});
+    },
+  });
+
   const displayingSearchResults = computed(() =>
     // Happily this works even for keywords, because calling Object.keys
     // on a string value will give an array of the indexes of a string
@@ -230,43 +254,65 @@ export default function useBaseSearch({
     }
   }
 
-  function search() {
-    const currentBaseUrl = get(baseurl);
+  function createBaseSearchGetParams(setDescendant = true) {
     const getParams = {
       include_coach_content: get(isAdmin) || get(isCoach) || get(isSuperuser),
-      baseurl: currentBaseUrl,
+      baseurl: get(baseurl),
     };
-    const descValue = descendant ? get(descendant) : null;
-    if (descValue) {
-      getParams.tree_id = descValue.tree_id;
-      getParams.lft__gt = descValue.lft;
-      getParams.rght__lt = descValue.rght;
+    if (setDescendant && descendant) {
+      const descValue = get(descendant);
+      if (descValue) {
+        getParams.tree_id = descValue.tree_id;
+        getParams.lft__gt = descValue.lft;
+        getParams.rght__lt = descValue.rght;
+      }
     }
-    if (get(displayingSearchResults)) {
-      getParams.max_results = 25;
-      const terms = get(searchTerms);
-      set(searchResultsLoading, true);
-      for (const key of searchKeys) {
-        if (key === 'categories') {
-          if (terms[key][AllCategories]) {
-            getParams['categories__isnull'] = false;
-            continue;
-          } else if (terms[key][NoCategories]) {
-            getParams['categories__isnull'] = true;
-            continue;
-          }
-        }
-        if (key === 'channels' && descValue) {
+    const primaryLang = get(primaryLanguage);
+    if (primaryLang && primaryLang !== allLanguagesValue) {
+      const langCode = primaryLang.split('-')[0];
+      getParams.languages = get(languagesList)
+        .filter(lang => lang.id.startsWith(langCode))
+        .map(lang => lang.id);
+    }
+    return getParams;
+  }
+
+  function createSearchGetParams() {
+    const getParams = createBaseSearchGetParams();
+    const terms = get(searchTerms);
+    for (const key of searchKeys) {
+      if (key === 'categories') {
+        if (terms[key][AllCategories]) {
+          getParams['categories__isnull'] = false;
+          continue;
+        } else if (terms[key][NoCategories]) {
+          getParams['categories__isnull'] = true;
           continue;
         }
-        const keys = Object.keys(terms[key]);
-        if (keys.length) {
-          getParams[key] = keys;
-        }
       }
-      if (terms.keywords) {
-        getParams.keywords = terms.keywords;
+      if (key === 'channels' && descendant ? get(descendant) : null) {
+        continue;
       }
+      const keys = Object.keys(terms[key]);
+      if (keys.length) {
+        getParams[key] = keys;
+      }
+    }
+    if (terms.keywords) {
+      getParams.keywords = terms.keywords;
+    }
+    return getParams;
+  }
+
+  async function search() {
+    await until(globalLabelsLoading).toBe(false);
+    const desc = descendant ? get(descendant) : null;
+    if (get(displayingSearchResults)) {
+      // If we're actually displaying search results
+      // then we need to load all the search results to display
+      set(searchResultsLoading, true);
+      const getParams = createSearchGetParams();
+      getParams.max_results = 25;
       if (get(isUserLoggedIn)) {
         fetchContentNodeProgress?.(getParams);
       }
@@ -276,7 +322,8 @@ export default function useBaseSearch({
         _setAvailableLabels(data.labels);
         set(searchResultsLoading, false);
       });
-    } else if (descValue) {
+    } else if (desc || get(primaryLanguage)) {
+      const getParams = createBaseSearchGetParams();
       getParams.max_results = 1;
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
         _setAvailableLabels(data.labels);
@@ -305,7 +352,7 @@ export default function useBaseSearch({
     }
   }
 
-  function removeFilterTag({ value, key }) {
+  function removeSearchTerm({ value, key }) {
     if (key === 'keywords') {
       set(searchTerms, {
         ...get(searchTerms),
@@ -334,6 +381,8 @@ export default function useBaseSearch({
       }
     });
   }
+
+  watch(primaryLanguage, search);
 
   // Helper to get the route information in a setup() function
   function currentRoute() {
@@ -409,8 +458,60 @@ export default function useBaseSearch({
     return _getGlobalLabels('accessibilityOptionsList', []);
   });
   const languagesList = computed(() => {
-    return _getGlobalLabels('languagesList', []);
+    return orderBy(
+      _getGlobalLabels('languagesList', []),
+      [getContentLangActive, 'id'],
+      ['desc', 'asc'],
+    );
   });
+
+  const languageOptionsList = computed(() => {
+    const searchableLabels = get(labels);
+    return get(languagesList).map(language => {
+      return {
+        value: language.id,
+        disabled: searchableLabels && !searchableLabels.languages.includes(language.id),
+        label: language.lang_name,
+      };
+    });
+  });
+
+  const enabledLanguageOptions = computed(() => {
+    return get(languageOptionsList).filter(l => !l.disabled);
+  });
+
+  const currentLanguageId = computed({
+    get() {
+      return get(searchTerms).languages ? Object.keys(get(searchTerms).languages)[0] : null;
+    },
+    set(value) {
+      set(searchTerms, {
+        ...get(searchTerms),
+        languages: value ? { [value]: true } : {},
+      });
+    },
+  });
+
+  async function ensurePrimaryLanguage() {
+    await until(globalLabelsLoading).toBe(false);
+    if (!get(route).query[primaryLanguageKey]) {
+      // If we have no currently selected primary language key
+      // compute the closest match to the currently active interface language
+      const closestMatchChannelLanguage = get(languagesList)[0];
+      const language =
+        closestMatchChannelLanguage && getContentLangActive(closestMatchChannelLanguage) > 1
+          ? closestMatchChannelLanguage.id
+          : allLanguagesValue;
+      router.replace({
+        query: {
+          ...currentRoute().query,
+          [primaryLanguageKey]: language,
+        },
+      });
+      return false;
+    }
+    return true;
+  }
 
   provide('availableLearningActivities', learningActivitiesShown);
   provide('availableLibraryCategories', libraryCategories);
@@ -418,6 +519,11 @@ export default function useBaseSearch({
   provide('availableGradeLevels', gradeLevelsList);
   provide('availableAccessibilityOptions', accessibilityOptionsList);
   provide('availableLanguages', languagesList);
+
+  provide('currentLanguageId', currentLanguageId);
+  provide('currentPrimaryLanguageId', primaryLanguage);
+  provide('languageOptions', languageOptionsList);
+  provide('enabledLanguageOptions', enabledLanguageOptions);
 
   // Provide an object of searchable labels
   // This is a manifest of all the labels that could still be selected and produce search results
@@ -427,9 +533,12 @@ export default function useBaseSearch({
   // Currently selected search terms
   provide('activeSearchTerms', searchTerms);
 
+  provide('removeSearchTerm', removeSearchTerm);
+
   return {
     currentRoute,
     searchTerms,
+    createBaseSearchGetParams,
     displayingSearchResults,
     searchLoading,
     moreLoading,
@@ -438,8 +547,10 @@ export default function useBaseSearch({
     labels,
     search,
     searchMore,
-    removeFilterTag,
     clearSearch,
+    primaryLanguage,
+    ensurePrimaryLanguage,
+    removeSearchTerm,
   };
 }
 
@@ -456,6 +567,14 @@ export function injectBaseSearch() {
   const availableLanguages = inject('availableLanguages');
   const searchableLabels = inject('searchableLabels');
   const activeSearchTerms = inject('activeSearchTerms');
+
+  const currentLanguageId = inject('currentLanguageId');
+  const currentPrimaryLanguageId = inject('currentPrimaryLanguageId');
+  const languageOptions = inject('languageOptions');
+  const enabledLanguageOptions = inject('enabledLanguageOptions');
+
+  const removeSearchTerm = inject('removeSearchTerm');
+
   return {
     availableLearningActivities,
     availableLibraryCategories,
@@ -465,5 +584,10 @@ export function injectBaseSearch() {
     availableLanguages,
     searchableLabels,
     activeSearchTerms,
+    currentLanguageId,
+    currentPrimaryLanguageId,
+    languageOptions,
+    enabledLanguageOptions,
+    removeSearchTerm,
   };
 }
