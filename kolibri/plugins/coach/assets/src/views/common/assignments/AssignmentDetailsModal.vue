@@ -11,6 +11,10 @@
         {{ submitErrorMessage }}
       </UiAlert>
 
+      <!--
+        TODO: Refactor or rename this component, setting a title or a description
+        is not part of an "assignment" process (?)
+      -->
       <fieldset>
         <KGrid>
           <KGridItem
@@ -78,7 +82,19 @@
         <legend>
           {{ recipientsLabel$() }}
         </legend>
+
+        <SidePanelRecipientsSelector
+          v-if="selectRecipientsWithSidePanel"
+          ref="recipientsSelector"
+          v-model="selectedCollectionIds"
+          :groups="groups"
+          :classId="classId"
+          :disabled="disabled || formIsSubmitted"
+          :adHocLearners.sync="adHocLearners"
+          :selectedCollectionIds.sync="selectedCollectionIds"
+        />
         <RecipientSelector
+          v-else
           v-model="selectedCollectionIds"
           :groups="groups"
           :classId="classId"
@@ -118,6 +134,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { coachStrings } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
+  import SidePanelRecipientsSelector from './SidePanelRecipientsSelector';
 
   export default {
     name: 'AssignmentDetailsModal',
@@ -125,6 +142,7 @@
       BottomAppBar,
       RecipientSelector,
       UiAlert,
+      SidePanelRecipientsSelector,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -180,6 +198,10 @@
       },
       // If set to true, all of the forms are disabled
       disabled: {
+        type: Boolean,
+        default: false,
+      },
+      selectRecipientsWithSidePanel: {
         type: Boolean,
         default: false,
       },
@@ -326,6 +348,30 @@
       handleSubmitSuccess() {
         this.showTitleError = false;
         this.showServerError = false;
+      },
+      /**
+       * @public
+       */
+      validate() {
+        let error = '';
+        // Validate title
+        if (this.title === '') {
+          this.handleSubmitTitleFailure();
+          error = this.coreString('requiredFieldError');
+        }
+
+        // Validate recipients
+        const recipientsError = this.$refs.recipientsSelector?.validate();
+        if (!error && recipientsError) {
+          error = recipientsError;
+          this.$refs.recipientsSelector?.handleSubmitRecipientsFailure();
+        }
+
+        if (error) {
+          this.showServerError = true;
+        }
+
+        return error;
       },
     },
   };

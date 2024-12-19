@@ -88,8 +88,6 @@
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
         // @type {RefImpl<number>}
         windowBreakpoint,
-        fixedHeaderHeight: 0,
-        fixedBottombarHeight: 0,
         lastFocus: null,
       };
     },
@@ -181,11 +179,6 @@
     mounted() {
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'hidden';
-      // Gets the height of the fixed header - adds 40 to account for padding + 24 for closeButton
-      this.fixedHeaderHeight = this.$refs.fixedHeader.clientHeight;
-      if (this.$refs.fixedBottombar) {
-        this.fixedBottombarHeight = this.$refs.fixedBottombar.clientHeight;
-      }
       this.$nextTick(() => {
         this.$emit('shouldFocusFirstEl');
       });

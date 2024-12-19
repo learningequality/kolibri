@@ -200,6 +200,16 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       'A group is a collection of learners created by a coach inside a class to help with differentiated learning. Quizzes and lessons can be assigned to individual groups as well as to the whole class.',
   },
+  individualLearnersLabel: {
+    message: 'Individual learners',
+    context:
+      'A label for a checkbox that allows the Coach to assign the quiz to individual learners who may not be in a selected group.',
+  },
+  onlyShowingEnrolledLabel: {
+    message: 'Only showing learners that are enrolled in this class',
+    context:
+      "Shows beneath 'Select individual learners' explaining that the table only includes enrolled learners.",
+  },
   helpNeededLabel: {
     message: 'Help needed',
     context:
@@ -635,6 +645,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "In the 'Manage lesson resources' coaches can add new/remove resource material to a lesson.",
   },
+  groupsAndLearnersLabel: {
+    message: 'Groups and individual learners',
+    context:
+      'Label for the radio button that allows the coach to select groups or individual learners to assign a quiz to.',
+  },
 });
 
 // Strings for the Missing Content modals, tooltips, alerts, etc.
@@ -656,6 +671,24 @@ const MissingContentStrings = createTranslator('MissingContentStrings', {
   },
 });
 
+// Strings for showing lists of items that can be truncated
+const truncatedItemsStrings = createTranslator('TruncatedItemsStrings', {
+  twoItems: {
+    message: '{item1}, {item2}',
+    context:
+      "DO NOT TRANSLATE\nCopy the source string.\n\nFor reference: 'item' will be replaced by the name of the coach(es) in the list of classes.",
+  },
+  threeItems: {
+    message: '{item1}, {item2}, {item3}',
+    context:
+      "DO NOT TRANSLATE\nCopy the source string.\n\nFor reference: 'item' will be replaced by the name of the coach(es) in the list of classes.",
+  },
+  manyItems: {
+    message: '{item1}, {item2}, and {count, number, integer} others',
+    context: "'item' will be replaced by the name of the coach(es) in the list of classes.",
+  },
+});
+
 function coachString(key, args) {
   return coachStrings.$tr(key, args);
 }
@@ -669,4 +702,28 @@ const coachStringsMixin = {
   },
 };
 
-export { coachString, coachStrings, coachStringsMixin };
+function getTruncatedItemsString(items) {
+  if (items.length <= 1) {
+    return items[0] || '';
+  }
+  if (items.length === 2) {
+    return truncatedItemsStrings.$tr('twoItems', {
+      item1: items[0],
+      item2: items[1],
+    });
+  }
+  if (items.length === 3) {
+    return truncatedItemsStrings.$tr('threeItems', {
+      item1: items[0],
+      item2: items[1],
+      item3: items[2],
+    });
+  }
+  return truncatedItemsStrings.$tr('manyItems', {
+    item1: items[0],
+    item2: items[1],
+    count: items.length - 2,
+  });
+}
+
+export { coachString, coachStrings, coachStringsMixin, getTruncatedItemsString };
