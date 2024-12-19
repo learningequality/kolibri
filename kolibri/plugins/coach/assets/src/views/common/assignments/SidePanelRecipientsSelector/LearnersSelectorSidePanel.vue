@@ -12,10 +12,11 @@
         {{ $tr('selectGroupsAndIndividualLearnersTitle') }}
       </h1>
     </template>
-    <div style="padding-top: 30px">
-      <!-- TODO: remove this div once SidePanelModal is fixed-->
+    <template #default>
       <section>
-        <h2>{{ coachString('groupsLabel') }}</h2>
+        <h2 class="mt-0">
+          {{ coachString('groupsLabel') }}
+        </h2>
         <KCheckbox
           v-for="group in groups"
           :key="group.id"
@@ -55,7 +56,7 @@
           @update:selectedLearnerIds="updateAdHocLearners"
         />
       </section>
-    </div>
+    </template>
     <template #bottomNavigation>
       <div class="bottom-nav-container">
         <KButton
@@ -189,11 +190,14 @@
 
 <style lang="scss" scoped>
 
+  .mt-0 {
+    margin-top: 0;
+  }
+
   .bottom-nav-container {
     display: flex;
     justify-content: flex-end;
     width: 100%;
-    margin-bottom: 16px;
   }
 
   .side-panel-title {
