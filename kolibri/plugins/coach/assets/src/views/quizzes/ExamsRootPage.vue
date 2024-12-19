@@ -452,6 +452,8 @@
           const learnersForQuiz = this.getLearnersForExam(quiz);
           quiz.tally = this.getExamStatusTally(quiz.id, learnersForQuiz);
           quiz.avgScore = this.getExamAvgScore(quiz.id, learnersForQuiz);
+          quiz.recipientNames = this.getRecipientNamesForExam(quiz);
+          quiz.totalLearners = this.getLearnersForExam(quiz).length;
           return quiz;
         });
       },
@@ -525,9 +527,12 @@
       exportCSV() {
         const columns = [
           ...csvFields.title(),
+          ...csvFields.avgScore(),
+          ...csvFields.allLearners('totalLearners'),
           ...csvFields.recipients(this.className),
           ...csvFields.tally(),
         ];
+
         const fileName = this.$tr('printLabel', { className: this.className });
         new CSVExporter(columns, fileName).export(this.filteredExams);
       },
@@ -592,9 +597,9 @@
           'Descriptive text at the top of the table that displays the calculated file size of all quiz resources (i.e. 120 MB)',
       },
       printLabel: {
-        message: '{className} Lessons',
+        message: '{className} Quizzes',
         context:
-          "Title that displays on a printed copy of the 'Reports' > 'Lessons' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
+          "Title that displays on a printed copy of the 'Coach' > 'Quizzes' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
       },
       adminLink: {
         message: 'Import channels to your device',
