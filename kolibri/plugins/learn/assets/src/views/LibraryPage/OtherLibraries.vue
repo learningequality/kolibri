@@ -4,7 +4,7 @@
     <KGrid
       gutter="0"
       class="grid"
-      style="margin-bottom:-25px ;"
+      style="margin-bottom: -25px"
     >
       <KGridItem
         :layout12="{ span: 6 }"
@@ -14,8 +14,8 @@
         <h1 :style="{ marginLeft: '-8px' }">
           {{ injectedtr('otherLibraries') }}
         </h1>
-     
-        <div class="sync-status" >
+
+        <div class="sync-status">
           <span
             v-show="searchingOtherLibraries"
             data-test="searching"
@@ -39,7 +39,7 @@
                 icon="wifi"
                 class="wifi-svg"
               />
-            </span> 
+            </span>
             &nbsp;&nbsp;
             <span data-test="showing-all-label">{{ injectedtr('showingAllLibraries') }}</span>
             &nbsp;&nbsp;
@@ -51,22 +51,25 @@
               />
             </span>
           </span>
-          <div class="a" v-show="!searchingOtherLibraries && !devicesWithChannelsExist" >
-          <span
-            
-            data-test="no-other"
-            
-          > <div  >
-            <span >
-              <KIcon class="disco"  icon="disconnected" />
-            </span >
+          <div
+            v-show="!searchingOtherLibraries && !devicesWithChannelsExist"
+            class="a"
+          >
+            <span data-test="no-other">
+              <div>
+                <span>
+                  <KIcon
+                    class="disco"
+                    icon="disconnected"
+                  />
+                </span>
+              </div>
+              &nbsp;&nbsp;
+              <div class="b">
+                <span data-test="no-other-label">{{ injectedtr('noOtherLibraries') }}</span>
+              </div>
+            </span>
           </div>
-            &nbsp;&nbsp;
-            <div class="b">
-            <span   data-test="no-other-label">{{ injectedtr('noOtherLibraries') }}</span>
-          </div>
-          </span>
-        </div>
         </div>
       </KGridItem>
     </KGrid>
@@ -235,38 +238,40 @@
 
 <style lang="scss" scoped>
 
-.sync-status {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: -20px;
-  margin-left: 0px;
-  padding-left: 10px;
-  margin-bottom: 25px;
-  min-width: 400px;
- 
-  .a {
-    display: flex; 
-    align-items: center; 
-    margin-top: -5px; 
-     margin-left: 100px; }
-    
-  .b {
-      margin-left: 500px;
-      padding-left: 00px;
-      min-width: 200px;
-    }
-    .disco {
-      margin-left: 1000px;    
+  .sync-status {
+    display: flex;
+    justify-content: flex-end;
+    min-width: 400px;
+    padding-left: 10px;
+    margin-top: -20px;
+    margin-bottom: 25px;
+    margin-left: 0;
+
+    .a {
+      display: flex;
+      align-items: center;
+      margin-top: -5px;
+      margin-left: 100px;
     }
 
-  span {
-    margin-bottom: 10px;
-    vertical-align: bottom;
-    margin-top: 10px;
-    display: inline-flex;
-    margin-left: -8px;
+    .b {
+      min-width: 200px;
+      padding-left: 00;
+      margin-left: 500px;
+    }
+
+    .disco {
+      margin-left: 1000px;
+    }
+
+    span {
+      display: inline-flex;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      margin-left: -8px;
+      vertical-align: bottom;
+    }
   }
-}
 
   .wifi-svg {
     top: 0;
@@ -275,90 +280,73 @@
 
   .grid {
     margin: 8px;
-    
   }
 
   .other-libraries-grid {
     margin-left: 0.75em;
   }
 
-@media screen  and (max-width: 600px)  {
-  .sync-status {
-  
-   max-width: 400px;
-   
-   .a {
-     margin-right: 13px;
-    }
-    .disco {
-      margin-right: -640px; 
-    }
+  @media screen and (max-width: 600px) {
+    .sync-status {
+      max-width: 400px;
 
-   
+      .a {
+        margin-right: 13px;
+      }
 
-   span {
-      margin-left: -191px;
-      word-wrap: break-word;
+      .disco {
+        margin-right: -640px;
+      }
 
-      
-    }
-  }
-  .wifi-svg {
-    
-    margin-left: -213px;
-  }
-}
-@media screen and (min-width: 600px) and (max-width:1100px)  {
-  .sync-status {
- 
-
-   .a {
-
-     margin-right: 13px;
-    }
-    .disco {
-      margin-right: -640px; 
+      span {
+        margin-left: -191px;
+        word-wrap: break-word;
+      }
     }
 
-
-    span {
-      margin-left: -190px;
-   
+    .wifi-svg {
+      margin-left: -213px;
     }
   }
-  .wifi-svg {
-   
-    margin-left: -160px;
-  }
-}
+  @media screen and (min-width: 600px) and (max-width: 1100px) {
+    .sync-status {
+      .a {
+        margin-right: 13px;
+      }
 
-@media screen and (min-width: 1100px)  {
-  .sync-status {
- 
-    span {
-      margin-left: -220px;
-      padding-left: -50px;
-      
-      
-    }
-    .a {
+      .disco {
+        margin-right: -640px;
+      }
 
-     margin-right: 50px;
-    
-    }
-    .disco {
-      margin-right: -610px; 
-    
+      span {
+        margin-left: -190px;
+      }
     }
 
-    
-   
+    .wifi-svg {
+      margin-left: -160px;
+    }
   }
-  .wifi-svg {
-   
-    margin-left: -140px;
+
+  @media screen and (min-width: 1100px) {
+    .sync-status {
+      span {
+        padding-left: -50px;
+        margin-left: -220px;
+      }
+
+      .a {
+        margin-right: 50px;
+      }
+
+      .disco {
+        margin-right: -610px;
+      }
+    }
+
+    .wifi-svg {
+      margin-left: -140px;
+    }
   }
-  
-}
 
 </style>
