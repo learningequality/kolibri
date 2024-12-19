@@ -133,7 +133,6 @@
         "
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
-        :loadingMoreState="loadingMore"
         :showRadioButtons="selectPracticeQuiz"
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
@@ -283,15 +282,6 @@
         numberOfQuestionsLabel$,
         addNumberOfQuestions$,
       } = enhancedQuizManagementStrings;
-
-      // TODO let's not use text for this
-      const viewMoreButtonState = computed(() => {
-        if (hasMore.value || moreSearchResults.value) {
-          return ViewMoreButtonStates.HAS_MORE;
-        } else {
-          return ViewMoreButtonStates.NO_MORE;
-        }
-      });
 
       const { windowIsSmall } = useKResponsiveWindow();
 
@@ -488,6 +478,17 @@
         setResources,
         loadingMore,
       } = useQuizResources({ topicId, practiceQuiz: selectPracticeQuiz.value });
+
+      // TODO let's not use text for this
+      const viewMoreButtonState = computed(() => {
+        if (loadingMore.value) {
+          return ViewMoreButtonStates.LOADING;
+        }
+        if (hasMore.value || moreSearchResults.value) {
+          return ViewMoreButtonStates.HAS_MORE;
+        }
+        return ViewMoreButtonStates.NO_MORE;
+      });
 
       const { searchTerms, search } = useBaseSearch({ descendant: topic });
       search();

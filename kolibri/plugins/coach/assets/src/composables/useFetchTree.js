@@ -59,10 +59,11 @@ export default function useFetchTree({ topicId, params = {} } = {}) {
       // results is the list of all children from this call to the API
       // more is an object that contains the parameters we need to fetch the next batch of nodes
       const { results, more } = topicTree.children || { results: [], more: null };
+      const moreParams = more?.params || null;
 
       set(_resources, [...get(_resources), ...results]);
       set(_topic, topicTree);
-      set(_moreParams, more);
+      set(_moreParams, moreParams);
       set(_loading, false);
 
       return results;
