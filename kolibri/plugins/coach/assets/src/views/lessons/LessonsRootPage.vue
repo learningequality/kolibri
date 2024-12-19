@@ -249,26 +249,7 @@
       ...mapState('classSummary', { classId: 'id' }),
       ...mapState('lessonsRoot', ['lessons', 'learnerGroups']),
       sortedLessons() {
-        const sorted = this._.orderBy(this.lessons, ['date_created'], ['desc']);
-        const allLessons = sorted.map(lesson => {
-          const learners = this.getLearnersForLesson(lesson);
-          const sortedLesson = {
-            totalLearners: learners.length,
-            tally: this.getLessonStatusTally(lesson.id, learners),
-            groupNames: this.getGroupNames(lesson.assignments),
-            recipientNames: this.getRecipientNamesForLesson(lesson),
-            hasAssignments: learners.length > 0,
-          };
-          Object.assign(sortedLesson, lesson);
-          return sortedLesson;
-        });
-
-        if (this.filterRecipents.label === this.entireClassLabel$()) {
-          return allLessons;
-        }
-        return allLessons.filter(lesson => {
-          return lesson.recipientNames.includes(this.filterRecipents.label);
-        });
+        return this.getFilteredLessons();
       },
       userHasDismissedModal() {
         return Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
@@ -447,7 +428,39 @@
         this.showLessonIsVisibleModal = false;
         this.showLessonIsNotVisibleModal = false;
       },
+      getFilteredLessons() {
+        const sorted = this._.orderBy(this.lessons, ['date_created'], ['desc']);
+        const allLessons = sorted.map(lesson => {
+          const learners = this.getLearnersForLesson(lesson);
+          const sortedLesson = {
+            totalLearners: learners.length,
+            tally: this.getLessonStatusTally(lesson.id, learners),
+            groupNames: this.getGroupNames(lesson.assignments),
+            recipientNames: this.getRecipientNamesForLesson(lesson),
+            hasAssignments: learners.length > 0,
+          };
+          Object.assign(sortedLesson, lesson);
+          return sortedLesson;
+        });
+
+        let lessonToReturn = allLessons;
+
+        if (this.filterSelection.value !== 'filterLessonAll') {
+          const isVisibleFilter = this.filterSelection.value === 'filterLessonVisible';
+          lessonToReturn = lessonToReturn.filter(lesson => lesson.active === isVisibleFilter);
+        }
+
+        if (this.filterRecipents.label !== this.entireClassLabel$()) {
+          lessonToReturn = lessonToReturn.filter(lesson => {
+            return lesson.recipientNames.includes(this.filterRecipents.label);
+          });
+        }
+
+        return lessonToReturn;
+      },
       exportCSV() {
+        const filteredLessons = this.getFilteredLessons();
+
         const columns = [
           ...csvFields.title(),
           ...csvFields.recipients(this.className),
@@ -455,7 +468,7 @@
           ...csvFields.allLearners('totalLearners'),
         ];
         const fileName = this.$tr('printLabel', { className: this.className });
-        new CSVExporter(columns, fileName).export(this.sortedLessons);
+        new CSVExporter(columns, fileName).export(filteredLessons);
       },
       bytesForHumans,
     },
