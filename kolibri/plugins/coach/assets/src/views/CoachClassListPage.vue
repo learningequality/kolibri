@@ -1,7 +1,7 @@
 <template>
 
   <CoachAppBarPage :appBarTitle="appBarTitle">
-    <KPageContainer>
+    <KPageContainer v-if="!dataLoading && classListPageEnabled">
       <p>
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
@@ -65,7 +65,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import find from 'lodash/find';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import urls from 'kolibri/urls';
@@ -93,6 +93,7 @@
     },
     computed: {
       ...mapState(['classList', 'dataLoading']),
+      ...mapGetters(['classListPageEnabled']),
       // Message that shows up when state.classList is empty
       emptyStateDetails() {
         if (this.isClassCoach) {
