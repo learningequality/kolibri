@@ -39,6 +39,9 @@ import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.v
 import EditLessonDetails from '../views/lessons/LessonSummaryPage/sidePanels/EditLessonDetails';
 import PreviewSelectedResources from '../views/lessons/LessonSummaryPage/sidePanels/PreviewSelectedResources';
 import LessonResourceSelection from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection';
+import SelectionIndex from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectionIndex.vue';
+import SelectFromBookmarks from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromBookmarks.vue';
+import SelectFromChannels from '../views/lessons/LessonSummaryPage/sidePanels/LessonResourceSelection/subPages/SelectFromChannels.vue';
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const {
@@ -132,8 +135,26 @@ export default [
       },
       {
         name: PageNames.LESSON_SELECT_RESOURCES,
-        path: 'select-resources/:topicId?',
+        path: 'select-resources/',
         component: LessonResourceSelection,
+        redirect: 'select-resources/index',
+        children: [
+          {
+            name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+            path: 'index',
+            component: SelectionIndex,
+          },
+          {
+            name: PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
+            path: 'bookmarks',
+            component: SelectFromBookmarks,
+          },
+          {
+            name: PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+            path: 'channels',
+            component: SelectFromChannels,
+          },
+        ],
       },
       {
         name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES,
