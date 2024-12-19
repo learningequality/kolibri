@@ -8,7 +8,7 @@
           :text="$tr('back')"
         />
       </p>
-      <ReportsControls />
+      <ReportsControls :disableExport="true" />
     </div>
     <h1>
       <KLabeledIcon

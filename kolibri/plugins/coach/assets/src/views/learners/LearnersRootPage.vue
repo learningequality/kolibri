@@ -7,9 +7,9 @@
       />
       <div class="filter">
         <KSelect
-          v-model="filterSelection"
+          v-model="recipientSelected"
           :label="coachString('recipientsLabel')"
-          :options="filterOptions"
+          :options="recipientsOptions"
           :inline="true"
         />
       </div>
@@ -67,6 +67,7 @@
   import sortBy from 'lodash/sortBy';
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { ref } from 'vue';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
@@ -74,6 +75,7 @@
   import CoachHeader from '../common/CoachHeader';
   import ReportsControls from '../common/ReportsControls';
   import { PageNames } from '../../constants';
+  import { coachStrings } from '../common/commonCoachStrings';
 
   export default {
     name: 'LearnersRootPage',
@@ -84,22 +86,25 @@
       CoachHeader,
     },
     mixins: [commonCoach, commonCoreStrings],
-    data() {
+    setup() {
+      const { entireClassLabel$ } = coachStrings;
+
+      const recipientSelected = ref({
+        label: entireClassLabel$(),
+        value: entireClassLabel$(),
+      });
+
       return {
-        filterOptions: [
-          {
-            label: this.coreString('allLabel'),
-            value: this.coreString('allLabel'),
-          },
-        ],
-        filterSelection: { label: this.coreString('allLabel'), value: this.coreString('allLabel') },
+        entireClassLabel$,
+        recipientSelected,
         PageNames,
       };
     },
     computed: {
       table() {
         const sorted = sortBy(this.learners, ['name']);
-        return sorted.map(learner => {
+
+        let augmentedTable = sorted.map(learner => {
           const groupNames = this.getGroupNames(
             this._.map(
               this.groups.filter(group => group.member_ids.includes(learner.id)),
@@ -121,6 +126,37 @@
           Object.assign(augmentedObj, learner);
           return augmentedObj;
         });
+
+        const recipientsFilter = this.recipientSelected.value;
+
+        if (recipientsFilter !== this.entireClassLabel$()) {
+          augmentedTable = augmentedTable.filter(entry => {
+            return entry.groups.includes(recipientsFilter) || entry.id === recipientsFilter;
+          });
+        }
+
+        return augmentedTable;
+      },
+
+      recipientsOptions() {
+        const groupOptions = this.groups.map(group => ({
+          label: group.name,
+          value: group.name,
+        }));
+
+        const learnerOptions = this.learners.map(learner => ({
+          label: learner.name,
+          value: learner.id,
+        }));
+
+        return [
+          {
+            label: this.entireClassLabel$(),
+            value: this.entireClassLabel$(),
+          },
+          ...groupOptions,
+          ...learnerOptions,
+        ];
       },
     },
     methods: {
