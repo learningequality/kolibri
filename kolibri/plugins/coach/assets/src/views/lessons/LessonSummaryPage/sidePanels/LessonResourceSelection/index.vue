@@ -41,7 +41,7 @@
         <KButtonGroup>
           <KRouterLink
             v-if="selectedResources.length > 0"
-            :to="{}"
+            :to="{ name: PageNames.LESSON_PREVIEW_SELECTED_RESOURCES }"
           >
             {{ selectedResourcesMessage }}
           </KRouterLink>
@@ -106,6 +106,7 @@
       return {
         title: '',
         goBack: null,
+        PageNames,
       };
     },
     computed: {
