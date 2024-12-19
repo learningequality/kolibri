@@ -23,7 +23,7 @@
               style="margin-right: 8px"
             />
             <QuizOptionsDropdownMenu
-              :draft="exam && exam.draft"
+              :exam="exam"
               @select="setCurrentAction"
             />
           </template>

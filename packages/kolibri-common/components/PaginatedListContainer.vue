@@ -2,16 +2,17 @@
 
   <div>
     <KGrid>
-      <KGridItem :layout12="{ span: 7 }">
+      <KGridItem :layout12="{ span: searchFieldBlock ? 12 : 7 }">
         <slot name="otherFilter"></slot>
       </KGridItem>
       <KGridItem
-        :layout12="{ span: 5, alignment: 'right' }"
+        :layout12="{ span: searchFieldBlock ? 12 : 5, alignment: 'right' }"
         class="text-filter"
       >
         <FilterTextbox
           v-model="filterInput"
           :placeholder="filterPlaceholder"
+          :style="{ width: searchFieldBlock ? '100%' : null }"
         />
       </KGridItem>
     </KGrid>
@@ -74,6 +75,10 @@
         type: Number,
         required: false,
         default: 30,
+      },
+      searchFieldBlock: {
+        type: Boolean,
+        required: false,
       },
     },
     data() {
