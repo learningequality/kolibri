@@ -47,6 +47,9 @@ export default [
     name: PageNames.EXAM_CREATION_ROOT,
     path: CLASS + QUIZ + '/edit/:sectionIndex',
     component: CreateExamPage,
+    meta: {
+      titleParts: [],
+    },
     children: [
       {
         name: PageNames.QUIZ_SECTION_EDITOR,

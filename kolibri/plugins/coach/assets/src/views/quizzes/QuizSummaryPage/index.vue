@@ -79,7 +79,7 @@
     </KGrid>
     <ManageExamModals
       :currentAction="currentAction"
-      :quiz="quiz"
+      :quiz="exam"
       @submit_delete="handleSubmitDelete"
       @submit_copy="handleSubmitCopy"
       @cancel="closeModal"
@@ -99,7 +99,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ExamResource from 'kolibri-common/apiResources/ExamResource';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { PageNames } from '../../../constants';
+  import { convertExamQuestionSources } from 'kolibri-common/quizzes/utils';
   import { QUIZZES_TABS_ID, QuizzesTabs } from '../../../constants/tabsConstants';
   import { useCoachTabs } from '../../../composables/useCoachTabs';
 
@@ -143,19 +143,11 @@
     },
     data() {
       return {
-        quiz: {
-          active: false,
-          assignments: [],
-          learners_see_fixed_order: false,
-          question_sources: [],
-          title: '',
-        },
         loading: true,
         currentAction: '',
         QUIZZES_TABS_ID,
         QuizzesTabs,
         difficultQuestions: [],
-        PageNames,
       };
     },
     computed: {
@@ -203,7 +195,7 @@
 
         tabsList.forEach(tab => {
           tab.to = this.classRoute(
-            this.group ? PageNames.GROUP_EXAM_SUMMARY : PageNames.EXAM_SUMMARY,
+            this.group ? this.PageNames.GROUP_EXAM_SUMMARY : this.PageNames.EXAM_SUMMARY,
             { tabId: tab.id },
           );
         });
@@ -257,8 +249,7 @@
        * @public
        */
       setData(data) {
-        const { exam, difficultQuestions } = data;
-        this.quiz = exam;
+        const { difficultQuestions } = data;
         this.difficultQuestions = difficultQuestions;
         this.loading = false;
         this.$store.dispatch('notLoading');
@@ -279,7 +270,7 @@
       setCurrentAction(action) {
         if (action === 'EDIT_DETAILS') {
           this.$router.push({
-            name: PageNames.EXAM_CREATION_ROOT,
+            name: this.PageNames.EXAM_CREATION_ROOT,
             params: { ...this.$route.params, sectionIndex: 0 },
           });
         } else {
@@ -289,7 +280,7 @@
       closeModal() {
         this.currentAction = '';
       },
-      handleSubmitCopy({ classroomId, groupIds, adHocLearnerIds, examTitle }) {
+      async handleSubmitCopy({ classroomId, groupIds, adHocLearnerIds, examTitle }) {
         const title = examTitle.trim().substring(0, 100).trim();
 
         const assignments = serverAssignmentPayload(groupIds, classroomId);
@@ -300,7 +291,8 @@
           collection: classroomId,
           assignments,
           learner_ids: adHocLearnerIds,
-          question_sources: this.quiz.question_sources,
+          // This ensures backward compatibility for all question_sources versions
+          question_sources: (await convertExamQuestionSources(this.exam)).question_sources,
         };
 
         ExamResource.saveModel({ data: newQuiz })
@@ -343,10 +335,10 @@
           });
       },
       handleSubmitDelete() {
-        return deleteExam(this.quiz.id)
+        return deleteExam(this.quizId)
           .then(() => {
-            this.$store.commit('classSummary/DELETE_ITEM', { map: 'examMap', id: this.quiz.id });
-            this.$router.replace(this.classRoute(PageNames.EXAMS_ROOT), () => {
+            this.$store.commit('classSummary/DELETE_ITEM', { map: 'examMap', id: this.quizId });
+            this.$router.replace(this.classRoute(this.PageNames.EXAMS_ROOT), () => {
               this.showSnackbarNotification('quizDeleted');
             });
           })
@@ -355,7 +347,7 @@
           });
       },
       detailLink(learnerId) {
-        return this.classRoute(PageNames.QUIZ_LEARNER_PAGE_ROOT, {
+        return this.classRoute(this.PageNames.QUIZ_LEARNER_PAGE_ROOT, {
           learnerId,
         });
       },
