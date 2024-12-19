@@ -89,7 +89,7 @@
         showModal.value = false;
       }
 
-      function hasModifiedArray() {
+      function hasModifiedResource() {
         hasArrayChanged.value = true;
       }
 
@@ -109,7 +109,7 @@
         showModal,
         closeModal,
         closeSidePanel,
-        hasModifiedArray,
+        hasModifiedResource,
       };
     },
     data() {
@@ -118,17 +118,18 @@
       };
     },
     computed: {
+      // we will have to move this to composable after the final refactor
+      // leaving it for now to guide the process
       ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
     },
     mounted() {
-      setTimeout(() => {
-        this.getResources();
-      }, 2000);
+      this.getResources();
     },
+
     methods: {
       removeResource(id) {
         this.resources = this.resources.filter(lesson => lesson.id !== id);
-        this.hasModifiedArray();
+        this.hasModifiedResource();
       },
       navigateToParent(id) {
         this.$router.push({
@@ -136,6 +137,8 @@
           params: { classId: this.$route.params.classId, lessonId: id },
         });
       },
+      // we will have to move this to the composable after the final refactor
+      // leaving it for now to guide the process
       getResources() {
         const response = this.workingResources.map(resource => {
           const content = this.resourceCache[resource.contentnode_id];
@@ -166,6 +169,8 @@
           this.resources = results;
         });
       },
+      // we will have to move this to the composable after the final refactor
+      // leaving it for now to guide the process
       resourceLink(resource) {
         if (resource.hasAssignments) {
           if (resource.kind === this.ContentNodeKinds.EXERCISE) {
@@ -184,7 +189,6 @@
         }
       },
     },
-    $trs: {},
   };
 
 </script>
