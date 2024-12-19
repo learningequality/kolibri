@@ -25,15 +25,13 @@ const TaskSnackbarStrings = createTranslator('TaskSnackbarStrings', {
   },
 });
 
+const { createSnackbar } = useSnackbar();
+
 export default {
   data() {
     return {
       showSnackbarWhenTaskHasFinished: true,
     };
-  },
-  setup() {
-    const { createSnackbar } = useSnackbar();
-    return { createSnackbar };
   },
   computed: {
     watchedTaskId() {
@@ -65,16 +63,16 @@ export default {
       this.$router.push({ name: PageNames.MANAGE_TASKS });
     },
     createTaskFailedSnackbar() {
-      this.createSnackbar(TaskSnackbarStrings.$tr('taskFailed'));
+      createSnackbar(TaskSnackbarStrings.$tr('taskFailed'));
     },
     createTaskFinishedSnackbar() {
-      this.createSnackbar({
+      createSnackbar({
         text: TaskSnackbarStrings.$tr('taskFinished'),
         autoDismiss: true,
       });
     },
     createTaskStartedSnackbar() {
-      this.createSnackbar({
+      createSnackbar({
         text: TaskSnackbarStrings.$tr('taskStarted'),
         autoDismiss: true,
       });
