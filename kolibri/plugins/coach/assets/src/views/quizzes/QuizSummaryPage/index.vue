@@ -267,7 +267,12 @@
        * @public
        */
       setError(error) {
-        this.$store.dispatch('handleApiError', { error });
+        try {
+          this.$store.dispatch('handleApiError', { error });
+        } catch (e) {
+          // nothing to do here, just catching the error to avoid
+          // unhandled errors in the dispatch to handleApiError
+        }
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
