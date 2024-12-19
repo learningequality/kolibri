@@ -5,6 +5,7 @@ from datetime import timedelta
 
 import mock
 from django.conf import settings
+from django.contrib.auth import SESSION_KEY
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils import timezone
@@ -40,13 +41,9 @@ from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.device.models import StatusSentiment
 from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.device.models import UserSyncStatus
+from kolibri.core.device.utils import app_initialize_url
 from kolibri.core.public.constants import user_sync_statuses
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
-from kolibri.plugins.app.test.helpers import register_capabilities
-from kolibri.plugins.app.utils import GET_OS_USER
-from kolibri.plugins.app.utils import interface
-from kolibri.plugins.utils.test.helpers import plugin_disabled
-from kolibri.plugins.utils.test.helpers import plugin_enabled
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.tests.helpers import override_option
 
@@ -201,18 +198,17 @@ class DeviceProvisionTestCase(APITestCase):
         response = self._post_deviceprovision(data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_osuser_superuser_error_no_app(self):
-        with plugin_disabled("kolibri.plugins.app"):
-            data = self._default_provision_data()
-            del data["superuser"]
-            response = self._post_deviceprovision(data)
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
     def test_osuser_superuser_created(self):
-        with plugin_enabled("kolibri.plugins.app"), register_capabilities(
-            **{GET_OS_USER: lambda x: ("test_user", True)}
-        ):
-            initialize_url = interface.get_initialize_url(auth_token="test")
+        with mock.patch(
+            "kolibri.core.device.serializers.GetOSUserHook", autospec=True
+        ) as mock_hook1, mock.patch(
+            "kolibri.core.auth.models.GetOSUserHook"
+        ) as mock_hook2:
+            mock_hook1.retrieve_os_user.return_value = (
+                mock_hook2.retrieve_os_user.return_value
+            ) = ("test_user", True)
+            mock_hook1.is_registered = mock_hook2.is_registered = True
+            initialize_url = app_initialize_url(auth_token="test")
             self.client.get(initialize_url)
             data = self._default_provision_data()
             del data["superuser"]
@@ -224,6 +220,9 @@ class DeviceProvisionTestCase(APITestCase):
                 FacilityUser.objects.get().devicepermissions,
             )
             self.assertTrue(FacilityUser.objects.get().os_user)
+            self.assertFalse(
+                DeviceSettings.objects.get().allow_other_browsers_to_connect
+            )
 
     def test_imported_facility_no_update(self):
         facility = Facility.objects.create(name="This is a test")
@@ -1008,3 +1007,46 @@ class CSRFProtectedDeviceTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class InitializeEndpointTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
+        provision_device(default_facility=cls.facility)
+        cls.superuser = create_superuser(cls.facility)
+
+    def test_os_user_capability_enabled_log_in(self):
+        with mock.patch(
+            "kolibri.core.auth.models.GetOSUserHook.retrieve_os_user",
+            return_value=("test_user", False),
+        ):
+            initialize_url = app_initialize_url(auth_token="test")
+            self.client.get(initialize_url)
+            session_data = self.client.session.load()
+            user_id = session_data.get(SESSION_KEY)
+            user = FacilityUser.objects.get(id=user_id)
+            self.assertTrue(user.os_user)
+            self.assertEqual(user.os_user.os_username, "test_user")
+            self.assertNotEqual(self.superuser.id, user.id)
+
+    def test_no_os_user_capability_no_log_in(self):
+        initialize_url = app_initialize_url()
+        self.client.get(initialize_url)
+        session_data = self.client.session.load()
+        user_id = session_data.get(SESSION_KEY)
+        self.assertIsNone(user_id)
+
+    def test_os_user_capability_enabled_already_logged_in_no_change(self):
+        with mock.patch(
+            "kolibri.core.auth.models.GetOSUserHook.retrieve_os_user",
+            return_value=("test_user", False),
+        ):
+            self.client.login(username=self.superuser.username, password="password")
+            initialize_url = app_initialize_url(auth_token="test")
+            self.client.get(initialize_url)
+            session_data = self.client.session.load()
+            user_id = session_data.get(SESSION_KEY)
+            user = FacilityUser.objects.get(id=user_id)
+            self.assertFalse(hasattr(user, "os_user"))
+            self.assertEqual(self.superuser.id, user.id)

@@ -106,6 +106,10 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Share',
     context: 'Option to share a specific file from a learning resource.',
   },
+  shareFileMessage: {
+    message: '"{title}" (in "{topic}"), from {copyrightHolder}',
+    context: 'Message shared with the default file from a learning resource.',
+  },
   locationsInChannel: {
     message: 'Location in {channelname}',
     context:

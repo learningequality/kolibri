@@ -1,6 +1,8 @@
 import uniq from 'lodash/uniq';
-import { checkCapability } from 'kolibri/utils/appCapabilities';
+import { get } from '@vueuse/core';
+import pluginData from 'kolibri-plugin-data';
 import { Presets } from 'kolibri/constants';
+import useUser from 'kolibri/composables/useUser';
 import { DeviceTypePresets, FacilityTypePresets, LodTypePresets, UsePresets } from '../constants';
 
 /**
@@ -23,8 +25,8 @@ import { DeviceTypePresets, FacilityTypePresets, LodTypePresets, UsePresets } fr
  *    OR
  *    Know that we will need to directly copy and paste them into the visualizer
  *
- * For now, this means copying the imports from `../constants` and writing a
- * function in place of `checkCapability`.
+ * For now, this means copying the imports from `../constants` and writing an
+ * object in place of `pluginData`.
  */
 
 /**
@@ -46,8 +48,10 @@ import { DeviceTypePresets, FacilityTypePresets, LodTypePresets, UsePresets } fr
 /* eslint-disable-next-line */
 import { assign, createMachine } from 'xstate';
 
-// NOTE: Uncomment the following function if you're using the visualizer
-// const checkCapability = capabilityToCheck => ["get_os_user"].includes(capabilityToCheck);
+// NOTE: Uncomment the following object if you're using the visualizer
+// const pluginData = { canGetOsUser: true };
+
+const { isAppContext } = useUser();
 
 const initialContext = {
   onMyOwnOrGroup: null,
@@ -553,7 +557,7 @@ export const wizardMachine = createMachine(
       isGroupSetup: context => {
         return context.onMyOwnOrGroup === UsePresets.GROUP;
       },
-      canGetOsUser: () => checkCapability('get_os_user'),
+      canGetOsUser: () => get(isAppContext) && pluginData.canGetOSUser,
       isNewFacility: context => {
         return context.facilityNewOrImport === FacilityTypePresets.NEW;
       },

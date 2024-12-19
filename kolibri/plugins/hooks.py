@@ -26,7 +26,7 @@ We have two different types of hooks:
 
 Abstract hooks
     Are definitions of hooks that are implemented by *implementing hooks*.
-    These hooks are Python abstract base classes, and can use the @abstractproperty
+    These hooks are Python abstract base classes, and can use the @property
     and @abstractmethod decorators from the abc module in order to define which
     properties and methods their descendant registered hooks should implement.
 
@@ -154,7 +154,7 @@ objects are each instances of the hook classes that were registered.
 
 """
 import logging
-from abc import abstractproperty
+from abc import abstractmethod
 from functools import partial
 from inspect import isabstract
 
@@ -296,6 +296,13 @@ class KolibriHookMeta(SingletonMeta):
         for hook in cls._registered_hooks.values():
             yield hook
 
+    @property
+    def is_registered(cls):
+        """
+        Check if any instances of the class have been registered or not.
+        """
+        return any(cls.registered_hooks)
+
     def _setup_base_class(cls, only_one_registered=False):
         """
         Do any setup required specifically if this class is being setup as a hook definition
@@ -390,7 +397,8 @@ class KolibriHookMeta(SingletonMeta):
 
 
 class KolibriHook(metaclass=KolibriHookMeta):
-    @abstractproperty
+    @property
+    @abstractmethod
     def _not_abstract(self):
         """
         A dummy property that we set on classes that are not intended to be abstract in the register_hook function above.

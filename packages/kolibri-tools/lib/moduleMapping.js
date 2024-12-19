@@ -149,7 +149,7 @@ module.exports = {
   },
   'kolibri.themeConfig': 'kolibri/styles/themeConfig',
   'kolibri.urls': 'kolibri/urls',
-  'kolibri.utils.appCapabilities': 'kolibri/utils/appCapabilities',
+  'kolibri.utils.appCapabilities': null, // Redistributed into more specific code where used.
   'kolibri.utils.browserInfo': 'kolibri/utils/browserInfo',
   'kolibri.utils.bytesForHumans': 'kolibri/uiText/bytesForHumans',
   'kolibri.utils.CatchErrors': 'kolibri/utils/CatchErrors',

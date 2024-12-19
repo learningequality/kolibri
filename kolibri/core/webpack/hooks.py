@@ -12,7 +12,7 @@ import logging
 import os
 import re
 import time
-from abc import abstractproperty
+from abc import abstractmethod
 from functools import partial
 from urllib.request import url2pathname
 
@@ -60,7 +60,8 @@ class WebpackBundleHook(hooks.KolibriHook):
 
     # : You should set a human readable name that is unique within the
     # : plugin in which this is defined.
-    @abstractproperty
+    @property
+    @abstractmethod
     def bundle_id(self):
         pass
 
@@ -306,11 +307,13 @@ class WebpackBundleHook(hooks.KolibriHook):
 
 
 class WebpackInclusionMixin(object):
-    @abstractproperty
+    @property
+    @abstractmethod
     def bundle_html(self):
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def bundle_class(self):
         pass
 

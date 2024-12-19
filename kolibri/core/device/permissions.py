@@ -1,6 +1,7 @@
 from rest_framework.permissions import BasePermission
 
 from kolibri.core.auth.permissions.general import DenyAll
+from kolibri.core.device.utils import valid_app_key_on_request
 
 
 class NotProvisionedCanPost(BasePermission):
@@ -41,3 +42,8 @@ class IsSuperuser(DenyAll):
 class IsNotAnonymous(DenyAll):
     def has_permission(self, request, view):
         return request.user.is_authenticated
+
+
+class FromAppContextPermission(BasePermission):
+    def has_permission(self, request, view):
+        return valid_app_key_on_request(request)

@@ -4,6 +4,7 @@ from sys import version_info
 
 from django.conf import settings
 from django.contrib.auth import login
+from django.core.exceptions import ValidationError
 from django.db.models import Exists
 from django.db.models import F
 from django.db.models import Max
@@ -11,9 +12,12 @@ from django.db.models import OuterRef
 from django.db.models.expressions import Subquery
 from django.db.models.query import Q
 from django.http import Http404
+from django.http import HttpResponseRedirect
 from django.http.response import HttpResponseBadRequest
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.http import urlunquote
 from django.utils.translation import get_language
 from django.views.decorators.csrf import csrf_protect
 from django_filters.rest_framework import DjangoFilterBackend
@@ -26,9 +30,11 @@ from rest_framework import mixins
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
+from rest_framework.views import APIView
 
 import kolibri
 from .models import DevicePermissions
@@ -57,7 +63,11 @@ from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.device.permissions import IsSuperuser
+from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
+from kolibri.core.device.utils import set_app_key_on_response
+from kolibri.core.device.utils import using_metered_connection
+from kolibri.core.device.utils import valid_app_key
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
@@ -508,3 +518,49 @@ class PathPermissionView(views.APIView):
                 "path": resolve_path(pathname),
             }
         )
+
+
+class InitializeAppView(APIView):
+    def get(self, request, token):
+        if not valid_app_key(token):
+            raise PermissionDenied("You have provided an invalid token")
+        auth_token = request.GET.get("auth_token")
+        if request.user.is_anonymous and device_provisioned() and auth_token:
+            # If we are in app context, then login as the automatically created OS User
+            try:
+                user = FacilityUser.objects.get_or_create_os_user(auth_token)
+                if user is not None:
+                    login(request, user)
+                else:
+                    # If the user is not found, then we should not persist the auth_token
+                    auth_token = None
+            except ValidationError as e:
+                logger.error(e)
+        redirect_url = request.GET.get("next", "/")
+        # Copied and modified from https://github.com/django/django/blob/stable/1.11.x/django/views/i18n.py#L40
+        if (
+            redirect_url or not request.is_ajax()
+        ) and not url_has_allowed_host_and_scheme(
+            url=redirect_url,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        ):
+            redirect_url = request.META.get("HTTP_REFERER")
+            if redirect_url:
+                redirect_url = urlunquote(redirect_url)  # HTTP_REFERER may be encoded.
+            if not url_has_allowed_host_and_scheme(
+                url=redirect_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                redirect_url = "/"
+        response = HttpResponseRedirect(redirect_url)
+        set_app_key_on_response(response, auth_token)
+        return response
+
+
+class CheckMeteredConnectionView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        return Response(using_metered_connection())

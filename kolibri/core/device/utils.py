@@ -13,10 +13,13 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.utils import OperationalError
 from django.db.utils import ProgrammingError
+from django.http import QueryDict
+from django.urls import reverse
 
 import kolibri
 from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.content.constants.schema_versions import MIN_CONTENT_SCHEMA_VERSION
+from kolibri.core.device.hooks import CheckIsMeteredHook
 from kolibri.utils.android import ANDROID_PLATFORM_SYSTEM_VALUE
 from kolibri.utils.android import on_android
 from kolibri.utils.lru_cache import lru_cache
@@ -494,3 +497,31 @@ def is_full_facility_import(dataset_id):
         .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
         .exists()
     )
+
+
+def using_metered_connection():
+    """
+    :return: a boolean indicating whether the device is using a metered connection
+    """
+    try:
+        return CheckIsMeteredHook.execute_is_metered_check()
+    except NotImplementedError:
+        return False
+
+
+def app_initialize_url(next_url=None, auth_token=None):
+    from kolibri.core.device.models import DeviceAppKey
+
+    url = reverse(
+        "kolibri:core:initialize_app",
+        args=(DeviceAppKey.get_app_key(),),
+    )
+    query_dict = QueryDict(mutable=True)
+
+    if auth_token is not None:
+        query_dict["auth_token"] = auth_token
+
+    if next_url is not None:
+        query_dict["next"] = next_url
+    query_string = query_dict.urlencode()
+    return url + ("?" + query_string if query_string else "")

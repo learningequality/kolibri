@@ -44,6 +44,10 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.serializers import CharField
+from rest_framework.serializers import PrimaryKeyRelatedField
+from rest_framework.serializers import Serializer
+from rest_framework.views import APIView
 
 from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import CreateModelMixin
@@ -55,6 +59,7 @@ from kolibri.core.auth.middleware import session_exempt
 from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.content import models
 from kolibri.core.content import serializers
+from kolibri.core.content.hooks import ShareFileHook
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentRemovalRequest
 from kolibri.core.content.models import ContentRequestReason
@@ -75,11 +80,13 @@ from kolibri.core.content.utils.importability_annotation import (
     get_channel_stats_from_studio,
 )
 from kolibri.core.content.utils.paths import get_channel_lookup_url
+from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.device.permissions import FromAppContextPermission
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
@@ -1955,3 +1962,35 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             NetworkLocationNotFound,
         ):
             return Response({"status": "offline", "available": False})
+
+
+class ShareFileSerializer(Serializer):
+    content_node = PrimaryKeyRelatedField(
+        queryset=models.ContentNode.objects.filter(available=True).exclude(
+            kind__in=[content_kinds.TOPIC, content_kinds.EXERCISE]
+        )
+    )
+    message = CharField(max_length=1000)
+
+
+class ShareFileView(APIView):
+    permission_classes = (IsAuthenticated, FromAppContextPermission)
+
+    def post(self, request):
+        serializer = ShareFileSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        content_node = serializer.validated_data["content_node"]
+        message = serializer.validated_data["message"]
+        # Rely on default priority ordering
+        default_file = content_node.files.first()
+        if not default_file:
+            return Response(
+                {"error": "No files found for content node"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        filepath = get_content_storage_file_path(default_file.local_file.get_filename())
+        try:
+            ShareFileHook.execute_file_share(filepath, message)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_201_CREATED)

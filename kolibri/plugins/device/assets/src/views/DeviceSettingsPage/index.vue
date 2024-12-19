@@ -378,12 +378,12 @@
   import urls from 'kolibri/urls';
   import logger from 'kolibri-logging';
   import { ref, watch } from 'vue';
+  import pluginData from 'kolibri-plugin-data';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { availableLanguages, currentLanguage, sortLanguages } from 'kolibri/utils/i18n';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { checkCapability } from 'kolibri/utils/appCapabilities';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import commonDeviceStrings from '../commonDeviceStrings';
@@ -603,7 +603,7 @@
         }
       },
       canCheckMeteredConnection() {
-        return checkCapability('check_is_metered');
+        return pluginData.canCheckMeteredConnection;
       },
       showDisabledAlert() {
         return this.isRemoteContent || !this.canRestart;
