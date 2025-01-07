@@ -8,15 +8,15 @@ Feature: Learners
     When I look at the *Learners* page
     Then I see the *Learners* title and class info
     	And I see the filter by recipients, *View learner devices* link, *Print report* and *Export as CSV* icons
-    	And I see a table with all of the learners with the following columns: *Name*, *Groups*, *Average score*, *Exercises completed*, *Exercises viewed*, *Last activity*
+    	And I see a table with all of the learners with the following columns: *Name*, *Groups*, *Average score*, *Exercises completed*, *Resources viewed*, *Last activity*
 
   Scenario: Review the learner details
     When I click on the name of a learner
     Then I see the learner summary page
     	And I see the learner's name, class, username and groups info
-    	And I see the *Print report* and *Export as CSV* icons
+    	And I see the *Print report* icon
     	And I see the *Lessons completed*, *Average quiz score*, *Exercises completed* and *Resources viewed* cards
-    	And I see the *Lessons assigned* and *Quizzes assigned* sections
+    	And I see the *Lessons assigned* and *Quizzes assigned* sections with a separate *Export as CSV* icon for each
 
   Scenario: Review the progress on a quiz assigned to a learner
     Given I am at the learner's details page
@@ -29,12 +29,3 @@ Feature: Learners
       And there are lessons assigned to the learner
     When I click on the title of a lesson
     Then I see the lesson report page for the learner
-
-  Scenario: Edit the group name
-    When I click *Options* button
-      And I select *Rename* option
-    Then *Rename group* modal appears
-    When I change group name
-      And I click *Save*
-    Then the modal closes
-     And I see the changed group name

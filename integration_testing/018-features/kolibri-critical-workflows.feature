@@ -867,7 +867,7 @@ Feature: Kolibri critical workflows
     When I navigate through the available pages
     	And I click the *Export as CSV file* icon
     Then I can download and view a lesson report as a .csv file
-    When I go to any of the *Quizzes*, *Groups* and *Learners* *pages
+    When I go to either the *Quizzes* or *Learners* *page
     	And I click the *Export as CSV file* icon
     Then I can download and view a report as a .csv file
 
@@ -878,6 +878,6 @@ Feature: Kolibri critical workflows
     When I navigate through the available pages
     	And I click the *Print report* icon
     Then I can print a report
-    When I go to any of the *Quizzes*, *Groups* and *Learners* pages
+    When I go to either the *Quizzes* or *Learners* *page
     	And I click the *Print report* icon
     Then I can print a report

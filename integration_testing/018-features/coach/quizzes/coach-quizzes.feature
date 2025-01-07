@@ -309,3 +309,15 @@ Feature: Quizzes
       And I click the *Add N questions* button
     Then I am back at the *Create new quiz* page
       And I see the *Question list* with all the imported questions
+
+  Scenario: Coach can search for specific questions
+    Given I am at the *Create new quiz* modal
+    When I click the *Add questions* button
+    Then I see the *Add questions to 'Section N'* modal
+    When I click the *Search* button
+    Then I see search panel
+    	And I see the *Search by keyword* field
+    	And I see the filters by *Category*, *Level*, *Language*, *Channel*, *Accessibility* and *Show resources*
+    When I type a keyword
+    	And I press the search icon
+    Then I see all of the available results for the entered keyword

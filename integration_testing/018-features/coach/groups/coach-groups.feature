@@ -32,6 +32,16 @@ Feature: Groups
     	And I see a table with the enrolled learners with the following columns: *Full name* and *Username*
     	And I see a *Remove* button in each table row
 
+  Scenario: Edit the group name
+    When I click *Options* button
+      And I select the *Rename group* option
+    Then the *Rename group* modal appears
+    When I change the group name
+      And I click *Save*
+    Then the modal closes
+    	And I see a *Changes saved* snackbar message
+     	And I see the changed group name
+
   Scenario: Coach deletes a group
     When I click the *Options* button
       And I select *Delete*
