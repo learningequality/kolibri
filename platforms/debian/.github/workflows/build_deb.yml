@@ -18,7 +18,7 @@ on:
         type: string
       ref:
         description: 'A ref for this workflow to check out its own repo'
-        required: true
+        required: false
         type: string
     outputs:
       deb-file-name:
