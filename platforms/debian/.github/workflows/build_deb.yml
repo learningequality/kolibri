@@ -11,7 +11,10 @@ on:
   workflow_call:
     inputs:
       tar-file-name:
-        required: true
+        required: false
+        type: string
+      tar-url:
+        required: false
         type: string
       ref:
         description: 'A ref for this workflow to check out its own repo'
@@ -29,6 +32,11 @@ jobs:
     outputs:
       deb-file-name: ${{ steps.get-deb-filename.outputs.deb-file-name }}
     steps:
+    - name: Validate tar reference inputs
+      if: ${{ (inputs.tar-file-name && inputs.tar-url) || (!inputs.tar-file-name && !inputs.tar-url) }}
+      run: |
+        echo "Must specify exactly one reference for the tar file to build the APK with."
+        exit 1
     - uses: actions/checkout@v4
       if: ${{ !inputs.ref }}
     - uses: actions/checkout@v4
@@ -43,8 +51,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
     - name: Download the tarfile from URL
-      if: ${{ github.event.inputs.tar-url }}
-      run: make get-tar tar=${{ github.event.inputs.tar-url }}
+      if: ${{ inputs.tar-url }}
+      run: make get-tar tar=${{ inputs.tar-url }}
     - name: Download the tarfile from artifacts
       if: ${{ inputs.tar-file-name }}
       uses: actions/download-artifact@v4
@@ -54,7 +62,7 @@ jobs:
     - name: Update repository indexes
       run: sudo apt update       
     - name: Install Debian build package dependencies
-      run: sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf python3-setuptools python3-pip
+      run: sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf python3-setuptools python3-pip build-essential
     - name: Run the build
       run: make kolibri.deb
     - name: Get DEB filename
