@@ -3,7 +3,7 @@ name: Build DEB for PRs
 on:
   pull_request:
     branches:
-    - master
+    - main
 
 jobs:
   pre_job:
