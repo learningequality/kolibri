@@ -5,6 +5,7 @@ import router from 'kolibri/router';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import KolibriApp from 'kolibri-app';
 import useSnackbar from 'kolibri/composables/useSnackbar';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { PageNames } from './constants';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
@@ -50,6 +51,8 @@ class CoachToolsModule extends KolibriApp {
   ready() {
     const { snackbarIsVisible, clearSnackbar } = useSnackbar();
     const { isLearnerOnlyImport, isSuperuser } = useUser();
+    const { getFacilities } = useFacilities();
+
     router.beforeEach((to, from, next) => {
       if (get(isLearnerOnlyImport)) {
         redirectBrowser();
@@ -138,7 +141,7 @@ class CoachToolsModule extends KolibriApp {
       }
 
       if (get(isSuperuser) && this.store.state.core.facilities.length === 0) {
-        promises.push(this.store.dispatch('getFacilities').catch(() => {}));
+        promises.push(getFacilities().catch(() => {}));
       }
 
       if (promises.length > 0) {

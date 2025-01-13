@@ -103,6 +103,7 @@
   import { mapState, mapActions, mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
+  import { useFacilities } from 'kolibri-common/composables/useFacilities';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassCreateModal from './ClassCreateModal';
@@ -125,7 +126,9 @@
     setup() {
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { userIsMultiFacilityAdmin } = useUser();
+      const { getFacilities } = useFacilities();
       return {
+        getFacilities,
         classToDelete,
         selectClassToDelete,
         clearClassToDelete,
@@ -190,7 +193,7 @@
       refreshCoreFacilities() {
         if (this.userIsMultiFacilityAdmin) {
           // Update the core facilities object to update classroom number
-          this.$store.dispatch('getFacilities');
+          this.getFacilities();
         }
       },
       // Duplicated in class-list-page

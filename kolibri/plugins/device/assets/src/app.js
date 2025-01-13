@@ -4,6 +4,7 @@ import router from 'kolibri/router';
 import { IsPinAuthenticated } from 'kolibri/constants';
 import useUser from 'kolibri/composables/useUser';
 import KolibriApp from 'kolibri-app';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import RootVue from './views/DeviceIndex';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
@@ -44,9 +45,10 @@ class DeviceManagementModule extends KolibriApp {
   }
   ready() {
     // reset module states after leaving their respective page
+    const { getFacilities, facilities } = useFacilities();
     router.beforeEach((to, from, next) => {
-      if (this.store.state.core.facilities.length === 0) {
-        this.store.dispatch('getFacilities').then(next, next);
+      if (facilities.value.length === 0) {
+        getFacilities().then(next, next);
       }
       next();
     });

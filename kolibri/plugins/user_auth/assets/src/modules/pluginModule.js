@@ -1,8 +1,11 @@
 import Lockr from 'lockr';
 import { get } from '@vueuse/core';
 import useUser from 'kolibri/composables/useUser';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { ComponentMap, pageNameToModuleMap } from '../constants';
 import signIn from './signIn';
+
+const facilitiesComposable = useFacilities();
 
 export default {
   state() {
@@ -18,7 +21,7 @@ export default {
       store.commit('CORE_SET_ERROR', null);
     },
     setFacilitiesAndConfig(store) {
-      return store.dispatch('getFacilities').then(() => {
+      return facilitiesComposable.getFacilities().then(() => {
         return store.dispatch('getFacilityConfig', store.getters.selectedFacility.id);
       });
     },

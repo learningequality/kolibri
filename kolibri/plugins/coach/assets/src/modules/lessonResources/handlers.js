@@ -6,7 +6,10 @@ import { ContentNodeKinds } from 'kolibri/constants';
 import chunk from 'lodash/chunk';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { PageNames } from '../../constants';
+
+const { getFacilities, facilities } = useFacilities();
 
 async function showResourceSelectionPage(store, params) {
   const {
@@ -17,13 +20,14 @@ async function showResourceSelectionPage(store, params) {
     ancestors = [],
     descendantCounts = [],
   } = params;
+
   const pendingSelections = store.state.lessonSummary.workingResources || [];
   const cache = store.state.lessonSummary.resourceCache || {};
   const initClassInfoPromise = store.dispatch('initClassInfo', params.classId);
   const { isSuperuser } = useUser();
   const getFacilitiesPromise =
-    get(isSuperuser) && store.state.core.facilities.length === 0
-      ? store.dispatch('getFacilities').catch(() => {})
+    get(isSuperuser) && facilities.value.length === 0
+      ? getFacilities().catch(() => {})
       : Promise.resolve();
 
   await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
@@ -186,8 +190,8 @@ export async function showLessonResourceContentPreview(store, params) {
   const initClassInfoPromise = store.dispatch('initClassInfo', classId);
   const { isSuperuser } = useUser();
   const getFacilitiesPromise =
-    get(isSuperuser) && store.state.core.facilities.length === 0
-      ? store.dispatch('getFacilities').catch(() => {})
+    get(isSuperuser) && facilities.value.length === 0
+      ? getFacilities().catch(() => {})
       : Promise.resolve();
 
   await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
@@ -203,8 +207,8 @@ export async function showLessonSelectionContentPreview(store, params, query = {
   const initClassInfoPromise = store.dispatch('initClassInfo', classId);
   const { isSuperuser } = useUser();
   const getFacilitiesPromise =
-    get(isSuperuser) && store.state.core.facilities.length === 0
-      ? store.dispatch('getFacilities').catch(() => {})
+    get(isSuperuser) && facilities.value.length === 0
+      ? getFacilities().catch(() => {})
       : Promise.resolve();
 
   await Promise.all([initClassInfoPromise, getFacilitiesPromise]);

@@ -3,6 +3,7 @@ import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyn
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { showDeviceInfoPage } from '../modules/deviceInfo/handlers';
 import { showManagePermissionsPage } from '../modules/managePermissions/handlers';
 import { showManageContentPage } from '../modules/manageContent/handlers';
@@ -21,6 +22,8 @@ import UserPermissionsPage from '../views/UserPermissionsPage';
 import withAuthMessage from '../views/withAuthMessage';
 import { PageNames } from '../constants';
 import wizardTransitionRoutes from './wizardTransitionRoutes';
+
+const { getFacilities } = useFacilities();
 
 function hideLoadingScreen() {
   store.dispatch('notLoading');
@@ -48,7 +51,7 @@ const routes = [
     // needs it
     beforeEnter(to, from, next) {
       if (to.redirectedFrom === '/welcome') {
-        store.dispatch('getFacilities').then(next, next);
+        getFacilities().then(next, next);
       } else {
         next();
       }

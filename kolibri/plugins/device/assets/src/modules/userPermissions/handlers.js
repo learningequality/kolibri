@@ -3,6 +3,7 @@ import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResour
 import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 
 /**
  * Serially fetches Permissions, then FacilityUser. If returned Promise rejects,
@@ -45,6 +46,7 @@ function fetchUserPermissions(userId) {
 export function showUserPermissionsPage(store, userId) {
   const setUserPermissionsState = state => store.commit('userPermissions/SET_STATE', state);
   const stopLoading = () => store.dispatch('notLoading');
+  const { getFacilities } = useFacilities();
 
   // Don't request any data if not an Admin
   const { isSuperuser } = useUser();
@@ -56,7 +58,7 @@ export function showUserPermissionsPage(store, userId) {
 
   const samePage = samePageCheckGenerator(store);
 
-  return Promise.all([fetchUserPermissions(userId), store.dispatch('getFacilities')])
+  return Promise.all([fetchUserPermissions(userId), getFacilities()])
     .then(([data]) => {
       if (samePage()) {
         setUserPermissionsState({ user: data.user, permissions: data.permissions });

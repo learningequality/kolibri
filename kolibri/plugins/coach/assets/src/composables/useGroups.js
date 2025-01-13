@@ -2,12 +2,15 @@ import { ref } from 'vue';
 import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import useUser from 'kolibri/composables/useUser';
 
 // Place outside the function to keep the state
 const groupsAreLoading = ref(false);
 
 export function useGroups() {
+  const { getFacilities, facilities } = useFacilities();
+
   function setGroupsLoading(loading) {
     groupsAreLoading.value = loading;
   }
@@ -15,8 +18,8 @@ export function useGroups() {
   async function showGroupsPage(store, classId) {
     const initClassInfoPromise = store.dispatch('initClassInfo', classId);
     const getFacilitiesPromise =
-      useUser().isSuperuser.value && store.state.core.facilities.length === 0
-        ? store.dispatch('getFacilities').catch(() => {})
+      useUser().isSuperuser.value && facilities.value.length === 0
+        ? getFacilities().catch(() => {})
         : Promise.resolve();
 
     await Promise.all([initClassInfoPromise, getFacilitiesPromise]);

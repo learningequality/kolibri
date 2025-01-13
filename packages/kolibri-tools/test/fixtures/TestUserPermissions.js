@@ -17,6 +17,7 @@ import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResour
 import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import { createTranslator } from 'kolibri/utils/i18n';
 import useUser from 'kolibri/composables/useUser';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 
 const translator = createTranslator('UserPermissionToolbarTitles', {
   loading: 'Loading user permissions…',
@@ -66,7 +67,7 @@ export function showUserPermissionsPage(store, userId) {
   const setAppBarTitle = title => store.commit('coreBase/SET_APP_BAR_TITLE', title);
   const setUserPermissionsState = state => store.commit('userPermissions/SET_STATE', state);
   const stopLoading = () => store.commit('CORE_SET_PAGE_LOADING', false);
-
+  const { getFacilities } = useFacilities();
   // Don't request any data if not an Admin
   if (!useUser().isSuperuser.value) {
     setUserPermissionsState({ user: null, permissions: {} });
@@ -81,7 +82,7 @@ export function showUserPermissionsPage(store, userId) {
   const samePage = samePageCheckGenerator(store);
   let testThing = translator.$tr('invalidUserTitle');
 
-  return Promise.all([fetchUserPermissions(userId), store.dispatch('getFacilities')])
+  return Promise.all([fetchUserPermissions(userId), getFacilities()])
     .then(([data]) => {
       if (samePage()) {
         setAppBarTitle(data.user.full_name);

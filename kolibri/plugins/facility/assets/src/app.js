@@ -3,6 +3,7 @@ import useUser from 'kolibri/composables/useUser';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import router from 'kolibri/router';
 import KolibriApp from 'kolibri-app';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import RootVue from './views/FacilityIndex';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
@@ -19,13 +20,14 @@ class FacilityManagementModule extends KolibriApp {
   }
   ready() {
     const { isLearnerOnlyImport, isSuperuser } = useUser();
+    const { getFacilities, facilities } = useFacilities();
     router.beforeEach((to, from, next) => {
       if (get(isLearnerOnlyImport)) {
         redirectBrowser();
         return;
       }
-      if (get(isSuperuser) && this.store.state.core.facilities.length === 0) {
-        this.store.dispatch('getFacilities').then(next, next);
+      if (get(isSuperuser) && facilities.value.length === 0) {
+        getFacilities().then(next, next);
       } else {
         next();
       }
