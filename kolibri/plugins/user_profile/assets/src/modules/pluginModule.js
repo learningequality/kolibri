@@ -1,4 +1,7 @@
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import profile from './profile';
+
+const { setPageLoading } = useFacilities();
 
 export default {
   state() {
@@ -8,7 +11,7 @@ export default {
   },
   actions: {
     reset(store) {
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      setPageLoading(false);
       store.commit('CORE_SET_ERROR', null);
     },
     resetModuleState(store) {

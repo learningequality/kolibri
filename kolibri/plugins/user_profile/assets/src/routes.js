@@ -1,4 +1,3 @@
-import store from 'kolibri/store';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
@@ -20,10 +19,10 @@ import UsernameExists from './views/ChangeFacility/UsernameExists';
 import MergeDifferentAccounts from './views/ChangeFacility/MergeDifferentAccounts';
 
 function preload(next) {
-  const { getFacilityConfig } = useFacilities();
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  const { getFacilityConfig, setPageLoading } = useFacilities();
+  setPageLoading(true);
   getFacilityConfig().then(() => {
-    store.commit('CORE_SET_PAGE_LOADING', false);
+    setPageLoading(false);
     next();
   });
 }

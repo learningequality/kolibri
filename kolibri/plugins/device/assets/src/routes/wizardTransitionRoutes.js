@@ -1,6 +1,7 @@
 import omit from 'lodash/omit';
 import router from 'kolibri/router';
 import store from 'kolibri/store';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import {
   showAvailableChannelsPage,
   showSelectContentPage,
@@ -11,6 +12,8 @@ import AvailableChannelsPage from '../views/AvailableChannelsPage';
 import SelectContentPage from '../views/SelectContentPage';
 import ManageChannelContentsPage from '../views/ManageContentPage/ManageChannelContentsPage';
 import withAuthMessage from '../views/withAuthMessage';
+
+const { setPageLoading } = useFacilities();
 
 export default [
   {
@@ -31,7 +34,7 @@ export default [
     path: '/content/manage_channel/:channel_id',
     handler: ({ name }) => {
       store.dispatch('preparePage', { name });
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      setPageLoading(false);
     },
   },
   {

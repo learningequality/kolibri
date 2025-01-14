@@ -2,6 +2,7 @@ import { get } from '@vueuse/core';
 import useUser from 'kolibri/composables/useUser';
 import store from 'kolibri/store';
 import router from 'kolibri/router';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { showSignInPage } from './modules/signIn/handlers';
 import { showSignUpPage } from './modules/signUp/handlers';
 import { ComponentMap } from './constants';
@@ -10,6 +11,8 @@ import FacilitySelect from './views/FacilitySelect';
 import SignInPage from './views/SignInPage';
 import SignUpPage from './views/SignUpPage';
 import NewPasswordPage from './views/SignInPage/NewPasswordPage';
+
+const { setPageLoading } = useFacilities();
 
 export default [
   {
@@ -46,7 +49,7 @@ export default [
         next(route);
       } else {
         showSignInPage(store).then(() => {
-          store.commit('CORE_SET_PAGE_LOADING', false);
+          setPageLoading(false);
           next();
         });
       }
@@ -72,7 +75,7 @@ export default [
         next(route);
       } else {
         showSignUpPage(store, from).then(() => {
-          store.commit('CORE_SET_PAGE_LOADING', false);
+          setPageLoading(false);
           next();
         });
       }
@@ -82,7 +85,7 @@ export default [
     path: '/signin-or-signup',
     component: AuthSelect,
     beforeEnter(to, from, next) {
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      setPageLoading(false);
       next();
     },
   },
@@ -90,7 +93,7 @@ export default [
     path: '/set-password',
     component: NewPasswordPage,
     beforeEnter(to, from, next) {
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      setPageLoading(false);
       if (!to.query.facility || !to.query.username) {
         next({ path: '/' });
       } else {
@@ -109,7 +112,7 @@ export default [
     component: FacilitySelect,
     props: true,
     beforeEnter(to, from, next) {
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      setPageLoading(false);
       // This param is required, so return to AuthSelect
       // unless we have it
       if (to.params.whereToNext) {

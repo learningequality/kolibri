@@ -5,6 +5,7 @@ import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator'
 import { TransferTypes } from 'kolibri-common/utils/syncTaskUtils';
 import ContentNodeGranularResource from 'kolibri-common/apiResources/ContentNodeGranularResource';
 import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { ContentWizardPages, ContentWizardErrors } from '../../constants';
 import { manageContentPageLink } from '../../views/ManageContentPage/manageContentLinks';
 import { getAvailableSpaceOnDrive, loadChannelMetadata } from './actions/selectContentActions';
@@ -15,6 +16,8 @@ import {
 import { getChannelWithContentSizes } from './apiChannelMetadata';
 
 const logging = logger.getLogger(__filename);
+
+const { setPageLoading } = useFacilities();
 
 // Utilities for the show*Page actions
 function getSelectedDrive(store, driveId) {
@@ -79,7 +82,7 @@ export function showAvailableChannelsPage(store, params) {
   const transferType = getTransferType(params);
 
   store.commit('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  setPageLoading(true);
   store.commit('manageContent/wizard/RESET_STATE');
 
   if (transferType === null) {
@@ -128,12 +131,12 @@ export function showAvailableChannelsPage(store, params) {
           selectedDrive,
           transferType,
         });
-        store.commit('CORE_SET_PAGE_LOADING', false);
+        setPageLoading(false);
       }
     },
     function onFailure(error) {
       if (shouldResolve()) {
-        store.commit('CORE_SET_PAGE_LOADING', false);
+        setPageLoading(false);
         return handleError(store, error);
       }
     },
@@ -153,7 +156,7 @@ export function showSelectContentPage(store, params) {
 
   store.commit('manageContent/wizard/RESET_STATE');
   store.commit('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  setPageLoading(true);
 
   if (transferType === null) {
     return router.replace(manageContentPageLink());
@@ -244,10 +247,10 @@ export function showSelectContentPage(store, params) {
       });
     })
     .then(() => {
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      setPageLoading(false);
     })
     .catch(error => {
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      setPageLoading(false);
       return handleError(store, error);
     });
 }

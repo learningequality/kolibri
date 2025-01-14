@@ -2,10 +2,13 @@ import pickBy from 'lodash/pickBy';
 import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { _userState } from '../mappers';
 
 export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
   const { id, facility_id } = toRoute.params;
+  const { setPageLoading } = useFacilities();
+
   if (toRoute.name !== fromRoute.name) {
     store.dispatch('preparePage');
   }
@@ -35,7 +38,7 @@ export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
           class: classroom,
           modalShown: false,
         });
-        store.commit('CORE_SET_PAGE_LOADING', false);
+        setPageLoading(false);
       }
     },
     error => {

@@ -1,6 +1,9 @@
 import { getExamReport } from 'kolibri-common/quizzes/utils';
 import router from 'kolibri/router';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { ClassesPageNames } from '../../constants';
+
+const { setPageLoading } = useFacilities();
 
 function getExamReportFromState(state, params) {
   const {
@@ -44,13 +47,13 @@ export function showExamReport(store, params) {
     return;
   }
 
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  setPageLoading(true);
   const examReportPromise = getExamReport(examId, tryIndex, questionNumber, questionInteraction);
   Promise.all([examReportPromise]).then(
     ([examReport]) => {
       store.commit('examReportViewer/SET_STATE', examReport);
       store.commit('CORE_SET_ERROR', null);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      setPageLoading(false);
     },
     () =>
       router.replace({

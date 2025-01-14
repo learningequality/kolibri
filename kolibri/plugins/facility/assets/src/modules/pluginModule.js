@@ -1,6 +1,7 @@
 import find from 'lodash/find';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { pageNameToModuleMap, PageNames } from '../constants';
 import classAssignMembers from './classAssignMembers';
 import classEditManagement from './classEditManagement';
@@ -16,8 +17,9 @@ export default {
   },
   actions: {
     preparePage(store, options = {}) {
+      const { setPageLoading } = useFacilities();
       const { isAsync = true } = options;
-      store.commit('CORE_SET_PAGE_LOADING', isAsync);
+      setPageLoading(isAsync);
       store.commit('CORE_SET_ERROR', null);
     },
     resetModuleState(store, { fromRoute, toRoute }) {

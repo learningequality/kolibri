@@ -4,14 +4,17 @@ import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 import shuffled from 'kolibri-common/utils/shuffled';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
+
+const { setPageLoading } = useFacilities();
 
 export function showExam(store, params, alreadyOnQuiz) {
   const questionNumber = Number(params.questionNumber);
   const { classId, examId } = params;
   if (!alreadyOnQuiz) {
-    store.commit('CORE_SET_PAGE_LOADING', true);
+    setPageLoading(true);
   }
   store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
 
@@ -19,7 +22,7 @@ export function showExam(store, params, alreadyOnQuiz) {
 
   if (!get(currentUserId)) {
     store.commit('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
-    store.commit('CORE_SET_PAGE_LOADING', false);
+    setPageLoading(false);
   } else {
     const promises = [
       LearnerClassroomResource.fetchModel({ id: classId }),
@@ -87,7 +90,7 @@ export function showExam(store, params, alreadyOnQuiz) {
                 questionNumber,
                 questions: allQuestions,
               });
-              store.commit('CORE_SET_PAGE_LOADING', false);
+              setPageLoading(false);
               store.commit('CORE_SET_ERROR', null);
             }
           }),

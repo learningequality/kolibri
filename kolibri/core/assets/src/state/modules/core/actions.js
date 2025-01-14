@@ -19,6 +19,7 @@ import {
   UPDATE_MODAL_DISMISSED,
 } from 'kolibri/constants';
 import { browser, os } from 'kolibri/utils/browserInfo';
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { baseSessionState } from '../session';
 
 const logging = logger.getLogger(__filename);
@@ -36,10 +37,12 @@ const logging = logger.getLogger(__filename);
  * These methods are used to update client-side state
  */
 
+const { setFacilityConfig, setFacilities, setPageLoading } = useFacilities();
+
 export function handleError(store, errorString) {
   logging.debug(errorString);
   store.commit('CORE_SET_ERROR', errorString);
-  store.commit('CORE_SET_PAGE_LOADING', false);
+  setPageLoading(false);
 }
 
 export function clearError(store) {
@@ -163,9 +166,9 @@ export function setPageVisibility(store) {
   _setPageVisibility(store, document.visibilityState === 'visible');
 }
 
-export function getFacilities(store) {
+export function getFacilities() {
   return FacilityResource.fetchCollection({ force: true }).then(facilities => {
-    store.commit('CORE_SET_FACILITIES', [...facilities]);
+    setFacilities([...facilities]);
   });
 }
 
@@ -195,22 +198,22 @@ export function getFacilityConfig(store, facilityId) {
     if (facility) {
       config = { ...facility };
     }
-    store.commit('CORE_SET_FACILITY_CONFIG', config);
+    setFacilityConfig('CORE_SET_FACILITY_CONFIG', config);
   });
 }
 
-export function loading(store) {
+export function loading() {
   return new Promise(resolve => {
-    store.commit('CORE_SET_PAGE_LOADING', true);
+    setPageLoading(true);
     nextTick(() => {
       resolve();
     });
   });
 }
 
-export function notLoading(store) {
+export function notLoading() {
   return new Promise(resolve => {
-    store.commit('CORE_SET_PAGE_LOADING', false);
+    setPageLoading(false);
     nextTick(() => {
       resolve();
     });

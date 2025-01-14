@@ -43,9 +43,10 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
-      const { getFacilities, facilities } = useFacilities();
+      const { getFacilities, facilities, setLoading } = useFacilities();
       return {
         getFacilities,
+        setLoading,
         facilities,
       };
     },
@@ -64,7 +65,7 @@
       Promise.all([initClassInfoPromise, getFacilitiesPromise]);
     },
     mounted() {
-      this.$store.commit('CORE_SET_PAGE_LOADING', false);
+      this.setLoading(false);
     },
     methods: {
       createLesson(payload) {

@@ -191,6 +191,7 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
   import useChannels from 'kolibri-common/composables/useChannels';
+  import { useFacilities } from 'kolibri-common/composables/useFacilities';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
@@ -262,6 +263,7 @@
         clearSearch,
         currentRoute,
       } = useSearch();
+      const { setPageLoading } = useFacilities();
       search();
       const { fetchResumableContentNodes } = useLearnerResources();
 
@@ -316,7 +318,7 @@
                   .filter(Boolean),
               );
 
-              store.commit('CORE_SET_PAGE_LOADING', false);
+              this.setPageLoading(false);
               store.commit('CORE_SET_ERROR', null);
               store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
               set(rootNodesLoading, false);
@@ -347,7 +349,7 @@
           if (searchKeys.some(key => query[key])) {
             // If currently on a route with search terms
             // just finish early and let the component handle loading
-            store.commit('CORE_SET_PAGE_LOADING', false);
+            setPageLoading(false);
             store.commit('CORE_SET_ERROR', null);
             store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
             set(rootNodesLoading, false);
@@ -359,7 +361,7 @@
 
       function showLibrary() {
         set(rootNodesLoading, true);
-        store.commit('CORE_SET_PAGE_LOADING', true);
+        setPageLoading(true);
         if (props.deviceId) {
           return setCurrentDevice(props.deviceId)
             .then(device => {
@@ -413,6 +415,7 @@
         isUserLoggedIn,
         canManageContent,
         isLearnerOnlyImport,
+        setPageLoading,
       };
     },
     props: {

@@ -1,3 +1,4 @@
+import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { pageNameToModuleMap, PageNames, ContentWizardPages } from '../constants';
 import facilityConfig from '../../../../facility/assets/src/modules/facilityConfig';
 import deviceInfo from './deviceInfo';
@@ -43,7 +44,8 @@ export default {
       store.commit('SET_GRANT_PLUGIN_ACCESS', grantAccess);
     },
     preparePage(store, { name, isAsync = true }) {
-      store.commit('CORE_SET_PAGE_LOADING', isAsync);
+      const { setPageLoading } = useFacilities();
+      setPageLoading(isAsync);
       store.commit('SET_PAGE_NAME', name);
       store.commit('CORE_SET_ERROR', null);
     },

@@ -17,7 +17,7 @@ export default {
   },
   actions: {
     reset(store) {
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      facilitiesComposable.setPageLoading(false);
       store.commit('CORE_SET_ERROR', null);
     },
     setFacilitiesAndConfig(store) {
