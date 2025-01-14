@@ -22,7 +22,7 @@ export default {
     },
     setFacilitiesAndConfig(store) {
       return facilitiesComposable.getFacilities().then(() => {
-        return store.dispatch('getFacilityConfig', store.getters.selectedFacility.id);
+        return facilitiesComposable.getFacilityConfig(store.getters.selectedFacility.id);
       });
     },
     resetModuleState(store, { toRoute, fromRoute }) {
@@ -36,7 +36,7 @@ export default {
     },
     setFacilityId(store, { facilityId }) {
       store.commit('SET_FACILITY_ID', facilityId);
-      return store.dispatch('getFacilityConfig', facilityId);
+      return facilitiesComposable.getFacilityConfig(facilityId);
     },
   },
   getters: {

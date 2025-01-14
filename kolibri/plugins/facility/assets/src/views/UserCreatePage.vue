@@ -124,7 +124,7 @@
 <script>
 
   import every from 'lodash/every';
-  import { mapState, mapGetters, mapActions } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import { UserKinds, ERROR_CONSTANTS, DemographicConstants } from 'kolibri/constants';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
@@ -135,6 +135,7 @@
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
+  import { useFacilities } from 'kolibri-common/composables/useFacilities';
   import IdentifierTextbox from './IdentifierTextbox';
 
   const { NOT_SPECIFIED } = DemographicConstants;
@@ -157,6 +158,10 @@
       ExtraDemographics,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { getFacilityConfig } = useFacilities();
+      return { getFacilityConfig };
+    },
     data() {
       return {
         fullName: '',
@@ -226,7 +231,6 @@
       });
     },
     methods: {
-      ...mapActions(['getFacilityConfig']),
       goToUserManagementPage(onComplete) {
         this.$router.push(this.$store.getters.facilityPageLinks.UserPage, onComplete);
       },

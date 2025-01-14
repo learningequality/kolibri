@@ -139,7 +139,7 @@
   import pickBy from 'lodash/pickBy';
   import UserType from 'kolibri-common/utils/userType';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import { mapActions, mapState, mapGetters } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import urls from 'kolibri/urls';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri/constants';
   import CatchErrors from 'kolibri/utils/CatchErrors';
@@ -153,6 +153,7 @@
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { useFacilities } from 'kolibri-common/composables/useFacilities';
   import IdentifierTextbox from './IdentifierTextbox';
 
   export default {
@@ -176,10 +177,11 @@
     setup() {
       const { createSnackbar } = useSnackbar();
       const { currentUserId } = useUser();
-
+      const { getFacilityConfig } = useFacilities();
       return {
         createSnackbar,
         currentUserId,
+        getFacilityConfig,
       };
     },
     data() {
@@ -284,7 +286,6 @@
         });
     },
     methods: {
-      ...mapActions(['getFacilityConfig']),
       setKind(user) {
         this.kind = UserType(user);
         const coachOption = this.userTypeOptions[1];
