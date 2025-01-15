@@ -273,6 +273,7 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
   import useChannels from 'kolibri-common/composables/useChannels';
+  import { useFacilities } from 'kolibri-common/composables/useFacilities';
   import { PageNames } from '../../constants';
   import useSearch from '../../composables/useSearch';
   import useContentLink from '../../composables/useContentLink';
@@ -377,6 +378,7 @@
       const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
       const { isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
       const { fetchUserDownloadRequests } = useDownloadRequests(store);
+      const { SetError } = useFacilities();
 
       const isRoot = ref(false);
       const channel = ref(null);
@@ -481,7 +483,7 @@
             set(loading, false);
 
             store.dispatch('notLoading');
-            store.commit('CORE_SET_ERROR', null);
+            SetError(null);
           }
         });
       }

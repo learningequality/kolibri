@@ -175,6 +175,7 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useChannels from 'kolibri-common/composables/useChannels';
   import SkipNavigationLink from 'kolibri/components/SkipNavigationLink';
+  import { useFacilities } from 'kolibri-common/composables/useFacilities';
   import { PageNames, ClassesPageNames } from '../constants';
   import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
@@ -244,6 +245,7 @@
       } = useDownloadRequests();
       const deviceFormTranslator = crossComponentTranslator(AddDeviceForm);
       const { currentUserId, isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
+      const { setError } = useFacilities();
 
       const channel = ref(null);
       const content = ref(null);
@@ -265,7 +267,7 @@
               set(channel, currentChannel);
               set(content, fetchedContent);
               set(loading, false);
-              store.commit('CORE_SET_ERROR', null);
+              setError(null);
             }
           },
           error => {

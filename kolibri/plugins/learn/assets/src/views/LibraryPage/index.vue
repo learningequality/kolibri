@@ -263,7 +263,7 @@
         clearSearch,
         currentRoute,
       } = useSearch();
-      const { setPageLoading } = useFacilities();
+      const { setPageLoading, setError } = useFacilities();
       search();
       const { fetchResumableContentNodes } = useLearnerResources();
 
@@ -318,8 +318,8 @@
                   .filter(Boolean),
               );
 
-              this.setPageLoading(false);
-              store.commit('CORE_SET_ERROR', null);
+              setPageLoading(false);
+              setError(null);
               store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
               set(rootNodesLoading, false);
             }
@@ -350,7 +350,7 @@
             // If currently on a route with search terms
             // just finish early and let the component handle loading
             setPageLoading(false);
-            store.commit('CORE_SET_ERROR', null);
+            setError(null);
             store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
             set(rootNodesLoading, false);
             return Promise.resolve();
@@ -415,7 +415,6 @@
         isUserLoggedIn,
         canManageContent,
         isLearnerOnlyImport,
-        setPageLoading,
       };
     },
     props: {

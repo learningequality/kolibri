@@ -16,9 +16,9 @@ export default {
     };
   },
   actions: {
-    reset(store) {
+    reset() {
       facilitiesComposable.setPageLoading(false);
-      store.commit('CORE_SET_ERROR', null);
+      facilitiesComposable.setError(null);
     },
     setFacilitiesAndConfig(store) {
       return facilitiesComposable.getFacilities().then(() => {

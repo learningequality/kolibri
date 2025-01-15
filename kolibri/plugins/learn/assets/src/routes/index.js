@@ -16,7 +16,7 @@ import classesRoutes from './classesRoutes';
 
 const { channelsMap, fetchChannels } = useChannels();
 const { isUserLoggedIn } = useUser();
-const { setPageLoading } = useFacilities();
+const { setPageLoading, setError } = useFacilities();
 
 function unassignedContentGuard(next) {
   const { canAccessUnassignedContent } = store.getters;
@@ -84,7 +84,7 @@ export default [
     handler: () => {
       store.commit('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
       setPageLoading(false);
-      store.commit('CORE_SET_ERROR', null);
+      setError(null);
     },
     component: ContentUnavailablePage,
   },

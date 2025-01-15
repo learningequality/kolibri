@@ -44,10 +44,10 @@ export default {
       store.commit('SET_GRANT_PLUGIN_ACCESS', grantAccess);
     },
     preparePage(store, { name, isAsync = true }) {
-      const { setPageLoading } = useFacilities();
+      const { setPageLoading, setError } = useFacilities();
       setPageLoading(isAsync);
       store.commit('SET_PAGE_NAME', name);
-      store.commit('CORE_SET_ERROR', null);
+      setError(null);
     },
     resetModuleState(store, { toRoute, fromRoute }) {
       // Don't reset when going to available channels page

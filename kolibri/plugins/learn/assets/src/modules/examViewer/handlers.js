@@ -8,7 +8,7 @@ import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
 
-const { setPageLoading } = useFacilities();
+const { setPageLoading, setError } = useFacilities();
 
 export function showExam(store, params, alreadyOnQuiz) {
   const questionNumber = Number(params.questionNumber);
@@ -21,7 +21,7 @@ export function showExam(store, params, alreadyOnQuiz) {
   const { currentUserId } = useUser();
 
   if (!get(currentUserId)) {
-    store.commit('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
+    setError('You must be logged in as a learner to view this page');
     setPageLoading(false);
   } else {
     const promises = [
@@ -91,7 +91,7 @@ export function showExam(store, params, alreadyOnQuiz) {
                 questions: allQuestions,
               });
               setPageLoading(false);
-              store.commit('CORE_SET_ERROR', null);
+              setError(null);
             }
           }),
             error => {

@@ -16,11 +16,11 @@ export default {
     return {};
   },
   actions: {
-    preparePage(store, options = {}) {
-      const { setPageLoading } = useFacilities();
+    preparePage(options = {}) {
+      const { setPageLoading, setError } = useFacilities();
       const { isAsync = true } = options;
       setPageLoading(isAsync);
-      store.commit('CORE_SET_ERROR', null);
+      setError(null);
     },
     resetModuleState(store, { fromRoute, toRoute }) {
       const moduleName = pageNameToModuleMap[fromRoute.name];

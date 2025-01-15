@@ -3,7 +3,7 @@ import router from 'kolibri/router';
 import { useFacilities } from 'kolibri-common/composables/useFacilities';
 import { ClassesPageNames } from '../../constants';
 
-const { setPageLoading } = useFacilities();
+const { setPageLoading, setError } = useFacilities();
 
 function getExamReportFromState(state, params) {
   const {
@@ -43,7 +43,7 @@ export function showExamReport(store, params) {
   const examReportFromState = getExamReportFromState(store.state, params);
   if (examReportFromState) {
     store.commit('examReportViewer/SET_STATE', examReportFromState);
-    store.commit('CORE_SET_ERROR', null);
+    setError(null);
     return;
   }
 
@@ -52,7 +52,7 @@ export function showExamReport(store, params) {
   Promise.all([examReportPromise]).then(
     ([examReport]) => {
       store.commit('examReportViewer/SET_STATE', examReport);
-      store.commit('CORE_SET_ERROR', null);
+      setError(null);
       setPageLoading(false);
     },
     () =>

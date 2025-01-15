@@ -70,6 +70,7 @@
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import { useFacilities } from 'kolibri-common/composables/useFacilities';
   import DeviceChannelResource from '../apiResources/deviceChannel';
   import useContentTasks from '../composables/useContentTasks';
   import { PageNames } from '../constants';
@@ -93,12 +94,14 @@
       const { canManageContent } = useUser();
       const { createSnackbar } = useSnackbar();
       const { moveChannelUpLabel$, moveChannelDownLabel$ } = searchAndFilterStrings;
+      const { setError } = useFacilities();
 
       return {
         canManageContent,
         createSnackbar,
         moveChannelUpLabel$,
         moveChannelDownLabel$,
+        setError,
       };
     },
     data() {
@@ -129,7 +132,7 @@
           this.loading = false;
         })
         .catch(error => {
-          this.$store.dispatch('CORE_SET_ERROR', error);
+          this.setError(error);
         });
     },
     methods: {

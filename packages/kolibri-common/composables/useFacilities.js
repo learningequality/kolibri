@@ -111,7 +111,8 @@ export function useFacilities() {
     state.notifications = state.notifications.filter(obj => obj.id !== notification_id);
   }
 
-  function setPageVisibility(state, visibility) {
+  // fucntion name voilating camelCase as other functions with same name already exist
+  function setpageVisibility(state, visibility) {
     state.pageVisibility = visibility;
   }
 
@@ -129,6 +130,6 @@ export function useFacilities() {
     setError,
     setNotification,
     removeNotification,
-    setPageVisibility,
+    setpageVisibility,
   };
 }

@@ -37,16 +37,17 @@ const logging = logger.getLogger(__filename);
  * These methods are used to update client-side state
  */
 
-const { setFacilityConfig, setFacilities, setPageLoading } = useFacilities();
+const { setFacilityConfig, setFacilities, setPageLoading, setError, setpageVisibility } =
+  useFacilities();
 
-export function handleError(store, errorString) {
+export function handleError(errorString) {
   logging.debug(errorString);
-  store.commit('CORE_SET_ERROR', errorString);
+  setError(errorString);
   setPageLoading(false);
 }
 
-export function clearError(store) {
-  store.commit('CORE_SET_ERROR', null);
+export function clearError() {
+  setError(null);
 }
 
 export function handleApiError(store, { error, reloadOnReconnect = false } = {}) {
@@ -159,7 +160,7 @@ export function kolibriLogout() {
 }
 
 const _setPageVisibility = debounce((store, visibility) => {
-  store.commit('CORE_SET_PAGE_VISIBILITY', visibility);
+  setpageVisibility(visibility);
 }, 500);
 
 export function setPageVisibility(store) {
