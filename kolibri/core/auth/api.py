@@ -1047,22 +1047,14 @@ class SessionViewSet(viewsets.ViewSet):
         if isinstance(user, AnonymousUser):
             response = Response(session)
             try:
-                existing_visitor_id = request.COOKIES.get("visitor_id")
-                if existing_visitor_id:
-                    UUID(existing_visitor_id, version=4)
-                    response.set_cookie(
-                        "visitor_id", existing_visitor_id, expires=visitor_cookie_expiry
-                    )
+                visitor_id = request.COOKIES.get("visitor_id")
+                if visitor_id:
+                    UUID(visitor_id, version=4) 
                 else:
-                    visitor_id = str(uuid4().hex)
-                    response.set_cookie(
-                        "visitor_id", visitor_id, expires=visitor_cookie_expiry
-                    )
+                    raise ValueError  
             except (ValueError, TypeError):
-                visitor_id = str(uuid4().hex)
-                response.set_cookie(
-                    "visitor_id", visitor_id, expires=visitor_cookie_expiry
-                )
+                visitor_id = uuid4().hex  
+            response.set_cookie("visitor_id", visitor_id, expires=visitor_cookie_expiry)
             return response
         # Set last activity on session to the current time to prevent session timeout
         # Only do this for logged in users, as anonymous users cannot get logged out!
