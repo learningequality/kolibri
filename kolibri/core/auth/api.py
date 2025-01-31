@@ -1049,11 +1049,11 @@ class SessionViewSet(viewsets.ViewSet):
             try:
                 visitor_id = request.COOKIES.get("visitor_id")
                 if visitor_id:
-                    UUID(visitor_id, version=4) 
+                    UUID(visitor_id, version=4)
                 else:
-                    raise ValueError  
+                    raise ValueError
             except (ValueError, TypeError):
-                visitor_id = uuid4().hex  
+                visitor_id = uuid4().hex
             response.set_cookie("visitor_id", visitor_id, expires=visitor_cookie_expiry)
             return response
         # Set last activity on session to the current time to prevent session timeout
