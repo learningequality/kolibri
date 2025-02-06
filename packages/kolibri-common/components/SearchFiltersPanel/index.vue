@@ -149,13 +149,16 @@
       size="large"
       @cancel="currentCategory = null"
     >
-      <CategorySearchModal
-        v-if="currentCategory"
-        ref="searchModal"
-        :class="windowIsLarge ? '' : 'drawer-panel'"
-        :selectedCategory="currentCategory"
-        @input="selectCategory"
-      />
+    <CategorySearchModal
+  v-if="currentCategory"
+  ref="searchModal"
+  :class="windowIsLarge ? '' : 'drawer-panel'"
+  :selectedCategory="currentCategory"
+  @input="selectCategory"
+/>
+<div v-if="currentCategory">
+  <p>Current Category Value: {{ currentCategory }}</p>
+</div>
     </component>
   </section>
 
@@ -379,20 +382,14 @@
           this.$emit('input', { ...this.value, categories });
         }
       },
+      
+      
       handleCategory(category) {
-        // for categories with sub-categories, open the modal
-        if (
-          this.availableLibraryCategories[category] &&
-          this.availableLibraryCategories[category].nested &&
-          Object.keys(this.availableLibraryCategories[category].nested).length > 0
-        ) {
-          this.currentCategory = category;
-        }
-        // for valid categories with no subcategories, search directly
-        else if (this.availableLibraryCategories[category]) {
-          this.setCategory(this.availableLibraryCategories[category].value);
-        }
-      },
+  this.currentCategory = category; // Always set currentCategory
+  console.log("currentCategory:", this.currentCategory); // Debugging log
+  console.log("availableLibraryCategories:", this.availableLibraryCategories); // Log all category data
+  console.log("availableLibraryCategories[category]:", this.availableLibraryCategories[category]); // Log data for clicked category
+},
       selectCategory(category) {
         this.setCategory(category);
         this.currentCategory = null;
@@ -496,5 +493,36 @@
   .categoryButton:not(:last-child) {
     margin-bottom: 0.5em;
   }
+
+  /* Make sure the modal is visible */
+.category-search-modal { /* Or whatever class is applied to your modal */
+  display: block; /* Or inline-block */
+  visibility: visible;
+}
+
+/* Ensure proper positioning within the side panel */
+.side-panel-container { /* Replace with the actual class of your side panel container */
+  position: relative; /* Or absolute, depending on your layout */
+}
+
+.category-search-modal {
+  position: absolute; /* Or fixed, if needed */
+  top: 0;
+  left: 0;
+  width: 100%; /* Or a specific width */
+  height: auto; /* Or a specific height */
+  z-index: 1000; /* Or a higher value if needed */
+}
+
+/* Adjust styles for the side panel view */
+.drawer-panel .category-search-modal {  /* Target the modal within the side panel */
+  width: 100%; /* Or a specific width for the side panel */
+  /* Add other necessary styles for the side panel */
+}
+
+/* Remove any overflow hidden that might be clipping the content */
+.side-panel-container {
+  overflow: visible; /* Or auto, if scrolling is needed */
+}
 
 </style>
