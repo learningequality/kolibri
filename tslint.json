@@ -1,0 +1,32 @@
+{
+    "rules": {
+        "member-access": true,
+        "jsx-no-lambda": false, // this might cost us in rendering performance, could revisit someday
+        "no-var-keyword": {
+            "severity": "warning"
+        },
+        "prefer-const": {
+            "severity": "warning"
+        },
+        "only-arrow-functions": {
+            "options": "allow-declarations",
+            "severity": "error"
+        },
+        "no-empty": false,
+        "no-implicit-dependencies": false,
+        "ordered-imports": false,
+        "object-literal-sort-keys": false,
+        "no-var-requires": false,
+        "no-console": false,
+        "comment-format": false,
+        "member-ordering": false,
+        "no-string-literal": false,
+        "prefer-for-of": false // often demands for-of when collection is not an array so it won't work
+    },
+    "extends": [
+        "tslint:latest",
+        "tslint-react",
+        // leave formatting to prettier
+        "tslint-config-prettier"
+    ]
+}

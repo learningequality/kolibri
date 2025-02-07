@@ -1,0 +1,481 @@
+/*
+ These rules style the bloom-player UI itself.
+
+ Do not include rules which modify the book content here.
+ Those belong in bloom-player-content.less. Or better yet, in the book.
+*/
+
+@hoverNextPrevButtonBar: #cbcbcb;
+@disabledButton: darkgray; // #a9a9a9
+
+@bloomGrey: #2e2e2e; // also defined in bloomPlayerTheme.ts
+@bloomRed: #d65649; // also defined in bloomPlayerTheme.ts
+
+/* Don't show outlines on the next/previous buttons. */
+/* When all the rules were in one .less file, this was labeled as ensuring
+   that old books which didn't strip tabindex wouldn't get unwanted borders on
+   text fields. So when I split out the files, I relegated it to bloom-player-pre-appearance-system-book.less.
+   But that actually caused a UI regression (BL-13590). I'm putting it back here the way
+   it was originally in case there is another scenario this was being applied to inadvertently.
+   But, in theory, this rule should really be written more specifically to apply only to the elements that need it. */
+*[tabindex]:focus {
+    outline: none;
+}
+
+/* The rules in the book reset this counter at the body level, but since we scope our
+rules to apply at a lower level, that rule doesn't work. We need to reset at a level
+above the page so that page numbers will increment.*/
+.pageSlider {
+    counter-reset: pageNumber;
+}
+
+// The player is hidden until it is scaled. Note that we want to make measurements
+// of its original size, so it has to be present in the DOM, just not showing on the screen.
+.hidePlayer {
+    visibility: hidden;
+}
+
+/* the default positioning of these dots is inside the page area, but our pages overlap them.
+Also, if there are more than will fit on a line, some drop outside the control altogether.
+We just make them follow the main content normally. */
+.bloomPlayer .slick-dots {
+    position: relative;
+    bottom: initial;
+}
+
+@button-radius: 2mm;
+
+// using the ID for greater specificity than material-ui rules
+#control-bar {
+    .filler {
+        flex-grow: 1;
+    }
+    transition: margin-top 0.3s;
+    &.visible {
+        margin-top: 0;
+    }
+
+    // The React/Material UI libraries we're using overlay the toolbar on top of our view.
+    // But we want to conditionally make the book fully visible, hiding the app bar with the appearance of sliding it up.
+    // To achieve this we give the bar a negative top margin which matches its height.
+    // It needs to be responsive in the same way as the toolbar height rules.
+    // These rules are derived from the compiled MaterialUI ones for toolbar minHeight.
+    margin-top: -56px;
+    @media (min-width: 0px) and (orientation: landscape) {
+        margin-top: -48px;
+    }
+    @media (min-width: 600px) {
+        margin-top: -64px;
+    }
+}
+
+// We need these outer conditions for specificity
+.bloomPlayer {
+    // these buttons are positioned relative to the slider, our preview.
+    // Usually the buttons are outside the slider, just touching it; but this
+    // takes them outside our phone's display. This puts them just inside it.
+    .swiper-button-right {
+        border-radius: @button-radius 0 0 @button-radius;
+        // The white icons (hover) were produced from artwork/page right icon.svg by
+        // - saving in inkscape as plain svg,
+        // - open in text editor
+        // - copy svg to https://yoksel.github.io/url-encoder/
+        // - copy 'ready for CSS' output here
+        // I've also checked in grey versions of the icon files.
+        // That icon file was in turn produced by tracing over the one Readium
+        // produces, which comes from a special font called glyphicons-halflings.
+        // Embedding the SVG like this bypasses all the complications of making
+        // the build system put the svg file where we can find it, for all the
+        // clients of bloom-player, and saves a server round trip to boot.
+        // background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' id='svg8' version='1.1' viewBox='0 0 27.970858 38.994908' height='38.994907mm' width='27.970858mm'%3E%3Cdefs id='defs2' /%3E%3Cmetadata id='metadata5'%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E%3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E%3Cdc:title%3E%3C/dc:title%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Cg transform='translate(-141.18819,-97.448151)' id='layer1'%3E%3Cpath id='path828' d='m 149.59443,97.63443 -7.81763,7.81763 11.02487,11.42578 -11.42577,11.09168 8.15171,8.28536 19.44386,-19.5775 z' style='fill:%23b2b2b2;stroke:%23b2b2b2;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1' /%3E%3C/g%3E%3C/svg%3E%0A");
+        // &:hover {
+        //     background-image: url("data:image/svg+xml,%3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' id='svg8' version='1.1' viewBox='0 0 27.970858 38.994908' height='38.994907mm' width='27.970858mm'%3E%3Cdefs id='defs2' /%3E%3Cmetadata id='metadata5'%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E%3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E%3Cdc:title%3E%3C/dc:title%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Cg transform='translate(-141.18819,-97.448151)' id='layer1'%3E%3Cpath id='path828' d='m 149.59443,97.63443 -7.81763,7.81763 11.02487,11.42578 -11.42577,11.09168 8.15171,8.28536 19.44386,-19.5775 z' style='fill:%23ffffff;stroke:%23ffffff;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1' /%3E%3C/g%3E%3C/svg%3E");
+        // }
+    }
+    .swiper-button-left {
+        // curved on right, flush on left.
+        border-radius: 0 @button-radius @button-radius 0;
+        // Not quite sure why this is needed on the left button and not the right;
+        // possibly the scroller has it before the actual page where the right button
+        // is after it, and by default this puts it behind. Anyway, this allows all
+        // of it to be seen, even when over the preview.
+        z-index: 1;
+        // See comment on swiper-button-next above
+        // background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' id='svg8' version='1.1' viewBox='0 0 27.970858 38.994908' height='38.994907mm' width='27.970858mm'%3E%3Cdefs id='defs2' /%3E%3Cmetadata id='metadata5'%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E%3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E%3Cdc:title%3E%3C/dc:title%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Cg transform='translate(-141.18819,-97.448151)' id='layer1'%3E%3Cpath id='path828' d='m 160.75281,97.63443 7.81763,7.81763 -11.02487,11.42578 11.42577,11.09168 -8.15171,8.28536 -19.44386,-19.5775 z' style='fill:%23b2b2b2;fill-opacity:1;stroke:%23b2b2b2;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /%3E%3C/g%3E%3C/svg%3E%0A");
+        // &:hover {
+        //     background-image: url("data:image/svg+xml,%3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' id='svg8' version='1.1' viewBox='0 0 27.970858 38.994908' height='38.994907mm' width='27.970858mm'%3E%3Cdefs id='defs2' /%3E%3Cmetadata id='metadata5'%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E%3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E%3Cdc:title%3E%3C/dc:title%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Cg transform='translate(-141.18819,-97.448151)' id='layer1'%3E%3Cpath id='path828' d='m 160.75281,97.63443 7.81763,7.81763 -11.02487,11.42578 11.42577,11.09168 -8.15171,8.28536 -19.44386,-19.5775 z' style='fill:%23ffffff;fill-opacity:1;stroke:%23ffffff;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /%3E%3C/g%3E%3C/svg%3E");
+        // }
+    }
+    .swiper-button-next,
+    .swiper-button-prev {
+        height: 25%;
+        top: 37.5%; // height at 25% leaves 75% spacing, half of that is 37.5%
+        margin-top: unset; // defeat Swiper's own positioning that would throw ours off
+        background-color: transparent; // except when hovering, see below.
+        // This makes the grey buttons, which are all you can see when not hovering,
+        // quite faint, allowing all the page content to be seen through them,
+        // when not hovered over; yet there is some hint of something to click.
+        opacity: 0.6;
+        // the actual background-url is set in blocks not shared by next/prev
+        background-repeat: no-repeat;
+        background-size: 4mm;
+        background-position: center;
+        background-image: none; // removes swiper default; we use a font character in :before
+        &:hover {
+            opacity: 0.9;
+            background-color: @hoverNextPrevButtonBar;
+            button {
+                color: @hoverNextPrevButtonBar;
+            }
+        }
+        button {
+            position: relative;
+            // This is the calc. for .largeOutsideButtons; see under :not(.largeOutsideButtons) below for other calc.
+            //   These are both MaterialUI things we don't control, otherwise I'd make them variables.
+            //   12px = 1/2 of MuiIconButton-root padding; 0.5em = 1/2 of MuiSvgIcon-root height
+            top: calc(50% - 12px - 0.5em);
+            margin: 0 auto;
+            display: block;
+            color: @hoverNextPrevButtonBar;
+            background-color: @bloomRed;
+        }
+        &.swiper-button-disabled {
+            display: none;
+        }
+    }
+}
+
+.bloomPlayer.smallOutsideButtons,
+.bloomPlayer.largeOutsideButtons {
+    .swiper-button-right {
+        // curved on right, flush on left.
+        border-radius: 0 @button-radius @button-radius 0;
+    }
+    .swiper-button-left {
+        // curved on left, flush on right.
+        border-radius: @button-radius 0 0 @button-radius;
+    }
+    .swiper-button-next,
+    .swiper-button-prev {
+        button {
+            color: @bloomGrey;
+        }
+        &:hover {
+            button {
+                color: @hoverNextPrevButtonBar;
+            }
+        }
+    }
+}
+
+@smallButtonSize: 0.8em;
+.bloomPlayer:not(.largeOutsideButtons) {
+    .swiper-button-right {
+        right: 0;
+        button {
+            padding-left: 2px;
+        }
+    }
+    .swiper-button-left {
+        left: 0;
+        button {
+            padding-right: 2px;
+        }
+    }
+    .nav-button {
+        padding: 1px 0px 1px 0px;
+        svg {
+            width: @smallButtonSize;
+            height: @smallButtonSize;
+        }
+        top: calc(50% - @smallButtonSize / 2);
+    }
+}
+
+// should match that defined in bloom-player-controls.tsx
+@smallNavigationButtonWidth: 30px;
+@largeNavigationButtonWidth: 100px;
+@nonHoveredNavigationButtonOpacity: 0.5;
+
+.bloomPlayer.smallOutsideButtons {
+    .swiper-button-next,
+    .swiper-button-prev {
+        width: @smallNavigationButtonWidth;
+    }
+    .swiper-button-right {
+        right: -1 * @smallNavigationButtonWidth;
+    }
+    .swiper-button-left {
+        left: -1 * @smallNavigationButtonWidth;
+    }
+}
+.bloomPlayer.largeOutsideButtons {
+    .swiper-button-next,
+    .swiper-button-prev {
+        width: @largeNavigationButtonWidth;
+    }
+    .swiper-button-right {
+        right: -1 * @largeNavigationButtonWidth;
+    }
+    .swiper-button-left {
+        left: -1 * @largeNavigationButtonWidth;
+    }
+}
+
+// On devices where default pointing is coarse (touchscreens: phones, tablets),
+// hide the buttons completely.  Users will naturally expect to page by dragging.
+@media (pointer: coarse) {
+    // We need these outer conditions for specificity
+    .bloomPlayer {
+        .swiper-button-next,
+        .swiper-button-prev {
+            visibility: hidden;
+        }
+    }
+    .bloomPlayer.showNavigationButtonsEvenOnTouchDevices {
+        .swiper-button-next,
+        .swiper-button-prev {
+            visibility: visible;
+        }
+        // If we need the buttons, we are back to possibly needing extra scaling
+        // to have room for them. See above and search for extraScalingForChrome85Bug.
+        &.extraScalingForChrome85Bug {
+            .swiper-container {
+                transform: scale(1);
+            }
+        }
+    }
+}
+
+// I positioned this absolutely so that, although we allow space for it when computing the
+// overall zoom factor for the main page slider, it doesn't otherwise affect the positioning
+// of everything, which is quite complex. Also, this will work even if we later decide that
+// in some or all circumstances we'd like to allow it to overlap the page (in whole or in part).
+// A futher advantage is that it is all the way at the bottom, even when we have plenty of
+// vertical space.
+// The width and left values are designed to make it line up with the buttons in the navigation
+// bar. The visible position of the outermost buttons is determined by 12 pixels of padding
+// in an individual button plus a variable padding on the whole navigation bar that is configured
+// by the MuiToolbar-gutters, which is responsive. So we give this element the same class to
+// make it responsive in the same way. Then we just need another 12 pixels on each side to account
+// for the button padding.
+#pageNumberControl {
+    box-sizing: border-box;
+    position: absolute;
+    height: 68px;
+    padding-top: 33px;
+    width: calc(100% - 24px);
+    bottom: 0;
+    left: 12px;
+    z-index: 1;
+}
+
+.bigButtonOverlay {
+    position: absolute;
+    // Did a lot of fiddling here to try to get the button centered,
+    // large, and scaling with the book. I have not yet succeeded
+    // in getting the hover shadow to be circular, but decided not
+    // to focus on the problem as JohnH is likely to want to tweak
+    // things anyway. If you mess with this, make sure things work
+    // in landscape as well as portrait and with black bars on
+    // the top as well as the sides and with a very short, wide
+    // viewport.
+    top: 10%;
+    left: 10%;
+    bottom: 10%;
+    right: 10%;
+    padding-top: 48px; // same as control bar
+    display: flex;
+    z-index: 2;
+    justify-content: center;
+    justify-items: center;
+    // pass through clicks outside the actual play icon (e.g., on next page button)
+    pointer-events: none;
+    svg {
+        width: 80%;
+        height: 80%;
+        opacity: 0.5;
+        // But the actual icon wants them
+        pointer-events: all;
+    }
+    button {
+        width: 80%;
+    }
+    .MuiIconButton-label {
+        // without this the icon can overflow vertically, with the button bigger than parent.
+        // But this makes the shadow very tall in some situations.
+        // Seems like max-height should work, but although it produces a .MuiIconButton-label
+        // element which is the same height as using height:, the icon grows vertically as
+        // if the label were much larger, despite being set to preserveAspectRatio="xMidYMid meet"
+        height: 100%;
+    }
+}
+// This covers the whole page and dims it, to make the bigButtonOverlay more conspicuous.
+.behindBigButtonOverlay {
+    position: absolute;
+    top: 48px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    background-color: black;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.bloomPlayer.hideNextPrevButtons {
+    .swiper-button-next,
+    .swiper-button-prev {
+        display: none;
+    }
+}
+
+// These two override rules I can't find that I think must be in Swiper itself
+// somewhere and which mess things up in RTL mode.
+.bloomPlayer .swiper-button-prev.swiper-button-right {
+    left: unset !important;
+}
+
+.bloomPlayer .swiper-button-next.swiper-button-left {
+    right: unset !important;
+}
+
+.reactRoot {
+    height: 100%;
+    // The natural thing to do here would be width:100%, which is what we want.
+    // But IOS browsers mess this up on IOS 10-12 (BL-9296). This trick
+    // (thanks to https://stackoverflow.com/questions/23083462/how-to-get-an-iframe-to-be-responsive-in-ios-safari)
+    // works around it.
+    width: 1px;
+    min-width: 100%;
+    *width: 100%; // IE6
+}
+
+.control-bar .button.disabled {
+    color: @disabledButton;
+}
+
+.languageMenu .radioGroup {
+    flex: 1;
+    padding: 20px;
+    .radioGroupDiv {
+        flex: 1;
+        flex-direction: column;
+        .chooserItem {
+            display: flex;
+            flex-direction: row;
+            .spacer {
+                flex-grow: 1; // pushes the audio icon to the right
+            }
+            .icon {
+                align-self: center; // aligns the audio icon vertically
+            }
+            // ensure the radio check is inside the circle (BL-7960)
+            .MuiRadio-root svg {
+                left: 0; // aligns radio button check dot horizontally in ff45
+            }
+        }
+    }
+}
+
+html {
+    height: 100%;
+}
+
+body,
+#root {
+    // bloom pages have their own margins, we don't need the browser's
+    margin: 0;
+    // Scaling things down has an odd effect where the browser thinks it needs a scroll range
+    // big enough for the original, unscaled size. Since we're shrinking the page to fit,
+    // we never need a scroll bar. This prevents it.
+    height: 100%;
+    overflow: hidden;
+    background-color: @bloomGrey;
+}
+
+.loadingSpinner {
+    display: block !important;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+}
+
+.loadFailedIcon {
+    height: 100px !important;
+    width: 100px !important;
+    display: block !important;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+}
+
+.loadErrorMessage {
+    color: @bloomRed;
+    text-align: center;
+    margin-top: 20px;
+    font-family: roboto, sans;
+    font-size: 16pt;
+}
+.errorDetails {
+    font-size: 9pt;
+    word-wrap: break-word; // error details may contain a very long URL with no spaces; we want to see all of it.
+}
+
+// Hide the native play/pause button on Android.
+// Otherwise, it becomes redundant with the replay button we add ourselves.
+// See BL-12299.
+video::-webkit-media-controls-overlay-play-button {
+    display: none;
+}
+
+@videoIconSize: 30px;
+@videoIconPadding: 0px;
+
+div.videoControlContainer {
+    position: absolute;
+    top: calc(50% - @videoIconSize / 2);
+    height: @videoIconSize + 2 * @videoIconPadding;
+    width: @videoIconSize + 2 * @videoIconPadding;
+    padding: @videoIconPadding;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    box-sizing: border-box;
+    justify-content: center;
+    align-items: center;
+    display: none;
+}
+
+svg.videoControl {
+    height: @videoIconSize;
+}
+
+// never shown at the same time, so same location is fine.
+.videoPlayIcon,
+.videoPauseIcon {
+    left: calc(50% - @videoIconSize - 5px); // always the left of two icons
+}
+
+.videoReplayIcon {
+    left: calc(50% + 5px); // always the right of two icons
+}
+
+// Show play and replay when paused
+.bloom-videoContainer.paused {
+    .videoControlContainer {
+        &.videoPlayIcon,
+        &.videoReplayIcon {
+            display: flex;
+        }
+    }
+}
+
+// Show pause and replay when playing and hovered.
+.bloom-videoContainer.playing:hover {
+    .videoControlContainer {
+        &.videoPauseIcon,
+        &.videoReplayIcon {
+            display: flex;
+        }
+    }
+}

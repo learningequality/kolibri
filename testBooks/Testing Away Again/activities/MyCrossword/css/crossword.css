@@ -1,0 +1,299 @@
+#crossword {
+  position: absolute; 
+}
+
+#shadow { 
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}
+
+#descriptions { 
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.show-descriptions #descriptions { 
+  pointer-events: initial;
+}
+
+.description { 
+  position: absolute;
+  display: inline-block;
+  margin: 2px;
+  text-align: left;
+  padding: 10px;
+  min-width: 100px;
+  max-width: 300px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  z-index: 10;
+  pointer-events: initial;
+}
+
+.description.description-active { 
+  z-index: 11;
+}
+.description.rtl { 
+  text-align: right;  
+}
+
+.worddesc { 
+  cursor: pointer;
+}
+.box, .shadowbox { 
+  position: absolute;
+  width: 34px;
+  height: 34px;
+}
+
+.box { 
+  box-sizing: border-box;
+  z-index: 2;
+  text-align: center;
+  line-height: 34px;
+  cursor: pointer;
+}
+
+.shadowbox { 
+  z-index: 1;
+}
+
+#shadow { 
+  width: 100%;
+  height: 100%;
+}
+
+.selected { 
+}
+
+.unclear { 
+}
+
+.nbox { 
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  font-size: 12px;
+  padding: 1px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+#textedit { 
+  font-size: 110%;
+  z-index:30;
+  background-color: white;
+  position: absolute;
+  display: none;
+  border-radius: 3px;
+  opacity: 0;
+  visibility: 0;
+  /* iOS and IE have flashing blue cursor which we need to get rid off */
+  transform: scale(0);
+  -webkit-transform: scale(0);
+  -ms-transform: scale(0);
+  font-size: 1px;
+}
+
+.hint { 
+  font-weight: bold;
+  font-family: arial, sans-serif;
+  border: 3px solid #D0D080;
+  border-radius: 5px;
+  width: 140px;
+  text-align: center;
+  padding: 10px;
+  display: none;
+  color: #606060;
+  position: absolute;
+  z-index: 20;
+}
+
+#hintmobile { 
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+  justify-content: center;
+}
+
+.show-hint #hint { 
+  display: block;
+}
+
+#emptywordlist { 
+  font-family: arial, sans-serif;
+  background-color: #F04040;
+  border: 3px solid black;
+  border-radius: 5px;
+  width: 300px;
+  height: 130px;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 30px;
+  display: none;
+  color: black;
+  position: absolute;
+  z-index: 20;
+}
+
+#dummy { 
+  position: absolute;
+  top: -1000px;
+  opacity: 0.01;
+}
+#wordbutton{
+display: none;	
+}
+#mobile{
+display: none;	
+}
+#hintmobile{
+	display: none;
+}
+.show {
+    display: block;
+}
+#worddescription{
+	display:none;
+}
+#mobilelandscape {
+    display: none;
+}
+
+.blink {
+  animation: blink-animation 1s infinite;
+  -webkit-animation: blink-animation 1s infinite;
+}
+
+@keyframes blink-animation {
+  50%  {opacity: 0.7;}
+  to { opacity: 1; }
+}
+
+@-webkit-keyframes blink-animation {
+  50%  {opacity: 0.7;}
+  to { opacity: 1; }
+}
+
+@media only screen and (max-width: 700px),
+only screen and (max-height: 500px) {
+  html:not(.ibw-platform-osx-ibooks) .show-hint #hint { 
+    display: none;
+  }
+
+  html:not(.ibw-platform-osx-ibooks) .show-hint #hintmobile { 
+    display: block;
+  }
+
+  html:not(.ibw-platform-osx-ibooks) #hwords { 
+    display: none;
+  }
+
+  html:not(.ibw-platform-osx-ibooks) #vwords { 
+    display: none;
+  }
+
+  html:not(.ibw-platform-osx-ibooks) .show-descriptions #descriptions {
+    overflow: auto;
+  }
+  html:not(.ibw-platform-osx-ibooks) .show-descriptions #hwords { 
+    display: inline-block;
+  }
+
+  html:not(.ibw-platform-osx-ibooks) .show-descriptions #vwords { 
+    display: inline-block;
+  }
+
+  html:not(.ibw-platform-osx-ibooks) .show-descriptions #crossword {
+    display: none;
+  }
+
+  html:not(.ibw-platform-osx-ibooks) .show-descriptions #worddescription { 
+    display: none;
+  }
+
+  html:not(.ibw-platform-osx-ibooks) #worddescription {
+    z-index: 20;
+    font-size: 16px;
+    width: 100%;
+    justify-content: center;
+    position: absolute;
+    top: 10px;
+  }
+
+  html:not(.ibw-platform-osx-ibooks) #wordbutton {
+    display: inline-block;	
+  }
+
+  html:not(.ibw-platform-osx-ibooks) .show {
+    display: -webkit-box!important;
+    display: -moz-box!important;
+    display: -ms-flexbox!important;
+    display: -webkit-flex!important;
+    display: flex!important;
+  }
+
+  html:not(.ibw-platform-osx-ibooks) .hide {
+    display: none;	
+  }
+
+  html:not(.ibw-platform-osx-ibooks) #mobile {
+    display: block;	
+  }
+
+  html:not(.ibw-platform-osx-ibooks) .description {
+    position: relative;
+    justify-content: center;
+    margin-left: 10%;
+  }
+
+  html:not(.ibw-platform-osx-ibooks) .box, 
+  html:not(.ibw-platform-osx-ibooks) .shadowbox {
+    width: 28px;
+    height: 28px;
+  }
+
+  html:not(.ibw-platform-osx-ibooks) .box {
+    line-height: 24px;
+  }
+
+  html:not(.ibw-platform-osx-ibooks) .nbox {
+    padding: 2px;
+  }
+}
+
+@media only screen and (min-width: 480px) {
+  @media only screen and (max-height: 450px) {
+
+    html:not(.ibw-platform-osx-ibooks) #mobile{
+      display: none;	
+    }
+
+    html:not(.ibw-platform-osx-ibooks) #mobilelandscape{
+      display: block;	
+    }  
+
+    html:not(.ibw-platform-osx-ibooks) .description {
+      margin-left: auto;
+    }
+
+    html:not(.ibw-platform-osx-ibooks) .box, 
+    html:not(.ibw-platform-osx-ibooks) .shadowbox {
+      width: 20px;
+      height: 20px;
+    }
+
+    html:not(.ibw-platform-osx-ibooks) div.box {
+      line-height: 18px;
+      font-size: 14px;
+    }
+  }
+}

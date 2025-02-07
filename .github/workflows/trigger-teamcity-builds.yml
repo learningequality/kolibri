@@ -1,0 +1,30 @@
+name: Trigger TeamCity Builds
+
+on:
+  workflow_run:
+    workflows: ["Build-Test-Release"]
+    types:
+      - completed
+  workflow_dispatch:    # Allows manual triggering
+
+jobs:
+  trigger-teamcity:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Trigger TeamCity Build for Bloom Reader Alpha
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: '${{ secrets.TEAMCITY_URL }}/app/rest/buildQueue'
+          method: 'POST'
+          contentType: 'application/json'
+          customHeaders: '{"Authorization": "Bearer ${{ secrets.TEAMCITY_TOKEN_RUN_BUILD }}"}'
+          data: '{"buildType": {"id": "Bloom_BloomReader_BloomReaderMasterAlphaContinuousPublish"}}'
+      - name: Trigger TeamCity Build for Bloom Desktop Alpha
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: '${{ secrets.TEAMCITY_URL }}/app/rest/buildQueue'
+          method: 'POST'
+          contentType: 'application/json'
+          customHeaders: '{"Authorization": "Bearer ${{ secrets.TEAMCITY_TOKEN_RUN_BUILD }}"}'
+          data: '{"buildType": {"id": "bt222"}}'

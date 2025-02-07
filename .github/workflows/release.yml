@@ -1,0 +1,40 @@
+name: Build-Test-Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-test-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+            # Keep in sync with volta -> node version in package.json
+          node-version: 16
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Build package
+        run: yarn build
+
+      - name: Run tests
+        run: yarn test
+
+      - name: Clean up package.json
+        # We used to use the clean-publish package to do this, but when
+        # we switched to using semantic-release, we had to do it manually.
+        run: npm pkg delete scripts && npm pkg delete devDependencies && npm pkg delete dependencies
+
+      - name: Publish package
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npx semantic-release

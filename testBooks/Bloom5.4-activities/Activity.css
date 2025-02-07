@@ -1,0 +1,283 @@
+.bloom-page.simple-comprehension-quiz {
+  --pure-material-primary-rgb: 214, 86, 73;
+  --pure-material-onprimary-rgb: 255, 255, 255;
+  --pure-material-onsurface-rgb: 0, 0, 0;
+}
+.bloom-page.simple-comprehension-quiz .bloom-translationGroup {
+  margin-bottom: 10px;
+  flex-grow: 1;
+}
+.bloom-page.simple-comprehension-quiz .QuizHeader-style {
+  font-size: 20pt;
+  text-align: center;
+  color: white;
+  background-color: #d65649;
+  padding-bottom: 2px;
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice {
+  display: flex;
+  z-index: 0;
+  /* Checkmark is done as a rotated half-bordered box that is the :before of the div */
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice input {
+  z-index: 11;
+  left: -10px;
+  top: -8px;
+  display: block;
+  margin: 0;
+  margin-right: -10px;
+  border-radius: 50%;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  opacity: 0;
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice .placeToPutVariableCircle {
+  z-index: -1;
+  position: absolute;
+  left: -10px;
+  top: -8px;
+  display: block;
+  margin: 0;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(var(--pure-material-onsurface-rgb), 0.6);
+  box-shadow: none;
+  outline: none;
+  opacity: 1;
+  transform: scale(0);
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice > input + div:before {
+  content: "";
+  display: block;
+  position: absolute;
+  box-sizing: border-box;
+  left: -30px;
+  top: 3px;
+  border: solid 2px;
+  border-color: rgba(var(--pure-material-onsurface-rgb), 0.6);
+  border-radius: 2px;
+  width: 18px;
+  height: 18px;
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice > input + div::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 3px;
+  left: -30px;
+  width: 10px;
+  height: 5px;
+  border: solid 2px transparent;
+  border-right: none;
+  border-top: none;
+  transform: translate(3px, 4px) rotate(-45deg);
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice > input:checked ~ .placeToPutVariableCircle {
+  background-color: rgb(var(--pure-material-primary-rgb));
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice > input:checked + div::before {
+  border-color: rgb(var(--pure-material-primary-rgb));
+  background-color: rgb(var(--pure-material-primary-rgb));
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice > input:checked + div::after {
+  border-color: rgb(var(--pure-material-onprimary-rgb));
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice input:active ~ .placeToPutVariableCircle {
+  opacity: 0.5;
+  transform: scale(1);
+  transition: opacity 0.3s, transform 0.2s;
+}
+.quiz #formatButton {
+  left: unset;
+  right: 0;
+}
+.bloom-editable.QuizHeader-style[contentEditable="true"][data-languageTipContent]:not([data-languageTipContent=""]):after,
+.bloom-editable.QuizAnswer-style[contentEditable="true"][data-languageTipContent]:not([data-languageTipContent=""]):after,
+.bloom-editable.QuizQuestion-style[contentEditable="true"][data-languageTipContent]:not([data-languageTipContent=""]):after {
+  margin-right: 24px;
+}
+.editMode .bloom-editable.QuizAnswer-style:not(.cke_focus)[contentEditable="true"][data-languageTipContent]:not([data-languageTipContent=""]):after,
+.editMode .bloom-editable.QuizQuestion-style:not(.cke_focus)[contentEditable="true"][data-languageTipContent]:not([data-languageTipContent=""]):after {
+  content: "";
+}
+body.editMode .bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice.empty {
+  opacity: 0.5;
+  display: flex;
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice.empty {
+  display: none;
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice.wasSelectedAtOnePoint:not(.correct-answer) {
+  opacity: 0.5;
+}
+.simple-comprehension-quiz .QuizQuestion-style,
+.simple-comprehension-quiz .checkbox-and-textbox-choice {
+  margin-left: 25px !important;
+  margin-right: 25px !important;
+  width: auto;
+}
+.activity-page-default .marginBox {
+  display: flex;
+  flex-direction: column;
+}
+.activity-page-default .marginBox .Prompt-style {
+  margin-bottom: 10px;
+}
+.activity-page-default .marginBox .ui-audioCurrent,
+.activity-page-default .marginBox .ui-audioCurrent * {
+  background: unset !important;
+}
+.activity-page-default .marginBox .player-button {
+  display: block;
+  border: none;
+  margin-bottom: 15px;
+  margin-right: 7px;
+}
+.activity-page-default .marginBox .player-button .bloom-translationGroup.childOverflowingThis {
+  border-bottom: unset !important;
+}
+.activity-page-default .marginBox .player-button .bloom-translationGroup .bloom-editable {
+  border: none;
+  min-height: unset;
+}
+.activity-page-default .marginBox .imageThenChoices {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+}
+.activity-page-default .marginBox .imageThenChoices .choices {
+  display: flex;
+  flex-direction: column;
+}
+[class*="Landscape"] .marginBox .imageThenChoices {
+  flex-direction: row;
+  align-items: center;
+}
+[class*="Landscape"] .marginBox .imageThenChoices div.bloom-imageContainer {
+  margin-right: 10px;
+  width: 50%;
+  height: 80%;
+}
+[class*="Landscape"] .marginBox .imageThenChoices .choices {
+  width: 50%;
+}
+[class*="Portrait"] .marginBox .imageThenChoices {
+  flex-direction: column;
+}
+[class*="Portrait"] .marginBox .imageThenChoices div.bloom-imageContainer {
+  height: 40% !important;
+  margin-bottom: 10px;
+}
+.Cm13Landscape .marginBox .imageThenChoices {
+  flex-direction: column;
+}
+.Cm13Landscape .marginBox .imageThenChoices div.bloom-imageContainer {
+  height: 70% !important;
+  margin-bottom: 10px;
+}
+.Cm13Landscape .marginBox .imageThenChoices .choices {
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}
+.Cm13Landscape .marginBox .imageThenChoices .choices .player-button {
+  padding: 10px;
+}
+.activity-page-default .marginBox .wordThenChoices {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+}
+.activity-page-default .marginBox .wordThenChoices .choices {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
+}
+.activity-page-default .marginBox .wordThenChoices .choices .player-button {
+  padding: 5px;
+}
+.activity-page-default .marginBox .wordThenChoices .choices .player-button .bloom-imageContainer {
+  height: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+[class*="Landscape"] .marginBox .wordThenChoices {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+}
+[class*="Landscape"] .marginBox .wordThenChoices .word-to-match {
+  margin-right: 10px;
+}
+[class*="Landscape"] .marginBox .wordThenChoices .choices {
+  max-width: 30%;
+  height: 100%;
+  justify-content: space-between;
+}
+[class*="Landscape"] .marginBox .wordThenChoices .choices .player-button {
+  height: 26%;
+}
+[class*="Portrait"] .marginBox .wordThenChoices {
+  flex-direction: column;
+}
+[class*="Portrait"] .marginBox .wordThenChoices .word-to-match {
+  margin-bottom: 10px;
+}
+[class*="Portrait"] .marginBox .wordThenChoices .choices {
+  flex-grow: 1;
+}
+[class*="Portrait"] .marginBox .wordThenChoices .choices .player-button {
+  height: 27%;
+}
+.Cm13Landscape .marginBox .wordThenChoices {
+  flex-direction: column;
+}
+.Cm13Landscape .marginBox .wordThenChoices .word-to-match {
+  margin-bottom: 30px;
+}
+.Cm13Landscape .marginBox .wordThenChoices .choices {
+  flex-direction: row;
+  justify-content: space-between;
+  min-width: 100%;
+}
+.Cm13Landscape .marginBox .wordThenChoices .choices .player-button {
+  height: 30%;
+  width: 30%;
+}
+.bloom-page.activity-page-default {
+  background-color: #539eff;
+}
+.activity-page-default::after {
+  color: white;
+}
+.player-button {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.09);
+  border-radius: 10px;
+  background-color: white;
+  color: #0069f0;
+}
+.player-button.chosen-correct {
+  color: white;
+  background-color: #6cd05a;
+}
+.player-button.chosen-wrong {
+  color: white;
+  background-color: #848484;
+}
+.player-button:active {
+  box-shadow: none;
+  transform: translateY(1px);
+}
+.activity-page-default .marginBox .imageThenChoices div.bloom-imageContainer {
+  background-color: white;
+  border-radius: 8px;
+}
+.activity-page-default .marginBox .wordThenChoices .TextToMatch-style {
+  color: white;
+}
+.activity-page-default .marginBox .wordThenChoices div.bloom-imageContainer {
+  background-color: white;
+}

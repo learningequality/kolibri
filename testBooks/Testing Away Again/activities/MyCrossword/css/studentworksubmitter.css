@@ -1,0 +1,77 @@
+#student-work-submitter-dialog, #student-work-share-dialog {
+  top: 0px;
+  bottom: 0px;
+  height: 100%;
+  display: none;
+  min-height: 768px;
+}
+
+#student-work-submitter-dialog .hidden, #student-work-share-dialog .hidden {
+  display: none;
+}
+
+#student-work-submitter-dialog .ajax-complete, #student-work-share-dialog .ajax-complete {
+  display: none;
+}
+
+#student-work-submitter-dialog .progress, #student-work-share-dialog .progress {
+  display: none;
+  position: relative;
+}
+
+#student-work-submitter-dialog .progress .spinner, #student-work-share-dialog .progress .spinner {
+  display: inline-block;
+}
+
+#student-work-submitter-dialog .progress .progress-message, #student-work-share-dialog .progress .progress-message {
+  display: inline-block;
+  padding-left: 20px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  height: 24px;
+}
+
+#student-work-submitter-dialog input:disabled, #student-work-share-dialog input:disabled {
+  border: none;
+}
+
+#student-work-submitter-dialog input:invalid, #student-work-share-dialog input:invalid {
+  box-shadow: none;
+}
+
+.ui-btn {
+  margin: 10px 0px;
+  padding: 0;
+}
+
+.ui-dialog input, .ui-dialog textarea {  
+  -webkit-user-select: text;
+  box-sizing:border-box;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.ui-dialog select {  
+  box-sizing:border-box;
+  width: 100%;
+  min-height: 20px;
+}
+
+#student-work-submitter-dialog-info, #student-work-share-dialog-info {
+  padding: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.bw-student-work-submitter { 
+  max-width: 450px;
+}
+
+.bw-student-work-submitter.ui-dialog .ui-widget-content { 
+  background: rgba(0, 0, 0, 0);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(255, 255, 255, 0)), color-stop(100%, rgba(255, 255, 255, 0)));
+  background: -moz-linear-gradient(top, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0));
+  background-image: -ms-linear-gradient(top, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0));
+}

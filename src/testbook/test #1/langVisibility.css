@@ -1,0 +1,17 @@
+.bloom-editable.bloom-visibility-code-on {
+  display: block;
+}
+.bloom-editable.bloom-visibility-user-on {
+  display: block;
+}
+.bloom-editable.bloom-visibility-user-off {
+  display: none !important;
+}
+.bloom-vertical-align-center .bloom-editable.bloom-visibility-code-on,
+.bloom-vertical-align-bottom .bloom-editable.bloom-visibility-code-on,
+.bloom-vertical-align-center .bloom-editable.bloom-visibility-user-on,
+.bloom-vertical-align-bottom .bloom-editable.bloom-visibility-user-on {
+  display: flex;
+}
+
+/*# sourceMappingURL=../../../output/browser/bookLayout/langVisibility.css.map */

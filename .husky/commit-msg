@@ -1,0 +1,22 @@
+#!/bin/bash
+. "$(dirname "$0")/_/husky.sh"
+
+# Ideally, we might want to use a package like commitizen or commitlint,
+# but as far as I can tell, those don't work with GUI git clients like GitKraken.
+# And they are actually overkill for what we need here (though we could custom configure them).
+
+# Read the commit message from the file passed as an argument
+COMMIT_MSG=$(cat "$1")
+
+# Check if the commit message starts with an expected keyword followed by a colon.
+if ! echo "$COMMIT_MSG" | grep -q "^\(fix\|feat\|chore\):"; then
+    echo "Improper commit message for semantic-release."
+    echo "Please use the format 'type: message'"
+    echo "e.g. chore: Updated README"
+    echo "e.g. fix: Made a repair"
+    echo "e.g. feat: Added a new thing"
+    exit 1
+fi
+
+# If we reach here, the commit message is valid
+exit 0

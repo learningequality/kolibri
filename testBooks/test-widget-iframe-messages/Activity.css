@@ -1,0 +1,121 @@
+.bloom-page.simple-comprehension-quiz {
+  --pure-material-primary-rgb: 214, 86, 73;
+  --pure-material-onprimary-rgb: 255, 255, 255;
+  --pure-material-onsurface-rgb: 0, 0, 0;
+}
+.bloom-page.simple-comprehension-quiz .bloom-translationGroup {
+  margin-bottom: 10px;
+  flex-grow: 1;
+}
+.bloom-page.simple-comprehension-quiz .QuizHeader-style {
+  font-size: 20pt;
+  text-align: center;
+  color: white;
+  background-color: #d65649;
+  padding-bottom: 2px;
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice {
+  display: flex;
+  z-index: 0;
+  /* Checkmark is done as a rotated half-bordered box that is the :before of the div */
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice input {
+  z-index: 11;
+  left: -10px;
+  top: -8px;
+  display: block;
+  margin: 0;
+  margin-right: -10px;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  opacity: 0;
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice .placeToPutVariableCircle {
+  z-index: -1;
+  position: absolute;
+  left: -10px;
+  top: -8px;
+  display: block;
+  margin: 0;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(var(--pure-material-onsurface-rgb), 0.6);
+  box-shadow: none;
+  outline: none;
+  opacity: 1;
+  transform: scale(0);
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice > input + div:before {
+  content: "";
+  display: block;
+  position: absolute;
+  box-sizing: border-box;
+  left: -30px;
+  top: 3px;
+  border: solid 2px;
+  border-color: rgba(var(--pure-material-onsurface-rgb), 0.6);
+  border-radius: 2px;
+  width: 18px;
+  height: 18px;
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice > input + div::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 3px;
+  left: -30px;
+  width: 10px;
+  height: 5px;
+  border: solid 2px transparent;
+  border-right: none;
+  border-top: none;
+  transform: translate(3px, 4px) rotate(-45deg);
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice > input:checked ~ .placeToPutVariableCircle {
+  background-color: rgb(var(--pure-material-primary-rgb));
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice > input:checked + div::before {
+  border-color: rgb(var(--pure-material-primary-rgb));
+  background-color: rgb(var(--pure-material-primary-rgb));
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice > input:checked + div::after {
+  border-color: rgb(var(--pure-material-onprimary-rgb));
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice input:active ~ .placeToPutVariableCircle {
+  opacity: 0.5;
+  transform: scale(1);
+  transition: opacity 0.3s, transform 0.2s;
+}
+.quiz #formatButton {
+  left: unset;
+  right: 0;
+}
+.bloom-editable.QuizHeader-style[contentEditable="true"][data-languageTipContent]:not([data-languageTipContent=""]):after,
+.bloom-editable.QuizAnswer-style[contentEditable="true"][data-languageTipContent]:not([data-languageTipContent=""]):after,
+.bloom-editable.QuizQuestion-style[contentEditable="true"][data-languageTipContent]:not([data-languageTipContent=""]):after {
+  margin-right: 24px;
+}
+.bloom-editable.QuizAnswer-style:not(.cke_focus)[contentEditable="true"][data-languageTipContent]:not([data-languageTipContent=""]):after,
+.bloom-editable.QuizQuestion-style:not(.cke_focus)[contentEditable="true"][data-languageTipContent]:not([data-languageTipContent=""]):after {
+  content: "";
+}
+body.editMode .bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice.empty {
+  opacity: 0.5;
+  display: flex;
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice.empty {
+  display: none;
+}
+.bloom-page.simple-comprehension-quiz .checkbox-and-textbox-choice.wasSelectedAtOnePoint:not(.correct-answer) {
+  opacity: 0.5;
+}
+.simple-comprehension-quiz .QuizQuestion-style,
+.simple-comprehension-quiz .checkbox-and-textbox-choice {
+  margin-left: 25px !important;
+  margin-right: 25px !important;
+  width: auto;
+}
+
+/*# sourceMappingURL=../../../../../output/browser/templates/template books/Activity/Activity.css.map */

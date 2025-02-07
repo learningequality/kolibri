@@ -1,0 +1,15 @@
+# I think this is mostly redundant, as only the files listed in the files section of
+# package.json are even eligible for consideration to be shipped to npm.
+.*
+node_modules
+# as far as I can tell, source maps are only useful on the system where they were built,
+# where the source files are actually available at the indicated address.
+dist/*.map
+# We might want some of these eventually, but at this point, I don't even know
+# where they are coming from, so no point in pushing them into npm.
+dist/*.gif
+dist/*.eot
+dist/*.ttf
+dist/*.svg
+// We don't need the source.
+src

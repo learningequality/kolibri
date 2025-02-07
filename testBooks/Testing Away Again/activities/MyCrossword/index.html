@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crossword</title>
+    <link rel="stylesheet" href="css/jquery.dialogsheet.css" />
+    <link rel="stylesheet" href="css/bookwidgets.css" />
+    <link rel="stylesheet" href="css/jquery.tipsy.css" />
+    <link rel="stylesheet" href="css/smoothness/jquery-ui-1.8.23.css" />        
+    <link rel="stylesheet" href="css/studentworksubmitter.css" />
+    <link rel="stylesheet" href="css/bwicons.css" />
+    <link rel="stylesheet" href="css/crossword.css" />
+    
+    <script type="text/javascript" src="js/jquery-1.8.min.js"></script>
+    <script type="text/javascript" src="js/jquery.dialogsheet.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.8.23.min.js"></script>
+    <script type="text/javascript" src="js/jquery.ui.touch-punch.min.js"></script>
+    <script type="text/javascript" src="js/jquery.tipsy.js"></script>
+    <script type="text/javascript" src="js/hammer.min.js"></script>
+    <script type="text/javascript" src="js/jquery.hammer.min.js"></script>
+
+    <script type="text/javascript" src="js/Crossword-vendor.js"></script>
+    <script type="text/javascript" src="js/Crossword-all.js"></script>
+</head>
+<body>
+    <div id="title-toolbar">
+      <div id="wordbutton" class="bw-toolbutton outside-popup">
+          <div class="bw-icon bw-icon-info"></div>
+      </div>
+      <div id="sendbutton" class="bw-toolbutton" style="display:none">
+        <div id="send_button" class="bw-icon bw-icon-send"></div>
+      </div>
+      <div id="sharebutton" class="bw-toolbutton" style="display:none">
+        <div class="bw-icon bw-icon-share"></div>
+      </div>
+      <div id="downloadbutton" class="bw-toolbutton" style="display:none">
+        <div class="bw-icon bw-icon-download"></div>
+      </div>
+      <div id="clearbutton" class="bw-toolbutton">
+        <div id="clear_button" class="bw-icon bw-icon-trash"></div>
+      </div>
+    </div>
+    <div id="bottom-container">
+        <div id="hintmobile" class="hint">
+        Select horizontal or vertical word...
+        </div>
+        <div id="worddescription">
+        <span></span>
+        </div>
+      <div id="crossword">
+        <input type="text" id="textedit" size="10" autocomplete="off" autocapitalize="none" style="display: none"/><br>
+        <div id="hint" class="hint">
+          Select horizontal or vertical word...
+        </div>            
+      </div>
+      <div id="descriptions">
+        <div id="hwords" class="description hide">
+        </div>
+        <div id="vwords" class="description hide">
+        </div>
+      </div>
+    </div>
+    <div id="emptywordlist">
+      <b>Why is this crossword empty ?</b><br><br>
+          No crossword layout is provided!<br> 
+            Please make sure you press the 'Generate crossword' button after entering or adding words in the table to calculate the crossword layout.
+    </div>
+    <div id="mobile"></div>
+    <div id="mobilelandscape"></div>
+</body>
+</html>

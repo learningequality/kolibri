@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "sourceMap": true,
+        "jsx": "react",
+        "lib": ["dom", "es6", "scripthost", "es2017.object"],
+        "experimentalDecorators": true,
+        "alwaysStrict": true,
+        "noImplicitReturns": true,
+        "strictNullChecks": true,
+        "outDir": "lib",
+        "resolveJsonModule": true,
+        "esModuleInterop": true
+    },
+    "exclude": ["node_modules", "typings", "lib"]
+}

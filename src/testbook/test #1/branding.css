@@ -1,0 +1,47 @@
+/*****
+Note the following division of labor:
+Rules that place branding on an xmatter page belong in bloom-xmatter-commons.less or the stylesheet of a particular xmatter.
+Rules that format the branding go in branding-base.less, or in the branding.less of a particular branding.
+****/
+[data-book*="branding"] {
+  display: flex;
+  flex-direction: column;
+}
+[data-book*="branding"] img {
+  margin-left: auto;
+  margin-right: auto;
+  width: auto;
+  align-self: center;
+  object-fit: contain;
+}
+[data-book="outside-back-cover-branding-bottom-html"] {
+  width: 100%;
+}
+/*  these rules allow different branding insertions depending on orientation */
+.portraitOnly,
+.landscapeOnly {
+  display: none;
+}
+.Device16x9Portrait .portraitOnly,
+.QuarterLetterPortrait .portraitOnly,
+.HalfLetterPortrait .portraitOnly,
+.LetterPortrait .portraitOnly,
+.LegalPortrait .portraitOnly,
+.A3Portrait .portraitOnly,
+.A4Portrait .portraitOnly,
+.A5Portrait .portraitOnly,
+.B5Portrait .portraitOnly,
+.A6Portrait .portraitOnly {
+  display: unset;
+}
+.Device16x9Landscape .landscapeOnly,
+.LetterLandscape .landscapeOnly,
+.LegalLandscape .landscapeOnly,
+.A3Landscape .landscapeOnly,
+.A4Landscape .landscapeOnly,
+.A5Landscape .landscapeOnly,
+.A6Landscape .landscapeOnly {
+  display: unset;
+}
+
+/*# sourceMappingURL=../../../../output/browser/branding/Default/branding.css.map */

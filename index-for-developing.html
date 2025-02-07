@@ -1,0 +1,75 @@
+<!-- This is used with the lite-server. Haven't figured
+     out how to have it exist anywhere but at this top level.
+     To serve a local book (e.g., from testBooks): copy its folder to the dist directory.
+     (This could no doubt be automated if we wanted.)
+     Then, set src to bloomplayer-for-developing.htm?url=http://localhost:8080/<folder>/<filename>.htm
+     Don't include dist in the path. Change backslash to slash. May be helpful to rename things
+     so no there are no characters needing encoding.
+     For example, given a book at dist\BunAndJam\BunAndJam.htm, use
+     src="bloomplayer-for-developing.htm?url=http://localhost:8080/BunAndJam/BunAndJam.htm"
+     Note: all the different versions of src below except src itself are ignored; they
+     are alternative src's that may be useful again (or may be obsolete and wrong).
+     -->
+<html>
+    <body>
+        <iframe
+            id="my-iframe"
+            src="bloomplayer-for-developing.htm?url=https://s3.amazonaws.com/bloomharvest/educationforlife%40sil.org%2f433f2ae9-3cba-48bf-82a7-faa3932908ae/bloomdigital%2findex.htm&hideFullScreenButton=false"
+            publish_video_preview_src="bloomplayer-for-developing.htm?centerVertically=true&videoPreviewMode=true&autoplay=no&defaultDuration=1&url=http%3A%2F%2Flocalhost%3A8089%2Fbloom%2FC%253A%2FUsers%2FPolk%2FAppData%2FLocal%2FTemp%2FPlaceForStagingBook%2FA%2520Family%2520Learns%2520about%2520Immunisations&independent=false&host=bloomdesktop&skipActivities=true&hideNavButtons=true"
+            local_folder_manually_copied_to_dist_src="bloomplayer-for-developing.htm?url=http://localhost:8080/CatAndDog/CatAndDog.htm"
+            dev_videoWithAudio_src="bloomplayer-for-developing.htm?centerVertically=true&url=https://s3.amazonaws.com/bloomharvest-sandbox/colin_sugget%40sil.org%2f665dab68-723c-4245-b4b4-c771d0329329/bloomdigital%2findex.htm&independent=false&host=testing"
+            dev_moonAndCap_src="bloomplayer-for-developing.htm?centerVertically=true&url=https://s3.amazonaws.com/bloomharvest-sandbox/john_thomson%40sil.org%2fd4d081d9-9c90-427b-814c-7bd7730fc25b/bloomdigital%2findex.htm&independent=false&host=testing"
+            bloom_reader_preview_src="bloomplayer-for-developing.htm?url=http://localhost:8089/bloom/C%3A/Users/YourName/AppData/Local/Temp/PlaceForStagingBook/myBookTitle"
+            local_src="bloomplayer-for-developing.htm?url=http://localhost:8080/test_books/MoonAndCap/MoonAndCap.htm&hideFullScreenButton=false&independent=true&host=testing"
+            video_src="bloomplayer-for-developing.htm?url=https://s3.amazonaws.com/bloomharvest-sandbox/jeffrey_su%40sil.org%2f9eaa0134-6b34-4b20-80df-58c4e9d62480/bloomdigital%2findex.htm"
+            blahsrc="bloomplayer-for-developing.htm?allowToggleAppBar=true&url=file%3A%2F%2Fc%3A%2Fdev%2Fbook%2Fbook.htm"
+            landscape_src="bloomplayer-for-developing.htm?url=https://s3.amazonaws.com/bloomharvest/educationforlife%40sil.org%2f1fec727e-855f-4691-bbd0-3efb666b4598/bloomdigital%2findex.htm"
+            landscape_video_src="bloomplayer-for-developing.htm?url=https://s3.amazonaws.com/bloomharvest/educationforlife%40sil.org%2f6f6d82d5-e98d-445d-b4be-143df993c3c0/bloomdigital%2findex.htm"
+            talking_src="bloomplayer-for-developing.htm?url=https://s3.amazonaws.com/bloomharvest-sandbox/librarian%40bloomlibrary.org%2fa8c92a95-ba88-464e-81b0-628c9ef9d060/bloomdigital%2findex.htm"
+            music_src="bloomplayer-for-developing.htm?url=https://s3.amazonaws.com/bloomharvest-sandbox/bloom.bible.stories%40gmail.com%2f2e0b9e8c-1722-45b9-bfc6-4379fd6b3e7e/bloomdigital%2findex.htm"
+            talking_and_music_src="bloomplayer-for-developing.htm?url=https://s3.amazonaws.com/bloomharvest-sandbox/andrew_polk%40sil.org%2f37c8a66d-cf9c-4557-ada7-34c3551e8883/bloomdigital%2findex.htm"
+            talking_imageDesc_src="bloomplayer-for-developing.htm?url=https://s3.amazonaws.com/bloomharvest-sandbox/stephen_mcconnel%40sil.org/a4736538-1b58-4272-8833-a94e3f5ec3ae/bloomdigital/index.htm"
+            srcWithLang="bloomplayer-for-developing.htm?url=https://s3.amazonaws.com/bloomharvest-sandbox/wycliffe%40bloomlibrary.org%2f278510fd-6700-4ae1-8114-4c7024b7a399/bloomdigital%2findex.htm&showBackButton=true&lang=fr"
+            style="width: 100%; height: 100%;"
+            allowfullscreen
+            allow="fullscreen"
+        ></iframe>
+        <div style="position:absolute;top:20px;left:20px;">
+            <button
+                onclick="
+                    var iframe = document.getElementById(
+                        'my-iframe'
+                    );
+                    msg = { messageType: 'control', play: true, autoplay: 'yes' };
+                    iframe.contentWindow?.postMessage(JSON.stringify(msg), '*');
+                "
+            >
+                autoplay
+            </button>
+            <button
+                onclick="
+                    var iframe = document.getElementById(
+                        'my-iframe'
+                    );
+                    msg = { messageType: 'control', pause: true };
+                    iframe.contentWindow?.postMessage(JSON.stringify(msg), '*');
+                "
+            >
+                pause
+            </button>
+            <button
+                onclick="
+                    var iframe = document.getElementById(
+                        'my-iframe'
+                    );
+                    msg = { messageType: 'control', pause: true };
+                    iframe.contentWindow?.postMessage(JSON.stringify(msg), '*');
+                    msg = { messageType: 'control', reset: true };
+                    iframe.contentWindow?.postMessage(JSON.stringify(msg), '*');
+                "
+            >
+                reset
+            </button>
+        </div>
+    </body>
+</html>

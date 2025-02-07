@@ -1,0 +1,159 @@
+/*
+ Rules for styling book content interactions/manipulations in the bloom-player.
+ Such as
+   - our special scrolling
+   - audio highlighting
+   - motion books
+
+ Where possible, keep rules which affect the *display* of the book in the book itself.
+ For example, want to set the location of the page number? Put that in the book.
+  If it really should be different in the bloom-player context,
+  gate the rule with .bloomPlayer and/or .bloomPlayer-page.
+
+ Note, styling for the bloom-player UI itself goes in bloom-player-ui.less.
+*/
+
+// This was originally "yellow," but it probably always should have been #FEBF00 which is "bloom-yellow"
+// and what Bloom editor has shown, at least for a very long time.
+// For newer (5.5+) books, this should be supplied by the editor. But some bugs caused it to show sometimes.
+// Hopefully, as of BL-13428, those are now resolved. But we still need it for older books, anyway.
+@audioHighlighting: #febf00; // also defined in bloomPlayerTheme.ts
+
+.bloomPlayer {
+    // For chrome and safari, we can deal with highlighting overlapping lines. See BL-7442.
+    // This media query is supposed to be a way to detect Chrome/Safari.
+    // Actually: this did not prevent it from applying in Firefox,: @media screen and (-webkit-min-device-pixel-ratio: 0) {
+    // Nor did this: @supports (-webkit-appearance: none) {
+    /*@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    span.ui-audioCurrent:not(.ui-suppressHighlight):not(.ui-disableHighlight) {
+        background: linear-gradient(@audioHighlighting, @audioHighlighting);
+        background-blend-mode: overlay;
+        mix-blend-mode: overlay;
+    }
+    }*/
+
+    // The above doesn't work on Firefox (through FF 68) (or in Bloom or 2019-era Edge). For those, we can at least
+    // deal with the most common case of overlap (the book title on the cover) by just
+    // treating the text as a rectangle. And it's fine that this will show this way in Chrome too:
+    .Title-On-Cover-style
+        span.ui-audioCurrent:not(.ui-suppressHighlight):not(.ui-disableHighlight) {
+        display: inline-block;
+        white-space: pre-wrap;
+    }
+
+    span.ui-audioCurrent,
+    div.ui-audioCurrent p {
+        background-color: @audioHighlighting;
+    }
+
+    // To override highlighting color rules both above and from the book itself
+    // We originally did this with :not() clauses in the previous rule, but that
+    // made it too specific so the user couldn't override the color, and even if
+    // we used :where() to make it less specific, the correction wouldn't have
+    // applied to the user's custom-colored highlights
+    .ui-suppressHighlight,
+    .ui-disableHighlight {
+        background-color: transparent !important;
+    }
+
+    .ui-audioCurrent .ui-enableHighlight {
+        background-color: @audioHighlighting;
+    }
+
+    div.ui-audioCurrentImg {
+        box-sizing: border-box;
+        border: 5px solid @audioHighlighting;
+    }
+
+    // Make it so the text isn't selectable
+    // (This was added because when we set swiper's touchStartPreventDefault to false,
+    // the clicks were allowed to go through again and a double-click on text was capable of selecting it)
+    .bloom-editable {
+        -ms-user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+        -khtml-user-select: none;
+        user-select: none;
+    }
+
+    // if we put a scroll-bar on the contents of a bubble, we must NOT let it
+    // be display:flex since that doesn't work with our nice scroll bar library
+    // (the content starts centered and there's no way to scroll up to see the start).
+    .scrolling-bubble {
+        display: block !important;
+    }
+
+    // BL-7162 text blocks should be scrollable if they overflow in 16 x 9 format.
+    // However this can actually make stuff that used to fit stop fitting.
+    // Where "line-height:normal" is ok, it largely fixes it. But just imposing that everywhere
+    // is risky. So I (JH) am trying a the following approach. Admittedly, this is all a
+    // bit of a hack and carries some risk. As we harvest more things, I may repent. For now, 3 steps:
+
+    // 1) In the interior we are conservative and just let scrolls appear, even at the risk of sometimes showing one
+    // (and thus pushing something off the bottom that would otherwise have been visible):
+    .bloom-editable.bloom-visibility-code-on {
+        // Hidden because we let jquery.niceScroll control the scrollbars instead.
+        overflow-y: hidden !important; // unfortunately this needs !important to override 2 basePage.less rules
+
+        // Flexboxes default to flex-shrink: 1, but we don't want paragraphs (or probably anything) to shrink if they're overflowing.
+        // (we add a scrollbar instead).  See BL-10217)
+        p {
+            flex-shrink: 0;
+        }
+    }
+    // it would be more elegant to embed this rule in the one above, but I can't figure out
+    // how to write it so that the .bloom-textOverPicture has to be OUTSIDE the .bloomeditable
+    // but INSIDE the .bloom-player that wraps around all this.
+    .bloom-textOverPicture .bloom-editable.bloom-visibility-code-on {
+        // (BL-7911 -> BL-8076) The first fix made overflow hidden. Actually we want overflow to show,
+        // but not generate scroll bars (that's 'visible').
+        overflow-y: visible !important;
+        &.scrolling-bubble {
+            // In this case, though, we're doing the nice-scroll scroll bars even in a bubble,
+            // and that requires overflow hidden, so we don't get a regular scroll
+            // bar on our parent as well.
+            overflow-y: hidden !important;
+        }
+    }
+
+    // 2) for metadata pages, we (for now) risk changing the line-height. Experimentally, which works well:
+    // Don't try and apply this to the book title: BookTitles have a good reason to have
+    // a line-height that is less than "normal" (which will override the below rule), because else multi-line
+    // titles spread out and look awful:    .frontCover.cover .bloom-translationGroup.bookTitle,
+    .titlePage,
+    .credits {
+        .bloom-editable {
+            // this can (and is) still be over-ridden by styles in the book. See Title-On-Title-Page for an example where it gets overridden.
+            line-height: normal !important; // fixes problems with showing y scroll when not needed.
+        }
+    }
+
+    // 3), on the cover, which is has a very dynamic layout, we just don't do scrollbars:
+    .bloom-page.cover .bloom-editable {
+        overflow-y: visible !important;
+    }
+
+    // Styles the special div we create for motion books. It is put at the root of the page and hides
+    // it completely while containing the preview.
+    // Note that this div is made by cloning the imageContainer, then making a few modifications. So
+    // it will have any classes the imageContainer has.  Beware of rules that might override the ones
+    // here, which are critical for making the motion-book animation fill the page and cover the other
+    // content.
+    .bloom-page div.bloom-imageContainer.hidePage {
+        height: 100%;
+        width: 100%;
+        position: absolute !important; // !important should not be needed, but there's a bug in FF45.
+        left: 0;
+        top: 0;
+        z-index: 2000;
+        background-color: black; // hide anything not covered by image
+    }
+
+    // If we're trying to hide the page, then the sibling elements must have a lower z-index
+    // for stacking.
+    // See https://issues.bloomlibrary.org/youtrack/issue/BL-7452 for details.
+    .hidePage ~ * {
+        z-index: 1;
+    }
+}

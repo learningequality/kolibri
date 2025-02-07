@@ -1,0 +1,22 @@
+[
+    {
+        "questions": [
+            {
+                "question": "This is 1 of 2 pages generated dynamically from a legacy questions.json, as we might get from Bloom < 4.6:",
+                "answers": [
+                    { "text": "wrong", "correct": false },
+                    { "text": "this one!", "correct": true },
+                    { "text": "wrong", "correct": false }
+                ]
+            },
+            {
+                "question": "This is 2 of 2 pages generated dynamically from a legacy questions.json, as we might get from Bloom < 4.6:",
+                "answers": [
+                    { "text": "yuck", "correct": false },
+                    { "text": "yum", "correct": true },
+                    { "text": "meh", "correct": false }
+                ]
+            }
+        ]
+    }
+]

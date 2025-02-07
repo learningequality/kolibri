@@ -1,0 +1,781 @@
+<!DOCTYPE widget>
+<Crossword>
+<title searchable="true">Crossword</title>
+<words>
+<words>
+<item>
+<word searchable="true">cow</word>
+<desc searchable="true">bovine</desc>
+</item>
+<item>
+<word searchable="true">automobile</word>
+<desc searchable="true">car</desc>
+</item>
+<item>
+<word searchable="true">subway</word>
+<desc searchable="true">underground train</desc>
+</item>
+<item>
+<word searchable="true">lemon</word>
+<desc searchable="true">sour fruit</desc>
+</item>
+<item>
+<word searchable="true">elephant</word>
+<desc searchable="true">tail front and back</desc>
+</item>
+<item>
+<word searchable="true">book</word>
+<desc searchable="true">leaves between boards</desc>
+</item>
+<item>
+<word searchable="true">internet</word>
+<desc searchable="true">new fangled store of data</desc>
+</item>
+<item>
+<word searchable="true">encyclopedia</word>
+<desc searchable="true">old fashioned store of knowledge</desc>
+</item>
+<item>
+<word searchable="true">winter</word>
+<desc searchable="true">cold season</desc>
+</item>
+<item>
+<word searchable="true">summer</word>
+<desc searchable="true">hot season</desc>
+</item>
+</words>
+<positions>
+<pos>
+<word>encyclopedia</word>
+<X>3</X>
+<Y>4</Y>
+<dir>V</dir>
+</pos>
+<pos>
+<word>internet</word>
+<X>3</X>
+<Y>14</Y>
+<dir>H</dir>
+</pos>
+<pos>
+<word>automobile</word>
+<X>0</X>
+<Y>10</Y>
+<dir>H</dir>
+</pos>
+<pos>
+<word>elephant</word>
+<X>3</X>
+<Y>4</Y>
+<dir>H</dir>
+</pos>
+<pos>
+<word>lemon</word>
+<X>2</X>
+<Y>12</Y>
+<dir>H</dir>
+</pos>
+<pos>
+<word>winter</word>
+<X>8</X>
+<Y>12</Y>
+<dir>V</dir>
+</pos>
+<pos>
+<word>summer</word>
+<X>4</X>
+<Y>16</Y>
+<dir>H</dir>
+</pos>
+<pos>
+<word>subway</word>
+<X>8</X>
+<Y>0</Y>
+<dir>V</dir>
+</pos>
+<pos>
+<word>book</word>
+<X>8</X>
+<Y>2</Y>
+<dir>H</dir>
+</pos>
+<pos>
+<word>cow</word>
+<X>3</X>
+<Y>6</Y>
+<dir>H</dir>
+</pos>
+</positions>
+</words>
+<maxX searchable="true">32</maxX>
+<maxY searchable="true">22</maxY>
+<correction value="Color correct/wrong letters when done">Color correct/wrong letters when done</correction>
+<allow_sharing>no</allow_sharing>
+<share_action searchable="true">https://api.bookwidgets.com/api/v1/quiz/share</share_action>
+<allow_download>no</allow_download>
+<download_action searchable="true">https://api.bookwidgets.com/api/v1/quiz/download</download_action>
+<save_answers>yes</save_answers>
+<uuid2 upload_uuid="{0c418057-3ac1-40c3-8c66-dc34698126e6}">{98c246a0-7867-42be-ab35-25687225e629}</uuid2>
+<origbase_version>1</origbase_version>
+<submit_answers>yes</submit_answers>
+<id searchable="true"></id>
+<book_title searchable="true"></book_title>
+<submitformfields>
+<formfield isVisible="yes" isEditable="yes" defaultValue="">student_name</formfield>
+<formfield isVisible="yes" isEditable="yes" defaultValue="">student_email</formfield>
+<formfield isVisible="no" isEditable="yes" defaultValue="">student_id</formfield>
+<formfield isVisible="no" isEditable="yes" defaultValue="">student_class_id</formfield>
+<formfield isVisible="yes" isEditable="yes" defaultValue="">teacher_email</formfield>
+</submitformfields>
+<email_should_have_grading>yes</email_should_have_grading>
+<company_name searchable="true"></company_name>
+<company_address searchable="true"></company_address>
+<company_phone searchable="true"></company_phone>
+<company_website searchable="true"></company_website>
+<action searchable="true">https://api.bookwidgets.com/api/v1/quiz/post</action>
+<support_student_account value="no">No student accounts</support_student_account>
+<student_account_authproviders/>
+<student_account_school>
+<code></code>
+<name>Anyone</name>
+</student_account_school>
+<student_account_authrestrict>yes</student_account_authrestrict>
+<direction value="left-to-right">left-to-right</direction>
+<description-direction value="left-to-right">left-to-right</description-direction>
+<widget_language></widget_language>
+<LocalizationMap>
+<localization>
+<phrase>Across</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Activate by clicking on the link in the email which was sent to the address provided.</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Answers</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Class ID</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Clear the crossword and start over?</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Click here to download your PDF</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Complete the form and click send to email your crossword.</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Complete the form and click send to submit your crossword to your teacher.</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Correct answers</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Could not generate PDF.  Please try again later.</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Crossword could not be sent.</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Down</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Download</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Download Failed</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Download as PDF</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Enter your name and click 'Generate' to generate the PDF.</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Generate</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Generate PDF failed</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Generating PDF, please wait...</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Invalid user name</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>No, keep</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Ok</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Optional Message</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>PDF generated</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Select horizontal or vertical word...</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Send</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Send Answer</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Send Failed</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Sending, please wait...</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Sent successfully</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Share</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Student Email</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Student ID</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Student Name</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Submit is disabled because you're not logged in with a student account. e.g. you may be using a parent account.</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Teacher Email</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>The crossword will be permanently deleted and cannot be recovered. Are you sure?</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>The email address you provided has not been activated.</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>This field is required:</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>To Email</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>To prevent abuse, results can only be sent to registered email addresses.</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Unable to send crossword. Make sure you're connected to the internet.</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Unknown error</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Uploading audio</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Uploading image</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Uploading your answers...</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Wrong answers</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Yes, clear</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>You can also register at www.bookwidgets.com.</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>You can't specify multiple addresses for field:</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Your Email</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Your Name</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+<localization>
+<phrase>Your crossword was sent successfully!</phrase>
+<translation></translation>
+<modified>false</modified>
+</localization>
+</LocalizationMap>
+<DesignConstants template="Dark Background" widget_font="Verdana" widget_backgroundimage="" widget_color="#3498DB">
+<constant>
+<name>backgroundbackground</name>
+<kind>BackgroundGradient</kind>
+<value>#3498DB, #3498DB, 255, 255</value>
+</constant>
+<constant>
+<name>backgroundimage</name>
+<kind>BackgroundImage</kind>
+<value></value>
+</constant>
+<constant>
+<name>backgroundoutline</name>
+<kind>Outline</kind>
+<value>2px, dotted, #ffffff, 127</value>
+</constant>
+<constant>
+<name>titlefont</name>
+<kind>TextFont</kind>
+<value>Verdana, font-stack, 20</value>
+</constant>
+<constant>
+<name>titlecolor</name>
+<kind>TextColor</kind>
+<value>#ffffff</value>
+</constant>
+<constant>
+<name>titlebackground</name>
+<kind>BackgroundGradient</kind>
+<value>#ffffff, #ffffff, 0, 0</value>
+</constant>
+<constant>
+<name>titleborderbottom</name>
+<kind>BorderBottom</kind>
+<value>1px, solid, #dddddd, 255</value>
+</constant>
+<constant>
+<name>titleborderradius</name>
+<kind>BorderRadius</kind>
+<value>0px, 0px, 0px, 0px</value>
+</constant>
+<constant>
+<name>titleshadow</name>
+<kind>BoxShadow</kind>
+<value>0px, 0px, 0px, 0px, #888, 255</value>
+</constant>
+<constant>
+<name>sspopuptoolbarbackground</name>
+<kind>BackgroundGradient</kind>
+<value>#3498DB, #3498DB, 255, 255</value>
+</constant>
+<constant>
+<name>sspopuptoolbarcolor</name>
+<kind>TextColor</kind>
+<value>#ffffff</value>
+</constant>
+<constant>
+<name>sspopuptoolbarshadow</name>
+<kind>BoxShadow</kind>
+<value>-1px, 1px, 1px, 0px, #010539, 32</value>
+</constant>
+<constant>
+<name>descriptionfont</name>
+<kind>TextFont</kind>
+<value>Verdana, font-stack, 16</value>
+</constant>
+<constant>
+<name>descriptioncolor</name>
+<kind>TextColor</kind>
+<value>#3498DB</value>
+</constant>
+<constant>
+<name>descriptionbackground</name>
+<kind>BackgroundGradient</kind>
+<value>#ffffff, #ffffff, 255, 255</value>
+</constant>
+<constant>
+<name>descriptionborderleft</name>
+<kind>BorderLeft</kind>
+<value>1px, solid, #ffffff, 255</value>
+</constant>
+<constant>
+<name>descriptionborderright</name>
+<kind>BorderRight</kind>
+<value>1px, solid, #ffffff, 255</value>
+</constant>
+<constant>
+<name>descriptionbordertop</name>
+<kind>BorderTop</kind>
+<value>1px, solid, #ffffff, 255</value>
+</constant>
+<constant>
+<name>descriptionborderbottom</name>
+<kind>BorderBottom</kind>
+<value>1px, solid, #ffffff, 255</value>
+</constant>
+<constant>
+<name>descriptionborderradius</name>
+<kind>BorderRadius</kind>
+<value>10px, 10px, 10px, 10px</value>
+</constant>
+<constant>
+<name>descriptionshadow</name>
+<kind>BoxShadow</kind>
+<value>0px, 0px, 0px, 0px, #888, 255</value>
+</constant>
+<constant>
+<name>hintfont</name>
+<kind>TextFont</kind>
+<value>Verdana, font-stack, 16</value>
+</constant>
+<constant>
+<name>hintcolor</name>
+<kind>TextColor</kind>
+<value>#ffffff</value>
+</constant>
+<constant>
+<name>hintbackground</name>
+<kind>BackgroundGradient</kind>
+<value>#76b3db, #76b3db, 255, 255</value>
+</constant>
+<constant>
+<name>hintborderleft</name>
+<kind>BorderLeft</kind>
+<value>5px, solid, #ffffff, 255</value>
+</constant>
+<constant>
+<name>hintborderright</name>
+<kind>BorderRight</kind>
+<value>5px, solid, #ffffff, 255</value>
+</constant>
+<constant>
+<name>hintbordertop</name>
+<kind>BorderTop</kind>
+<value>5px, solid, #ffffff, 255</value>
+</constant>
+<constant>
+<name>hintborderbottom</name>
+<kind>BorderBottom</kind>
+<value>5px, solid, #ffffff, 255</value>
+</constant>
+<constant>
+<name>hintborderradius</name>
+<kind>BorderRadius</kind>
+<value>5px, 5px, 5px, 5px</value>
+</constant>
+<constant>
+<name>hintshadow</name>
+<kind>BoxShadow</kind>
+<value>0px, 2px, 4px, 1px, #010539, 48</value>
+</constant>
+<constant>
+<name>letterboxfont</name>
+<kind>TextFont</kind>
+<value>Verdana, font-stack, 20</value>
+</constant>
+<constant>
+<name>letterboxcolor</name>
+<kind>TextColor</kind>
+<value>#3498DB</value>
+</constant>
+<constant>
+<name>letterboxbackground</name>
+<kind>BackgroundGradient</kind>
+<value>#ffffff, #ffffff, 255, 255</value>
+</constant>
+<constant>
+<name>letterboxborderleft</name>
+<kind>BorderLeft</kind>
+<value>1px, solid, #3498DB, 255</value>
+</constant>
+<constant>
+<name>letterboxborderright</name>
+<kind>BorderRight</kind>
+<value>1px, solid, #3498DB, 255</value>
+</constant>
+<constant>
+<name>letterboxbordertop</name>
+<kind>BorderTop</kind>
+<value>1px, solid, #3498DB, 255</value>
+</constant>
+<constant>
+<name>letterboxborderbottom</name>
+<kind>BorderBottom</kind>
+<value>1px, solid, #3498DB, 255</value>
+</constant>
+<constant>
+<name>letterboxborderradius</name>
+<kind>BorderRadius</kind>
+<value>0px, 0px, 0px, 0px</value>
+</constant>
+<constant>
+<name>letterboxshadow</name>
+<kind>BoxShadow</kind>
+<value>0px, 2px, 4px, 1px, #010539, 48</value>
+</constant>
+<constant>
+<name>letterboxcorrectbackground</name>
+<kind>BackgroundGradient</kind>
+<value>#40df40, #40c440, 191, 191</value>
+</constant>
+<constant>
+<name>letterboxwrongbackground</name>
+<kind>BackgroundGradient</kind>
+<value>#df4040, #c44040, 191, 191</value>
+</constant>
+<constant>
+<name>selectedboxbackground</name>
+<kind>BackgroundGradient</kind>
+<value>#ffff00, #ffff00, 255, 255</value>
+</constant>
+<constant>
+<name>conflictboxbackground</name>
+<kind>BackgroundGradient</kind>
+<value>#ff0000, #ff0000, 255, 255</value>
+</constant>
+<constant>
+<name>dialogborderradius</name>
+<kind>BorderRadius</kind>
+<value>24px, 24px, 24px, 24px</value>
+</constant>
+<constant>
+<name>dialogshadow</name>
+<kind>BoxShadow</kind>
+<value>0px, 2px, 4px, 1px, #010539, 48</value>
+</constant>
+<constant>
+<name>dialogbackground</name>
+<kind>BackgroundGradient</kind>
+<value>#ffffff, #ffffff, 255, 255</value>
+</constant>
+<constant>
+<name>dialogborderleft</name>
+<kind>BorderLeft</kind>
+<value>0px, solid, #000000, 255</value>
+</constant>
+<constant>
+<name>dialogborderright</name>
+<kind>BorderRight</kind>
+<value>0px, solid, #000000, 255</value>
+</constant>
+<constant>
+<name>dialogbordertop</name>
+<kind>BorderTop</kind>
+<value>0px, solid, #000000, 255</value>
+</constant>
+<constant>
+<name>dialogborderbottom</name>
+<kind>BorderBottom</kind>
+<value>0px, solid, #000000, 255</value>
+</constant>
+<constant>
+<name>dialogcontentfont</name>
+<kind>TextFont</kind>
+<value>Verdana, font-stack, 14</value>
+</constant>
+<constant>
+<name>dialogcontentcolor</name>
+<kind>TextColor</kind>
+<value>#010539</value>
+</constant>
+<constant>
+<name>dialogtitlefont</name>
+<kind>TextFont</kind>
+<value>Verdana, font-stack, bold, 18</value>
+</constant>
+<constant>
+<name>dialogtitleborderradius</name>
+<kind>BorderRadius</kind>
+<value>0px, 0px, 0px, 0px</value>
+</constant>
+<constant>
+<name>dialogtitleshadow</name>
+<kind>BoxShadow</kind>
+<value>0px, 0px, 0px, 0px, #888, 255</value>
+</constant>
+<constant>
+<name>dialogtitlecolor</name>
+<kind>TextColor</kind>
+<value>#3498DB</value>
+</constant>
+<constant>
+<name>dialogtitlebackground</name>
+<kind>BackgroundGradient</kind>
+<value>#ffffff, #ffffff, 0, 0</value>
+</constant>
+<constant>
+<name>dialogtitleborderleft</name>
+<kind>BorderLeft</kind>
+<value>0px, solid, #000000, 255</value>
+</constant>
+<constant>
+<name>dialogtitleborderright</name>
+<kind>BorderRight</kind>
+<value>0px, solid, #000000, 255</value>
+</constant>
+<constant>
+<name>dialogtitlebordertop</name>
+<kind>BorderTop</kind>
+<value>0px, solid, #000000, 255</value>
+</constant>
+<constant>
+<name>dialogtitleborderbottom</name>
+<kind>BorderBottom</kind>
+<value>0px, solid, #000000, 255</value>
+</constant>
+<constant>
+<name>dialogbuttonfont</name>
+<kind>TextFont</kind>
+<value>Verdana, font-stack, 16</value>
+</constant>
+<constant>
+<name>dialogbuttonborderradius</name>
+<kind>BorderRadius</kind>
+<value>24px, 24px, 24px, 24px</value>
+</constant>
+<constant>
+<name>dialogbuttonshadow</name>
+<kind>BoxShadow</kind>
+<value>0px, 0px, 0px, 0px, #888, 255</value>
+</constant>
+<constant>
+<name>dialogbuttoncolor</name>
+<kind>TextColor</kind>
+<value>#3498DB</value>
+</constant>
+<constant>
+<name>dialogbuttonbackground</name>
+<kind>BackgroundGradient</kind>
+<value>#ffffff, #ffffff, 0, 0</value>
+</constant>
+<constant>
+<name>dialogbuttonborderleft</name>
+<kind>BorderLeft</kind>
+<value>1px, solid, #3498DB, 255</value>
+</constant>
+<constant>
+<name>dialogbuttonborderright</name>
+<kind>BorderRight</kind>
+<value>1px, solid, #3498DB, 255</value>
+</constant>
+<constant>
+<name>dialogbuttonbordertop</name>
+<kind>BorderTop</kind>
+<value>1px, solid, #3498DB, 255</value>
+</constant>
+<constant>
+<name>dialogbuttonborderbottom</name>
+<kind>BorderBottom</kind>
+<value>1px, solid, #3498DB, 255</value>
+</constant>
+<constant>
+<name>dialogbuttonpadding</name>
+<kind>Padding</kind>
+<value>8px, 12px, 8px, 12px</value>
+</constant>
+<constant>
+<name>dialogbuttonoutline</name>
+<kind>Outline</kind>
+<value>2px, dotted, #3498DB, 127</value>
+</constant>
+</DesignConstants>
+<cover rid="" caption="" width="0" orientation="1" height="0" alttext="" autosize="true"></cover>
+<widget_orientation value="Horizontal">Horizontal</widget_orientation>
+<BookWidgetsVersion>6.2.0</BookWidgetsVersion>
+<shortcode></shortcode>
+<label searchable="true"></label>
+<lastupload></lastupload>
+</Crossword>

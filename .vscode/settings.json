@@ -1,0 +1,20 @@
+{
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "workbench.colorCustomizations": {
+        "statusBar.background": "#D65649",
+        "statusBar.debuggingBackground": "#D65649",
+        "statusBar.noFolderBackground": "#D65649",
+        "statussBar.prominentBackground": "#D65649"
+    },
+    "cSpell.words": ["editables", "swiper", "tabindex", "Xmatter"],
+    "cSpell.ignorePaths": [
+        "package-lock.json",
+        "node_modules",
+        "vscode-extension",
+        ".git/objects",
+        ".vscode",
+        ".vscode-insiders",
+        "package.json"
+    ]
+}

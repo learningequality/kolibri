@@ -1,0 +1,20 @@
+/* *** DO NOT EDIT! ***   These styles are controlled by the Settings dialog box in Bloom. */
+/* They may be over-ridden by rules in customCollectionStyles.css or customBookStyles.css */
+
+.numberedPage::after
+{
+ font-family: 'Andika New Basic';
+ direction: ltr;
+}
+
+[lang='quc']
+{
+ font-family: 'Andika New Basic';
+ direction: ltr;
+}
+
+[lang='en']
+{
+ font-family: 'Andika New Basic';
+ direction: ltr;
+}

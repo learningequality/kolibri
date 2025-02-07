@@ -1,0 +1,13 @@
+/*  Some books may need control over aspects of layout that cannot yet be adjusted
+    from the Bloom interface. In those cases, Bloom provides this "under the hood" method
+    of creating style rules using the underlying "Cascading Stylesheets" system.
+    These rules are then applied to all books in this collection.  EDIT THIS FILE ONLY
+    IN THE COLLECTION FOLDER:  changes made to a copy found in the book folder will be
+    lost the next time the book is edited with Bloom!
+
+ Note: you can also add a file named "customBookStyles.css" in the book folder,
+    to limit the effects of the rules to just that one book.
+
+    You can learn about CSS from hundreds of books, or online. However chances are, if
+    you need this customization, you will need an expert to create a version of this file
+    for you, or give you rules that you can paste in below this line. */

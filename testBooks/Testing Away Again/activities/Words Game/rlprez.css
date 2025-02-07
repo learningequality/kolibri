@@ -1,0 +1,85 @@
+/*!
+ * ActivePresenter HTML5 Output File
+ * Copyright (c) Atomi Systems, Inc. All rights reserved.
+ * https://atomisystems.com/activepresenter/
+ * Version: 8.3.1
+ * Date: 2021.01.08
+ */
+#IJF1d4sO .ap-focused {
+	outline: 1px dashed black;
+	outline-offset: 1px;
+}
+#IJF1d4sO p {
+	margin: 0;
+}
+#IJF1d4sO ol,ul {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+#IJF1d4sO {
+	-webkit-tap-highlight-color: transparent;
+}
+
+
+
+
+/* Animation */
+@-webkit-keyframes 
+pulsate {
+	0% {
+		-webkit-transform: scale(1);
+		transform: scale(1);
+		opacity: 0.8;
+	}
+	45% {
+		-webkit-transform: scale(1.75);
+		transform: scale(1.75);
+		opacity: 0;
+	}
+}
+@keyframes 
+pulsate {
+	0% {
+		-webkit-transform: scale(1);
+		transform: scale(1);
+		opacity: 0.8;
+	}
+	45% {
+		-webkit-transform: scale(1.75);
+		transform: scale(1.75);
+		opacity: 0;
+	}
+}
+
+.ap-hotspot {
+	position: absolute;
+	transition: all .3s ease;
+	cursor: pointer;
+}
+
+.ap-hotspot .hs-circle {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	border-radius: 50%;
+	transform-origin: 50% 50%;
+}
+
+.ap-hotspot .hs-ring {
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	-webkit-transform-origin: 50% 50%;
+	transform-origin: 50% 50%;
+	border-radius: 50%;
+	margin: -1px auto auto -1px;
+	border: 1px solid;
+	-webkit-animation: pulsate 3s ease-out infinite;
+	animation: pulsate 3s ease-out infinite;
+	opacity: 0;
+}
+
+.ap-hotspot .hs-ring:hover {
+	animation: none;
+}

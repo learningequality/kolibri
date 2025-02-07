@@ -1,0 +1,54 @@
+{
+    "Quiz.CheckYourUnderstanding": {
+        "message": "Check Your Understanding",
+        "description": "the heading on (some) quiz pages"
+    },
+    "Audio.Play": {
+        "message": "Play",
+        "description": "tooltip for the button to play a motion book"
+    },
+    "Audio.ReadAloud": {
+        "message": "Read Aloud",
+        "description": "tooltip for the audio play button for talking books"
+    },
+    "Audio.Pause": {
+        "message": "Pause",
+        "description": "tooltip for the audio (or motion) pause button"
+    },
+    "Button.Back": {
+        "message": "Back",
+        "description": "tooltip for the button to go back to the main display"
+    },
+    "Button.More": {
+        "message": "More",
+        "description": "tooltip for the button to go show detail view of book"
+    },
+    "Button.FullScreen": {
+        "message": "Full Screen",
+        "description": "tooltip for the display on full screen button"
+    },
+    "Button.ExitFullScreen": {
+        "message": "Exit Full Screen",
+        "description": "tooltip for the exit full screen button"
+    },
+    "Button.ChooseLanguage": {
+        "message": "Choose Language",
+        "description": "tooltip for the language menu button"
+    },
+    "Button.Next": {
+        "message": "Next Page",
+        "description": "tooltip for the next page button"
+    },
+    "Button.Prev": {
+        "message": "Previous Page",
+        "description": "tooltip for the previous page button"
+    },
+    "Button.ReadImageDescriptions": {
+        "message": "Read Image Descriptions",
+        "description": "tooltip for the button to enable reading image descriptions"
+    },
+    "Button.IgnoreImageDescriptions": {
+        "message": "Ignore Image Descriptions",
+        "description": "tooltip for the button to disable reading image descriptions"
+    }
+}

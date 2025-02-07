@@ -1,0 +1,142 @@
+div.dialog-sheet {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  z-index: 9998;
+  overflow: hidden;
+  width: 560px;
+  margin: 0 0 0 -290px;
+  padding: 20px 10px 10px;
+  background-color: #fff;
+  border-width: 0 1px 1px;
+  border-style: none solid solid;
+  border-color: transparent #999 #999;
+  border-color: transparent rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.3);
+  -webkit-border-bottom-right-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -moz-border-radius-bottomright: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding-box;
+  background-clip: padding-box;
+  -webkit-transform: translate3d(0, -100%, 0);
+  -moz-transform: translateY(-100%);
+  -o-transform: translateY(-100%);
+  transform: translateY(-100%);
+  -webkit-transition: -webkit-transform 0.3s ease;
+  -moz-transition: -moz-transform 0.3s ease;
+  -o-transition: -o-transform 0.3s ease;
+  transition: transform 0.3s ease;
+}
+
+
+div.dialog-sheet-bottom {
+  position: fixed;
+  top: 708px;
+  left: 50%;
+  z-index: 9998;
+  overflow: hidden;
+  width: 280px;
+  margin: 0 0 0 -150px;
+  padding: 5px;
+  color: rgba(0, 0, 0, 0.9);  
+  background-color: #c2c2c2;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#c2c2c2), to(#e0e0e0));
+  background-image: -webkit-linear-gradient(top, #c2c2c2, #e0e0e0);
+  background-image:    -moz-linear-gradient(top, #c2c2c2, #e0e0e0);
+  background-image:     -ms-linear-gradient(top, #c2c2c2, #e0e0e0);
+  background-image:      -o-linear-gradient(top, #c2c2c2, #e0e0e0);
+  background-image:         linear-gradient(to bottom, #c2c2c2, #e0e0e0);
+  text-shadow: 1px 1px 3px #888;  
+  border-width: 1px 1px 0px 1px;
+  border-style: solid solid none solid;
+  border-color:  #999 #999 transparent #999;
+  border-color:  rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.3) transparent rgba(0, 0, 0, 0.3);
+  -webkit-border-top-right-radius: 10px;
+  -webkit-border-top-left-radius: 10px;
+  -moz-border-radius-topright: 10px;
+  -moz-border-radius-topleft: 10px;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding-box;
+  background-clip: padding-box;
+  -webkit-transform: translate3d(0, 100%, 0);
+  -moz-transform: translateY(100%);
+  -o-transform: translateY(100%);
+  transform: translateY(100%);
+  -webkit-transition: -webkit-transform 0.3s ease;
+  -moz-transition: -moz-transform 0.3s ease;
+  -o-transition: -o-transform 0.3s ease;
+  transition: transform 0.3s ease;
+}
+
+
+div.dialog-sheet .actions {
+  margin: 18px -10px -10px;
+  padding: 14px;
+  text-align: right;
+}
+
+div.dialog-sheet.active {
+  -webkit-box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.3);
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translateY(0);
+  -o-transform: translateY(0);
+  transform: translateY(0);
+}
+
+div.dialog-sheet-bottom.active {
+  -webkit-box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.3);
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translateY(0);
+  -o-transform: translateY(0);
+  transform: translateY(0);
+}
+
+div.dialog-sheet-shadow {
+  content: '';
+  position: fixed;
+  opacity: 0;
+  z-index: 9999;
+  top: -10px;
+  left: 50%;
+  width: 582px;
+  height: 10px;
+  margin-left: -290px;
+  -webkit-box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.6);
+  -moz-box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.6);
+  box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.6);
+}
+
+div.dialog-sheet.active ~ div.dialog-sheet-shadow {
+  opacity: 1;
+}
+
+div.topbar ~ div.dialog-sheet {
+  top: 40px;
+}
+
+div.topbar ~ div.dialog-sheet-shadow {
+  top: 30px;
+}
+
+div.dialog-sheet-bottom.active ~ div.dialog-sheet-shadow {
+  opacity: 1;
+}
+
+div.topbar ~ div.dialog-sheet-bottom {
+  top: 40px;
+}

@@ -1,0 +1,44 @@
+/*
+ Around the time that the appearance system (Bloom 6.0) was about to go beta,
+ we realized we had a mess in bloom-player.less. In cleaning it up, we split
+ it into three files: UI, content interaction, and this one.
+
+ This one is for the rules which were styling book content but should have
+ been part of the book instead of the player (or rules which were already obsolete
+ due to changes in the book, such as the border-bottom and the tabindex rules).
+ They are now only applied to books which are not part of the appearance system.
+*/
+
+.bloomPlayer-page:not(.appearance-system) {
+    /* override the rule in bloom-preview that puts a border at the bottom of each page
+    to separate the pages in a continuous scrolling view. Unfortunately that rule is
+    !important so the only way to beat it is to be !important too. We also need more than
+    two classes. */
+    .bloomPlayer & div.bloom-page {
+        border-bottom: initial !important;
+    }
+
+    // Less can't do arithmetic with pixels and mm, and most of our page
+    // dimensions are in mm, so I'm doing everything related to page dimensions
+    // that way, on the (print) assumption of 96px/inch.
+    @pageNumberBottomMargin: 0.529mm; // 2px
+
+    /* we're giving pages in this control less margin than in regular previews,
+    so we need the page number further down to reduce the chance of overlap.
+    For an online reader we're also going for centered page numbers.
+    We need the repeated .bloomPlayer class to make the rule take precedence
+    over anything in our standard stylesheets, though still allowing for
+    !important in a custom CSS to beat us. */
+    .bloomPlayer.bloomPlayer.bloomPlayer & .numberedPage::after {
+        bottom: @pageNumberBottomMargin;
+        left: calc(50% - 10px);
+        right: unset;
+        text-align: left;
+    }
+
+    // BL-7517 Older books had a tabindex attribute, which newer versions of .bloomd/.bloompub files remove.
+    // When the attribute is present, tapping on the div causes it to be bordered in orange. (See BL-6849 too.)
+    *[tabindex]:focus {
+        outline: none;
+    }
+}

@@ -1,0 +1,11 @@
+<IfModule mod_mime.c>
+AddType audio/aac .aac
+AddType audio/mp4 .m4a
+AddType audio/mpeg .mp1 .mp2 .mp3
+AddType audio/ogg .oga .ogg
+AddType audio/wav .wav
+
+AddType video/mp4 .mp4 .m4v
+AddType video/ogg .ogv
+AddType video/webm .webm
+</IfModule>

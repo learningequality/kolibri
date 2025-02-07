@@ -1,0 +1,352 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8"></meta>
+    <meta name="Generator" content="Bloom Version 5.0.1172 (apparent build date: 08-Dec-2020)"></meta>
+    <meta name="BloomFormatVersion" content="2.1"></meta>
+    <meta name="pageTemplateSource" content="Basic Book"></meta>
+
+    <title>sign-language-with talking-book</title>
+    <style type="text/css" title="userModifiedStyles">
+    /*<![CDATA[*/
+    .BigWords-style { font-size: 45pt !important; text-align: center !important; }
+    /*]]>*/
+    </style>
+    <style type="text/css">
+                DIV.bloom-page.coverColor       {               background-color: #E48C84 !important;   }
+    </style>
+    <meta name="lockedDownAsShell" content="true"></meta>
+    <meta name="maintenanceLevel" content="2"></meta>
+    <link rel="stylesheet" href="basePage.css" type="text/css"></link>
+    <link rel="stylesheet" href="previewMode.css" type="text/css"></link>
+    <link rel="stylesheet" href="origami.css" type="text/css"></link>
+    <link rel="stylesheet" href="branding.css" type="text/css"></link>
+    <link rel="stylesheet" href="Basic Book.css" type="text/css"></link>
+    <link rel="stylesheet" href="Traditional-XMatter.css" type="text/css"></link>
+    <link rel="stylesheet" href="langVisibility.css" type="text/css"></link>
+    <link rel="stylesheet" href="defaultLangStyles.css" type="text/css"></link>
+    <link rel="stylesheet" href="customCollectionStyles.css" type="text/css"></link>
+</head>
+
+<body data-l1="en" data-l2="en" data-l3="">
+    <div id="bloomDataDiv">
+        <div data-book="styleNumberSequence" lang="*">
+            0
+        </div>
+
+        <div data-book="contentLanguage1" lang="*">
+            en
+        </div>
+
+        <div data-book="contentLanguage1Rtl" lang="*">
+            False
+        </div>
+
+        <div data-book="languagesOfBook" lang="*">
+            English
+        </div>
+
+        <div data-book="bookTitle" lang="en" class=" bloom-editable bloom-nodefaultstylerule bloom-padForOverflow" contenteditable="true">
+            <p>sign-language-with talking-book</p>
+        </div>
+
+        <div data-book="coverImage" lang="*" src="placeHolder.png" alt="This picture, placeHolder.png, is missing or was loading too slowly.">
+            placeHolder.png
+        </div>
+
+        <div data-book="originalTitle" lang="*">
+            sign-language-with talking-book
+        </div>
+
+        <div data-book="title-page-branding-bottom-html" lang="*"><img class="branding" src="BloomLocal.svg" alt=""></img></div>
+
+        <div data-book="outside-back-cover-branding-bottom-html" lang="*">
+        <p>This book was created with Bloom Enterprise features freely enabled in order to support projects funded by the local community.</p><img class="branding" src="Bloom%20Against%20Light%20HD.png" alt=""></img></div>
+
+        <div data-book="licenseUrl" lang="*">
+            http://creativecommons.org/licenses/by/4.0/
+        </div>
+
+        <div data-book="licenseDescription" lang="en">
+            http://creativecommons.org/licenses/by/4.0/<br />You are free to make commercial use of this work. You may adapt and add to this work. You must keep the copyright and credits for authors, illustrators, etc.
+        </div>
+
+        <div data-book="licenseImage" lang="*">
+            license.png
+        </div>
+        <div data-xmatter-page="insideFrontCover" data-page="required singleton" data-export="front-matter-inside-front-cover" data-page-number=""></div>
+        <div data-xmatter-page="titlePage" data-page="required singleton" data-export="front-matter-title-page" data-page-number=""></div>
+        <div data-xmatter-page="credits" data-page="required singleton" data-export="front-matter-credits" data-page-number=""></div>
+        <div data-xmatter-page="insideBackCover" data-page="required singleton" data-export="back-matter-inside-back-cover" data-page-number=""></div>
+        <div data-xmatter-page="outsideBackCover" data-page="required singleton" data-export="back-matter-back-cover" data-page-number=""></div>
+        <div data-xmatter-page="frontCover" data-page="required singleton" data-export="front-matter-cover" data-page-number=""></div>
+    </div>
+
+    <div class="bloom-page cover coverColor bloom-frontMatter frontCover outsideFrontCover A5Portrait side-right" data-page="required singleton" data-export="front-matter-cover" data-xmatter-page="frontCover" id="863b3e71-fcb6-44b1-8c71-e805c4724290" lang="en" data-page-number="">
+        <div class="pageLabel" lang="en" data-i18n="TemplateBooks.PageLabel.Front Cover">
+            Front Cover
+        </div>
+        <div class="pageDescription" lang="en"></div>
+
+        <div class="marginBox">
+            <div class="bloom-translationGroup bookTitle" data-default-languages="V,N1">
+                <label class="bubble">Book title in {lang}</label>
+                <div class="bloom-editable bloom-nodefaultstylerule Title-On-Cover-style bloom-padForOverflow" lang="z" contenteditable="true" data-book="bookTitle"></div>
+
+                <div class="bloom-editable bloom-nodefaultstylerule Title-On-Cover-style bloom-padForOverflow bloom-content1 bloom-contentNational1 bloom-visibility-code-on" lang="en" contenteditable="true" data-book="bookTitle">
+                    <p>sign-language-with talking-book</p>
+                </div>
+            </div>
+
+            <div class="bloom-imageContainer">
+                <img data-book="coverImage" src="placeHolder.png" alt=""></img>
+
+                <div class="bloom-translationGroup bloom-imageDescription bloom-trailingElement" data-default-languages="auto">
+                    <div class="bloom-editable ImageDescriptionEdit-style" lang="z" contenteditable="true" data-book="coverImageDescription"></div>
+                    <div class="bloom-editable ImageDescriptionEdit-style bloom-content1 bloom-contentNational1 bloom-visibility-code-on" lang="en" contenteditable="true" data-book="coverImageDescription"></div>
+                </div>
+            </div>
+
+            <div class="bottomBlock">
+                <div data-book="cover-branding-left-html" lang="*"></div>
+
+                <div class="bottomTextContent">
+                    <div class="creditsRow" data-hint="You may use this space for author/illustrator, or anything else.">
+                        <div class="bloom-translationGroup" data-default-languages="V">
+                            <div class="bloom-editable smallCoverCredits Cover-Default-style" lang="z" contenteditable="true" data-book="smallCoverCredits"></div>
+                            <div class="bloom-editable smallCoverCredits Cover-Default-style bloom-content1 bloom-contentNational1 bloom-visibility-code-on" lang="en" contenteditable="true" data-book="smallCoverCredits"></div>
+                        </div>
+                    </div>
+
+                    <div class="bottomRow" data-have-topic="false">
+                        <div class="coverBottomLangName Cover-Default-style" data-derived="languagesOfBook" lang="en">
+                            English
+                        </div>
+
+                        <div class="coverBottomBookTopic bloom-userCannotModifyStyles bloom-alwaysShowBubble Cover-Default-style" data-derived="topic" data-functiononhintclick="ShowTopicChooser()" data-hint="Click to choose topic"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bloom-page cover coverColor bloom-frontMatter cover coverColor insideFrontCover bloom-frontMatter A5Portrait side-left" data-page="required singleton" data-export="front-matter-inside-front-cover" data-xmatter-page="insideFrontCover" id="743ecad9-25b2-476d-9eed-b3e53f474af0" lang="en" data-page-number="">
+        <div class="pageLabel" lang="en" data-i18n="TemplateBooks.PageLabel.Inside Front Cover">
+            Inside Front Cover
+        </div>
+        <div class="pageDescription" lang="en"></div>
+
+        <div class="marginBox">
+            <div class="bloom-translationGroup" data-default-languages="N1">
+                <div class="bloom-editable Inside-Front-Cover-style bloom-content1 bloom-contentNational1 bloom-visibility-code-on" lang="en" contenteditable="true" data-book="insideFontCover"></div>
+            </div><label class="bubble">If you need somewhere to put more information about the book, you can use this page, which is the inside of the front cover.</label>
+        </div>
+    </div>
+
+    <div class="bloom-page titlePage bloom-frontMatter A5Portrait side-right" data-page="required singleton" data-export="front-matter-title-page" data-xmatter-page="titlePage" id="ee05b7cb-bb8a-434b-b690-3384fd4e3f8d" lang="en" data-page-number="">
+        <div class="pageLabel" lang="en" data-i18n="TemplateBooks.PageLabel.Title Page">
+            Title Page
+        </div>
+        <div class="pageDescription" lang="en"></div>
+
+        <div class="marginBox">
+            <div class="bloom-translationGroup" data-default-languages="V,N1" id="titlePageTitleBlock">
+                <label class="bubble">Book title in {lang}</label>
+                <div class="bloom-editable bloom-nodefaultstylerule Title-On-Title-Page-style bloom-padForOverflow" lang="z" contenteditable="true" data-book="bookTitle"></div>
+
+                <div class="bloom-editable bloom-nodefaultstylerule Title-On-Title-Page-style bloom-padForOverflow bloom-content1 bloom-contentNational1 bloom-visibility-code-on" lang="en" contenteditable="true" data-book="bookTitle">
+                    <p>sign-language-with talking-book</p>
+                </div>
+            </div>
+            <div class="largeFlexGap"></div>
+
+            <div class="bloom-translationGroup" data-default-languages="N1" id="originalContributions">
+                <label class="bubble" data-link-text="Paste Image Credits" data-link-target="PasteImageCredits()">The contributions made by writers, illustrators, editors, etc., in {lang}</label>
+                <div class="bloom-editable credits bloom-copyFromOtherLanguageIfNecessary Content-On-Title-Page-style" lang="z" contenteditable="true" data-book="originalContributions"></div>
+                <div class="bloom-editable credits bloom-copyFromOtherLanguageIfNecessary Content-On-Title-Page-style bloom-content1 bloom-contentNational1 bloom-visibility-code-on" lang="en" contenteditable="true" data-book="originalContributions"></div>
+            </div>
+            <div class="smallFlexGap"></div>
+
+            <div class="bloom-translationGroup" data-default-languages="N1" id="funding">
+                <label class="bubble">Use this to acknowledge any funding agencies.</label>
+                <div class="bloom-editable funding Content-On-Title-Page-style bloom-copyFromOtherLanguageIfNecessary" lang="z" contenteditable="true" data-book="funding"></div>
+                <div class="bloom-editable funding Content-On-Title-Page-style bloom-copyFromOtherLanguageIfNecessary bloom-content1 bloom-contentNational1 bloom-visibility-code-on" lang="en" contenteditable="true" data-book="funding"></div>
+            </div>
+            <div class="largeFlexGap"></div>
+            <div class="Content-On-Title-Page-style" id="languageInformation"></div>
+
+            <div class="languagesOfBook" data-derived="languagesOfBook" lang="en">
+                English
+            </div>
+            <div class="langName" data-library="dialect"></div>
+            <div class="langName bloom-writeOnly" data-library="languageLocation"></div>
+            <div class="fillPageFlexGap"></div>
+
+            <div data-book="title-page-branding-bottom-html" lang="*"><img class="branding" src="BloomLocal.svg" alt=""></img></div>
+        </div>
+    </div>
+
+    <div class="bloom-page bloom-frontMatter credits A5Portrait side-left" data-page="required singleton" data-export="front-matter-credits" data-xmatter-page="credits" id="758beb88-1d67-4e37-9bd5-11a3dc6f0ab6" lang="en" data-page-number="">
+        <div class="pageLabel" lang="en" data-i18n="TemplateBooks.PageLabel.Credits Page">
+            Credits Page
+        </div>
+        <div class="pageDescription" lang="en"></div>
+
+        <div class="marginBox">
+            <div data-book="credits-page-branding-top-html" lang="*"></div>
+
+            <div class="bloom-metaData licenseAndCopyrightBlock" data-functiononhintclick="bookMetadataEditor" data-hint="Click to Edit Copyright &amp; License" lang="en">
+                <div class="copyright Credits-Page-style" data-derived="copyright"></div>
+
+                <div class="licenseBlock">
+                    <img class="licenseImage" src="license.png" data-derived="licenseImage" alt=""></img>
+
+                    <div class="licenseUrl" data-derived="licenseUrl" lang="*">
+                        http://creativecommons.org/licenses/by/4.0/
+                    </div>
+
+                    <div class="licenseDescription Credits-Page-style" data-derived="licenseDescription" lang="en">
+                        http://creativecommons.org/licenses/by/4.0/<br />You are free to make commercial use of this work. You may adapt and add to this work. You must keep the copyright and credits for authors, illustrators, etc.
+                    </div>
+
+                    <div class="licenseNotes Credits-Page-style" data-derived="licenseNotes"></div>
+                </div>
+            </div>
+
+            <div class="bloom-translationGroup versionAcknowledgments" data-default-languages="N1">
+                <label class="bubble">Acknowledgments for this version, in {lang}. For example, give credit to the translator for this version.</label>
+                <div class="bloom-editable versionAcknowledgments Credits-Page-style bloom-content1 bloom-contentNational1 bloom-visibility-code-on" lang="en" contenteditable="true" data-book="versionAcknowledgments"></div>
+            </div>
+
+            <div class="copyright Credits-Page-style" data-derived="originalCopyrightAndLicense"></div>
+
+            <div class="bloom-translationGroup originalAcknowledgments" data-default-languages="N1">
+                <label class="bubble">Original (or Shell) Acknowledgments in {lang}</label>
+
+                <div class="bloom-editable bloom-copyFromOtherLanguageIfNecessary Credits-Page-style" lang="z" contenteditable="true" data-book="originalAcknowledgments"></div>
+
+                <div class="bloom-editable bloom-copyFromOtherLanguageIfNecessary Credits-Page-style bloom-content1 bloom-contentNational1 bloom-visibility-code-on" lang="en" contenteditable="true" data-book="originalAcknowledgments"></div>
+            </div>
+
+            <div class="ISBNContainer" data-hint="International Standard Book Number. Leave blank if you don't have one of these.">
+                <span class="bloom-doNotPublishIfParentOtherwiseEmpty Credits-Page-style">ISBN</span>
+
+                <div class="bloom-translationGroup bloom-recording-optional" data-default-languages="*">
+                    <div class="bloom-editable Credits-Page-style bloom-visibility-code-on" data-book="ISBN" lang="*"></div>
+                    <div class="bloom-editable Credits-Page-style bloom-content1 bloom-contentNational1" data-book="ISBN" lang="en"></div>
+                </div>
+            </div>
+            <div data-book="credits-page-branding-bottom-html" lang="*"></div>
+        </div>
+    </div>
+
+    <div class="bloom-page numberedPage customPage bloom-combinedPage enterprise-only A5Portrait side-right bloom-monolingual" data-page="" id="77bc9c8b-9771-4e90-b674-b510ba9d39df" data-pagelineage="48097654-53a1-4c5c-8c2a-a1e371489546" data-page-number="1" lang="">
+        <div class="pageLabel" data-i18n="TemplateBooks.PageLabel.Text Over Video" lang="en">
+            Text Over Video
+        </div>
+        <div class="pageDescription" lang="en"></div>
+
+        <div class="marginBox">
+            <div class="split-pane horizontal-percent" style="min-height: 42px;">
+                <div class="split-pane-component position-top" style="bottom: 72.3724%">
+                    <div class="split-pane-component-inner">
+                        <div class="bloom-translationGroup bloom-trailingElement" data-default-languages="auto">
+                            <div class="bloom-editable normal-style bloom-content1 bloom-contentNational1 bloom-visibility-code-on" style="min-height: 24px;" tabindex="0" spellcheck="true" role="textbox" aria-label="false" data-audiorecordingmode="Sentence" data-languagetipcontent="English" lang="en" contenteditable="true">
+                                <p><span id="i500c0088-a46b-4ee1-980c-82fb2b10c3c7" class="audio-sentence" recordingmd5="3727584a2e95f30c8dd8a2a622fefd96" data-duration="3.213006">The video should play first, then this.</span></p>
+                            </div>
+
+                            <div class="bloom-editable normal-style" style="" lang="z" contenteditable="true">
+                                <p></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="split-pane-divider horizontal-divider" style="bottom: 72.3724%"></div>
+
+                <div class="split-pane-component position-bottom" style="height: 72.3724%">
+                    <div class="split-pane-component-inner">
+                        <div class="bloom-videoContainer bloom-noVideoSelected bloom-leadingElement bloom-selected">
+                            <video>
+                            <source src="video/64a73a8e-a50b-4b3f-8665-a608e17eff83.mp4"></source></video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bloom-page numberedPage enterprise-only customPage A5Portrait side-left bloom-monolingual" data-page="" id="3613a6d3-0bb2-4891-bfc4-74c2d76c7df3" data-pagelineage="8bedcdf8-3ad6-4967-b027-6c186436572f" data-page-number="2" lang="">
+        <div class="pageLabel" data-i18n="TemplateBooks.PageLabel.Just Video" lang="en">
+            Just Video
+        </div>
+        <div class="pageDescription" lang="en"></div>
+
+        <div class="marginBox">
+            <div class="split-pane-component-inner">
+                <div class="bloom-videoContainer bloom-noVideoSelected bloom-leadingElement bloom-selected">
+                    <video>
+                    <source src="video/eecf9d8b-9134-4180-b51e-21e98218bebb.mp4"></source></video>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bloom-page numberedPage customPage A5Portrait side-right bloom-monolingual" data-page="" id="c377a798-4397-427d-8d8b-79ed96a3119b" data-pagelineage="a31c38d8-c1cb-4eb9-951b-d2840f6a8bdb" data-page-number="3" lang="">
+        <div class="pageLabel" data-i18n="TemplateBooks.PageLabel.Just Text" lang="en">
+            Just Text
+        </div>
+
+        <div class="pageDescription" lang="en"></div>
+
+        <div class="marginBox">
+            <div class="split-pane-component-inner">
+                <div class="bloom-translationGroup bloom-trailingElement" data-default-languages="auto">
+                    <div class="bloom-editable normal-style bloom-content1 bloom-contentNational1 bloom-visibility-code-on" style="min-height: 24px;" tabindex="0" spellcheck="true" role="textbox" aria-label="false" data-audiorecordingmode="Sentence" data-languagetipcontent="English" lang="en" contenteditable="true">
+                        <p><span id="i8cfdc51a-ef47-479e-b166-2b82c8b623de" class="audio-sentence" recordingmd5="e4b098c5462c87b6c7602ceaa1396f25" data-duration="4.350453">And finally, a talking page with no video.</span></p>
+                    </div>
+
+                    <div class="bloom-editable normal-style" style="" lang="z" contenteditable="true">
+                        <p></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bloom-page cover coverColor insideBackCover bloom-backMatter A5Portrait side-left" data-page="required singleton" data-export="back-matter-inside-back-cover" data-xmatter-page="insideBackCover" id="d39b9c5e-0be6-4d08-8149-0f442a87a0e9" lang="en" data-page-number="">
+        <div class="pageLabel" lang="en" data-i18n="TemplateBooks.PageLabel.Inside Back Cover">
+            Inside Back Cover
+        </div>
+        <div class="pageDescription" lang="en"></div>
+
+        <div class="marginBox">
+            <div class="bloom-translationGroup" data-default-languages="N1">
+                <div class="bloom-editable Inside-Back-Cover-style bloom-content1 bloom-contentNational1 bloom-visibility-code-on" lang="en" contenteditable="true" data-book="insideBackCover">
+                    <label class="bubble">If you need somewhere to put more information about the book, you can use this page, which is the inside of the back cover.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bloom-page cover coverColor outsideBackCover bloom-backMatter A5Portrait side-right" data-page="required singleton" data-export="back-matter-back-cover" data-xmatter-page="outsideBackCover" id="51326998-2845-4ff9-a0eb-6e503d513387" lang="en" data-page-number="">
+        <div class="pageLabel" lang="en" data-i18n="TemplateBooks.PageLabel.Outside Back Cover">
+            Outside Back Cover
+        </div>
+        <div class="pageDescription" lang="en"></div>
+
+        <div class="marginBox">
+            <div data-book="outside-back-cover-branding-top-html" lang="*"></div>
+
+            <div class="bloom-translationGroup" data-default-languages="N1">
+                <div class="bloom-editable Outside-Back-Cover-style bloom-content1 bloom-contentNational1 bloom-visibility-code-on" lang="en" contenteditable="true" data-book="outsideBackCover">
+                    <label class="bubble">If you need somewhere to put more information about the book, you can use this page, which is the outside of the back cover.</label>
+                </div>
+            </div>
+
+            <div data-book="outside-back-cover-branding-bottom-html" lang="*">
+            <p>This book was created with Bloom Enterprise features freely enabled in order to support projects funded by the local community.</p><img class="branding" src="Bloom%20Against%20Light%20HD.png" alt=""></img></div>
+        </div>
+    </div>
+</body>
+</html>
