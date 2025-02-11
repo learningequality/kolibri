@@ -1048,10 +1048,7 @@ class SessionViewSet(viewsets.ViewSet):
             response = Response(session)
             try:
                 visitor_id = request.COOKIES.get("visitor_id")
-                if visitor_id:
-                    UUID(visitor_id, version=4)
-                else:
-                    raise ValueError
+                visitor_id = UUID(visitor_id, version=4).hex
             except (ValueError, TypeError):
                 visitor_id = uuid4().hex
             response.set_cookie("visitor_id", visitor_id, expires=visitor_cookie_expiry)
