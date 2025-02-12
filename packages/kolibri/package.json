@@ -77,7 +77,7 @@
     "frame-throttle": "^3.0.0",
     "intl": "^1.2.4",
     "kolibri-constants": "0.2.8",
-    "kolibri-design-system": "5.0.0-rc12",
+    "kolibri-design-system": "5.0.0",
     "lockr": "0.8.5",
     "lodash": "^4.17.21",
     "path-to-regexp": "1.9.0",
