@@ -25,6 +25,7 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { validateObject } from 'kolibri/utils/objectSpecs';
   import useCardLayoutSpan from '../composables/useCardLayoutSpan';
   import useContentLink from '../composables/useContentLink';
   import ChannelCard from './ChannelCard';
@@ -48,6 +49,19 @@
       contents: {
         type: Array,
         required: true,
+        validator: function (contents) {
+          return contents.every(content =>
+            validateObject(content, {
+              id: { type: String, required: true },
+              title: { type: String, required: false },
+              name: { type: String, required: false },
+              thumbnail: { type: String, required: false },
+              tagline: { type: String, required: false },
+              description: { type: String, required: false },
+              num_coach_contents: { type: Number, required: false },
+            }),
+          );
+        },
       },
       deviceId: {
         type: String,

@@ -244,6 +244,7 @@
   import LearnerNeeds from 'kolibri-constants/labels/Needs';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
+  import { validateObject } from 'kolibri/utils/objectSpecs';
   import useContentLink from '../composables/useContentLink';
   import commonLearnStrings from './commonLearnStrings';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
@@ -265,6 +266,25 @@
       content: {
         type: Object,
         required: true,
+        validator(val) {
+          return validateObject(val, {
+            id: { type: String, required: true },
+            title: { type: String, required: true },
+            description: { type: String, required: false },
+            duration: { type: Number, required: false },
+            grade_levels: { type: Array, required: false },
+            lang: { type: Object, required: false },
+            accessibility_labels: { type: Array, required: false, default: () => [] },
+            learner_needs: { type: Array, required: false, default: () => [] },
+            author: { type: String, required: false },
+            license_owner: { type: String, required: false },
+            license_name: { type: String, required: false },
+            license_description: { type: String, required: false },
+            ancestors: { type: Array, required: false, default: () => [] },
+            files: { type: Array, required: false, default: () => [] },
+            is_leaf: { type: Boolean, required: true },
+          });
+        },
       },
       showLocationsInChannel: {
         type: Boolean,

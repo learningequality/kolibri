@@ -39,6 +39,7 @@
 
   import { validateLinkObject } from 'kolibri/utils/validators';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { validateObject } from 'kolibri/utils/objectSpecs';
   import ProgressBar from './ProgressBar';
   import LearningActivityLabel from './LearningActivityLabel';
   import commonLearnStrings from './commonLearnStrings';
@@ -56,6 +57,15 @@
       content: {
         type: Object,
         required: true,
+        validator: function (content) {
+          return validateObject(content, {
+            id: { type: String, required: true },
+            title: { type: String, required: true },
+            thumbnail: { type: String, required: false },
+            description: { type: String, required: false },
+            num_coach_contents: { type: Number, required: false },
+          });
+        },
       },
       link: {
         type: Object,

@@ -40,6 +40,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { validateObject } from 'kolibri/utils/objectSpecs';
   import useContentLink from '../composables/useContentLink';
 
   export default {
@@ -53,6 +54,25 @@
       copies: {
         type: Array,
         required: true,
+        validator: function (copies) {
+          return copies.every(copy =>
+            validateObject(copy, {
+              id: { type: String, required: true },
+              title: { type: String, required: true },
+              ancestors: {
+                type: Array,
+                required: true,
+                validator: function (ancestors) {
+                  return ancestors.every(ancestor =>
+                    validateObject(ancestor, {
+                      title: { type: String, required: true },
+                    }),
+                  );
+                },
+              },
+            }),
+          );
+        },
       },
     },
     methods: {

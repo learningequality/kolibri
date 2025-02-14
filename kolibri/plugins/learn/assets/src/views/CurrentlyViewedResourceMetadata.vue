@@ -156,6 +156,7 @@
     licenseLongName,
     licenseDescriptionForConsumer,
   } from 'kolibri/uiText/licenses';
+  import { validateObject } from 'kolibri/utils/objectSpecs';
   import commonLearnStrings from './commonLearnStrings';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
 
@@ -176,6 +177,36 @@
       content: {
         type: Object,
         required: true,
+        validator(val) {
+          return validateObject(val, {
+            title: { type: String, required: true },
+            description: { type: String, required: false },
+            duration: { type: Number, required: false },
+            grade_levels: { type: Array, required: false },
+            lang: {
+              type: Object,
+              required: false,
+              validator: function (lang) {
+                return validateObject(lang, {
+                  lang_name: { type: String, required: true },
+                });
+              },
+            },
+            author: {
+              type: String,
+              required: false,
+            },
+            license_owner: {
+              type: String,
+              required: false,
+            },
+            files: {
+              type: Array,
+              required: false,
+              default: () => [],
+            },
+          });
+        },
       },
     },
     data() {
