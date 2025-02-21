@@ -165,7 +165,7 @@
             description: { type: String, required: false },
             duration: { type: Number, required: false },
             grade_levels: { type: Array, required: false },
-            lang: { type: Object, required: false },
+            lang: { type: Object, required: false, default: () => ({}) },
             accessibility_labels: { type: Array, required: false, default: () => [] },
             learner_needs: { type: Array, required: false, default: () => [] },
             author: { type: String, required: false },
