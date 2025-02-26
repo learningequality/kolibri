@@ -38,6 +38,7 @@
       :autofocus="true"
       :invalid="isPasswordInvalid"
       :invalidText="$tr('incorrectPasswordError')"
+      :showInvalidText="true"
       :floatingLabel="false"
       @keydown.enter="handleContinue"
     />
@@ -78,7 +79,7 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
-  import { computed, inject, ref, watch } from 'vue';
+  import { computed, inject, ref, watch, nextTick } from 'vue';
   import get from 'lodash/get';
   import remoteFacilityUserData from '../../../composables/useRemoteFacility';
   import commonProfileStrings from '../../commonProfileStrings';
@@ -99,6 +100,13 @@
 
       const isFormSubmitted = ref(false);
       const isPasswordInvalid = ref(false);
+
+      // temporary workaround for accessing template refs before 3.5
+      // after upgrade, we will be able to access via `useTemplateRef()`
+      // in the meantime, declare a ref with a name that matches the template ref attribute's value
+      // and return it (https://vuejs.org/guide/essentials/template-refs)
+      const passwordTextbox = ref(null);
+
       const usingAdminPasswordState = ref(false);
       const fullName = computed(() => get(state, 'value.fullname', ''));
       const username = computed(() => get(state, 'value.username', ''));
@@ -137,9 +145,14 @@
         return !get(state, 'value.targetFacility.learner_can_login_with_no_password', false);
       }
 
-      function focusOnInvalidField(component) {
-        if (showPasswordTextbox && isPasswordInvalid.value) {
-          component.$refs.passwordTextbox.focus();
+      function focusOnInvalidField() {
+        if (showPasswordTextbox() && isPasswordInvalid.value) {
+          // the template ref is null at first, so we have to wait
+          nextTick(() => {
+            if (passwordTextbox.value) {
+              passwordTextbox.value.focus();
+            }
+          });
         }
       }
 
@@ -158,7 +171,6 @@
 
       function handleContinue() {
         const facility = get(state, 'value.targetFacility', {});
-        const component = this;
         remoteFacilityUserData(
           facility.url,
           facility.id,
@@ -168,7 +180,7 @@
         ).then(user_info => {
           if (user_info === 'error') {
             isPasswordInvalid.value = true;
-            focusOnInvalidField(component);
+            focusOnInvalidField();
           } else {
             isPasswordInvalid.value = false;
             isFormSubmitted.value = true;
@@ -198,6 +210,7 @@
         mergeAccountUserInfo,
         mergeAccountUsingAdminAccount,
         showPasswordTextbox,
+        passwordTextbox,
         useAdminAccount,
         sendBack,
         handleContinue,
