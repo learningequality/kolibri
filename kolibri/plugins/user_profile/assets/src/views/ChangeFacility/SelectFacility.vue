@@ -76,7 +76,7 @@
 <script>
 
   import { useLocalStorage, useMemoize, computedAsync, get } from '@vueuse/core';
-  import { computed, ref, watch } from 'vue';
+  import { inject, computed, ref, watch } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import { NetworkLocationResource } from 'kolibri-common/apiResources/NetworkLocationResource';
@@ -196,6 +196,8 @@
         };
       });
 
+      const changeFacilityService = inject('changeFacilityService');
+
       watch(availableFacilities, availableFacilities => {
         if (
           !get(availableFacilities)
@@ -231,7 +233,7 @@
       }
 
       function to_continue() {
-        this.changeFacilityService.send({
+        changeFacilityService.send({
           type: 'CONTINUE',
         });
       }
@@ -249,9 +251,9 @@
         facilityDisabled,
         handleAddedAddress,
         to_continue,
+        changeFacilityService,
       };
     },
-    inject: ['changeFacilityService'],
 
     watch: {
       selectedFacilityId(newVal) {
