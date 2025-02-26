@@ -180,12 +180,13 @@
         validator(val) {
           return validateObject(val, {
             title: { type: String, required: true },
-            description: { type: String, required: false },
-            duration: { type: Number, required: false },
-            grade_levels: { type: Array, required: false },
+            description: { type: String, required: false, default: '' },
+            duration: { type: Number, required: false, default: 0 },
+            grade_levels: { type: Object, required: false, default: () => ({}) },
             lang: {
               type: Object,
               required: false,
+              default: () => ({ lang_name: '' }),
               validator: function (lang) {
                 return validateObject(lang, {
                   lang_name: { type: String, required: true },
@@ -195,10 +196,12 @@
             author: {
               type: String,
               required: false,
+              default: '',
             },
             license_owner: {
               type: String,
               required: false,
+              default: '',
             },
             files: {
               type: Array,

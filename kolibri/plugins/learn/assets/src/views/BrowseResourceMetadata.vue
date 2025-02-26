@@ -245,6 +245,7 @@
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import { validateObject } from 'kolibri/utils/objectSpecs';
+  import { isArray, isPlainObject } from 'lodash';
   import useContentLink from '../composables/useContentLink';
   import commonLearnStrings from './commonLearnStrings';
   import ContentNodeThumbnail from './thumbnails/ContentNodeThumbnail';
@@ -265,24 +266,34 @@
     props: {
       content: {
         type: Object,
-        required: true,
+        default: () => ({}),
         validator(val) {
           return validateObject(val, {
             id: { type: String, required: true },
             title: { type: String, required: true },
-            description: { type: String, required: false },
-            duration: { type: Number, required: false },
-            grade_levels: { type: Array, required: false },
-            lang: { type: Object, required: false },
-            accessibility_labels: { type: Array, required: false, default: () => [] },
+            is_leaf: { type: Boolean, required: true },
+            description: { type: String, required: false, default: '' },
+            duration: { type: Number, required: false, default: 0 },
+            grade_levels: {
+              type: Array,
+              required: false,
+              default: () => [],
+              validator: val => isArray(val) || isPlainObject(val),
+            },
+            lang: { type: Object, required: false, default: () => ({}) },
+            accessibility_labels: {
+              type: Array,
+              required: false,
+              default: () => [],
+              validator: val => isArray(val) || isPlainObject(val),
+            },
             learner_needs: { type: Array, required: false, default: () => [] },
-            author: { type: String, required: false },
-            license_owner: { type: String, required: false },
-            license_name: { type: String, required: false },
-            license_description: { type: String, required: false },
+            author: { type: String, required: false, default: '' },
+            license_owner: { type: String, required: false, default: '' },
+            license_name: { type: String, required: false, default: '' },
+            license_description: { type: String, required: false, default: '' },
             ancestors: { type: Array, required: false, default: () => [] },
             files: { type: Array, required: false, default: () => [] },
-            is_leaf: { type: Boolean, required: true },
           });
         },
       },

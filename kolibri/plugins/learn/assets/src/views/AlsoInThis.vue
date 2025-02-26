@@ -148,16 +148,15 @@
         type: Array,
         required: true,
         default: () => [],
-        /** Content node with the following properties: id, is_leaf, title */
         validator: function (nodes) {
           return nodes.every(node =>
             validateObject(node, {
               id: { type: String, required: true },
               title: { type: String, required: true },
-              duration: { type: Number, required: false },
+              duration: { type: Number, required: false, default: 0 },
               progress: { type: Number, required: false, default: 0 },
               is_leaf: { type: Boolean, required: true },
-              learning_activities: { type: Array, required: false },
+              learning_activities: { type: Array, required: false, default: () => [] },
             }),
           );
         },

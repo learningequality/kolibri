@@ -48,6 +48,7 @@
               lang: {
                 type: Object,
                 required: false,
+                default: () => ({}),
                 validator: function (lang) {
                   return validateObject(lang, {
                     lang_name: { type: String, required: true },

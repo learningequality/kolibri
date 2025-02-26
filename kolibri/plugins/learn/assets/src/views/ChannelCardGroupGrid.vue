@@ -49,16 +49,16 @@
       contents: {
         type: Array,
         required: true,
-        validator: function (contents) {
+        validator(contents) {
           return contents.every(content =>
             validateObject(content, {
               id: { type: String, required: true },
-              title: { type: String, required: false },
-              name: { type: String, required: false },
-              thumbnail: { type: String, required: false },
-              tagline: { type: String, required: false },
-              description: { type: String, required: false },
-              num_coach_contents: { type: Number, required: false },
+              title: { type: String, required: false, default: '' },
+              name: { type: String, required: false, default: '' },
+              thumbnail: { type: String, required: false, default: '' },
+              tagline: { type: String, required: false, default: '' },
+              description: { type: String, required: false, default: '' },
+              num_coach_contents: { type: Number, required: false, default: 0 },
             }),
           );
         },
