@@ -495,4 +495,9 @@
     overflow-x: auto;
   }
 
+  /deep/ .main-wrapper {
+    max-width: 95vw !important;
+    margin: 0 auto;
+  }
+
 </style>

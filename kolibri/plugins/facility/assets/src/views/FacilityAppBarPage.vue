@@ -1,9 +1,7 @@
 <template>
 
   <AppBarPage :title="title">
-    <div style="max-width: 1000px; margin: 0 auto">
-      <slot></slot>
-    </div>
+    <slot></slot>
   </AppBarPage>
 
 </template>
