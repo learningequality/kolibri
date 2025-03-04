@@ -69,7 +69,6 @@
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { PageNames } from '../../../../../../constants';
   import { injectQuizCreation } from '../../../../../../composables/useQuizCreation';
 
@@ -103,8 +102,7 @@
         clearSelectionNotice$,
       } = enhancedQuizManagementStrings;
 
-
-      const { insufficientResources$ } = searchAndFilterStrings;
+      const { insufficientResources$, saveSettingsAction$ } = searchAndFilterStrings;
       const { activeSection, activeSectionIndex } = injectQuizCreation();
 
       props.setTitle(
@@ -143,7 +141,6 @@
         });
       };
 
-      const { saveSettingsAction$ } = searchAndFilterStrings;
       const { continueAction$ } = coreStrings;
       const continueText = props.isLanding ? continueAction$() : saveSettingsAction$();
 
