@@ -4,6 +4,12 @@
     <div class="mb-20">
       {{ maxNumberOfQuestionsInfo$({ count: maxQuestions }) }}
     </div>
+    <UiAlert
+      v-if="addableQuestionCount < 25"
+      type="warning"
+    >
+      {{ insufficientResources$({ count: addableQuestionCount }) }}
+    </UiAlert>
     <div class="number-question">
       <div>
         <KTextbox
@@ -62,6 +68,8 @@
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { PageNames } from '../../../../../../constants';
   import { injectQuizCreation } from '../../../../../../composables/useQuizCreation';
 
@@ -71,10 +79,20 @@
 
   export default {
     name: 'SelectFromBookmarks',
-    components: {},
+    components: {
+      UiAlert,
+    },
     setup(props) {
       const prevRoute = ref(null);
       const instance = getCurrentInstance();
+
+      const { data: channels } = props.channelsFetch;
+
+      const addableQuestionCount = computed(() => {
+        return channels.value.reduce((total, currentObject) => {
+          return total + currentObject.num_assessments;
+        }, 0);
+      });
 
       const {
         questionsSettingsLabel$,
@@ -85,6 +103,8 @@
         clearSelectionNotice$,
       } = enhancedQuizManagementStrings;
 
+
+      const { insufficientResources$ } = searchAndFilterStrings;
       const { activeSection, activeSectionIndex } = injectQuizCreation();
 
       props.setTitle(
@@ -158,6 +178,8 @@
         numberOfQuestionsLabel$,
         maxNumberOfQuestionsInfo$,
         chooseQuestionsManuallyLabel$,
+        insufficientResources$,
+        addableQuestionCount,
       };
     },
     props: {
@@ -180,6 +202,10 @@
       isLanding: {
         type: Boolean,
         default: false,
+      },
+      channelsFetch: {
+        type: Object,
+        required: true,
       },
     },
     beforeRouteEnter(to, from, next) {
