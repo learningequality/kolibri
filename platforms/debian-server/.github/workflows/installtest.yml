@@ -1,0 +1,40 @@
+name: Test installation of kolibri-server
+
+on:
+  push:
+    branches:
+    - master
+    tags:
+    - 'v*'
+  pull_request:
+
+jobs:
+  install_test:
+    name: Run installation of kolibri-server in docker image
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
+      matrix:
+        target-image: [ 'ubuntu:20.04', 'ubuntu:22.04', 'debian:bullseye', 'debian:bookworm' ]
+    steps:
+    - name: Checkout codebase
+      uses: actions/checkout@v4
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Run installation on ${{ matrix.target-image }}
+      uses: docker/build-push-action@v6
+      with:
+        build-args: |
+          TARGET_IMAGE=${{ matrix.target-image }}
+        context: ./
+        file: ./test/Dockerfile
+        platforms: linux/amd64,linux/arm64v8
+        push: false
+        target: test
+
+

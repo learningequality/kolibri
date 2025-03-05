@@ -5,3 +5,8 @@ debian/*debhelper*
 debian/kolibri-server.substvars
 debian/kolibri-server/
 error_pages/
+
+# IDE
+.idea
+/*.iml
+.vscode
