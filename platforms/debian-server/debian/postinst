@@ -18,12 +18,16 @@ case "$1" in
 
     if which runuser > /dev/null
     then
-      SU_COMMAND="runuser"
+        SU_COMMAND="runuser"
     else
-      SU_COMMAND="su"
+        SU_COMMAND="su"
     fi
-    # do a backup of the previous options.ini
-    if [ ! -e "$KOLIBRI_HOME/options.ini.kolibri-server-backup" ]; then
+
+    if [ ! -e "$KOLIBRI_HOME/options.ini" ]; then
+        # initialize Kolibri and the options.ini file
+        $SU_COMMAND $KOLIBRI_USER -w KOLIBRI_HOME -c "kolibri configure setup"
+    elif [ ! -e "$KOLIBRI_HOME/options.ini.kolibri-server-backup" ]; then
+        # do a backup of the previous options.ini
         $SU_COMMAND $KOLIBRI_USER -c "cp -f $KOLIBRI_HOME/options.ini $KOLIBRI_HOME/options.ini.kolibri-server-backup"
     fi
 
@@ -34,6 +38,7 @@ case "$1" in
     db_get kolibri-server/zip_content_port
     ZIPCONTENTPORT=$RET
     $SU_COMMAND $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -d $PORT -z $ZIPCONTENTPORT"
+
     if [ -L "/etc/nginx/sites-enabled/default" ] && [ "$PORT" = "80" ] ;then
         rm  /etc/nginx/sites-enabled/default
         touch /etc/kolibri/nginx_default
@@ -47,18 +52,18 @@ case "$1" in
     LOGROTATE_CONF="/etc/logrotate.d/kolibri"
     if [ -e "/etc/logrotate.d" ] # && ! [ -e "$LOGROTATE_CONF" ]
     then
-      # Issues with string substitution for "\n" caused this pattern
-      echo "\"${KOLIBRI_HOME}/logs/uwsgi.log\" {" > "$LOGROTATE_CONF"
-      echo "  copytruncate" >> "$LOGROTATE_CONF"
-      echo "  weekly" >> "$LOGROTATE_CONF"
-      echo "  rotate 150" >> "$LOGROTATE_CONF"
-      echo "  size 2M" >> "$LOGROTATE_CONF"
-      echo "  compress" >> "$LOGROTATE_CONF"
-      echo "  delaycompress" >> "$LOGROTATE_CONF"
-      echo "  missingok" >> "$LOGROTATE_CONF"
-      echo "  notifempty" >> "$LOGROTATE_CONF"
-      echo "  create 0644 $KOLIBRI_USER $KOLIBRI_GROUP" >> "$LOGROTATE_CONF"
-      echo "}" >> "$LOGROTATE_CONF"
+        # Issues with string substitution for "\n" caused this pattern
+        echo "\"${KOLIBRI_HOME}/logs/uwsgi.log\" {" > "$LOGROTATE_CONF"
+        echo "  copytruncate" >> "$LOGROTATE_CONF"
+        echo "  weekly" >> "$LOGROTATE_CONF"
+        echo "  rotate 150" >> "$LOGROTATE_CONF"
+        echo "  size 2M" >> "$LOGROTATE_CONF"
+        echo "  compress" >> "$LOGROTATE_CONF"
+        echo "  delaycompress" >> "$LOGROTATE_CONF"
+        echo "  missingok" >> "$LOGROTATE_CONF"
+        echo "  notifempty" >> "$LOGROTATE_CONF"
+        echo "  create 0644 $KOLIBRI_USER $KOLIBRI_GROUP" >> "$LOGROTATE_CONF"
+        echo "}" >> "$LOGROTATE_CONF"
     fi
 
     service nginx reload || true
