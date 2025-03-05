@@ -30,7 +30,7 @@ You can also make changes in the cloned repository in the following workflow:
 
 #. Make your changes
 #. Run ``dch``, carefully noting your release notes. 
-#. Build the package with ``make dist``
+#. Build the package with ``make deb``
 #. Test the package with  ``sudo dpkg -i ../kolibri-server_VERSION.deb``
 #. If you have further changes, you can keep editing and invoking ``make dist``
 #. Finally, commit your changes and open a PR, including your entry in ``debian/changelog``

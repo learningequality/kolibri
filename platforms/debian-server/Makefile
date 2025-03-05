@@ -1,4 +1,4 @@
-.PHONY: help error-pages dist config-nginx orig
+.PHONY: help error-pages deb dist config-nginx orig
 
 help:
 	@echo "changelog - prepare debian/chanelog file with the new version number"
@@ -17,6 +17,9 @@ changelog:
 
 release: changelog  error-pages orig
 
+deb: orig
+	dpkg-buildpackage -b -us -uc
+
 dist: orig
 	dpkg-buildpackage -S -us -uc
 
@@ -25,4 +28,4 @@ VERSION:=$(shell dpkg-parsechangelog -S Version | sed -rne 's,([^-\+]+)+(\+dfsg)
 UPSTREAM_PACKAGE:=kolibri-server_${VERSION}.orig.tar.gz
 orig:
 	@echo "Creating .orig tarball: ../${UPSTREAM_PACKAGE}"
-	@tar --exclude=".git" -czf ../${UPSTREAM_PACKAGE} -C .. $(notdir $(CURDIR))
+	@tar --exclude-from=.tarignore -czf ../${UPSTREAM_PACKAGE} -C .. $(notdir $(CURDIR))
