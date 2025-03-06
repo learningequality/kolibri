@@ -137,6 +137,7 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
   insufficientResources: {
     message:
       'There are currently only {count, number} questions across all practice resources in your library. To create a larger quiz, consider adding more resources to your library.',
-    context: 'Message to indicate that the license is not sufficient for the user.',
+    context:
+      'Message to indicate that the resources are not not sufficient for the user to create a quiz.',
   },
 });
