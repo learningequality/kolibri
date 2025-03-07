@@ -5,7 +5,7 @@
       {{ maxNumberOfQuestionsInfo$({ count: maxQuestions }) }}
     </div>
     <UiAlert
-      v-if="showAlert && addableQuestionCount < 25"
+      v-if="showAlert && addableQuestionCount < maxQuestions"
       type="warning"
       @dismiss="showAlert = false"
     >
@@ -43,7 +43,7 @@
           <KIconButton
             icon="plus"
             aria-hidden="true"
-            :disabled="questionCount >= maxQuestions || !questionCountIsEditable"
+            :disabled="questionCount >= inputMaxQuestions || !questionCountIsEditable"
             @click="questionCount += 1"
           />
         </div>
@@ -207,6 +207,11 @@
         type: Object,
         required: true,
       },
+    },
+    data() {
+      return {
+        inputMaxQuestions: 18,
+      };
     },
     beforeRouteEnter(to, from, next) {
       next(vm => {
