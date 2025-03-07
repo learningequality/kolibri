@@ -61,7 +61,7 @@ jobs:
     - name: Validate whl reference inputs
       if: ${{ (inputs.whl-file-name && inputs.whl-url) || (!inputs.whl-file-name && !inputs.whl-url) }}
       run: |
-        echo "Must specify exactly one reference for the whl file to build the EXE with."
+        echo "Must specify exactly one reference for the whl file to build the DMG with."
         exit 1
     - uses: actions/checkout@v4
       if: ${{ !inputs.ref }}

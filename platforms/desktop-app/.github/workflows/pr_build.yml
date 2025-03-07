@@ -6,20 +6,7 @@ on:
     - main
 
 jobs:
-  pre_job:
-    name: Path match check
-    runs-on: ubuntu-latest
-    # Map a step output to a job output
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
-        with:
-          github_token: ${{ github.token }}
   latest_kolibri_release:
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     outputs:
       whl-url: ${{ steps.get_latest_kolibri_release.outputs.result }}
@@ -45,8 +32,7 @@ jobs:
 
   build_dmg:
     name: Build Unsigned DMG
-    needs: [pre_job, latest_kolibri_release]
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    needs: latest_kolibri_release
     uses: ./.github/workflows/build_mac.yml
     with:
       whl-url: ${{ needs.latest_kolibri_release.outputs.whl-url }}
