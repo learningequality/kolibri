@@ -5,8 +5,9 @@
       {{ maxNumberOfQuestionsInfo$({ count: maxQuestions }) }}
     </div>
     <UiAlert
-      v-if="addableQuestionCount < 25"
+      v-if="showAlert && addableQuestionCount < 25"
       type="warning"
+      @dismiss="showAlert = false"
     >
       {{ insufficientResources$({ count: addableQuestionCount }) }}
     </UiAlert>
@@ -83,6 +84,7 @@
     },
     setup(props) {
       const prevRoute = ref(null);
+      const showAlert = ref(true);
       const instance = getCurrentInstance();
 
       const { data: channels } = props.channelsFetch;
@@ -166,6 +168,7 @@
       return {
         // eslint-disable-next-line vue/no-unused-properties
         prevRoute,
+        showAlert,
         questionCount: workingQuestionCount,
         isChoosingManually: workingIsChoosingManually,
         clearSelectionNotice$,
