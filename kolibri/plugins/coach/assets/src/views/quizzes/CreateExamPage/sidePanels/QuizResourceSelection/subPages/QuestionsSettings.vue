@@ -210,7 +210,7 @@
     },
     data() {
       return {
-        inputMaxQuestions: 18,
+        inputMaxQuestions: 25,
       };
     },
     beforeRouteEnter(to, from, next) {
