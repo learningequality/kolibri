@@ -6,7 +6,6 @@ import { showLessonPlaylist } from '../modules/lessonPlaylist/handlers';
 import { showClassAssignmentsPage } from '../modules/classAssignments/handlers';
 import { showAllClassesPage } from '../modules/classes/handlers';
 import { showExam } from '../modules/examViewer/handlers';
-import { showExamReport } from '../modules/examReportViewer/handlers';
 import { inClasses } from '../composables/useCoreLearn';
 import ExamPage from '../views/ExamPage';
 import ExamReportViewer from '../views/LearnExamReportViewer';
@@ -75,11 +74,10 @@ export default [
   {
     name: ClassesPageNames.EXAM_REPORT_VIEWER,
     path: '/classes/:classId/examReport/:examId/:tryIndex/:questionNumber/:questionInteraction',
-    handler: toRoute => {
+    handler: () => {
       if (noClassesGuard()) {
         return noClassesGuard();
       }
-      showExamReport(store, toRoute.params);
     },
     component: ExamReportViewer,
   },

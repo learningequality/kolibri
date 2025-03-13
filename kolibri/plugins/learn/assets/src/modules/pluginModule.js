@@ -5,7 +5,6 @@ import * as getters from './coreLearn/getters';
 import * as actions from './coreLearn/actions';
 import classAssignments from './classAssignments';
 import classes from './classes';
-import examReportViewer from './examReportViewer';
 import examViewer from './examViewer';
 import lessonPlaylist from './lessonPlaylist';
 
@@ -29,7 +28,6 @@ export default {
   modules: {
     classAssignments,
     classes,
-    examReportViewer,
     examViewer,
     lessonPlaylist,
   },

@@ -2,21 +2,21 @@
 
   <ImmersivePage
     :route="homePageLink"
-    :appBarTitle="reportVisible ? exam.title : ''"
+    :appBarTitle="isReportVisible ? exam.title : ''"
   >
     <KPageContainer
-      v-if="reportVisible"
+      v-if="isReportVisible"
       :topMargin="50"
       class="container"
     >
-      <KCircularLoader v-if="loading" />
+      <KCircularLoader v-if="isLoading" />
       <div v-else-if="exerciseContentNodes && exerciseContentNodes.length">
         <ExamReport
           :contentId="exam.id"
           :title="exam.title"
           :userName="userName"
           :userId="userId"
-          :selectedInteractionIndex="selectedInteractionIndex"
+          :selectedInteractionIndex="interactionIndex"
           :questionNumber="questionNumber"
           :tryIndex="tryIndex"
           :exercise="exercise"
@@ -51,13 +51,12 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import ExamReport from 'kolibri-common/components/quizzes/QuizReport';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useUser from 'kolibri/composables/useUser';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { PageNames, ClassesPageNames } from '../constants';
-  import useLearnerResources from '../composables/useLearnerResources';
+  import { useExamReport } from '../composables/useExamReport';
 
   export default {
     name: 'LearnExamReportViewer',
@@ -73,38 +72,74 @@
     mixins: [commonCoreStrings],
     setup() {
       const { full_name, user_id } = useUser();
-      const { activeClassesQuizzes } = useLearnerResources();
-      return { userName: full_name, userId: user_id, activeClassesQuizzes };
+      const {
+        exam,
+        exercise,
+        exerciseContentNodes,
+        questionNumber,
+        questions,
+        tryIndex,
+        interactionIndex,
+        classId,
+        isLoading,
+        isReportVisible,
+        homePageLink,
+        showQuizReportComingSoonModal,
+        handleNoCompleteTries,
+        showExamReport,
+      } = useExamReport();
+
+      // Initialize the exam report data based on route params
+      const initExamReport = route => {
+        const { classId, examId, tryIndex, questionNumber, questionInteraction } = route.params;
+        showExamReport({
+          classId,
+          examId,
+          tryIndex,
+          questionNumber,
+          questionInteraction,
+        });
+      };
+
+      return {
+        userName: full_name,
+        userId: user_id,
+        exam,
+        exercise,
+        exerciseContentNodes,
+        questionNumber,
+        questions,
+        tryIndex,
+        interactionIndex,
+        classId,
+        isLoading,
+        isReportVisible,
+        homePageLink,
+        showQuizReportComingSoonModal,
+        handleNoCompleteTries,
+        initExamReport,
+      };
     },
-    computed: {
-      ...mapState('examReportViewer', [
-        'exam',
-        'exercise',
-        'exerciseContentNodes',
-        'questionNumber',
-        'questions',
-        'tryIndex',
-      ]),
-      ...mapState('examReportViewer', {
-        classId: state => state.exam.collection,
-        selectedInteractionIndex: state => state.interactionIndex,
-      }),
-      ...mapState({
-        loading: state => state.core.loading,
-      }),
-      homePageLink() {
-        return {
-          name: PageNames.HOME,
-        };
+    watch: {
+      // Watch for route changes to handle navigation between questions
+      $route(to, from) {
+        // Only reload if relevant parameters have changed
+        if (
+          to.params.examId !== from.params.examId ||
+          to.params.tryIndex !== from.params.tryIndex ||
+          to.params.questionNumber !== from.params.questionNumber ||
+          to.params.questionInteraction !== from.params.questionInteraction
+        ) {
+          this.initExamReport(to);
+        }
       },
-      reportVisible() {
-        const quiz = this.activeClassesQuizzes.find(q => q.id === this.exam.id) || this.exam;
-        // Show report if instant_report_visibility is true or null, or if quiz is closed
-        return quiz.instant_report_visibility !== false || quiz.archive;
-      },
-      showQuizReportComingSoonModal() {
-        return !this.reportVisible && !this.loading;
-      },
+    },
+    created() {
+      this.initExamReport(this.$route);
+    },
+    mounted() {
+      // Ensure we have the correct data loaded when the component is mounted
+      this.initExamReport(this.$route);
     },
     methods: {
       navigateTo(tryIndex, questionNumber, interaction) {
@@ -120,10 +155,7 @@
         });
       },
       noCompleteTries() {
-        this.$router.replace({
-          name: ClassesPageNames.CLASS_ASSIGNMENTS,
-          params: { classId: this.classId },
-        });
+        this.handleNoCompleteTries();
       },
       openHomePage() {
         this.$router.push({
