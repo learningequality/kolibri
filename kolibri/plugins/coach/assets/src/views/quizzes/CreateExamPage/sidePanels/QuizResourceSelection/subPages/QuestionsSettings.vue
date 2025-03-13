@@ -2,10 +2,10 @@
 
   <div>
     <div class="mb-20">
-      {{ maxNumberOfQuestionsInfo$({ count: maxQuestions }) }}
+      {{ maxNumberOfQuestionsInfo$({ count: settings.maxQuestions }) }}
     </div>
     <UiAlert
-      v-if="showAlert && addableQuestionCount < maxQuestions"
+      v-if="showAlert && addableQuestionCount < settings.maxQuestions"
       type="warning"
       @dismiss="showAlert = false"
     >
