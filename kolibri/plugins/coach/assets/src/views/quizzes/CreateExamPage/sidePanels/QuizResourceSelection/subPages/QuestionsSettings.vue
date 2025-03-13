@@ -43,7 +43,7 @@
           <KIconButton
             icon="plus"
             aria-hidden="true"
-            :disabled="questionCount >= inputMaxQuestions || !questionCountIsEditable"
+            :disabled="questionCount >= maxQuestions || !questionCountIsEditable"
             @click="questionCount += 1"
           />
         </div>
@@ -173,7 +173,11 @@
         isChoosingManually: workingIsChoosingManually,
         clearSelectionNotice$,
         questionCountIsEditable,
-        maxQuestions: computed(() => props.settings.maxQuestions),
+        maxQuestions: computed(() =>
+          addableQuestionCount.value > props.settings.maxQuestions
+            ? props.settings.maxQuestions
+            : addableQuestionCount.value,
+        ),
         maxNumberOfQuestions$,
         numberOfQuestionsLabel$,
         maxNumberOfQuestionsInfo$,
@@ -207,11 +211,6 @@
         type: Object,
         required: true,
       },
-    },
-    data() {
-      return {
-        inputMaxQuestions: 25,
-      };
     },
     beforeRouteEnter(to, from, next) {
       next(vm => {
