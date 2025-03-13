@@ -85,6 +85,10 @@ clean-pyc:
 clean-docs:
 	$(MAKE) -C docs clean
 
+clean-test-pypi:
+	pip install pypi-cleanup==0.1.8
+	pypi-cleanup --host https://test.pypi.org --package kolibri --leave-most-recent-only --yes --do-it --username aronleqtest
+
 lint:
 	flake8 kolibri
 

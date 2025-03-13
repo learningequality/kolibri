@@ -13,10 +13,12 @@ import QuizPreviewPage from '../views/quizzes/reports/QuizPreviewPage.vue';
 import { generateExamReportDetailHandler } from '../modules/examReportDetail/handlers';
 import QuestionLearnersPage from '../views/common/reports/QuestionLearnersPage.vue';
 import SelectionIndex from '../views/common/resourceSelection/subPages/SelectionIndex.vue';
-import SelectFromChannels from '../views/common/resourceSelection/subPages/SelectFromTopicTree.vue';
+import SelectFromTopicTree from '../views/common/resourceSelection/subPages/SelectFromTopicTree.vue';
 import SelectFromBookmarks from '../views/common/resourceSelection/subPages/SelectFromBookmarks.vue';
 import ManageSelectedResources from '../views/common/resourceSelection/subPages/ManageSelectedResources.vue';
 import ManageSelectedQuestions from '../views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/subPages/ManageSelectedQuestions.vue';
+import SelectFromQuizSearchResults from '../views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/subPages/SelectFromQuizSearchResults.vue';
+import SearchQuizFilters from '../views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/subPages/SearchQuizFilters.vue';
 import PreviewSelectedResources from '../views/common/resourceSelection/subPages/PreviewSelectedResources/index.vue';
 import {
   generateQuestionDetailHandler,
@@ -108,7 +110,7 @@ export default [
           {
             name: PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
             path: 'channels',
-            component: SelectFromChannels,
+            component: SelectFromTopicTree,
           },
           {
             name: PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES,
@@ -135,6 +137,16 @@ export default [
                 contentId,
               };
             },
+          },
+          {
+            name: PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
+            path: 'search',
+            component: SearchQuizFilters,
+          },
+          {
+            name: PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
+            path: 'search-results',
+            component: SelectFromQuizSearchResults,
           },
         ],
       },

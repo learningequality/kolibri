@@ -23,7 +23,8 @@ import useFetch from './useFetch';
  * `filters` an object with extra query params, and `annotator` a function to annotate the results.
  * @param {string} options.searchResultsRouteName The name of the route where the search results
  *  will be displayed so that we can redirect to it when the search terms are updated.
- *
+ * @param {Object} options.search Configuration object for search fetch. It can contain
+ * `filters` an object with extra query params that will be present in all search requests.
  *
  * @typedef {Object} UseResourceSelectionResponse
  * @property {Object} topic Topic tree object, contains the information of the topic,
@@ -62,6 +63,7 @@ export default function useResourceSelection({
   bookmarks,
   channels,
   topicTree,
+  search,
 } = {}) {
   const store = getCurrentInstance().proxy.$store;
   const route = computed(() => store.state.route);
@@ -131,6 +133,7 @@ export default function useResourceSelection({
     // As we dont always show the search filters, we dont need to reload the search results
     // each time the topic changes if not needed
     reloadOnDescendantChange: false,
+    filters: search?.filters,
   });
   const searchFetch = {
     data: useSearchObject.results,
@@ -153,13 +156,13 @@ export default function useResourceSelection({
       topic.value = newTopic;
     }
     if (topicTree?.annotator) {
-      const annotatedResults = await topicTree.annotator(topic.value.children.results);
+      const annotatedResults = await topicTree.annotator(newTopic.children.results);
       return {
-        ...topic.value.children,
+        ...newTopic.children,
         results: annotatedResults,
       };
     }
-    return topic.value.children;
+    return newTopic.children;
   };
 
   const treeFetch = useFetch({

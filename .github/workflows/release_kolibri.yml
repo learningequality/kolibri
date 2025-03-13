@@ -134,15 +134,9 @@ jobs:
     with:
       filename: ${{ needs.apk.outputs.apk-file-name }}
       release_id: ${{ github.event.release.id }}
-  test_pypi_cleanup:
-    name: Cleanup TestPyPi
-    needs: whl
-    uses: ./.github/workflows/cleanup_test_pypi.yml
-    secrets:
-      TESTPYPI_API_TOKEN: ${{ secrets.TESTPYPI_API_TOKEN }}
   test_pypi_upload:
     name: Upload to TestPyPi
-    needs: [whl, test_pypi_cleanup]
+    needs: [whl]
     uses: ./.github/workflows/pypi_upload.yml
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}

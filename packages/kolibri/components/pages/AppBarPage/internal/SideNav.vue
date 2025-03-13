@@ -9,6 +9,7 @@
     <transition :name="showAppNavView ? 'bottom-nav' : 'side-nav'">
       <div
         v-show="navShown"
+        ref="sideNavInside"
         class="side-nav"
         :class="showAppNavView ? 'bottom-offset' : ''"
         :style="{
@@ -266,6 +267,8 @@
   import useNav from 'kolibri/composables/useNav';
   import useUser from 'kolibri/composables/useUser';
   import useUserSyncStatus from 'kolibri/composables/useUserSyncStatus';
+  import { useSwipe } from '@vueuse/core';
+  import { ref, getCurrentInstance } from 'vue';
   import SyncStatusDisplay from '../../../SyncStatusDisplay';
   import LearnOnlyDeviceNotice from './LearnOnlyDeviceNotice';
   import TotalPoints from './TotalPoints';
@@ -298,7 +301,21 @@
       BottomNavigationBar,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props, { emit }) {
+      const instance = getCurrentInstance();
+      const isRtl = instance?.proxy.isRtl;
+
+      const sideNavInside = ref(null);
+      useSwipe(sideNavInside, {
+        threshold: 100,
+        onSwipeEnd: (e, direction) => {
+          if (direction === 'left' && !isRtl) {
+            emit('toggleSideNav');
+          } else if (direction === 'right' && isRtl) {
+            emit('toggleSideNav');
+          }
+        },
+      });
       const { windowIsSmall, windowIsLarge } = useKResponsiveWindow();
       const {
         canManageContent,
@@ -330,6 +347,7 @@
         userSyncStatus: status,
         userLastSynced: lastSynced,
         navItems,
+        sideNavInside,
       };
     },
     props: {

@@ -4,6 +4,7 @@
     alignment="right"
     sidePanelWidth="700px"
     closeButtonIconType="close"
+    :immersive="isImmersivePage"
     @closePanel="handleClosePanel"
     @shouldFocusFirstEl="() => null"
   >
@@ -18,10 +19,6 @@
       </div>
     </template>
     <template #default="{ isScrolled }">
-      <div v-if="loading">
-        <KCircularLoader />
-      </div>
-
       <div
         v-if="showManualSelectionNotice && $route.name !== PageNames.QUIZ_SELECT_RESOURCES_SETTINGS"
         class="alert-warning d-flex-between"
@@ -65,8 +62,11 @@
           {{ maximumContentSelectedWarning }}
         </span>
       </div>
+      <div v-if="subpageLoading">
+        <KCircularLoader />
+      </div>
       <router-view
-        v-if="!loading"
+        v-else
         :setTitle="value => (title = value)"
         :setGoBack="value => (goBack = value)"
         :setContinueAction="value => (continueAction = value)"
@@ -75,6 +75,8 @@
         :selectedQuestions="workingQuestions"
         :topic="topic"
         :treeFetch="treeFetch"
+        :searchTerms.sync="searchTerms"
+        :searchFetch="searchFetch"
         :channelsFetch="channelsFetch"
         :bookmarksFetch="bookmarksFetch"
         :selectAllRules="selectAllRules"
@@ -85,11 +87,14 @@
         :getResourceLink="getResourceLink"
         :unselectableResourceIds="unselectableResourceIds"
         :unselectableQuestionItems="unselectableQuestionItems"
+        :displayingSearchResults="displayingSearchResults"
         @selectResources="addToWorkingResourcePool"
         @selectQuestions="addToWorkingQuestions"
         @deselectResources="removeFromWorkingResourcePool"
         @deselectQuestions="removeFromWorkingQuestions"
         @setSelectedResources="setWorkingResourcePool"
+        @removeSearchFilterTag="removeSearchFilterTag"
+        @clearSearch="clearSearch"
       />
       <KModal
         v-if="showCloseConfirmation"
@@ -103,7 +108,10 @@
       </KModal>
     </template>
 
-    <template #bottomNavigation>
+    <template
+      v-if="$route.name !== PageNames.QUIZ_SELECT_RESOURCES_SEARCH"
+      #bottomNavigation
+    >
       <div class="bottom-nav-container">
         <KButton
           v-if="continueAction"
@@ -188,7 +196,7 @@
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
 
   export default {
-    name: 'ResourceSelection',
+    name: 'QuizResourceSelection',
     components: {
       SidePanelModal,
     },
@@ -230,7 +238,6 @@
       };
 
       const showManualSelectionNotice = ref(false);
-
       const settings = ref({
         maxQuestions: null,
         questionCount: null,
@@ -355,11 +362,24 @@
       const isPracticeQuiz = item =>
         !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
 
-      const { topic, loading, treeFetch, channelsFetch, bookmarksFetch } = useResourceSelection({
+      const {
+        topic,
+        loading,
+        treeFetch,
+        channelsFetch,
+        bookmarksFetch,
+        searchTerms,
+        searchFetch,
+        displayingSearchResults,
+        clearSearch,
+        removeSearchFilterTag,
+      } = useResourceSelection({
+        searchResultsRouteName: PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
         bookmarks: {
           filters: { kind: ContentNodeKinds.EXERCISE },
           annotator: results => results.filter(isPracticeQuiz),
         },
+
         channels: {
           filters: {
             contains_exercise: true,
@@ -385,6 +405,12 @@
           },
           annotator: annotateTopicsWithDescendantCounts,
         },
+        search: {
+          filters: {
+            kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC],
+            contains_quiz: selectPracticeQuiz ? true : null,
+          },
+        },
       });
 
       function handleCancelClose() {
@@ -405,6 +431,10 @@
 
       const workingPoolHasChanged = computed(() => {
         return Boolean(workingResourcePool.value.length);
+      });
+      const subpageLoading = computed(() => {
+        const skipLoading = PageNames.QUIZ_SELECT_RESOURCES_SEARCH;
+        return loading.value && route.value.name !== skipLoading;
       });
 
       const workingPoolQuestionsCount = computed(() => {
@@ -516,9 +546,10 @@
         topic,
         showCloseConfirmation,
         treeFetch,
+        searchTerms,
+        searchFetch,
         channelsFetch,
         bookmarksFetch,
-        loading,
         selectionRules,
         selectAllRules,
         unselectableResourceIds,
@@ -530,6 +561,8 @@
         addToWorkingQuestions,
         removeFromWorkingQuestions,
         setWorkingResourcePool,
+        removeSearchFilterTag,
+        clearSearch,
         settings,
         disableSave,
         saveButtonLabel,
@@ -546,8 +579,18 @@
         manualSelectionOnNotice$,
         manualSelectionOffNotice$,
         numberOfSelectedResources$,
+        displayingSearchResults,
         numberOfSelectedQuestions$,
+        subpageLoading,
       };
+    },
+    computed: {
+      isImmersivePage() {
+        return (
+          this.$route.name === PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE &&
+          this.$route.query.searchResultTopicId
+        );
+      },
     },
     beforeRouteLeave(_, __, next) {
       if (!this.showCloseConfirmation && this.workingPoolHasChanged) {

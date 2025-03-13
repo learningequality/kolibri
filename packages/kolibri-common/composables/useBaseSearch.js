@@ -158,6 +158,7 @@ export default function useBaseSearch({
   store,
   router,
   baseurl,
+  filters,
   searchResultsRouteName,
   reloadOnDescendantChange = true,
   fetchContentNodeProgress,
@@ -250,10 +251,16 @@ export default function useBaseSearch({
       getParams.lft__gt = descValue.lft;
       getParams.rght__lt = descValue.rght;
     }
+
+    if (filters) {
+      Object.assign(getParams, filters);
+    }
+
     if (get(displayingSearchResults)) {
       getParams.max_results = 25;
       const terms = get(searchTerms);
       set(searchResultsLoading, true);
+
       for (const key of searchKeys) {
         if (key === 'categories') {
           if (terms[key][AllCategories]) {
@@ -278,6 +285,7 @@ export default function useBaseSearch({
       if (get(isUserLoggedIn)) {
         fetchContentNodeProgress?.(getParams);
       }
+
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
         set(_results, data.results || []);
         set(more, data.more);

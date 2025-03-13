@@ -72,7 +72,7 @@
   ],
   "dependencies": {
     "@vueuse/core": "^11.3.0",
-    "axios": "^1.7.9",
+    "axios": "^1.8.2",
     "fontfaceobserver": "^2.3.0",
     "frame-throttle": "^3.0.0",
     "intl": "^1.2.4",
