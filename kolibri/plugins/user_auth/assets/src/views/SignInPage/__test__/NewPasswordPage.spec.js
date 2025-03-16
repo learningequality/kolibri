@@ -1,7 +1,7 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import NewPasswordPage from '../NewPasswordPage.vue';
 import useUser from 'kolibri/composables/useUser';
+import NewPasswordPage from '../NewPasswordPage.vue';
 
 jest.mock('kolibri/composables/useUser');
 
@@ -20,7 +20,7 @@ describe('NewPasswordPage', () => {
     mockLogin.mockReset();
     mockSetUnspecifiedPassword.mockReset();
     mockFocus.mockReset();
-    
+
     // Create a fresh router instance for each test
     router = new VueRouter({
       routes: [
@@ -28,11 +28,11 @@ describe('NewPasswordPage', () => {
         { path: '/back', name: 'Back' },
       ],
     });
-    
+
     // Mock router methods to avoid actual navigation
     router.push = jest.fn();
     router.go = jest.fn();
-    
+
     // Mock useUser composable
     useUser.mockImplementation(() => ({
       login: mockLogin,
@@ -54,7 +54,7 @@ describe('NewPasswordPage', () => {
 
     // Properly spy on the goBack method after mounting
     jest.spyOn(wrapper.vm, 'goBack').mockImplementation(jest.fn());
-    
+
     // Mock the $refs.createPassword element
     wrapper.vm.$refs.createPassword = { focus: mockFocus };
   });
@@ -91,7 +91,7 @@ describe('NewPasswordPage', () => {
 
     // Should focus on the password field
     expect(mockFocus).toHaveBeenCalled();
-    
+
     // Should not call the APIs
     expect(mockSetUnspecifiedPassword).not.toHaveBeenCalled();
     expect(mockLogin).not.toHaveBeenCalled();

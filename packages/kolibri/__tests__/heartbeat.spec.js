@@ -19,11 +19,13 @@ describe('HeartBeat', function () {
   // replace the real XHR object with the mock XHR object before each test
   beforeEach(() => {
     mock.setup();
-    useUser.mockImplementation(() => useUserMock({
-      id: ref('test_id'),
-      currentUserId: ref('test_user_id'),
-      setSession: jest.fn(),
-    }));
+    useUser.mockImplementation(() =>
+      useUserMock({
+        id: ref('test_id'),
+        currentUserId: ref('test_user_id'),
+        setSession: jest.fn(),
+      }),
+    );
   });
   // put the real XHR object back and clear the mocks after each test
   afterEach(() => mock.teardown());
@@ -174,11 +176,13 @@ describe('HeartBeat', function () {
         }),
       };
       useSnackbar.mockImplementation(() => useSnackbarMock(snackbar));
-      useUser.mockImplementation(() => useUserMock({
-        id: ref('test_id'),
-        currentUserId: ref('test_user_id'),
-        setSession: jest.fn(),
-      }));
+      useUser.mockImplementation(() =>
+        useUserMock({
+          id: ref('test_id'),
+          currentUserId: ref('test_user_id'),
+          setSession: jest.fn(),
+        }),
+      );
     });
     beforeEach(function () {
       heartBeat = new HeartBeat();
@@ -212,22 +216,26 @@ describe('HeartBeat', function () {
     beforeEach(() => {
       serverTime = new Date();
       mockSetSession = jest.fn();
-      useUser.mockImplementation(() => useUserMock({
-        id: ref('test_id'),
-        currentUserId: ref('test_user_id'),
-        setSession: mockSetSession,
-      }));
+      useUser.mockImplementation(() =>
+        useUserMock({
+          id: ref('test_id'),
+          currentUserId: ref('test_user_id'),
+          setSession: mockSetSession,
+        }),
+      );
     });
     beforeEach(function () {
       heartBeat = new HeartBeat();
       jest.spyOn(heartBeat, '_sessionUrl').mockReturnValue('url');
     });
     it('should sign out if an auto logout is detected', function () {
-      useUser.mockImplementation(() => useUserMock({
-        id: ref('test_id'),
-        currentUserId: ref('test_user_id'),
-        setSession: mockSetSession,
-      }));
+      useUser.mockImplementation(() =>
+        useUserMock({
+          id: ref('test_id'),
+          currentUserId: ref('test_user_id'),
+          setSession: mockSetSession,
+        }),
+      );
       mock.put(/.*/, {
         status: 200,
         body: JSON.stringify({ user_id: null }),

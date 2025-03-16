@@ -55,7 +55,7 @@ describe('Vuex store/actions for core module', () => {
           redirectBrowser();
           return Promise.resolve();
         }),
-        setUnspecifiedPassword: jest.fn().mockImplementation((credentials) => {
+        setUnspecifiedPassword: jest.fn().mockImplementation(credentials => {
           // This should match the implementation in useUser.js
           client({
             method: 'post',

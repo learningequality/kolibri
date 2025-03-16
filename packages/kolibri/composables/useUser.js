@@ -7,8 +7,12 @@ import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import CatchErrors from 'kolibri/utils/CatchErrors';
 import Lockr from 'lockr';
 import urls from 'kolibri/urls';
-import { DisconnectionErrorCodes, LoginErrors, ERROR_CONSTANTS, UPDATE_MODAL_DISMISSED } from 'kolibri/constants';
-import { UserKinds } from 'kolibri/constants';
+import {
+  DisconnectionErrorCodes,
+  LoginErrors,
+  ERROR_CONSTANTS,
+  UPDATE_MODAL_DISMISSED,
+ UserKinds } from 'kolibri/constants';
 
 // Base session state (migrated from session module)
 const baseSessionState = {
@@ -43,7 +47,9 @@ export default function useUser() {
   const isUserLoggedIn = computed(() => !kind.value.includes('anonymous'));
   const currentUserId = computed(() => user_id.value);
   const isLearnerOnlyImport = computed(() => !full_facility_import.value);
-  const isCoach = computed(() => kind.value.includes('coach') || kind.value.includes('assignablecoach'));
+  const isCoach = computed(
+    () => kind.value.includes('coach') || kind.value.includes('assignablecoach'),
+  );
   const isAdmin = computed(() => kind.value.includes('admin') || kind.value.includes('superuser'));
   const isSuperuser = computed(() => kind.value.includes('superuser'));
   const canManageContent = computed(() => can_manage_content.value);
@@ -128,7 +134,7 @@ export default function useUser() {
     if (clientNow) {
       setServerTime(serverTime, clientNow);
     }
-    
+
     // Update module-level state with session data that matches baseSessionState shape
     Object.assign(sessionState.value, {
       app_context: newSession.app_context,
@@ -162,7 +168,7 @@ export default function useUser() {
     getUserKind,
     userHasPermissions,
     session,
-    
+
     // State
     app_context,
     can_manage_content,

@@ -11,6 +11,7 @@ import CatchErrors from 'kolibri/utils/CatchErrors';
 import { nextTick } from 'vue';
 import Lockr from 'lockr';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
+
 const logging = logger.getLogger(__filename);
 
 /**

@@ -338,7 +338,6 @@
       }
     },
     methods: {
-
       clearUser() {
         // Going back to the beginning - undo what we may have
         // changed so far and clearing the errors, if any
