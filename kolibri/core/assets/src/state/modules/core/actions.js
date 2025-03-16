@@ -10,15 +10,7 @@ import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import CatchErrors from 'kolibri/utils/CatchErrors';
 import { nextTick } from 'vue';
 import Lockr from 'lockr';
-import {
-  DisconnectionErrorCodes,
-  LoginErrors,
-  ERROR_CONSTANTS,
-  UPDATE_MODAL_DISMISSED,
-} from 'kolibri/constants';
-import { browser, os } from 'kolibri/utils/browserInfo';
-import { baseSessionState } from '../session';
-
+import { DisconnectionErrorCodes } from 'kolibri/constants';
 const logging = logger.getLogger(__filename);
 
 /**
@@ -65,93 +57,9 @@ export function handleApiError(store, { error, reloadOnReconnect = false } = {})
   throw error;
 }
 
-export function setSession(store, { session, clientNow }) {
-  const serverTime = session.server_time;
-  if (clientNow) {
-    setServerTime(serverTime, clientNow);
-  }
-  session = pick(session, Object.keys(baseSessionState));
-  store.commit('CORE_SET_SESSION', session);
-}
+// Session management has been migrated to useUser composable
 
-/**
- * Sets a password that is currently not specified
- * due to an account that was created while passwords
- * were not required.
- *
- * @param {object} store The store.
- * @param {object} sessionPayload The session payload.
- */
-export function kolibriSetUnspecifiedPassword(store, { username, password, facility }) {
-  const data = {
-    username,
-    password,
-    facility,
-  };
-  return client({
-    url: urls['kolibri:core:setnonspecifiedpassword'](),
-    data,
-    method: 'post',
-  });
-}
-
-/**
- * Signs in user.
- *
- * @param {object} store The store.
- * @param {object} sessionPayload The session payload.
- */
-export function kolibriLogin(store, sessionPayload) {
-  Lockr.set(UPDATE_MODAL_DISMISSED, false);
-  return client({
-    data: {
-      ...sessionPayload,
-      active: true,
-      browser,
-      os,
-    },
-    url: urls['kolibri:core:session_list'](),
-    method: 'post',
-  })
-    .then(() => {
-      // check redirect is disabled:
-      if (!sessionPayload.disableRedirect)
-        if (sessionPayload.next) {
-          // OIDC redirect
-          redirectBrowser(sessionPayload.next);
-        }
-        // Normal redirect on login
-        else {
-          redirectBrowser();
-        }
-    })
-    .catch(error => {
-      const errorsCaught = CatchErrors(error, [
-        ERROR_CONSTANTS.INVALID_CREDENTIALS,
-        ERROR_CONSTANTS.MISSING_PASSWORD,
-        ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED,
-        ERROR_CONSTANTS.NOT_FOUND,
-      ]);
-      if (errorsCaught) {
-        if (errorsCaught.includes(ERROR_CONSTANTS.INVALID_CREDENTIALS)) {
-          return LoginErrors.INVALID_CREDENTIALS;
-        } else if (errorsCaught.includes(ERROR_CONSTANTS.MISSING_PASSWORD)) {
-          return LoginErrors.PASSWORD_MISSING;
-        } else if (errorsCaught.includes(ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED)) {
-          return LoginErrors.PASSWORD_NOT_SPECIFIED;
-        } else if (errorsCaught.includes(ERROR_CONSTANTS.NOT_FOUND)) {
-          return LoginErrors.USER_NOT_FOUND;
-        }
-      } else {
-        store.dispatch('handleApiError', { error });
-      }
-    });
-}
-
-export function kolibriLogout() {
-  // Use the logout backend URL to initiate logout
-  redirectBrowser(urls['kolibri:core:logout']());
-}
+// Authentication actions have been migrated to useUser composable
 
 const _setPageVisibility = debounce((store, visibility) => {
   store.commit('CORE_SET_PAGE_VISIBILITY', visibility);

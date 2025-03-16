@@ -6,7 +6,7 @@
         <div class="main-cell table-cell">
           <!-- remote access disabled -->
           <div
-            v-if="!$store.getters.allowAccess"
+            v-if="!canManageContent"
             class="box"
             :style="{ backgroundColor: $themeTokens.surface }"
           >
@@ -187,6 +187,7 @@
   import urls from 'kolibri/urls';
   import plugin_data from 'kolibri-plugin-data';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useUser from 'kolibri/composables/useUser';
   import { ComponentMap } from '../constants';
   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
   import commonUserStrings from './commonUserStrings';
@@ -198,7 +199,8 @@
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
       const { facilityConfig } = useFacilities();
-      return { themeConfig, facilityConfig };
+      const { canManageContent } = useUser();
+      return { themeConfig, facilityConfig, canManageContent };
     },
     props: {
       hideCreateAccount: {

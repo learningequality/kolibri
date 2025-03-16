@@ -1,31 +1,32 @@
 import mock from 'xhr-mock';
-import coreStore from 'kolibri/store';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import * as serverClock from 'kolibri/utils/serverClock';
 import { get, set } from '@vueuse/core';
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import { ref } from 'vue';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
 import { HeartBeat } from '../heartbeat.js';
 import { trs } from '../internal/disconnection';
-import coreModule from '../../../kolibri/core/assets/src/state/modules/core';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
-
 jest.mock('kolibri/utils/redirectBrowser');
 jest.mock('kolibri/urls');
 jest.mock('lockr');
 jest.mock('kolibri/composables/useSnackbar');
-
-coreStore.registerModule('core', coreModule);
-
+jest.mock('kolibri/composables/useUser');
 describe('HeartBeat', function () {
   stubWindowLocation(beforeAll, afterAll);
   // replace the real XHR object with the mock XHR object before each test
-  beforeEach(() => mock.setup());
-
+  beforeEach(() => {
+    mock.setup();
+    useUser.mockImplementation(() => useUserMock({
+      id: ref('test_id'),
+      currentUserId: ref('test_user_id'),
+      setSession: jest.fn(),
+    }));
+  });
   // put the real XHR object back and clear the mocks after each test
   afterEach(() => mock.teardown());
-
   describe('constructor method', function () {
     it('should set the setUserActive method to a bound method', function () {
       const test = new HeartBeat();
@@ -173,6 +174,11 @@ describe('HeartBeat', function () {
         }),
       };
       useSnackbar.mockImplementation(() => useSnackbarMock(snackbar));
+      useUser.mockImplementation(() => useUserMock({
+        id: ref('test_id'),
+        currentUserId: ref('test_user_id'),
+        setSession: jest.fn(),
+      }));
     });
     beforeEach(function () {
       heartBeat = new HeartBeat();
@@ -201,15 +207,30 @@ describe('HeartBeat', function () {
   });
   describe('_checkSession method', function () {
     let heartBeat;
+    let mockSetSession;
+    let serverTime;
+    beforeEach(() => {
+      serverTime = new Date();
+      mockSetSession = jest.fn();
+      useUser.mockImplementation(() => useUserMock({
+        id: ref('test_id'),
+        currentUserId: ref('test_user_id'),
+        setSession: mockSetSession,
+      }));
+    });
     beforeEach(function () {
       heartBeat = new HeartBeat();
       jest.spyOn(heartBeat, '_sessionUrl').mockReturnValue('url');
     });
     it('should sign out if an auto logout is detected', function () {
-      coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
+      useUser.mockImplementation(() => useUserMock({
+        id: ref('test_id'),
+        currentUserId: ref('test_user_id'),
+        setSession: mockSetSession,
+      }));
       mock.put(/.*/, {
         status: 200,
-        body: JSON.stringify({ user_id: null, id: 'current' }),
+        body: JSON.stringify({ user_id: null }),
         headers: { 'Content-Type': 'application/json' },
       });
       const stub = jest.spyOn(heartBeat, 'signOutDueToInactivity');
@@ -218,7 +239,7 @@ describe('HeartBeat', function () {
       });
     });
     it('should redirect if a change in user is detected', function () {
-      coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
+      useUser.mockImplementation(() => useUserMock({ user_id: 'test', id: 'current' }));
       redirectBrowser.mockReset();
       mock.put(/.*/, {
         status: 200,
@@ -230,7 +251,7 @@ describe('HeartBeat', function () {
       });
     });
     it('should not sign out if user_id changes but session is being set for first time', function () {
-      coreStore.commit('CORE_SET_SESSION', { user_id: undefined, id: undefined });
+      useUser.mockImplementation(() => useUserMock({ user_id: undefined, id: undefined }));
       mock.put(/.*/, {
         status: 200,
         body: JSON.stringify({ user_id: null, id: 'current' }),
@@ -242,7 +263,7 @@ describe('HeartBeat', function () {
       });
     });
     it('should call setServerTime with a clientNow value that is between the start and finish of the poll', function () {
-      coreStore.commit('CORE_SET_SESSION', { user_id: 'test', id: 'current' });
+      useUser.mockImplementation(() => useUserMock({ user_id: 'test', id: 'current' }));
       const serverTime = new Date().toJSON();
       mock.put(/.*/, {
         status: 200,
@@ -287,12 +308,36 @@ describe('HeartBeat', function () {
           }),
         };
         useSnackbar.mockImplementation(() => useSnackbarMock(snackbar));
-        heartBeat.monitorDisconnect();
+        set(heartBeat._connection.connected, false);
+        set(heartBeat._connection.reconnectTime, 5);
+      });
+      describe('and then gets reconnected', function () {
+        beforeEach(function () {
+          mock.put(/.*/, {
+            status: 200,
+            body: JSON.stringify({ server_time: serverTime }),
+            headers: { 'Content-Type': 'application/json' },
+          });
+        });
+        it('should set snackbar to reconnected', function () {
+          return heartBeat._checkSession().finally(() => {
+            expect(get(snackbar.snackbarIsVisible)).toEqual(true);
+            expect(get(snackbar.snackbarOptions).text).toEqual(trs.$tr('successfullyReconnected'));
+            expect(get(heartBeat._connection.connected)).toEqual(true);
+            expect(get(heartBeat._connection.reconnectTime)).toEqual(null);
+          });
+        });
       });
       it('should set snackbar to trying to reconnect', function () {
-        heartBeat._checkSession();
-        expect(get(snackbar.snackbarIsVisible)).toEqual(true);
-        expect(get(snackbar.snackbarOptions).text).toEqual(trs.$tr('tryingToReconnect'));
+        mock.put(/.*/, {
+          status: 200,
+          body: JSON.stringify({ user_id: 'test', id: 'current', server_time: serverTime }),
+          headers: { 'Content-Type': 'application/json' },
+        });
+        return heartBeat._checkSession().finally(() => {
+          expect(get(snackbar.snackbarIsVisible)).toEqual(true);
+          expect(get(snackbar.snackbarOptions).text).toEqual(trs.$tr('tryingToReconnect'));
+        });
       });
       DisconnectionErrorCodes.filter(code => code !== 0).forEach(errorCode => {
         it('should set snackbar to disconnected for error code ' + errorCode, function () {
@@ -301,7 +346,6 @@ describe('HeartBeat', function () {
             status: errorCode,
             headers: { 'Content-Type': 'application/json' },
           });
-          heartBeat._wait = jest.fn();
           return heartBeat._checkSession().finally(() => {
             expect(get(snackbar.snackbarIsVisible)).toEqual(true);
             expect(
@@ -331,30 +375,6 @@ describe('HeartBeat', function () {
           const oldReconnectTime = get(heartBeat._connection.reconnectTime);
           return heartBeat._checkSession().finally(() => {
             expect(get(heartBeat._connection.reconnectTime)).toBeGreaterThan(oldReconnectTime);
-          });
-        });
-      });
-      describe('and then gets reconnected', function () {
-        beforeEach(function () {
-          mock.put(/.*/, {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          });
-        });
-        it('should set snackbar to reconnected', function () {
-          return heartBeat._checkSession().finally(() => {
-            expect(get(snackbar.snackbarIsVisible)).toEqual(true);
-            expect(get(snackbar.snackbarOptions).text).toEqual(trs.$tr('successfullyReconnected'));
-          });
-        });
-        it('should set connected to true', function () {
-          return heartBeat._checkSession().finally(() => {
-            expect(get(heartBeat._connection.connected)).toEqual(true);
-          });
-        });
-        it('should set reconnect time to null', function () {
-          return heartBeat._checkSession().finally(() => {
-            expect(get(heartBeat._connection.reconnectTime)).toEqual(null);
           });
         });
       });

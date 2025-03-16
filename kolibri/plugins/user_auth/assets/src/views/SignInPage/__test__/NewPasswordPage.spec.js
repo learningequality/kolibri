@@ -1,79 +1,117 @@
-import { mount } from '@vue/test-utils';
-import { Store } from 'vuex';
+import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import NewPasswordPage from '../NewPasswordPage';
+import NewPasswordPage from '../NewPasswordPage.vue';
+import useUser from 'kolibri/composables/useUser';
 
-const loginSpy = jest.fn().mockResolvedValue();
-const updatePwSpy = jest.fn().mockResolvedValue();
+jest.mock('kolibri/composables/useUser');
 
-const store = new Store({
-  actions: {
-    kolibriSetUnspecifiedPassword: updatePwSpy,
-    kolibriLogin: loginSpy,
-  },
-});
-
-const router = new VueRouter({
-  routes: [{ name: 'SignInPage', path: '/sign-in' }],
-});
-
-function makeWrapper() {
-  const signInSpy = jest.spyOn(NewPasswordPage.methods, 'signIn');
-  const wrapper = mount(NewPasswordPage, {
-    propsData: {
-      username: 'a',
-      facilityId: 'f',
-    },
-    store,
-    router,
-    stubs: {
-      AuthBase: {
-        template: '<div><slot></slot></div>',
-      },
-    },
-  });
-  return { wrapper, signInSpy };
-}
+const localVue = createLocalVue();
+localVue.use(VueRouter);
 
 describe('NewPasswordPage', () => {
-  afterEach(() => {
-    loginSpy.mockReset();
-    updatePwSpy.mockReset();
+  let wrapper;
+  let router;
+  const mockLogin = jest.fn();
+  const mockSetUnspecifiedPassword = jest.fn();
+  const mockFocus = jest.fn();
+
+  beforeEach(() => {
+    // Reset mocks
+    mockLogin.mockReset();
+    mockSetUnspecifiedPassword.mockReset();
+    mockFocus.mockReset();
+    
+    // Create a fresh router instance for each test
+    router = new VueRouter({
+      routes: [
+        { path: '/', name: 'SignInPage' },
+        { path: '/back', name: 'Back' },
+      ],
+    });
+    
+    // Mock router methods to avoid actual navigation
+    router.push = jest.fn();
+    router.go = jest.fn();
+    
+    // Mock useUser composable
+    useUser.mockImplementation(() => ({
+      login: mockLogin,
+      setUnspecifiedPassword: mockSetUnspecifiedPassword,
+    }));
+
+    wrapper = mount(NewPasswordPage, {
+      localVue,
+      router,
+      propsData: {
+        username: 'testuser',
+        facilityId: 'facility_1',
+      },
+      stubs: {
+        // Stub the PasswordTextbox component to avoid DOM manipulation
+        PasswordTextbox: true,
+      },
+    });
+
+    // Properly spy on the goBack method after mounting
+    jest.spyOn(wrapper.vm, 'goBack').mockImplementation(jest.fn());
+    
+    // Mock the $refs.createPassword element
+    wrapper.vm.$refs.createPassword = { focus: mockFocus };
   });
 
-  it('if password is not valid, clicking "continue" does nothing', async () => {
-    const { wrapper } = makeWrapper();
-    const button = wrapper.find('[data-test="submit"]');
-    button.trigger('click');
-    await global.flushPromises();
-    expect(updatePwSpy).not.toHaveBeenCalled();
-  });
+  it('calls setUnspecifiedPassword and login when form is submitted with valid password', async () => {
+    const password = 'validpassword';
+    wrapper.vm.password = password;
 
-  it('if password is valid, clicking "continue" updates pw and signs user in', async () => {
-    const { wrapper } = makeWrapper();
-    wrapper.setData({
-      password: 'pass',
-      passwordIsValid: true,
+    // Mock valid password
+    wrapper.setData({ passwordIsValid: true });
+
+    // Submit the form
+    await wrapper.vm.updatePassword();
+
+    expect(mockSetUnspecifiedPassword).toHaveBeenCalledWith({
+      username: 'testuser',
+      facility: 'facility_1',
+      password: 'validpassword',
     });
-    const button = wrapper.find('[data-test="submit"]');
-    button.trigger('click');
-    await global.flushPromises();
-    expect(updatePwSpy.mock.calls[0][1]).toMatchObject({
-      username: 'a',
-      password: 'pass',
-      facility: 'f',
-    });
-    expect(loginSpy.mock.calls[0][1]).toMatchObject({
-      username: 'a',
-      password: 'pass',
-      facility: 'f',
+
+    expect(mockLogin).toHaveBeenCalledWith({
+      username: 'testuser',
+      facility: 'facility_1',
+      password: 'validpassword',
     });
   });
 
-  it('clicking the "go back" navigates user to the Sign-In page', () => {
-    const { wrapper } = makeWrapper();
-    const button = wrapper.find('[data-test="goback"]');
-    button.trigger('click');
-    expect(wrapper.vm.$route.name).toEqual('SignInPage');
+  it('does not call setUnspecifiedPassword when password is invalid', async () => {
+    // Mock invalid password
+    wrapper.setData({ passwordIsValid: false });
+
+    // Submit the form
+    await wrapper.vm.updatePassword();
+
+    // Should focus on the password field
+    expect(mockFocus).toHaveBeenCalled();
+    
+    // Should not call the APIs
+    expect(mockSetUnspecifiedPassword).not.toHaveBeenCalled();
+    expect(mockLogin).not.toHaveBeenCalled();
+  });
+
+  it('calls goBack when setUnspecifiedPassword fails', async () => {
+    mockSetUnspecifiedPassword.mockRejectedValue(new Error('Failed'));
+
+    wrapper.setData({ passwordIsValid: true });
+    await wrapper.vm.updatePassword();
+
+    expect(wrapper.vm.goBack).toHaveBeenCalled();
+  });
+
+  it('calls goBack when login fails', async () => {
+    mockLogin.mockRejectedValue(new Error('Failed'));
+
+    wrapper.setData({ passwordIsValid: true });
+    await wrapper.vm.updatePassword();
+
+    expect(wrapper.vm.goBack).toHaveBeenCalled();
   });
 });

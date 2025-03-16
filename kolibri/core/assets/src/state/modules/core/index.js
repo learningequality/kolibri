@@ -1,5 +1,4 @@
 import plugin_data from 'kolibri-plugin-data';
-import sessionModule from '../session';
 import * as getters from './getters';
 import * as actions from './actions';
 import mutations from './mutations';
@@ -19,7 +18,4 @@ export default {
   getters,
   actions,
   mutations,
-  modules: {
-    session: sessionModule,
-  },
 };

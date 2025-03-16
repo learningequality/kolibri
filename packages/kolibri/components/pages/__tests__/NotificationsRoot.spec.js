@@ -89,8 +89,7 @@ describe('NotificationsRoot', function () {
     });
 
     it('notification modal should not be rendered if notifications do not exist', async () => {
-      const { wrapper, store } = makeWrapper();
-      store.commit('CORE_SET_SESSION', { kind: [UserKinds.ADMIN] });
+      const { wrapper, store } = makeWrapper({ kind: [UserKinds.ADMIN] });
       store.state.core.loading = false;
       wrapper.vm.notifications = [];
       await wrapper.vm.$nextTick();

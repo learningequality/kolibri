@@ -127,8 +127,8 @@ describe('facility config page view', () => {
   describe(`in the browser mode`, () => {
     let wrapper;
     beforeAll(() => {
+      useUser.mockImplementation(() => useUserMock({ isAppContext: false }));
       wrapper = makeWrapper();
-      wrapper.vm.$store.state.core.session.app_context = false;
     });
 
     it(`reset and save buttons are in the bottom bar`, () => {

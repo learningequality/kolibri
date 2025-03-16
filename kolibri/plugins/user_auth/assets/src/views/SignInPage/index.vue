@@ -158,7 +158,7 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { mapState } from 'vuex';
   import FacilityUsernameResource from 'kolibri-common/apiResources/FacilityUsernameResource';
   import get from 'lodash/get';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -193,7 +193,7 @@
     },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
-      const { isAppContext } = useUser();
+      const { isAppContext, login } = useUser();
       const { selectedFacility } = useFacilities();
       return { isAppContext, selectedFacility };
     },
@@ -338,7 +338,7 @@
       }
     },
     methods: {
-      ...mapActions(['kolibriLogin']),
+
       clearUser() {
         // Going back to the beginning - undo what we may have
         // changed so far and clearing the errors, if any
@@ -460,7 +460,7 @@
         }
         return this.createSession();
       },
-      createSession() {
+      async createSession() {
         this.busy = true;
         const sessionPayload = {
           username: this.username,
@@ -472,30 +472,31 @@
           sessionPayload['next'] = this.nextParam;
         }
 
-        this.kolibriLogin(sessionPayload)
-          .then(err => {
-            // If we don't have a password, we submitted without a username
-            if (err) {
-              if (err === LoginErrors.PASSWORD_NOT_SPECIFIED) {
-                this.$router.push({
-                  name: ComponentMap.NEW_PASSWORD,
-                  query: sessionPayload,
-                });
-              } else if (err === LoginErrors.PASSWORD_MISSING) {
-                this.usernameSubmittedWithoutPassword = true;
-              } else {
-                this.loginError = err;
-              }
+        try {
+          const err = await login(sessionPayload);
+          // If we don't have a password, we submitted without a username
+          if (err) {
+            if (err === LoginErrors.PASSWORD_NOT_SPECIFIED) {
+              this.$router.push({
+                name: ComponentMap.NEW_PASSWORD,
+                query: sessionPayload,
+              });
+            } else if (err === LoginErrors.PASSWORD_MISSING) {
+              this.usernameSubmittedWithoutPassword = true;
+            } else {
+              this.loginError = err;
             }
+          }
 
-            if (this.invalidCredentials || this.usernameSubmittedWithoutPassword) {
-              this.$refs.password.$refs.textbox.$refs.input.select();
-            }
-            this.busy = false;
-          })
-          .catch(() => {
-            this.busy = false;
-          });
+          if (this.invalidCredentials || this.usernameSubmittedWithoutPassword) {
+            this.$refs.password.$refs.textbox.$refs.input.select();
+          }
+        } catch (error) {
+          // Handle any unexpected errors
+          this.loginError = error;
+        } finally {
+          this.busy = false;
+        }
       },
       suggestionStyle(i) {
         return {

@@ -8,14 +8,14 @@ export function updateUserProfile(store, { updates }) {
     return Promise.resolve();
   }
 
-  const { currentUserId } = useUser();
+  const { currentUserId, setSession } = useUser();
 
   return FacilityUserResource.saveModel({
     id: get(currentUserId),
     data: updates,
     exists: true,
   }).then(() => {
-    store.dispatch('setSession', { session: updates }, { root: true });
+    setSession({ session: updates });
   });
 }
 

@@ -54,6 +54,7 @@
   import pickBy from 'lodash/pickBy';
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
   import AuthBase from '../AuthBase';
   import { ComponentMap } from '../../constants';
 
@@ -64,6 +65,10 @@
       PasswordTextbox,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { login, setUnspecifiedPassword } = useUser();
+      return { login, setUnspecifiedPassword };
+    },
     props: {
       username: {
         type: String,
@@ -92,28 +97,30 @@
       },
     },
     methods: {
-      updatePassword() {
+      async updatePassword() {
         if (this.passwordIsValid) {
           this.busy = true;
-          this.$store
-            .dispatch('kolibriSetUnspecifiedPassword', this.credentials)
-            .then(() => {
-              this.signIn();
-            })
-            .catch(() => {
-              // In case user has already set password or user does not exist,
-              // simply go back to the Sign In page.
-              this.goBack();
-            });
+          try {
+            await this.setUnspecifiedPassword(this.credentials);
+            await this.signIn();
+          } catch {
+            // In case user has already set password or user does not exist,
+            // simply go back to the Sign In page.
+            this.goBack();
+          } finally {
+            this.busy = false;
+          }
         } else {
           this.$refs.createPassword.focus();
         }
       },
-      signIn() {
-        this.$store.dispatch('kolibriLogin', this.credentials).catch(() => {
+      async signIn() {
+        try {
+          await this.login(this.credentials);
+        } catch {
           // In case of an error, we just go back to the Sign In page
           this.goBack();
-        });
+        }
       },
       goBack() {
         this.$router.push({
