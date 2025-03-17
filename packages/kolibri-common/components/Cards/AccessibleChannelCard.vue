@@ -8,9 +8,11 @@
     :thumbnailSrc="contentNode.thumbnail"
     :title="contentNode.name"
     :headingLevel="headingLevel"
+    aria-label="Accessible Quiz Card"
+    class="accessible-card"
   >
     <template #thumbnailPlaceholder>
-      <div>
+      <div class="thumbnail-placeholder">
         <ContentIcon
           kind="channel"
           class="type-icon"
@@ -19,14 +21,14 @@
       </div>
     </template>
     <template #belowTitle>
-      <div>
-        <p style="margin-top: 0">
+      <div  class="card-content">
+        <p class="resource-info">
           <KTextTruncator
             :text="coachString('numberOfResources', { value: contentNode.total_resource_count })"
             :maxLines="1"
           />
         </p>
-        <p>
+        <p  class="description">
           <KTextTruncator
             :text="contentNode.description"
             :maxLines="3"
@@ -82,13 +84,36 @@
   };
 
 </script>
-
-
 <style scoped>
+.accessible-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
 
-  .type-icon {
-    right: 10px;
-    font-size: 3em;
-  }
+.thumbnail-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
 
+.type-icon {
+  font-size: 2.5em;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.resource-info {
+  font-weight: bold;
+  margin-top: 0;
+}
+
+.description {
+  color: #555;
+}
 </style>
