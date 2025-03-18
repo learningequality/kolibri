@@ -2864,15 +2864,6 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-"aphrodite@git+https://github.com/learningequality/aphrodite.git":
-  version "2.2.3"
-  uid fdc8d7be8912a5cf17f74ff10f124013c52c3e32
-  resolved "git+https://github.com/learningequality/aphrodite.git#fdc8d7be8912a5cf17f74ff10f124013c52c3e32"
-  dependencies:
-    asap "^2.0.3"
-    inline-style-prefixer "^4.0.2"
-    string-hash "^1.1.3"
-
 "aphrodite@https://github.com/learningequality/aphrodite/":
   version "2.2.3"
   resolved "https://github.com/learningequality/aphrodite/#fdc8d7be8912a5cf17f74ff10f124013c52c3e32"
@@ -7679,12 +7670,11 @@ kolibri-constants@0.2.8:
   resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.2.8.tgz#34ad2e2b87cf132ebe8dbaa9b64dc4a7bf261f8d"
   integrity sha512-ycXeK+ePw7zkiNtf+nX/yF5BO52+onoYS2V3d9HZDIvx7X6CDJPtMcypkXrK9aZ0JbWAegRFMD/lAd8q21cf4Q==
 
-kolibri-design-system@5.0.1:
+"kolibri-design-system@https://github.com/shruti862/kolibri-design-system#07eeebb5bc2909cb5cfda14cc22472a7c07a772e":
   version "5.0.1"
-  resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-5.0.1.tgz#b0e5a9fbad31b420d303024e21e8369b9a6a7cca"
-  integrity sha512-oz5gEFUj7NYZbrqr89gPjSfRFVuuilSqILA4bbWqLWwkI9ay/uVMdsh8cY2Xajhtzccjwqa1c/NxUETr5kMfHQ==
+  resolved "https://github.com/shruti862/kolibri-design-system#07eeebb5bc2909cb5cfda14cc22472a7c07a772e"
   dependencies:
-    aphrodite "git+https://github.com/learningequality/aphrodite.git"
+    aphrodite "https://github.com/learningequality/aphrodite/"
     autosize "3.0.21"
     color "4.2.3"
     css-element-queries "1.2.0"
