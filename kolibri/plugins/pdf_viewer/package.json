@@ -6,7 +6,7 @@
   "dependencies": {
     "hammerjs": "^2.0.8",
     "intersection-observer": "0.12.2",
-    "pdfjs-dist": "^2.16.105",
+    "pdfjs-dist": "^5.0.375",
     "vue-virtual-scroller": "1.1.2",
     "web-streams-polyfill": "^4.1.0"
   }
