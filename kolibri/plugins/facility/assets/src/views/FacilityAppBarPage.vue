@@ -1,6 +1,9 @@
 <template>
 
-  <AppBarPage :title="title">
+  <AppBarPage
+    :title="title"
+    :appearanceOverrides="appearanceOverrides"
+  >
     <slot></slot>
   </AppBarPage>
 
@@ -25,6 +28,11 @@
       appBarTitle: {
         type: String,
         default: null,
+      },
+      appearanceOverrides: {
+        type: Object,
+        default: null,
+        required: false,
       },
     },
     computed: {

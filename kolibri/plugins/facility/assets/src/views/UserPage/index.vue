@@ -1,6 +1,6 @@
 <template>
 
-  <FacilityAppBarPage>
+  <FacilityAppBarPage :appearanceOverrides="{ maxWidth: '95vw', width: '100%', margin: 'auto' }">
     <KPageContainer>
       <p>
         <KRouterLink
@@ -493,11 +493,6 @@
 
   .user-roster {
     overflow-x: auto;
-  }
-
-  /deep/ .main-wrapper {
-    max-width: 95vw !important;
-    margin: 0 auto;
   }
 
 </style>
