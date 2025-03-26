@@ -171,7 +171,6 @@
               :currentCardViewStyle="currentSearchCardViewStyle"
               :hideCardViewToggle="true"
               :results="results"
-              :removeFilterTag="removeFilterTag"
               :clearSearch="clearSearch"
               :moreLoading="moreLoading"
               :searchMore="searchMore"
@@ -367,15 +366,15 @@
         results,
         more,
         searchMore,
-        removeFilterTag,
         clearSearch,
         currentRoute,
+        createBaseSearchGetParams,
       } = useSearch(topic);
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
       const { windowBreakpoint, windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       const { channelsMap, fetchChannels } = useChannels();
       const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
-      const { isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
+      const { isUserLoggedIn } = useUser();
       const { fetchUserDownloadRequests } = useDownloadRequests(store);
 
       const isRoot = ref(false);
@@ -430,10 +429,7 @@
         let id = props.id;
         const route = currentRoute();
         const skip = route.query && route.query.skip === 'true';
-        const params = {
-          include_coach_content: get(isAdmin) || get(isCoach) || get(isSuperuser),
-          baseurl,
-        };
+        const params = createBaseSearchGetParams(false);
         if (get(isUserLoggedIn) && !baseurl) {
           fetchContentNodeTreeProgress({ id, params });
         }
@@ -535,7 +531,6 @@
         results,
         more,
         searchMore,
-        removeFilterTag,
         clearSearch,
         back,
         genContentLinkKeepCurrentBackLink,
@@ -557,8 +552,6 @@
         type: String,
         default: null,
       },
-      // Our linting doesn't detect usage in the setup function yet.
-      // eslint-disable-next-line vue/no-unused-properties
       id: {
         type: String,
         required: true,

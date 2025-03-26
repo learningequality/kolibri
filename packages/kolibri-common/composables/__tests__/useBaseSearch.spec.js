@@ -196,7 +196,6 @@ describe(`useBaseSearch`, () => {
   describe('search method', () => {
     it('should call ContentNodeResource.fetchCollection when searchTerms changes', async () => {
       const { store } = prep();
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       store.commit('SET_QUERY', { categories: 'test1,test2' });
       await nextTick();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
@@ -395,12 +394,12 @@ describe(`useBaseSearch`, () => {
       expect(get(more)).toEqual(expectedMore);
     });
   });
-  describe('removeFilterTag method', () => {
+  describe('removeSearchTerm method', () => {
     it('should remove a filter from the searchTerms', () => {
-      const { removeFilterTag, router } = prep({
+      const { removeSearchTerm, router } = prep({
         categories: 'test1,test2',
       });
-      removeFilterTag({ value: 'test1', key: 'categories' });
+      removeSearchTerm({ value: 'test1', key: 'categories' });
       expect(router.push).toHaveBeenCalledWith({
         name,
         query: {
@@ -409,21 +408,21 @@ describe(`useBaseSearch`, () => {
       });
     });
     it('should remove keywords from the searchTerms', () => {
-      const { removeFilterTag, router } = prep({
+      const { removeSearchTerm, router } = prep({
         keywords: 'test',
       });
-      removeFilterTag({ value: 'test', key: 'keywords' });
+      removeSearchTerm({ value: 'test', key: 'keywords' });
       expect(router.push).toHaveBeenCalledWith({
         name,
         query: {},
       });
     });
     it('should not remove any other filters', () => {
-      const { removeFilterTag, router } = prep({
+      const { removeSearchTerm, router } = prep({
         categories: 'test1,test2',
         learning_activities: 'watch',
       });
-      removeFilterTag({ value: 'test1', key: 'categories' });
+      removeSearchTerm({ value: 'test1', key: 'categories' });
       expect(router.push).toHaveBeenCalledWith({
         name,
         query: {

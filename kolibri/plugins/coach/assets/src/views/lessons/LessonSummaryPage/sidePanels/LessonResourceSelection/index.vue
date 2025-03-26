@@ -48,7 +48,7 @@
       @selectResources="selectResources"
       @deselectResources="deselectResources"
       @setSelectedResources="setSelectedResources"
-      @removeSearchFilterTag="removeSearchFilterTag"
+      @removeSearchTerm="removeSearchTerm"
     />
 
     <template
@@ -146,7 +146,7 @@
         selectResources,
         deselectResources,
         setSelectedResources,
-        removeSearchFilterTag,
+        removeSearchTerm,
       } = useResourceSelection({
         searchResultsRouteName: PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
       });
@@ -231,7 +231,7 @@
         setSelectedResources,
         notifyResourcesAdded,
         notifySaveLessonError,
-        removeSearchFilterTag,
+        removeSearchTerm,
         goBackAction$,
         cancelAction$,
         continueAction$,

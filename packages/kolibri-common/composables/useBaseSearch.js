@@ -1,6 +1,7 @@
 import { get, set } from '@vueuse/core';
 import invert from 'lodash/invert';
 import isEqual from 'lodash/isEqual';
+import orderBy from 'lodash/orderBy';
 import logger from 'kolibri-logging';
 import { computed, getCurrentInstance, inject, provide, ref, watch } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
@@ -14,7 +15,9 @@ import {
   NoCategories,
   ResourcesNeededTypes,
 } from 'kolibri/constants';
+import { getContentLangActive } from 'kolibri/utils/i18n';
 import useUser from 'kolibri/composables/useUser';
+import { coreString } from 'kolibri/uiText/commonCoreStrings';
 
 import { deduplicateResources } from '../utils/contentNode';
 
@@ -153,6 +156,10 @@ export const searchKeys = [
   'grade_levels',
 ];
 
+export const primaryLanguageKey = 'primaryLanguage';
+
+export const allLanguagesValue = 'allLangs';
+
 export default function useBaseSearch({
   descendant,
   store,
@@ -162,7 +169,7 @@ export default function useBaseSearch({
   searchResultsRouteName,
   reloadOnDescendantChange = true,
   fetchContentNodeProgress,
-}) {
+} = {}) {
   // Get store and router references from the curent instance
   // but allow them to be passed in to allow for dependency
   // injection, primarily for tests.
@@ -222,6 +229,21 @@ export default function useBaseSearch({
     },
   });
 
+  const primaryLanguage = computed({
+    get() {
+      return get(route).query[primaryLanguageKey];
+    },
+    set(value) {
+      const query = { ...get(route).query };
+      if (value) {
+        query[primaryLanguageKey] = value;
+      } else {
+        query[primaryLanguageKey] = allLanguagesValue;
+      }
+      router.push({ ...get(route), query }).catch(() => {});
+    },
+  });
+
   const displayingSearchResults = computed(() =>
     // Happily this works even for keywords, because calling Object.keys
     // on a string value will give an array of the indexes of a string
@@ -253,6 +275,10 @@ export default function useBaseSearch({
       getParams.lft__gt = descValue.lft;
       getParams.rght__lt = descValue.rght;
     }
+    const primaryLang = get(primaryLanguage);
+    if (primaryLang && primaryLang !== allLanguagesValue) {
+      getParams.included_languages = [primaryLang];
+    }
     return getParams;
   }
 
@@ -269,7 +295,11 @@ export default function useBaseSearch({
           continue;
         }
       }
-
+      if (key === 'languages') {
+        if (terms[key][allLanguagesValue]) {
+          continue;
+        }
+      }
       const keys = Object.keys(terms[key]);
       if (keys.length) {
         getParams[key] = keys;
@@ -299,7 +329,7 @@ export default function useBaseSearch({
         _setAvailableLabels(data.labels);
         set(searchResultsLoading, false);
       });
-    } else if (desc || filters) {
+    } else if (desc || filters || get(primaryLanguage)) {
       const getParams = createBaseSearchGetParams();
       getParams.max_results = 1;
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
@@ -329,7 +359,7 @@ export default function useBaseSearch({
     }
   }
 
-  function removeFilterTag({ value, key }) {
+  function removeSearchTerm({ value, key }) {
     if (key === 'keywords') {
       set(searchTerms, {
         ...get(searchTerms),
@@ -362,6 +392,8 @@ export default function useBaseSearch({
       }
     });
   }
+
+  watch(primaryLanguage, search);
 
   // Helper to get the route information in a setup() function
   function currentRoute() {
@@ -437,7 +469,49 @@ export default function useBaseSearch({
     return _getGlobalLabels('accessibilityOptionsList', []);
   });
   const languagesList = computed(() => {
-    return _getGlobalLabels('languagesList', []);
+    return orderBy(
+      _getGlobalLabels('languagesList', []),
+      [getContentLangActive, 'id'],
+      ['desc', 'asc'],
+    );
+  });
+
+  const languageOptionsList = computed(() => {
+    const searchableLabels = get(labels);
+    const values = [
+      ...get(languagesList).map(language => {
+        return {
+          value: language.id,
+          disabled: searchableLabels && !searchableLabels.languages.includes(language.id),
+          label: language.lang_name,
+        };
+      }),
+    ];
+    if (values.length > 1) {
+      values.unshift({
+        value: allLanguagesValue,
+        disabled: false,
+        label: coreString('allLanguagesLabel'),
+      });
+    }
+    return values;
+  });
+
+  const currentLanguageId = computed({
+    get() {
+      return get(searchTerms).languages
+        ? Object.keys(get(searchTerms).languages)[0]
+        : allLanguagesValue;
+    },
+    set(value) {
+      if (value === allLanguagesValue) {
+        value = null;
+      }
+      set(searchTerms, {
+        ...get(searchTerms),
+        languages: value ? { [value]: true } : {},
+      });
+    },
   });
 
   provide('availableLearningActivities', learningActivitiesShown);
@@ -447,6 +521,10 @@ export default function useBaseSearch({
   provide('availableAccessibilityOptions', accessibilityOptionsList);
   provide('availableLanguages', languagesList);
 
+  provide('currentLanguageId', currentLanguageId);
+  provide('currentPrimaryLanguageId', primaryLanguage);
+  provide('languageOptions', languageOptionsList);
+
   // Provide an object of searchable labels
   // This is a manifest of all the labels that could still be selected and produce search results
   // given the currently applied search filters.
@@ -455,9 +533,12 @@ export default function useBaseSearch({
   // Currently selected search terms
   provide('activeSearchTerms', searchTerms);
 
+  provide('removeSearchTerm', removeSearchTerm);
+
   return {
     currentRoute,
     searchTerms,
+    createBaseSearchGetParams,
     displayingSearchResults,
     searchLoading,
     moreLoading,
@@ -466,8 +547,9 @@ export default function useBaseSearch({
     labels,
     search,
     searchMore,
-    removeFilterTag,
     clearSearch,
+    primaryLanguage,
+    removeSearchTerm,
   };
 }
 
@@ -484,6 +566,13 @@ export function injectBaseSearch() {
   const availableLanguages = inject('availableLanguages');
   const searchableLabels = inject('searchableLabels');
   const activeSearchTerms = inject('activeSearchTerms');
+
+  const currentLanguageId = inject('currentLanguageId');
+  const currentPrimaryLanguageId = inject('currentPrimaryLanguageId');
+  const languageOptions = inject('languageOptions');
+
+  const removeSearchTerm = inject('removeSearchTerm');
+
   return {
     availableLearningActivities,
     availableLibraryCategories,
@@ -493,5 +582,9 @@ export function injectBaseSearch() {
     availableLanguages,
     searchableLabels,
     activeSearchTerms,
+    currentLanguageId,
+    currentPrimaryLanguageId,
+    languageOptions,
+    removeSearchTerm,
   };
 }
