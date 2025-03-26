@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": "true",
   "dependencies": {
-    "@shopify/draggable": "^1.0.0-beta.8",
+    "@shopify/draggable": "^1.1.4",
     "clipboard": "^2.0.11",
     "date-fns": "^1.28.2",
     "fuse.js": "^7.1.0",
