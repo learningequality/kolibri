@@ -49,9 +49,16 @@
           v-else-if="!displayingSearchResults && !rootNodesLoading"
           data-test="channels"
         >
-          <h1 class="channels-label">
-            {{ channelsLabel }}
-          </h1>
+          <KFixedGrid numCols="4">
+            <KFixedGridItem span="3">
+              <h1 class="channels-label">
+                {{ channelsLabel }}
+              </h1>
+            </KFixedGridItem>
+            <KFixedGridItem span="1">
+              <LanguageSelector :primary="true" />
+            </KFixedGridItem>
+          </KFixedGrid>
           <p
             v-if="isLocalLibraryEmpty"
             data-test="nothing-in-lib-label"
@@ -88,7 +95,6 @@
           data-test="search-results"
           :allowDownloads="allowDownloads"
           :results="results"
-          :removeFilterTag="removeFilterTag"
           :clearSearch="clearSearch"
           :moreLoading="moreLoading"
           :searchMore="searchMore"
@@ -109,6 +115,7 @@
           :class="windowIsLarge ? 'side-panel' : ''"
           data-test="side-panel-local"
           :width="`${sidePanelWidth}px`"
+          :showLanguages="displayingSearchResults"
         />
       </div>
 
@@ -122,6 +129,7 @@
           v-model="searchTerms"
           data-test="side-panel"
           :width="`${sidePanelWidth}px`"
+          :showLanguages="displayingSearchResults"
         />
       </SidePanelModal>
 
@@ -187,9 +195,10 @@
   import MeteredConnectionNotificationModal from 'kolibri-common/components/MeteredConnectionNotificationModal.vue';
   import appCapabilities, { checkCapability } from 'kolibri/utils/appCapabilities';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
-  import { searchKeys } from 'kolibri-common/composables/useBaseSearch';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
+  import LanguageSelector from 'kolibri-common/components/SearchFiltersPanel/LanguageSelector';
+  import { allLanguagesValue } from 'kolibri-common/composables/useBaseSearch';
   import useChannels from 'kolibri-common/composables/useChannels';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
@@ -203,6 +212,7 @@
   } from '../../composables/useDevices';
   import useSearch from '../../composables/useSearch';
   import useLearnerResources from '../../composables/useLearnerResources';
+  import { sortChannels } from '../../utils/sortChannels';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import commonLearnStrings from '../commonLearnStrings';
   import ChannelCardGroupGrid from '../ChannelCardGroupGrid';
@@ -233,6 +243,7 @@
       LearnAppBarPage,
       OtherLibraries,
       PostSetupModalGroup,
+      LanguageSelector,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
@@ -240,14 +251,7 @@
       const store = currentInstance.$store;
       const router = currentInstance.$router;
 
-      const {
-        isUserLoggedIn,
-        isCoach,
-        isAdmin,
-        isSuperuser,
-        canManageContent,
-        isLearnerOnlyImport,
-      } = useUser();
+      const { isUserLoggedIn, canManageContent, isLearnerOnlyImport } = useUser();
       const { allowDownloadOnMeteredConnection } = useDeviceSettings();
       const {
         searchTerms,
@@ -258,9 +262,10 @@
         more,
         search,
         searchMore,
-        removeFilterTag,
         clearSearch,
         currentRoute,
+        createBaseSearchGetParams,
+        primaryLanguage,
       } = useSearch();
       search();
       const { fetchResumableContentNodes } = useLearnerResources();
@@ -288,32 +293,42 @@
           fetchResumableContentNodes();
         }
         const shouldResolve = samePageCheckGenerator(store);
+        const getParams = createBaseSearchGetParams();
+        getParams.parent__isnull = true;
         return ContentNodeResource.fetchCollection({
-          getParams: {
-            parent__isnull: true,
-            include_coach_content: get(isAdmin) || get(isCoach) || get(isSuperuser),
-            baseurl,
-          },
+          getParams,
         }).then(
           channelCollection => {
             if (shouldResolve()) {
               // we want them to be in the same order as the channels list
               set(
                 rootNodes,
-                channels
-                  .map(channel => {
-                    const node = channelCollection.find(n => n.channel_id === channel.id);
-                    if (node) {
-                      // The `channel` comes with additional data that is
-                      // not returned from the ContentNodeResource.
-                      // Namely thumbnail, description and tagline (so far)
-                      node.title = channel.name || node.title;
-                      node.thumbnail = channel.thumbnail;
-                      node.description = channel.tagline || channel.description;
-                      return node;
-                    }
-                  })
-                  .filter(Boolean),
+                // Sort channels by relevance to the current user interface language
+                sortChannels(
+                  channels
+                    .map(channel => {
+                      const node = channelCollection.find(n => n.channel_id === channel.id);
+                      if (node) {
+                        // The `channel` comes with additional data that is
+                        // not returned from the ContentNodeResource.
+                        // Namely thumbnail, description and tagline (so far)
+                        node.title = channel.name || node.title;
+                        node.thumbnail = channel.thumbnail;
+                        node.description = channel.tagline || channel.description;
+                        node.included_languages = channel.included_languages;
+                        return node;
+                      }
+                    })
+                    // Filter out any channels that are not in the user's primary language
+                    // we have filtered this in the initial API fetch, but for older versions
+                    // of Kolibri, the API filter will be a noop.
+                    .filter(
+                      c =>
+                        (c && get(primaryLanguage) === allLanguagesValue) ||
+                        c.included_languages.includes(get(primaryLanguage)),
+                    ),
+                  get(primaryLanguage) === allLanguagesValue ? null : get(primaryLanguage),
+                ),
               );
 
               store.commit('CORE_SET_PAGE_LOADING', false);
@@ -332,7 +347,8 @@
       }
 
       function _showLibrary(baseurl) {
-        return fetchChannels({ baseurl }).then(channels => {
+        const params = createBaseSearchGetParams();
+        return fetchChannels(params).then(channels => {
           if (!channels.length && isUserLoggedIn) {
             router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
             return;
@@ -342,9 +358,7 @@
             return;
           }
 
-          const query = currentRoute().query;
-
-          if (searchKeys.some(key => query[key])) {
+          if (get(displayingSearchResults)) {
             // If currently on a route with search terms
             // just finish early and let the component handle loading
             store.commit('CORE_SET_PAGE_LOADING', false);
@@ -386,6 +400,12 @@
         }
       });
 
+      watch(primaryLanguage, () => {
+        if (!displayingSearchResults.value) {
+          showLibrary();
+        }
+      });
+
       showLibrary();
 
       return {
@@ -399,7 +419,6 @@
         results,
         more,
         searchMore,
-        removeFilterTag,
         clearSearch,
         windowBreakpoint,
         windowIsLarge,

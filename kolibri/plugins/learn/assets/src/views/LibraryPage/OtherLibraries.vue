@@ -145,6 +145,7 @@
   import { computed } from 'vue';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
   import useCardLayoutSpan from '../../composables/useCardLayoutSpan';
   import useContentLink from '../../composables/useContentLink';
   import useDevices from '../../composables/useDevices';
@@ -161,12 +162,13 @@
       UnPinnedDevices,
     },
     setup() {
+      const { currentPrimaryLanguageId } = injectBaseSearch();
       const {
         isLoadingChannels,
         networkDevicesWithChannels,
         keepDeviceChannelsUpdated,
         deviceChannelsMap,
-      } = useDevices();
+      } = useDevices(currentPrimaryLanguageId);
       const {
         handlePinToggle,
         fetchPinsForUser,

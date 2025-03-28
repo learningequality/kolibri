@@ -48,7 +48,7 @@ const MOCK_DEFAULTS = {
   labels: null,
   search: jest.fn(),
   searchMore: jest.fn(),
-  removeFilterTag: jest.fn(),
+  removeSearchTerm: jest.fn(),
   clearSearch: jest.fn(),
   currentRoute: jest.fn(() => {
     // return a $route-flavored object to avoid undefined errors
@@ -61,6 +61,7 @@ const MOCK_DEFAULTS = {
       meta: {},
     };
   }),
+  createBaseSearchGetParams: jest.fn(() => ({})),
 };
 
 export function useBaseSearchMock(overrides = {}) {
@@ -82,6 +83,8 @@ export const injectBaseSearch = jest.fn(() => ({
   availableChannels: [],
   searchableLabels: [],
   activeSearchTerms: [],
+  languageOptions: [],
+  removeSearchTerm: jest.fn(),
 }));
 
 export const searchKeys = [];

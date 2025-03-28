@@ -15,7 +15,7 @@
     </h2>
     <SearchChips
       :searchTerms="searchTerms"
-      @removeItem="removeFilterTag"
+      @removeItem="removeSearchTerm"
       @clearSearch="clearSearch"
     />
     <div
@@ -76,6 +76,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import SearchChips from 'kolibri-common/components/SearchChips';
+  import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
   import CopiesModal from './CopiesModal';
   import LibraryAndChannelBrowserMainContent from './LibraryAndChannelBrowserMainContent';
 
@@ -89,8 +90,10 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
+      const { removeSearchTerm } = injectBaseSearch();
       return {
         windowIsSmall,
+        removeSearchTerm,
       };
     },
     props: {
@@ -121,10 +124,6 @@
       results: {
         type: Array,
         default: () => [],
-      },
-      removeFilterTag: {
-        type: Function,
-        default: () => {},
       },
       searchLoading: {
         type: Boolean,

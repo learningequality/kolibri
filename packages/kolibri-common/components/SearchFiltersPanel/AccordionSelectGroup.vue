@@ -67,13 +67,13 @@
         </template>
       </AccordionItem>
       <AccordionItem
-        v-if="languageOptionsList.length"
+        v-if="languageOptionsList.length && showLanguages"
         class="accordion-select"
         :title="coreString('languageLabel')"
         :headerAppearanceOverrides="
-          accordionHeaderStyles(anySelectedFor('languages', languageOptionsList))
+          accordionHeaderStyles(anySelectedFor('languages', languageOptions))
         "
-        :disabled="languageOptionsList.every(opt => opt.disabled)"
+        :disabled="languageOptions.every(opt => opt.disabled)"
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
@@ -82,7 +82,7 @@
       >
         <template #content>
           <KCheckbox
-            v-for="lang in languageOptionsList"
+            v-for="lang in languageOptions"
             :key="'lang-' + lang.value"
             :checked="isSelected('languages', lang)"
             :disabled="lang.disabled"
@@ -189,18 +189,18 @@
         availableResourcesNeeded,
         availableGradeLevels,
         availableAccessibilityOptions,
-        availableLanguages,
         availableLibraryCategories,
         searchableLabels,
+        languageOptions,
       } = injectBaseSearch();
 
       return {
         availableResourcesNeeded,
         availableGradeLevels,
         availableAccessibilityOptions,
-        availableLanguages,
         availableLibraryCategories,
         searchableLabels,
+        languageOptions,
       };
     },
     props: {
@@ -211,6 +211,10 @@
           const inputKeys = ['accessibility_labels', 'languages', 'grade_levels'];
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
+      },
+      showLanguages: {
+        type: Boolean,
+        default: true,
       },
       handleCategory: {
         type: Function,
@@ -246,16 +250,6 @@
           return roots;
         }
         return null;
-      },
-      languageOptionsList() {
-        return this.availableLanguages.map(language => {
-          return {
-            value: language.id,
-            disabled:
-              this.searchableLabels && !this.searchableLabels.languages.includes(language.id),
-            label: language.lang_name,
-          };
-        });
       },
       accessibilityOptionsList() {
         return this.availableAccessibilityOptions.map(key => {

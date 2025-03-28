@@ -215,6 +215,18 @@ class ContentNode(base_models.ContentNode):
     # needs a subsequent Kolibri upgrade step to backfill these values.
     admin_imported = models.BooleanField(null=True)
 
+    # Languages that are in this node and/or any descendant nodes of this node
+    # for non-topic nodes, this is the language of the node itself
+    # for topic nodes, this is the union of all languages of all descendant nodes
+    # any language directly set on the topic nodes is ignored,
+    # as it is not meaningful to set a language on a topic node if it does not apply
+    # to any descendants.
+    # We do this to allow filtering of a topic tree by a specific language for
+    # multi-language channels.
+    included_languages = models.ManyToManyField(
+        "Language", related_name="contentnodes", verbose_name="languages", blank=True
+    )
+
     objects = ContentNodeManager()
 
     class Meta:

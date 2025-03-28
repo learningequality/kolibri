@@ -23,6 +23,7 @@ from kolibri.core.content.tasks import enqueue_automatic_resource_import_if_need
 from kolibri.core.content.utils.annotation import calculate_included_languages
 from kolibri.core.content.utils.annotation import calculate_ordered_categories
 from kolibri.core.content.utils.annotation import calculate_ordered_grade_levels
+from kolibri.core.content.utils.annotation import recurse_annotation_up_tree
 from kolibri.core.content.utils.annotation import set_channel_ancestors
 from kolibri.core.content.utils.annotation import set_content_visibility_from_disk
 from kolibri.core.content.utils.channel_import import FutureSchemaError
@@ -349,7 +350,7 @@ def synchronize_content_requests_upgrade():
 
 
 @version_upgrade(old_version="<0.18.0")
-def ordered_metadata_in_channels():
+def ordered_metadata_and_included_languages_in_channels():
     """
     Update the channel metadata to have grade_levels, categories,
     and included languages ordered by occurrence in the channel resources
@@ -358,4 +359,5 @@ def ordered_metadata_in_channels():
         calculate_ordered_categories(channel)
         calculate_ordered_grade_levels(channel)
         calculate_included_languages(channel)
+        recurse_annotation_up_tree(channel.id)
     ContentCacheKey.update_cache_key()

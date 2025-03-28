@@ -19,7 +19,7 @@
     <SearchChips
       class="mb-16"
       :searchTerms="searchTerms"
-      @removeItem="onRemoveSearchFilterTag"
+      @removeItem="onRemoveSearchTerm"
       @clearSearch="onClearSearch"
     />
 
@@ -226,8 +226,8 @@
         this.$emit('clearSearch');
         this.redirectBack();
       },
-      onRemoveSearchFilterTag(item, { isLast }) {
-        this.$emit('removeSearchFilterTag', item);
+      onRemoveSearchTerm(item, { isLast }) {
+        this.$emit('removeSearchTerm', item);
         if (isLast) {
           this.redirectBack();
         }

@@ -53,7 +53,7 @@ import useFetch from './useFetch';
  * @property {(resources: Array<Object>) => void} setSelectedResources Replaces the current
  *   `selectedResources` array with the provided resources array.
  * @property {() => void} clearSearch Clears the current search terms and results.
- * @property {(tag: Object) => void} removeSearchFilterTag Removes the specified tag from the
+ * @property {(tag: Object) => void} removeSearchTerm Removes the specified term from the
  *  search terms.
  *
  * @returns {UseResourceSelectionResponse}
@@ -251,6 +251,6 @@ export default function useResourceSelection({
     deselectResources,
     setSelectedResources,
     clearSearch: useSearchObject.clearSearch,
-    removeSearchFilterTag: useSearchObject.removeFilterTag,
+    removeSearchTerm: useSearchObject.removeSearchTerm,
   };
 }

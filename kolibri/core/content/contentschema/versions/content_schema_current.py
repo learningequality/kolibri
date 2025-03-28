@@ -145,6 +145,22 @@ class ContentContentnodeHasPrerequisite(Base):
     to_contentnode_id = Column(CHAR(32), nullable=False, index=True)
 
 
+class ContentContentnodeIncludedLanguages(Base):
+    __tablename__ = "content_contentnode_included_languages"
+    __table_args__ = (
+        Index(
+            "content_contentnode_included_languages_contentnode_id_language_id_7d14ec8b_uniq",
+            "contentnode_id",
+            "language_id",
+            unique=True,
+        ),
+    )
+
+    id = Column(Integer, primary_key=True)
+    contentnode_id = Column(CHAR(32), nullable=False, index=True)
+    language_id = Column(String(14), nullable=False, index=True)
+
+
 class ContentContentnodeRelated(Base):
     __tablename__ = "content_contentnode_related"
     __table_args__ = (

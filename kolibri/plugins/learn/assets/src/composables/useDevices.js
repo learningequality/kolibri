@@ -13,6 +13,7 @@ import useChannels from 'kolibri-common/composables/useChannels';
 import plugin_data from 'kolibri-plugin-data';
 import { KolibriStudioId } from '../constants';
 import { learnStrings } from '../views/commonLearnStrings';
+import { sortChannels } from '../utils/sortChannels';
 
 /**
  * The ref is defined in the outer scope so it can be used as a shared store
@@ -110,7 +111,13 @@ export function currentDeviceData(store) {
   };
 }
 
-export default function useDevices(store) {
+/**
+ * A composable function to access data about devices and their channels.
+ *
+ * @param {Ref<string|null>} primaryLanguage - The primary language as a VueJS ref.
+ * @param {Object} store - The Vuex store instance.
+ */
+export default function useDevices(primaryLanguage = null, store) {
   const { fetchChannels } = useChannels();
   const networkDevices = ref({});
   const isLoading = ref(false);
@@ -122,7 +129,7 @@ export default function useDevices(store) {
   function _updateDeviceChannels(device, channels) {
     set(deviceChannelsMap, {
       ...get(deviceChannelsMap),
-      [device.instance_id]: channels,
+      [device.instance_id]: sortChannels(channels, get(primaryLanguage)),
     });
   }
 

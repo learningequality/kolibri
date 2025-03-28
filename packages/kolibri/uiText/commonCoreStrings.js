@@ -369,6 +369,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Refers to the language that is used in a resource or in Kolibri. For example, users can filter learning resources by language.',
   },
+  allLanguagesLabel: {
+    message: 'Any language',
+    context:
+      'This is an option that allows users to filter channels or learning resources by language. For example, they can select "Any language" to view all the resources regardless of the language they are in.',
+  },
   learnerLabel: {
     message: 'Learner',
     context:
