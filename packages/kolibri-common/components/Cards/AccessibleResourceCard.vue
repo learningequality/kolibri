@@ -45,7 +45,7 @@
           :tooltip="
             isBookmarked ? coreString('removeFromBookmarks') : coreString('saveToBookmarks')
           "
-          @click.stop="$emit('toggleBookmark', contentNode.id)"
+          @click.stop="$emit('toggleBookmark', contentNode)"
         />
       </div>
     </template>
