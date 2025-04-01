@@ -79,8 +79,6 @@
             : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
       };
 
-      const { data, hasMore, fetchMore, loadingMore } = props.bookmarksFetch;
-
       const wrappedContentCardMessage = content => {
         const propsMessage = props.contentCardMessage(content);
         if (propsMessage) {

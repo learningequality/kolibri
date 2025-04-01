@@ -14,11 +14,11 @@
       v-if="target === SelectionTarget.LESSON"
       class="subheader"
       :style="{
-        flexDirection: bookmarksCount > 0 ? 'row' : 'row-reverse',
+        flexDirection: bookmarks.length > 0 ? 'row' : 'row-reverse',
       }"
     >
       <div
-        v-if="bookmarksCount > 0"
+        v-if="bookmarks.length > 0"
         class="side-panel-subtitle"
       >
         {{ selectFromBookmarks$() }}
@@ -135,8 +135,6 @@
       QuizResourceSelectionHeader,
     },
     setup(props) {
-      const { bookmarksFetch, channelsFetch } = props;
-      const { count: bookmarksCount, data: bookmarksData } = bookmarksFetch;
       const { channelsFetch } = props;
       const { bookmarks } = injectUseBookmarks();
 
@@ -152,11 +150,11 @@
       } = coreStrings;
 
       const wrappedBookmarksCardMessage = computed(() => {
-        const propsMessage = props.bookmarksCardMessage(bookmarksData.value);
+        const propsMessage = props.bookmarksCardMessage(bookmarks.value);
         if (propsMessage) {
           return propsMessage;
         }
-        return numberOfBookmarks$({ count: bookmarksCount.value });
+        return numberOfBookmarks$({ count: bookmarks.value.length });
       });
 
       props.setTitle(props.defaultTitle);
@@ -192,14 +190,6 @@
        * @type {FetchObject}
        */
       channelsFetch: {
-        type: Object,
-        required: true,
-      },
-      /**
-       * Fetch object for fetching bookmarks.
-       * @type {FetchObject}
-       */
-      bookmarksFetch: {
         type: Object,
         required: true,
       },
