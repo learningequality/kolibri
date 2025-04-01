@@ -11,10 +11,10 @@
       canSelectAll
       :isSelectable="isSelectable"
       :contentList="contentList"
-      :hasMore="false"
+      :hasMore="hasMore"
       :disabled="disabled"
       :channelsLink="channelsLink"
-      :fetchMore="() => null"
+      :fetchMore="() => (viewMoreClickCount += 1)"
       :loadingMore="false"
       :multi="!settings?.selectPracticeQuiz"
       :selectionRules="selectionRules"
@@ -34,7 +34,9 @@
 
 <script>
 
-  import { computed, getCurrentInstance } from 'vue';
+  import flatMap from 'lodash/flatMap';
+  import chunk from 'lodash/chunk';
+  import { computed, ref, getCurrentInstance } from 'vue';
   import { now } from 'kolibri/utils/serverClock';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute.js';
@@ -57,7 +59,23 @@
     setup(props) {
       const { selectFromBookmarks$, bookmarkedTimeAgoLabel$ } = coreStrings;
       const instance = getCurrentInstance();
+      const viewMoreClickCount = ref(0);
       const { bookmarks } = injectUseBookmarks();
+
+      // For lazily loading them to avoid renering too many at once
+      const chunkedBookmarks = computed(() => {
+        return chunk(bookmarks.value, 25);
+      });
+
+      // Each time the view more button is clicked, we increase the count, so we return
+      // more chunks of bookmarks
+      const contentList = computed(() => {
+        return flatMap(chunkedBookmarks.value.slice(0, viewMoreClickCount.value + 1));
+      });
+
+      const hasMore = computed(() => {
+        return chunkedBookmarks.value.length > viewMoreClickCount.value + 1;
+      });
 
       props.setTitle(selectFromBookmarks$());
 
@@ -102,8 +120,10 @@
       });
 
       return {
+        hasMore,
+        viewMoreClickCount,
         channelsLink,
-        contentList: bookmarks,
+        contentList,
         isSelectable,
         wrappedContentCardMessage,
         SelectionTarget,
