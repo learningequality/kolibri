@@ -34,7 +34,6 @@
       :treeFetch="treeFetch"
       :searchFetch="searchFetch"
       :channelsFetch="channelsFetch"
-      :bookmarksFetch="bookmarksFetch"
       :searchTerms.sync="searchTerms"
       :selectionRules="selectionRules"
       :target="SelectionTarget.LESSON"
@@ -113,6 +112,7 @@
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
   import useUser from 'kolibri/composables/useUser';
   import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute.js';
+  import useBookmarks from 'kolibri-common/composables/useBookmarks';
   import { PageNames } from '../../../../../constants';
   import { coachStrings } from '../../../../common/commonCoachStrings';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
@@ -132,6 +132,8 @@
       const isLandingRoute = computed(() => previousRoute.value === null);
 
       const instance = getCurrentInstance();
+      // Initialize it here so we can inject it in child components
+      useBookmarks();
       const { sendPoliteMessage } = useKLiveRegion();
       const {
         loading,
@@ -139,7 +141,6 @@
         treeFetch,
         searchFetch,
         channelsFetch,
-        bookmarksFetch,
         searchTerms,
         selectionRules,
         selectedResources,
@@ -228,7 +229,6 @@
         treeFetch,
         searchFetch,
         channelsFetch,
-        bookmarksFetch,
         searchTerms,
         isLandingRoute,
         selectionRules,

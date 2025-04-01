@@ -18,7 +18,7 @@
         :contentNode="content"
         :thumbnailSrc="content.thumbnail"
         :headingLevel="cardsHeadingLevel"
-        :isBookmarked="isBookmarked(content.id)"
+        :isBookmarked="isBookmarked(content)"
         @toggleBookmark="toggleBookmark"
       >
         <template #belowTitle>
@@ -81,15 +81,10 @@
 
 <script>
 
-  import { computed, ref } from 'vue';
-  import urls from 'kolibri/urls';
-  import client from 'kolibri/client';
-  import useUser from 'kolibri/composables/useUser';
-  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
-  import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AccessibleFolderCard from 'kolibri-common/components/Cards/AccessibleFolderCard';
   import AccessibleResourceCard from 'kolibri-common/components/Cards/AccessibleResourceCard';
+  import { injectUseBookmarks } from 'kolibri-common/composables/useBookmarks';
   import { ViewMoreButtonStates } from '../../../constants/index';
 
   export default {
@@ -100,67 +95,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { coreString } = commonCoreStrings.methods;
-      const { sendPoliteMessage } = useKLiveRegion();
-      // Map of contentnode_id to bookmark resource ID
-      const bookmarks = ref({});
-      // Map of contentNode IDs to bookmark resource IDs
-      const bookmarkedContentNodeIds = computed(() => Object.keys(bookmarks.value));
-      const { currentUserId } = useUser();
+      const { toggleBookmark, isBookmarked } = injectUseBookmarks();
 
-      /**
-       * Fetch bookmarks and store them in the bookmarks ref mapping
-       * their contentnode_id to the bokomark's own ID.
-       * The contentnode_id is used for creating it, but we need the
-       * bookmark's ID to delete it.
-       */
-      function getBookmarks() {
-        BookmarksResource.fetchCollection({ force: true }).then(data => {
-          bookmarks.value = data.reduce((memo, bookmark) => {
-            memo[bookmark.contentnode_id] = bookmark.id;
-            return memo;
-          }, {});
-        });
-      }
-
-      function deleteBookmark(contentnode_id) {
-        client({
-          method: 'delete',
-          url: urls['kolibri:core:bookmarks_detail'](contentnode_id),
-        }).then(() => {
-          getBookmarks();
-          sendPoliteMessage(coreString('removedFromBookmarks'));
-        });
-      }
-
-      function addBookmark(contentnode_id) {
-        client({
-          method: 'post',
-          url: urls['kolibri:core:bookmarks_list'](),
-          data: {
-            contentnode_id: contentnode_id,
-            user: currentUserId.value,
-          },
-        }).then(() => {
-          getBookmarks();
-          sendPoliteMessage(coreString('savedToBookmarks'));
-        });
-      }
-
-      function isBookmarked(contentnode_id) {
-        return bookmarkedContentNodeIds.value.includes(contentnode_id);
-      }
-
-      function toggleBookmark(contentnode_id) {
-        if (isBookmarked(contentnode_id)) {
-          const bookmarkId = bookmarks.value[contentnode_id];
-          deleteBookmark(bookmarkId);
-        } else {
-          addBookmark(contentnode_id);
-        }
-      }
-
-      getBookmarks();
       return {
         ViewMoreButtonStates,
         toggleBookmark,

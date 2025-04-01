@@ -44,7 +44,7 @@
     </div>
 
     <div
-      v-if="bookmarksCount > 0"
+      v-if="bookmarks.length > 0"
       class="mb-24"
     >
       <KCardGrid layout="1-1-1">
@@ -119,6 +119,7 @@
   import { computed } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import AccessibleChannelCard from 'kolibri-common/components/Cards/AccessibleChannelCard.vue';
+  import { injectUseBookmarks } from 'kolibri-common/composables/useBookmarks';
   import { PageNames } from '../../../../constants';
   import { SelectionTarget } from '../contants';
   import QuizResourceSelectionHeader from '../QuizResourceSelectionHeader.vue';
@@ -136,6 +137,8 @@
     setup(props) {
       const { bookmarksFetch, channelsFetch } = props;
       const { count: bookmarksCount, data: bookmarksData } = bookmarksFetch;
+      const { channelsFetch } = props;
+      const { bookmarks } = injectUseBookmarks();
 
       const { data: channels } = channelsFetch;
 
@@ -160,7 +163,7 @@
       props.setGoBack(null);
 
       return {
-        bookmarksCount,
+        bookmarks,
         channels,
         SelectionTarget,
         selectFromChannels$,
@@ -244,13 +247,6 @@
           name: PageNames.QUIZ_SELECT_RESOURCES_BOOKMARKS,
         };
       },
-    },
-    beforeRouteEnter(_, __, next) {
-      next(vm => {
-        // Whenever we land here, we want to fetch the bookmarks again
-        // in case the user has added or removed some within the side panel
-        vm.bookmarksFetch.fetchData();
-      });
     },
     methods: {
       selectFromChannelsLink(channel) {

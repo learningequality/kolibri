@@ -82,7 +82,6 @@
         :searchTerms.sync="searchTerms"
         :searchFetch="searchFetch"
         :channelsFetch="channelsFetch"
-        :bookmarksFetch="bookmarksFetch"
         :selectAllRules="selectAllRules"
         :selectionRules="selectionRules"
         :settings.sync="settings"
@@ -165,6 +164,7 @@
   import isEqual from 'lodash/isEqual';
   import { useMemoize } from '@vueuse/core';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import useBookmarks from 'kolibri-common/composables/useBookmarks';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
@@ -201,6 +201,15 @@
 
       const { $store, $router } = getCurrentInstance().proxy;
       const route = computed(() => $store.state.route);
+
+      const isPracticeQuiz = item =>
+        !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
+
+      useBookmarks({
+        filters: { kind: ContentNodeKinds.EXERCISE },
+        annotator: results => results.filter(isPracticeQuiz),
+      });
+
       const {
         activeSection,
         activeSectionIndex,
@@ -393,15 +402,11 @@
         { getKey: content => content.id },
       );
 
-      const isPracticeQuiz = item =>
-        !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
-
       const {
         topic,
         loading,
         treeFetch,
         channelsFetch,
-        bookmarksFetch,
         searchTerms,
         searchFetch,
         displayingSearchResults,
@@ -409,11 +414,6 @@
         removeSearchFilterTag,
       } = useResourceSelection({
         searchResultsRouteName: PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
-        bookmarks: {
-          filters: { kind: ContentNodeKinds.EXERCISE },
-          annotator: results => results.filter(isPracticeQuiz),
-        },
-
         channels: {
           filters: {
             contains_exercise: true,
@@ -690,7 +690,6 @@
         searchTerms,
         searchFetch,
         channelsFetch,
-        bookmarksFetch,
         selectionRules,
         selectAllRules,
         unselectableResourceIds,

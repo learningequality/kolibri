@@ -11,11 +11,11 @@
       canSelectAll
       :isSelectable="isSelectable"
       :contentList="contentList"
-      :hasMore="hasMore"
+      :hasMore="false"
       :disabled="disabled"
       :channelsLink="channelsLink"
-      :fetchMore="fetchMore"
-      :loadingMore="loadingMore"
+      :fetchMore="() => null"
+      :loadingMore="false"
       :multi="!settings?.selectPracticeQuiz"
       :selectionRules="selectionRules"
       :selectAllRules="selectAllRules"
@@ -38,6 +38,7 @@
   import { now } from 'kolibri/utils/serverClock';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute.js';
+  import { injectUseBookmarks } from 'kolibri-common/composables/useBookmarks';
   import UpdatedResourceSelection from '../UpdatedResourceSelection.vue';
   import { PageNames } from '../../../../constants';
   import { SelectionTarget } from '../contants';
@@ -56,6 +57,7 @@
     setup(props) {
       const { selectFromBookmarks$, bookmarkedTimeAgoLabel$ } = coreStrings;
       const instance = getCurrentInstance();
+      const { bookmarks } = injectUseBookmarks();
 
       props.setTitle(selectFromBookmarks$());
 
@@ -103,10 +105,7 @@
 
       return {
         channelsLink,
-        contentList: data,
-        hasMore,
-        fetchMore,
-        loadingMore,
+        contentList: bookmarks,
         isSelectable,
         wrappedContentCardMessage,
         SelectionTarget,
@@ -120,14 +119,6 @@
       setGoBack: {
         type: Function,
         default: () => {},
-      },
-      /**
-       * Fetch object for fetching bookmarks.
-       * @type {FetchObject}
-       */
-      bookmarksFetch: {
-        type: Object,
-        required: true,
       },
       selectionRules: {
         type: Array,

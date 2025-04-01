@@ -35,8 +35,6 @@ import useFetch from './useFetch';
  *   use the fetch objects of each entity.
  * @property {FetchObject} channelsFetch Channels fetch object to manage the process of
  *   fetching channels. We currently don't support fetching more channels.
- * @property {FetchObject} bookmarksFetch Bookmarks fetch object to manage the process of
- *   fetching bookmarks. Fetching more bookmarks is supported.
  * @property {FetchObject} treeFetch Topic tree fetch object to manage the process of
  *   fetching topic trees and their resources. Fetching more resources is supported.
  * @property {FetchObject} searchFetch Search fetch object to manage the process of
@@ -60,7 +58,6 @@ import useFetch from './useFetch';
  */
 export default function useResourceSelection({
   searchResultsRouteName,
-  bookmarks,
   channels,
   topicTree,
   search,
@@ -72,29 +69,6 @@ export default function useResourceSelection({
   const selectionRules = ref([]);
   const selectedResources = ref([]);
   const topic = ref(null);
-
-  const fetchBookmarks = async params => {
-    const response = await ContentNodeResource.fetchBookmarks(params);
-    if (bookmarks?.annotator) {
-      const annotatedResults = await bookmarks.annotator(response.results);
-      return {
-        ...response,
-        results: annotatedResults,
-        count: annotatedResults.length,
-      };
-    }
-    return response;
-  };
-  const bookmarksFetch = useFetch({
-    fetchMethod: () =>
-      fetchBookmarks({
-        params: { limit: 25, available: true, ...bookmarks?.filters },
-      }),
-    fetchMoreMethod: more =>
-      ContentNodeResource.fetchBookmarks({
-        params: more,
-      }),
-  });
 
   const fetchChannels = async () => {
     const result = await ChannelResource.fetchCollection({
@@ -191,13 +165,12 @@ export default function useResourceSelection({
   });
 
   const loading = computed(() => {
-    const sources = [bookmarksFetch, channelsFetch, treeFetch, searchFetch];
+    const sources = [channelsFetch, treeFetch, searchFetch];
 
     return sources.some(sourceFetch => sourceFetch.loading.value);
   });
 
   const fetchInitialData = async () => {
-    bookmarksFetch.fetchData();
     channelsFetch.fetchData();
     if (topicId.value) {
       treeFetch.fetchData();
@@ -241,7 +214,6 @@ export default function useResourceSelection({
     loading,
     treeFetch,
     channelsFetch,
-    bookmarksFetch,
     searchFetch,
     selectionRules,
     selectedResources,
