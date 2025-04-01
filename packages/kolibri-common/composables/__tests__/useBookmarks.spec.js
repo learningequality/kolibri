@@ -70,15 +70,15 @@ describe('useBookmarks', () => {
       expect(bookmarks.value.map(n => n.id)).not.toContain(bookmarkNode.id);
     });
 
-    it.skip('can toggle a bookmark', async () => {
+    it('can toggle a bookmark', async () => {
       const bookmarkNode = _createBookmarkedContentNode();
       const { toggleBookmark, bookmarks } = useBookmarks();
       await toggleBookmark(bookmarkNode);
-      expect(bookmarks.value).toContain(bookmarkNode.id);
+      expect(bookmarks.value.map(n => n.id)).toContain(bookmarkNode.id);
       await toggleBookmark(bookmarkNode);
-      expect(bookmarks.value).not.toContain(bookmarkNode.id);
+      expect(bookmarks.value.map(n => n.id)).not.toContain(bookmarkNode.id);
       await toggleBookmark(bookmarkNode);
-      expect(bookmarks.value).toContain(bookmarkNode.id);
+      expect(bookmarks.value.map(n => n.id)).toContain(bookmarkNode.id);
     });
   });
 });
