@@ -419,4 +419,8 @@
     }
   }
 
+  .content-title {
+    margin-bottom: 8px;
+  }
+
 </style>
