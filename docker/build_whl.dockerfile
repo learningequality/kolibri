@@ -1,6 +1,6 @@
 FROM ubuntu:bionic
 
-ENV NODE_VERSION=18.19.0
+ENV NODE_VERSION=18.20.7
 
 # install required packages
 RUN apt-get update && \

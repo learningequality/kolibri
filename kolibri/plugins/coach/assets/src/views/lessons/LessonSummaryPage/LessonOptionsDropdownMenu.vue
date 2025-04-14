@@ -52,7 +52,7 @@
       copyLessonAction: {
         message: 'Copy lesson',
         context:
-          "Coaches can copy lessons to a different group or another class of their facility.\n\nThe 'Copy lesson' option appears in the Lessons section.",
+          "Coaches can copy lessons to a different group or another class of their facility.\n\nThe 'Copy lesson' option appears in the Plan > Lessons section.",
       },
     },
   };

@@ -1,6 +1,7 @@
 import csv
 import logging
 import ntpath
+import os
 import re
 from uuid import UUID
 
@@ -369,6 +370,14 @@ class Command(AsyncCommand):
             "filepath", action="store", type=str, help="Path to CSV file."
         )
         parser.add_argument(
+            "-s",
+            "--use-django-storage",
+            action="store_true",
+            dest="use_storage",
+            default=False,
+            help="The generated file will be read/written using Django FileStorage",
+        )
+        parser.add_argument(
             "--facility",
             action="store",
             type=str,
@@ -482,9 +491,10 @@ class Command(AsyncCommand):
         translation.activate(self.locale)
         self.overall_error.append(str(msg))
 
-    def csv_headers_validation(self, filepath):
-        csv_file = open_csv_for_reading(filepath)
-        with csv_file as f:
+    def csv_headers_validation(self, local_filepath=None, storage_filepath=None):
+        with open_csv_for_reading(
+            local_filepath=local_filepath, storage_filepath=storage_filepath
+        ) as f:
             header = next(csv.reader(f, strict=True))
             has_header = False
             self.header_translation = {
@@ -713,9 +723,11 @@ class Command(AsyncCommand):
 
         return default_facility
 
-    def get_number_lines(self, filepath):
+    def get_number_lines(self, local_filepath=None, storage_filepath=None):
         try:
-            with open_csv_for_reading(filepath) as f:
+            with open_csv_for_reading(
+                local_filepath=local_filepath, storage_filepath=storage_filepath
+            ) as f:
                 number_lines = len(f.readlines())
         except (ValueError, FileNotFoundError, csv.Error) as e:
             number_lines = None
@@ -852,6 +864,21 @@ class Command(AsyncCommand):
                     errorlines.write("\n")
 
     def handle_async(self, *args, **options):
+
+        self.default_facility = self.get_facility(options)
+
+        storage_filepath = None
+        local_filepath = None
+
+        use_storage = options["use_storage"]
+
+        if use_storage:
+            storage_filepath = options["filepath"]
+            filepath = storage_filepath
+        else:
+            local_filepath = os.path.join(os.getcwd(), options["filepath"])
+            filepath = local_filepath
+
         # initialize stats data structures:
         self.overall_error = []
         db_new_classes = []
@@ -870,20 +897,24 @@ class Command(AsyncCommand):
 
         self.job = get_current_job()
         filepath = options["filepath"]
-        self.default_facility = self.get_facility(options)
-        self.number_lines = self.get_number_lines(filepath)
+        self.number_lines = self.get_number_lines(
+            storage_filepath=storage_filepath, local_filepath=local_filepath
+        )
         self.exit_if_error()
 
         with self.start_progress(total=100) as self.progress_update:
             # validate csv headers:
-            has_header = self.csv_headers_validation(filepath)
+            has_header = self.csv_headers_validation(
+                local_filepath=local_filepath, storage_filepath=storage_filepath
+            )
             if not has_header:
                 self.append_error(MESSAGES[INVALID_HEADER])
             self.exit_if_error()
             self.progress_update(1)  # state=csv_headers
             try:
-                csv_file = open_csv_for_reading(filepath)
-                with csv_file as f:
+                with open_csv_for_reading(
+                    local_filepath=local_filepath, storage_filepath=storage_filepath
+                ) as f:
                     reader = csv.DictReader(f, strict=True)
                     per_line_errors, classes, users, roles = self.csv_values_validation(
                         reader, self.header_translation, self.default_facility

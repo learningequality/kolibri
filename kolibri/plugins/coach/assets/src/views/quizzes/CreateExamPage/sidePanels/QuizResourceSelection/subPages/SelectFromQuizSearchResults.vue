@@ -1,10 +1,17 @@
 <template>
 
   <div v-if="displayingSearchResults">
-    <div class="channels-header">
-      <span class="side-panel-subtitle">
-        {{ selectFromChannels$() }}
-      </span>
+    <QuizResourceSelectionHeader
+      v-if="!settings.selectPracticeQuiz"
+      class="mb-16"
+      :settings="settings"
+      @searchClick="onSearchClick"
+    />
+
+    <div
+      v-else
+      class="d-flex-end mb-16"
+    >
       <KButton
         icon="filter"
         :text="searchLabel$()"
@@ -24,17 +31,23 @@
     />
 
     <UpdatedResourceSelection
+      :disabled="disabled"
+      :isSelectable="!settings.isChoosingManually"
       :contentList="contentList"
       :hasMore="hasMore"
       :cardsHeadingLevel="2"
       :fetchMore="fetchMore"
       :loadingMore="loadingMore"
+      :multi="!settings?.selectPracticeQuiz"
       :selectionRules="selectionRules"
       :selectedResources="selectedResources"
       :getTopicLink="getTopicLink"
       :getResourceLink="getResourceLink"
+      :contentCardMessage="contentCardMessage"
+      :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
+      @setSelectedResources="$emit('setSelectedResources', $event)"
     />
   </div>
 
@@ -47,13 +60,14 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SearchChips from 'kolibri-common/components/SearchChips';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../../../../constants';
   import UpdatedResourceSelection from '../../../../../common/resourceSelection/UpdatedResourceSelection.vue';
+  import QuizResourceSelectionHeader from '../../../../../common/resourceSelection/QuizResourceSelectionHeader.vue';
 
   export default {
     name: 'SelectFromQuizSearchResults',
     components: {
+      QuizResourceSelectionHeader,
       SearchChips,
       UpdatedResourceSelection,
     },
@@ -78,10 +92,9 @@
         redirectBack();
       }
 
-      const { selectFromChannels$, searchLabel$ } = coreStrings;
-      const { selectPracticeQuizLabel$ } = enhancedQuizManagementStrings;
+      const { searchLabel$ } = coreStrings;
 
-      props.setTitle(selectPracticeQuizLabel$());
+      props.setTitle(props.defaultTitle);
       props.setGoBack(null);
 
       const { data, hasMore, fetchMore, loadingMore } = props.searchFetch;
@@ -91,7 +104,6 @@
         fetchMore,
         loadingMore,
         searchLabel$,
-        selectFromChannels$,
         redirectBack,
       };
     },
@@ -103,6 +115,10 @@
       setGoBack: {
         type: Function,
         default: () => {},
+      },
+      defaultTitle: {
+        type: String,
+        required: true,
       },
       /**
        * Fetch object for fetching search results.
@@ -120,6 +136,15 @@
       selectedResources: {
         type: Array,
         required: true,
+      },
+      unselectableResourceIds: {
+        type: Array,
+        required: false,
+        default: null,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
       },
       searchTerms: {
         type: Object,
@@ -140,6 +165,23 @@
       getResourceLink: {
         type: Function,
         required: true,
+      },
+      /**
+       * Selection settings used for quizzes.
+       */
+      settings: {
+        type: Object,
+        required: false,
+        default: null,
+      },
+      /**
+       * Function that returns a message to be displayed based in the content
+       * passed as argument.
+       */
+      contentCardMessage: {
+        type: Function,
+        required: false,
+        default: () => '',
       },
     },
     computed: {

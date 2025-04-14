@@ -8,7 +8,7 @@
   >
     <transition name="side-panel">
       <KFocusTrap
-        @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
+        @shouldFocusFirstEl="focusFirstEl"
         @shouldFocusLastEl="focusLastEl"
       >
         <section
@@ -29,7 +29,7 @@
                 flexDirection: closeButtonIconType === 'close' ? 'row' : 'row-reverse',
               }"
             >
-              <div>
+              <div style="overflow: hidden">
                 <slot name="header"> </slot>
               </div>
               <KIconButton
@@ -190,6 +190,7 @@
       const htmlTag = window.document.getElementsByTagName('html')[0];
       htmlTag.style['overflow-y'] = 'hidden';
       this.$nextTick(() => {
+        this.focusFirstEl();
         this.$emit('shouldFocusFirstEl');
       });
     },

@@ -22,7 +22,6 @@ Django ORM for these calculations).
 """
 import os
 import uuid
-from gettext import gettext as _
 
 from django.db import connection
 from django.db import models
@@ -274,7 +273,7 @@ class File(base_models.File):
         """
         Return the preset.
         """
-        return PRESET_LOOKUP.get(self.preset, _("Unknown format"))
+        return PRESET_LOOKUP.get(self.preset, "Unknown format")
 
 
 class LocalFileQueryset(models.QuerySet, FilterByUUIDQuerysetMixin):

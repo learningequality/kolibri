@@ -44,6 +44,14 @@ class Command(AsyncCommand):
             help='Log type to be exported. Valid values are "session" and "summary".',
         )
         parser.add_argument(
+            "-s",
+            "--use-django-storage",
+            action="store_true",
+            dest="use_storage",
+            default=False,
+            help="The generated file will be read/written using Django FileStorage",
+        )
+        parser.add_argument(
             "-w",
             "--overwrite",
             action="store_true",
@@ -95,7 +103,7 @@ class Command(AsyncCommand):
         except ValueError:
             return False
 
-    def handle_async(self, *args, **options):
+    def handle_async(self, *args, **options):  # noqa: C901
 
         # set language for the translation of the messages
         locale = settings.LANGUAGE_CODE if not options["locale"] else options["locale"]
@@ -105,6 +113,14 @@ class Command(AsyncCommand):
 
         start_date = options["start_date"]
         end_date = options["end_date"]
+
+        use_storage = options["use_storage"]
+        output_file = options["output_file"]
+
+        if use_storage and output_file:
+            raise CommandError(
+                "You must provide either a storage path or a local file path"
+            )
 
         facility = self.get_facility(options)
         if not facility:
@@ -121,14 +137,20 @@ class Command(AsyncCommand):
 
             log_info = classes_info[log_type]
 
-            if options["output_file"] is None:
-                filename = log_info["filename"].format(
-                    facility.name, facility.id[:4], start_date[:10], end_date[:10]
-                )
-            else:
-                filename = options["output_file"]
+            filename = log_info["filename"].format(
+                facility.name, facility.id[:4], start_date[:10], end_date[:10]
+            )
 
-            filepath = os.path.join(os.getcwd(), filename)
+            storage_filepath = None
+            local_filepath = None
+
+            if use_storage:
+                storage_filepath = filename
+            else:
+                local_filepath = (
+                    output_file if output_file else filename.replace("log_export/", "")
+                )
+                local_filepath = os.path.join(os.getcwd(), local_filepath)
 
             queryset = log_info["queryset"]
 
@@ -139,7 +161,8 @@ class Command(AsyncCommand):
                     for row in csv_file_generator(
                         facility,
                         log_type,
-                        filepath,
+                        storage_filepath=storage_filepath,
+                        local_filepath=local_filepath,
                         start_date=start_date,
                         end_date=end_date,
                         overwrite=options["overwrite"],
@@ -150,14 +173,14 @@ class Command(AsyncCommand):
 
         if job:
             job.extra_metadata["overall_error"] = self.overall_error
-            self.job.extra_metadata["filename"] = ntpath.basename(filepath)
+            self.job.extra_metadata["filename"] = ntpath.basename(filename)
             job.save_meta()
         else:
             if self.overall_error:
                 raise CommandError(self.overall_error)
             else:
                 logger.info(
-                    "Created csv file {} with {} lines".format(filepath, total_rows)
+                    "Created csv file {} with {} lines".format(filename, total_rows)
                 )
 
         translation.deactivate()

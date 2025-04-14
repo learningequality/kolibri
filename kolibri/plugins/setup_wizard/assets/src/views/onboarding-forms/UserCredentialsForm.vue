@@ -205,6 +205,9 @@
       },
     },
     watch: {
+      password(newPass) {
+        this.$emit('passwordChanged', newPass);
+      },
       selectedUser(user) {
         // user will be null unless an existing user is selected
         if (user) {
@@ -255,7 +258,12 @@
           this.focusOnInvalidField();
           return;
         } else {
-          this.$emit('submit');
+          const payload = {
+            password: this.password,
+            username: this.username,
+            full_name: this.fullName,
+          };
+          this.$emit('submit', payload);
 
           if (!this.doNotContinue) {
             this.wizardService.send({

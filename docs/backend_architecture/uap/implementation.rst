@@ -208,7 +208,7 @@ Checking permissions
 
 Checking whether a user has permission to perform a CRUD operation on an
 object involves calling the appropriate methods on the
-``KolibriAbstractBaseUser`` (``FacilityUser`` or ``DeviceOwner``) instance.
+``FacilityUser`` instance.
 For instance, to check whether request.user has delete permission for
 ``ContentSummaryLog`` instance log_obj, you could do::
 
@@ -230,10 +230,8 @@ they shouldn't be able to access), use the ``filter_readable`` method::
     all_results = ContentSummaryLog.objects.filter(content_id="qq123")
     permitted_results = request.user.filter_readable(all_results)
 
-Note that for the ``DeviceOwner`` model, these methods will simply return
-``True`` (or unfiltered querysets), as device owners are considered
-superusers. For the ``FacilityUser`` model, they defer to the permissions
-encoded in the ``permission`` object on the model class.
+These methods defer to the permissions encoded in the ``permission`` object on
+the model class.
 
 
 Using Kolibri permissions with Django REST Framework

@@ -21,7 +21,6 @@ from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
 from django.utils.encoding import iri_to_uri
-from django.utils.translation import gettext as _
 from django.views import View
 from django.views.decorators.cache import cache_page
 from django.views.decorators.cache import never_cache
@@ -311,6 +310,10 @@ class ChannelThumbnailView(View):
         return HttpResponse(thumbnail, content_type=mimetype)
 
 
+def _split_text_field(text):
+    return text.split(",") if text else []
+
+
 class BaseChannelMetadataMixin(object):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ChannelMetadataFilter
@@ -332,6 +335,8 @@ class BaseChannelMetadataMixin(object):
         "public",
         "total_resource_count",
         "published_size",
+        "included_categories",
+        "included_grade_levels",
     )
 
     field_map = {
@@ -339,6 +344,10 @@ class BaseChannelMetadataMixin(object):
         "available": "root__available",
         "lang_code": "root__lang__lang_code",
         "lang_name": "root__lang__lang_name",
+        "included_categories": lambda x: _split_text_field(x["included_categories"]),
+        "included_grade_levels": lambda x: _split_text_field(
+            x["included_grade_levels"]
+        ),
     }
 
     def get_queryset(self):
@@ -454,7 +463,7 @@ class ContentNodeFilter(FilterSet):
     ids = UUIDInFilter(method="filter_ids")
     kind = ChoiceFilter(
         method="filter_kind",
-        choices=(content_kinds.choices + (("content", _("Resource")),)),
+        choices=(content_kinds.choices + (("content", "Resource"),)),
     )
     exclude_content_ids = CharFilter(method="filter_exclude_content_ids")
     kind_in = CharFilter(method="filter_kind_in")
@@ -611,8 +620,13 @@ def map_file(file):
     return file
 
 
-def _split_text_field(text):
-    return text.split(",") if text else []
+# A map of fields that did not used to be in the BaseContentNodeMixin
+# but now are - the map gives a default value for these to be filled in with
+# if not present on an API request from a contentnode public API endpoint
+contentnode_previously_omitted_fields = {
+    "learner_needs": [],
+    "on_device_resources": None,
+}
 
 
 class BaseContentNodeMixin(object):
@@ -639,6 +653,7 @@ class BaseContentNodeMixin(object):
         "license_name",
         "license_owner",
         "num_coach_contents",
+        "on_device_resources",
         "options",
         "parent",
         "sort_order",
@@ -794,11 +809,12 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
                 response_data["admin_imported"] = (
                     response_data["id"] in self.locally_admin_imported_ids
                 )
-                if "learner_needs" not in response_data:
-                    # We accidentally omitted learner_needs from previous versions
-                    # of the public API, so we add it back in here,
-                    # so that remote data and local data have consistent structure.
-                    response_data["learner_needs"] = []
+                # As we evolve the contentnode public API, we use this to backfill
+                # values so that remote responses have consistent structure
+                # regardless of the version of Kolibri exposing the endpoint.
+                for key, default_value in contentnode_previously_omitted_fields.items():
+                    if key not in response_data:
+                        response_data[key] = default_value
                 if "children" in response_data:
                     response_data["children"] = self.update_data(
                         response_data["children"], baseurl
@@ -910,20 +926,6 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
         ids = list(queryset.order_by("?")[:max_results].values_list("id", flat=True))
         queryset = models.ContentNode.objects.filter(id__in=ids)
         return Response(self.serialize(queryset))
-
-    @action(detail=False)
-    def descendant_counts(self, request):
-        """
-        Return the number of descendants for each node in the queryset.
-        """
-        # Don't allow unfiltered queries
-        if not self.request.query_params:
-            return Response([])
-        queryset = self.filter_queryset(self.get_queryset())
-
-        data = queryset.values("id", "on_device_resources")
-
-        return Response(data)
 
     @action(detail=False)
     def descendants_assessments(self, request):
@@ -1860,7 +1862,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         except NetworkLocationResponseFailure as e:
             if e.response.status_code == 404:
                 raise Http404(
-                    _("The requested channel does not exist on the content server")
+                    "The requested channel does not exist on the content server"
                 )
 
     @staticmethod

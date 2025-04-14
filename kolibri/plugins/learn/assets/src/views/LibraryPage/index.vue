@@ -49,16 +49,25 @@
           v-else-if="!displayingSearchResults && !rootNodesLoading"
           data-test="channels"
         >
-          <h1 class="channels-label">
+          <h1
+            v-if="!isLocalLibraryEmpty"
+            class="channels-label"
+          >
             {{ channelsLabel }}
           </h1>
-          <p
-            v-if="isLocalLibraryEmpty"
-            data-test="nothing-in-lib-label"
-            class="nothing-in-lib-label"
-          >
-            {{ coreString('nothingInLibraryLearner') }}
-          </p>
+          <div v-else-if="isLocalLibraryEmpty && isNetworkLibraryAvailable">
+            <h1 class="channels-label">
+              {{ channelsLabel }}
+            </h1>
+            <p
+              data-test="nothing-in-lib-label"
+              class="nothing-in-lib-label"
+            >
+              {{ coreString('nothingInLibraryLearner') }}
+            </p>
+          </div>
+          <NoResourcePage v-else />
+
           <ChannelCardGroupGrid
             v-if="!isLocalLibraryEmpty"
             data-test="channel-cards"
@@ -80,6 +89,7 @@
             v-if="showOtherLibraries"
             data-test="other-libraries"
             :injectedtr="injecttr"
+            @availableNetworkDevices="availableNetworkDevices"
           />
         </div>
 
@@ -211,6 +221,7 @@
   import PostSetupModalGroup from '../../../../../device/assets/src/views/PostSetupModalGroup.vue';
   import ResumableContentGrid from './ResumableContentGrid';
   import OtherLibraries from './OtherLibraries';
+  import NoResourcePage from './NoResourcePage';
 
   const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
@@ -233,6 +244,7 @@
       LearnAppBarPage,
       OtherLibraries,
       PostSetupModalGroup,
+      NoResourcePage,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
@@ -333,10 +345,6 @@
 
       function _showLibrary(baseurl) {
         return fetchChannels({ baseurl }).then(channels => {
-          if (!channels.length && isUserLoggedIn) {
-            router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-            return;
-          }
           if (!channels.length && baseurl) {
             router.replace({ name: PageNames.LIBRARY });
             return;
@@ -427,6 +435,7 @@
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
         usingMeteredConnection: true,
+        isNetworkLibraryAvailable: true,
       };
     },
     computed: {
@@ -550,6 +559,9 @@
       },
       injecttr(...args) {
         return this.$tr(...args);
+      },
+      availableNetworkDevices(e) {
+        this.isNetworkLibraryAvailable = e;
       },
     },
     $trs: {

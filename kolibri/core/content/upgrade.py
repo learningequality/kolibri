@@ -358,3 +358,4 @@ def ordered_metadata_in_channels():
         calculate_ordered_categories(channel)
         calculate_ordered_grade_levels(channel)
         calculate_included_languages(channel)
+    ContentCacheKey.update_cache_key()

@@ -14,9 +14,10 @@ try:
 except RuntimeError as e:
     logging.error("Loading plugin configuration failed with error '{}'".format(e))
     sys.exit(1)
-from kolibri.plugins import DEFAULT_PLUGINS
-from kolibri.plugins.utils import disable_plugin
-from kolibri.plugins.utils import enable_plugin
+from kolibri.plugins.utils import disable_all_plugins
+from kolibri.plugins.utils import disable_plugins
+from kolibri.plugins.utils import enable_default_plugins
+from kolibri.plugins.utils import enable_plugins
 from kolibri.plugins.utils import iterate_plugins
 from kolibri.utils import server
 from kolibri.utils.compat import module_exists
@@ -393,16 +394,10 @@ def plugin():
 @click.argument("plugin_names", nargs=-1)
 @click.option("-d", "--default-plugins", default=False, is_flag=True)
 def enable(plugin_names, default_plugins):
-    error = False
     if not plugin_names and default_plugins:
-        plugin_names = DEFAULT_PLUGINS
-    for name in plugin_names:
-        try:
-            logger.info("Enabling plugin '{}'".format(name))
-            error = error or not enable_plugin(name, initialize_hooks=True)
-        except Exception as e:
-            error = True
-            logger.error("Error enabling plugin '{}', error was: {}".format(name, e))
+        error = enable_default_plugins()
+    else:
+        error = enable_plugins(plugin_names)
     if error:
         exception = click.ClickException("One or more plugins could not be enabled")
         exception.exit_code = 2
@@ -413,16 +408,10 @@ def enable(plugin_names, default_plugins):
 @click.argument("plugin_names", nargs=-1)
 @click.option("-a", "--all-plugins", default=False, is_flag=True)
 def disable(plugin_names, all_plugins):
-    error = False
     if not plugin_names and all_plugins:
-        plugin_names = config.ACTIVE_PLUGINS
-    for name in plugin_names:
-        try:
-            logger.info("Disabling plugin '{}'".format(name))
-            error = error or not disable_plugin(name)
-        except Exception as e:
-            error = True
-            logger.error("Error Disabling plugin '{}', error was: {}".format(name, e))
+        error = disable_all_plugins()
+    else:
+        error = disable_plugins(plugin_names)
     if error:
         exception = click.ClickException("One or more plugins could not be disabled")
         exception.exit_code = 2
@@ -433,18 +422,10 @@ def disable(plugin_names, all_plugins):
     cls=KolibriCommand, help="Set Kolibri plugins to be enabled and disable all others"
 )
 @click.argument("plugin_names", nargs=-1)
-@click.pass_context
-def apply(ctx, plugin_names):
+def apply(plugin_names):
     to_be_disabled = set(config.ACTIVE_PLUGINS) - set(plugin_names)
-    error = False
-    try:
-        ctx.invoke(disable, plugin_names=to_be_disabled, all_plugins=False)
-    except click.ClickException:
-        error = True
-    try:
-        ctx.invoke(enable, plugin_names=plugin_names, default_plugins=False)
-    except click.ClickException:
-        error = True
+    error = disable_plugins(to_be_disabled)
+    error = enable_plugins(plugin_names) or error
     if error:
         exception = click.ClickException(
             "An error occurred applying the plugin configuration"

@@ -1,5 +1,6 @@
 import { registerNavItem } from 'kolibri/composables/useNav';
 import urls from 'kolibri/urls';
+import useUser from 'kolibri/composables/useUser';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import baseRoutes from '../routes/baseRoutes';
 import { learnStrings } from './commonLearnStrings';
@@ -9,6 +10,10 @@ registerNavItem({
     return urls['kolibri:kolibri.plugins.learn:learn']();
   },
   get routes() {
+    const { isUserLoggedIn } = useUser();
+    if (!isUserLoggedIn.value) {
+      return [];
+    }
     return [
       {
         label: coreStrings.$tr('homeLabel'),

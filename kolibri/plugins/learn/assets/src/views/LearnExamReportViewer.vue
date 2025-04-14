@@ -179,7 +179,7 @@
         context: 'Message displayed when a quiz report is not yet available.',
       },
       quizReportComingSoonDetails: {
-        message: 'You can see your quiz report when your coach shares it',
+        message: 'You can see your quiz report when your coach ends the quiz',
         context: 'Details message displayed when a quiz report is not yet available.',
       },
     },

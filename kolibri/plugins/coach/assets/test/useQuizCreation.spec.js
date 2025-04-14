@@ -70,7 +70,6 @@ describe('useQuizCreation', () => {
       // Methods
       updateSection,
       addQuestionsToSectionFromResources,
-      // replaceSelectedQuestions,
       addSection,
       removeSection,
       initializeQuiz,
@@ -86,7 +85,6 @@ describe('useQuizCreation', () => {
       activeSection,
       activeQuestions,
       selectedActiveQuestions,
-      // replacementQuestionPool,
     } = useQuizCreation());
     initializeQuiz();
   });

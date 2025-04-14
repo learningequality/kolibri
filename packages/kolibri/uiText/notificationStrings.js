@@ -131,6 +131,10 @@ export default createTranslator('NotificationStrings', {
     message: 'Sync schedule added',
     context: 'Snackbar message for adding the sync schedule',
   },
+  syncUpdated: {
+    message: 'Sync schedule updated',
+    context: 'Snackbar message for updating the sync schedule',
+  },
   deviceRemove: {
     message: 'Device removed',
     context: 'Snackbar message when a device is removed from the sync schedule',

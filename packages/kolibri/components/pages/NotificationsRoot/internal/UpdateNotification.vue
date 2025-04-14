@@ -114,9 +114,9 @@
         message: 'We have released an important update with fixes to this version of Kolibri.',
         context: 'Notification indicating an important new version of Kolibri is available.',
       },
-      upgradeMessage_0_17_0: {
+      upgradeMessage_0_18_0: {
         message:
-          'Kolibri version 0.17.0 is available! New features include enhanced quiz editing, an updated exercise viewer and new facility creation, as well as bug fixes and improvements.',
+          'Kolibri version 0.18.0 is available! New features include comprehensive search and filter within lesson and quiz creation, Bloom reader support, updated navigation in Coach, as well as bug fixes and improvements.',
         context: 'Notification indicating a new version of Kolibri is available.',
       },
       upgradeDownload: {

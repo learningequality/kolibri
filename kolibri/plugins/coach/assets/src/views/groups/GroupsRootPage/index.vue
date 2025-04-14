@@ -185,14 +185,14 @@
       newGroupAction: {
         message: 'New group',
         context:
-          "Button used to create a new group of learners. Located on the 'groups' page for coaches.",
+          "Button used to create a new group of learners. Located on the 'Plan your class' page for coaches.",
       },
       noGroups: {
         message: 'You do not have any groups',
         context: 'Message displayed when there are no groups within a class.',
       },
       groupsDescription: {
-        message: 'Personalize learning by organizing learners into groups',
+        message: 'You can personalize learning by organizing learners into groups',
         context:
           'A brief statement describing the current page. This sentence is to be followed by a button labeled "Learn more" which will open an informative modal',
       },
@@ -202,7 +202,7 @@
       },
       aboutGroupsDescription: {
         message:
-          'Groups help coaches personalize learning and support differentiated instruction. Organize learners into groups, assign tailored lessons and quizzes to each and monitor their progress.',
+          'Groups allow coaches to match learning resources to the different abilities and needs of learners. Put learners into groups, assign each group specific lessons and quizzes, and track their progress.',
         context:
           'Shown to the coach when they click the "Learn more" button that follows the groups page description',
       },

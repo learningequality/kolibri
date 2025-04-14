@@ -179,6 +179,7 @@ describe('LibraryPage', () => {
     it('display when no channels are available', async () => {
       const wrapper = await makeWrapper({ rootNodes: [] });
       await wrapper.setData({ isLocalLibraryEmpty: true });
+      await wrapper.setData({ isNetworkLibraryAvailable: true });
       expect(wrapper.find('[data-test="channels"').element).toBeTruthy();
       expect(wrapper.find('[data-test="nothing-in-lib-label"').element).toBeTruthy();
     });

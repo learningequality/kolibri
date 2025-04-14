@@ -4,13 +4,33 @@ Feature: Coach reviews learner reports for quizzes
   Background:
     Given I am logged in as a coach
       And I am at *Coach - '<class>' > Quizzes*
-      And there is a quiz assigned to a class
+      And there are multiple quizzes assigned to a class, group, individual recipients
+      And there are quizzes with all three completion statuses
 
-  Scenario: Review quiz reports
-    When I click on quiz <quiz>
-    Then I see the high level summary of the quiz <quiz> status
-      And I see the *Report* subtab and the table with learners who are assigned the quiz <quiz>
-      And I see the *Progress* and *Score* columns for each learner
+  Scenario: Coach can review a quiz report
+    When I click on the title of a quiz
+    Then I see the quiz details page
+    	And I see the quiz title, the *Preview* button and the *...* button next to it
+    	And I see the side panel with *Recipients*, *Average score*, *Report visibility*, *Class*, *Section order*, *Size*, *Date created*
+    	And I see the *Learners* tab with the learners table
+    	And there are the following columns: *Name*, *Progress*, *Sore* and *Groups*
+    	And I see the *Difficult questions* tab
+    When I click on the name of a learner who has completed the quiz
+    Then I see the quiz score card
+    	And I can see the *Answer history* of the learner
+    When I click the back arrow
+    Then I am back at the quiz details page
+    When I click on the *Difficult questions* tab
+    Then I see a table with the difficult questions
+    	And I see the following columns: *Question*, *Help needed*
+
+  Scenario: Coach can can export quiz report data as CSV
+  	Given I am at the quiz details page for a quiz assigned to a class with learners
+  		And there are learners who have not started, started or completed a quiz
+  	When I click the *Export as CSV* icon
+  		And I save the exported CSV file to the device
+  		And I open the CSV file to see the data
+  	Then I see a CSV file containing all of the available learner data in the following columns: *Name*, *Progress*, *Score*, *Answered*, *Questions*, *Total questions*, *Groups*
 
   Scenario: Report has the average score
     Given that <quiz> has at least one learner who completed it

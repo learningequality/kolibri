@@ -184,7 +184,7 @@
         this.$emit('update:selectedCollectionIds', newVal);
       },
     },
-    mounted() {
+    created() {
       if (this.selectedCollectionIds.includes(this.classId)) {
         this.selectedRecipients = ClassRecipients.ENTIRE_CLASS;
       } else {

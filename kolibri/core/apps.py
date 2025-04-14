@@ -40,6 +40,7 @@ class KolibriCoreConfig(AppConfig):
             )
         )
         self.check_redis_settings()
+        self.check_file_storage_settings()
         # Do this to add an automapping from the Morango UUIDField to the UUIDFilter so that it automatically
         # maps to this filter when using the UUIDField in a filter.
         from morango.models import UUIDField
@@ -101,6 +102,20 @@ class KolibriCoreConfig(AppConfig):
             # at the cost of a slight penalty to all reads.
             cursor.execute(START_PRAGMAS)
             connection.close()
+
+    @staticmethod
+    def check_file_storage_settings():
+        """
+        Check that the file storage settings are sensible.
+        https://docs.djangoproject.com/en/3.2/ref/files/storage/
+        """
+        # TODO This should be a bonus sanity check
+        # Options per https://django-storages.readthedocs.io/en/latest/backends/gcloud.html
+        if OPTIONS["FileStorage"]["STORAGE_BACKEND"] == "gcs":
+            # Actually imoprt default_storage and run listdir
+            from django.core.files.storage import default_storage
+
+            default_storage.get_available_name("kolibri")
 
     @staticmethod  # noqa C901
     def check_redis_settings():  # noqa C901

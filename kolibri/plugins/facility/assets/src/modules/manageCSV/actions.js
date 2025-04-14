@@ -79,12 +79,12 @@ function getExportedCSVsInfo(store) {
     const data = response.data;
     if (data.session != null) {
       getCSVLogRequest(store, 'session', store.rootGetters.activeFacilityId);
-      const sessionTimeStamp = new Date(data.session * 1000);
+      const sessionTimeStamp = new Date(data.session);
       store.commit('SET_FINISHED_SESSION_CSV_CREATION', sessionTimeStamp);
     }
     if (data.summary != null) {
       getCSVLogRequest(store, 'summary', store.rootGetters.activeFacilityId);
-      const summaryTimeStamp = new Date(data.summary * 1000);
+      const summaryTimeStamp = new Date(data.summary);
       store.commit('SET_FINISHED_SUMMARY_CSV_CREATION', summaryTimeStamp);
     }
     if (data.user != null) {

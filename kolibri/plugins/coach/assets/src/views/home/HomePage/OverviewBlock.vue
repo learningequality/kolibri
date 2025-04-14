@@ -41,9 +41,9 @@
         </template>
         <template #value>
           {{ $formatNumber(learnerNames.length) }}
-          <template v-if="learnerNames.length > 0">
+          <template v-if="Object.keys(filteredLearnMap).length > 0">
             <KRouterLink
-              :text="$tr('viewLearners')"
+              :text="coachString('viewLearners')"
               appearance="basic-link"
               :to="classLearnersListRoute"
               style="margin-left: 24px"
@@ -59,10 +59,11 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import { mapGetters, mapActions } from 'vuex';
   import pickBy from 'lodash/pickBy';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { ref } from 'vue';
   import { ClassesPageNames } from '../../../../../../learn/assets/src/constants';
   import commonCoach from '../../common';
   import { LastPages } from '../../../constants/lastPagesConstants';
@@ -72,12 +73,18 @@
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { userIsMultiFacilityAdmin } = useFacilities();
-      return { userIsMultiFacilityAdmin };
+      const userList = ref([]);
+      return { userIsMultiFacilityAdmin, userList };
     },
     computed: {
       ...mapGetters(['classListPageEnabled']),
       coachNames() {
         return this.coaches.map(coach => coach.name);
+      },
+      filteredLearnMap() {
+        return Object.fromEntries(
+          Object.entries(this.learnerMap || {}).filter(([key]) => this.userList.includes(key)),
+        );
       },
       learnerNames() {
         return this.learners.map(learner => learner.name);
@@ -106,6 +113,19 @@
         return route;
       },
     },
+    created() {
+      this.fetchClassListSyncStatus();
+    },
+    methods: {
+      ...mapActions(['fetchUserSyncStatus']),
+      fetchClassListSyncStatus() {
+        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+          if (Array.isArray(data)) {
+            this.userList = data.map(item => item.user);
+          }
+        });
+      },
+    },
     $trs: {
       allClassesLabel: {
         message: 'All classes',
@@ -118,10 +138,6 @@
       learner: {
         message: '{count, plural, one {Learner} other {Learners}}',
         context: 'Refers to the learner or learners who are in a class.',
-      },
-      viewLearners: {
-        message: 'View learners',
-        context: 'Button which allows coach to view a list of learners in a class.',
       },
     },
   };

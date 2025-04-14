@@ -42,11 +42,12 @@
 <script>
 
   import uniq from 'lodash/uniq';
-  import { getCurrentInstance, watch } from 'vue';
+  import { watch } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import QuestionsAccordion from '../../../../../common/QuestionsAccordion.vue';
   import { PageNames } from '../../../../../../constants';
+  import { useGoBack } from '../../../../../../composables/usePreviousRoute';
+  import QuestionsAccordion from '../../../../../common/QuestionsAccordion.vue';
 
   export default {
     name: 'ManageSelectedQuestions',
@@ -55,14 +56,17 @@
     },
     mixins: [commonCoreStrings],
     setup(props) {
-      const router = getCurrentInstance().proxy.$router;
       const { openExerciseLabel$, numberOfSelectedQuestions$, emptyQuestionsList$ } =
         searchAndFilterStrings;
 
-      props.setTitle(numberOfSelectedQuestions$({ count: props.selectedQuestions.length }));
-      props.setGoBack(() => {
-        router.back();
+      const goBack = useGoBack({
+        fallbackRoute: {
+          name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+        },
       });
+
+      props.setTitle(numberOfSelectedQuestions$({ count: props.selectedQuestions.length }));
+      props.setGoBack(goBack);
 
       watch(
         () => props.selectedQuestions,

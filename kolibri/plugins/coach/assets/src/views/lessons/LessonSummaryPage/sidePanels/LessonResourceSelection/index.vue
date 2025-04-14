@@ -13,6 +13,8 @@
         <KIconButton
           v-if="goBack"
           icon="back"
+          :tooltip="goBackAction$()"
+          :ariaLabel="goBackAction$()"
           @click="goBack()"
         />
         <h1 class="side-panel-title">{{ title }}</h1>
@@ -23,8 +25,10 @@
     </div>
     <router-view
       v-else
+      v-autofocus-first-el="!isLandingRoute"
       :setTitle="setTitle"
       :setGoBack="setGoBack"
+      :defaultTitle="defaultTitle"
       :topic="topic"
       :disabled="isSaving"
       :treeFetch="treeFetch"
@@ -40,6 +44,7 @@
       :unselectableResourceIds="unselectableResourceIds"
       :selectedResourcesSize="selectedResourcesSize"
       :displayingSearchResults="displayingSearchResults"
+      :contentCardMessage="contentCardMessage"
       @clearSearch="clearSearch"
       @selectResources="selectResources"
       @deselectResources="deselectResources"
@@ -51,11 +56,16 @@
       v-if="$route.name !== PageNames.LESSON_SELECT_RESOURCES_SEARCH"
       #bottomNavigation
     >
-      <div class="bottom-nav-container">
+      <div
+        class="bottom-nav-container"
+        :style="{
+          marginBottom: isAppContextAndTouchDevice ? '56px' : '0px',
+        }"
+      >
         <KButtonGroup>
           <KRouterLink
             v-if="
-              selectedResources.length > 0 &&
+              selectedResourcesMessage &&
                 $route.name !== PageNames.LESSON_SELECT_RESOURCES_PREVIEW_SELECTION
             "
             :to="{ name: PageNames.LESSON_SELECT_RESOURCES_PREVIEW_SELECTION }"
@@ -64,7 +74,7 @@
           </KRouterLink>
           <KButton
             primary
-            :disabled="isSaving"
+            :disabled="selectedResources.length < 1 || isSaving"
             :text="saveAndFinishAction$()"
             @click="save"
           />
@@ -92,24 +102,37 @@
 
   import uniqBy from 'lodash/uniqBy';
   import { mapState, mapActions, mapMutations } from 'vuex';
-  import { computed, getCurrentInstance } from 'vue';
+  import { computed, getCurrentInstance, watch } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
+  import { ContentNodeKinds } from 'kolibri/constants';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { isTouchDevice } from 'kolibri/utils/browserInfo';
+  import useUser from 'kolibri/composables/useUser';
   import { PageNames } from '../../../../../constants';
   import { coachStrings } from '../../../../common/commonCoachStrings';
+  import usePreviousRoute from '../../../../../composables/usePreviousRoute';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
+  import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl';
 
   export default {
     name: 'LessonResourceSelection',
     components: {
       SidePanelModal,
     },
+    directives: {
+      autofocusFirstEl,
+    },
     setup() {
+      const previousRoute = usePreviousRoute();
+      const isLandingRoute = computed(() => previousRoute.value === null);
+
       const instance = getCurrentInstance();
+      const { sendPoliteMessage } = useKLiveRegion();
       const {
         loading,
         topic,
@@ -136,19 +159,69 @@
       function notifyResourcesAdded(count) {
         createSnackbar(resourcesAddedWithCount$({ count }));
       }
-      const { saveLessonError$, closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
+      const {
+        saveLessonError$,
+        closeConfirmationTitle$,
+        closeConfirmationMessage$,
+        manageLessonResourcesTitle$,
+      } = coachStrings;
       function notifySaveLessonError() {
         createSnackbar(saveLessonError$());
       }
 
-      const { saveAndFinishAction$, continueAction$, cancelAction$ } = coreStrings;
+      const { saveAndFinishAction$, continueAction$, cancelAction$, goBackAction$ } = coreStrings;
 
       const subpageLoading = computed(() => {
         const skipLoading = PageNames.LESSON_SELECT_RESOURCES_SEARCH;
         return loading.value && instance.proxy.$route.name !== skipLoading;
       });
 
+      const defaultTitle = manageLessonResourcesTitle$();
+      const { isAppContext } = useUser();
+      const isAppContextAndTouchDevice = computed(() => {
+        return isAppContext.value && isTouchDevice;
+      });
+
+      const selectedResourcesSize = computed(() => {
+        let size = 0;
+        selectedResources.value.forEach(resource => {
+          const { files = [] } = resource;
+          files.forEach(file => {
+            size += file.file_size || 0;
+          });
+        });
+        return size;
+      });
+
+      const { someResourcesSelected$, numberOfResources$ } = coachStrings;
+      const selectedResourcesMessage = computed(() => {
+        if (!selectedResources.value.length) {
+          return '';
+        }
+        return someResourcesSelected$({
+          count: selectedResources.value.length,
+          bytesText: bytesForHumans(selectedResourcesSize.value),
+        });
+      });
+
+      watch(selectedResourcesMessage, () => {
+        if (selectedResourcesMessage.value) {
+          sendPoliteMessage(selectedResourcesMessage.value);
+        }
+      });
+
+      const contentCardMessage = content => {
+        if (!content.kind || content.kind === ContentNodeKinds.CHANNEL) {
+          return numberOfResources$({ value: content.total_resource_count });
+        }
+        if (content.kind === ContentNodeKinds.TOPIC) {
+          return numberOfResources$({ value: content.on_device_resources });
+        }
+      };
+
       return {
+        isAppContextAndTouchDevice,
+        defaultTitle,
         subpageLoading,
         selectedResources,
         topic,
@@ -157,9 +230,13 @@
         channelsFetch,
         bookmarksFetch,
         searchTerms,
+        isLandingRoute,
         selectionRules,
         SelectionTarget,
+        selectedResourcesSize,
         displayingSearchResults,
+        selectedResourcesMessage,
+        contentCardMessage,
         clearSearch,
         selectResources,
         deselectResources,
@@ -167,6 +244,7 @@
         notifyResourcesAdded,
         notifySaveLessonError,
         removeSearchFilterTag,
+        goBackAction$,
         cancelAction$,
         continueAction$,
         saveAndFinishAction$,
@@ -185,23 +263,6 @@
     },
     computed: {
       ...mapState('lessonSummary', ['currentLesson', 'workingResources']),
-      selectedResourcesSize() {
-        let size = 0;
-        this.selectedResources.forEach(resource => {
-          const { files = [] } = resource;
-          files.forEach(file => {
-            size += file.file_size || 0;
-          });
-        });
-        return size;
-      },
-      selectedResourcesMessage() {
-        const { someResourcesSelected$ } = coachStrings;
-        return someResourcesSelected$({
-          count: this.selectedResources.length,
-          bytesText: bytesForHumans(this.selectedResourcesSize),
-        });
-      },
       unselectableResourceIds() {
         return this.workingResources.map(resource => resource.contentnode_id);
       },
@@ -304,7 +365,10 @@
 
   .side-panel-title {
     margin: 0;
+    overflow: hidden;
     font-size: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .bottom-nav-container {

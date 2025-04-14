@@ -1,10 +1,10 @@
 <template>
 
-  <CoreTable :emptyMessage="coachString('noResourcesInLessonLabel')">
+  <CoreTable :emptyMessage="noResourcesInLessonLabel$()">
     <template #headers>
-      <th>{{ coachString('titleLabel') }}</th>
-      <th>{{ coreString('progressLabel') }}</th>
-      <th>{{ coachString('avgTimeSpentLabel') }}</th>
+      <th>{{ titleLabel$() }}</th>
+      <th>{{ progressLabel$() }}</th>
+      <th>{{ avgTimeSpentLabel$() }}</th>
       <td v-if="editable"><!-- Actions --></td>
     </template>
     <template #tbody>
@@ -27,8 +27,6 @@
                     <!-- Mousedown.prevent is needed to avoid user selection -->
                     <DragSortWidget
                       class="sort-widget"
-                      :moveUpText="moveResourceUpButtonDescription$"
-                      :moveDownText="moveResourceDownButtonDescription$"
                       :isFirst="index === 0"
                       :isLast="index === entries.length - 1"
                       @moveUp="moveUpOne(index)"
@@ -70,7 +68,7 @@
                 <div class="actions">
                   <KIconButton
                     icon="clear"
-                    :ariaLabel="coreString('removeAction')"
+                    :ariaLabel="removeAction$()"
                     @click="() => handleRemoveEntry(tableRow)"
                   />
                 </div>
@@ -90,16 +88,15 @@
   import { mapState } from 'vuex';
   import CoreTable from 'kolibri/components/CoreTable';
   import TimeDuration from 'kolibri-common/components/TimeDuration';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
-  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import Draggable from 'kolibri-common/components/sortable/Draggable';
+  import { coachStrings } from '../../../common/commonCoachStrings';
   import CSVExporter from '../../../../csv/exporter';
   import * as csvFields from '../../../../csv/fields';
   import StatusSummary from '../../../common/status/StatusSummary';
-  import { coachStringsMixin } from '../../../common/commonCoachStrings';
 
   export default {
     name: 'LessonResourcesTable',
@@ -112,14 +109,17 @@
       DragSortWidget,
       Draggable,
     },
-    mixins: [coachStringsMixin, commonCoreStrings],
     setup() {
-      const { moveResourceUpButtonDescription$, moveResourceDownButtonDescription$ } =
-        searchAndFilterStrings;
+      const { resourcesLabel$, removeAction$, progressLabel$ } = coreStrings;
+      const { noResourcesInLessonLabel$, titleLabel$, avgTimeSpentLabel$ } = coachStrings;
 
       return {
-        moveResourceUpButtonDescription$,
-        moveResourceDownButtonDescription$,
+        resourcesLabel$,
+        removeAction$,
+        noResourcesInLessonLabel$,
+        titleLabel$,
+        progressLabel$,
+        avgTimeSpentLabel$,
       };
     },
     props: {
@@ -171,13 +171,13 @@
         const columns = [
           ...csvFields.title(),
           ...csvFields.tally(),
-          ...csvFields.timeSpent('avgTimeSpent', this.coachString('avgTimeSpentLabel')),
+          ...csvFields.timeSpent('avgTimeSpent', this.avgTimeSpentLabel$),
         ];
 
         const exporter = new CSVExporter(columns, this.className);
         exporter.addNames({
           lesson: this.title,
-          resources: this.coreString('resourcesLabel'),
+          resources: this.resourcesLabel$,
         });
 
         if (this.group) {

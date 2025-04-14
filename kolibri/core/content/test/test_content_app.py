@@ -357,6 +357,7 @@ class ContentNodeAPIBase(object):
                 "license_name": expected.license_name,
                 "license_owner": expected.license_owner,
                 "num_coach_contents": expected.num_coach_contents,
+                "on_device_resources": expected.on_device_resources,
                 "options": expected.options,
                 "parent": expected.parent_id,
                 "sort_order": expected.sort_order,
@@ -1103,52 +1104,6 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             ),
             sibling_assessment_metadata.number_of_assessments,
         )
-
-    def test_contentnode_descendant_counts_topic_siblings_ancestor_ids(self):
-        root = content.ContentNode.objects.get(parent__isnull=True)
-        topics = content.ContentNode.objects.filter(
-            parent=root, kind=content_kinds.TOPIC
-        )
-        topic_ids = topics.values_list("id", flat=True)
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-descendant-counts"),
-            data={"ids": ",".join(topic_ids)},
-        )
-        lookup = {datum["id"]: datum for datum in response.data}
-        for topic in topics:
-            self.assertEqual(
-                lookup[topic.id]["on_device_resources"], topic.on_device_resources
-            )
-
-    def test_contentnode_descendant_counts_topic_parent_child_ancestor_ids(self):
-        root = content.ContentNode.objects.get(parent__isnull=True)
-        topic = content.ContentNode.objects.filter(
-            parent=root, kind=content_kinds.TOPIC, children__isnull=False
-        ).first()
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-descendant-counts"),
-            data={"ids": ",".join((root.id, topic.id))},
-        )
-        lookup = {datum["id"]: datum for datum in response.data}
-        self.assertEqual(
-            lookup[root.id]["on_device_resources"], root.on_device_resources
-        )
-        self.assertEqual(
-            lookup[topic.id]["on_device_resources"], topic.on_device_resources
-        )
-
-    def test_contentnode_descendant_counts_availability(self):
-        content.ContentNode.objects.all().update(available=False)
-        root = content.ContentNode.objects.get(parent__isnull=True)
-        topics = content.ContentNode.objects.filter(
-            parent=root, kind=content_kinds.TOPIC
-        )
-        topic_ids = topics.values_list("id", flat=True)
-        response = self.client.get(
-            reverse("kolibri:core:contentnode-descendant-counts"),
-            data={"ids": ",".join(topic_ids)},
-        )
-        self.assertEqual(len(response.data), 0)
 
     def test_contentnode_recommendations(self):
         node_id = content.ContentNode.objects.get(title="c2c2").id
@@ -1916,7 +1871,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["content_id"], node.content_id)
 
-    def test_remote_content_node_missing_learner_needs(self):
+    def test_remote_content_node_missing_attributes(self):
         with mock.patch("kolibri.core.content.api.NetworkClient") as nc:
             mock_response = mock.Mock()
             mock_response.headers = {}
@@ -2025,6 +1980,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                 data={"baseurl": "http://example.com/"},
             )
             self.assertEqual(response.data["learner_needs"], [])
+            self.assertEqual(response.data["on_device_resources"], None)
 
     def tearDown(self):
         """

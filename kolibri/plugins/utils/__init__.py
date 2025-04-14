@@ -218,6 +218,19 @@ def enable_plugin(plugin_name, initialize_hooks=False):
         logger.error(str(e))
 
 
+def enable_plugins(plugin_names):
+    error = False
+    for name in plugin_names:
+        logger.info("Enabling plugin '{}'".format(name))
+        success = enable_plugin(name, initialize_hooks=True)
+        error = error or not success
+    return error
+
+
+def enable_default_plugins():
+    return enable_plugins(DEFAULT_PLUGINS)
+
+
 def disable_plugin(plugin_name, initialize_hooks=False):
     try:
         obj = initialize_kolibri_plugin(plugin_name, initialize_hooks=initialize_hooks)
@@ -231,6 +244,19 @@ def disable_plugin(plugin_name, initialize_hooks=False):
         )
         config.clear_plugin(plugin_name)
         logger.info("Removed '{}'".format(plugin_name))
+
+
+def disable_plugins(plugin_names):
+    error = False
+    for name in plugin_names:
+        logger.info("Disabling plugin '{}'".format(name))
+        success = disable_plugin(name)
+        error = error or not success
+    return error
+
+
+def disable_all_plugins():
+    return disable_plugins(config.ACTIVE_PLUGINS)
 
 
 def _get_plugin_version(plugin_name):

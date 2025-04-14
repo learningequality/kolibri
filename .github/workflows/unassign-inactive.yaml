@@ -1,0 +1,15 @@
+name: "Unassign Inactive Contributors"
+run-name: Unassign Inactive Contributors
+
+on:
+  schedule:
+    - cron: "1 0 * * 1" # Every Monday at 00:01 UTC
+  workflow_dispatch:
+
+jobs:
+  unassign-inactive:
+    uses: learningequality/.github/.github/workflows/unassign-inactive-issues.yaml@main
+    secrets:
+      LE_BOT_APP_ID: ${{ secrets.LE_BOT_APP_ID }}
+      LE_BOT_PRIVATE_KEY: ${{ secrets.LE_BOT_PRIVATE_KEY }}
+      SLACK_COMMUNITY_NOTIFICATIONS_WEBHOOK_URL: ${{ secrets.SLACK_COMMUNITY_NOTIFICATIONS_WEBHOOK_URL }}

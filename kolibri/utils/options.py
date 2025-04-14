@@ -271,6 +271,26 @@ def multiprocess_bool(value):
         return False
 
 
+def storage_option(value, *opts):
+    """
+    Validate the storage options.
+    Check that the given option is valid, then check that needed external
+    libraries are available where relevant.
+    """
+    value = is_option(value, *opts)
+    if value == "gcs":
+        try:
+            from storages.backends.gcloud import GoogleCloudStorage  # noqa
+
+            return value
+        except ModuleNotFoundError:
+            logger.error(
+                "Google Cloud Storage backend is not available.",
+                "Are storage requirements installed?",
+            )
+            raise VdtValueError(value)
+
+
 def cache_option(value):
     """
     Validate the cache options.
@@ -385,6 +405,45 @@ def csp_source_list(value):
 
 
 base_option_spec = {
+    "FileStorage": {
+        "STORAGE_BACKEND": {
+            "type": "storage_option",
+            "options": ("file_system", "gcs"),
+            "default": "file_system",
+            "description": """
+            The storage backend class that Django will use when managing files. The class given here must implement
+            the django.files.storage.Storage class.
+            """,
+        },
+        "GS_BUCKET_NAME": {
+            "type": "string",
+            "default": "",
+            "description": """
+            The name of the Google Cloud Storage bucket that will be used to store content files.
+            """,
+        },
+        "GS_PROJECT_ID": {
+            "type": "string",
+            "default": "",
+            "description": """
+            The Google Cloud project ID that the bucket is associated with.
+            """,
+        },
+        "GS_CREDENTIALS": {
+            "type": "path",
+            "default": "",
+            "description": """
+            The path to the Google Cloud Storage credentials file that will be used to authenticate with the bucket.
+            """,
+        },
+        "GS_DEFAULT_ACL": {
+            "type": "string",
+            "default": "publicRead",
+            "description": """
+            The default access control list (ACL) to apply to new objects in the bucket.
+            """,
+        },
+    },
     "Cache": {
         "CACHE_BACKEND": {
             "type": "cache_option",
@@ -779,6 +838,7 @@ def _get_validator():
             "url_prefix": url_prefix,
             "bytes": validate_bytes,
             "multiprocess_bool": multiprocess_bool,
+            "storage_option": storage_option,
             "cache_option": cache_option,
             "lazy_import_callback_list": lazy_import_callback_list,
             "csp_source_list": csp_source_list,

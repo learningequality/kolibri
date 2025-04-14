@@ -26,3 +26,18 @@ Coach needs to be able to determine which questions in a lesson are difficult
       And I as a <learner2> also give correct answer to question <question2> in the <exercise2>
     Then I as a coach <coach> go to *Coach - '<class>' > Lessons > '<lesson>' > Difficult questions* subtab
       And I don't see any question under the *Question* column
+
+  Scenario: Coach sees detailed information for difficult questions in a practice quiz
+    Given I am at *Coach - '<class>' > Lessons <lesson>* page for a practice quiz
+      And a learner has already interacted with exercises in the lesson and has given repeatedly incorrect answers to some of the questions
+    When I look at the table with resources
+    Then in the *Progress* column I see *N need help*
+		When I click on the title of the practice quiz
+      And I click on the *Difficult questions* tab
+    Then I see a table with all of the difficult questions
+    When I click on the title of a difficult question
+    Then I see a list of learners who got the question incorrect
+    	And I see a preview of the question
+    	And I see a *Show correct answer* checkbox
+    When I select the *Show correct answer* checkbox
+    Then I see the correct answer

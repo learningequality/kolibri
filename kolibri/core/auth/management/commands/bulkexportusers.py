@@ -1,6 +1,5 @@
 import csv
 import logging
-import ntpath
 import os
 from collections import OrderedDict
 from functools import partial
@@ -28,7 +27,7 @@ from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.csv import open_csv_for_writing
 from kolibri.core.utils.csv import output_mapper
-from kolibri.utils import conf
+from kolibri.core.utils.csv import validate_open_csv_params
 
 try:
     FileNotFoundError
@@ -37,7 +36,7 @@ except NameError:
 
 logger = logging.getLogger(__name__)
 
-CSV_EXPORT_FILENAMES = {"user": "{}_{}_users.csv"}
+CSV_EXPORT_FILENAMES = {"user": "log_export/{}_{}_users.csv"}
 
 
 # TODO: decide whether these should be internationalized
@@ -152,18 +151,22 @@ def translate_labels():
     )
 
 
-def csv_file_generator(facility, filepath, overwrite=True):
-    if not overwrite and os.path.exists(filepath):
-        raise ValueError("{} already exists".format(filepath))
+def csv_file_generator(
+    facility, storage_filepath=None, local_filepath=None, overwrite=True
+):
+    validate_open_csv_params(storage_filepath, local_filepath)
+
+    if local_filepath and not overwrite and os.path.exists(local_filepath):
+        raise ValueError("{} already exists".format(local_filepath))
+
     queryset = FacilityUser.objects.filter(facility=facility)
 
     header_labels = translate_labels().values()
 
-    csv_file = open_csv_for_writing(filepath)
-
-    with csv_file as f:
+    with open_csv_for_writing(
+        storage_filepath=storage_filepath, local_filepath=local_filepath
+    ) as f:
         writer = csv.DictWriter(f, header_labels)
-        logger.info("Creating csv file {filename}".format(filename=filepath))
         writer.writeheader()
         usernames = set()
 
@@ -213,7 +216,15 @@ class Command(AsyncCommand):
             dest="output_file",
             default=None,
             type=str,
-            help="The generated file will be saved with this name",
+            help="The generated file will be saved with this name in the current directory",
+        )
+        parser.add_argument(
+            "-s",
+            "--use-django-storage",
+            action="store_true",
+            dest="use_storage",
+            default=False,
+            help="The generated file will be read/written using Django FileStorage",
         )
         parser.add_argument(
             "--facility",
@@ -248,34 +259,45 @@ class Command(AsyncCommand):
 
         return default_facility
 
-    def get_filepath(self, options, facility):
-        if options["output_file"] is None:
-            export_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
-            if not os.path.isdir(export_dir):
-                os.mkdir(export_dir)
-            filepath = os.path.join(
-                export_dir,
-                CSV_EXPORT_FILENAMES["user"].format(facility.name, facility.id[:4]),
-            )
-        else:
-            filepath = os.path.join(os.getcwd(), options["output_file"])
-        return filepath
-
     def handle_async(self, *args, **options):
+
+        storage_filepath = None
+        local_filepath = None
+
+        use_storage = options["use_storage"]
+        output_file = options["output_file"]
+
+        if use_storage and output_file:
+            raise CommandError(
+                "You must provide either a storage path or a local file path"
+            )
+
         # set language for the translation of the messages
         locale = settings.LANGUAGE_CODE if not options["locale"] else options["locale"]
         translation.activate(locale)
 
         self.overall_error = []
         facility = self.get_facility(options)
-        filepath = self.get_filepath(options, facility)
+        filename = CSV_EXPORT_FILENAMES["user"].format(facility.name, facility.id[:4])
+
+        if use_storage:
+            storage_filepath = filename
+        else:
+            local_filepath = (
+                output_file if output_file else filename.replace("log_export/", "")
+            )
+            local_filepath = os.path.join(os.getcwd(), local_filepath)
+
         job = get_current_job()
         total_rows = FacilityUser.objects.filter(facility=facility).count()
 
         with self.start_progress(total=total_rows) as progress_update:
             try:
                 for row in csv_file_generator(
-                    facility, filepath, overwrite=options["overwrite"]
+                    facility,
+                    storage_filepath=storage_filepath,
+                    local_filepath=local_filepath,
+                    overwrite=options["overwrite"],
                 ):
                     progress_update(1)
             except (ValueError, IOError) as e:
@@ -288,11 +310,11 @@ class Command(AsyncCommand):
             if job:
                 job.extra_metadata["overall_error"] = self.overall_error
                 job.extra_metadata["users"] = total_rows
-                job.extra_metadata["filename"] = ntpath.basename(filepath)
+                job.extra_metadata["filename"] = filename
                 job.save_meta()
             else:
                 logger.info(
-                    "Created csv file {} with {} lines".format(filepath, total_rows)
+                    "Created csv file {} with {} lines".format(filename, total_rows)
                 )
 
         translation.deactivate()

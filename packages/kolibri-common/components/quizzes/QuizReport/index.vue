@@ -84,9 +84,6 @@
         :hideStatus="true"
         :isSurvey="isSurvey"
       />
-      <div v-if="!answerState">
-        {{ coreString('quizNotStartedText') }}
-      </div>
     </template>
 
     <template

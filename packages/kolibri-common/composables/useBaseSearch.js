@@ -239,49 +239,56 @@ export default function useBaseSearch({
     }
   }
 
-  function search() {
-    const currentBaseUrl = get(baseurl);
+  function createBaseSearchGetParams() {
     const getParams = {
       include_coach_content: get(isAdmin) || get(isCoach) || get(isSuperuser),
-      baseurl: currentBaseUrl,
+      baseurl: get(baseurl),
     };
+    if (filters) {
+      Object.assign(getParams, filters);
+    }
     const descValue = descendant ? get(descendant) : null;
     if (descValue) {
       getParams.tree_id = descValue.tree_id;
       getParams.lft__gt = descValue.lft;
       getParams.rght__lt = descValue.rght;
     }
+    return getParams;
+  }
 
-    if (filters) {
-      Object.assign(getParams, filters);
-    }
-
-    if (get(displayingSearchResults)) {
-      getParams.max_results = 25;
-      const terms = get(searchTerms);
-      set(searchResultsLoading, true);
-
-      for (const key of searchKeys) {
-        if (key === 'categories') {
-          if (terms[key][AllCategories]) {
-            getParams['categories__isnull'] = false;
-            continue;
-          } else if (terms[key][NoCategories]) {
-            getParams['categories__isnull'] = true;
-            continue;
-          }
-        }
-        if (key === 'channels' && descValue) {
+  function createSearchGetParams() {
+    const getParams = createBaseSearchGetParams();
+    const terms = get(searchTerms);
+    for (const key of searchKeys) {
+      if (key === 'categories') {
+        if (terms[key][AllCategories]) {
+          getParams['categories__isnull'] = false;
+          continue;
+        } else if (terms[key][NoCategories]) {
+          getParams['categories__isnull'] = true;
           continue;
         }
-        const keys = Object.keys(terms[key]);
-        if (keys.length) {
-          getParams[key] = keys;
-        }
       }
-      if (terms.keywords) {
-        getParams.keywords = terms.keywords;
+
+      const keys = Object.keys(terms[key]);
+      if (keys.length) {
+        getParams[key] = keys;
       }
+    }
+    if (terms.keywords) {
+      getParams.keywords = terms.keywords;
+    }
+    return getParams;
+  }
+
+  function search() {
+    const desc = descendant ? get(descendant) : null;
+    if (get(displayingSearchResults)) {
+      // If we're actually displaying search results
+      // then we need to load all the search results to display
+      set(searchResultsLoading, true);
+      const getParams = createSearchGetParams();
+      getParams.max_results = 25;
       if (get(isUserLoggedIn)) {
         fetchContentNodeProgress?.(getParams);
       }
@@ -292,7 +299,8 @@ export default function useBaseSearch({
         _setAvailableLabels(data.labels);
         set(searchResultsLoading, false);
       });
-    } else if (descValue) {
+    } else if (desc || filters) {
+      const getParams = createBaseSearchGetParams();
       getParams.max_results = 1;
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
         _setAvailableLabels(data.labels);

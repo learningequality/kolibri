@@ -8,7 +8,7 @@
     <div class="report-controls-buttons">
       <KRouterLink
         v-if="isMainReport"
-        :text="$tr('viewLearners')"
+        :text="coachString('viewLearners')"
         appearance="basic-link"
         :to="classLearnersListRoute"
       />
@@ -49,6 +49,7 @@
 
   import pickBy from 'lodash/pickBy';
   import useUser from 'kolibri/composables/useUser';
+  import { mapState, mapActions } from 'vuex';
   import commonCoach from '../common';
   import { ClassesPageNames } from '../../../../../learn/assets/src/constants';
   import { LastPages } from '../../constants/lastPagesConstants';
@@ -59,7 +60,6 @@
     mixins: [commonCoach],
     setup() {
       const { isAppContext } = useUser();
-
       return {
         isAppContext,
       };
@@ -74,19 +74,33 @@
         default: false,
       },
     },
+    data() {
+      return {
+        userList: [],
+      };
+    },
     computed: {
+      ...mapState('classSummary', ['learnerMap']),
       exportDisabled() {
         // Always disable in app mode until we add the ability to download files.
         return this.isAppContext || this.disableExport;
       },
+      filteredLearnMap() {
+        return Object.fromEntries(
+          Object.entries(this.learnerMap || {}).filter(([key]) => this.userList.includes(key)),
+        );
+      },
       isMainReport() {
-        return [
-          PageNames.LEARNERS_ROOT,
-          PageNames.LESSONS_ROOT,
-          PageNames.EXAMS_ROOT,
-          PageNames.EXAM_SUMMARY,
-          PageNames.LESSON_SUMMARY,
-        ].includes(this.$route.name);
+        return (
+          [
+            PageNames.LEARNERS_ROOT,
+            PageNames.LESSONS_ROOT,
+            PageNames.LESSONS_ROOT_BETTER,
+            PageNames.EXAMS_ROOT,
+            PageNames.EXAM_SUMMARY,
+            PageNames.LESSON_SUMMARY,
+          ].includes(this.$route.name) && Object.keys(this.filteredLearnMap).length > 0
+        );
       },
       classLearnersListRoute() {
         const { query } = this.$route;
@@ -105,11 +119,17 @@
         return route;
       },
     },
-    $trs: {
-      viewLearners: {
-        message: 'View learner devices',
-        context:
-          "Option in the Reports > Quizzes section which allows coach to view a list of the learners' devices.\n\nLearner devices are ones that have Kolibri features for learners, but not those for coaches and admins.",
+    created() {
+      this.fetchClassListSyncStatus();
+    },
+    methods: {
+      ...mapActions(['fetchUserSyncStatus']),
+      fetchClassListSyncStatus() {
+        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+          if (Array.isArray(data)) {
+            this.userList = data.map(item => item.user);
+          }
+        });
       },
     },
   };

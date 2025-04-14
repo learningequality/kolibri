@@ -3,6 +3,7 @@ import logging
 import math
 import os
 import shutil
+import sys
 from abc import ABCMeta
 from abc import abstractmethod
 from contextlib import contextmanager
@@ -22,12 +23,27 @@ from kolibri.utils.filesystem import mkdirp
 
 
 try:
+    # Pre-empt the PanicException that importing cryptography can cause
+    # when we are using a non-compatible version of cffi on Python 3.13
+    # this happens because of static depdendency bundling in Kolibri
+    # See the morango.models.fields.crypto module for the source of this code.
+    import cffi
+
+    if sys.version_info > (3, 13):
+        if hasattr(cffi, "__version_info__"):
+            if cffi.__version_info__ < (1, 17, 1):
+                raise ImportError
+
     import OpenSSL
 
     SSLERROR = OpenSSL.SSL.Error
 except ImportError:
     SSLERROR = requests.exceptions.SSLError
-
+except BaseException as e:
+    # Still catch PanicExceptions just in case.
+    if "Python API call failed" not in str(e):
+        raise
+    SSLERROR = requests.exceptions.SSLError
 
 try:
     FileNotFoundError

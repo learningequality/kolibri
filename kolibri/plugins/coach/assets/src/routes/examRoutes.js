@@ -2,7 +2,6 @@ import store from 'kolibri/store';
 import { PageNames } from '../constants';
 import CreateExamPage from '../views/quizzes/CreateExamPage';
 import SectionEditor from '../views/quizzes/CreateExamPage/sidePanels/SectionSidePanel/SectionEditor.vue';
-import ReplaceQuestions from '../views/quizzes/CreateExamPage/sidePanels/SectionSidePanel/ReplaceQuestions.vue';
 import ExamsRootPage from '../views/quizzes/ExamsRootPage';
 import QuizSummaryPage from '../views/quizzes/QuizSummaryPage';
 import SectionOrder from '../views/quizzes/CreateExamPage/sidePanels/SectionSidePanel/SectionOrder.vue';
@@ -70,11 +69,6 @@ export default [
             name: PageNames.QUIZ_SECTION_EDITOR,
             path: 'edit',
             component: SectionEditor,
-          },
-          {
-            name: PageNames.QUIZ_REPLACE_QUESTIONS,
-            path: 'replace-questions',
-            component: ReplaceQuestions,
           },
           {
             name: PageNames.QUIZ_SECTION_ORDER,

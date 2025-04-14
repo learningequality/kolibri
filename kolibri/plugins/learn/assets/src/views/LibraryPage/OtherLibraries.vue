@@ -226,6 +226,19 @@
     props: {
       injectedtr: { type: Function, required: true },
     },
+    watch: {
+      devicesWithChannelsExist: {
+        handler() {
+          this.$nextTick(this.showDevices);
+        },
+        deep: true,
+      },
+    },
+    methods: {
+      showDevices() {
+        this.$emit('availableNetworkDevices', this.devicesWithChannelsExist);
+      },
+    },
   };
 
 </script>

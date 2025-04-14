@@ -117,7 +117,6 @@
   import { computed } from 'vue';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import CoreTable from 'kolibri/components/CoreTable';
-  import TaskResource from 'kolibri/apiResources/TaskResource';
   import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
@@ -127,6 +126,7 @@
     useDevicesWithFilter,
   } from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
   import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import useTaskPolling from '../../composables/useTaskPolling';
   import { KDP_ID, oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
   import { kdpNameTranslator } from './i18n';
 
@@ -141,6 +141,7 @@
     mixins: [commonCoreStrings, commonSyncElements],
     setup(props) {
       const deviceFilter = useDeviceFacilityFilter({ id: props.facilityId });
+      const { tasks } = useTaskPolling('facility_task');
       const { devices } = useDevicesWithFilter(
         {
           subset_of_users_device: false,
@@ -165,6 +166,7 @@
       });
       return {
         devicesById,
+        tasks,
       };
     },
     props: {
@@ -185,10 +187,17 @@
       return {
         deviceModal: false,
         facility: null,
-        facilitySyncTasks: [],
       };
     },
     computed: {
+      facilitySyncTasks() {
+        return this.tasks.filter(
+          t =>
+            t.facility_id === this.facilityId &&
+            t.repeat === null &&
+            (t.type === TaskTypes.SYNCDATAPORTAL || t.type === TaskTypes.SYNCPEERFULL),
+        );
+      },
       scheduledTasks() {
         return this.facilitySyncTasks.map(task => {
           const deviceName = this.devicesById[this.getDeviceId(task)]
@@ -208,28 +217,12 @@
       },
     },
     beforeMount() {
-      this.pollFacilityTasks();
       this.fetchFacility();
     },
     methods: {
       fetchFacility() {
         FacilityResource.fetchModel({ id: this.facilityId, force: true }).then(facility => {
           this.facility = { ...facility };
-        });
-      },
-      pollFacilityTasks() {
-        TaskResource.list({ queue: 'facility_task' }).then(tasks => {
-          this.facilitySyncTasks = tasks.filter(
-            t =>
-              t.facility_id === this.facilityId &&
-              t.repeat === null &&
-              (t.type === TaskTypes.SYNCDATAPORTAL || t.type === TaskTypes.SYNCPEERFULL),
-          );
-          if (this.isPolling) {
-            setTimeout(() => {
-              return this.pollFacilityTasks();
-            }, 2000);
-          }
         });
       },
       closeModal() {

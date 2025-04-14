@@ -76,7 +76,9 @@
             :inline="true"
           />
         </ReportsControls>
-        <CoreTable>
+        <CoreTable
+          :emptyMessage="quizzes.length > 0 ? coreString('noResultsLabel') : $tr('noExams')"
+        >
           <template #headers>
             <th>{{ titleLabel$() }}</th>
             <th style="position: relative">
@@ -156,19 +158,6 @@
             </transition-group>
           </template>
         </CoreTable>
-
-        <p v-if="!quizzes.length">
-          {{ $tr('noExams') }}
-        </p>
-        <p v-else-if="statusSelected.value === filterQuizStarted$() && !startedExams.length">
-          {{ coreString('noResultsLabel') }}
-        </p>
-        <p v-else-if="statusSelected.value === filterQuizNotStarted$() && !notStartedExams.length">
-          {{ coreString('noResultsLabel') }}
-        </p>
-        <p v-else-if="statusSelected.value === filterQuizEnded$() && !endedExams.length">
-          {{ coreString('noResultsLabel') }}
-        </p>
 
         <!-- Modals for Close & Open of quiz from right-most column -->
         <KModal
@@ -314,8 +303,8 @@
       });
 
       const recipientSelected = ref({
-        label: entireClassLabel$(),
-        value: entireClassLabel$(),
+        label: filterQuizAll$(),
+        value: filterQuizAll$(),
       });
 
       return {
@@ -366,7 +355,6 @@
     },
     computed: {
       ...mapGetters('classSummary', [
-        'learners',
         'groups',
         'getExamAvgScore',
         'getExamStatusTally',
@@ -404,18 +392,16 @@
           value: group.id,
         }));
 
-        const learnerOptions = this.learners.map(learner => ({
-          label: learner.name,
-          value: learner.id,
-        }));
-
         return [
+          {
+            label: this.filterQuizAll$(),
+            value: this.filterQuizAll$(),
+          },
           {
             label: this.entireClassLabel$(),
             value: this.entireClassLabel$(),
           },
           ...groupOptions,
-          ...learnerOptions,
         ];
       },
       startedExams() {
@@ -442,11 +428,21 @@
 
         const recipientsFilter = this.recipientSelected.value;
 
-        if (recipientsFilter !== this.entireClassLabel$()) {
-          selectedExams = selectedExams.filter(
-            exam =>
-              exam.groups.includes(recipientsFilter) || exam.learner_ids.includes(recipientsFilter),
-          );
+        if (recipientsFilter !== this.filterQuizAll$()) {
+          if (recipientsFilter !== this.entireClassLabel$()) {
+            selectedExams = selectedExams.filter(exam => {
+              return (
+                exam.groups.includes(recipientsFilter) ||
+                exam.learner_ids.includes(recipientsFilter)
+              );
+            });
+          } else {
+            selectedExams = selectedExams.filter(exam => {
+              const hasNoGroups = !exam.groups || exam.groups.length === 0;
+              const hasNoLearners = !exam.learner_ids || exam.learner_ids.length === 0;
+              return hasNoGroups && hasNoLearners;
+            });
+          }
         }
         return selectedExams.map(quiz => {
           const learnersForQuiz = this.getLearnersForExam(quiz);

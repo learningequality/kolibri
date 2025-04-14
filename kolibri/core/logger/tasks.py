@@ -1,5 +1,4 @@
-import os
-
+from django.core.files.storage import default_storage
 from django.core.management import call_command
 from rest_framework import serializers
 
@@ -12,21 +11,14 @@ from kolibri.core.logger.models import GenerateCSVLogRequest
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.permissions import IsAdminForJob
 from kolibri.core.tasks.validation import JobValidator
-from kolibri.utils import conf
 
 LOGS_CLEANUP_JOB_ID = "18"
 
 
 def get_filepath(log_type, facility_id, start_date, end_date):
     facility = Facility.objects.get(id=facility_id)
-    logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
-    if not os.path.isdir(logs_dir):
-        os.mkdir(logs_dir)
-    filepath = os.path.join(
-        logs_dir,
-        CSV_EXPORT_FILENAMES[log_type].format(
-            facility.name, facility.id[:4], start_date[:10], end_date[:10]
-        ),
+    filepath = CSV_EXPORT_FILENAMES[log_type].format(
+        facility.name, facility.id[:4], start_date[:10], end_date[:10]
     )
     return filepath
 
@@ -46,7 +38,7 @@ def get_valid_logs_csv_filenames():
             log_request.selected_start_date.strftime("%Y-%m-%d"),
             log_request.selected_end_date.strftime("%Y-%m-%d"),
         )
-        valid_filenames_set.add(os.path.basename(full_path))
+        valid_filenames_set.add(full_path)
     return valid_filenames_set
 
 
@@ -118,16 +110,15 @@ class ExportLogCSVValidator(JobValidator):
 
 
 def _exportlogcsv(log_type, facility_id, start_date, end_date, locale):
-    filepath = get_filepath(log_type, facility_id, start_date, end_date)
     call_command(
         "exportlogs",
         log_type=log_type,
-        output_file=filepath,
         facility=facility_id,
         overwrite=True,
         start_date=start_date,
         end_date=end_date,
         locale=locale,
+        use_storage=True,
     )
 
 
@@ -175,12 +166,12 @@ def exportsummarylogcsv(facility_id, **kwargs):
 def log_exports_cleanup():
     """
     Cleanup log_exports csv files that does not have
-    related reocord in GenerateCSVLogRequest model
+    related record in GenerateCSVLogRequest model
     """
-    logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
-    if not os.path.isdir(logs_dir):
-        return
     valid_filenames_set = get_valid_filenames()
-    for filename in os.listdir(logs_dir):
+    _, files_in_storage = default_storage.listdir("log_export/")
+    # Prefix the filenames with the directory name because that's what we'll
+    # get from get_valid_filenames
+    for filename in ["log_export/{}".format(filename) for filename in files_in_storage]:
         if filename not in valid_filenames_set:
-            os.remove(os.path.join(logs_dir, filename))
+            default_storage.delete(filename)

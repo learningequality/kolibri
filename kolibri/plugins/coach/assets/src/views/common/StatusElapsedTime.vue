@@ -12,16 +12,16 @@
 
 <script>
 
-  import { now } from 'kolibri/utils/serverClock';
+  import useNow from 'kolibri/composables/useNow';
 
-  const MINUTE = 60000;
-  const HOUR = MINUTE * 60;
-  const DAY = HOUR * 24;
-
-  const ACTION_TYPES = ['created', 'closed', 'opened', 'madeVisible'];
+  const ACTION_TYPES = ['created', 'closed', 'opened', 'madeVisible', 'hidden'];
 
   export default {
     name: 'StatusElapsedTime',
+    setup() {
+      const { now } = useNow();
+      return { now };
+    },
     props: {
       date: {
         type: Date,
@@ -40,11 +40,6 @@
       },
     },
     computed: {
-      timeDifference() {
-        const time = now() - this.date;
-        // Ensure time is never negative or 0 (also - this is in ms)
-        return time >= 1000 ? time : 1000;
-      },
       formattedTime() {
         // No need to do anything if there is no date given.
         if (!this.date) {
@@ -53,162 +48,44 @@
         // The following is a bit verbose - but our i18n profiling can better process
         // our translation usage when used explicitly rather than by dynamically
         // generating the string identifiers.
-
-        // Seconds
-        if (this.timeDifference < MINUTE) {
-          const strParams = { seconds: this.$formatNumber(this.toSeconds(this.timeDifference)) };
-          switch (this.actionType) {
-            case 'created':
-              return this.$tr('createdSecondsAgo', strParams);
-            case 'closed':
-              return this.$tr('closedSecondsAgo', strParams);
-            case 'opened':
-              return this.$tr('openedSecondsAgo', strParams);
-            case 'madeVisible':
-              return this.$tr('madeVisibleSecondsAgo', strParams);
-            default:
-              return '';
-          }
-        }
-        // Minutes
-        if (this.timeDifference < HOUR) {
-          const strParams = { minutes: this.$formatNumber(this.toMinutes(this.timeDifference)) };
-          switch (this.actionType) {
-            case 'created':
-              return this.$tr('createdMinutesAgo', strParams);
-            case 'closed':
-              return this.$tr('closedMinutesAgo', strParams);
-            case 'opened':
-              return this.$tr('openedMinutesAgo', strParams);
-            case 'madeVisible':
-              return this.$tr('madeVisibleMinutesAgo', strParams);
-            default:
-              return '';
-          }
-        }
-        // Hours
-        if (this.timeDifference < DAY) {
-          const strParams = { hours: this.$formatNumber(this.toHours(this.timeDifference)) };
-          switch (this.actionType) {
-            case 'created':
-              return this.$tr('createdHoursAgo', strParams);
-            case 'closed':
-              return this.$tr('closedHoursAgo', strParams);
-            case 'opened':
-              return this.$tr('openedHoursAgo', strParams);
-            case 'madeVisible':
-              return this.$tr('madeVisibleHoursAgo', strParams);
-            default:
-              return '';
-          }
-        }
-        // else, Days
-        const strParams = { days: this.$formatNumber(this.toDays(this.timeDifference)) };
+        const relativeTimeAgo = this.$formatRelative(this.date, { now: this.now });
         switch (this.actionType) {
           case 'created':
-            return this.$tr('createdDaysAgo', strParams);
+            return this.$tr('created', { relativeTimeAgo });
           case 'closed':
-            return this.$tr('closedDaysAgo', strParams);
+            return this.$tr('closed', { relativeTimeAgo });
           case 'opened':
-            return this.$tr('openedDaysAgo', strParams);
+            return this.$tr('opened', { relativeTimeAgo });
           case 'madeVisible':
-            return this.$tr('madeVisibleDaysAgo', strParams);
+            return this.$tr('madeVisible', { relativeTimeAgo });
+          case 'hidden':
+            return this.$tr('hidden', { relativeTimeAgo });
           default:
             return '';
         }
       },
     },
-    methods: {
-      toSeconds(ms) {
-        return Math.floor(ms / 1000);
-      },
-      toMinutes(ms) {
-        return Math.floor(this.toSeconds(ms) / 60);
-      },
-      toHours(ms) {
-        return Math.floor(this.toMinutes(ms) / 60);
-      },
-      toDays(ms) {
-        return Math.floor(this.toHours(ms) / 24);
-      },
-    },
     $trs: {
-      createdSecondsAgo: {
-        message: 'Created {seconds} {seconds, plural, one {second} other {seconds}} ago',
+      created: {
+        message: 'Created  {relativeTimeAgo}',
+        context: 'Indicates that a quiz was created a certain amount of time ago.',
+      },
+      closed: {
+        message: 'Ended  {relativeTimeAgo}',
+        context: 'Indicates that a quiz was ended a certain amount of time ago.',
+      },
+      opened: {
+        message: 'Started  {relativeTimeAgo}',
+        context: 'Indicates that a quiz was started a certain amount of time ago.',
+      },
+      madeVisible: {
+        message: 'Made visible {relativeTimeAgo}',
+        context: 'Indicates that a quiz was made visible a certain amount of time ago.',
+      },
+      hidden: {
+        message: 'Hidden {relativeTimeAgo}',
         context:
-          'Indicates that a quiz was created a number of seconds prior to the current time, but is always less than 1 minute ago.',
-      },
-      createdMinutesAgo: {
-        message: 'Created {minutes} {minutes, plural, one {minute} other {minutes}} ago',
-        context:
-          'Indicates that a quiz was created a number of minutes prior to the current time, but the time is always less than 1 hour ago.',
-      },
-      createdHoursAgo: {
-        message: 'Created {hours} {hours, plural, one {hour} other {hours}} ago',
-        context:
-          'Indicates that a quiz was created a number of hours prior to the current time, but the time is always less than one day ago',
-      },
-      createdDaysAgo: {
-        message: 'Created {days} {days, plural, one {day} other {days}} ago',
-        context: 'Indicates that a quiz was created a number of days prior to the current date.',
-      },
-      closedSecondsAgo: {
-        message: 'Ended {seconds} {seconds, plural, one {second} other {seconds}} ago',
-        context:
-          'Indicates that a quiz was ended a number of seconds prior to the current time, but is always less than 1 minute ago.',
-      },
-      closedMinutesAgo: {
-        message: 'Ended {minutes} {minutes, plural, one {minute} other {minutes}} ago',
-        context:
-          'Indicates that a quiz was ended a number of minutes prior to the current time, but the time is always less than 1 hour ago.',
-      },
-      closedHoursAgo: {
-        message: 'Ended {hours} {hours, plural, one {hour} other {hours}} ago',
-        context:
-          'Indicates that a quiz was ended a number of hours prior to the current time, but the time is always less than one day ago',
-      },
-      closedDaysAgo: {
-        message: 'Ended {days} {days, plural, one {day} other {days}} ago',
-        context: 'Indicates that a quiz was ended a number of days prior to the current date.',
-      },
-      openedSecondsAgo: {
-        message: 'Started {seconds} {seconds, plural, one {second} other {seconds}} ago',
-        context:
-          'Indicates that a quiz was started a number of seconds prior to the current time, but is always less than 1 minute ago.',
-      },
-      openedMinutesAgo: {
-        message: 'Started {minutes} {minutes, plural, one {minute} other {minutes}} ago',
-        context:
-          'Indicates that a quiz was started a number of minutes prior to the current time, but the time is always less than 1 hour ago.',
-      },
-      openedHoursAgo: {
-        message: 'Started {hours} {hours, plural, one {hour} other {hours}} ago',
-        context:
-          'Indicates that a quiz was started a number of hours prior to the current time, but the time is always less than one day ago',
-      },
-      openedDaysAgo: {
-        message: 'Started {days} {days, plural, one {day} other {days}} ago',
-        context: 'Indicates that a quiz was started a number of days prior to the current date.',
-      },
-      madeVisibleSecondsAgo: {
-        message: 'Made visible {seconds} {seconds, plural, one {second} other {seconds}} ago',
-        context:
-          'Indicates that a quiz was made visible a number of seconds prior to the current time, but is always less than 1 minute ago.',
-      },
-      madeVisibleMinutesAgo: {
-        message: 'Made visible {minutes} {minutes, plural, one {minute} other {minutes}} ago',
-        context:
-          'Indicates that a quiz was made visible a number of minutes prior to the current time, but the time is always less than 1 hour ago.',
-      },
-      madeVisibleHoursAgo: {
-        message: 'Made visible {hours} {hours, plural, one {hour} other {hours}} ago',
-        context:
-          'Indicates that a quiz was made visible a number of hours prior to the current time, but the time is always less than one day ago',
-      },
-      madeVisibleDaysAgo: {
-        message: 'Made visible {days} {days, plural, one {day} other {days}} ago',
-        context:
-          'Indicates that a quiz was made visible a number of days prior to the current date.',
+          'Indicates that a lesson was made not visible to a learner  a certain amount of time ago.',
       },
     },
   };

@@ -1,7 +1,9 @@
 import codecs
 import csv
+import json
 import logging
 import os
+import subprocess
 import tempfile
 import uuid
 
@@ -20,11 +22,31 @@ _DRIVE_TYPES = [
 ]
 
 
+def _get_drive_name(drive, path):
+    # More robustly name drives with multiple fallbacks
+    if drive.get("VolumeName"):
+        return drive.get("VolumeName")
+    caption = drive.get("Caption")
+    description = drive.get("Description")
+    if caption and description:
+        return "{} ({})".format(caption, description)
+    elif caption:
+        return caption
+    elif description:
+        return description
+    return path
+
+
 def get_drive_list():
 
     drives = []
 
-    drive_list = _parse_wmic_csv_output(_wmic_output())
+    try:
+        drive_list = _parse_wmic_csv_output(_wmic_output())
+    except Exception as e:
+        if "Could not run command" not in str(e):
+            raise
+        drive_list = _get_drive_list_powershell()
 
     for drive in drive_list:
 
@@ -53,11 +75,12 @@ def get_drive_list():
         if not os.access(path, os.R_OK):
             continue
 
+        name = _get_drive_name(drive, path)
         # combine the metadata, using backup fields for missing pieces, and return
         drives.append(
             {
                 "path": path,
-                "name": drive.get("VolumeName") or drive.get("Description"),
+                "name": name,
                 "filesystem": drive.get("FileSystem").lower(),
                 "freespace": int(drive.get("FreeSpace") or 0),
                 "totalspace": int(drive.get("Size") or 0),
@@ -137,3 +160,56 @@ def _parse_wmic_csv_output(text):
 
     # turn each row into a dict, mapping the header text of each column to the row's value for that column
     return [dict(zip(header, row)) for row in rows]
+
+
+def _get_drive_list_powershell():
+    """
+    Get the list of drives using PowerShell when wmic is unavailable.
+    Returns data in a format compatible with the wmic csv output parsing.
+    """
+
+    # Create a unique temp file
+    temp_file_path = os.path.join(
+        tempfile.gettempdir(), "kolibri_disks_ps-{}.json".format(uuid.uuid4())
+    )
+
+    # PowerShell command with explicit property selection
+    powershell_cmd = [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "Get-WmiObject -Class Win32_LogicalDisk | "
+        "Select-Object @{Name='DeviceID';Expression={$_.DeviceID}}, "
+        "@{Name='DriveType';Expression={$_.DriveType}}, "
+        "@{Name='Caption';Expression={$_.Caption}}, "
+        "@{Name='Description';Expression={$_.Description}}, "
+        "@{Name='VolumeName';Expression={$_.VolumeName}}, "
+        "@{Name='Size';Expression={$_.Size}}, "
+        "@{Name='FreeSpace';Expression={$_.FreeSpace}}, "
+        "@{Name='FileSystem';Expression={$_.FileSystem}}, "
+        "@{Name='VolumeSerialNumber';Expression={$_.VolumeSerialNumber}} | "
+        f"ConvertTo-Json | Out-File -FilePath '{temp_file_path}' -Encoding utf8",
+    ]
+
+    # Run the command
+    subprocess.run(powershell_cmd, check=True, capture_output=True)
+
+    disks_data = []
+
+    # Read and parse the JSON file
+    if os.path.exists(temp_file_path) and os.path.getsize(temp_file_path) > 0:
+        # Open the file with utf-8-sig encoding to handle BOM
+        with open(temp_file_path, "r", encoding="utf-8-sig") as f:
+            content = f.read().strip()
+
+            disks_data = json.loads(content or "[]")
+
+            # Handle case where only one disk is returned (not in a list)
+            if not isinstance(disks_data, list):
+                disks_data = [disks_data]
+
+    os.remove(temp_file_path)
+
+    return disks_data

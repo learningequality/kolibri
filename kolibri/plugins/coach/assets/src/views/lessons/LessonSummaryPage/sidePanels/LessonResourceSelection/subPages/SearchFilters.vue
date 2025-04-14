@@ -15,12 +15,13 @@
 
 <script>
 
-  import { getCurrentInstance, onMounted, ref } from 'vue';
+  import { getCurrentInstance } from 'vue';
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel/index.vue';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { PageNames } from '../../../../../../constants';
+  import { useGoBack } from '../../../../../../composables/usePreviousRoute';
 
   /**
    * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
@@ -32,24 +33,18 @@
       SearchFiltersPanel,
     },
     setup(props) {
-      const prevRoute = ref(null);
-
       const instance = getCurrentInstance();
-      const goBack = () => {
-        const backRoute = prevRoute.value?.name
-          ? prevRoute.value
-          : {
-            name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
-          };
-        instance.proxy.$router.push(backRoute);
-      };
       const { searchLabel$ } = coreStrings;
       const { chooseACategory$ } = searchAndFilterStrings;
+
       const title = searchLabel$();
-      onMounted(() => {
-        props.setTitle(title);
-        props.setGoBack(goBack);
+      const goBack = useGoBack({
+        fallbackRoute: {
+          name: PageNames.LESSON_SELECT_RESOURCES_INDEX,
+        },
       });
+      props.setTitle(title);
+      props.setGoBack(goBack);
 
       function handleCategorySearchOpen(isOpen) {
         if (isOpen) {
@@ -70,8 +65,6 @@
       const { searchInFolder$ } = searchAndFilterStrings;
 
       return {
-        // eslint-disable-next-line vue/no-unused-properties
-        prevRoute,
         searchInFolder$,
         handleCategorySearchOpen,
       };
@@ -112,11 +105,6 @@
           this.$emit('update:searchTerms', value);
         },
       },
-    },
-    beforeRouteEnter(to, from, next) {
-      next(vm => {
-        vm.prevRoute = from;
-      });
     },
   };
 

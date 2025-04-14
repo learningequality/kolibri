@@ -83,9 +83,6 @@ export default new Resource({
   fetchRandomCollection({ getParams: params }) {
     return this.getListEndpoint('random', params);
   },
-  fetchDescendantCounts(getParams) {
-    return this.getListEndpoint('descendant_counts', { ...getParams });
-  },
   fetchDescendantsAssessments(ids) {
     return this.getListEndpoint('descendants_assessments', { ids });
   },

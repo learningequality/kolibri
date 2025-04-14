@@ -364,7 +364,7 @@
 
         this.updateSection({
           sectionIndex: this.activeSectionIndex,
-          section_title: this.section_title,
+          section_title: this.section_title.trim(),
           description: this.description,
           learners_see_fixed_order: this.learners_see_fixed_order,
         });

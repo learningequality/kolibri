@@ -16,6 +16,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.query import SQCount
 from kolibri.core.utils.csv import open_csv_for_writing
 from kolibri.core.utils.csv import output_mapper
+from kolibri.core.utils.csv import validate_open_csv_params
 
 
 logger = logging.getLogger(__name__)
@@ -159,9 +160,18 @@ db_columns = (
 )
 
 
-def csv_file_generator(facility, filepath, overwrite=True, demographic=False):
-    if not overwrite and os.path.exists(filepath):
-        raise ValueError("{} already exists".format(filepath))
+def csv_file_generator(
+    facility,
+    local_filepath=None,
+    storage_filepath=None,
+    overwrite=True,
+    demographic=False,
+):
+    validate_open_csv_params(storage_filepath, local_filepath)
+
+    if local_filepath and not overwrite and os.path.exists(local_filepath):
+        raise ValueError("{} already exists".format(local_filepath))
+
     queryset = FacilityUser.objects.filter(facility=facility)
 
     header_labels = tuple(
@@ -174,8 +184,6 @@ def csv_file_generator(facility, filepath, overwrite=True, demographic=False):
         column for column in db_columns if demographic or column not in DEMO_FIELDS
     )
 
-    csv_file = open_csv_for_writing(filepath)
-
     mappings = {}
 
     for key in output_mappings:
@@ -184,9 +192,10 @@ def csv_file_generator(facility, filepath, overwrite=True, demographic=False):
 
     map_output = partial(output_mapper, labels=labels, output_mappings=mappings)
 
-    with csv_file as f:
+    with open_csv_for_writing(
+        storage_filepath=storage_filepath, local_filepath=local_filepath
+    ) as f:
         writer = csv.DictWriter(f, header_labels)
-        logger.info("Creating csv file {filename}".format(filename=filepath))
         writer.writeheader()
         usernames = set()
         for item in (

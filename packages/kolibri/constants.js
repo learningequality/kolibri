@@ -1,5 +1,6 @@
 import invert from 'lodash/invert';
 import Subjects from 'kolibri-constants/labels/Subjects';
+import LearningActivities from 'kolibri-constants/labels/LearningActivities';
 // coach-facing
 export { default as ContentNodeResourceType } from 'kolibri-constants/labels/ResourceType';
 export { default as LearningActivities } from 'kolibri-constants/labels/LearningActivities';
@@ -40,6 +41,8 @@ export const ContentNodeKinds = {
   SLIDESHOW: 'slideshow',
   BOOKMARK: 'bookmark',
 };
+
+export const ActivitiesLookup = invert(LearningActivities);
 
 export const CategoriesLookup = invert(Subjects);
 

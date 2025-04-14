@@ -7,6 +7,7 @@
     <div class="quiz-header-actions">
       <KButton
         appearance="flat-button"
+        :disabled="settings.isInReplaceMode"
         :text="settingsLabel$()"
         @click="onSettingsClick"
       >
@@ -58,8 +59,12 @@
     },
     computed: {
       quizTitle() {
-        const { selectUpToNResources$, selectUpToNQuestions$ } = enhancedQuizManagementStrings;
+        const { selectNQuestions$, selectUpToNResources$, selectUpToNQuestions$ } =
+          enhancedQuizManagementStrings;
 
+        if (this.settings.isInReplaceMode) {
+          return selectNQuestions$({ count: this.settings.questionCount });
+        }
         if (this.settings.isChoosingManually) {
           return selectUpToNQuestions$({ count: this.settings.questionCount });
         }

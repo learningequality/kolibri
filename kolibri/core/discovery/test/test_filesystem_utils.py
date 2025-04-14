@@ -1,7 +1,8 @@
-import ntpath
 import os
 import posixpath
+import sys
 
+import pytest
 from django.test import TestCase
 from mock import patch
 
@@ -116,6 +117,10 @@ def mocked_wmic_output():
     return windows_data.wmic_csv
 
 
+@pytest.mark.skipif(
+    sys.platform != "win32",
+    reason="This test is only for Windows platform",
+)
 class WindowsFilesystemTestCase(TestCase):
     """
     Test retrieval and parsing of disk info for Windows, using mocked command output.
@@ -123,8 +128,6 @@ class WindowsFilesystemTestCase(TestCase):
 
     @patch_os_access(windows_data.os_access_read, windows_data.os_access_write)
     @patch_os_path_exists_for_kolibri_folder(windows_data.has_kolibri_data_folder)
-    @patch("sys.platform", "win32")
-    @patch("os.path", ntpath)
     @patch(
         "kolibri.core.discovery.utils.filesystem.windows._wmic_output",
         mocked_wmic_output,
@@ -154,8 +157,23 @@ class WindowsFilesystemTestCase(TestCase):
         self.assertEqual(self.d_drive.totalspace, 58388480)
 
     def test_drive_names(self):
-        self.assertEqual(self.c_drive.name, "Local Fixed Disk")
+        self.assertEqual(self.c_drive.name, "C: (Local Fixed Disk)")
         self.assertEqual(self.d_drive.name, "VBOXADDITIONS_4.")
+
+    @patch("kolibri.core.discovery.utils.filesystem.windows._wmic_output")
+    def test_powershell_fallback(self, mock_wmic):
+        # Force wmic to fail by raising an exception with the specific error message
+        # that would trigger the PowerShell fallback
+        mock_wmic.side_effect = Exception(
+            "Could not run command 'wmic logicaldisk list full /format:csv > ...'"
+        )
+
+        # Now call the function - it should use the PowerShell fallback
+        drives = enumerate_mounted_disk_partitions()
+        # Check that the result is a dictionary
+        # On Github Actions, this seems to produce no listed drives
+        # so the best we can hope for is that the function above doesn't error.
+        self.assertIsInstance(drives, dict)
 
 
 class LinuxFilesystemTestCase(TestCase):

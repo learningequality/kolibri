@@ -13,27 +13,27 @@ on:
 jobs:
   build_whl:
     name: Build WHL
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.6-buster
     outputs:
       whl-file-name: ${{ steps.get-whl-filename.outputs.whl-file-name }}
       tar-file-name: ${{ steps.get-tar-filename.outputs.tar-file-name }}
     steps:
+    - name: Install Ubuntu dependencies
+      run: |
+        apt-get -y -qq update
+        apt-get install -y gettext sudo sqlite3 binutils-aarch64-linux-gnu binutils-arm-linux-gnueabihf git-lfs
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
         lfs: true
-    - name: Install Ubuntu dependencies
-      run: |
-        sudo apt-get -y -qq update
-        sudo apt-get install -y gettext sudo sqlite3 binutils-aarch64-linux-gnu binutils-arm-linux-gnueabihf
-    - name: Set up Python 3.6
-      uses: actions/setup-python@v5
-      with:
-        python-version: 3.6
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18.x'
+    - name: Install Yarn
+      run: npm install -g yarn@1
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
       run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT

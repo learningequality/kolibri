@@ -34,11 +34,10 @@ class UserExportTestCase(TestCase):
             classroom_count=CLASSROOMS, learnergroup_count=1
         )
         cls.facility = cls.data["facility"]
-
         _, cls.filepath = tempfile.mkstemp(suffix=".csv")
 
         cls.csv_rows = []
-        for row in cls.b.csv_file_generator(cls.facility, cls.filepath, True):
+        for row in cls.b.csv_file_generator(cls.facility, local_filepath=cls.filepath):
             cls.csv_rows.append(row)
 
     def test_not_specified(self):
@@ -130,8 +129,7 @@ class UserExportTestCase(TestCase):
             assert row["password"] == "*"
 
     def get_data_from_csv_file(self):
-        csv_file = open_csv_for_reading(self.filepath)
-        with csv_file as f:
+        with open_csv_for_reading(local_filepath=self.filepath) as f:
             results = [row for row in csv.DictReader(f)]
         return results
 

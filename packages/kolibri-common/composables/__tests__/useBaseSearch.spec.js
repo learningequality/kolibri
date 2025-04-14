@@ -3,7 +3,7 @@ import VueRouter from 'vue-router';
 import Vue, { nextTick, ref } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { coreStoreFactory } from 'kolibri/store';
-import { AllCategories, NoCategories } from 'kolibri/constants';
+import { AllCategories, ContentNodeKinds, NoCategories } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useBaseSearch from '../useBaseSearch';
 import coreModule from '../../../../kolibri/core/assets/src/state/modules/core';
@@ -14,7 +14,7 @@ jest.mock('kolibri/composables/useUser');
 
 const name = 'not important';
 
-function prep(query = {}, descendant = null) {
+function prep(query = {}, descendant = null, filters = null) {
   const store = coreStoreFactory({
     state: () => ({
       route: {
@@ -32,7 +32,7 @@ function prep(query = {}, descendant = null) {
   router.push = jest.fn().mockReturnValue(Promise.resolve());
   store.registerModule('core', coreModule);
   return {
-    ...useBaseSearch({ descendant, store, router }),
+    ...useBaseSearch({ descendant, store, router, filters }),
     router,
     store,
   };
@@ -231,6 +231,18 @@ describe(`useBaseSearch`, () => {
           tree_id: 1,
           lft__gt: 10,
           rght__lt: 20,
+          max_results: 1,
+          include_coach_content: false,
+        },
+      });
+    });
+    it('should call ContentNodeResource.fetchCollection if there is no search but a filter is set', () => {
+      const { search } = prep({}, null, { kind: ContentNodeKinds.EXERCISE });
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      search();
+      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
+        getParams: {
+          kind: ContentNodeKinds.EXERCISE,
           max_results: 1,
           include_coach_content: false,
         },

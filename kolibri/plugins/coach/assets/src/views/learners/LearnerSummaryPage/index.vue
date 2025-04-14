@@ -33,7 +33,12 @@
                   :key="tableRow.id"
                 >
                   <td>
+                    <span v-if="quizLessonNotStarted(tableRow.status)">
+                      <KIcon icon="lesson" />
+                      {{ tableRow.title }}
+                    </span>
                     <KRouterLink
+                      v-else
                       :to="lessonLink(tableRow.id)"
                       :text="tableRow.title"
                       icon="lesson"
@@ -84,7 +89,12 @@
                   :key="tableRow.id"
                 >
                   <td>
+                    <span v-if="quizLessonNotStarted(tableRow.statusObj.status)">
+                      <KIcon icon="quiz" />
+                      {{ tableRow.title }}
+                    </span>
                     <KRouterLink
+                      v-else
                       :to="quizLink(tableRow.id)"
                       :text="tableRow.title"
                       icon="quiz"
@@ -119,6 +129,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
+  import { STATUSES } from '../../../modules/classSummary/constants';
   import { PageNames } from '../../../constants';
   import ReportsControls from '../../common/ReportsControls';
   import CSVExporter from '../../../csv/exporter';
@@ -255,6 +266,9 @@
           return;
         }
         this.quizLimit += 10;
+      },
+      quizLessonNotStarted(status) {
+        return status === STATUSES.notStarted;
       },
     },
     $trs: {

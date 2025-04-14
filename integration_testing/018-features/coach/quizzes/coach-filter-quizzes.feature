@@ -19,6 +19,6 @@ Feature: Coach can filter quizzes by status and recipients
     When I look at the *Recipients* filter
     Then I can see that it is set to *All* by default
     When I select any of the available options
-    Then I see only quizzes assigned to the selected recipient
-    When there are no quizzes with the selected recipient
+    Then I see only quizzes assigned to the selected recipient(s)
+    When there are no quizzes with the selected recipient(s)
     Then I see the *No results* text in the table

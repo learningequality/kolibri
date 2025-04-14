@@ -52,7 +52,10 @@ function rebuildApiSpec() {
     .sync(`${kolibriFolder}/**/*.{js,vue}`, {
       ignore: ['**/internal/**', '**/__tests__/**', '**/__mocks__/**'],
     })
-    .map(f => f.split('.')[0])
+    .map(f => {
+      const { dir, name } = path.parse(f);
+      return path.join(dir, name);
+    })
     .map(f => f.replace(kolibriFolder, ''))
     .map(f => f.replace(/\/index$/, ''))
     .sort();

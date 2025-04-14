@@ -43,7 +43,7 @@
 
         <CoreTable
           :dataLoading="lessonsAreLoading"
-          :emptyMessage="$tr('noLessons')"
+          :emptyMessage="lessons.length > 0 ? coreString('noResultsLabel') : $tr('noLessons')"
         >
           <template #headers>
             <th>{{ coachString('titleLabel') }}</th>
@@ -116,10 +116,6 @@
           </template>
         </CoreTable>
 
-        <p v-if="showNoResultsLabel">
-          {{ coreString('noResultsLabel') }}
-        </p>
-
         <KModal
           v-if="showLessonIsVisibleModal && !userHasDismissedModal"
           :title="coachString('makeLessonVisibleTitle')"
@@ -187,7 +183,6 @@
   import Vue, { set } from 'vue';
   import { mapState, mapActions } from 'vuex';
   import LessonResource from 'kolibri-common/apiResources/LessonResource';
-  import countBy from 'lodash/countBy';
   import { LESSON_VISIBILITY_MODAL_DISMISSED, ERROR_CONSTANTS } from 'kolibri/constants';
   import Lockr from 'lockr';
   import CoreTable from 'kolibri/components/CoreTable';
@@ -234,8 +229,8 @@
         activeLesson: null,
         filterSelection: {},
         filterRecipents: {
-          label: this.entireClassLabel$(),
-          value: this.entireClassLabel$(),
+          label: this.coreString('allLabel'),
+          value: this.coreString('allLabel'),
         },
         detailsModalIsDisabled: false,
         dontShowAgainChecked: false,
@@ -261,28 +256,8 @@
           value: filter,
         }));
       },
-      activeLessonCounts() {
-        return countBy(this.lessons, 'active');
-      },
       newLessonRoute() {
         return { name: PageNames.LESSON_CREATION_ROOT };
-      },
-      hasVisibleLessons() {
-        return this.activeLessonCounts.true;
-      },
-      hasNonVisibleLessons() {
-        return this.activeLessonCounts.false;
-      },
-      showNoResultsLabel() {
-        if (!this.lessons.length) {
-          return false;
-        } else if (this.filterSelection.value === 'filterLessonVisible') {
-          return !this.hasVisibleLessons;
-        } else if (this.filterSelection.value === 'filterLessonNotVisible') {
-          return !this.hasNonVisibleLessons;
-        } else {
-          return false;
-        }
       },
       calcTotalSizeOfVisibleLessons() {
         if (this.lessons && this.lessons.length) {
@@ -304,18 +279,16 @@
           value: group.id,
         }));
 
-        const learnerOptions = this.learners.map(learner => ({
-          label: learner.name,
-          value: learner.id,
-        }));
-
         return [
+          {
+            label: this.coreString('allLabel'),
+            value: this.coreString('allLabel'),
+          },
           {
             label: this.entireClassLabel$(),
             value: this.entireClassLabel$(),
           },
           ...groupOptions,
-          ...learnerOptions,
         ];
       },
     },
@@ -450,10 +423,16 @@
           lessonToReturn = lessonToReturn.filter(lesson => lesson.active === isVisibleFilter);
         }
 
-        if (this.filterRecipents.label !== this.entireClassLabel$()) {
-          lessonToReturn = lessonToReturn.filter(lesson => {
-            return lesson.recipientNames.includes(this.filterRecipents.label);
-          });
+        if (this.filterRecipents.label !== this.coreString('allLabel')) {
+          if (this.filterRecipents.label !== this.entireClassLabel$()) {
+            lessonToReturn = lessonToReturn.filter(lesson => {
+              return lesson.recipientNames.includes(this.filterRecipents.label);
+            });
+          } else {
+            lessonToReturn = lessonToReturn.filter(lesson => {
+              return lesson.recipientNames.length === 0 && lesson.groupNames.length === 0;
+            });
+          }
         }
 
         return lessonToReturn;
@@ -481,7 +460,7 @@
       noLessons: {
         message: 'You do not have any lessons',
         context:
-          "Text displayed in the 'Lessons' tab of the coach page if there are no lessons created",
+          "Text displayed in the 'Lessons' tab of the 'Plan' section if there are no lessons created",
       },
       dontShowAgain: {
         message: "Don't show this message again",

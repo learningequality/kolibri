@@ -80,6 +80,7 @@ export default function useResourceSelection({
       return {
         ...response,
         results: annotatedResults,
+        count: annotatedResults.length,
       };
     }
     return response;
@@ -111,9 +112,16 @@ export default function useResourceSelection({
     fetchMethod: fetchChannels,
   });
 
+  // We need to wait for the proper topic to load so the `topic` ref which is a
+  // dependency of the useBaseSearch composable is correctly set before searching.
   const waitForTopicLoad = () => {
-    const { searchTopicId } = route.value.query;
-    const topicToWaitFor = searchTopicId || topicId.value;
+    const { searchTopicId, searchResultTopicId } = route.value.query;
+
+    // If we are browsing a topic from the search results (searchResultTopicId is set)
+    // then the topic to wait for is `searchTopicId`. `searchTopicId` is the topic
+    // that the search results are scoped to.
+    const topicToWaitFor = searchResultTopicId ? searchTopicId : topicId.value;
+
     if (!topicToWaitFor || topicToWaitFor === topic.value?.id) {
       return Promise.resolve();
     }
@@ -156,13 +164,13 @@ export default function useResourceSelection({
       topic.value = newTopic;
     }
     if (topicTree?.annotator) {
-      const annotatedResults = await topicTree.annotator(newTopic.children.results);
+      const annotatedResults = await topicTree.annotator(newTopic.children?.results || []);
       return {
         ...newTopic.children,
         results: annotatedResults,
       };
     }
-    return newTopic.children;
+    return newTopic.children || { results: [] };
   };
 
   const treeFetch = useFetch({

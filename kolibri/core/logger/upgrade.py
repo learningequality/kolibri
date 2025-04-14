@@ -1,6 +1,9 @@
 """
 A file to contain specific logic to handle version upgrades in Kolibri.
 """
+import os
+import shutil
+
 from django.db.models import F
 from django.db.models import Max
 from django.db.models import OuterRef
@@ -9,6 +12,7 @@ from django.db.models import Subquery
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import GenerateCSVLogRequest
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.utils.attempt_log_consolidation import (
     consolidate_quiz_attempt_logs,
@@ -17,6 +21,7 @@ from kolibri.core.logger.utils.exam_log_migration import migrate_from_exam_logs
 from kolibri.core.notifications.api import parse_summarylog
 from kolibri.core.notifications.api import quiz_completed_notification
 from kolibri.core.upgrade import version_upgrade
+from kolibri.utils.conf import KOLIBRI_HOME
 
 
 @version_upgrade(old_version="<0.15.0")
@@ -92,3 +97,24 @@ def fix_masterylog_end_timestamps():
         completion_timestamp__isnull=True,
         attemptlogs__isnull=True,
     ).update(end_timestamp=Subquery(summary_subquery))
+
+
+@version_upgrade(old_version="<0.18.0")
+def cleanup_deprecated_log_export_and_temp_dir():
+    """
+    To accommodate cloud environments, we've begun using the Django DefaultStorage for CSV
+    file handling. We'll clean up any old dirs if they exist.
+    """
+    # Remove all the GenerateCSVLogRequest objects since we'll be deleting any files
+    # they might represent anyhow
+    GenerateCSVLogRequest.objects.all().delete()
+
+    old_export_dir = os.path.join(KOLIBRI_HOME, "log_export")
+
+    if os.path.exists(old_export_dir):
+        shutil.rmtree(old_export_dir)
+
+    old_temp_dir = os.path.join(KOLIBRI_HOME, "temp")
+
+    if os.path.exists(old_temp_dir):
+        shutil.rmtree(old_temp_dir)

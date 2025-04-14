@@ -10,6 +10,7 @@
     :uniqueUsernameValidator="uniqueUsernameValidator"
     :selectedUser="selectedImportedUser"
     :noBackAction="true"
+    @passwordChanged="p => (password = p)"
     @submit="handleClickNext"
   >
     <template #aboveform>

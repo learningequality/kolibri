@@ -9,7 +9,7 @@ devices.
 Collections form a hierarchy, with Collections able to belong to other Collections. Collections are subdivided
 into several pre-defined levels (``Facility`` > ``Classroom`` > ``LearnerGroup``).
 
-A ``FacilityUser`` (but not a ``DeviceOwner``) can be marked as a member of a ``Collection`` through a ``Membership``
+A ``FacilityUser`` can be marked as a member of a ``Collection`` through a ``Membership``
 object. Being a member of a Collection also means being a member of all the Collections above that Collection in the
 hierarchy.
 

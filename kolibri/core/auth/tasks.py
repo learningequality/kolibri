@@ -1,10 +1,10 @@
 import logging
 import ntpath
-import os
-import shutil
 
 from django.conf import settings
+from django.core.files.storage import default_storage
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
@@ -41,8 +41,6 @@ from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import NotProvisioned
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
-from kolibri.utils.conf import KOLIBRI_HOME
-from kolibri.utils.filesystem import mkdirp
 from kolibri.utils.time_utils import naive_utc_datetime
 from kolibri.utils.translation import gettext as _
 
@@ -126,6 +124,7 @@ class ImportUsersFromCSVValidator(JobValidator):
             raise serializers.ValidationError(
                 "One of csvfile or csvfilename must be specified"
             )
+
         facility = data.get("facility")
         if facility:
             facility_id = facility.id
@@ -133,17 +132,16 @@ class ImportUsersFromCSVValidator(JobValidator):
             facility_id = self.context["user"].facility_id
         else:
             raise serializers.ValidationError("Facility must be specified")
-        temp_dir = os.path.join(KOLIBRI_HOME, "temp")
-        mkdirp(temp_dir, exist_ok=True)
+
         if "csvfile" in data:
-            tmpfile = data["csvfile"].temporary_file_path()
-            filename = ntpath.basename(tmpfile)
-            filepath = os.path.join(temp_dir, filename)
-            shutil.copyfile(tmpfile, filepath)
+            tmp_path = data["csvfile"].temporary_file_path()
+            filename = ntpath.basename(tmp_path)
+            filepath = default_storage.save("temp/{}".format(filename), data["csvfile"])
         else:
-            filepath = os.path.join(temp_dir, data["csvfilename"])
-            if not os.path.exists(filepath):
+            filepath = "temp/{}".format(data["csvfilename"])
+            if not default_storage.exists(filepath):
                 raise serializers.ValidationError("Supplied csvfilename does not exist")
+
         args = [filepath]
         kwargs = {
             "locale": data.get("locale"),
@@ -178,15 +176,26 @@ def importusersfromcsv(
     :returns: An object with the job information
     """
 
-    call_command(
-        "bulkimportusers",
-        filepath,
-        facility=facility,
-        userid=userid,
-        locale=locale,
-        dryrun=dryrun,
-        delete=delete,
-    )
+    try:
+        call_command(
+            "bulkimportusers",
+            filepath,
+            use_storage=True,
+            facility=facility,
+            userid=userid,
+            locale=locale,
+            dryrun=dryrun,
+            delete=delete,
+        )
+    except (CommandError, serializers.ValidationError):
+        # There was an error in the command so we need to delete the file since they
+        # need to fix and re-upload.
+        default_storage.delete(filepath)
+        raise
+
+    if not dryrun and default_storage.exists(filepath):
+        # We remove the file on a wetrun, since it is no longer needed
+        default_storage.delete(filepath)
 
 
 class ExportUsersToCSVValidator(JobValidator):
@@ -224,6 +233,7 @@ def exportuserstocsv(facility=None, locale=None):
 
     call_command(
         "bulkexportusers",
+        use_storage=True,
         facility=facility,
         locale=locale,
         overwrite="true",

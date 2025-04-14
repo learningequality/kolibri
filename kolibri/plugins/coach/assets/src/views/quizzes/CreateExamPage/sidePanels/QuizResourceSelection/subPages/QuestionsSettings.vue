@@ -2,8 +2,15 @@
 
   <div>
     <div class="mb-20">
-      {{ maxNumberOfQuestionsInfo$({ count: maxQuestions }) }}
+      {{ maxNumberOfQuestionsInfo$({ count: settings.maxQuestions }) }}
     </div>
+    <UiAlert
+      v-if="showAlert && addableQuestionCount < settings.maxQuestions"
+      type="warning"
+      @dismiss="showAlert = false"
+    >
+      {{ insufficientResources$({ count: addableQuestionCount }) }}
+    </UiAlert>
     <div class="number-question">
       <div>
         <KTextbox
@@ -62,8 +69,10 @@
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { PageNames } from '../../../../../../constants';
   import { injectQuizCreation } from '../../../../../../composables/useQuizCreation';
+  import { useGoBack } from '../../../../../../composables/usePreviousRoute';
 
   /**
    * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
@@ -71,10 +80,21 @@
 
   export default {
     name: 'SelectFromBookmarks',
-    components: {},
+    components: {
+      UiAlert,
+    },
     setup(props) {
-      const prevRoute = ref(null);
+      const showAlert = ref(true);
       const instance = getCurrentInstance();
+      const router = instance.proxy.$router;
+
+      const { data: channels } = props.channelsFetch;
+
+      const addableQuestionCount = computed(() => {
+        return channels.value.reduce((total, currentObject) => {
+          return total + currentObject.num_assessments;
+        }, 0);
+      });
 
       const {
         questionsSettingsLabel$,
@@ -85,6 +105,7 @@
         clearSelectionNotice$,
       } = enhancedQuizManagementStrings;
 
+      const { insufficientResources$ } = searchAndFilterStrings;
       const { activeSection, activeSectionIndex } = injectQuizCreation();
 
       props.setTitle(
@@ -92,11 +113,21 @@
           sectionTitle: displaySectionTitle(activeSection.value, activeSectionIndex.value),
         }),
       );
-      const redirectBack = props.isLanding
-        ? null
-        : () => {
-          instance.proxy.$router.go(-1);
-        };
+
+      if (props.settings.isInReplaceMode) {
+        // guard against opening settings page in replace mode
+        router.replace({
+          name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+        });
+      }
+
+      const goBack = useGoBack({
+        fallbackRoute: {
+          name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+        },
+      });
+
+      const redirectBack = props.isLanding ? null : goBack;
 
       props.setGoBack(redirectBack);
 
@@ -120,18 +151,11 @@
           isChoosingManually: workingIsChoosingManually.value,
         });
 
-        if (!props.isLanding && prevRoute.value) {
-          instance.proxy.$router.push(prevRoute.value);
-          return;
-        }
-        instance.proxy.$router.push({
-          name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
-        });
+        goBack();
       };
 
-      const { saveSettingsAction$ } = searchAndFilterStrings;
-      const { continueAction$ } = coreStrings;
-      const continueText = props.isLanding ? continueAction$() : saveSettingsAction$();
+      const { continueAction$, saveAction$ } = coreStrings;
+      const continueText = props.isLanding ? continueAction$() : saveAction$();
 
       onMounted(() => {
         props.setContinueAction({
@@ -153,17 +177,22 @@
       const questionCountIsEditable = computed(() => !workingIsChoosingManually.value);
 
       return {
-        // eslint-disable-next-line vue/no-unused-properties
-        prevRoute,
+        showAlert,
         questionCount: workingQuestionCount,
         isChoosingManually: workingIsChoosingManually,
         clearSelectionNotice$,
         questionCountIsEditable,
-        maxQuestions: computed(() => props.settings.maxQuestions),
+        maxQuestions: computed(() =>
+          addableQuestionCount.value > props.settings.maxQuestions
+            ? props.settings.maxQuestions
+            : addableQuestionCount.value,
+        ),
         maxNumberOfQuestions$,
         numberOfQuestionsLabel$,
         maxNumberOfQuestionsInfo$,
         chooseQuestionsManuallyLabel$,
+        insufficientResources$,
+        addableQuestionCount,
       };
     },
     props: {
@@ -187,11 +216,10 @@
         type: Boolean,
         default: false,
       },
-    },
-    beforeRouteEnter(to, from, next) {
-      next(vm => {
-        vm.prevRoute = from;
-      });
+      channelsFetch: {
+        type: Object,
+        required: true,
+      },
     },
   };
 

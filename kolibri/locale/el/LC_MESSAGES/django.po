@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-20 16:50-0400\n"
-"PO-Revision-Date: 2024-07-15 23:09\n"
+"POT-Creation-Date: 2025-04-07 13:38-0400\n"
+"PO-Revision-Date: 2025-04-08 20:23\n"
 "Last-Translator: \n"
 "Language-Team: Greek\n"
 "Language: el_GR\n"
@@ -14,200 +14,165 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: el\n"
-"X-Crowdin-File: /release-v0.17.x/django.po\n"
-"X-Crowdin-File-ID: 4782\n"
+"X-Crowdin-File: /release-v0.18.x/django.po\n"
+"X-Crowdin-File-ID: 4879\n"
 
-#: core/auth/constants/commands_errors.py:17
-msgid "Unexpected exception [{}]: {}"
-msgstr "Μη αναμενόμενη εξαίρεση [{}]: {}"
-
-#: core/auth/constants/commands_errors.py:20
-msgctxt "Error report message when the allowed number of digits has been exceeded."
-msgid "Content of cell '{}' is too long"
-msgstr "Το περιεχόμενο του κελιού '{}' είναι πολύ μεγάλο"
-
-#: core/auth/constants/commands_errors.py:24
+#: core/auth/constants/commands_errors.py:13
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
 msgstr "Το περιεχόμενο του κελιού '{}' δεν είναι έγκυρο"
 
-#: core/auth/constants/commands_errors.py:26
-msgid "Duplicated username"
-msgstr "Το όνομα χρήστη χρησιμοποιείται ήδη"
-
-#: core/auth/constants/commands_errors.py:28
-#: core/auth/management/commands/bulkimportusers.py:84
-msgid "Username only can contain characters, numbers and underscores"
-msgstr "Το όνομα χρήστη μπορεί να περιέχει μόνο χαρακτήρες, αριθμούς και κάτω παύλες"
-
-#: core/auth/constants/commands_errors.py:30
-msgid "The column '{}' is required"
-msgstr "Απαιτείται η στήλη '{}'"
-
-#: core/auth/constants/commands_errors.py:31
-msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr "Μείγμα έγκυρων και/ή μη έγκυρων ετικετών κεφαλίδων που βρίσκονται στην πρώτη γραμμή"
-
-#: core/auth/constants/commands_errors.py:33
+#: core/auth/constants/commands_errors.py:16
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
 msgstr "Δεν υπάρχει προεπιλεγμένο εκπαιδευτικό πλαίσιο. Βεβαιωθείτε ότι έχετε ρυθμίσει ένα εκπαιδευτικό πλαίσιο στη συσκευή πριν από την εκτέλεση αυτής της εντολής"
 
-#: core/auth/constants/commands_errors.py:35
-#: core/auth/management/commands/bulkimportusers.py:98
-msgid "Error trying to read csv file: {}"
-msgstr "Σφάλμα κατά την ανάγνωση αρχείου csv: {}"
-
-#: core/auth/constants/commands_errors.py:36
-#: core/auth/management/commands/bulkimportusers.py:99
+#: core/auth/constants/commands_errors.py:18
+#: core/auth/management/commands/bulkimportusers.py:100
 msgid "Error trying to write csv file: {}"
 msgstr "Σφάλμα κατά την εγγραφή αρχείου csv: {}"
 
-#: core/auth/management/commands/bulkexportusers.py:46
-#: core/auth/management/commands/bulkexportusers.py:123
+#: core/auth/management/commands/bulkexportusers.py:45
+#: core/auth/management/commands/bulkexportusers.py:122
 msgid "Database ID ({})"
 msgstr "ID Βάσης Δεδομένων ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:47
-#: core/auth/management/commands/bulkexportusers.py:124
+#: core/auth/management/commands/bulkexportusers.py:46
+#: core/auth/management/commands/bulkexportusers.py:123
 msgid "Username ({})"
 msgstr "Όνομα Χρήστη ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:48
-#: core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:47
+#: core/auth/management/commands/bulkexportusers.py:124
 msgid "Password ({})"
 msgstr "Κωδικός Πρόσβασης ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:49
-#: core/auth/management/commands/bulkexportusers.py:126
+#: core/auth/management/commands/bulkexportusers.py:48
+#: core/auth/management/commands/bulkexportusers.py:125
 msgid "Full name ({})"
 msgstr "Ονοματεπώνυμο ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:54
+#: core/auth/management/commands/bulkexportusers.py:53
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "Τύπος χρήστη ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:57
-#: core/auth/management/commands/bulkexportusers.py:134
+#: core/auth/management/commands/bulkexportusers.py:56
+#: core/auth/management/commands/bulkexportusers.py:133
 msgid "Identifier ({})"
 msgstr "Αναγνωριστικό ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:58
-#: core/auth/management/commands/bulkexportusers.py:135
+#: core/auth/management/commands/bulkexportusers.py:57
+#: core/auth/management/commands/bulkexportusers.py:134
 msgid "Birth year ({})"
 msgstr "Έτος γέννησης ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:59
-#: core/auth/management/commands/bulkexportusers.py:136
+#: core/auth/management/commands/bulkexportusers.py:58
+#: core/auth/management/commands/bulkexportusers.py:135
 msgid "Gender ({})"
 msgstr "Φύλο ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:64
+#: core/auth/management/commands/bulkexportusers.py:63
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "Εγγραφή εκπαιδευόμενου ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:71
+#: core/auth/management/commands/bulkexportusers.py:70
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "Ασκήσεις του εκπαιδευτή ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:131
+#: core/auth/management/commands/bulkexportusers.py:130
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "Τύπος χρήστη ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:141
+#: core/auth/management/commands/bulkexportusers.py:140
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "Εγγραφή εκπαιδευόμενου ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:148
+#: core/auth/management/commands/bulkexportusers.py:147
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "Ασκήσεις του εκπαιδευτή ({})"
 
-#: core/auth/management/commands/bulkimportusers.py:75
+#: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
 msgstr "Μη αναμενόμενο σφάλμα [{}]: {}"
 
-#: core/auth/management/commands/bulkimportusers.py:79
+#: core/auth/management/commands/bulkimportusers.py:80
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
 msgstr "Η τιμή στη στήλη '{}' έχει πάρα πολλούς χαρακτήρες"
 
-#: core/auth/management/commands/bulkimportusers.py:81
+#: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
 msgstr "Η τιμή στη στήλη '{}' δεν είναι έγκυρη"
 
-#: core/auth/management/commands/bulkimportusers.py:82
+#: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
 msgstr "Το όνομα χρήστη χρησιμοποιείται ήδη"
 
-#: core/auth/management/commands/bulkimportusers.py:88
+#: core/auth/management/commands/bulkimportusers.py:85
+msgid "Username only can contain characters, numbers and underscores"
+msgstr "Το όνομα χρήστη μπορεί να περιέχει μόνο χαρακτήρες, αριθμούς και κάτω παύλες"
+
+#: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
 msgstr "Απαιτείται η στήλη '{}'"
 
-#: core/auth/management/commands/bulkimportusers.py:92
+#: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
 msgstr "Λανθασμένη ετικέτα κεφαλίδας βρέθηκε στην πρώτη γραμμή"
 
-#: core/auth/management/commands/bulkimportusers.py:96
+#: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
 msgstr "Δεν υπάρχει προεπιλεγμένο εκπαιδευτικό πλαίσιο. Βεβαιωθείτε ότι έχετε δημιουργήσει ένα εκπαιδευτικό πλαίσιο στη συσκευή πριν από την εισαγωγή χρηστών και κλάσεων"
 
-#: core/auth/management/commands/bulkimportusers.py:101
+#: core/auth/management/commands/bulkimportusers.py:99
+msgid "Error trying to read csv file: {}"
+msgstr "Σφάλμα κατά την ανάγνωση αρχείου csv: {}"
+
+#: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
 msgstr "Το πεδίο κωδικού πρόσβασης απαιτείται. Για να αφήσετε τον κωδικό πρόσβασης αμετάβλητο σε υπάρχοντες χρήστες, εισάγετε έναν αστερίσκο (*)"
 
-#: core/auth/management/commands/bulkimportusers.py:104
+#: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
 msgstr "Δεν είναι δυνατή η ενημέρωση χρήστη με ID: '{}' επειδή κανένας χρήστης με αυτό το ID βάσης δεδομένων δεν υπάρχει σε αυτό το εκπαιδευτικό πλαίσιο"
 
-#: core/auth/management/commands/bulkimportusers.py:106
+#: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
 msgstr "Το ID βάσης δεδομένων δεν είναι έγκυρο"
 
 #. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
-#: core/auth/tasks.py:56
+#: core/auth/tasks.py:54
 msgid "Data syncing in progress"
 msgstr "Συγχρονισμός δεδομένων σε εξέλιξη"
 
 #. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
 #. to encourage them to stay connected to their network to ensure a successful sync.
-#: core/auth/tasks.py:60
+#: core/auth/tasks.py:58
 msgid "Do not disconnect your device from the network."
 msgstr "Μην αποσυνδέσετε τη συσκευή σας από το δίκτυο."
 
-#: core/content/api.py:425
-msgid "Resource"
-msgstr "Πηγή"
-
-#: core/content/api.py:1773
-msgid "The requested channel does not exist on the content server"
-msgstr "Το ζητούμενο κανάλι δεν υπάρχει στον διακομιστή περιεχομένου"
-
-#: core/content/models.py:278
-msgid "Unknown format"
-msgstr "Άγνωστη μορφή"
-
 #. Translators: Message shown to an App user when the device's library is being updated
 #. either with new resources, or unwanted resources being deleted.
-#: core/content/tasks.py:57
+#: core/content/tasks.py:60
 msgid "Updating your library"
 msgstr "Ενημέρωση της βιβλιοθήκης σας"
 
 #. Translators: Message shown to an App user when an update to the library has been successful.
-#: core/content/tasks.py:60
+#: core/content/tasks.py:63
 msgid "Library updated"
 msgstr "Η βιβλιοθήκη ενημερώθηκε"
 
 #. Translators: Message shown to an App user when an update to the library has failed.
-#: core/content/tasks.py:63
+#: core/content/tasks.py:66
 msgid "Library update failed"
 msgstr "Αποτυχία ενημέρωσης βιβλιοθήκης"
 
@@ -225,57 +190,61 @@ msgstr "Αναζήτηση"
 msgid "Looking for other Kolibri devices"
 msgstr "Αναζήτηση για άλλες συσκευές Kolibri"
 
-#: core/logger/csv_export.py:69
+#: core/logger/csv_export.py:122
 msgid "Facility name"
 msgstr "Όνομα εκπαιευτικού πλαισίου"
 
-#: core/logger/csv_export.py:70
+#: core/logger/csv_export.py:123
 msgid "Username"
 msgstr "Όνομα Χρήστη"
 
-#: core/logger/csv_export.py:71
+#: core/logger/csv_export.py:124
 msgid "Channel id"
 msgstr "Ταυτότητα καναλιού"
 
-#: core/logger/csv_export.py:72
+#: core/logger/csv_export.py:125
 msgid "Channel name"
 msgstr "Όνομα καναλιού"
 
-#: core/logger/csv_export.py:73
+#: core/logger/csv_export.py:126
 msgid "Content id"
 msgstr "Ταυτότητα περιεχομένου"
 
-#: core/logger/csv_export.py:74
+#: core/logger/csv_export.py:127
 msgid "Content title"
 msgstr "Τίτλος περιεχομένου"
 
-#: core/logger/csv_export.py:79
+#: core/logger/csv_export.py:132
 msgctxt "CSV column header for the time of the first interaction in the exported logs"
 msgid "Time of first interaction"
 msgstr "Χρόνος πρώτης αλληλεπίδρασης"
 
-#: core/logger/csv_export.py:86
+#: core/logger/csv_export.py:139
 msgctxt "CSV column header for the time of the last interaction in the exported logs"
 msgid "Time of last interaction"
 msgstr "Χρόνος τελευταίας αλληλεπίδρασης"
 
-#: core/logger/csv_export.py:93
+#: core/logger/csv_export.py:146
 msgctxt "CSV column header for the percentage of completion in the exported logs"
 msgid "Time of completion"
 msgstr "Χρόνος ολοκλήρωσης"
 
-#: core/logger/csv_export.py:100
+#: core/logger/csv_export.py:153
 msgctxt "CSV column header for the time spent in a resource in the exported logs"
 msgid "Time Spent (sec)"
 msgstr "Χρόνος που δαπανήθηκε (δευτ.)"
 
-#: core/logger/csv_export.py:103
+#: core/logger/csv_export.py:156
 msgid "Progress (0-1)"
 msgstr "Πρόοδος (0-1)"
 
-#: core/logger/csv_export.py:104
+#: core/logger/csv_export.py:157
 msgid "Content kind"
 msgstr "Είδος περιεχομένου"
+
+#: core/logger/csv_export.py:288
+msgid "Folder level {i+1}"
+msgstr ""
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
 #: core/tasks/job.py:86
@@ -339,11 +308,11 @@ msgstr "Για να χρησιμοποιήσετε το Kolibri, σας συνι
 msgid "You can also try updating your current browser."
 msgstr "Μπορείτε επίσης να δοκιμάσετε την ενημέρωση του τρέχοντος προγράμματος περιήγησης."
 
-#: core/templatetags/core_tags.py:80
+#: core/templatetags/core_tags.py:69
 msgid "Kolibri"
 msgstr "Kolibri"
 
-#: core/views.py:185
+#: core/views.py:196
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Δεν βρέθηκαν οι κατάλληλες σελίδες ανακατεύθυνσης. Είναι πιθανό ότι οι ρυθμίσεις για το Kolibri είναι λανθασμένες"
 
@@ -355,22 +324,22 @@ msgstr "Εκπαιδευτής"
 msgid "Facility"
 msgstr "Εκπαιδευτικό πλαίσιο"
 
-#: plugins/facility/views.py:147
+#: plugins/facility/views.py:149
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs_from_"
 msgstr "content_session_logs_from_"
 
-#: plugins/facility/views.py:154 plugins/facility/views.py:172
+#: plugins/facility/views.py:156 plugins/facility/views.py:174
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "to_"
 msgstr "to_"
 
-#: plugins/facility/views.py:165
+#: plugins/facility/views.py:167
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs_from_"
 msgstr "content_summary_logs_from_"
 
-#: plugins/facility/views.py:183
+#: plugins/facility/views.py:185
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users"
 msgstr "χρήστες"
@@ -392,11 +361,11 @@ msgid "User Profile"
 msgstr "Προφίλ Χρήστη"
 
 #. Translators: A notification title shown to users when their learner account is joining a new learning facility.
-#: plugins/user_profile/tasks.py:87
+#: plugins/user_profile/tasks.py:96
 msgid "Account transfer in progress"
 msgstr "Μεταφορά λογαριασμού σε εξέλιξη"
 
-#: plugins/user_profile/tasks.py:90
+#: plugins/user_profile/tasks.py:99
 #, python-brace-format
 msgid "Moving {learner_name} to learning facility {facility_name}"
 msgstr "Μετακίνηση του {learner_name} στην εγκατάσταση μάθησης {facility_name}"

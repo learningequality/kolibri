@@ -48,10 +48,10 @@ jobs:
   exe:
     name: Build EXE file
     needs: whl
-    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.4
+    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.6
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
-      ref: v1.6.4
+      ref: v1.6.6
   apk:
     name: Build APK file
     needs: whl
@@ -66,3 +66,47 @@ jobs:
     with:
       deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
       ref: v1.0.0
+  test_whl_file:
+    name: Test WHL file
+    needs: whl
+    strategy:
+      matrix:
+        python-version: [3.9, '3.10', '3.11', '3.12', '3.13']
+        cext: [true, false]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.whl.outputs.whl-file-name }}
+          path: dist
+      - name: Install WHL file
+        run: pip install dist/${{ needs.whl.outputs.whl-file-name }}
+      - name: Smoke test WHL file
+        env:
+          KOLIBRI_NO_C_EXTENSIONS: ${{ matrix.cext == false && '1' || '' }}
+        run: kolibri configure setup
+  test_whl_file_eol_python:
+    name: Test WHL file with EOL Python versions
+    needs: whl
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+        cext: [true, false]
+    runs-on: ubuntu-latest
+    container:
+      image: python:${{ matrix.python-version }}-buster
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.whl.outputs.whl-file-name }}
+          path: dist
+      - name: Install WHL file
+        run: pip install dist/${{ needs.whl.outputs.whl-file-name }}
+      - name: Smoke test WHL file
+        env:
+          KOLIBRI_NO_C_EXTENSIONS: ${{ matrix.cext == false && '1' || '' }}
+        run: kolibri configure setup

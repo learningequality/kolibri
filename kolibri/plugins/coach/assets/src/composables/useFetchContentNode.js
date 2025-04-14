@@ -3,13 +3,16 @@ import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource
 import { exerciseToQuestionArray } from '../utils/selectQuestions';
 
 export default function useFetchContentNode(contentId) {
-  const contentNode = ref({});
+  const contentNode = ref(null);
   const ancestors = ref([]);
   const questions = ref([]);
   const loading = ref(true);
   const store = getCurrentInstance().proxy.$store;
 
   const fetchContentNode = async () => {
+    if (!contentId) {
+      return;
+    }
     ContentNodeResource.fetchModel({
       id: contentId,
       getParams: { no_available_filtering: true },

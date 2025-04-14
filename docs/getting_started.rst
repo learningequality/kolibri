@@ -173,10 +173,7 @@ The Python project-specific dependencies installed above will install ``nodeenv`
 .. code-block:: bash
 
   # node.js, npm, and yarn
-  # If you are setting up the release-v0.15.x branch or earlier:
-  nodeenv -p --node=10.17.0
-  # If you are setting up the develop branch:
-  nodeenv -p --node=18.19.0
+  nodeenv -p --node=18.20.7
   npm install -g yarn
 
   # other required project dependencies

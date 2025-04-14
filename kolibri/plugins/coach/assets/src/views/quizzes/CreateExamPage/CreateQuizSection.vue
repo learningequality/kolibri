@@ -82,6 +82,7 @@
           <KButton
             ref="addQuestionsButton"
             primary
+            hasDropdown
             :text="coreString('optionsLabel')"
           >
             <template #menu>
@@ -141,9 +142,6 @@
             <h2 :style="{ color: $themeTokens.annotation }">
               {{ questionsLabel$() }}
             </h2>
-            <p :style="{ color: $themeTokens.annotation, fontSize: '.75rem' }">
-              {{ numberOfReplacementsAvailable$({ count: replacementQuestionPool.length }) }}
-            </p>
           </KGridItem>
           <KGridItem
             class="right-side-heading"
@@ -154,6 +152,7 @@
             <KButton
               primary
               :text="coreString('optionsLabel')"
+              hasDropdown
             >
               <template #menu>
                 <KDropdownMenu
@@ -179,11 +178,18 @@
         >
           <template #header-trailing-actions>
             <KIconButton
+              icon="autoReplace"
+              :ariaLabel="autoReplaceAction$()"
+              :tooltip="autoReplaceAction$()"
+              :disabled="!isSelectedQuestionsAutoReplaceable"
+              @click="handleBulkAutoReplaceQuestionsClick"
+            />
+            <KIconButton
               icon="refresh"
+              :ariaLabel="replaceAction$()"
               :tooltip="replaceAction$()"
-              :aria-label="replaceAction$()"
-              :disabled="!canReplaceQuestions"
-              @click="handleReplaceSelection"
+              :disabled="selectedActiveQuestions.length === 0"
+              @click="handleBulkReplacementQuestionsClick"
             />
             <KIconButton
               icon="trash"
@@ -191,6 +197,21 @@
               :aria-label="coreString('deleteAction')"
               :disabled="selectedActiveQuestions.length === 0"
               @click="deleteQuestions"
+            />
+          </template>
+          <template #question-trailing-actions="{ question }">
+            <KIconButton
+              icon="autoReplace"
+              :ariaLabel="autoReplaceAction$()"
+              :tooltip="autoReplaceAction$()"
+              :disabled="!isQuestionAutoReplaceable(question)"
+              @click="handleAutoReplaceQuestionClick(question, $event)"
+            />
+            <KIconButton
+              icon="refresh"
+              :ariaLabel="replaceAction$()"
+              :tooltip="replaceAction$()"
+              @click="handleReplaceQuestionClick(question, $event)"
             />
           </template>
         </QuestionsAccordion>
@@ -218,6 +239,7 @@
 
 <script>
 
+  import uniq from 'lodash/uniq';
   import logging from 'kolibri-logging';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import {
@@ -252,10 +274,11 @@
         editSectionLabel$,
         deleteSectionLabel$,
         replaceAction$,
+        autoReplaceAction$,
         questionsLabel$,
-        numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
+        numberOfQuestionsReplaced$,
         questionsDeletedNotification$,
       } = enhancedQuizManagementStrings;
 
@@ -265,7 +288,6 @@
         deleteActiveSelectedQuestions,
         addSection,
         removeSection,
-        replacementQuestionPool,
         // Computed
         addQuestionsToSelection,
         removeQuestionsFromSelection,
@@ -274,7 +296,11 @@
         activeSection,
         activeResourceMap,
         activeQuestions,
+        clearSelectedQuestions,
         selectedActiveQuestions,
+        setQuestionItemsToReplace,
+        autoReplaceQuestions,
+        activeExercisesUnusedQuestionsMap,
       } = injectQuizCreation();
 
       const { createSnackbar } = useSnackbar();
@@ -290,7 +316,8 @@
         deleteSectionLabel$,
         replaceAction$,
         questionsLabel$,
-        numberOfReplacementsAvailable$,
+        autoReplaceAction$,
+        numberOfQuestionsReplaced$,
         sectionDeletedNotification$,
         deleteConfirmation$,
         questionsDeletedNotification$,
@@ -302,32 +329,27 @@
         addSection,
         removeSection,
         displaySectionTitle,
+        clearSelectedQuestions,
+        setQuestionItemsToReplace,
+        autoReplaceQuestions,
 
         // Computed
         allSections,
         activeSectionIndex,
         activeSection,
         activeResourceMap,
-        replacementQuestionPool,
         activeQuestions,
         selectedActiveQuestions,
-
+        activeExercisesUnusedQuestionsMap,
         createSnackbar,
       };
     },
     data() {
       return {
         showDeleteConfirmation: false,
-        showNotEnoughResourcesModal: false,
       };
     },
     computed: {
-      canReplaceQuestions() {
-        return (
-          this.selectedActiveQuestions.length > 0 &&
-          this.selectedActiveQuestions.length <= this.replacementQuestionPool.length
-        );
-      },
       tabsWrapperStyles() {
         return {
           paddingTop: '1rem',
@@ -375,6 +397,32 @@
           },
         ];
       },
+      isSelectedQuestionsAutoReplaceable() {
+        if (this.selectedActiveQuestions.length === 0) {
+          return false;
+        }
+
+        const questions = this.selectedActiveQuestions
+          .map(questionItem => this.activeQuestions.find(q => q.item === questionItem))
+          .filter(Boolean);
+
+        const questionCountPerExercise = {};
+        questions.forEach(question => {
+          if (!questionCountPerExercise[question.exercise_id]) {
+            questionCountPerExercise[question.exercise_id] = 0;
+          }
+          questionCountPerExercise[question.exercise_id] += 1;
+        });
+
+        // Return true if the number of available questions for each exercise is greater
+        // than or equal to the number of questions we need to replace
+        return Object.entries(questionCountPerExercise).every(([exerciseId, count]) => {
+          if (!this.activeExercisesUnusedQuestionsMap[exerciseId]?.length) {
+            return false;
+          }
+          return this.activeExercisesUnusedQuestionsMap[exerciseId].length >= count;
+        });
+      },
     },
     created() {
       const { query } = this.$route;
@@ -405,6 +453,45 @@
           });
         }
       },
+      autoReplace(questions) {
+        this.autoReplaceQuestions(questions);
+        this.clearSelectedQuestions();
+        this.createSnackbar(this.numberOfQuestionsReplaced$({ count: questions.length }));
+      },
+      handleAutoReplaceQuestionClick(question, $event) {
+        this.autoReplace([question.item]);
+        $event.stopPropagation();
+      },
+      handleBulkAutoReplaceQuestionsClick() {
+        this.autoReplace(this.selectedActiveQuestions);
+      },
+      handleReplaceQuestionClick(question, $event) {
+        $event.stopPropagation();
+        this.setQuestionItemsToReplace([question.item]);
+        this.$router.push({
+          name: PageNames.QUIZ_PREVIEW_RESOURCE,
+          query: { contentId: question.exercise_id },
+        });
+      },
+      handleBulkReplacementQuestionsClick() {
+        const questions = this.selectedActiveQuestions
+          .map(questionItem => this.activeQuestions.find(q => q.item === questionItem))
+          .filter(Boolean);
+        const questionItems = questions.map(question => question.item);
+        const questionsExercises = uniq(questions.map(question => question.exercise_id));
+
+        this.setQuestionItemsToReplace(questionItems);
+        if (questionsExercises.length === 1 && questionsExercises[0]) {
+          this.$router.push({
+            name: PageNames.QUIZ_PREVIEW_RESOURCE,
+            query: { contentId: questionsExercises[0] },
+          });
+        } else {
+          this.$router.push({
+            name: PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+          });
+        }
+      },
       handleConfirmDelete() {
         const section_title = displaySectionTitle(this.activeSection, this.activeSectionIndex);
         const newIndex = this.activeSectionIndex > 0 ? this.activeSectionIndex - 1 : 0;
@@ -415,16 +502,6 @@
           this.focusActiveSectionTab();
         });
         this.showDeleteConfirmation = false;
-      },
-      handleReplaceSelection() {
-        if (this.replacementQuestionPool.length < this.selectedActiveQuestions.length) {
-          this.showNotEnoughResourcesModal = true;
-        } else {
-          this.$router.push({
-            name: PageNames.QUIZ_REPLACE_QUESTIONS,
-            params: this.getCurrentRouteParams(),
-          });
-        }
       },
       handleActiveSectionAction(opt) {
         switch (opt.id) {
@@ -501,6 +578,9 @@
         const count = this.selectedActiveQuestions.length;
         this.deleteActiveSelectedQuestions();
         this.createSnackbar(this.questionsDeletedNotification$({ count }));
+      },
+      isQuestionAutoReplaceable(question) {
+        return this.activeExercisesUnusedQuestionsMap[question.exercise_id].length > 0;
       },
     },
   };

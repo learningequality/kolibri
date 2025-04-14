@@ -62,7 +62,6 @@ class CoachToolsModule extends KolibriApp {
       const skipLoading = [
         PageNames.EXAM_CREATION_ROOT,
         PageNames.QUIZ_SECTION_EDITOR,
-        PageNames.QUIZ_REPLACE_QUESTIONS,
         PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
         PageNames.QUIZ_SELECT_RESOURCES,
         PageNames.QUIZ_SELECT_RESOURCES_INDEX,
@@ -118,6 +117,7 @@ class CoachToolsModule extends KolibriApp {
         to.name &&
         [
           PageNames.EXAMS_ROOT,
+          PageNames.EXAM_CREATION_ROOT,
           PageNames.LESSONS_ROOT,
           PageNames.LESSON_CREATION_ROOT,
           PageNames.LESSON_SUMMARY,
@@ -127,6 +127,25 @@ class CoachToolsModule extends KolibriApp {
           PageNames.GROUP_ENROLL,
           PageNames.GROUPS_ROOT,
           PageNames.HOME_PAGE,
+          PageNames.LESSON_SELECT_RESOURCES,
+          PageNames.LESSON_SELECT_RESOURCES_PREVIEW_SELECTION,
+          PageNames.LESSON_SELECT_RESOURCES_PREVIEW_RESOURCE,
+          PageNames.LESSON_SELECT_RESOURCES_INDEX,
+          PageNames.LESSON_SELECT_RESOURCES_SEARCH,
+          PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
+          PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
+          PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+          PageNames.QUIZ_SELECT_RESOURCES,
+          PageNames.QUIZ_SELECT_RESOURCES_INDEX,
+          PageNames.QUIZ_SELECT_RESOURCES_BOOKMARKS,
+          PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
+          PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES,
+          PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS,
+          PageNames.QUIZ_SELECT_RESOURCES_SETTINGS,
+          PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
+          PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
+          PageNames.QUIZ_PREVIEW_RESOURCE,
+          PageNames.QUIZ_SELECT_RESOURCES_LANDING_SETTINGS,
           HomeActivityPage.name,
         ].includes(to.name)
       ) {

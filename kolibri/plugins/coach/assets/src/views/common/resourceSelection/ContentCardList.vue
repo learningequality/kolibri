@@ -1,25 +1,40 @@
 <template>
 
-  <div>
-    <ul class="content-list">
-      <KCheckbox
-        v-if="showSelectAll"
-        :label="$tr('selectAllCheckboxLabel')"
-        :checked="selectAllChecked"
-        :indeterminate="selectAllIndeterminate"
-        :disabled="isSelectAllDisabled"
-        @change="$emit('changeselectall', $event)"
-      />
-      <KRadioButtonGroup>
-        <li
-          v-for="content in contentList"
-          :key="content.id"
-          class="content-list-item"
-          :aria-selected="contentIsChecked(content)"
-        >
+  <div class="content-list">
+    <KCheckbox
+      v-if="showSelectAll"
+      :label="$tr('selectAllCheckboxLabel')"
+      :checked="selectAllChecked"
+      :indeterminate="selectAllIndeterminate"
+      :disabled="isSelectAllDisabled"
+      @change="$emit('changeselectall', $event)"
+    />
+    <KCardGrid
+      layout="1-1-1"
+      :layoutOverride="gridLayoutOverrides"
+    >
+      <component
+        :is="content.is_leaf ? 'AccessibleResourceCard' : 'AccessibleFolderCard'"
+        v-for="content in contentList"
+        :key="content.id"
+        :to="contentCardLink(content)"
+        :contentNode="content"
+        :thumbnailSrc="content.thumbnail"
+        :headingLevel="cardsHeadingLevel"
+        :isBookmarked="isBookmarked(content.id)"
+        @toggleBookmark="toggleBookmark"
+      >
+        <template #belowTitle>
+          <KTextTruncator
+            v-if="contentCardMessage(content)"
+            :text="contentCardMessage(content)"
+            :maxLines="1"
+            style="margin-bottom: 8px"
+          />
+        </template>
+        <template #select>
           <KCheckbox
             v-if="contentHasCheckbox(content) && !showRadioButtons"
-            class="content-checkbox"
             :label="content.title"
             :showLabel="false"
             :checked="contentIsChecked(content)"
@@ -29,7 +44,7 @@
           />
           <KRadioButton
             v-else-if="contentHasCheckbox(content) && showRadioButtons"
-            class="content-checkbox"
+            class="radio-selector"
             :label="content.title"
             :showLabel="false"
             :currentValue="contentIsChecked(content) ? content.id : 'none'"
@@ -37,37 +52,22 @@
             :disabled="contentCheckboxDisabled(content)"
             @change="handleCheckboxChange(content, true)"
           />
-          <!--
-          disabled, tabindex, is-leaf class set here to hack making the card not clickable
-          if you're trying to make the card clickable remove these properties
-        -->
-          <LessonContentCard
-            class="content-card"
-            :disabled="content.is_leaf"
-            :tabindex="content.is_leaf ? -1 : 0"
-            :class="{ 'with-checkbox': needCheckboxes }"
-            :content="content"
-            :message="contentCardMessage(content)"
-            :link="contentCardLink(content)"
-            :headingLevel="cardsHeadingLevel"
-          >
-            <template #notice>
-              <slot
-                name="notice"
-                :content="content"
-              >
-              </slot>
-            </template>
-          </LessonContentCard>
-        </li>
-      </KRadioButtonGroup>
-    </ul>
+          <!-- As a fallback, if any contents have checkboxes at all, we'll want to
+               ensure the folder cards align w/ the resources -->
+          <div
+            v-else-if="contentsHaveCheckboxes"
+            style="width: 24px"
+          ></div>
+        </template>
+      </component>
+    </KCardGrid>
 
     <template>
       <KButton
         v-if="showButton"
         :text="coreString('viewMoreAction')"
         :primary="false"
+        style="margin-top: 2em"
         @click="$emit('moreresults')"
       />
       <KCircularLoader
@@ -90,19 +90,90 @@
 
 <script>
 
+  import { computed, ref } from 'vue';
+  import urls from 'kolibri/urls';
+  import client from 'kolibri/client';
+  import useUser from 'kolibri/composables/useUser';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
+  import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import AccessibleFolderCard from 'kolibri-common/components/Cards/AccessibleFolderCard';
+  import AccessibleResourceCard from 'kolibri-common/components/Cards/AccessibleResourceCard';
   import { ViewMoreButtonStates } from '../../../constants/index';
-  import LessonContentCard from './LessonContentCard';
 
   export default {
     name: 'ContentCardList',
     components: {
-      LessonContentCard,
+      AccessibleResourceCard,
+      AccessibleFolderCard,
     },
     mixins: [commonCoreStrings],
     setup() {
+      const { coreString } = commonCoreStrings.methods;
+      const { sendPoliteMessage } = useKLiveRegion();
+      // Map of contentnode_id to bookmark resource ID
+      const bookmarks = ref({});
+      // Map of contentNode IDs to bookmark resource IDs
+      const bookmarkedContentNodeIds = computed(() => Object.keys(bookmarks.value));
+      const { currentUserId } = useUser();
+
+      /**
+       * Fetch bookmarks and store them in the bookmarks ref mapping
+       * their contentnode_id to the bokomark's own ID.
+       * The contentnode_id is used for creating it, but we need the
+       * bookmark's ID to delete it.
+       */
+      function getBookmarks() {
+        BookmarksResource.fetchCollection({ force: true }).then(data => {
+          bookmarks.value = data.reduce((memo, bookmark) => {
+            memo[bookmark.contentnode_id] = bookmark.id;
+            return memo;
+          }, {});
+        });
+      }
+
+      function deleteBookmark(contentnode_id) {
+        client({
+          method: 'delete',
+          url: urls['kolibri:core:bookmarks_detail'](contentnode_id),
+        }).then(() => {
+          getBookmarks();
+          sendPoliteMessage(coreString('removedFromBookmarks'));
+        });
+      }
+
+      function addBookmark(contentnode_id) {
+        client({
+          method: 'post',
+          url: urls['kolibri:core:bookmarks_list'](),
+          data: {
+            contentnode_id: contentnode_id,
+            user: currentUserId.value,
+          },
+        }).then(() => {
+          getBookmarks();
+          sendPoliteMessage(coreString('savedToBookmarks'));
+        });
+      }
+
+      function isBookmarked(contentnode_id) {
+        return bookmarkedContentNodeIds.value.includes(contentnode_id);
+      }
+
+      function toggleBookmark(contentnode_id) {
+        if (isBookmarked(contentnode_id)) {
+          const bookmarkId = bookmarks.value[contentnode_id];
+          deleteBookmark(bookmarkId);
+        } else {
+          addBookmark(contentnode_id);
+        }
+      }
+
+      getBookmarks();
       return {
         ViewMoreButtonStates,
+        toggleBookmark,
+        isBookmarked,
       };
     },
     props: {
@@ -175,11 +246,14 @@
     },
 
     computed: {
+      gridLayoutOverrides() {
+        return [{ breakpoints: [0, 1, 2, 3, 4, 5, 6, 7], rowGap: '24px', cardsPerRow: 1 }];
+      },
+      contentsHaveCheckboxes() {
+        return this.contentList.some(this.contentHasCheckbox);
+      },
       showButton() {
         return this.viewMoreButtonState === this.ViewMoreButtonStates.HAS_MORE;
-      },
-      needCheckboxes() {
-        return this.contentList.some(c => this.contentHasCheckbox(c));
       },
     },
     methods: {
@@ -226,6 +300,24 @@
 
   .with-checkbox {
     margin-left: $checkbox-offset;
+  }
+
+  .filter-chip {
+    display: inline-block;
+    font-size: 14px;
+    vertical-align: top;
+    border-radius: 0.25em;
+  }
+
+  .filter-chip-text {
+    display: inline-block;
+    margin: 4px 8px;
+    font-size: 11px;
+  }
+
+  .radio-selector {
+    /* The default width 100% doesn't work here */
+    width: auto;
   }
 
 </style>

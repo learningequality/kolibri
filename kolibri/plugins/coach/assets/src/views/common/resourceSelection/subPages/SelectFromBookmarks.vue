@@ -21,7 +21,7 @@
       :selectAllRules="selectAllRules"
       :getResourceLink="getResourceLink"
       :selectedResources="selectedResources"
-      :contentCardMessage="contentCardMessage"
+      :contentCardMessage="wrappedContentCardMessage"
       :unselectableResourceIds="unselectableResourceIds"
       @selectResources="$emit('selectResources', $event)"
       @deselectResources="$emit('deselectResources', $event)"
@@ -40,6 +40,7 @@
   import UpdatedResourceSelection from '../UpdatedResourceSelection.vue';
   import { PageNames } from '../../../../constants';
   import { SelectionTarget } from '../contants';
+  import { useGoBack } from '../../../../composables/usePreviousRoute';
   import QuizResourceSelectionHeader from '../QuizResourceSelectionHeader.vue';
 
   /**
@@ -58,15 +59,16 @@
 
       props.setTitle(selectFromBookmarks$());
 
-      const redirectBack = () => {
-        instance.proxy.$router.push({
+      const goBack = useGoBack({
+        fallbackRoute: {
           name:
             props.target === SelectionTarget.LESSON
               ? PageNames.LESSON_SELECT_RESOURCES_INDEX
               : PageNames.QUIZ_SELECT_RESOURCES_INDEX,
-        });
-      };
-      props.setGoBack(redirectBack);
+        },
+      });
+
+      props.setGoBack(goBack);
 
       const channelsLink = {
         name:
@@ -77,7 +79,11 @@
 
       const { data, hasMore, fetchMore, loadingMore } = props.bookmarksFetch;
 
-      const contentCardMessage = content => {
+      const wrappedContentCardMessage = content => {
+        const propsMessage = props.contentCardMessage(content);
+        if (propsMessage) {
+          return propsMessage;
+        }
         if (!content.bookmark?.created) {
           return null;
         }
@@ -102,7 +108,7 @@
         fetchMore,
         loadingMore,
         isSelectable,
-        contentCardMessage,
+        wrappedContentCardMessage,
         SelectionTarget,
       };
     },
@@ -161,6 +167,15 @@
         type: Object,
         required: false,
         default: null,
+      },
+      /**
+       * Function that returns a message to be displayed based in the content
+       * passed as argument.
+       */
+      contentCardMessage: {
+        type: Function,
+        required: false,
+        default: () => {},
       },
       /**
        * Function that receives a resourceId and returns a link to the resource.

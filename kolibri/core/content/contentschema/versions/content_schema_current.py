@@ -2,17 +2,13 @@
 from sqlalchemy import BigInteger
 from sqlalchemy import Boolean
 from sqlalchemy import CHAR
-from sqlalchemy import CheckConstraint
 from sqlalchemy import Column
 from sqlalchemy import Float
-from sqlalchemy import ForeignKey
-from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy import Index
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import Text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 metadata = Base.metadata
@@ -47,34 +43,17 @@ class ContentLocalfile(Base):
 class ContentContentnode(Base):
     __tablename__ = "content_contentnode"
     __table_args__ = (
-        CheckConstraint("lft >= 0"),
-        CheckConstraint("tree_id >= 0"),
-        CheckConstraint("level >= 0"),
-        CheckConstraint("duration >= 0"),
-        CheckConstraint("rght >= 0"),
-        ForeignKeyConstraint(
-            ["lang_id"],
-            ["content_language.id"],
-            deferrable=True,
-            initially="DEFERRED",
-        ),
-        ForeignKeyConstraint(
-            ["parent_id"],
-            ["content_contentnode.id"],
-            deferrable=True,
-            initially="DEFERRED",
+        Index(
+            "content_contentnode_level_channel_id_kind_fd732cc4_idx",
+            "level",
+            "channel_id",
+            "kind",
         ),
         Index(
             "content_contentnode_level_channel_id_available_29f0bb18_idx",
             "level",
             "channel_id",
             "available",
-        ),
-        Index(
-            "content_contentnode_level_channel_id_kind_fd732cc4_idx",
-            "level",
-            "channel_id",
-            "kind",
         ),
     )
 
@@ -89,6 +68,7 @@ class ContentContentnode(Base):
     kind = Column(String(200), nullable=False)
     available = Column(Boolean, nullable=False)
     lft = Column(Integer, nullable=False)
+    rght = Column(Integer, nullable=False)
     tree_id = Column(Integer, nullable=False, index=True)
     level = Column(Integer, nullable=False)
     lang_id = Column(String(14), index=True)
@@ -112,11 +92,7 @@ class ContentContentnode(Base):
     learning_activities_bitmask_0 = Column(BigInteger)
     ancestors = Column(Text)
     admin_imported = Column(Boolean)
-    rght = Column(Integer, nullable=False)
     parent_id = Column(CHAR(32), index=True)
-
-    lang = relationship("ContentLanguage")
-    parent = relationship("ContentContentnode", remote_side=[id])
 
 
 class ContentAssessmentmetadata(Base):
@@ -128,22 +104,11 @@ class ContentAssessmentmetadata(Base):
     mastery_model = Column(Text, nullable=False)
     randomize = Column(Boolean, nullable=False)
     is_manipulable = Column(Boolean, nullable=False)
-    contentnode_id = Column(
-        ForeignKey("content_contentnode.id"), nullable=False, index=True
-    )
-
-    contentnode = relationship("ContentContentnode")
+    contentnode_id = Column(CHAR(32), nullable=False, index=True)
 
 
 class ContentChannelmetadata(Base):
     __tablename__ = "content_channelmetadata"
-    __table_args__ = (
-        CheckConstraint('"order" >= 0'),
-        ForeignKeyConstraint(
-            ["root_id"],
-            ["content_contentnode.id"],
-        ),
-    )
 
     id = Column(CHAR(32), primary_key=True)
     name = Column(String(200), nullable=False)
@@ -163,8 +128,6 @@ class ContentChannelmetadata(Base):
     included_categories = Column(Text)
     included_grade_levels = Column(Text)
 
-    root = relationship("ContentContentnode")
-
 
 class ContentContentnodeHasPrerequisite(Base):
     __tablename__ = "content_contentnode_has_prerequisite"
@@ -178,21 +141,8 @@ class ContentContentnodeHasPrerequisite(Base):
     )
 
     id = Column(Integer, primary_key=True)
-    from_contentnode_id = Column(
-        ForeignKey("content_contentnode.id"), nullable=False, index=True
-    )
-    to_contentnode_id = Column(
-        ForeignKey("content_contentnode.id"), nullable=False, index=True
-    )
-
-    from_contentnode = relationship(
-        "ContentContentnode",
-        primaryjoin="ContentContentnodeHasPrerequisite.from_contentnode_id == ContentContentnode.id",
-    )
-    to_contentnode = relationship(
-        "ContentContentnode",
-        primaryjoin="ContentContentnodeHasPrerequisite.to_contentnode_id == ContentContentnode.id",
-    )
+    from_contentnode_id = Column(CHAR(32), nullable=False, index=True)
+    to_contentnode_id = Column(CHAR(32), nullable=False, index=True)
 
 
 class ContentContentnodeRelated(Base):
@@ -207,21 +157,8 @@ class ContentContentnodeRelated(Base):
     )
 
     id = Column(Integer, primary_key=True)
-    from_contentnode_id = Column(
-        ForeignKey("content_contentnode.id"), nullable=False, index=True
-    )
-    to_contentnode_id = Column(
-        ForeignKey("content_contentnode.id"), nullable=False, index=True
-    )
-
-    from_contentnode = relationship(
-        "ContentContentnode",
-        primaryjoin="ContentContentnodeRelated.from_contentnode_id == ContentContentnode.id",
-    )
-    to_contentnode = relationship(
-        "ContentContentnode",
-        primaryjoin="ContentContentnodeRelated.to_contentnode_id == ContentContentnode.id",
-    )
+    from_contentnode_id = Column(CHAR(32), nullable=False, index=True)
+    to_contentnode_id = Column(CHAR(32), nullable=False, index=True)
 
 
 class ContentContentnodeTags(Base):
@@ -236,15 +173,8 @@ class ContentContentnodeTags(Base):
     )
 
     id = Column(Integer, primary_key=True)
-    contentnode_id = Column(
-        ForeignKey("content_contentnode.id"), nullable=False, index=True
-    )
-    contenttag_id = Column(
-        ForeignKey("content_contenttag.id"), nullable=False, index=True
-    )
-
-    contentnode = relationship("ContentContentnode")
-    contenttag = relationship("ContentContenttag")
+    contentnode_id = Column(CHAR(32), nullable=False, index=True)
+    contenttag_id = Column(CHAR(32), nullable=False, index=True)
 
 
 class ContentFile(Base):
@@ -254,18 +184,10 @@ class ContentFile(Base):
     supplementary = Column(Boolean, nullable=False)
     thumbnail = Column(Boolean, nullable=False)
     priority = Column(Integer, index=True)
-    contentnode_id = Column(
-        ForeignKey("content_contentnode.id"), nullable=False, index=True
-    )
-    lang_id = Column(ForeignKey("content_language.id"), index=True)
-    local_file_id = Column(
-        ForeignKey("content_localfile.id"), nullable=False, index=True
-    )
+    contentnode_id = Column(CHAR(32), nullable=False, index=True)
+    lang_id = Column(String(14), index=True)
+    local_file_id = Column(String(32), nullable=False, index=True)
     preset = Column(String(150), nullable=False)
-
-    contentnode = relationship("ContentContentnode")
-    lang = relationship("ContentLanguage")
-    local_file = relationship("ContentLocalfile")
 
 
 class ContentChannelmetadataIncludedLanguages(Base):
@@ -280,11 +202,6 @@ class ContentChannelmetadataIncludedLanguages(Base):
     )
 
     id = Column(Integer, primary_key=True)
-    channelmetadata_id = Column(
-        ForeignKey("content_channelmetadata.id"), nullable=False, index=True
-    )
-    language_id = Column(ForeignKey("content_language.id"), nullable=False, index=True)
     sort_value = Column(Integer, nullable=False)
-
-    channelmetadata = relationship("ContentChannelmetadata")
-    language = relationship("ContentLanguage")
+    channelmetadata_id = Column(CHAR(32), nullable=False, index=True)
+    language_id = Column(String(14), nullable=False, index=True)

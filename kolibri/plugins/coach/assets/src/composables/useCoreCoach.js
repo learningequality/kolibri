@@ -30,12 +30,9 @@ export default function useCoreCoach(store) {
       facilityName = match.name;
     }
     if (facilityName && name) {
-      return coachStrings.$tr('coachLabelWithOneTwoNames', {
-        name1: facilityName,
-        name2: name,
+      return coachStrings.$tr('coachLabelWithOneName', {
+        name: facilityName,
       });
-    } else if (name) {
-      return coachStrings.$tr('coachLabelWithOneName', { name });
     } else {
       return coachStrings.$tr('coachLabel');
     }

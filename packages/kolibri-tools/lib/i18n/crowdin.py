@@ -317,14 +317,15 @@ def pretranslate(branch, project, approve_all=False):
         )
     )
     file_ids = [file["data"]["id"] for file in list_files(project["id"], branch["id"])]
-    body = {"fileIds": file_ids}
+    lang_ids = [lang[KEY_CROWDIN_CODE] for lang in available_languages()]
+    kwargs = {}
 
     if approve_all:
-        body.update({"autoApproveOption": "all"})
+        kwargs.update({"autoApproveOption": "all"})
 
     with handle_api_exception("Pretranslating"):
         response = crowdin_client.translations.apply_pre_translation(
-            project["id"], body
+            project["id"], lang_ids, file_ids, **kwargs
         )
     logging.info(response["data"])
 

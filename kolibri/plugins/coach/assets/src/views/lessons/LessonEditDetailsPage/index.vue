@@ -15,16 +15,6 @@
         @cancel="goBackToSummaryPage"
         @submit="handleSaveChanges"
       />
-
-      <section v-if="showResourcesTable">
-        <h2 class="resource-header">
-          {{ coreString('resourcesLabel') }}
-        </h2>
-        <ResourceListTable
-          v-show="!disabled"
-          :resources.sync="updatedResources"
-        />
-      </section>
     </KPageContainer>
   </CoachImmersivePage>
 
@@ -33,7 +23,6 @@
 
 <script>
 
-  import isEqual from 'lodash/isEqual';
   import LessonResource from 'kolibri-common/apiResources/LessonResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
@@ -43,14 +32,12 @@
   import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import { PageNames } from '../../../constants';
-  import ResourceListTable from './EditDetailsResourceListTable';
 
   export default {
     name: 'LessonEditDetailsPage',
     components: {
       AssignmentDetailsForm: AssignmentDetailsModal,
       CoachImmersivePage,
-      ResourceListTable,
     },
     mixins: [coachStringsMixin, commonCoreStrings],
     setup() {
@@ -64,23 +51,14 @@
         facilities,
       };
     },
-    props: {
-      showResourcesTable: {
-        type: Boolean,
-        default: false,
-      },
-    },
     data() {
       return {
         lesson: {
           title: '',
           description: '',
           assignments: [],
-          resources: [],
           active: false,
         },
-        // A copy of lesson.resources
-        updatedResources: [],
         loading: true,
         disabled: false,
       };
@@ -122,7 +100,6 @@
       // @public
       setData(data) {
         this.lesson = data;
-        this.updatedResources = [...data.resources];
         this.loading = false;
         this.$store.dispatch('notLoading');
       },
@@ -144,12 +121,6 @@
           learner_ids: newDetails.learner_ids,
         };
 
-        if (this.showResourcesTable && !isEqual(this.lesson.resources, this.updatedResources)) {
-          Object.assign(data, {
-            resources: this.updatedResources,
-          });
-        }
-
         return LessonResource.saveModel({ id: this.$route.params.lessonId, data })
           .then(() => {
             this.goBackToSummaryPage().then(() => {
@@ -166,12 +137,12 @@
       pageTitle: {
         message: `Edit lesson details for '{title}'`,
         context:
-          "Page title for page which coach accesses using the 'Edit details' option on the Lessons tab.",
+          "Page title for page which coach accesses using the 'Edit details' option on the Plan > Lessons tab.",
       },
       appBarTitle: {
         message: 'Edit lesson details',
         context:
-          "Title of window that displays when coach uses the 'Edit details' option on the 'Lessons' tab.",
+          "Title of window that displays when coach uses the 'Edit details' option on the 'Plan' tab.",
       },
       submitErrorMessage: {
         message: 'There was a problem saving your changes',

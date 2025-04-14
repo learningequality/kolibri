@@ -31,6 +31,7 @@
                 :style="selectorStyle"
                 :options="selectArray"
                 :label="$tr('frequency')"
+                @select="handleUserInput"
               />
             </KGridItem>
           </KGrid>
@@ -43,6 +44,7 @@
                 :style="selectorStyle"
                 :options="getDays"
                 :label="$tr('day')"
+                @select="handleUserInput"
               />
             </KGridItem>
           </KGrid>
@@ -55,6 +57,7 @@
                 :style="selectorStyle"
                 :options="SyncTime"
                 :label="$tr('time')"
+                @select="handleUserInput"
               />
             </KGridItem>
           </KGrid>
@@ -78,7 +81,7 @@
             <KCheckbox
               :checked="retryFlag"
               :disabled="currentTaskRunning"
-              @change="retryFlag = !retryFlag"
+              @change="handleRetryCheckboxChange"
             >
               {{ $tr('checkboxLabel') }}
             </KCheckbox>
@@ -156,6 +159,7 @@
   import { now } from 'kolibri/utils/serverClock';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import useTaskPolling from '../../composables/useTaskPolling';
   import { KDP_ID, oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
   import { kdpNameTranslator } from './i18n';
 
@@ -192,6 +196,10 @@
       BottomAppBar,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { tasks } = useTaskPolling('facility_task');
+      return { tasks };
+    },
     props: {
       icon: {
         type: String,
@@ -217,9 +225,9 @@
         device: null,
         now: null,
         selectedItem: {},
-        tasks: [],
         selectedDay: {},
         selectedTime: {},
+        userHasEdited: false,
       };
     },
     computed: {
@@ -266,16 +274,26 @@
           };
         });
       },
+      filteredTasks() {
+        return this.tasks.filter(
+          task =>
+            (this.isKdp || task.extra_metadata.device_id === this.device?.id) &&
+            task.facility_id === this.facilityId &&
+            task.type === this.taskType &&
+            // Only show tasks that are repeating indefinitely
+            task.repeat === null,
+        );
+      },
       deviceName() {
         return this.device && this.device.nickname && this.device.nickname.length
           ? this.device.nickname
           : this.device.device_name;
       },
       currentTask() {
-        return this.tasks && this.tasks.length ? this.tasks[0] : null;
+        return this.filteredTasks.length ? this.filteredTasks[0] : null;
       },
       currentTaskRunning() {
-        return this.currentTask && this.currentTask.status === TaskStatuses.RUNNING;
+        return this.currentTask?.status === TaskStatuses.RUNNING;
       },
       timeRequired() {
         return this.selectedItem.value > oneHour;
@@ -302,6 +320,36 @@
           (!this.dayIsSet && this.dayRequired) ||
           !this.selectedItem.value
         );
+      },
+    },
+    watch: {
+      currentTask() {
+        if (this.currentTask && !this.userHasEdited) {
+          const enqueueAt = new Date(Date.parse(this.currentTask.scheduled_datetime));
+          const day = enqueueAt.getDay();
+          const hours = enqueueAt.getHours();
+          const minutes = enqueueAt.getMinutes();
+          this.selectedItem =
+            this.selectArray.find(item => item.value === this.currentTask.repeat_interval) || {};
+          this.selectedDay = this.getDays.find(item => item.value === day) || {};
+          for (const time of this.SyncTime) {
+            // Because there can be some drift in the task scheduling process,
+            // we round the 'scheduled' time to the nearest 30 minutes
+            if (
+              time.minutes === 0 &&
+              ((time.hours === hours && minutes < 15) ||
+                (time.hours === hours + 1 && minutes >= 45))
+            ) {
+              this.selectedTime = time;
+              break;
+            }
+            if (time.minutes === 30 && time.hours === hours && minutes >= 15 && minutes < 45) {
+              this.selectedTime = time;
+              break;
+            }
+          }
+          this.retryFlag = Boolean(this.currentTask.retry_interval);
+        }
       },
     },
     created() {
@@ -389,70 +437,19 @@
         promise
           .then(() => {
             this.goBack();
-            this.showSnackbarNotification('syncAdded');
+            if (this.currentTask) {
+              // the sync schedule has already been created and we are editing it
+              this.showSnackbarNotification('syncUpdated');
+            } else {
+              this.showSnackbarNotification('syncAdded');
+            }
           })
           .catch(() => {
             this.createTaskFailedSnackbar();
-            if (this.currentTask) {
-              this.fetchSyncTasks();
-            }
           });
       },
-
       goBack() {
         this.$router.push(this.goBackRoute);
-      },
-      pollFetchSyncTasks() {
-        this.pollInterval = setInterval(() => {
-          this.fetchSyncTasks();
-        }, 10000);
-      },
-      fetchSyncTasks() {
-        TaskResource.list({ queue: 'facility_task' }).then(tasks => {
-          this.tasks = tasks.filter(
-            task =>
-              (this.isKdp || task.extra_metadata.device_id === this.device.id) &&
-              task.facility_id === this.facilityId &&
-              task.type === this.taskType &&
-              // Only show tasks that are repeating indefinitely
-              task.repeat === null,
-          );
-          this.$nextTick(() => {
-            if (this.currentTask) {
-              const enqueueAt = new Date(Date.parse(this.currentTask.scheduled_datetime));
-              const day = enqueueAt.getDay();
-              const hours = enqueueAt.getHours();
-              const minutes = enqueueAt.getMinutes();
-              this.selectedItem =
-                this.selectArray.find(item => item.value === this.currentTask.repeat_interval) ||
-                {};
-              this.selectedDay = this.getDays.find(item => item.value === day) || {};
-              for (const time of this.SyncTime) {
-                // Because there can be some drift in the task scheduling process,
-                // we round the 'scheduled' time to the nearest 30 minutes
-                if (
-                  time.minutes === 0 &&
-                  ((time.hours === hours && minutes < 15) ||
-                    (time.hours === hours + 1 && minutes >= 45))
-                ) {
-                  this.selectedTime = time;
-                  break;
-                }
-                if (time.minutes === 30 && time.hours === hours && minutes >= 15 && minutes < 45) {
-                  this.selectedTime = time;
-                  break;
-                }
-              }
-              this.retryFlag = Boolean(this.currentTask.retry_interval);
-              if (this.currentTaskRunning) {
-                this.pollFetchSyncTasks();
-              } else {
-                clearInterval(this.pollInterval);
-                this.pollInterval = null;
-              }
-            }
-          });
-        });
       },
       fetchDevice() {
         if (this.isKdp) {
@@ -462,13 +459,18 @@
             device_name: kdpNameTranslator.$tr('syncToKDP'),
             base_url: '',
           };
-          this.fetchSyncTasks();
           return;
         }
         NetworkLocationResource.fetchModel({ id: this.deviceId }).then(device => {
           this.device = device;
-          this.fetchSyncTasks();
         });
+      },
+      handleUserInput() {
+        this.userHasEdited = true;
+      },
+      handleRetryCheckboxChange() {
+        this.retryFlag = !this.retryFlag;
+        this.handleUserInput();
       },
     },
     $trs: {

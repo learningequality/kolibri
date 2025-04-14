@@ -13,6 +13,8 @@
         <KIconButton
           v-if="goBack"
           icon="back"
+          :tooltip="goBackAction$()"
+          :ariaLabel="goBackAction$()"
           @click="goBack()"
         />
         <h1 class="side-panel-title">{{ title }}</h1>
@@ -67,9 +69,11 @@
       </div>
       <router-view
         v-else
+        v-autofocus-first-el="!isLandingRoute"
         :setTitle="value => (title = value)"
         :setGoBack="value => (goBack = value)"
         :setContinueAction="value => (continueAction = value)"
+        :defaultTitle="defaultTitle"
         :sectionTitle="sectionTitle"
         :selectedResources="workingResourcePool"
         :selectedQuestions="workingQuestions"
@@ -84,6 +88,7 @@
         :settings.sync="settings"
         :target="SelectionTarget.QUIZ"
         :contentCardMessage="contentCardMessage"
+        :bookmarksCardMessage="bookmarksCardMessage"
         :getResourceLink="getResourceLink"
         :unselectableResourceIds="unselectableResourceIds"
         :unselectableQuestionItems="unselectableQuestionItems"
@@ -130,31 +135,11 @@
             </span>
             <KRouterLink
               v-else-if="
-                !settings.isChoosingManually &&
-                  workingResourcePool.length > 0 &&
-                  $route.name !== PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES
+                numberOfSelectedElementsLabel && $route.name !== previewSelectedElementsPage
               "
-              :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES }"
+              :to="{ name: previewSelectedElementsPage }"
             >
-              {{
-                numberOfSelectedResources$({
-                  count: workingResourcePool.length,
-                })
-              }}
-            </KRouterLink>
-            <KRouterLink
-              v-else-if="
-                settings.isChoosingManually &&
-                  workingQuestions.length > 0 &&
-                  $route.name !== PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS
-              "
-              :to="{ name: PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS }"
-            >
-              {{
-                numberOfSelectedQuestions$({
-                  count: workingQuestions.length,
-                })
-              }}
+              {{ numberOfSelectedElementsLabel }}
             </KRouterLink>
           </div>
           <div class="save-button-wrapper">
@@ -178,30 +163,42 @@
   import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
+  import { useMemoize } from '@vueuse/core';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { computed, ref, getCurrentInstance, watch } from 'vue';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { coachStrings } from '../../../../common/commonCoachStrings';
   import { exerciseToQuestionArray } from '../../../../../utils/selectQuestions';
   import { PageNames } from '../../../../../constants/index';
+  import usePreviousRoute from '../../../../../composables/usePreviousRoute';
   import useQuizResources from '../../../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../../../composables/useQuizCreation';
   import useResourceSelection from '../../../../../composables/useResourceSelection';
   import { SelectionTarget } from '../../../../common/resourceSelection/contants';
+  import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl';
 
   export default {
     name: 'QuizResourceSelection',
     components: {
       SidePanelModal,
     },
+    directives: {
+      autofocusFirstEl,
+    },
     mixins: [commonCoreStrings],
     setup() {
+      const previousRoute = usePreviousRoute();
+      const isLandingRoute = computed(() => previousRoute.value === null);
+
       const { $store, $router } = getCurrentInstance().proxy;
       const route = computed(() => $store.state.route);
       const {
@@ -214,6 +211,9 @@
         allResourceMap,
         activeQuestions,
         addSection,
+        questionItemsToReplace,
+        setQuestionItemsToReplace,
+        clearSelectedQuestions: clearQuizSelectedQuestions,
       } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
 
@@ -233,16 +233,18 @@
        */
       const workingQuestions = ref([]);
 
-      const getDefaultQuestionCount = maxQuestions => {
-        return Math.min(10, maxQuestions);
-      };
-
       const showManualSelectionNotice = ref(false);
+
+      /**
+       * Selection settings for the current resource selection session
+       */
       const settings = ref({
         maxQuestions: null,
         questionCount: null,
         isChoosingManually: null,
         selectPracticeQuiz,
+        isInReplaceMode: Boolean(questionItemsToReplace.value?.length),
+        questionItemsToReplace: questionItemsToReplace.value,
       });
       watch(
         activeQuestions,
@@ -251,7 +253,7 @@
           newSettings.maxQuestions = MAX_QUESTIONS_PER_QUIZ_SECTION - activeQuestions.value.length;
           if (newSettings.questionCount === null) {
             // initialize questionCount if it hasn't been set yet
-            newSettings.questionCount = getDefaultQuestionCount(newSettings.maxQuestions);
+            newSettings.questionCount = Math.min(10, newSettings.maxQuestions);
           }
           settings.value = newSettings;
         },
@@ -268,23 +270,33 @@
 
           if (newSettings.isChoosingManually) {
             newSettings.questionCount = newSettings.maxQuestions;
-          } else {
-            newSettings.questionCount = getDefaultQuestionCount(newSettings.maxQuestions);
           }
 
           resetSelection();
         }
       });
 
+      if (settings.value.isInReplaceMode) {
+        settings.value = {
+          ...settings.value,
+          isChoosingManually: true,
+          maxQuestions: settings.value.questionItemsToReplace.length,
+        };
+      }
+
       const {
         questionsUnusedInSection$,
         tooManyQuestions$,
         selectQuiz$,
         addNumberOfQuestions$,
+        replaceNumberOfQuestions$,
         maximumResourcesSelectedWarning$,
         maximumQuestionsSelectedWarning$,
         manualSelectionOnNotice$,
         manualSelectionOffNotice$,
+        selectResourcesDescription$,
+        selectPracticeQuizLabel$,
+        replaceQuestions$,
       } = enhancedQuizManagementStrings;
 
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
@@ -349,15 +361,31 @@
 
       const { annotateTopicsWithDescendantCounts } = useQuizResources();
 
-      const unusedQuestionsCount = content => {
-        const questionItems = content.assessmentmetadata.assessment_item_ids.map(
-          aid => `${content.id}:${aid}`,
-        );
-        const questionsItemsUnused = questionItems
-          .filter(questionItem => !allQuestionsInQuiz.value.some(q => q.item === questionItem))
-          .filter(questionItem => !workingQuestions.value.some(q => q.item === questionItem));
-        return questionsItemsUnused.length;
-      };
+      const unusedQuestionsCount = useMemoize(content => {
+        if (content.kind === ContentNodeKinds.EXERCISE) {
+          const questionItems = content.assessmentmetadata.assessment_item_ids.map(
+            aid => `${content.id}:${aid}`,
+          );
+          const questionsItemsUnused = questionItems
+            .filter(questionItem => !allQuestionsInQuiz.value.some(q => q.item === questionItem))
+            .filter(questionItem => !workingQuestions.value.some(q => q.item === questionItem));
+          return questionsItemsUnused.length;
+        }
+        if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
+          const total = content.num_assessments;
+          const numberOfQuestionsSelected = allQuestionsInQuiz.value.reduce((num, question) => {
+            const questionNode = allResourceMap.value[question.exercise_id];
+            for (const ancestor of questionNode.ancestors) {
+              if (ancestor.id === content.id) {
+                return num + 1;
+              }
+            }
+            return num;
+          }, 0);
+          return total - numberOfQuestionsSelected;
+        }
+        return -1;
+      });
 
       const isPracticeQuiz = item =>
         !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
@@ -407,7 +435,7 @@
         },
         search: {
           filters: {
-            kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC],
+            kind: ContentNodeKinds.EXERCISE,
             contains_quiz: selectPracticeQuiz ? true : null,
           },
         },
@@ -418,6 +446,8 @@
       }
 
       function handleClosePanel() {
+        setWorkingResourcePool();
+        setQuestionItemsToReplace([]);
         $router.push({
           name: PageNames.EXAM_CREATION_ROOT,
           params: {
@@ -459,6 +489,9 @@
         if (selectPracticeQuiz) {
           return selectQuiz$();
         }
+        if (settings.value.isInReplaceMode) {
+          return replaceNumberOfQuestions$({ count: settings.value.questionCount });
+        }
         if (settings.value.isChoosingManually) {
           return addNumberOfQuestions$({ count: workingQuestions.value.length });
         }
@@ -467,16 +500,20 @@
 
       const disableSave = computed(() => {
         if (selectPracticeQuiz) {
-          return !workingPoolHasChanged.value;
+          return (
+            !workingPoolHasChanged.value && route.value.name !== PageNames.QUIZ_PREVIEW_RESOURCE
+          );
         }
-        return (
-          !workingPoolHasChanged.value ||
-          (!settings.value.isChoosingManually &&
-            workingPoolQuestionsCount.value < settings.value.questionCount) ||
-          settings.value.questionCount < 1 ||
-          tooManyQuestions.value ||
-          settings.value.questionCount.value > settings.value.maxQuestions
-        );
+        const disabledConditions = [
+          !workingPoolHasChanged.value,
+          settings.value.questionCount < 1,
+          tooManyQuestions.value,
+          settings.value.questionCount > settings.value.maxQuestions,
+        ];
+        if (!settings.value.isChoosingManually || settings.value.isInReplaceMode) {
+          disabledConditions.push(workingPoolQuestionsCount.value < settings.value.questionCount);
+        }
+        return disabledConditions.some(Boolean);
       });
 
       const title = ref('');
@@ -517,7 +554,11 @@
       });
 
       const maximumContentSelectedWarning = computed(() => {
-        if (settings.value.questionCount <= 0 || remainingSelectableContent.value > 0) {
+        if (
+          settings.value.questionCount <= 0 ||
+          remainingSelectableContent.value > 0 ||
+          settings.value.isInReplaceMode
+        ) {
           return null;
         }
         if (settings.value.isChoosingManually) {
@@ -526,8 +567,94 @@
         return maximumResourcesSelectedWarning$();
       });
 
-      const { numberOfSelectedResources$, numberOfSelectedQuestions$, dismissAction$ } =
-        searchAndFilterStrings;
+      const {
+        numberOfSelectedResources$,
+        numberOfSelectedQuestions$,
+        dismissAction$,
+        NOutOfMSelectedQuestions$,
+      } = searchAndFilterStrings;
+
+      const numberOfSelectedResourcesLabel = computed(() => {
+        if (!workingResourcePool.value.length) {
+          return '';
+        }
+        return numberOfSelectedResources$({
+          count: workingResourcePool.value.length,
+        });
+      });
+
+      const numberOfSelectedQuestionsLabel = computed(() => {
+        if (!workingQuestions.value.length) {
+          return '';
+        }
+        if (settings.value.isInReplaceMode) {
+          return NOutOfMSelectedQuestions$({
+            count: workingQuestions.value.length,
+            total: settings.value.questionItemsToReplace.length,
+          });
+        }
+        return numberOfSelectedQuestions$({
+          count: workingQuestions.value.length,
+        });
+      });
+
+      const numberOfSelectedElementsLabel = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return numberOfSelectedQuestionsLabel.value;
+        }
+        return numberOfSelectedResourcesLabel.value;
+      });
+
+      const { sendPoliteMessage } = useKLiveRegion();
+      watch(numberOfSelectedElementsLabel, () => {
+        if (numberOfSelectedElementsLabel.value) {
+          sendPoliteMessage(numberOfSelectedElementsLabel.value);
+        }
+      });
+
+      const previewSelectedElementsPage = computed(() => {
+        if (settings.value.isChoosingManually) {
+          return PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS;
+        }
+        return PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES;
+      });
+
+      const getDefaultTitle = () => {
+        if (selectPracticeQuiz) {
+          return selectPracticeQuizLabel$();
+        }
+        if (settings.value.isInReplaceMode) {
+          return replaceQuestions$({ sectionTitle: sectionTitle.value });
+        }
+        return selectResourcesDescription$({ sectionTitle: sectionTitle.value });
+      };
+      const defaultTitle = getDefaultTitle();
+
+      const { createSnackbar } = useSnackbar();
+      const { numberOfQuestionsAdded$, numberOfQuestionsReplaced$ } = enhancedQuizManagementStrings;
+      function notifyChanges(count) {
+        const message$ = settings.value.isInReplaceMode
+          ? numberOfQuestionsReplaced$
+          : numberOfQuestionsAdded$;
+
+        createSnackbar(message$({ count }));
+      }
+
+      const bookmarksCardMessage = bookmarks => {
+        if (isPracticeQuiz) {
+          return;
+        }
+        const unusedQuestions = bookmarks.reduce((total, bookmark) => {
+          const unused = unusedQuestionsCount(bookmark);
+          if (unused === -1) {
+            return total;
+          }
+          return total + unused;
+        }, 0);
+        return questionsUnusedInSection$({ count: unusedQuestions });
+      };
+
+      const { goBackAction$ } = coreStrings;
 
       return {
         title,
@@ -536,11 +663,14 @@
         continueAction,
         SelectionTarget,
         sectionTitle,
+        defaultTitle,
         unusedQuestionsCount,
         activeSectionIndex,
         addSection,
+        isLandingRoute,
         workingPoolHasChanged,
         tooManyQuestions,
+        notifyChanges,
         handleClosePanel,
         handleCancelClose,
         topic,
@@ -556,6 +686,8 @@
         unselectableQuestionItems,
         maximumContentSelectedWarning,
         showManualSelectionNotice,
+        subpageLoading,
+        displayingSearchResults,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
         addToWorkingQuestions,
@@ -563,9 +695,12 @@
         setWorkingResourcePool,
         removeSearchFilterTag,
         clearSearch,
+        clearQuizSelectedQuestions,
         settings,
         disableSave,
         saveButtonLabel,
+        previewSelectedElementsPage,
+        numberOfSelectedElementsLabel,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         tooManyQuestions$,
@@ -575,13 +710,11 @@
         addQuestionsToSectionFromResources,
         workingResourcePool,
         workingQuestions,
+        goBackAction$,
         dismissAction$,
         manualSelectionOnNotice$,
         manualSelectionOffNotice$,
-        numberOfSelectedResources$,
-        displayingSearchResults,
-        numberOfSelectedQuestions$,
-        subpageLoading,
+        bookmarksCardMessage,
       };
     },
     computed: {
@@ -601,12 +734,25 @@
       }
     },
     methods: {
-      saveSelectedResource() {
+      async saveSelectedResource() {
+        let numQuestions;
         if (this.settings.selectPracticeQuiz) {
+          if (this.$route.name === PageNames.QUIZ_PREVIEW_RESOURCE) {
+            try {
+              const contentNode = await ContentNodeResource.fetchModel({
+                id: this.$route.query.contentId,
+              });
+              this.setWorkingResourcePool([contentNode]);
+            } catch (e) {
+              this.$store.dispatch('handleApiError', e);
+            }
+          }
           if (this.workingResourcePool.length !== 1) {
             throw new Error('Only one resource can be selected for a practice quiz');
           }
           const remainder = exerciseToQuestionArray(this.workingResourcePool[0]);
+
+          numQuestions = remainder.length;
 
           let sectionIndex = this.activeSectionIndex;
           while (remainder.length) {
@@ -622,12 +768,15 @@
             sectionIndex++;
           }
         } else if (this.settings.isChoosingManually) {
+          numQuestions = this.workingQuestions.length;
           this.addQuestionsToSection({
             sectionIndex: this.activeSectionIndex,
             questions: this.workingQuestions,
             resources: this.workingResourcePool,
+            questionItemsToReplace: this.settings.questionItemsToReplace,
           });
         } else {
+          numQuestions = this.settings.questionCount;
           this.addQuestionsToSectionFromResources({
             sectionIndex: this.activeSectionIndex,
             resourcePool: this.workingResourcePool,
@@ -635,20 +784,17 @@
           });
         }
 
-        this.setWorkingResourcePool();
-        this.$router.replace({
-          name: PageNames.EXAM_CREATION_ROOT,
-          params: {
-            ...this.$route.params,
-          },
-        });
+        if (this.settings.isInReplaceMode) {
+          // After a successful replacement session the quiz selected questions
+          // could be removed, so we need to clear it
+          this.clearQuizSelectedQuestions();
+        }
+        this.notifyChanges(numQuestions);
+        this.handleClosePanel();
       },
       // The message put onto the content's card when listed
       contentCardMessage(content) {
         if (this.settings.selectPracticeQuiz) {
-          return;
-        }
-        if (content.kind !== ContentNodeKinds.EXERCISE) {
           return;
         }
 
@@ -684,8 +830,11 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .side-panel-title {
-    margin-top: 20px;
+    margin-top: 15px;
+    overflow: hidden;
     font-size: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .choosing-manually-label {

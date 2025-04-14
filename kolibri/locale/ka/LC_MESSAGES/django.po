@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-20 16:50-0400\n"
-"PO-Revision-Date: 2024-07-15 23:09\n"
+"POT-Creation-Date: 2025-04-07 13:38-0400\n"
+"PO-Revision-Date: 2025-04-08 20:23\n"
 "Last-Translator: \n"
 "Language-Team: Georgian\n"
 "Language: ka_GE\n"
@@ -14,200 +14,165 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: ka\n"
-"X-Crowdin-File: /release-v0.17.x/django.po\n"
-"X-Crowdin-File-ID: 4782\n"
+"X-Crowdin-File: /release-v0.18.x/django.po\n"
+"X-Crowdin-File-ID: 4879\n"
 
-#: core/auth/constants/commands_errors.py:17
-msgid "Unexpected exception [{}]: {}"
-msgstr "მოულოდნელი გამონაკლისი [{}]: {}"
-
-#: core/auth/constants/commands_errors.py:20
-msgctxt "Error report message when the allowed number of digits has been exceeded."
-msgid "Content of cell '{}' is too long"
-msgstr "უჯრის '{}' შიგთავსი ნამეტანი გრძელია"
-
-#: core/auth/constants/commands_errors.py:24
+#: core/auth/constants/commands_errors.py:13
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
 msgstr "უჯრის '{}' შიგთავსი არაა მართებული"
 
-#: core/auth/constants/commands_errors.py:26
-msgid "Duplicated username"
-msgstr "დუბლირებული სამომხმარებლო სახელი"
-
-#: core/auth/constants/commands_errors.py:28
-#: core/auth/management/commands/bulkimportusers.py:84
-msgid "Username only can contain characters, numbers and underscores"
-msgstr "სამომხმარებლო სახელი შეიძლება შეიცავდეს ასოებს, ციბრებსა და ქვედა ტირეებს"
-
-#: core/auth/constants/commands_errors.py:30
-msgid "The column '{}' is required"
-msgstr "'{}' სვეტი აუცილებელია"
-
-#: core/auth/constants/commands_errors.py:31
-msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr "პირველ სტრიქონში ნაპოვნია მართებული ან/და გაუმართავი სათაურის იარლიყების ნარევი"
-
-#: core/auth/constants/commands_errors.py:33
+#: core/auth/constants/commands_errors.py:16
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
 msgstr "არანაირი ნაგულისხმი დაწესებულება არ არსებობს. ამ ბრძანების გაშვებამდე დარწმუნდით, რომ დააყენეთ მოწყობილობაზე ეს დაწესებულება"
 
-#: core/auth/constants/commands_errors.py:35
-#: core/auth/management/commands/bulkimportusers.py:98
-msgid "Error trying to read csv file: {}"
-msgstr "csv ფაილის კითხვისას შეცდომა გამოვლინდა: {}"
-
-#: core/auth/constants/commands_errors.py:36
-#: core/auth/management/commands/bulkimportusers.py:99
+#: core/auth/constants/commands_errors.py:18
+#: core/auth/management/commands/bulkimportusers.py:100
 msgid "Error trying to write csv file: {}"
 msgstr "csv ფაილის ჩაწერისას შეცდომა გამოვლინდა: {}"
 
-#: core/auth/management/commands/bulkexportusers.py:46
-#: core/auth/management/commands/bulkexportusers.py:123
+#: core/auth/management/commands/bulkexportusers.py:45
+#: core/auth/management/commands/bulkexportusers.py:122
 msgid "Database ID ({})"
 msgstr "მონაცემთა ბაზის ID ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:47
-#: core/auth/management/commands/bulkexportusers.py:124
+#: core/auth/management/commands/bulkexportusers.py:46
+#: core/auth/management/commands/bulkexportusers.py:123
 msgid "Username ({})"
 msgstr "მომხმარებლის სახელი ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:48
-#: core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:47
+#: core/auth/management/commands/bulkexportusers.py:124
 msgid "Password ({})"
 msgstr "პაროლი ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:49
-#: core/auth/management/commands/bulkexportusers.py:126
+#: core/auth/management/commands/bulkexportusers.py:48
+#: core/auth/management/commands/bulkexportusers.py:125
 msgid "Full name ({})"
 msgstr "სახელი და გვარი ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:54
+#: core/auth/management/commands/bulkexportusers.py:53
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "მომხმარებლის ტიპი ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:57
-#: core/auth/management/commands/bulkexportusers.py:134
+#: core/auth/management/commands/bulkexportusers.py:56
+#: core/auth/management/commands/bulkexportusers.py:133
 msgid "Identifier ({})"
 msgstr "იდენტიფიკატორი ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:58
-#: core/auth/management/commands/bulkexportusers.py:135
+#: core/auth/management/commands/bulkexportusers.py:57
+#: core/auth/management/commands/bulkexportusers.py:134
 msgid "Birth year ({})"
 msgstr "დაბადების წელი ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:59
-#: core/auth/management/commands/bulkexportusers.py:136
+#: core/auth/management/commands/bulkexportusers.py:58
+#: core/auth/management/commands/bulkexportusers.py:135
 msgid "Gender ({})"
 msgstr "სქესი ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:64
+#: core/auth/management/commands/bulkexportusers.py:63
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "მსწავლელთა ჩარიცხვა ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:71
+#: core/auth/management/commands/bulkexportusers.py:70
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "მწვრთნელის დანიშნვა ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:131
+#: core/auth/management/commands/bulkexportusers.py:130
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "მომხმარებლის ტიპი ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:141
+#: core/auth/management/commands/bulkexportusers.py:140
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "მსწავლელთა ჩარიცხვა ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:148
+#: core/auth/management/commands/bulkexportusers.py:147
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "მწვრთნელის დანიშნვა ({})"
 
-#: core/auth/management/commands/bulkimportusers.py:75
+#: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
 msgid "Unexpected error [{}]: {}"
 msgstr "მოულოდნელი შეცდომა [{}]: {}"
 
-#: core/auth/management/commands/bulkimportusers.py:79
+#: core/auth/management/commands/bulkimportusers.py:80
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
 msgstr "'{}' სვეტის მნიშვნელობას აქვს ძალიან ბევრი სიმბოლო"
 
-#: core/auth/management/commands/bulkimportusers.py:81
+#: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
 msgstr "'{}' სვეტის შიგთავსი არაა მართებული"
 
-#: core/auth/management/commands/bulkimportusers.py:82
+#: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
 msgstr "სამომხმარებლო სახელი დუბლირებულია"
 
-#: core/auth/management/commands/bulkimportusers.py:88
+#: core/auth/management/commands/bulkimportusers.py:85
+msgid "Username only can contain characters, numbers and underscores"
+msgstr "სამომხმარებლო სახელი შეიძლება შეიცავდეს ასოებს, ციბრებსა და ქვედა ტირეებს"
+
+#: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
 msgstr "'{}' სვეტი აუცილებელია"
 
-#: core/auth/management/commands/bulkimportusers.py:92
+#: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
 msgstr "პირველ სტრიქონში ნაპოვნია სათაურის არასწორი იარლიყი"
 
-#: core/auth/management/commands/bulkimportusers.py:96
+#: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
 msgstr "არანაირი ნაგულისხმი დაწესებულება არ არსებობს. მომხმარებლებისა და კლასების იმპორტირებამდე დარწმუნდით, რომ დააყენეთ მოწყობილობაზე დაწესებულება"
 
-#: core/auth/management/commands/bulkimportusers.py:101
+#: core/auth/management/commands/bulkimportusers.py:99
+msgid "Error trying to read csv file: {}"
+msgstr "csv ფაილის კითხვისას შეცდომა გამოვლინდა: {}"
+
+#: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
 msgstr "პაროლის ველი აუცილებელია. მიმდინარე მომხმარებლებისთვის პაროლის შეუცვლელად დასატოვად, ჩასვით ვარსკლავი (*)"
 
-#: core/auth/management/commands/bulkimportusers.py:104
+#: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
 msgstr "ვერ ვახერხებ ცვლილების გაკეთებას ამ ID-ის მქონე მომხმარებლისთვის: '{}' ვინაიდან, ამ დაწესებულების ID მონაცემთა ბაზაში ასეთი მომხმარებელი არ არსებობს"
 
-#: core/auth/management/commands/bulkimportusers.py:106
+#: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
 msgstr "მონაცემთა ბაზა უმოქმედოა"
 
 #. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
-#: core/auth/tasks.py:56
+#: core/auth/tasks.py:54
 msgid "Data syncing in progress"
 msgstr "მონაცემთა სინქრონიზაცია მიმდინარეობს"
 
 #. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
 #. to encourage them to stay connected to their network to ensure a successful sync.
-#: core/auth/tasks.py:60
+#: core/auth/tasks.py:58
 msgid "Do not disconnect your device from the network."
 msgstr "ნუ გათიშავთ თქვენს მოწყობილობას ქსელიდან."
 
-#: core/content/api.py:425
-msgid "Resource"
-msgstr "რესურსი"
-
-#: core/content/api.py:1773
-msgid "The requested channel does not exist on the content server"
-msgstr "მოცემული არხი არ არის მასალების სერვერზე"
-
-#: core/content/models.py:278
-msgid "Unknown format"
-msgstr "უცნობი ფორმატი"
-
 #. Translators: Message shown to an App user when the device's library is being updated
 #. either with new resources, or unwanted resources being deleted.
-#: core/content/tasks.py:57
+#: core/content/tasks.py:60
 msgid "Updating your library"
 msgstr "მიმდინარეობს თქვენი ბიბლიოთეკის განახლება"
 
 #. Translators: Message shown to an App user when an update to the library has been successful.
-#: core/content/tasks.py:60
+#: core/content/tasks.py:63
 msgid "Library updated"
 msgstr "ბიბლიოთეკა განახლებულია"
 
 #. Translators: Message shown to an App user when an update to the library has failed.
-#: core/content/tasks.py:63
+#: core/content/tasks.py:66
 msgid "Library update failed"
 msgstr "ბიბლიოთეკის განახლება ვერ მოხერხდა"
 
@@ -225,57 +190,61 @@ msgstr "მიმდინარეობს ძებნა"
 msgid "Looking for other Kolibri devices"
 msgstr "ვეძებთ სხვა კოლიბრი მოწყობილობებს"
 
-#: core/logger/csv_export.py:69
+#: core/logger/csv_export.py:122
 msgid "Facility name"
 msgstr "დაწესებულების სახელი"
 
-#: core/logger/csv_export.py:70
+#: core/logger/csv_export.py:123
 msgid "Username"
 msgstr "მომხმარებლის სახელი"
 
-#: core/logger/csv_export.py:71
+#: core/logger/csv_export.py:124
 msgid "Channel id"
 msgstr "არხის id"
 
-#: core/logger/csv_export.py:72
+#: core/logger/csv_export.py:125
 msgid "Channel name"
 msgstr "არხის სახელი"
 
-#: core/logger/csv_export.py:73
+#: core/logger/csv_export.py:126
 msgid "Content id"
 msgstr "მასალის id"
 
-#: core/logger/csv_export.py:74
+#: core/logger/csv_export.py:127
 msgid "Content title"
 msgstr "მასალის სათაური"
 
-#: core/logger/csv_export.py:79
+#: core/logger/csv_export.py:132
 msgctxt "CSV column header for the time of the first interaction in the exported logs"
 msgid "Time of first interaction"
 msgstr "პირველი ურთიერთქმედების დრო"
 
-#: core/logger/csv_export.py:86
+#: core/logger/csv_export.py:139
 msgctxt "CSV column header for the time of the last interaction in the exported logs"
 msgid "Time of last interaction"
 msgstr "ბოლო ურთიერთქმედების დრო"
 
-#: core/logger/csv_export.py:93
+#: core/logger/csv_export.py:146
 msgctxt "CSV column header for the percentage of completion in the exported logs"
 msgid "Time of completion"
 msgstr "დასრულების დრო"
 
-#: core/logger/csv_export.py:100
+#: core/logger/csv_export.py:153
 msgctxt "CSV column header for the time spent in a resource in the exported logs"
 msgid "Time Spent (sec)"
 msgstr "დახარჯული დრო (წმ)"
 
-#: core/logger/csv_export.py:103
+#: core/logger/csv_export.py:156
 msgid "Progress (0-1)"
 msgstr "პროგრესი (0-1)"
 
-#: core/logger/csv_export.py:104
+#: core/logger/csv_export.py:157
 msgid "Content kind"
 msgstr "მასალის ტიპი"
+
+#: core/logger/csv_export.py:288
+msgid "Folder level {i+1}"
+msgstr ""
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
 #: core/tasks/job.py:86
@@ -339,11 +308,11 @@ msgstr "კოლიბრისთვის გირჩევთ გამო�
 msgid "You can also try updating your current browser."
 msgstr "შეგიძლიათ სცადოთ ბრაუზერის განახლება."
 
-#: core/templatetags/core_tags.py:80
+#: core/templatetags/core_tags.py:69
 msgid "Kolibri"
 msgstr "კოლიბრი"
 
-#: core/views.py:185
+#: core/views.py:196
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "სათანადო გადამისამართების გვერდები არაა ნოპოვნი. სავარაუდოდ Kolibri არაა სწორად კონფიგურირებული"
 
@@ -355,22 +324,22 @@ msgstr "მწვრთნელი"
 msgid "Facility"
 msgstr "დაწესებულება"
 
-#: plugins/facility/views.py:147
+#: plugins/facility/views.py:149
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs_from_"
 msgstr "content_session_logs_from_"
 
-#: plugins/facility/views.py:154 plugins/facility/views.py:172
+#: plugins/facility/views.py:156 plugins/facility/views.py:174
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "to_"
 msgstr "to_"
 
-#: plugins/facility/views.py:165
+#: plugins/facility/views.py:167
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs_from_"
 msgstr "content_summary_logs_from_"
 
-#: plugins/facility/views.py:183
+#: plugins/facility/views.py:185
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users"
 msgstr "მომხმარებლები"
@@ -392,11 +361,11 @@ msgid "User Profile"
 msgstr "მომხმარებლის პროფილი"
 
 #. Translators: A notification title shown to users when their learner account is joining a new learning facility.
-#: plugins/user_profile/tasks.py:87
+#: plugins/user_profile/tasks.py:96
 msgid "Account transfer in progress"
 msgstr "ანგარიშის გადაგზავნა მიმდინარეობს"
 
-#: plugins/user_profile/tasks.py:90
+#: plugins/user_profile/tasks.py:99
 #, python-brace-format
 msgid "Moving {learner_name} to learning facility {facility_name}"
 msgstr "{learner_name} გადაყვანა სასწავლო დაწესებულებაში {facility_name}"
