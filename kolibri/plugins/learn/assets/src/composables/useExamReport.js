@@ -4,7 +4,6 @@ import router from 'kolibri/router';
 import { ClassesPageNames, PageNames } from '../constants';
 import useLearnerResources from './useLearnerResources';
 
-
 // Keys for provide/inject
 const EXAM_REPORT_KEY = Symbol('examReport');
 
@@ -143,17 +142,16 @@ function useExamReportImplementation() {
       return true;
     }
 
-      const report = await getExamReport(examId, tryIdx, questionNum, interactionIdx);
-      // Update state
-      exam.value = report.exam;
-      exercise.value = report.exercise;
-      exerciseContentNodes.value = report.exerciseContentNodes;
-      questionNumber.value = Number(questionNum);
-      interactionIndex.value = Number(interactionIdx);
-      tryIndex.value = Number(tryIdx);
-      questions.value = report.questions;
-      return report;
-   
+    const report = await getExamReport(examId, tryIdx, questionNum, interactionIdx);
+    // Update state
+    exam.value = report.exam;
+    exercise.value = report.exercise;
+    exerciseContentNodes.value = report.exerciseContentNodes;
+    questionNumber.value = Number(questionNum);
+    interactionIndex.value = Number(interactionIdx);
+    tryIndex.value = Number(tryIdx);
+    questions.value = report.questions;
+    return report;
   }
 
   // Handle no complete tries scenario

@@ -207,6 +207,8 @@
   };
 
 </script>
+
+
 <style lang="scss" scoped>
 
   .no-exercise {
