@@ -1,0 +1,51 @@
+name: Python tests
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+
+jobs:
+  pre_job:
+    name: Path match check
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          github_token: ${{ github.token }}
+          paths: '["**.py", ".github/workflows/buildcheck.yml", "package.json", "yarn.lock", "**.js", "**.vue"]'
+  unit_test:
+    name: Build check
+    needs: pre_job
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    - name: Set up Python 3.9
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.9
+    - name: Set up NodeJS
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: 'yarn'
+    - name: Cache pip
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-py3.9-${{ hashFiles('setup.py') }}
+    - name: Install JS dependencies
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      run: yarn --frozen-lockfile
+    - name: Build
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      run: make dist
