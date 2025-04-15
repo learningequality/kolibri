@@ -1,5 +1,5 @@
 {
-  "name": "Sentry-Plugin",
+  "name": "kolibri-sentry-plugin",
   "description": "A plugin to provide sentry integration for Kolibri",
   "private": true,
   "scripts": {
@@ -8,16 +8,17 @@
     "dev": "kolibri-tools build dev --plugins kolibri_sentry_plugin"
   },
   "dependencies": {
-    "@sentry/browser": "^5.5.0",
-    "@sentry/integrations": "^5.5.0"
+    "@sentry/vue": "^9.12.0",
+    "browserslist-config-kolibri": "^0.18.0",
+    "kolibri": "^0.18.0",
+    "kolibri-logging": "^1.0.0",
+    "kolibri-plugin-data": "^1.0.0"
   },
   "devDependencies": {
-    "kolibri-tools": "^0.13.0-dev.10",
-    "vue-template-compiler": "^2.6.10"
+    "kolibri-format": "^1.0.1",
+    "kolibri-tools": "^0.18.2"
   },
-  "engines": {
-    "node": "10.x",
-    "yarn": ">= 1.12.3",
-    "npm": ">= 3"
-  }
+  "browserslist": [
+    "extends browserslist-config-kolibri"
+  ]
 }

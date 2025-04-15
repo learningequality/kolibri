@@ -1,6 +1,3 @@
-from __future__ import absolute_import, print_function, unicode_literals
-
-
 from kolibri.core.hooks import FrontEndBaseSyncHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins import KolibriPluginBase
