@@ -4,12 +4,6 @@ import router from 'kolibri/router';
 import { ClassesPageNames, PageNames } from '../constants';
 import useLearnerResources from './useLearnerResources';
 
-// Global state to replace Vuex
-const globalState = reactive({
-  pageLoading: false,
-  pageName: '',
-  error: null,
-});
 
 // Keys for provide/inject
 const EXAM_REPORT_KEY = Symbol('examReport');
@@ -27,6 +21,8 @@ export function useExamReport() {
 function useExamReportImplementation() {
   // State refs
   const exam = ref(null);
+  const pageName = ref('');
+  const pageLoading = ref(false);
   const exercise = ref(null);
   const exerciseContentNodes = ref([]);
   const questionNumber = ref(0);
@@ -47,19 +43,19 @@ function useExamReportImplementation() {
     return quiz.instant_report_visibility !== false || quiz.archive;
   });
 
-  const isLoading = computed(() => globalState.pageLoading);
+  const isLoading = computed(() => pageLoading.value);
 
   // Methods that replace Vuex mutations
   const setPageLoading = loading => {
-    globalState.pageLoading = loading;
+    pageLoading.value = loading;
   };
 
   const setPageName = name => {
-    globalState.pageName = name;
+    pageName.value = name;
   };
 
   const setError = err => {
-    globalState.error = err;
+    error.value = err;
   };
 
   // Check if current exam report exists in state
@@ -134,10 +130,7 @@ function useExamReportImplementation() {
       await fetchExamReport(examId, tryIdx, qNum, questionInteraction);
       setError(null);
     } catch (err) {
-      router.replace({
-        name: ClassesPageNames.CLASS_ASSIGNMENTS,
-        params: { classId },
-      });
+      setError(err);
     } finally {
       setPageLoading(false);
     }
@@ -150,9 +143,6 @@ function useExamReportImplementation() {
       return true;
     }
 
-    error.value = null;
-
-    try {
       const report = await getExamReport(examId, tryIdx, questionNum, interactionIdx);
       // Update state
       exam.value = report.exam;
@@ -163,10 +153,7 @@ function useExamReportImplementation() {
       tryIndex.value = Number(tryIdx);
       questions.value = report.questions;
       return report;
-    } catch (err) {
-      error.value = err;
-      return false;
-    }
+   
   }
 
   // Handle no complete tries scenario
