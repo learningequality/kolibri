@@ -35,7 +35,7 @@ setup(
         ),
     },
     package_dir={plugin_name: plugin_name},
-    install_requires=["sentry-sdk==0.7.9"],
+    install_requires=["sentry-sdk==2.26.1"],
     include_package_data=True,
     license="MIT",
     zip_safe=False,
