@@ -33,6 +33,17 @@
         </p>
       </div>
     </KPageContainer>
+    <div v-else-if="error">
+      <KModal
+        :title="$tr('errorOccurred')"
+        :submitText="coreString('closeAction')"
+        @submit="openHomePage()"
+      >
+        <div>
+          {{ $tr('errorDetails') }}
+        </div>
+      </KModal>
+    </div>
     <div v-else-if="showQuizReportComingSoonModal">
       <KModal
         :title="$tr('quizReportComingSoon')"
@@ -73,6 +84,7 @@
     setup() {
       const { full_name, user_id } = useUser();
       const {
+        error,
         exam,
         exercise,
         exerciseContentNodes,
@@ -88,7 +100,7 @@
         handleNoCompleteTries,
         showExamReport,
       } = useExamReport();
-
+      console.log('error', error);
       // Initialize the exam report data based on route params
       const initExamReport = route => {
         const { classId, examId, tryIndex, questionNumber, questionInteraction } = route.params;
@@ -102,6 +114,7 @@
       };
 
       return {
+        error,
         userName: full_name,
         userId: user_id,
         exam,
@@ -182,12 +195,18 @@
         message: 'You can see your quiz report when your coach ends the quiz',
         context: 'Details message displayed when a quiz report is not yet available.',
       },
+      errorOccurred: {
+        message: 'An error occurred',
+        context: 'Title for the error modal.',
+      },
+      errorDetails: {
+        message: 'An error occurred while loading the quiz report. Please try again later.',
+        context: 'Details message for the error modal.',
+      },
     },
   };
 
 </script>
-
-
 <style lang="scss" scoped>
 
   .no-exercise {
