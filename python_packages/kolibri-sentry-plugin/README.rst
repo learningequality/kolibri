@@ -46,4 +46,3 @@ How to publish to PyPi?
 4. In the terminal move to the root level of repo dir and run the following command to publish to PyPi:
 
     ``make release``
-

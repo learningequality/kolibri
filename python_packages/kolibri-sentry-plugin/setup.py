@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
-
 from setuptools import setup
 
 import kolibri_sentry_plugin
@@ -36,6 +34,11 @@ setup(
     },
     package_dir={plugin_name: plugin_name},
     install_requires=["sentry-sdk==2.26.1"],
+    extras_require={
+        "dev": {
+            "pre-commit==4.1.0",
+        },
+    },
     include_package_data=True,
     license="MIT",
     zip_safe=False,

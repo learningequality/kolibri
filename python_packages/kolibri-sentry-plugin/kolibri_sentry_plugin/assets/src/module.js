@@ -2,11 +2,8 @@ import * as Sentry from '@sentry/vue';
 import kolibri from 'kolibri';
 import plugin_data from 'kolibri-plugin-data';
 import Vue from 'vue';
-import logger from 'kolibri-logging';
 import store from 'kolibri/store';
 import { currentLanguage } from 'kolibri/utils/i18n';
-
-const logging = logger.getLogger(__filename);
 
 if (plugin_data.sentryDSN) {
   Sentry.init({

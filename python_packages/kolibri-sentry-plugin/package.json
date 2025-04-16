@@ -5,13 +5,14 @@
   "scripts": {
     "build": "kolibri-tools build prod --plugins kolibri_sentry_plugin",
     "clean": "kolibri-tools build clean --plugins kolibri_sentry_plugin",
-    "dev": "kolibri-tools build dev --plugins kolibri_sentry_plugin"
+    "dev": "kolibri-tools build dev --plugins kolibri_sentry_plugin",
+    "lint-frontend": "kolibri-format --pattern 'kolibri_sentry_plugin/**/*.{js,vue,scss,less,css}' --ignore '**/dist/**' '**/node_modules/**' '**/static/**'",
+    "lint-frontend:format": "yarn run lint-frontend --write"
   },
   "dependencies": {
     "@sentry/vue": "^9.12.0",
     "browserslist-config-kolibri": "^0.18.0",
     "kolibri": "^0.18.0",
-    "kolibri-logging": "^1.0.0",
     "kolibri-plugin-data": "^1.0.0"
   },
   "devDependencies": {

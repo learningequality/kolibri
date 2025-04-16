@@ -9,4 +9,3 @@ recursive-include kolibri_sentry_plugin/static *.*
 
 recursive-include kolibri_sentry_plugin/build *.json
 recursive-exclude kolibri_sentry_plugin/assets *
-

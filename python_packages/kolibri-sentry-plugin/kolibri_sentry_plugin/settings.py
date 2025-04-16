@@ -1,9 +1,8 @@
-import sentry_sdk
 import kolibri
-
-from sentry_sdk.integrations.django import DjangoIntegration
+import sentry_sdk
 from kolibri.utils import conf
 from kolibri.utils.server import installation_type
+from sentry_sdk.integrations.django import DjangoIntegration
 
 
 sentry_sdk.init(
