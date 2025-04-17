@@ -12,5 +12,10 @@ option_spec = {
             "type": "string",
             "envvars": ("KOLIBRI_DEBUG_SENTRY_ENVIRONMENT",),
         },
+        "SENTRY_REPLAY_ENABLED": {
+            "type": "boolean",
+            "default": False,
+            "envvars": ("KOLIBRI_DEBUG_SENTRY_REPLAY_ENABLED",),
+        },
     },
 }

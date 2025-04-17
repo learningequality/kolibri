@@ -19,6 +19,7 @@ class SentryPluginAsset(WebpackBundleHook):
         return {
             "sentryDSN": conf.OPTIONS["Debug"]["SENTRY_FRONTEND_DSN"],
             "sentryEnv": conf.OPTIONS["Debug"]["SENTRY_ENVIRONMENT"],
+            "sentryReplayEnabled": conf.OPTIONS["Debug"]["SENTRY_REPLAY_ENABLED"],
         }
 
 
