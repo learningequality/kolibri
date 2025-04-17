@@ -29,18 +29,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.9
+          cache: 'pip'
+          cache-dependency-path: setup.py
       - name: Set up NodeJS
         if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'yarn'
-      - name: Cache pip
-        if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-py3.9-${{ hashFiles('setup.py') }}
       - name: Install JS dependencies
         if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
         run: yarn --frozen-lockfile

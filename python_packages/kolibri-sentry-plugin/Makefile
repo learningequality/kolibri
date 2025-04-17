@@ -1,4 +1,4 @@
-.PHONY: help clean clean-pyc release dist
+.PHONY: help clean clean-pyc release dist assets install-js-deps
 
 help:
 	@echo "clean-build - remove build artifacts"
@@ -25,7 +25,10 @@ clean-pyc:
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
-assets:
+install-js-deps:
+	yarn --frozen-lockfile
+
+assets: install-js-deps
 	yarn run build
 
 dist: clean assets
