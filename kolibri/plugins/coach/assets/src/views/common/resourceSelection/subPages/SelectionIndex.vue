@@ -48,7 +48,6 @@
     >
       <KCardGrid
         layout="1-1-1"
-        :layoutOverride="gridLayoutOverrides"
       >
         <KCard
           :title="bookmarksLabel$()"
@@ -94,7 +93,6 @@
       </p>
       <KCardGrid
         layout="1-1-1"
-        :layoutOverride="gridLayoutOverrides"
       >
         <AccessibleChannelCard
           v-for="channel of channels"
@@ -239,9 +237,6 @@
       },
     },
     computed: {
-      gridLayoutOverrides() {
-        return [{ breakpoints: [0, 1, 2, 3, 4, 5, 6, 7], rowGap: '24px', cardsPerRow: 1 }];
-      },
       selectFromBookmarksLink() {
         if (this.target === SelectionTarget.LESSON) {
           return {

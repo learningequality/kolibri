@@ -11,7 +11,6 @@
     />
     <KCardGrid
       layout="1-1-1"
-      :layoutOverride="gridLayoutOverrides"
     >
       <component
         :is="content.is_leaf ? 'AccessibleResourceCard' : 'AccessibleFolderCard'"
@@ -246,9 +245,6 @@
     },
 
     computed: {
-      gridLayoutOverrides() {
-        return [{ breakpoints: [0, 1, 2, 3, 4, 5, 6, 7], rowGap: '24px', cardsPerRow: 1 }];
-      },
       contentsHaveCheckboxes() {
         return this.contentList.some(this.contentHasCheckbox);
       },
