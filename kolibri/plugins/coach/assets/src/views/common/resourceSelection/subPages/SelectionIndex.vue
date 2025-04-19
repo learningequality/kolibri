@@ -46,9 +46,7 @@
       v-if="bookmarksCount > 0"
       class="mb-24"
     >
-      <KCardGrid
-        layout="1-1-1"
-      >
+      <KCardGrid layout="1-1-1">
         <KCard
           :title="bookmarksLabel$()"
           :headingLevel="3"
@@ -91,9 +89,7 @@
       >
         {{ noAvailableResources$() }}
       </p>
-      <KCardGrid
-        layout="1-1-1"
-      >
+      <KCardGrid layout="1-1-1">
         <AccessibleChannelCard
           v-for="channel of channels"
           :key="channel.id"

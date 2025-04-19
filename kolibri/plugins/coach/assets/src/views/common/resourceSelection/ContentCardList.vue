@@ -9,9 +9,7 @@
       :disabled="isSelectAllDisabled"
       @change="$emit('changeselectall', $event)"
     />
-    <KCardGrid
-      layout="1-1-1"
-    >
+    <KCardGrid layout="1-1-1">
       <component
         :is="content.is_leaf ? 'AccessibleResourceCard' : 'AccessibleFolderCard'"
         v-for="content in contentList"
