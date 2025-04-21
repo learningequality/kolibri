@@ -8,7 +8,7 @@ help:
 
 clean: clean-assets clean-build clean-pyc
 
-clean-assets:
+clean-assets: install-js-deps
 	yarn run clean
 
 clean-build:
