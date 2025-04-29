@@ -8,3 +8,4 @@ build_src/
 # Also the bound directory for `docker-test` target.
 dist/
 .pybuild/
+.vscode/
