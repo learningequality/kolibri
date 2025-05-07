@@ -300,8 +300,11 @@ def csv_file_generator(
     ) as f:
         writer = csv.DictWriter(f, header_labels)
         writer.writeheader()
+        row_count = 0
         for item in queryset.select_related("user", "user__facility").values(
             *log_info["db_columns"]
         ):
             writer.writerow(map_object(item, len(topic_headers)))
-            yield
+            row_count += 1
+            if row_count % 1000 == 0:
+                yield
