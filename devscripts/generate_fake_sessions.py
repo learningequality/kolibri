@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Script to generate ContentSessionLog entries for testing
 
@@ -14,56 +12,33 @@ Notes:
 This script is intended for development and benchmarking only.
 """
 
-NUM_ROWS = 10000  # Set the number of rows to generate
-
 import os
 import random
 import uuid
 from datetime import timedelta
+
 from django.utils import timezone
 
 from kolibri.utils.cli import initialize
+
 initialize()
-import sqlite3
-import os
-
-# Get real channel_id and content_id from your database
-# we do this directly as the kolibri dev setup doesn't always
-# work through kolibri.content
-def get_content_ids():
-    db_path = os.path.expanduser("~/.kolibri/db.sqlite3")
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT id FROM content_channelmetadata LIMIT 1;")
-    channel_result = cursor.fetchone()
-
-    cursor.execute("SELECT content_id FROM content_contentnode WHERE kind = 'exercise' LIMIT 1;")
-    content_result = cursor.fetchone()
-
-    conn.close()
-
-    if not channel_result or not content_result:
-        print("Error: No valid channel or exercise content found.")
-        return None, None
-
-    return channel_result[0], content_result[0]
 
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.auth.models import FacilityUser, Facility
+from kolibri.core.content.models import ChannelMetadata, ContentNode
 from django.db import transaction
+
+NUM_ROWS = 10000  # Set the number of rows to generate
 
 def main():
 
-    from kolibri.core.content.models import ChannelMetadata, ContentNode
-    channel_id, content_id = get_content_ids()
-    if not channel_id or not content_id:
-        return
+    channel_id = ChannelMetadata.objects.values_list("id", flat=True).first()
     content_id = ContentNode.objects.filter(kind="exercise").values_list("content_id", flat=True).first()
 
     if not channel_id or not content_id:
         print("Error: No valid channel or exercise content found.")
         return
+
     # Get or create facility and test user
     facility = Facility.objects.first()
     if not facility:
