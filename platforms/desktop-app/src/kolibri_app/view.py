@@ -20,6 +20,14 @@ html2.WebView.MSWSetEmulationLevel(html2.WEBVIEWIE_EMU_IE11)
 
 LOADER_PAGE = "loading.html"
 
+ZOOM_LEVELS = [
+    html2.WEBVIEW_ZOOM_TINY,
+    html2.WEBVIEW_ZOOM_SMALL,
+    html2.WEBVIEW_ZOOM_MEDIUM,
+    html2.WEBVIEW_ZOOM_LARGE,
+    html2.WEBVIEW_ZOOM_LARGEST,
+]
+
 
 class LoadingHandler(wx.html2.WebViewHandler):
     def __init__(self):
@@ -69,9 +77,6 @@ class KolibriView(object):
 
         self.webview.LoadURL(url)
 
-        self.default_zoom = self.current_zoom = 4
-        self.max_zoom = 2
-        self.min_zoom = 0.5
         self.view.Bind(wx.EVT_CLOSE, self.OnClose)
 
         # create menu bar, we do this per-window for cross-platform purposes
@@ -191,26 +196,20 @@ class KolibriView(object):
     def load_url(self, url):
         wx.CallAfter(self.webview.LoadURL, url)
 
-    def get_zoom_level(self):
-        return self.current_zoom
-
-    def set_zoom_level(self, zoom):
-        if zoom / 4 < self.min_zoom or zoom / 4 > self.max_zoom:
+    def zoom(self, zoom_in):
+        index_change = 1 if zoom_in else -1
+        current_zoom = self.webview.GetZoom()
+        current_index = ZOOM_LEVELS.index(current_zoom)
+        new_index = current_index + index_change
+        if new_index < 0 or new_index >= len(ZOOM_LEVELS):
             return
-        self.current_zoom = zoom
-        self.evaluate_javascript(
-            "document.documentElement.style.zoom = {}".format(zoom / 4)
-        )
+        self.webview.SetZoom(ZOOM_LEVELS[new_index])
 
     def get_url(self):
         return self.webview.GetCurrentURL()
 
     def clear_history(self):
         self.webview.ClearHistory()
-
-    def evaluate_javascript(self, js):
-        js = js.encode("utf8")
-        wx.CallAfter(self.webview.RunScript, js)
 
     def OnClose(self, event):
         self.shutdown()
@@ -221,8 +220,6 @@ class KolibriView(object):
             event.Veto()
 
     def OnLoadComplete(self, event):
-        if not self.current_zoom == self.default_zoom:
-            self.set_zoom_level(self.current_zoom)
         url = event.URL
 
         # Make sure that any attempts to use back functionality don't take us back to the loading screen
@@ -275,13 +272,13 @@ class KolibriView(object):
         self.webview.Redo()
 
     def on_actual_size(self, event):
-        self.set_zoom_level(self.default_zoom)
+        self.webview.SetZoom(html2.WEBVIEW_ZOOM_MEDIUM)
 
     def on_zoom_in(self, event):
-        self.set_zoom_level(self.get_zoom_level() + 1)
+        self.zoom(True)
 
     def on_zoom_out(self, event):
-        self.set_zoom_level(self.get_zoom_level() - 1)
+        self.zoom(False)
 
     def shutdown(self):
         if self in self.app.windows:
