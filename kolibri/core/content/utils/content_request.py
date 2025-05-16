@@ -928,6 +928,7 @@ def process_content_removal_requests(queryset):
     """
 
     from kolibri.core.content.utils.content_delete import delete_content
+
     # exclude admin imported nodes
     removable_nodes = ContentNode.objects.filter(
         id__in=queryset.values_list("contentnode_id", flat=True).distinct(),

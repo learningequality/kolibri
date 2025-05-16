@@ -1,6 +1,7 @@
 import logging
 
 from django.core.management.base import BaseCommand
+
 from kolibri.core.content.utils.content_delete import delete_content
 
 logger = logging.getLogger(__name__)
