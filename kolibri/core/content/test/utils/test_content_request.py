@@ -903,9 +903,9 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
             self.request.contentnode_id, available=True
         )
 
-        call_command_patcher = mock.patch(_module + "call_command")
-        self.mock_call_command = call_command_patcher.start()
-        self.addCleanup(call_command_patcher.stop)
+        delete_content_patcher = mock.patch('kolibri.core.content.utils.content_delete.delete_content')
+        self.mock_call_command = delete_content_patcher.start()
+        self.addCleanup(delete_content_patcher.stop)
 
         self.qs = incomplete_removals_queryset()
 
@@ -913,9 +913,10 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
         self.assertEqual(self.qs.count(), 1)
         process_content_removal_requests(self.qs)
         self.mock_call_command.assert_called_once_with(
-            "deletecontent",
-            self.node.channel_id,
+            channel_id=self.node.channel_id,
             node_ids=[self.request.contentnode_id],
+            exclude_node_ids=None,
+            force_delete=False,
             ignore_admin_flags=True,
             update_content_requests=False,
         )
