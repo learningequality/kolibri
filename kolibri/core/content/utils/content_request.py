@@ -2,7 +2,6 @@ import logging
 import uuid
 from itertools import chain
 
-# from django.core.management import call_command
 from django.db.models import BigIntegerField
 from django.db.models import BooleanField
 from django.db.models import Case
