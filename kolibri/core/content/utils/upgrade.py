@@ -1,7 +1,6 @@
 import logging
 import os
 
-from django.core.management import call_command
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
 from sqlalchemy import func
@@ -36,6 +35,7 @@ from kolibri.core.content.utils.sqlalchemybridge import filter_by_uuids
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.cache import process_cache
+from kolibri.core.content.utils.channel_transfer import transfer_channel
 
 
 logger = logging.getLogger(__name__)
@@ -57,13 +57,19 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
     destination_path = get_annotated_content_database_file_path(channel_id)
     try:
         if method == "network":
-            call_command(
-                "importchannel", "network", channel_id, baseurl=baseurl, no_upgrade=True
+            transfer_channel(
+                channel_id=channel_id,
+                method="network",
+                no_upgrade=True,
+                baseurl=baseurl,
             )
         elif method == "disk":
             drive = get_mounted_drive_by_id(drive_id)
-            call_command(
-                "importchannel", "disk", channel_id, drive.datafolder, no_upgrade=True
+            transfer_channel(
+                channel_id=channel_id,
+                method="disk",
+                content_dir=drive.datafolder,
+                no_upgrade=True
             )
 
         # create all fields/tables at the annotated destination db, based on the current schema version
