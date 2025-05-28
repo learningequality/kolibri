@@ -1,5 +1,6 @@
 {
   "name": "kolibri-format",
+  "type": "module",
   "version": "1.0.1",
   "description": "A module for formatting frontend code to Kolibri standards",
   "repository": {
@@ -16,7 +17,7 @@
   "dependencies": {
     "chalk": "4.1.2",
     "commander": "^13.1.0",
-    "eslint": "^8.57.0",
+    "eslint": "^9.26.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jest": "^28.11.0",
