@@ -1,6 +1,6 @@
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
-import { browser, os, device, isTouchDevice } from 'kolibri.utils.browserInfo';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
+import { browser, os, device, isTouchDevice, screenBreakpoint } from 'kolibri/utils/browserInfo';
 
 export function report(error) {
   const url = urls['kolibri:kolibri.plugins.error_reports:report']();
@@ -33,12 +33,7 @@ class ErrorReport {
       device: {
         ...device,
         is_touch_device: isTouchDevice,
-        screen: {
-          width: window.screen.width,
-          height: window.screen.height,
-          available_width: window.screen.availWidth,
-          available_height: window.screen.availHeight,
-        },
+        screen_breakpoint: screenBreakpoint,
       },
       ...this.getExtraContext(),
     };
