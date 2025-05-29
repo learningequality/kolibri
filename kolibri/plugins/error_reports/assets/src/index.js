@@ -26,7 +26,7 @@ window.addEventListener('unhandledrejection', event => {
   if (process.env.NODE_ENV === 'production') {
     event.preventDefault();
   }
-  logger.debug(`Unhandled Rejection: ${event.reason}`);
+  logger.debug(`Unhandled Rejection: ${event}`);
   const error = new UnhandledRejectionErrorReport(event);
   report(error);
 });

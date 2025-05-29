@@ -32,6 +32,7 @@ from kolibri.core.content.models import LocalFile
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.error_reports.tasks import ping_error_reports
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
@@ -471,4 +472,5 @@ def ping_once(started, server=DEFAULT_SERVER_URL):
     if "id" in data:
         stat_data = perform_statistics(server, data["id"])
         create_and_update_notifications(stat_data, nutrition_endpoints.STATISTICS)
+        ping_error_reports.enqueue(args=(server, data["id"]))
         return data["id"]

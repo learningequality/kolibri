@@ -100,7 +100,7 @@ class ErrorReport(models.Model):
                 error_report.context = context
 
         error_report.save()
-        logger.error("ErrorReport: Database updated.")
+        logger.info("ErrorReport: Database updated.")
         return error_report
 
     @classmethod
