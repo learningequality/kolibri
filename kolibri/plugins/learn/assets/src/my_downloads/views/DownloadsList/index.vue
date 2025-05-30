@@ -157,10 +157,10 @@
   import { computed, getCurrentInstance } from 'vue';
   import { get } from '@vueuse/core';
   import { createTranslator } from 'kolibri/utils/i18n';
+  import useLearningActivities from 'kolibri-common/composables/useLearningActivities';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useContentLink from '../../../composables/useContentLink';
   import useDevices from '../../../composables/useDevices';
-  import useLearningActivities from '../../../composables/useLearningActivities';
   import useDownloadRequests from '../../../composables/useDownloadRequests';
   import SelectionBottomBar from './SelectionBottomBar.vue';
   import ConfirmationDeleteModal from './ConfirmationDeleteModal.vue';

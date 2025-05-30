@@ -12,6 +12,7 @@ from django.utils.module_loading import import_string
 from sqlalchemy import create_engine
 from sqlalchemy import event
 from sqlalchemy import exc
+from sqlalchemy.engine import URL
 
 from kolibri.core.sqlite.utils import check_sqlite_integrity
 from kolibri.core.sqlite.utils import repair_sqlite_db
@@ -142,15 +143,20 @@ def create_db_url(
     db_type, path=None, name=None, password=None, user=None, host=None, port=None
 ):
     if db_type == "sqlite":
-        return "sqlite:///{path}".format(path=path)
-    elif db_type == "postgres":
-        return "postgresql://{user}:{password}@{host}{port}/{name}".format(
-            name=name,
-            password=password,
-            user=user,
-            host=host,
-            port=":" + port if port else "",
+        url = URL.create(
+            drivername="sqlite",
+            database=path,
         )
+    elif db_type == "postgres":
+        url = URL.create(
+            drivername="postgresql",
+            username=user,
+            password=password,
+            host=host,
+            port=int(port) if port else None,
+            database=name,
+        )
+    return url
 
 
 def make_connection(db_type, url):
@@ -304,9 +310,9 @@ class JobProgressMixin(object):
                 )
                 # Only set the job progress to a max of the total progress
                 new_progress = self.job.total_progress
-            self.job.update_progress(new_progress, self.job.total_progress)
-            if extra_data and isinstance(extra_data, dict):
-                self.job.update_metadata(**extra_data)
+            self.job.update_progress(
+                new_progress, self.job.total_progress, extra_metadata=extra_data
+            )
 
     def update_job_metadata(self, **kwargs):
         if self.job:

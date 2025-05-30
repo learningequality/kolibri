@@ -99,6 +99,7 @@
   import { languageIdToCode } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
   import Settings from '../utils/settings';
   import { ReplayButton, ForwardButton } from './customButtons';
   import MediaPlayerFullscreen from './MediaPlayerFullscreen';
@@ -125,7 +126,8 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsSmall, windowIsPortrait } = useKResponsiveWindow();
-      return { windowIsSmall, windowIsPortrait };
+      const { elementWidth } = useKResponsiveElement();
+      return { windowIsSmall, windowIsPortrait, elementWidth };
     },
     data: () => ({
       dummyTime: 0,

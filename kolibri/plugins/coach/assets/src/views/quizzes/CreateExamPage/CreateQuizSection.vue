@@ -493,10 +493,11 @@
         }
       },
       handleConfirmDelete() {
+        const sectionIndexToDelete = this.activeSectionIndex;
         const section_title = displaySectionTitle(this.activeSection, this.activeSectionIndex);
-        const newIndex = this.activeSectionIndex > 0 ? this.activeSectionIndex - 1 : 0;
+        const newIndex = sectionIndexToDelete > 0 ? sectionIndexToDelete - 1 : 0;
         this.setActiveSection(newIndex);
-        this.removeSection(this.activeSectionIndex);
+        this.removeSection(sectionIndexToDelete);
         this.$nextTick(() => {
           this.createSnackbar(this.sectionDeletedNotification$({ section_title }));
           this.focusActiveSectionTab();

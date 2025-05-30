@@ -4,6 +4,6 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
-    "core-js": "^3.41"
+    "core-js": "^3.42"
   }
 }

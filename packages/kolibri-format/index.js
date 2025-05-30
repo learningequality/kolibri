@@ -12,24 +12,47 @@ const logger = require('kolibri-logging');
 // check for host project's linting configs, otherwise use defaults
 const hostProjectDir = process.cwd();
 
-let esLintConfig;
+let esLintConfigPath;
 try {
-  esLintConfig = require(`${hostProjectDir}/.eslintrc`);
-} catch (e) {
-  esLintConfig = require('./.eslintrc');
+  // Check for flat config files in order of precedence
+  const flatConfigFiles = [
+    'eslint.config.js',
+    'eslint.config.mjs',
+    'eslint.config.cjs',
+    'eslint.config.ts',
+    'eslint.config.mts',
+    'eslint.config.cts'
+  ];
+  
+  let foundConfig = false;
+  for (const configFile of flatConfigFiles) {
+    const configPath = path.join(hostProjectDir, configFile);
+    if (fs.existsSync(configPath)) {
+      esLintConfigPath = configPath;
+      foundConfig = true;
+      break;
+    }
+  }
+  
+  if (!foundConfig) {
+    // Fallback to default config in this package
+    esLintConfigPath = path.join(__dirname, 'eslint.config.mjs');
+  }
+} catch (error) {
+  esLintConfigPath = path.join(__dirname, 'eslint.config.mjs');
 }
 
 let stylelintConfig;
 try {
   stylelintConfig = require(`${hostProjectDir}/.stylelintrc`);
-} catch (e) {
+} catch (error) {
   stylelintConfig = require('./.stylelintrc');
 }
 
 let prettierConfig;
 try {
   prettierConfig = require(`${hostProjectDir}/.prettierrc`);
-} catch (e) {
+} catch (error) {
   prettierConfig = require('./.prettierrc');
 }
 
@@ -37,8 +60,9 @@ const logging = logger.getLogger('Kolibri Format');
 
 logging.setLevel(2);
 
+// Create ESLint instance with flat config
 const esLinter = new ESLint({
-  baseConfig: esLintConfig,
+  overrideConfigFile: esLintConfigPath,
   fix: true,
 });
 
@@ -74,10 +98,10 @@ async function prettierFormat(code, file, messages) {
   );
   try {
     return prettier.format(code, options);
-  } catch (e) {
+  } catch (error) {
     messages.push(
       `${chalk.underline(file)}\n${chalk.red('Parsing error during prettier formatting:')}\n${
-        e.message
+        error.message
       }`,
     );
   }

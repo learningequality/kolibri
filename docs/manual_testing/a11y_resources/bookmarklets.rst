@@ -29,7 +29,7 @@ websites.
 Several handy a11y assessment favelets/bookmarklets.
 
 
-.. _`tota11y - an accessibility visualization toolkit`: http://khan.github.io/tota11y/
+.. _`tota11y - an accessibility visualization toolkit`: https://blog.khanacademy.org/tota11y-an-accessibility-visualization-toolkit/
 .. _`HTML_CodeSniffer`: http://squizlabs.github.io/HTML_CodeSniffer/
 .. _`Visual ARIA Bookmarklet`: http://whatsock.com/training/matrices/visual-aria.htm
 .. _`Jim Thatcher’s Favelets`: http://jimthatcher.com/favelets/

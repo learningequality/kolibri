@@ -93,7 +93,7 @@ other concerns, please notify a community organizer as soon as possible.
 codeofconduct@learningequality.org.
 
 `Reporting
-Guidelines <http://kolibri.readthedocs.io/en/develop/contributing.html#code-of-conduct>`__
+Guidelines <https://kolibri-dev.readthedocs.io/en/develop/contributing/code_of_conduct.html#id2>`__
 
 Additionally, community organizers are available to help community
 members engage with local law enforcement or to otherwise help those
@@ -108,7 +108,7 @@ Code of Conduct, you should notify Learning Equality with a concise
 description of your grievance. Your grievance will be handled in
 accordance with our existing governing policies.
 
-[Enforcement Manual](http://kolibri.readthedocs.io/en/develop/contributing.html#code-of-conduct)
+[Enforcement Manual](https://kolibri-dev.readthedocs.io/en/develop/contributing/code_of_conduct.html#id3)
 
 ## 8. Scope
 

@@ -79,7 +79,7 @@
   "CommonCoachStrings.makeQuizReportVisibleText": "Los estudiantes podrán ver el informe de esta prueba. Los archivos de recursos incluidos en esta prueba se descargarán en los dispositivos estudiante que estén configurados para sincronizar con este servidor.",
   "CommonCoachStrings.makeQuizReportVisibleTitle": "Hacer que el informe de la prueba sea visible",
   "CommonCoachStrings.manageLessonResourcesTitle": "Añadir recursos a la lección",
-  "CommonCoachStrings.manageResourcesAction": "Gestionar materiales",
+  "CommonCoachStrings.manageResourcesAction": "Gestionar recursos",
   "CommonCoachStrings.membersLabel": "Miembros",
   "CommonCoachStrings.nameLabel": "Nombre",
   "CommonCoachStrings.newLessonAction": "Nueva lección",

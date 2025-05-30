@@ -317,6 +317,12 @@ class FacilityUserFilter(FilterSet):
     def filter_user_type(self, queryset, name, value):
         if value == "learner":
             return queryset.filter(roles__isnull=True)
+        if value == "coach":
+            # Return users with either coach or classroom assignable coach roles
+            return queryset.filter(
+                Q(roles__kind=role_kinds.COACH)
+                | Q(roles__kind=role_kinds.ASSIGNABLE_COACH)
+            )
         if value == "superuser":
             return queryset.filter(devicepermissions__is_superuser=True)
         return queryset.filter(roles__kind=value)
@@ -326,7 +332,12 @@ class FacilityUserFilter(FilterSet):
 
     def filter_exclude_coach_for(self, queryset, name, value):
         return queryset.exclude(
-            Q(roles__in=Role.objects.filter(kind=role_kinds.COACH, collection=value))
+            Q(
+                roles__in=Role.objects.filter(
+                    Q(kind=role_kinds.COACH) | Q(kind=role_kinds.ASSIGNABLE_COACH),
+                    collection=value,
+                )
+            )
         )
 
     def filter_exclude_user_type(self, queryset, name, value):

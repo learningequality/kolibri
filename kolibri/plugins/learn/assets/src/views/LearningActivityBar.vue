@@ -33,7 +33,6 @@
         :progress="contentProgress"
         class="progress-icon"
       />
-
       <template #icon>
         <KIconButton
           icon="back"
@@ -597,35 +596,28 @@
   }
 
   /*
-  Make truncation via text ellipsis work well in UIToolbar's body flex item:
+  Make truncation via text ellipsis work well in KToolbar's default slot:
   By default, `min-width` is `auto`  for a flex item which means it
   cannot be smaller than the size of its content which causes the whole
   title being visible even in cases when it should be already truncated.
   Overriding it to `0` allows the title to be shrinked and then truncated
-  properly. Labeled icon wrapper needs to have this set too for its parent
-  flex item to shrink.
+  properly.
 */
-  /deep/ .ui-toolbar__body,
   /deep/ .labeled-icon-wrapper {
     min-width: 0;
   }
 
-  /deep/ .ui-toolbar__left {
+  /deep/ .k-toolbar-left {
     margin-left: 5px;
     overflow: hidden;
   }
 
-  /deep/ .ui-toolbar__right {
+  /deep/ .k-toolbar-right {
     display: flex;
   }
 
-  /deep/ .ui-toolbar__nav-icon {
+  /deep/ .k-toolbar-nav-icon {
     margin-left: 0; // prevents icon cutoff
-  }
-
-  /deep/ .ui-toolbar__body {
-    flex-grow: 0; // make sure that the completion icon is right next to the title
-    align-items: center;
   }
 
   /deep/ .progress-icon .ui-icon {

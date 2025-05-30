@@ -136,6 +136,7 @@ export default class BloomRunner {
         url: this.contentUrl,
         distributionUrl: this.distributionUrl,
         metaJsonUrl: this.metaUrl,
+        questionsJsonUrl: this.questionsUrl,
         independent: false,
         hideFullScreenButton: true,
         initiallyShowAppBar: true,
@@ -163,6 +164,9 @@ export default class BloomRunner {
       }),
       this.zip.file('meta.json').then(meta => {
         this.metaUrl = meta.toUrl();
+      }),
+      this.zip.file('questions.json').then(questions => {
+        this.questionsUrl = questions?.toUrl();
       }),
     ]);
   }

@@ -22,6 +22,7 @@
         ref="searchInput"
         v-model.trim="newSearchTerm"
         type="search"
+        :disabled="disabled"
         class="search-input"
         :class="$computedClass(searchInputStyle)"
         dir="auto"
@@ -93,6 +94,10 @@
         type: String,
         default: null,
       },
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -113,7 +118,7 @@
       },
       searchBarDisabled() {
         // Disable the search bar if it has been cleared or has not been changed
-        return this.searchInputValue === '';
+        return this.searchInputValue === '' || this.disabled;
       },
       searchInputStyle() {
         return {

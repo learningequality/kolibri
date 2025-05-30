@@ -4,7 +4,7 @@
     <KSelect
       v-if="languageOptionsList.length"
       :options="languageOptionsList"
-      :disabled="!langId && enabledLanguageOptions.length < 2"
+      :disabled="searchLoading || (!langId && enabledLanguageOptions.length < 2)"
       :clearable="!(!langId && enabledLanguageOptions.length < 2)"
       :clearText="coreString('clearAction')"
       :value="selectedLanguage"
@@ -15,7 +15,7 @@
     <KSelect
       v-if="contentLevelsList.length"
       :options="contentLevelsList"
-      :disabled="!levelId && enabledContentLevels.length < 2"
+      :disabled="searchLoading || (!levelId && enabledContentLevels.length < 2)"
       class="selector"
       :clearable="!(!levelId && enabledContentLevels.length < 2)"
       :clearText="coreString('clearAction')"
@@ -27,7 +27,7 @@
     <KSelect
       v-if="accessibilityOptionsList.length"
       :options="accessibilityOptionsList"
-      :disabled="!accessId && enabledAccessibilityOptions.length < 2"
+      :disabled="searchLoading || (!accessId && enabledAccessibilityOptions.length < 2)"
       class="selector"
       :clearable="!(!accessId && enabledAccessibilityOptions.length < 2)"
       :clearText="coreString('clearAction')"
@@ -58,12 +58,14 @@
         availableAccessibilityOptions,
         availableLanguages,
         searchableLabels,
+        searchLoading,
       } = injectBaseSearch();
       return {
         availableGradeLevels,
         availableAccessibilityOptions,
         availableLanguages,
         searchableLabels,
+        searchLoading,
       };
     },
     props: {

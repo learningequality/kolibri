@@ -30,7 +30,7 @@
   "CommonSyncStrings.newAddressTitle": "Novo dispositivo",
   "CommonSyncStrings.onMyOwn": "Para aprendizagem em casa e outros usos pessoais.",
   "CommonSyncStrings.selectFacilityTitle": "Selecione a instituição de ensino",
-  "CommonSyncStrings.selectNetworkAddressTitle": "Selecionar dispositivo",
+  "CommonSyncStrings.selectNetworkAddressTitle": "Seleccionar dispositivo",
   "CommonSyncStrings.selectSourceTitle": "Selecionar a fonte",
   "CommonSyncStrings.superAdminPermissionsDescription": "Esta conta de \"super\" administrador permite-lhe gerir todos as instituições, conteúdos e utilizadores neste dispositivo.",
   "CommonSyncStrings.warningFirstImportedIsSuperuser": "Nota: Esta conta de \"super\" administrasor será concedida ao primeiro utilizador que escolher importar autorizações neste dispositivo e o próprio será capaz de gerir todos os canais e definições do mesmo.",

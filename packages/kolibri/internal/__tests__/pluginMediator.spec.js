@@ -415,6 +415,7 @@ describe('Mediator', function () {
     const moduleName = 'test';
     const messageMap = {
       test: 'test message',
+      ampersandMessage: 'test &amp; message',
     };
     let spy;
     beforeEach(function () {
@@ -432,7 +433,10 @@ describe('Mediator', function () {
     });
     it('should call Vue.registerMessages with arguments currentLanguage and messageMap', function () {
       mediator.registerLanguageAssets(moduleName);
-      expect(spy).toHaveBeenCalledWith(currentLanguage, messageMap);
+      expect(spy).toHaveBeenCalledWith(currentLanguage, {
+        test: 'test message',
+        ampersandMessage: 'test & message',
+      });
     });
   });
 });

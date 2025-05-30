@@ -30,7 +30,7 @@
 <script>
 
   import TimeDuration from 'kolibri-common/components/TimeDuration';
-  import useLearningActivities from '../../composables/useLearningActivities';
+  import useLearningActivities from 'kolibri-common/composables/useLearningActivities';
 
   /**
    * Depending on learning activities and duration of the content node,

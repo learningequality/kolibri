@@ -820,6 +820,8 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         blank=True,
     )
 
+    date_deleted = DateTimeTzField(null=True, blank=True)
+
     def get_short_name(self):
         return self.full_name.split(" ", 1)[0]
 

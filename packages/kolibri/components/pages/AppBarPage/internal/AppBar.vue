@@ -377,27 +377,12 @@
     margin-left: 16px;
   }
 
-  /deep/ .ui-toolbar__body {
-    display: inline-block;
-    margin-bottom: 12px;
-  }
-
-  /deep/ .ui-toolbar__title {
+  /deep/ .k-toolbar-right {
     display: flex;
     align-items: center;
   }
 
-  /deep/ .ui-toolbar__nav-icon {
-    display: flex;
-    align-items: center;
-  }
-
-  /deep/ .ui-toolbar__right {
-    display: flex;
-    align-items: center;
-  }
-
-  /deep/ .ui-toolbar__left {
+  /deep/ .k-toolbar-left {
     display: flex;
     align-items: center;
     margin-left: 8px;

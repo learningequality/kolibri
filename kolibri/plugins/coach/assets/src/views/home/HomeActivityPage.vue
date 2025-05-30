@@ -9,10 +9,7 @@
         />
       </p>
 
-      <ActivityList
-        :noActivityString="$tr('noActivityLabel')"
-        embeddedPageName="HomeActivityPage"
-      />
+      <ActivityList :noActivityString="$tr('noActivityLabel')" />
     </KPageContainer>
   </CoachAppBarPage>
 

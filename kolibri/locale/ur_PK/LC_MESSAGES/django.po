@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-04-07 13:38-0400\n"
-"PO-Revision-Date: 2025-04-08 20:23\n"
+"PO-Revision-Date: 2025-04-14 15:12\n"
 "Last-Translator: \n"
 "Language-Team: Urdu (Pakistan)\n"
 "Language: ur_PK\n"
@@ -24,7 +24,7 @@ msgstr "سیل '{}' کا مواد درست نہیں ہے"
 
 #: core/auth/constants/commands_errors.py:16
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr "کوئی پہلے سے طے شدہ سہولت موجود نہیں ہے۔ اس کمانڈ کو چلانے سے پہلے یقینی بنائیں کہ ڈیوائس پر کوئی سہولت قائم ہے"
+msgstr "کوئی پہلے سے طے شدہ سہولت موجود نہیں ہے۔ یہ کمانڈ چلانے سے پہلے ڈیوائس پر ایک سہولت کا قیام یقینی بنائیں"
 
 #: core/auth/constants/commands_errors.py:18
 #: core/auth/management/commands/bulkimportusers.py:100
@@ -39,7 +39,7 @@ msgstr "ڈیٹا بیس آئی ڈی ({})"
 #: core/auth/management/commands/bulkexportusers.py:46
 #: core/auth/management/commands/bulkexportusers.py:123
 msgid "Username ({})"
-msgstr "صارف نام ({})"
+msgstr "صارف کا نام ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:47
 #: core/auth/management/commands/bulkexportusers.py:124
@@ -64,7 +64,7 @@ msgstr "شناخت کنندہ ({})"
 #: core/auth/management/commands/bulkexportusers.py:57
 #: core/auth/management/commands/bulkexportusers.py:134
 msgid "Birth year ({})"
-msgstr "پیدائشی سال ({})"
+msgstr "پیدائش کا سال ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:58
 #: core/auth/management/commands/bulkexportusers.py:135
@@ -79,7 +79,7 @@ msgstr "سیکھنے والے کا اندراج ({})"
 #: core/auth/management/commands/bulkexportusers.py:70
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "کوچ اسائنمنٹ({})"
+msgstr "کوچ کو سونپی گئی زمہ داری ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:130
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
@@ -94,7 +94,7 @@ msgstr "سیکھنے والے کا اندراج ({})"
 #: core/auth/management/commands/bulkexportusers.py:147
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "کوچ اسائنمنٹ({})"
+msgstr "کوچ کو سونپی گئی زمہ داری ({})"
 
 #: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
@@ -104,19 +104,19 @@ msgstr "غیر متوقع خرابی [{}]: {}"
 #: core/auth/management/commands/bulkimportusers.py:80
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
-msgstr "کالم '{}' کی قدرمیں بہت زیادہ حرف ہیں"
+msgstr "کالم '{}' کی قدرمیں بہت زیادہ حروف ہیں"
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr "کالم '{}' میں ویلیو درست نہیں ہے"
+msgstr "کالم '{}' میں قدر درست نہیں ہے"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
-msgstr "صارف نام ڈپلیکیٹ ہے"
+msgstr "صارف کا نام دوبارہ درج ہے"
 
 #: core/auth/management/commands/bulkimportusers.py:85
 msgid "Username only can contain characters, numbers and underscores"
-msgstr "صارف نام میں صرف حرف ، نمبر اور انڈر سکور ہوسکتے ہیں"
+msgstr "صارف کے نام میں صرف حروف ، اعداد اور انڈر سکورز ہوسکتے ہیں"
 
 #: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
@@ -131,7 +131,7 @@ msgstr "پہلی صف میں غلط ہیڈر لیبل ملا ہے"
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr "کوئی پہلے سے طے شدہ سہولت موجود نہیں ہے۔ صارفین اور کلاسوں کو درآمد کرنے سے پہلے ڈیوائس پر ایک سہولت قائم کرنا یقینی بنائیں"
+msgstr "کوئی پہلے سے طے شدہ سہولت موجود نہیں ہے۔ صارفین اور کلاسوں کو درآمد کرنے سے پہلے ڈیوائس پر ایک سہولت کا قیام  یقینی بنائیں"
 
 #: core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to read csv file: {}"
@@ -139,32 +139,32 @@ msgstr "CSV فائل کو پڑھنے کی کوشش میں خامی: {}"
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr "پاس ورڈ فیلڈ درکار ہے۔ موجودہ صارفین میں پاس ورڈ کو تبدیل نا کرنے کے لئے ، نجمہ داخل کریں (*)"
+msgstr "یہ پاس ورڈ فیلڈ درکار ہے۔ موجودہ صارفین میں پاس ورڈ جوں کا توں رکھنے کے لیے ، ایک ستارہ (*) ڈالیں"
 
 #: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr "ID کے ساتھ صارف کو اپ ڈیٹ نہیں کیا جاسکتا: '{}' کیونکہ اس سہولت میں ڈیٹا بیس آئی ڈی والا کوئی صارف موجود نہیں ہے"
+msgstr "ID کے ساتھ صارف کو اپ ڈیٹ نہیں کیا جاسکتا: '{}' کیونکہ اس سہولت میں اس ڈیٹا بیس ID والا کوئی صارف موجود نہیں ہے"
 
 #: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
-msgstr "ڈیٹا بیس آئی ڈی درست نہیں ہے"
+msgstr "یہ ڈیٹا بیس ID درست نہیں ہے"
 
 #. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
 #: core/auth/tasks.py:54
 msgid "Data syncing in progress"
-msgstr "ڈیٹا سنک (مطابقت) کیا جا رہا ہے"
+msgstr "ڈیٹا کی Syncing (ہم آہنگی) جاری ہے"
 
 #. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
 #. to encourage them to stay connected to their network to ensure a successful sync.
 #: core/auth/tasks.py:58
 msgid "Do not disconnect your device from the network."
-msgstr "اپنی ڈیوائس (آلے) کو نیٹ ورک سے منقطع نہ کریں۔"
+msgstr "اپنی ڈیوائس نیٹ ورک سے منقطع نہ کریں۔"
 
 #. Translators: Message shown to an App user when the device's library is being updated
 #. either with new resources, or unwanted resources being deleted.
 #: core/content/tasks.py:60
 msgid "Updating your library"
-msgstr "آپ کی لائبریری اپ ڈیٹ ہو رہی ہے"
+msgstr "آپ کی لائبریری اپ ڈیٹ کی جا رہی ہے"
 
 #. Translators: Message shown to an App user when an update to the library has been successful.
 #: core/content/tasks.py:63
@@ -188,7 +188,7 @@ msgstr "تلاش کر رہا ہے…"
 #. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
 #: core/device/task_notifications.py:13
 msgid "Looking for other Kolibri devices"
-msgstr "دیگر کولیبری ڈیوائسز (آلات) کی تلاش کر رہے ہیں"
+msgstr "کولیبری کے دیگر ڈیوائسز کی تلاش جاری ہے"
 
 #: core/logger/csv_export.py:122
 msgid "Facility name"
@@ -196,7 +196,7 @@ msgstr "تعلیمی ادارہ کا نام"
 
 #: core/logger/csv_export.py:123
 msgid "Username"
-msgstr "استعمال کندہ کا نام"
+msgstr "صارف کا نام"
 
 #: core/logger/csv_export.py:124
 msgid "Channel id"
@@ -217,12 +217,12 @@ msgstr "مواد کا عنوان"
 #: core/logger/csv_export.py:132
 msgctxt "CSV column header for the time of the first interaction in the exported logs"
 msgid "Time of first interaction"
-msgstr "پہلے رابطے کا وقت"
+msgstr "ابتدائی رابطے کا وقت"
 
 #: core/logger/csv_export.py:139
 msgctxt "CSV column header for the time of the last interaction in the exported logs"
 msgid "Time of last interaction"
-msgstr "آخری رابطے کا وقت"
+msgstr "گزشتہ رابطے کا وقت"
 
 #: core/logger/csv_export.py:146
 msgctxt "CSV column header for the percentage of completion in the exported logs"
@@ -232,11 +232,11 @@ msgstr "تکمیل کا وقت"
 #: core/logger/csv_export.py:153
 msgctxt "CSV column header for the time spent in a resource in the exported logs"
 msgid "Time Spent (sec)"
-msgstr "کتنا وقت لگا (سیکنڈ)"
+msgstr "صرف کیا گیا وقت (سیکنڈ)"
 
 #: core/logger/csv_export.py:156
 msgid "Progress (0-1)"
-msgstr "ترقی (0-1)"
+msgstr "پیش رفت (0-1)"
 
 #: core/logger/csv_export.py:157
 msgid "Content kind"
@@ -244,12 +244,12 @@ msgstr "مواد کی قسم"
 
 #: core/logger/csv_export.py:288
 msgid "Folder level {i+1}"
-msgstr ""
+msgstr "فولڈر لیول {i+1}"
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
 #: core/tasks/job.py:86
 msgid "Complete"
-msgstr "مکمل"
+msgstr "مکمل ہوگیا"
 
 #. Translators: Message shown to indicate that a background process has failed.
 #: core/tasks/job.py:89
@@ -259,7 +259,7 @@ msgstr "ناکام ہوگیا"
 #. Translators: Message shown to indicate that a background process has been cancelled.
 #: core/tasks/job.py:92
 msgid "Cancelled"
-msgstr "منسوخ"
+msgstr "منسوخ کردیا گیا"
 
 #. Translators: Message shown to indicate the percentage completed of a background process.
 #: core/tasks/job.py:95
@@ -270,7 +270,7 @@ msgstr "کام جاری ہے - {percent}%"
 #. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
 #: core/tasks/job.py:99
 msgid "Waiting"
-msgstr "انتظار کر رہا ہے"
+msgstr "انتظار جاری ہے"
 
 #: core/templates/kolibri/loading_page.html:8
 msgid "Kolibri is starting"
@@ -282,11 +282,11 @@ msgstr "کولیبری شروع کرنا"
 
 #: core/templates/kolibri/loading_page.html:89
 msgid "You should be automatically redirected when Kolibri is ready"
-msgstr "کولیبری کے تیار ہوجانے پر آپ کو خود بخود ری ڈائریکٹ کیا جانا چاہیے"
+msgstr "کولیبری تیار ہوتے ہی آپ کو خود بخود ری ڈائریکٹ کردیا جائے گا"
 
 #: core/templates/kolibri/loading_page.html:90
 msgid "If not, please ask for help in our community forums"
-msgstr "اگر نہیں، تو براہ کرم ہمارے کمیونٹی فورمز میں مدد طلب کریں"
+msgstr "اگر ایسا نہ ہو، تو براہ کرم ہمارے کمیونٹی فورمز میں مدد طلب کریں"
 
 #: core/templates/kolibri/loading_page.html:91
 msgid "Refresh page"
@@ -294,15 +294,15 @@ msgstr "صفحہ ری فریش کریں"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
-msgstr "غیر تائید شدہ براؤزر"
+msgstr "یہ براؤزر سپورٹ نہیں کیا جاتا"
 
 #: core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
-msgstr "معاف کیجئے گا, آپ کے براؤزر ورژن معاون نہیں."
+msgstr "ہمیں افسوس ہے، ہم آپ کے براؤزر کے اس ورژن کو سپورٹ نہیں کرتے۔"
 
 #: core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "کولیبری استعمیل کرنے کے لیے ہم فائر فکس یا کروم استعمال کرنے کی مشورہ دیتے ہے."
+msgstr "کولیبری استعمال کرنے کے لیے ہم فائر فوکس یا کروم کے استعمال کا مشورہ دیتے ہیں۔"
 
 #: core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
@@ -314,7 +314,7 @@ msgstr "کولیبری"
 
 #: core/views.py:196
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr "کوئی مناسب صفحات نہیں ملے۔ ممکن ہے کہ یہ کولیبری بری طرح تشکیل کیا گیا ہے"
+msgstr "کوئی مناسب ری ڈائریکشن پیج دستیاب نہیں۔ کولبری کی کنفیگریشن میں ممکنہ خرابی ہے"
 
 #: plugins/coach/kolibri_plugin.py:23
 msgid "Coach"
@@ -332,7 +332,7 @@ msgstr "مواد_سیشن_لوگز_سے_"
 #: plugins/facility/views.py:156 plugins/facility/views.py:174
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "to_"
-msgstr "کو_"
+msgstr "ـ تک"
 
 #: plugins/facility/views.py:167
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
@@ -342,11 +342,11 @@ msgstr "مواد_خلاصہ_لوگز_سے_"
 #: plugins/facility/views.py:185
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
 msgid "users"
-msgstr "یوزرز"
+msgstr "صارفین"
 
 #: plugins/learn/kolibri_plugin.py:31
 msgid "Learn"
-msgstr "سیکھئے"
+msgstr "سیکھیں"
 
 #: plugins/policies/kolibri_plugin.py:17
 msgid "Policies"
@@ -354,11 +354,11 @@ msgstr "پالیسیاں"
 
 #: plugins/setup_wizard/kolibri_plugin.py:19
 msgid "Setup Wizard"
-msgstr "سیٹ اپ ویزرڈ"
+msgstr "سیٹ اپ وزرڈ"
 
 #: plugins/user_profile/kolibri_plugin.py:20
 msgid "User Profile"
-msgstr "صارف/ یوزر کی پروفایل"
+msgstr "صارف کا پروفائل"
 
 #. Translators: A notification title shown to users when their learner account is joining a new learning facility.
 #: plugins/user_profile/tasks.py:96

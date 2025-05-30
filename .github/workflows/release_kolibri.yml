@@ -54,11 +54,11 @@ jobs:
   dmg:
     name: Build DMG file
     needs: whl
-    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@v0.4.3
+    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@v0.4.4
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       release: true
-      ref: v0.4.3
+      ref: v0.4.4
     secrets:
       KOLIBRI_MAC_APP_IDENTITY: ${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}
       KOLIBRI_MAC_APP_CERTIFICATE: ${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE }}
@@ -88,11 +88,11 @@ jobs:
   exe:
     name: Build EXE file
     needs: whl
-    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.6
+    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.7
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       release: true
-      ref: v1.6.6
+      ref: v1.6.7
     secrets:
       KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE: ${{ secrets.KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE }}
       KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE_PASSWORD: ${{ secrets.KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE_PASSWORD }}

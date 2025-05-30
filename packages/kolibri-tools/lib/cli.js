@@ -8,6 +8,7 @@ const toml = require('toml');
 const get = require('lodash/get');
 const version = require('../package.json');
 const logger = require('./logging');
+const { kolibriName } = require('./kolibriName');
 
 const readWebpackJson = require('./read_webpack_json');
 
@@ -463,12 +464,16 @@ function _generatePathInfo({
         const entry = buildConfig.webpack_config.entry;
         const aliases =
           buildConfig.webpack_config.resolve && buildConfig.webpack_config.resolve.alias;
+        const isCoreBundle =
+          buildConfig.webpack_config.output &&
+          buildConfig.webpack_config.output.library === kolibriName;
         return {
           moduleFilePath: bundle.plugin_path,
           namespace: bundle.module_path,
           name: bundle.name,
           entry,
           aliases,
+          isCoreBundle,
         };
       }),
     );

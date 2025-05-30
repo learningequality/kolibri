@@ -3,7 +3,7 @@ Frontend code conventions
 
 Establishing code conventions is important in order to keep a more consistent codebase. Therefore the goal for the tools and principles below is to help ensure any committed code is properly aligned with the conventions.
 
-For design conventions, see the `Kolibri Design System <http://kolibribeta.learningequality.org/design>`__.
+For design conventions, see the `Kolibri Design System <https://design-system.learningequality.org/>`__.
 
 Linting and auto formatting
 ---------------------------
@@ -40,7 +40,7 @@ Styling anti-patterns
 - **HTML tag selectors** - define a ``class`` instead
 - **Floats or flexbox for layout** - use ``KGrid`` instead
 - **Media queries** - use ``responsive-window`` or ``responsive-element``
-- **Nested selectors** - make a sub-component instead (more reading `here <https://csswizardry.com/2012/05/keep-your-css-selectors-short/>`__ and `here <http://thesassway.com/beginner/the-inception-rule>`__)
+- **Nested selectors** - make a sub-component instead (more reading `here <https://csswizardry.com/2012/05/keep-your-css-selectors-short/>`__)
 - **Dynamically-generated class names** - avoid patterns which fail the `grep test <http://jamie-wong.com/2013/07/12/grep-test/>`__
 - **Complex pre-processor functionality** - use Vue `computed styles <https://vuejs.org/v2/guide/class-and-style.html>`__ instead
 - **Hard-coded values** - rely on variables defined in the core theme

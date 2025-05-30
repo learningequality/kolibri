@@ -37,7 +37,7 @@
   import { computed } from 'vue';
   import { get } from '@vueuse/core';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
-  import useLearningActivities from '../../composables/useLearningActivities';
+  import useLearningActivities from 'kolibri-common/composables/useLearningActivities';
   import LearningActivityDuration from '../LearningActivityDuration';
 
   /**

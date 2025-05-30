@@ -196,16 +196,6 @@ describe('ActivityList component', () => {
     expect(wrapper.vm.backLinkQuery).toEqual({
       last: LastPages.HOME_ACTIVITY,
     });
-
-    // Embed in Learner Activity Page
-    wrapper.setProps({
-      embeddedPageName: 'ReportsLearnerActivityPage',
-    });
-    await wrapper.vm.$nextTick();
-    expect(wrapper.vm.backLinkQuery).toEqual({
-      last: LastPages.LEARNER_ACTIVITY,
-      last_id: 'learner_001',
-    });
   });
 
   // Not tested:

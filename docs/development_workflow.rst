@@ -76,7 +76,7 @@ Finally, if you see a very trivial but important necessary change, the reviewer 
 
     ``Authentication required: You must have push access to verify locks``
 
-  This is due to a `Git LFS bug <https://github.com/git-lfs/git-lfs/issues/2291>`__. Try `disabling lock verification <https://github.com/git-lfs/git-lfs/blob/master/docs/man/git-lfs-config.5.ronn#other-settings>`__ using the ``lfs.[remote].locksverify`` setting, or simply running ``rm -rf .git/hooks/pre-push``.
+  This is due to a `Git LFS bug <https://github.com/git-lfs/git-lfs/issues/2291>`__. Try `disabling lock verification <https://github.com/git-lfs/git-lfs/blob/main/docs/man/git-lfs-config.adoc#other-settings>`__ using the ``lfs.[remote].locksverify`` setting, or simply running ``rm -rf .git/hooks/pre-push``.
 
 
 .. note::
@@ -114,7 +114,7 @@ For these reasons, copyright and license data may be listed explicitly at the to
 
 This format is machine readable and complies with the `REUSE specification <https://reuse.software/>`__ for software licensing.
 
-For files where the license is not explicitly stated, the `overall project license <../LICENSE>`__ applies.
+For files where the license is not explicitly stated, the `overall project license <https://github.com/learningequality/kolibri/blob/develop/LICENSE>`__ applies.
 
 
 Development phases

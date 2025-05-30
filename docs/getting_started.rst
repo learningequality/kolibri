@@ -120,7 +120,7 @@ Environment variables
 Environment variables can be set in many ways, including:
 
 * adding them to a ``~/.bash_profile`` file (for Bash) or a similar file in your shell of choice
-* using a ``.env`` file for this project, `loaded with Pipenv <https://pipenv.kennethreitz.org/en/latest/advanced/#automatic-loading-of-env>`_
+* using a ``.env`` file for this project, `loaded with Pipenv <https://pipenv.pypa.io/en/latest/shell.html#automatic-loading-of-env>`_
 * setting them temporarily in the current Bash session using ``EXPORT`` or similar (not recommended except for testing)
 
 There are two environment variables you should plan to set:
@@ -324,7 +324,7 @@ We have a project-level *.editorconfig* file to help you configure your text edi
 Vue development tools
 ---------------------
 
-`Vue.js devtools (Legacy) <https://devtools.vuejs.org/guide/installation.html>`__ is a browser plugin that is very helpful when working with Vue.js components and Vuex. Kolibri is using Vue 2, so be sure to find the "Legacy" plugin as the latest version of the extension is for Vue 3.
+`Vue.js devtools (Legacy) <https://devtools-v6.vuejs.org/guide/installation.html#legacy>`__ is a browser plugin that is very helpful when working with Vue.js components and Vuex. Kolibri is using Vue 2, so be sure to find the "Legacy" plugin as the latest version of the extension is for Vue 3.
 
 To ensure a more efficient workflow, install appropriate editor plugins for Vue.js, ESLint, and stylelint.
 
@@ -332,7 +332,7 @@ To ensure a more efficient workflow, install appropriate editor plugins for Vue.
 Sample resources and data
 -------------------------
 
-Once you have the server running, proceed to import some channels and resources. To quickly import all available and supported Kolibri resource types, `import with the token <https://kolibri.readthedocs.io/en/latest/manage/resources.html?highlight=import#import-with-token>`__  ``nakav-mafak`` for the `Kolibri QA channel <https://kolibri-beta.learningequality.org/en/learn/#/topics/95a52b386f2c485cb97dd60901674a98>`__ (~350MB).
+Once you have the server running, proceed to import some channels and resources. To quickly import all available and supported Kolibri resource types, `import with the token <https://kolibri.readthedocs.io/en/latest/manage/resources.html?highlight=import#import-with-token>`__  ``nakav-mafak`` for the `Kolibri QA channel <https://kolibri-dev.learningequality.org/en/learn/#/topics/t/95a52b386f2c485cb97dd60901674a98>`__ (~350MB).
 
 
 Now you can create users, classes, lessons, etc manually. To auto-generate some sample user data you can also run:

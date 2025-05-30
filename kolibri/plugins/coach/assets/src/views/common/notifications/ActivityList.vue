@@ -74,15 +74,6 @@
         type: String,
         default: '',
       },
-      // Name of embedded page to handle details like the back link query
-      // and the incoming notifications filter
-      embeddedPageName: {
-        type: String,
-        required: true,
-        validator(value) {
-          return ['HomeActivityPage', 'ReportsLearnerActivityPage'].includes(value);
-        },
-      },
     },
     data() {
       return {
@@ -108,22 +99,7 @@
       // Passed through to Notification Card links and used to correctly
       // handle exiting Exercise and Quiz detail pages.
       backLinkQuery() {
-        switch (this.embeddedPageName) {
-          case 'HomeActivityPage':
-            return { last: LastPages.HOME_ACTIVITY };
-          case 'ReportsLearnerActivityPage':
-            return { last: LastPages.LEARNER_ACTIVITY, last_id: this.$route.params.learnerId };
-          default:
-            return {};
-        }
-      },
-      filterParam() {
-        switch (this.embeddedPageName) {
-          case 'ReportsLearnerActivityPage':
-            return { learner_id: this.$route.params.learnerId };
-          default:
-            return {};
-        }
+        return { last: LastPages.HOME_ACTIVITY };
       },
       enabledFilters() {
         return {
@@ -143,27 +119,15 @@
       fetchMore() {
         if (this.moreResults) {
           this.loading = true;
-          const params = {
-            ...this.filterParam,
-          };
-          this.moreNotificationsForClass(params).then(moreResults => {
+          this.moreNotificationsForClass({}).then(moreResults => {
             this.moreResults = moreResults;
             this.loading = false;
           });
         }
       },
-      // Filter incoming notifications according to the embedded page
-      // For HomeActivityPage - no filter
-      // For ReportsLearnerActivityPage - notification.user_id === current learnerId
       notificationsFilter(notification) {
         if (notification.event === 'Answered') {
           return false;
-        }
-        if (this.embeddedPageName === 'HomeActivityPage') {
-          return true;
-        }
-        if (this.embeddedPageName === 'ReportsLearnerActivityPage') {
-          return notification.user_id === this.$route.params.learnerId;
         }
         return true;
       },

@@ -35,6 +35,18 @@ function mergeMixin(component) {
   return component;
 }
 
+const domParser = new DOMParser();
+
+/*
+ * JSON data that we read from Django have been passed through
+ * Django's marksafe function that escapes any HTML characters.
+ * Use the DOMParser to decode these before we read parse the JSON.
+ */
+function decodeMarkedSafeText(text) {
+  const dom = domParser.parseFromString(text, 'text/html');
+  return dom.documentElement.textContent;
+}
+
 export default function pluginMediatorFactory(facade) {
   /**
    * The Mediator object - registers and loads kolibri_modules and acts as
@@ -273,7 +285,7 @@ export default function pluginMediatorFactory(facade) {
       }
       let messageMap;
       try {
-        messageMap = JSON.parse(messageElement.innerHTML.trim());
+        messageMap = JSON.parse(decodeMarkedSafeText(messageElement.innerHTML.trim()));
       } catch (e) {
         logger.error(`Error parsing language assets for ${moduleName}`);
       }
@@ -344,7 +356,7 @@ export default function pluginMediatorFactory(facade) {
       for (const element of contentRendererElements) {
         const moduleName = element.getAttribute('data-viewer');
         try {
-          const data = JSON.parse(element.innerHTML.trim());
+          const data = JSON.parse(decodeMarkedSafeText(element.innerHTML.trim()));
           const presets = data.presets;
           const urls = data.urls;
           this.registerContentRenderer(moduleName, urls, presets);

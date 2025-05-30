@@ -15,7 +15,16 @@
         "
         :style="accordionItemStyles"
       >
-        <template #content>
+        <template
+          v-if="searchLoading"
+          #content
+        >
+          <KCircularLoader />
+        </template>
+        <template
+          v-else
+          #content
+        >
           <KButton
             v-for="(category, key) in availableLibraryCategories"
             :key="'cat-' + key"
@@ -73,7 +82,7 @@
         :headerAppearanceOverrides="
           accordionHeaderStyles(anySelectedFor('languages', languageOptionsList))
         "
-        :disabled="languageOptionsList.every(opt => opt.disabled)"
+        :disabled="searchLoading || languageOptionsList.every(opt => opt.disabled)"
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
@@ -95,7 +104,7 @@
         v-if="contentLevelOptions.length"
         class="accordion-select"
         :title="coreString('levelLabel')"
-        :disabled="contentLevelOptions.every(opt => opt.disabled)"
+        :disabled="searchLoading || contentLevelOptions.every(opt => opt.disabled)"
         :headerAppearanceOverrides="
           accordionHeaderStyles(anySelectedFor('grade_levels', contentLevelOptions))
         "
@@ -123,7 +132,7 @@
         :headerAppearanceOverrides="
           accordionHeaderStyles(anySelectedFor('accessibility_labels', accessibilityOptionsList))
         "
-        :disabled="accessibilityOptionsList.every(opt => opt.disabled)"
+        :disabled="searchLoading || accessibilityOptionsList.every(opt => opt.disabled)"
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
@@ -147,7 +156,7 @@
         :headerAppearanceOverrides="
           accordionHeaderStyles(anySelectedFor('learner_needs', needsOptionsList))
         "
-        :disabled="needsOptionsList.every(opt => opt.disabled)"
+        :disabled="searchLoading || needsOptionsList.every(opt => opt.disabled)"
         :contentAppearanceOverrides="{
           maxHeight: '256px',
           overflowY: 'scroll',
@@ -191,6 +200,7 @@
         availableAccessibilityOptions,
         availableLanguages,
         availableLibraryCategories,
+        searchLoading,
         searchableLabels,
       } = injectBaseSearch();
 
@@ -200,6 +210,7 @@
         availableAccessibilityOptions,
         availableLanguages,
         availableLibraryCategories,
+        searchLoading,
         searchableLabels,
       };
     },

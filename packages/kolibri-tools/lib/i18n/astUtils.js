@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const recast = require('recast');
-const resolve = require('resolve');
 const babylonParser = require('recast/parsers/babylon');
 const traverse = require('ast-traverse');
 const vueCompiler = require('vue-template-compiler');
@@ -11,6 +10,7 @@ const isString = require('lodash/isString');
 const isArray = require('lodash/isArray');
 const glob = require('../glob');
 const logging = require('../logging');
+const { resolve } = require('./moduleResolver');
 const { CONTEXT_LINE } = require('./constants');
 const { checkForDuplicateIds } = require('./utils');
 
@@ -178,43 +178,57 @@ function getObjectifiedValue(nodePropertyValue) {
 }
 
 function getFileNameForImport(importPath, filePath) {
-  const extensions = ['.js', '.vue'];
-  const resolveAttempt = resolve(importPath, filePath, { extensions });
-
-  if (
-    !resolveAttempt.found ||
-    !extensions.some(ext => resolveAttempt.path && resolveAttempt.path.endsWith(ext))
-  ) {
+  try {
+    return resolve(filePath, importPath);
+  } catch (e) {
     // Just throw up here if we don't have another worthy attempt
     throw new ReferenceError(
       `Attempted to resolve an import in ${filePath} for module ${importPath} but could not be resolved as a Javascript or Vue file`,
     );
   }
-  return resolveAttempt.path;
 }
 
 function getImportFileNames(filePath, ignore) {
   const fileNames = [];
+  const extension = path.extname(filePath);
+  if (!['.vue', '.js'].includes(extension)) {
+    return fileNames;
+  }
   const ast = getAstFromFile(filePath);
   if (ast) {
     traverse(ast, {
       pre: astNode => {
+        let fileImportedFrom;
+        // Handle static imports (ImportDeclaration, ExportNamedDeclaration, ExportAllDeclaration)
         if (
           astNode.type === 'ImportDeclaration' ||
           astNode.type === 'ExportNamedDeclaration' ||
           astNode.type === 'ExportAllDeclaration'
         ) {
-          const fileImportedFrom = get(astNode, 'source.value');
-          if (fileImportedFrom) {
-            try {
-              const targetFile = getFileNameForImport(fileImportedFrom, filePath);
-              // Don't return files that we are meant to ignore
-              const filterFiles = glob.sync(targetFile, { ignore });
-              if (filterFiles.length) {
-                fileNames.push(targetFile);
-              }
-            } catch (e) {} // eslint-disable-line no-empty
-          }
+          fileImportedFrom = get(astNode, 'source.value');
+        }
+        // Handle dynamic imports via import()
+        else if (astNode.type === 'CallExpression' && astNode.callee.type === 'Import') {
+          fileImportedFrom = stringFromAnyLiteral(astNode.arguments[0]);
+        }
+        // Handle dynamic imports via require()
+        else if (
+          astNode.type === 'CallExpression' &&
+          astNode.callee.type === 'Identifier' &&
+          astNode.callee.name === 'require'
+        ) {
+          fileImportedFrom = stringFromAnyLiteral(astNode.arguments[0]);
+        }
+
+        if (fileImportedFrom) {
+          try {
+            const targetFile = getFileNameForImport(fileImportedFrom, filePath);
+            // Don't return files that we are meant to ignore
+            const filterFiles = glob.sync(targetFile, { ignore });
+            if (filterFiles.length) {
+              fileNames.push(targetFile);
+            }
+          } catch (e) {} // eslint-disable-line no-empty
         }
       },
     });
@@ -563,6 +577,7 @@ function recurseForStrings(entryFile, ignore, visited, verbose) {
   const outputStrings = {};
   if (!visited.has(entryFile)) {
     Object.assign(outputStrings, getMessagesFromFile(entryFile, verbose));
+    visited.add(entryFile);
     for (const filePath of getImportFileNames(entryFile, ignore)) {
       const extractedMessages = recurseForStrings(filePath, ignore, visited, verbose);
       if (checkForDuplicateIds(outputStrings, extractedMessages)) {
@@ -570,7 +585,6 @@ function recurseForStrings(entryFile, ignore, visited, verbose) {
       }
       Object.assign(outputStrings, extractedMessages);
     }
-    visited.add(entryFile);
   }
   return outputStrings;
 }
@@ -617,6 +631,10 @@ function getFilesFromEntryFiles(entryFiles, moduleFilePath, ignore) {
 
 function getMessagesFromFile(filePath, verbose = false) {
   const messages = {};
+  const extension = path.extname(filePath);
+  if (!['.vue', '.js'].includes(extension)) {
+    return messages;
+  }
   try {
     const ast = getAstFromFile(filePath);
 
@@ -661,4 +679,7 @@ module.exports = {
   stringLiteralNode,
   templateLiteralNode,
   extractContext,
+  recurseForStrings,
+  stringFromAnyLiteral,
+  getObjectifiedValue,
 };

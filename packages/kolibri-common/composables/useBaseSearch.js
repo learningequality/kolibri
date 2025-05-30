@@ -172,6 +172,7 @@ export default function useBaseSearch({
 
   const searchResultsLoading = ref(false);
   const moreLoading = ref(false);
+  const scopedLabelsLoading = ref(false);
   const _results = ref([]);
   const more = ref(null);
   const labels = ref(null);
@@ -283,6 +284,7 @@ export default function useBaseSearch({
 
   function search() {
     const desc = descendant ? get(descendant) : null;
+    set(scopedLabelsLoading, true);
     if (get(displayingSearchResults)) {
       // If we're actually displaying search results
       // then we need to load all the search results to display
@@ -298,6 +300,7 @@ export default function useBaseSearch({
         set(more, data.more);
         _setAvailableLabels(data.labels);
         set(searchResultsLoading, false);
+        set(scopedLabelsLoading, false);
       });
     } else if (desc || filters) {
       const getParams = createBaseSearchGetParams();
@@ -305,18 +308,21 @@ export default function useBaseSearch({
       ContentNodeResource.fetchCollection({ getParams }).then(data => {
         _setAvailableLabels(data.labels);
         set(more, null);
+        set(scopedLabelsLoading, false);
       });
     } else {
       // Clear labels if no search results displaying
       // and we're not gathering labels from the descendant
       set(more, null);
       set(labels, null);
+      set(scopedLabelsLoading, false);
     }
   }
 
   function searchMore() {
     if (get(displayingSearchResults) && get(more) && !get(moreLoading)) {
       set(moreLoading, true);
+      set(scopedLabelsLoading, true);
       if (get(isUserLoggedIn)) {
         fetchContentNodeProgress?.(get(more));
       }
@@ -325,6 +331,7 @@ export default function useBaseSearch({
         set(more, data.more);
         _setAvailableLabels(data.labels);
         set(moreLoading, false);
+        set(scopedLabelsLoading, false);
       });
     }
   }
@@ -383,7 +390,9 @@ export default function useBaseSearch({
 
   const globalLabelsLoading = ref(false);
 
-  const searchLoading = computed(() => get(searchResultsLoading) || get(globalLabelsLoading));
+  const searchLoading = computed(
+    () => get(searchResultsLoading) || get(globalLabelsLoading) || get(scopedLabelsLoading),
+  );
 
   function ensureGlobalLabels() {
     set(globalLabelsLoading, true);
@@ -446,6 +455,7 @@ export default function useBaseSearch({
   provide('availableGradeLevels', gradeLevelsList);
   provide('availableAccessibilityOptions', accessibilityOptionsList);
   provide('availableLanguages', languagesList);
+  provide('searchLoading', searchLoading);
 
   // Provide an object of searchable labels
   // This is a manifest of all the labels that could still be selected and produce search results
@@ -484,6 +494,7 @@ export function injectBaseSearch() {
   const availableLanguages = inject('availableLanguages');
   const searchableLabels = inject('searchableLabels');
   const activeSearchTerms = inject('activeSearchTerms');
+  const searchLoading = inject('searchLoading');
   return {
     availableLearningActivities,
     availableLibraryCategories,
@@ -493,5 +504,6 @@ export function injectBaseSearch() {
     availableLanguages,
     searchableLabels,
     activeSearchTerms,
+    searchLoading,
   };
 }
