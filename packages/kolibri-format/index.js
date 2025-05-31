@@ -23,7 +23,7 @@ try {
     'eslint.config.mts',
     'eslint.config.cts'
   ];
-  
+
   let foundConfig = false;
   for (const configFile of flatConfigFiles) {
     const configPath = path.join(hostProjectDir, configFile);
@@ -33,7 +33,7 @@ try {
       break;
     }
   }
-  
+
   if (!foundConfig) {
     // Fallback to default config in this package
     esLintConfigPath = path.join(__dirname, 'eslint.config.mjs');

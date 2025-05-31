@@ -12,7 +12,7 @@ const ERROR = 2;
 export default [
   // Base JavaScript configuration
   js.configs.recommended,
-  
+
   // Base configuration for all files
   {
     languageOptions: {
@@ -60,7 +60,7 @@ export default [
       ...prettier.rules,
       // Apply jest-dom rules globally like the old config
       ...jestDom.configs.recommended.rules,
-      
+
       // From plugin:import/errors
       'import/no-unresolved': 'error',
       'import/named': 'error',
@@ -77,7 +77,7 @@ export default [
       'import/no-relative-parent-imports': 'off',
       'import/no-relative-packages': 'error',
       'import/export': 'error',
-      
+
       // From plugin:import/warnings
       'import/no-named-as-default': 'warn',
       'import/no-named-as-default-member': 'warn',
@@ -86,13 +86,13 @@ export default [
       'import/no-extraneous-dependencies': 'off',
       'import/no-mutable-exports': 'error',
       'import/no-unused-modules': 'off',
-      
+
       // Additional import rules (style/ordering)
       'import/first': ERROR,
       'import/no-duplicates': ERROR,
       'import/newline-after-import': ERROR,
       'import/order': ERROR,
-      
+
       // === OTHER RULES ===
       'comma-style': ERROR,
       'no-console': ERROR,
@@ -121,7 +121,7 @@ export default [
   {
     files: [
       'kolibri/**/*.js',
-      'kolibri/**/*.mjs', 
+      'kolibri/**/*.mjs',
       'src/**/*.js',
       'src/**/*.mjs',
       'lib/**/*.js',
@@ -160,7 +160,7 @@ export default [
     rules: {
       // Disable regular indent rule for Vue files
       indent: 'off',
-      
+
       // Vue-specific rules
       'vue/max-len': [
         ERROR,
