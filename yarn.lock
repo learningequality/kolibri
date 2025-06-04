@@ -1031,7 +1031,7 @@
     pirates "^4.0.6"
     source-map-support "^0.5.16"
 
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.1.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.1", "@babel/runtime@^7.12.13", "@babel/runtime@^7.12.5", "@babel/runtime@^7.14.0", "@babel/runtime@^7.16.3", "@babel/runtime@^7.18.6", "@babel/runtime@^7.21.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.1.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.1", "@babel/runtime@^7.12.13", "@babel/runtime@^7.12.5", "@babel/runtime@^7.14.0", "@babel/runtime@^7.16.3", "@babel/runtime@^7.21.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
   version "7.24.5"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.24.5.tgz#230946857c053a36ccc66e1dd03b17dd0c4ed02c"
   integrity sha512-Nms86NXrsaeU9vbBJKni6gXiEXZ4CVpYVzEjDH9Sb8vmZ3UljyA1GSOJl/6LGPO8EHLuSF9H+IxNXHPX8QHJ4g==
@@ -1472,418 +1472,371 @@
   resolved "https://registry.yarnpkg.com/@juggle/resize-observer/-/resize-observer-3.4.0.tgz#08d6c5e20cf7e4cc02fd181c4b0c225cd31dbb60"
   integrity sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==
 
-"@khanacademy/kas@^0.3.9":
-  version "0.3.9"
-  resolved "https://registry.yarnpkg.com/@khanacademy/kas/-/kas-0.3.9.tgz#0a02be51c35ed3509d4fbcfe5ad4a821e8ee7075"
-  integrity sha512-R/A3LIQwGDqqyasTW4bsELs/eBL2VxQvXkbUvVEJah49P4HScHVNflKlpMTE7ebrO2b3kK+dfgpZpwrSkfzSKg==
+"@khanacademy/kas@2.0.5":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@khanacademy/kas/-/kas-2.0.5.tgz#9abc503560d090c8947bef48b78e17743b1ed53e"
+  integrity sha512-mQEXSyAvyDO9OSwm5AhCzuK5nXN7U0x7hApLbWZoxqNMjg5QMUdxHFo0uRW30ZgtlL0+U2S1IDFK2IXK91GFBw==
   dependencies:
-    "@khanacademy/perseus-core" "1.4.2"
+    "@khanacademy/perseus-utils" "2.0.4"
 
-"@khanacademy/kmath@^0.1.12":
-  version "0.1.12"
-  resolved "https://registry.yarnpkg.com/@khanacademy/kmath/-/kmath-0.1.12.tgz#f6f64ed0b7446a91e58536429a8597cb42bc235d"
-  integrity sha512-cF0PrLtj29btemNhk0+ofbMqeCklRuPOzbZQufr4PBRNQtTPTGKQiurJK8PeXrlAfEKOS+cp4N8hDUEGrQg1tg==
+"@khanacademy/keypad-context@3.0.11":
+  version "3.0.11"
+  resolved "https://registry.yarnpkg.com/@khanacademy/keypad-context/-/keypad-context-3.0.11.tgz#969f861f78fcbffcd1479cfd456935a42c722f09"
+  integrity sha512-f7WI/tosQFlEtlShQ7WDMltW7erZZYhBYQK4ze+KuwLd04EFCuW16T5uM22fQcxox/C99z4Fxrx0dmbkf6WfKw==
   dependencies:
-    "@khanacademy/perseus-core" "1.4.2"
+    "@khanacademy/perseus-core" "12.1.0"
+    "@khanacademy/perseus-utils" "2.0.4"
 
-"@khanacademy/math-input@^19.1.0":
-  version "19.1.0"
-  resolved "https://registry.yarnpkg.com/@khanacademy/math-input/-/math-input-19.1.0.tgz#dbc4e070f088973c5c3916b952327c85c2e7e42e"
-  integrity sha512-OvZQXYPps7VqeQJ/29Y8bcLw11iMoaIBdpts43pVVZQtOfbC5Q70ZXSwMIsWmwREaH/CTr1oZqmN+LCdFmIeLQ==
+"@khanacademy/kmath@2.0.11":
+  version "2.0.11"
+  resolved "https://registry.yarnpkg.com/@khanacademy/kmath/-/kmath-2.0.11.tgz#af2fb11650c7cdb7e9a30ed68c59d3da319cb010"
+  integrity sha512-O3g+SqgHL8K1Zumun5GZIg/ThOiv3tjo+8xGjbZBgwnwLGc4Sylm8e4Z7WnUxo0yGLzxV/6MUju3V6KpJU2CNw==
   dependencies:
-    "@khanacademy/perseus-core" "1.4.2"
-    mathquill "https://github.com/Khan/mathquill/releases/download/v1.0.0/mathquill-v1.0.0.tgz"
+    "@khanacademy/perseus-core" "12.1.0"
+    "@khanacademy/perseus-utils" "2.0.4"
 
-"@khanacademy/mathjax-renderer@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@khanacademy/mathjax-renderer/-/mathjax-renderer-2.0.0.tgz#a3eccf7853d5127ec1393acb3ffd7aa546aa1475"
-  integrity sha512-ikJzvId18FXdAtn+LoozfnuXHnmb9er3b+6yAUokmtEVzWdBxDfwNawHJsKLEHo3Kq2ifMDxBMMDqAfy1QEcKA==
+"@khanacademy/math-input@26.0.0":
+  version "26.0.0"
+  resolved "https://registry.yarnpkg.com/@khanacademy/math-input/-/math-input-26.0.0.tgz#fd0f8b0e8ea8dca22521476f02c2b68ebef54e7b"
+  integrity sha512-Nv5XtW9mtf/kCJa/bLvQqfOu+WOo75i7LzZWbTICiP4BHYryV46sdWUm8dShJC3hO85jslJFE2eh7iyKbUaIFQ==
+  dependencies:
+    "@khanacademy/keypad-context" "3.0.11"
+    "@khanacademy/perseus-core" "12.1.0"
+    "@khanacademy/perseus-utils" "2.0.4"
+
+"@khanacademy/mathjax-renderer@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@khanacademy/mathjax-renderer/-/mathjax-renderer-3.0.0.tgz#09e2b121c5dd72d8cf9bdac35e5dff0c073e8543"
+  integrity sha512-sY6v+ZqAqdjNj1vEhidym0bQfCN9n7kPOJJy2ShZ+f3QCIMKNdDEs9X7PEK2Tcei0jLdwzI2SZmAakKnyqjHiQ==
   dependencies:
     mathjax-full "3.2.2"
     mu-lambda "^0.0.3"
 
-"@khanacademy/perseus-core@1.4.2":
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/@khanacademy/perseus-core/-/perseus-core-1.4.2.tgz#6a4a017e77812feace7587f3bf2d6ae06570c56c"
-  integrity sha512-29lyXkan0HuQBfNTP/68ytFVapwKBpve+ijOnbe5T6x5A6zzVjby2rTO+fVXKXOm+BC8Y+66XQnOcnvwhoJ/Og==
-
-"@khanacademy/perseus-error@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@khanacademy/perseus-error/-/perseus-error-0.3.0.tgz#d689f69cfc66a22cb7ac8252716abfc4e5e39f58"
-  integrity sha512-/l17SLytZxLBcxtEhSpVMUtMuuKaoarkfWRaFGc3Ym+pUHSfa/seKhEe7MNvAmN8c2Toxofggu38up+qaM3Zlg==
+"@khanacademy/perseus-core@12.1.0":
+  version "12.1.0"
+  resolved "https://registry.yarnpkg.com/@khanacademy/perseus-core/-/perseus-core-12.1.0.tgz#ec93ea30abbf0dd32718c1a6cdc6a6f5722380d4"
+  integrity sha512-we2v8ftNrhIq8A+yq+XgS2EzGSZ2AjTS9Ajp8Vx+nVP98HrltmrNgoVFuqDy9PH35PmmaLS9tKdzACWBhPX7JA==
   dependencies:
-    "@khanacademy/perseus-core" "1.4.2"
+    "@khanacademy/kas" "2.0.5"
+    "@khanacademy/perseus-utils" "2.0.4"
+    tiny-invariant "^1.3.1"
 
-"@khanacademy/perseus-linter@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@khanacademy/perseus-linter/-/perseus-linter-0.4.0.tgz#5dc56aed81f2988e27bebb487582e3021778af6c"
-  integrity sha512-alor8gVh0IQheHp8PbboLym2jq/n1YE085yZ4+svVjISVukTzYoErEbXRGq2ERJZXdZquqB4iyt2Vc4Lod17/A==
+"@khanacademy/perseus-linter@3.0.11":
+  version "3.0.11"
+  resolved "https://registry.yarnpkg.com/@khanacademy/perseus-linter/-/perseus-linter-3.0.11.tgz#af5670ebbde6687da5cb2a635ba5d30fb811f2a7"
+  integrity sha512-nhX+8Szp+TSg48xvI7/pmgcoQcQZ4nlRnCR7+aV5Hlo+JR123pzIClK5SyZY+nfaOw0Rfl1KxcM7cu5cevOAkw==
   dependencies:
-    "@khanacademy/perseus-core" "1.4.2"
-    "@khanacademy/perseus-error" "^0.3.0"
+    "@khanacademy/perseus-core" "12.1.0"
+    "@khanacademy/perseus-utils" "2.0.4"
 
-"@khanacademy/perseus@22.7.0":
-  version "22.7.0"
-  resolved "https://registry.yarnpkg.com/@khanacademy/perseus/-/perseus-22.7.0.tgz#0b04f75fd4d3edfc4ac7483776d616832467de13"
-  integrity sha512-HRBcg5wBNJz44eKuTK3x9968loDvnZQoowaOjU/24ISqvr946Q0YsMBdSzW/SOhtTClZFW9PHYMtMWovtQ8/pQ==
+"@khanacademy/perseus-score@7.0.1":
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/@khanacademy/perseus-score/-/perseus-score-7.0.1.tgz#3258568d471ffc717ddafbebcd7bd1af9f2f4af4"
+  integrity sha512-c0R5/85llEOsQpNuiPHCiN6kCJ1xuEEfaiAGkcQg0+dfOX4nyXPywdewtHZEguztj9vfA92nntC9mtPHit95sA==
   dependencies:
-    "@khanacademy/kas" "^0.3.9"
-    "@khanacademy/kmath" "^0.1.12"
-    "@khanacademy/math-input" "^19.1.0"
-    "@khanacademy/perseus-core" "1.4.2"
-    "@khanacademy/perseus-linter" "^0.4.0"
-    "@khanacademy/pure-markdown" "^0.3.4"
-    "@khanacademy/simple-markdown" "^0.11.4"
-    mafs "0.18.5"
+    "@khanacademy/kas" "2.0.5"
+    "@khanacademy/kmath" "2.0.11"
+    "@khanacademy/perseus-core" "12.1.0"
+    "@khanacademy/perseus-utils" "2.0.4"
 
-"@khanacademy/pure-markdown@^0.3.4":
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/@khanacademy/pure-markdown/-/pure-markdown-0.3.4.tgz#a21493415c79488a913ace058f0c16130d595ab4"
-  integrity sha512-sBWxrsymUaUUrTeEpwtHWwlburmoPj7CetbfHUMja/5U0RTaSh1Kf4ea9jaweSLkWOtwz7kPlFhx/U3eA94hig==
+"@khanacademy/perseus-utils@2.0.4":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@khanacademy/perseus-utils/-/perseus-utils-2.0.4.tgz#cd7553e4bf1078e09841724636e37f9bbd46747c"
+  integrity sha512-VPFzqAw7z9/8fPQDNtLcZGiar/vgs2JOTeqI5Y+mMRHCgOTylOdmxBOfCNtuENX2gcof/4nNDwoj0rVMCg5d0Q==
+
+"@khanacademy/perseus@63.1.0":
+  version "63.1.0"
+  resolved "https://registry.yarnpkg.com/@khanacademy/perseus/-/perseus-63.1.0.tgz#6ee79f60101527a1d528194a056cab74231b8c19"
+  integrity sha512-E0HtRmO9pGF25W2Ui6QPD+RBd6yPdD9P6wgzhjasoOlOu5+3nMHso71kd8QdcBWTcAOgCWi0iZP9ZmuL0P+gfA==
   dependencies:
-    "@khanacademy/perseus-core" "1.4.2"
-    "@khanacademy/perseus-error" "^0.3.0"
-    "@khanacademy/simple-markdown" "^0.11.4"
+    "@khanacademy/kas" "2.0.5"
+    "@khanacademy/keypad-context" "3.0.11"
+    "@khanacademy/kmath" "2.0.11"
+    "@khanacademy/math-input" "26.0.0"
+    "@khanacademy/perseus-core" "12.1.0"
+    "@khanacademy/perseus-linter" "3.0.11"
+    "@khanacademy/perseus-score" "7.0.1"
+    "@khanacademy/perseus-utils" "2.0.4"
+    "@khanacademy/pure-markdown" "2.0.5"
+    "@khanacademy/simple-markdown" "2.0.5"
+    "@use-gesture/react" "^10.2.27"
+    mafs "0.19.0"
+    tiny-invariant "^1.3.1"
+    uuid "^10.0.0"
 
-"@khanacademy/simple-markdown@^0.11.4":
-  version "0.11.4"
-  resolved "https://registry.yarnpkg.com/@khanacademy/simple-markdown/-/simple-markdown-0.11.4.tgz#2fc21b06c46b20ccdcd1edea3306a23779ebc3a3"
-  integrity sha512-fFRDg7U1TbFO0sbyUOMBbJhT+BHtXfQGeFr6orIi5p1eC+zUDUe9oD1176kmCkpVSUXNqmyg7zoNzSCuFW7nNg==
+"@khanacademy/pure-markdown@2.0.5":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@khanacademy/pure-markdown/-/pure-markdown-2.0.5.tgz#b43e97222933d146f58e53e98ef4ee860f5fadd4"
+  integrity sha512-7yNQFKGOcUxGzo72lKT2+1zelIutNixEXmsXF5qhJDvJXyrTte8qSwzXthfnu5gi5ylUcH6JoPELg2tBCwsS7A==
   dependencies:
-    "@khanacademy/perseus-core" "1.4.2"
+    "@khanacademy/perseus-utils" "2.0.4"
+    "@khanacademy/simple-markdown" "2.0.5"
 
-"@khanacademy/wonder-blocks-banner@3.0.42":
-  version "3.0.42"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-banner/-/wonder-blocks-banner-3.0.42.tgz#8e1a7c93d05f18ac9fed8b9051d82571dcd66508"
-  integrity sha512-PsMnR24bdQsmb8JybghyLynLOLRQWTufOuwwCW4fmbbodWCa7W3uhtHDhCq/ppIDZHQYC5OQBPW53ZNqtD4CxA==
+"@khanacademy/simple-markdown@2.0.5":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@khanacademy/simple-markdown/-/simple-markdown-2.0.5.tgz#355c67247b1fe0a7484ef1e4c6e7c8c0f89b8925"
+  integrity sha512-UTeW7B06+ue8y0Qwaokxa3eUhbyZFNyr4a63U5Yv3EWzLzFhY2Qef8VDkBfTBrF6RWvS+jzBFnNbh9l36bVjow==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-button" "^6.3.1"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-    "@khanacademy/wonder-blocks-icon" "^4.1.0"
-    "@khanacademy/wonder-blocks-icon-button" "^5.2.1"
-    "@khanacademy/wonder-blocks-link" "^6.1.1"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
-    "@khanacademy/wonder-blocks-typography" "^2.1.11"
+    "@khanacademy/perseus-utils" "2.0.4"
 
-"@khanacademy/wonder-blocks-breadcrumbs@^2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-breadcrumbs/-/wonder-blocks-breadcrumbs-2.2.2.tgz#32d8af755b2ed323670a993fe4f9d00ee3c1e36c"
-  integrity sha512-hi0hkdMSHMYqQlf7ZoafERm50D/H674Rgq2hO+U9TgOHl2kevZKXDT72cY9ZUx9lXxYMKjSDukamLqISOJGEUw==
+"@khanacademy/wonder-blocks-announcer@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-announcer/-/wonder-blocks-announcer-1.0.2.tgz#22b3a26f203421abc523273852dbade5086332e4"
+  integrity sha512-wwE+mPiUj46R/0u1TiJ8IFmtPlOk2M6TNkXKcKo4ercUwb3TbvTvutL38EeK4W9Z98xVx8c3FPWYNZjKFuvP8g==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.1"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
 
-"@khanacademy/wonder-blocks-button@6.3.1", "@khanacademy/wonder-blocks-button@^6.3.1":
-  version "6.3.1"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-button/-/wonder-blocks-button-6.3.1.tgz#68d45367c4623e00356834a00ad387eab7db2f3f"
-  integrity sha512-cgsG1ro78y6/oW1l0jVRoadom/e8dGuyCP6sJf6b6DHZWyQvgdQhE/217Mm3lQ8I23B3VrL048eqNr0sn8NLLQ==
+"@khanacademy/wonder-blocks-banner@4.1.21":
+  version "4.1.21"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-banner/-/wonder-blocks-banner-4.1.21.tgz#311f1725a2687eb69f0cb902c09cc28a62981eb4"
+  integrity sha512-5Sk5gcPa6+lCvmcC5s/ys+/XM/BXsf0NvooxFGAirb+lx6isoDBIKLVtZDwe5KwRoUINqL7ZXxmD1wC68Hi83A==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-clickable" "^4.2.1"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-    "@khanacademy/wonder-blocks-icon" "^4.1.0"
-    "@khanacademy/wonder-blocks-progress-spinner" "^2.1.1"
-    "@khanacademy/wonder-blocks-theming" "^2.0.2"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
-    "@khanacademy/wonder-blocks-typography" "^2.1.11"
+    "@khanacademy/wonder-blocks-button" "10.0.5"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-icon" "5.1.4"
+    "@khanacademy/wonder-blocks-icon-button" "10.2.1"
+    "@khanacademy/wonder-blocks-link" "9.1.5"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
+    "@khanacademy/wonder-blocks-typography" "4.2.0"
 
-"@khanacademy/wonder-blocks-cell@^3.3.5":
-  version "3.3.6"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-cell/-/wonder-blocks-cell-3.3.6.tgz#a614eb798b71f14a112f06549e2bc6dbe4b07ded"
-  integrity sha512-M9deceVMaa37UfLJbh78w8Xf1fkr8WamWS1KSyDlI+sBsOMG5YrW4U0S+RK3mEegGHNpsSeYm9ieNUJIkEPbfw==
+"@khanacademy/wonder-blocks-breadcrumbs@3.1.16":
+  version "3.1.16"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-breadcrumbs/-/wonder-blocks-breadcrumbs-3.1.16.tgz#efcd79a5fceca66c116874094b1e818ebe89a249"
+  integrity sha512-h01WswfTtRrHFfLrqpYtV5d1OWwyK636IKYA/ACJvNEDNWyPZH76gm7WyNTWEVaRUJGNK4Pn9xPDmsWC97pD4A==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-clickable" "^4.2.2"
-    "@khanacademy/wonder-blocks-core" "^6.4.1"
-    "@khanacademy/wonder-blocks-layout" "^2.0.33"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
-    "@khanacademy/wonder-blocks-typography" "^2.1.12"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
 
-"@khanacademy/wonder-blocks-clickable@4.2.1", "@khanacademy/wonder-blocks-clickable@^4.2.1":
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-clickable/-/wonder-blocks-clickable-4.2.1.tgz#e29de2a084b7f46c6998a3c20501c37bc7d61416"
-  integrity sha512-Y5F1tqHITCAJ8WWS1U7Z0v/UZUm5IDFZ0Vfb+qWElelzUL+pvV7K1pAeDaVrXF8RWUNLFVDBA4H+1aP1IeejKQ==
+"@khanacademy/wonder-blocks-button@10.0.5":
+  version "10.0.5"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-button/-/wonder-blocks-button-10.0.5.tgz#f480d3d84ee4564b5d8a80fa06fd48a6241a0d8f"
+  integrity sha512-WFJBqNNoDB1nJf1+u7jpqfMhTji7FLSx+HfJkD+ywHQ5ANo5HP3IijvH7iZub7Ki4v2UPmPkvpj+cW3uAWJh6Q==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
+    "@khanacademy/wonder-blocks-clickable" "7.1.5"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-icon" "5.1.4"
+    "@khanacademy/wonder-blocks-progress-spinner" "3.1.16"
+    "@khanacademy/wonder-blocks-styles" "0.2.12"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
+    "@khanacademy/wonder-blocks-typography" "4.2.0"
 
-"@khanacademy/wonder-blocks-clickable@^4.2.2":
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-clickable/-/wonder-blocks-clickable-4.2.2.tgz#1c06db0b1111197951730d805c6ffa0619c50312"
-  integrity sha512-U76/QwqCfwXwWYYJWBO1b0l3db7Hw65RGytC5uCNB2kk1mArr2n0BMFNKg/v7iO7qEMrkZyq9EY0K0FKBqIFqQ==
+"@khanacademy/wonder-blocks-cell@4.1.18":
+  version "4.1.18"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-cell/-/wonder-blocks-cell-4.1.18.tgz#d19c4fa3f33595b3969df5f7ce290ae915229284"
+  integrity sha512-jRYL4PxZVvqtnFOYfah/6dNIbjjv+CSt9TDq3METxfa5u+LUKHO4DdZMeqWSwNjo+sKEXsR9W6ZLL8Ft5ZtoEA==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.1"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
+    "@khanacademy/wonder-blocks-clickable" "7.1.5"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-layout" "3.1.16"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
+    "@khanacademy/wonder-blocks-typography" "4.2.0"
 
-"@khanacademy/wonder-blocks-core@6.4.0", "@khanacademy/wonder-blocks-core@^6.4.0":
-  version "6.4.0"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-core/-/wonder-blocks-core-6.4.0.tgz#e35da3c8124410b285fa98ebcf6e010892923081"
-  integrity sha512-0+Iw6nVsiXcBpbdUT4OjoDVENs96XOPpSWtCA7zOdiyqkBvM5f722JdQsRb350gKxbYK5uqkzU1Ca+4ZVQH1OA==
+"@khanacademy/wonder-blocks-clickable@7.1.5":
+  version "7.1.5"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-clickable/-/wonder-blocks-clickable-7.1.5.tgz#c307530a0554441b89afdd8fce3ad093fdb22ede"
+  integrity sha512-uBWMN3AdmYcAyHy8qKDsGj7Aa1drcUVCSUMQBnglKgbtgwADpKJJKUprS/aKQFBXkHb+Ic7MJKGVxk4BxfyPjw==
   dependencies:
-    "@babel/runtime" "^7.18.6"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
 
-"@khanacademy/wonder-blocks-core@^6.4.1":
-  version "6.4.1"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-core/-/wonder-blocks-core-6.4.1.tgz#6e815cd693aecd52b48056e39ce67d1a26db5c08"
-  integrity sha512-GQF/4tZHH6C7i5lfeF5iZSKS1stTyNN2nYrRHSlzJ7tefPgD38rN3/crQxln1KxFkzyiQHfnoT4pD2dGKJhl+A==
+"@khanacademy/wonder-blocks-core@12.3.0":
+  version "12.3.0"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-core/-/wonder-blocks-core-12.3.0.tgz#d7908849c333bc07fc6133ac157cc143f2bcf3f5"
+  integrity sha512-P9w1OXkPJn2QHodKoXau1ka7is3rapLW463+at0vQDOmo6v4TcugLP0Gw9zxYwCSmvKVum1Vi3qt/2+5RiW99w==
+
+"@khanacademy/wonder-blocks-data@14.1.4":
+  version "14.1.4"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-data/-/wonder-blocks-data-14.1.4.tgz#2f5484d2730bcdf03eaa049427cc84b7d5ae7ad0"
+  integrity sha512-8zW2n1BdJSRdnQwGIXUZ2geZ6YLx6PghE7aAaMM/etRSqNUftcAiuYOMger4YcLqWVsUtjdvtmXkUVi85hyirQ==
   dependencies:
-    "@babel/runtime" "^7.18.6"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
 
-"@khanacademy/wonder-blocks-data@13.0.7":
-  version "13.0.7"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-data/-/wonder-blocks-data-13.0.7.tgz#47c3d42084c1042923d3caaca19c5d7a085530c3"
-  integrity sha512-ZnMhuCAy+rHgRKE/mib2wllGU3Zs06RDW+D8x9ecFcUnrXv7Gr2t7h3QmrFb1KL7mHpCYZxIS8b1e4blGCTAyA==
+"@khanacademy/wonder-blocks-dropdown@10.1.5":
+  version "10.1.5"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-dropdown/-/wonder-blocks-dropdown-10.1.5.tgz#eafe9ea2f527f48bbeeff236f429484603d8ac56"
+  integrity sha512-F1LLky4PMn6WM9O84V44dL4LZEGfY6vTIEHjBIQJLdFpOV6F6OlTyVwSJQHEKNM1dxmb/x1KnglXK2K9n9+W6A==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
+    "@khanacademy/wonder-blocks-announcer" "1.0.2"
+    "@khanacademy/wonder-blocks-cell" "4.1.18"
+    "@khanacademy/wonder-blocks-clickable" "7.1.5"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-icon" "5.1.4"
+    "@khanacademy/wonder-blocks-icon-button" "10.2.1"
+    "@khanacademy/wonder-blocks-layout" "3.1.16"
+    "@khanacademy/wonder-blocks-modal" "7.1.20"
+    "@khanacademy/wonder-blocks-pill" "3.1.18"
+    "@khanacademy/wonder-blocks-search-field" "5.1.20"
+    "@khanacademy/wonder-blocks-timing" "7.0.2"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
+    "@khanacademy/wonder-blocks-typography" "4.2.0"
 
-"@khanacademy/wonder-blocks-dropdown@5.3.0":
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-dropdown/-/wonder-blocks-dropdown-5.3.0.tgz#cd9fae152770e7083b5a46ca5f2690e95b97479a"
-  integrity sha512-LgztsaPScO7vAB5dDL61n9+w55Oxg/GI6PgFkSAkvSaYiw2AaurpkLsq/ZJNDQTZGEGEhXn+znkedt8uDE5QCQ==
+"@khanacademy/wonder-blocks-form@7.1.18":
+  version "7.1.18"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-form/-/wonder-blocks-form-7.1.18.tgz#21f7de6108e41d38d3b9e5216ec9ef30895093d0"
+  integrity sha512-fqHqygVRWnTy0o1VAvJduKnrZLNfSG2OSyd6qe7oXw0w8f+/oZfz/HwW4pYckHXLRGaRuGaZlcBRSPmRotXuKA==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-cell" "^3.3.5"
-    "@khanacademy/wonder-blocks-clickable" "^4.2.1"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-    "@khanacademy/wonder-blocks-icon" "^4.1.0"
-    "@khanacademy/wonder-blocks-layout" "^2.0.32"
-    "@khanacademy/wonder-blocks-modal" "^5.1.2"
-    "@khanacademy/wonder-blocks-search-field" "^2.2.10"
-    "@khanacademy/wonder-blocks-timing" "^5.0.0"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
-    "@khanacademy/wonder-blocks-typography" "^2.1.11"
+    "@khanacademy/wonder-blocks-clickable" "7.1.5"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-icon" "5.1.4"
+    "@khanacademy/wonder-blocks-layout" "3.1.16"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
+    "@khanacademy/wonder-blocks-typography" "4.2.0"
 
-"@khanacademy/wonder-blocks-form@4.5.1":
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-form/-/wonder-blocks-form-4.5.1.tgz#3664859cdb5ef29cca1cb1625d5fec14f89c844b"
-  integrity sha512-exwtVmbLR+CvUOJDrNEFztLdbbV/+BCwCJ4AiLMVmY/gmDZhKrxu7tV5UqirXWdo7tv52/loGqOnvtiwDODcpg==
+"@khanacademy/wonder-blocks-icon-button@10.2.1":
+  version "10.2.1"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-icon-button/-/wonder-blocks-icon-button-10.2.1.tgz#adbbe6b18122e955dec91a4586f60e82e5c98493"
+  integrity sha512-7KXOF3jTa2f519jG4ZM7mI5yEFgimGPavtXugShp1CXBsKeokTUB4lKWloG0eujRMny2TzgJ5BFfisQFoUwILw==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-clickable" "^4.2.1"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-    "@khanacademy/wonder-blocks-icon" "^4.1.0"
-    "@khanacademy/wonder-blocks-layout" "^2.0.32"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
-    "@khanacademy/wonder-blocks-typography" "^2.1.11"
+    "@khanacademy/wonder-blocks-clickable" "7.1.5"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-icon" "5.1.4"
+    "@khanacademy/wonder-blocks-styles" "0.2.12"
+    "@khanacademy/wonder-blocks-theming" "3.4.0"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
+    "@khanacademy/wonder-blocks-typography" "4.2.0"
 
-"@khanacademy/wonder-blocks-form@^4.6.0":
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-form/-/wonder-blocks-form-4.6.0.tgz#a9a7e522fafe4ae3f83cdcd3f92b0d327ceb9491"
-  integrity sha512-AAaJhc567CkLN26VIvPvsa0sKaUt63cGnJz57Nz0CxQWrk0De1+QgiNK9ujlnj1UNne3RB5Dc95hmrqUu1fK8A==
+"@khanacademy/wonder-blocks-icon@5.1.4":
+  version "5.1.4"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-icon/-/wonder-blocks-icon-5.1.4.tgz#160a38c2b71740c6161cf3ea6ea94e6e71d2c004"
+  integrity sha512-czCjm/mifkd+iz5j+SrYaD8j6icnvEtQrYFfu6QPHnRLLCvD0hFrR0I24pvU3nTHQryBKhe8FmD/Xfp9RQvV1g==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-clickable" "^4.2.2"
-    "@khanacademy/wonder-blocks-core" "^6.4.1"
-    "@khanacademy/wonder-blocks-icon" "^4.1.1"
-    "@khanacademy/wonder-blocks-layout" "^2.0.33"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
-    "@khanacademy/wonder-blocks-typography" "^2.1.12"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
 
-"@khanacademy/wonder-blocks-icon-button@^5.2.1":
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-icon-button/-/wonder-blocks-icon-button-5.2.1.tgz#ae35e1bd7106d19fc874ab3ff3611696febaa486"
-  integrity sha512-/sbeOYKApnFPNRxADySXlOtIJkbFEpPNGW8cRA6Yeq3W7bNZoxcIhLmhz2euWI6+La9uQZlxnVKMwPULf9KYRQ==
+"@khanacademy/wonder-blocks-layout@3.1.16":
+  version "3.1.16"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-layout/-/wonder-blocks-layout-3.1.16.tgz#94c291881b35470f625443585fffab0affc07f20"
+  integrity sha512-SXrVreCKTH2XcOOn42+IBuD1ljwzxQmVW07Exexm8hy0RofozoVzA8EulKGAWC04aUxg37TdbhzkfdqhYAX+Jg==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-clickable" "^4.2.1"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-    "@khanacademy/wonder-blocks-icon" "^4.1.0"
-    "@khanacademy/wonder-blocks-theming" "^2.0.2"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
 
-"@khanacademy/wonder-blocks-icon-button@^5.2.2":
-  version "5.2.2"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-icon-button/-/wonder-blocks-icon-button-5.2.2.tgz#63dfd1dd75a29853d94756325518c1efa0ad9e83"
-  integrity sha512-kqbZiDxGMaaaz0k/QjdQFUxy3nEiFbo6bRxP/ZisWKvPbcS/qCKg7HXD2jbRkcp1Bnx4JOitmJRCFa79CclEmg==
+"@khanacademy/wonder-blocks-link@9.1.5":
+  version "9.1.5"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-link/-/wonder-blocks-link-9.1.5.tgz#689c02329a93d182a56bc3f1fcd82098f7916482"
+  integrity sha512-DuYOtQUatPe1kucIBMg0KnLeNbr/RJK2mH3sVxQ8x+pW0MUy94AIp5BBfYesFRin7loqZczu/IjyVyZWRldBxQ==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-clickable" "^4.2.2"
-    "@khanacademy/wonder-blocks-core" "^6.4.1"
-    "@khanacademy/wonder-blocks-icon" "^4.1.1"
-    "@khanacademy/wonder-blocks-theming" "^2.0.2"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
+    "@khanacademy/wonder-blocks-clickable" "7.1.5"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-icon" "5.1.4"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
 
-"@khanacademy/wonder-blocks-icon@4.1.0", "@khanacademy/wonder-blocks-icon@^4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-icon/-/wonder-blocks-icon-4.1.0.tgz#3c514e3adb11884f70f35d0f2e4316ce8048585f"
-  integrity sha512-qOdkq6E1xohl4bi296qzCmARah/nS2rTqgS0GA5vm4/Li+anuXf4w9c5M60VZ/M0lp6yaG6zVamjdoeptnOBrQ==
+"@khanacademy/wonder-blocks-modal@7.1.20":
+  version "7.1.20"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-modal/-/wonder-blocks-modal-7.1.20.tgz#e52da106e2c4cc32e464a52756cadb227f2ecde3"
+  integrity sha512-pss4KXcCKQCiYvRDUQk0KBUA8XAr6kGgGEME+CzYmiExSq8BsnHxVQF6RzoipozQyibAtpXauTPCQlR6NQ8FZA==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
+    "@khanacademy/wonder-blocks-breadcrumbs" "3.1.16"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-icon-button" "10.2.1"
+    "@khanacademy/wonder-blocks-layout" "3.1.16"
+    "@khanacademy/wonder-blocks-styles" "0.2.12"
+    "@khanacademy/wonder-blocks-theming" "3.4.0"
+    "@khanacademy/wonder-blocks-timing" "7.0.2"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
+    "@khanacademy/wonder-blocks-typography" "4.2.0"
 
-"@khanacademy/wonder-blocks-icon@^4.1.1":
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-icon/-/wonder-blocks-icon-4.1.1.tgz#e3262ce4eebe4a50cbd636e066e175fa42a12c35"
-  integrity sha512-6bnuMGY2y605jtZhEGAzUDUPiqVnUWsdE1n49kg30hY5FiJXJwbBGfaxP9DHXgbMK9RuBoR7ZrvoX16M3zn/dg==
+"@khanacademy/wonder-blocks-pill@3.1.18":
+  version "3.1.18"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-pill/-/wonder-blocks-pill-3.1.18.tgz#3a6a0a19a25c6849863a38508429cbd5881553d2"
+  integrity sha512-U6hlO21+8bXnqDXR5MDXwz/ASmUWuB3f/pc7tPTOFNbPRKkagmONOk5JEYEjkc+2at+sg+IQ32jmBnXUPnz+3g==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.1"
+    "@khanacademy/wonder-blocks-clickable" "7.1.5"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-link" "9.1.5"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
+    "@khanacademy/wonder-blocks-typography" "4.2.0"
 
-"@khanacademy/wonder-blocks-layout@2.0.32", "@khanacademy/wonder-blocks-layout@^2.0.32":
-  version "2.0.32"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-layout/-/wonder-blocks-layout-2.0.32.tgz#bf68e2b1625eceaf34e5bc3f5833643e21450118"
-  integrity sha512-sprckOrMRUipYuLAPPihnt7ihZUJShREujP135w3Ex8ALjPs9pYHixKvM1GWvkQlY/vPFW6NP2bn0DLuEeoLwg==
+"@khanacademy/wonder-blocks-popover@6.1.6":
+  version "6.1.6"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-popover/-/wonder-blocks-popover-6.1.6.tgz#7ac262bd69a776abe42f7e9e6be56940a759a877"
+  integrity sha512-pJUTL9JBGpNqCvkn7qEv+Y1b8UJ74RQiS6S0E2p1deTOAPgMqeGe2hXTMLYCF5jbYl8S6JF1Ln/dthaQ6/35WQ==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-icon-button" "10.2.1"
+    "@khanacademy/wonder-blocks-modal" "7.1.20"
+    "@khanacademy/wonder-blocks-styles" "0.2.12"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
+    "@khanacademy/wonder-blocks-tooltip" "4.1.20"
+    "@khanacademy/wonder-blocks-typography" "4.2.0"
 
-"@khanacademy/wonder-blocks-layout@^2.0.33":
-  version "2.0.33"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-layout/-/wonder-blocks-layout-2.0.33.tgz#6a23599fb99a0b620d6820b1727ade66bfacd804"
-  integrity sha512-JjXDpmzIHCyjJfE410V2fpp2i8IDWaE0kbkwxn2RaL1LREwWljJ8R3//PJN24scbtzM+mJIj8LorGVWsw8XjOg==
+"@khanacademy/wonder-blocks-progress-spinner@3.1.16":
+  version "3.1.16"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-progress-spinner/-/wonder-blocks-progress-spinner-3.1.16.tgz#2b9dab7caca44fe1d8b32c9f32d4a132e432559f"
+  integrity sha512-7ZN7YXTLjIUQcMHVeqDkWt0dm8EJ/6Dvu2jli8Y8YIczcSTD40+cYODlb3u9u2eKR+ascKF/BsiTKkXT8QF/Og==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.1"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
 
-"@khanacademy/wonder-blocks-link@6.1.1", "@khanacademy/wonder-blocks-link@^6.1.1":
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-link/-/wonder-blocks-link-6.1.1.tgz#40bffcd2fc3442648cad650febc4b34e6065b12c"
-  integrity sha512-D4adyo4GaUILkp5GZNZSgzP+815/OOOkq0wK1GFgHYr9JybIxBURP7zwBBUow/YWTCwosLOvryWM8ka2trw1jQ==
+"@khanacademy/wonder-blocks-search-field@5.1.20":
+  version "5.1.20"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-search-field/-/wonder-blocks-search-field-5.1.20.tgz#37860b7b7c941745e72938d5bcb9e6f2363d685b"
+  integrity sha512-xLMhu67zZ+4UP8nsTsfv+Dsi5ZtWevHRjXHnkrC5fx1boDGNCJkdkZ05vdZctdr5pAMk5Bx9i4tJj5Tx9KGQ0A==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-clickable" "^4.2.1"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-    "@khanacademy/wonder-blocks-icon" "^4.1.0"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-form" "7.1.18"
+    "@khanacademy/wonder-blocks-icon" "5.1.4"
+    "@khanacademy/wonder-blocks-icon-button" "10.2.1"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
+    "@khanacademy/wonder-blocks-typography" "4.2.0"
 
-"@khanacademy/wonder-blocks-modal@^5.1.2", "@khanacademy/wonder-blocks-modal@^5.1.3":
-  version "5.1.3"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-modal/-/wonder-blocks-modal-5.1.3.tgz#8c5e98d53c9b015f8c75f0dfcecc0b74d4babeb2"
-  integrity sha512-npsw/hQ1E2DqUwyQIdtaUGd/SE/j2ADZXH0Q9YXXmxoGuPkBf80Nv7YvI+XDecqIH+JQHf1kpugC4SLXIgmSqQ==
+"@khanacademy/wonder-blocks-styles@0.2.12":
+  version "0.2.12"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-styles/-/wonder-blocks-styles-0.2.12.tgz#28f1f639529edb2310a531a4c53e68a6550ed272"
+  integrity sha512-J220EOy+BOKYTRej1pTMhVdILS6qrmhLJ4FGtsE9/CNfPw6WPYJQki1nM8PZtKMczqNIxYwrml3CiaQ9AU2l8A==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-breadcrumbs" "^2.2.2"
-    "@khanacademy/wonder-blocks-core" "^6.4.1"
-    "@khanacademy/wonder-blocks-icon-button" "^5.2.2"
-    "@khanacademy/wonder-blocks-layout" "^2.0.33"
-    "@khanacademy/wonder-blocks-theming" "^2.0.2"
-    "@khanacademy/wonder-blocks-timing" "^5.0.0"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
-    "@khanacademy/wonder-blocks-typography" "^2.1.12"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
 
-"@khanacademy/wonder-blocks-pill@2.2.1":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-pill/-/wonder-blocks-pill-2.2.1.tgz#dc319f96b5b198a4df3ffb99d7af14b355b01282"
-  integrity sha512-f/Yw0WG+X6tA9pPZQ7VmQ4vLfzUrsuICCzR+cK0/otqNZr5+Z2N4UutCG7sbb/Hi5HegPdBxV/bb2RgGjLrUNA==
+"@khanacademy/wonder-blocks-switch@3.2.9":
+  version "3.2.9"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-switch/-/wonder-blocks-switch-3.2.9.tgz#6c31cc43bbc3199f9f6a78a4dab52340621fb1c4"
+  integrity sha512-0cy4qe/R0b0GVmH6+JDUuOJGese3V+QEjmAPVZdt/HS+TNPDjK772R/oa5BrWQB43KopsgMCZg4HABTYcoE2sQ==
   dependencies:
-    "@khanacademy/wonder-blocks-clickable" "^4.2.1"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-    "@khanacademy/wonder-blocks-link" "^6.1.1"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
-    "@khanacademy/wonder-blocks-typography" "^2.1.11"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-icon" "5.1.4"
+    "@khanacademy/wonder-blocks-styles" "0.2.12"
+    "@khanacademy/wonder-blocks-theming" "3.4.0"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
 
-"@khanacademy/wonder-blocks-popover@3.2.2":
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-popover/-/wonder-blocks-popover-3.2.2.tgz#404b1e90942a66a1678c1ef4f4aef18a776564a4"
-  integrity sha512-DyAOVJm/3vhTQ6S6XHOeoJYRueVOZiGp97HHxrzms6eMhpGY2KSjtjKD48A6Do1VQ6ruCSqBPQGJX4vMDs3ncQ==
+"@khanacademy/wonder-blocks-theming@3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-theming/-/wonder-blocks-theming-3.4.0.tgz#0b02ea4fdc04e2e21ad43080deb645c3c17d6deb"
+  integrity sha512-fhY3VZx+KoNHW7/fioHykZBHwBO8dQe5puxQw2SuRGHrx2BND+xZccka7FvO1IzACiY/ahutr8Ckq5ETqrGZgA==
+
+"@khanacademy/wonder-blocks-timing@7.0.2", "@khanacademy/wonder-blocks-timing@^7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-timing/-/wonder-blocks-timing-7.0.2.tgz#a55583827c865b156810ddf7a7e031f44b51e402"
+  integrity sha512-6JcFMo+XR2QCv4zcyjkj4M4EzqpWTEZopbQ4SrwB+6pjNYXd20YA3Y7EIsFIa1KHsZ2S1wsjiQliqQOXjB2VwQ==
+
+"@khanacademy/wonder-blocks-tokens@10.4.0":
+  version "10.4.0"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-tokens/-/wonder-blocks-tokens-10.4.0.tgz#e3b1f7d14dffd87e707c7af4d213fe8472397148"
+  integrity sha512-B3kc/Ue1idnWRdH1McFO0cN7AcF8hOcQTC+fv9BlWoOD9cFGxg9xa7MHWPV4SoHVqeMYKSM1zLro+7TyVy69sQ==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-    "@khanacademy/wonder-blocks-icon-button" "^5.2.1"
-    "@khanacademy/wonder-blocks-modal" "^5.1.2"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
-    "@khanacademy/wonder-blocks-tooltip" "^2.3.1"
-    "@khanacademy/wonder-blocks-typography" "^2.1.11"
+    "@khanacademy/wonder-blocks-theming" "3.4.0"
 
-"@khanacademy/wonder-blocks-progress-spinner@2.1.1", "@khanacademy/wonder-blocks-progress-spinner@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-progress-spinner/-/wonder-blocks-progress-spinner-2.1.1.tgz#5466a8abeebd1575f4d1888eaa2edaa3eb4c4797"
-  integrity sha512-ly8SITKmLM3dycHwcjlK7sw/znfX8C2o8zFcvqjjc81KaF/FT7vQuLLwDzwDpwoxQt7ryCAYRjN89yX7B+yewA==
+"@khanacademy/wonder-blocks-tooltip@4.1.20":
+  version "4.1.20"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-tooltip/-/wonder-blocks-tooltip-4.1.20.tgz#079e98b5a1c41558aa62c1efc4f9c0ea14df347e"
+  integrity sha512-4lcx3pxTSZxJmJ7Pj6nb9Ycl8j+GG98CohDBER6TcPZyoheUKPxaQoiWQOlbkjhx6SBc5iUEtAjFde5lYSA7HQ==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-layout" "3.1.16"
+    "@khanacademy/wonder-blocks-modal" "7.1.20"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
+    "@khanacademy/wonder-blocks-typography" "4.2.0"
 
-"@khanacademy/wonder-blocks-search-field@^2.2.10":
-  version "2.2.11"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-search-field/-/wonder-blocks-search-field-2.2.11.tgz#40fb722fc888e60f9b93157f695e1ddae6493c66"
-  integrity sha512-N4KY3yyhvMzWoYt3egJIr+u7c8k3WV0rkgeWPPkK5kKeZYc0U4dYwNMp8l0U/HVYzBXKINuTVxeAumpbWz1tew==
+"@khanacademy/wonder-blocks-typography@4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-typography/-/wonder-blocks-typography-4.2.0.tgz#1ad90035b1b4ca7e9dbff224c9db4c8081588bca"
+  integrity sha512-QwqlF8HJUu4VA6wSzGfHqtL0Bw+fKBEBdgXENDzbhM4TAz/8wmp6OYqLzfFmhaRqfKxZg5LIkg7Si80ldz5+tQ==
   dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.1"
-    "@khanacademy/wonder-blocks-form" "^4.6.0"
-    "@khanacademy/wonder-blocks-icon" "^4.1.1"
-    "@khanacademy/wonder-blocks-icon-button" "^5.2.2"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
-    "@khanacademy/wonder-blocks-typography" "^2.1.12"
+    "@khanacademy/wonder-blocks-core" "12.3.0"
+    "@khanacademy/wonder-blocks-tokens" "10.4.0"
 
-"@khanacademy/wonder-blocks-switch@1.1.16":
-  version "1.1.16"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-switch/-/wonder-blocks-switch-1.1.16.tgz#404384d245e8a66efe4fd39569bb56fffba83f22"
-  integrity sha512-nSJUnNrvo/QkPDuU0oewBHmXn4pe19sUIxTj17gQOn6zrcPThLBtb5URDfcZkVNaiG1EzCMGZz0QdQcNABYGHw==
-  dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-    "@khanacademy/wonder-blocks-icon" "^4.1.0"
-    "@khanacademy/wonder-blocks-theming" "^2.0.2"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
-
-"@khanacademy/wonder-blocks-theming@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-theming/-/wonder-blocks-theming-2.0.2.tgz#b3175ad778db3a87272b2d64995617cf22a1e14b"
-  integrity sha512-o3EkwpK5H8NEjWt5nCelRdOl0zPJNyWLNoEWyWnourJtxUTwqzd98sxZMEbQhn2/4wlqVNrLEK8ZbypBSmm+ig==
-
-"@khanacademy/wonder-blocks-timing@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-timing/-/wonder-blocks-timing-5.0.0.tgz#a5b97486d16d135871136e3f4b63e66d07d0539c"
-  integrity sha512-QQ97QTFjRsqqxpjqT2PclvVGMCC4IDGIgCAFktZSLpzqnJUY3skx2Mpva42PXyymwxQOktSMBzjYf7ENrcKYmw==
-
-"@khanacademy/wonder-blocks-tokens@1.3.0", "@khanacademy/wonder-blocks-tokens@^1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-tokens/-/wonder-blocks-tokens-1.3.0.tgz#05bf558b220fd9bf4d0693d20e28c0c15967455b"
-  integrity sha512-vImubvBzSsinHLSbJAF61J15UjgE8hD207zVxCOuYszzKJk6bv0BMrRRCyq7/t61I04qEcXnE14HP0m5Vb4cYw==
-
-"@khanacademy/wonder-blocks-tooltip@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-tooltip/-/wonder-blocks-tooltip-2.3.1.tgz#1175388bca80348afb7eaf01793e432d5e4bd6b1"
-  integrity sha512-MDnPEN568yMRv8Uv/8gTelTGsZAwk1M2En0I753odfFMi8MPogRFCAGL2QWPjWMaz5b5cvCbIjDeb/SkTIbyjA==
-  dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-    "@khanacademy/wonder-blocks-layout" "^2.0.32"
-    "@khanacademy/wonder-blocks-modal" "^5.1.2"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
-    "@khanacademy/wonder-blocks-typography" "^2.1.11"
-
-"@khanacademy/wonder-blocks-tooltip@^2.3.1":
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-tooltip/-/wonder-blocks-tooltip-2.3.2.tgz#ff0f53de842e302cf845203c8e715d291b40cd38"
-  integrity sha512-1TWhzu3CbPKJBvlDZtY2dm/7DRMHaWpWlt30Z1zgq0Pwntj5jCumnMoVaPagQJzd9x7YUWlFlubQOlLCWZD24w==
-  dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.1"
-    "@khanacademy/wonder-blocks-layout" "^2.0.33"
-    "@khanacademy/wonder-blocks-modal" "^5.1.3"
-    "@khanacademy/wonder-blocks-tokens" "^1.3.0"
-    "@khanacademy/wonder-blocks-typography" "^2.1.12"
-
-"@khanacademy/wonder-blocks-typography@2.1.11", "@khanacademy/wonder-blocks-typography@^2.1.11":
-  version "2.1.11"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-typography/-/wonder-blocks-typography-2.1.11.tgz#2098be8c6074f6d1d56fd7d1577c958b7a925b26"
-  integrity sha512-4wLBXtPvmfUY/Ls+LxCPlKIrYBhU7Fqs1GztWTV9VVVZSDUq5ljkXyhQPE5gVfmoD26wh1TCCSmAgxou1ZTubw==
-  dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.0"
-
-"@khanacademy/wonder-blocks-typography@^2.1.12":
-  version "2.1.12"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-blocks-typography/-/wonder-blocks-typography-2.1.12.tgz#7d7c006a1fdf8d0e45ccd3a801898f82c2a4676e"
-  integrity sha512-g+03ahLeeoC56rpbHPjgDiHsj0fDWaLaxYO7dTsywD6By4QnMvdJLtTJRtUAgWjWec5AB2Yxa59O8NRsrX4kLg==
-  dependencies:
-    "@babel/runtime" "^7.18.6"
-    "@khanacademy/wonder-blocks-core" "^6.4.1"
-
-"@khanacademy/wonder-stuff-core@^1.5.2":
-  version "1.5.2"
-  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-stuff-core/-/wonder-stuff-core-1.5.2.tgz#d3c6583ddb101181421d61b7cbd36a6bd74f3a71"
-  integrity sha512-GHuBdNvuDkDbXuJ5FZy58p5z+dosQ0YBnDrSS9uHppzAYXqSsTnBghpBFmr5CDYWt48pXbNYO5U+wHMsytLipQ==
+"@khanacademy/wonder-stuff-core@^1.5.5":
+  version "1.5.5"
+  resolved "https://registry.yarnpkg.com/@khanacademy/wonder-stuff-core/-/wonder-stuff-core-1.5.5.tgz#768e8cef3725109bcca60d6bd96e71753d223d5e"
+  integrity sha512-0OkhkjuM2zoS6k9Y8WPFGq0OL5WjgL8faOukM5P/wY7M9RC1q/oYCECg5YUf+OFfXenSHgBi2TmJ6cpT/F1how==
 
 "@leichtgewicht/ip-codec@^2.0.1":
   version "2.0.4"
@@ -8115,10 +8068,10 @@ m3u8-parser@4.8.0:
     "@videojs/vhs-utils" "^3.0.5"
     global "^4.4.0"
 
-mafs@0.18.5:
-  version "0.18.5"
-  resolved "https://registry.yarnpkg.com/mafs/-/mafs-0.18.5.tgz#f9edc05cefa0643bee57903b2cce55409f347ff3"
-  integrity sha512-QhipU2UfH3x/b07VRhSFTJJ+jA8fEgaIOhuIx6tgGkVmWK3awK7tGL49jeRx9sTYAQjbezdfKNoZS4+OBEvO1w==
+mafs@0.19.0:
+  version "0.19.0"
+  resolved "https://registry.yarnpkg.com/mafs/-/mafs-0.19.0.tgz#23b534d8602f194a7b1be7c4ff2e000afde9c240"
+  integrity sha512-mDHQhCbkIYjpuycY8mMV8O+o3ZOIGPgxliipcRE6aBGOXFvlwP2qvz9FQFdIr5W/BfcMY7CkgOqbPQJiKCr74w==
   dependencies:
     "@use-gesture/react" "^10.2.27"
     computer-modern "^0.1.2"
@@ -8248,10 +8201,6 @@ mathml-tag-names@^2.1.3:
   version "2.1.3"
   resolved "https://registry.yarnpkg.com/mathml-tag-names/-/mathml-tag-names-2.1.3.tgz#4ddadd67308e780cf16a47685878ee27b736a0a3"
   integrity sha512-APMBEanjybaPzUrfqU0IMU5I0AswKMH7k8OTLs0vvV4KZpExkTkY87nR/zpbuTPj+gARop7aGUbl11pnDfW6xg==
-
-"mathquill@https://github.com/Khan/mathquill/releases/download/v1.0.0/mathquill-v1.0.0.tgz":
-  version "0.10.1"
-  resolved "https://github.com/Khan/mathquill/releases/download/v1.0.0/mathquill-v1.0.0.tgz#6acb1b4742bea24861e866d11f8b170bdb0c6014"
 
 mdn-data@2.0.28:
   version "2.0.28"
@@ -10933,7 +10882,16 @@ string-length@^4.0.1:
     char-regex "^1.0.2"
     strip-ansi "^6.0.0"
 
-"string-width-cjs@npm:string-width@^4.2.0", "string-width@^1.0.2 || 2 || 3 || 4", string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
+"string-width-cjs@npm:string-width@^4.2.0":
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
+  integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
+  dependencies:
+    emoji-regex "^8.0.0"
+    is-fullwidth-code-point "^3.0.0"
+    strip-ansi "^6.0.1"
+
+"string-width@^1.0.2 || 2 || 3 || 4", string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -11011,7 +10969,14 @@ string_decoder@~1.1.1:
   dependencies:
     safe-buffer "~5.1.0"
 
-"strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@6.0.1, strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+"strip-ansi-cjs@npm:strip-ansi@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
+  integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
+  dependencies:
+    ansi-regex "^5.0.1"
+
+strip-ansi@6.0.1, strip-ansi@^6.0.0, strip-ansi@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
@@ -11838,6 +11803,11 @@ utils-merge@1.0.1:
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
 
+uuid@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-10.0.0.tgz#5a95aa454e6e002725c79055fd42aaba30ca6294"
+  integrity sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==
+
 uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
@@ -12346,7 +12316,16 @@ word-wrap@^1.2.5:
   resolved "https://registry.yarnpkg.com/word-wrap/-/word-wrap-1.2.5.tgz#d2c45c6dd4fbce621a66f136cbe328afd0410b34"
   integrity sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==
 
-"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
+"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
+  integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
+  dependencies:
+    ansi-styles "^4.0.0"
+    string-width "^4.1.0"
+    strip-ansi "^6.0.0"
+
+wrap-ansi@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
