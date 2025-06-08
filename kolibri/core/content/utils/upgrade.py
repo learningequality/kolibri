@@ -67,15 +67,9 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
             drive = get_mounted_drive_by_id(drive_id)
             transfer_channel(
                 channel_id=channel_id,
-<<<<<<< HEAD
                 method="COPY_METHOD",
                 source_path=drive.datafolder,
                 no_upgrade=True
-=======
-                method="disk",
-                content_dir=drive.datafolder,
-                no_upgrade=True,
->>>>>>> c60b7d099caaed8f2b42c552d592bce8226c10be
             )
 
         # create all fields/tables at the annotated destination db, based on the current schema version
