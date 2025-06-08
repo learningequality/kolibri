@@ -1,0 +1,9 @@
+.safe-html {
+  // Due to the recursive rendering every sub-element has the safe-html class applied
+  // so we use these combinatorial selectors to specify styling.
+  &h1 {
+    font-size: 32px;
+    font-weight: bold;
+    line-height: 130%;
+  }
+}

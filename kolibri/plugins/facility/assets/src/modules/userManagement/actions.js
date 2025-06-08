@@ -1,7 +1,21 @@
 import isEmpty from 'lodash/isEmpty';
-import { UserKinds } from 'kolibri/constants';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import { UserKinds } from 'kolibri/constants';
 import { updateFacilityLevelRoles } from './utils';
+import { fetchSortedFacilityUsersHandler } from './handlers';
+
+/**
+ * Fetch facility users with sorting applied based on the column clicked
+ * @param {Object} store - Vuex store
+ * @param {Object} payload - Contains the column, order, page, and page_size information
+ * @param {string} payload.column - The name of the column to sort by
+ * @param {string} payload.order - The sort order ("asc", "desc", or null)
+ * @param {number} payload.page - The page number
+ * @param {number} payload.page_size - The number of items per page
+ */
+export function fetchSortedFacilityUsers(store, payload) {
+  return fetchSortedFacilityUsersHandler(store, payload);
+}
 
 /**
  * Does a POST request to assign a user role (only used in this file)

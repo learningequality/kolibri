@@ -10,6 +10,7 @@
       :value="selectedLanguage"
       :label="coreString('languageLabel')"
       :style="selectorStyle"
+      :truncateOptionsLabel="false"
       @change="val => handleChange('languages', val)"
     />
     <KSelect
@@ -22,6 +23,7 @@
       :value="selectedLevel"
       :label="coreString('levelLabel')"
       :style="selectorStyle"
+      :truncateOptionsLabel="false"
       @change="val => handleChange('grade_levels', val)"
     />
     <KSelect
@@ -34,6 +36,7 @@
       :value="selectedAccessibilityFilter"
       :label="coreString('accessibility')"
       :style="selectorStyle"
+      :truncateOptionsLabel="false"
       @change="val => handleChange('accessibility_labels', val)"
     />
   </div>

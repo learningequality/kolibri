@@ -52,12 +52,6 @@
             :disabled="contentCheckboxDisabled(content)"
             @change="handleCheckboxChange(content, true)"
           />
-          <!-- As a fallback, if any contents have checkboxes at all, we'll want to
-               ensure the folder cards align w/ the resources -->
-          <div
-            v-else-if="contentsHaveCheckboxes"
-            style="width: 24px"
-          ></div>
         </template>
       </component>
     </KCardGrid>
@@ -248,9 +242,6 @@
     computed: {
       gridLayoutOverrides() {
         return [{ breakpoints: [0, 1, 2, 3, 4, 5, 6, 7], rowGap: '24px', cardsPerRow: 1 }];
-      },
-      contentsHaveCheckboxes() {
-        return this.contentList.some(this.contentHasCheckbox);
       },
       showButton() {
         return this.viewMoreButtonState === this.ViewMoreButtonStates.HAS_MORE;

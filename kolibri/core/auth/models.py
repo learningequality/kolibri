@@ -632,6 +632,9 @@ class KolibriAnonymousUser(AnonymousUser, KolibriBaseUserMixin):
 
 
 class FacilityUserModelManager(SyncableModelManager, UserManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(date_deleted__isnull=True)
+
     def create_user(self, username, email=None, password=None, **extra_fields):
         """
         Creates and saves a User with the given username.
@@ -715,6 +718,15 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
             return user
 
 
+class SoftDeletedFacilityUserModelManager(SyncableModelManager, UserManager):
+    """
+    Custom manager for FacilityUser that only returns users who have a non-NULL value in their date_deleted field.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().filter(date_deleted__isnull=False)
+
+
 def validate_birth_year(value):
     error = ""
 
@@ -787,6 +799,8 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
 
     objects = FacilityUserModelManager()
 
+    soft_deleted_objects = SoftDeletedFacilityUserModelManager()
+
     USERNAME_FIELD = "username"
 
     username = models.CharField(
@@ -819,6 +833,8 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         null=True,
         blank=True,
     )
+
+    date_deleted = DateTimeTzField(null=True, blank=True)
 
     def get_short_name(self):
         return self.full_name.split(" ", 1)[0]

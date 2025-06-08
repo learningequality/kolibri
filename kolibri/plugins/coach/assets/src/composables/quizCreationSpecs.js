@@ -134,7 +134,7 @@ export const QuizSection = {
   },
   learners_see_fixed_order: {
     type: Boolean,
-    default: false,
+    default: true,
   },
 };
 

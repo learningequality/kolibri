@@ -67,6 +67,9 @@
           :rows="tableRows"
           :dataLoading="dataLoading"
           :emptyMessage="emptyMessageForItems(facilityUsers, search)"
+          sortable
+          disableBuiltinSorting
+          @changeSort="changeSortHandler"
         >
           <template #header="{ header, colIndex }">
             <span :class="{ visuallyhidden: colIndex === 5 }">{{ header.label }}</span>
@@ -160,6 +163,7 @@
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { showUserPage } from '../../modules/userManagement/handlers';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
@@ -201,6 +205,7 @@
         modalShown: null,
       };
     },
+
     computed: {
       ...mapGetters(['facilityPageLinks']),
       ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount', 'dataLoading']),
@@ -212,7 +217,7 @@
             dataType: 'string',
             minWidth: '300px',
             width: '40%',
-            columnId: 'userFullName',
+            columnId: 'full_name',
           },
           {
             label: this.coreString('usernameLabel'),
@@ -326,7 +331,7 @@
       },
       itemsPerPage: {
         get() {
-          return this.$route.query.page_size || 30;
+          return Number(this.$route.query.page_size) || 30;
         },
         set(value) {
           this.$router.push({
@@ -340,10 +345,52 @@
         },
       },
     },
+    watch: {
+      $route: {
+        /**
+         * When the route changes, this watcher will call showUserPage
+         * to fetch and update the user table. On initial page load,
+         * showUserPage is already called from the router handler,
+         * so we skip calling it again if oldVal is undefined.
+         */
+        handler(newVal, oldVal) {
+          // When previous route is undefined, page is loading for the first time,
+          // and in that case 'showUserPage' was called from routes.js handlers
+          if (oldVal === undefined) {
+            return;
+          } else {
+            showUserPage(this.$store, newVal, oldVal);
+          }
+        },
+        immediate: true,
+        deep: true,
+      },
+    },
     created() {
       this.debouncedSearchTerm = debounce(this.emitSearchTerm, 500);
     },
     methods: {
+      changeSortHandler({ sortKey, sortOrder }) {
+        const columnId = this.tableHeaders[sortKey]?.columnId || null;
+
+        const query = { ...this.$route.query };
+
+        if (!sortOrder || !columnId) {
+          //remove ordering and order from params when sortOrder is null
+          delete query.ordering;
+          delete query.order;
+        } else {
+          query.ordering = columnId;
+          query.order = sortOrder;
+        }
+
+        query.page = 1;
+
+        this.$router.push({
+          path: this.$route.path,
+          query: pickBy(query),
+        });
+      },
       emptyMessageForItems(items, filterText) {
         if (this.facilityUsers.length === 0) {
           return this.$tr('noUsersExist');

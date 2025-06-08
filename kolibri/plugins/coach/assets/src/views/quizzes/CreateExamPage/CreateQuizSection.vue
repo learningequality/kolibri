@@ -581,7 +581,14 @@
         this.createSnackbar(this.questionsDeletedNotification$({ count }));
       },
       isQuestionAutoReplaceable(question) {
-        return this.activeExercisesUnusedQuestionsMap[question.exercise_id].length > 0;
+        // Check if question has assessmentmetadata and exercise_id is null or undefined
+        // otherwise it will break the composable
+        // I think the better way is to gurd against this in the composable itself in future
+        return (
+          question.assessmentmetadata &&
+          question.exercise_id &&
+          this.activeExercisesUnusedQuestionsMap[question.exercise_id].length > 0
+        );
       },
     },
   };

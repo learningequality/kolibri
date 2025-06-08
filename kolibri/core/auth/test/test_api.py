@@ -1064,82 +1064,90 @@ class UserRetrieveTestCase(APITestCase):
         cls.superuser = create_superuser(cls.facility)
         cls.facility.add_admin(cls.superuser)
         cls.user = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility_coach = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_role(cls.facility_coach, "coach")
+        cls.class_coach = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_role(cls.class_coach, "classroom assignable coach")
+        cls.user_response = cls._generate_user_response_dict(cls.user)
+        cls.facility_coach_response = cls._generate_user_response_dict(
+            cls.facility_coach
+        )
+        cls.class_coach_response = cls._generate_user_response_dict(cls.class_coach)
+        cls.superuser_response = cls._generate_user_response_dict(cls.superuser)
+
+    @classmethod
+    def _generate_user_response_dict(cls, user):
+        response_dict = {
+            "id": user.id,
+            "username": user.username,
+            "full_name": user.full_name,
+            "facility": user.facility_id,
+            "id_number": user.id_number,
+            "gender": user.gender,
+            "date_joined": user.date_joined,
+            "birth_year": user.birth_year,
+            "is_superuser": user.is_superuser,
+            "extra_demographics": None,
+        }
+        roles = []
+        user_roles = user.roles.all()
+        if user_roles.exists():
+            for role in user_roles:
+                roles.append(
+                    {
+                        "collection": role.collection_id,
+                        "kind": role.kind,
+                        "id": role.id,
+                    }
+                )
+
+        response_dict["roles"] = roles
+        return response_dict
+
+    def _make_request(self, user=None, url=None, params=None):
+        if user:
+            self.client.login(
+                username=user.username, password=DUMMY_PASSWORD, facility=self.facility
+            )
+
+        if url is None:
+            url = reverse("kolibri:core:facilityuser-list")
+
+        return self.client.get(url, params, format="json")
 
     def test_user_list(self):
-        self.client.login(
-            username=self.superuser.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
-        response = self.client.get(reverse("kolibri:core:facilityuser-list"))
+        response = self._make_request(self.superuser)
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(
             response.data,
             [
-                {
-                    "id": self.user.id,
-                    "username": self.user.username,
-                    "full_name": self.user.full_name,
-                    "facility": self.user.facility_id,
-                    "id_number": self.user.id_number,
-                    "gender": self.user.gender,
-                    "birth_year": self.user.birth_year,
-                    "date_joined": self.user.date_joined,
-                    "is_superuser": False,
-                    "roles": [],
-                    "extra_demographics": None,
-                },
-                {
-                    "id": self.superuser.id,
-                    "username": self.superuser.username,
-                    "full_name": self.superuser.full_name,
-                    "facility": self.superuser.facility_id,
-                    "id_number": self.superuser.id_number,
-                    "gender": self.superuser.gender,
-                    "date_joined": self.superuser.date_joined,
-                    "birth_year": self.superuser.birth_year,
-                    "is_superuser": True,
-                    "roles": [
-                        {
-                            "collection": self.superuser.roles.first().collection_id,
-                            "kind": role_kinds.ADMIN,
-                            "id": self.superuser.roles.first().id,
-                        }
-                    ],
-                    "extra_demographics": None,
-                },
+                self.user_response,
+                self.facility_coach_response,
+                self.class_coach_response,
+                self.superuser_response,
             ],
         )
 
     def test_user_list_self(self):
-        self.client.login(
-            username=self.user.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
-        response = self.client.get(reverse("kolibri:core:facilityuser-list"))
+        response = self._make_request(self.user)
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(
             response.data,
-            [
-                {
-                    "id": self.user.id,
-                    "username": self.user.username,
-                    "full_name": self.user.full_name,
-                    "facility": self.user.facility_id,
-                    "id_number": self.user.id_number,
-                    "gender": self.user.gender,
-                    "birth_year": self.user.birth_year,
-                    "date_joined": self.user.date_joined,
-                    "is_superuser": False,
-                    "roles": [],
-                    "extra_demographics": None,
-                },
-            ],
+            [self.user_response],
+        )
+
+    def test_user_list_filter_user_type_coach(self):
+        response = self._make_request(
+            user=self.superuser, url=None, params={"user_type": "coach"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertCountEqual(
+            response.data,
+            [self.facility_coach_response, self.class_coach_response],
         )
 
     def test_anonymous_user_list(self):
-        response = self.client.get(reverse("kolibri:core:facilityuser-list"))
+        response = self._make_request()
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(
             response.data,
@@ -1147,29 +1155,29 @@ class UserRetrieveTestCase(APITestCase):
         )
 
     def test_user_no_retrieve_admin(self):
-        self.client.login(
-            username=self.user.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
-        response = self.client.get(
-            reverse(
+        response = self._make_request(
+            user=self.user,
+            url=reverse(
                 "kolibri:core:facilityuser-detail", kwargs={"pk": self.superuser.id}
-            )
+            ),
         )
         self.assertEqual(response.status_code, 404)
 
     def test_anonymous_no_retrieve_admin(self):
-        response = self.client.get(
-            reverse(
+        response = self._make_request(
+            user=None,
+            url=reverse(
                 "kolibri:core:facilityuser-detail", kwargs={"pk": self.superuser.id}
-            )
+            ),
         )
         self.assertEqual(response.status_code, 404)
 
     def test_anonymous_no_retrieve_user(self):
-        response = self.client.get(
-            reverse("kolibri:core:facilityuser-detail", kwargs={"pk": self.user.id})
+        response = self._make_request(
+            user=None,
+            url=reverse(
+                "kolibri:core:facilityuser-detail", kwargs={"pk": self.user.id}
+            ),
         )
         self.assertEqual(response.status_code, 404)
 

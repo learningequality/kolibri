@@ -180,6 +180,7 @@ describe('LibraryPage', () => {
       const wrapper = await makeWrapper({ rootNodes: [] });
       await wrapper.setData({ isLocalLibraryEmpty: true });
       await wrapper.setData({ isNetworkLibraryAvailable: true });
+      await wrapper.setData({ isLoadingNetworkLibraries: false });
       expect(wrapper.find('[data-test="channels"').element).toBeTruthy();
       expect(wrapper.find('[data-test="nothing-in-lib-label"').element).toBeTruthy();
     });

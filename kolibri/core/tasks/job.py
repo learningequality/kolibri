@@ -223,7 +223,9 @@ class Job(object):
         self.long_running = long_running
         self.extra_metadata = extra_metadata or {}
         self.progress = progress
+        self._last_saved_progress = progress
         self.total_progress = total_progress
+        self._last_saved_total_progress = total_progress
         self.result = result
         self.args = args
         self.kwargs = kwargs or {}
@@ -248,7 +250,11 @@ class Job(object):
     def save_meta(self):
         self.storage.save_job_meta(self)
 
-    def update_progress(self, progress, total_progress):
+    def _update_meta(self, **kwargs):
+        for key, value in kwargs.items():
+            self.extra_metadata[key] = value
+
+    def update_progress(self, progress, total_progress, extra_metadata=None):
         if not self.track_progress:
             return
         if not isinstance(progress, (int, float)) or not isinstance(
@@ -260,11 +266,32 @@ class Job(object):
             return
         self.progress = progress
         self.total_progress = total_progress
-        self.storage.update_job_progress(self.job_id, progress, total_progress)
+        last_saved_progress_float = self._float_progress(
+            self._last_saved_progress, self._last_saved_total_progress
+        )
+        if isinstance(extra_metadata, dict):
+            self._update_meta(**extra_metadata)
+        if (
+            # Total progress has been changed.
+            (self.total_progress != self._last_saved_total_progress)
+            # Progress is now 'complete' for the first time.
+            or (last_saved_progress_float < 1 and self.percentage_progress >= 1)
+            # Progress has decreased (normally indicative of a multi-stage task resetting progress)
+            or (last_saved_progress_float > self.percentage_progress)
+            # Progress from the last save has increased by at least 1%
+            or (self.percentage_progress - last_saved_progress_float >= 0.01)
+        ):
+            self.storage.update_job_progress(
+                self.job_id,
+                progress,
+                total_progress,
+                extra_metadata=self.extra_metadata,
+            )
+            self._last_saved_progress = self.progress
+            self._last_saved_total_progress = self.total_progress
 
     def update_metadata(self, **kwargs):
-        for key, value in kwargs.items():
-            self.extra_metadata[key] = value
+        self._update_meta(**kwargs)
         self.save_meta()
 
     def update_worker_info(self, host=None, process=None, thread=None, extra=None):
@@ -372,6 +399,11 @@ class Job(object):
         """
         return import_path_to_callable(self.func)
 
+    def _float_progress(self, progress, total_progress):
+        if total_progress != 0 and total_progress is not None:
+            return float(progress) / total_progress
+        return progress
+
     @property
     def percentage_progress(self):
         """
@@ -381,9 +413,7 @@ class Job(object):
         :return: float corresponding to the total percentage progress of the job.
         """
 
-        if self.total_progress != 0 and self.total_progress is not None:
-            return float(self.progress) / self.total_progress
-        return self.progress
+        return self._float_progress(self.progress, self.total_progress)
 
     def __repr__(self):
         return (

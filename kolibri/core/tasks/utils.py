@@ -310,9 +310,9 @@ class JobProgressMixin(object):
                 )
                 # Only set the job progress to a max of the total progress
                 new_progress = self.job.total_progress
-            self.job.update_progress(new_progress, self.job.total_progress)
-            if extra_data and isinstance(extra_data, dict):
-                self.job.update_metadata(**extra_data)
+            self.job.update_progress(
+                new_progress, self.job.total_progress, extra_metadata=extra_data
+            )
 
     def update_job_metadata(self, **kwargs):
         if self.job:

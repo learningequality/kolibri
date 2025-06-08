@@ -68,7 +68,6 @@
           </KRadioButtonGroup>
         </KGrid>
       </div>
-
       <CreateQuizSection v-if="quizInitialized && quiz.draft" />
 
       <BottomAppBar>
@@ -144,6 +143,7 @@
       const closeConfirmationToRoute = ref(null);
       const { createSnackbar } = useSnackbar();
       const { classId, initClassInfo, groups } = useCoreCoach();
+
       const {
         quizHasChanged,
         quiz,

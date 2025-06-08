@@ -10,6 +10,7 @@
     "@shopify/draggable": "^1.0.0-beta.8",
     "clipboard": "^2.0.11",
     "date-fns": "^1.28.2",
+    "dompurify": "^3.2.4",
     "fuse.js": "^7.1.0",
     "knuth-shuffle-seeded": "^1.0.6",
     "screenfull": "^5.2.0"

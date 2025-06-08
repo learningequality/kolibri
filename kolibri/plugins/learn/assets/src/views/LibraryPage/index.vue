@@ -49,24 +49,30 @@
           v-else-if="!displayingSearchResults && !rootNodesLoading"
           data-test="channels"
         >
-          <h1
-            v-if="!isLocalLibraryEmpty"
-            class="channels-label"
-          >
-            {{ channelsLabel }}
-          </h1>
-          <div v-else-if="isLocalLibraryEmpty && isNetworkLibraryAvailable">
-            <h1 class="channels-label">
+          <div>
+            <h1
+              v-if="!isLocalLibraryEmpty"
+              class="channels-label"
+            >
               {{ channelsLabel }}
             </h1>
-            <p
-              data-test="nothing-in-lib-label"
-              class="nothing-in-lib-label"
+            <div
+              v-else-if="
+                isLocalLibraryEmpty && isNetworkLibraryAvailable && !isLoadingNetworkLibraries
+              "
             >
-              {{ coreString('nothingInLibraryLearner') }}
-            </p>
+              <h1 class="channels-label">
+                {{ channelsLabel }}
+              </h1>
+              <p
+                data-test="nothing-in-lib-label"
+                class="nothing-in-lib-label"
+              >
+                {{ coreString('nothingInLibraryLearner') }}
+              </p>
+            </div>
+            <NoResourcePage v-else />
           </div>
-          <NoResourcePage v-else />
 
           <ChannelCardGroupGrid
             v-if="!isLocalLibraryEmpty"
@@ -90,6 +96,7 @@
             data-test="other-libraries"
             :injectedtr="injecttr"
             @availableNetworkDevices="availableNetworkDevices"
+            @isLoadingLibraries="isLoadingLibraries"
           />
         </div>
 
@@ -112,7 +119,7 @@
       </main>
 
       <!-- Side Panels for filtering and searching  -->
-      <div v-if="(!isLocalLibraryEmpty || deviceId) && windowIsLarge">
+      <div v-if="(!isLocalLibraryEmpty || deviceId) && windowIsLarge && !rootNodesLoading">
         <SearchFiltersPanel
           ref="sidePanel"
           v-model="searchTerms"
@@ -137,7 +144,7 @@
 
       <!-- Side Panel for metadata -->
       <SidePanelModal
-        v-if="metadataSidePanelContent"
+        v-if="metadataSidePanelContent && !rootNodesLoading"
         data-test="side-panel-modal"
         alignment="right"
         @closePanel="metadataSidePanelContent = null"
@@ -436,6 +443,7 @@
         mobileSidePanelIsOpen: false,
         usingMeteredConnection: true,
         isNetworkLibraryAvailable: true,
+        isLoadingNetworkLibraries: true,
       };
     },
     computed: {
@@ -562,6 +570,9 @@
       },
       availableNetworkDevices(e) {
         this.isNetworkLibraryAvailable = e;
+      },
+      isLoadingLibraries(isLoading) {
+        this.isLoadingNetworkLibraries = isLoading;
       },
     },
     $trs: {
