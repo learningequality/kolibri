@@ -903,8 +903,15 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
             self.request.contentnode_id, available=True
         )
 
+<<<<<<< HEAD
         delete_content_patcher = mock.patch('kolibri.core.content.utils.content_delete.delete_content')
         self.mock_delete_call = delete_content_patcher.start()
+=======
+        delete_content_patcher = mock.patch(
+            "kolibri.core.content.utils.content_delete.delete_content"
+        )
+        self.mock_call_command = delete_content_patcher.start()
+>>>>>>> c60b7d099caaed8f2b42c552d592bce8226c10be
         self.addCleanup(delete_content_patcher.stop)
 
         self.qs = incomplete_removals_queryset()
