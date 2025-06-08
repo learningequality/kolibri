@@ -16,7 +16,5 @@ class Command(BaseCommand):
             channel_id=channel_id,
             node_ids=None,
             exclude_node_ids=None,
-            force_delete=False,
-            ignore_admin_flags=True,
-            update_content_requests=False,
+            force_delete=False
         )
