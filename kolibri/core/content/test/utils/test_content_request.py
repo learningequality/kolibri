@@ -904,7 +904,7 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
         )
 
         delete_content_patcher = mock.patch('kolibri.core.content.utils.content_delete.delete_content')
-        self.mock_call_command = delete_content_patcher.start()
+        self.mock_delete_call = delete_content_patcher.start()
         self.addCleanup(delete_content_patcher.stop)
 
         self.qs = incomplete_removals_queryset()
@@ -912,7 +912,7 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
     def test_basic(self):
         self.assertEqual(self.qs.count(), 1)
         process_content_removal_requests(self.qs)
-        self.mock_call_command.assert_called_once_with(
+        self.mock_delete_call.assert_called_once_with(
             channel_id=self.node.channel_id,
             node_ids=[self.request.contentnode_id],
             exclude_node_ids=None,
@@ -929,7 +929,7 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
         self.node.save()
 
         process_content_removal_requests(self.qs)
-        self.mock_call_command.assert_not_called()
+        self.mock_delete_call.assert_not_called()
         # should be marked completed
         self.assertEqual(self.qs.count(), 0)
         self.assertEqual(ContentDownloadRequest.objects.count(), 1)
@@ -940,7 +940,7 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
         self.node.save()
 
         process_content_removal_requests(self.qs)
-        self.mock_call_command.assert_not_called()
+        self.mock_delete_call.assert_not_called()
         # should be marked completed
         self.assertEqual(self.qs.count(), 0)
         self.assertEqual(ContentDownloadRequest.objects.count(), 1)
@@ -957,7 +957,7 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
         other_download.save()
 
         process_content_removal_requests(self.qs)
-        self.mock_call_command.assert_not_called()
+        self.mock_delete_call.assert_not_called()
         # should be marked completed
         self.assertEqual(self.qs.count(), 0)
         self.assertEqual(ContentDownloadRequest.objects.count(), 2)
