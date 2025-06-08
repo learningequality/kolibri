@@ -17,5 +17,5 @@ class Command(BaseCommand):
             channel_id=channel_id,
             node_ids=None,
             exclude_node_ids=None,
-            force_delete=False
+            force_delete=False,
         )

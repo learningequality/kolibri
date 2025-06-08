@@ -29,7 +29,7 @@ class DeleteChannelTestCase(TransactionTestCase):
             channel_id=self.the_channel_id,
             node_ids=None,
             exclude_node_ids=None,
-            force_delete=False
+            force_delete=False,
         )
 
     def test_channelmetadata_delete_remove_metadata_object(self):
