@@ -59,7 +59,7 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
         if method == "network":
             transfer_channel(
                 channel_id=channel_id,
-                method="network",
+                method="DOWNLOAD_METHOD",
                 no_upgrade=True,
                 baseurl=baseurl,
             )
@@ -67,8 +67,8 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
             drive = get_mounted_drive_by_id(drive_id)
             transfer_channel(
                 channel_id=channel_id,
-                method="disk",
-                content_dir=drive.datafolder,
+                method="COPY_METHOD",
+                source_path=drive.datafolder,
                 no_upgrade=True
             )
 
