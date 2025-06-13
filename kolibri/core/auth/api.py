@@ -310,6 +310,7 @@ class FacilityUserFilter(FilterSet):
         choices=USER_TYPE_CHOICES,
         method="filter_exclude_user_type",
     )
+    by_ids = UUIDFilter(field_name="id", lookup_expr="in")
 
     def filter_member_of(self, queryset, name, value):
         return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
@@ -349,7 +350,13 @@ class FacilityUserFilter(FilterSet):
 
     class Meta:
         model = FacilityUser
-        fields = ["member_of", "user_type", "exclude_member_of", "exclude_user_type"]
+        fields = [
+            "member_of",
+            "user_type",
+            "exclude_member_of",
+            "exclude_user_type",
+            "by_ids",
+        ]
 
 
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
@@ -450,6 +457,34 @@ class FacilityUserViewSet(ValuesViewset):
     field_map = {
         "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
     }
+
+    def destroy(self, request, *args, **kwargs):
+        user = self.get_object()
+
+        # Check if superuser is trying to delete themselves
+        if request.user.is_superuser and request.user.id == user.id:
+            # Check if this is the last user on the device
+            if FacilityUser.objects.filter(date_deleted__isnull=True).count() == 1:
+                from django.core.management import call_command
+
+                try:
+                    call_command(
+                        "deprovision",
+                        destroy_all_user_data=True,
+                        permanent_irrevocable_data_loss=True,
+                    )
+                except Exception as e:
+                    logger.error("Failed to deprovision device: {}".format(str(e)))
+                    return Response(
+                        {"error": "Failed to deprovision device"},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    )
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        # Soft delete the user
+        user.date_deleted = now()
+        user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def consolidate(self, items, queryset):
         output = []
