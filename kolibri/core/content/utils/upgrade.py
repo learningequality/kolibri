@@ -71,7 +71,7 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
                 channel_id=channel_id,
                 method=COPY_METHOD,
                 source_path=drive.datafolder,
-                no_upgrade=True
+                no_upgrade=True,
             )
 
         # create all fields/tables at the annotated destination db, based on the current schema version
