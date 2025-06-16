@@ -1042,7 +1042,6 @@ class UserDeleteTestCase(APITestCase):
     def test_user_delete(self):
         response = self.client.delete(
             reverse("kolibri:core:facilityuser-detail", kwargs={"pk": self.user.pk}),
-            {"by_ids": [str(self.user.id)]},
             format="json",
         )
         self.assertEqual(response.status_code, 204)
