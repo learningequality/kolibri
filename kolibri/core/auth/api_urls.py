@@ -22,7 +22,6 @@ from kolibri.core.routers import BulkDeleteRouter
 router = routers.SimpleRouter()
 
 router.register(r"facilitydataset", FacilityDatasetViewSet, basename="facilitydataset")
-router.register(r"facilityuser", FacilityUserViewSet, basename="facilityuser")
 router.register(
     r"facilityusername", FacilityUsernameViewSet, basename="facilityusername"
 )
@@ -35,6 +34,9 @@ router.register(r"portal", KolibriDataPortalViewSet, basename="portal")
 
 bulk_delete_router = BulkDeleteRouter()
 
+bulk_delete_router.register(
+    r"facilityuser", FacilityUserViewSet, basename="facilityuser"
+)
 bulk_delete_router.register(r"membership", MembershipViewSet, basename="membership")
 bulk_delete_router.register(r"role", RoleViewSet, basename="role")
 

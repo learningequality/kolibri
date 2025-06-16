@@ -5,13 +5,11 @@ import uuid
 from datetime import datetime
 from datetime import timedelta
 from importlib import import_module
-from unittest.mock import patch
 
 import factory
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.timezone import now
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
 from morango.models import SyncSession
@@ -30,7 +28,6 @@ from .helpers import provision_device
 from kolibri.core import error_constants
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants import demographics
-from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import OSUser
 from kolibri.core.device.utils import set_device_settings
 
@@ -1049,13 +1046,11 @@ class UserDeleteTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 204)
-        # Check that user is in deleted queryset
         self.assertTrue(
             models.FacilityUser.all_objects.filter(
                 id=self.user.id, date_deleted__isnull=False
             ).exists()
         )
-        # Check that user is not in regular queryset
         self.assertFalse(models.FacilityUser.objects.filter(id=self.user.id).exists())
 
     def test_superuser_delete_self(self):
@@ -1067,33 +1062,44 @@ class UserDeleteTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-    @patch("django.core.management.call_command")
-    def test_deprovision_on_last_superuser_delete(self, mock_call_command):
-        # Delete all other users except the superuser
-        FacilityUser.objects.exclude(id=self.superuser.id).update(date_deleted=now())
+    def test_bulk_delete_users(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
 
-        # Verify we have only one active user (the superuser)
-        self.assertEqual(
-            FacilityUser.objects.filter(date_deleted__isnull=True).count(), 1
-        )
-
-        # Try to delete the superuser
         response = self.client.delete(
-            reverse(
-                "kolibri:core:facilityuser-detail", kwargs={"pk": self.superuser.pk}
-            ),
-            {"by_ids": [str(self.superuser.id)]},
-            format="json",
+            reverse("kolibri:core:facilityuser-list"),
+            {"by_ids": ",".join(user_ids)},
         )
 
-        # Since this is the last user, we expect a 403 response
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 204)
+        for user in users:
+            self.assertTrue(
+                models.FacilityUser.all_objects.filter(
+                    id=user.id, date_deleted__isnull=False
+                ).exists()
+            )
+            self.assertFalse(models.FacilityUser.objects.filter(id=user.id).exists())
 
-        # Verify the deprovision command was called with correct parameters
-        mock_call_command.assert_called_once_with(
-            "deprovision",
-            destroy_all_user_data=True,
-            permanent_irrevocable_data_loss=True,
+    def test_bulk_delete_excludes_superuser(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(2)]
+        user_ids = [str(user.id) for user in users] + [str(self.superuser.id)]
+
+        response = self.client.delete(
+            reverse("kolibri:core:facilityuser-list"),
+            {"by_ids": ",".join(user_ids)},
+        )
+        self.assertEqual(response.status_code, 204)
+
+        for user in users:
+            self.assertTrue(
+                models.FacilityUser.all_objects.filter(
+                    id=user.id, date_deleted__isnull=False
+                ).exists()
+            )
+            self.assertFalse(models.FacilityUser.objects.filter(id=user.id).exists())
+
+        self.assertTrue(
+            models.FacilityUser.objects.filter(id=self.superuser.id).exists()
         )
 
 

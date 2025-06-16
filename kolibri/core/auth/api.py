@@ -413,7 +413,7 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
         return output
 
 
-class FacilityUserViewSet(ValuesViewset):
+class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):
     permission_classes = (KolibriAuthPermissions,)
     pagination_class = OptionalPageNumberPagination
     filter_backends = (
@@ -459,32 +459,23 @@ class FacilityUserViewSet(ValuesViewset):
     }
 
     def destroy(self, request, *args, **kwargs):
-        user = self.get_object()
+        if kwargs.get("pk"):
+            # Single object deletion
+            user = self.get_object()
+            if request.user.is_superuser and request.user.id == user.id:
+                return Response(status=status.HTTP_403_FORBIDDEN)
+            user.date_deleted = now()
+            user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            # Bulk deletion
+            return self.bulk_destroy(request, *args, **kwargs)
 
-        # Check if superuser is trying to delete themselves
-        if request.user.is_superuser and request.user.id == user.id:
-            # Check if this is the last user on the device
-            if FacilityUser.objects.filter(date_deleted__isnull=True).count() == 1:
-                from django.core.management import call_command
-
-                try:
-                    call_command(
-                        "deprovision",
-                        destroy_all_user_data=True,
-                        permanent_irrevocable_data_loss=True,
-                    )
-                except Exception as e:
-                    logger.error("Failed to deprovision device: {}".format(str(e)))
-                    return Response(
-                        {"error": "Failed to deprovision device"},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    )
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        # Soft delete the user
-        user.date_deleted = now()
-        user.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def perform_bulk_destroy(self, objects):
+        # Prevent deletion of superusers
+        if self.request.user.is_superuser:
+            objects = objects.exclude(id=self.request.user.id)
+        objects.update(date_deleted=now())
 
     def consolidate(self, items, queryset):
         output = []
