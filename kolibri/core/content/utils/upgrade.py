@@ -8,6 +8,8 @@ from sqlalchemy import or_
 from sqlalchemy import select
 
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
+from kolibri.core.content.constants.transfer_types import COPY_METHOD
+from kolibri.core.content.constants.transfer_types import DOWNLOAD_METHOD
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
@@ -36,8 +38,6 @@ from kolibri.core.content.utils.sqlalchemybridge import filter_by_uuids
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.cache import process_cache
-from kolibri.core.content.constants.transfer_types import COPY_METHOD
-from kolibri.core.content.constants.transfer_types import DOWNLOAD_METHOD
 
 
 logger = logging.getLogger(__name__)
