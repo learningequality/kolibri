@@ -36,6 +36,8 @@ from kolibri.core.content.utils.sqlalchemybridge import filter_by_uuids
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.cache import process_cache
+from kolibri.core.content.constants.transfer_types import COPY_METHOD
+from kolibri.core.content.constants.transfer_types import DOWNLOAD_METHOD
 
 
 logger = logging.getLogger(__name__)
@@ -59,7 +61,7 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
         if method == "network":
             transfer_channel(
                 channel_id=channel_id,
-                method="DOWNLOAD_METHOD",
+                method=DOWNLOAD_METHOD,
                 no_upgrade=True,
                 baseurl=baseurl,
             )
@@ -67,7 +69,7 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
             drive = get_mounted_drive_by_id(drive_id)
             transfer_channel(
                 channel_id=channel_id,
-                method="COPY_METHOD",
+                method=COPY_METHOD,
                 source_path=drive.datafolder,
                 no_upgrade=True
             )
