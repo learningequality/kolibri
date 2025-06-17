@@ -34,12 +34,9 @@ class BulkDeleteMixin(object):
         By default this checks that the destroy is only applied to
         filtered querysets.
         """
-        # Allow bulk destroy if the request has by_ids in data or query params
-        return (
-            any(
-                key in self.filterset_fields for key in self.request.query_params.keys()
-            )
-            or "by_ids" in self.request.data
+        # Allow bulk destroy if the request has any filter parameters
+        return any(
+            key in self.filterset_fields for key in self.request.query_params.keys()
         )
 
     def bulk_destroy(self, request, *args, **kwargs):

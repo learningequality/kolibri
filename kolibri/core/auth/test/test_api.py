@@ -1066,8 +1066,7 @@ class UserDeleteTestCase(APITestCase):
         user_ids = [str(user.id) for user in users]
 
         response = self.client.delete(
-            reverse("kolibri:core:facilityuser-list"),
-            {"by_ids": ",".join(user_ids)},
+            reverse("kolibri:core:facilityuser-list") + "?by_ids=" + ",".join(user_ids)
         )
 
         self.assertEqual(response.status_code, 204)
@@ -1084,18 +1083,9 @@ class UserDeleteTestCase(APITestCase):
         user_ids = [str(user.id) for user in users] + [str(self.superuser.id)]
 
         response = self.client.delete(
-            reverse("kolibri:core:facilityuser-list"),
-            {"by_ids": ",".join(user_ids)},
+            reverse("kolibri:core:facilityuser-list") + "?by_ids=" + ",".join(user_ids)
         )
-        self.assertEqual(response.status_code, 204)
-
-        for user in users:
-            self.assertTrue(
-                models.FacilityUser.all_objects.filter(
-                    id=user.id, date_deleted__isnull=False
-                ).exists()
-            )
-            self.assertFalse(models.FacilityUser.objects.filter(id=user.id).exists())
+        self.assertEqual(response.status_code, 403)
 
         self.assertTrue(
             models.FacilityUser.objects.filter(id=self.superuser.id).exists()
