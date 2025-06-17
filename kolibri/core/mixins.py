@@ -34,7 +34,7 @@ class BulkDeleteMixin(object):
         By default this checks that the destroy is only applied to
         filtered querysets.
         """
-        # Allow bulk destroy if the request has any filter parameters
+        # Only let a bulk destroy if the queryset is being filtered by a valid filter_field parameter
         return any(
             key in self.filterset_fields for key in self.request.query_params.keys()
         )
