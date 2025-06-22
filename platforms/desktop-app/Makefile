@@ -3,9 +3,11 @@
 ifeq ($(OS),Windows_NT)
     OSNAME := WIN32
     PYTHON_EXEC := python
+	PYTHON_EXEC_WITH_PATH := PYTHONPATH="./src;./kolibrisrc;%PYTHONPATH%" $(PYTHON_EXEC)
 else
     OSNAME := $(shell uname -s)
     PYTHON_EXEC := python3
+	PYTHON_EXEC_WITH_PATH := PYTHONPATH="./src:./kolibrisrc:$$PYTHONPATH" $(PYTHON_EXEC)
 endif
 
 guard-%:
@@ -46,9 +48,9 @@ install-whl:
 loading-pages: needs-version
 	# -X utf8 ensures Python uses UTF-8 for I/O, fixing UnicodeEncodeError on Windows.
 ifeq ($(OS),Windows_NT)
-	PYTHONPATH="./kolibrisrc;%PYTHONPATH%" $(PYTHON_EXEC) -X utf8 -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}-${APP_VERSION}"
+	$(PYTHON_EXEC_WITH_PATH) -X utf8 -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}-${APP_VERSION}"
 else
-	PYTHONPATH="./kolibrisrc:$$PYTHONPATH" $(PYTHON_EXEC) -X utf8 -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}-${APP_VERSION}"
+	$(PYTHON_EXEC_WITH_PATH) -X utf8 -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}-${APP_VERSION}"
 endif
 
 get-whl: clean-whl
@@ -59,7 +61,7 @@ get-whl: clean-whl
 	# Define the final output path
 	$(eval OUTPUT_PATH := whl/$(CLEAN_FILENAME))
 	# Download the file directly to the correct, clean path
-	wget --content-disposition -O "$(OUTPUT_PATH)" "$(whl)"
+	wget -O "$(OUTPUT_PATH)" "$(whl)"
 	# Call the install-whl target with the clean path
 	$(MAKE) install-whl whl="$(OUTPUT_PATH)"
 
@@ -133,7 +135,7 @@ notarize-dmg: needs-version
 
 run-dev:
 ifeq ($(OS),Windows_NT)
-	PYTHONPATH="./src;./kolibrisrc;%PYTHONPATH%" $(PYTHON_EXEC) -m kolibri_app
+	$(PYTHON_EXEC_WITH_PATH) -m kolibri_app
 else
-	PYTHONPATH="./src:./kolibrisrc:$$PYTHONPATH" $(PYTHON_EXEC) -m kolibri_app
+	$(PYTHON_EXEC_WITH_PATH) -m kolibri_app
 endif
