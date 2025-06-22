@@ -1,7 +1,5 @@
-import { modernModuleResolution } from '@rushstack/eslint-patch/modern-module-resolution';
-import kolibriConfig from 'kolibri-format/eslint.config.mjs'; 
+import kolibriConfig from 'kolibri-format/eslint.config.js'; 
 
-modernModuleResolution();
 
 export default [
   ...kolibriConfig,
