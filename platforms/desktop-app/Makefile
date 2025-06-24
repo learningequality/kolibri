@@ -2,8 +2,12 @@
 
 ifeq ($(OS),Windows_NT)
     OSNAME := WIN32
+    PYTHON_EXEC := python
+	PYTHON_EXEC_WITH_PATH := PYTHONPATH="./src;./kolibrisrc;%PYTHONPATH%" $(PYTHON_EXEC)
 else
     OSNAME := $(shell uname -s)
+    PYTHON_EXEC := python3
+	PYTHON_EXEC_WITH_PATH := PYTHONPATH="./src:./kolibrisrc:$$PYTHONPATH" $(PYTHON_EXEC)
 endif
 
 guard-%:
@@ -13,8 +17,8 @@ guard-%:
 	fi
 
 needs-version:
-	$(eval KOLIBRI_VERSION ?= $(shell python3 -c "import os; import sys; sys.path = [os.path.abspath('kolibrisrc')] + sys.path; from pkginfo import Installed; print(Installed('kolibri').version)"))
-	$(eval APP_VERSION ?= $(shell python3 read_version.py))
+	$(eval KOLIBRI_VERSION ?= $(shell $(PYTHON_EXEC) -c "import os; import sys; sys.path = [os.path.abspath('kolibrisrc')] + sys.path; from pkginfo import Installed; print(Installed('kolibri').version)"))
+	$(eval APP_VERSION ?= $(shell $(PYTHON_EXEC) read_version.py))
 
 clean:
 	rm -rf build dist
@@ -42,32 +46,41 @@ install-whl:
 	$(MAKE) loading-pages
 
 loading-pages: needs-version
-	PYTHONPATH=$$PYTHONPATH:./kolibrisrc python3 -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}-${APP_VERSION}"
+	# -X utf8 ensures Python uses UTF-8 for I/O, fixing UnicodeEncodeError on Windows.
+ifeq ($(OS),Windows_NT)
+	$(PYTHON_EXEC_WITH_PATH) -X utf8 -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}-${APP_VERSION}"
+else
+	$(PYTHON_EXEC_WITH_PATH) -X utf8 -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}-${APP_VERSION}"
+endif
 
 get-whl: clean-whl
-# The eval and shell commands here are evaluated when the recipe is parsed, so we put the cleanup
-# into a prerequisite make step, in order to ensure they happen prior to the download.
-	$(eval DLFILE = $(shell wget --content-disposition -P whl/ "${whl}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
-	$(eval WHLFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
-	[ "${DLFILE}" = "${WHLFILE}" ] || mv "${DLFILE}" "${WHLFILE}"
-	$(MAKE) install-whl whl="${WHLFILE}"
+	# Get the base filename from the URL, which might include a query string
+	$(eval FILENAME_WITH_QUERY := $(shell basename "$(whl)"))
+	# Strip the query string to get the final, clean filename
+	$(eval CLEAN_FILENAME := $(shell echo "$(FILENAME_WITH_QUERY)" | sed 's/\?.*//'))
+	# Define the final output path
+	$(eval OUTPUT_PATH := whl/$(CLEAN_FILENAME))
+	# Download the file directly to the correct, clean path
+	wget -O "$(OUTPUT_PATH)" "$(whl)"
+	# Call the install-whl target with the clean path
+	$(MAKE) install-whl whl="$(OUTPUT_PATH)"
 
 dependencies:
 	PYINSTALLER_COMPILE_BOOTLOADER=1 pip3 install -r build_requires.txt --no-binary pyinstaller
-	python3 -c "import PyInstaller; import os; os.truncate(os.path.join(PyInstaller.__path__[0], 'hooks', 'rthooks', 'pyi_rth_django.py'), 0)"
+	$(PYTHON_EXEC) -c "import PyInstaller; import os; os.truncate(os.path.join(PyInstaller.__path__[0], 'hooks', 'rthooks', 'pyi_rth_django.py'), 0)"
 
 build-mac-app:
-	$(eval LIBPYTHON_FOLDER = $(shell python3 -c 'from distutils.sysconfig import get_config_var; print(get_config_var("LIBDIR"))'))
+	$(eval LIBPYTHON_FOLDER = $(shell $(PYTHON_EXEC) -c 'from distutils.sysconfig import get_config_var; print(get_config_var("LIBDIR"))'))
 	test -f ${LIBPYTHON_FOLDER}/libpython3.10.dylib || ln -s ${LIBPYTHON_FOLDER}/libpython3.10m.dylib ${LIBPYTHON_FOLDER}/libpython3.10.dylib
 	$(MAKE) pyinstaller
 
 pyinstaller: clean
 	mkdir -p logs
 	pip3 install .
-	python3 -OO -m PyInstaller kolibri.spec
+	$(PYTHON_EXEC) -OO -m PyInstaller kolibri.spec
 
 build-dmg: needs-version
-	python3 -m dmgbuild -s build_config/dmgbuild_settings.py "Kolibri ${KOLIBRI_VERSION}" dist/kolibri-${KOLIBRI_VERSION}.dmg
+	$(PYTHON_EXEC) -m dmgbuild -s build_config/dmgbuild_settings.py "Kolibri ${KOLIBRI_VERSION}" dist/kolibri-${KOLIBRI_VERSION}.dmg
 
 compile-mo:
 	find src/kolibri_app/locales -name LC_MESSAGES -exec msgfmt {}/wxapp.po -o {}/wxapp.mo \;
@@ -121,4 +134,8 @@ notarize-dmg: needs-version
 
 
 run-dev:
-	PYTHONPATH=$$PYTHONPATH:./kolibrisrc python -m kolibri_app
+ifeq ($(OS),Windows_NT)
+	$(PYTHON_EXEC_WITH_PATH) -m kolibri_app
+else
+	$(PYTHON_EXEC_WITH_PATH) -m kolibri_app
+endif
