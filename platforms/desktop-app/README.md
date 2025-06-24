@@ -5,7 +5,19 @@ Cross-platform Kolibri app
 - **Python**: Version 3.10 is required.
 
 - **`wget`:** Required for downloading the Kolibri wheel.
-    - **Windows:** If `wget` is not available in your Git Bash environment, you can download it from [eternallybored.org's builds](https://eternallybored.org/misc/wget/).
+  - **Linux/macOS:** Usually preinstalled. You can verify by running `wget --version`.
+  - **Windows:**
+    If `wget` is not available in Git Bash, install it using one of the following methods:
+
+    1. **Manual Installation**
+       - Download the EXE from [eternallybored.org](https://eternallybored.org/misc/wget/).
+       - Move `wget.exe` to a directory in your `PATH` (e.g., `C:\WINDOWS\system32`).
+       - Open Git Bash and run `wget --version` to verify.
+
+    2. **Using Chocolatey**
+       - Open Command Prompt or PowerShell as Administrator.
+       - Run: `choco install wget`
+       - In Git Bash, verify with: `wget --version`
 
 ### Supported Platforms
 
