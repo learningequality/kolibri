@@ -1108,7 +1108,8 @@ class SessionViewSet(viewsets.ViewSet):
                 os_info=request.data.get("os"),
                 browser_info=request.data.get("browser"),
             )
-
+        if isinstance(user,FacilityUser):
+            session["onboarding_complete"]=user.onboarding_complete
         response = Response(session)
         return response
 

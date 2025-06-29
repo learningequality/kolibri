@@ -11,6 +11,7 @@ export const baseSessionState = {
   user_id: undefined,
   username: '',
   full_facility_import: true,
+  onboarding_complete: false,
 };
 
 export default {

@@ -821,6 +821,8 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
     facility = models.ForeignKey("Facility", on_delete=models.CASCADE)
 
     is_facility_user = True
+    
+    onboarding_complete=models.BooleanField(default=False)
 
     gender = models.CharField(
         max_length=16, choices=GENDER_CHOICES, default="", blank=True

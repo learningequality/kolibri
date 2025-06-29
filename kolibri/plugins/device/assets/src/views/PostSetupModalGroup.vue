@@ -2,9 +2,8 @@
 
   <div>
     <WelcomeModal
-      v-if="step === Steps.WELCOME && isUserLoggedIn"
+      v-if="step === Steps.WELCOME && isUserLoggedIn && onboardingComplete === false"
       :importedFacility="importedFacility"
-      :isOnMyOwnUser="isOnMyOwnUser"
       @submit="handleSubmit"
     />
 
@@ -48,7 +47,7 @@
   import { availableChannelsPageLink } from './ManageContentPage/manageContentLinks';
   import WelcomeModal from './WelcomeModal';
   import PermissionsChangeModal from './PermissionsChangeModal';
-
+import { mapState } from 'vuex';
   const facilityImported = 'FACILITY_IS_IMPORTED';
 
   const Steps = Object.freeze({
@@ -93,6 +92,9 @@
       };
     },
     computed: {
+      ...mapState({
+      onboardingComplete: state => state.session.onboarding_complete,
+    }),
       importedFacility() {
         const [facility] = this.facilities;
         if (facility && window.sessionStorage.getItem(facilityImported) === 'true') {
@@ -118,7 +120,7 @@
         this.createSnackbar(this.$tr('addDeviceSnackbarText'));
         this.goToSelectAddress();
       },
-      handleSubmit(data) {
+      /*handleSubmit(data) {
         if (this.step === Steps.WELCOME) {
           if (this.importedFacility) {
             this.step = Steps.SELECT_SOURCE_FACILITY_PEER;
@@ -131,7 +133,37 @@
           newRoute.query.setup = true;
           this.$router.push(newRoute);
         }
-      },
+      },*/
+      async handleSubmit(data) {
+    if (this.step === Steps.WELCOME) {
+      // 1. Update onboarding_complete in backend
+      try {
+        const userId = this.$store.state.session.user_id;
+        await client({
+          url: urls['kolibri:core:facilityuser_detail'](userId),
+          method: 'patch',
+          data: { onboarding_complete: true },
+        });
+        // 2. Optionally, update Vuex session state immediately
+        this.$store.commit('CORE_SET_SESSION', { onboarding_complete: true });
+      } catch (e) {
+        // handle error if needed
+        console.error('Failed to set onboarding_complete:', e);
+      }
+
+      // 3. Continue with your existing logic
+      if (this.importedFacility) {
+        this.step = Steps.SELECT_SOURCE_FACILITY_PEER;
+      } else {
+        this.$emit('cancel');
+      }
+    } else if (this.step === Steps.SELECT_SOURCE_FACILITY_PEER) {
+      this.$emit('cancel');
+      const newRoute = availableChannelsPageLink({ addressId: data.id });
+      newRoute.query.setup = true;
+      this.$router.push(newRoute);
+    }
+  },
     },
     $trs: {
       chooseAnotherSourceLabel: {
