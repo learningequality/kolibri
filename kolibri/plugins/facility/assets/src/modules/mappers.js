@@ -19,6 +19,6 @@ export function _userState(facilityUser) {
     gender: facilityUser.gender,
     birth_year: facilityUser.birth_year,
     id_number: facilityUser.id_number,
-    onboarding_complete:facilityUser.onboarding_complete,
+    onboarding_complete: facilityUser.onboarding_complete,
   };
 }

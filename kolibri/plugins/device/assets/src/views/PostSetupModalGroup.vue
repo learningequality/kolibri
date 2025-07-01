@@ -45,10 +45,11 @@
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { computed, watchEffect } from 'vue';
   import { availableChannelsPageLink } from './ManageContentPage/manageContentLinks';
   import WelcomeModal from './WelcomeModal';
   import PermissionsChangeModal from './PermissionsChangeModal';
-  import { computed, watchEffect } from 'vue';
+
   const facilityImported = 'FACILITY_IS_IMPORTED';
 
   const Steps = Object.freeze({
@@ -68,15 +69,15 @@
     },
     mixins: [commonSyncElements],
     setup() {
-      const { isUserLoggedIn ,onboarding_complete} = useUser();
+      const { isUserLoggedIn, onboarding_complete } = useUser();
       const { createSnackbar } = useSnackbar();
       const { facilities } = useFacilities();
-     
+
       return {
         isUserLoggedIn,
         createSnackbar,
         facilities,
-        onboarding_complete
+        onboarding_complete,
       };
     },
     props: {
@@ -93,7 +94,7 @@
         addedAddressId: '',
       };
     },
-   
+
     computed: {
       importedFacility() {
         const [facility] = this.facilities;
@@ -134,7 +135,6 @@
           this.$router.push(newRoute);
         }
       },
- 
     },
     $trs: {
       chooseAnotherSourceLabel: {

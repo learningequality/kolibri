@@ -60,6 +60,6 @@ export default function useUser() {
     user_id,
     username,
     full_facility_import,
-    onboarding_complete
+    onboarding_complete,
   };
 }

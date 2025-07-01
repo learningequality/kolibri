@@ -27,9 +27,9 @@
     name: 'WelcomeModal',
     mixins: [commonCoreStrings],
     setup() {
-      const { isLearnerOnlyImport , isLearner} = useUser();
+      const { isLearnerOnlyImport, isLearner } = useUser();
       const { facilities } = useFacilities();
-      return { isLearnerOnlyImport, facilities ,isLearner};
+      return { isLearnerOnlyImport, facilities, isLearner };
     },
     props: {
       importedFacility: {
@@ -41,7 +41,6 @@
         required: false,
         default: false,
       },
-     
     },
     computed: {
       paragraphs() {
@@ -57,10 +56,10 @@
         if (this.isOnMyOwnUser) {
           return [this.coreString('nothingInLibraryLearner')];
         }
-         if (this.isLearner) {
+        if (this.isLearner) {
           return [this.coreString('nothingInLibraryLearner')];
         }
-      
+
         if (this.importedFacility) {
           return [
             this.$tr('postSyncWelcomeMessage1'),
