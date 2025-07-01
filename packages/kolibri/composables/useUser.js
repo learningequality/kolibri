@@ -31,7 +31,7 @@ export default function useUser() {
   const user_id = computed(() => store.getters.session.user_id);
   const full_facility_import = computed(() => store.getters.session.full_facility_import);
   const username = computed(() => store.getters.session.username);
-
+  const onboarding_complete = computed(() => store.getters.session.onboarding_complete);
   return {
     isLearnerOnlyImport,
     isUserLoggedIn,
@@ -60,5 +60,6 @@ export default function useUser() {
     user_id,
     username,
     full_facility_import,
+    onboarding_complete
   };
 }
