@@ -72,7 +72,7 @@ if sys.platform == "win32":
 a = Analysis(
     [os.path.join('src', 'kolibri_app', '__main__.py')],
     pathex=['kolibrisrc', os.path.join('kolibrisrc', 'kolibri', 'dist')],
-    binaries=[binaries_list],
+    binaries=binaries_list,
     datas=[('src/kolibri_app/assets', 'kolibri_app/assets')] + locale_datas,
     hiddenimports=['_cffi_backend'],
     hookspath=['hooks'],
