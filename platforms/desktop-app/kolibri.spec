@@ -1,6 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
 import sys
+import wx
 
 from datetime import datetime
 from glob import glob
@@ -65,7 +66,9 @@ metadata.entry_points = monkey_patched_entry_points
 a = Analysis(
     [os.path.join('src', 'kolibri_app', '__main__.py')],
     pathex=['kolibrisrc', os.path.join('kolibrisrc', 'kolibri', 'dist')],
-    binaries=[],
+    binaries=[
+        (os.path.join(os.path.dirname(wx.__file__), 'WebView2Loader.dll'), '.')
+    ],
     datas=[('src/kolibri_app/assets', 'kolibri_app/assets')] + locale_datas,
     hiddenimports=['_cffi_backend'],
     hookspath=['hooks'],

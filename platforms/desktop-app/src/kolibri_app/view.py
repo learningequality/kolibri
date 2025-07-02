@@ -15,9 +15,6 @@ from kolibri_app.constants import WINDOWS
 from kolibri_app.i18n import _
 from kolibri_app.i18n import locale_info
 
-
-html2.WebView.MSWSetEmulationLevel(html2.WEBVIEWIE_EMU_IE11)
-
 LOADER_PAGE = "loading.html"
 
 ZOOM_LEVELS = [
@@ -63,7 +60,10 @@ class KolibriView(object):
         self.view = wx.Frame(None, -1, APP_NAME, size=size)
         self.view.SetMinSize((350, 400))
 
-        backend = html2.WebViewBackendDefault
+        if WINDOWS and html2.WebView.IsBackendAvailable(html2.WebViewBackendEdge):
+            backend = html2.WebViewBackendEdge
+        else:
+            backend = html2.WebViewBackendDefault
 
         self.webview = html2.WebView.New(self.view, backend=backend)
         self.webview.Bind(html2.EVT_WEBVIEW_NAVIGATING, self.OnBeforeLoad)

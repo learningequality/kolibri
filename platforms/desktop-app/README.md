@@ -19,6 +19,10 @@ Cross-platform Kolibri app
        - Run: `choco install wget`
        - In Git Bash, verify with: `wget --version`
 
+- **Microsoft Edge WebView2 Runtime:** Required on **Windows** for the application interface.
+    - This is pre-installed on most modern Windows systems.
+      - It can also be downloaded from the [official Microsoft website](https://developer.microsoft.com/en-us/Microsoft-edge/webview2/?form=MA13LH) (the "Evergreen Bootstrapper" is the easiest option).
+
 ### Supported Platforms
 
 - Linux
