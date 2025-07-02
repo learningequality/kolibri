@@ -63,12 +63,16 @@ def monkey_patched_entry_points(**params):
 metadata.entry_points = monkey_patched_entry_points
 """.format(entry_point_packages))
 
+binaries_list = []
+if sys.platform == "win32":
+    binaries_list.append(
+        (os.path.join(os.path.dirname(wx.__file__), 'WebView2Loader.dll'), '.')
+    )
+
 a = Analysis(
     [os.path.join('src', 'kolibri_app', '__main__.py')],
     pathex=['kolibrisrc', os.path.join('kolibrisrc', 'kolibri', 'dist')],
-    binaries=[
-        (os.path.join(os.path.dirname(wx.__file__), 'WebView2Loader.dll'), '.')
-    ],
+    binaries=[binaries_list],
     datas=[('src/kolibri_app/assets', 'kolibri_app/assets')] + locale_datas,
     hiddenimports=['_cffi_backend'],
     hookspath=['hooks'],
