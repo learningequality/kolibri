@@ -12,35 +12,16 @@ const logger = require('kolibri-logging');
 // check for host project's linting configs, otherwise use defaults
 const hostProjectDir = process.cwd();
 
-let esLintConfigPath;
+let esLintConfig;
+const configPath = path.join(hostProjectDir, 'eslint.config.js');
+
 try {
-  // Check for flat config files in order of precedence
-  const flatConfigFiles = [
-    'eslint.config.js',
-    'eslint.config.mjs',
-    'eslint.config.cjs',
-    'eslint.config.ts',
-    'eslint.config.mts',
-    'eslint.config.cts'
-  ];
-
-  let foundConfig = false;
-  for (const configFile of flatConfigFiles) {
-    const configPath = path.join(hostProjectDir, configFile);
-    if (fs.existsSync(configPath)) {
-      esLintConfigPath = configPath;
-      foundConfig = true;
-      break;
-    }
-  }
-
-  if (!foundConfig) {
-    // Fallback to default config in this package
-    esLintConfigPath = path.join(__dirname, 'eslint.config.mjs');
-  }
-} catch (error) {
-  esLintConfigPath = path.join(__dirname, 'eslint.config.mjs');
+  esLintConfig = await import(configPath);
+} catch (err) {
+  // Fallback to default config in this package
+  esLintConfig = await import(path.join(__dirname, 'eslint.config.js'));
 }
+
 
 let stylelintConfig;
 try {
