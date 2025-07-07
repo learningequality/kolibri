@@ -65,11 +65,14 @@ metadata.entry_points = monkey_patched_entry_points
 
 binaries_list = []
 if sys.platform == "win32":
-    if os.path.exists(webview_dll_path):
-          binaries_list.append((webview_dll_path, '.'))
+    dll_path = os.path.join(os.path.dirname(wx.__file__), 'WebView2Loader.dll')
+    if os.path.exists(dll_path):
+        binaries_list.append((dll_path, '.'))
     else:
-          print("WARNING: WebView2Loader.dll is missing,
-           WebView2 functionality will NOT work and app will fallback to using IE11.")
+        print(
+            "WARNING: WebView2Loader.dll is missing, "
+            "WebView2 functionality will NOT work and app will fallback to using IE11."
+        )
 
 a = Analysis(
     [os.path.join('src', 'kolibri_app', '__main__.py')],
