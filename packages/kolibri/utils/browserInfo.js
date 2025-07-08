@@ -71,14 +71,6 @@ export const device = {
   vendor: info.device.vendor,
 };
 
-export const screenBreakpoint = (() => {
-  const width = window.innerWidth;
-  if (width < 768) return 'sm';
-  if (width < 1024) return 'md';
-  if (width < 1440) return 'lg';
-  return 'xl';
-})();
-
 // Check for presence of the touch event in DOM or multi-touch capabilities
 export const isTouchDevice =
   'ontouchstart' in window ||
