@@ -4,6 +4,8 @@
     <div
       v-if="showOverlay"
       class="overlay"
+      aria-hidden="true"
+      tabindex="-1"
       @click.stop
     ></div>
     <div
@@ -59,6 +61,10 @@
     },
     mounted() {
       this.showTooltip();
+      window.document.documentElement.style['overflow']= 'hidden';
+    },
+    destroyed(){
+       window.document.documentElement.style['overflow']= '';
     },
     methods: {
       showTooltip() {
@@ -113,6 +119,17 @@
                   },
                 },
               },
+              onShow: () => {
+    
+    this.$nextTick(() => {
+      const btn = instance.$refs.continueButton?.$el || instance.$refs.continueButton;
+      console.log(btn);
+      if (btn && typeof btn.focus === 'function') {
+        btn.focus();
+      }
+    });
+  },
+         
             });
 
             if (this.tippyInstance?.show) {

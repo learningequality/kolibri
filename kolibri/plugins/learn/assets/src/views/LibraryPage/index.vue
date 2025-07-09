@@ -22,6 +22,7 @@
       <main
         class="main-grid"
         :style="gridOffset"
+         
       >
         <div v-if="!windowIsLarge && (!isLocalLibraryEmpty || deviceId)">
           <KButton
@@ -544,6 +545,16 @@
         }
         document.documentElement.style.position = '';
       },
+    
+  tourActive(newVal) {
+    if (newVal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  },
+
+
     },
     created() {
       const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
@@ -566,12 +577,13 @@
     },
     methods: {
       hideWelcomeModal() {
-        window.localStorage.setItem(welcomeDismissalKey, true);
+        window.localStorage.setItem(welcomeDismissalKey, false);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
         setTimeout(() => {
           this.startTour();
         }, 800);
       },
+  
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
       },
@@ -588,6 +600,10 @@
         this.isLoadingNetworkLibraries = isLoading;
       },
     },
+    beforeDestroy() {
+  document.body.style.overflow = '';
+},
+
     $trs: {
       libraryOf: {
         message: 'Library of {device}',

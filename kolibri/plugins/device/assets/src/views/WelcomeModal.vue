@@ -12,7 +12,7 @@
       {{ paragraph }}
     </p>
     <template #actions>
-      <KButton @click="$emit('submit')">
+      <KButton @click="$emit('submit')" @shouldFocusFirstEl="focusFirstEl">
         {{ coreString('continueAction') }}
       </KButton>
     </template>
@@ -74,6 +74,13 @@
           ];
         }
       },
+    },
+    methods:{
+      focusFirstEl() {
+        this.$nextTick(() => {
+          this.$el.querySelector('input').focus();
+        });
+      }
     },
 
     render: createElement => window.setTimeout(createElement, 750),
