@@ -266,6 +266,7 @@
         isSuperuser,
         canManageContent,
         isLearnerOnlyImport,
+        onboarding_complete
       } = useUser();
       const { allowDownloadOnMeteredConnection } = useDeviceSettings();
       const {
@@ -291,7 +292,7 @@
       const { back } = useContentLink();
       const { deviceName } = currentDeviceData();
       const { fetchChannels } = useChannels();
-
+     
       onMounted(() => {
         const keywords = currentRoute().query.keywords;
         if (keywords && keywords.length) {
@@ -428,6 +429,7 @@
         isUserLoggedIn,
         canManageContent,
         isLearnerOnlyImport,
+        onboarding_complete
       };
     },
     props: {
@@ -460,9 +462,7 @@
         return (
           this.welcomeModalVisibleState &&
           window.localStorage.getItem(welcomeDismissalKey) !== 'true' &&
-          !(this.rootNodes.length > 0) &&
-          this.canManageContent &&
-          !this.isLearnerOnlyImport
+           ! this.onboarding_complete
         );
       },
       showOtherLibraries() {
