@@ -1,4 +1,5 @@
 <template>
+
   <div>
     <div
       v-if="showOverlay"
@@ -13,6 +14,7 @@
     ></div>
     <slot></slot>
   </div>
+
 </template>
 
 
@@ -59,10 +61,10 @@
     },
     mounted() {
       this.showTooltip();
-      window.document.documentElement.style['overflow']= 'hidden';
+      window.document.documentElement.style['overflow'] = 'hidden';
     },
-    destroyed(){
-       window.document.documentElement.style['overflow']= '';
+    destroyed() {
+      window.document.documentElement.style['overflow'] = '';
     },
     methods: {
       showTooltip() {
@@ -86,7 +88,7 @@
           const TooltipConstructor = Vue.extend(TooltipContent);
           const instance = new TooltipConstructor({
             propsData: {
-              page:this.page,
+              page: this.page,
               steps: this.steps,
               currentStepIndex: this.currentStepIndex,
             },
@@ -118,8 +120,6 @@
                   },
                 },
               },
-             
-         
             });
 
             if (this.tippyInstance?.show) {
@@ -165,19 +165,17 @@
         window.removeEventListener('scroll', this.updateOverlay, true);
         window.removeEventListener('resize', this.updateOverlay);
       },
-       focusFirstEl() {
+      focusFirstEl() {
         document.querySelector(`[data-continue-btn="continueButton"]`).focus();
       },
       focusLastEl() {
-        const backButton=document.querySelector(`[data-back-btn="backButton"]`);
-      if(backButton){
-         document.querySelector(`[data-back-btn="backButton"]`).focus();
-      }
-      else{
-       document.querySelector(`[data-continue-btn="continueButton"]`).focus();
-      }
+        const backButton = document.querySelector(`[data-back-btn="backButton"]`);
+        if (backButton) {
+          document.querySelector(`[data-back-btn="backButton"]`).focus();
+        } else {
+          document.querySelector(`[data-continue-btn="continueButton"]`).focus();
+        }
       },
-      
     },
   };
 

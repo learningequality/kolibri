@@ -22,7 +22,6 @@
       <main
         class="main-grid"
         :style="gridOffset"
-         
       >
         <div v-if="!windowIsLarge && (!isLocalLibraryEmpty || deviceId)">
           <KButton
@@ -545,16 +544,14 @@
         }
         document.documentElement.style.position = '';
       },
-    
-  tourActive(newVal) {
-    if (newVal) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-  },
 
-
+      tourActive(newVal) {
+        if (newVal) {
+          document.body.style.overflow = 'hidden';
+        } else {
+          document.body.style.overflow = '';
+        }
+      },
     },
     created() {
       const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
@@ -575,6 +572,9 @@
         });
       }
     },
+    beforeDestroy() {
+      document.body.style.overflow = '';
+    },
     methods: {
       hideWelcomeModal() {
         window.localStorage.setItem(welcomeDismissalKey, false);
@@ -583,7 +583,7 @@
           this.startTour();
         }, 800);
       },
-  
+
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
       },
@@ -600,9 +600,6 @@
         this.isLoadingNetworkLibraries = isLoading;
       },
     },
-    beforeDestroy() {
-  document.body.style.overflow = '';
-},
 
     $trs: {
       libraryOf: {

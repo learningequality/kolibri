@@ -70,15 +70,14 @@
         return [firstCol, secondCol];
       },
     },
-    mounted(){
-       console.log("languageitem",this.$refs.languageItem);
-       console.log("languageitem",this.$refs.languageItem[0]);
-       console.log("languageitem", this.$refs.languageItem[this.$refs.languageItem.length - 1]);
+    mounted() {
+      console.log('languageitem', this.$refs.languageItem);
+      console.log('languageitem', this.$refs.languageItem[0]);
+      console.log('languageitem', this.$refs.languageItem[this.$refs.languageItem.length - 1]);
     },
     methods: {
       focusFirstEl() {
         this.$refs.languageItem[0].focus();
-       
       },
       focusLastEl() {
         this.$refs.languageItem[this.$refs.languageItem.length - 1].focus();

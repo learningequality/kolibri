@@ -75,7 +75,6 @@
         }
       },
     },
-  
 
     render: createElement => window.setTimeout(createElement, 750),
     $trs: {
