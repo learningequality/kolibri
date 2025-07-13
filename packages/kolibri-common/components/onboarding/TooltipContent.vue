@@ -1,26 +1,20 @@
 <template>
-
-    <div
-      class="onboarding-tooltip"
-      role="dialog"
-      aria-modal="true"
-    >
+  <KFocusTrap @shouldFocusFirstEl="focusFirstEl" @shouldFocusLastEl="focusLastEl">
+    <div class="onboarding-tooltip" role="dialog" aria-modal="true">
+      <h1 class="visuallyhidden">
+        {{ onboardingStepDescription$({
+          pageTitle: page,
+          currentStep: currentStepIndex + 1,
+          totalSteps: steps.length,
+        })}}
+      </h1>
       <div class="onboarding-tooltip-header">
         <div class="onboarding-tooltip-progress">
-          <span
-            v-for="(step, index) in steps"
-            :key="index"
-            :class="['dot', { active: index === currentStepIndex }]"
-          ></span>
+          <span v-for="(step, index) in steps" :key="index"
+            :class="['dot', { active: index === currentStepIndex }]"></span>
         </div>
-        <KIconButton
-          ref="closeButton"
-          class="close-button"
-          icon="close"
-          :ariaLabel="coreString('closeAction')"
-          :tooltip="coreString('closeAction')"
-          @click="$emit('close')"
-        />
+        <KIconButton ref="closeButton" icon="close" :ariaLabel="coreString('closeAction')"
+          :tooltip="coreString('closeAction')" @click="$emit('close')" />
       </div>
 
       <div class="onboarding-tooltip-body">
@@ -28,89 +22,70 @@
       </div>
 
       <div class="onboarding-tooltip-footer">
-        <KButton
-          v-if="currentStepIndex > 0"
-          ref="backButton"
-          :primary="false"
-          appearance="flat-button"
-          @click="$emit('back')"
-        >
+        <KButton v-if="currentStepIndex > 0" ref="backButton" data-back-btn="backButton" :primary="false"
+          appearance="flat-button" @click="$emit('back')">
           Back
         </KButton>
 
-        <KButton
-          ref="continueButton"
-          data-continue-btn="continueButton"
-          tabindex="1"
-          secondary
-          @click="$emit('next')"
-          :text="currentStepIndex === steps.length - 1 ? coreString('finishAction') : coreString('continueAction')"
-        />
+        <KButton ref="continueButton" data-continue-btn="continueButton" secondary @click="$emit('next')"
+          :text="currentStepIndex === steps.length - 1 ? coreString('finishAction') : coreString('continueAction')" />
       </div>
     </div>
 
+  </KFocusTrap>
 </template>
 
 <script>
 import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
 
 export default {
   name: 'TooltipContent',
   mixins: [commonCoreStrings],
   props: {
+    page: String,
     steps: Array,
     currentStepIndex: Number,
   },
- mounted() {  
-  /* this.$nextTick(() => {
-    setTimeout(() => {
-        if(this.$refs.continueButton){
-            this.$refs.continueButton.$el.focus();
-         console.log("continueButton1:",  this.$refs.continueButton.$el);
+  setup() {
+    const { onboardingStepDescription$ } = kolibriOnboardingGuideStrings;
+    return {
+      onboardingStepDescription$,
+    };
+  },
+  mounted() {
+    this.$nextTick(() => {
+      setTimeout(() => {
+        const btn = this.$refs.continueButton?.$el || this.$refs.continueButton;
+        if (btn && typeof btn.focus === 'function') {
+          btn.focus();
         }
-    }, 0);
-  });*/
+      }, 0);
+    });
 
-  this.focusTrapHandler = (e) => {
-    if (e.key !== "Tab" && e.key !== "Escape") return;
-
-    const continueBtn = this.$refs.continueButton?.$el;
-    console.log("continueButton2:",continueBtn);
-
-    const closeBtn = this.$refs.closeButton?.$el || this.$refs.closeButton;
-   
-    const backBtn = this.$refs.backButton?.$el || this.$refs.backButton;
-
-    const focusOrder = [continueBtn, closeBtn];
-    if (backBtn) focusOrder.push(backBtn);
-
-    const focusable = focusOrder.filter(Boolean);
-    if (!focusable.length) return;
-
-    const activeElement = document.activeElement;
-    let idx = focusable.indexOf(activeElement);
-
-    if (e.key === "Tab") {
-      e.preventDefault();
-      if (idx === -1) {
-        focusable[0].focus();
-        return;
+    this.focusTrapHandler = (e) => {
+      if (e.key !== "Tab" && e.key !== "Escape") return;
+      if (e.key === "Escape") {
+        this.$emit("close");
       }
-      if (e.shiftKey) {
-        idx = idx === 0 ? focusable.length - 1 : idx - 1;
-      } else {
-        idx = idx === focusable.length - 1 ? 0 : idx + 1;
-      }
-      focusable[idx].focus();
-    } else if (e.key === "Escape") {
-      this.$emit("close");
-    }
-  };
+    };
 
     this.$el.addEventListener("keydown", this.focusTrapHandler);
   },
+
   beforeDestroy() {
     this.$el.removeEventListener("keydown", this.focusTrapHandler);
   },
+
+
+  methods: {
+    focusFirstEl() {
+      (this.$refs.continueButton?.$el || this.$refs.continueButton)?.focus?.();
+    },
+    focusLastEl() {
+      const last = this.$refs.closeButton;
+      (last?.$el || last)?.focus?.();
+    },
+  }
 };
 </script>
