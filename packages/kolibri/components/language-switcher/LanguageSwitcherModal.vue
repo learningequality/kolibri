@@ -72,7 +72,7 @@
     },
     methods: {
       focusFirstEl() {
-        this.$refs.languageItem[0].focus();    
+        this.$refs.languageItem[0].focus();  
       },
       focusLastEl() {
         this.$refs.languageItem[this.$refs.languageItem.length - 1].focus();
