@@ -2,6 +2,7 @@
 
 This module manages the Kolibri server subprocess on Windows from the main UI process.
 It handles:
+- Service detection to avoid spawning a redundant server
 - Server subprocess lifecycle management with Job Objects for cleanup
 - Named pipe IPC client communication with server subprocess
 - Pull-based server readiness handshake to avoid race conditions
@@ -14,6 +15,7 @@ Architecture Overview:
 - Server responds with port and URL when Kolibri is fully initialized
 - Handles subprocess crashes and pipe disconnections gracefully
 """
+import ctypes.wintypes
 import json
 import os
 import subprocess
@@ -39,6 +41,38 @@ from kolibri_app.logger import logging
 PIPE_NAME = r"\\.\pipe\KolibriAppServerIPC"
 
 
+def is_service_running(service_name):
+    """
+    Check if a Windows service is running.
+    Returns True if the service is running, False otherwise.
+    """
+    try:
+        # Hide console window that can flash when calling sc.exe
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = subprocess.SW_HIDE
+
+        result = subprocess.run(
+            ["sc", "query", service_name],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            check=True,
+            timeout=5,
+            startupinfo=startupinfo,
+        )
+        return "STATE" in result.stdout and "RUNNING" in result.stdout
+    except (
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+        FileNotFoundError,
+    ):
+        # CalledProcessError: service doesn't exist
+        # TimeoutExpired: safety timeout
+        # FileNotFoundError: sc.exe not in PATH
+        return False
+
+
 class WindowsServerManager:
     """
     Manages the Kolibri server subprocess and IPC communication for Windows.
@@ -54,24 +88,45 @@ class WindowsServerManager:
         self.pipe_handle = None
         self.pipe_reader_thread = None
         self.pipe_shutdown_event = Event()
+        # Handle for pipe reader thread to allow I/O cancellation
+        self.pipe_reader_thread_handle = None
 
     def start(self):
         """
-        Start the Kolibri server subprocess and IPC communication.
-        Pipe client starts first to avoid timing issues.
+        Start the Kolibri server management.
+        If the Kolibri service is running, connect to it.
+        Otherwise, launch a new server subprocess.
         """
         if self.server_process:
             return
 
-        logging.info("Preparing to start Kolibri server process")
+        # Service name defined in Inno Setup script
+        service_name = "Kolibri"
+
+        # Start pipe client for communication with service or subprocess
         self.start_pipe_client()
-        self._launch_server_process()
+
+        if is_service_running(service_name):
+            logging.info(f"Detected that the '{service_name}' service is running.")
+            logging.info("The UI will connect to the existing service.")
+            # Connect to existing service pipe instead of launching new process
+        else:
+            logging.info(
+                f"The '{service_name}' service is not running. Starting a new server process for this session."
+            )
+            self._launch_server_process()
 
     def shutdown(self):
         """
         Clean shutdown of server subprocess and IPC communication.
         Job Object provides additional safety for subprocess cleanup.
         """
+        self._shutdown_server_process()
+        self._shutdown_pipe_thread()
+        self._cleanup_handles()
+
+    def _shutdown_server_process(self):
+        """Shutdown the server process gracefully."""
         if self.server_process and self.server_process.poll() is None:
             logging.info("Shutting down server process...")
             try:
@@ -87,17 +142,41 @@ class WindowsServerManager:
             except Exception as e:
                 logging.error(f"Error shutting down server process: {e}")
 
-        # Stop pipe communication thread
+    def _shutdown_pipe_thread(self):
+        """Stop pipe communication thread."""
         if self.pipe_reader_thread and self.pipe_reader_thread.is_alive():
             logging.info("Stopping pipe reader thread...")
             self.pipe_shutdown_event.set()
-            if self.pipe_handle:
-                # Close pipe handle to unblock any pending ReadFile calls
-                win32file.CloseHandle(self.pipe_handle)
-                self.pipe_handle = None
-            self.pipe_reader_thread.join(timeout=2)
 
-        # Clean up Job Object handle
+            # Use CancelSynchronousIo to unblock thread stuck in blocking I/O
+            # Prevents app hanging on exit when service is running
+            if self.pipe_reader_thread_handle:
+                try:
+                    handle_as_int = int(self.pipe_reader_thread_handle)
+                    ctypes.windll.kernel32.CancelSynchronousIo(
+                        ctypes.wintypes.HANDLE(handle_as_int)
+                    )
+                except Exception as e:
+                    logging.error(
+                        f"Error calling CancelSynchronousIo: {e}", exc_info=True
+                    )
+
+            self.pipe_reader_thread.join(timeout=5)
+
+    def _cleanup_handles(self):
+        """Clean up all handles."""
+        if self.pipe_handle:
+            try:
+                win32file.CloseHandle(self.pipe_handle)
+            except pywintypes.error:
+                pass  # Handle already closed/invalid
+            self.pipe_handle = None
+        if self.pipe_reader_thread_handle:
+            try:
+                win32api.CloseHandle(self.pipe_reader_thread_handle)
+            except pywintypes.error:
+                pass  # Handle already closed/invalid
+            self.pipe_reader_thread_handle = None
         if self.job_handle:
             try:
                 win32api.CloseHandle(self.job_handle)
@@ -111,7 +190,7 @@ class WindowsServerManager:
         Launch the Kolibri server subprocess with Job Object management.
         Job Objects provide automatic cleanup to prevent zombie processes.
         """
-        # Set up Job Object for automatic subprocess cleanup
+        # Set up Job Object for subprocess cleanup
         try:
             self.job_handle = win32job.CreateJobObject(None, "")
 
@@ -225,6 +304,19 @@ class WindowsServerManager:
         )
         self.pipe_reader_thread.start()
 
+        # Get thread handle for I/O cancellation
+        # Wait for thread to have an ID before getting handle
+        while self.pipe_reader_thread.ident is None:
+            time.sleep(0.01)
+
+        try:
+            # THREAD_TERMINATE permission required for CancelSynchronousIo
+            self.pipe_reader_thread_handle = win32api.OpenThread(
+                win32con.THREAD_TERMINATE, False, self.pipe_reader_thread.ident
+            )
+        except pywintypes.error as e:
+            logging.error(f"Failed to get handle for pipe reader thread: {e}")
+
     def _pipe_reader_thread_func(self):
         """
         Named pipe client thread main loop.
@@ -232,51 +324,73 @@ class WindowsServerManager:
         """
         while not self.pipe_shutdown_event.is_set():
             try:
-                # Block until the server subprocess creates the named pipe
-                win32pipe.WaitNamedPipe(PIPE_NAME, win32pipe.NMPWAIT_WAIT_FOREVER)
-
-                self.pipe_handle = win32file.CreateFile(
-                    PIPE_NAME,
-                    win32file.GENERIC_READ | win32file.GENERIC_WRITE,
-                    0,
-                    None,
-                    win32file.OPEN_EXISTING,
-                    0,
-                    None,
-                )
-
-                logging.info("Connected to named pipe.")
-
-                # Immediately request server connection information (pull-based handshake)
-                self._send_pipe_message({"type": "request_server_info"})
-
-                # Message processing loop for connected pipe
-                while not self.pipe_shutdown_event.is_set():
-                    hr, data = win32file.ReadFile(self.pipe_handle, 4096)
-                    if hr == winerror.ERROR_SUCCESS or hr == winerror.ERROR_MORE_DATA:
-                        message = json.loads(data.decode("utf-8"))
-                        logging.debug(f"Pipe client received message: {message}")
-                        wx.CallAfter(self._handle_pipe_message, message)
-                    else:
-                        # Pipe closed by server - break inner loop to reconnect
-                        break
-
+                if self._connect_to_pipe():
+                    self._process_pipe_messages()
             except pywintypes.error as e:
-                if (
-                    e.winerror == winerror.ERROR_FILE_NOT_FOUND
-                    or e.winerror == winerror.ERROR_BROKEN_PIPE
-                ):
-                    logging.info("Pipe not available or broken, will retry...")
-                else:
-                    logging.error(f"Pipe error: {e}")
-                # Clean up pipe handle before retry
-                if self.pipe_handle:
-                    win32file.CloseHandle(self.pipe_handle)
-                    self.pipe_handle = None
-                time.sleep(2)  # Delay before retry to avoid busy loop
+                if self._handle_pipe_error(e):
+                    break
             except Exception as e:
                 logging.error(f"Error in pipe reader thread: {e}", exc_info=True)
-                time.sleep(2)
+                if self.pipe_shutdown_event.wait(timeout=2):
+                    break
+
+    def _connect_to_pipe(self):
+        """Connect to the named pipe. Returns True if successful, False if should retry."""
+        # Use timeout on WaitNamedPipe to allow periodic shutdown event checks
+        try:
+            win32pipe.WaitNamedPipe(PIPE_NAME, 2000)
+        except pywintypes.error as e:
+            # Timeout expected if pipe isn't ready, loop again
+            if e.winerror == winerror.ERROR_SEM_TIMEOUT:
+                return False
+            raise
+
+        self.pipe_handle = win32file.CreateFile(
+            PIPE_NAME,
+            win32file.GENERIC_READ | win32file.GENERIC_WRITE,
+            0,
+            None,
+            win32file.OPEN_EXISTING,
+            0,
+            None,
+        )
+
+        logging.info("Connected to named pipe.")
+
+        # Immediately request server connection information (pull-based handshake)
+        self._send_pipe_message({"type": "request_server_info"})
+        return True
+
+    def _process_pipe_messages(self):
+        """Process messages from the connected pipe."""
+        # Message processing loop for connected pipe
+        while not self.pipe_shutdown_event.is_set():
+            hr, data = win32file.ReadFile(self.pipe_handle, 4096)
+            if hr == winerror.ERROR_SUCCESS or hr == winerror.ERROR_MORE_DATA:
+                message = json.loads(data.decode("utf-8"))
+                logging.debug(f"Pipe client received message: {message}")
+                wx.CallAfter(self._handle_pipe_message, message)
+            else:
+                # Pipe closed by server - break inner loop to reconnect
+                break
+
+    def _handle_pipe_error(self, e):
+        """Handle pipe errors. Returns True if should break main loop, False to continue."""
+        # - ADDED - This is the clean exit path. CancelSynchronousIo causes
+        # ReadFile to fail with this specific error.
+        if e.winerror == winerror.ERROR_OPERATION_ABORTED:
+            return True
+
+        if (
+            e.winerror == winerror.ERROR_FILE_NOT_FOUND
+            or e.winerror == winerror.ERROR_BROKEN_PIPE
+        ):
+            logging.info("Pipe not available or broken, will retry...")
+        else:
+            logging.error(f"Pipe error: {e}")
+
+        # Use interruptible wait instead of blocking sleep
+        return self.pipe_shutdown_event.wait(timeout=2)
 
     def _handle_pipe_message(self, message):
         """
@@ -296,7 +410,7 @@ class WindowsServerManager:
         """
         if self.pipe_handle:
             try:
-                # Encode message as JSON and send to server subprocess
+                # Encode and send JSON message to server subprocess
                 encoded_message = json.dumps(message).encode("utf-8")
                 win32file.WriteFile(self.pipe_handle, encoded_message)
             except pywintypes.error as e:

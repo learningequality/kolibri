@@ -23,6 +23,7 @@ from threading import Thread
 import pywintypes
 import win32file
 import win32pipe
+import win32security
 import winerror
 
 # Fix Python path for PyInstaller builds
@@ -58,6 +59,17 @@ class PipeServerThread(Thread):
     def run(self):
         """Main pipe server loop - handles client connections and message processing."""
         logging.info("Pipe server thread started.")
+
+        # Set up security attributes to allow UI process access to service pipe
+        sa = win32security.SECURITY_ATTRIBUTES()
+        sa.bInheritHandle = False
+        # Use SDDL to grant Read/Write access to Authenticated Users
+        security_descriptor_sddl = "D:(A;OICI;GRGW;;;AU)"
+        sa.SECURITY_DESCRIPTOR = (
+            win32security.ConvertStringSecurityDescriptorToSecurityDescriptor(
+                security_descriptor_sddl, win32security.SDDL_REVISION_1
+            )
+        )
         while not self.server_process.shutdown_event.is_set():
             self.pipe = None
             try:
@@ -72,7 +84,7 @@ class PipeServerThread(Thread):
                     65536,
                     65536,
                     0,
-                    None,
+                    sa,
                 )
 
                 logging.info(f"Named pipe '{PIPE_NAME}' created. Waiting for client...")
