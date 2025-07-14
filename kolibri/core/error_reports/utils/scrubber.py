@@ -41,26 +41,12 @@ DEFAULT_DENYLIST = [
     "user_session",  # Vue
     "_xsrf",  # Tornado
     "XSRF-TOKEN",  # Angular, Laravel
-]
-
-DEFAULT_PII_DENYLIST = [
+    # PII
     "x_forwarded_for",
     "x_real_ip",
     "ip_address",
     "remote_addr",
 ]
-
-
-def get_denylist(send_default_pii=False, custom_denylist=None):
-    denylist = DEFAULT_DENYLIST.copy()
-
-    if not send_default_pii:
-        denylist += DEFAULT_PII_DENYLIST
-
-    if custom_denylist:
-        denylist += custom_denylist
-
-    return [x.lower() for x in denylist]
 
 
 def scrub_data(data, denylist=DEFAULT_DENYLIST):
