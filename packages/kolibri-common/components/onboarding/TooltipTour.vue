@@ -1,5 +1,4 @@
 <template>
-
   <div>
     <div
       v-if="showOverlay"
@@ -14,7 +13,6 @@
     ></div>
     <slot></slot>
   </div>
-
 </template>
 
 
@@ -164,17 +162,6 @@
 
         window.removeEventListener('scroll', this.updateOverlay, true);
         window.removeEventListener('resize', this.updateOverlay);
-      },
-      focusFirstEl() {
-        document.querySelector(`[data-continue-btn="continueButton"]`).focus();
-      },
-      focusLastEl() {
-        const backButton = document.querySelector(`[data-back-btn="backButton"]`);
-        if (backButton) {
-          document.querySelector(`[data-back-btn="backButton"]`).focus();
-        } else {
-          document.querySelector(`[data-continue-btn="continueButton"]`).focus();
-        }
       },
     },
   };
