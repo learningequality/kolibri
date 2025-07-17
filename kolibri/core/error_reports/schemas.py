@@ -31,15 +31,7 @@ context_frontend_schema = {
                 "type": {"type": "string", "optional": True},
                 "vendor": {"type": "string", "optional": True},
                 "is_touch_device": {"type": "boolean", "optional": True},
-                "screen": {
-                    "type": "object",
-                    "properties": {
-                        "width": {"type": "integer", "optional": True},
-                        "height": {"type": "integer", "optional": True},
-                        "available_width": {"type": "integer", "optional": True},
-                        "available_height": {"type": "integer", "optional": True},
-                    },
-                },
+                "screen_breakpoint": {"type": "number", "minimum": 0, "optional": True},
             },
         },
     },

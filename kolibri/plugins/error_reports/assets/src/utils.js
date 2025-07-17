@@ -1,6 +1,24 @@
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
-import { browser, os, device, isTouchDevice } from 'kolibri.utils.browserInfo';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
+import { browser, os, device, isTouchDevice } from 'kolibri/utils/browserInfo';
+
+const SCROLL_BAR = 16;
+const widthBreakpoints = [
+  480,
+  600,
+  840,
+  960 - SCROLL_BAR,
+  1280 - SCROLL_BAR,
+  1440 - SCROLL_BAR,
+  1600 - SCROLL_BAR,
+];
+
+export function getWindowBreakpoint(width = window.innerWidth) {
+  for (const bp of widthBreakpoints) {
+    if (width <= bp) return bp;
+  }
+  return widthBreakpoints[widthBreakpoints.length - 1];
+}
 
 export function report(error) {
   const url = urls['kolibri:kolibri.plugins.error_reports:report']();
@@ -33,12 +51,7 @@ class ErrorReport {
       device: {
         ...device,
         is_touch_device: isTouchDevice,
-        screen: {
-          width: window.screen.width,
-          height: window.screen.height,
-          available_width: window.screen.availWidth,
-          available_height: window.screen.availHeight,
-        },
+        screen_breakpoint: getWindowBreakpoint(),
       },
       ...this.getExtraContext(),
     };

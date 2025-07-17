@@ -1,7 +1,9 @@
+import json
 import logging
 import time
 import traceback
 from sys import version_info
+
 
 if version_info < (3, 10):
     from importlib_metadata import distributions
@@ -16,25 +18,28 @@ from .constants import BACKEND
 from .models import ErrorReport
 
 from kolibri.plugins.error_reports.kolibri_plugin import ErrorReportsPlugin
+from kolibri.core.error_reports.utils.scrubber import scrub_data
 from kolibri.plugins.registry import registered_plugins
 
 
 def get_request_info(request):
-    # checked the codebase and found these are the sensitive headers
-    request_headers = dict(request.headers)
-    request_headers.pop("X-Csrftoken", None)
-    request_headers.pop("Cookie", None)
-
-    request_get = dict(request.GET)
-    request_get.pop("token", None)
-
-    return {
+    context = {
         "url": request.build_absolute_uri(),
         "method": request.method,
-        "headers": request_headers,
-        "body": request.body.decode("utf-8"),
-        "query_params": request_get,
+        "headers": dict(request.headers),
+        "query_params": dict(request.GET),
+        "body": None,
     }
+
+    if request.headers.get("Content-Type", "").lower() == "application/json":
+        try:
+            # a json req body can have sensitive data, other types can have
+            context["body"] = json.loads(request.body.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            pass
+
+    scrub_data(context)
+    return context
 
 
 def get_server_info(request):
