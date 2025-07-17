@@ -64,7 +64,7 @@
       window.document.documentElement.style['overflow'] = 'hidden';
     },
     destroyed() {
-      window.document.documentElement.style['overflow'] = '';
+      window.document.documentElement.style['overflow'] = 'auto';
     },
     methods: {
       showTooltip() {

@@ -1,8 +1,6 @@
 <template>
-
   <KFocusTrap
     @shouldFocusFirstEl="focusFirstEl"
-    @shouldFocusLastEl="focusLastEl"
   >
     <div
       class="onboarding-tooltip"
@@ -88,69 +86,19 @@
       steps: Array,
       currentStepIndex: Number,
     },
-    data() {
-      return {
-        hasTabbedOnce: false,
-      };
-    },
     mounted() {
       this.$nextTick(() => {
         setTimeout(() => {
-          const btn = this.$refs.continueButton?.$el;
+          const btn = this.currentStepIndex==0?this.$refs.closeButton?.$el:this.$refs.continueButton?.$el;
           if (btn && typeof btn.focus === 'function') {
             btn.focus();
           }
         }, 0);
       });
-
-      const closeBtn = this.$refs.closeButton?.$el;
-
-      const backBtn = this.$refs.backButton?.$el;
-      const continueBtn = this.$refs.continueButton?.$el;
-
-      const focusOrder = [continueBtn, closeBtn, backBtn].filter(Boolean);
-      this.focusTrapHandler = e => {
-        if (e.key !== 'Tab' && e.key !== 'Escape') return;
-
-        const activeElement = document.activeElement;
-        let idx = focusOrder.indexOf(activeElement);
-
-        if (e.key === 'Tab') {
-          if (!this.hasTabbedOnce && this.currentStepIndex == 0) {
-            this.hasTabbedOnce = true;
-            return;
-          }
-
-          e.preventDefault();
-          if (e.shiftKey) {
-            // SHIFT + TAB => move focus backwards
-            idx = idx <= 0 ? focusOrder.length - 1 : idx - 1;
-            focusOrder[idx].focus();
-          } else {
-            idx = idx === focusOrder.length - 1 ? 0 : idx + 1;
-            console.log('idx inside else:', idx);
-            console.log(focusOrder[idx]);
-            focusOrder[idx].focus();
-          }
-        } else if (e.key === 'Escape') {
-          this.$emit('close');
-        }
-      };
-
-      this.$el.addEventListener('keydown', this.focusTrapHandler);
     },
-
-    beforeDestroy() {
-      this.$el.removeEventListener('keydown', this.focusTrapHandler);
-    },
-
     methods: {
       focusFirstEl() {
-        (this.$refs.continueButton?.$el || this.$refs.continueButton)?.focus?.();
-      },
-      focusLastEl() {
-        const last = this.$refs.closeButton;
-        (last?.$el || last)?.focus?.();
+        (this.$refs.closeButton?.$el || this.$refs.closeButton)?.focus?.();
       },
     },
   };
