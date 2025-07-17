@@ -40,6 +40,9 @@ from kolibri_app.logger import logging
 # Named pipe for IPC between UI process and server subprocess
 PIPE_NAME = r"\\.\pipe\KolibriAppServerIPC"
 
+MAX_PIPE_RETRIES = 3
+PIPE_RETRY_DELAY = 1
+
 
 def is_service_running(service_name):
     """
@@ -91,13 +94,12 @@ class WindowsServerManager:
         # Handle for pipe reader thread to allow I/O cancellation
         self.pipe_reader_thread_handle = None
 
+        # For state management and retry logic
+        self._server_mode = None  # Can be 'service' or 'local'
+        self._pipe_retry_count = 0
+
     def start(self):
-        """
-        Start the Kolibri server management.
-        If the Kolibri service is running, connect to it.
-        Otherwise, launch a new server subprocess.
-        """
-        if self.server_process:
+        if self._server_mode:
             return
 
         # Service name defined in Inno Setup script
@@ -109,12 +111,29 @@ class WindowsServerManager:
         if is_service_running(service_name):
             logging.info(f"Detected that the '{service_name}' service is running.")
             logging.info("The UI will connect to the existing service.")
-            # Connect to existing service pipe instead of launching new process
+            self._server_mode = "service"
         else:
             logging.info(
-                f"The '{service_name}' service is not running. Starting a new server process for this session."
+                f"The '{service_name}' service is not running. Starting a new server process."
             )
+            self._server_mode = "local"
             self._launch_server_process()
+
+    def _handle_service_disconnection(self):
+        if self._server_mode != "service":
+            return
+
+        logging.warning(
+            "Connection to Kolibri service lost. Attempting to start a local server."
+        )
+        wx.MessageBox(
+            "The connection to the background Kolibri service was lost. A new local server will be started for this session.",
+            "Service Disconnected",
+            wx.OK | wx.ICON_INFORMATION,
+        )
+
+        self._server_mode = "local"
+        self._launch_server_process()
 
     def shutdown(self):
         """
@@ -325,13 +344,14 @@ class WindowsServerManager:
         while not self.pipe_shutdown_event.is_set():
             try:
                 if self._connect_to_pipe():
+                    self._pipe_retry_count = 0
                     self._process_pipe_messages()
             except pywintypes.error as e:
                 if self._handle_pipe_error(e):
                     break
             except Exception as e:
                 logging.error(f"Error in pipe reader thread: {e}", exc_info=True)
-                if self.pipe_shutdown_event.wait(timeout=2):
+                if self.pipe_shutdown_event.wait(timeout=PIPE_RETRY_DELAY):
                     break
 
     def _connect_to_pipe(self):
@@ -375,9 +395,7 @@ class WindowsServerManager:
                 break
 
     def _handle_pipe_error(self, e):
-        """Handle pipe errors. Returns True if should break main loop, False to continue."""
-        # - ADDED - This is the clean exit path. CancelSynchronousIo causes
-        # ReadFile to fail with this specific error.
+        """Handle pipe errors. Includes fallback for service and restart for local server."""
         if e.winerror == winerror.ERROR_OPERATION_ABORTED:
             return True
 
@@ -389,8 +407,33 @@ class WindowsServerManager:
         else:
             logging.error(f"Pipe error: {e}")
 
-        # Use interruptible wait instead of blocking sleep
-        return self.pipe_shutdown_event.wait(timeout=2)
+        # Fallback logic for SERVICE mode
+        if self._server_mode == "service":
+            self._pipe_retry_count += 1
+            logging.info(
+                f"Service connection attempt {self._pipe_retry_count}/{MAX_PIPE_RETRIES} failed."
+            )
+            if self._pipe_retry_count >= MAX_PIPE_RETRIES:
+                logging.error(
+                    "Maximum retry count reached. Triggering fallback to local server."
+                )
+                wx.CallAfter(self._handle_service_disconnection)
+                # Exit thread, a new server process will be started.
+                return True
+
+        # Restart logic for LOCAL mode
+        elif self._server_mode == "local":
+            if self.server_process and self.server_process.poll() is not None:
+                logging.error(
+                    "Local server process terminated unexpectedly. Attempting to restart."
+                )
+                wx.CallAfter(self._launch_server_process)
+            else:
+                logging.warning(
+                    "Pipe to local server broke, but the process appears to be running. Will retry connection."
+                )
+
+        return self.pipe_shutdown_event.wait(timeout=PIPE_RETRY_DELAY)
 
     def _handle_pipe_message(self, message):
         """
