@@ -8,10 +8,23 @@
   #error "The AppVersion definition must be passed to the compiler via the command line, e.g., /DAppVersion=x.y.z"
 #endif
 #define SourceDir "dist\" + AppName + "-" + AppVersion
+#define KolibriDataDir "{commonappdata}\kolibri"
+#define NssmExePath "{app}\nssm\nssm.exe"
+#define TaskkillExePath "{sys}\taskkill.exe"
+
+; === GUID Constants ===
+;
+; Application ID: Unique identifier for this Kolibri application installation
+; Generated using standard GUID generation, this is specific to our application
+#define AppGuid "432F09E1-B036-4A2C-8F99-DAB7FA094507"
+;
+; WebView2 Runtime Client GUID: Microsoft's official identifier for WebView2 Runtime
+; Source: https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp
+; WARNING: If Microsoft changes this GUID in future WebView2 versions, the IsWebView2Installed() function will fail to detect installations
+#define WebView2RuntimeGuid "{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
 
 [Setup]
-; A unique AppId is CRITICAL for Windows to correctly identify the application.
-AppId={{432F09E1-B036-4A2C-8F99-DAB7FA094507}}
+AppId={#AppGuid}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppPublisher={#AppPublisher}
@@ -34,7 +47,7 @@ Name: "installservice"; Description: "Install Kolibri as a Windows Service (star
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [Dirs]
-Name: "{commonappdata}\kolibri"
+Name: "{#KolibriDataDir}"
 
 [Files]
 ; WebView2 runtime installer, placed in {tmp} and deleted after installation
@@ -60,17 +73,19 @@ Filename: "{app}\{#AppExeName}"; Description: "{cm:LaunchProgram,{#AppName}}"; F
 [UninstallRun]
 ; Service uninstallation sequence - stops and removes service before file deletion
 ; 1. Stop the Kolibri service.
-Filename: "net.exe"; Parameters: "stop {#AppName}"; Flags: runhidden waituntilterminated; RunOnceId: "stopservice"
+Filename: "net.exe"; Parameters: "stop {#ServiceName}"; Flags: runhidden waituntilterminated; RunOnceId: "stopservice"
 ; 2. Remove the Kolibri service definition.
-Filename: "{app}\nssm.exe"; Parameters: "remove {#AppName} confirm"; Flags: runhidden waituntilterminated; RunOnceId: "removeservice"
+Filename: "{#NssmExePath}"; Parameters: "remove {#ServiceName} confirm"; Flags: runhidden waituntilterminated; RunOnceId: "removeservice"
 ; 3. Stop the UI process
-Filename: "{sys}\taskkill.exe"; Parameters: "/F /IM {#AppExeName}"; Flags: runhidden waituntilterminated; RunOnceId: "killapp"
+Filename: "{#TaskkillExePath}"; Parameters: "/F /IM {#AppExeName}"; Flags: runhidden waituntilterminated; RunOnceId: "killapp"
 
 [Code]
 
-// Constants to avoid magic numbers
+// Constants to avoid magic numbers and repeated paths
 const
   TASKKILL_ERR_NOT_FOUND = 128;
+  ICACLS_EXE_PATH = '{sys}\icacls.exe';
+  SC_EXE_PATH = '{sys}\sc.exe';
 
 // Robust wrapper for executing external commands with error checking
 procedure ExecChecked(const Filename, Params, WorkingDir: String; const Description: String);
@@ -141,7 +156,7 @@ begin
    begin
       Log(Format('Downgrade detected. Installed version %s is newer than installer version %s. Aborting.', [InstalledVersionString, InstallerVersionString]));
       if not WizardSilent() then
-         MsgBox(Format('A newer version of {#AppName} (%s) is already installed. The setup will now exit.', [InstalledVersionString]), mbInformation, MB_OK);
+         MsgBox(Format('A newer version of {#AppName} (%s) is already installed.' + #13#10#13#10 + 'This installer contains version %s, which is older than the installed version.' + #13#10 + 'The setup will now exit.', [InstalledVersionString, InstallerVersionString]), mbInformation, MB_OK);
       Result := False;
    end
    else if VersionDiff = 0 then
@@ -170,14 +185,14 @@ var
   ResultCode: Integer;
 begin
   Log('Setup is preparing to install. Attempting to stop the Kolibri service if it exists...');
-  Exec(ExpandConstant('{sys}\sc.exe'), 'stop "{#ServiceName}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec(ExpandConstant(SC_EXE_PATH), 'stop "{#ServiceName}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   if ResultCode = 0 then
     Log('Service "{#ServiceName}" stopped successfully.')
   else
     Log(Format('Command "sc stop" finished with exit code %d. This is normal if the service was not running.', [ResultCode]));
 
   // Force-kill any running UI processes
-  Exec(ExpandConstant('{sys}\taskkill.exe'),
+  Exec(ExpandConstant('{#TaskkillExePath}'),
        '/F /IM "{#AppExeName}"',
        '',
        SW_HIDE, ewWaitUntilTerminated,
@@ -202,7 +217,7 @@ var
 begin
   // Use 'sc.exe query' - non-zero exit code means service doesn't exist
   // Don't use ExecChecked since non-zero exit code is expected for missing services
-  Exec(ExpandConstant('{sys}\sc.exe'), 'query "' + ServiceName + '"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec(ExpandConstant(SC_EXE_PATH), 'query "' + ServiceName + '"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   Result := (ResultCode = 0);
   if Result then
     Log(Format('Checked for service "%s". Exists: yes. (sc.exe query exit code: %d)', [ServiceName, ResultCode]))
@@ -222,7 +237,7 @@ begin
     // Pre-expand constants for clarity
     AppPath := ExpandConstant('{app}\{#AppExeName}');
     AppDir := ExpandConstant('{app}');
-    NssmPath := ExpandConstant('{app}\nssm\nssm.exe');
+    NssmPath := ExpandConstant('{#NssmExePath}');
 
     // Check if user selected service installation
     if (WizardIsTaskSelected('installservice')) then
@@ -255,14 +270,14 @@ begin
       Log('Applying common service configuration...');
       ExecChecked(NssmPath, 'set "{#ServiceName}" ObjectName "NT AUTHORITY\LocalService"', '', 'Set Service User to LocalService');
 
-      // Grant Full Control to service account
-      ExecChecked(ExpandConstant('{sys}\icacls.exe'), '"' + ExpandConstant('{commonappdata}\kolibri') + '" /grant "NT AUTHORITY\LocalService":(OI)(CI)F /T', '', 'Grant Permissions to Data Folder for Service');
+      // Grant Modify access to service account
+      ExecChecked(ExpandConstant(ICACLS_EXE_PATH), '"' + ExpandConstant('{#KolibriDataDir}') + '" /grant "NT AUTHORITY\LocalService":(OI)(CI)M /T', '', 'Grant Permissions to Data Folder for Service');
 
       // Grant Modify access to Users for UI app state/logs
-      ExecChecked(ExpandConstant('{sys}\icacls.exe'), '"' + ExpandConstant('{commonappdata}\kolibri') + '" /grant "Users":(OI)(CI)M /T', '', 'Grant Permissions to Data Folder for Users');
+      ExecChecked(ExpandConstant(ICACLS_EXE_PATH), '"' + ExpandConstant('{#KolibriDataDir}') + '" /grant "Users":(OI)(CI)M /T', '', 'Grant Permissions to Data Folder for Users');
 
       ExecChecked(NssmPath, 'set "{#ServiceName}" Start SERVICE_AUTO_START', '', 'Set Service Start Type to Automatic');
-      ExecChecked(ExpandConstant('{sys}\sc.exe'), 'start "{#ServiceName}"', '', 'Start {#ServiceName} Service');
+      ExecChecked(ExpandConstant(SC_EXE_PATH), 'start "{#ServiceName}"', '', 'Start {#ServiceName} Service');
       ExecChecked(NssmPath, 'set "{#ServiceName}" Description "This service runs the Kolibri server in the background"', '', 'Set Service Description');
       Log('Service configuration completed successfully.');
     end
@@ -298,12 +313,12 @@ function IsWebView2Installed(): Boolean;
 var
     Version: String;
 begin
-    if RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) then
+    if RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{#WebView2RuntimeGuid}', 'pv', Version) then
     begin
         Log('Found WebView2 Runtime version ' + Version + ' (system-wide).');
         Result := True;
     end
-    else if RegQueryStringValue(HKCU, 'Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) then
+    else if RegQueryStringValue(HKCU, 'Software\Microsoft\EdgeUpdate\Clients\{#WebView2RuntimeGuid}', 'pv', Version) then
     begin
         Log('Found WebView2 Runtime version ' + Version + ' (per-user).');
         Result := True;
