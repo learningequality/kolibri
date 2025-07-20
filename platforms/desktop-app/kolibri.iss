@@ -329,3 +329,47 @@ begin
         Result := False;
     end;
 end;
+
+var
+  g_DeleteUserData: Boolean;
+
+function InitializeUninstall(): Boolean;
+begin
+  // Default to NOT deleting user data unless the user explicitly agrees.
+  g_DeleteUserData := False;
+
+  if MsgBox('Do you want to completely remove all Kolibri user data?' + #13#10 +
+    'This includes all downloaded content, user accounts, and progress, and cannot be undone.',
+    mbConfirmation, MB_YESNO) = IDYES then
+  begin
+    g_DeleteUserData := True;
+    Log('User has opted to delete all user data upon uninstallation.');
+  end else
+  begin
+    Log('User has opted to keep user data upon uninstallation.');
+  end;
+
+  Result := True;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  // The CurUninstallStepChanged event fires at different stages of the uninstallation.
+  // We only care about the step after all files have been removed.
+  if (CurUninstallStep = usPostUninstall) then
+  begin
+    if g_DeleteUserData then
+    begin
+      Log('Executing post-uninstall step: removing user data directory.');
+      if DelTree(ExpandConstant('{#KolibriDataDir}'), True, True, True) then
+      begin
+        Log('Successfully deleted user data directory: ' + ExpandConstant('{#KolibriDataDir}'));
+      end
+      else
+      begin
+        Log('WARNING: Failed to delete user data directory: ' + ExpandConstant('{#KolibriDataDir}') +
+            '. It may be in use by another process, or permissions may have been altered.');
+      end;
+    end;
+  end;
+end;
