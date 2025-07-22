@@ -2,6 +2,7 @@ import json
 import os
 import re
 from functools import cache
+from uuid import uuid4
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
@@ -227,6 +228,21 @@ def get_dummy_user_name():
         value = get_string("Learner", currentLocale)
         value_cache.set(cache_key, value)
     return value
+
+
+def get_os_user_auth_token():
+    cache_key = "OS_USER_AUTH_TOKEN"
+    value = value_cache.get(cache_key)
+    if value is None:
+        value = uuid4().hex
+        value_cache.set(cache_key, value)
+    return value
+
+
+def os_user(auth_token):
+    if auth_token == get_os_user_auth_token():
+        return (get_dummy_user_name(), True)
+    return None, False
 
 
 def is_active_network_metered():

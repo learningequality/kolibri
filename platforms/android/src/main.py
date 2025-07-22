@@ -1,9 +1,9 @@
 import logging
-from uuid import uuid4
 
 import initialization  # noqa: F401 keep this first, to ensure we're set up for other imports
-from android_utils import get_dummy_user_name
+from android_utils import get_os_user_auth_token
 from android_utils import is_active_network_metered
+from android_utils import os_user
 from android_utils import share_by_intent
 from jnius import autoclass
 from kolibri.main import enable_plugin
@@ -25,13 +25,7 @@ configureWebview(PythonActivity.mActivity)
 
 loadUrl = Runnable(PythonActivity.mWebView.loadUrl)
 
-auth_token_value = uuid4().hex
-
-
-def os_user(auth_token):
-    if auth_token == auth_token_value:
-        return (get_dummy_user_name(), True)
-    return None, False
+auth_token_value = get_os_user_auth_token()
 
 
 class AppPlugin(SimplePlugin):
