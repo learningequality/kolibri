@@ -24,9 +24,21 @@
   import Vue from 'vue';
   import { onboardingSteps } from 'kolibri/utils/onboardingSteps';
   import TooltipContent from './TooltipContent.vue';
+  import useTour from '../../composables/useTour';
+  import useUser from '../../../kolibri/composables/useUser';
 
   export default {
     name: 'TooltipTour',
+    setup() {
+      const { saveTourProgress, completeTour, currentStepIndex } = useTour();
+      const { user_id } = useUser();
+      return {
+        saveTourProgress,
+        completeTour,
+        currentStepIndex,
+        userId:user_id,
+      };
+    },
     props: {
       page: {
         type: String,
@@ -152,14 +164,22 @@
       nextStep() {
         if (this.currentStepIndex < this.steps.length - 1) {
           this.currentStepIndex++;
+          this.saveTourProgress(this.userId, this.page, this.currentStepIndex);
           this.showTooltip();
         } else {
-          this.endTour();
+          // Check if current page is the last key in onboardingSteps
+          const pageKeys = Object.keys(onboardingSteps);
+          const isLastPage = this.page === pageKeys[pageKeys.length - 1];
+          if (isLastPage) {
+            this.completeTour(); // only mark complete on last page and last step
+          }
+          this.endTour(); // end tour in all cases when last step of page is done
         }
       },
       prevStep() {
         if (this.currentStepIndex > 0) {
           this.currentStepIndex--;
+          this.saveTourProgress(this.userId, this.page, this.currentStepIndex);
           this.showTooltip();
         }
       },
