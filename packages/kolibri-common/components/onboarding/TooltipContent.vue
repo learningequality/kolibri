@@ -1,6 +1,9 @@
 <template>
 
-  <KFocusTrap @shouldFocusFirstEl="focusFirstEl">
+  <KFocusTrap 
+  @shouldFocusFirstEl="focusFirstEl"
+  @shouldFocusLastEl="focusLastEl"
+  >
     <div
       class="onboarding-tooltip"
       role="dialog"
@@ -88,10 +91,7 @@
     mounted() {
       this.$nextTick(() => {
         setTimeout(() => {
-          const btn =
-            this.currentStepIndex == 0
-              ? this.$refs.closeButton?.$el
-              : this.$refs.continueButton?.$el;
+          const btn =this.$refs.closeButton?.$el        
           if (btn && typeof btn.focus === 'function') {
             btn.focus();
           }
@@ -100,7 +100,10 @@
     },
     methods: {
       focusFirstEl() {
-        (this.$refs.closeButton?.$el || this.$refs.closeButton)?.focus?.();
+        this.$refs.closeButton?.$el.focus();
+      },
+      focusLastEl() {
+        this.$refs.continueButton?.$el.focus();
       },
     },
   };
