@@ -23,7 +23,7 @@ if WINDOWS and "KOLIBRI_HOME" not in os.environ:
         # DEVELOPMENT: Running from source, use a local folder in the user's home directory.
         # This is always writable and avoids permission issues.
         user_home_dir = os.path.expanduser("~")
-        kolibri_home_path = os.path.join(user_home_dir, ".kolibri_dev")
+        kolibri_home_path = os.path.join(user_home_dir, ".kolibri")
         os.environ["KOLIBRI_HOME"] = kolibri_home_path
 
 if MAC:
