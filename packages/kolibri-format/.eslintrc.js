@@ -75,6 +75,7 @@ module.exports = {
           ".json",
           ".vue"
         ],
+        preserveSymlinks: false,
       },
     },
   },
