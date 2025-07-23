@@ -1,101 +1,107 @@
-import { shallowMount } from '@vue/test-utils';
-import { UserKinds } from 'kolibri/constants';
-import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
-import NotificationsRoot from '../NotificationsRoot';
-import { coreStoreFactory as makeStore } from '../../../store';
-import coreModule from '../../../../../kolibri/core/assets/src/state/modules/core';
+import { navItems, registerNavItem } from '../useNav';
+import { UserKinds, NavComponentSections } from 'kolibri/constants';
 
-jest.mock('kolibri/composables/useUser');
-jest.mock('../NotificationsRoot/internal/PingbackNotificationResource');
-jest.mock('../NotificationsRoot/internal/PingbackNotificationDismissedResource');
-
-function makeWrapper(useUserMockObj = null) {
-  const store = makeStore();
-  store.registerModule('core', coreModule);
-  if (useUserMockObj) {
-    useUser.mockImplementation(() => useUserMock(useUserMockObj));
-  }
-  const wrapper = shallowMount(NotificationsRoot, {
-    store,
-    computed: {
-      mostRecentNotification: () => {
-        return {
-          id: 1,
-          title: 'title',
-          msg: 'notification',
-          linkText: 'linktext',
-          linkUrl: 'url',
-        };
-      },
-    },
+describe('nav component', () => {
+  afterEach(() => {
+    // Clean up the registered navItems
+    navItems.pop();
   });
-  return { wrapper, store };
-}
-
-describe('NotificationsRoot', function () {
-  it('smoke test', () => {
-    const { wrapper } = makeWrapper();
-    expect(wrapper.exists()).toBe(true);
+  it('should not register a navItem that has no nav navItem specific properties defined', () => {
+    const navItem = {};
+    registerNavItem(navItem);
+    expect(navItems).toHaveLength(0);
   });
-
-  describe('when loaded', function () {
-    it('if user is authorized and there is no error, base div for displaying <slot> should be displayed', async () => {
-      const { wrapper, store } = makeWrapper();
-      store.state.core.loading = false;
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.find('[data-test="base-page"]').exists()).toBeTruthy();
-      expect(wrapper.findComponent({ name: 'AuthMessage' }).exists()).toBeFalsy();
-      expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeFalsy();
-    });
-
-    it('if user is not authorized, authorization component in the base page page should be rendered', async () => {
-      const { wrapper, store } = makeWrapper();
-      store.state.core.loading = false;
-      store.state.core.error = { response: { status: 403 } };
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.findComponent({ name: 'AuthMessage' }).exists()).toBeTruthy();
-      expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeFalsy();
-      expect(wrapper.find('[data-test="main"]').exists()).toBeFalsy();
-    });
-
-    it('if there is an error, the error component in the base page should be rendered', async () => {
-      const { wrapper, store } = makeWrapper();
-      store.state.core.loading = false;
-      store.state.core.error = 'some error here';
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeTruthy();
-      expect(wrapper.findComponent({ name: 'AuthMessage' }).exists()).toBeFalsy();
-      expect(wrapper.find('[data-test="base-page"]').exists()).toBeFalsy();
-    });
-
-    it('notification modal should be rendered if the user is an admin/superuser, a notification exists, and there is a recent notification', async () => {
-      const { wrapper, store } = makeWrapper({ isAdmin: true, isSuperuser: true });
-      store.state.core.loading = false;
-      wrapper.vm.notifications = [
-        {
-          id: 2,
-          title: 'title',
-          msg: 'notification',
-          linkText: 'linktext',
-          linkUrl: 'url',
+  it('should register a navItem that has a valid icon', () => {
+    const navItem = {
+      icon: 'timer',
+      url: 'https://example.com',
+    };
+    registerNavItem(navItem);
+    expect(navItems).toHaveLength(1);
+  });
+  it('should show not register a navItem that has an invalid icon', () => {
+    const navItem = {
+      icon: 'not an icon',
+      url: 'https://example.com',
+    };
+    registerNavItem(navItem);
+    expect(navItems).toHaveLength(0);
+  });
+  it('should not register a navItem that has a non-string icon', () => {
+    const navItem = {
+      url: 'https://example.com',
+      icon: 0.1,
+    };
+    registerNavItem(navItem);
+    expect(navItems).toHaveLength(0);
+  });
+  it('should register a navItem that has a valid url', () => {
+    const navItem = {
+      icon: 'search',
+      url: 'https://example.com',
+    };
+    registerNavItem(navItem);
+    expect(navItems).toHaveLength(1);
+  });
+  it('should not register a navItem that has no url', () => {
+    const navItem = {
+      icon: 'search',
+    };
+    registerNavItem(navItem);
+    expect(navItems).toHaveLength(0);
+  });
+  it('should not register a navItem that has a non-string url', () => {
+    const navItem = {
+      icon: 'search',
+      url: 0.1,
+    };
+    registerNavItem(navItem);
+    expect(navItems).toHaveLength(0);
+  });
+  Object.values(UserKinds).forEach(role => {
+    it(`should register a navItem that has a role of ${role}`, () => {
+      const navItem = {
+        icon: 'search',
+        url: 'https://example.com',
+        render() {
+          return '';
         },
-      ];
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.findComponent({ name: 'UpdateNotification' }).exists()).toBeTruthy();
+        role,
+      };
+      registerNavItem(navItem);
+      expect(navItems).toHaveLength(1);
     });
-
-    it('notification modal should not be rendered if notifications do not exist', async () => {
-      const { wrapper, store } = makeWrapper();
-      store.commit('CORE_SET_SESSION', { kind: [UserKinds.ADMIN] });
-      store.state.core.loading = false;
-      wrapper.vm.notifications = [];
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.findComponent({ name: 'UpdateNotification' }).exists()).toBeFalsy();
+  });
+  it('should not register a navItem that has an unrecognized role', () => {
+    const navItem = {
+      icon: 'search',
+      url: 'https://example.com',
+      role: 'bill',
+    };
+    registerNavItem(navItem);
+    expect(navItems).toHaveLength(0);
+  });
+  Object.values(NavComponentSections).forEach(section => {
+    it(`should register a navItem that has a section of ${section}`, () => {
+      const navItem = {
+        icon: 'search',
+        url: 'https://example.com',
+        render() {
+          return '';
+        },
+        section,
+      };
+      registerNavItem(navItem);
+      expect(navItems).toHaveLength(1);
     });
+  });
+  it('should not register a navItem that has an unrecognized section', () => {
+    const navItem = {
+      icon: 'search',
+      url: 'https://example.com',
+      section: 'bill',
+    };
+    registerNavItem(navItem);
+    expect(navItems).toHaveLength(0);
   });
 });

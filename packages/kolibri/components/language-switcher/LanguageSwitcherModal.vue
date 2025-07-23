@@ -1,92 +1,220 @@
 <template>
 
-  <KFocusTrap
-    @shouldFocusFirstEl="focusFirstEl"
-    @shouldFocusLastEl="focusLastEl"
-  >
-    <KModal
-      appendToOverlay
-      :title="coreString('changeLanguageOption')"
-      :submitText="coreString('confirmAction')"
-      :cancelText="coreString('cancelAction')"
-      :size="600"
-      @cancel="cancel"
-      @submit="setLang"
+  <!-- TODO useScrollPosition to set scrollPosition...
+    here or in router, but somewhere -->
+  <div class="main">
+    <div
+      v-if="windowIsSmall"
+      ref="swipeZone"
+      class="swipe-zone"
+    ></div>
+
+    <ScrollingHeader :scrollPosition="0">
+      <transition mode="out-in">
+        <AppBar
+          v-if="showAppBarsOnScroll"
+          ref="appBar"
+          class="app-bar"
+          :title="title"
+          :showNavigation="showNavigation"
+          :showAppNavView="isAppContextAndTouchDevice"
+          @toggleSideNav="navShown = !navShown"
+        >
+          <template #sub-nav>
+            <slot name="subNav"></slot>
+          </template>
+        </AppBar>
+      </transition>
+      <KLinearLoader
+        v-if="isLoading"
+        type="indeterminate"
+        :delay="false"
+      />
+      <slot name="storageNotif"></slot>
+    </ScrollingHeader>
+
+    <div
+      id="main"
+      class="main-wrapper"
+      :style="[wrapperStyles, paddingTop]"
     >
-      <KGrid>
-        <KRadioButtonGroup>
-          <KGridItem
-            v-for="(languageCol, index) in splitLanguageOptions"
-            :key="index"
-            :class="{ 'offset-col': windowIsSmall && index === 1 }"
-            :layout8="{ span: 4 }"
-            :layout12="{ span: 6 }"
-          >
-            <KRadioButton
-              v-for="language in languageCol"
-              :key="language.id"
-              ref="languageItem"
-              v-model="selectedLanguage"
-              :buttonValue="language.id"
-              :label="language.lang_name"
-              :title="language.english_name"
-              class="language-name"
-            />
-          </KGridItem>
-        </KRadioButtonGroup>
-      </KGrid>
-    </KModal>
-  </KFocusTrap>
+      <slot></slot>
+    </div>
+
+    <transition mode="out-in">
+      <SideNav
+        v-if="showAppBarsOnScroll"
+        ref="sideNav"
+        :navShown="navShown"
+        :showAppNavView="isAppContextAndTouchDevice"
+        @toggleSideNav="navShown = !navShown"
+        @shouldFocusFirstEl="findFirstEl()"
+      />
+    </transition>
+  </div>
 
 </template>
 
 
 <script>
 
-  import { currentLanguage } from 'kolibri/utils/i18n';
+  import { mapGetters } from 'vuex';
+  import { throttle } from 'frame-throttle';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { ref, getCurrentInstance } from 'vue';
+  import { useSwipe } from '@vueuse/core';
+  import ScrollingHeader from '../ScrollingHeader';
+  import AppBar from './internal/AppBar';
+  import SideNav from './internal/SideNav';
+  import useUser from 'kolibri/composables/useUser';
+  import { isTouchDevice } from 'kolibri/utils/browserInfo';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import languageSwitcherMixin from './internal/mixin';
 
   export default {
-    name: 'LanguageSwitcherModal',
-    mixins: [commonCoreStrings, languageSwitcherMixin],
+    name: 'AppBarPage',
+    components: {
+      AppBar,
+      ScrollingHeader,
+      SideNav,
+    },
+    mixins: [commonCoreStrings],
     setup() {
+      const instance = getCurrentInstance();
+      const isRtl = ref(instance?.proxy.isRtl);
+      const swipeZone = ref(null);
+      const navShown = ref(false);
+      useSwipe(swipeZone, {
+        onSwipeEnd: (e, direction) => {
+          if (direction === 'right' && !navShown.value && !isRtl.value) {
+            navShown.value = true;
+          } else if (direction === 'left' && !navShown.value && isRtl.value) {
+            navShown.value = true;
+          }
+        },
+      });
       const { windowIsSmall } = useKResponsiveWindow();
+      const { isAppContext } = useUser();
       return {
         windowIsSmall,
+        isAppContext,
+        swipeZone,
+        navShown,
       };
+    },
+    props: {
+      title: {
+        type: String,
+        default: '',
+      },
+      showNavigation: {
+        type: Boolean,
+        default: true,
+      },
+      appearanceOverrides: {
+        type: Object,
+        required: false,
+        default: null,
+      },
+      loading: {
+        type: Boolean,
+        default() {
+          return false;
+        },
+      },
     },
     data() {
       return {
-        selectedLanguage: currentLanguage,
+        appBarHeight: 124,
+        lastScrollTop: 0,
+        hideAppBars: true,
+        throttledHandleScroll: null,
       };
     },
     computed: {
-      splitLanguageOptions() {
-        const secondCol = this.languageOptions;
-        const firstCol = secondCol.splice(0, Math.ceil(secondCol.length / 2));
-
-        return [firstCol, secondCol];
+      ...mapGetters(['isPageLoading']),
+      isAppContextAndTouchDevice() {
+        return this.isAppContext && isTouchDevice;
+      },
+      isLoading() {
+        return this.isPageLoading || this.loading;
+      },
+      wrapperStyles() {
+        return this.appearanceOverrides
+          ? this.appearanceOverrides
+          : {
+            width: '100%',
+            maxWidth: '1064px',
+            margin: 'auto',
+            backgroundColor: this.$themePalette.grey.v_100,
+            paddingLeft: this.paddingLeftRight,
+            paddingRight: this.paddingLeftRight,
+            paddingBottom: '72px',
+            marginTop: 0,
+          };
+      },
+      paddingTop() {
+        const extraPadding = this.isAppContext ? 0 : 5;
+        const totalPadding = this.appBarHeight + extraPadding;
+        return {
+          paddingTop: `${totalPadding}px`,
+        };
+      },
+      paddingLeftRight() {
+        return this.isAppContext || this.windowIsSmall ? '8px' : '32px';
+      },
+      showAppBarsOnScroll() {
+        let show = true;
+        if (this.isAppContextAndTouchDevice) {
+          show = this.hideAppBars;
+        }
+        return show;
       },
     },
+    beforeUpdate() {
+      // Update appBarHeight after AppBar is rerendered and updated
+      this.updateAppBarHeight();
+    },
+    mounted() {
+      this.updateAppBarHeight();
+      this.addScrollListener();
+      window.addEventListener('resize', this.updateAppBarHeight);
+    },
+    beforeDestroy() {
+      this.removeScrollListener();
+      window.removeEventListener('resize', this.updateAppBarHeight);
+    },
     methods: {
-      focusFirstEl() {
-        this.$refs.languageItem[0].focus();
-      },
-      focusLastEl() {
-        this.$refs.languageItem[this.$refs.languageItem.length - 1].focus();
-      },
-      setLang() {
-        if (currentLanguage === this.selectedLanguage) {
-          this.cancel();
-          return;
+      addScrollListener() {
+        if (this.isAppContextAndTouchDevice) {
+          this.throttledHandleScroll = throttle(this.handleScroll);
+          window.addEventListener('scroll', this.throttledHandleScroll);
         }
-
-        this.switchLanguage(this.selectedLanguage);
       },
-      cancel() {
-        this.$emit('cancel');
+      findFirstEl() {
+        this.$nextTick(() => {
+          this.$refs.sideNav.focusFirstEl();
+        });
+      },
+      handleScroll() {
+        const scrollTop = window.scrollY;
+        //Is user scrolling up?
+        if (scrollTop > this.lastScrollTop) {
+          this.hideAppBars = false;
+        } else {
+          this.hideAppBars = true;
+        }
+        this.lastScrollTop = scrollTop;
+      },
+      removeScrollListener() {
+        if (this.isAppContextAndTouchDevice) {
+          window.removeEventListener('scroll', this.throttledHandleScroll);
+          this.throttledHandleScroll.cancel();
+          this.throttledHandleScroll = null;
+        }
+      },
+      updateAppBarHeight() {
+        // Update the app bar height when window is resized
+        this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 124;
       },
     },
   };
@@ -96,14 +224,35 @@
 
 <style lang="scss" scoped>
 
-  @import './internal/language-names';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
-  .language-name {
-    @include font-family-language-names;
+  .app-bar {
+    @extend %dropshadow-2dp;
+
+    width: 100%;
   }
 
-  .offset-col {
-    margin-top: -8px;
+  .android-nav-bottom-bar {
+    @extend %dropshadow-1dp;
+
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 12;
+    height: 48px;
+    background-color: white;
+  }
+
+  .swipe-zone {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 5;
+    width: 30px;
+    background: red;
+    opacity: 0;
   }
 
 </style>

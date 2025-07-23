@@ -101,12 +101,12 @@
 
   import Fuse from 'fuse.js';
   import uniq from 'lodash/uniq';
-  import { validateObject } from 'kolibri/utils/objectSpecs';
-  import FilterTextbox from 'kolibri/components/FilterTextbox';
-  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { ref, computed, toRefs, getCurrentInstance, watch } from 'vue';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { validateObject } from 'kolibri/utils/objectSpecs';
+  import FilterTextbox from 'kolibri/components/FilterTextbox';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
 
   export default {

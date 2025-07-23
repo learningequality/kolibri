@@ -1,100 +1,97 @@
-import useLearningActivities from 'kolibri-common/composables/useLearningActivities';
-import { ActivitiesLookup, ContentNodeKinds, LearningActivities } from 'kolibri/constants';
-import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { ref, computed } from 'vue';
+import useUser from 'kolibri/composables/useUser';
+import redirectBrowser from 'kolibri/utils/redirectBrowser';
+import Lockr from 'lockr';
+import store from 'kolibri/store';
+import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
+import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 
-/**
- * Create a tag Object that can be used to display metadata
- * @param {string} label - text to display
- * @param {string} key - unique key for the tag - should map to le-utils constants
- * @param {string} icon - icon to display (mapping to KIcon)
- */
-function createTag(label, key, icon) {
-  return {
-    label,
-    key,
-    icon,
-  };
-}
+const _facilityConfig = ref({});
+const _facilities = ref([]);
+const _facilityId = ref(Lockr.get('facilityId') || null);
 
-export function useCoachMetadataTags(contentNode) {
-  const { durationEstimation } = useLearningActivities(contentNode);
-  // With no kind, we know it is a CHANNEL.
-  // Channel API response is shaped a little differently than Topics and Resources
-  // so we make sure we have the right shape.
-  if (!contentNode.kind || contentNode.kind === ContentNodeKinds.CHANNEL) {
-    contentNode.lang = { lang_name: contentNode.lang_name, id: contentNode.lang_code };
-    contentNode.grade_levels = contentNode.included_grade_levels;
-    contentNode.categories = contentNode.included_categories;
+export default function useFacilities() {
+  const { userFacilityId, isSuperuser } = useUser();
+
+  // const route = router.currentRoute;
+  const selectedFacility = computed(() => {
+    const facilityById = _facilities.value.find(f => f.id === _facilityId.value);
+    if (facilityById) {
+      return facilityById;
+    }
+    return _facilities.value.find(f => f.id === userFacilityId.value) || null;
+  });
+
+  //getters
+  const facilities = computed(() => _facilities.value);
+  const facilityConfig = computed(() => _facilityConfig.value);
+  const userIsMultiFacilityAdmin = computed(() => {
+    return isSuperuser.value && _facilities.value.length > 1;
+  });
+  const currentFacilityName = computed(() => {
+    const match = _facilities.value.find(f => f.id === store.getters.activeFacilityId);
+    return match ? match.name : '';
+  });
+
+  //actions
+  async function getFacilities() {
+    const facilities = await FacilityResource.fetchCollection({ force: true });
+
+    _facilities.value = facilities;
   }
 
-  function getKindTag() {
-    if (contentNode.kind === ContentNodeKinds.CHANNEL) {
-      return createTag(coreStrings.$tr('channel'), 'channel');
+  async function getFacilityConfig(facilityId) {
+    const facId = facilityId || userFacilityId.value;
+
+    if (!facId) {
+      // No facility Id, so redirect and let Kolibri sort it out
+      return redirectBrowser();
     }
-    if (contentNode.kind === ContentNodeKinds.TOPIC) {
-      return createTag(coreStrings.$tr('folder'), 'folder', 'topic');
-    }
-  }
 
-  const getCategoryTags = () => {
-    if (!contentNode.categories) return [];
-    return contentNode.categories.map(category => createTag(coreString(category), category));
-  };
+    let facilityConfig;
 
-  const getLevelTags = () => {
-    if (!contentNode.grade_levels) return [];
-    return contentNode.grade_levels.map(grade_levels =>
-      createTag(coreString(grade_levels), grade_levels),
-    );
-  };
-
-  const getLanguageTag = () => {
-    return createTag(contentNode.lang.lang_name, contentNode.lang.id);
-  };
-
-  const getActivityTags = () => {
-    if (!contentNode.learning_activities) return [];
-
-    if (contentNode.learning_activities.length > 1) {
-      return createTag(
-        coreStrings.$tr('multipleLearningActivities'),
-        'multipleLearningActivities',
-        'allActivities',
-      );
+    if (selectedFacility.value && typeof selectedFacility.value.dataset !== 'object') {
+      facilityConfig = [selectedFacility.value.dataset];
     } else {
-      return contentNode.learning_activities.map(activity => {
-        let icon;
-        if (activity === LearningActivities.EXPLORE) {
-          icon = 'interactSolid';
-        } else {
-          icon = ActivitiesLookup[activity].toLowerCase() + 'Solid';
-        }
-        return createTag(coreString(activity), activity, icon);
+      facilityConfig = await FacilityDatasetResource.fetchCollection({
+        getParams: {
+          facility_id: facId,
+        },
       });
     }
-  };
 
-  const getDurationTag = () => {
-    if (!contentNode.duration) return [];
-    return [createTag(durationEstimation.value, contentNode.duration)];
-  };
+    let config = {};
+    const facility = facilityConfig[0];
 
-  const getFolderTags = () => {
-    return [getKindTag()];
-  };
+    if (facility) {
+      config = { ...facility };
+    }
+    setFacilityConfig(config);
+  }
 
-  const getResourceTags = () => {
-    return [...getActivityTags(), ...getDurationTag(), ...getCategoryTags()];
-  };
+  //mutations
+  function setFacilityConfig(facilityConfig) {
+    _facilityConfig.value = facilityConfig;
+  }
 
-  // Placeholder for possible need to handle lanugage tags gracefully
-  const getChannelTags = () => {
-    return [getLanguageTag(), ...getResourceTags(), ...getLevelTags()];
-  };
+  function setFacilities(facilities) {
+    _facilities.value = facilities;
+  }
+
+  function setFacilityId(facilityId) {
+    _facilityId.value = facilityId;
+  }
 
   return {
-    getChannelTags,
-    getFolderTags,
-    getResourceTags,
+    facilities,
+    facilityConfig,
+    getFacilities,
+    getFacilityConfig,
+    setFacilityConfig,
+    setFacilities,
+    selectedFacility,
+    userIsMultiFacilityAdmin,
+    currentFacilityName,
+    setFacilityId,
   };
 }

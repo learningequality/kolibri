@@ -1,107 +1,103 @@
+import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+import { KolibriIcons } from 'kolibri-design-system/lib/KIcon/iconDefinitions';
+import { get } from '@vueuse/core';
+import logger from 'kolibri-logging';
+import { computed, getCurrentInstance } from 'vue';
+import { generateNavRoute } from './internal/generateNavRoutes';
 import { UserKinds, NavComponentSections } from 'kolibri/constants';
-import { navItems, registerNavItem } from '../useNav';
 
-describe('nav component', () => {
-  afterEach(() => {
-    // Clean up the registered navItems
-    navItems.pop();
-  });
-  it('should not register a navItem that has no nav navItem specific properties defined', () => {
-    const navItem = {};
-    registerNavItem(navItem);
-    expect(navItems).toHaveLength(0);
-  });
-  it('should register a navItem that has a valid icon', () => {
-    const navItem = {
-      icon: 'timer',
-      url: 'https://example.com',
-    };
-    registerNavItem(navItem);
-    expect(navItems).toHaveLength(1);
-  });
-  it('should show not register a navItem that has an invalid icon', () => {
-    const navItem = {
-      icon: 'not an icon',
-      url: 'https://example.com',
-    };
-    registerNavItem(navItem);
-    expect(navItems).toHaveLength(0);
-  });
-  it('should not register a navItem that has a non-string icon', () => {
-    const navItem = {
-      url: 'https://example.com',
-      icon: 0.1,
-    };
-    registerNavItem(navItem);
-    expect(navItems).toHaveLength(0);
-  });
-  it('should register a navItem that has a valid url', () => {
-    const navItem = {
-      icon: 'search',
-      url: 'https://example.com',
-    };
-    registerNavItem(navItem);
-    expect(navItems).toHaveLength(1);
-  });
-  it('should not register a navItem that has no url', () => {
-    const navItem = {
-      icon: 'search',
-    };
-    registerNavItem(navItem);
-    expect(navItems).toHaveLength(0);
-  });
-  it('should not register a navItem that has a non-string url', () => {
-    const navItem = {
-      icon: 'search',
-      url: 0.1,
-    };
-    registerNavItem(navItem);
-    expect(navItems).toHaveLength(0);
-  });
-  Object.values(UserKinds).forEach(role => {
-    it(`should register a navItem that has a role of ${role}`, () => {
-      const navItem = {
-        icon: 'search',
-        url: 'https://example.com',
-        render() {
-          return '';
-        },
-        role,
+const logging = logger.getLogger(__filename);
+
+export const navItems = [];
+
+function checkDeclared(property) {
+  return typeof property !== 'undefined' && property !== null;
+}
+
+function validateUrl(url) {
+  return checkDeclared(url) && typeof url === 'string';
+}
+
+function validateIcon(icon) {
+  return checkDeclared(icon) && typeof icon === 'string' && Boolean(KolibriIcons[icon]);
+}
+
+function validateRole(role) {
+  // Optional, must be one of the defined UserKinds
+  return !checkDeclared(role) || Object.values(UserKinds).includes(role);
+}
+
+function validateSection(section) {
+  // Optional, must be one of the defined NavComponentSections
+  return !checkDeclared(section) || Object.values(NavComponentSections).includes(section);
+}
+
+function validateRoutes(routes) {
+  // Not required, if exists, must be an array of objects
+  // with label, route, name, and icon properties that are
+  // all strings.
+  return (
+    !checkDeclared(routes) ||
+    (Array.isArray(routes) &&
+      routes.every(route => {
+        return (
+          checkDeclared(route.label) &&
+          checkDeclared(route.route) &&
+          checkDeclared(route.name) &&
+          checkDeclared(route.icon) &&
+          typeof route.label === 'string' &&
+          typeof route.route === 'string' &&
+          typeof route.name === 'string' &&
+          typeof route.icon === 'string'
+        );
+      }))
+  );
+}
+
+function validateNavItem(component) {
+  return (
+    validateUrl(component.url) &&
+    validateIcon(component.icon) &&
+    validateRole(component.role) &&
+    validateSection(component.section) &&
+    validateRoutes(component.routes)
+  );
+}
+
+export const registerNavItem = component => {
+  if (!navItems.includes(component)) {
+    if (validateNavItem(component)) {
+      navItems.push(component);
+    } else {
+      logging.error('Component has invalid url, icon, role, section, or routes');
+    }
+  } else {
+    logging.warn('Component has already been registered');
+  }
+};
+
+export default function useNav(store) {
+  store = store || getCurrentInstance().proxy.$store;
+  const route = computed(() => store.state.route);
+  const { windowIsSmall } = useKResponsiveWindow();
+  const topBarHeight = computed(() => (get(windowIsSmall) ? 56 : 64));
+  const exportedItems = computed(() =>
+    navItems.map(item => {
+      const output = {
+        ...item,
+        active: window.location.pathname == item.url,
       };
-      registerNavItem(navItem);
-      expect(navItems).toHaveLength(1);
-    });
-  });
-  it('should not register a navItem that has an unrecognized role', () => {
-    const navItem = {
-      icon: 'search',
-      url: 'https://example.com',
-      role: 'bill',
-    };
-    registerNavItem(navItem);
-    expect(navItems).toHaveLength(0);
-  });
-  Object.values(NavComponentSections).forEach(section => {
-    it(`should register a navItem that has a section of ${section}`, () => {
-      const navItem = {
-        icon: 'search',
-        url: 'https://example.com',
-        render() {
-          return '';
-        },
-        section,
-      };
-      registerNavItem(navItem);
-      expect(navItems).toHaveLength(1);
-    });
-  });
-  it('should not register a navItem that has an unrecognized section', () => {
-    const navItem = {
-      icon: 'search',
-      url: 'https://example.com',
-      section: 'bill',
-    };
-    registerNavItem(navItem);
-    expect(navItems).toHaveLength(0);
-  });
-});
+      if (item.routes) {
+        output.routes = item.routes.map(routeItem => ({
+          ...routeItem,
+          href: generateNavRoute(item.url, routeItem.route, get(route).params),
+        }));
+      }
+      return output;
+    }),
+  );
+  return {
+    navItems: exportedItems,
+    topBarHeight,
+  };
+}

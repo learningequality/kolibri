@@ -34,10 +34,10 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';
   import commonUserStrings from './commonUserStrings';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'AuthSelect',

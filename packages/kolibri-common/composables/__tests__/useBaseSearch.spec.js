@@ -1,450 +1,509 @@
 import { get, set } from '@vueuse/core';
-import VueRouter from 'vue-router';
-import Vue, { nextTick, ref } from 'vue';
+import invert from 'lodash/invert';
+import isEqual from 'lodash/isEqual';
+import logger from 'kolibri-logging';
+import { computed, getCurrentInstance, inject, provide, ref, watch } from 'vue';
+import {
+  AllCategories,
+  Categories,
+  CategoriesLookup,
+  ContentLevels,
+  AccessibilityCategories,
+  LearningActivities,
+  NoCategories,
+  ResourcesNeededTypes,
+} from 'kolibri/constants';
+import useUser from 'kolibri/composables/useUser';
+
+import { deduplicateResources } from '../utils/contentNode';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
-import { coreStoreFactory } from 'kolibri/store';
-import { AllCategories, ContentNodeKinds, NoCategories } from 'kolibri/constants';
-import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
-import useBaseSearch from '../useBaseSearch';
-import coreModule from '../../../../kolibri/core/assets/src/state/modules/core';
 
-Vue.use(VueRouter);
+export const logging = logger.getLogger(__filename);
 
-jest.mock('kolibri/composables/useUser');
+const activitiesLookup = invert(LearningActivities);
 
-const name = 'not important';
+function _generateLearningActivitiesShown(learningActivities) {
+  const learningActivitiesShown = {};
 
-function prep(query = {}, descendant = null, filters = null) {
-  const store = coreStoreFactory({
-    state: () => ({
-      route: {
-        query,
-        name,
-      },
-    }),
-    mutations: {
-      SET_QUERY(state, query) {
-        state.route.query = query;
-      },
+  (learningActivities || []).map(id => {
+    const key = activitiesLookup[id];
+    learningActivitiesShown[key] = id;
+  });
+  return learningActivitiesShown;
+}
+
+const resourcesNeededShown = [
+  'FOR_BEGINNERS',
+  'PEERS',
+  'TEACHER',
+  'SPECIAL_SOFTWARE',
+  'PAPER_PENCIL',
+  'INTERNET',
+  'OTHER_SUPPLIES',
+];
+
+function _generateResourcesNeeded(learnerNeeds) {
+  const resourcesNeeded = {};
+  resourcesNeededShown.map(key => {
+    const value = ResourcesNeededTypes[key];
+    if (learnerNeeds && learnerNeeds.includes(value)) {
+      resourcesNeeded[key] = value;
+    }
+  });
+  return resourcesNeeded;
+}
+
+const gradeLevelsShown = [
+  'BASIC_SKILLS',
+  'PRESCHOOL',
+  'LOWER_PRIMARY',
+  'UPPER_PRIMARY',
+  'LOWER_SECONDARY',
+  'UPPER_SECONDARY',
+  'TERTIARY',
+  'PROFESSIONAL',
+  'WORK_SKILLS',
+];
+
+function _generateGradeLevelsList(gradeLevels) {
+  return gradeLevelsShown.filter(key => {
+    return gradeLevels && gradeLevels.includes(ContentLevels[key]);
+  });
+}
+
+const accessibilityLabelsShown = [
+  'SIGN_LANGUAGE',
+  'AUDIO_DESCRIPTION',
+  'TAGGED_PDF',
+  'ALT_TEXT',
+  'HIGH_CONTRAST',
+  'CAPTIONS_SUBTITLES',
+];
+
+function _generateAccessibilityOptionsList(accessibilityLabels) {
+  return accessibilityLabelsShown.filter(key => {
+    return accessibilityLabels && accessibilityLabels.includes(AccessibilityCategories[key]);
+  });
+}
+
+function _generateLibraryCategoriesLookup(categories) {
+  const libraryCategories = {};
+
+  const availablePaths = {};
+
+  (categories || []).map(key => {
+    const paths = key.split('.');
+    let path = '';
+    for (const path_segment of paths) {
+      path = path === '' ? path_segment : path + '.' + path_segment;
+      availablePaths[path] = true;
+    }
+  });
+  // Create a nested object representing the hierarchy of categories
+  for (const value of Object.values(Categories)
+    // Sort by the length of the key path to deal with
+    // shorter key paths first.
+    .sort((a, b) => a.length - b.length)) {
+    // Split the value into the paths so we can build the object
+    // down the path to create the nested representation
+    const ids = value.split('.');
+    // Start with an empty path
+    let path = '';
+    // Start with the global object
+    let nested = libraryCategories;
+    for (const fragment of ids) {
+      // Add the fragment to create the path we examine
+      path += fragment;
+      // Check to see if this path is one of the paths
+      // that is available on this device
+      if (availablePaths[path]) {
+        // Lookup the human readable key for this path
+        const nestedKey = CategoriesLookup[path];
+        // Check if we have already represented this in the object
+        if (!nested[nestedKey]) {
+          // If not, add an object representing this category
+          nested[nestedKey] = {
+            // The value is the whole path to this point, so the value
+            // of the key.
+            value: path,
+            // Nested is an object that contains any subsidiary categories
+            nested: {},
+          };
+        }
+        // For the next stage of the loop the relevant object to edit is
+        // the nested object under this key.
+        nested = nested[nestedKey].nested;
+        // Add '.' to path so when we next append to the path,
+        // it is properly '.' separated.
+        path += '.';
+      } else {
+        break;
+      }
+    }
+  }
+  return libraryCategories;
+}
+
+export const searchKeys = [
+  'learning_activities',
+  'categories',
+  'learner_needs',
+  'accessibility_labels',
+  'languages',
+  'grade_levels',
+];
+
+export default function useBaseSearch({
+  descendant,
+  store,
+  router,
+  baseurl,
+  filters,
+  searchResultsRouteName,
+  reloadOnDescendantChange = true,
+  fetchContentNodeProgress,
+}) {
+  // Get store and router references from the curent instance
+  // but allow them to be passed in to allow for dependency
+  // injection, primarily for tests.
+  store = store || getCurrentInstance().proxy.$store;
+  router = router || getCurrentInstance().proxy.$router;
+  const route = computed(() => store.state.route);
+
+  const searchResultsLoading = ref(false);
+  const moreLoading = ref(false);
+  const scopedLabelsLoading = ref(false);
+  const _results = ref([]);
+  const more = ref(null);
+  const labels = ref(null);
+
+  const { isAdmin, isCoach, isSuperuser, isUserLoggedIn } = useUser();
+
+  const searchTerms = computed({
+    get() {
+      const searchTerms = {};
+      const query = get(route).query;
+      for (const key of searchKeys) {
+        const obj = {};
+        if (query[key]) {
+          for (const value of query[key].split(',')) {
+            obj[value] = true;
+          }
+        }
+        searchTerms[key] = obj;
+      }
+      searchTerms.keywords = query.keywords || '';
+      return searchTerms;
+    },
+    set(value) {
+      const query = { ...get(route).query };
+      for (const key of searchKeys) {
+        const val = Object.keys(value[key] || {})
+          .filter(Boolean)
+          .join(',');
+        if (val.length) {
+          query[key] = Object.keys(value[key]).join(',');
+        } else {
+          delete query[key];
+        }
+      }
+      if (value.keywords && value.keywords.length) {
+        query.keywords = value.keywords;
+      } else {
+        delete query.keywords;
+      }
+
+      const nextRoute = { ...get(route), query };
+      if (searchResultsRouteName) {
+        nextRoute.name = searchResultsRouteName;
+      }
+      // Just catch an error from making a redundant navigation rather
+      // than try to precalculate this.
+      router.push(nextRoute).catch(() => {});
     },
   });
-  const router = new VueRouter();
-  router.push = jest.fn().mockReturnValue(Promise.resolve());
-  store.registerModule('core', coreModule);
+
+  const displayingSearchResults = computed(() =>
+    // Happily this works even for keywords, because calling Object.keys
+    // on a string value will give an array of the indexes of a string
+    // for an empty string, this array will be empty, meaning that this
+    // check still works!
+    Object.values(get(searchTerms)).some(v => Object.keys(v).length),
+  );
+
+  function _setAvailableLabels(searchableLabels) {
+    if (searchableLabels) {
+      set(labels, {
+        ...searchableLabels,
+        languages: searchableLabels.languages ? searchableLabels.languages.map(l => l.id) : [],
+      });
+    }
+  }
+
+  function createBaseSearchGetParams() {
+    const getParams = {
+      include_coach_content: get(isAdmin) || get(isCoach) || get(isSuperuser),
+      baseurl: get(baseurl),
+    };
+    if (filters) {
+      Object.assign(getParams, filters);
+    }
+    const descValue = descendant ? get(descendant) : null;
+    if (descValue) {
+      getParams.tree_id = descValue.tree_id;
+      getParams.lft__gt = descValue.lft;
+      getParams.rght__lt = descValue.rght;
+    }
+    return getParams;
+  }
+
+  function createSearchGetParams() {
+    const getParams = createBaseSearchGetParams();
+    const terms = get(searchTerms);
+    for (const key of searchKeys) {
+      if (key === 'categories') {
+        if (terms[key][AllCategories]) {
+          getParams['categories__isnull'] = false;
+          continue;
+        } else if (terms[key][NoCategories]) {
+          getParams['categories__isnull'] = true;
+          continue;
+        }
+      }
+
+      const keys = Object.keys(terms[key]);
+      if (keys.length) {
+        getParams[key] = keys;
+      }
+    }
+    if (terms.keywords) {
+      getParams.keywords = terms.keywords;
+    }
+    return getParams;
+  }
+
+  function search() {
+    const desc = descendant ? get(descendant) : null;
+    set(scopedLabelsLoading, true);
+    if (get(displayingSearchResults)) {
+      // If we're actually displaying search results
+      // then we need to load all the search results to display
+      set(searchResultsLoading, true);
+      const getParams = createSearchGetParams();
+      getParams.max_results = 25;
+      if (get(isUserLoggedIn)) {
+        fetchContentNodeProgress?.(getParams);
+      }
+
+      ContentNodeResource.fetchCollection({ getParams }).then(data => {
+        set(_results, data.results || []);
+        set(more, data.more);
+        _setAvailableLabels(data.labels);
+        set(searchResultsLoading, false);
+        set(scopedLabelsLoading, false);
+      });
+    } else if (desc || filters) {
+      const getParams = createBaseSearchGetParams();
+      getParams.max_results = 1;
+      ContentNodeResource.fetchCollection({ getParams }).then(data => {
+        _setAvailableLabels(data.labels);
+        set(more, null);
+        set(scopedLabelsLoading, false);
+      });
+    } else {
+      // Clear labels if no search results displaying
+      // and we're not gathering labels from the descendant
+      set(more, null);
+      set(labels, null);
+      set(scopedLabelsLoading, false);
+    }
+  }
+
+  function searchMore() {
+    if (get(displayingSearchResults) && get(more) && !get(moreLoading)) {
+      set(moreLoading, true);
+      set(scopedLabelsLoading, true);
+      if (get(isUserLoggedIn)) {
+        fetchContentNodeProgress?.(get(more));
+      }
+      return ContentNodeResource.fetchCollection({ getParams: get(more) }).then(data => {
+        set(_results, [...get(_results), ...(data.results || [])]);
+        set(more, data.more);
+        _setAvailableLabels(data.labels);
+        set(moreLoading, false);
+        set(scopedLabelsLoading, false);
+      });
+    }
+  }
+
+  function removeFilterTag({ value, key }) {
+    if (key === 'keywords') {
+      set(searchTerms, {
+        ...get(searchTerms),
+        [key]: '',
+      });
+    } else {
+      const keyObject = { ...get(searchTerms)[key] };
+      delete keyObject[value];
+      set(searchTerms, {
+        ...get(searchTerms),
+        [key]: keyObject,
+      });
+    }
+  }
+
+  function clearSearch() {
+    set(searchTerms, {});
+  }
+
+  watch(searchTerms, (newValue, oldValue) => {
+    if (!isEqual(newValue, oldValue)) {
+      search();
+    }
+  });
+
+  if (descendant && reloadOnDescendantChange) {
+    watch(descendant, newValue => {
+      if (newValue) {
+        search();
+      }
+    });
+  }
+
+  // Helper to get the route information in a setup() function
+  function currentRoute() {
+    return get(route);
+  }
+
+  const results = computed(() => {
+    return deduplicateResources(get(_results));
+  });
+
+  // Globally available metadata labels
+  // These are the labels that are available globally for this search context
+  // These labels may be disabled for specific searches within a search context
+  // We use provide/inject here to allow a parent
+  // component to setup the available labels for child components
+  // to consume them.
+
+  const globalLabels = ref(null);
+
+  const globalLabelsLoading = ref(false);
+
+  const searchLoading = computed(
+    () => get(searchResultsLoading) || get(globalLabelsLoading) || get(scopedLabelsLoading),
+  );
+
+  function ensureGlobalLabels() {
+    set(globalLabelsLoading, true);
+    const currentBaseUrl = get(baseurl);
+    ContentNodeResource.fetchCollection({
+      getParams: { max_results: 1, baseurl: currentBaseUrl },
+    })
+      .then(data => {
+        const labels = data.labels;
+        set(globalLabels, {
+          learningActivitiesShown: _generateLearningActivitiesShown(labels.learning_activities),
+          libraryCategories: _generateLibraryCategoriesLookup(labels.categories),
+          resourcesNeeded: _generateResourcesNeeded(labels.learner_needs),
+          gradeLevelsList: _generateGradeLevelsList(labels.grade_levels || []),
+          accessibilityOptionsList: _generateAccessibilityOptionsList(labels.accessibility_labels),
+          languagesList: labels.languages || [],
+        });
+      })
+      .catch(err => logging.error('Failed to fetch search labels from remote', err))
+      .then(() => {
+        set(globalLabelsLoading, false);
+      });
+  }
+
+  ensureGlobalLabels();
+  if (baseurl) {
+    watch(baseurl, ensureGlobalLabels);
+  }
+
+  function _getGlobalLabels(name, defaultValue) {
+    const lookup = get(globalLabels);
+    if (lookup) {
+      return lookup[name];
+    }
+    return defaultValue;
+  }
+
+  const learningActivitiesShown = computed(() => {
+    return _getGlobalLabels('learningActivitiesShown', {});
+  });
+  const libraryCategories = computed(() => {
+    return _getGlobalLabels('libraryCategories', {});
+  });
+  const resourcesNeeded = computed(() => {
+    return _getGlobalLabels('resourcesNeeded', {});
+  });
+  const gradeLevelsList = computed(() => {
+    return _getGlobalLabels('gradeLevelsList', []);
+  });
+  const accessibilityOptionsList = computed(() => {
+    return _getGlobalLabels('accessibilityOptionsList', []);
+  });
+  const languagesList = computed(() => {
+    return _getGlobalLabels('languagesList', []);
+  });
+
+  provide('availableLearningActivities', learningActivitiesShown);
+  provide('availableLibraryCategories', libraryCategories);
+  provide('availableResourcesNeeded', resourcesNeeded);
+  provide('availableGradeLevels', gradeLevelsList);
+  provide('availableAccessibilityOptions', accessibilityOptionsList);
+  provide('availableLanguages', languagesList);
+  provide('searchLoading', searchLoading);
+
+  // Provide an object of searchable labels
+  // This is a manifest of all the labels that could still be selected and produce search results
+  // given the currently applied search filters.
+  provide('searchableLabels', labels);
+
+  // Currently selected search terms
+  provide('activeSearchTerms', searchTerms);
+
   return {
-    ...useBaseSearch({ descendant, store, router, filters }),
-    router,
-    store,
+    currentRoute,
+    searchTerms,
+    displayingSearchResults,
+    searchLoading,
+    moreLoading,
+    results,
+    more,
+    labels,
+    search,
+    searchMore,
+    removeFilterTag,
+    clearSearch,
   };
 }
 
-describe(`useBaseSearch`, () => {
-  beforeEach(() => {
-    ContentNodeResource.fetchCollection = jest.fn();
-    ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-    useUser.mockImplementation(() => useUserMock());
-  });
-  describe(`searchTerms computed ref`, () => {
-    it(`returns an object with all relevant keys when query params are empty`, () => {
-      const { searchTerms } = prep();
-      expect(get(searchTerms)).toEqual({
-        accessibility_labels: {},
-        categories: {},
-        grade_levels: {},
-        languages: {},
-        learner_needs: {},
-        learning_activities: {},
-        keywords: '',
-      });
-    });
-    it(`returns an object with all relevant keys when query params have other keys`, () => {
-      const { searchTerms } = prep({
-        search: {
-          this: true,
-        },
-        keyword: 'how about this?',
-      });
-      expect(get(searchTerms)).toEqual({
-        accessibility_labels: {},
-        categories: {},
-        grade_levels: {},
-        languages: {},
-        learner_needs: {},
-        learning_activities: {},
-        keywords: '',
-      });
-    });
-    it(`returns an object with all relevant keys when query params are specified`, () => {
-      const { searchTerms } = prep({
-        accessibility_labels: 'test1,test2',
-        keywords: 'I love paris in the springtime!',
-        categories: 'notatest,reallynotatest,absolutelynotatest',
-        grade_levels: 'lowerprimary,uppersecondary,adult',
-        languages: 'ar-jk,en-pr,en-gb',
-        learner_needs: 'internet,pencil,rolodex',
-        learning_activities: 'watch',
-      });
-      expect(get(searchTerms)).toEqual({
-        accessibility_labels: {
-          test1: true,
-          test2: true,
-        },
-        categories: {
-          notatest: true,
-          reallynotatest: true,
-          absolutelynotatest: true,
-        },
-        grade_levels: {
-          lowerprimary: true,
-          uppersecondary: true,
-          adult: true,
-        },
-        languages: {
-          'ar-jk': true,
-          'en-pr': true,
-          'en-gb': true,
-        },
-        learner_needs: {
-          internet: true,
-          pencil: true,
-          rolodex: true,
-        },
-        learning_activities: {
-          watch: true,
-        },
-        keywords: 'I love paris in the springtime!',
-      });
-    });
-    it(`setting relevant keys will result in a router push`, () => {
-      const { searchTerms, router } = prep();
-      set(searchTerms, {
-        keywords: 'test',
-        categories: {
-          cat1: true,
-          cat2: true,
-        },
-      });
-      expect(router.push).toHaveBeenCalledWith({
-        name,
-        query: {
-          keywords: 'test',
-          categories: 'cat1,cat2',
-        },
-      });
-    });
-    it(`removing keys will be propagated to the router`, () => {
-      const { searchTerms, router } = prep({
-        keywords: 'test',
-        categories: 'cat1,cat2',
-        grade_levels: 'level1',
-      });
-      set(searchTerms, {
-        keywords: '',
-        categories: {
-          cat2: true,
-        },
-      });
-      expect(router.push).toHaveBeenCalledWith({
-        name,
-        query: {
-          categories: 'cat2',
-        },
-      });
-    });
-    it(`setting keywords to null will be propagated to the router`, () => {
-      const { searchTerms, router } = prep({
-        keywords: 'test',
-        categories: 'cat1,cat2',
-        grade_levels: 'level1',
-      });
-      set(searchTerms, {
-        keywords: null,
-        categories: {
-          cat2: true,
-        },
-      });
-      expect(router.push).toHaveBeenCalledWith({
-        name,
-        query: {
-          categories: 'cat2',
-        },
-      });
-    });
-  });
-  describe('displayingSearchResults computed property', () => {
-    const searchKeys = [
-      'learning_activities',
-      'categories',
-      'learner_needs',
-      'accessibility_labels',
-      'languages',
-      'grade_levels',
-    ];
-    it.each(searchKeys)('should be true when there are any values for %s', key => {
-      const { displayingSearchResults } = prep({
-        [key]: 'test1,test2',
-      });
-      expect(get(displayingSearchResults)).toBe(true);
-    });
-    it('should be true when there is a value for keywords', () => {
-      const { displayingSearchResults } = prep({
-        keywords: 'testing testing one two three',
-      });
-      expect(get(displayingSearchResults)).toBe(true);
-    });
-  });
-  describe('search method', () => {
-    it('should call ContentNodeResource.fetchCollection when searchTerms changes', async () => {
-      const { store } = prep();
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      store.commit('SET_QUERY', { categories: 'test1,test2' });
-      await nextTick();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: {
-          categories: ['test1', 'test2'],
-          max_results: 25,
-          include_coach_content: false,
-        },
-      });
-    });
-    it('should not call ContentNodeResource.fetchCollection if there is no search', () => {
-      const { search } = prep();
-      ContentNodeResource.fetchCollection.mockClear();
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      search();
-      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
-    });
-    it('should clear labels and more if there is no search', () => {
-      const { search, labels, more } = prep();
-      set(labels, ['test']);
-      set(more, { test: 'test' });
-      search();
-      expect(get(labels)).toBeNull();
-      expect(get(more)).toBeNull();
-    });
-    it('should call ContentNodeResource.fetchCollection if there is no search but a descendant is set', () => {
-      const { search } = prep({}, ref({ tree_id: 1, lft: 10, rght: 20 }));
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      search();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: {
-          tree_id: 1,
-          lft__gt: 10,
-          rght__lt: 20,
-          max_results: 1,
-          include_coach_content: false,
-        },
-      });
-    });
-    it('should call ContentNodeResource.fetchCollection if there is no search but a filter is set', () => {
-      const { search } = prep({}, null, { kind: ContentNodeKinds.EXERCISE });
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      search();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: {
-          kind: ContentNodeKinds.EXERCISE,
-          max_results: 1,
-          include_coach_content: false,
-        },
-      });
-    });
-    it('should set labels and clear more if there is no search but a descendant is set', async () => {
-      const { labels, more, search } = prep({}, ref({ tree_id: 1, lft: 10, rght: 20 }));
-      const labelsSet = {
-        available: ['labels'],
-        languages: [],
-      };
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({ labels: labelsSet }));
-      set(more, { test: 'test' });
-      search();
-      await nextTick();
-      expect(get(more)).toBeNull();
-      expect(get(labels)).toEqual(labelsSet);
-    });
-    it('should call ContentNodeResource.fetchCollection when searchTerms exist', () => {
-      const { search } = prep({ categories: 'test1,test2' });
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      search();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: {
-          categories: ['test1', 'test2'],
-          max_results: 25,
-          include_coach_content: false,
-        },
-      });
-    });
-    it('should ignore other categories when AllCategories is set and search for isnull false', () => {
-      const { search } = prep({ categories: `test1,test2,${NoCategories},${AllCategories}` });
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      search();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { categories__isnull: false, max_results: 25, include_coach_content: false },
-      });
-    });
-    it('should ignore other categories when NoCategories is set and search for isnull true', () => {
-      const { search } = prep({ categories: `test1,test2,${NoCategories}` });
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      search();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { categories__isnull: true, max_results: 25, include_coach_content: false },
-      });
-    });
-    it('should set keywords when defined', () => {
-      const { search } = prep({ keywords: `this is just a test` });
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      search();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: {
-          keywords: `this is just a test`,
-          max_results: 25,
-          include_coach_content: false,
-        },
-      });
-    });
-    it('should set results, labels, and more with returned data', async () => {
-      const { labels, more, results, search } = prep({ categories: 'test1,test2' });
-      const expectedLabels = {
-        available: ['labels'],
-        languages: [],
-      };
-      const expectedMore = {
-        cursor: 'adalskdjsadlkjsadlkjsalkd',
-      };
-      const expectedResults = [{ id: 'node-id1' }];
-      ContentNodeResource.fetchCollection.mockReturnValue(
-        Promise.resolve({
-          labels: expectedLabels,
-          results: expectedResults,
-          more: expectedMore,
-        }),
-      );
-      search();
-      await nextTick();
-      expect(get(labels)).toEqual(expectedLabels);
-      expect(get(results)).toEqual(expectedResults);
-      expect(get(more)).toEqual(expectedMore);
-    });
-  });
-  describe('searchMore method', () => {
-    it('should not call anything when not displaying search terms', () => {
-      const { searchMore } = prep();
-      ContentNodeResource.fetchCollection.mockClear();
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      searchMore();
-      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
-    });
-    it('should not call anything when more is null', () => {
-      const { more, searchMore } = prep({ categories: 'test1' });
-      ContentNodeResource.fetchCollection.mockClear();
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      set(more, null);
-      searchMore();
-      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
-    });
-    it('should not call anything when moreLoading is true', () => {
-      const { more, moreLoading, searchMore } = prep({ categories: 'test1' });
-      ContentNodeResource.fetchCollection.mockClear();
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      set(more, {});
-      set(moreLoading, true);
-      searchMore();
-      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
-    });
-    it('should pass the more object directly to getParams', () => {
-      const { more, searchMore } = prep({ categories: `test1,test2,${NoCategories}` });
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      const moreExpected = { test: 'this', not: 'that' };
-      set(more, moreExpected);
-      searchMore();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({ getParams: moreExpected });
-    });
-    it('should set results, more and labels', async () => {
-      const { labels, more, results, searchMore, search } = prep({
-        categories: `test1,test2,${NoCategories}`,
-      });
-      const expectedLabels = {
-        available: ['labels'],
-        languages: [],
-      };
-      const expectedMore = {
-        cursor: 'adalskdjsadlkjsadlkjsalkd',
-      };
-      const originalResults = [{ id: 'originalId', content_id: 'first' }];
-      ContentNodeResource.fetchCollection.mockReturnValue(
-        Promise.resolve({
-          labels: expectedLabels,
-          results: originalResults,
-          more: expectedMore,
-        }),
-      );
-      search();
-      await nextTick();
-      const expectedResults = [{ id: 'node-id1', content_id: 'second' }];
-      ContentNodeResource.fetchCollection.mockReturnValue(
-        Promise.resolve({
-          labels: expectedLabels,
-          results: expectedResults,
-          more: expectedMore,
-        }),
-      );
-      set(more, {});
-      searchMore();
-      await nextTick();
-      expect(get(labels)).toEqual(expectedLabels);
-      expect(get(results)).toEqual(originalResults.concat(expectedResults));
-      expect(get(more)).toEqual(expectedMore);
-    });
-  });
-  describe('removeFilterTag method', () => {
-    it('should remove a filter from the searchTerms', () => {
-      const { removeFilterTag, router } = prep({
-        categories: 'test1,test2',
-      });
-      removeFilterTag({ value: 'test1', key: 'categories' });
-      expect(router.push).toHaveBeenCalledWith({
-        name,
-        query: {
-          categories: 'test2',
-        },
-      });
-    });
-    it('should remove keywords from the searchTerms', () => {
-      const { removeFilterTag, router } = prep({
-        keywords: 'test',
-      });
-      removeFilterTag({ value: 'test', key: 'keywords' });
-      expect(router.push).toHaveBeenCalledWith({
-        name,
-        query: {},
-      });
-    });
-    it('should not remove any other filters', () => {
-      const { removeFilterTag, router } = prep({
-        categories: 'test1,test2',
-        learning_activities: 'watch',
-      });
-      removeFilterTag({ value: 'test1', key: 'categories' });
-      expect(router.push).toHaveBeenCalledWith({
-        name,
-        query: {
-          categories: 'test2',
-          learning_activities: 'watch',
-        },
-      });
-    });
-  });
-  describe('clearSearch method', () => {
-    it('should remove all filters from the searchTerms', () => {
-      const { clearSearch, router } = prep({
-        categories: 'test1,test2',
-        learning_activities: 'watch',
-        keywords: 'this',
-      });
-      clearSearch();
-      expect(router.push).toHaveBeenCalledWith({
-        name,
-        query: {},
-      });
-    });
-  });
-});
+/*
+ * Helper function to retrieve references for provided properties
+ * from an ancestor's use of useBaseSearch
+ */
+export function injectBaseSearch() {
+  const availableLearningActivities = inject('availableLearningActivities');
+  const availableLibraryCategories = inject('availableLibraryCategories');
+  const availableResourcesNeeded = inject('availableResourcesNeeded');
+  const availableGradeLevels = inject('availableGradeLevels');
+  const availableAccessibilityOptions = inject('availableAccessibilityOptions');
+  const availableLanguages = inject('availableLanguages');
+  const searchableLabels = inject('searchableLabels');
+  const activeSearchTerms = inject('activeSearchTerms');
+  const searchLoading = inject('searchLoading');
+  return {
+    availableLearningActivities,
+    availableLibraryCategories,
+    availableResourcesNeeded,
+    availableGradeLevels,
+    availableAccessibilityOptions,
+    availableLanguages,
+    searchableLabels,
+    activeSearchTerms,
+    searchLoading,
+  };
+}

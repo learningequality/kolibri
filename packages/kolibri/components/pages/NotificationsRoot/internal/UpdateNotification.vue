@@ -1,136 +1,101 @@
-<template>
+import { shallowMount } from '@vue/test-utils';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
+import NotificationsRoot from '../NotificationsRoot';
+import { coreStoreFactory as makeStore } from '../../../store';
+import coreModule from '../../../../../kolibri/core/assets/src/state/modules/core';
+import { UserKinds } from 'kolibri/constants';
 
-  <KModal
-    size="large"
-    :submitText="coreString('closeAction')"
-    :title="title"
-    @submit="submit"
-  >
-    <p>{{ msg }}</p>
-    <p>
-      <KExternalLink
-        v-if="linkUrl"
-        :href="linkUrl"
-        :text="linkText || linkUrl"
-        :openInNewTab="true"
-      />
-    </p>
-    <p v-if="!isSuperuser">
-      {{ $tr('adminMessage') }}
-    </p>
-    <p>
-      <KCheckbox
-        :label="$tr('hideNotificationLabel')"
-        :checked="dontShowNotificationAgain"
-        @change="dontShowNotificationAgain = !dontShowNotificationAgain"
-      />
-    </p>
-  </KModal>
+jest.mock('kolibri/composables/useUser');
+jest.mock('../NotificationsRoot/internal/PingbackNotificationResource');
+jest.mock('../NotificationsRoot/internal/PingbackNotificationDismissedResource');
 
-</template>
-
-
-<script>
-
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { mapActions, mapMutations } from 'vuex';
-  import useUser from 'kolibri/composables/useUser';
-
-  export default {
-    name: 'UpdateNotification',
-    mixins: [commonCoreStrings],
-    setup() {
-      const { isSuperuser } = useUser();
-      return { isSuperuser };
-    },
-    props: {
-      id: {
-        type: String,
-        required: true,
-      },
-      title: {
-        type: String,
-        required: true,
-      },
-      msg: {
-        type: String,
-        required: true,
-      },
-      linkText: {
-        type: String,
-        default: null,
-      },
-      linkUrl: {
-        type: String,
-        default: null,
+function makeWrapper(useUserMockObj = null) {
+  const store = makeStore();
+  store.registerModule('core', coreModule);
+  if (useUserMockObj) {
+    useUser.mockImplementation(() => useUserMock(useUserMockObj));
+  }
+  const wrapper = shallowMount(NotificationsRoot, {
+    store,
+    computed: {
+      mostRecentNotification: () => {
+        return {
+          id: 1,
+          title: 'title',
+          msg: 'notification',
+          linkText: 'linktext',
+          linkUrl: 'url',
+        };
       },
     },
-    data() {
-      return {
-        dontShowNotificationAgain: false,
-      };
-    },
-    methods: {
-      ...mapMutations({
-        removeNotification: 'CORE_REMOVE_NOTIFICATION',
-      }),
-      ...mapActions(['saveDismissedNotification']),
-      submit() {
-        if (this.dontShowNotificationAgain) {
-          this.dontShowNotificationAgain = false;
-          this.saveDismissedNotification(this.id);
-        }
-        this.removeNotification(this.id);
-        this.$emit('submit');
-      },
-    },
-    $trs: {
-      adminMessage: {
-        message: 'Please contact the device administrator for this server',
-        context: 'Prompt telling the user to contact the device admin.',
-      },
-      hideNotificationLabel: {
-        message: "Don't show this message again",
-        context:
-          'Notification which upon accepting means that the user will no longer see the message displayed.',
-      },
-      // The strings below are not actually used in the appplication code.
-      // They are included simply to get the strings translated for later use. We should do
-      // this differently in the longer-term to ensure that we have broader language support.
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      upgradeHeader: {
-        message: 'Upgrade available',
-        context: 'Indicates that a new version of Kolibri is available.',
-      },
-      upgradeHeaderImportant: {
-        message: 'Important upgrade available',
-        context: 'Indicates that an important new version of Kolibri is available.',
-      },
-      upgradeMessageGeneric: {
-        message: 'A new version of Kolibri is available.',
-        context: 'Notification indicating a new version of Kolibri is available.',
-      },
-      upgradeMessageImportant: {
-        message: 'We have released an important update with fixes to this version of Kolibri.',
-        context: 'Notification indicating an important new version of Kolibri is available.',
-      },
-      upgradeMessage_0_18_0: {
-        message:
-          'Kolibri version 0.18.0 is available! New features include comprehensive search and filter within lesson and quiz creation, Bloom reader support, updated navigation in Coach, as well as bug fixes and improvements.',
-        context: 'Notification indicating a new version of Kolibri is available.',
-      },
-      upgradeDownload: {
-        message: 'Download it here',
-        context:
-          'When an upgrade of Kolibri is made available, this button allows the user to download it.',
-      },
-      upgradeLearnAndDownload: {
-        message: 'Learn more and download it here',
-        context:
-          'Link which invites the user to find out more about a new version of Kolibri and shows them where to download it.',
-      },
-      /* eslint-enable kolibri/vue-no-unused-translations */
-    },
-  };
+  });
+  return { wrapper, store };
+}
 
-</script>
+describe('NotificationsRoot', function () {
+  it('smoke test', () => {
+    const { wrapper } = makeWrapper();
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  describe('when loaded', function () {
+    it('if user is authorized and there is no error, base div for displaying <slot> should be displayed', async () => {
+      const { wrapper, store } = makeWrapper();
+      store.state.core.loading = false;
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.find('[data-test="base-page"]').exists()).toBeTruthy();
+      expect(wrapper.findComponent({ name: 'AuthMessage' }).exists()).toBeFalsy();
+      expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeFalsy();
+    });
+
+    it('if user is not authorized, authorization component in the base page page should be rendered', async () => {
+      const { wrapper, store } = makeWrapper();
+      store.state.core.loading = false;
+      store.state.core.error = { response: { status: 403 } };
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.findComponent({ name: 'AuthMessage' }).exists()).toBeTruthy();
+      expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeFalsy();
+      expect(wrapper.find('[data-test="main"]').exists()).toBeFalsy();
+    });
+
+    it('if there is an error, the error component in the base page should be rendered', async () => {
+      const { wrapper, store } = makeWrapper();
+      store.state.core.loading = false;
+      store.state.core.error = 'some error here';
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeTruthy();
+      expect(wrapper.findComponent({ name: 'AuthMessage' }).exists()).toBeFalsy();
+      expect(wrapper.find('[data-test="base-page"]').exists()).toBeFalsy();
+    });
+
+    it('notification modal should be rendered if the user is an admin/superuser, a notification exists, and there is a recent notification', async () => {
+      const { wrapper, store } = makeWrapper({ isAdmin: true, isSuperuser: true });
+      store.state.core.loading = false;
+      wrapper.vm.notifications = [
+        {
+          id: 2,
+          title: 'title',
+          msg: 'notification',
+          linkText: 'linktext',
+          linkUrl: 'url',
+        },
+      ];
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.findComponent({ name: 'UpdateNotification' }).exists()).toBeTruthy();
+    });
+
+    it('notification modal should not be rendered if notifications do not exist', async () => {
+      const { wrapper, store } = makeWrapper();
+      store.commit('CORE_SET_SESSION', { kind: [UserKinds.ADMIN] });
+      store.state.core.loading = false;
+      wrapper.vm.notifications = [];
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.findComponent({ name: 'UpdateNotification' }).exists()).toBeFalsy();
+    });
+  });
+});

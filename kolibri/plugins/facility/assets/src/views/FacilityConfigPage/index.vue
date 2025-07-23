@@ -229,16 +229,9 @@
 
   import { mapActions, mapGetters, mapState } from 'vuex';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { createTranslator } from 'kolibri/utils/i18n';
 
   import camelCase from 'lodash/camelCase';
   import isEqual from 'lodash/isEqual';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import urls from 'kolibri/urls';
-  import BottomAppBar from 'kolibri/components/BottomAppBar';
-  import useUser from 'kolibri/composables/useUser';
-  import useSnackbar from 'kolibri/composables/useSnackbar';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
@@ -246,6 +239,13 @@
   import ViewPinModal from './ViewPinModal';
   import ChangePinModal from './ChangePinModal';
   import RemovePinModal from './RemovePinModal';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
+  import useUser from 'kolibri/composables/useUser';
+  import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import urls from 'kolibri/urls';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { createTranslator } from 'kolibri/utils/i18n';
 
   /**
    * Using the createTranslator to aid concatenation

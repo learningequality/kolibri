@@ -40,11 +40,11 @@
   import { mapState } from 'vuex';
   import pickBy from 'lodash/pickBy';
   import debounce from 'lodash/debounce';
+  import SelectionBottomBar from './SelectionBottomBar';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import UserTable from 'kolibri-common/components/UserTable';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
-  import SelectionBottomBar from './SelectionBottomBar';
 
   export default {
     name: 'ClassEnrollForm',

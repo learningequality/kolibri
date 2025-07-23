@@ -1,350 +1,271 @@
 <template>
 
-  <div :style="{ backgroundColor: $themeTokens.surface }">
-    <h3
-      id="answer-history-label"
-      class="header"
+  <table
+    v-if="currentTryDefined"
+    class="scores"
+  >
+    <tr
+      v-if="!hideStatus"
+      data-test="try-status"
     >
-      {{ $tr('answerHistoryLabel') }}
-    </h3>
-
-    <div v-if="isMobile">
-      <KSelect
-        v-if="sectionSelectOptions.length > 1"
-        class="section-select"
-        :value="selectedSection"
-        :label="quizSectionsLabel$()"
-        :options="sectionSelectOptions"
-        :disabled="$attrs.disabled"
-        @change="handleSectionChange($event.value)"
-      />
-
-      <h2
-        v-else-if="selectedSection.label"
-        class="section-select"
-      >
-        {{ selectedSection.label }}
-      </h2>
-
-      <KSelect
-        class="history-select"
-        :value="selectedQuestion"
-        :label="questionsLabel$()"
-        :options="questionSelectOptions"
-        :disabled="$attrs.disabled"
-        @change="handleQuestionChange($event.value)"
-      >
-        <template #display>
-          <AttemptLogItem
-            class="attempt-selected"
-            :isSurvey="isSurvey"
-            :attemptLog="selectedAttemptLog"
-            :questionNumber="selectedQuestionNumber + 1"
-            displayTag="span"
-          />
-        </template>
-        <template #option="{ index }">
-          <AttemptLogItem
-            v-if="attemptLogsForCurrentSection[index]"
-            class="attempt-option"
-            :isSurvey="isSurvey"
-            :attemptLog="attemptLogsForCurrentSection[index]"
-            :questionNumber="index + 1"
-            displayTag="span"
-          />
-        </template>
-      </KSelect>
-    </div>
-
-    <AccordionContainer
-      v-else
-      :hideTopActions="true"
-      :items="sections"
+      <th>
+        {{ coreString('statusLabel') }}
+      </th>
+      <td>
+        <ProgressIcon
+          class="svg-icon"
+          :progress="progress"
+        />
+        {{ progressIconLabel }}
+      </td>
+    </tr>
+    <tr
+      v-if="masteryModel && !isSurvey"
+      data-test="try-mastery-model"
     >
-      <AccordionItem
-        v-for="(section, index) in sections"
-        :id="`section-questions-${index}`"
-        :key="`section-questions-${index}`"
-        :title="displaySectionTitle(section, index)"
-        @focus="expand(index)"
-      >
-        <template
-          v-if="sections.length > 1"
-          #heading="{ title }"
-        >
-          <h3
-            v-if="title"
-            class="accordion-header"
-            :style="{
-              backgroundColor: index === currentSectionIndex ? $themePalette.grey.v_200 : '',
-            }"
-          >
-            <KButton
-              tabindex="0"
-              appearance="basic-link"
-              :style="accordionStyleOverrides"
-              class="accordion-header-label"
-              :aria-expanded="isExpanded(index)"
-              :aria-controls="`section-question-panel-${index}`"
-              @click="toggle(index)"
-            >
-              <span>{{ title }}</span>
-              <KIcon
-                class="chevron-icon"
-                :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
-              />
-            </KButton>
-          </h3>
-        </template>
-        <template #content>
-          <div v-show="sections.length === 1 || isExpanded(index)">
-            <ul
-              ref="attemptList"
-              class="history-list"
-              role="listbox"
-              @keydown.home="setSelectedAttemptLog(0)"
-              @keydown.end="setSelectedAttemptLog(attemptLogs.length - 1)"
-              @keydown.up.prevent="setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
-              @keydown.left.prevent="
-                setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))
-              "
-              @keydown.down.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
-              @keydown.right.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
-            >
-              <li
-                v-for="(question, qIndex) in section.questions"
-                :key="`attempt-item-${qIndex}`"
-                class="attempt-item"
-                :style="{
-                  backgroundColor: isSelected(section.startQuestionNumber + qIndex)
-                    ? $themePalette.grey.v_200
-                    : '',
-                }"
-              >
-                <a
-                  ref="attemptListOption"
-                  role="option"
-                  class="attempt-item-anchor"
-                  :aria-selected="isSelected(section.startQuestionNumber + qIndex).toString()"
-                  :tabindex="isSelected(section.startQuestionNumber + qIndex) ? 0 : -1"
-                  @click.prevent="setSelectedAttemptLog(section.startQuestionNumber + qIndex)"
-                  @keydown.enter="setSelectedAttemptLog(section.startQuestionNumber + qIndex)"
-                  @keydown.space.prevent="
-                    setSelectedAttemptLog(section.startQuestionNumber + qIndex)
-                  "
-                >
-                  <AttemptLogItem
-                    v-if="attemptLogsBySection[index][qIndex]"
-                    :isSurvey="isSurvey"
-                    :attemptLog="attemptLogsBySection[index][qIndex]"
-                    :questionNumber="qIndex + 1"
-                    displayTag="p"
-                  />
-                </a>
-              </li>
-            </ul>
-          </div>
-        </template>
-      </AccordionItem>
-    </AccordionContainer>
-  </div>
+      <th>
+        {{ coreString('masteryModelLabel') }}
+      </th>
+      <td>
+        <MasteryModel :masteryModel="masteryModel" />
+      </td>
+    </tr>
+    <tr
+      v-if="!isSurvey && correctDefined && !masteryModel"
+      data-test="try-score"
+    >
+      <th>
+        {{ coreString('scoreLabel') }}
+      </th>
+      <td>
+        {{ $formatNumber(score, { style: 'percent' }) }}
+      </td>
+    </tr>
+    <tr
+      v-if="!isSurvey && correctDefined && !masteryModel"
+      data-test="try-questions-correct"
+    >
+      <th>
+        {{ coreString('questionsCorrectLabel') }}
+      </th>
+      <td>
+        {{
+          coreString('questionsCorrectValue', {
+            correct: currentTry.correct,
+            total: totalQuestions,
+          })
+        }}
+        <br >
+        <span
+          v-if="questionsCorrectAnnotation"
+          class="try-annotation"
+          :style="{ color: $themeTokens.annotation }"
+        >{{ questionsCorrectAnnotation }}</span>
+      </td>
+    </tr>
+    <tr
+      v-if="!isSurvey && currentTry.time_spent"
+      data-test="try-time-spent"
+    >
+      <th>
+        {{ coreString('timeSpentLabel') }}
+      </th>
+      <td>
+        <TimeDuration :seconds="currentTry.time_spent" />
+        <br >
+        <span
+          v-if="timeSpentAnnotation"
+          class="try-annotation"
+          :style="{ color: $themeTokens.annotation }"
+        >{{ timeSpentAnnotation }}</span>
+      </td>
+    </tr>
+    <tr data-test="try-attempted-ago">
+      <th>
+        {{ $tr('attemptedLabel') }}
+      </th>
+      <td>
+        <ElapsedTime
+          :date="new Date(currentTry.completion_timestamp || currentTry.end_timestamp)"
+        />
+      </td>
+    </tr>
+  </table>
 
 </template>
 
 
 <script>
 
-  import {
-    displaySectionTitle,
-    enhancedQuizManagementStrings,
-  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import useAccordion from 'kolibri-common/components/useAccordion';
-  import AccordionItem from 'kolibri-common/components/AccordionItem';
-  import AccordionContainer from 'kolibri-common/components/AccordionContainer';
-  import { computed, onMounted, watch } from 'vue';
-  import { toRefs } from '@vueuse/core';
-  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import AttemptLogItem from './AttemptLogItem';
+  import get from 'lodash/get';
+  import isPlainObject from 'lodash/isPlainObject';
+  import isUndefined from 'lodash/isUndefined';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useUser from 'kolibri/composables/useUser';
+  import { tryValidator } from './utils';
+  import ElapsedTime from 'kolibri-common/components/ElapsedTime';
+  import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
+  import TimeDuration from 'kolibri-common/components/TimeDuration';
+  import MasteryModel from 'kolibri-common/components/labels/MasteryModel';
 
   export default {
-    name: 'AttemptLogList',
+    name: 'CurrentTryOverview',
     components: {
-      AttemptLogItem,
-      AccordionContainer,
-      AccordionItem,
+      ElapsedTime,
+      TimeDuration,
+      ProgressIcon,
+      MasteryModel,
     },
-    setup(props, { emit }) {
-      const { questionsLabel$, quizSectionsLabel$ } = enhancedQuizManagementStrings;
-      const { questionNumberLabel$ } = coreStrings;
-      const { currentSectionIndex, sections, selectedQuestionNumber } = toRefs(props);
-
-      const { expand, isExpanded, toggle } = useAccordion(sections);
-
-      /** Finds the section which the current attempt belongs to and expands it */
-      function expandCurrentSectionIfNeeded() {
-        if (!isExpanded(currentSectionIndex.value)) {
-          expand(currentSectionIndex.value);
-        }
-      }
-
-      const sectionSelectOptions = computed(() => {
-        return sections.value.map((section, index) => ({
-          value: index,
-          label: displaySectionTitle(section, index),
-        }));
-      });
-
-      const currentSection = computed(() => {
-        return sections.value[currentSectionIndex.value];
-      });
-
-      // Computed property for the attempt logs for each section
-      const attemptLogsBySection = computed(() => {
-        return sections.value.map(section => {
-          const start = section.startQuestionNumber;
-          return props.attemptLogs.slice(start, start + section.questions.length);
-        });
-      });
-
-      // For mobile view: returns attempt log for currently selected section
-      const attemptLogsForCurrentSection = computed(() => {
-        return attemptLogsBySection.value[currentSectionIndex.value];
-      });
-
-      const questionSelectOptions = computed(() => {
-        return currentSection.value.questions.map((question, index) => ({
-          value: index,
-          label: questionNumberLabel$({ questionNumber: index + 1 }),
-          disabled: !attemptLogsForCurrentSection.value[index],
-        }));
-      });
-
-      // The KSelect-shaped object for the current section
-      const selectedSection = computed(() => {
-        return sectionSelectOptions.value[currentSectionIndex.value];
-      });
-
-      // The KSelect-shaped object for the current question
-      const selectedQuestion = computed(() => {
-        return questionSelectOptions.value[
-          selectedQuestionNumber.value - currentSection.value.startQuestionNumber
-        ];
-      });
-
-      // Computed property for the selected attempt log
-      const selectedAttemptLog = computed(() => {
-        return props.attemptLogs[selectedQuestionNumber.value];
-      });
-
-      function handleQuestionChange(index) {
-        emit('select', index + currentSection.value.startQuestionNumber);
-        expandCurrentSectionIfNeeded();
-      }
-
-      function handleSectionChange(index) {
-        const questionIndex = sections.value[index].startQuestionNumber;
-        emit('select', questionIndex);
-        expandCurrentSectionIfNeeded();
-      }
-
-      watch(selectedQuestionNumber, expandCurrentSectionIfNeeded);
-      onMounted(expandCurrentSectionIfNeeded);
-
-      return {
-        handleSectionChange,
-        handleQuestionChange,
-        displaySectionTitle,
-        quizSectionsLabel$,
-        questionsLabel$,
-        expand,
-        isExpanded,
-        toggle,
-        selectedSection,
-        sectionSelectOptions,
-        selectedQuestion,
-        questionSelectOptions,
-        attemptLogsForCurrentSection,
-        attemptLogsBySection,
-        selectedAttemptLog,
-      };
+    mixins: [commonCoreStrings],
+    setup() {
+      const { currentUserId } = useUser();
+      return { currentUserId };
     },
     props: {
-      sections: {
-        type: Array,
+      // This should be an object with the following properties:
+      // id: the unique id for the mastery log for this try
+      // mastery_criterion: the mastery criterion
+      // start_timestamp: the start time
+      // end_timestamp: the last time this try was interacted with
+      // completion_timestamp: the time when this try was completed
+      // complete: whether this try is complete or not
+      // correct: the number of correct responses in this try
+      // time_spent: the total time spent on this try
+      currentTry: {
+        type: Object,
         required: true,
+        validator: tryValidator,
       },
-      currentSectionIndex: {
+      // The total number of questions that this assessment has
+      // used for calculating scores for quizzes
+      totalQuestions: {
         type: Number,
         required: true,
       },
-      attemptLogs: {
-        type: Array,
-        required: true,
-      },
-      isMobile: {
+      // Whether to hide the current overall progress
+      // used when using the CurrentTry component in the context
+      // of multiple tries, where the overall progress is determined
+      // from the most recent try.
+      hideStatus: {
         type: Boolean,
-        required: false,
+        default: false,
       },
-      selectedQuestionNumber: {
-        type: Number,
-        required: true,
+      // The id of the user - this is used to determine whether
+      // to display second person or third person language,
+      // by comparing the user id to the currently active user id.
+      userId: {
+        type: String,
+        default: '',
       },
+      // Whether the modality is a Survey - conditionalizes styles
       isSurvey: {
         type: Boolean,
         default: false,
       },
     },
     computed: {
-      accordionStyleOverrides() {
-        return {
-          color: this.$themeTokens.text + '!important',
-          textDecoration: 'none',
-        };
+      currentTryDefined() {
+        return isPlainObject(this.currentTry);
       },
-    },
-    mounted() {
-      this.$nextTick(() => {
-        this.scrollToSelectedAttemptLog(this.selectedQuestionNumber);
-      });
-    },
-    methods: {
-      setSelectedAttemptLog(questionNumber) {
-        const listOption = this.$refs.attemptListOption[questionNumber];
-        listOption.focus();
-
-        this.$emit('select', questionNumber);
-        this.scrollToSelectedAttemptLog(questionNumber);
+      progressIconLabel() {
+        if (!this.currentTryDefined) {
+          return '';
+        }
+        if (this.currentTry.complete) {
+          return this.coreString('completedLabel');
+        } else if (this.currentTry.complete !== null) {
+          return this.coreString('inProgressLabel');
+        } else {
+          return this.$tr('notStartedLabel');
+        }
       },
-      isSelected(questionNumber) {
-        return Number(this.selectedQuestionNumber) === questionNumber;
+      progress() {
+        if (!this.currentTryDefined) {
+          return 0.0;
+        }
+        if (this.currentTry.complete) {
+          return 1.0;
+        } else if (this.currentTry.complete !== null) {
+          return 0.5;
+        }
+        return 0.0;
       },
-      scrollToSelectedAttemptLog(questionNumber) {
-        let selectedElement;
+      masteryModel() {
+        const masteryModel = get(this, 'currentTry.mastery_criterion.type', null);
+        if (masteryModel && masteryModel !== 'quiz') {
+          return this.currentTry.mastery_criterion;
+        }
+        return null;
+      },
+      correctDefined() {
+        return this.currentTryDefined && !isUndefined(this.currentTry.correct);
+      },
+      score() {
+        // Get will return 0 if currentTry.correct is undefined - we || to 0 also
+        // in case the value is for some reason falsy;
+        return get(this, 'currentTry.correct', 0) / this.totalQuestions || 0;
+      },
+      questionsCorrectAnnotation() {
         if (
-          this.$refs.attemptListOption &&
-          this.$refs.attemptList &&
-          this.$refs.attemptList.children
+          !this.currentTryDefined ||
+          !this.currentTry.diff ||
+          this.userId !== this.currentUserId
         ) {
-          selectedElement = this.$refs.attemptList.children[questionNumber];
+          return null;
         }
-        if (selectedElement) {
-          const parent = this.$el.parentElement;
-          parent.scrollTop =
-            selectedElement.offsetHeight * (questionNumber + 1) - parent.offsetHeight / 2;
+
+        return this.currentTry.diff.correct > 0
+          ? this.$tr('practiceQuizReportImprovedLabelSecondPerson', {
+            value: this.currentTry.diff.correct,
+          })
+          : null;
+      },
+      diffTimeSpent() {
+        return Math.floor(get(this, 'currentTry.diff.time_spent', 0) / 60) || null;
+      },
+      timeSpentAnnotation() {
+        if (!this.currentTryDefined || !this.currentTry.diff) {
+          return null;
         }
-      },
-      previousQuestion(questionNumber) {
-        return questionNumber - 1 >= 0 ? questionNumber - 1 : this.attemptLogs.length - 1;
-      },
-      nextQuestion(questionNumber) {
-        return questionNumber + 1 < this.attemptLogs.length ? questionNumber + 1 : 0;
+
+        if (this.diffTimeSpent <= -1) {
+          return this.$tr('practiceQuizReportFasterTimeLabel', {
+            value: Math.abs(this.diffTimeSpent),
+          });
+        } else if (this.diffTimeSpent >= 1) {
+          return this.$tr('practiceQuizReportSlowerTimeLabel', { value: this.diffTimeSpent });
+        }
+
+        return null;
       },
     },
     $trs: {
-      answerHistoryLabel: {
-        message: 'Answer history',
+      attemptedLabel: {
+        message: 'Attempted',
+        context: 'This verb will be used to indicate when a learner last attempted a quiz',
+      },
+      notStartedLabel: {
+        message: 'Not started',
         context:
-          'Indicates a record of answers that a learner has responded to questions in a quiz, for example.',
+          "When a coach creates a quiz, by default it is marked as 'Not started'. This means that learners will not see it in the Learn > Classes view.\n\nThe coach needs to use the 'START QUIZ' button to enable learners to see the quiz and start answering the questions.",
+      },
+      practiceQuizReportFasterTimeLabel: {
+        message:
+          '{value, number, integer} {value, plural, one {minute} other {minutes}} faster than the previous attempt',
+        context:
+          'Indicates to the learner how much faster they were on this attempt compared to the previous one',
+      },
+      practiceQuizReportSlowerTimeLabel: {
+        message:
+          '{value, number, integer} {value, plural, one {minute} other {minutes}} slower than the previous attempt',
+        context:
+          'Indicates to the learner how much slower they were on this attempt compared to the previous one',
+      },
+      practiceQuizReportImprovedLabelSecondPerson: {
+        message:
+          'You improved at {value, number, integer} {value, plural, one {question} other {questions}}',
+        context:
+          'Indicates to the learner how many questions they answered correctly compared to the previous attempt',
       },
     },
   };
@@ -354,107 +275,35 @@
 
 <style lang="scss" scoped>
 
-  .header {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 16px;
-    margin: 0;
-  }
+  .scores {
+    min-width: 200px;
+    margin-top: 24px;
 
-  .history-list {
-    max-height: inherit;
-    padding-right: 0;
-    padding-left: 0;
-    margin: 0;
-    text-align: justify;
-    list-style-type: none;
-  }
+    th {
+      max-width: 190px;
+      text-align: left;
+    }
 
-  .section-select {
-    max-width: 90%;
-    padding: 0.5em 0;
-    margin: 1em auto;
-  }
-
-  .history-select {
-    max-width: 90%;
-    padding: 0.5em 0;
-    margin: 0 auto;
-  }
-
-  /deep/.ui-select-dropdown {
-    left: 0;
-  }
-
-  .attempt-option {
-    position: relative;
-    width: calc(100% - 1em);
-
-    /deep/.svg-item {
-      position: absolute;
-      top: 50%;
-      right: 0.5em;
-      z-index: 1;
-      vertical-align: middle;
-      transform: translateY(-50%);
+    th,
+    td {
+      height: 2em;
+      padding-top: 16px;
+      padding-right: 24px;
+      font-size: 14px;
     }
   }
 
-  .attempt-selected {
-    /deep/.svg-item {
-      position: absolute;
-      top: 50%;
-      right: 0.5em;
-      vertical-align: middle;
-      transform: translateY(-50%);
+  .svg-icon {
+    right: 0;
+
+    /deep/ .icon {
+      max-width: 16px !important;
+      max-height: 16px !important;
     }
   }
 
-  .attempt-item {
-    display: block;
-    min-width: 120px;
-    clear: both;
-  }
-
-  .attempt-item-anchor {
-    display: block;
-    padding-right: 1vw;
-    padding-left: 1vw;
-    cursor: pointer;
-  }
-
-  .accordion-header-label {
-    display: block;
-    width: calc(100% - 1em);
-    height: 100%;
-    padding: 1em;
-
-    // Removes underline from section headings
-    /deep/.link-text {
-      text-decoration: none;
-    }
-  }
-
-  .chevron-icon {
-    position: absolute;
-    top: 50%;
-    right: 0.5em;
-    vertical-align: middle;
-    transform: translateY(-50%);
-  }
-
-  .accordion-header {
-    position: relative;
-    display: flex;
-    align-items: center;
-    padding: 0;
-    margin: 0;
-    font-size: 1rem;
-    line-height: 1.5;
-    text-align: left;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.3s ease;
+  .try-annotation {
+    font-size: 0.9em;
   }
 
 </style>

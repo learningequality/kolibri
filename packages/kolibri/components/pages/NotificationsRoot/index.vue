@@ -1,218 +1,136 @@
 <template>
 
-  <div>
-    <AppBarPage v-if="!loading && notAuthorized">
-      <KPageContainer>
-        <AuthMessage
-          :authorizedRole="authorizedRole"
-          :header="authorizationErrorHeader"
-          :details="authorizationErrorDetails"
-        />
-      </KPageContainer>
-    </AppBarPage>
-
-    <AppBarPage v-else-if="!loading && error">
-      <KPageContainer>
-        <AppError />
-      </KPageContainer>
-    </AppBarPage>
-
-    <div
-      v-else
-      tabindex="-1"
-      data-test="base-page"
-    >
-      <slot :loading="loading"></slot>
-    </div>
-
-    <GlobalSnackbar />
-    <UpdateNotification
-      v-if="!loading && showNotification && mostRecentNotification"
-      :id="mostRecentNotification.id"
-      :title="mostRecentNotification.title"
-      :msg="mostRecentNotification.msg"
-      :linkText="mostRecentNotification.linkText"
-      :linkUrl="mostRecentNotification.linkUrl"
-      @submit="dismissUpdateModal"
-    />
-  </div>
+  <KModal
+    size="large"
+    :submitText="coreString('closeAction')"
+    :title="title"
+    @submit="submit"
+  >
+    <p>{{ msg }}</p>
+    <p>
+      <KExternalLink
+        v-if="linkUrl"
+        :href="linkUrl"
+        :text="linkText || linkUrl"
+        :openInNewTab="true"
+      />
+    </p>
+    <p v-if="!isSuperuser">
+      {{ $tr('adminMessage') }}
+    </p>
+    <p>
+      <KCheckbox
+        :label="$tr('hideNotificationLabel')"
+        :checked="dontShowNotificationAgain"
+        @change="dontShowNotificationAgain = !dontShowNotificationAgain"
+      />
+    </p>
+  </KModal>
 
 </template>
 
 
 <script>
 
-  import { mapState } from 'vuex';
-  import Lockr from 'lockr';
-  import { UPDATE_MODAL_DISMISSED } from 'kolibri/constants';
-  import { currentLanguage, defaultLanguage } from 'kolibri/utils/i18n';
-  import AuthMessage from 'kolibri/components/AuthMessage';
-  import AppBarPage from 'kolibri/components/pages/AppBarPage';
-  import AppError from 'kolibri/components/error/AppError';
-  import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
+  import { mapActions, mapMutations } from 'vuex';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
-  import PingbackNotificationDismissedResource from './internal/PingbackNotificationDismissedResource';
-  import PingbackNotificationResource from './internal/PingbackNotificationResource';
-  import UpdateNotification from './internal/UpdateNotification';
 
   export default {
-    name: 'NotificationsRoot',
-    components: {
-      AppBarPage,
-      AppError,
-      AuthMessage,
-      GlobalSnackbar,
-      UpdateNotification,
-    },
+    name: 'UpdateNotification',
+    mixins: [commonCoreStrings],
     setup() {
-      const { isAdmin, isSuperuser, user_id } = useUser();
-
-      return {
-        isAdmin,
-        isSuperuser,
-        user_id,
-      };
+      const { isSuperuser } = useUser();
+      return { isSuperuser };
     },
     props: {
-      authorized: {
-        type: Boolean,
-        required: false,
-        default: true,
+      id: {
+        type: String,
+        required: true,
       },
-      authorizedRole: {
+      title: {
+        type: String,
+        required: true,
+      },
+      msg: {
+        type: String,
+        required: true,
+      },
+      linkText: {
         type: String,
         default: null,
       },
-      authorizationErrorHeader: {
+      linkUrl: {
         type: String,
-        default: null,
-      },
-      authorizationErrorDetails: {
-        type: String,
-        default: null,
-      },
-      loading: {
-        type: Boolean,
         default: null,
       },
     },
     data() {
       return {
-        notifications: [],
-        notificationModalShown: true,
+        dontShowNotificationAgain: false,
       };
     },
-    computed: {
-      ...mapState({
-        error: state => state.core.error,
-      }),
-      notAuthorized() {
-        // catch "not authorized" error, display AuthMessage
-        if (
-          this.error &&
-          this.error.response &&
-          this.error.response.status &&
-          this.error.response.status == 403
-        ) {
-          return true;
-        }
-        return !this.authorized;
-      },
-      showNotification() {
-        if (
-          (this.isAdmin || this.isSuperuser) &&
-          !Lockr.get(UPDATE_MODAL_DISMISSED) &&
-          this.notificationModalShown &&
-          this.notifications.length !== 0
-        ) {
-          return true;
-        }
-        return false;
-      },
-      mostRecentNotification() {
-        if (this.notifications.length === 0) {
-          return null;
-        }
-        let languageCode = defaultLanguage.id;
-        // notifications should already be ordered by timestamp
-        const notification = this.notifications[0];
-        if (notification) {
-          // check if translated message is available for current language
-          if (notification.i18n[currentLanguage] !== undefined) {
-            languageCode = currentLanguage;
-          }
-          // i18n data structure generated by nutritionfacts_i18n.py
-          return {
-            id: notification.id,
-            title: notification.i18n[languageCode].title,
-            msg: notification.i18n[languageCode].msg,
-            linkText: notification.i18n[languageCode].link_text,
-            linkUrl: notification.link_url,
-          };
-        }
-        return null;
-      },
-    },
-    created() {
-      this.getNotifications();
-    },
-
     methods: {
-      async getNotifications() {
-        const { isAdmin, isSuperuser } = useUser();
-        if (isAdmin || isSuperuser) {
-          try {
-            const notifications = await PingbackNotificationResource.fetchCollection();
-            this.notifications = _notificationListState(notifications);
-          } catch (error) {
-            this.dispatchError(error);
-          }
+      ...mapMutations({
+        removeNotification: 'CORE_REMOVE_NOTIFICATION',
+      }),
+      ...mapActions(['saveDismissedNotification']),
+      submit() {
+        if (this.dontShowNotificationAgain) {
+          this.dontShowNotificationAgain = false;
+          this.saveDismissedNotification(this.id);
         }
+        this.removeNotification(this.id);
+        this.$emit('submit');
       },
-      async saveDismissedNotification(notificationId) {
-        try {
-          await PingbackNotificationDismissedResource.saveModel({
-            data: {
-              user: this.user_id,
-              notification: notificationId,
-            },
-          });
-          this.removeNotification(notificationId);
-        } catch (error) {
-          this.dispatchError(error);
-        }
+    },
+    $trs: {
+      adminMessage: {
+        message: 'Please contact the device administrator for this server',
+        context: 'Prompt telling the user to contact the device admin.',
       },
-      dismissUpdateModal() {
-        if (this.notifications.length === 0) {
-          this.notificationModalShown = false;
-          Lockr.set(UPDATE_MODAL_DISMISSED, true);
-        } else {
-          this.saveDismissedNotification(this.mostRecentNotification.id);
-        }
+      hideNotificationLabel: {
+        message: "Don't show this message again",
+        context:
+          'Notification which upon accepting means that the user will no longer see the message displayed.',
       },
-      dispatchError(error) {
-        this.$store.dispatch('handleApiError', { error });
+      // The strings below are not actually used in the appplication code.
+      // They are included simply to get the strings translated for later use. We should do
+      // this differently in the longer-term to ensure that we have broader language support.
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      upgradeHeader: {
+        message: 'Upgrade available',
+        context: 'Indicates that a new version of Kolibri is available.',
       },
-      removeNotification(notificationId) {
-        this.notifications = this.notifications.filter(n => n.id !== notificationId);
+      upgradeHeaderImportant: {
+        message: 'Important upgrade available',
+        context: 'Indicates that an important new version of Kolibri is available.',
       },
+      upgradeMessageGeneric: {
+        message: 'A new version of Kolibri is available.',
+        context: 'Notification indicating a new version of Kolibri is available.',
+      },
+      upgradeMessageImportant: {
+        message: 'We have released an important update with fixes to this version of Kolibri.',
+        context: 'Notification indicating an important new version of Kolibri is available.',
+      },
+      upgradeMessage_0_18_0: {
+        message:
+          'Kolibri version 0.18.0 is available! New features include comprehensive search and filter within lesson and quiz creation, Bloom reader support, updated navigation in Coach, as well as bug fixes and improvements.',
+        context: 'Notification indicating a new version of Kolibri is available.',
+      },
+      upgradeDownload: {
+        message: 'Download it here',
+        context:
+          'When an upgrade of Kolibri is made available, this button allows the user to download it.',
+      },
+      upgradeLearnAndDownload: {
+        message: 'Learn more and download it here',
+        context:
+          'Link which invites the user to find out more about a new version of Kolibri and shows them where to download it.',
+      },
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 
-  function _notificationListState(data) {
-    if (!data || data.length === 0) {
-      return [];
-    }
-    return data.map(notification => ({
-      id: notification.id,
-      version_range: notification.version_range,
-      timestamp: notification.timestamp,
-      link_url: notification.link_url,
-      i18n: notification.i18n,
-    }));
-  }
-
 </script>
-
-
-<style lang="scss" scoped></style>

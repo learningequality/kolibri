@@ -1,413 +1,653 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
-import { createTranslator } from 'kolibri/utils/i18n';
-import ElapsedTime from 'kolibri-common/components/ElapsedTime';
-import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
-import TimeDuration from 'kolibri-common/components/TimeDuration';
-import MasteryModel from 'kolibri-common/components/labels/MasteryModel';
-import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
-import CurrentTryOverview from '../CurrentTryOverview';
+<template>
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
+  <MultiPaneLayout
+    ref="multiPaneLayout"
+    class="container"
+  >
+    <template #header>
+      <KGrid
+        class="page-status"
+        :style="{ backgroundColor: $themeTokens.surface }"
+      >
+        <KGridItem
+          v-if="windowIsSmall"
+          :layout4="{ span: 4, alignment: 'right' }"
+        >
+          <slot name="actions"></slot>
+        </KGridItem>
+        <KGridItem
+          :layout12="{ span: 9, alignment: 'left' }"
+          :layout8="{ span: 5, alignment: 'left' }"
+          :layout4="{ span: 4, alignment: 'left' }"
+        >
+          <div>
+            <h1
+              v-if="userId"
+              class="title"
+            >
+              <KLabeledIcon
+                icon="person"
+                :label="userName"
+              />
+            </h1>
+            <KLabeledIcon
+              :icon="titleIcon"
+              :label="title"
+            />
+          </div>
+          <!-- only show the current try if the user has only one try or if its a survey -->
+          <TriesOverview
+            v-if="pastTries.length > 1 && !isSurvey"
+            :pastTries="pastTries"
+            :totalQuestions="questions.length"
+            :suggestedTime="duration"
+            :isSurvey="isSurvey"
+          />
+          <CurrentTryOverview
+            v-else-if="currentTry"
+            :userId="userId"
+            :currentTry="currentTry"
+            :totalQuestions="questions.length"
+            :isSurvey="isSurvey"
+          />
+        </KGridItem>
+        <KGridItem
+          v-if="!windowIsSmall"
+          :layout12="{ span: 3, alignment: 'right' }"
+          :layout8="{ span: 3, alignment: 'right' }"
+          :layout="{ span: 2, alignment: 'right' }"
+        >
+          <slot name="actions"></slot>
+        </KGridItem>
+      </KGrid>
+    </template>
 
-jest.mock('kolibri/composables/useUser');
+    <template
+      v-if="!loading"
+      #subheader
+    >
+      <KSelect
+        v-if="pastTries.length > 1"
+        :value="pastTriesOptions[tryIndex]"
+        :label="$tr('attemptDropdownLabel')"
+        :options="pastTriesOptions"
+        :style="{ background: $themePalette.grey.v_200 }"
+        appearance="flat-button"
+        class="try-selection"
+        @change="navigateToTry"
+      />
+      <CurrentTryOverview
+        v-if="currentTry && pastTries.length > 1 && currentTry.attemptlogs.length"
+        :userId="userId"
+        :currentTry="currentTry"
+        :totalQuestions="questions.length"
+        :hideStatus="true"
+        :isSurvey="isSurvey"
+      />
+    </template>
 
-const translator = createTranslator('CurrentTryOverview', CurrentTryOverview.$trs);
+    <template
+      v-if="!windowIsSmall && !loading && currentTry && currentTry.attemptlogs.length"
+      #aside
+    >
+      <AttemptLogList
+        :attemptLogs="attemptLogs"
+        :selectedQuestionNumber="questionNumber"
+        :isSurvey="isSurvey"
+        :sections="annotatedSections"
+        :currentSectionIndex="currentSectionIndex"
+        @select="navigateToQuestion"
+      />
+    </template>
 
-/* A pair of timestamps in the past, in ascending chronological order
- * used for bootstrapping a try, timestamp logic below */
-const pastTimestamps = ['2002-01-10T16:00:43.926864-08:00', '2002-01-11T16:00:43.926864-08:00'];
+    <template
+      v-if="currentTry && currentTry.attemptlogs.length"
+      #main
+    >
+      <KCircularLoader
+        v-if="loading"
+        class="loader"
+      />
+      <template v-else-if="itemId">
+        <AttemptLogList
+          v-if="windowIsSmall"
+          class="mobile-attempt-log-list"
+          :isMobile="true"
+          :attemptLogs="attemptLogs"
+          :selectedQuestionNumber="questionNumber"
+          :isSurvey="isSurvey"
+          :sections="annotatedSections"
+          :currentSectionIndex="currentSectionIndex"
+          @select="navigateToQuestion"
+        />
+        <div
+          v-if="exercise && exercise.available"
+          class="exercise-container"
+          :class="windowIsSmall ? 'mobile-exercise-container' : ''"
+          :style="{ backgroundColor: $themeTokens.surface }"
+        >
+          <h3 v-if="questionNumberInSectionLabel">{{ questionNumberInSectionLabel }}</h3>
 
-const defaultTry = {
-  id: 'try',
-  mastery_criterion: { type: 'quiz' },
-  start_timestamp: pastTimestamps[0],
-  end_timestamp: pastTimestamps[1],
-  completion_timestamp: pastTimestamps[1],
-  time_spent: 1000, // A long while
-  correct: 2,
-  diff: null,
-  complete: true,
-  attemptLogs: [],
-};
+          <p v-if="currentSection && currentSection.description">
+            {{ currentSection.description }}
+          </p>
 
-const defaultProps = {
-  currentTry: defaultTry,
-  totalQuestions: 10,
-  hideStatus: false,
-  userId: 'user-1',
-  isSurvey: false,
-};
+          <div
+            v-if="!isSurvey"
+            data-test="diff-business"
+          >
+            <KCheckbox
+              :label="coreString('showCorrectAnswerLabel')"
+              :checked="showCorrectAnswer"
+              @change="toggleShowCorrectAnswer"
+            />
+            <div
+              v-if="currentAttemptDiff"
+              style="padding-bottom: 15px"
+            >
+              <AttemptIconDiff
+                :correct="currentAttempt.correct"
+                :diff="currentAttemptDiff.correct"
+              />
+              <AttemptTextDiff
+                :userId="userId"
+                :correct="currentAttempt.correct"
+                :diff="currentAttemptDiff.correct"
+              />
+            </div>
+            <InteractionList
+              v-if="!showCorrectAnswer"
+              :interactions="currentInteractionHistory"
+              :selectedInteractionIndex="selectedInteractionIndex"
+              @select="navigateToQuestionAttempt"
+            />
+          </div>
+          <ContentRenderer
+            :itemId="renderableItemId"
+            :allowHints="false"
+            :kind="exercise.kind"
+            :files="exercise.files"
+            :available="exercise.available"
+            :extraFields="exercise.extra_fields"
+            :interactive="false"
+            :assessment="true"
+            :answerState="answerState"
+            :showCorrectAnswer="showCorrectAnswer"
+          />
+        </div>
+        <MissingResourceAlert
+          v-else
+          :multiple="false"
+        />
+      </template>
 
-const betterDiff = {
-  time_spent: -40,
-  correct: 4,
-};
+      <p v-else>
+        {{ $tr('noItemId') }}
+      </p>
+    </template>
+  </MultiPaneLayout>
 
-/* The time_spent needs to be > 60 because it's only used when the diff is > 60s */
-const worseDiff = {
-  time_spent: 80,
-  correct: 0,
-};
+</template>
 
-/**
- * Returns defaultProps but you can pass overrides. If you want to override try only, pass
- * an empty object in the first param position.
- * @param propOverrides - will take precence
- * @param tryOverrides - will override defaultTry (but propOverrides with a currentTry key
- *  will override *that*
- */
-function defaultPropsWith(propOverrides = {}, tryOverrides = {}) {
-  return Object.assign(
-    {},
-    defaultProps,
-    { currentTry: Object.assign({}, defaultTry, tryOverrides) },
-    propOverrides,
-  );
-}
 
-// Useful to ensure masteryModel computed comes back non-falsy when needed
-const nonQuizValidMasteryCriterion = { type: 'm_of_n', m: 5, n: 7 };
+<script>
 
-describe('ExamReport/CurrentTryOverview', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    useUser.mockImplementation(() => useUserMock());
-  });
+  import sortBy from 'lodash/sortBy';
+  import isFinite from 'lodash/isFinite';
+  import isNumber from 'lodash/isNumber';
+  import isString from 'lodash/isString';
+  import find from 'lodash/find';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { now } from 'kolibri/utils/serverClock';
+  import AttemptLogList from './AttemptLogList';
+  import AttemptTextDiff from './AttemptTextDiff';
+  import AttemptIconDiff from './AttemptIconDiff';
+  import TriesOverview from './TriesOverview';
+  import CurrentTryOverview from './CurrentTryOverview';
+  import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
+  import { annotateSections } from 'kolibri-common/quizzes/utils';
+  import MasteryLogResource from 'kolibri-common/apiResources/MasteryLogResource';
+  import MultiPaneLayout from 'kolibri-common/components/MultiPaneLayout';
+  import InteractionList from 'kolibri-common/components/quizzes/InteractionList';
 
-  describe('status', () => {
-    it('shows a ProgressIcon when hideStatus is false', () => {
-      const wrapper = shallowMount(CurrentTryOverview, { propsData: defaultProps });
-      expect(wrapper.findComponent(ProgressIcon)).toBeTruthy();
-    });
-
-    it('shows nothing when hideStatus is true', async () => {
-      const wrapper = shallowMount(CurrentTryOverview, {
-        propsData: defaultPropsWith({ hideStatus: true }),
-      });
-      expect(wrapper.find('[data-test="try-status"]').element).toBeFalsy();
-    });
-  });
-
-  describe('mastery model', () => {
-    const wrapperToShowMasteryModel = shallowMount(CurrentTryOverview, {
-      propsData: defaultPropsWith({}, { mastery_criterion: nonQuizValidMasteryCriterion }),
-    });
-
-    // Incl { mastery_criterion: { type: 'quiz' } } which should hide this section and cause
-    // computed masteryModel to return null
-    const wrapperWithoutMasteryModel = shallowMount(CurrentTryOverview, {
-      propsData: defaultProps,
-    });
-
-    describe('computed masteryModel', () => {
-      // mastery_criterion: null fails tryValidator so it cannot
-      // be tested, but the same should happen with {}
-      it('is null when currentTry prop has no mastery_criterion', () => {
-        const wrapper = shallowMount(CurrentTryOverview, {
-          propsData: defaultPropsWith({}, { mastery_criterion: {} }),
-        });
-        expect(wrapper.vm.masteryModel).toBeNull();
-      });
-
-      it('is null when currentTry.mastery_criterion.type is "quiz"', () => {
-        expect(wrapperWithoutMasteryModel.vm.masteryModel).toBeNull();
-      });
-
-      it('returns currentTry.mastery_criterion otherwise', () => {
-        expect(wrapperToShowMasteryModel.vm.masteryModel).toEqual(nonQuizValidMasteryCriterion);
-      });
-    });
-
-    it('shows a MasteryModel component when computed masterModel is truthy', () => {
-      expect(wrapperToShowMasteryModel.findComponent(MasteryModel)).toBeTruthy();
-    });
-
-    it('shows nothing when masteryModel computed is null', () => {
-      // We know it is null due to the test suite describing 'is null when ... is "quiz"' - which
-      // is what wrapperWithoutMasteryModel has it's currentTry.mastery_criterion set to
-      expect(
-        wrapperWithoutMasteryModel.find('[data-test="try-mastery-model"]').element,
-      ).toBeFalsy();
-    });
-
-    it('shows nothing when isSurvey', async () => {
-      // setProps is async
-      await wrapperToShowMasteryModel.setProps({ isSurvey: true });
-      expect(wrapperToShowMasteryModel.find('[data-test="try-mastery-model"]').element).toBeFalsy();
-    });
-  });
-
-  describe('percentage score', () => {
-    describe('computed score', () => {
-      it('returns 0 when currentTry.correct is falsy', () => {
-        let wrapper = shallowMount(CurrentTryOverview, {
-          propsData: defaultPropsWith({}, { correct: undefined }),
-        });
-        expect(wrapper.vm.score).toEqual(0);
-
-        wrapper = shallowMount(CurrentTryOverview, {
-          propsData: defaultPropsWith({}, { correct: null }),
-        });
-        expect(wrapper.vm.score).toEqual(0);
-      });
-
-      const wrapper = shallowMount(CurrentTryOverview, { propsData: defaultProps });
-      it.each([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 49])(
-        `returns currentTry.correct (%i) / this.totalQuestions (${defaultProps.totalQuestions})`,
-        n => {
-          wrapper.setProps(defaultPropsWith({}, { correct: n }));
-          return wrapper.vm.$nextTick().then(() => {
-            expect(wrapper.vm.score).toEqual(n / defaultProps.totalQuestions);
-          });
-        },
-      );
-    });
-
-    describe('not displaying the score', () => {
-      it('is not shown if computed masteryModel is truthy', () => {
-        const wrapper = shallowMount(CurrentTryOverview, {
-          propsData: defaultPropsWith({}, { mastery_criterion: nonQuizValidMasteryCriterion }),
-        });
-        expect(wrapper.find('[data-test="try-score"]').element).toBeFalsy();
-      });
-
-      it('is not shown if currentTry.correct is `undefined`', () => {
-        // Aside from the overridden prop, this would have shown
-        const wrapper = shallowMount(CurrentTryOverview, {
-          propsData: defaultPropsWith({}, { correct: undefined }),
-        });
-        expect(wrapper.find('[data-test="try-score"]').element).toBeFalsy();
-      });
-
-      it('is not shown when the prop isSurvey is true', () => {
-        // Aside from the overridden prop, this would have shown
-        const wrapper = shallowMount(CurrentTryOverview, {
-          propsData: defaultPropsWith({ isSurvey: true }),
-        });
-        expect(wrapper.find('[data-test="try-score"]').element).toBeFalsy();
-      });
-    });
-
-    it('shows the value of computed score as a %', () => {
-      const wrapper = shallowMount(CurrentTryOverview, {
-        propsData: defaultProps,
-      });
-      it.each(
-        [0, 1, 10, 50, 75, 100],
-        'displays %i as a percentage when currentTry.correct = %i',
-        async n => {
-          await wrapper.setProps({ currentTry: { ...defaultTry, correct: n } });
-          expect(wrapper.find('[data-test="try-score"]')).toHaveTextContent(`${n}%`);
-        },
-      );
-    });
-  });
-
-  describe('questions correct', () => {
-    describe('not displaying the questions correct', () => {
-      it('is not shown if computed masteryModel is truthy', () => {
-        const wrapper = shallowMount(CurrentTryOverview, {
-          propsData: defaultPropsWith({}, { mastery_criterion: nonQuizValidMasteryCriterion }),
-        });
-        expect(wrapper.find('[data-test="try-questions-correct"]').element).toBeFalsy();
-      });
-
-      it('is not shown if currentTry.correct is `undefined`', () => {
-        // Aside from the overridden prop, this would have shown
-        const wrapper = shallowMount(CurrentTryOverview, {
-          propsData: defaultPropsWith({}, { correct: undefined }),
-        });
-        expect(wrapper.find('[data-test="try-questions-correct"]').element).toBeFalsy();
-      });
-
-      it('is not shown when the prop isSurvey is true', () => {
-        // Aside from the overridden prop, this would have shown
-        const wrapper = shallowMount(CurrentTryOverview, {
-          propsData: defaultPropsWith({ isSurvey: true }),
-        });
-        expect(wrapper.find('[data-test="try-questions-correct"]').element).toBeFalsy();
-      });
-    });
-
-    describe('showing the questions correct fraction', () => {
-      /* Testing a relevant computed property before getting to the display logic */
-      describe('computed questionsCorrectAnnotation', () => {
-        describe('currentTry.diff.correct > 0 and user viewing own try', () => {
-          /* This would be an $tr, at current 'practiceQuizReportImprovedLabelSecondPerson': */
-          it('returns a string including currentTry.diff.correct in it', () => {
-            useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
-            const wrapper = shallowMount(CurrentTryOverview, {
-              propsData: defaultPropsWith({}, { diff: betterDiff }),
-              localVue,
-            });
-
-            expect(wrapper.vm.questionsCorrectAnnotation).toEqual(
-              translator.$tr('practiceQuizReportImprovedLabelSecondPerson', {
-                value: betterDiff.correct,
-              }),
+  export default {
+    name: 'QuizReport',
+    components: {
+      AttemptLogList,
+      InteractionList,
+      MultiPaneLayout,
+      AttemptIconDiff,
+      AttemptTextDiff,
+      TriesOverview,
+      CurrentTryOverview,
+      MissingResourceAlert,
+    },
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
+    props: {
+      // Unique identifier of the item for the report
+      // this will be used to filter for previous tries
+      contentId: {
+        type: String,
+        required: true,
+      },
+      // The title of the item
+      title: {
+        type: String,
+        required: true,
+      },
+      // The suggested duration of the item in seconds
+      duration: {
+        type: Number,
+        default: null,
+      },
+      // The user id of the user for the report
+      // Let it be null to handle anonymous users
+      // with just the title and action bar.
+      userId: {
+        type: String,
+        default: null,
+      },
+      // The name of the user for the report
+      userName: {
+        type: String,
+        required: true,
+      },
+      // Which specific interaction within an attempt to show
+      selectedInteractionIndex: {
+        type: Number,
+        required: true,
+      },
+      // Which specific question within a try to show
+      // A zero based index
+      // For quiz type assessments, this is the specific question number
+      // For exercise type assessments, 0 is the most recent attempt in the try
+      questionNumber: {
+        type: Number,
+        required: true,
+      },
+      // Which 'try' to show - this is a zero based index with 0 being the most recent.
+      // To the user we describe this as an 'attempt' but to avoid confusion with the
+      // attempt logs that describe a users interaction with a specific question, we
+      // refer to this as a 'try'
+      tryIndex: {
+        type: Number,
+        default: 0,
+      },
+      // An object containing all of the content metadata for the item.
+      // We allow this to be empty to accommodate missing resources
+      exercise: {
+        type: Object,
+        default: null,
+      },
+      // A function that has the signature tryIndex, questionNumber, interactionIndex
+      // this should handle changes to the three parameters above.
+      navigateTo: {
+        type: Function,
+        required: true,
+      },
+      // The exam.question_sources value
+      sections: {
+        type: Array,
+        required: false,
+        default: null,
+      },
+      // An array of questions in the format:
+      // {
+      //   exercise_id: <exercise_id>,
+      //   question_id: <item id for question>,
+      //   title: <title to use when displaying the question>,
+      //   counter_in_exercise: <zero based index of question in exercise>,
+      //   item: <a unique identifier for the question>
+      // }
+      // The question_id and item are identical for non-coach assigned/generated quizzes
+      // for coach generated quizzes, we currently use a concatenation of the exercise_id
+      // and question_id in order to generate a globally unique item identifier:
+      // <exercise_id>:<question_id>
+      // in case two exercises have a colliding question_id.
+      // For exercises and practice quizzes there is no risk of collision, so this is not done.
+      questions: {
+        type: Array,
+        required: true,
+        validator: questions => {
+          return questions.every(question => {
+            return (
+              isString(question.exercise_id) &&
+              isString(question.question_id) &&
+              isNumber(question.counter_in_exercise) &&
+              isString(question.title) &&
+              isString(question.item)
             );
           });
-        });
-
-        it('returns null when currentTry.diff is falsy', () => {
-          const wrapper = shallowMount(CurrentTryOverview, {
-            propsData: defaultProps,
-          });
-          expect(wrapper.vm.questionsCorrectAnnotation).toBeNull();
-        });
-
-        it("returns null when the try is not the current user's try", () => {
-          useUser.mockImplementation(() =>
-            useUserMock({ currentUserId: defaultProps.userId + '-2-3' }),
-          );
-          const wrapper = shallowMount(CurrentTryOverview, {
-            propsData: defaultPropsWith({}, { diff: betterDiff }),
-            localVue,
-          });
-          expect(wrapper.vm.questionsCorrectAnnotation).toBeNull();
-        });
-      });
-
-      /* Display logic */
-      it('is shown when currentTry.correct and prop totalQuestions are set', () => {
-        const wrapper = shallowMount(CurrentTryOverview, {
-          propsData: defaultProps,
-        });
-        expect(wrapper.find('[data-test="try-questions-correct"]').element).toBeTruthy();
-      });
-
-      it('displays annotation string when diff.correct is set and viewed by owning user', () => {
-        useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
-        const wrapper = shallowMount(CurrentTryOverview, {
-          propsData: defaultPropsWith({}, { diff: betterDiff }),
-          localVue,
-        });
-        expect(wrapper.find('[data-test="try-questions-correct"]').element).toHaveTextContent(
-          translator.$tr('practiceQuizReportImprovedLabelSecondPerson', {
-            value: betterDiff.correct,
-          }),
+        },
+      },
+      // An array containing all of the content metadata for the item.
+      // Note: this is only really needed for coach assigned quizzes
+      // for exercises and practice quizzes, this is just the exercise prop
+      // wrapped in an array.
+      // TODO: Add general purpose content node validator here.
+      exerciseContentNodes: {
+        type: Array,
+        default: () => [],
+      },
+      // Is this a coach assigned quiz or a practice quiz?
+      // This is used to determine the ordering of displayed attempts
+      // For quizzes it's by question number, for non-quizzes it's by most recent attempt
+      // and whether to show non-attempted questions.
+      isQuiz: {
+        type: Boolean,
+        default: true,
+      },
+      // Is this.content a survey modality?
+      isSurvey: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    data() {
+      return {
+        showCorrectAnswer: false,
+        now: now(),
+        pastTries: [],
+        currentTry: null,
+        loading: true,
+      };
+    },
+    computed: {
+      annotatedSections() {
+        return annotateSections(this.sections, this.questions);
+      },
+      currentSectionIndex() {
+        return this.annotatedSections.findIndex(
+          section =>
+            this.questionNumber >= section.startQuestionNumber &&
+            this.questionNumber <= section.endQuestionNumber,
         );
-      });
-    });
-  });
-
-  describe('time spent', () => {
-    it('is not shown when the prop isSurvey is true', () => {
-      const wrapper = shallowMount(CurrentTryOverview, {
-        propsData: defaultPropsWith({ isSurvey: true }),
-      });
-      expect(wrapper.find('[data-test="try-time-spent"]').element).toBeFalsy();
-    });
-
-    it('is not shown when currentTry.time_spent is falsy', () => {
-      const wrapper = shallowMount(CurrentTryOverview, {
-        propsData: defaultPropsWith({}, { time_spent: 0 }),
-      });
-      expect(wrapper.find('[data-test="try-time-spent"]').element).toBeFalsy();
-    });
-
-    it('displays a TimeDuration component', () => {
-      const wrapper = shallowMount(CurrentTryOverview, {
-        propsData: defaultProps,
-      });
-      expect(wrapper.findComponent(TimeDuration)).toBeTruthy();
-    });
-
-    describe('showing the time spent annotation', () => {
-      describe('computed diffTimeSpent', () => {
-        useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
-        it('returns null when currentTry.diff.time_spent is falsy', () => {
-          const wrapper = shallowMount(CurrentTryOverview, {
-            localVue,
-            propsData: defaultPropsWith({}, { diff: { time_spent: 0 } }),
+      },
+      currentSection() {
+        return this.annotatedSections[this.currentSectionIndex];
+      },
+      questionNumberInSectionLabel() {
+        const questionLabel = this.coreString('questionNumberLabel', {
+          questionNumber: this.questionNumber + 1,
+        });
+        if (this.annotatedSections.length === 1) {
+          return questionLabel;
+        }
+        const sectionLabel = displaySectionTitle(this.currentSection, this.currentSectionIndex);
+        return `${sectionLabel} - ${questionLabel}`;
+      },
+      attemptLogs() {
+        if (this.isQuiz || this.isSurvey) {
+          return this.quizAttempts();
+        }
+        return this.masteryAttempts();
+      },
+      answerState() {
+        // Do not pass in answerState if showCorrectAnswer is set to true
+        // answerState has a precedence over showCorrectAnswer
+        if (
+          !this.showCorrectAnswer &&
+          this.currentInteraction &&
+          this.currentInteraction.type === 'answer'
+        ) {
+          return this.currentInteraction.answer;
+        }
+        return null;
+      },
+      currentAttempt() {
+        return this.attemptLogs.find(a => a.item === this.itemId);
+      },
+      currentAttemptDiff() {
+        return this.currentAttempt &&
+          this.currentAttempt.diff &&
+          this.currentAttempt.diff.correct !== null
+          ? this.currentAttempt.diff
+          : null;
+      },
+      pastTriesOptions() {
+        return this.pastTries.map((quizTry, index) => {
+          const rawScore = quizTry.correct / this.questions.length;
+          const score = this.$formatNumber(rawScore, { style: 'percent' });
+          const time = this.$formatRelative(quizTry.completion_timestamp || quizTry.end_timestamp, {
+            now: this.now,
           });
-          expect(wrapper.vm.diffTimeSpent).toBeNull();
-        });
 
-        it('returns Math.floor of currentTry.diff.time_spent / 60', () => {
-          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
-          const wrapper = shallowMount(CurrentTryOverview, {
-            propsData: defaultPropsWith({}, { diff: betterDiff }),
-            localVue,
+          return {
+            value: index,
+            label: this.isSurvey ? time : `(${score}) ${time}`,
+          };
+        });
+      },
+      itemId() {
+        return this.isQuiz || this.isSurvey
+          ? this.questions[this.questionNumber].item
+          : this.attemptLogs[this.questionNumber].item;
+      },
+      renderableItemId() {
+        // This item value is used to pass into ContentRenderer to set the correct question,
+        // so reclaim the actual item id value here by splitting on ':'.
+        // This is only needed in cases where the item id has been artificially generated for coach
+        // assigned quizzes.
+        return this.itemId.split(':')[1] || this.itemId;
+      },
+      currentInteractionHistory() {
+        // filter out interactions without answers but keep hints and errors
+        return this.currentAttempt
+          ? this.currentAttempt.interaction_history.filter(interaction =>
+            Boolean(
+              interaction.answer || interaction.type === 'hint' || interaction.type === 'error',
+            ),
+          ) || []
+          : [];
+      },
+      currentInteraction() {
+        return (
+          this.currentInteractionHistory &&
+          this.currentInteractionHistory[this.selectedInteractionIndex]
+        );
+      },
+      titleIcon() {
+        if (this.isSurvey) {
+          return 'reflectSolid';
+        }
+        return this.isQuiz ? 'quiz' : this.exercise.kind;
+      },
+    },
+    watch: {
+      tryIndex(newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.loadAttempts();
+        }
+      },
+    },
+    created() {
+      if (this.userId) {
+        this.loadAttempts();
+        this.loadAllTries();
+      }
+    },
+    methods: {
+      navigateToQuestion(questionNumber) {
+        if (questionNumber !== this.questionNumber) {
+          this.navigateTo(this.tryIndex, questionNumber, 0);
+          this.$refs.multiPaneLayout.scrollMainToTop();
+          this.showCorrectAnswer = false;
+        }
+      },
+      navigateToQuestionAttempt(interaction) {
+        if (interaction !== this.selectedInteractionIndex) {
+          this.navigateTo(this.tryIndex, this.questionNumber, interaction);
+          this.$refs.multiPaneLayout.scrollMainToTop();
+          this.showCorrectAnswer = false;
+        }
+      },
+      navigateToTry(tryOption) {
+        if (tryOption.value !== this.tryIndex) {
+          this.navigateTo(tryOption.value, 0, 0);
+          this.$refs.multiPaneLayout.scrollMainToTop();
+          this.showCorrectAnswer = false;
+        }
+      },
+      toggleShowCorrectAnswer() {
+        this.showCorrectAnswer = !this.showCorrectAnswer;
+        this.$forceUpdate();
+      },
+      getParams() {
+        return {
+          content: this.contentId,
+          user: this.userId,
+          back: this.tryIndex,
+          quiz: this.isQuiz,
+        };
+      },
+      loadAttempts() {
+        if (!isFinite(this.tryIndex)) {
+          return;
+        }
+        this.loading = true;
+        MasteryLogResource.fetchMostRecentDiff(this.getParams())
+          .then(currentTry => {
+            this.currentTry = currentTry;
+            this.loading = false;
+          })
+          .catch(err => {
+            if (err.response && err.response.status_code === 404) {
+              this.$emit('noCompleteTries');
+            }
+            this.loading = false;
           });
-          expect(wrapper.vm.diffTimeSpent).toEqual(Math.floor(betterDiff.time_spent / 60));
-        });
-      });
-
-      describe('computed timeSpentAnnotation', () => {
-        it('returns null when currentTry.diff.time_spent is 0 < n < 60', () => {
-          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
-          const wrapper = shallowMount(CurrentTryOverview, {
-            localVue,
-            propsData: defaultPropsWith({}, { diff: { time_spent: 40 } }),
+      },
+      loadAllTries() {
+        MasteryLogResource.fetchCollection({ getParams: this.getParams(), force: true }).then(
+          pastTries => {
+            this.pastTries = pastTries;
+          },
+        );
+      },
+      quizAttempts() {
+        const mostRecentAttempts = sortBy(
+          this.currentTry ? this.currentTry.attemptlogs : [],
+          'end_timestamp',
+        ).reverse();
+        return sortBy(
+          this.questions.map((question, index) => {
+            const attempt = mostRecentAttempts.find(a => a.item === question.item);
+            const questionNumber = index + 1;
+            const noattempt = !attempt;
+            let num_coach_contents;
+            let missing_resource = true;
+            if (this.exerciseContentNodes.length) {
+              const exerciseId = this.questions[questionNumber - 1].exercise_id;
+              const exerciseMatch = find(this.exerciseContentNodes, { id: exerciseId });
+              if (exerciseMatch) {
+                num_coach_contents = exerciseMatch.num_coach_contents;
+                missing_resource = false;
+              }
+            }
+            return {
+              ...(attempt || {}),
+              noattempt,
+              questionNumber,
+              num_coach_contents,
+              missing_resource,
+            };
+          }),
+          'questionNumber',
+        );
+      },
+      masteryAttempts() {
+        return sortBy(this.currentTry ? this.currentTry.attemptlogs : [], 'end_timestamp')
+          .reverse()
+          .map(attempt => {
+            const questionNumber = this.questions.findIndex(q => q.item === attempt.item) + 1;
+            let num_coach_contents;
+            let missing_resource = true;
+            if (this.exerciseContentNodes.length) {
+              const exerciseId = this.questions[questionNumber - 1].exercise_id;
+              const exerciseMatch = find(this.exerciseContentNodes, { id: exerciseId });
+              if (exerciseMatch) {
+                num_coach_contents = exerciseMatch.num_coach_contents;
+                missing_resource = false;
+              }
+            }
+            return {
+              ...attempt,
+              questionNumber,
+              num_coach_contents,
+              missing_resource,
+            };
           });
-          expect(wrapper.vm.timeSpentAnnotation).toBeNull();
-        });
+      },
+    },
+    $trs: {
+      noItemId: {
+        message: 'This question has an error, please move on to the next question',
+        context:
+          'Message that a coach would see in a report that indicates that there is an error in one of the questions in a quiz.',
+      },
+      attemptDropdownLabel: {
+        message: 'Attempt',
+        context:
+          'Label in the dropdown menu where one can choose an attempt from their five most recent attempts at a practice quiz',
+      },
+    },
+  };
 
-        it('returns null when currentTry.diff.time_spent is falsy', () => {
-          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
-          const wrapper = shallowMount(CurrentTryOverview, {
-            localVue,
-            propsData: defaultPropsWith({}, { diff: { time_spent: undefined } }),
-          });
-          expect(wrapper.vm.timeSpentAnnotation).toBeNull();
-        });
-      });
+</script>
 
-      describe('diffTimeSpent < 0 - try is faster than last', () => {
-        it('displays $trs.practiceQuizReportFasterTimeLabel with the abs value of diffTimeSpent', () => {
-          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
-          const wrapper = shallowMount(CurrentTryOverview, {
-            localVue,
-            propsData: defaultPropsWith({}, { diff: betterDiff }),
-          });
-          expect(wrapper.find('[data-test="try-time-spent"]').element).toHaveTextContent(
-            translator.$tr('practiceQuizReportFasterTimeLabel', {
-              value: Math.abs(wrapper.vm.diffTimeSpent),
-            }),
-          );
-        });
-      });
 
-      describe('diffTimeSpent > 0 try is slower than last', () => {
-        it('displays $trs.practiceQuizReportSlowerTimeLabel with the value of diffTimeSpent', () => {
-          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
-          const wrapper = shallowMount(CurrentTryOverview, {
-            localVue,
-            propsData: defaultPropsWith({}, { diff: worseDiff }),
-          });
-          expect(wrapper.find('[data-test="try-time-spent"]').element).toHaveTextContent(
-            translator.$tr('practiceQuizReportSlowerTimeLabel', {
-              value: wrapper.vm.diffTimeSpent,
-            }),
-          );
-        });
-      });
-    });
-  });
+<style lang="scss" scoped>
 
-  describe('time ago', () => {
-    describe('computed endTimestamp', () => {
-      // Assumes that one of completion_timestamp OR end_timestamp exists on currentTry
-      it('returns currentTry.completion_timestamp', () => {
-        const wrapper = shallowMount(CurrentTryOverview, { propsData: defaultProps });
-        expect(wrapper.vm.endTimestamp).toEqual(defaultProps.completion_timestamp);
-      });
-      it('returns currentTry.end_timestamp when .completion_timestamp is falsy', () => {
-        const wrapper = shallowMount(CurrentTryOverview, {
-          propsData: defaultPropsWith({ completion_timestamp: undefined }),
-        });
-        expect(wrapper.vm.endTimestamp).toEqual(defaultProps.end_timestamp);
-      });
-    });
+  .exercise-container {
+    padding: 8px;
+  }
 
-    it('displays ElapsedTime component with `new Date(endTimestamp)` passed to its :date prop', () => {
-      const wrapper = shallowMount(CurrentTryOverview, { propsData: defaultProps });
-      expect(wrapper.findComponent(ElapsedTime)).toBeTruthy();
-    });
-    // Not testing the "don't show this" because there is no reason for BOTH to be undefined
-    // so this should always be shown for now.
-  });
-});
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background-color: white;
+  }
+
+  .mobile-exercise-container {
+    margin-top: 16px;
+  }
+
+  .mobile-attempt-log-list {
+    margin-top: 16px;
+  }
+
+  h3 {
+    margin-top: 0;
+  }
+
+  .try-selection {
+    max-width: 400px;
+    padding: 8px 8px 0;
+    margin-top: 16px;
+  }
+
+  .loader {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+
+  th {
+    text-align: left;
+  }
+
+  th,
+  td {
+    height: 2em;
+    padding-right: 24px;
+    font-size: 14px;
+  }
+
+</style>

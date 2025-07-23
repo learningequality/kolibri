@@ -1,5 +1,5 @@
-import KolibriModule from 'kolibri-module';
 import DemoServerBannerContent from './DemoServerBannerContent';
+import KolibriModule from 'kolibri-module';
 
 class DemoServerModule extends KolibriModule {
   ready() {

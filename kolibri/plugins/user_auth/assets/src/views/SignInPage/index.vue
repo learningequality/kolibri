@@ -159,21 +159,21 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import FacilityUsernameResource from 'kolibri-common/apiResources/FacilityUsernameResource';
   import get from 'lodash/get';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { LoginErrors } from 'kolibri/constants';
-  import { validateUsername } from 'kolibri/utils/validators';
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import useUser from 'kolibri/composables/useUser';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
   import { ComponentMap } from '../../constants';
   import getUrlParameter from '../getUrlParameter';
   import AuthBase from '../AuthBase';
   import UsersList from '../UsersList';
   import commonUserStrings from '../commonUserStrings';
   import SignInHeading from './SignInHeading';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useUser from 'kolibri/composables/useUser';
+  import { validateUsername } from 'kolibri/utils/validators';
+  import { LoginErrors } from 'kolibri/constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import FacilityUsernameResource from 'kolibri-common/apiResources/FacilityUsernameResource';
 
   const MAX_USERS_FOR_LISTING_VIEW = 16;
 

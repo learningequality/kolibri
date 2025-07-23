@@ -52,10 +52,10 @@
 <script>
 
   import pickBy from 'lodash/pickBy';
-  import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AuthBase from '../AuthBase';
   import { ComponentMap } from '../../constants';
+  import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'NewPasswordPage',

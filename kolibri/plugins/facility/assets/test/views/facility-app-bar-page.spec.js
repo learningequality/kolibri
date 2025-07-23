@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { Store } from 'vuex';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+import FacilityAppBarPage from '../../src/views/FacilityAppBarPage';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
-import FacilityAppBarPage from '../../src/views/FacilityAppBarPage';
 
 function makeWrapper({ propsData = {}, getters = {} }) {
   const store = new Store(getters);

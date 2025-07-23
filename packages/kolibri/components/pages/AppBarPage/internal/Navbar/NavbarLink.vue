@@ -1,90 +1,152 @@
 <template>
 
-  <li class="list-item-navigation visible">
-    <router-link
-      class="tab"
-      :class="$computedClass(tabStyles)"
-      :style="windowIsSmall ? smallScreenOverrides : {}"
-      :to="link"
-      :activeClass="activeClasses"
+  <nav class="navbar-positioning">
+    <ul
+      ref="items"
+      class="items"
+      tabindex="-1"
+      :style="styleOverrides"
     >
-      <div class="dimmable tab-icon">
-        <slot></slot>
-      </div>
-
-      <div
-        class="dimmable tab-title"
-        tabindex="-1"
-        :title="title"
+      <NavbarLink
+        v-for="(link, index) in allLinks"
+        :key="index"
+        ref="navLinks"
+        :data-onboarding-id="index === 1 ? 'Library' : null"
+        :title="link.title"
+        :link="link.link"
       >
-        {{ title }}
-      </div>
-    </router-link>
-  </li>
+        <KIcon
+          :icon="link.icon"
+          :color="themeConfig.appBar.textColor"
+        />
+      </NavbarLink>
+    </ul>
+
+    <KIconButton
+      v-if="overflowMenuLinks && overflowMenuLinks.length > 0"
+      :tooltip="coreString('moreOptions')"
+      tooltipPosition="top"
+      :ariaLabel="coreString('moreOptions')"
+      icon="optionsHorizontal"
+      appearance="flat-button"
+      :color="themeConfig.appBar.textColor"
+      :primary="false"
+      class="kiconbutton-style"
+    >
+      <template #menu>
+        <KDropdownMenu
+          :primary="false"
+          :disabled="false"
+          :hasIcons="true"
+          :options="overflowMenuLinks"
+          @select="handleSelect"
+        />
+      </template>
+    </KIconButton>
+  </nav>
 
 </template>
 
 
 <script>
 
-  import { validateLinkObject } from 'kolibri/utils/validators';
+  import isUndefined from 'lodash/isUndefined';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import NavbarLink from './NavbarLink';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import themeConfig from 'kolibri/styles/themeConfig';
 
   /**
-Links for use inside the Navbar
-*/
+   * Used for navigation between sub-pages of a top-level Kolibri section
+   */
   export default {
-    name: 'NavbarLink',
+    name: 'Navbar',
+    components: {
+      NavbarLink,
+    },
+    mixins: [commonCoreStrings],
     setup() {
-      const { windowIsSmall } = useKResponsiveWindow();
+      const { windowIsLarge, windowIsMedium, windowWidth } = useKResponsiveWindow();
+
       return {
+        windowIsLarge,
+        windowIsMedium,
+        windowWidth,
         themeConfig,
-        windowIsSmall,
       };
     },
     props: {
       /**
-       * The text
+       * An array of options objects, with one object per dropdown item
        */
+      navigationLinks: {
+        type: Array,
+        default: () => [],
+        required: true,
+        validator(values) {
+          return values.every(value => value.link.name);
+        },
+      },
       title: {
         type: String,
-        default: null,
-      },
-      /**
-       * A router link object
-       */
-      link: {
-        type: Object,
         required: true,
-        validator: validateLinkObject,
       },
     },
+    data() {
+      return {
+        mounted: false,
+      };
+    },
     computed: {
-      tabStyles() {
-        return {
-          color: this.themeConfig.appBar.textColor,
-          ':hover': {
-            'background-color': this.$themeBrand.secondary.v_600,
-          },
-          ':focus': {
-            ...this.$coreOutline,
-            outlineOffset: '-6px',
-          },
-        };
+      allLinks() {
+        return this.navigationLinks.filter(l => !l.isHidden);
       },
-      smallScreenOverrides() {
-        return {
-          padding: '0 8px',
-          fontSize: '14px',
-          borderBottomWidth: '2px',
-        };
+      overflowMenuLinks() {
+        if (!this.mounted || isUndefined(this.windowWidth) || !this.title) {
+          return [];
+        }
+        const containerTop = this.$refs.items.offsetTop;
+        const containerHeight = this.$refs.items.clientHeight;
+        return this.allLinks
+          .filter((link, index) => {
+            const navLink = this.$refs.navLinks[index].$el;
+            // Calculate navLinkTop relative to the items by subtracting the container's top
+            const navLinkTop = navLink.offsetTop - containerTop;
+            const navLinkHeight = navLink.clientHeight;
+            const navLinkBottom = navLinkTop + navLinkHeight;
+            // Check if the navLink is _not_ completely bounded the container, top and bottom.
+            return !(navLinkTop >= 0 && navLinkBottom <= containerHeight);
+          })
+          .map(l => ({ label: l.title, value: l.link, icon: l.icon }));
       },
-      activeClasses() {
-        // return both fixed and dynamic classes
-        return `router-link-active ${this.$computedClass({
-          color: this.themeConfig.appBar.textColor,
-        })}`;
+      styleOverrides() {
+        const styles = { maxHeight: '52px' };
+        if (this.windowIsLarge) {
+          return styles;
+        }
+        if (this.windowIsMedium) {
+          return styles;
+        }
+        styles.maxHeight = '42px';
+        return styles;
+      },
+    },
+    watch: {
+      // Whenever overflowMenuLinks changes, emit its new length
+      overflowMenuLinks(newValue) {
+        this.$emit('update-overflow-count', newValue.length);
+      },
+    },
+    mounted() {
+      this.mounted = true;
+    },
+    methods: {
+      handleSelect(option) {
+        // Prevent redundant navigation
+        if (this.$route.name === option.value.name) {
+          return;
+        }
+        this.$router.push(this.$router.getRoute(option.value.name));
       },
     },
   };
@@ -96,75 +158,26 @@ Links for use inside the Navbar
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .list-item-navigation {
-    display: inline-block;
-    text-align: center;
-    visibility: hidden;
-  }
-
-  .visible {
-    visibility: visible;
-  }
-
-  .tab {
-    display: inline-block;
-    min-width: 72px;
-    max-width: 264px;
-    padding: 0 16px;
-    padding-bottom: 6px;
-    margin: 0;
-    font-size: 14px;
-    text-decoration: none;
-    border: 0;
-    border-radius: 0;
-    border-top-left-radius: $radius;
-    border-top-right-radius: $radius;
-    transition: background-color $core-time ease;
-
-    .dimmable {
-      opacity: 1;
-    }
-  }
-
-  .router-link-active {
-    font-weight: bold;
-    border-bottom-style: solid;
-    border-bottom-width: 4px;
-
-    .dimmable {
-      opacity: 1;
-    }
-  }
-
-  .icon {
-    top: 0;
-  }
-
-  svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .tab-icon {
-    display: inline-block;
-    padding: 10px 0;
-    margin-right: 4px;
-  }
-
-  .tab-title {
-    display: inline-block;
-    text-overflow: ellipsis;
-  }
-
-  div.dimmable.tab-title::before {
-    display: block;
-    height: 0;
+  .items {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 0;
+    margin-bottom: 4px;
+    margin-left: 16px;
     overflow: hidden;
-    font-weight: bold;
-    pointer-events: none;
-    visibility: hidden;
-    content: attr(title);
-    user-select: none;
+    white-space: nowrap;
+  }
+
+  .kiconbutton-style {
+    flex-shrink: 0;
+    float: right;
+  }
+
+  .navbar-positioning {
+    position: relative;
+    display: flex;
+    align-items: center;
   }
 
 </style>

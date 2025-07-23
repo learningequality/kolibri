@@ -1,64 +1,95 @@
-import client from 'kolibri/client';
+import FontFaceObserver from 'fontfaceobserver';
 import logger from 'kolibri-logging';
-import urls from 'kolibri/urls';
-import useUser from 'kolibri/composables/useUser';
-import { get } from '@vueuse/core';
 import plugin_data from 'kolibri-plugin-data';
+import { availableLanguages, currentLanguage } from 'kolibri/utils/i18n';
+import { browser, passesRequirements } from 'kolibri/utils/browserInfo';
 
 const logging = logger.getLogger(__filename);
 
-const appCapabilities = plugin_data.appCapabilities || {};
-
-// Check that we are in an appcontext, if not disable all capabilities
-// this means that consumers of this API can rely solely on the existence
-// check of methods in this API to know if they can call these or not.
-export const checkCapability = key => {
-  const { isAppContext } = useUser();
-  return get(isAppContext) && appCapabilities[key];
+// These browsers fully support font-display: swap
+// https://caniuse.com/?search=swap
+const fontSwapSupportingBrowsers = {
+  Edge: {
+    major: 17,
+  },
+  Firefox: {
+    major: 58,
+  },
+  Chrome: {
+    major: 60,
+  },
+  'Chrome WebView': {
+    major: 60,
+  },
+  Safari: {
+    major: 11,
+    minor: 1,
+  },
+  Opera: {
+    major: 47,
+  },
+  'Mobile Safari': {
+    major: 11,
+    minor: 4,
+  },
+  IE: {
+    major: 100, // specify impossible IE version, forcing passesRequirements to fail
+  },
 };
 
-// Use a janky getter to return a method here to only expose functions
-// that are available so that we have a single API for both existence
-// checks and exposing the functions.
+// See
+// https://github.com/learningequality/kolibri-design-system/blob/main/lib/styles/definitions.scss
+const FULL_FONTS = 'full-fonts-loaded';
+const PARTIAL_FONTS = 'partial-fonts-loaded';
 
-export default {
-  /**
-   * @returns fn -> Promise<{ value: (boolean | null) }>
-   * Returns a function that returns a Promise that resolves to something responding to
-   * `data.value` whether it succeeds or fails.
+function loadFullFontsProgressively() {
+  /*
+   * This function eagerly loads the full fonts for the current language asynchronously, but
+   * avoids referencing them until they've been fully loaded. This is done by adding a
+   * class to the HTML root which has the effect of switching fonts from system defaults
+   * to Noto.
+   *
+   * This prevents the text from being invisible while the fonts are loading ("FOIT")
+   * and instead falls back on system fonts while they're loading ("FOUT").
    */
-  checkIsMetered() {
-    if (!checkCapability('check_is_metered')) {
-      return Promise.resolve(null);
-    }
+  const htmlEl = document.documentElement;
+  htmlEl.classList.add(PARTIAL_FONTS);
 
-    const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands_check_is_metered'];
-    if (!urlFunction || !checkCapability('check_is_metered')) {
-      logging.warn('Checking if the device is metered is not supported on this platform');
-      return Promise.resolve(null);
-    }
-    return client({ url: urlFunction(), method: 'GET' }).then(response => response.data.value);
-  },
-  get shareFile() {
-    if (!checkCapability('share_file')) {
-      return; // eslint-disable-line getter-return
-    }
-    // Deliberately using an options object here for the function signature,
-    // rather than positional arguments, so that we can evolve the API but
-    // maintain backwards compatibility.
-    // It would be more elegant to use a proxy for this, but that would require
-    // adding a polyfill for this specific usage, so this works just as well.
-    return ({ filename, message }) => {
-      const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands_share_file'];
-      if (!urlFunction) {
-        logging.warn('Sharing a file is not supported on this platform');
-        return Promise.reject();
-      }
-      return client({
-        url: urlFunction(),
-        method: 'POST',
-        data: { filename, message },
-      });
-    };
-  },
-};
+  const uiNormal = new FontFaceObserver('noto-full', { weight: 400 });
+  const uiBold = new FontFaceObserver('noto-full', { weight: 700 });
+
+  // passing the language name to 'load' for its glyphs, not its value per se
+  const string = availableLanguages[currentLanguage].lang_name;
+  Promise.all([uiNormal.load(string, 20000), uiBold.load(string, 20000)])
+    .then(function () {
+      htmlEl.classList.remove(PARTIAL_FONTS);
+      htmlEl.classList.add(FULL_FONTS);
+      logging.debug(`Loaded full font for '${currentLanguage}'`);
+    })
+    .catch(function () {
+      logging.warn(`Could not load full font for '${currentLanguage}'`);
+    });
+}
+
+function loadFullFontsImmediately() {
+  const htmlEl = document.documentElement;
+  htmlEl.classList.add(FULL_FONTS);
+}
+
+function addFontStylesheetLink(href) {
+  const fonts = document.createElement('link');
+  fonts.rel = 'stylesheet';
+  fonts.type = 'text/css';
+  fonts.href = href;
+  document.head.appendChild(fonts);
+}
+
+export default function setupAndLoadFonts() {
+  if (passesRequirements(browser, fontSwapSupportingBrowsers)) {
+    addFontStylesheetLink(plugin_data.fullCSSFileModern);
+    loadFullFontsImmediately();
+  } else {
+    addFontStylesheetLink(plugin_data.fullCSSFileBasic);
+    loadFullFontsProgressively();
+  }
+}

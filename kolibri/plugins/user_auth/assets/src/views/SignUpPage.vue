@@ -110,6 +110,11 @@
 <script>
 
   import every from 'lodash/every';
+  import { ComponentMap } from '../constants';
+  import { SignUpResource } from '../apiResource';
+  import LanguageSwitcherFooter from './LanguageSwitcherFooter';
+  import getUrlParameter from './getUrlParameter';
+  import commonUserStrings from './commonUserStrings';
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri/constants';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
   import BirthYearSelect from 'kolibri-common/components/userAccounts/BirthYearSelect';
@@ -123,11 +128,6 @@
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import { ComponentMap } from '../constants';
-  import { SignUpResource } from '../apiResource';
-  import LanguageSwitcherFooter from './LanguageSwitcherFooter';
-  import getUrlParameter from './getUrlParameter';
-  import commonUserStrings from './commonUserStrings';
 
   const { DEFERRED } = DemographicConstants;
 

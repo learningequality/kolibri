@@ -11,8 +11,8 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import UserAuthLayout from './UserAuthLayout';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'UserAuthIndex',

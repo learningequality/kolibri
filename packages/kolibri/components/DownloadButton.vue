@@ -1,117 +1,62 @@
 <template>
 
-  <KButton
-    v-if="canDownload"
-    ref="button"
-    hasDropdown
-    :primary="$attrs.primary"
-  >
-    <span>{{ $tr('downloadContent') }}</span>
-    <template #menu>
-      <KDropdownMenu
-        :options="fileOptions"
-        maxWidth="none"
-        @select="download"
-      />
-    </template>
-  </KButton>
+  <CoreSnackbar
+    v-if="snackbarIsVisible"
+    :key="key"
+    :text="snackbarOptions.text"
+    :actionText="snackbarOptions.actionText"
+    :backdrop="snackbarOptions.backdrop"
+    :autoDismiss="snackbarOptions.autoDismiss"
+    :duration="snackbarOptions.duration"
+    :bottomPosition="snackbarOptions.bottomPosition"
+    @actionClicked="snackbarOptions.actionCallback()"
+    @hide="hideCallback"
+  />
 
 </template>
 
 
 <script>
 
-  import useUser from 'kolibri/composables/useUser';
-  import { validateObject } from 'kolibri/utils/objectSpecs';
-  import { getRenderableFiles } from './internal/ContentRenderer/utils';
-  import { getFilePresetString } from './internal/filePresetStrings';
+  import CoreSnackbar from './internal/CoreSnackbar';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
 
   export default {
-    name: 'DownloadButton',
+    name: 'GlobalSnackbar',
+    components: {
+      CoreSnackbar,
+    },
     setup() {
-      const { isAppContext } = useUser();
+      const { snackbarIsVisible, snackbarOptions, clearSnackbar } = useSnackbar();
 
       return {
-        isAppContext,
+        snackbarIsVisible,
+        snackbarOptions,
+        clearSnackbar,
       };
     },
-    props: {
-      files: {
-        type: Array,
-        default: () => [],
-        validator: function (files) {
-          return files.every(file =>
-            validateObject(file, {
-              checksum: { type: String, required: true },
-              extension: { type: String, required: true },
-              preset: { type: String, required: true },
-              lang: {
-                type: Object,
-                required: false,
-                default: () => ({}),
-                spec: {
-                  lang_name: {
-                    type: String,
-                    required: true,
-                  },
-                },
-              },
-              storage_url: { type: String, required: true },
-            }),
-          );
-        },
-      },
-      nodeTitle: {
-        type: String,
-        default: '',
+    computed: {
+      key() {
+        const options = Object.assign({}, this.snackbarOptions);
+        // The forceReuse option is used to force the reuse of the snackbar
+        // This is helpful when we want to just update the text but not re-run the transition
+        // This is used in the disconnected snackbar
+        if (options.forceReuse) {
+          options.text = '';
+          return JSON.stringify(options);
+        }
+        return JSON.stringify(options) + new Date();
       },
     },
-    computed: {
-      downloadableFiles() {
-        return getRenderableFiles(this.files).filter(file => file.preset !== 'exercise');
-      },
-      canDownload() {
-        return !this.isAppContext && this.downloadableFiles.length;
-      },
-      fileOptions() {
-        const options = this.files.map(file => {
-          const label = getFilePresetString(file);
-          const fileId =
-            file.preset === 'video_subtitle' && file?.lang.lang_name
-              ? file?.lang.lang_name
-              : file.checksum.slice(0, 6);
-          return {
-            label,
-            url: file.storage_url,
-            fileName: this.$tr('downloadFilename', {
-              resourceTitle: this.nodeTitle.length ? this.nodeTitle : file.checksum,
-              fileExtension: file.extension,
-              fileId,
-            }),
-          };
-        });
-        return options;
-      },
+    destroyed() {
+      this.clearSnackbar();
     },
     methods: {
-      download(file) {
-        const a = document.createElement('a');
-        a.download = file.fileName;
-        a.href = file.url;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      },
-    },
-    $trs: {
-      downloadContent: {
-        message: 'Save to device',
-        context:
-          "The 'SAVE TO DEVICE' button allows learners to download learning resources, like a PDF document for example, to their own device.",
-      },
-      downloadFilename: {
-        message: '{ resourceTitle } ({ fileId }).{ fileExtension }',
-        context: 'DO NOT TRANSLATE\nCopy the source string.\n',
+      hideCallback() {
+        if (this.snackbarOptions.hideCallback) {
+          this.snackbarOptions.hideCallback();
+        }
+        this.clearSnackbar();
       },
     },
   };

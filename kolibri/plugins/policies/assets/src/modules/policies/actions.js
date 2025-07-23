@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
+import { get } from '@vueuse/core';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import useUser from 'kolibri/composables/useUser';
-import { get } from '@vueuse/core';
 
 export function updateUserProfile(store, { updates }) {
   if (isEmpty(updates)) {

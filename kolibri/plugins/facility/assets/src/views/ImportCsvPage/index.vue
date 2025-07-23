@@ -28,10 +28,10 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import { CSVImportStatuses } from '../../constants';
   import Init from './Init';
   import Preview from './Preview';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
 
   export default {
     name: 'ImportCsvPage',

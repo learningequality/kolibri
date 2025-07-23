@@ -125,12 +125,12 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import UserTable from 'kolibri-common/components/UserTable';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassRenameModal from './ClassRenameModal';
   import UserRemoveConfirmationModal from './UserRemoveConfirmationModal';
+  import UserTable from 'kolibri-common/components/UserTable';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'ClassEditPage',

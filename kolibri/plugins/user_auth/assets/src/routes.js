@@ -1,8 +1,4 @@
 import { get } from '@vueuse/core';
-import useUser from 'kolibri/composables/useUser';
-import store from 'kolibri/store';
-import router from 'kolibri/router';
-import useFacilities from 'kolibri-common/composables/useFacilities';
 import { showSignInPage } from './modules/signIn/handlers';
 import { showSignUpPage } from './modules/signUp/handlers';
 import { ComponentMap } from './constants';
@@ -11,6 +7,10 @@ import FacilitySelect from './views/FacilitySelect';
 import SignInPage from './views/SignInPage';
 import SignUpPage from './views/SignUpPage';
 import NewPasswordPage from './views/SignInPage/NewPasswordPage';
+import useFacilities from 'kolibri-common/composables/useFacilities';
+import router from 'kolibri/router';
+import store from 'kolibri/store';
+import useUser from 'kolibri/composables/useUser';
 
 const { facilities } = useFacilities();
 

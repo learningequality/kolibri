@@ -1,9 +1,9 @@
 import Lockr from 'lockr';
+import { get } from '@vueuse/core';
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri/constants';
 import { createTranslator } from 'kolibri/utils/i18n';
 import useSnackbar from 'kolibri/composables/useSnackbar';
 import useUser from 'kolibri/composables/useUser';
-import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 
 const snackbarTranslator = createTranslator('UserPageSnackbars', {

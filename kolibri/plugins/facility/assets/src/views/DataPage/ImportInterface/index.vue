@@ -53,11 +53,11 @@
 
 <script>
 
-  import urls from 'kolibri/urls';
   import { mapState, mapActions, mapGetters } from 'vuex';
   import { UsersExportStatuses } from '../../../constants';
   import DataPageTaskProgress from '../DataPageTaskProgress';
   import CsvInfoModal from '../../CsvInfoModal';
+  import urls from 'kolibri/urls';
 
   export default {
     name: 'ImportInterface',

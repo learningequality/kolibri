@@ -1,13 +1,7 @@
 <template>
 
-  <table
-    v-if="currentTryDefined"
-    class="scores"
-  >
-    <tr
-      v-if="!hideStatus"
-      data-test="try-status"
-    >
+  <table class="scores">
+    <tr>
       <th>
         {{ coreString('statusLabel') }}
       </th>
@@ -15,79 +9,52 @@
         <ProgressIcon
           class="svg-icon"
           :progress="progress"
+          :data-testid="`progress-icon-${progress}`"
         />
-        {{ progressIconLabel }}
+        <template v-if="complete">
+          {{ coreString('completedLabel') }}
+        </template>
+        <template v-else-if="progress">
+          {{ coreString('inProgressLabel') }}
+        </template>
+        <template v-else>
+          {{ coreString('notStartedLabel') }}
+        </template>
       </td>
     </tr>
-    <tr
-      v-if="masteryModel && !isSurvey"
-      data-test="try-mastery-model"
-    >
+    <tr>
       <th>
-        {{ coreString('masteryModelLabel') }}
+        {{ $tr('bestScoreLabel') }}
       </th>
       <td>
-        <MasteryModel :masteryModel="masteryModel" />
+        {{ $formatNumber(bestScore, { style: 'percent' }) }}
       </td>
     </tr>
-    <tr
-      v-if="!isSurvey && correctDefined && !masteryModel"
-      data-test="try-score"
-    >
-      <th>
-        {{ coreString('scoreLabel') }}
-      </th>
-      <td>
-        {{ $formatNumber(score, { style: 'percent' }) }}
-      </td>
-    </tr>
-    <tr
-      v-if="!isSurvey && correctDefined && !masteryModel"
-      data-test="try-questions-correct"
-    >
+    <tr>
       <th>
         {{ coreString('questionsCorrectLabel') }}
       </th>
       <td>
         {{
           coreString('questionsCorrectValue', {
-            correct: currentTry.correct,
+            correct: maxQuestionsCorrect,
             total: totalQuestions,
           })
         }}
-        <br >
-        <span
-          v-if="questionsCorrectAnnotation"
-          class="try-annotation"
-          :style="{ color: $themeTokens.annotation }"
-        >{{ questionsCorrectAnnotation }}</span>
       </td>
     </tr>
-    <tr
-      v-if="!isSurvey && currentTry.time_spent"
-      data-test="try-time-spent"
-    >
+    <tr v-if="bestTimeSpent !== null">
       <th>
-        {{ coreString('timeSpentLabel') }}
+        {{ $tr('bestScoreTimeLabel') }}
       </th>
       <td>
-        <TimeDuration :seconds="currentTry.time_spent" />
+        <TimeDuration :seconds="bestTimeSpent" />
         <br >
         <span
-          v-if="timeSpentAnnotation"
+          v-if="suggestedTimeAnnotation"
           class="try-annotation"
           :style="{ color: $themeTokens.annotation }"
-        >{{ timeSpentAnnotation }}</span>
-      </td>
-    </tr>
-    <tr data-test="try-attempted-ago">
-      <th>
-        {{ $tr('attemptedLabel') }}
-      </th>
-      <td>
-        <ElapsedTime
-          :date="new Date(currentTry.completion_timestamp || currentTry.end_timestamp)"
-        />
+        >{{ suggestedTimeAnnotation }}</span>
       </td>
     </tr>
   </table>
@@ -97,32 +64,20 @@
 
 <script>
 
-  import get from 'lodash/get';
-  import isPlainObject from 'lodash/isPlainObject';
-  import isUndefined from 'lodash/isUndefined';
-  import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { tryValidator } from './utils';
   import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
   import TimeDuration from 'kolibri-common/components/TimeDuration';
-  import MasteryModel from 'kolibri-common/components/labels/MasteryModel';
-  import useUser from 'kolibri/composables/useUser';
-  import { tryValidator } from './utils';
 
   export default {
-    name: 'CurrentTryOverview',
+    name: 'TriesOverview',
     components: {
-      ElapsedTime,
       TimeDuration,
       ProgressIcon,
-      MasteryModel,
     },
     mixins: [commonCoreStrings],
-    setup() {
-      const { currentUserId } = useUser();
-      return { currentUserId };
-    },
     props: {
-      // This should be an object with the following properties:
+      // This should be an array of objects with the following properties:
       // id: the unique id for the mastery log for this try
       // mastery_criterion: the mastery criterion
       // start_timestamp: the start time
@@ -131,10 +86,12 @@
       // complete: whether this try is complete or not
       // correct: the number of correct responses in this try
       // time_spent: the total time spent on this try
-      currentTry: {
-        type: Object,
+      pastTries: {
+        type: Array,
         required: true,
-        validator: tryValidator,
+        validator(pastTries) {
+          return pastTries.every(tryValidator);
+        },
       },
       // The total number of questions that this assessment has
       // used for calculating scores for quizzes
@@ -142,130 +99,74 @@
         type: Number,
         required: true,
       },
-      // Whether to hide the current overall progress
-      // used when using the CurrentTry component in the context
-      // of multiple tries, where the overall progress is determined
-      // from the most recent try.
-      hideStatus: {
-        type: Boolean,
-        default: false,
-      },
-      // The id of the user - this is used to determine whether
-      // to display second person or third person language,
-      // by comparing the user id to the currently active user id.
-      userId: {
-        type: String,
-        default: '',
-      },
-      // Whether the modality is a Survey - conditionalizes styles
-      isSurvey: {
-        type: Boolean,
-        default: false,
+      // The suggested time that a user should take to complete this assessment
+      suggestedTime: {
+        type: Number,
+        default: null,
       },
     },
     computed: {
-      currentTryDefined() {
-        return isPlainObject(this.currentTry);
-      },
-      progressIconLabel() {
-        if (!this.currentTryDefined) {
-          return '';
-        }
-        if (this.currentTry.complete) {
-          return this.coreString('completedLabel');
-        } else if (this.currentTry.complete !== null) {
-          return this.coreString('inProgressLabel');
-        } else {
-          return this.$tr('notStartedLabel');
-        }
+      complete() {
+        return this.pastTries.some(tryInfo => tryInfo.completion_timestamp);
       },
       progress() {
-        if (!this.currentTryDefined) {
+        if (this.complete) {
+          return 1.0;
+        } else if (this.pastTries.length) {
+          return 0.5;
+        } else {
           return 0.0;
         }
-        if (this.currentTry.complete) {
-          return 1.0;
-        } else if (this.currentTry.complete !== null) {
-          return 0.5;
+      },
+      // Returns the time spent on the best attempt or null if there are no attempts
+      bestTimeSpent() {
+        const bestScoreAttempt = this.pastTries.find(t => t.correct === this.maxQuestionsCorrect);
+        if (!bestScoreAttempt) {
+          return null;
         }
-        return 0.0;
+        return bestScoreAttempt.time_spent;
       },
-      masteryModel() {
-        const masteryModel = get(this, 'currentTry.mastery_criterion.type', null);
-        if (masteryModel && masteryModel !== 'quiz') {
-          return this.currentTry.mastery_criterion;
-        }
-        return null;
+      // Returns the number of questions correct in the best attempt or 0 if there are no attempts
+      maxQuestionsCorrect() {
+        return this.pastTries.length ? Math.max(...this.pastTries.map(t => t.correct)) : 0;
       },
-      correctDefined() {
-        return this.currentTryDefined && !isUndefined(this.currentTry.correct);
+      bestScore() {
+        return this.maxQuestionsCorrect / this.totalQuestions;
       },
-      score() {
-        // Get will return 0 if currentTry.correct is undefined - we || to 0 also
-        // in case the value is for some reason falsy;
-        return get(this, 'currentTry.correct', 0) / this.totalQuestions || 0;
-      },
-      questionsCorrectAnnotation() {
-        if (
-          !this.currentTryDefined ||
-          !this.currentTry.diff ||
-          this.userId !== this.currentUserId
-        ) {
+      suggestedTimeAnnotation() {
+        if (!this.suggestedTime || !this.bestTimeSpent) {
           return null;
         }
 
-        return this.currentTry.diff.correct > 0
-          ? this.$tr('practiceQuizReportImprovedLabelSecondPerson', {
-            value: this.currentTry.diff.correct,
-          })
-          : null;
-      },
-      diffTimeSpent() {
-        return Math.floor(get(this, 'currentTry.diff.time_spent', 0) / 60) || null;
-      },
-      timeSpentAnnotation() {
-        if (!this.currentTryDefined || !this.currentTry.diff) {
-          return null;
-        }
+        const diff = Math.floor((this.bestTimeSpent - this.suggestedTime) / 60);
 
-        if (this.diffTimeSpent <= -1) {
-          return this.$tr('practiceQuizReportFasterTimeLabel', {
-            value: Math.abs(this.diffTimeSpent),
-          });
-        } else if (this.diffTimeSpent >= 1) {
-          return this.$tr('practiceQuizReportSlowerTimeLabel', { value: this.diffTimeSpent });
-        }
-
-        return null;
+        return diff >= 1
+          ? this.$tr('practiceQuizReportSlowerSuggestedLabel', { value: diff })
+          : this.$tr('practiceQuizReportFasterSuggestedLabel', { value: Math.abs(diff) });
       },
     },
     $trs: {
-      attemptedLabel: {
-        message: 'Attempted',
-        context: 'This verb will be used to indicate when a learner last attempted a quiz',
-      },
-      notStartedLabel: {
-        message: 'Not started',
+      bestScoreLabel: {
+        message: 'Best score',
         context:
-          "When a coach creates a quiz, by default it is marked as 'Not started'. This means that learners will not see it in the Learn > Classes view.\n\nThe coach needs to use the 'START QUIZ' button to enable learners to see the quiz and start answering the questions.",
+          'When there have been multiple attempts on a practice quiz, indicates to learner the percentage of their highest score',
       },
-      practiceQuizReportFasterTimeLabel: {
+      bestScoreTimeLabel: {
+        message: 'Best score time',
+        context:
+          'When there have been multiple attempts on a practice quiz, it indicates to the learner how long the attempt with the best score has taken',
+      },
+      practiceQuizReportFasterSuggestedLabel: {
         message:
-          '{value, number, integer} {value, plural, one {minute} other {minutes}} faster than the previous attempt',
+          '{value, number, integer} {value, plural, one {minute} other {minutes}} faster than the suggested time',
         context:
-          'Indicates to the learner how much faster they were on this attempt compared to the previous one',
+          'Indicates to the learner how many minutes faster they were than the suggested time',
       },
-      practiceQuizReportSlowerTimeLabel: {
+      practiceQuizReportSlowerSuggestedLabel: {
         message:
-          '{value, number, integer} {value, plural, one {minute} other {minutes}} slower than the previous attempt',
+          '{value, number, integer} {value, plural, one {minute} other {minutes}} slower than the suggested time',
         context:
-          'Indicates to the learner how much slower they were on this attempt compared to the previous one',
-      },
-      practiceQuizReportImprovedLabelSecondPerson: {
-        message:
-          'You improved at {value, number, integer} {value, plural, one {question} other {questions}}',
-        context:
-          'Indicates to the learner how many questions they answered correctly compared to the previous attempt',
+          'Indicates to the learner how many minutes slower they were than the suggested time',
       },
     },
   };

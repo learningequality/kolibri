@@ -121,6 +121,8 @@
 <script>
 
   import { ref, computed, getCurrentInstance } from 'vue';
+  import groupBy from 'lodash/groupBy';
+  import SelectableList from '../../ManageClassPage/SelectableList.vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
@@ -129,8 +131,6 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import { UserKinds } from 'kolibri/constants';
-  import groupBy from 'lodash/groupBy';
-  import SelectableList from '../../ManageClassPage/SelectableList.vue';
 
   export default {
     name: 'EnrollLearnersSidePanel',

@@ -1,210 +1,413 @@
-<template>
+import { shallowMount, createLocalVue } from '@vue/test-utils';
+import Vuex from 'vuex';
+import { createTranslator } from 'kolibri/utils/i18n';
+import CurrentTryOverview from '../CurrentTryOverview';
+import ElapsedTime from 'kolibri-common/components/ElapsedTime';
+import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
+import TimeDuration from 'kolibri-common/components/TimeDuration';
+import MasteryModel from 'kolibri-common/components/labels/MasteryModel';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 
-  <table class="scores">
-    <tr>
-      <th>
-        {{ coreString('statusLabel') }}
-      </th>
-      <td>
-        <ProgressIcon
-          class="svg-icon"
-          :progress="progress"
-          :data-testid="`progress-icon-${progress}`"
-        />
-        <template v-if="complete">
-          {{ coreString('completedLabel') }}
-        </template>
-        <template v-else-if="progress">
-          {{ coreString('inProgressLabel') }}
-        </template>
-        <template v-else>
-          {{ coreString('notStartedLabel') }}
-        </template>
-      </td>
-    </tr>
-    <tr>
-      <th>
-        {{ $tr('bestScoreLabel') }}
-      </th>
-      <td>
-        {{ $formatNumber(bestScore, { style: 'percent' }) }}
-      </td>
-    </tr>
-    <tr>
-      <th>
-        {{ coreString('questionsCorrectLabel') }}
-      </th>
-      <td>
-        {{
-          coreString('questionsCorrectValue', {
-            correct: maxQuestionsCorrect,
-            total: totalQuestions,
-          })
-        }}
-      </td>
-    </tr>
-    <tr v-if="bestTimeSpent !== null">
-      <th>
-        {{ $tr('bestScoreTimeLabel') }}
-      </th>
-      <td>
-        <TimeDuration :seconds="bestTimeSpent" />
-        <br >
-        <span
-          v-if="suggestedTimeAnnotation"
-          class="try-annotation"
-          :style="{ color: $themeTokens.annotation }"
-        >{{ suggestedTimeAnnotation }}</span>
-      </td>
-    </tr>
-  </table>
+const localVue = createLocalVue();
+localVue.use(Vuex);
 
-</template>
+jest.mock('kolibri/composables/useUser');
 
+const translator = createTranslator('CurrentTryOverview', CurrentTryOverview.$trs);
 
-<script>
+/* A pair of timestamps in the past, in ascending chronological order
+ * used for bootstrapping a try, timestamp logic below */
+const pastTimestamps = ['2002-01-10T16:00:43.926864-08:00', '2002-01-11T16:00:43.926864-08:00'];
 
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
-  import TimeDuration from 'kolibri-common/components/TimeDuration';
-  import { tryValidator } from './utils';
+const defaultTry = {
+  id: 'try',
+  mastery_criterion: { type: 'quiz' },
+  start_timestamp: pastTimestamps[0],
+  end_timestamp: pastTimestamps[1],
+  completion_timestamp: pastTimestamps[1],
+  time_spent: 1000, // A long while
+  correct: 2,
+  diff: null,
+  complete: true,
+  attemptLogs: [],
+};
 
-  export default {
-    name: 'TriesOverview',
-    components: {
-      TimeDuration,
-      ProgressIcon,
-    },
-    mixins: [commonCoreStrings],
-    props: {
-      // This should be an array of objects with the following properties:
-      // id: the unique id for the mastery log for this try
-      // mastery_criterion: the mastery criterion
-      // start_timestamp: the start time
-      // end_timestamp: the last time this try was interacted with
-      // completion_timestamp: the time when this try was completed
-      // complete: whether this try is complete or not
-      // correct: the number of correct responses in this try
-      // time_spent: the total time spent on this try
-      pastTries: {
-        type: Array,
-        required: true,
-        validator(pastTries) {
-          return pastTries.every(tryValidator);
+const defaultProps = {
+  currentTry: defaultTry,
+  totalQuestions: 10,
+  hideStatus: false,
+  userId: 'user-1',
+  isSurvey: false,
+};
+
+const betterDiff = {
+  time_spent: -40,
+  correct: 4,
+};
+
+/* The time_spent needs to be > 60 because it's only used when the diff is > 60s */
+const worseDiff = {
+  time_spent: 80,
+  correct: 0,
+};
+
+/**
+ * Returns defaultProps but you can pass overrides. If you want to override try only, pass
+ * an empty object in the first param position.
+ * @param propOverrides - will take precence
+ * @param tryOverrides - will override defaultTry (but propOverrides with a currentTry key
+ *  will override *that*
+ */
+function defaultPropsWith(propOverrides = {}, tryOverrides = {}) {
+  return Object.assign(
+    {},
+    defaultProps,
+    { currentTry: Object.assign({}, defaultTry, tryOverrides) },
+    propOverrides,
+  );
+}
+
+// Useful to ensure masteryModel computed comes back non-falsy when needed
+const nonQuizValidMasteryCriterion = { type: 'm_of_n', m: 5, n: 7 };
+
+describe('ExamReport/CurrentTryOverview', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useUser.mockImplementation(() => useUserMock());
+  });
+
+  describe('status', () => {
+    it('shows a ProgressIcon when hideStatus is false', () => {
+      const wrapper = shallowMount(CurrentTryOverview, { propsData: defaultProps });
+      expect(wrapper.findComponent(ProgressIcon)).toBeTruthy();
+    });
+
+    it('shows nothing when hideStatus is true', async () => {
+      const wrapper = shallowMount(CurrentTryOverview, {
+        propsData: defaultPropsWith({ hideStatus: true }),
+      });
+      expect(wrapper.find('[data-test="try-status"]').element).toBeFalsy();
+    });
+  });
+
+  describe('mastery model', () => {
+    const wrapperToShowMasteryModel = shallowMount(CurrentTryOverview, {
+      propsData: defaultPropsWith({}, { mastery_criterion: nonQuizValidMasteryCriterion }),
+    });
+
+    // Incl { mastery_criterion: { type: 'quiz' } } which should hide this section and cause
+    // computed masteryModel to return null
+    const wrapperWithoutMasteryModel = shallowMount(CurrentTryOverview, {
+      propsData: defaultProps,
+    });
+
+    describe('computed masteryModel', () => {
+      // mastery_criterion: null fails tryValidator so it cannot
+      // be tested, but the same should happen with {}
+      it('is null when currentTry prop has no mastery_criterion', () => {
+        const wrapper = shallowMount(CurrentTryOverview, {
+          propsData: defaultPropsWith({}, { mastery_criterion: {} }),
+        });
+        expect(wrapper.vm.masteryModel).toBeNull();
+      });
+
+      it('is null when currentTry.mastery_criterion.type is "quiz"', () => {
+        expect(wrapperWithoutMasteryModel.vm.masteryModel).toBeNull();
+      });
+
+      it('returns currentTry.mastery_criterion otherwise', () => {
+        expect(wrapperToShowMasteryModel.vm.masteryModel).toEqual(nonQuizValidMasteryCriterion);
+      });
+    });
+
+    it('shows a MasteryModel component when computed masterModel is truthy', () => {
+      expect(wrapperToShowMasteryModel.findComponent(MasteryModel)).toBeTruthy();
+    });
+
+    it('shows nothing when masteryModel computed is null', () => {
+      // We know it is null due to the test suite describing 'is null when ... is "quiz"' - which
+      // is what wrapperWithoutMasteryModel has it's currentTry.mastery_criterion set to
+      expect(
+        wrapperWithoutMasteryModel.find('[data-test="try-mastery-model"]').element,
+      ).toBeFalsy();
+    });
+
+    it('shows nothing when isSurvey', async () => {
+      // setProps is async
+      await wrapperToShowMasteryModel.setProps({ isSurvey: true });
+      expect(wrapperToShowMasteryModel.find('[data-test="try-mastery-model"]').element).toBeFalsy();
+    });
+  });
+
+  describe('percentage score', () => {
+    describe('computed score', () => {
+      it('returns 0 when currentTry.correct is falsy', () => {
+        let wrapper = shallowMount(CurrentTryOverview, {
+          propsData: defaultPropsWith({}, { correct: undefined }),
+        });
+        expect(wrapper.vm.score).toEqual(0);
+
+        wrapper = shallowMount(CurrentTryOverview, {
+          propsData: defaultPropsWith({}, { correct: null }),
+        });
+        expect(wrapper.vm.score).toEqual(0);
+      });
+
+      const wrapper = shallowMount(CurrentTryOverview, { propsData: defaultProps });
+      it.each([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 49])(
+        `returns currentTry.correct (%i) / this.totalQuestions (${defaultProps.totalQuestions})`,
+        n => {
+          wrapper.setProps(defaultPropsWith({}, { correct: n }));
+          return wrapper.vm.$nextTick().then(() => {
+            expect(wrapper.vm.score).toEqual(n / defaultProps.totalQuestions);
+          });
         },
-      },
-      // The total number of questions that this assessment has
-      // used for calculating scores for quizzes
-      totalQuestions: {
-        type: Number,
-        required: true,
-      },
-      // The suggested time that a user should take to complete this assessment
-      suggestedTime: {
-        type: Number,
-        default: null,
-      },
-    },
-    computed: {
-      complete() {
-        return this.pastTries.some(tryInfo => tryInfo.completion_timestamp);
-      },
-      progress() {
-        if (this.complete) {
-          return 1.0;
-        } else if (this.pastTries.length) {
-          return 0.5;
-        } else {
-          return 0.0;
-        }
-      },
-      // Returns the time spent on the best attempt or null if there are no attempts
-      bestTimeSpent() {
-        const bestScoreAttempt = this.pastTries.find(t => t.correct === this.maxQuestionsCorrect);
-        if (!bestScoreAttempt) {
-          return null;
-        }
-        return bestScoreAttempt.time_spent;
-      },
-      // Returns the number of questions correct in the best attempt or 0 if there are no attempts
-      maxQuestionsCorrect() {
-        return this.pastTries.length ? Math.max(...this.pastTries.map(t => t.correct)) : 0;
-      },
-      bestScore() {
-        return this.maxQuestionsCorrect / this.totalQuestions;
-      },
-      suggestedTimeAnnotation() {
-        if (!this.suggestedTime || !this.bestTimeSpent) {
-          return null;
-        }
+      );
+    });
 
-        const diff = Math.floor((this.bestTimeSpent - this.suggestedTime) / 60);
+    describe('not displaying the score', () => {
+      it('is not shown if computed masteryModel is truthy', () => {
+        const wrapper = shallowMount(CurrentTryOverview, {
+          propsData: defaultPropsWith({}, { mastery_criterion: nonQuizValidMasteryCriterion }),
+        });
+        expect(wrapper.find('[data-test="try-score"]').element).toBeFalsy();
+      });
 
-        return diff >= 1
-          ? this.$tr('practiceQuizReportSlowerSuggestedLabel', { value: diff })
-          : this.$tr('practiceQuizReportFasterSuggestedLabel', { value: Math.abs(diff) });
-      },
-    },
-    $trs: {
-      bestScoreLabel: {
-        message: 'Best score',
-        context:
-          'When there have been multiple attempts on a practice quiz, indicates to learner the percentage of their highest score',
-      },
-      bestScoreTimeLabel: {
-        message: 'Best score time',
-        context:
-          'When there have been multiple attempts on a practice quiz, it indicates to the learner how long the attempt with the best score has taken',
-      },
-      practiceQuizReportFasterSuggestedLabel: {
-        message:
-          '{value, number, integer} {value, plural, one {minute} other {minutes}} faster than the suggested time',
-        context:
-          'Indicates to the learner how many minutes faster they were than the suggested time',
-      },
-      practiceQuizReportSlowerSuggestedLabel: {
-        message:
-          '{value, number, integer} {value, plural, one {minute} other {minutes}} slower than the suggested time',
-        context:
-          'Indicates to the learner how many minutes slower they were than the suggested time',
-      },
-    },
-  };
+      it('is not shown if currentTry.correct is `undefined`', () => {
+        // Aside from the overridden prop, this would have shown
+        const wrapper = shallowMount(CurrentTryOverview, {
+          propsData: defaultPropsWith({}, { correct: undefined }),
+        });
+        expect(wrapper.find('[data-test="try-score"]').element).toBeFalsy();
+      });
 
-</script>
+      it('is not shown when the prop isSurvey is true', () => {
+        // Aside from the overridden prop, this would have shown
+        const wrapper = shallowMount(CurrentTryOverview, {
+          propsData: defaultPropsWith({ isSurvey: true }),
+        });
+        expect(wrapper.find('[data-test="try-score"]').element).toBeFalsy();
+      });
+    });
 
+    it('shows the value of computed score as a %', () => {
+      const wrapper = shallowMount(CurrentTryOverview, {
+        propsData: defaultProps,
+      });
+      it.each(
+        [0, 1, 10, 50, 75, 100],
+        'displays %i as a percentage when currentTry.correct = %i',
+        async n => {
+          await wrapper.setProps({ currentTry: { ...defaultTry, correct: n } });
+          expect(wrapper.find('[data-test="try-score"]')).toHaveTextContent(`${n}%`);
+        },
+      );
+    });
+  });
 
-<style lang="scss" scoped>
+  describe('questions correct', () => {
+    describe('not displaying the questions correct', () => {
+      it('is not shown if computed masteryModel is truthy', () => {
+        const wrapper = shallowMount(CurrentTryOverview, {
+          propsData: defaultPropsWith({}, { mastery_criterion: nonQuizValidMasteryCriterion }),
+        });
+        expect(wrapper.find('[data-test="try-questions-correct"]').element).toBeFalsy();
+      });
 
-  .scores {
-    min-width: 200px;
-    margin-top: 24px;
+      it('is not shown if currentTry.correct is `undefined`', () => {
+        // Aside from the overridden prop, this would have shown
+        const wrapper = shallowMount(CurrentTryOverview, {
+          propsData: defaultPropsWith({}, { correct: undefined }),
+        });
+        expect(wrapper.find('[data-test="try-questions-correct"]').element).toBeFalsy();
+      });
 
-    th {
-      max-width: 190px;
-      text-align: left;
-    }
+      it('is not shown when the prop isSurvey is true', () => {
+        // Aside from the overridden prop, this would have shown
+        const wrapper = shallowMount(CurrentTryOverview, {
+          propsData: defaultPropsWith({ isSurvey: true }),
+        });
+        expect(wrapper.find('[data-test="try-questions-correct"]').element).toBeFalsy();
+      });
+    });
 
-    th,
-    td {
-      height: 2em;
-      padding-top: 16px;
-      padding-right: 24px;
-      font-size: 14px;
-    }
-  }
+    describe('showing the questions correct fraction', () => {
+      /* Testing a relevant computed property before getting to the display logic */
+      describe('computed questionsCorrectAnnotation', () => {
+        describe('currentTry.diff.correct > 0 and user viewing own try', () => {
+          /* This would be an $tr, at current 'practiceQuizReportImprovedLabelSecondPerson': */
+          it('returns a string including currentTry.diff.correct in it', () => {
+            useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
+            const wrapper = shallowMount(CurrentTryOverview, {
+              propsData: defaultPropsWith({}, { diff: betterDiff }),
+              localVue,
+            });
 
-  .svg-icon {
-    right: 0;
+            expect(wrapper.vm.questionsCorrectAnnotation).toEqual(
+              translator.$tr('practiceQuizReportImprovedLabelSecondPerson', {
+                value: betterDiff.correct,
+              }),
+            );
+          });
+        });
 
-    /deep/ .icon {
-      max-width: 16px !important;
-      max-height: 16px !important;
-    }
-  }
+        it('returns null when currentTry.diff is falsy', () => {
+          const wrapper = shallowMount(CurrentTryOverview, {
+            propsData: defaultProps,
+          });
+          expect(wrapper.vm.questionsCorrectAnnotation).toBeNull();
+        });
 
-  .try-annotation {
-    font-size: 0.9em;
-  }
+        it("returns null when the try is not the current user's try", () => {
+          useUser.mockImplementation(() =>
+            useUserMock({ currentUserId: defaultProps.userId + '-2-3' }),
+          );
+          const wrapper = shallowMount(CurrentTryOverview, {
+            propsData: defaultPropsWith({}, { diff: betterDiff }),
+            localVue,
+          });
+          expect(wrapper.vm.questionsCorrectAnnotation).toBeNull();
+        });
+      });
 
-</style>
+      /* Display logic */
+      it('is shown when currentTry.correct and prop totalQuestions are set', () => {
+        const wrapper = shallowMount(CurrentTryOverview, {
+          propsData: defaultProps,
+        });
+        expect(wrapper.find('[data-test="try-questions-correct"]').element).toBeTruthy();
+      });
+
+      it('displays annotation string when diff.correct is set and viewed by owning user', () => {
+        useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
+        const wrapper = shallowMount(CurrentTryOverview, {
+          propsData: defaultPropsWith({}, { diff: betterDiff }),
+          localVue,
+        });
+        expect(wrapper.find('[data-test="try-questions-correct"]').element).toHaveTextContent(
+          translator.$tr('practiceQuizReportImprovedLabelSecondPerson', {
+            value: betterDiff.correct,
+          }),
+        );
+      });
+    });
+  });
+
+  describe('time spent', () => {
+    it('is not shown when the prop isSurvey is true', () => {
+      const wrapper = shallowMount(CurrentTryOverview, {
+        propsData: defaultPropsWith({ isSurvey: true }),
+      });
+      expect(wrapper.find('[data-test="try-time-spent"]').element).toBeFalsy();
+    });
+
+    it('is not shown when currentTry.time_spent is falsy', () => {
+      const wrapper = shallowMount(CurrentTryOverview, {
+        propsData: defaultPropsWith({}, { time_spent: 0 }),
+      });
+      expect(wrapper.find('[data-test="try-time-spent"]').element).toBeFalsy();
+    });
+
+    it('displays a TimeDuration component', () => {
+      const wrapper = shallowMount(CurrentTryOverview, {
+        propsData: defaultProps,
+      });
+      expect(wrapper.findComponent(TimeDuration)).toBeTruthy();
+    });
+
+    describe('showing the time spent annotation', () => {
+      describe('computed diffTimeSpent', () => {
+        useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
+        it('returns null when currentTry.diff.time_spent is falsy', () => {
+          const wrapper = shallowMount(CurrentTryOverview, {
+            localVue,
+            propsData: defaultPropsWith({}, { diff: { time_spent: 0 } }),
+          });
+          expect(wrapper.vm.diffTimeSpent).toBeNull();
+        });
+
+        it('returns Math.floor of currentTry.diff.time_spent / 60', () => {
+          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
+          const wrapper = shallowMount(CurrentTryOverview, {
+            propsData: defaultPropsWith({}, { diff: betterDiff }),
+            localVue,
+          });
+          expect(wrapper.vm.diffTimeSpent).toEqual(Math.floor(betterDiff.time_spent / 60));
+        });
+      });
+
+      describe('computed timeSpentAnnotation', () => {
+        it('returns null when currentTry.diff.time_spent is 0 < n < 60', () => {
+          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
+          const wrapper = shallowMount(CurrentTryOverview, {
+            localVue,
+            propsData: defaultPropsWith({}, { diff: { time_spent: 40 } }),
+          });
+          expect(wrapper.vm.timeSpentAnnotation).toBeNull();
+        });
+
+        it('returns null when currentTry.diff.time_spent is falsy', () => {
+          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
+          const wrapper = shallowMount(CurrentTryOverview, {
+            localVue,
+            propsData: defaultPropsWith({}, { diff: { time_spent: undefined } }),
+          });
+          expect(wrapper.vm.timeSpentAnnotation).toBeNull();
+        });
+      });
+
+      describe('diffTimeSpent < 0 - try is faster than last', () => {
+        it('displays $trs.practiceQuizReportFasterTimeLabel with the abs value of diffTimeSpent', () => {
+          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
+          const wrapper = shallowMount(CurrentTryOverview, {
+            localVue,
+            propsData: defaultPropsWith({}, { diff: betterDiff }),
+          });
+          expect(wrapper.find('[data-test="try-time-spent"]').element).toHaveTextContent(
+            translator.$tr('practiceQuizReportFasterTimeLabel', {
+              value: Math.abs(wrapper.vm.diffTimeSpent),
+            }),
+          );
+        });
+      });
+
+      describe('diffTimeSpent > 0 try is slower than last', () => {
+        it('displays $trs.practiceQuizReportSlowerTimeLabel with the value of diffTimeSpent', () => {
+          useUser.mockImplementation(() => useUserMock({ currentUserId: defaultProps.userId }));
+          const wrapper = shallowMount(CurrentTryOverview, {
+            localVue,
+            propsData: defaultPropsWith({}, { diff: worseDiff }),
+          });
+          expect(wrapper.find('[data-test="try-time-spent"]').element).toHaveTextContent(
+            translator.$tr('practiceQuizReportSlowerTimeLabel', {
+              value: wrapper.vm.diffTimeSpent,
+            }),
+          );
+        });
+      });
+    });
+  });
+
+  describe('time ago', () => {
+    describe('computed endTimestamp', () => {
+      // Assumes that one of completion_timestamp OR end_timestamp exists on currentTry
+      it('returns currentTry.completion_timestamp', () => {
+        const wrapper = shallowMount(CurrentTryOverview, { propsData: defaultProps });
+        expect(wrapper.vm.endTimestamp).toEqual(defaultProps.completion_timestamp);
+      });
+      it('returns currentTry.end_timestamp when .completion_timestamp is falsy', () => {
+        const wrapper = shallowMount(CurrentTryOverview, {
+          propsData: defaultPropsWith({ completion_timestamp: undefined }),
+        });
+        expect(wrapper.vm.endTimestamp).toEqual(defaultProps.end_timestamp);
+      });
+    });
+
+    it('displays ElapsedTime component with `new Date(endTimestamp)` passed to its :date prop', () => {
+      const wrapper = shallowMount(CurrentTryOverview, { propsData: defaultProps });
+      expect(wrapper.findComponent(ElapsedTime)).toBeTruthy();
+    });
+    // Not testing the "don't show this" because there is no reason for BOTH to be undefined
+    // so this should always be shown for now.
+  });
+});

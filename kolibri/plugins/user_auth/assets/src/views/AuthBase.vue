@@ -179,6 +179,10 @@
 
 <script>
 
+  import { ComponentMap } from '../constants';
+  import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
+  import commonUserStrings from './commonUserStrings';
+  import getUrlParameter from './getUrlParameter';
   import CoreLogo from 'kolibri/components/CoreLogo';
   import PrivacyInfoModal from 'kolibri/components/PrivacyInfoModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -187,10 +191,6 @@
   import urls from 'kolibri/urls';
   import plugin_data from 'kolibri-plugin-data';
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import { ComponentMap } from '../constants';
-  import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
-  import commonUserStrings from './commonUserStrings';
-  import getUrlParameter from './getUrlParameter';
 
   export default {
     name: 'AuthBase',

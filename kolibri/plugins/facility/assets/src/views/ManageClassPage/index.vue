@@ -127,11 +127,6 @@
 
   import { ref, getCurrentInstance } from 'vue';
   import { mapState, mapActions, mapGetters } from 'vuex';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
-  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
-  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import { UserKinds } from 'kolibri/constants';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassRenameModal from '../ClassEditPage/ClassRenameModal.vue';
@@ -139,6 +134,11 @@
   import ClassDeleteModal from './ClassDeleteModal';
   import useDeleteClass from './useDeleteClass';
   import CopyClassSidePanel from './CopyClassSidePanel.vue';
+  import { UserKinds } from 'kolibri/constants';
+  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'ManageClassPage',

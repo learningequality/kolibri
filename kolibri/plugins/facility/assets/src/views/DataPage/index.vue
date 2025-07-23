@@ -193,17 +193,10 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import useUser from 'kolibri/composables/useUser';
-  import urls from 'kolibri/urls';
-  import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import validationConstants from 'kolibri-design-system/lib/KDateRange/validationConstants';
-  import { currentLanguage } from 'kolibri/utils/i18n';
-  import { now } from 'kolibri/utils/serverClock';
   import format from 'date-fns/format';
   import KDateRange from 'kolibri-design-system/lib/KDateRange';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
   import { PageNames } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import GeneratedElapsedTime from './GeneratedElapsedTime';
@@ -211,6 +204,13 @@
   import SyncInterface from './SyncInterface';
   import ImportInterface from './ImportInterface';
   import LearnMoreModal from './LearnMoreModal.vue';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { now } from 'kolibri/utils/serverClock';
+  import { currentLanguage } from 'kolibri/utils/i18n';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
+  import urls from 'kolibri/urls';
+  import useUser from 'kolibri/composables/useUser';
 
   export default {
     name: 'DataPage',

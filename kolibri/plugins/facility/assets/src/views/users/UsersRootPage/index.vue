@@ -94,14 +94,14 @@
 <script>
 
   import { ref, getCurrentInstance, onMounted } from 'vue';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
-  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import useUserManagement from '../../../composables/useUserManagement';
   import FacilityAppBarPage from '../../FacilityAppBarPage';
   import { PageNames } from '../../../constants';
   import UsersTable from '../common/UsersTable.vue';
   import { overrideRoute } from '../../../utils';
+  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'UserPage',

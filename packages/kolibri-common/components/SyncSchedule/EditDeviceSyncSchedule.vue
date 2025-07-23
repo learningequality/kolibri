@@ -1,150 +1,112 @@
 <template>
 
   <ImmersivePage
-    :appBarTitle="$tr('editSyncScheduleTitle')"
+    :appBarTitle="$tr('syncSchedules')"
     :route="goBackRoute"
-    :icon="icon"
   >
-    <KPageContainer
-      v-if="device"
-      :style="pageHeight"
-    >
-      <KGrid
-        gutter="48"
-        class="edit-sync-schedule"
-      >
+    <KPageContainer>
+      <KGrid gutter="48">
         <KGridItem>
-          <h1>{{ $tr('editSyncScheduleTitle') }}</h1>
+          <h1>{{ $tr('syncSchedules') }}</h1>
         </KGridItem>
 
         <KGridItem>
-          <p>{{ device.device_name }}</p>
+          <p>{{ $tr('introduction') }}</p>
         </KGridItem>
 
-        <KGrid class="align-kselects">
-          <KGrid>
-            <KGridItem>
-              <KSelect
-                v-model="selectedItem"
-                class="selector"
-                :disabled="currentTaskRunning"
-                :style="selectorStyle"
-                :options="selectArray"
-                :label="$tr('frequency')"
-                @select="handleUserInput"
-              />
-            </KGridItem>
-          </KGrid>
-          <KGrid v-if="dayRequired">
-            <KGridItem>
-              <KSelect
-                v-model="selectedDay"
-                class="selector"
-                :disabled="currentTaskRunning"
-                :style="selectorStyle"
-                :options="getDays"
-                :label="$tr('day')"
-                @select="handleUserInput"
-              />
-            </KGridItem>
-          </KGrid>
-          <KGrid v-if="timeRequired">
-            <KGridItem>
-              <KSelect
-                v-model="selectedTime"
-                class="selector"
-                :disabled="currentTaskRunning"
-                :style="selectorStyle"
-                :options="SyncTime"
-                :label="$tr('time')"
-                @select="handleUserInput"
-              />
-            </KGridItem>
-          </KGrid>
-        </KGrid>
-        <KGridItem>
-          <p class="spacing">
-            {{ $tr('serverTime') }}
-            {{
-              $formatTime(now, {
-                year: 'numeric',
-                month: 'numeric',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                second: 'numeric',
-              })
-            }}
-          </p>
-
-          <p class="spacing">
-            <KCheckbox
-              :checked="retryFlag"
-              :disabled="currentTaskRunning"
-              @change="handleRetryCheckboxChange"
-            >
-              {{ $tr('checkboxLabel') }}
-            </KCheckbox>
-          </p>
-          <p>
-            <KButton
-              v-if="currentTask"
-              :disabled="currentTaskRunning"
-              appearance="basic-link"
-              class="spacing"
-              @click="removeDeviceModal = true"
-            >
-              {{ $tr('removeDeviceLabel') }}
-            </KButton>
-          </p>
+        <KGridItem
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+          class="separate"
+        >
+          <b v-if="facility">{{ facility.name }}</b>
+          <KCircularLoader v-else />
+        </KGridItem>
+        <KGridItem
+          :layout="{ alignment: 'right' }"
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+          class="separate"
+        >
+          <KButton @click="deviceModal = true">
+            {{ $tr('addDevice') }}
+          </KButton>
         </KGridItem>
       </KGrid>
+
+      <!--      creating the table-->
+      <CoreTable>
+        <template #tbody>
+          <tbody v-if="scheduledTasks.length > 0">
+            <tr>
+              <th>{{ coreString('deviceNameLabel') }}</th>
+              <th>{{ $tr('Schedule') }}</th>
+              <th>{{ coreString('statusLabel') }}</th>
+              <th></th>
+            </tr>
+            <tr
+              v-for="task in scheduledTasks"
+              :key="task.id"
+            >
+              <td>
+                <span>{{ task.deviceName }}<br >
+                  {{ task.extra_metadata.baseurl }}
+                </span>
+              </td>
+              <td>
+                <div>
+                  {{ scheduleTime(task.repeat_interval, task.scheduled_datetime) }}
+                </div>
+              </td>
+
+              <td>
+                <span v-if="task.deviceAvailable">
+                  <KIcon icon="onDevice" />
+                  <span>{{ $tr('connected') }}</span>
+                </span>
+                <span v-else-if="!task.isKDP">
+                  <KIcon icon="disconnected" />
+                  <span>{{ $tr('disconnected') }}</span>
+                </span>
+                <KEmptyPlaceholder v-else />
+              </td>
+              <td>
+                <KButton
+                  class="right"
+                  @click="editButton(task)"
+                >
+                  {{ coreString('editAction') }}
+                </KButton>
+              </td>
+            </tr>
+          </tbody>
+
+          <tbody v-else>
+            <tr>
+              <th>{{ coreString('deviceNameLabel') }}</th>
+              <th>{{ $tr('Schedule') }}</th>
+              <th>{{ coreString('statusLabel') }}</th>
+              <th></th>
+            </tr>
+            <tr>
+              <td
+                colspan="3"
+                style="text-align: center"
+              >
+                <b>{{ $tr('NoSync') }}</b>
+              </td>
+            </tr>
+          </tbody>
+        </template>
+      </CoreTable>
+      <SyncFacilityModalGroup
+        v-if="deviceModal"
+        :facilityForSync="facility"
+        @close="closeModal"
+        @syncKDP="handleKDPSync"
+        @syncPeer="handlePeerSync"
+      />
     </KPageContainer>
-
-    <BottomAppBar>
-      <KButtonGroup>
-        <KButton
-          :text="coreString('cancelAction')"
-          appearance="flat-button"
-          @click="goBack"
-        />
-        <KButton
-          :text="coreString('saveAction')"
-          :primary="true"
-          :disabled="saveDisabled"
-          @click="handleSaveSchedule"
-        />
-      </KButtonGroup>
-    </BottomAppBar>
-
-    <KModal
-      v-if="removeDeviceModal"
-      :title="$tr('removeDevice')"
-      size="medium"
-      :submitText="coreString('removeAction')"
-      :cancelText="coreString('cancelAction')"
-      @cancel="closeModal"
-      @submit="handleDeleteDevice"
-    >
-      <KGrid>
-        <KGridItem
-          :layout8="{ span: 6 }"
-          :layout12="{ span: 10 }"
-        >
-          <p>{{ deviceName }}</p>
-        </KGridItem>
-
-        <KGridItem
-          :layout8="{ span: 8 }"
-          :layout12="{ span: 12 }"
-        >
-          <p>{{ $tr('removeDeviceWarning') }}</p>
-          <p v-if="!device.available">
-            {{ $tr('deviceNotConnected') }}
-          </p>
-        </KGridItem>
-      </KGrid>
-    </KModal>
   </ImmersivePage>
 
 </template>
@@ -152,64 +114,63 @@
 
 <script>
 
+  import { computed } from 'vue';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
-  import BottomAppBar from 'kolibri/components/BottomAppBar';
-  import { NetworkLocationResource } from 'kolibri-common/apiResources/NetworkLocationResource';
-  import TaskResource from 'kolibri/apiResources/TaskResource';
-  import { now } from 'kolibri/utils/serverClock';
+  import CoreTable from 'kolibri/components/CoreTable';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import useTaskPolling from '../../composables/useTaskPolling';
   import { KDP_ID, oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
   import { kdpNameTranslator } from './i18n';
-
-  const today = new Date();
-  const daysOfWeek = [];
-  const date = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate() + (7 - today.getDay()),
-  );
-  for (let i = 0; i < 7; i++) {
-    daysOfWeek.push({ value: i, date: new Date(date) });
-    date.setDate(date.getDate() + 1);
-  }
-
-  const endTime = new Date();
-  endTime.setHours(24, 0, 0, 0);
-  const interval = 30;
-
-  const times = [];
-  var i = 0;
-  const time = new Date();
-  time.setHours(0, 0, 0, 0);
-
-  while (time < endTime) {
-    times.push({ value: i++, time: new Date(time) });
-    time.setMinutes(time.getMinutes() + interval);
-  }
+  import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
+  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import SyncFacilityModalGroup from 'kolibri-common/components/syncComponentSet/SyncFacilityModalGroup';
+  import {
+    useDeviceFacilityFilter,
+    useDevicesWithFilter,
+  } from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
+  import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 
   export default {
-    name: 'EditDeviceSyncSchedule',
+    name: 'ManageSyncSchedule',
     components: {
       ImmersivePage,
-      BottomAppBar,
+      CoreTable,
+      SyncFacilityModalGroup,
     },
-    mixins: [commonCoreStrings],
-    setup() {
+    extends: ImmersivePage,
+    mixins: [commonCoreStrings, commonSyncElements],
+    setup(props) {
+      const deviceFilter = useDeviceFacilityFilter({ id: props.facilityId });
       const { tasks } = useTaskPolling('facility_task');
-      return { tasks };
+      const { devices } = useDevicesWithFilter(
+        {
+          subset_of_users_device: false,
+        },
+        deviceFilter,
+      );
+      const devicesById = computed(() => {
+        return devices.value.reduce(
+          (acc, device) => {
+            acc[device.id] = device;
+            return acc;
+          },
+          {
+            [KDP_ID]: {
+              device_id: KDP_ID,
+              // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
+              device_name: kdpNameTranslator.$tr('syncToKDP'),
+              base_url: '',
+            },
+          },
+        );
+      });
+      return {
+        devicesById,
+        tasks,
+      };
     },
     props: {
-      icon: {
-        type: String,
-        default: 'back',
-      },
       facilityId: {
-        type: String,
-        required: true,
-      },
-      deviceId: {
         type: String,
         required: true,
       },
@@ -217,286 +178,133 @@
         type: Object,
         required: true,
       },
+      editSyncRoute: {
+        type: Function,
+        required: true,
+      },
     },
     data() {
       return {
-        removeDeviceModal: false,
-        retryFlag: false,
-        device: null,
-        now: null,
-        selectedItem: {},
-        selectedDay: {},
-        selectedTime: {},
-        userHasEdited: false,
+        deviceModal: false,
+        facility: null,
       };
     },
     computed: {
-      pageHeight() {
-        return {
-          height: '80%',
-          zIndex: -1,
-        };
-      },
-      selectorStyle() {
-        return {
-          borderRadius: '5px 5px 0px 0px',
-          paddingTop: '5px',
-          paddingLeft: '5px',
-          width: '300px',
-          marginLeft: '16px',
-        };
-      },
-      selectArray() {
-        return [
-          { label: this.$tr('everyHour'), value: oneHour },
-          { label: this.$tr('everyDay'), value: oneDay },
-          { label: this.$tr('everyWeek'), value: oneWeek },
-          { label: this.$tr('everyTwoWeeks'), value: twoWeeks },
-          { label: this.$tr('everyMonth'), value: oneMonth },
-        ];
-      },
-      getDays() {
-        return daysOfWeek.map(day => {
-          return {
-            label: this.$formatDate(day.date, { weekday: 'long' }),
-            value: day.value,
-          };
-        });
-      },
-
-      SyncTime() {
-        return times.map(time => {
-          return {
-            label: this.$formatTime(time.time),
-            value: time.value,
-            hours: time.time.getHours(),
-            minutes: time.time.getMinutes(),
-          };
-        });
-      },
-      filteredTasks() {
+      facilitySyncTasks() {
         return this.tasks.filter(
-          task =>
-            (this.isKdp || task.extra_metadata.device_id === this.device?.id) &&
-            task.facility_id === this.facilityId &&
-            task.type === this.taskType &&
-            // Only show tasks that are repeating indefinitely
-            task.repeat === null,
+          t =>
+            t.facility_id === this.facilityId &&
+            t.repeat === null &&
+            (t.type === TaskTypes.SYNCDATAPORTAL || t.type === TaskTypes.SYNCPEERFULL),
         );
       },
-      deviceName() {
-        return this.device && this.device.nickname && this.device.nickname.length
-          ? this.device.nickname
-          : this.device.device_name;
-      },
-      currentTask() {
-        return this.filteredTasks.length ? this.filteredTasks[0] : null;
-      },
-      currentTaskRunning() {
-        return this.currentTask?.status === TaskStatuses.RUNNING;
-      },
-      timeRequired() {
-        return this.selectedItem.value > oneHour;
-      },
-      timeIsSet() {
-        return this.selectedTime && times[this.selectedTime.value];
-      },
-      dayRequired() {
-        return this.selectedItem.value > oneDay;
-      },
-      dayIsSet() {
-        return this.selectedDay && daysOfWeek[this.selectedDay.value];
-      },
-      isKdp() {
-        return this.deviceId === KDP_ID;
-      },
-      taskType() {
-        return this.isKdp ? TaskTypes.SYNCDATAPORTAL : TaskTypes.SYNCPEERFULL;
-      },
-      saveDisabled() {
-        return (
-          this.currentTaskRunning ||
-          (!this.timeIsSet && this.timeRequired) ||
-          (!this.dayIsSet && this.dayRequired) ||
-          !this.selectedItem.value
-        );
+      scheduledTasks() {
+        return this.facilitySyncTasks.map(task => {
+          const deviceName = this.devicesById[this.getDeviceId(task)]
+            ? this.devicesById[this.getDeviceId(task)].device_name
+            : task.extra_metadata.device_name;
+          const deviceAvailable =
+            this.devicesById[task.extra_metadata.device_id] &&
+            this.devicesById[task.extra_metadata.device_id].available;
+          const isKDP = task.type === TaskTypes.SYNCDATAPORTAL;
+          return {
+            ...task,
+            deviceName,
+            deviceAvailable,
+            isKDP,
+          };
+        });
       },
     },
-    watch: {
-      currentTask() {
-        if (this.currentTask && !this.userHasEdited) {
-          const enqueueAt = new Date(Date.parse(this.currentTask.scheduled_datetime));
-          const day = enqueueAt.getDay();
-          const hours = enqueueAt.getHours();
-          const minutes = enqueueAt.getMinutes();
-          this.selectedItem =
-            this.selectArray.find(item => item.value === this.currentTask.repeat_interval) || {};
-          this.selectedDay = this.getDays.find(item => item.value === day) || {};
-          for (const time of this.SyncTime) {
-            // Because there can be some drift in the task scheduling process,
-            // we round the 'scheduled' time to the nearest 30 minutes
-            if (
-              time.minutes === 0 &&
-              ((time.hours === hours && minutes < 15) ||
-                (time.hours === hours + 1 && minutes >= 45))
-            ) {
-              this.selectedTime = time;
-              break;
-            }
-            if (time.minutes === 30 && time.hours === hours && minutes >= 15 && minutes < 45) {
-              this.selectedTime = time;
-              break;
-            }
-          }
-          this.retryFlag = Boolean(this.currentTask.retry_interval);
-        }
-      },
-    },
-    created() {
-      this.fetchDevice();
-      this.now = now();
-      this.serverTimeInterval = setInterval(() => {
-        this.now = now();
-      }, 10000);
-    },
-    beforeDestroy() {
-      clearInterval(this.serverTimeInterval);
+    beforeMount() {
+      this.fetchFacility();
     },
     methods: {
-      closeModal() {
-        this.removeDeviceModal = false;
-      },
-      handleDeleteDevice() {
-        this.removeDeviceModal = false;
-        TaskResource.deleteModel({ id: this.currentTask.id })
-          .then(() => {
-            this.showSnackbarNotification('deviceRemove');
-            this.goBack();
-          })
-          .catch(() => {
-            this.showSnackbarNotification('deviceNotRemove');
-          });
-      },
-      computeNextSync() {
-        const date = new Date(this.now);
-        if (this.timeRequired) {
-          if (!this.timeIsSet) {
-            throw new ReferenceError('Time is not set and is required');
-          }
-          const hours = this.selectedTime.hours;
-          const minutes = this.selectedTime.minutes;
-          if (
-            hours < date.getHours() ||
-            (hours === date.getHours() && minutes < date.getMinutes())
-          ) {
-            date.setDate(date.getDate() + 1);
-          }
-          date.setHours(hours);
-          date.setMinutes(minutes);
-        }
-        if (this.dayRequired) {
-          if (!this.dayIsSet) {
-            throw new ReferenceError('Day is not set and is required');
-          }
-          const diff = this.selectedDay.value - date.getDay();
-          if (date.getDay() > this.selectedDay.value) {
-            date.setDate(date.getDate() + 7 - Math.abs(diff));
-          } else if (date.getDay() < this.selectedDay.value) {
-            date.setDate(date.getDate() + Math.abs(diff));
-          }
-        }
-        return date;
-      },
-      handleSaveSchedule() {
-        const enqueue_param = this.computeNextSync().toISOString();
-        const enqueue_args = {
-          enqueue_at: enqueue_param,
-          repeat_interval: this.selectedItem.value,
-          repeat: null,
-          retry_interval: this.retryFlag ? 60 * 5 : null,
-        };
-        let promise;
-        if (this.currentTask) {
-          promise = TaskResource.saveModel({
-            id: this.currentTask.id,
-            data: { enqueue_args },
-            exists: true,
-          });
-        } else {
-          const taskParams = {
-            type: this.taskType,
-            facility: this.facilityId,
-            enqueue_args,
-          };
-          if (!this.isKdp) {
-            taskParams.device_id = this.deviceId;
-            taskParams.baseurl = this.device.base_url;
-          }
-          promise = TaskResource.startTask(taskParams);
-        }
-        promise
-          .then(() => {
-            this.goBack();
-            if (this.currentTask) {
-              // the sync schedule has already been created and we are editing it
-              this.showSnackbarNotification('syncUpdated');
-            } else {
-              this.showSnackbarNotification('syncAdded');
-            }
-          })
-          .catch(() => {
-            this.createTaskFailedSnackbar();
-          });
-      },
-      goBack() {
-        this.$router.push(this.goBackRoute);
-      },
-      fetchDevice() {
-        if (this.isKdp) {
-          this.device = {
-            id: KDP_ID,
-            // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
-            device_name: kdpNameTranslator.$tr('syncToKDP'),
-            base_url: '',
-          };
-          return;
-        }
-        NetworkLocationResource.fetchModel({ id: this.deviceId }).then(device => {
-          this.device = device;
+      fetchFacility() {
+        FacilityResource.fetchModel({ id: this.facilityId, force: true }).then(facility => {
+          this.facility = { ...facility };
         });
       },
-      handleUserInput() {
-        this.userHasEdited = true;
+      closeModal() {
+        this.deviceModal = false;
       },
-      handleRetryCheckboxChange() {
-        this.retryFlag = !this.retryFlag;
-        this.handleUserInput();
+      handlePeerSync(device) {
+        this.deviceModal = false;
+        if (device.id) {
+          this.$router.push(this.editSyncRoute(device.id));
+        }
+      },
+      handleKDPSync() {
+        this.deviceModal = false;
+        this.$router.push(this.editSyncRoute(KDP_ID));
+      },
+      editButton(task) {
+        this.$router.push(this.editSyncRoute(this.getDeviceId(task)));
+      },
+      getDeviceId(task) {
+        if (task.type === TaskTypes.SYNCPEERFULL) {
+          return task.extra_metadata.device_id;
+        } else if (task.type === TaskTypes.SYNCDATAPORTAL) {
+          return KDP_ID;
+        }
+      },
+      scheduleTime(time, timestamp) {
+        timestamp = new Date(Date.parse(timestamp));
+        if (time === oneHour) {
+          return this.$tr('everyHour');
+        }
+        const options = {
+          weekday: 'long',
+          hour: 'numeric',
+          minute: 'numeric',
+        };
+        let frequencyString;
+        if (time === oneDay) {
+          frequencyString = this.$tr('everyDay');
+          delete options.weekday;
+        }
+        if (time === oneWeek) {
+          frequencyString = this.$tr('everyWeek');
+        }
+        if (time === twoWeeks) {
+          frequencyString = this.$tr('everyTwoWeeks');
+        }
+        if (time === oneMonth) {
+          frequencyString = this.$tr('everyMonth');
+        }
+        return `${frequencyString}, ${this.$formatTime(timestamp, options)}`;
       },
     },
+
     $trs: {
-      editSyncScheduleTitle: {
-        message: 'Edit device sync schedule',
-        context: 'Subtitle for the edit sync schedule page',
+      syncSchedules: {
+        message: 'Sync schedules',
+        context: "Heading or title for 'manage sync schedule' page.",
       },
-      serverTime: {
-        message: 'Server time:',
-        context: 'Server time label',
+      introduction: {
+        message:
+          'Set a schedule for Kolibri to automatically sync with other Kolibri devices sharing this facility. Devices with the same sync schedule will be synced one at a time.',
+        context: 'Introduction on the manage sync schedule',
       },
-      checkboxLabel: {
-        message: 'If scheduled sync fails, keep trying',
-        context: 'Label for checkbox',
+      addDevice: {
+        message: 'Add device',
+        context: 'Add device button',
       },
-      removeDevice: {
-        message: 'Remove device',
-        context: 'Title for the remove device modal',
+      Schedule: {
+        message: 'Schedule',
+        context: 'Schedule label',
       },
-      removeDeviceWarning: {
-        message: 'You are about to remove this device from the sync schedule.',
-        context: 'Label to warn the user before removing the device',
+      connected: {
+        message: 'Connected',
+        context: 'Connected device',
       },
-      deviceNotConnected: {
-        message: 'This device is not currently connected to your network.',
-        context: 'Message showing that the device is no longer on the network',
+      disconnected: {
+        message: 'Not connected',
+        context: 'Disconnected device',
+      },
+      NoSync: {
+        message: 'There are no syncs scheduled',
+        context: 'Text to display when there is no schedule sync to be managed.',
       },
       everyHour: {
         message: 'Every hour',
@@ -518,22 +326,6 @@
         message: 'Every two weeks',
         context: 'Period for scheduling the sync between devices every two weeks',
       },
-      removeDeviceLabel: {
-        message: 'Remove device from sync schedule',
-        context: 'Button label for removing the device from the sync schedule',
-      },
-      frequency: {
-        message: 'Frequency',
-        context: 'Indicates often the scheduled sync occurs',
-      },
-      day: {
-        message: 'Day',
-        context: 'Indicates the day of the week on which the scheduled sync occurs',
-      },
-      time: {
-        message: 'Time',
-        context: 'Indicates the time of day at which the scheduled sync occurs',
-      },
     },
   };
 
@@ -542,20 +334,22 @@
 
 <style scoped>
 
-  .spacing {
+  .separate {
+    margin-top: 35px;
+    margin-bottom: 35px;
+  }
+
+  .add-space {
+    margin: 4px;
+  }
+
+  .right {
+    position: absolute;
+    right: 50px;
+  }
+
+  .loader-size {
     margin-top: 10px;
-  }
-
-  .loader {
-    margin-top: 5px;
-  }
-
-  .edit-sync-schedule {
-    margin-left: 20px;
-  }
-
-  .align-kselects {
-    margin-left: 16px;
   }
 
 </style>

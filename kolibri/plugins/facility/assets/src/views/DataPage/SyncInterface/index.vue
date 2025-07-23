@@ -109,13 +109,14 @@
 
 <script>
 
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import PrivacyModal from './PrivacyModal';
   import CoreTable from 'kolibri/components/CoreTable';
   import FacilityNameAndSyncStatus from 'kolibri-common/components/syncComponentSet/FacilityNameAndSyncStatus';
   import ConfirmationRegisterModal from 'kolibri-common/components/syncComponentSet/ConfirmationRegisterModal';
   import RegisterFacilityModal from 'kolibri-common/components/syncComponentSet/RegisterFacilityModal';
   import SyncFacilityModalGroup from 'kolibri-common/components/syncComponentSet/SyncFacilityModalGroup';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -123,7 +124,6 @@
   import CoreMenuOption from 'kolibri/components/CoreMenu/CoreMenuOption';
   import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
   import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
-  import PrivacyModal from './PrivacyModal';
 
   const Modals = Object.freeze({
     SYNC_FACILITY: 'SYNC_FACILITY',

@@ -1,7 +1,7 @@
-import TaskResource from 'kolibri/apiResources/TaskResource';
 import { set } from 'vue';
 import { CSVImportStatuses } from '../../constants';
 import actions from './actions';
+import TaskResource from 'kolibri/apiResources/TaskResource';
 
 function defaultState() {
   return {

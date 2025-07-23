@@ -1,8 +1,8 @@
+import baseRoutes from '../baseRoutes';
 import { UserKinds } from 'kolibri/constants';
 import { registerNavItem } from 'kolibri/composables/useNav';
 import urls from 'kolibri/urls';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-import baseRoutes from '../baseRoutes';
 
 registerNavItem({
   get url() {

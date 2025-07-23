@@ -1,142 +1,450 @@
-<template>
+import { get, set } from '@vueuse/core';
+import VueRouter from 'vue-router';
+import Vue, { nextTick, ref } from 'vue';
+import { coreStoreFactory } from 'kolibri/store';
+import { AllCategories, ContentNodeKinds, NoCategories } from 'kolibri/constants';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
+import useBaseSearch from '../useBaseSearch';
+import coreModule from '../../../../kolibri/core/assets/src/state/modules/core';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 
-  <div class="pos-rel">
-    <KSelect
-      class="birthyear-select"
-      :value="selected"
-      :label="coreString('birthYearLabel')"
-      :placeholder="$tr('placeholder')"
-      :options="options"
-      :disabled="$attrs.disabled"
-      @change="$emit('update:value', $event.value)"
-    />
-    <CoreInfoIcon
-      class="info-icon"
-      :tooltipText="$tr('birthYearTooltip')"
-      :tooltipPlacement="tooltipPlacement"
-      :iconAriaLabel="$tr('birthyearAriaLabel')"
-    />
-  </div>
+Vue.use(VueRouter);
 
-</template>
+jest.mock('kolibri/composables/useUser');
 
+const name = 'not important';
 
-<script>
-
-  import range from 'lodash/range';
-  import getYear from 'date-fns/get_year';
-  import { now } from 'kolibri/utils/serverClock';
-  import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { DemographicConstants } from 'kolibri/constants';
-
-  const { NOT_SPECIFIED } = DemographicConstants;
-
-  // Take the last-known year to be the later of the copyright year,
-  // or the year of the server date
-  const firstYear = Math.max(Number(__copyrightYear), getYear(now()));
-
-  export default {
-    name: 'BirthYearSelect',
-    components: {
-      CoreInfoIcon,
-    },
-    mixins: [commonCoreStrings],
-    setup() {
-      const { windowIsSmall } = useKResponsiveWindow();
-      return {
-        windowIsSmall,
-      };
-    },
-    props: {
-      value: {
-        type: String,
-        default: null,
+function prep(query = {}, descendant = null, filters = null) {
+  const store = coreStoreFactory({
+    state: () => ({
+      route: {
+        query,
+        name,
+      },
+    }),
+    mutations: {
+      SET_QUERY(state, query) {
+        state.route.query = query;
       },
     },
-    data() {
-      return {
-        yearOptions: this.makeYearOptions(firstYear, 1900),
-      };
-    },
-    computed: {
-      selected() {
-        return this.options.find(o => o.value === this.value) || {};
-      },
-      options() {
-        // The backend validation actually lets you pick years up to 3000, so we'll
-        // fill in the gaps just in case a user was given a later date, e.g. via CSV
-        let extraYears = [];
-        if (Number(this.value) > firstYear) {
-          extraYears = this.makeYearOptions(Number(this.value), firstYear - 1);
-        }
-        return [
-          {
-            value: NOT_SPECIFIED,
-            label: this.coreString('birthYearNotSpecified'),
-          },
-          ...extraYears,
-          ...this.yearOptions,
-        ];
-      },
-      tooltipPlacement() {
-        if (this.windowIsSmall) {
-          return 'left';
-        }
-        return 'bottom';
-      },
-    },
-    methods: {
-      makeYearOptions(max, min) {
-        return range(max, min, -1).map(n => {
-          // Because of timezone, year could be mismatched when localized in any
-          // timezone that less than UTC. for ex- 2022 will be shown instead of 2023
-          const date = new Date();
-          date.setFullYear(n);
-          return {
-            label: this.$formatDate(String(date), { year: 'numeric' }),
-            value: String(n),
-          };
-        });
-      },
-    },
-    $trs: {
-      placeholder: {
-        message: 'Select year',
-        context:
-          "When you edit or create a user you can optionally add the year they were born. You use the 'Select year' drop-down menu to do this. This is located under the 'Birth year' title.",
-      },
-      birthYearTooltip: {
-        message: 'Provide an estimate if you are unsure.',
-        context:
-          "This is a helper text that appears when you select the 'i' icon next to the 'Birth year' field when creating or editing a user.\n\nIt asks the user to provide an estimate of the birth year of a user if the age of the user is unknown.",
-      },
-      birthyearAriaLabel: {
-        message: 'About providing your birth year.',
-        context:
-          "Could also be translated as \"View information about providing your birth year\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to indicate that the 'i' icon for the 'Birth year' field offers suggestions how to include that information when creating the user.",
-      },
-    },
+  });
+  const router = new VueRouter();
+  router.push = jest.fn().mockReturnValue(Promise.resolve());
+  store.registerModule('core', coreModule);
+  return {
+    ...useBaseSearch({ descendant, store, router, filters }),
+    router,
+    store,
   };
+}
 
-</script>
-
-
-<style lang="scss" scoped>
-
-  .pos-rel {
-    position: relative;
-  }
-
-  .birthyear-select {
-    width: calc(100% - 32px);
-  }
-
-  .info-icon {
-    position: absolute;
-    top: 27px;
-    right: 0;
-  }
-
-</style>
+describe(`useBaseSearch`, () => {
+  beforeEach(() => {
+    ContentNodeResource.fetchCollection = jest.fn();
+    ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+    useUser.mockImplementation(() => useUserMock());
+  });
+  describe(`searchTerms computed ref`, () => {
+    it(`returns an object with all relevant keys when query params are empty`, () => {
+      const { searchTerms } = prep();
+      expect(get(searchTerms)).toEqual({
+        accessibility_labels: {},
+        categories: {},
+        grade_levels: {},
+        languages: {},
+        learner_needs: {},
+        learning_activities: {},
+        keywords: '',
+      });
+    });
+    it(`returns an object with all relevant keys when query params have other keys`, () => {
+      const { searchTerms } = prep({
+        search: {
+          this: true,
+        },
+        keyword: 'how about this?',
+      });
+      expect(get(searchTerms)).toEqual({
+        accessibility_labels: {},
+        categories: {},
+        grade_levels: {},
+        languages: {},
+        learner_needs: {},
+        learning_activities: {},
+        keywords: '',
+      });
+    });
+    it(`returns an object with all relevant keys when query params are specified`, () => {
+      const { searchTerms } = prep({
+        accessibility_labels: 'test1,test2',
+        keywords: 'I love paris in the springtime!',
+        categories: 'notatest,reallynotatest,absolutelynotatest',
+        grade_levels: 'lowerprimary,uppersecondary,adult',
+        languages: 'ar-jk,en-pr,en-gb',
+        learner_needs: 'internet,pencil,rolodex',
+        learning_activities: 'watch',
+      });
+      expect(get(searchTerms)).toEqual({
+        accessibility_labels: {
+          test1: true,
+          test2: true,
+        },
+        categories: {
+          notatest: true,
+          reallynotatest: true,
+          absolutelynotatest: true,
+        },
+        grade_levels: {
+          lowerprimary: true,
+          uppersecondary: true,
+          adult: true,
+        },
+        languages: {
+          'ar-jk': true,
+          'en-pr': true,
+          'en-gb': true,
+        },
+        learner_needs: {
+          internet: true,
+          pencil: true,
+          rolodex: true,
+        },
+        learning_activities: {
+          watch: true,
+        },
+        keywords: 'I love paris in the springtime!',
+      });
+    });
+    it(`setting relevant keys will result in a router push`, () => {
+      const { searchTerms, router } = prep();
+      set(searchTerms, {
+        keywords: 'test',
+        categories: {
+          cat1: true,
+          cat2: true,
+        },
+      });
+      expect(router.push).toHaveBeenCalledWith({
+        name,
+        query: {
+          keywords: 'test',
+          categories: 'cat1,cat2',
+        },
+      });
+    });
+    it(`removing keys will be propagated to the router`, () => {
+      const { searchTerms, router } = prep({
+        keywords: 'test',
+        categories: 'cat1,cat2',
+        grade_levels: 'level1',
+      });
+      set(searchTerms, {
+        keywords: '',
+        categories: {
+          cat2: true,
+        },
+      });
+      expect(router.push).toHaveBeenCalledWith({
+        name,
+        query: {
+          categories: 'cat2',
+        },
+      });
+    });
+    it(`setting keywords to null will be propagated to the router`, () => {
+      const { searchTerms, router } = prep({
+        keywords: 'test',
+        categories: 'cat1,cat2',
+        grade_levels: 'level1',
+      });
+      set(searchTerms, {
+        keywords: null,
+        categories: {
+          cat2: true,
+        },
+      });
+      expect(router.push).toHaveBeenCalledWith({
+        name,
+        query: {
+          categories: 'cat2',
+        },
+      });
+    });
+  });
+  describe('displayingSearchResults computed property', () => {
+    const searchKeys = [
+      'learning_activities',
+      'categories',
+      'learner_needs',
+      'accessibility_labels',
+      'languages',
+      'grade_levels',
+    ];
+    it.each(searchKeys)('should be true when there are any values for %s', key => {
+      const { displayingSearchResults } = prep({
+        [key]: 'test1,test2',
+      });
+      expect(get(displayingSearchResults)).toBe(true);
+    });
+    it('should be true when there is a value for keywords', () => {
+      const { displayingSearchResults } = prep({
+        keywords: 'testing testing one two three',
+      });
+      expect(get(displayingSearchResults)).toBe(true);
+    });
+  });
+  describe('search method', () => {
+    it('should call ContentNodeResource.fetchCollection when searchTerms changes', async () => {
+      const { store } = prep();
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      store.commit('SET_QUERY', { categories: 'test1,test2' });
+      await nextTick();
+      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
+        getParams: {
+          categories: ['test1', 'test2'],
+          max_results: 25,
+          include_coach_content: false,
+        },
+      });
+    });
+    it('should not call ContentNodeResource.fetchCollection if there is no search', () => {
+      const { search } = prep();
+      ContentNodeResource.fetchCollection.mockClear();
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      search();
+      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
+    });
+    it('should clear labels and more if there is no search', () => {
+      const { search, labels, more } = prep();
+      set(labels, ['test']);
+      set(more, { test: 'test' });
+      search();
+      expect(get(labels)).toBeNull();
+      expect(get(more)).toBeNull();
+    });
+    it('should call ContentNodeResource.fetchCollection if there is no search but a descendant is set', () => {
+      const { search } = prep({}, ref({ tree_id: 1, lft: 10, rght: 20 }));
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      search();
+      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
+        getParams: {
+          tree_id: 1,
+          lft__gt: 10,
+          rght__lt: 20,
+          max_results: 1,
+          include_coach_content: false,
+        },
+      });
+    });
+    it('should call ContentNodeResource.fetchCollection if there is no search but a filter is set', () => {
+      const { search } = prep({}, null, { kind: ContentNodeKinds.EXERCISE });
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      search();
+      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
+        getParams: {
+          kind: ContentNodeKinds.EXERCISE,
+          max_results: 1,
+          include_coach_content: false,
+        },
+      });
+    });
+    it('should set labels and clear more if there is no search but a descendant is set', async () => {
+      const { labels, more, search } = prep({}, ref({ tree_id: 1, lft: 10, rght: 20 }));
+      const labelsSet = {
+        available: ['labels'],
+        languages: [],
+      };
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({ labels: labelsSet }));
+      set(more, { test: 'test' });
+      search();
+      await nextTick();
+      expect(get(more)).toBeNull();
+      expect(get(labels)).toEqual(labelsSet);
+    });
+    it('should call ContentNodeResource.fetchCollection when searchTerms exist', () => {
+      const { search } = prep({ categories: 'test1,test2' });
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      search();
+      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
+        getParams: {
+          categories: ['test1', 'test2'],
+          max_results: 25,
+          include_coach_content: false,
+        },
+      });
+    });
+    it('should ignore other categories when AllCategories is set and search for isnull false', () => {
+      const { search } = prep({ categories: `test1,test2,${NoCategories},${AllCategories}` });
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      search();
+      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
+        getParams: { categories__isnull: false, max_results: 25, include_coach_content: false },
+      });
+    });
+    it('should ignore other categories when NoCategories is set and search for isnull true', () => {
+      const { search } = prep({ categories: `test1,test2,${NoCategories}` });
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      search();
+      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
+        getParams: { categories__isnull: true, max_results: 25, include_coach_content: false },
+      });
+    });
+    it('should set keywords when defined', () => {
+      const { search } = prep({ keywords: `this is just a test` });
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      search();
+      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
+        getParams: {
+          keywords: `this is just a test`,
+          max_results: 25,
+          include_coach_content: false,
+        },
+      });
+    });
+    it('should set results, labels, and more with returned data', async () => {
+      const { labels, more, results, search } = prep({ categories: 'test1,test2' });
+      const expectedLabels = {
+        available: ['labels'],
+        languages: [],
+      };
+      const expectedMore = {
+        cursor: 'adalskdjsadlkjsadlkjsalkd',
+      };
+      const expectedResults = [{ id: 'node-id1' }];
+      ContentNodeResource.fetchCollection.mockReturnValue(
+        Promise.resolve({
+          labels: expectedLabels,
+          results: expectedResults,
+          more: expectedMore,
+        }),
+      );
+      search();
+      await nextTick();
+      expect(get(labels)).toEqual(expectedLabels);
+      expect(get(results)).toEqual(expectedResults);
+      expect(get(more)).toEqual(expectedMore);
+    });
+  });
+  describe('searchMore method', () => {
+    it('should not call anything when not displaying search terms', () => {
+      const { searchMore } = prep();
+      ContentNodeResource.fetchCollection.mockClear();
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      searchMore();
+      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
+    });
+    it('should not call anything when more is null', () => {
+      const { more, searchMore } = prep({ categories: 'test1' });
+      ContentNodeResource.fetchCollection.mockClear();
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      set(more, null);
+      searchMore();
+      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
+    });
+    it('should not call anything when moreLoading is true', () => {
+      const { more, moreLoading, searchMore } = prep({ categories: 'test1' });
+      ContentNodeResource.fetchCollection.mockClear();
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      set(more, {});
+      set(moreLoading, true);
+      searchMore();
+      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
+    });
+    it('should pass the more object directly to getParams', () => {
+      const { more, searchMore } = prep({ categories: `test1,test2,${NoCategories}` });
+      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      const moreExpected = { test: 'this', not: 'that' };
+      set(more, moreExpected);
+      searchMore();
+      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({ getParams: moreExpected });
+    });
+    it('should set results, more and labels', async () => {
+      const { labels, more, results, searchMore, search } = prep({
+        categories: `test1,test2,${NoCategories}`,
+      });
+      const expectedLabels = {
+        available: ['labels'],
+        languages: [],
+      };
+      const expectedMore = {
+        cursor: 'adalskdjsadlkjsadlkjsalkd',
+      };
+      const originalResults = [{ id: 'originalId', content_id: 'first' }];
+      ContentNodeResource.fetchCollection.mockReturnValue(
+        Promise.resolve({
+          labels: expectedLabels,
+          results: originalResults,
+          more: expectedMore,
+        }),
+      );
+      search();
+      await nextTick();
+      const expectedResults = [{ id: 'node-id1', content_id: 'second' }];
+      ContentNodeResource.fetchCollection.mockReturnValue(
+        Promise.resolve({
+          labels: expectedLabels,
+          results: expectedResults,
+          more: expectedMore,
+        }),
+      );
+      set(more, {});
+      searchMore();
+      await nextTick();
+      expect(get(labels)).toEqual(expectedLabels);
+      expect(get(results)).toEqual(originalResults.concat(expectedResults));
+      expect(get(more)).toEqual(expectedMore);
+    });
+  });
+  describe('removeFilterTag method', () => {
+    it('should remove a filter from the searchTerms', () => {
+      const { removeFilterTag, router } = prep({
+        categories: 'test1,test2',
+      });
+      removeFilterTag({ value: 'test1', key: 'categories' });
+      expect(router.push).toHaveBeenCalledWith({
+        name,
+        query: {
+          categories: 'test2',
+        },
+      });
+    });
+    it('should remove keywords from the searchTerms', () => {
+      const { removeFilterTag, router } = prep({
+        keywords: 'test',
+      });
+      removeFilterTag({ value: 'test', key: 'keywords' });
+      expect(router.push).toHaveBeenCalledWith({
+        name,
+        query: {},
+      });
+    });
+    it('should not remove any other filters', () => {
+      const { removeFilterTag, router } = prep({
+        categories: 'test1,test2',
+        learning_activities: 'watch',
+      });
+      removeFilterTag({ value: 'test1', key: 'categories' });
+      expect(router.push).toHaveBeenCalledWith({
+        name,
+        query: {
+          categories: 'test2',
+          learning_activities: 'watch',
+        },
+      });
+    });
+  });
+  describe('clearSearch method', () => {
+    it('should remove all filters from the searchTerms', () => {
+      const { clearSearch, router } = prep({
+        categories: 'test1,test2',
+        learning_activities: 'watch',
+        keywords: 'this',
+      });
+      clearSearch();
+      expect(router.push).toHaveBeenCalledWith({
+        name,
+        query: {},
+      });
+    });
+  });
+});

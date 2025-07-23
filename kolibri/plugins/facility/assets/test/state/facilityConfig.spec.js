@@ -1,9 +1,9 @@
-import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
-import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
-import client from 'kolibri/client';
 import { showFacilityConfigPage } from '../../src/modules/facilityConfig/handlers';
 import makeStore from '../makeStore';
 import coreModule from '../../../../../core/assets/src/state/modules/core';
+import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
+import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
+import client from 'kolibri/client';
 
 jest.mock('kolibri/client');
 jest.mock('kolibri/urls');

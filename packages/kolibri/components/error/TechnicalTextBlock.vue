@@ -1,125 +1,43 @@
-<template>
+import { mount } from '@vue/test-utils';
+import AppError from '../AppError';
+import coreModule from '../../../../../kolibri/core/assets/src/state/modules/core';
+import { coreStoreFactory as makeStore } from 'kolibri/store';
 
-  <div>
-    <!-- visible text area, hidden to screenreaders -->
-    <textarea
-      :value="text"
-      readonly
-      class="error-log"
-      wrap="soft"
-      aria-hidden="true"
-      :style="[
-        dynamicHeightStyle,
-        {
-          backgroundColor: $themePalette.grey.v_100,
-          border: $themePalette.grey.v_400,
-        },
-      ]"
-    >
-    </textarea>
-    <!-- invisible text block for copying, visible to screenreaders -->
-    <pre
-      ref="textBox"
-      class="visuallyhidden"
-    >{{ text }}</pre>
-    <div>
-      <KButton
-        v-if="clipboardCapable"
-        ref="copyButton"
-        :style="{ marginTop: '8px', marginBottom: '8px' }"
-        :primary="false"
-        :text="$tr('copyToClipboardButtonPrompt')"
-      />
-    </div>
-  </div>
+function makeWrapper() {
+  const store = makeStore();
+  store.registerModule('core', coreModule);
+  const wrapper = mount(AppError, {
+    store,
+  });
+  return { wrapper, store };
+}
 
-</template>
-
-
-<script>
-
-  import useSnackbar from 'kolibri/composables/useSnackbar';
-  import ClipboardJS from 'clipboard';
-
-  export default {
-    name: 'TechnicalTextBlock',
-    setup() {
-      const { createSnackbar } = useSnackbar();
-      return { createSnackbar };
-    },
-    props: {
-      text: {
-        type: String,
-        default: '',
+describe('AppError component', () => {
+  it('shows page not found errors and buttons if the error has status code 404', async () => {
+    const { wrapper, store } = makeWrapper();
+    const error = {
+      status: 404,
+      config: {
+        method: 'get',
       },
-      maxHeight: {
-        type: Number,
-        default: null,
+    };
+    store.state.core.error = JSON.stringify(error);
+    await wrapper.vm.$nextTick();
+    expect(wrapper.findComponent({ name: 'KButton' }).props().text).toEqual('Back to home');
+    expect(wrapper.find('h1').text()).toEqual('Resource not found');
+  });
+
+  it('shows default errors and buttons if the error does not have status code 404', async () => {
+    const { wrapper, store } = makeWrapper();
+    const error = {
+      status: 400,
+      config: {
+        method: 'get',
       },
-      minHeight: {
-        type: Number,
-        default: 72,
-      },
-    },
-    computed: {
-      clipboardCapable() {
-        return ClipboardJS.isSupported();
-      },
-      dynamicHeightStyle() {
-        return {
-          height: `${16 + this.text.split('\n').length * 18}px`,
-          maxHeight: `${this.maxHeight}px`,
-          minHeight: `${this.minHeight}px`,
-        };
-      },
-    },
-    mounted() {
-      if (this.clipboardCapable) {
-        this.clipboard = new ClipboardJS(this.$refs.copyButton.$el, {
-          text: () => this.text,
-          // needed because modal changes browser focus
-          container: this.$refs.textBox,
-        });
-
-        this.clipboard.on('success', () => {
-          this.createSnackbar(this.$tr('copiedToClipboardConfirmation'));
-        });
-      }
-    },
-    destroyed() {
-      if (this.clipboard) {
-        this.clipboard.destroy();
-      }
-    },
-    $trs: {
-      copyToClipboardButtonPrompt: {
-        message: 'Copy to clipboard',
-        context:
-          'Button which allows the user to copy content to the clipboard.\n\nA clipboard is a temporary storage area where material cut or copied from a file is kept for pasting into another file.',
-      },
-      copiedToClipboardConfirmation: {
-        message: 'Copied to clipboard',
-        context:
-          'Message displayed when some content is copied to the clipboard.\n\nA clipboard is a temporary storage area where material cut or copied from a file is kept for pasting into another file.',
-      },
-    },
-  };
-
-</script>
-
-
-<style lang="scss" scoped>
-
-  @import '~kolibri-design-system/lib/styles/definitions';
-
-  .error-log {
-    width: 100%;
-    padding: 8px;
-    font-family: monospace;
-    line-height: 18px;
-    white-space: pre;
-    resize: none;
-    border-radius: $radius;
-  }
-
-</style>
+    };
+    store.state.core.error = JSON.stringify(error);
+    await wrapper.vm.$nextTick();
+    expect(wrapper.findComponent({ name: 'KButton' }).props().text).toEqual('Refresh');
+    expect(wrapper.find('h1').text()).toEqual('Sorry! Something went wrong!');
+  });
+});

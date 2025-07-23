@@ -1,191 +1,444 @@
 <template>
 
-  <div>
-    <KSelect
-      v-if="languageOptionsList.length"
-      :options="languageOptionsList"
-      :disabled="searchLoading || (!langId && enabledLanguageOptions.length < 2)"
-      :clearable="!(!langId && enabledLanguageOptions.length < 2)"
-      :clearText="coreString('clearAction')"
-      :value="selectedLanguage"
-      :label="coreString('languageLabel')"
-      :style="selectorStyle"
-      :truncateOptionsLabel="false"
-      @change="val => handleChange('languages', val)"
-    />
-    <KSelect
-      v-if="contentLevelsList.length"
-      :options="contentLevelsList"
-      :disabled="searchLoading || (!levelId && enabledContentLevels.length < 2)"
-      class="selector"
-      :clearable="!(!levelId && enabledContentLevels.length < 2)"
-      :clearText="coreString('clearAction')"
-      :value="selectedLevel"
-      :label="coreString('levelLabel')"
-      :style="selectorStyle"
-      :truncateOptionsLabel="false"
-      @change="val => handleChange('grade_levels', val)"
-    />
-    <KSelect
-      v-if="accessibilityOptionsList.length"
-      :options="accessibilityOptionsList"
-      :disabled="searchLoading || (!accessId && enabledAccessibilityOptions.length < 2)"
-      class="selector"
-      :clearable="!(!accessId && enabledAccessibilityOptions.length < 2)"
-      :clearText="coreString('clearAction')"
-      :value="selectedAccessibilityFilter"
-      :label="coreString('accessibility')"
-      :style="selectorStyle"
-      :truncateOptionsLabel="false"
-      @change="val => handleChange('accessibility_labels', val)"
-    />
-  </div>
+  <section
+    role="region"
+    :closeButtonIconType="closeButtonIcon"
+    :aria-label="filterAndSearchLabel$()"
+    :ariaLabel="filterAndSearchLabel$()"
+    :style="
+      windowIsLarge
+        ? {
+          color: $themeTokens.text,
+          backgroundColor: $themeTokens.surface,
+          width: width,
+        }
+        : {}
+    "
+    @closePanel="currentCategory ? (currentCategory = null) : $emit('close')"
+    @shouldFocusFirstEl="focusFirstEl()"
+  >
+    <div
+      v-if="windowIsLarge || !currentCategory"
+      :class="windowIsLarge ? '' : 'drawer-panel'"
+    >
+      <div v-if="!accordion">
+        <KLinearLoader
+          v-if="searchLoading"
+          class="linear-loader"
+        />
+        <!-- search by keyword -->
+        <h2 class="title">
+          {{ $tr('keywords') }}
+        </h2>
+        <SearchBox
+          key="channel-search"
+          ref="searchBox"
+          :placeholder="coreString('findSomethingToLearn')"
+          :disabled="searchLoading"
+          :value="value.keywords || ''"
+          @change="val => $emit('input', { ...value, keywords: val })"
+        />
+        <div v-if="Object.keys(availableLibraryCategories).length">
+          <h2 class="section title">
+            {{ $tr('categories') }}
+          </h2>
+          <!-- list of category metadata - clicking prompts a filter modal -->
+          <div
+            v-for="(category, key) in availableLibraryCategories"
+            :key="key"
+            span="4"
+            class="category-list-item"
+          >
+            <KButton
+              :text="coreString(category.value)"
+              appearance="flat-button"
+              :appearanceOverrides="
+                isCategoryActive(category.value)
+                  ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+                  : categoryListItemStyles
+              "
+              :disabled="
+                searchLoading ||
+                  (availableRootCategories &&
+                    !availableRootCategories[category.value] &&
+                    !isCategoryActive(category.value))
+              "
+              :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
+              @click="handleCategory(key)"
+            />
+          </div>
+          <div
+            span="4"
+            class="category-list-item"
+          >
+            <KButton
+              :text="coreString('uncategorized')"
+              appearance="flat-button"
+              :disabled="searchLoading"
+              :appearanceOverrides="
+                isCategoryActive('no_categories')
+                  ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+                  : categoryListItemStyles
+              "
+              @click="noCategories"
+            />
+          </div>
+        </div>
+        <ActivityButtonsGroup
+          v-if="showActivities"
+          class="section"
+          @input="handleActivity"
+        />
+        <!-- Filter results by learning activity, displaying all options -->
+        <SelectGroup
+          v-model="inputValue"
+          :showChannels="showChannels"
+          class="section"
+        />
+        <div
+          v-if="Object.keys(availableResourcesNeeded).length"
+          class="section"
+        >
+          <h2 class="title">
+            {{ coreString('showResources') }}
+          </h2>
+          <div
+            v-for="(val, activity) in availableResourcesNeeded"
+            :key="activity"
+            span="4"
+            alignment="center"
+          >
+            <KCheckbox
+              :checked="value.learner_needs[val]"
+              :label="coreString(activity)"
+              :disabled="searchLoading || (availableNeeds && !availableNeeds[val])"
+              @change="handleNeed(val)"
+            />
+          </div>
+        </div>
+      </div>
+      <div v-if="accordion && !currentCategory">
+        <!-- search by keyword -->
+        <h2 class="title">
+          {{ title || $tr('keywords') }}
+        </h2>
+        <SearchBox
+          key="channel-search"
+          ref="searchBox"
+          style="margin-bottom: 1em"
+          :disabled="searchLoading"
+          :placeholder="$tr('searchByKeyword')"
+          :value="value.keywords || ''"
+          @change="val => $emit('input', { ...value, keywords: val })"
+        />
+
+        <ActivityButtonsGroup
+          v-if="showActivities"
+          class="section"
+          @input="handleActivity"
+        />
+
+        <AccordionSelectGroup
+          v-model="inputValue"
+          :showChannels="showChannels"
+          :activeCategories="activeCategories"
+          :handleCategory="handleCategory"
+          style="margin-top: 1em"
+        />
+      </div>
+    </div>
+    <!-- When accordion mode is NOT activated, show as KModal, otherwise, just a div -->
+    <component
+      :is="accordion || !windowIsLarge ? 'div' : 'KModal'"
+      v-if="currentCategory"
+      appendToOverlay
+      :title="$tr('chooseACategory')"
+      :cancelText="coreString('closeAction')"
+      size="large"
+      @cancel="currentCategory = null"
+    >
+      <CategorySearchModal
+        ref="searchModal"
+        :class="windowIsLarge ? '' : 'drawer-panel'"
+        :selectedCategory="currentCategory"
+        @input="selectCategory"
+      />
+    </component>
+  </section>
 
 </template>
 
 
 <script>
 
-  import camelCase from 'lodash/camelCase';
-  import { ContentLevels, AccessibilityCategories } from 'kolibri/constants';
+  //
+  // Usage of injectBaseSearch() in this component requires ancestor's use of useBaseSearch
+  // Examples of it can be found in the following components
+  // (Note: useSearch extends useBaseSearch):
+  // - kolibri/plugins/learn/assets/src/views/LibraryPage/index.vue
+  //   in https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/learn/assets/src/views/LibraryPage/index.vue#L238-L251
+  // - kolibri/plugins/learn/assets/src/views/TopicsPage/index.vue
+  //   in https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/learn/assets/src/views/TopicsPage/index.vue#L366-L378
+  //
+
+  import { NoCategories } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { ref } from 'vue';
+  import SearchBox from '../SearchBox';
+  import ActivityButtonsGroup from './ActivityButtonsGroup';
+  import CategorySearchModal from './CategorySearchModal';
+  import SelectGroup from './SelectGroup';
+  import AccordionSelectGroup from './AccordionSelectGroup';
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
-  import { validateObject } from 'kolibri/utils/objectSpecs';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
 
   export default {
-    name: 'SelectGroup',
+    name: 'SearchFiltersPanel',
+    components: {
+      SearchBox,
+      ActivityButtonsGroup,
+      SelectGroup,
+      CategorySearchModal,
+      AccordionSelectGroup,
+    },
     mixins: [commonCoreStrings],
     setup() {
+      const { windowIsLarge } = useKResponsiveWindow();
       const {
-        availableGradeLevels,
-        availableAccessibilityOptions,
-        availableLanguages,
+        availableLibraryCategories,
+        availableResourcesNeeded,
         searchableLabels,
+        activeSearchTerms,
         searchLoading,
       } = injectBaseSearch();
+      const currentCategory = ref(null);
+      const { filterAndSearchLabel$ } = searchAndFilterStrings;
       return {
-        availableGradeLevels,
-        availableAccessibilityOptions,
-        availableLanguages,
+        filterAndSearchLabel$,
+        availableLibraryCategories,
+        availableResourcesNeeded,
+        currentCategory,
         searchableLabels,
+        activeSearchTerms,
         searchLoading,
+        windowIsLarge,
       };
     },
     props: {
+      /**
+       * When true, options are presented using accordions rather than buttons & dropdowns
+       */
+      accordion: {
+        type: Boolean,
+        default: false,
+      },
       value: {
         type: Object,
         required: true,
         validator(value) {
-          return validateObject(value, {
-            accessibility_labels: {
-              type: Object,
-              required: true,
-            },
-            languages: {
-              type: Object,
-              required: true,
-            },
-            grade_levels: {
-              type: Object,
-              required: true,
-            },
-          });
+          const inputKeys = [
+            'learning_activities',
+            'learner_needs',
+            'accessibility_labels',
+            'languages',
+            'grade_levels',
+          ];
+          return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
+      },
+      width: {
+        type: [Number, String],
+        required: false,
+        default: null,
+      },
+      showChannels: {
+        type: Boolean,
+        default: true,
+      },
+      showActivities: {
+        type: Boolean,
+        default: true,
+      },
+      title: {
+        type: String,
+        default: null,
       },
     },
     computed: {
-      selectorStyle() {
+      closeButtonIcon() {
+        return this.currentCategory ? 'back' : 'close';
+      },
+      inputValue: {
+        get() {
+          return this.value;
+        },
+        set(value) {
+          this.$emit('input', value);
+        },
+      },
+      categoryListItemStyles() {
         return {
-          height: '52px',
-          paddingTop: '10px',
-          borderRadius: '2px',
+          color: this.$themeTokens.text,
+          width: '100%',
+          border: '2px solid transparent',
+          textAlign: this.isRtl ? 'right' : 'left',
+          fontWeight: 'normal',
+          textTransform: 'none',
+          position: 'relative',
+          transition: 'none',
+          ':hover': this.categoryListItemActiveStyles,
         };
       },
-      languageOptionsList() {
-        return this.availableLanguages.map(language => {
-          return {
-            value: language.id,
-            disabled:
-              this.searchableLabels && !this.searchableLabels.languages.includes(language.id),
-            label: language.lang_name,
-          };
-        });
+      categoryListItemActiveStyles() {
+        return {
+          backgroundColor: this.$themeBrand.primary.v_100,
+          border: '2px',
+          borderColor: this.$themeTokens.primary,
+          borderStyle: 'solid',
+          borderRadius: '4px',
+        };
       },
-      enabledLanguageOptions() {
-        return this.languageOptionsList.filter(l => !l.disabled);
-      },
-      accessibilityOptionsList() {
-        return this.availableAccessibilityOptions.map(key => {
-          const value = AccessibilityCategories[key];
-          return {
-            value,
-            disabled:
-              this.searchableLabels && !this.searchableLabels.accessibility_labels.includes(value),
-            label: this.coreString(camelCase(key)),
-          };
-        });
-      },
-      enabledAccessibilityOptions() {
-        return this.accessibilityOptionsList.filter(a => !a.disabled);
-      },
-      contentLevelsList() {
-        return this.availableGradeLevels.map(key => {
-          const value = ContentLevels[key];
-          let translationKey;
-          if (key === 'PROFESSIONAL') {
-            translationKey = 'specializedProfessionalTraining';
-          } else if (key === 'WORK_SKILLS') {
-            translationKey = 'allLevelsWorkSkills';
-          } else if (key === 'BASIC_SKILLS') {
-            translationKey = 'allLevelsBasicSkills';
-          } else {
-            translationKey = camelCase(key);
+      availableRootCategories() {
+        if (this.searchableLabels) {
+          const roots = {};
+          for (const key of this.searchableLabels.categories) {
+            const root = key.split('.')[0];
+            roots[root] = true;
           }
-          return {
-            value,
-            disabled: this.searchableLabels && !this.searchableLabels.grade_levels.includes(value),
-            label: this.coreString(translationKey),
-          };
-        });
-      },
-      enabledContentLevels() {
-        return this.contentLevelsList.filter(c => !c.disabled);
-      },
-      langId() {
-        return Object.keys(this.value.languages)[0];
-      },
-      selectedLanguage() {
-        if (!this.langId && this.enabledLanguageOptions.length === 1) {
-          return this.enabledLanguageOptions[0];
+          return roots;
         }
-        return this.languageOptionsList.find(o => o.value === this.langId) || {};
+        return null;
       },
-      accessId() {
-        return Object.keys(this.value.accessibility_labels)[0];
-      },
-      selectedAccessibilityFilter() {
-        if (!this.accessId && this.enabledAccessibilityOptions.length === 1) {
-          return this.enabledAccessibilityOptions[0];
+      availableNeeds() {
+        if (this.searchableLabels) {
+          const needs = {};
+          for (const key of this.searchableLabels.learner_needs) {
+            const root = key.split('.')[0];
+            needs[root] = true;
+            needs[key] = true;
+          }
+          return needs;
         }
-        return this.accessibilityOptionsList.find(o => o.value === this.accessId) || {};
+        return null;
       },
-      levelId() {
-        return Object.keys(this.value.grade_levels)[0];
+      activeCategories() {
+        return Object.keys((this.activeSearchTerms && this.activeSearchTerms.categories) || {});
       },
-      selectedLevel() {
-        if (!this.levelId && this.enabledContentLevels.length === 1) {
-          return this.enabledContentLevels[0];
-        }
-        return this.contentLevelsList.find(o => o.value === this.levelId) || {};
+    },
+    watch: {
+      currentCategory(val) {
+        const isCategorySearchOpen = val != null;
+        this.$emit('categorySearchOpen', isCategorySearchOpen);
       },
     },
     methods: {
-      handleChange(field, value) {
-        if (value && value.value) {
-          this.$emit('input', { ...this.value, [field]: { [value.value]: true } });
-        } else {
-          this.$emit('input', { ...this.value, [field]: {} });
+      isCategoryActive(categoryValue) {
+        // Takes the dot separated category value and checks if it is active
+        return this.activeCategories.some(k => k.includes(categoryValue));
+      },
+      noCategories() {
+        this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
+      },
+      hasNestedCategories(category) {
+        return Object.keys(this.availableLibraryCategories[category].nested).length > 0;
+      },
+      handleActivity(activity) {
+        if (activity && !this.value.learning_activities[activity]) {
+          const learning_activities = {
+            [activity]: true,
+            ...this.value.learning_activities,
+          };
+          this.$emit('input', { ...this.value, learning_activities });
+        } else if (activity && this.value.learning_activities[activity]) {
+          const learning_activities = { ...this.value.learning_activities };
+          delete learning_activities[activity];
+          this.$emit('input', { ...this.value, learning_activities });
         }
+      },
+      handleNeed(need) {
+        if (this.value.learner_needs[need]) {
+          const learner_needs = {};
+          for (const n in this.value.learner_needs) {
+            if (n !== need) {
+              learner_needs[n] = true;
+            }
+          }
+          this.$emit('input', { ...this.value, learner_needs });
+        } else {
+          this.$emit('input', {
+            ...this.value,
+            learner_needs: { ...this.value.learner_needs, [need]: true },
+          });
+        }
+      },
+      setCategory(category) {
+        if (this.value.categories[category]) {
+          const categories = { ...this.value.categories };
+          delete categories[category];
+          this.$emit('input', { ...this.value, categories });
+        } else {
+          const categories = { [category]: true };
+          for (const c in this.value.categories) {
+            // Filter out any subcategories of the selected category
+            if (!c.startsWith(category)) {
+              categories[c] = true;
+            }
+          }
+          this.$emit('input', { ...this.value, categories });
+        }
+      },
+      handleCategory(category) {
+        // for categories with sub-categories, open the modal
+        if (
+          this.availableLibraryCategories[category] &&
+          this.availableLibraryCategories[category].nested &&
+          Object.keys(this.availableLibraryCategories[category].nested).length > 0
+        ) {
+          this.currentCategory = category;
+        }
+        // for valid categories with no subcategories, search directly
+        else if (this.availableLibraryCategories[category]) {
+          this.setCategory(this.availableLibraryCategories[category].value);
+        }
+      },
+      selectCategory(category) {
+        this.setCategory(category);
+        this.currentCategory = null;
+      },
+      /**
+       * @public
+       * Focuses on correct first element for FocusTrap depending on content
+       * rendered in SearchFiltersPanel.
+       */
+      focusFirstEl() {
+        if (this.$refs.searchBox) {
+          this.$refs.searchBox.focusSearchBox();
+        }
+      },
+      /**
+       * @public
+       */
+      closeCategorySearch() {
+        this.currentCategory = null;
+      },
+    },
+    $trs: {
+      keywords: {
+        message: 'Keywords',
+        context: 'Section header label in the Library page sidebar.',
+      },
+      searchByKeyword: {
+        message: 'Search by keyword',
+        context: 'Placeholder text in the search box, which is otherwise not labelled',
+      },
+      categories: {
+        message: 'Categories',
+        context: 'Section header label in the Library page sidebar.',
+      },
+      chooseACategory: {
+        message: 'Choose a category',
+        context: 'Title of the category selection window',
       },
     },
   };
@@ -195,48 +448,68 @@
 
 <style lang="scss" scoped>
 
-  // Do not let text oveflow in select menu
-  /deep/ .ui-select-content {
-    width: 100%;
+  @import '~kolibri-design-system/lib/styles/definitions';
 
-    // remove position absolute to prevent text from getting under button
-    .overlay-close-button {
-      position: unset;
-      flex-shrink: 0;
+  .drawer-panel {
+    padding-bottom: 60px;
+  }
+
+  .side-panel-folder-link {
+    margin-top: 12px;
+    margin-bottom: 12px;
+
+    /deep/ .link-text {
+      text-decoration: none !important;
     }
   }
 
-  /deep/ .ui-select-label-text.is-inline {
+  .section {
+    margin-top: 40px;
+  }
+
+  .card-grid {
+    margin-top: 40px;
+    margin-left: 20px;
+  }
+
+  .title {
+    margin-bottom: 16px;
+  }
+
+  .categoryIcon {
     position: absolute;
-    bottom: 45px;
-    left: 10px;
-    font-size: 12px;
+    top: 50%;
+    left: 0.5em;
+    transform: translateY(-50%);
   }
 
-  /deep/ .ui-select-label-text.is-floating {
+  .categoryIconAfter {
     position: absolute;
-    bottom: 15px;
-    left: 10px;
-    font-size: 12px;
+    top: 50%;
+    right: 0.5em;
+    transform: translateY(-50%);
   }
 
-  /deep/ .ui-select-display {
-    height: 3rem;
-    border-bottom: inherit;
-  }
-
-  /deep/ .ui-select-display-value {
+  .categoryButton {
+    // Ensure the child KIcons' absolute positioning anchors to this button
     position: relative;
-    top: 12px;
-    flex-grow: 1;
-    height: 32px;
-    padding-top: 10px;
-    padding-left: 20px;
-    font-size: 14px;
+    width: 100%;
+    // 0.5em around except on the right where the category icon is
+    padding: 0 0.5em 0 2.25em;
+    font-weight: normal;
+    text-align: left;
+    // KButton text formatting overrides
+    text-transform: unset;
   }
 
-  /deep/ .ui-icon {
-    margin-right: 10px;
+  .categoryButton:not(:last-child) {
+    margin-bottom: 0.5em;
+  }
+
+  .linear-loader {
+    right: 35px;
+    bottom: 25px;
+    width: 120%;
   }
 
 </style>

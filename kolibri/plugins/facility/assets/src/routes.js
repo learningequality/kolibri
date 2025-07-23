@@ -1,10 +1,4 @@
-import store from 'kolibri/store';
-import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
-import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
-import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
-import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
-import useFacilities from 'kolibri-common/composables/useFacilities';
 import ClassEditPage from './views/ClassEditPage';
 import CoachClassAssignmentPage from './views/CoachClassAssignmentPage';
 import LearnerClassEnrollmentPage from './views/LearnerClassEnrollmentPage';
@@ -25,6 +19,12 @@ import {
 } from './modules/classAssignMembers/handlers';
 import { facilityParamRequiredGuard, getSidePanelRoutes } from './utils';
 import { PageNames } from './constants';
+import useFacilities from 'kolibri-common/composables/useFacilities';
+import useUser from 'kolibri/composables/useUser';
+import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
+import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
+import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
+import store from 'kolibri/store';
 
 export default [
   // Routes for multi-facility case

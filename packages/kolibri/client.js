@@ -1,135 +1,122 @@
-/*
- * Module for REST API client
- */
+<template>
 
-import { CancelToken } from 'axios';
-import qs from 'qs';
-import heartbeat from 'kolibri/heartbeat';
-import logger from 'kolibri-logging';
-import { get } from '@vueuse/core';
-import useUser from 'kolibri/composables/useUser';
-import { DisconnectionErrorCodes } from 'kolibri/constants';
-import clientFactory from 'kolibri/utils/baseClient';
-import useConnection from './internal/useConnection';
+  <KButton
+    v-if="canDownload"
+    ref="button"
+    hasDropdown
+    :primary="$attrs.primary"
+  >
+    <span>{{ $tr('downloadContent') }}</span>
+    <template #menu>
+      <KDropdownMenu
+        :options="fileOptions"
+        maxWidth="none"
+        @select="download"
+      />
+    </template>
+  </KButton>
 
-export const logging = logger.getLogger(__filename);
+</template>
 
-const connection = useConnection();
 
-const baseClient = clientFactory();
+<script>
 
-// Disconnection handler interceptor
-baseClient.interceptors.request.use(function (config) {
-  if (!get(connection.connected)) {
-    // If the vuex state records that we are not currently connected then cancel all
-    // outgoing requests.
-    const source = CancelToken.source();
-    config.cancelToken = source.token;
-    source.cancel('Request cancelled as currently disconnected from Kolibri');
-  }
-  return config;
-});
+  import { getRenderableFiles } from './internal/ContentRenderer/utils';
+  import { getFilePresetString } from './internal/filePresetStrings';
+  import useUser from 'kolibri/composables/useUser';
+  import { validateObject } from 'kolibri/utils/objectSpecs';
 
-// Login timeout detection interceptor and disconnection monitoring
-baseClient.interceptors.response.use(
-  response => response,
-  function (error) {
-    // If we receive a 403 response from the server, it is possible that the user
-    // is attempting to access information they are not allowed to see.
-    // However, more likely, it is because their login has timed out, but the frontend
-    // client code is still trying to access data that they would be allowed to see
-    // if they were logged in.
-    if (error.response) {
-      if (error.response.status === 403) {
-        const { id, user_id } = useUser();
-        if (get(id) && !get(user_id)) {
-          // We have session information but no user_id, which means we are not logged in
-          // This is a sign that the user has been logged out due to inactivity
-          heartbeat.signOutDueToInactivity();
-        } else {
-          // In this case, we should check right now if they are still logged in
-          heartbeat.pollSessionEndPoint().then(() => {
-            // If they are not, we should handle sign out
-            if (!get(user_id)) {
-              heartbeat.signOutDueToInactivity();
-            }
-          });
-        }
-      }
-      // On every error, check to see if the status code is one of our designated
-      // disconnection status codes.
-      if (DisconnectionErrorCodes.includes(error.response.status)) {
-        // If so, set our heartbeat module to start monitoring the disconnection state
-        heartbeat.monitorDisconnect(error.response.status);
-      }
-    }
-    return Promise.reject(error);
-  },
-);
+  export default {
+    name: 'DownloadButton',
+    setup() {
+      const { isAppContext } = useUser();
 
-const client = options => {
-  if (
-    options &&
-    typeof options === 'object' &&
-    !Array.isArray(options) &&
-    (!options.method || options.method.toLowerCase() === 'get')
-  ) {
-    if (!options.params) {
-      options.params = {};
-    } else {
-      options.params = Object.assign({}, options.params);
-    }
-    if (options.path) {
-      // Provide backwards compatibility with the previous Rest JS API.
-      options.url = options.path;
-      delete options.path;
-      logging.warn('option path is deprecated, please use url option instead');
-    }
-  }
-  if (typeof options === 'string') {
-    options = { url: options };
-    logging.warn(
-      'passing the URL as the only argument is deprecated, please use url option instead',
-    );
-  }
-
-  const headers = { ...(options.headers || {}), 'X-Requested-With': 'XMLHttpRequest' };
-  if (options.multipart) {
-    headers['Content-Type'] = 'multipart/form-data';
-    options.transformRequest = function (data) {
-      const fd = new FormData();
-      Object.keys(data).forEach(item => {
-        fd.append(item, data[item]);
-      });
-      return fd;
-    };
-  }
-  return baseClient
-    .request({
-      ...options,
-      headers,
-    })
-    .then(response => {
-      Object.defineProperty(response, 'entity', {
-        get() {
-          logging.warn(
-            'entity is deprecated for accessing response data, please use the data key instead',
+      return {
+        isAppContext,
+      };
+    },
+    props: {
+      files: {
+        type: Array,
+        default: () => [],
+        validator: function (files) {
+          return files.every(file =>
+            validateObject(file, {
+              checksum: { type: String, required: true },
+              extension: { type: String, required: true },
+              preset: { type: String, required: true },
+              lang: {
+                type: Object,
+                required: false,
+                default: () => ({}),
+                spec: {
+                  lang_name: {
+                    type: String,
+                    required: true,
+                  },
+                },
+              },
+              storage_url: { type: String, required: true },
+            }),
           );
-          return response.data;
         },
-      });
-      return response;
-    });
-};
+      },
+      nodeTitle: {
+        type: String,
+        default: '',
+      },
+    },
+    computed: {
+      downloadableFiles() {
+        return getRenderableFiles(this.files).filter(file => file.preset !== 'exercise');
+      },
+      canDownload() {
+        return !this.isAppContext && this.downloadableFiles.length;
+      },
+      fileOptions() {
+        const options = this.files.map(file => {
+          const label = getFilePresetString(file);
+          const fileId =
+            file.preset === 'video_subtitle' && file?.lang.lang_name
+              ? file?.lang.lang_name
+              : file.checksum.slice(0, 6);
+          return {
+            label,
+            url: file.storage_url,
+            fileName: this.$tr('downloadFilename', {
+              resourceTitle: this.nodeTitle.length ? this.nodeTitle : file.checksum,
+              fileExtension: file.extension,
+              fileId,
+            }),
+          };
+        });
+        return options;
+      },
+    },
+    methods: {
+      download(file) {
+        const a = document.createElement('a');
+        a.download = file.fileName;
+        a.href = file.url;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      },
+    },
+    $trs: {
+      downloadContent: {
+        message: 'Save to device',
+        context:
+          "The 'SAVE TO DEVICE' button allows learners to download learning resources, like a PDF document for example, to their own device.",
+      },
+      downloadFilename: {
+        message: '{ resourceTitle } ({ fileId }).{ fileExtension }',
+        context: 'DO NOT TRANSLATE\nCopy the source string.\n',
+      },
+    },
+  };
 
-export default client;
+</script>
 
-export const httpClient = options => {
-  return client({
-    ...options,
-    method: 'POST',
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    data: qs.stringify(options.data),
-    url: options.url,
-  });
-};
+
+<style lang="scss" scoped></style>

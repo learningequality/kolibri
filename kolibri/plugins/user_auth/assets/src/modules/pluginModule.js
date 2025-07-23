@@ -1,7 +1,7 @@
 import Lockr from 'lockr';
-import useFacilities from 'kolibri-common/composables/useFacilities';
 import { ComponentMap, pageNameToModuleMap } from '../constants';
 import signIn from './signIn';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 
 export default {
   state() {

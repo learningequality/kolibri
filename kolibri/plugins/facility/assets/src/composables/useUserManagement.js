@@ -1,9 +1,9 @@
 import pickBy from 'lodash/pickBy';
 import isEqual from 'lodash/isEqual';
 import { ref, computed, getCurrentInstance, watch } from 'vue';
+import { _userState } from '../modules/mappers';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
-import { _userState } from '../modules/mappers';
 
 export default function useUserManagement({ activeFacilityId, dateJoinedGt } = {}) {
   const facilityUsers = ref([]);

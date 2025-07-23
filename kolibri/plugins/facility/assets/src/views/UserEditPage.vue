@@ -137,9 +137,10 @@
 
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
+  import { mapState } from 'vuex';
+  import IdentifierTextbox from './users/sidePanels/UserCreate/IdentifierTextbox.vue';
   import UserType from 'kolibri-common/utils/userType';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import { mapState } from 'vuex';
   import urls from 'kolibri/urls';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri/constants';
   import CatchErrors from 'kolibri/utils/CatchErrors';
@@ -154,7 +155,6 @@
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import IdentifierTextbox from './users/sidePanels/UserCreate/IdentifierTextbox.vue';
 
   export default {
     name: 'UserEditPage',

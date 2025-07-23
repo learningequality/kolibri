@@ -23,9 +23,9 @@
 <script>
 
   import { computed, toRefs } from 'vue';
+  import { ClassesActions } from '../../../../constants';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
-  import { ClassesActions } from '../../../../constants';
 
   const ALL_VALUE = 'ALL';
 

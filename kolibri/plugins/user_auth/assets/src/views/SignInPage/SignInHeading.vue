@@ -32,8 +32,8 @@
 
 <script>
 
-  import useFacilities from 'kolibri-common/composables/useFacilities';
   import commonUserStrings from '../commonUserStrings';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
 
   export default {
     name: 'SignInHeading',

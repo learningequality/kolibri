@@ -1,127 +1,197 @@
-import urls from 'kolibri/urls';
-import Vuex from 'vuex';
-import VueRouter from 'vue-router';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
-import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
-import AuthMessage from '../AuthMessage';
+<template>
 
-jest.mock('kolibri/urls');
-jest.mock('kolibri/composables/useUser');
+  <div
+    role="alert"
+    class="app-error"
+  >
+    <img src="./app-error-bird.png" >
 
-const localVue = createLocalVue();
+    <h1>
+      {{ headerText }}
+    </h1>
 
-localVue.use(Vuex);
-localVue.use(VueRouter);
+    <p
+      v-for="paragraph in paragraphTexts"
+      :key="paragraph"
+    >
+      {{ paragraph }}
+    </p>
 
-const router = new VueRouter();
+    <p>
+      <KButtonGroup>
+        <slot name="buttons">
+          <KButton
+            v-if="!isPageNotFound"
+            :text="coreString('refresh')"
+            :primary="true"
+            @click="reloadPage"
+          />
+          <KButton
+            :primary="isPageNotFound"
+            appearance="raised-button"
+            :text="exitButtonLabel"
+            @click="handleClickBackToHome"
+          />
+        </slot>
+      </KButtonGroup>
+    </p>
 
-function makeWrapper(options) {
-  return shallowMount(AuthMessage, { localVue, router, ...options });
-}
+    <p v-if="!isPageNotFound">
+      <!-- link button to open reporting modal -->
+      <KButton
+        appearance="basic-link"
+        :text="$tr('defaultErrorReportPrompt')"
+        @click="revealDetailsModal()"
+      />
+    </p>
 
-// prettier-ignore
-function getElements(wrapper) {
-  return {
-    headerText: () => wrapper.find('.auth-message h1').text().trim(),
-    detailsText: () => wrapper.find('.auth-message p').text().trim(),
+    <ReportErrorModal
+      v-if="showDetailsModal"
+      :error="error"
+      @cancel="hideDetailsModal"
+    />
+  </div>
+
+</template>
+
+
+<script>
+
+  import get from 'lodash/get';
+  import { mapActions, mapState } from 'vuex';
+  import ReportErrorModal from './ReportErrorModal';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+
+  export default {
+    name: 'AppError',
+    components: {
+      ReportErrorModal,
+    },
+    mixins: [commonCoreStrings],
+    props: {
+      /* Generalize the component to just show the title */
+      hideParagraphs: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    data() {
+      return {
+        showDetailsModal: false,
+      };
+    },
+    computed: {
+      ...mapState({
+        error: state => state.core.error,
+      }),
+      headerText() {
+        if (this.isPageNotFound) {
+          return this.$tr('resourceNotFoundHeader');
+        }
+        return this.$tr('defaultErrorHeader');
+      },
+      paragraphTexts() {
+        if (this.hideParagraphs) {
+          return [];
+        }
+        if (this.isPageNotFound) {
+          return [this.$tr('resourceNotFoundMessage')];
+        }
+        return [this.$tr('defaultErrorMessage'), this.$tr('defaultErrorResolution')];
+      },
+      // HACK since the error is stored as a string, we have to re-parse it to get the error code
+      errorObject() {
+        if (this.error) {
+          try {
+            return JSON.parse(this.error);
+          } catch (err) {
+            return null;
+          }
+        }
+        return null;
+      },
+      isPageNotFound() {
+        // Returns 'true' only if method is 'GET' and code is '404'.
+        // Doesn't handle case where 'DELETE' or 'PATCH' request returns '404'.
+        return (
+          get(this.errorObject, 'status') === 404 &&
+          get(this.errorObject, 'config.method') === 'get'
+        );
+      },
+      exitButtonLabel() {
+        return this.$tr('defaultErrorExitPrompt');
+      },
+    },
+    methods: {
+      ...mapActions(['clearError']),
+      revealDetailsModal() {
+        this.showDetailsModal = true;
+      },
+      hideDetailsModal() {
+        this.showDetailsModal = false;
+      },
+      reloadPage() {
+        // reloads without cache
+        global.location.reload();
+      },
+      handleClickBackToHome() {
+        this.clearError();
+        this.$router.push({ path: '/' });
+      },
+    },
+    $trs: {
+      defaultErrorHeader: {
+        message: 'Sorry! Something went wrong!',
+        context:
+          'This is a generic error message that the user will see when an error has occurred.',
+      },
+      // eslint-disable-next-line
+      defaultErrorExitPrompt: {
+        message: 'Back to home',
+        context:
+          'If Kolibri produces an unexpected error, this link appears which take the user back to the homepage.',
+      },
+      defaultErrorMessage: {
+        message: 'We care about your experience on Kolibri and are working hard to fix this issue',
+        context:
+          'Error message that a user will see if an error that is the result of a known bug has occurred.',
+      },
+      defaultErrorResolution: {
+        message: 'Try refreshing this page or going back to the home page',
+        context:
+          'Helper text which advises the user to refresh their browser if an error has occurred, or go back to the home page.',
+      },
+      defaultErrorReportPrompt: {
+        message: 'Help us by reporting this error',
+        context:
+          'Text that informs the user about how to report an error if they see one in Kolibri.',
+      },
+      resourceNotFoundHeader: {
+        message: 'Resource not found',
+        context:
+          'Error message that may appear if Kolibri cannot find a learning resource such as a video or a quiz.',
+      },
+      resourceNotFoundMessage: {
+        message: 'Sorry, that resource does not exist',
+        context:
+          'Message that appears when a user tries to access a learning resource that is not available in Kolibri.',
+      },
+    },
   };
-}
 
-describe('auth message component', () => {
-  stubWindowLocation(beforeAll, afterAll);
+</script>
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    useUser.mockImplementation(() => useUserMock());
-  });
 
-  it('shows the correct details when there are no props', () => {
-    const wrapper = makeWrapper({ propsData: {} });
-    const { headerText, detailsText } = getElements(wrapper);
-    expect(headerText()).toEqual('Did you forget to sign in?');
-    expect(detailsText()).toEqual('You must be signed in to view this page');
-  });
+<style lang="scss" scoped>
 
-  it('shows the correct details when authorized role is "learner"', () => {
-    const wrapper = makeWrapper({ propsData: { authorizedRole: 'learner' } });
-    const { headerText, detailsText } = getElements(wrapper);
-    expect(headerText()).toEqual('Did you forget to sign in?');
-    expect(detailsText()).toEqual('You must be signed in as a learner to view this page');
-  });
+  .app-error {
+    margin-top: 64px;
+    text-align: center;
+  }
 
-  it('shows the correct details when authorized role is "admin"', () => {
-    const wrapper = makeWrapper({ propsData: { authorizedRole: 'admin' } });
-    const { headerText, detailsText } = getElements(wrapper);
-    expect(headerText()).toEqual('Did you forget to sign in?');
-    expect(detailsText()).toEqual('You must be signed in as an admin to view this page');
-  });
+  .logo {
+    width: 160px;
+    height: 160px;
+  }
 
-  it('shows correct text when both texts manually provided as prop', () => {
-    const wrapper = makeWrapper({
-      propsData: {
-        header: 'Signed in as device owner',
-        details: 'Cannot be used by device owner',
-      },
-    });
-    const { headerText, detailsText } = getElements(wrapper);
-    expect(headerText()).toEqual('Signed in as device owner');
-    expect(detailsText()).toEqual('Cannot be used by device owner');
-  });
-
-  it('shows correct text when one text manually provided as prop', () => {
-    const wrapper = makeWrapper({
-      propsData: {
-        details: 'Must be device owner to manage resources',
-      },
-    });
-    const { headerText, detailsText } = getElements(wrapper);
-    expect(headerText()).toEqual('Did you forget to sign in?');
-    expect(detailsText()).toEqual('Must be device owner to manage resources');
-  });
-
-  describe('tests for sign-in page link when user plugin exists', () => {
-    beforeAll(() => {
-      const userUrl = jest.fn();
-      urls['kolibri:kolibri.plugins.user_auth:user_auth'] = userUrl;
-      userUrl.mockReturnValue('http://localhost:8000/en/auth/');
-    });
-
-    afterAll(() => {
-      delete urls['kolibri:kolibri.plugins.user_auth:user_auth'];
-    });
-
-    it('shows correct link text if there is a user plugin', () => {
-      const wrapper = makeWrapper();
-      const link = wrapper.find('[data-test=signinlink]');
-      expect(link.attributes()).toMatchObject({
-        href: 'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Fkolibri.time%2F%23%2F',
-        text: 'Sign in to Kolibri',
-      });
-    });
-  });
-
-  it('shows correct link text if there is not a user plugin', () => {
-    // linkText checks to see if `userAuthPluginUrl` is truthy and it's either a
-    // function or undefined and if there is no user plugin, then it needs to be
-    // falsy for this test case
-    const wrapper = makeWrapper({
-      computed: {
-        userAuthPluginUrl() {
-          return false;
-        },
-      },
-    });
-    const link = wrapper.find('[data-test=signinlink]');
-    expect(link.attributes()).toMatchObject({
-      href: '/',
-      text: 'Go to home page',
-    });
-  });
-
-  it('does not show a link if the user is logged in', () => {
-    useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
-    const wrapper = makeWrapper();
-    expect(wrapper.find('[data-test=signinlink]').exists()).toBe(false);
-  });
-});
+</style>

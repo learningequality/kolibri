@@ -1,53 +1,160 @@
-import { createTranslator } from 'kolibri/utils/i18n';
-import bytesForHumans from 'kolibri/uiText/bytesForHumans';
-import logger from 'kolibri-logging';
+<template>
 
-const logging = logger.getLogger(__filename);
+  <div>
+    <div class="languages-list">
+      <KListWithOverflow
+        :items="buttonLanguages"
+        :appearanceOverrides="{
+          justifyContent: center ? 'center' : 'flex-start',
+          alignItems: 'center',
+        }"
+      >
+        <template #item="{ item }">
+          <KButton
+            v-if="!item.isSelected"
+            :text="item.lang_name"
+            :title="item.english_name"
+            class="lang px-8"
+            appearance="basic-link"
+            @click="switchLanguage(item.id)"
+          />
+          <SelectedLanguage
+            v-else
+            :selectedLanguage="item"
+            @click="showLanguageModal = true"
+          />
+        </template>
+        <template #more="{ overflowItems }">
+          <div>
+            <SelectedLanguage
+              v-if="overflowItems.length === buttonLanguages.length"
+              :selectedLanguage="selectedLanguage"
+              @click="showLanguageModal = true"
+            />
+            <KButton
+              :text="$tr('showMoreLanguagesSelector')"
+              class="px-6 px-8"
+              appearance="flat-button"
+              @click="showLanguageModal = true"
+            />
+          </div>
+        </template>
+      </KListWithOverflow>
+    </div>
+    <LanguageSwitcherModal
+      v-if="showLanguageModal"
+      class="ta-l"
+      @cancel="showLanguageModal = false"
+    />
+  </div>
 
-// Strings are the _READABLE strings in le_utils.constants.format_presets,
-// with ' ({fileSize})' appended.
-// NOTE: Strings for 'Exercise Image', 'Exercise Graphie', and 'Channel Thumbnail'
-// are excluded, as they are not downloadable in Kolibri.
-const filePresetStrings = {
-  high_res_video: 'High Resolution ({fileSize})',
-  low_res_video: 'Low Resolution ({fileSize})',
-  vector_video: 'Vectorized ({fileSize})',
-  // Same 'thumbnail' string is used for video, audio, document, exercise, and topic
-  thumbnail: 'Thumbnail ({fileSize})',
-  video_subtitle: 'Subtitles - {langCode} ({fileSize})',
-  audio: 'Audio ({fileSize})',
-  document: 'Document ({fileSize})',
-  exercise: 'Exercise ({fileSize})',
-  html5_zip: 'HTML5 Zip ({fileSize})',
-  epub: 'ePub Document ({fileSize})',
-  zim: 'ZIM Document ({fileSize})',
-  slideshow_manifest: 'Slideshow ({fileSize})',
-  slideshow_image: 'Slideshow image ({fileSize})',
-  bloompub: 'Bloom Pub Document ({fileSize})',
-};
+</template>
 
-const filePresetTranslator = createTranslator('FilePresetStrings', filePresetStrings);
 
-// 'file.preset' is an enum equal to the values in the filePresetStrings map, so this function
-// searches on the values in filePresetStrings, then uses the matching key on filePreset
-// translator to return the localized string.
-export function getFilePresetString(file) {
-  const { preset, file_size } = file;
-  const params = {
-    fileSize: bytesForHumans(file_size),
+<script>
+
+  import languageSwitcherMixin from './internal/mixin';
+  import SelectedLanguage from './internal/SelectedLanguage';
+  import { availableLanguages, compareLanguages, currentLanguage } from 'kolibri/utils/i18n';
+  import LanguageSwitcherModal from 'kolibri/components/language-switcher/LanguageSwitcherModal';
+
+  const prioritizedLanguages = ['en', 'ar', 'es-419', 'hi-in', 'fr-fr', 'sw-tz'];
+
+  export default {
+    name: 'LanguageSwitcherList',
+    components: {
+      SelectedLanguage,
+      LanguageSwitcherModal,
+    },
+    mixins: [languageSwitcherMixin],
+    props: {
+      center: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    data() {
+      return {
+        showLanguageModal: false,
+      };
+    },
+    computed: {
+      selectableLanguages() {
+        return Object.values(availableLanguages).filter(lang => lang.id !== currentLanguage);
+      },
+      selectedLanguage() {
+        return availableLanguages[currentLanguage];
+      },
+      buttonLanguages() {
+        const buttonLanguages = this.selectableLanguages.slice().sort((a, b) => {
+          const aPriority = prioritizedLanguages.includes(a.id);
+          const bPriority = prioritizedLanguages.includes(b.id);
+          if (aPriority && bPriority) {
+            return compareLanguages(a, b);
+          } else if (aPriority && !bPriority) {
+            return -1;
+          } else if (!aPriority && bPriority) {
+            return 1;
+          }
+          return compareLanguages(a, b);
+        });
+        buttonLanguages.unshift({
+          ...this.selectedLanguage,
+          isSelected: true,
+        });
+        return buttonLanguages;
+      },
+    },
+    $trs: {
+      showMoreLanguagesSelector: {
+        message: 'More languages',
+        context: 'An option to view more languages in which the Kolibri interface is available.',
+      },
+    },
   };
-  if (preset === 'video_subtitle') {
-    params.langCode = file.lang.lang_code;
+
+</script>
+
+
+<style lang="scss" scoped>
+
+  @import './internal/language-names';
+
+  .globe {
+    position: relative;
+    right: -4px;
   }
-  if (preset.endsWith('thumbnail')) {
-    return filePresetTranslator.$tr('thumbnail', params);
+
+  .lang {
+    @include font-family-language-names;
+
+    /deep/ span {
+      white-space: nowrap !important;
+    }
   }
-  if (preset === 'h5p') {
-    return filePresetTranslator.$tr('html5_zip', params);
+
+  .ta-l {
+    text-align: left;
   }
-  if (filePresetStrings[preset]) {
-    return filePresetTranslator.$tr(preset, params);
+
+  .languages-list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
   }
-  logging.error(`Download translation string not defined for '${preset}'`);
-  return preset;
-}
+
+  .px-8 {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .px-6 {
+    padding-bottom: 2px;
+  }
+
+  .lang-icon {
+    min-width: 40px;
+  }
+
+</style>

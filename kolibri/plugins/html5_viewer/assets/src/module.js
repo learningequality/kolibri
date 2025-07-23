@@ -1,5 +1,5 @@
-import ContentRendererModule from 'kolibri-viewer';
 import HTML5AppComponent from './views/Html5AppRendererIndex';
+import ContentRendererModule from 'kolibri-viewer';
 
 class HTML5AppModule extends ContentRendererModule {
   get rendererComponent() {

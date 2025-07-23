@@ -40,9 +40,9 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import cloneDeep from 'lodash/cloneDeep';
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
   import CoreTable from 'kolibri/components/CoreTable';
-  import cloneDeep from 'lodash/cloneDeep';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
 

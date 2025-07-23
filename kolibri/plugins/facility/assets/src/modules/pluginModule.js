@@ -1,6 +1,4 @@
-import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
-import useFacilities from 'kolibri-common/composables/useFacilities';
 import { pageNameToModuleMap, PageNames } from '../constants';
 import classAssignMembers from './classAssignMembers';
 import classEditManagement from './classEditManagement';
@@ -9,6 +7,8 @@ import facilityConfig from './facilityConfig';
 import userManagement from './userManagement';
 import manageCSV from './manageCSV';
 import importCSV from './importCSV';
+import useFacilities from 'kolibri-common/composables/useFacilities';
+import useUser from 'kolibri/composables/useUser';
 
 export default {
   state() {

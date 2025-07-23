@@ -1,114 +1,92 @@
 <template>
 
-  <div>
-    <div class="languages-list">
-      <KListWithOverflow
-        :items="buttonLanguages"
-        :appearanceOverrides="{
-          justifyContent: center ? 'center' : 'flex-start',
-          alignItems: 'center',
-        }"
-      >
-        <template #item="{ item }">
-          <KButton
-            v-if="!item.isSelected"
-            :text="item.lang_name"
-            :title="item.english_name"
-            class="lang px-8"
-            appearance="basic-link"
-            @click="switchLanguage(item.id)"
-          />
-          <SelectedLanguage
-            v-else
-            :selectedLanguage="item"
-            @click="showLanguageModal = true"
-          />
-        </template>
-        <template #more="{ overflowItems }">
-          <div>
-            <SelectedLanguage
-              v-if="overflowItems.length === buttonLanguages.length"
-              :selectedLanguage="selectedLanguage"
-              @click="showLanguageModal = true"
+  <KFocusTrap
+    @shouldFocusFirstEl="focusFirstEl"
+    @shouldFocusLastEl="focusLastEl"
+  >
+    <KModal
+      appendToOverlay
+      :title="coreString('changeLanguageOption')"
+      :submitText="coreString('confirmAction')"
+      :cancelText="coreString('cancelAction')"
+      :size="600"
+      @cancel="cancel"
+      @submit="setLang"
+    >
+      <KGrid>
+        <KRadioButtonGroup>
+          <KGridItem
+            v-for="(languageCol, index) in splitLanguageOptions"
+            :key="index"
+            :class="{ 'offset-col': windowIsSmall && index === 1 }"
+            :layout8="{ span: 4 }"
+            :layout12="{ span: 6 }"
+          >
+            <KRadioButton
+              v-for="language in languageCol"
+              :key="language.id"
+              ref="languageItem"
+              v-model="selectedLanguage"
+              :buttonValue="language.id"
+              :label="language.lang_name"
+              :title="language.english_name"
+              class="language-name"
             />
-            <KButton
-              :text="$tr('showMoreLanguagesSelector')"
-              class="px-6 px-8"
-              appearance="flat-button"
-              @click="showLanguageModal = true"
-            />
-          </div>
-        </template>
-      </KListWithOverflow>
-    </div>
-    <LanguageSwitcherModal
-      v-if="showLanguageModal"
-      class="ta-l"
-      @cancel="showLanguageModal = false"
-    />
-  </div>
+          </KGridItem>
+        </KRadioButtonGroup>
+      </KGrid>
+    </KModal>
+  </KFocusTrap>
 
 </template>
 
 
 <script>
 
-  import { availableLanguages, compareLanguages, currentLanguage } from 'kolibri/utils/i18n';
-  import LanguageSwitcherModal from 'kolibri/components/language-switcher/LanguageSwitcherModal';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import languageSwitcherMixin from './internal/mixin';
-  import SelectedLanguage from './internal/SelectedLanguage';
-
-  const prioritizedLanguages = ['en', 'ar', 'es-419', 'hi-in', 'fr-fr', 'sw-tz'];
+  import { currentLanguage } from 'kolibri/utils/i18n';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
-    name: 'LanguageSwitcherList',
-    components: {
-      SelectedLanguage,
-      LanguageSwitcherModal,
-    },
-    mixins: [languageSwitcherMixin],
-    props: {
-      center: {
-        type: Boolean,
-        default: false,
-      },
+    name: 'LanguageSwitcherModal',
+    mixins: [commonCoreStrings, languageSwitcherMixin],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
     },
     data() {
       return {
-        showLanguageModal: false,
+        selectedLanguage: currentLanguage,
       };
     },
     computed: {
-      selectableLanguages() {
-        return Object.values(availableLanguages).filter(lang => lang.id !== currentLanguage);
-      },
-      selectedLanguage() {
-        return availableLanguages[currentLanguage];
-      },
-      buttonLanguages() {
-        const buttonLanguages = this.selectableLanguages.slice().sort((a, b) => {
-          const aPriority = prioritizedLanguages.includes(a.id);
-          const bPriority = prioritizedLanguages.includes(b.id);
-          if (aPriority && bPriority) {
-            return compareLanguages(a, b);
-          } else if (aPriority && !bPriority) {
-            return -1;
-          } else if (!aPriority && bPriority) {
-            return 1;
-          }
-          return compareLanguages(a, b);
-        });
-        buttonLanguages.unshift({
-          ...this.selectedLanguage,
-          isSelected: true,
-        });
-        return buttonLanguages;
+      splitLanguageOptions() {
+        const secondCol = this.languageOptions;
+        const firstCol = secondCol.splice(0, Math.ceil(secondCol.length / 2));
+
+        return [firstCol, secondCol];
       },
     },
-    $trs: {
-      showMoreLanguagesSelector: {
-        message: 'More languages',
-        context: 'An option to view more languages in which the Kolibri interface is available.',
+    methods: {
+      focusFirstEl() {
+        this.$refs.languageItem[0].focus();
+      },
+      focusLastEl() {
+        this.$refs.languageItem[this.$refs.languageItem.length - 1].focus();
+      },
+      setLang() {
+        if (currentLanguage === this.selectedLanguage) {
+          this.cancel();
+          return;
+        }
+
+        this.switchLanguage(this.selectedLanguage);
+      },
+      cancel() {
+        this.$emit('cancel');
       },
     },
   };
@@ -120,41 +98,12 @@
 
   @import './internal/language-names';
 
-  .globe {
-    position: relative;
-    right: -4px;
-  }
-
-  .lang {
+  .language-name {
     @include font-family-language-names;
-
-    /deep/ span {
-      white-space: nowrap !important;
-    }
   }
 
-  .ta-l {
-    text-align: left;
-  }
-
-  .languages-list {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 8px;
-  }
-
-  .px-8 {
-    padding-right: 8px;
-    padding-left: 8px;
-  }
-
-  .px-6 {
-    padding-bottom: 2px;
-  }
-
-  .lang-icon {
-    min-width: 40px;
+  .offset-col {
+    margin-top: -8px;
   }
 
 </style>

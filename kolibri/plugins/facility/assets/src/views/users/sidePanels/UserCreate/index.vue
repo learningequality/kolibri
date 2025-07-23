@@ -135,9 +135,13 @@
 
 <script>
 
-  import store from 'kolibri/store';
   import { ref, computed, nextTick, onBeforeMount, getCurrentInstance } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
+  import CloseConfirmationGuard from '../../common/CloseConfirmationGuard.vue';
+  import { ClassesActions } from '../../../../constants';
+  import IdentifierTextbox from './IdentifierTextbox.vue';
+  import ClassesSelect from './ClassesSelect.vue';
+  import store from 'kolibri/store';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
@@ -156,10 +160,6 @@
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
-  import CloseConfirmationGuard from '../../common/CloseConfirmationGuard.vue';
-  import { ClassesActions } from '../../../../constants';
-  import IdentifierTextbox from './IdentifierTextbox.vue';
-  import ClassesSelect from './ClassesSelect.vue';
 
   const { NOT_SPECIFIED } = DemographicConstants;
 

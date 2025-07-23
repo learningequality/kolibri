@@ -162,12 +162,16 @@
 
 <script>
 
-  import store from 'kolibri/store';
   import cloneDeep from 'lodash/cloneDeep';
   import { toRefs, ref, computed, onBeforeUnmount, getCurrentInstance } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import pickBy from 'lodash/pickBy';
   import debounce from 'lodash/debounce';
+  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { Modals } from '../../../constants';
+  import { overrideRoute } from '../../../utils';
+  import DeleteUserModal from './DeleteUserModal';
+  import store from 'kolibri/store';
   import { UserKinds } from 'kolibri/constants';
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -180,11 +184,7 @@
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import useUser from 'kolibri/composables/useUser';
-  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
 
-  import { Modals } from '../../../constants';
-  import { overrideRoute } from '../../../utils';
-  import DeleteUserModal from './DeleteUserModal';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
 
   const ALL_FILTER = 'all';

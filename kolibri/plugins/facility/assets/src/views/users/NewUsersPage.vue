@@ -111,17 +111,17 @@
 
 <script>
 
-  import store from 'kolibri/store';
   import { onMounted, ref } from 'vue';
   import { useRoute } from 'vue-router/composables';
 
-  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
-  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import useUserManagement from '../../composables/useUserManagement';
   import { PageNames } from '../../constants';
   import { overrideRoute } from '../../utils';
   import UsersTable from './common/UsersTable.vue';
+  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import store from 'kolibri/store';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
 
   // Constant for the maximum number of days to consider a user as a "new user"
   const MAX_NEW_USER_DAYS = 30;

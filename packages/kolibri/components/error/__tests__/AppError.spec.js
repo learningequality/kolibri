@@ -1,43 +1,95 @@
-import { mount } from '@vue/test-utils';
-import { coreStoreFactory as makeStore } from 'kolibri/store';
-import AppError from '../AppError';
-import coreModule from '../../../../../kolibri/core/assets/src/state/modules/core';
+<template>
 
-function makeWrapper() {
-  const store = makeStore();
-  store.registerModule('core', coreModule);
-  const wrapper = mount(AppError, {
-    store,
-  });
-  return { wrapper, store };
-}
+  <div class="container">
+    <UiAlert
+      :dismissible="false"
+      class="alert"
+      type="error"
+    >
+      <span>{{ $tr('rendererNotAvailable') }}</span><br >
+      <KButton
+        v-if="error && error.message"
+        appearance="basic-link"
+        :text="appErrorTranslator.$tr('defaultErrorReportPrompt')"
+        @click="showDetailsModal = true"
+      />
+      <DownloadButton
+        class="download-button"
+        :files="files"
+      />
+    </UiAlert>
+    <ReportErrorModal
+      v-if="error && error.message && showDetailsModal"
+      :error="error.message"
+      @cancel="showDetailsModal = false"
+    />
+  </div>
 
-describe('AppError component', () => {
-  it('shows page not found errors and buttons if the error has status code 404', async () => {
-    const { wrapper, store } = makeWrapper();
-    const error = {
-      status: 404,
-      config: {
-        method: 'get',
+</template>
+
+
+<script>
+
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
+  import { crossComponentTranslator } from 'kolibri/utils/i18n';
+  import AppError from 'kolibri/components/error/AppError';
+  import ReportErrorModal from 'kolibri/components/error/ReportErrorModal';
+  import DownloadButton from 'kolibri/components/DownloadButton';
+
+  export default {
+    name: 'ContentRendererError',
+    components: {
+      DownloadButton,
+      ReportErrorModal,
+      UiAlert,
+    },
+    props: {
+      error: {
+        type: Object,
+        default: null,
       },
-    };
-    store.state.core.error = JSON.stringify(error);
-    await wrapper.vm.$nextTick();
-    expect(wrapper.findComponent({ name: 'KButton' }).props().text).toEqual('Back to home');
-    expect(wrapper.find('h1').text()).toEqual('Resource not found');
-  });
-
-  it('shows default errors and buttons if the error does not have status code 404', async () => {
-    const { wrapper, store } = makeWrapper();
-    const error = {
-      status: 400,
-      config: {
-        method: 'get',
+      files: {
+        type: Array,
+        default: () => [],
       },
-    };
-    store.state.core.error = JSON.stringify(error);
-    await wrapper.vm.$nextTick();
-    expect(wrapper.findComponent({ name: 'KButton' }).props().text).toEqual('Refresh');
-    expect(wrapper.find('h1').text()).toEqual('Sorry! Something went wrong!');
-  });
-});
+    },
+    data() {
+      return {
+        showDetailsModal: false,
+      };
+    },
+    created() {
+      this.appErrorTranslator = crossComponentTranslator(AppError);
+    },
+    $trs: {
+      rendererNotAvailable: {
+        message: 'Kolibri is unable to render this resource',
+        context:
+          'This message is displayed when Kolibri is unable to properly load or display the requested resource (could be either server loading error, or something wrong with the resource format itself).',
+      },
+    },
+  };
+
+</script>
+
+
+<style scoped>
+
+  .container {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .download-button {
+    float: right;
+  }
+
+  .alert {
+    width: calc(100% - 16px);
+    margin: 8px;
+    text-align: left;
+    background: white;
+  }
+
+</style>

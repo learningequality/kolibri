@@ -1,120 +1,106 @@
 <template>
 
-  <KModal
-    :title="$tr('reportErrorHeader')"
-    :cancelText="coreString('closeAction')"
-    class="error-detail-modal"
-    size="large"
-    @cancel="$emit('cancel')"
-  >
-    <section>
-      <h3 v-if="offline">
-        {{ $tr('forumPrompt') }}
-      </h3>
-      <p>{{ $tr('forumUseTips') }}</p>
-      <p>{{ $tr('forumPostingTips') }}</p>
-      <KExternalLink
-        class="download-as-text-link"
-        :text="forumLink"
-        :href="forumLink"
+  <div>
+    <!-- visible text area, hidden to screenreaders -->
+    <textarea
+      :value="text"
+      readonly
+      class="error-log"
+      wrap="soft"
+      aria-hidden="true"
+      :style="[
+        dynamicHeightStyle,
+        {
+          backgroundColor: $themePalette.grey.v_100,
+          border: $themePalette.grey.v_400,
+        },
+      ]"
+    >
+    </textarea>
+    <!-- invisible text block for copying, visible to screenreaders -->
+    <pre
+      ref="textBox"
+      class="visuallyhidden"
+    >{{ text }}</pre>
+    <div>
+      <KButton
+        v-if="clipboardCapable"
+        ref="copyButton"
+        :style="{ marginTop: '8px', marginBottom: '8px' }"
+        :primary="false"
+        :text="$tr('copyToClipboardButtonPrompt')"
       />
-    </section>
-
-    <!-- only when offline -->
-    <section v-if="offline">
-      <h3>{{ $tr('emailPrompt') }}</h3>
-      <p>{{ $tr('emailDescription') }}</p>
-      <!-- email link goes here. TODO Probably not an href? -->
-      <KExternalLink
-        :text="emailAddress"
-        :href="emailAddressLink"
-      />
-    </section>
-
-    <h3>
-      {{ $tr('errorDetailsHeader') }}
-    </h3>
-    <TechnicalTextBlock
-      :text="error"
-      :maxHeight="240"
-    />
-  </KModal>
+    </div>
+  </div>
 
 </template>
 
 
 <script>
 
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import TechnicalTextBlock from './TechnicalTextBlock';
+  import ClipboardJS from 'clipboard';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
 
   export default {
-    name: 'ReportErrorModal',
-    components: {
-      TechnicalTextBlock,
+    name: 'TechnicalTextBlock',
+    setup() {
+      const { createSnackbar } = useSnackbar();
+      return { createSnackbar };
     },
-    mixins: [commonCoreStrings],
     props: {
-      error: {
+      text: {
         type: String,
-        required: true,
+        default: '',
       },
-    },
-    data() {
-      return {
-        // TODO Set offline variable via ping in mounted()?
-        // Or via computed prop
-        offline: false,
-      };
+      maxHeight: {
+        type: Number,
+        default: null,
+      },
+      minHeight: {
+        type: Number,
+        default: 72,
+      },
     },
     computed: {
-      forumLink() {
-        return 'https://community.learningequality.org/c/support/kolibri';
+      clipboardCapable() {
+        return ClipboardJS.isSupported();
       },
-      emailAddress() {
-        return 'info@learningequality.org';
-      },
-      emailAddressLink() {
-        return `mailto:${this.emailAddress}`;
+      dynamicHeightStyle() {
+        return {
+          height: `${16 + this.text.split('\n').length * 18}px`,
+          maxHeight: `${this.maxHeight}px`,
+          minHeight: `${this.minHeight}px`,
+        };
       },
     },
+    mounted() {
+      if (this.clipboardCapable) {
+        this.clipboard = new ClipboardJS(this.$refs.copyButton.$el, {
+          text: () => this.text,
+          // needed because modal changes browser focus
+          container: this.$refs.textBox,
+        });
+
+        this.clipboard.on('success', () => {
+          this.createSnackbar(this.$tr('copiedToClipboardConfirmation'));
+        });
+      }
+    },
+    destroyed() {
+      if (this.clipboard) {
+        this.clipboard.destroy();
+      }
+    },
     $trs: {
-      reportErrorHeader: {
-        message: 'Report Error',
-        context: 'Title of the window where the user can report an error.',
-      },
-      forumPrompt: {
-        message: 'Visit the community forums',
+      copyToClipboardButtonPrompt: {
+        message: 'Copy to clipboard',
         context:
-          'If a user spots an error in Kolibri, this prompt links through to the Kolibri community forums where they can also report errors or search for similar issues.',
+          'Button which allows the user to copy content to the clipboard.\n\nA clipboard is a temporary storage area where material cut or copied from a file is kept for pasting into another file.',
       },
-      // reall long
-      forumUseTips: {
-        message:
-          'Search the community forum to see if others encountered similar issues. If unable to find anything, paste the error details below into a new forum post so we can rectify the error in a future version of Kolibri.',
+      copiedToClipboardConfirmation: {
+        message: 'Copied to clipboard',
         context:
-          'If a user spots an error in Kolibri, this text indicates that in Kolibri community forums they can also report errors or search for similar issues.',
-      },
-      forumPostingTips: {
-        message:
-          'Include a description of what you were trying to do and what you clicked on when the error appeared.',
-        context:
-          'Helper text for the user when describing the details of the error they saw in their email to the development team.\n',
-      },
-      emailPrompt: {
-        message: 'Send an email to the developers',
-        context:
-          'Users can send an email to the Kolibri development team indicating details about an error if they see one.',
-      },
-      emailDescription: {
-        message: "Contact the support team with your error details and we'll do our best to help.",
-        context:
-          'This is a message that a user sees if they provoke an error in Kolibri. They can send an email to the Kolibri development team indicating further details about the error.',
-      },
-      errorDetailsHeader: {
-        message: 'Error details',
-        context:
-          'Here the user would indicate the details of the error they saw in their email to the development team.',
+          'Message displayed when some content is copied to the clipboard.\n\nA clipboard is a temporary storage area where material cut or copied from a file is kept for pasting into another file.',
       },
     },
   };
@@ -124,8 +110,16 @@
 
 <style lang="scss" scoped>
 
-  .error-detail-modal {
-    text-align: left;
+  @import '~kolibri-design-system/lib/styles/definitions';
+
+  .error-log {
+    width: 100%;
+    padding: 8px;
+    font-family: monospace;
+    line-height: 18px;
+    white-space: pre;
+    resize: none;
+    border-radius: $radius;
   }
 
 </style>

@@ -1,94 +1,127 @@
-import Vue from 'vue';
-import { render, screen } from '@testing-library/vue';
+import Vuex from 'vuex';
+import VueRouter from 'vue-router';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
+import AuthMessage from '../AuthMessage';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
-import { RENDERER_SUFFIX } from 'kolibri/constants';
-import DownloadButton from '../DownloadButton';
+import urls from 'kolibri/urls';
 
+jest.mock('kolibri/urls');
 jest.mock('kolibri/composables/useUser');
 
-const getDownloadableFile = (isExercise = false) => {
-  const PRESET = isExercise ? 'exercise' : 'thumbnail';
+const localVue = createLocalVue();
 
-  // Register a component with the preset name so that the file is considered renderable
-  Vue.component(PRESET + RENDERER_SUFFIX, { template: '<div></div>' });
+localVue.use(Vuex);
+localVue.use(VueRouter);
 
+const router = new VueRouter();
+
+function makeWrapper(options) {
+  return shallowMount(AuthMessage, { localVue, router, ...options });
+}
+
+// prettier-ignore
+function getElements(wrapper) {
   return {
-    preset: PRESET,
-    available: true,
-    file_size: 100,
-    storage_url: 'http://example.com/sample.png',
-    extension: 'png',
-    checksum: '1234567890',
+    headerText: () => wrapper.find('.auth-message h1').text().trim(),
+    detailsText: () => wrapper.find('.auth-message p').text().trim(),
   };
-};
+}
 
-// A helper function to render the component with the given props and some default mocks
-const renderComponent = props => {
-  const { useUserMock: useUserMockProps, ...componentProps } = props;
+describe('auth message component', () => {
+  stubWindowLocation(beforeAll, afterAll);
 
-  useUser.mockImplementation(() =>
-    useUserMock({
-      isAppContext: false,
-      ...useUserMockProps,
-    }),
-  );
-
-  return render(DownloadButton, {
-    props: {
-      files: [],
-      nodeTitle: '',
-      ...componentProps,
-    },
-  });
-};
-
-const SAVE_BUTTON_TEXT = 'Save to device';
-
-describe('DownloadButton', () => {
   beforeEach(() => {
-    Vue.options.components = {};
+    jest.clearAllMocks();
+    useUser.mockImplementation(() => useUserMock());
   });
 
-  test('does not render if isAppContext is true', () => {
-    renderComponent({
-      useUserMock: {
-        isAppContext: true,
-      },
-    });
-
-    expect(screen.queryByText(SAVE_BUTTON_TEXT)).not.toBeInTheDocument();
+  it('shows the correct details when there are no props', () => {
+    const wrapper = makeWrapper({ propsData: {} });
+    const { headerText, detailsText } = getElements(wrapper);
+    expect(headerText()).toEqual('Did you forget to sign in?');
+    expect(detailsText()).toEqual('You must be signed in to view this page');
   });
 
-  test('should not render if there are no downloadable files even if isAppContext is false', () => {
-    renderComponent({
-      files: [],
-      useUserMock: {
-        isAppContext: false,
-      },
-    });
-
-    expect(screen.queryByText(SAVE_BUTTON_TEXT)).not.toBeInTheDocument();
+  it('shows the correct details when authorized role is "learner"', () => {
+    const wrapper = makeWrapper({ propsData: { authorizedRole: 'learner' } });
+    const { headerText, detailsText } = getElements(wrapper);
+    expect(headerText()).toEqual('Did you forget to sign in?');
+    expect(detailsText()).toEqual('You must be signed in as a learner to view this page');
   });
 
-  test('should not render if isAppContext is false and there are only renderable exercise files', () => {
-    renderComponent({
-      files: [getDownloadableFile(true)],
-      useUserMock: {
-        isAppContext: false,
-      },
-    });
-
-    expect(screen.queryByText(SAVE_BUTTON_TEXT)).not.toBeInTheDocument();
+  it('shows the correct details when authorized role is "admin"', () => {
+    const wrapper = makeWrapper({ propsData: { authorizedRole: 'admin' } });
+    const { headerText, detailsText } = getElements(wrapper);
+    expect(headerText()).toEqual('Did you forget to sign in?');
+    expect(detailsText()).toEqual('You must be signed in as an admin to view this page');
   });
 
-  test('should render if isAppContext is false and there are renderable document files', async () => {
-    renderComponent({
-      files: [getDownloadableFile()],
-      useUserMock: {
-        isAppContext: false,
+  it('shows correct text when both texts manually provided as prop', () => {
+    const wrapper = makeWrapper({
+      propsData: {
+        header: 'Signed in as device owner',
+        details: 'Cannot be used by device owner',
       },
     });
+    const { headerText, detailsText } = getElements(wrapper);
+    expect(headerText()).toEqual('Signed in as device owner');
+    expect(detailsText()).toEqual('Cannot be used by device owner');
+  });
 
-    expect(screen.getByText(SAVE_BUTTON_TEXT)).toBeInTheDocument();
+  it('shows correct text when one text manually provided as prop', () => {
+    const wrapper = makeWrapper({
+      propsData: {
+        details: 'Must be device owner to manage resources',
+      },
+    });
+    const { headerText, detailsText } = getElements(wrapper);
+    expect(headerText()).toEqual('Did you forget to sign in?');
+    expect(detailsText()).toEqual('Must be device owner to manage resources');
+  });
+
+  describe('tests for sign-in page link when user plugin exists', () => {
+    beforeAll(() => {
+      const userUrl = jest.fn();
+      urls['kolibri:kolibri.plugins.user_auth:user_auth'] = userUrl;
+      userUrl.mockReturnValue('http://localhost:8000/en/auth/');
+    });
+
+    afterAll(() => {
+      delete urls['kolibri:kolibri.plugins.user_auth:user_auth'];
+    });
+
+    it('shows correct link text if there is a user plugin', () => {
+      const wrapper = makeWrapper();
+      const link = wrapper.find('[data-test=signinlink]');
+      expect(link.attributes()).toMatchObject({
+        href: 'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Fkolibri.time%2F%23%2F',
+        text: 'Sign in to Kolibri',
+      });
+    });
+  });
+
+  it('shows correct link text if there is not a user plugin', () => {
+    // linkText checks to see if `userAuthPluginUrl` is truthy and it's either a
+    // function or undefined and if there is no user plugin, then it needs to be
+    // falsy for this test case
+    const wrapper = makeWrapper({
+      computed: {
+        userAuthPluginUrl() {
+          return false;
+        },
+      },
+    });
+    const link = wrapper.find('[data-test=signinlink]');
+    expect(link.attributes()).toMatchObject({
+      href: '/',
+      text: 'Go to home page',
+    });
+  });
+
+  it('does not show a link if the user is logged in', () => {
+    useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
+    const wrapper = makeWrapper();
+    expect(wrapper.find('[data-test=signinlink]').exists()).toBe(false);
   });
 });

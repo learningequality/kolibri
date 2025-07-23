@@ -1,8 +1,8 @@
 import pickBy from 'lodash/pickBy';
+import { _userState } from '../mappers';
 import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-import { _userState } from '../mappers';
 
 export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
   const { id, facility_id } = toRoute.params;

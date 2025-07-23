@@ -1,150 +1,142 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
-import PortalResource from 'kolibri-common/apiResources/PortalResource';
-import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
-import { ERROR_CONSTANTS } from 'kolibri/constants';
-import ConfirmationRegisterModal from '../ConfirmationRegisterModal.vue';
+<template>
 
-const sampleProjectName = 'Test Project';
-const sampleFacility = {
-  id: 'facility-id',
-  name: 'Facility Name',
-  dataset: { id: 'dataset-id' },
-};
-const sampleToken = 'test token';
+  <div class="pos-rel">
+    <KSelect
+      class="birthyear-select"
+      :value="selected"
+      :label="coreString('birthYearLabel')"
+      :placeholder="$tr('placeholder')"
+      :options="options"
+      :disabled="$attrs.disabled"
+      @change="$emit('update:value', $event.value)"
+    />
+    <CoreInfoIcon
+      class="info-icon"
+      :tooltipText="$tr('birthYearTooltip')"
+      :tooltipPlacement="tooltipPlacement"
+      :iconAriaLabel="$tr('birthyearAriaLabel')"
+    />
+  </div>
 
-const renderComponent = props => {
-  return render(ConfirmationRegisterModal, {
-    props: {
-      projectName: sampleProjectName,
-      targetFacility: sampleFacility,
-      token: sampleToken,
-      ...props,
+</template>
+
+
+<script>
+
+  import range from 'lodash/range';
+  import getYear from 'date-fns/get_year';
+  import { now } from 'kolibri/utils/serverClock';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { DemographicConstants } from 'kolibri/constants';
+  import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
+
+  const { NOT_SPECIFIED } = DemographicConstants;
+
+  // Take the last-known year to be the later of the copyright year,
+  // or the year of the server date
+  const firstYear = Math.max(Number(__copyrightYear), getYear(now()));
+
+  export default {
+    name: 'BirthYearSelect',
+    components: {
+      CoreInfoIcon,
     },
-  });
-};
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
+    props: {
+      value: {
+        type: String,
+        default: null,
+      },
+    },
+    data() {
+      return {
+        yearOptions: this.makeYearOptions(firstYear, 1900),
+      };
+    },
+    computed: {
+      selected() {
+        return this.options.find(o => o.value === this.value) || {};
+      },
+      options() {
+        // The backend validation actually lets you pick years up to 3000, so we'll
+        // fill in the gaps just in case a user was given a later date, e.g. via CSV
+        let extraYears = [];
+        if (Number(this.value) > firstYear) {
+          extraYears = this.makeYearOptions(Number(this.value), firstYear - 1);
+        }
+        return [
+          {
+            value: NOT_SPECIFIED,
+            label: this.coreString('birthYearNotSpecified'),
+          },
+          ...extraYears,
+          ...this.yearOptions,
+        ];
+      },
+      tooltipPlacement() {
+        if (this.windowIsSmall) {
+          return 'left';
+        }
+        return 'bottom';
+      },
+    },
+    methods: {
+      makeYearOptions(max, min) {
+        return range(max, min, -1).map(n => {
+          // Because of timezone, year could be mismatched when localized in any
+          // timezone that less than UTC. for ex- 2022 will be shown instead of 2023
+          const date = new Date();
+          date.setFullYear(n);
+          return {
+            label: this.$formatDate(String(date), { year: 'numeric' }),
+            value: String(n),
+          };
+        });
+      },
+    },
+    $trs: {
+      placeholder: {
+        message: 'Select year',
+        context:
+          "When you edit or create a user you can optionally add the year they were born. You use the 'Select year' drop-down menu to do this. This is located under the 'Birth year' title.",
+      },
+      birthYearTooltip: {
+        message: 'Provide an estimate if you are unsure.',
+        context:
+          "This is a helper text that appears when you select the 'i' icon next to the 'Birth year' field when creating or editing a user.\n\nIt asks the user to provide an estimate of the birth year of a user if the age of the user is unknown.",
+      },
+      birthyearAriaLabel: {
+        message: 'About providing your birth year.',
+        context:
+          "Could also be translated as \"View information about providing your birth year\"\n\nAll 'AriaLabel' type of messages are providing additional context to the screen-reader users. \n\nIn this case the screen-reader will announce the message to indicate that the 'i' icon for the 'Birth year' field offers suggestions how to include that information when creating the user.",
+      },
+    },
+  };
 
-// Mock necessary resources and modules
-jest.mock('kolibri-common/apiResources/PortalResource', () => ({
-  registerFacility: jest.fn(() => Promise.resolve()),
-}));
+</script>
 
-jest.mock('kolibri-common/apiResources/FacilityDatasetResource', () => ({
-  saveModel: jest.fn(() => Promise.resolve()),
-}));
 
-describe('ConfirmationRegisterModal', () => {
-  it('renders with correct texts in the modal', async () => {
-    renderComponent({ projectName: sampleProjectName });
+<style lang="scss" scoped>
 
-    // Checking the text content of the modal
-    expect(screen.getByText(`Register with '${sampleProjectName}'?`)).toBeInTheDocument();
-    expect(screen.getByText('Data will be saved to the cloud')).toBeInTheDocument();
+  .pos-rel {
+    position: relative;
+  }
 
-    // Checking the content on the buttons
-    expect(screen.getByRole('button', { name: 'Register' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
-  });
+  .birthyear-select {
+    width: calc(100% - 32px);
+  }
 
-  it("emits the cancel event when 'Cancel' button is clicked without registering", async () => {
-    const { emitted } = renderComponent();
+  .info-icon {
+    position: absolute;
+    top: 27px;
+    right: 0;
+  }
 
-    // Clicking the 'Cancel' button
-    await fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    expect(emitted()).toHaveProperty('cancel');
-    expect(emitted().cancel).toHaveLength(1);
-  });
-
-  describe("when 'Register' button is clicked to register the faculty successfully", () => {
-    it('emits the success event with sample facility as argument', async () => {
-      const { emitted } = renderComponent({
-        projectName: sampleProjectName,
-        targetFacility: sampleFacility,
-      });
-      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
-
-      expect(emitted()).toHaveProperty('success');
-      expect(emitted().success).toHaveLength(1);
-      expect(emitted().success[0]).toEqual([sampleFacility]);
-    });
-
-    it('calls the necessary resources to register the facility', async () => {
-      renderComponent({
-        projectName: sampleProjectName,
-        targetFacility: sampleFacility,
-        token: sampleToken,
-      });
-      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
-
-      expect(PortalResource.registerFacility).toHaveBeenCalledWith({
-        facility_id: sampleFacility.id,
-        name: sampleFacility.name,
-        token: sampleToken,
-      });
-      expect(FacilityDatasetResource.saveModel).toHaveBeenCalledWith({
-        id: sampleFacility.dataset.id,
-        data: { registered: true },
-        exists: true,
-      });
-    });
-  });
-
-  describe('when the facility is already registered with the project', () => {
-    beforeEach(() => {
-      // Mock the API call to return an error response
-      // showing that the facility is already registered
-      PortalResource.registerFacility.mockRejectedValue({
-        response: {
-          data: [{ id: ERROR_CONSTANTS.ALREADY_REGISTERED_FOR_COMMUNITY }],
-        },
-      });
-    });
-
-    it('renders with correct text in the body of the modal', async () => {
-      renderComponent({ projectName: sampleProjectName });
-      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
-
-      await waitFor(() =>
-        expect(
-          screen.getByText(`Already registered with '${sampleProjectName}'`),
-        ).toBeInTheDocument(),
-      );
-    });
-
-    it('the buttons show the appropiate texts', async () => {
-      renderComponent({ projectName: sampleProjectName });
-      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
-        expect(screen.queryByRole('button', { name: 'Register' })).not.toBeInTheDocument();
-      });
-    });
-
-    it('emits success event with sample facility as argument when Close button is clicked if successOnAlreadyRegistered is set as true', async () => {
-      const { emitted } = renderComponent({
-        successOnAlreadyRegistered: true,
-        targetFacility: sampleFacility,
-      });
-      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
-
-      await waitFor(async () => {
-        await fireEvent.click(screen.getByRole('button', { name: 'Close' }));
-
-        expect(emitted()).toHaveProperty('success');
-        expect(emitted().success).toHaveLength(1);
-        expect(emitted().success[0]).toEqual([sampleFacility]);
-      });
-    });
-
-    it("does not emit success event when 'Close' button is clicked if successOnAlreadyRegistered is not set", async () => {
-      const { emitted } = renderComponent();
-      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
-
-      await waitFor(async () => {
-        await fireEvent.click(screen.getByRole('button', { name: 'Close' }));
-
-        expect(emitted()).not.toHaveProperty('success');
-      });
-    });
-  });
-});
+</style>

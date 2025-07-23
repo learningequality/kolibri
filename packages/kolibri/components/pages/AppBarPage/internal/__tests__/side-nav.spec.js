@@ -1,216 +1,218 @@
-import { mount } from '@vue/test-utils';
-import { UserKinds } from 'kolibri/constants';
-import useNav, { useNavMock } from 'kolibri/composables/useNav'; // eslint-disable-line
-import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
-import SideNav from '../SideNav';
-// eslint-disable-next-line import/named
-// eslint-disable-next-line import/named
-import LearnOnlyDeviceNotice from '../LearnOnlyDeviceNotice';
-import SyncStatusDisplay from '../../../../SyncStatusDisplay';
-import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
+<template>
 
-jest.mock('kolibri/urls');
-jest.mock('kolibri/composables/useNav');
-jest.mock('kolibri/composables/useUser');
+  <div>
+    <AppBarPage v-if="!loading && notAuthorized">
+      <KPageContainer>
+        <AuthMessage
+          :authorizedRole="authorizedRole"
+          :header="authorizationErrorHeader"
+          :details="authorizationErrorDetails"
+        />
+      </KPageContainer>
+    </AppBarPage>
 
-function createWrapper({ navShown = true, headerHeight = 20, width = 100 } = {}) {
-  return mount(SideNav, {
-    propsData: {
-      navShown,
-      headerHeight,
-      width,
+    <AppBarPage v-else-if="!loading && error">
+      <KPageContainer>
+        <AppError />
+      </KPageContainer>
+    </AppBarPage>
+
+    <div
+      v-else
+      tabindex="-1"
+      data-test="base-page"
+    >
+      <slot :loading="loading"></slot>
+    </div>
+
+    <GlobalSnackbar />
+    <UpdateNotification
+      v-if="!loading && showNotification && mostRecentNotification"
+      :id="mostRecentNotification.id"
+      :title="mostRecentNotification.title"
+      :msg="mostRecentNotification.msg"
+      :linkText="mostRecentNotification.linkText"
+      :linkUrl="mostRecentNotification.linkUrl"
+      @submit="dismissUpdateModal"
+    />
+  </div>
+
+</template>
+
+
+<script>
+
+  import { mapState } from 'vuex';
+  import Lockr from 'lockr';
+  import PingbackNotificationDismissedResource from './internal/PingbackNotificationDismissedResource';
+  import PingbackNotificationResource from './internal/PingbackNotificationResource';
+  import UpdateNotification from './internal/UpdateNotification';
+  import { UPDATE_MODAL_DISMISSED } from 'kolibri/constants';
+  import { currentLanguage, defaultLanguage } from 'kolibri/utils/i18n';
+  import AuthMessage from 'kolibri/components/AuthMessage';
+  import AppBarPage from 'kolibri/components/pages/AppBarPage';
+  import AppError from 'kolibri/components/error/AppError';
+  import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
+  import useUser from 'kolibri/composables/useUser';
+
+  export default {
+    name: 'NotificationsRoot',
+    components: {
+      AppBarPage,
+      AppError,
+      AuthMessage,
+      GlobalSnackbar,
+      UpdateNotification,
     },
-    stubs: ['SyncStatusDisplay', 'TotalPoints'],
-  });
-}
+    setup() {
+      const { isAdmin, isSuperuser, user_id } = useUser();
 
-function setUserKind(userKind, isLearnerOnlyImport = false) {
-  const mockOverrides = { isLearnerOnlyImport, isUserLoggedIn: true, isLearner: false };
-  if (userKind == UserKinds.CAN_MANAGE_CONTENT) {
-    mockOverrides.canManageContent = true;
-    mockOverrides.isLearner = true;
-  } else if (userKind == UserKinds.COACH) {
-    mockOverrides.isCoach = true;
-  } else if (userKind == UserKinds.ADMIN) {
-    mockOverrides.isAdmin = true;
-  } else if (userKind == UserKinds.LEARNER) {
-    mockOverrides.isLearner = true;
-  } else if (userKind == UserKinds.SUPERUSER) {
-    mockOverrides.isSuperuser = true;
-  } else if (userKind == UserKinds.ANONYMOUS) {
-    mockOverrides.isUserLoggedIn = false;
-  }
-  useUser.mockImplementation(() => useUserMock(mockOverrides));
-}
+      return {
+        isAdmin,
+        isSuperuser,
+        user_id,
+      };
+    },
+    props: {
+      authorized: {
+        type: Boolean,
+        required: false,
+        default: true,
+      },
+      authorizedRole: {
+        type: String,
+        default: null,
+      },
+      authorizationErrorHeader: {
+        type: String,
+        default: null,
+      },
+      authorizationErrorDetails: {
+        type: String,
+        default: null,
+      },
+      loading: {
+        type: Boolean,
+        default: null,
+      },
+    },
+    data() {
+      return {
+        notifications: [],
+        notificationModalShown: true,
+      };
+    },
+    computed: {
+      ...mapState({
+        error: state => state.core.error,
+      }),
+      notAuthorized() {
+        // catch "not authorized" error, display AuthMessage
+        if (
+          this.error &&
+          this.error.response &&
+          this.error.response.status &&
+          this.error.response.status == 403
+        ) {
+          return true;
+        }
+        return !this.authorized;
+      },
+      showNotification() {
+        if (
+          (this.isAdmin || this.isSuperuser) &&
+          !Lockr.get(UPDATE_MODAL_DISMISSED) &&
+          this.notificationModalShown &&
+          this.notifications.length !== 0
+        ) {
+          return true;
+        }
+        return false;
+      },
+      mostRecentNotification() {
+        if (this.notifications.length === 0) {
+          return null;
+        }
+        let languageCode = defaultLanguage.id;
+        // notifications should already be ordered by timestamp
+        const notification = this.notifications[0];
+        if (notification) {
+          // check if translated message is available for current language
+          if (notification.i18n[currentLanguage] !== undefined) {
+            languageCode = currentLanguage;
+          }
+          // i18n data structure generated by nutritionfacts_i18n.py
+          return {
+            id: notification.id,
+            title: notification.i18n[languageCode].title,
+            msg: notification.i18n[languageCode].msg,
+            linkText: notification.i18n[languageCode].link_text,
+            linkUrl: notification.link_url,
+          };
+        }
+        return null;
+      },
+    },
+    created() {
+      this.getNotifications();
+    },
 
-const url = '/test/url';
-const label = 'label1';
-const label2 = 'label2';
-const icon = 'library';
-
-describe('side nav component', () => {
-  stubWindowLocation(beforeAll, afterAll);
-  beforeEach(() => {
-    useNav.mockImplementation(() => useNavMock());
-    useUser.mockImplementation(() => useUserMock());
-  });
-
-  it('should be hidden if navShown is false', () => {
-    const wrapper = createWrapper({ navShown: false });
-    expect(wrapper.find('.side-nav').element).not.toBeVisible();
-  });
-  it('should show nothing if no items are added and user is not logged in', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.find('a.ui-menu-option:not(.is-divider)').element).toBeFalsy();
-  });
-  it('should show logout if no items are added and user is logged in', async () => {
-    setUserKind(UserKinds.LEARNER);
-    const wrapper = createWrapper();
-    expect(wrapper.text()).toContain('Sign out');
-  });
-
-  describe('SideNav items are shown/hidden depending on role', () => {
-    const testCases = [
-      [UserKinds.ADMIN, UserKinds.ADMIN, true],
-      [UserKinds.ADMIN, UserKinds.CAN_MANAGE_CONTENT, false],
-      [UserKinds.ADMIN, UserKinds.COACH, true],
-      [UserKinds.ADMIN, UserKinds.LEARNER, true],
-      [UserKinds.ANONYMOUS, UserKinds.ADMIN, false],
-      [UserKinds.ANONYMOUS, UserKinds.ANONYMOUS, true],
-      [UserKinds.ANONYMOUS, UserKinds.CAN_MANAGE_CONTENT, false],
-      [UserKinds.ANONYMOUS, UserKinds.COACH, false],
-      [UserKinds.ANONYMOUS, UserKinds.LEARNER, false],
-      [UserKinds.CAN_MANAGE_CONTENT, UserKinds.CAN_MANAGE_CONTENT, true],
-      [UserKinds.COACH, UserKinds.ADMIN, false],
-      [UserKinds.COACH, UserKinds.CAN_MANAGE_CONTENT, false],
-      [UserKinds.COACH, UserKinds.COACH, true],
-      [UserKinds.COACH, UserKinds.LEARNER, true],
-      [UserKinds.LEARNER, UserKinds.ADMIN, false],
-      [UserKinds.LEARNER, UserKinds.CAN_MANAGE_CONTENT, false],
-      [UserKinds.LEARNER, UserKinds.COACH, false],
-      [UserKinds.LEARNER, UserKinds.LEARNER, true],
-      [UserKinds.SUPERUSER, UserKinds.ADMIN, true],
-      [UserKinds.SUPERUSER, UserKinds.COACH, true],
-      [UserKinds.SUPERUSER, UserKinds.LEARNER, true],
-      [UserKinds.SUPERUSER, UserKinds.SUPERUSER, true],
-    ];
-
-    it.each(testCases)(
-      'if user is %s, then %s item should show (%s)',
-      async (kind, otherKind, shouldShow) => {
-        useNav.mockImplementation(() =>
-          useNavMock({
-            navItems: [
-              {
-                url: url,
-                label: label,
-                icon: icon,
-                role: otherKind,
-              },
-            ],
-          }),
-        );
-        setUserKind(kind);
-        const wrapper = createWrapper();
-        if (shouldShow) {
-          expect(wrapper.text()).toContain(label);
-        } else {
-          expect(wrapper.text()).not.toContain(label);
+    methods: {
+      async getNotifications() {
+        const { isAdmin, isSuperuser } = useUser();
+        if (isAdmin || isSuperuser) {
+          try {
+            const notifications = await PingbackNotificationResource.fetchCollection();
+            this.notifications = _notificationListState(notifications);
+          } catch (error) {
+            this.dispatchError(error);
+          }
         }
       },
-    );
-  });
-
-  describe('with multiple items', () => {
-    // All user kinds that can be copresented in the side nav.
-    const testCases = [
-      [UserKinds.LEARNER, UserKinds.COACH],
-      [UserKinds.LEARNER, UserKinds.ADMIN],
-      [UserKinds.LEARNER, UserKinds.CAN_MANAGE_CONTENT],
-      [UserKinds.COACH, UserKinds.ADMIN],
-      [UserKinds.COACH, UserKinds.CAN_MANAGE_CONTENT],
-      [UserKinds.ADMIN, UserKinds.CAN_MANAGE_CONTENT],
-    ];
-    it.each(testCases)('%s item should above %s item', async (kind, otherKind) => {
-      useNav.mockImplementation(() =>
-        useNavMock({
-          navItems: [
-            {
-              url: url,
-              label: label,
-              icon: icon,
-              role: kind,
+      async saveDismissedNotification(notificationId) {
+        try {
+          await PingbackNotificationDismissedResource.saveModel({
+            data: {
+              user: this.user_id,
+              notification: notificationId,
             },
-            {
-              url: url,
-              label: label2,
-              icon: icon,
-              role: otherKind,
-            },
-          ],
-        }),
-      );
-      setUserKind(UserKinds.SUPERUSER);
-      const wrapper = createWrapper();
-      const sideNavComponents = wrapper.findAll("[data-test='side-nav-item']");
-      expect(sideNavComponents.exists()).toBeTruthy();
-      expect(sideNavComponents.at(0).html()).toContain(label);
-      expect(sideNavComponents.at(1).html()).toContain(label2);
-    });
-  });
+          });
+          this.removeNotification(notificationId);
+        } catch (error) {
+          this.dispatchError(error);
+        }
+      },
+      dismissUpdateModal() {
+        if (this.notifications.length === 0) {
+          this.notificationModalShown = false;
+          Lockr.set(UPDATE_MODAL_DISMISSED, true);
+        } else {
+          this.saveDismissedNotification(this.mostRecentNotification.id);
+        }
+      },
+      dispatchError(error) {
+        this.$store.dispatch('handleApiError', { error });
+      },
+      removeNotification(notificationId) {
+        this.notifications = this.notifications.filter(n => n.id !== notificationId);
+      },
+    },
+  };
 
-  describe('when on an SoUD or NOT', () => {
-    describe('on an SoUD with learn-only device indicators', () => {
-      describe('showing the SyncStatusDisplay', () => {
-        it.each([UserKinds.COACH, UserKinds.ADMIN, UserKinds.LEARNER])(
-          'does show the SyncStatusDisplay to %s',
-          async kind => {
-            setUserKind(kind, true);
-            const wrapper = createWrapper();
-            expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(true);
-          },
-        );
-        it('does not show the SyncStatusDisplay to guest users', async () => {
-          setUserKind(UserKinds.ANONYMOUS);
-          const wrapper = createWrapper();
-          expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(false);
-        });
-      });
-      /* Note that Facilty & Coach plugins are hackily disabled in their kolibri_plugin
-       * definitions - hence no tests to ensure they're hidden here when on SoUD */
-      it('shows the Learn-only notice to coaches', async () => {
-        setUserKind(UserKinds.COACH, true);
-        const wrapper = createWrapper();
-        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
-      });
-      it('shows the Learn-only notice to admins', async () => {
-        setUserKind(UserKinds.ADMIN, true);
-        const wrapper = createWrapper();
-        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
-      });
+  function _notificationListState(data) {
+    if (!data || data.length === 0) {
+      return [];
+    }
+    return data.map(notification => ({
+      id: notification.id,
+      version_range: notification.version_range,
+      timestamp: notification.timestamp,
+      link_url: notification.link_url,
+      i18n: notification.i18n,
+    }));
+  }
 
-      it('does not show learn-only notice to Learners', async () => {
-        setUserKind(UserKinds.LEARNER, true);
-        const wrapper = createWrapper();
-        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
-      });
-      it('does not show learn-only notice to Guests', async () => {
-        setUserKind(UserKinds.ANONYMOUS, true);
-        const wrapper = createWrapper();
-        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
-      });
-    });
-    describe('NOT on a SoUD', () => {
-      let wrapper;
-      beforeEach(async () => {
-        wrapper = createWrapper(undefined, { isLearnerOnlyImport: false });
-      });
-      it('does not show the SyncStatusDisplay', async () => {
-        expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(false);
-      });
-      it('shows no notice', () => {
-        expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
-      });
-    });
-  });
-});
+</script>
+
+
+<style lang="scss" scoped></style>

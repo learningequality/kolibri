@@ -1,56 +1,139 @@
 <template>
 
-  <!-- TODO useScrollPosition to set scrollPosition...
-    here or in router, but somewhere -->
-  <div class="main">
-    <div
-      v-if="windowIsSmall"
-      ref="swipeZone"
-      class="swipe-zone"
-    ></div>
+  <div
+    v-show="!$isPrint"
+    ref="appBar"
+    :style="{
+      backgroundColor: themeConfig.appBar.background,
+      color: themeConfig.appBar.textColor,
+    }"
+  >
+    <header>
+      <SkipNavigationLink />
 
-    <ScrollingHeader :scrollPosition="0">
-      <transition mode="out-in">
-        <AppBar
-          v-if="showAppBarsOnScroll"
-          ref="appBar"
-          class="app-bar"
-          :title="title"
-          :showNavigation="showNavigation"
-          :showAppNavView="isAppContextAndTouchDevice"
-          @toggleSideNav="navShown = !navShown"
+      <KToolbar
+        :removeNavIcon="showAppNavView"
+        type="clear"
+        :textColor="themeConfig.appBar.textColor"
+        class="app-bar"
+        :style="{
+          height: topBarHeight + 'px',
+          color: themeConfig.appBar.textColor,
+        }"
+        :raised="false"
+        :removeBrandDivider="true"
+      >
+        <KTextTruncator
+          :text="truncatedTitle"
+          :maxLines="1"
+        />
+        <template
+          v-if="!showAppNavView"
+          #icon
         >
-          <template #sub-nav>
-            <slot name="subNav"></slot>
-          </template>
-        </AppBar>
-      </transition>
-      <KLinearLoader
-        v-if="isLoading"
-        type="indeterminate"
-        :delay="false"
-      />
-      <slot name="storageNotif"></slot>
-    </ScrollingHeader>
+          <KIconButton
+            icon="menu"
+            data-onboarding-id="menubar"
+            :color="themeConfig.appBar.textColor"
+            :ariaLabel="$tr('openNav')"
+            @click="$emit('toggleSideNav')"
+          />
+        </template>
 
+        <template #brand>
+          <img
+            v-if="themeConfig.appBar.topLogo"
+            :src="themeConfig.appBar.topLogo.src"
+            :alt="themeConfig.appBar.topLogo.alt"
+            :style="themeConfig.appBar.topLogo.style"
+            :class="showAppNavView ? 'brand-logo-left' : 'brand-logo'"
+          >
+        </template>
+
+        <template
+          v-if="showNavigation"
+          #navigation
+        >
+          <slot name="sub-nav">
+            <Navbar
+              v-if="links.length > 0"
+              :style="hiddenNavbarStyle"
+              :navigationLinks="links"
+              :title="title"
+              @update-overflow-count="overflowCount = $event"
+            />
+          </slot>
+        </template>
+
+        <template #actions>
+          <div
+            ref="appBarActions"
+            aria-live="polite"
+            :style="{
+              paddingBottom: '6px',
+            }"
+          >
+            <slot name="app-bar-actions"></slot>
+            <span v-if="isLearner">
+              <KIcon
+                ref="pointsButton"
+                icon="pointsActive"
+                :ariaLabel="$tr('pointsAriaLabel')"
+                :color="$themeTokens.primary"
+              />
+              <div
+                v-if="!windowIsSmall"
+                class="points-description"
+              >
+                {{ $formatNumber(totalPoints) }}
+              </div>
+              <div
+                v-if="pointsDisplayed"
+                class="points-popover"
+                :style="{
+                  color: $themeTokens.text,
+                  padding: '8px',
+                  backgroundColor: $themeTokens.surface,
+                }"
+              >
+                {{ $tr('pointsMessage', { points: totalPoints }) }}
+              </div>
+            </span>
+            <span
+              v-if="isUserLoggedIn"
+              tabindex="-1"
+            >
+              <KIcon
+                icon="person"
+                :style="{
+                  fill: themeConfig.appBar.textColor,
+                  height: '24px',
+                  width: '24px',
+                  margin: '4px',
+                  top: '8px',
+                }"
+              />
+              <span class="username">
+                {{ usernameForDisplay }}
+              </span>
+            </span>
+          </div>
+        </template>
+      </KToolbar>
+    </header>
     <div
-      id="main"
-      class="main-wrapper"
-      :style="[wrapperStyles, paddingTop]"
+      v-show="showNavigation && !showAppNavView && !showTopNavBar"
+      class="subpage-nav"
     >
-      <slot></slot>
+      <slot name="sub-nav">
+        <Navbar
+          v-if="links.length > 0"
+          :class="{ 'sub-nav': !showTopNavBar }"
+          :navigationLinks="links"
+          :title="title"
+        />
+      </slot>
     </div>
-
-    <transition mode="out-in">
-      <SideNav
-        v-if="showAppBarsOnScroll"
-        ref="sideNav"
-        :navShown="navShown"
-        :showAppNavView="isAppContextAndTouchDevice"
-        @toggleSideNav="navShown = !navShown"
-        @shouldFocusFirstEl="findFirstEl()"
-      />
-    </transition>
   </div>
 
 </template>
@@ -58,163 +141,175 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
-  import { throttle } from 'frame-throttle';
+  import { get } from '@vueuse/core';
+  import { computed, getCurrentInstance } from 'vue';
+  import KToolbar from 'kolibri-design-system/lib/KToolbar';
+  import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import SkipNavigationLink from '../../../SkipNavigationLink';
+  import Navbar from './Navbar';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { isTouchDevice } from 'kolibri/utils/browserInfo';
+  import themeConfig from 'kolibri/styles/themeConfig';
+  import useTotalProgress from 'kolibri/composables/useTotalProgress';
+  import useNav from 'kolibri/composables/useNav';
   import useUser from 'kolibri/composables/useUser';
-  import { ref, getCurrentInstance } from 'vue';
-  import { useSwipe } from '@vueuse/core';
-  import ScrollingHeader from '../ScrollingHeader';
-  import AppBar from './internal/AppBar';
-  import SideNav from './internal/SideNav';
+
+  const hashedValuePattern = /^[a-f0-9]{30}$/;
 
   export default {
-    name: 'AppBarPage',
+    name: 'AppBar',
     components: {
-      AppBar,
-      ScrollingHeader,
-      SideNav,
+      KToolbar,
+      KIconButton,
+      SkipNavigationLink,
+      Navbar,
     },
     mixins: [commonCoreStrings],
     setup() {
-      const instance = getCurrentInstance();
-      const isRtl = ref(instance?.proxy.isRtl);
-      const swipeZone = ref(null);
-      const navShown = ref(false);
-      useSwipe(swipeZone, {
-        onSwipeEnd: (e, direction) => {
-          if (direction === 'right' && !navShown.value && !isRtl.value) {
-            navShown.value = true;
-          } else if (direction === 'left' && !navShown.value && isRtl.value) {
-            navShown.value = true;
-          }
-        },
-      });
+      const store = getCurrentInstance().proxy.$store;
+      const $route = computed(() => store.state.route);
       const { windowIsSmall } = useKResponsiveWindow();
-      const { isAppContext } = useUser();
+      const { topBarHeight, navItems } = useNav();
+      const { isLearner, isUserLoggedIn, username, full_name } = useUser();
+      const { totalPoints, fetchPoints } = useTotalProgress();
+      const links = computed(() => {
+        const currentItem = get(navItems).find(nc => nc.url === window.location.pathname);
+        if (!currentItem || !currentItem.routes) {
+          return [];
+        }
+        return currentItem.routes.map(route => ({
+          title: route.label,
+          link: { name: route.name, params: get($route).params, query: get($route).query },
+          icon: route.icon,
+          condition: route.condition,
+        }));
+      });
+
       return {
+        themeConfig,
         windowIsSmall,
-        isAppContext,
-        swipeZone,
-        navShown,
+        topBarHeight,
+        links,
+        isUserLoggedIn,
+        isLearner,
+        username,
+        fullName: full_name,
+        totalPoints,
+        fetchPoints,
       };
     },
     props: {
       title: {
         type: String,
-        default: '',
+        required: true,
       },
       showNavigation: {
         type: Boolean,
         default: true,
       },
-      appearanceOverrides: {
-        type: Object,
-        required: false,
-        default: null,
-      },
-      loading: {
+      showAppNavView: {
         type: Boolean,
-        default() {
-          return false;
-        },
+        default: false,
       },
     },
     data() {
       return {
-        appBarHeight: 124,
-        lastScrollTop: 0,
-        hideAppBars: true,
-        throttledHandleScroll: null,
+        pointsDisplayed: false,
+        appBarWidth: 0,
+        overflowCount: 0,
       };
     },
     computed: {
-      ...mapGetters(['isPageLoading']),
-      isAppContextAndTouchDevice() {
-        return this.isAppContext && isTouchDevice;
+      // temp hack for the VF plugin
+      usernameForDisplay() {
+        return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
       },
-      isLoading() {
-        return this.isPageLoading || this.loading;
+      showTopNavBar() {
+        return this.overflowCount === 0;
       },
-      wrapperStyles() {
-        return this.appearanceOverrides
-          ? this.appearanceOverrides
-          : {
-            width: '100%',
-            maxWidth: '1064px',
-            margin: 'auto',
-            backgroundColor: this.$themePalette.grey.v_100,
-            paddingLeft: this.paddingLeftRight,
-            paddingRight: this.paddingLeftRight,
-            paddingBottom: '72px',
-            marginTop: 0,
-          };
+      truncatedTitle() {
+        if (!this.title) return '';
+        // Dynamically truncate title based on remaining space in AppBar
+        const offset = this.$refs.appBarActions?.clientWidth + 100;
+        const averageCharWidth = 10;
+        const availableWidth = this.appBarWidth - offset;
+        const maxChars = availableWidth > 0 ? Math.floor(availableWidth / averageCharWidth) : 1;
+        return this.truncateText(this.title, maxChars);
       },
-      paddingTop() {
-        const extraPadding = this.isAppContext ? 0 : 5;
-        const totalPadding = this.appBarHeight + extraPadding;
+      hiddenNavbarStyle() {
+        if (this.showTopNavBar) {
+          return {};
+        }
+        // Hide top navbar, but keep it in the DOM for overflow calulations
+        const rightOffset = `${this.title.length * 10 + 250}px`;
         return {
-          paddingTop: `${totalPadding}px`,
+          pointerEvents: 'none',
+          opacity: '0',
+          position: 'fixed',
+          right: rightOffset,
         };
       },
-      paddingLeftRight() {
-        return this.isAppContext || this.windowIsSmall ? '8px' : '32px';
-      },
-      showAppBarsOnScroll() {
-        let show = true;
-        if (this.isAppContextAndTouchDevice) {
-          show = this.hideAppBars;
-        }
-        return show;
-      },
     },
-    beforeUpdate() {
-      // Update appBarHeight after AppBar is rerendered and updated
-      this.updateAppBarHeight();
-    },
-    mounted() {
-      this.updateAppBarHeight();
-      this.addScrollListener();
-      window.addEventListener('resize', this.updateAppBarHeight);
+    created() {
+      if (this.isLearner) {
+        this.fetchPoints();
+      }
     },
     beforeDestroy() {
-      this.removeScrollListener();
-      window.removeEventListener('resize', this.updateAppBarHeight);
+      window.removeEventListener('click', this.handleWindowClick);
+      window.removeEventListener('keydown', this.handlePopoverByKeyboard, true);
+      window.removeEventListener('resize', this.updateAppBarWidth);
+    },
+    mounted() {
+      window.addEventListener('click', this.handleWindowClick);
+      window.addEventListener('keydown', this.handlePopoverByKeyboard, true);
+      window.addEventListener('resize', this.updateAppBarWidth);
+      this.updateAppBarWidth();
     },
     methods: {
-      addScrollListener() {
-        if (this.isAppContextAndTouchDevice) {
-          this.throttledHandleScroll = throttle(this.handleScroll);
-          window.addEventListener('scroll', this.throttledHandleScroll);
+      handleWindowClick(event) {
+        if (this.$refs.pointsButton && this.$refs.pointsButton.$el) {
+          if (!this.$refs.pointsButton.$el.contains(event.target) && this.pointsDisplayed) {
+            this.pointsDisplayed = false;
+          } else if (
+            this.$refs.pointsButton &&
+            this.$refs.pointsButton.$el &&
+            this.$refs.pointsButton.$el.contains(event.target)
+          ) {
+            this.pointsDisplayed = !this.pointsDisplayed;
+          }
+        }
+        return event;
+      },
+      handlePopoverByKeyboard(event) {
+        if ((event.key == 'Tab' || event.key == 'Escape') && this.pointsDisplayed) {
+          this.pointsDisplayed = false;
         }
       },
-      findFirstEl() {
-        this.$nextTick(() => {
-          this.$refs.sideNav.focusFirstEl();
-        });
+      updateAppBarWidth() {
+        this.appBarWidth = this.$refs.appBar?.clientWidth || 0;
       },
-      handleScroll() {
-        const scrollTop = window.scrollY;
-        //Is user scrolling up?
-        if (scrollTop > this.lastScrollTop) {
-          this.hideAppBars = false;
-        } else {
-          this.hideAppBars = true;
+      truncateText(value, maxLength) {
+        if (value && value.length > maxLength) {
+          return value.substring(0, maxLength) + '...';
         }
-        this.lastScrollTop = scrollTop;
+        return value;
       },
-      removeScrollListener() {
-        if (this.isAppContextAndTouchDevice) {
-          window.removeEventListener('scroll', this.throttledHandleScroll);
-          this.throttledHandleScroll.cancel();
-          this.throttledHandleScroll = null;
-        }
+    },
+    $trs: {
+      openNav: {
+        message: 'Open site navigation',
+        context:
+          "This message is providing additional context to the screen-reader users, but is not visible in the Kolibri UI.\n\nIn this case the screen-reader will announce the message when user navigates to the 'hamburger' button with the keyboard, to indicate that it allows them to open the sidebar navigation menu.",
       },
-      updateAppBarHeight() {
-        // Update the app bar height when window is resized
-        this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 124;
+      pointsMessage: {
+        message: 'You earned { points, number } points',
+        context: 'Notification indicating how many points a leaner has earned.',
+      },
+      pointsAriaLabel: {
+        message: 'Points earned',
+        context:
+          'Information for screen reader users about what information they will get by clicking a button',
       },
     },
   };
@@ -226,33 +321,109 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .app-bar {
-    @extend %dropshadow-2dp;
-
-    width: 100%;
+  .user-menu-button {
+    text-transform: none;
+    vertical-align: middle;
   }
 
-  .android-nav-bottom-bar {
-    @extend %dropshadow-1dp;
-
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 12;
-    height: 48px;
-    background-color: white;
+  .username {
+    position: relative;
+    bottom: 3px;
+    max-width: 200px;
+    // overflow-x hidden seems to affect overflow-y also, so include a fixed height
+    height: 16px;
+    padding-left: 8px;
+    // overflow: hidden on both x and y so that the -y doesn't show scroll buttons
+    // at certain zooms/screen sizes
+    overflow: hidden;
+    font-size: small;
+    font-weight: bold;
+    text-overflow: ellipsis;
   }
 
-  .swipe-zone {
+  @media (max-width: 750px) {
+    .username {
+      max-width: 50px;
+    }
+  }
+
+  // Holdover from keen-ui to keep dropdown profile correctly formatted.
+  /deep/ .ui-menu {
+    min-width: 10.5rem;
+    max-width: 17rem;
+    max-height: 100vh;
+    padding: 0.25rem 0;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    list-style: none;
+    background-color: inherit;
+    border: 0.0625rem solid rgba(0, 0, 0, 0.08);
+    outline: none;
+  }
+
+  .user-menu-dropdown {
     position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 5;
-    width: 30px;
-    background: red;
-    opacity: 0;
+    right: 8px;
+    z-index: 8;
+  }
+
+  .role {
+    margin-bottom: 8px;
+    font-size: small;
+    font-weight: bold;
+  }
+
+  .total-points {
+    display: inline-block;
+    margin-left: 16px;
+  }
+
+  /deep/ .k-toolbar-right {
+    display: flex;
+    align-items: center;
+  }
+
+  /deep/ .k-toolbar-left {
+    display: flex;
+    align-items: center;
+    margin-left: 8px;
+  }
+
+  .brand-logo {
+    max-width: 48px;
+    max-height: 48px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  .brand-logo-left {
+    margin-left: -16px !important;
+  }
+
+  // Hide the UiButton focus ring
+  /deep/ .ui-button__focus-ring {
+    display: none;
+  }
+
+  .points-popover {
+    @extend %dropshadow-6dp;
+
+    position: absolute;
+    right: 50px;
+    z-index: 24;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
+  .points-description {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 14px;
+  }
+
+  /deep/ .sub-nav .items {
+    margin-top: 0;
   }
 
 </style>

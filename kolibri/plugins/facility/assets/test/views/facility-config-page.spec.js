@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
-import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
 import ConfigPage from '../../src/views/FacilityConfigPage';
 import makeStore from '../makeStore';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
+import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
 
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 jest.mock('kolibri/composables/useUser');

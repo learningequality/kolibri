@@ -13,10 +13,10 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import { PageNames } from '../constants';
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
-  import { PageNames } from '../constants';
 
   export default {
     name: 'FacilityIndex',

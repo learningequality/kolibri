@@ -1,21 +1,31 @@
-import { now as getNow } from 'kolibri/utils/serverClock';
+import { ref, computed } from 'vue';
+import { get, set } from '@vueuse/core';
+import UserProgressResource from './internal/UserProgressResource';
+import useUser from 'kolibri/composables/useUser';
+import { MaxPointsPerContent } from 'kolibri/constants';
 
-import { ref, onMounted, onUnmounted } from 'vue';
+const totalProgress = ref(null);
 
-export default function useNow(interval = 10000) {
-  const now = ref(getNow());
+export default function useTotalProgress() {
+  const totalPoints = computed(() => totalProgress.value * MaxPointsPerContent);
 
-  let timer;
+  const fetchPoints = () => {
+    const { isUserLoggedIn, currentUserId } = useUser();
+    if (get(isUserLoggedIn) && get(totalProgress) === null) {
+      UserProgressResource.fetchModel({ id: get(currentUserId) }).then(progress => {
+        set(totalProgress, progress.progress);
+      });
+    }
+  };
 
-  onMounted(() => {
-    timer = setInterval(() => {
-      now.value = getNow();
-    }, interval);
-  });
+  const incrementTotalProgress = progress => {
+    set(totalProgress, get(totalProgress) + progress);
+  };
 
-  onUnmounted(() => {
-    clearInterval(timer);
-  });
-
-  return { now };
+  return {
+    totalProgress,
+    totalPoints,
+    fetchPoints,
+    incrementTotalProgress,
+  };
 }

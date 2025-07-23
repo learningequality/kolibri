@@ -190,8 +190,8 @@
 
   import { mapState, mapActions } from 'vuex';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { CSVImportStatuses } from '../../constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'Preview',

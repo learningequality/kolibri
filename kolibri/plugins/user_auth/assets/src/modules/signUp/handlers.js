@@ -1,5 +1,5 @@
-import useFacilities from 'kolibri-common/composables/useFacilities';
 import { ComponentMap } from '../../constants';
+import useFacilities from 'kolibri-common/composables/useFacilities';
 
 export function showSignUpPage(store, fromRoute) {
   const { getFacilities } = useFacilities();

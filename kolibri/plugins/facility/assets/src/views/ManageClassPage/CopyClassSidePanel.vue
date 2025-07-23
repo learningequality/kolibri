@@ -84,12 +84,12 @@
 
   import { ref } from 'vue';
   import { mapActions } from 'vuex';
+  import SelectableList from './SelectableList.vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
-  import SelectableList from './SelectableList.vue';
 
   export default {
     name: 'CopyClassSidePanel',

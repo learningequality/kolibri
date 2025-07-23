@@ -25,10 +25,10 @@
 <script>
 
   import { mapState, mapActions, mapGetters } from 'vuex';
+  import ClassEnrollForm from './ClassEnrollForm';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import ClassEnrollForm from './ClassEnrollForm';
 
   export default {
     name: 'LearnerClassEnrollmentPage',

@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
+import { updateFacilityLevelRoles } from './utils';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { UserKinds } from 'kolibri/constants';
-import { updateFacilityLevelRoles } from './utils';
 
 /**
  * Does a POST request to assign a user role (only used in this file)

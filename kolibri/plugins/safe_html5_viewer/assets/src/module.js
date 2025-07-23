@@ -1,5 +1,5 @@
-import ContentRendererModule from 'kolibri-viewer';
 import SafeHTML5Component from './views/SafeHtml5RendererIndex';
+import ContentRendererModule from 'kolibri-viewer';
 
 class SafeHTML5Module extends ContentRendererModule {
   get rendererComponent() {

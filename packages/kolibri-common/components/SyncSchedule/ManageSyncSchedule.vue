@@ -1,330 +1,508 @@
 <template>
 
-  <ImmersivePage
-    :appBarTitle="$tr('syncSchedules')"
-    :route="goBackRoute"
-  >
-    <KPageContainer>
-      <KGrid gutter="48">
-        <KGridItem>
-          <h1>{{ $tr('syncSchedules') }}</h1>
-        </KGridItem>
-
-        <KGridItem>
-          <p>{{ $tr('introduction') }}</p>
-        </KGridItem>
-
-        <KGridItem
-          :layout8="{ span: 4 }"
-          :layout12="{ span: 6 }"
-          class="separate"
+  <!-- Negative margin removes empty space left by relatively
+  positioning the select all checkbox to make sure the table has
+  visually the same top margin no matter if `selectable` or no
+  (important for consistency, e.g. when it is rendered below other
+  components like user search box) -->
+  <div :style="[showSelectAllCheckbox ? { marginTop: '-44px' } : {}]">
+    <KCheckbox
+      v-if="showSelectAllCheckbox"
+      :label="$tr('selectAllLabel')"
+      :showLabel="true"
+      :checked="allAreSelected"
+      :indeterminate="allIsIndeterminate"
+      :disabled="disabled || !users || users.length === 0"
+      class="select-all"
+      :style="{ color: $themeTokens.annotation }"
+      data-test="selectAllCheckbox"
+      @change="selectAll($event)"
+    />
+    <CoreTable
+      :emptyMessage="emptyMessage"
+      :dataLoading="dataLoading"
+    >
+      <template #headers>
+        <th
+          data-test="fullNameHeader"
+          :style="{ minWidth: '32px' }"
         >
-          <b v-if="facility">{{ facility.name }}</b>
-          <KCircularLoader v-else />
-        </KGridItem>
-        <KGridItem
-          :layout="{ alignment: 'right' }"
-          :layout8="{ span: 4 }"
-          :layout12="{ span: 6 }"
-          class="separate"
+          <span
+            v-if="selectable"
+            class="visuallyhidden"
+          >
+            {{ $tr('selectUserBy') }}
+          </span>
+          <span :class="{ visuallyhidden: showSelectAllCheckbox }">
+            {{ coreString('fullNameLabel') }}
+          </span>
+        </th>
+        <th>
+          <span
+            class="visuallyhidden"
+            data-test="roleHeader"
+          >
+            {{ $tr('role') }}
+          </span>
+        </th>
+        <th data-test="usernameHeader">
+          {{ coreString('usernameLabel') }}
+        </th>
+        <th v-if="$scopedSlots.info">
+          {{ infoDescriptor }}
+        </th>
+        <template v-if="showDemographicInfo">
+          <th>
+            <span>{{ coreString('identifierLabel') }}</span>
+            <CoreInfoIcon
+              class="tooltip"
+              :iconAriaLabel="coreString('identifierAriaLabel')"
+              :tooltipText="coreString('identifierTooltip')"
+            />
+          </th>
+          <th>
+            {{ coreString('genderLabel') }}
+          </th>
+          <th>
+            {{ coreString('birthYearLabel') }}
+          </th>
+        </template>
+        <th
+          v-if="$scopedSlots.action"
+          class="user-action-button"
         >
-          <KButton @click="deviceModal = true">
-            {{ $tr('addDevice') }}
-          </KButton>
-        </KGridItem>
-      </KGrid>
+          <span class="visuallyhidden">
+            {{ coreString('userActionsColumnHeader') }}
+          </span>
+        </th>
+      </template>
 
-      <!--      creating the table-->
-      <CoreTable>
-        <template #tbody>
-          <tbody v-if="scheduledTasks.length > 0">
-            <tr>
-              <th>{{ coreString('deviceNameLabel') }}</th>
-              <th>{{ $tr('Schedule') }}</th>
-              <th>{{ coreString('statusLabel') }}</th>
-              <th></th>
-            </tr>
+      <template #tbody>
+        <tbody>
+          <KRadioButtonGroup v-if="selectable && !enableMultipleSelection">
+            <template v-if="users && users.length">
+              <tr
+                v-for="user in users"
+                :key="user.id"
+                :style="isSelectedStyle(user.id)"
+              >
+                <td>
+                  <KCheckbox
+                    v-if="selectable && enableMultipleSelection"
+                    :disabled="disabled"
+                    :checked="userIsSelected(user.id)"
+                    class="user-checkbox"
+                    data-test="userCheckbox"
+                    @change="selectUser(user.id, $event)"
+                  >
+                    <KLabeledIcon
+                      :icon="isCoach ? 'coach' : 'person'"
+                      :label="user.full_name"
+                      data-test="fullName"
+                    />
+                    <UserTypeDisplay
+                      aria-hidden="true"
+                      :userType="user.kind"
+                      :omitLearner="true"
+                      class="role-badge"
+                      data-test="userRoleBadge"
+                      :class="$computedClass(userRoleBadgeStyle)"
+                    />
+                  </KCheckbox>
+                  <!--
+                  @MisRob: It's possible to pass `<label>` content to `KRadioButton`
+                  via the default slot, however it's not what this slot has been
+                  made for so doing so is hackish, even though resulting
+                  markup seems fine. To be able to do this, I also needed to pass
+                  the empty label to required `label` prop to avoid Vue warnings.
+                  I still find this to be better solution in regards to a11y than
+                  not providing label content. Reported related KDS issue
+                  https://github.com/learningequality/kolibri-design-system/issues/348
+                -->
+                  <KRadioButton
+                    v-else-if="selectable && !enableMultipleSelection"
+                    :disabled="disabled"
+                    :buttonValue="user.id"
+                    :currentValue="firstSelectedUser"
+                    :label="''"
+                    data-test="userRadioButton"
+                    @change="selectSingleUser(user.id)"
+                  >
+                    <!--
+                    override muted color in the disabled state with
+                    the normal text color in `style` (using `color`
+                    prop won't work for this purpose)
+                  -->
+                    <KLabeledIcon
+                      :icon="isCoach ? 'coach' : 'person'"
+                      :label="user.full_name"
+                      data-test="fullName"
+                      :style="{ color: $themeTokens.text }"
+                    />
+                    <UserTypeDisplay
+                      aria-hidden="true"
+                      :userType="user.kind"
+                      :omitLearner="true"
+                      class="role-badge"
+                      data-test="userRoleBadge"
+                      :class="$computedClass(userRoleBadgeStyle)"
+                    />
+                  </KRadioButton>
+                  <template v-else>
+                    <KLabeledIcon
+                      :icon="isCoach ? 'coach' : 'person'"
+                      :label="user.full_name"
+                      :style="{ color: $themeTokens.text }"
+                      data-test="fullName"
+                    />
+                    <UserTypeDisplay
+                      aria-hidden="true"
+                      :userType="user.kind"
+                      :omitLearner="true"
+                      class="role-badge"
+                      data-test="userRoleBadge"
+                      :class="$computedClass(userRoleBadgeStyle)"
+                    />
+                  </template>
+                </td>
+                <td
+                  class="visuallyhidden"
+                  data-test="userRoleLabel"
+                >
+                  {{ typeDisplayMap[user.kind] }}
+                </td>
+                <td
+                  data-test="username"
+                  :style="{ color: $themeTokens.text }"
+                >
+                  <span dir="auto">
+                    {{ user.username }}
+                  </span>
+                </td>
+                <template v-if="showDemographicInfo">
+                  <td class="id-col">
+                    <KOptionalText :text="user.id_number ? user.id_number : ''" />
+                  </td>
+                  <td>
+                    <GenderDisplayText :gender="user.gender" />
+                  </td>
+                  <td>
+                    <BirthYearDisplayText :birthYear="user.birth_year" />
+                  </td>
+                </template>
+                <td v-if="$scopedSlots.info">
+                  <slot
+                    name="info"
+                    :user="user"
+                  ></slot>
+                </td>
+                <td
+                  v-if="$scopedSlots.action"
+                  class="core-table-button-col"
+                >
+                  <slot
+                    name="action"
+                    :user="user"
+                  ></slot>
+                </td>
+              </tr>
+            </template>
+          </KRadioButtonGroup>
+          <template v-else>
             <tr
-              v-for="task in scheduledTasks"
-              :key="task.id"
+              v-for="user in users"
+              :key="user.id"
+              :style="isSelectedStyle(user.id)"
             >
               <td>
-                <span>{{ task.deviceName }}<br >
-                  {{ task.extra_metadata.baseurl }}
-                </span>
-              </td>
-              <td>
-                <div>
-                  {{ scheduleTime(task.repeat_interval, task.scheduled_datetime) }}
-                </div>
-              </td>
-
-              <td>
-                <span v-if="task.deviceAvailable">
-                  <KIcon icon="onDevice" />
-                  <span>{{ $tr('connected') }}</span>
-                </span>
-                <span v-else-if="!task.isKDP">
-                  <KIcon icon="disconnected" />
-                  <span>{{ $tr('disconnected') }}</span>
-                </span>
-                <KEmptyPlaceholder v-else />
-              </td>
-              <td>
-                <KButton
-                  class="right"
-                  @click="editButton(task)"
+                <KCheckbox
+                  v-if="selectable && enableMultipleSelection"
+                  :disabled="disabled"
+                  :checked="userIsSelected(user.id)"
+                  class="user-checkbox"
+                  data-test="userCheckbox"
+                  @change="selectUser(user.id, $event)"
                 >
-                  {{ coreString('editAction') }}
-                </KButton>
+                  <KLabeledIcon
+                    :icon="isCoach ? 'coach' : 'person'"
+                    :label="user.full_name"
+                    data-test="fullName"
+                  />
+                  <UserTypeDisplay
+                    aria-hidden="true"
+                    :userType="user.kind"
+                    :omitLearner="true"
+                    class="role-badge"
+                    data-test="userRoleBadge"
+                    :class="$computedClass(userRoleBadgeStyle)"
+                  />
+                </KCheckbox>
+                <!--
+                @MisRob: It's possible to pass `<label>` content to `KRadioButton`
+                via the default slot, however it's not what this slot has been
+                made for so doing so is hackish, even though resulting
+                markup seems fine. To be able to do this, I also needed to pass
+                the empty label to required `label` prop to avoid Vue warnings.
+                I still find this to be better solution in regards to a11y than
+                not providing label content. Reported related KDS issue
+                https://github.com/learningequality/kolibri-design-system/issues/348
+              -->
+                <KRadioButton
+                  v-else-if="selectable && !enableMultipleSelection"
+                  :disabled="disabled"
+                  :buttonValue="user.id"
+                  :currentValue="firstSelectedUser"
+                  :label="''"
+                  data-test="userRadioButton"
+                  @change="selectSingleUser(user.id)"
+                >
+                  <!--
+                  override muted color in the disabled state with
+                  the normal text color in `style` (using `color`
+                  prop won't work for this purpose)
+                -->
+                  <KLabeledIcon
+                    :icon="isCoach ? 'coach' : 'person'"
+                    :label="user.full_name"
+                    data-test="fullName"
+                    :style="{ color: $themeTokens.text }"
+                  />
+                  <UserTypeDisplay
+                    aria-hidden="true"
+                    :userType="user.kind"
+                    :omitLearner="true"
+                    class="role-badge"
+                    data-test="userRoleBadge"
+                    :class="$computedClass(userRoleBadgeStyle)"
+                  />
+                </KRadioButton>
+                <template v-else>
+                  <KLabeledIcon
+                    :icon="isCoach ? 'coach' : 'person'"
+                    :label="user.full_name"
+                    :style="{ color: $themeTokens.text }"
+                    data-test="fullName"
+                  />
+                  <UserTypeDisplay
+                    aria-hidden="true"
+                    :userType="user.kind"
+                    :omitLearner="true"
+                    class="role-badge"
+                    data-test="userRoleBadge"
+                    :class="$computedClass(userRoleBadgeStyle)"
+                  />
+                </template>
               </td>
-            </tr>
-          </tbody>
-
-          <tbody v-else>
-            <tr>
-              <th>{{ coreString('deviceNameLabel') }}</th>
-              <th>{{ $tr('Schedule') }}</th>
-              <th>{{ coreString('statusLabel') }}</th>
-              <th></th>
-            </tr>
-            <tr>
               <td
-                colspan="3"
-                style="text-align: center"
+                class="visuallyhidden"
+                data-test="userRoleLabel"
               >
-                <b>{{ $tr('NoSync') }}</b>
+                {{ typeDisplayMap[user.kind] }}
+              </td>
+              <td
+                data-test="username"
+                :style="{ color: $themeTokens.text }"
+              >
+                <span dir="auto">
+                  {{ user.username }}
+                </span>
+              </td>
+              <template v-if="showDemographicInfo">
+                <td class="id-col">
+                  <KOptionalText :text="user.id_number ? user.id_number : ''" />
+                </td>
+                <td>
+                  <GenderDisplayText :gender="user.gender" />
+                </td>
+                <td>
+                  <BirthYearDisplayText :birthYear="user.birth_year" />
+                </td>
+              </template>
+              <td v-if="$scopedSlots.info">
+                <slot
+                  name="info"
+                  :user="user"
+                ></slot>
+              </td>
+              <td
+                v-if="$scopedSlots.action"
+                class="core-table-button-col"
+              >
+                <slot
+                  name="action"
+                  :user="user"
+                ></slot>
               </td>
             </tr>
-          </tbody>
-        </template>
-      </CoreTable>
-      <SyncFacilityModalGroup
-        v-if="deviceModal"
-        :facilityForSync="facility"
-        @close="closeModal"
-        @syncKDP="handleKDPSync"
-        @syncPeer="handlePeerSync"
-      />
-    </KPageContainer>
-  </ImmersivePage>
+          </template>
+        </tbody>
+      </template>
+    </CoreTable>
+  </div>
 
 </template>
 
 
 <script>
 
-  import { computed } from 'vue';
-  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import CoreTable from 'kolibri/components/CoreTable';
-  import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
+  import difference from 'lodash/difference';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
-  import SyncFacilityModalGroup from 'kolibri-common/components/syncComponentSet/SyncFacilityModalGroup';
-  import {
-    useDeviceFacilityFilter,
-    useDevicesWithFilter,
-  } from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
-  import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
-  import useTaskPolling from '../../composables/useTaskPolling';
-  import { KDP_ID, oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
-  import { kdpNameTranslator } from './i18n';
+  import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
+  import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
+  import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
+  import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
+  import translatedUserKinds from 'kolibri-common/uiText/userKinds';
 
   export default {
-    name: 'ManageSyncSchedule',
+    name: 'UserTable',
     components: {
-      ImmersivePage,
+      CoreInfoIcon,
       CoreTable,
-      SyncFacilityModalGroup,
+      UserTypeDisplay,
+      GenderDisplayText,
+      BirthYearDisplayText,
     },
-    extends: ImmersivePage,
-    mixins: [commonCoreStrings, commonSyncElements],
-    setup(props) {
-      const deviceFilter = useDeviceFacilityFilter({ id: props.facilityId });
-      const { tasks } = useTaskPolling('facility_task');
-      const { devices } = useDevicesWithFilter(
-        {
-          subset_of_users_device: false,
-        },
-        deviceFilter,
-      );
-      const devicesById = computed(() => {
-        return devices.value.reduce(
-          (acc, device) => {
-            acc[device.id] = device;
-            return acc;
-          },
-          {
-            [KDP_ID]: {
-              device_id: KDP_ID,
-              // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
-              device_name: kdpNameTranslator.$tr('syncToKDP'),
-              base_url: '',
-            },
-          },
-        );
-      });
-      return {
-        devicesById,
-        tasks,
-      };
-    },
+    mixins: [commonCoreStrings, translatedUserKinds],
     props: {
-      facilityId: {
+      users: {
+        type: Array,
+        required: true,
+      },
+      emptyMessage: {
         type: String,
-        required: true,
+        default: null,
       },
-      goBackRoute: {
-        type: Object,
-        required: true,
+      selectable: {
+        type: Boolean,
+        default: false,
       },
-      editSyncRoute: {
-        type: Function,
-        required: true,
+      // This will only work when `selectable` prop is truthy.
+      // If true, multiple users can be selected via checkboxes
+      // and the select all checkbox is rendered.
+      // Otherwise only a single user can be selected
+      // and the select all checkbox is not rendered.
+      enableMultipleSelection: {
+        type: Boolean,
+        default: true,
       },
-    },
-    data() {
-      return {
-        deviceModal: false,
-        facility: null,
-      };
+      // required when 'selectable' is truthy
+      // used for optional checkboxes
+      value: {
+        type: Array,
+        default: null,
+      },
+      isCoach: {
+        type: Boolean,
+        default: false,
+      },
+      infoDescriptor: {
+        type: String,
+        default: '',
+      },
+      // If true, shows ID number, gender, and birth year columns
+      showDemographicInfo: {
+        type: Boolean,
+        default: false,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
+      selectedStyle: {
+        type: String,
+        default: '',
+      },
+      dataLoading: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
-      facilitySyncTasks() {
-        return this.tasks.filter(
-          t =>
-            t.facility_id === this.facilityId &&
-            t.repeat === null &&
-            (t.type === TaskTypes.SYNCDATAPORTAL || t.type === TaskTypes.SYNCPEERFULL),
+      userRoleBadgeStyle() {
+        return {
+          color: this.$themeTokens.textInverted,
+          backgroundColor: this.$themeTokens.annotation,
+          '::selection': {
+            color: this.$themeTokens.text,
+          },
+        };
+      },
+      showSelectAllCheckbox() {
+        return this.selectable && this.enableMultipleSelection;
+      },
+      allIsIndeterminate() {
+        return (
+          this.showSelectAllCheckbox &&
+          Boolean(this.users && this.users.length) &&
+          !this.allAreSelected &&
+          this.users.some(user => this.value.includes(user.id))
         );
       },
-      scheduledTasks() {
-        return this.facilitySyncTasks.map(task => {
-          const deviceName = this.devicesById[this.getDeviceId(task)]
-            ? this.devicesById[this.getDeviceId(task)].device_name
-            : task.extra_metadata.device_name;
-          const deviceAvailable =
-            this.devicesById[task.extra_metadata.device_id] &&
-            this.devicesById[task.extra_metadata.device_id].available;
-          const isKDP = task.type === TaskTypes.SYNCDATAPORTAL;
-          return {
-            ...task,
-            deviceName,
-            deviceAvailable,
-            isKDP,
-          };
-        });
+      allAreSelected() {
+        return (
+          Boolean(this.users && this.users.length) &&
+          this.users.every(user => this.value.includes(user.id))
+        );
       },
-    },
-    beforeMount() {
-      this.fetchFacility();
+      firstSelectedUser() {
+        return this.value && this.value.length ? this.value[0] : '';
+      },
     },
     methods: {
-      fetchFacility() {
-        FacilityResource.fetchModel({ id: this.facilityId, force: true }).then(facility => {
-          this.facility = { ...facility };
-        });
+      userIsSelected(id) {
+        if (this.value) return this.value.includes(id);
+        return false;
       },
-      closeModal() {
-        this.deviceModal = false;
+      isSelectedStyle(id) {
+        if (this.userIsSelected(id)) return this.selectedStyle;
+        return '';
       },
-      handlePeerSync(device) {
-        this.deviceModal = false;
-        if (device.id) {
-          this.$router.push(this.editSyncRoute(device.id));
-        }
-      },
-      handleKDPSync() {
-        this.deviceModal = false;
-        this.$router.push(this.editSyncRoute(KDP_ID));
-      },
-      editButton(task) {
-        this.$router.push(this.editSyncRoute(this.getDeviceId(task)));
-      },
-      getDeviceId(task) {
-        if (task.type === TaskTypes.SYNCPEERFULL) {
-          return task.extra_metadata.device_id;
-        } else if (task.type === TaskTypes.SYNCDATAPORTAL) {
-          return KDP_ID;
+      selectAll() {
+        const currentUsers = this.users.map(user => user.id);
+        if (this.allAreSelected) {
+          // All of them are already selected, so emit the value without currently shown users
+          return this.$emit('input', difference(this.value, currentUsers));
+        } else {
+          // Some or none of them are selected, so emit value including all of those which were not
+          // already selected
+          return this.$emit(
+            'input',
+            this.value.concat(currentUsers.filter(item => this.value.indexOf(item) < 0)),
+          );
         }
       },
-      scheduleTime(time, timestamp) {
-        timestamp = new Date(Date.parse(timestamp));
-        if (time === oneHour) {
-          return this.$tr('everyHour');
+      selectSingleUser(id) {
+        this.$emit('input', [id]);
+      },
+      selectUser(id) {
+        const selected = Array.from(this.value);
+        if (this.userIsSelected(id)) {
+          // id is already selected, so remove it from what we emit
+          return this.$emit(
+            'input',
+            selected.filter(selectedId => selectedId !== id),
+          );
+        } else {
+          // Otherwise, we are adding the id to what we emit
+          selected.push(id);
+          return this.$emit('input', selected);
         }
-        const options = {
-          weekday: 'long',
-          hour: 'numeric',
-          minute: 'numeric',
-        };
-        let frequencyString;
-        if (time === oneDay) {
-          frequencyString = this.$tr('everyDay');
-          delete options.weekday;
-        }
-        if (time === oneWeek) {
-          frequencyString = this.$tr('everyWeek');
-        }
-        if (time === twoWeeks) {
-          frequencyString = this.$tr('everyTwoWeeks');
-        }
-        if (time === oneMonth) {
-          frequencyString = this.$tr('everyMonth');
-        }
-        return `${frequencyString}, ${this.$formatTime(timestamp, options)}`;
       },
     },
-
     $trs: {
-      syncSchedules: {
-        message: 'Sync schedules',
-        context: "Heading or title for 'manage sync schedule' page.",
+      role: {
+        message: 'Role',
+        context: "Indicates the user's role (coach, learner etc.)",
       },
-      introduction: {
-        message:
-          'Set a schedule for Kolibri to automatically sync with other Kolibri devices sharing this facility. Devices with the same sync schedule will be synced one at a time.',
-        context: 'Introduction on the manage sync schedule',
+      selectAllLabel: {
+        message: 'Select all',
+        context: 'Generic checkbox label used to select all elements in a list.',
       },
-      addDevice: {
-        message: 'Add device',
-        context: 'Add device button',
-      },
-      Schedule: {
-        message: 'Schedule',
-        context: 'Schedule label',
-      },
-      connected: {
-        message: 'Connected',
-        context: 'Connected device',
-      },
-      disconnected: {
-        message: 'Not connected',
-        context: 'Disconnected device',
-      },
-      NoSync: {
-        message: 'There are no syncs scheduled',
-        context: 'Text to display when there is no schedule sync to be managed.',
-      },
-      everyHour: {
-        message: 'Every hour',
-        context: 'Period for scheduling the sync between devices every hour',
-      },
-      everyDay: {
-        message: 'Every day',
-        context: 'Period for scheduling the sync between devices every day',
-      },
-      everyWeek: {
-        message: 'Every week',
-        context: 'Period for scheduling the sync between devices every week',
-      },
-      everyMonth: {
-        message: 'Every month',
-        context: 'Period for scheduling the sync between devices every month',
-      },
-      everyTwoWeeks: {
-        message: 'Every two weeks',
-        context: 'Period for scheduling the sync between devices every two weeks',
+      selectUserBy: {
+        message: 'Select user by:',
+        context:
+          "Visually hidden part of the header of a column in a table of facility users to provide more context for people using screenreaders (it prepends 'Full name' string that can be rendered as a visible header). It is rendered when users can be selected from a table by checking associated checkboxes or a radio button displayed next to facility users' full names.",
       },
     },
   };
@@ -332,24 +510,58 @@
 </script>
 
 
-<style scoped>
+<style lang="scss" scoped>
 
-  .separate {
-    margin-top: 35px;
-    margin-bottom: 35px;
+  // TODO: Determine if this should be the default in KDS
+  // as this overrides the value in KLabledIcon's styles
+  // of width: 100%
+  .labeled-icon-wrapper {
+    width: auto;
   }
 
-  .add-space {
-    margin: 4px;
+  .select-all {
+    // 1-3: move the select all checkbox on the place
+    // of the visually hidden full name table header that
+    // is hidden when the select all checkbox is visible
+    position: relative; // 1
+    top: 46px; // 2
+    left: 8px; // 3
+    font-size: 12px;
+    font-weight: bold;
   }
 
-  .right {
-    position: absolute;
-    right: 50px;
+  // consistent vertical alignment of checkboxes
+  // and text in a row
+  .user-checkbox {
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
-  .loader-size {
-    margin-top: 10px;
+  .empty-message {
+    margin-bottom: 16px;
+  }
+
+  .role-badge {
+    display: inline-block;
+    padding: 0;
+    padding-right: 8px;
+    padding-left: 8px;
+    margin-left: 16px;
+    font-size: small;
+    white-space: nowrap;
+    border-radius: 4px;
+  }
+
+  .tooltip {
+    margin-left: 2px;
+  }
+
+  td.id-col {
+    max-width: 120px;
+  }
+
+  td.visuallyhidden {
+    overflow: hidden;
   }
 
 </style>

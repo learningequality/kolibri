@@ -1,7 +1,7 @@
+import { _userState } from '../mappers';
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { localeCompare } from 'kolibri/utils/i18n';
-import { _userState } from '../mappers';
 
 export function sortUsersByFullName(users) {
   return users.sort((a, b) => {

@@ -48,12 +48,12 @@
 
   import { mapState } from 'vuex';
   import get from 'lodash/get';
+  import { ComponentMap } from '../constants';
+  import CoreBanner from './CoreBanner';
   import AuthMessage from 'kolibri/components/AuthMessage';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AppError from 'kolibri/components/error/AppError';
   import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
-  import { ComponentMap } from '../constants';
-  import CoreBanner from './CoreBanner';
 
   export default {
     name: 'UserAuthLayout',
