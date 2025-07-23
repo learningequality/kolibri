@@ -1,6 +1,9 @@
 <template>
 
-  <div :style="cssVars">
+  <div
+    :style="cssVars"
+    class="renderer-wrapper"
+  >
     <KCircularLoader
       v-if="loading || !html"
       :delay="false"
@@ -146,9 +149,10 @@
     left: calc(50% - 16px);
   }
 
-  .content-viewer > div {
+  .renderer-wrapper > div.safe-html {
+    max-height: 100%;
     padding: 40px 16px;
-    background-color: white;
+    overflow-y: auto;
   }
 
 </style>
