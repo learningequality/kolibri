@@ -17,6 +17,17 @@
       }"
       @expand-img="openLightbox"
     />
+    <Lightbox
+      v-show="lightboxOpen"
+      role="dialog"
+      aria-label="Expanded image"
+      :src="lightboxImgSrc"
+      :alt="lightboxImgAlt"
+      :styleOverrides="{
+        windowSizeClass: windowSizeClass,
+      }"
+      @close="closeLightbox"
+    />
   </div>
 
 </template>
@@ -26,6 +37,7 @@
 
   import ZipFile from 'kolibri-zip';
   import SafeHTML from 'kolibri-common/components/SafeHTML';
+  import Lightbox from 'kolibri-common/components/SafeHTML/Lightbox.vue';
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { computed } from 'vue';
@@ -35,6 +47,7 @@
     __usesContentViewerComposable: true,
     components: {
       SafeHTML,
+      Lightbox,
     },
     setup(props, context) {
       const { windowIsSmall } = useKResponsiveWindow();
@@ -58,6 +71,9 @@
       return {
         loading: true,
         html: null,
+        lightboxOpen: false,
+        lightboxImgSrc: '',
+        lightboxImgAlt: '',
       };
     },
     computed: {
@@ -131,9 +147,15 @@
           this.recordProgress();
         }, 5000);
       },
-      openLightbox(/* payload */) {
-        // TODO: Implement lightbox when ready
-        // payload contains: { src, alt }
+      openLightbox(payload) {
+        this.lightboxOpen = true;
+        this.lightboxImgSrc = payload.src;
+        this.lightboxImgAlt = payload.alt || '';
+      },
+      closeLightbox() {
+        this.lightboxOpen = false;
+        this.lightboxImgSrc = '';
+        this.lightboxImgAlt = '';
       },
     },
   };
