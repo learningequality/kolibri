@@ -21,6 +21,7 @@ from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.tasks import cleanupsync
 from kolibri.core.auth.tasks import CleanUpSyncsValidator
 from kolibri.core.auth.tasks import enqueue_soud_sync_processing
@@ -930,3 +931,60 @@ class CleanUpSyncsTaskTestCase(TestCase):
         self.assertTrue(alt_instance_id_transfer_session.active)
         self.assertTrue(recent_sync_session.active)
         self.assertTrue(recent_transfer_session.active)
+
+
+class CleanupExpiredDeletedUsersTaskTestCase(TestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        self.facility = Facility.objects.create(name="facility")
+
+    @patch("kolibri.core.auth.tasks.get_current_job")
+    def test_no_soft_deleted_users_does_not_reenqueue(self, mock_get_current_job):
+        FacilityUser.soft_deleted_objects.all().delete()
+        mock_job = Mock()
+        mock_get_current_job.return_value = mock_job
+        cleanup_expired_deleted_users()
+        mock_job.retry_in.assert_not_called()
+
+    @patch("kolibri.core.auth.tasks.get_current_job")
+    def test_soft_deleted_users_does_reenqueue(self, mock_get_current_job):
+
+        user = FacilityUser.objects.create(  # noqa: F841
+            username="softdeleted", facility=self.facility, date_deleted=timezone.now()
+        )
+        mock_job = Mock()
+        mock_get_current_job.return_value = mock_job
+        cleanup_expired_deleted_users()
+        mock_job.retry_in.assert_called_once_with(24 * 60 * 60)
+
+    @patch("kolibri.core.auth.tasks.get_current_job")
+    def test_soft_deleted_users_future_deletion_date_does_reenqueue(
+        self, mock_get_current_job
+    ):
+        future_date = timezone.now() + datetime.timedelta(days=10)
+        user = FacilityUser.objects.create(  # noqa: F841
+            username="future_softdeleted",
+            facility=self.facility,
+            date_deleted=future_date,
+        )
+        mock_job = Mock()
+        mock_get_current_job.return_value = mock_job
+        cleanup_expired_deleted_users()
+        mock_job.retry_in.assert_called_once_with(24 * 60 * 60)
+
+    @patch("kolibri.core.auth.tasks.get_current_job")
+    def test_expired_soft_deleted_user_gets_deleted_and_no_reenqueue(
+        self, mock_get_current_job
+    ):
+        expired_date = timezone.now() - datetime.timedelta(days=31)
+        user = FacilityUser.objects.create(
+            username="expired_softdeleted",
+            facility=self.facility,
+            date_deleted=expired_date,
+        )
+        mock_job = Mock()
+        mock_get_current_job.return_value = mock_job
+        cleanup_expired_deleted_users()
+        self.assertFalse(FacilityUser.all_objects.filter(id=user.id).exists())
+        mock_job.retry_in.assert_not_called()

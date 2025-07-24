@@ -1,3 +1,4 @@
+import datetime
 import logging
 import ntpath
 
@@ -17,6 +18,7 @@ from kolibri.core.auth.constants.user_kinds import ASSIGNABLE_COACH
 from kolibri.core.auth.constants.user_kinds import COACH
 from kolibri.core.auth.constants.user_kinds import SUPERUSER
 from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.utils.sync import find_soud_sync_sessions
 from kolibri.core.auth.utils.sync import validate_and_create_sync_credentials
 from kolibri.core.auth.utils.users import get_remote_users_info
@@ -677,3 +679,28 @@ def cleanupsync(**kwargs):
 
     sync_filter = kwargs.pop("sync_filter")
     call_command("cleanupsyncs", sync_filter=str(sync_filter), expiration=1, **kwargs)
+
+
+@register_task(
+    job_id="cleanup_expired_deleted_users",
+    queue=facility_task_queue,
+)
+def cleanup_expired_deleted_users():
+    """
+    Delete FacilityUsers whose date_deleted is more than 30 days ago.
+    If any soft-deleted users remain, re-enqueue this task to run again in 24 hours.
+    """
+    now = timezone.now()
+    threshold = now - datetime.timedelta(days=30)
+    expired_users = FacilityUser.soft_deleted_objects.filter(
+        date_deleted__lte=threshold
+    )
+    expired_users_count = expired_users.count()
+    if expired_users_count > 0:
+        expired_users.delete()
+
+    # Check if any soft-deleted users remain (regardless of date_deleted)
+    if FacilityUser.soft_deleted_objects.exists():
+        job = get_current_job()
+        # Re-enqueue to run again in 24 hours
+        job.retry_in(24 * 60 * 60)

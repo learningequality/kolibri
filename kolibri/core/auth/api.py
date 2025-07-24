@@ -83,6 +83,7 @@ from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.auth.permissions.general import DenyAll
 from kolibri.core.auth.utils.delete import delete_imported_user
+from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import allow_guest_access
@@ -98,6 +99,7 @@ from kolibri.core.mixins import BulkDeleteMixin
 from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
 from kolibri.core.serializers import HexOnlyUUIDField
+from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.urls import reverse_path
 from kolibri.plugins.app.utils import interface
@@ -521,6 +523,10 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
             user = self.get_object()
             user.date_deleted = now()
             user.save()
+            try:
+                cleanup_expired_deleted_users.enqueue()
+            except JobRunning:
+                pass  # Task is already running, do nothing
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             # Bulk deletion
