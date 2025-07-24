@@ -158,7 +158,7 @@ class WindowsServerManager:
                 )
                 self.server_process.kill()
                 self.server_process.wait()
-            except Exception as e:
+            except (OSError, subprocess.SubprocessError) as e:
                 logging.error(f"Error shutting down server process: {e}")
 
     def _shutdown_pipe_thread(self):
@@ -175,7 +175,7 @@ class WindowsServerManager:
                     ctypes.windll.kernel32.CancelSynchronousIo(
                         ctypes.wintypes.HANDLE(handle_as_int)
                     )
-                except Exception as e:
+                except (OSError, ctypes.WinError) as e:
                     logging.error(
                         f"Error calling CancelSynchronousIo: {e}", exc_info=True
                     )
@@ -201,17 +201,18 @@ class WindowsServerManager:
                 win32api.CloseHandle(self.job_handle)
                 self.job_handle = None
                 logging.info("Closed job object handle.")
-            except Exception as e:
+            except pywintypes.error as e:
                 logging.error(f"Error closing job object handle: {e}")
 
-    def _launch_server_process(self):
+    def _create_job_object(self):
         """
-        Launch the Kolibri server subprocess with Job Object management.
+        Create and configure a Windows Job Object for subprocess cleanup.
         Job Objects provide automatic cleanup to prevent zombie processes.
         """
-        # Set up Job Object for subprocess cleanup
         try:
             self.job_handle = win32job.CreateJobObject(None, "")
+            if self.job_handle is None:
+                raise Exception("Failed to create job object")
 
             # Query current job limits to modify them
             extended_info = win32job.QueryInformationJobObject(
@@ -228,30 +229,89 @@ class WindowsServerManager:
                 win32job.JobObjectExtendedLimitInformation,
                 extended_info,
             )
-        except Exception as e:
+        except pywintypes.error as e:
             logging.error(
                 f"Failed to create or configure job object: {e}", exc_info=True
             )
             self.job_handle = None
 
+    def _build_server_command_and_environment(self):
+        """
+        Build command line and environment for the server subprocess.
+        Detects PyInstaller bundle vs development mode.
+        """
+        # Build command line - detect PyInstaller bundle vs development mode
+        if getattr(sys, "frozen", False):
+            # PyInstaller bundle mode - use current executable with server flag
+            cmd = [sys.executable, "--run-as-server"]
+        else:
+            # Development mode - run as Python module
+            cmd = [sys.executable, "-m", "kolibri_app", "--run-as-server"]
+
+        env = os.environ.copy()
+        env["KOLIBRI_HOME"] = os.environ.get("KOLIBRI_HOME", KOLIBRI_HOME)
+        env["DJANGO_SETTINGS_MODULE"] = "kolibri_app.django_app_settings"
+
+        return cmd, env
+
+    def _configure_subprocess_startup(self):
+        """
+        Configure subprocess startup information for hidden console window.
+        """
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        return startupinfo
+
+    def _setup_subprocess_logging(self):
+        """
+        Start background threads to forward subprocess output to application logging.
+        """
+        if self.server_process is None:
+            return
+
+        Thread(
+            target=self._log_subprocess_output,
+            args=(self.server_process.stdout, "stdout"),
+            daemon=True,
+        ).start()
+        Thread(
+            target=self._log_subprocess_output,
+            args=(self.server_process.stderr, "stderr"),
+            daemon=True,
+        ).start()
+
+    def _assign_process_to_job_object(self):
+        """
+        Assign the server subprocess to the Job Object for automatic cleanup.
+        """
+        if self.job_handle and self.server_process is not None:
+            try:
+                proc_handle = win32api.OpenProcess(
+                    win32con.PROCESS_ALL_ACCESS, False, self.server_process.pid
+                )
+                win32job.AssignProcessToJobObject(self.job_handle, proc_handle)
+                logging.info(
+                    f"Successfully assigned server process (PID: {self.server_process.pid}) to job object."
+                )
+            except pywintypes.error as e:
+                logging.error(
+                    f"Failed to assign process to job object: {e}", exc_info=True
+                )
+
+    def _launch_server_process(self):
+        """
+        Launch the Kolibri server subprocess with Job Object management.
+        Job Objects provide automatic cleanup to prevent zombie processes.
+        """
+        # Set up Job Object for subprocess cleanup
+        self._create_job_object()
+
         # Launch the server subprocess
         try:
-            # Build command line - detect PyInstaller bundle vs development mode
-            if getattr(sys, "frozen", False):
-                # PyInstaller bundle mode - use current executable with server flag
-                cmd = [sys.executable, "--run-as-server"]
-            else:
-                # Development mode - run as Python module
-                cmd = [sys.executable, "-m", "kolibri_app", "--run-as-server"]
+            cmd, env = self._build_server_command_and_environment()
+            startupinfo = self._configure_subprocess_startup()
 
-            env = os.environ.copy()
-            env["KOLIBRI_HOME"] = os.environ.get("KOLIBRI_HOME", KOLIBRI_HOME)
-            env["DJANGO_SETTINGS_MODULE"] = "kolibri_app.django_app_settings"
             logging.info(f"Launching server subprocess: {' '.join(cmd)}")
-
-            # Configure subprocess to run with hidden console window
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
             # Launch subprocess with stdout/stderr pipes for logging
             self.server_process = subprocess.Popen(
@@ -262,34 +322,10 @@ class WindowsServerManager:
                 startupinfo=startupinfo,
             )
 
-            # Start background threads to forward subprocess output to application logging
-            Thread(
-                target=self._log_subprocess_output,
-                args=(self.server_process.stdout, "stdout"),
-                daemon=True,
-            ).start()
-            Thread(
-                target=self._log_subprocess_output,
-                args=(self.server_process.stderr, "stderr"),
-                daemon=True,
-            ).start()
+            self._setup_subprocess_logging()
+            self._assign_process_to_job_object()
 
-            # Assign subprocess to Job Object for automatic cleanup
-            if self.job_handle:
-                try:
-                    proc_handle = win32api.OpenProcess(
-                        win32con.PROCESS_ALL_ACCESS, False, self.server_process.pid
-                    )
-                    win32job.AssignProcessToJobObject(self.job_handle, proc_handle)
-                    logging.info(
-                        f"Successfully assigned server process (PID: {self.server_process.pid}) to job object."
-                    )
-                except Exception as e:
-                    logging.error(
-                        f"Failed to assign process to job object: {e}", exc_info=True
-                    )
-
-        except Exception as e:
+        except (OSError, subprocess.SubprocessError) as e:
             logging.error(f"Failed to launch server process: {e}", exc_info=True)
             wx.MessageBox(
                 f"Failed to start Kolibri server: {e}", "Error", wx.OK | wx.ICON_ERROR
@@ -349,7 +385,7 @@ class WindowsServerManager:
             except pywintypes.error as e:
                 if self._handle_pipe_error(e):
                     break
-            except Exception as e:
+            except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as e:
                 logging.error(f"Error in pipe reader thread: {e}", exc_info=True)
                 if self.pipe_shutdown_event.wait(timeout=PIPE_RETRY_DELAY):
                     break
@@ -387,18 +423,26 @@ class WindowsServerManager:
         while not self.pipe_shutdown_event.is_set():
             hr, data = win32file.ReadFile(self.pipe_handle, 4096)
             if hr == winerror.ERROR_SUCCESS or hr == winerror.ERROR_MORE_DATA:
-                message = json.loads(data.decode("utf-8"))
+
+                if isinstance(data, bytes):
+                    text_data = data.decode("utf-8")
+                else:
+                    text_data = data
+
+                # Parse JSON message from client
+                message = json.loads(text_data)
                 logging.debug(f"Pipe client received message: {message}")
                 wx.CallAfter(self._handle_pipe_message, message)
             else:
                 # Pipe closed by server - break inner loop to reconnect
                 break
 
-    def _handle_pipe_error(self, e):
-        """Handle pipe errors. Includes fallback for service and restart for local server."""
-        if e.winerror == winerror.ERROR_OPERATION_ABORTED:
-            return True
+    def _should_exit_on_pipe_error(self, e):
+        """Check if pipe error should cause thread to exit immediately."""
+        return e.winerror == winerror.ERROR_OPERATION_ABORTED
 
+    def _log_pipe_error(self, e):
+        """Log pipe error with appropriate level based on error type."""
         if (
             e.winerror == winerror.ERROR_FILE_NOT_FOUND
             or e.winerror == winerror.ERROR_BROKEN_PIPE
@@ -407,31 +451,50 @@ class WindowsServerManager:
         else:
             logging.error(f"Pipe error: {e}")
 
-        # Fallback logic for SERVICE mode
-        if self._server_mode == "service":
-            self._pipe_retry_count += 1
-            logging.info(
-                f"Service connection attempt {self._pipe_retry_count}/{MAX_PIPE_RETRIES} failed."
+    def _handle_service_pipe_error(self):
+        """Handle pipe error in service mode with retry logic and fallback."""
+        self._pipe_retry_count += 1
+        logging.info(
+            f"Service connection attempt {self._pipe_retry_count}/{MAX_PIPE_RETRIES} failed."
+        )
+        if self._pipe_retry_count >= MAX_PIPE_RETRIES:
+            logging.error(
+                "Maximum retry count reached. Triggering fallback to local server."
             )
-            if self._pipe_retry_count >= MAX_PIPE_RETRIES:
-                logging.error(
-                    "Maximum retry count reached. Triggering fallback to local server."
-                )
-                wx.CallAfter(self._handle_service_disconnection)
-                # Exit thread, a new server process will be started.
-                return True
+            wx.CallAfter(self._handle_service_disconnection)
+            # Exit thread, a new server process will be started.
+            return True
+        return False
 
-        # Restart logic for LOCAL mode
+    def _handle_local_pipe_error(self):
+        """Handle pipe error in local mode with process restart logic."""
+        if self.server_process and self.server_process.poll() is not None:
+            logging.error(
+                "Local server process terminated unexpectedly. Attempting to restart."
+            )
+            wx.CallAfter(self._launch_server_process)
+        else:
+            logging.warning(
+                "Pipe to local server broke, but the process appears to be running. Will retry connection."
+            )
+        return False
+
+    def _handle_pipe_error(self, e):
+        """Handle pipe errors. Includes fallback for service and restart for local server."""
+        if self._should_exit_on_pipe_error(e):
+            return True
+
+        self._log_pipe_error(e)
+
+        # Handle mode-specific error logic
+        should_exit = False
+        if self._server_mode == "service":
+            should_exit = self._handle_service_pipe_error()
         elif self._server_mode == "local":
-            if self.server_process and self.server_process.poll() is not None:
-                logging.error(
-                    "Local server process terminated unexpectedly. Attempting to restart."
-                )
-                wx.CallAfter(self._launch_server_process)
-            else:
-                logging.warning(
-                    "Pipe to local server broke, but the process appears to be running. Will retry connection."
-                )
+            should_exit = self._handle_local_pipe_error()
+
+        if should_exit:
+            return True
 
         return self.pipe_shutdown_event.wait(timeout=PIPE_RETRY_DELAY)
 
