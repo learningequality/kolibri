@@ -197,8 +197,13 @@ class WindowsIpcPlugin(SimplePlugin):
             if hr != winerror.ERROR_SUCCESS and hr != winerror.ERROR_MORE_DATA:
                 break
 
-            # Parse JSON message from client - data is bytes from ReadFile
-            message = json.loads(data.decode("utf-8"))
+            if isinstance(data, bytes):
+                text_data = data.decode("utf-8")
+            else:
+                text_data = data
+
+            # Parse JSON message from client
+            message = json.loads(text_data)
             logging.debug(f"Pipe server received message: {message}")
 
             # Handle server info requests (part of startup handshake)
