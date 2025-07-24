@@ -7,7 +7,7 @@ from kolibri_app.constants import WINDOWS
 from kolibri_app.logger import logging
 
 if WINDOWS:
-    from kolibri_app.server_process import ServerProcess
+    from kolibri_app.server_process_windows import ServerProcess
 
 
 def main():
