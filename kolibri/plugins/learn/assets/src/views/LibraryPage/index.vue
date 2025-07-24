@@ -186,7 +186,7 @@
       </SidePanelModal>
       <TooltipTour
         v-if="tourActive"
-        page="LibraryPage"
+        :pageTitle="coreString('libraryLabel')"
         @tourEnded="tourActive = false"
       />
     </LearnAppBarPage>
@@ -588,7 +588,6 @@
         this.isLoadingNetworkLibraries = isLoading;
       },
     },
-
     $trs: {
       libraryOf: {
         message: 'Library of {device}',

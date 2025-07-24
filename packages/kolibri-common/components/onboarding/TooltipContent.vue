@@ -12,7 +12,7 @@
       <h1 class="visuallyhidden">
         {{
           onboardingStepDescription$({
-            pageTitle: page,
+            pageTitle: pageTitle,
             currentStep: currentStepIndex + 1,
             totalSteps: steps.length,
           })
@@ -84,18 +84,26 @@
       };
     },
     props: {
-      page: String,
-      steps: Array,
-      currentStepIndex: Number,
+      pageTitle: {
+        type: String,
+        required: true,
+      },
+      steps: {
+        type: Array,
+        default: () => [],
+      },
+      currentStepIndex: {
+        type: Number,
+        default: 0,
+      },
     },
+
     mounted() {
       this.$nextTick(() => {
-        setTimeout(() => {
-          const btn = this.$refs.closeButton?.$el;
-          if (btn && typeof btn.focus === 'function') {
-            btn.focus();
-          }
-        }, 0);
+        const btn = this.$refs.closeButton?.$el;
+        if (btn && typeof btn.focus === 'function') {
+          btn.focus();
+        }
       });
     },
     methods: {

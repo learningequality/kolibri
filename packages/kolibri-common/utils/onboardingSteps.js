@@ -1,7 +1,7 @@
 import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
 
 export const onboardingSteps = {
-  LibraryPage: [
+  Library: [
     {
       key: 'Library',
       content: kolibriOnboardingGuideStrings.$tr('onMyOwnLibraryMenuDescription'),
