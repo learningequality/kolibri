@@ -51,8 +51,7 @@ class PosixServerManager:
             port=OPTIONS["Deployment"]["HTTP_PORT"],
             zip_port=OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
         )
-        app_plugin = AppPlugin(self.kolibri_server, self.app.load_kolibri)
-        app_plugin.subscribe()
+        AppPlugin(self.kolibri_server, self.app.load_kolibri)
         self.kolibri_server.run()
 
     def shutdown(self):
