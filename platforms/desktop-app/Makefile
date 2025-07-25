@@ -10,6 +10,8 @@ else
 	PYTHON_EXEC_WITH_PATH := PYTHONPATH="./src:./kolibrisrc:$$PYTHONPATH" $(PYTHON_EXEC)
 endif
 
+NSSM_VERSION := 2.24
+
 guard-%:
 	@ if [ "${${*}}" = "" ]; then \
 		echo "Environment variable $* not set"; \
@@ -107,7 +109,7 @@ nssm:
 		( \
 			trap 'echo "Interrupted. Cleaning up..."; rm -f nssm.zip; rm -rf nssm; exit 1' INT TERM; \
 			mkdir -p nssm && \
-			wget https://nssm.cc/release/nssm-2.24.zip -O nssm.zip || { \
+			wget https://nssm.cc/release/nssm-$(NSSM_VERSION).zip -O nssm.zip || { \
 				echo "Download failed. Cleaning up..."; \
 				rm -f nssm.zip; rm -rf nssm; \
 				exit 1; \
@@ -117,7 +119,7 @@ nssm:
 				rm -f nssm.zip; rm -rf nssm; \
 				exit 1; \
 			}; \
-			cp nssm/nssm-2.24/win64/nssm.exe . && \
+			cp nssm/nssm-$(NSSM_VERSION)/win64/nssm.exe . && \
 			rm -rf nssm nssm.zip \
 		); \
 	else \
