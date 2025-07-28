@@ -2,33 +2,39 @@
 
   <div>
     <div class="action-bar">
-      <KIconButton
-        class="zoom-out-btn"
-        icon="remove"
-        color="#FFFFFF"
-        size="small"
-        aria-label="Zoom out"
-        tooltip="Zoom out"
-        @click="close"
-      />
-      <KIconButton
-        class="zoom-in-btn"
-        icon="add"
-        color="#FFFFFF"
-        size="small"
-        aria-label="Zoom in"
-        tooltip="Zoom in"
-        @click="close"
-      />
-      <KIconButton
-        class="close-btn"
-        icon="close"
-        color="#FFFFFF"
-        size="small"
-        aria-label="Close"
-        tooltip="Close"
-        @click="close"
-      />
+      <div :class="$computedClass(btnHoverStyle)">
+        <KIconButton
+          class="zoom-out-btn"
+          icon="remove"
+          color="#FFFFFF"
+          size="small"
+          aria-label="Zoom out"
+          tooltip="Zoom out"
+          @click="close"
+        />
+      </div>
+      <div :class="$computedClass(btnHoverStyle)">
+        <KIconButton
+          class="zoom-in-btn"
+          icon="add"
+          color="#FFFFFF"
+          size="small"
+          aria-label="Zoom in"
+          tooltip="Zoom in"
+          @click="close"
+        />
+      </div>
+      <div :class="$computedClass(btnHoverStyle)">
+        <KIconButton
+          class="close-btn"
+          icon="close"
+          color="#FFFFFF"
+          size="small"
+          aria-label="Close"
+          tooltip="Close"
+          @click="close"
+        />
+      </div>
     </div>
     <div
       class="backdrop"
@@ -56,6 +62,17 @@
       styleOverrides: {
         type: Object,
         default: () => ({}),
+      },
+    },
+    computed: {
+      btnHoverStyle() {
+        return {
+          borderRadius: '100%',
+          transition: 'background-color 0.15s',
+          ':hover': {
+            backgroundColor: 'rgba(225, 225, 225, 0.3)',
+          },
+        };
       },
     },
     methods: {
