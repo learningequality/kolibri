@@ -2,7 +2,6 @@ import logging
 import uuid
 from itertools import chain
 
-from django.core.management import call_command
 from django.db.models import BigIntegerField
 from django.db.models import BooleanField
 from django.db.models import Case
@@ -927,6 +926,9 @@ def process_content_removal_requests(queryset):
     :param queryset: a ContentRemovalRequest queryset
     :type queryset: django.db.models.QuerySet
     """
+
+    from kolibri.core.content.utils.content_delete import delete_content
+
     # exclude admin imported nodes
     removable_nodes = ContentNode.objects.filter(
         id__in=queryset.values_list("contentnode_id", flat=True).distinct(),
@@ -956,10 +958,11 @@ def process_content_removal_requests(queryset):
         )
         channel_requests.update(status=ContentRequestStatus.InProgress)
         try:
-            call_command(
-                "deletecontent",
-                channel_id,
+            delete_content(
+                channel_id=channel_id,
                 node_ids=contentnode_ids,
+                exclude_node_ids=None,
+                force_delete=False,
                 ignore_admin_flags=True,
                 update_content_requests=False,
             )

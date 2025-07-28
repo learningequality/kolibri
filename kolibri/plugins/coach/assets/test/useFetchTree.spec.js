@@ -64,14 +64,14 @@ describe('useFetchTree', () => {
         expect(get(hasMore)).toBeFalsy();
       });
       it('rejects the promise if there is nothing more to fetch', async () => {
-        expect(fetchMore()).rejects.toBeTruthy();
+        await expect(fetchMore()).rejects.toBeTruthy();
       });
     });
   });
 
   describe('API', () => {
     it.each(Object.keys(useFetchTree({ topicId: '1' })))('exposes a %s property', property => {
-      expect(publicApi.includes(property));
+      expect(publicApi).toContain(property);
     });
 
     it.each(Object.keys(useFetchTree({ topicId: '1' })))(

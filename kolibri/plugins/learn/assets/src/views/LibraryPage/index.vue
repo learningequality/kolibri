@@ -49,24 +49,30 @@
           v-else-if="!displayingSearchResults && !rootNodesLoading"
           data-test="channels"
         >
-          <h1
-            v-if="!isLocalLibraryEmpty"
-            class="channels-label"
-          >
-            {{ channelsLabel }}
-          </h1>
-          <div v-else-if="isLocalLibraryEmpty && isNetworkLibraryAvailable">
-            <h1 class="channels-label">
+          <div>
+            <h1
+              v-if="!isLocalLibraryEmpty"
+              class="channels-label"
+            >
               {{ channelsLabel }}
             </h1>
-            <p
-              data-test="nothing-in-lib-label"
-              class="nothing-in-lib-label"
+            <div
+              v-else-if="
+                isLocalLibraryEmpty && isNetworkLibraryAvailable && !isLoadingNetworkLibraries
+              "
             >
-              {{ coreString('nothingInLibraryLearner') }}
-            </p>
+              <h1 class="channels-label">
+                {{ channelsLabel }}
+              </h1>
+              <p
+                data-test="nothing-in-lib-label"
+                class="nothing-in-lib-label"
+              >
+                {{ coreString('nothingInLibraryLearner') }}
+              </p>
+            </div>
+            <NoResourcePage v-else />
           </div>
-          <NoResourcePage v-else />
 
           <ChannelCardGroupGrid
             v-if="!isLocalLibraryEmpty"
@@ -90,6 +96,7 @@
             data-test="other-libraries"
             :injectedtr="injecttr"
             @availableNetworkDevices="availableNetworkDevices"
+            @isLoadingLibraries="isLoadingLibraries"
           />
         </div>
 
@@ -112,7 +119,7 @@
       </main>
 
       <!-- Side Panels for filtering and searching  -->
-      <div v-if="(!isLocalLibraryEmpty || deviceId) && windowIsLarge">
+      <div v-if="(!isLocalLibraryEmpty || deviceId) && windowIsLarge && !rootNodesLoading">
         <SearchFiltersPanel
           ref="sidePanel"
           v-model="searchTerms"
@@ -137,7 +144,7 @@
 
       <!-- Side Panel for metadata -->
       <SidePanelModal
-        v-if="metadataSidePanelContent"
+        v-if="metadataSidePanelContent && !rootNodesLoading"
         data-test="side-panel-modal"
         alignment="right"
         @closePanel="metadataSidePanelContent = null"
@@ -177,6 +184,11 @@
           :canDownloadExternally="canDownloadExternally && !deviceId"
         />
       </SidePanelModal>
+      <TooltipTour
+        v-if="tourActive"
+        page="LibraryPage"
+        @tourEnded="tourActive = false"
+      />
     </LearnAppBarPage>
   </div>
 
@@ -201,6 +213,8 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
   import useChannels from 'kolibri-common/composables/useChannels';
+  import TooltipTour from 'kolibri-common/components/onboarding/TooltipTour.vue';
+  import useTour from 'kolibri-common/composables/useTour';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
@@ -245,13 +259,14 @@
       OtherLibraries,
       PostSetupModalGroup,
       NoResourcePage,
+      TooltipTour,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-
+      const { tourActive, startTour } = useTour();
       const {
         isUserLoggedIn,
         isCoach,
@@ -421,6 +436,8 @@
         isUserLoggedIn,
         canManageContent,
         isLearnerOnlyImport,
+        tourActive,
+        startTour,
       };
     },
     props: {
@@ -436,6 +453,7 @@
         mobileSidePanelIsOpen: false,
         usingMeteredConnection: true,
         isNetworkLibraryAvailable: true,
+        isLoadingNetworkLibraries: true,
       };
     },
     computed: {
@@ -550,6 +568,9 @@
       hideWelcomeModal() {
         window.localStorage.setItem(welcomeDismissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
+        setTimeout(() => {
+          this.startTour();
+        }, 800);
       },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
@@ -562,6 +583,9 @@
       },
       availableNetworkDevices(e) {
         this.isNetworkLibraryAvailable = e;
+      },
+      isLoadingLibraries(isLoading) {
+        this.isLoadingNetworkLibraries = isLoading;
       },
     },
     $trs: {

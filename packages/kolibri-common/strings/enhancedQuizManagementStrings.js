@@ -34,9 +34,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   addMoreQuestionsLabel: {
     message: 'Add more questions',
   },
-  sectionSettings: {
-    message: 'Section settings',
-  },
   sectionTitle: {
     message: 'Section title',
   },
@@ -211,9 +208,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   jumpToQuestion: {
     message: 'Jump to question',
     context: 'A label for the section of the page that contains all questions as clickable links',
-  },
-  saveAndClose: {
-    message: 'Save and close',
   },
   questionsSettingsLabel: {
     message: "Questions settings for '{ sectionTitle }'",

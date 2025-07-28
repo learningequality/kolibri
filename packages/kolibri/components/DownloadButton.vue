@@ -22,6 +22,7 @@
 <script>
 
   import useUser from 'kolibri/composables/useUser';
+  import { validateObject } from 'kolibri/utils/objectSpecs';
   import { getRenderableFiles } from './internal/ContentRenderer/utils';
   import { getFilePresetString } from './internal/filePresetStrings';
 
@@ -38,6 +39,27 @@
       files: {
         type: Array,
         default: () => [],
+        validator: function (files) {
+          return files.every(file =>
+            validateObject(file, {
+              checksum: { type: String, required: true },
+              extension: { type: String, required: true },
+              preset: { type: String, required: true },
+              lang: {
+                type: Object,
+                required: false,
+                default: () => ({}),
+                spec: {
+                  lang_name: {
+                    type: String,
+                    required: true,
+                  },
+                },
+              },
+              storage_url: { type: String, required: true },
+            }),
+          );
+        },
       },
       nodeTitle: {
         type: String,

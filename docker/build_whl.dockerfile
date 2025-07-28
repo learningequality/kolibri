@@ -1,6 +1,6 @@
 FROM ubuntu:bionic
 
-ENV NODE_VERSION=18.20.7
+ENV NODE_VERSION=20.19.3
 
 # install required packages
 RUN apt-get update && \
@@ -24,7 +24,7 @@ RUN (curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -) && \
 
 # install nodejs and yarn
 RUN apt-get update && \
-    curl -sSO https://deb.nodesource.com/node_18.x/pool/main/n/nodejs/nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
+    curl -sSO https://deb.nodesource.com/node_20.x/pool/main/n/nodejs/nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
     dpkg -i ./nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
     rm nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
     apt-get install yarn

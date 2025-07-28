@@ -1,5 +1,6 @@
 from .models import ExamAssignment
 from .models import IndividualSyncableExam
+from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
 from kolibri.core.auth.utils.sync import learner_canonicalized_assignments
 
@@ -50,6 +51,18 @@ def update_individual_syncable_exams_from_assignments(user_id):
     to_delete.delete()
 
 
+def _get_classroom_id_from_syncable_exam(syncableexam):
+    """
+    Helper function to get the classroom ID from a syncable exam.
+    Handles both classroom and group collections.
+    """
+    if syncableexam.collection.kind == collection_kinds.CLASSROOM:
+        return syncableexam.collection.id
+    else:
+        # For learner groups and ad hoc groups, get parent classroom
+        return syncableexam.collection.parent.id
+
+
 def update_assignments_from_individual_syncable_exams(user_id):
     """
     Looks at IndividualSyncableExams for a user and creates/deletes
@@ -77,8 +90,9 @@ def update_assignments_from_individual_syncable_exams(user_id):
     for syncableexam in to_create:
 
         exam = IndividualSyncableExam.deserialize_exam(syncableexam.serialized_exam)
-        exam.collection_id = syncableexam.collection_id
-        # shouldn't need to set this field (as it's nullable, according to the model definition, but got errors)
+        exam.collection_id = exam.collection_id or _get_classroom_id_from_syncable_exam(
+            syncableexam
+        )
         exam.creator_id = user_id
         exam.save(update_dirty_bit_to=False)
 
@@ -104,7 +118,9 @@ def update_assignments_from_individual_syncable_exams(user_id):
             or syncableexam.collection_id != assignment.collection_id
         ):
             exam = IndividualSyncableExam.deserialize_exam(syncableexam.serialized_exam)
-            exam.collection_id = syncableexam.collection_id
+            exam.collection_id = (
+                exam.collection_id or _get_classroom_id_from_syncable_exam(syncableexam)
+            )
             exam.creator_id = user_id
             exam.save(update_dirty_bit_to=False)
             assignment.exam = exam

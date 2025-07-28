@@ -31,6 +31,11 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: 'Open exercise',
     context: 'Button label to open the exercise a question belongs to',
   },
+  warningForQuizFromOldKolibri: {
+    message:
+      'This quiz was created using an older version of Kolibri and cannot be edited directly. Create a copy of it to edit the resources.',
+    context: 'Warning message for quizzes created in an older version of Kolibri.',
+  },
   removeResourceLabel: {
     message: 'Remove resource',
     context: 'Button label to remove a resource from the selected resources',

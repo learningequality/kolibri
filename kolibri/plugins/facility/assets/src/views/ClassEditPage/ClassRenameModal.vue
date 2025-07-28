@@ -89,11 +89,25 @@
     },
     methods: {
       ...mapActions('classEditManagement', ['updateClass']),
-      updateName() {
+      async updateName() {
         this.formSubmitted = true;
         if (this.formIsValid) {
-          this.submitting = true;
-          this.updateClass({ id: this.classid, updateData: { name: this.name } });
+          try {
+            this.submitting = true;
+            await this.updateClass({ id: this.classid, updateData: { name: this.name } });
+
+            const updatedClasses = this.classes.map(c => {
+              if (c.id === this.classid) {
+                return { ...c, name: this.name };
+              }
+              return c;
+            });
+
+            this.$store.commit('classManagement/SET_STATE', { classes: updatedClasses });
+            this.$emit('success');
+          } finally {
+            this.submitting = false;
+          }
         } else {
           this.$refs.name.focus();
         }

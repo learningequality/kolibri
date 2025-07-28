@@ -1,6 +1,6 @@
 FROM ubuntu:jammy
 
-ENV NODE_VERSION=18.20.7
+ENV NODE_VERSION=20.19.3
 
 # install required packages
 RUN apt-get update && \
@@ -22,7 +22,7 @@ RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources
 # install nodejs and yarn
 RUN apt-get update && \
     ARCH=$(dpkg --print-architecture) && \
-    curl -sSO https://deb.nodesource.com/node_18.x/pool/main/n/nodejs/nodejs_$NODE_VERSION-1nodesource1_$ARCH.deb && \
+    curl -sSO https://deb.nodesource.com/node_20.x/pool/main/n/nodejs/nodejs_$NODE_VERSION-1nodesource1_$ARCH.deb && \
     dpkg -i ./nodejs_$NODE_VERSION-1nodesource1_$ARCH.deb && \
     rm nodejs_$NODE_VERSION-1nodesource1_$ARCH.deb && \
     apt-get install yarn

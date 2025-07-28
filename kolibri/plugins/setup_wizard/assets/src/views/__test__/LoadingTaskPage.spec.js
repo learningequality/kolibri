@@ -62,7 +62,7 @@ describe('LoadingTaskPage', () => {
     const continueButton = buttons.at(0);
     expect(continueButton.props('text')).toEqual('Continue');
     continueButton.trigger('click');
-    expect(continueSpy).toBeCalled();
+    expect(continueSpy).toHaveBeenCalled();
     expect(wrapper.emitted().click_next).toBeTruthy();
     expect(wrapper.vm.isPolling).toBe(false);
   });
@@ -81,8 +81,8 @@ describe('LoadingTaskPage', () => {
     retryButton.trigger('click');
     await global.flushPromises();
 
-    expect(retrySpy).toBeCalledTimes(1);
-    expect(restartMock).toBeCalledTimes(1);
+    expect(retrySpy).toHaveBeenCalledTimes(1);
+    expect(restartMock).toHaveBeenCalledTimes(1);
   });
 
   it.skip('when task fails, the "start over" button is available', async () => {
@@ -102,9 +102,9 @@ describe('LoadingTaskPage', () => {
     startOverButton.trigger('click');
     await global.flushPromises();
 
-    expect(startOverSpy).toBeCalledTimes(1);
-    expect(clearTasksMock).toBeCalledTimes(1);
-    expect(goToRootSpy).toBeCalledTimes(1);
+    expect(startOverSpy).toHaveBeenCalledTimes(1);
+    expect(clearTasksMock).toHaveBeenCalledTimes(1);
+    expect(goToRootSpy).toHaveBeenCalledTimes(1);
     expect(wrapper.vm.isPolling).toBe(false);
   });
 
@@ -115,6 +115,6 @@ describe('LoadingTaskPage', () => {
     const taskPanel = wrapper.findComponent({ name: 'FacilityTaskPanel' });
     // Simulating a 'cancel' event rather than clicking the cancel button within
     taskPanel.vm.$emit('cancel');
-    expect(cancelTaskMock).toBeCalledTimes(1);
+    expect(cancelTaskMock).toHaveBeenCalledTimes(1);
   });
 });

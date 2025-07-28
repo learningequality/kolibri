@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <KGrid>
+    <KGrid v-if="$slots.otherFilter || $slots.filter">
       <KGridItem :layout12="{ span: 7 }">
         <slot name="otherFilter"></slot>
       </KGridItem>

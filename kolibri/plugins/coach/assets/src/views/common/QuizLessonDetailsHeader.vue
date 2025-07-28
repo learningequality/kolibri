@@ -27,6 +27,16 @@
       </div>
     </div>
     <MissingResourceAlert v-if="resource.missing_resource" />
+    <UiAlert
+      v-if="isFromOldKolibri && showAlert"
+      type="warning"
+      class="old-kolibri-banner"
+      @dismiss="showAlert = false"
+    >
+      <span>
+        {{ warningForQuizFromOldKolibri$() }}
+      </span>
+    </UiAlert>
   </KPageContainer>
 
 </template>
@@ -35,7 +45,9 @@
 <script>
 
   import { mapState } from 'vuex';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import BackLink from './BackLink';
 
   export default {
@@ -43,6 +55,13 @@
     components: {
       MissingResourceAlert,
       BackLink,
+      UiAlert,
+    },
+    setup() {
+      const { warningForQuizFromOldKolibri$ } = searchAndFilterStrings;
+      return {
+        warningForQuizFromOldKolibri$,
+      };
     },
     props: {
       backlink: {
@@ -61,6 +80,11 @@
         },
       },
     },
+    data() {
+      return {
+        showAlert: true,
+      };
+    },
     computed: {
       ...mapState('classSummary', ['examMap', 'lessonMap']),
       exam() {
@@ -71,6 +95,18 @@
       },
       resource() {
         return this.examOrLesson === 'lesson' ? this.lesson : this.exam;
+      },
+      isActive() {
+        return this.exam.active;
+      },
+      isExamDraft() {
+        return this.exam.draft;
+      },
+      isExamOldVersion() {
+        return this.exam.data_model_version < 3;
+      },
+      isFromOldKolibri() {
+        return this.isExamOldVersion && !this.isExamDraft && !this.isActive;
       },
     },
   };
@@ -99,6 +135,10 @@
 
   /deep/ .time-context {
     margin-bottom: 0;
+  }
+
+  .old-kolibri-banner {
+    margin-top: 0.5em;
   }
 
 </style>

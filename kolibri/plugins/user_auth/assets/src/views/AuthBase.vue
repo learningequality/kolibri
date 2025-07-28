@@ -452,7 +452,6 @@
 
   .logo {
     width: 100%;
-    max-width: 65vh; // not compatible with older browsers
     height: auto;
   }
 

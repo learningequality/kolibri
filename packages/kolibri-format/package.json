@@ -17,9 +17,9 @@
     "chalk": "4.1.2",
     "commander": "^13.1.0",
     "eslint": "^8.57.0",
-    "eslint-config-prettier": "^10.1.2",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-jest": "^28.11.0",
+    "eslint-plugin-jest": "^29.0.1",
     "eslint-plugin-jest-dom": "^5.5.0",
     "eslint-plugin-kolibri": "^0.18.0",
     "eslint-plugin-vue": "^9.33.0",
@@ -29,7 +29,7 @@
     "postcss-less": "^6.0.0",
     "postcss-sass": "^0.5.0",
     "postcss-scss": "^4.0.9",
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.2",
     "stylelint": "^15.11.0",
     "stylelint-config-html": "^1.1.0",
     "stylelint-config-prettier": "9.0.5",
@@ -41,7 +41,7 @@
     "stylelint-scss": "5.3.2"
   },
   "engines": {
-    "node": ">= 18.20.0",
+    "node": ">= 20.19.0",
     "npm": ">= 8"
   }
 }

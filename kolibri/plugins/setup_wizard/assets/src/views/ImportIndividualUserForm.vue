@@ -22,7 +22,7 @@
       <p class="facility-name">
         {{ formatNameAndId(facility.name, facility.id) }}
       </p>
-      <p>{{ $tr('enterCredentials') }}</p>
+      <p>{{ enterCredentials$() }}</p>
       <p
         v-if="error && !useAdmin"
         :style="{ color: $themeTokens.error }"
@@ -48,7 +48,7 @@
         autocomplete="new-password"
       />
       <p>
-        {{ $tr('doNotHaveUserCredentials') }}
+        {{ doNotHaveUserCredentials$() }}
         <KButton
           :text="profileString('useAdminAccount')"
           appearance="basic-link"
@@ -58,7 +58,7 @@
 
       <KModal
         v-if="deviceLimitations"
-        :title="$tr('deviceLimitationsTitle')"
+        :title="deviceLimitationsTitle$()"
         :cancelText="coreString('cancelAction')"
         :submitText="coreString('importAction')"
         @cancel="closeModal"
@@ -113,8 +113,10 @@
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri/constants';
   import TaskResource from 'kolibri/apiResources/TaskResource';
+  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+  import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
   import CatchErrors from 'kolibri/utils/CatchErrors';
-  import { FacilityImportResource } from '../api';
+
   import { FooterMessageTypes } from '../constants';
   import commonProfileStrings from '../../../../user_profile/assets/src/views/commonProfileStrings';
   import OnboardingStepBase from './OnboardingStepBase';
@@ -126,6 +128,25 @@
       PasswordTextbox,
     },
     mixins: [commonSyncElements, commonCoreStrings, commonProfileStrings],
+    setup() {
+      const {
+        enterCredentials$,
+        enterAdminCredentials$,
+        deviceLimitationsTitle$,
+        doNotHaveUserCredentials$,
+        deviceLimitationsMessage$,
+        deviceLimitationsAdminsMessage$,
+      } = lodUsersManagementStrings;
+
+      return {
+        enterCredentials$,
+        enterAdminCredentials$,
+        deviceLimitationsTitle$,
+        doNotHaveUserCredentials$,
+        deviceLimitationsMessage$,
+        deviceLimitationsAdminsMessage$,
+      };
+    },
     data() {
       const footerMessageType = FooterMessageTypes.IMPORT_INDIVIDUALS;
       return {
@@ -193,13 +214,13 @@
         };
 
         if (importedUserIsAdmin) {
-          return this.$tr('deviceLimitationsAdminsMessage', messageArgs);
+          return this.deviceLimitationsAdminsMessage$(messageArgs);
         } else {
-          return this.$tr('deviceLimitationsMessage', messageArgs);
+          return this.deviceLimitationsMessage$(messageArgs);
         }
       },
       adminModalMessage() {
-        return this.$tr('enterAdminCredentials', { facility: this.facility.name });
+        return this.enterAdminCredentials$({ facility: this.facility.name });
       },
       invalidText() {
         if (!this.shouldValidate) {
@@ -358,7 +379,7 @@
           password: this.adminPassword,
           facility_id: this.facility.id,
         };
-        FacilityImportResource.listfacilitylearners(params)
+        FacilityUserResource.listRemoteFacilityLearners(params)
           .then(data => {
             this.wizardService.send({
               type: 'CONTINUEADMIN',
@@ -393,37 +414,6 @@
       importIndividualUsersHeader: {
         message: 'Import individual user accounts',
         context: "The title of the 'Import individual user accounts' step in the wizard setup",
-      },
-      enterCredentials: {
-        message: 'Enter the user credentials of the account you want to import.',
-        context: 'Asking user and password of the user to be imported.',
-      },
-      enterAdminCredentials: {
-        message:
-          "Enter the username and password of a facility admin or a super admin of '{facility}'",
-        context: 'Asking user and password of the  admin user of the facility to be imported',
-      },
-      deviceLimitationsTitle: {
-        message: 'Device limitations',
-        context:
-          'Heading for the window which informs that only learner features will be available on the device. ',
-      },
-      deviceLimitationsMessage: {
-        message:
-          "'{full_name} ({username})' is a {non_admin_role} on '{device}'. This device is limited to features for learners only. Features for coaches and admins will not be available.",
-
-        context:
-          "Appears on 'Device limitations' window which informs that only learner features will be available on the device.",
-      },
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      deviceLimitationsAdminsMessage: {
-        message:
-          "'{full_name} ({username})' is an admin on '{device}'. This device is limited to features for learners only. Features for coaches and admins will not be available.",
-      },
-      /* eslint-enable */
-      doNotHaveUserCredentials: {
-        message: "Don't have the user credentials?",
-        context: "'Credentials' refers to learner's username and password.",
       },
     },
   };

@@ -97,6 +97,12 @@
       focus() {
         return this.$refs.textbox.focus();
       },
+      /**
+       *  @public
+       */
+      reset() {
+        this.blurred = false;
+      },
       handleInput($event) {
         if (this.errors.length > 0) {
           this.$emit('update:errors', []);

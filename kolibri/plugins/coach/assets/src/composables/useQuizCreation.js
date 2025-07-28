@@ -447,6 +447,7 @@ export default function useQuizCreation() {
       const unusedQuestions = exercise.assessmentmetadata.assessment_item_ids
         .map(aid => `${exercise.id}:${aid}`)
         .filter(qid => !get(allQuestionsInQuiz).find(q => q.item === qid));
+
       map[exercise.id] = unusedQuestions;
     }
     return map;

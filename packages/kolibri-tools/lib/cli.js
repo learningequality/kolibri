@@ -8,6 +8,7 @@ const toml = require('toml');
 const get = require('lodash/get');
 const version = require('../package.json');
 const logger = require('./logging');
+const { kolibriName } = require('./kolibriName');
 
 const readWebpackJson = require('./read_webpack_json');
 
@@ -128,6 +129,7 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
           runtimeErrors: false,
         },
       },
+      allowedHosts: [options.host, 'localhost'],
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
@@ -223,7 +225,7 @@ const buildCommand = program
   .option('--parallel <parallel>', 'Run multiple bundles in parallel', Number, 0)
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
   .option('--port <port>', 'Set a port number to start devserver on', Number, 3000)
-  .option('--host <host>', 'Set a host to serve devserver', String, '0.0.0.0')
+  .option('--host <host>', 'Set a host to serve devserver', String, '127.0.0.1')
   .option('--json', 'Output webpack stats in JSON format - only works in prod mode', false)
   .option('--cache', 'Use cache in webpack', false)
   .option('--transpile', 'Transpile code using Babel', false)
@@ -463,12 +465,16 @@ function _generatePathInfo({
         const entry = buildConfig.webpack_config.entry;
         const aliases =
           buildConfig.webpack_config.resolve && buildConfig.webpack_config.resolve.alias;
+        const isCoreBundle =
+          buildConfig.webpack_config.output &&
+          buildConfig.webpack_config.output.library === kolibriName;
         return {
           moduleFilePath: bundle.plugin_path,
           namespace: bundle.module_path,
           name: bundle.name,
           entry,
           aliases,
+          isCoreBundle,
         };
       }),
     );

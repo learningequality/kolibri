@@ -21,7 +21,7 @@ describe('ProgressIcon Component', () => {
     expect(tooltip.text().trim()).toEqual('Completed');
   });
 
-  it('it should show an in-progress icon when progress is between 0 and 1', async () => {
+  it('should show an in-progress icon when progress is between 0 and 1', async () => {
     const wrapper = mount(ProgressIcon, {
       propsData: {
         progress: 0.1,
@@ -31,7 +31,7 @@ describe('ProgressIcon Component', () => {
     testIcon(wrapper, 'In progress');
   });
 
-  it('it should show a completed icon when progress is exactly 1', async () => {
+  it('should show a completed icon when progress is exactly 1', async () => {
     const wrapper = mount(ProgressIcon, {
       propsData: {
         progress: 1.0,
@@ -41,7 +41,7 @@ describe('ProgressIcon Component', () => {
     testIcon(wrapper, 'Completed');
   });
 
-  it('it should show a completed icon when progress is greater than 1', async () => {
+  it('should show a completed icon when progress is greater than 1', async () => {
     const wrapper = mount(ProgressIcon, {
       propsData: {
         progress: 2.0,

@@ -83,7 +83,7 @@ describe(`ChangeFacility/ChooseAdmin`, () => {
 
   it(`clicking the back button sends the back event to the state machine`, () => {
     const wrapper = makeWrapper();
-    expect(getBackButton(wrapper).trigger('click'));
+    getBackButton(wrapper).trigger('click');
     expect(sendMachineEvent).toHaveBeenCalledWith({
       type: 'BACK',
     });
@@ -120,7 +120,7 @@ describe(`ChangeFacility/ChooseAdmin`, () => {
     });
 
     it(`clicking the continue button sends the select new super admin and continue events to the state machine`, () => {
-      expect(getContinueButton(wrapper).trigger('click'));
+      getContinueButton(wrapper).trigger('click');
       expect(sendMachineEvent).toHaveBeenCalledWith({
         type: 'SELECTNEWSUPERADMIN',
         value: 'learner-2',

@@ -129,6 +129,14 @@
         this.$emit('update:value', '');
         this.$refs.password.focus();
       },
+      /**
+       * @public
+       */
+      reset() {
+        this.passwordBlurred = false;
+        this.confirmation = '';
+        this.confirmationBlurred = false;
+      },
       checkErrorsAndSubmit(e) {
         if (!this.shouldValidateOnEnter) {
           return;

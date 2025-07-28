@@ -13,6 +13,10 @@ export default {
     name: PageNames.FACILITIES_PAGE,
     path: '/facilities',
   },
+  users: {
+    name: PageNames.USERS_ROOT,
+    path: '/users',
+  },
   info: {
     name: PageNames.DEVICE_INFO_PAGE,
     path: '/info',

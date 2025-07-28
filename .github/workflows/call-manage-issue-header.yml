@@ -1,0 +1,13 @@
+name: Manage issue header
+
+on:
+  issues:
+    types: [opened, reopened, labeled, unlabeled]
+
+jobs:
+  call-workflow:
+    name: Call shared workflow
+    uses: learningequality/.github/.github/workflows/manage-issue-header.yml@main
+    secrets:
+        LE_BOT_APP_ID: ${{ secrets.LE_BOT_APP_ID }}
+        LE_BOT_PRIVATE_KEY: ${{ secrets.LE_BOT_PRIVATE_KEY }}

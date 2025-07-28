@@ -90,7 +90,7 @@ describe('CurrentlyViewedResourceMetadata', () => {
       expect(wrapper.find("[data-test='estimated-time']").exists()).toBeTruthy();
     });
 
-    it('it shows the grade levels when there are some', () => {
+    it('shows the grade levels when there are some', () => {
       expect(wrapper.find("[data-test='grade-levels']").exists()).toBeTruthy();
     });
 
@@ -145,7 +145,7 @@ describe('CurrentlyViewedResourceMetadata', () => {
       expect(wrapper.find("[data-test='estimated-time']").exists()).toBeFalsy();
     });
 
-    it('it does not show the grade levels when there are none', () => {
+    it('does not show the grade levels when there are none', () => {
       expect(wrapper.find("[data-test='grade-levels']").exists()).toBeFalsy();
     });
 

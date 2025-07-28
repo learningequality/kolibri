@@ -23,6 +23,7 @@ from ..models import Role
 from .helpers import create_superuser
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.device.models import DeviceSettings
+from kolibri.utils.time_utils import local_now
 
 
 class CollectionRoleMembershipDeletionTestCase(TestCase):
@@ -661,6 +662,25 @@ class FacilityTestCase(TestCase):
 
 
 class FacilityUserTestCase(TestCase):
+    def test_all_objects_manager_returns_all_users(self):
+        self.facility = Facility.objects.create(name="My Facility")
+        FacilityUser.objects.create(
+            username="deleted_user",
+            password="password",
+            facility=self.facility,
+            date_deleted=local_now(),
+        )
+        user = FacilityUser.objects.create(
+            username="user",
+            password="password",
+            facility=self.facility,
+        )
+
+        self.assertEqual(FacilityUser.objects.count(), 1)
+        self.assertEqual(FacilityUser.objects.first(), user)
+
+        self.assertEqual(FacilityUser.all_objects.count(), 2)
+
     def test_able_to_create_user_with_same_username_at_orm_level(self):
         self.facility = Facility.objects.create()
         self.device_settings = DeviceSettings.objects.create()
@@ -697,6 +717,37 @@ class FacilityUserTestCase(TestCase):
         )
         with self.assertRaises(ValidationError):
             user3.full_clean()
+
+    def test_no_soft_deleted_users_are_returned(self):
+        self.facility = Facility.objects.create()
+        self.device_settings = DeviceSettings.objects.create()
+        FacilityUser.objects.create(
+            username="bob",
+            password="password",
+            facility=self.facility,
+            date_deleted=local_now(),
+        )
+        user2 = FacilityUser.objects.create(
+            username="alice", password="password", facility=self.facility
+        )
+
+        self.assertEqual(list(FacilityUser.objects.all()), [user2])
+
+    def test_only_soft_deleted_users_are_returned(self):
+        self.facility = Facility.objects.create()
+        self.device_settings = DeviceSettings.objects.create()
+        FacilityUser.objects.create(
+            username="bob", password="password", facility=self.facility
+        )
+        soft_deleted_user = FacilityUser.objects.create(
+            username="john",
+            password="password",
+            facility=self.facility,
+            date_deleted=local_now(),
+        )
+        self.assertEqual(
+            list(FacilityUser.soft_deleted_objects.all()), [soft_deleted_user]
+        )
 
 
 class CollectionHierarchyTestCase(TestCase):

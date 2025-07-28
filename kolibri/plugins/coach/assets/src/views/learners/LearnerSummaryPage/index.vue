@@ -2,7 +2,7 @@
 
   <CoachAppBarPage>
     <KPageContainer>
-      <LearnerHeader />
+      <LearnerHeader :learnerLessons="getLessons" />
     </KPageContainer>
     <KGrid>
       <KGridItem

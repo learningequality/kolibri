@@ -20,6 +20,7 @@ from morango.models import syncable_models
 from morango.sync.controller import MorangoProfileController
 
 from ..constants.morango_sync import PROFILE_FACILITY_DATA
+from ..models import AdHocGroup
 from ..models import Classroom
 from ..models import Facility
 from ..models import FacilityDataset
@@ -1092,6 +1093,55 @@ class EcosystemSingleUserAssignmentTestCase(MultipleServerTestCase):
         )
         # END BUG 11845
 
+        # START BUG 13456
+        # Exam assignment failed to sync when the exam was assigned to a learner group or adhoc group ONLY and not to the class
+
+        # Create a learner group and assign an exam to it
+        self.laptop_a.create_model(
+            LearnerGroup,
+            parent_id=self.classroom.id,
+            name="Bug 13456 Learner Group",  # Add a unique name
+        )
+        learner_group_13456 = LearnerGroup.objects.using(self.laptop_a.db_alias).get(
+            parent_id=self.classroom.id,
+            name="Bug 13456 Learner Group",  # Query by the unique name
+        )
+        self.laptop_a.create_model(
+            Membership, user_id=self.learner.id, collection_id=learner_group_13456.id
+        )
+        learner_group_exam_13456 = ExamAssignment.objects.using(
+            self.laptop_a.db_alias
+        ).get(id=self.create_assignment("exam", target_collection=learner_group_13456))
+        # not failing during sync is part proof enough that the bug is fixed
+        self.sync_single_user(self.laptop_a)
+        # Check that the exam is assigned to the learner group
+        self.assert_existence(
+            self.tablet, "exam", learner_group_exam_13456.id, should_exist=True
+        )
+        # Create an ad hoc group and assign an exam to it
+        self.laptop_a.create_model(
+            AdHocGroup,
+            name="Bug 13456 Ad Hoc Group",
+            parent_id=self.classroom.id,
+        )
+        adhoc_group_13456 = AdHocGroup.objects.using(self.laptop_a.db_alias).get(
+            name="Bug 13456 Ad Hoc Group"
+        )
+        self.laptop_a.create_model(
+            Membership, user_id=self.learner.id, collection_id=adhoc_group_13456.id
+        )
+        # Assign an exam to the ad hoc group
+        adhoc_group_exam_13456 = ExamAssignment.objects.using(
+            self.laptop_a.db_alias
+        ).get(id=self.create_assignment("exam", target_collection=adhoc_group_13456))
+        # not failing during sync is part proof enough that the bug is fixed
+        self.sync_single_user(self.laptop_a)
+        # Check that the exam is assigned to the ad hoc group
+        self.assert_existence(
+            self.tablet, "exam", adhoc_group_exam_13456.id, should_exist=True
+        )
+        # END BUG 13456
+
         # The morango dirty bits should not be set on exams, lessons, and assignments on the tablet,
         # since we never want these "ghost" copies to sync back out to anywhere else
         assert (
@@ -1148,12 +1198,17 @@ class EcosystemSingleUserAssignmentTestCase(MultipleServerTestCase):
                 user=self.learner,
             )
 
-    def create_assignment(self, kind):
+    def create_assignment(self, kind, target_collection=None):
         """
-        Create an exam or lesson and assign it to the class, on a particular server.
+        Create an exam or lesson and assign it to the specified collection.
         """
         alias = self.laptop_a.db_alias
         title = uuid.uuid4().hex
+
+        # Default to classroom if no target specified, only for test
+        if target_collection is None:
+            target_collection = self.classroom
+
         if kind == "exam":
             self.laptop_a.create_model(
                 Exam,
@@ -1173,7 +1228,7 @@ class EcosystemSingleUserAssignmentTestCase(MultipleServerTestCase):
             self.laptop_a.create_model(
                 ExamAssignment,
                 exam_id=Exam.objects.using(alias).get(title=title).id,
-                collection_id=self.classroom.id,
+                collection_id=target_collection.id,
                 assigned_by_id=self.teacher.id,
             )
             return ExamAssignment.objects.using(alias).get(exam__title=title).id
@@ -1195,7 +1250,7 @@ class EcosystemSingleUserAssignmentTestCase(MultipleServerTestCase):
             self.laptop_a.create_model(
                 LessonAssignment,
                 lesson_id=Lesson.objects.using(alias).get(title=title).id,
-                collection_id=self.classroom.id,
+                collection_id=target_collection.id,
                 assigned_by_id=self.teacher.id,
             )
             return LessonAssignment.objects.using(alias).get(lesson__title=title).id

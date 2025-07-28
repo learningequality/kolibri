@@ -161,6 +161,7 @@
               </div>
             </div>
 
+            <KCircularLoader v-else-if="searchLoading" />
             <!-- search results -->
             <!-- TODO: Should card preference be permitted in Topics page as well? At least for
                 search results? -->

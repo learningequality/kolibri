@@ -14,7 +14,6 @@ import re
 import sys
 import tempfile
 
-import noto_source
 import utils
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
@@ -36,6 +35,8 @@ except AssertionError:
         "Wrong fontTools version was installed. This has been updated. Please re-run the command."
     )
     sys.exit(1)
+
+import noto_source  # noqa E402
 
 from fontTools import merge  # noqa E402
 from fontTools import subset  # noqa E402

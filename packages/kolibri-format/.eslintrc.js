@@ -253,5 +253,10 @@ module.exports = {
         ignoreReadBeforeAssign: false,
       },
     ],
+
+    // jest rules
+    'jest/no-deprecated-functions': ERROR,
+    'jest/no-identical-title': ERROR,
+    'jest/valid-expect': ERROR,
   },
 };

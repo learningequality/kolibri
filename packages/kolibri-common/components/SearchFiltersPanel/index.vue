@@ -22,6 +22,10 @@
       :class="windowIsLarge ? '' : 'drawer-panel'"
     >
       <div v-if="!accordion">
+        <KLinearLoader
+          v-if="searchLoading"
+          class="linear-loader"
+        />
         <!-- search by keyword -->
         <h2 class="title">
           {{ $tr('keywords') }}
@@ -30,6 +34,7 @@
           key="channel-search"
           ref="searchBox"
           :placeholder="coreString('findSomethingToLearn')"
+          :disabled="searchLoading"
           :value="value.keywords || ''"
           @change="val => $emit('input', { ...value, keywords: val })"
         />
@@ -53,9 +58,10 @@
                   : categoryListItemStyles
               "
               :disabled="
-                availableRootCategories &&
-                  !availableRootCategories[category.value] &&
-                  !isCategoryActive(category.value)
+                searchLoading ||
+                  (availableRootCategories &&
+                    !availableRootCategories[category.value] &&
+                    !isCategoryActive(category.value))
               "
               :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
               @click="handleCategory(key)"
@@ -68,6 +74,7 @@
             <KButton
               :text="coreString('uncategorized')"
               appearance="flat-button"
+              :disabled="searchLoading"
               :appearanceOverrides="
                 isCategoryActive('no_categories')
                   ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
@@ -104,7 +111,7 @@
             <KCheckbox
               :checked="value.learner_needs[val]"
               :label="coreString(activity)"
-              :disabled="availableNeeds && !availableNeeds[val]"
+              :disabled="searchLoading || (availableNeeds && !availableNeeds[val])"
               @change="handleNeed(val)"
             />
           </div>
@@ -119,6 +126,7 @@
           key="channel-search"
           ref="searchBox"
           style="margin-bottom: 1em"
+          :disabled="searchLoading"
           :placeholder="$tr('searchByKeyword')"
           :value="value.keywords || ''"
           @change="val => $emit('input', { ...value, keywords: val })"
@@ -202,6 +210,7 @@
         availableResourcesNeeded,
         searchableLabels,
         activeSearchTerms,
+        searchLoading,
       } = injectBaseSearch();
       const currentCategory = ref(null);
       const { filterAndSearchLabel$ } = searchAndFilterStrings;
@@ -212,6 +221,7 @@
         currentCategory,
         searchableLabels,
         activeSearchTerms,
+        searchLoading,
         windowIsLarge,
       };
     },
@@ -494,6 +504,12 @@
 
   .categoryButton:not(:last-child) {
     margin-bottom: 0.5em;
+  }
+
+  .linear-loader {
+    right: 35px;
+    bottom: 25px;
+    width: 120%;
   }
 
 </style>

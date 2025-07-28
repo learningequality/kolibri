@@ -23,7 +23,7 @@
     <template #default="{ isScrolled }">
       <div
         v-if="showManualSelectionNotice && $route.name !== PageNames.QUIZ_SELECT_RESOURCES_SETTINGS"
-        class="alert-warning d-flex-between"
+        class="alert d-flex-between"
         :class="{
           shadow: isScrolled,
         }"
@@ -52,7 +52,7 @@
 
       <div
         v-if="maximumContentSelectedWarning"
-        class="alert-warning"
+        class="alert warning"
         :class="{
           shadow: isScrolled,
         }"
@@ -107,7 +107,7 @@
         :cancelText="coreString('cancelAction')"
         :title="closeConfirmationTitle$()"
         @cancel="handleCancelClose"
-        @submit="handleClosePanel"
+        @submit="handleCloseContinue"
       >
         {{ closeConfirmationMessage$() }}
       </KModal>
@@ -361,31 +361,37 @@
 
       const { annotateTopicsWithDescendantCounts } = useQuizResources();
 
-      const unusedQuestionsCount = useMemoize(content => {
-        if (content.kind === ContentNodeKinds.EXERCISE) {
-          const questionItems = content.assessmentmetadata.assessment_item_ids.map(
-            aid => `${content.id}:${aid}`,
-          );
-          const questionsItemsUnused = questionItems
-            .filter(questionItem => !allQuestionsInQuiz.value.some(q => q.item === questionItem))
-            .filter(questionItem => !workingQuestions.value.some(q => q.item === questionItem));
-          return questionsItemsUnused.length;
-        }
-        if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
-          const total = content.num_assessments;
-          const numberOfQuestionsSelected = allQuestionsInQuiz.value.reduce((num, question) => {
-            const questionNode = allResourceMap.value[question.exercise_id];
-            for (const ancestor of questionNode.ancestors) {
-              if (ancestor.id === content.id) {
-                return num + 1;
+      const unusedQuestionsCount = useMemoize(
+        content => {
+          if (content.kind === ContentNodeKinds.EXERCISE) {
+            const questionItems = content.assessmentmetadata.assessment_item_ids.map(
+              aid => `${content.id}:${aid}`,
+            );
+            const questionsItemsUnused = questionItems
+              .filter(questionItem => !allQuestionsInQuiz.value.some(q => q.item === questionItem))
+              .filter(questionItem => !workingQuestions.value.some(q => q.item === questionItem));
+            return questionsItemsUnused.length;
+          }
+          if (
+            content.kind === ContentNodeKinds.TOPIC ||
+            content.kind === ContentNodeKinds.CHANNEL
+          ) {
+            const total = content.num_assessments;
+            const numberOfQuestionsSelected = allQuestionsInQuiz.value.reduce((num, question) => {
+              const questionNode = allResourceMap.value[question.exercise_id];
+              for (const ancestor of questionNode.ancestors) {
+                if (ancestor.id === content.id) {
+                  return num + 1;
+                }
               }
-            }
-            return num;
-          }, 0);
-          return total - numberOfQuestionsSelected;
-        }
-        return -1;
-      });
+              return num;
+            }, 0);
+            return total - numberOfQuestionsSelected;
+          }
+          return -1;
+        },
+        { getKey: content => content.id },
+      );
 
       const isPracticeQuiz = item =>
         !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
@@ -445,7 +451,7 @@
         showCloseConfirmation.value = false;
       }
 
-      function handleClosePanel() {
+      function handleCloseContinue() {
         setWorkingResourcePool();
         setQuestionItemsToReplace([]);
         $router.push({
@@ -457,6 +463,14 @@
           },
           query: { ...route.value.query },
         });
+      }
+
+      function handleClosePanel() {
+        if (workingPoolHasChanged.value) {
+          showCloseConfirmation.value = true;
+        } else {
+          handleCloseContinue();
+        }
       }
 
       const workingPoolHasChanged = computed(() => {
@@ -673,6 +687,7 @@
         notifyChanges,
         handleClosePanel,
         handleCancelClose,
+        handleCloseContinue,
         topic,
         showCloseConfirmation,
         treeFetch,
@@ -790,7 +805,7 @@
           this.clearQuizSelectedQuestions();
         }
         this.notifyChanges(numQuestions);
-        this.handleClosePanel();
+        this.handleCloseContinue();
       },
       // The message put onto the content's card when listed
       contentCardMessage(content) {
@@ -861,14 +876,17 @@
     }
   }
 
-  .alert-warning {
-    position: sticky;
+  .alert {
     top: 0;
-    z-index: 1;
     width: 100%;
     padding: 16px;
     margin-bottom: 16px;
     border-radius: 4px;
+  }
+
+  .alert.warning {
+    position: sticky;
+    z-index: 2;
     transition: $core-time ease;
 
     &.shadow {

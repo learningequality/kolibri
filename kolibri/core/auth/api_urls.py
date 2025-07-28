@@ -2,6 +2,8 @@ from django.urls import re_path
 from rest_framework import routers
 
 from .api import ClassroomViewSet
+from .api import DeletedFacilityUserViewSet
+from .api import DeleteImportedUserView
 from .api import FacilityDatasetViewSet
 from .api import FacilityUsernameViewSet
 from .api import FacilityUserViewSet
@@ -22,7 +24,6 @@ from kolibri.core.routers import BulkDeleteRouter
 router = routers.SimpleRouter()
 
 router.register(r"facilitydataset", FacilityDatasetViewSet, basename="facilitydataset")
-router.register(r"facilityuser", FacilityUserViewSet, basename="facilityuser")
 router.register(
     r"facilityusername", FacilityUsernameViewSet, basename="facilityusername"
 )
@@ -35,6 +36,12 @@ router.register(r"portal", KolibriDataPortalViewSet, basename="portal")
 
 bulk_delete_router = BulkDeleteRouter()
 
+bulk_delete_router.register(
+    r"facilityuser", FacilityUserViewSet, basename="facilityuser"
+)
+bulk_delete_router.register(
+    r"deletedfacilityuser", DeletedFacilityUserViewSet, basename="deletedfacilityuser"
+)
 bulk_delete_router.register(r"membership", MembershipViewSet, basename="membership")
 bulk_delete_router.register(r"role", RoleViewSet, basename="role")
 
@@ -66,6 +73,11 @@ urlpatterns = (
             r"^remotefacilityauthenticateduserinfo$",
             RemoteFacilityUserAuthenticatedViewset.as_view(),
             name="remotefacilityauthenticateduserinfo",
+        ),
+        re_path(
+            r"^deleteimporteduser/(?P<user_id>[a-f0-9]{32})$",
+            DeleteImportedUserView.as_view(),
+            name="deleteimporteduser",
         ),
     ]
 )

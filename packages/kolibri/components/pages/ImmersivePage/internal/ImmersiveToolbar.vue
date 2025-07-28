@@ -146,16 +146,16 @@
     outline-offset: -4px;
   }
 
-  /deep/ .ui-toolbar__left {
+  /deep/ .k-toolbar-left {
     margin-left: 5px;
     overflow: hidden;
   }
 
-  /deep/ .ui-toolbar__nav-icon {
+  /deep/ .k-toolbar-nav-icon {
     margin-left: 0;
   }
 
-  /deep/ .ui-toolbar__title {
+  /deep/ .k-toolbar-title {
     text-overflow: ellipsis;
   }
 

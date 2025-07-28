@@ -2,11 +2,13 @@
 
   <KGrid gutter="16">
     <KGridItem
-      v-for="content in contents"
+      v-for="(content, index) in contents"
       :key="content.id"
       :layout="{ span: layoutSpan }"
     >
       <ChannelCard
+        :data-onboarding-id="index === 0 ? 'firstChannelCard' : null"
+        :isFirst="index === 0 ? true : false"
         :isMobile="windowIsSmall"
         :title="content.title || content.name"
         :thumbnail="content.thumbnail"
@@ -39,6 +41,7 @@
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const { windowIsSmall } = useKResponsiveWindow();
       const { layoutSpan } = useCardLayoutSpan();
+
       return {
         genContentLinkBackLinkCurrentPage,
         windowIsSmall,

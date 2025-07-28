@@ -47,8 +47,8 @@
 <script>
 
   import { mapState } from 'vuex';
+  import get from 'lodash/get';
   import AuthMessage from 'kolibri/components/AuthMessage';
-  import coreBannerContent from 'kolibri-common/utils/coreBannerContent';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AppError from 'kolibri/components/error/AppError';
   import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
@@ -102,7 +102,7 @@
         };
       },
       coreBannerComponent() {
-        return coreBannerContent[0];
+        return get(window, ['_coreBannerContent', '0']);
       },
       showDemoBanner() {
         return [

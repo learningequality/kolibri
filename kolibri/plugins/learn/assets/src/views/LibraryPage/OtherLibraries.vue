@@ -237,6 +237,7 @@
     methods: {
       showDevices() {
         this.$emit('availableNetworkDevices', this.devicesWithChannelsExist);
+        this.$emit('isLoadingLibraries', this.searchingOtherLibraries);
       },
     },
   };

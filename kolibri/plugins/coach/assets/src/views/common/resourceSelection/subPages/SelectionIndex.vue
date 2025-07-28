@@ -5,6 +5,7 @@
       v-if="target === SelectionTarget.QUIZ && !settings.selectPracticeQuiz"
       class="mb-24"
       :settings="settings"
+      :hideSearch="channels.length === 0"
       @searchClick="onSearchClick"
     />
     <!-- flexDirection is set to row-reverse to align the search button to the right

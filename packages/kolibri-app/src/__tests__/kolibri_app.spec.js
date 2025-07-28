@@ -50,7 +50,7 @@ class TestApp extends KolibriApp {
 }
 
 describe('KolibriApp', function () {
-  it('it should register the plugin vuex components', async function () {
+  it('should register the plugin vuex components', async function () {
     const app = new TestApp();
     app.store.registerModule('core', coreModule);
     app.store.hotUpdate({

@@ -28,8 +28,10 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django_filters.rest_framework import BaseInFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
+from django_filters.rest_framework import DateTimeFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
@@ -48,6 +50,7 @@ from rest_framework import viewsets
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import ValidationError as RestValidationError
 from rest_framework.mixins import CreateModelMixin
+from rest_framework.mixins import DestroyModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -79,6 +82,7 @@ from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.auth.permissions.general import DenyAll
+from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import allow_guest_access
@@ -100,6 +104,10 @@ from kolibri.plugins.app.utils import interface
 from kolibri.utils.urls import validator
 
 logger = logging.getLogger(__name__)
+
+
+class UUIDInFilter(BaseInFilter, UUIDFilter):
+    pass
 
 
 class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
@@ -310,6 +318,15 @@ class FacilityUserFilter(FilterSet):
         choices=USER_TYPE_CHOICES,
         method="filter_exclude_user_type",
     )
+    date_joined__gt = DateTimeFilter(
+        field_name="date_joined",
+        lookup_expr="gt",
+    )
+    date_joined__lt = DateTimeFilter(
+        field_name="date_joined",
+        lookup_expr="lt",
+    )
+    by_ids = UUIDInFilter(field_name="id")
 
     def filter_member_of(self, queryset, name, value):
         return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
@@ -317,6 +334,12 @@ class FacilityUserFilter(FilterSet):
     def filter_user_type(self, queryset, name, value):
         if value == "learner":
             return queryset.filter(roles__isnull=True)
+        if value == "coach":
+            # Return users with either coach or classroom assignable coach roles
+            return queryset.filter(
+                Q(roles__kind=role_kinds.COACH)
+                | Q(roles__kind=role_kinds.ASSIGNABLE_COACH)
+            )
         if value == "superuser":
             return queryset.filter(devicepermissions__is_superuser=True)
         return queryset.filter(roles__kind=value)
@@ -326,7 +349,12 @@ class FacilityUserFilter(FilterSet):
 
     def filter_exclude_coach_for(self, queryset, name, value):
         return queryset.exclude(
-            Q(roles__in=Role.objects.filter(kind=role_kinds.COACH, collection=value))
+            Q(
+                roles__in=Role.objects.filter(
+                    Q(kind=role_kinds.COACH) | Q(kind=role_kinds.ASSIGNABLE_COACH),
+                    collection=value,
+                )
+            )
         )
 
     def filter_exclude_user_type(self, queryset, name, value):
@@ -338,7 +366,15 @@ class FacilityUserFilter(FilterSet):
 
     class Meta:
         model = FacilityUser
-        fields = ["member_of", "user_type", "exclude_member_of", "exclude_user_type"]
+        fields = [
+            "member_of",
+            "user_type",
+            "exclude_member_of",
+            "exclude_user_type",
+            "by_ids",
+            "date_joined__gt",
+            "date_joined__lt",
+        ]
 
 
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
@@ -395,50 +431,10 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
         return output
 
 
-class FacilityUserViewSet(ValuesViewset):
-    permission_classes = (KolibriAuthPermissions,)
-    pagination_class = OptionalPageNumberPagination
-    filter_backends = (
-        KolibriAuthPermissionsFilter,
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        ValuesViewsetOrderingFilter,
-    )
-    order_by_field = "username"
-
-    queryset = FacilityUser.objects.all().order_by(order_by_field)
-    serializer_class = FacilityUserSerializer
-    filterset_class = FacilityUserFilter
-    search_fields = ("username", "full_name")
-
-    values = (
-        "id",
-        "username",
-        "full_name",
-        "facility",
-        "roles__kind",
-        "roles__collection",
-        "roles__id",
-        "devicepermissions__is_superuser",
-        "id_number",
-        "gender",
-        "birth_year",
-        "extra_demographics",
-        "date_joined",
-    )
-
-    ordering_fields = (
-        "id",
-        "username",
-        "full_name",
-        "gender",
-        "birth_year",
-        "date_joined",
-    )
-
-    field_map = {
-        "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
-    }
+class FacilityUserConsolidateMixin(object):
+    """
+    Mixin for FacilityUser ViewSets to handle consolidate logic
+    """
 
     def consolidate(self, items, queryset):
         output = []
@@ -462,15 +458,131 @@ class FacilityUserViewSet(ValuesViewset):
             if ordering_param.startswith("-"):
                 ordering_param = ordering_param[1:]
                 reverse = True
-
-        output = sorted(output, key=lambda x: x[ordering_param], reverse=reverse)
+        output = sorted(
+            output,
+            key=lambda x: x[ordering_param].lower()
+            if isinstance(x[ordering_param], str)
+            else x[ordering_param],
+            reverse=reverse,
+        )
         return output
+
+
+class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDeleteMixin):
+    permission_classes = (KolibriAuthPermissions,)
+    pagination_class = OptionalPageNumberPagination
+    filter_backends = (
+        KolibriAuthPermissionsFilter,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        ValuesViewsetOrderingFilter,
+    )
+    order_by_field = "username"
+
+    queryset = FacilityUser.objects.all().order_by(order_by_field)
+    serializer_class = FacilityUserSerializer
+    filterset_class = FacilityUserFilter
+
+    search_fields = ("username", "full_name")
+
+    values = (
+        "id",
+        "username",
+        "full_name",
+        "facility",
+        "roles__kind",
+        "roles__collection",
+        "roles__id",
+        "devicepermissions__is_superuser",
+        "id_number",
+        "gender",
+        "birth_year",
+        "extra_demographics",
+        "date_joined",
+    )
+
+    ordering_fields = (
+        "id",
+        "username",
+        "full_name",
+        "id_number",
+        "gender",
+        "birth_year",
+        "date_joined",
+    )
+
+    field_map = {
+        "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
+    }
+
+    def destroy(self, request, *args, **kwargs):
+        if kwargs.get("pk"):
+            # Single object deletion
+            user = self.get_object()
+            user.date_deleted = now()
+            user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            # Bulk deletion
+            return self.bulk_destroy(request, *args, **kwargs)
+
+    def perform_bulk_destroy(self, objects):
+        if objects.filter(id=self.request.user.id).exists():
+            raise PermissionDenied("Super user cannot delete self")
+        objects.update(date_deleted=now())
 
     def perform_update(self, serializer):
         instance = serializer.save()
         # if the user is updating their own password, ensure they don't get logged out
         if self.request.user == instance:
             update_session_auth_hash(self.request, instance)
+
+
+class DeletedFacilityUserViewSet(
+    FacilityUserConsolidateMixin,
+    ReadOnlyValuesViewset,
+    DestroyModelMixin,
+    BulkDeleteMixin,
+):
+    """Viewset for managing soft-deleted FacilityUsers."""
+
+    permission_classes = (KolibriAuthPermissions,)
+    pagination_class = OptionalPageNumberPagination
+    filter_backends = (
+        KolibriAuthPermissionsFilter,
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        ValuesViewsetOrderingFilter,
+    )
+
+    order_by_field = "-date_deleted"
+    queryset = FacilityUser.soft_deleted_objects.all().order_by(order_by_field)
+    serializer_class = FacilityUserSerializer
+    filterset_class = FacilityUserFilter
+
+    search_fields = FacilityUserViewSet.search_fields
+    values = FacilityUserViewSet.values + ("date_deleted",)
+    ordering_fields = FacilityUserViewSet.ordering_fields + ("date_deleted",)
+    field_map = FacilityUserViewSet.field_map
+
+    @decorators.action(detail=False, methods=["post"])
+    def restore(self, request):
+        """
+        Restore soft-deleted FacilityUsers.
+        """
+        # Permissions for allowing bulk restore are the same as for bulk destroy
+        if not self.allow_bulk_destroy():
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        users = self.filter_queryset(self.get_queryset())
+        if not users.exists():
+            raise Http404("No deleted users found to restore.")
+
+        users.update(date_deleted=None)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SanitizeInputsSerializer(serializers.Serializer):
@@ -516,6 +628,33 @@ class UsernameAvailableView(views.APIView):
             return Response(True, status=status.HTTP_200_OK)
 
 
+class UserIdParamSerializer(serializers.Serializer):
+    user_id = HexOnlyUUIDField()
+
+
+class DeleteImportedUserView(views.APIView):
+    permission_classes = [KolibriAuthPermissions]
+
+    def delete(self, request, user_id):
+        """
+        Given a user ID, delete the user from the current facility, and remove
+        certificates and corresponding morango records.
+        """
+        serializer = UserIdParamSerializer(data={"user_id": user_id})
+        serializer.is_valid(raise_exception=True)
+
+        validated_user_id = serializer.validated_data["user_id"]
+        try:
+            user = FacilityUser.objects.get(id=validated_user_id)
+            self.check_object_permissions(request, user)
+
+            delete_imported_user(user)
+
+            return Response({"user_id": user.id})
+        except FacilityUser.DoesNotExist:
+            raise Http404("User does not exist")
+
+
 class FacilityUsernameViewSet(ReadOnlyValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_fields = ("facility",)
@@ -537,13 +676,17 @@ class FacilityUsernameViewSet(ReadOnlyValuesViewset):
 
 class MembershipFilter(FilterSet):
     user_ids = CharFilter(method="filter_user_ids")
+    by_ids = CharFilter(method="filter_by_ids")
 
     def filter_user_ids(self, queryset, name, value):
         return queryset.filter(user_id__in=value.split(","))
 
+    def filter_by_ids(self, queryset, name, value):
+        return queryset.filter(id__in=value.split(","))
+
     class Meta:
         model = Membership
-        fields = ["user", "collection", "user_ids"]
+        fields = ["user", "collection", "user_ids", "by_ids"]
 
 
 class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
@@ -552,7 +695,6 @@ class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet)
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
     filterset_class = MembershipFilter
-    filterset_fields = ["user", "collection", "user_ids"]
 
 
 class RoleFilter(FilterSet):

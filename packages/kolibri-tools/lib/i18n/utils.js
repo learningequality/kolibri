@@ -2,9 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const intersection = require('lodash/intersection');
 const { parse } = require('csv-parse/sync');
-const { addAliases, resetAliases } = require('kolibri-tools/lib/alias_import_resolver');
 const glob = require('../glob');
 const logging = require('../logging');
+const { addAliases, resetAliases } = require('./moduleResolver');
 
 /*
  * A function that compares two message objects, and ensure that they do not share any messageIds
@@ -16,7 +16,7 @@ function checkForDuplicateIds(obj1, obj2) {
   for (const potentialDuplicate of potentialDuplicates) {
     const message1 = obj1[potentialDuplicate].message;
     const message2 = obj2[potentialDuplicate].message;
-    if (message1 !== message1) {
+    if (message1 !== message2) {
       logging.error(
         `${potentialDuplicate} messageId is repeated with different strings '${message1}' and '${message2}'`,
       );

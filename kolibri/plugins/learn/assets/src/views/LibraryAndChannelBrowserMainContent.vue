@@ -33,6 +33,7 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { validateObject } from 'kolibri/utils/objectSpecs';
   import useContentLink from '../composables/useContentLink';
   import CardGrid from './cards/CardGrid';
   import ResourceCard from './cards/ResourceCard';
@@ -66,14 +67,21 @@
       contents: {
         type: Array,
         required: true,
+        validator: function (contents) {
+          return contents.every(content =>
+            validateObject(content, {
+              id: { type: String, required: true },
+              title: { type: String, required: true },
+              is_leaf: { type: Boolean, required: true },
+              copies: { type: Array, required: false, default: () => [] },
+            }),
+          );
+        },
       },
       currentCardViewStyle: {
         type: String,
         required: true,
         default: 'card',
-        validator(value) {
-          return ['card', 'list'].includes(value);
-        },
       },
       keepCurrentBackLink: {
         type: Boolean,

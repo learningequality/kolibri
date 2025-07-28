@@ -43,7 +43,7 @@
               :invalidText="titleIsInvalidText"
               :showInvalidText="titleIsInvalid"
               :disabled="disabled || formIsSubmitted"
-              :style="{ marginLeft: windowIsLarge ? '-1em' : 0 }"
+              :class="{ 'textbox-lg': windowIsLarge }"
               @input="showTitleError = false"
               @keydown.enter="submitData"
             />
@@ -70,8 +70,7 @@
                     ? afterLearnerSubmitsQuizDescription$()
                     : afterCoachEndsQuizDescription$()
                 "
-                :style="windowIsSmall ? 'margin-left: -1em' : 'margin-left: -3em'"
-                class="visibility-score-select"
+                :class="['visibility-score-select', windowIsSmall ? 'select-sm' : 'select-lg']"
                 @change="option => (instantReportVisibility = option.value)"
               />
             </KGridItem>
@@ -96,7 +95,7 @@
               :maxlength="200"
               :disabled="disabled || formIsSubmitted"
               :textArea="true"
-              :style="{ marginLeft: windowIsLarge ? '-1em' : 0 }"
+              :class="{ 'textbox-lg': windowIsLarge }"
             />
           </KGridItem>
         </KGrid>
@@ -508,6 +507,18 @@
   legend {
     font-size: 16px;
     font-weight: bold;
+  }
+
+  .textbox-lg {
+    margin-left: -1em;
+  }
+
+  .select-sm {
+    margin-left: -1em;
+  }
+
+  .select-lg {
+    margin-left: -3em;
   }
 
 </style>

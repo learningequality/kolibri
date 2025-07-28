@@ -177,10 +177,6 @@ export default {
           return this.classRoute('HomePage', {});
         case LastPages.HOME_ACTIVITY:
           return this.classRoute('HomeActivityPage', {});
-        case LastPages.LEARNER_ACTIVITY:
-          return this.classRoute('ReportsLearnerActivityPage', {
-            learnerId: this.$route.query.last_id,
-          });
         case LastPages.EXERCISE_LEARNER_LIST:
           return this.classRoute(PageNames.LESSON_EXERCISE_LEARNERS_REPORT, {
             exerciseId: this.$route.query.exerciseId,

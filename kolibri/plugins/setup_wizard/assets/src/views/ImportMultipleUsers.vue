@@ -6,7 +6,7 @@
     :steps="steps"
     :showBackArrow="true"
     :eventOnGoBack="backArrowEvent"
-    :title="$tr('selectAUser')"
+    :title="selectAUser$()"
     :description="facilityDescription"
   >
     <p class="device-name">
@@ -43,7 +43,7 @@
               v-else
               class="imported"
             >
-              {{ $tr('imported') }}
+              {{ importedLabel$() }}
             </p>
           </template>
         </UserTable>
@@ -63,6 +63,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
+  import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
   import { DemographicConstants } from 'kolibri/constants';
   import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
   import UserTable from 'kolibri-common/components/UserTable';
@@ -86,7 +87,14 @@
       UserTable,
     },
     mixins: [commonCoreStrings, commonSyncElements],
+    setup() {
+      const { selectAUser$, importedLabel$ } = lodUsersManagementStrings;
 
+      return {
+        selectAUser$,
+        importedLabel$,
+      };
+    },
     data() {
       const footerMessageType = FooterMessageTypes.IMPORT_INDIVIDUALS;
       return {
@@ -195,7 +203,7 @@
         const task_name = 'kolibri.core.auth.tasks.peeruserimport';
         const params = {
           type: task_name,
-          ...this.wizardService.state.context.lodAdmin,
+          ...this.wizardService.state.context.remoteAdmin,
           facility: this.facility.id,
           facility_name: this.facility.name,
           device_id: this.device.id,
@@ -223,15 +231,6 @@
       commaSeparatedPair: {
         message: '{first}, {second}',
         context: 'DO NOT TRANSLATE\nCopy the source string.',
-      },
-      imported: {
-        message: 'Imported',
-        context: 'Label indicating that a learner user account has already been imported.',
-      },
-      selectAUser: {
-        message: 'Select a user',
-        context:
-          'Descriptive text which appears in the title of this page to select users to sync.',
       },
     },
   };

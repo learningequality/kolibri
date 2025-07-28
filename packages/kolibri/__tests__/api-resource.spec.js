@@ -456,7 +456,7 @@ describe('Collection', function () {
         });
       });
     });
-    xdescribe('if called once', function () {
+    describe.skip('if called once', function () {
       it('should add a promise to the promises property', async function () {
         response = { data: [{ testing: 'testing' }] };
         client = jest.fn().mockResolvedValue();
@@ -466,7 +466,7 @@ describe('Collection', function () {
         expect(collection.promises).toEqual([promise]);
       });
     });
-    xdescribe('if called twice', function () {
+    describe.skip('if called twice', function () {
       it('should add two promises to the promises property', async function () {
         response = { data: [{ testing: 'testing' }] };
         client = jest.fn().mockResolvedValue();
@@ -535,7 +535,7 @@ describe('Collection', function () {
             });
           });
         });
-        xdescribe('and the returned data is malformed', function () {
+        describe.skip('and the returned data is malformed', function () {
           beforeEach(function () {
             response = {};
             client = jest.fn().mockResolvedValue(response);
@@ -582,7 +582,7 @@ describe('Collection', function () {
         });
       });
     });
-    xdescribe('if called once', function () {
+    describe.skip('if called once', function () {
       it('should add a promise to the promises property', async function () {
         response = { data: [{ testing: 'testing' }] };
         client = jest.fn().mockResolvedValue();
@@ -592,7 +592,7 @@ describe('Collection', function () {
         expect(collection.promises).toEqual([promise]);
       });
     });
-    xdescribe('if called twice', function () {
+    describe.skip('if called twice', function () {
       it('should add two promises to the promises property', async function () {
         response = { data: [{ testing: 'testing' }] };
         client = jest.fn().mockResolvedValue();
@@ -702,7 +702,7 @@ describe('Collection', function () {
         });
       });
     });
-    xdescribe('if called once', function () {
+    describe.skip('if called once', function () {
       it('should add a promise to the promises property', async function () {
         response = { data: [{ testing: 'testing' }] };
         client = jest.fn();
@@ -713,7 +713,7 @@ describe('Collection', function () {
         expect(collection.promises).toEqual([promise]);
       });
     });
-    xdescribe('if called twice', function () {
+    describe.skip('if called twice', function () {
       it('should add two promises to the promises property', async function () {
         response = { data: [{ testing: 'testing' }] };
         client = jest.fn();
@@ -966,7 +966,7 @@ describe('Model', function () {
         });
       });
     });
-    xdescribe('if called once', function () {
+    describe.skip('if called once', function () {
       it('should add a promise to the promises property', async function () {
         response = { data: [{ testing: 'testing' }] };
         client = jest.fn();
@@ -978,7 +978,7 @@ describe('Model', function () {
         expect(model.promises).toEqual([promise]);
       });
     });
-    xdescribe('if called twice', function () {
+    describe.skip('if called twice', function () {
       it('should add two promises to the promises property', async function () {
         response = { data: [{ testing: 'testing' }] };
         client = jest.fn();

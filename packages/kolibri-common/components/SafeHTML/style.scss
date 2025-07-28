@@ -1,0 +1,88 @@
+@mixin text-style($weight: normal, $size: 16px, $line-height: 150%, $max-width: 640px) {
+  max-width: $max-width;
+  font-size: $size;
+  font-weight: $weight;
+  line-height: $line-height;
+}
+
+// Due to the recursive rendering every sub-element has the safe-html class applied
+// so we use these compound selectors to specify styling.
+h1.safe-html {
+  @include text-style(bold, 32px, 130%);
+
+  margin: 32px auto 24px;
+}
+
+h2.safe-html {
+  @include text-style(bold, 28px, 130%);
+
+  margin: 24px auto 16px;
+}
+
+h3.safe-html {
+  @include text-style(bold, 24px, 130%);
+
+  margin: 12px auto;
+}
+
+h4.safe-html {
+  @include text-style(600, 20px, 130%);
+
+  margin: 8px auto;
+}
+
+h5.safe-html {
+  @include text-style(600, 18px, 130%);
+
+  margin: 8px auto;
+}
+
+h6.safe-html {
+  @include text-style(600, 16px, 130%);
+
+  margin: 8px auto;
+}
+
+p.safe-html {
+  @include text-style();
+
+  margin: 8px auto;
+}
+
+ul.safe-html,
+ol.safe-html {
+  @include text-style();
+
+  padding-left: 24px;
+  margin: 8px auto;
+}
+
+li.safe-html {
+  margin-left: 18px;
+}
+
+li.safe-html ~ li.safe-html {
+  margin-top: 4px;
+}
+
+dl.safe-html {
+  max-width: 640px;
+  margin: 8px auto;
+}
+
+dt.safe-html {
+  @include text-style(600);
+}
+
+dd.safe-html {
+  @include text-style();
+
+  padding-left: 24px;
+  margin-top: 4px;
+  margin-left: 0;
+}
+
+strong.safe-html,
+b.safe-html {
+  @include text-style(bold);
+}

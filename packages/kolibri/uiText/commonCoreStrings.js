@@ -135,6 +135,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'When a user edits an entity in Kolibri and no more changes are needed so we close the given view after that.',
   },
+  saveAndClose: {
+    message: 'Save and close',
+    context:
+      'When a user edits an entity in a dialog/side panel and no more changes are needed so we close the dialog after that.',
+  },
   selectAllOnPageAction: {
     message: 'Select all on page',
     context:
@@ -283,6 +288,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Coaches',
     context:
       "In a list of classes, users can see which coaches manage which specific classes in the 'Coaches' column.",
+  },
+  adminsLabel: {
+    message: 'Admins',
+    context: 'Admins are users with a specific role in Kolibri with special permissions.',
+  },
+  superAdminsLabel: {
+    message: 'Super admins',
+    context: 'Super admins are users with a specific role in Kolibri with special permissions.',
   },
   completedLabel: {
     message: 'Completed',
@@ -1565,6 +1578,18 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: '',
   },
 
+  // Are you sure you want to leave confirmation
+  closeConfirmationTitle: {
+    message: 'Are you sure you want to leave this page?',
+    context:
+      'The title of a confirmation modal informing the user that they will lose their work if they leave the page',
+  },
+  closeConfirmationMessage: {
+    message: 'You will lose any unsaved edits to your work',
+    context:
+      'Warning message for the user that they will lose their work if they leave the page without saving.',
+  },
+
   // aria and a11y related strings
   moveUpLabel: {
     message: 'Move up',
@@ -1573,6 +1598,24 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   moveDownLabel: {
     message: 'Move down',
     context: 'Label for the button that moves a resource down in the list. Not visible in the UI.',
+  },
+  clickableOptionsDescription: {
+    message: 'Options are clickable',
+    context:
+      'Visually hidden description for screen readers to indicate that the options in a list are clickable.',
+  },
+  deselectedLabel: {
+    message: 'Deselected',
+    context: 'Label for the deselected state of a checkbox. Not visible in the UI.',
+  },
+  allNOptionsSelectedLabel: {
+    message: 'All {count, number} {count, plural, one {option} other {options}} selected',
+    context: 'Label for the selected state of a checkbox. Not visible in the UI.',
+  },
+  noOptionsSelectedLabel: {
+    message: 'No options selected',
+    context:
+      'Label for the state of a checkbox when no options are selected. Not visible in the UI.',
   },
 });
 

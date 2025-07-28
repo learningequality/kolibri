@@ -47,7 +47,7 @@ describe('LessonCard', () => {
   });
 
   describe('links to lesson playlist', () => {
-    it('it shows the right link', () => {
+    it('shows the right link', () => {
       wrapper = makeWrapper().wrapper;
       const routerLink = wrapper.findComponent(RouterLinkStub);
       expect(routerLink.props().to).toEqual({ path: '/lesson' });

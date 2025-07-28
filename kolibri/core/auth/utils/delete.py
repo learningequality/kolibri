@@ -15,6 +15,7 @@ from morango.models import SyncSession
 from morango.models import TransferSession
 
 from kolibri.core.analytics.models import PingbackNotificationDismissed
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Collection
@@ -172,9 +173,24 @@ def _get_facility_dataset(dataset_id):
     return FacilityDataset.objects.filter(id=dataset_id)
 
 
-def _get_certificates(dataset_id):
+def _get_certificates(dataset_id=None, user=None):
+    if user is None and dataset_id is None:
+        raise ValueError(
+            "Either dataset_id or user must be provided to get Certificate objects."
+        )
+
+    if dataset_id is not None:
+        filter_q = Q(
+            id=dataset_id,
+        )
+    else:
+        filter_q = Q(
+            scope_definition_id=ScopeDefinitions.SINGLE_USER,
+            scope_params__contains=user.id,
+        )
+
     return (
-        Certificate.objects.filter(id=dataset_id)
+        Certificate.objects.filter(filter_q)
         .get_descendants(include_self=True)
         .exclude(_private_key=None)
     )
@@ -239,10 +255,44 @@ def _get_log_models(dataset_id):
     )
 
 
-def _get_morango_models(dataset_id):
-    querysets = [DatabaseMaxCounter.objects.filter(partition__startswith=dataset_id)]
+def _get_user_partition_filters(user):
+    partition_filters = [
+        f"{user.dataset_id}:user-ro:{user.id}",
+        f"{user.dataset_id}:user-rw:{user.id}",
+    ]
+    return partition_filters
 
-    stores = Store.objects.filter(partition__startswith=dataset_id)
+
+def _get_database_max_counters(dataset_id=None, user=None):
+    if user is None and dataset_id is None:
+        raise ValueError(
+            "Either dataset_id or user must be provided to get DatabaseMaxCounter objects."
+        )
+
+    if dataset_id is not None:
+        return DatabaseMaxCounter.objects.filter(partition__startswith=dataset_id)
+
+    partition_filters = _get_user_partition_filters(user)
+    return DatabaseMaxCounter.objects.filter(partition__in=partition_filters)
+
+
+def _get_stores(dataset_id=None, user=None):
+    if user is None and dataset_id is None:
+        raise ValueError(
+            "Either dataset_id or user must be provided to get Store objects."
+        )
+
+    if dataset_id is not None:
+        return Store.objects.filter(partition__startswith=dataset_id)
+
+    partition_filters = _get_user_partition_filters(user)
+    return Store.objects.filter(partition__in=partition_filters)
+
+
+def _get_morango_models(dataset_id=None, user=None):
+    querysets = [_get_database_max_counters(dataset_id, user)]
+
+    stores = _get_stores(dataset_id, user)
     store_ids = stores.values_list("pk", flat=True)
 
     for store_ids_chunk in chunk(list(store_ids), 300):
@@ -254,7 +304,7 @@ def _get_morango_models(dataset_id):
     # append after RecordMaxCounter
     querysets.append(stores)
 
-    certificates = _get_certificates(dataset_id)
+    certificates = _get_certificates(dataset_id, user)
     certificate_ids = certificates.distinct().values_list("pk", flat=True)
 
     for certificate_id_chunk in chunk(certificate_ids, 300):
@@ -335,3 +385,81 @@ def delete_facility(facility):
             )
         )
     logger.info("Deleted facility {}".format(facility.name))
+
+
+def _get_user_related_models(user):
+    user_id_filter = Q(user_id=user.id)
+
+    return GroupDeletion(
+        "User models",
+        querysets=[
+            LearnerDeviceStatus.objects.filter(user_id_filter),
+            DevicePermissions.objects.filter(user_id_filter),
+            PingbackNotificationDismissed.objects.filter(user_id_filter),
+            Role.objects.filter(user_id_filter),
+            Membership.objects.filter(user_id_filter),
+            Bookmark.objects.filter(user_id_filter),
+            FacilityUser.objects.filter(id=user.id),
+        ],
+    )
+
+
+def _get_user_class_models(user):
+    user_id_filter = Q(user_id=user.id)
+    return GroupDeletion(
+        "Class models",
+        querysets=[
+            ExamAssignment.objects.filter(assigned_by_id=user.id),
+            Exam.objects.filter(creator_id=user.id),
+            IndividualSyncableExam.objects.filter(user_id_filter),
+            LessonAssignment.objects.filter(assigned_by_id=user.id),
+            Lesson.objects.filter(created_by_id=user.id),
+            IndividualSyncableLesson.objects.filter(user_id_filter),
+        ],
+    )
+
+
+def _get_user_log_models(user):
+    user_id_filter = Q(user_id=user.id)
+    return GroupDeletion(
+        "Log models",
+        querysets=[
+            ContentSessionLog.objects.filter(user_id_filter),
+            ContentSummaryLog.objects.filter(user_id_filter),
+            AttemptLog.objects.filter(user_id_filter),
+            ExamAttemptLog.objects.filter(user_id_filter),
+            ExamLog.objects.filter(user_id_filter),
+            MasteryLog.objects.filter(user_id_filter),
+            UserSessionLog.objects.filter(user_id_filter),
+        ],
+    )
+
+
+def get_delete_group_for_user(user):
+    # everything should get cascade deleted from the user, but we'll check anyway
+    return GroupDeletion(
+        "Main",
+        groups=[
+            _get_morango_models(user=user),
+            _get_user_log_models(user),
+            _get_user_class_models(user),
+            _get_user_related_models(user),
+        ],
+    )
+
+
+def delete_imported_user(user):
+    logger.info(f"Deleting user {user.username}")
+    delete_group = get_delete_group_for_user(user)
+    total_to_delete = delete_group.count()
+    logger.info(f"Deleting {total_to_delete} database records for user {user.username}")
+    with DisablePostDeleteSignal(), transaction.atomic():
+        count, _ = delete_group.delete()
+        dataset_cache.clear()
+    if count == total_to_delete:
+        logger.info(f"Deleted {count} database records for user {user.username}")
+    else:
+        logger.warning(
+            f"Deleted {count} database records but expected to delete {total_to_delete} records for user {user.username}"
+        )
+    logger.info(f"Deleted user {user.username}")

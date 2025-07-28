@@ -34,7 +34,6 @@
           />
         </KGridItem>
       </KGrid>
-
       <KTable
         :headers="tableHeaders"
         :rows="tableRows"
@@ -44,11 +43,12 @@
         sortable
       >
         <template #header="{ header, colIndex }">
-          <span :class="{ visuallyhidden: colIndex === 3 }">{{ header.label }}</span>
+          <span :class="{ visuallyhidden: colIndex === 3 }"> {{ header.label }}</span>
         </template>
         <template #cell="{ content, colIndex, row }">
           <span v-if="colIndex === 0">
             <KRouterLink
+              class="class-name"
               :text="content"
               :to="$store.getters.facilityPageLinks.ClassEditPage(row[3].id)"
               icon="classes"
@@ -64,18 +64,24 @@
               {{ formattedCoachNamesTooltip(row[3]) }}
             </KTooltip>
           </span>
-          <span v-else-if="colIndex === 2">
+          <span
+            v-else-if="colIndex === 2"
+            style="display: flex; justify-content: start"
+          >
             {{ content }}
           </span>
           <span
             v-else-if="colIndex === 3"
             class="core-table-button-col"
           >
-            <KButton
-              appearance="flat-button"
-              :text="$tr('deleteClass')"
-              @click="selectClassToDelete(row[3])"
-            />
+            <KIconButton icon="optionsVertical">
+              <template #menu>
+                <KDropdownMenu
+                  :options="dropDownOptions"
+                  @select="handleOptionSelection($event, row[3])"
+                />
+              </template>
+            </KIconButton>
           </span>
         </template>
       </KTable>
@@ -92,6 +98,25 @@
         @cancel="closeModal"
         @success="handleCreateSuccess()"
       />
+
+      <ClassRenameModal
+        v-if="openRenameModal"
+        :classname="classDetails.name"
+        :classid="classDetails.id"
+        :classes="classes"
+        @cancel="closeModal"
+        @success="handleRenameSuccess()"
+      />
+
+      <CopyClassSidePanel
+        v-if="openCopyClassPanel"
+        :coachesIds="classCoachesIds"
+        :classroom="tableRows"
+        :className="copiedClassName"
+        :classCoaches="classCoaches"
+        :classes="classes"
+        @closeSidePanel="closeModal"
+      />
     </KPageContainer>
   </FacilityAppBarPage>
 
@@ -100,14 +125,20 @@
 
 <script>
 
+  import { ref, getCurrentInstance } from 'vue';
   import { mapState, mapActions, mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+  import { UserKinds } from 'kolibri/constants';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
+  import ClassRenameModal from '../ClassEditPage/ClassRenameModal.vue';
   import ClassCreateModal from './ClassCreateModal';
   import ClassDeleteModal from './ClassDeleteModal';
   import useDeleteClass from './useDeleteClass';
+  import CopyClassSidePanel from './CopyClassSidePanel.vue';
 
   export default {
     name: 'ManageClassPage',
@@ -120,17 +151,83 @@
       FacilityAppBarPage,
       ClassCreateModal,
       ClassDeleteModal,
+      ClassRenameModal,
+      CopyClassSidePanel,
     },
     mixins: [commonCoreStrings],
     setup() {
+      const classDetails = ref({
+        id: '',
+        name: '',
+      });
+      const classCoachesIds = ref([]);
+      const classCoaches = ref([]);
+      const facilityUsers = ref([]);
+      const copiedClassName = ref(null);
+      const openCopyClassPanel = ref(false);
+      const openRenameModal = ref(false);
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
+
+      const { $store, $router } = getCurrentInstance().proxy;
+      const activeFacilityId =
+        $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
+
+      const { copyClasslabel$, renameClassLabel$, copyOfClass$ } = bulkUserManagementStrings;
+
+      const fetchFacilityUsers = async () => {
+        const resp = await FacilityUserResource.fetchCollection({
+          getParams: {
+            member_of: activeFacilityId,
+            user_type: UserKinds.COACH,
+          },
+          force: true,
+        });
+        facilityUsers.value = resp;
+      };
+
+      const handleOptionSelection = (selection, classroom) => {
+        classDetails.value = classroom;
+        copiedClassName.value = copyOfClass$({ class: classDetails.value.name });
+
+        classCoachesIds.value = classDetails.value.coaches.map(coach => coach.id);
+        classCoaches.value = facilityUsers.value.map(coach => ({
+          id: coach.id,
+          username: coach.username,
+          full_name: coach.full_name,
+          label: coach.full_name,
+        }));
+
+        if (selection.value === Modals.DELETE_CLASS) {
+          selectClassToDelete(classroom);
+          return;
+        }
+
+        if (selection.value === Modals.EDIT_CLASS_NAME) {
+          openRenameModal.value = true;
+          return;
+        }
+
+        if (selection.value === Modals.COPY_CLASS) {
+          openCopyClassPanel.value = true;
+          return;
+        }
+      };
+      fetchFacilityUsers();
       return {
         classToDelete,
-        selectClassToDelete,
         clearClassToDelete,
         userIsMultiFacilityAdmin,
         getFacilities,
+        copyClasslabel$,
+        renameClassLabel$,
+        classDetails,
+        classCoachesIds,
+        openCopyClassPanel,
+        copiedClassName,
+        classCoaches,
+        handleOptionSelection,
+        openRenameModal,
       };
     },
     computed: {
@@ -143,28 +240,28 @@
           {
             label: this.coreString('classNameLabel'),
             dataType: 'string',
-            minWidth: '150px',
-            width: '20%',
+            minWidth: '300px',
+            width: '30%',
             columnId: 'classname',
           },
           {
             label: this.coreString('coachesLabel'),
-            dataType: 'undefined',
-            minWidth: '150px',
+            dataType: 'string',
+            minWidth: '250px',
             width: '30%',
             columnId: 'coaches',
           },
           {
             label: this.coreString('learnersLabel'),
-            dataType: 'number',
-            minWidth: '150px',
-            width: '20%',
+            dataType: 'string',
+            minWidth: '250px',
+            width: '30%',
             columnId: 'learners',
           },
           {
             label: this.coreString('userActionsColumnHeader'),
             dataType: 'undefined',
-            minWidth: '150px',
+            minWidth: '100px',
             width: '30%',
             columnId: 'userActions',
           },
@@ -178,10 +275,31 @@
           classroom,
         ]);
       },
+      dropDownOptions() {
+        return [
+          {
+            label: this.copyClasslabel$(),
+            value: 'COPY_CLASS',
+            id: 'copy',
+          },
+          {
+            label: this.renameClassLabel$(),
+            value: 'EDIT_CLASS_NAME',
+            id: 'rename',
+          },
+          {
+            label: this.$tr('deleteClass'),
+            value: 'DELETE_CLASS',
+            id: 'delete',
+          },
+        ];
+      },
     },
     methods: {
       ...mapActions('classManagement', ['displayModal']),
       closeModal() {
+        this.openRenameModal = false;
+        this.openCopyClassPanel = false;
         this.displayModal(false);
       },
       handleCreateSuccess() {
@@ -197,6 +315,10 @@
           // Update the core facilities object to update classroom number
           this.getFacilities();
         }
+      },
+      handleRenameSuccess() {
+        this.openRenameModal = false;
+        this.refreshCoreFacilities();
       },
       // Duplicated in class-list-page
       coachNames(classes) {
@@ -270,6 +392,10 @@
   .move-down {
     position: relative;
     margin-top: 24px;
+  }
+
+  .class-name {
+    font-size: 14px;
   }
 
 </style>

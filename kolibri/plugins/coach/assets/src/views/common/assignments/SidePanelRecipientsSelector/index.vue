@@ -20,38 +20,29 @@
         :buttonValue="ClassRecipients.GROUP_OR_INDIVIDUAL"
         :disabled="disabled"
       >
-        <div>
-          <div
-            :style="{
-              display: 'flex',
-              columnGap: '8px',
-              flexDirection: hasGroupOrIndividualRecipients ? 'column' : 'row',
-              alignItems: hasGroupOrIndividualRecipients ? 'flex-start' : 'center',
-            }"
-          >
-            <KLabeledIcon
-              :label="coachString('groupsAndLearnersLabel')"
-              icon="people"
-              style="width: auto"
-            />
-            <span v-if="hasGroupOrIndividualRecipients">
-              {{ selectedMessage }}
-            </span>
-            <KButton
-              v-if="selectedRecipients === ClassRecipients.GROUP_OR_INDIVIDUAL"
-              appearance="basic-link"
-              :text="hasGroupOrIndividualRecipients ? $tr('changeAction') : $tr('selectAction')"
-              @click="isLearnersSelectorOpen = true"
-            />
-          </div>
-          <div
-            v-if="assignmentInvalidText"
-            :style="{
-              color: $themeTokens.error,
-            }"
-          >
-            {{ assignmentInvalidText }}
-          </div>
+        <div :dir="isRtl ? 'rtl' : 'ltr'">
+          <KLabeledIcon
+            :label="coachString('groupsAndLearnersLabel')"
+            icon="people"
+          />
+          <span v-if="hasGroupOrIndividualRecipients">
+            {{ selectedMessage }}
+          </span>
+          <KButton
+            v-if="selectedRecipients === ClassRecipients.GROUP_OR_INDIVIDUAL"
+            appearance="basic-link"
+            :text="hasGroupOrIndividualRecipients ? $tr('changeAction') : $tr('selectAction')"
+            style="margin: 0 0.5em"
+            @click="isLearnersSelectorOpen = true"
+          />
+        </div>
+        <div
+          v-if="assignmentInvalidText"
+          :style="{
+            color: $themeTokens.error,
+          }"
+        >
+          {{ assignmentInvalidText }}
         </div>
       </KRadioButton>
     </KRadioButtonGroup>
@@ -257,6 +248,14 @@
     display: flex;
     gap: 8px;
     align-items: center;
+  }
+
+  /deep/ .k-radio-button-label {
+    text-align: left;
+  }
+
+  /deep/ .labeled-icon-wrapper {
+    width: auto;
   }
 
 </style>

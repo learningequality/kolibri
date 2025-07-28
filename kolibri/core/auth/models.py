@@ -632,6 +632,9 @@ class KolibriAnonymousUser(AnonymousUser, KolibriBaseUserMixin):
 
 
 class FacilityUserModelManager(SyncableModelManager, UserManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(date_deleted__isnull=True)
+
     def create_user(self, username, email=None, password=None, **extra_fields):
         """
         Creates and saves a User with the given username.
@@ -715,6 +718,15 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
             return user
 
 
+class SoftDeletedFacilityUserModelManager(SyncableModelManager, UserManager):
+    """
+    Custom manager for FacilityUser that only returns users who have a non-NULL value in their date_deleted field.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().filter(date_deleted__isnull=False)
+
+
 def validate_birth_year(value):
     error = ""
 
@@ -761,6 +773,11 @@ def validate_role_kinds(kinds):
     return kinds
 
 
+class AllObjectsFacilityUserModelManager(SyncableModelManager, UserManager):
+    def get_queryset(self):
+        return super(AllObjectsFacilityUserModelManager, self).get_queryset()
+
+
 class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataModel):
     """
     ``FacilityUser`` is the fundamental object of the auth app. These users represent the main users, and can be associated
@@ -785,7 +802,10 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
     )
     permissions = own | admin | role
 
+    all_objects = AllObjectsFacilityUserModelManager()
     objects = FacilityUserModelManager()
+
+    soft_deleted_objects = SoftDeletedFacilityUserModelManager()
 
     USERNAME_FIELD = "username"
 
@@ -819,6 +839,8 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         null=True,
         blank=True,
     )
+
+    date_deleted = DateTimeTzField(null=True, blank=True)
 
     def get_short_name(self):
         return self.full_name.split(" ", 1)[0]
@@ -1301,7 +1323,7 @@ class Membership(AbstractFacilityDataModel):
                 collection_id=self.collection.parent_id, user=self.user
             ).exists():
                 raise InvalidMembershipError(
-                    "Cannot create membership for a user in a LearnerGroup or AdHoGroup when they are not a member of the parent Classrooom"
+                    "Cannot create membership for a user in a LearnerGroup or AdHocGroup when they are not a member of the parent Classrooom"
                 )
         return super(Membership, self).save(*args, **kwargs)
 

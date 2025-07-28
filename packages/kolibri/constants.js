@@ -205,3 +205,9 @@ export const MAX_QUESTIONS_PER_QUIZ_SECTION = 25;
 export const DisconnectionErrorCodes = [0, 502, 504, 511];
 
 export const RENDERER_SUFFIX = '_renderer';
+
+// enum identifying the types of setup for Lod devices
+export const LodTypePresets = Object.freeze({
+  JOIN: 'JOIN',
+  IMPORT: 'IMPORT',
+});

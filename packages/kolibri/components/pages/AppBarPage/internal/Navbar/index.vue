@@ -11,6 +11,7 @@
         v-for="(link, index) in allLinks"
         :key="index"
         ref="navLinks"
+        :data-onboarding-id="index === 1 ? 'Library' : null"
         :title="link.title"
         :link="link.link"
       >
@@ -20,6 +21,7 @@
         />
       </NavbarLink>
     </ul>
+
     <KIconButton
       v-if="overflowMenuLinks && overflowMenuLinks.length > 0"
       :tooltip="coreString('moreOptions')"
@@ -53,6 +55,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import themeConfig from 'kolibri/styles/themeConfig';
   import NavbarLink from './NavbarLink';
+
   /**
    * Used for navigation between sub-pages of a top-level Kolibri section
    */
@@ -64,6 +67,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsLarge, windowIsMedium, windowWidth } = useKResponsiveWindow();
+
       return {
         windowIsLarge,
         windowIsMedium,
@@ -89,7 +93,9 @@
       },
     },
     data() {
-      return { mounted: false };
+      return {
+        mounted: false,
+      };
     },
     computed: {
       allLinks() {

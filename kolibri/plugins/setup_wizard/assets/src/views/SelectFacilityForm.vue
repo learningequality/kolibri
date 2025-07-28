@@ -37,7 +37,7 @@
         class="select-button-label"
         for="select-address-button"
       >
-        {{ $tr('selectDifferentDeviceLabel') }}
+        {{ selectDifferentDeviceLabel$() }}
       </label>
       <KButton
         id="select-address-button"
@@ -66,6 +66,8 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import SelectDeviceModalGroup from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup';
   import RadioButtonGroup from 'kolibri-common/components/syncComponentSet/RadioButtonGroup';
+  import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
+
   import SelectFacility from '../../../../user_profile/assets/src/views/ChangeFacility/SelectFacility';
   import { FooterMessageTypes } from '../constants';
 
@@ -83,6 +85,13 @@
     },
     inject: ['wizardService'],
     mixins: [commonCoreStrings, commonSyncElements],
+    setup() {
+      const { selectDifferentDeviceLabel$ } = lodUsersManagementStrings;
+
+      return {
+        selectDifferentDeviceLabel$,
+      };
+    },
     data() {
       const footerMessageType = FooterMessageTypes.IMPORT_FACILITY;
       return {
@@ -153,13 +162,6 @@
             facilitiesCount: this.facilities.length,
           },
         });
-      },
-    },
-    $trs: {
-      selectDifferentDeviceLabel: {
-        message: "Don't see your learning facility?",
-        context:
-          'A label shown above a link that will open a modal to select a different network location from which to select a facility',
       },
     },
   };

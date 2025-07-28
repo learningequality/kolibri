@@ -155,7 +155,7 @@ module.exports = {
   'kolibri.utils.CatchErrors': 'kolibri/utils/CatchErrors',
   'kolibri.utils.clientFactory': 'kolibri/utils/baseClient',
   'kolibri.utils.contentNode': null, // Get rid of the use of this completely
-  'kolibri.utils.coreBannerContent': 'kolibri-common/utils/coreBannerContent',
+  'kolibri.utils.coreBannerContent': null, // Removed in favour of a much hackier system that uses window._coreBannerContent
   'kolibri.utils.exams': 'kolibri-common/quizzes/utils',
   'kolibri.utils.filterUsersByNames': 'kolibri-common/utils/filterUsersByNames',
   'kolibri.utils.i18n': 'kolibri/utils/i18n',

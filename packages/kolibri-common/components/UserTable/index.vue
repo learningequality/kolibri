@@ -560,4 +560,8 @@
     max-width: 120px;
   }
 
+  td.visuallyhidden {
+    overflow: hidden;
+  }
+
 </style>

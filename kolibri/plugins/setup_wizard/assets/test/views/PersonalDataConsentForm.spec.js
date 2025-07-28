@@ -13,10 +13,8 @@ describe('PersonalDataConsentForm', () => {
   });
   it('the "View statement" opens the statement', async () => {
     const { wrapper } = makeWrapper();
-    const button = wrapper.findComponent({ name: 'KButton' });
-    button.vm.$emit('click');
     await wrapper.find("[data-test='modal-open-button']").vm.$emit('click');
-    expect(wrapper.findComponent({ name: 'PrivacyInfoModal' }).exists());
+    expect(wrapper.findComponent({ name: 'PrivacyInfoModal' }).exists()).toBe(true);
 
     await wrapper.findComponent({ name: 'PrivacyInfoModal' }).vm.$emit('cancel');
     expect(wrapper.findComponent({ name: 'PrivacyInfoModal' }).exists()).toBeFalsy();

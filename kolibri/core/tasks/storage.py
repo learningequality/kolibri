@@ -167,8 +167,8 @@ class Storage(object):
         """
         Extracts a Job object from the saved_job string column of ORMJob
 
-        Also adds a save_meta method to a job object so that a job
-        can update itself.
+        Sets the storage attribute on the job so the job can persist
+        state updates to the database.
         """
         job = Job.from_json(orm_job.saved_job)
 
@@ -494,7 +494,9 @@ class Storage(object):
                         hook.clear(job, orm_job)
             q.delete(synchronize_session=False)
 
-    def update_job_progress(self, job_id, progress, total_progress):
+    def update_job_progress(
+        self, job_id, progress, total_progress, extra_metadata=None
+    ):
         """
         Update the job given by job_id's progress info.
         :type total_progress: int
@@ -505,7 +507,13 @@ class Storage(object):
         :param total_progress: The total progress achievable by the job.
         :return: None
         """
-        self._update_job(job_id, progress=progress, total_progress=total_progress)
+        kwargs = {
+            "progress": progress,
+            "total_progress": total_progress,
+        }
+        if extra_metadata is not None:
+            kwargs["extra_metadata"] = extra_metadata
+        self._update_job(job_id, **kwargs)
 
     def mark_job_as_failed(self, job_id, exception, traceback):
         """

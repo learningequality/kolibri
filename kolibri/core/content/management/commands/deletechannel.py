@@ -1,7 +1,8 @@
 import logging
 
-from django.core.management import call_command
 from django.core.management.base import BaseCommand
+
+from kolibri.core.content.utils.content_delete import delete_content
 
 logger = logging.getLogger(__name__)
 
@@ -12,4 +13,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         channel_id = options["channel_id"]
-        call_command("deletecontent", channel_id)
+        delete_content(
+            channel_id=channel_id,
+            node_ids=None,
+            exclude_node_ids=None,
+            force_delete=False,
+        )

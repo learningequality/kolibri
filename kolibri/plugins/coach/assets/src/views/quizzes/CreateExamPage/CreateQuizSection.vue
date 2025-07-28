@@ -493,10 +493,11 @@
         }
       },
       handleConfirmDelete() {
+        const sectionIndexToDelete = this.activeSectionIndex;
         const section_title = displaySectionTitle(this.activeSection, this.activeSectionIndex);
-        const newIndex = this.activeSectionIndex > 0 ? this.activeSectionIndex - 1 : 0;
+        const newIndex = sectionIndexToDelete > 0 ? sectionIndexToDelete - 1 : 0;
         this.setActiveSection(newIndex);
-        this.removeSection(this.activeSectionIndex);
+        this.removeSection(sectionIndexToDelete);
         this.$nextTick(() => {
           this.createSnackbar(this.sectionDeletedNotification$({ section_title }));
           this.focusActiveSectionTab();
@@ -580,7 +581,14 @@
         this.createSnackbar(this.questionsDeletedNotification$({ count }));
       },
       isQuestionAutoReplaceable(question) {
-        return this.activeExercisesUnusedQuestionsMap[question.exercise_id].length > 0;
+        // Check if question has assessmentmetadata and exercise_id is null or undefined
+        // otherwise it will break the composable
+        // I think the better way is to gurd against this in the composable itself in future
+        return (
+          question.assessmentmetadata &&
+          question.exercise_id &&
+          this.activeExercisesUnusedQuestionsMap[question.exercise_id].length > 0
+        );
       },
     },
   };

@@ -9,6 +9,22 @@ recursive-include kolibri/locale *.json
 recursive-include kolibri/core *
 recursive-include kolibri/deployment *
 recursive-include kolibri/dist *
+
+# Exclude the unused Django GIS and Humanize app
+recursive-exclude kolibri/dist/django/contrib/gis *
+recursive-exclude kolibri/dist/django/contrib/humanize *
+# Exclude Django module locales that are not used by Kolibri
+recursive-exclude kolibri/dist/rest_framework/locale *
+recursive-exclude kolibri/dist/django_filters/locale *
+recursive-exclude kolibri/dist/mptt/locale *
+recursive-exclude kolibri/dist/django/contrib/admindocs/locale *
+recursive-exclude kolibri/dist/django/contrib/auth/locale *
+recursive-exclude kolibri/dist/django/contrib/sites/locale *
+recursive-exclude kolibri/dist/django/contrib/contenttypes/locale *
+recursive-exclude kolibri/dist/django/contrib/flatpages/locale *
+recursive-exclude kolibri/dist/django/contrib/sessions/locale *
+recursive-exclude kolibri/dist/django/contrib/admin/locale *
+
 recursive-include kolibri/plugins *
 recursive-include kolibri/utils *
 recursive-include kolibri/*/static *.*
@@ -25,15 +41,11 @@ exclude kolibri/*/buildConfig.js
 exclude kolibri/plugins/*/buildConfig.js
 
 recursive-exclude kolibri/dist *pyc
-prune kolibri/dist/*/__pycache___
-
-# Exclude the unused Django GIS and Humanize app
-prune kolibri/dist/django/contrib/gis
-prune kolibri/dist/django/contrib/humanize
+recursive-exclude kolibri/dist/*/__pycache__ *
 
 # Exclude all test directories
-prune kolibri/**/tests
-prune kolibri/**/test
-prune kolibri/**/testing
+recursive-exclude kolibri/**/tests *
+recursive-exclude kolibri/**/test *
+recursive-exclude kolibri/**/testing *
 # Except the Django one which is needed by rest_framework
 recursive-include kolibri/dist/django/test *.py

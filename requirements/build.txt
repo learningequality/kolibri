@@ -9,3 +9,5 @@ beautifulsoup4==4.8.2
 requests==2.21.0
 pkginfo==1.8.2
 wheel>=0.31.1
+importlib-metadata==4.8.3
+importlib_resources==5.4.0

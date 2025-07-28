@@ -100,7 +100,7 @@ describe('selectDriveModal component', () => {
     expect(alert.text().trim()).toEqual('Finding local drives…');
   });
 
-  it('when drive list is loaded, it shows the drive-list component ', async () => {
+  it('when drive list is loaded, it shows the drive-list component', async () => {
     const wrapper = makeWrapper({ store });
     const { driveListContainer, driveListLoading } = getElements(wrapper);
     expect(driveListContainer().element.tagName).toBe('DIV');
@@ -198,7 +198,7 @@ describe('selectDriveModal component', () => {
     writableImportableRadio().trigger('change');
     selectDriveModal().vm.$emit('submit');
     // same parameters for import or export flow
-    expect(transitionStub).toBeCalledWith({
+    expect(transitionStub).toHaveBeenCalledWith({
       driveId: 'writable_importable_drive',
       forExport: false,
     });

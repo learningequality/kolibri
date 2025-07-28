@@ -171,13 +171,13 @@
         const columns = [
           ...csvFields.title(),
           ...csvFields.tally(),
-          ...csvFields.timeSpent('avgTimeSpent', this.avgTimeSpentLabel$),
+          ...csvFields.timeSpent('avgTimeSpent', this.avgTimeSpentLabel$()),
         ];
 
         const exporter = new CSVExporter(columns, this.className);
         exporter.addNames({
           lesson: this.title,
-          resources: this.resourcesLabel$,
+          resources: this.resourcesLabel$(),
         });
 
         if (this.group) {

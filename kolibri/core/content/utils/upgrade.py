@@ -1,7 +1,6 @@
 import logging
 import os
 
-from django.core.management import call_command
 from le_utils.constants import content_kinds
 from sqlalchemy import and_
 from sqlalchemy import func
@@ -9,12 +8,15 @@ from sqlalchemy import or_
 from sqlalchemy import select
 
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
+from kolibri.core.content.constants.transfer_types import COPY_METHOD
+from kolibri.core.content.constants.transfer_types import DOWNLOAD_METHOD
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils import annotation
 from kolibri.core.content.utils import channel_import
 from kolibri.core.content.utils.annotation import CONTENT_APP_NAME
+from kolibri.core.content.utils.channel_transfer import transfer_channel
 from kolibri.core.content.utils.channels import CHANNEL_UPDATE_STATS_CACHE_KEY
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
@@ -57,13 +59,19 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
     destination_path = get_annotated_content_database_file_path(channel_id)
     try:
         if method == "network":
-            call_command(
-                "importchannel", "network", channel_id, baseurl=baseurl, no_upgrade=True
+            transfer_channel(
+                channel_id=channel_id,
+                method=DOWNLOAD_METHOD,
+                no_upgrade=True,
+                baseurl=baseurl,
             )
         elif method == "disk":
             drive = get_mounted_drive_by_id(drive_id)
-            call_command(
-                "importchannel", "disk", channel_id, drive.datafolder, no_upgrade=True
+            transfer_channel(
+                channel_id=channel_id,
+                method=COPY_METHOD,
+                source_path=drive.datafolder,
+                no_upgrade=True,
             )
 
         # create all fields/tables at the annotated destination db, based on the current schema version

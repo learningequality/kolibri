@@ -584,6 +584,7 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
         )
         job_data["extra_metadata"]["user_id"] = user_id
         job_data["extra_metadata"]["username"] = user_info["username"]
+        job_data["extra_metadata"]["user_full_name"] = full_name
 
         job_data["kwargs"]["user"] = user_id
 

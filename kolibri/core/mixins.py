@@ -9,7 +9,9 @@ from django.db.models import ForeignKey
 from django.db.models import QuerySet
 from django.db.models.fields import CharField
 from django.db.models.lookups import In
+from django_filters.rest_framework import DjangoFilterBackend
 from morango.models import UUIDField
+from rest_framework import filters
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -28,22 +30,34 @@ class BulkDeleteMixin(object):
 
     # Taken from https://github.com/miki725/django-rest-framework-bulk
 
-    def allow_bulk_destroy(self, qs, filtered):
+    def allow_bulk_destroy(self):
         """
         Hook to ensure that the bulk destroy should be allowed.
         By default this checks that the destroy is only applied to
         filtered querysets.
         """
+        qs = self.get_queryset()
+        filter_fields = set()
+
+        for backend in list(self.filter_backends):
+            if issubclass(backend, DjangoFilterBackend):
+                filterset_class = backend.get_filterset_class(backend, self, qs)
+                if filterset_class:
+                    filter_fields.update(filterset_class.get_fields().keys())
+
+            if issubclass(backend, filters.SearchFilter):
+                search_param = backend.search_param
+                if search_param:
+                    filter_fields.add(search_param)
+
         # Only let a bulk destroy if the queryset is being filtered by a valid filter_field parameter
-        return any(
-            key in self.filterset_fields for key in self.request.query_params.keys()
-        )
+        return any(key in filter_fields for key in self.request.query_params.keys())
 
     def bulk_destroy(self, request, *args, **kwargs):
         qs = self.get_queryset()
 
         filtered = self.filter_queryset(qs)
-        if not self.allow_bulk_destroy(qs, filtered):
+        if not self.allow_bulk_destroy():
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         self.perform_bulk_destroy(filtered)

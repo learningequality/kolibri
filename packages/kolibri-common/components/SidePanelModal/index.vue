@@ -130,6 +130,11 @@
         required: false,
         default: false,
       },
+      addBottomBorder: {
+        type: Boolean,
+        required: false,
+        default: true,
+      },
     },
     computed: {
       isMobile() {
@@ -160,7 +165,9 @@
       headerStyles() {
         return {
           backgroundColor: this.immersive ? this.$themeTokens.appBar : this.$themeTokens.surface,
-          borderBottom: `1px solid ${this.$themePalette.grey.v_400}`,
+          borderBottom: this.addBottomBorder
+            ? `1px solid ${this.$themePalette.grey.v_400}`
+            : 'none',
         };
       },
       sidePanelStyles() {

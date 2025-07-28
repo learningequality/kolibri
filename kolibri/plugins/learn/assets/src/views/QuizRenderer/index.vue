@@ -132,7 +132,10 @@
           </BottomAppBar>
 
           <!-- below prev/next buttons in tab and DOM order, in page -->
-          <KPageContainer v-if="!windowIsLarge">
+          <KPageContainer
+            v-if="!windowIsLarge"
+            style="margin-bottom: 45px"
+          >
             <div
               class="bottom-block"
               :class="{ 'window-is-small': windowIsSmall }"

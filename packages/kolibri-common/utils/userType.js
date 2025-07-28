@@ -4,7 +4,7 @@ export default function UserType(userObject) {
   if (userObject.is_superuser) {
     return UserKinds.SUPERUSER;
   }
-  if (!userObject.roles.length) {
+  if (!userObject.roles?.length) {
     return UserKinds.LEARNER;
   }
 

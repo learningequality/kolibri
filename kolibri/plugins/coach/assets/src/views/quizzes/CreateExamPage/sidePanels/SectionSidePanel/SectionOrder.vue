@@ -4,10 +4,6 @@
     v-if="activeSection"
     class="section-settings-content"
   >
-    <h1>
-      {{ coreString('editAction') + ' - ' + sectionOrderLabel$() }}
-    </h1>
-
     <DragContainer
       v-if="sectionOrderList.length > 0"
       :items="sectionOrderList"
@@ -110,7 +106,7 @@
     },
     mixins: [commonCoreStrings],
     setup(_, context) {
-      const { applySettings$, sectionOrderLabel$, currentSection$ } = enhancedQuizManagementStrings;
+      const { applySettings$, currentSection$ } = enhancedQuizManagementStrings;
 
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
 
@@ -162,7 +158,6 @@
         moveUpOne,
         // i18n
         currentSection$,
-        sectionOrderLabel$,
         applySettings$,
         closeConfirmationTitle$,
         closeConfirmationMessage$,

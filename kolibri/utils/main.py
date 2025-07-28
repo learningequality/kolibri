@@ -27,6 +27,7 @@ from kolibri.plugins.utils import run_plugin_updates
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import LOG_ROOT
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.database import sqlite_check_foreign_keys
 from kolibri.utils.debian_check import check_debian_user
 from kolibri.utils.logger import get_base_logging_config
 from kolibri.utils.sanity_checks import check_content_directory_exists_and_writable
@@ -176,44 +177,6 @@ def _copy_preseeded_db(db_name, target=None):
             )
 
 
-def sqlite_check_foreign_keys():
-    DATABASE_NAMES = [
-        os.path.join(KOLIBRI_HOME, OPTIONS["Database"]["DATABASE_NAME"] or "db.sqlite3")
-    ]
-    DATABASE_NAMES += [
-        os.path.join(KOLIBRI_HOME, "{}.sqlite3".format(db))
-        for db in ADDITIONAL_SQLITE_DATABASES
-    ]
-
-    for name in DATABASE_NAMES:
-        # Don't inadvertently create the database if
-        # it doesn't exist
-        if not os.path.exists(name):
-            continue
-        db_connection = sqlite3.connect(name)
-        with sqlite3.connect(name) as db_connection:
-            cursor = db_connection.cursor()
-            cursor.execute("PRAGMA foreign_key_check;")
-            result = cursor.fetchall()
-            if len(result) > 0:
-                logger.warning(
-                    "Foreign key constraint failed. Trying to fix integrity errors..."
-                )
-                for row in result:
-                    bad_table = row[0]
-                    rowid = row[1]
-                    # for security, in the default database,
-                    # only fix automatically integrity errors in loggers
-                    if bad_table[:6] == "logger" or name != DATABASE_NAMES[0]:
-                        cursor.execute(
-                            f"DELETE FROM {bad_table} WHERE rowid = {rowid};"
-                        )
-                    else:
-                        logger.error(
-                            f"Foreign key constraint failed in {bad_table} table, rowid {rowid}. Please fix it manually."
-                        )
-
-
 def _upgrades_before_django_setup(updated, version):
     if version and updated:
         check_plugin_config_file_location(version)
@@ -234,7 +197,16 @@ def _upgrades_before_django_setup(updated, version):
     check_default_options_exist()
 
     if OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
-        sqlite_check_foreign_keys()
+        DATABASE_NAMES = [
+            os.path.join(
+                KOLIBRI_HOME, OPTIONS["Database"]["DATABASE_NAME"] or "db.sqlite3"
+            )
+        ]
+        DATABASE_NAMES += [
+            os.path.join(KOLIBRI_HOME, "{}.sqlite3".format(db))
+            for db in ADDITIONAL_SQLITE_DATABASES
+        ]
+        sqlite_check_foreign_keys(DATABASE_NAMES)
         # If we are using sqlite,
         # we can shortcut migrations by using the preseeded databases
         # that we bundle in the Kolibri whl file.

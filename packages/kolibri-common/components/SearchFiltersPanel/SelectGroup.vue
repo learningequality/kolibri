@@ -4,36 +4,39 @@
     <KSelect
       v-if="languageOptionsList.length"
       :options="languageOptionsList"
-      :disabled="!langId && enabledLanguageOptions.length < 2"
+      :disabled="searchLoading || (!langId && enabledLanguageOptions.length < 2)"
       :clearable="!(!langId && enabledLanguageOptions.length < 2)"
       :clearText="coreString('clearAction')"
       :value="selectedLanguage"
       :label="coreString('languageLabel')"
       :style="selectorStyle"
+      :truncateOptionsLabel="false"
       @change="val => handleChange('languages', val)"
     />
     <KSelect
       v-if="contentLevelsList.length"
       :options="contentLevelsList"
-      :disabled="!levelId && enabledContentLevels.length < 2"
+      :disabled="searchLoading || (!levelId && enabledContentLevels.length < 2)"
       class="selector"
       :clearable="!(!levelId && enabledContentLevels.length < 2)"
       :clearText="coreString('clearAction')"
       :value="selectedLevel"
       :label="coreString('levelLabel')"
       :style="selectorStyle"
+      :truncateOptionsLabel="false"
       @change="val => handleChange('grade_levels', val)"
     />
     <KSelect
       v-if="accessibilityOptionsList.length"
       :options="accessibilityOptionsList"
-      :disabled="!accessId && enabledAccessibilityOptions.length < 2"
+      :disabled="searchLoading || (!accessId && enabledAccessibilityOptions.length < 2)"
       class="selector"
       :clearable="!(!accessId && enabledAccessibilityOptions.length < 2)"
       :clearText="coreString('clearAction')"
       :value="selectedAccessibilityFilter"
       :label="coreString('accessibility')"
       :style="selectorStyle"
+      :truncateOptionsLabel="false"
       @change="val => handleChange('accessibility_labels', val)"
     />
   </div>
@@ -58,12 +61,14 @@
         availableAccessibilityOptions,
         availableLanguages,
         searchableLabels,
+        searchLoading,
       } = injectBaseSearch();
       return {
         availableGradeLevels,
         availableAccessibilityOptions,
         availableLanguages,
         searchableLabels,
+        searchLoading,
       };
     },
     props: {

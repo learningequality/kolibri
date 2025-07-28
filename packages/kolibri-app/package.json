@@ -11,6 +11,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "kolibri": "^0.18.0",
     "vuex-router-sync": "^5.0.0"
   }
 }

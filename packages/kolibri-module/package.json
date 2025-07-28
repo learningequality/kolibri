@@ -9,5 +9,8 @@
     "url": "git+https://github.com/learningequality/kolibri.git",
     "directory": "packages/kolibri-module"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "kolibri": "^0.18.0"
+  }
 }

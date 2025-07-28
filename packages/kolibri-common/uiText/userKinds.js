@@ -1,8 +1,19 @@
-import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { UserKinds } from 'kolibri/constants';
 
+export const getUserKindDisplayMap = (distinguishCoachTypes = true, omitLearner = false) => {
+  const { superAdminLabel$, adminLabel$, facilityCoachLabel$, coachLabel$, learnerLabel$ } =
+    coreStrings;
+  return {
+    [UserKinds.SUPERUSER]: superAdminLabel$(),
+    [UserKinds.ADMIN]: adminLabel$(),
+    [UserKinds.COACH]: distinguishCoachTypes ? facilityCoachLabel$() : coachLabel$(),
+    [UserKinds.ASSIGNABLE_COACH]: coachLabel$(),
+    [UserKinds.LEARNER]: omitLearner ? '' : learnerLabel$(),
+  };
+};
+
 export default {
-  mixins: [commonCoreStrings],
   props: {
     distinguishCoachTypes: {
       type: Boolean,
@@ -17,15 +28,7 @@ export default {
   },
   computed: {
     typeDisplayMap() {
-      return {
-        [UserKinds.SUPERUSER]: this.coreString('superAdminLabel'),
-        [UserKinds.ADMIN]: this.coreString('adminLabel'),
-        [UserKinds.COACH]: this.distinguishCoachTypes
-          ? this.coreString('facilityCoachLabel')
-          : this.coreString('coachLabel'),
-        [UserKinds.ASSIGNABLE_COACH]: this.coreString('coachLabel'),
-        [UserKinds.LEARNER]: this.omitLearner ? '' : this.coreString('learnerLabel'),
-      };
+      return getUserKindDisplayMap(this.distinguishCoachTypes, this.omitLearner);
     },
   },
 };

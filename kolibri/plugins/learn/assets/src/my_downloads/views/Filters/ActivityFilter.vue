@@ -33,7 +33,7 @@
   import { LearningActivities } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useLearningActivities from '../../../composables/useLearningActivities';
+  import useLearningActivities from 'kolibri-common/composables/useLearningActivities';
 
   export default {
     name: 'ActivityFilter',

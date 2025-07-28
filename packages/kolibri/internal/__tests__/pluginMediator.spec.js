@@ -107,10 +107,10 @@ describe('Mediator', function () {
         expect(_registerMultipleEvents).toHaveBeenCalledWith(kolibriModule);
       });
       // _registerOneTimeEvents is not being called
-      xit('should call the _registerOneTimeEvents method', function () {
+      it.skip('should call the _registerOneTimeEvents method', function () {
         expect(_registerOneTimeEvents).toHaveBeenCalled();
       });
-      xit('should pass the kolibriModule to the _registerOneTimeEvents method', function () {
+      it.skip('should pass the kolibriModule to the _registerOneTimeEvents method', function () {
         expect(_registerOneTimeEvents).toHaveBeenCalledWith(kolibriModule);
       });
       it('should not call the trigger method', function () {
@@ -181,7 +181,7 @@ describe('Mediator', function () {
         );
       });
     });
-    describe('called with valid input with event ', function () {
+    describe('called with valid input with event', function () {
       beforeEach(function () {
         kolibriModule = {
           name: 'test',
@@ -253,7 +253,7 @@ describe('Mediator', function () {
         );
       });
     });
-    describe('called with valid input with event ', function () {
+    describe('called with valid input with event', function () {
       beforeEach(function () {
         kolibriModule = {
           name: 'test',
@@ -415,6 +415,7 @@ describe('Mediator', function () {
     const moduleName = 'test';
     const messageMap = {
       test: 'test message',
+      ampersandMessage: 'test &amp; message',
     };
     let spy;
     beforeEach(function () {
@@ -432,7 +433,10 @@ describe('Mediator', function () {
     });
     it('should call Vue.registerMessages with arguments currentLanguage and messageMap', function () {
       mediator.registerLanguageAssets(moduleName);
-      expect(spy).toHaveBeenCalledWith(currentLanguage, messageMap);
+      expect(spy).toHaveBeenCalledWith(currentLanguage, {
+        test: 'test message',
+        ampersandMessage: 'test & message',
+      });
     });
   });
 });

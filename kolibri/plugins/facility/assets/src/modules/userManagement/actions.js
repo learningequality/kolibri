@@ -1,6 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
-import { UserKinds } from 'kolibri/constants';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import { UserKinds } from 'kolibri/constants';
 import { updateFacilityLevelRoles } from './utils';
 
 /**

@@ -59,14 +59,13 @@ def start_file_transfer(filetransfer, channel_id, dest, no_upgrade, contentfolde
     :param contentfolder: The content folder used during import.
     """
     job = get_job()
-    progress_extra_data = {"channel_id": channel_id}
+    job.update_metadata(channel_id=channel_id)
 
     with filetransfer:
         job.update_progress(0, filetransfer.transfer_size)
 
         def progress_callback(bytes_transferred):
             job.update_progress(bytes_transferred + job.progress, job.total_progress)
-            job.update_metadata(**progress_extra_data)
 
         filetransfer.run(progress_callback)
 

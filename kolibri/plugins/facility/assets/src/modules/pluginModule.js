@@ -26,7 +26,7 @@ export default {
       // big list of facility users for duplicate-username validation
       if (
         fromRoute.name === PageNames.USER_MGMT_PAGE &&
-        (toRoute.name === PageNames.USER_CREATE_PAGE || toRoute.name === PageNames.USER_EDIT_PAGE)
+        toRoute.name === PageNames.USER_EDIT_PAGE
       ) {
         return;
       }
@@ -82,7 +82,7 @@ export default {
           params,
         },
         UserCreatePage: {
-          name: PageNames.USER_CREATE_PAGE,
+          name: PageNames.ADD_NEW_USER_SIDE_PANEL__NEW_USERS,
           params,
         },
         UserEditPage: {

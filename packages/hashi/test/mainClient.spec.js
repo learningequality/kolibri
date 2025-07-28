@@ -204,7 +204,7 @@ describe('Hashi mainClient', () => {
   });
   describe('on method', () => {
     it('should throw a reference error if an invalid event is set', () => {
-      expect(hashi.on).toThrowError(ReferenceError);
+      expect(hashi.on).toThrow(ReferenceError);
     });
     it('should call the mediator registerMessageHandler method', () => {
       hashi.mediator.registerMessageHandler = jest.fn();

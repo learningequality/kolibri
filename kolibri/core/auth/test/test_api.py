@@ -8,15 +8,24 @@ from importlib import import_module
 
 import factory
 from django.conf import settings
+from django.db.models.signals import pre_delete
 from django.urls import reverse
 from django.utils import timezone
+from mock import patch
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
+from morango.models import Certificate
+from morango.models import DatabaseMaxCounter
+from morango.models import DeletedModels
+from morango.models import HardDeletedModels
+from morango.models import Store
 from morango.models import SyncSession
 from morango.models import TransferSession
+from morango.sync.controller import MorangoProfileController
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
+from rest_framework.test import APITransactionTestCase
 
 from .. import models
 from ..constants import role_kinds
@@ -28,6 +37,9 @@ from .helpers import provision_device
 from kolibri.core import error_constants
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants import demographics
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.signals import cascade_delete_user
 from kolibri.core.device.models import OSUser
 from kolibri.core.device.utils import set_device_settings
 
@@ -1045,6 +1057,12 @@ class UserDeleteTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 204)
+        self.assertTrue(
+            models.FacilityUser.all_objects.filter(
+                id=self.user.id, date_deleted__isnull=False
+            ).exists()
+        )
+        self.assertFalse(models.FacilityUser.objects.filter(id=self.user.id).exists())
 
     def test_superuser_delete_self(self):
         response = self.client.delete(
@@ -1055,6 +1073,226 @@ class UserDeleteTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    def test_bulk_delete_users(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+
+        response = self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + "?by_ids=" + ",".join(user_ids)
+        )
+
+        self.assertEqual(response.status_code, 204)
+        for user in users:
+            self.assertTrue(
+                models.FacilityUser.all_objects.filter(
+                    id=user.id, date_deleted__isnull=False
+                ).exists()
+            )
+            self.assertFalse(models.FacilityUser.objects.filter(id=user.id).exists())
+
+    def test_bulk_delete_excludes_superuser(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(2)]
+        user_ids = [str(user.id) for user in users] + [str(self.superuser.id)]
+
+        response = self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + "?by_ids=" + ",".join(user_ids)
+        )
+        self.assertEqual(response.status_code, 403)
+
+        self.assertTrue(
+            models.FacilityUser.objects.filter(id=self.superuser.id).exists()
+        )
+
+    def test_get_soft_deleted_users(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+        self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + f"?by_ids={','.join(user_ids)}"
+        )
+
+        # Get soft-deleted users
+        response = self.client.get(reverse("kolibri:core:deletedfacilityuser-list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), len(users))
+        for user in users:
+            self.assertTrue(
+                any(
+                    deleted_user["id"] == str(user.id) for deleted_user in response.data
+                )
+            )
+        self.assertTrue(
+            all(
+                deleted_user["date_deleted"] is not None
+                for deleted_user in response.data
+            )
+        )
+
+    def test_date_deleted_ordering(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+        for idx, user in enumerate(users):
+            with patch(
+                "django.utils.timezone.now",
+                return_value=timezone.now() - timedelta(days=idx + 1),
+            ):
+                self.client.delete(
+                    reverse("kolibri:core:facilityuser-detail", kwargs={"pk": user.pk})
+                )
+            models.FacilityUser.objects.filter(id=user.id).update(
+                date_deleted=timezone.now() - timedelta(days=idx + 1)
+            )
+
+        # Get soft-deleted users ordered by date_deleted
+        response = self.client.get(
+            reverse("kolibri:core:deletedfacilityuser-list") + "?ordering=date_deleted"
+        )
+
+        expected_users = (
+            models.FacilityUser.soft_deleted_objects.filter(id__in=user_ids)
+            .order_by("date_deleted")
+            .values_list("id", flat=True)
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), len(expected_users))
+
+        for idx, deleted_user in enumerate(response.data):
+            self.assertEqual(deleted_user["id"], str(expected_users[idx]))
+
+    def test_bulk_hard_delete_without_filters(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+        # Soft delete users
+        self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + f"?by_ids={','.join(user_ids)}"
+        )
+
+        # Hard delete users without any filters
+        response = self.client.delete(reverse("kolibri:core:deletedfacilityuser-list"))
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            models.FacilityUser.all_objects.filter(id__in=user_ids).count(), len(users)
+        )
+
+    def test_bulk_hard_delete_non_soft_deleted_users(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+
+        # Hard delete users without being soft deleted
+        response = self.client.delete(
+            reverse("kolibri:core:deletedfacilityuser-list")
+            + f"?by_ids={','.join(user_ids)}"
+        )
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(
+            models.FacilityUser.all_objects.filter(id__in=user_ids).count(), len(users)
+        )
+
+    def test_bulk_hard_delete_users(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+        # Soft delete users
+        self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + f"?by_ids={','.join(user_ids)}"
+        )
+
+        # Hard delete users
+        response = self.client.delete(
+            reverse("kolibri:core:deletedfacilityuser-list")
+            + f"?by_ids={','.join(user_ids)}"
+        )
+
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(
+            models.FacilityUser.all_objects.filter(id__in=user_ids).exists()
+        )
+
+    def test_restore_soft_deleted_users_without_filters(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+        # Soft delete users
+        self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + f"?by_ids={','.join(user_ids)}"
+        )
+
+        # Restore soft deleted users without filters
+        response = self.client.post(reverse("kolibri:core:deletedfacilityuser-restore"))
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            models.FacilityUser.soft_deleted_objects.filter(id__in=user_ids).count(),
+            len(users),
+        )
+
+    def test_restore_non_soft_deleted_users(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+
+        # Restore non-soft deleted users
+        response = self.client.post(
+            reverse("kolibri:core:deletedfacilityuser-restore")
+            + f"?by_ids={','.join(user_ids)}"
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_restore_soft_deleted_users(self):
+        users = [FacilityUserFactory.create(facility=self.facility) for _ in range(3)]
+        user_ids = [str(user.id) for user in users]
+        # Soft delete users
+        self.client.delete(
+            reverse("kolibri:core:facilityuser-list") + f"?by_ids={','.join(user_ids)}"
+        )
+
+        # Restore soft deleted users
+        response = self.client.post(
+            reverse("kolibri:core:deletedfacilityuser-restore")
+            + f"?by_ids={','.join(user_ids)}"
+        )
+
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(
+            models.FacilityUser.soft_deleted_objects.filter(id__in=user_ids).exists()
+        )
+        self.assertEqual(
+            models.FacilityUser.objects.filter(id__in=user_ids).count(), len(users)
+        )
+
+    def test_not_able_to_create_soft_deleted_user(self):
+        # Try to create a new user with the same username as a soft-deleted user
+        new_user_data = {
+            "username": "testuser",
+            "password": "newpassword",
+            "facility": self.facility.id,
+        }
+        response = self.client.post(
+            reverse("kolibri:core:deletedfacilityuser-list"),
+            new_user_data,
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 405)
+
+    def test_not_able_to_update_soft_deleted_user(self):
+        # Create a user and then soft delete it
+        user = FacilityUserFactory.create(facility=self.facility, username="testuser")
+        self.client.delete(
+            reverse("kolibri:core:facilityuser-detail", kwargs={"pk": user.pk})
+        )
+
+        # Try to update the soft-deleted user
+        update_data = {"username": "updateduser"}
+        response = self.client.patch(
+            reverse("kolibri:core:deletedfacilityuser-detail", kwargs={"pk": user.pk}),
+            update_data,
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 405)
+
 
 class UserRetrieveTestCase(APITestCase):
     @classmethod
@@ -1064,82 +1302,90 @@ class UserRetrieveTestCase(APITestCase):
         cls.superuser = create_superuser(cls.facility)
         cls.facility.add_admin(cls.superuser)
         cls.user = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility_coach = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_role(cls.facility_coach, "coach")
+        cls.class_coach = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_role(cls.class_coach, "classroom assignable coach")
+        cls.user_response = cls._generate_user_response_dict(cls.user)
+        cls.facility_coach_response = cls._generate_user_response_dict(
+            cls.facility_coach
+        )
+        cls.class_coach_response = cls._generate_user_response_dict(cls.class_coach)
+        cls.superuser_response = cls._generate_user_response_dict(cls.superuser)
+
+    @classmethod
+    def _generate_user_response_dict(cls, user):
+        response_dict = {
+            "id": user.id,
+            "username": user.username,
+            "full_name": user.full_name,
+            "facility": user.facility_id,
+            "id_number": user.id_number,
+            "gender": user.gender,
+            "date_joined": user.date_joined,
+            "birth_year": user.birth_year,
+            "is_superuser": user.is_superuser,
+            "extra_demographics": None,
+        }
+        roles = []
+        user_roles = user.roles.all()
+        if user_roles.exists():
+            for role in user_roles:
+                roles.append(
+                    {
+                        "collection": role.collection_id,
+                        "kind": role.kind,
+                        "id": role.id,
+                    }
+                )
+
+        response_dict["roles"] = roles
+        return response_dict
+
+    def _make_request(self, user=None, url=None, params=None):
+        if user:
+            self.client.login(
+                username=user.username, password=DUMMY_PASSWORD, facility=self.facility
+            )
+
+        if url is None:
+            url = reverse("kolibri:core:facilityuser-list")
+
+        return self.client.get(url, params, format="json")
 
     def test_user_list(self):
-        self.client.login(
-            username=self.superuser.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
-        response = self.client.get(reverse("kolibri:core:facilityuser-list"))
+        response = self._make_request(self.superuser)
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(
             response.data,
             [
-                {
-                    "id": self.user.id,
-                    "username": self.user.username,
-                    "full_name": self.user.full_name,
-                    "facility": self.user.facility_id,
-                    "id_number": self.user.id_number,
-                    "gender": self.user.gender,
-                    "birth_year": self.user.birth_year,
-                    "date_joined": self.user.date_joined,
-                    "is_superuser": False,
-                    "roles": [],
-                    "extra_demographics": None,
-                },
-                {
-                    "id": self.superuser.id,
-                    "username": self.superuser.username,
-                    "full_name": self.superuser.full_name,
-                    "facility": self.superuser.facility_id,
-                    "id_number": self.superuser.id_number,
-                    "gender": self.superuser.gender,
-                    "date_joined": self.superuser.date_joined,
-                    "birth_year": self.superuser.birth_year,
-                    "is_superuser": True,
-                    "roles": [
-                        {
-                            "collection": self.superuser.roles.first().collection_id,
-                            "kind": role_kinds.ADMIN,
-                            "id": self.superuser.roles.first().id,
-                        }
-                    ],
-                    "extra_demographics": None,
-                },
+                self.user_response,
+                self.facility_coach_response,
+                self.class_coach_response,
+                self.superuser_response,
             ],
         )
 
     def test_user_list_self(self):
-        self.client.login(
-            username=self.user.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
-        response = self.client.get(reverse("kolibri:core:facilityuser-list"))
+        response = self._make_request(self.user)
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(
             response.data,
-            [
-                {
-                    "id": self.user.id,
-                    "username": self.user.username,
-                    "full_name": self.user.full_name,
-                    "facility": self.user.facility_id,
-                    "id_number": self.user.id_number,
-                    "gender": self.user.gender,
-                    "birth_year": self.user.birth_year,
-                    "date_joined": self.user.date_joined,
-                    "is_superuser": False,
-                    "roles": [],
-                    "extra_demographics": None,
-                },
-            ],
+            [self.user_response],
+        )
+
+    def test_user_list_filter_user_type_coach(self):
+        response = self._make_request(
+            user=self.superuser, url=None, params={"user_type": "coach"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertCountEqual(
+            response.data,
+            [self.facility_coach_response, self.class_coach_response],
         )
 
     def test_anonymous_user_list(self):
-        response = self.client.get(reverse("kolibri:core:facilityuser-list"))
+        response = self._make_request()
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(
             response.data,
@@ -1147,29 +1393,29 @@ class UserRetrieveTestCase(APITestCase):
         )
 
     def test_user_no_retrieve_admin(self):
-        self.client.login(
-            username=self.user.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
-        response = self.client.get(
-            reverse(
+        response = self._make_request(
+            user=self.user,
+            url=reverse(
                 "kolibri:core:facilityuser-detail", kwargs={"pk": self.superuser.id}
-            )
+            ),
         )
         self.assertEqual(response.status_code, 404)
 
     def test_anonymous_no_retrieve_admin(self):
-        response = self.client.get(
-            reverse(
+        response = self._make_request(
+            user=None,
+            url=reverse(
                 "kolibri:core:facilityuser-detail", kwargs={"pk": self.superuser.id}
-            )
+            ),
         )
         self.assertEqual(response.status_code, 404)
 
     def test_anonymous_no_retrieve_user(self):
-        response = self.client.get(
-            reverse("kolibri:core:facilityuser-detail", kwargs={"pk": self.user.id})
+        response = self._make_request(
+            user=None,
+            url=reverse(
+                "kolibri:core:facilityuser-detail", kwargs={"pk": self.user.id}
+            ),
         )
         self.assertEqual(response.status_code, 404)
 
@@ -2327,3 +2573,106 @@ class SetNonSpecifiedPasswordViewTestCase(APITestCase):
 
         # Check that the response has a 400 Bad Request status code
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class DeleteImportedUserTestCase(APITransactionTestCase):
+    def setUp(self):
+        super().setUp()
+        provision_device()
+        self.facility = FacilityFactory.create()
+
+        self.admin = FacilityUserFactory.create(
+            facility=self.facility, username="admin"
+        )
+        self.admin.set_password(DUMMY_PASSWORD)
+        self.admin.save()
+        self.facility.add_admin(self.admin)
+
+        self.user = FacilityUserFactory.create(facility=self.facility, username="user")
+        self.user.set_password(DUMMY_PASSWORD)
+        self.user.save()
+
+        self.user_patitions = [
+            f"{self.user.dataset_id}:user-ro:{self.user.id}",
+            f"{self.user.dataset_id}:user-rw:{self.user.id}",
+        ]
+
+        # Simulate morango records as if the user was imported from other instance
+        MorangoProfileController(PROFILE_FACILITY_DATA).serialize_into_store(
+            self.user_patitions
+        )
+
+        # Avoid queries to the notifications database when deleting a user
+        pre_delete.disconnect(cascade_delete_user, sender=FacilityUser)
+
+    def tearDown(self):
+        super().tearDown()
+        pre_delete.connect(cascade_delete_user, sender=FacilityUser)
+
+    def login_admin(self):
+        self.client.login(
+            username=self.admin.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def login_user(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def test_non_admin_cannot_remove_user(self):
+        self.login_user()
+
+        response = self.client.delete(
+            reverse(
+                "kolibri:core:deleteimporteduser", kwargs={"user_id": self.user.id}
+            ),
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_invalid_user_id(self):
+        self.login_admin()
+
+        response = self.client.delete(
+            reverse("kolibri:core:deleteimporteduser", kwargs={"user_id": "a" * 32}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_user_delete(self):
+        self.login_admin()
+
+        response = self.client.delete(
+            reverse(
+                "kolibri:core:deleteimporteduser", kwargs={"user_id": self.user.id}
+            ),
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertFalse(models.FacilityUser.objects.filter(id=self.user.id).exists())
+
+        # Check if morango records were deleted
+        self.assertFalse(
+            Certificate.objects.filter(
+                scope_params__contains=self.user_patitions
+            ).exists()
+        )
+        self.assertFalse(
+            Store.objects.filter(partition__in=self.user_patitions).exists()
+        )
+        self.assertFalse(
+            DatabaseMaxCounter.objects.filter(
+                partition__in=self.user_patitions
+            ).exists()
+        )
+
+        # Check that there isn't any record in morango DeletedModels nor HardDeletedModels
+        # as we should not propagate deletion of these models to remote devices
+        self.assertFalse(DeletedModels.objects.exists())
+        self.assertFalse(HardDeletedModels.objects.exists())

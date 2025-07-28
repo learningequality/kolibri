@@ -14,6 +14,7 @@
     </UiIcon>
     <KTooltip
       reference="icon"
+      appendToOverlay
       :class="{ ltr: !isRtl }"
       :refs="$refs"
       :placement="tooltipPlacement"

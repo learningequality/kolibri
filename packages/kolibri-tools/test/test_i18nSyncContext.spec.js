@@ -140,7 +140,7 @@ describe('isCreateTranslator() during node traversal', function () {
   const jsAst2 = recast.parse(JS2, recastOptions);
   let countJS2 = 0;
 
-  it('should return true if found in a Vue file', function () {
+  it('should count twice if found twice in a JS file', function () {
     traverse(jsAst2, {
       pre: node => {
         if (isCreateTranslator(node)) {

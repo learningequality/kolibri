@@ -2,7 +2,6 @@ import store from 'kolibri/store';
 import { PageNames } from '../constants';
 import LearnersRootPage from '../views/learners/LearnersRootPage';
 import LearnerSummaryPage from '../views/learners/LearnerSummaryPage';
-import ReportsLearnerActivityPage from '../views/learners/LearnerSummaryPage/ReportsLearnerActivityPage.vue';
 import LearnerLessonPage from '../views/learners/reports/LearnerLessonPage.vue';
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
@@ -34,15 +33,6 @@ export default [
     handler: defaultHandler,
     meta: {
       titleParts: ['reportsLabel', 'LEARNER_NAME', 'CLASS_NAME'],
-    },
-  },
-  {
-    name: 'ReportsLearnerActivityPage', // Will be removed in #12733
-    path: CLASS + LEARNER + '/activity',
-    component: ReportsLearnerActivityPage,
-    handler: defaultHandler,
-    meta: {
-      titleParts: ['activityLabel', 'LEARNER_NAME', 'CLASS_NAME'],
     },
   },
   {

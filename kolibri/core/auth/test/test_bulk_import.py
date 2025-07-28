@@ -4,9 +4,11 @@ from io import StringIO
 from uuid import uuid4
 
 import pytest
+from django.contrib.auth.hashers import make_password
 from django.core.management import call_command
 from django.test import override_settings
 from django.test import TestCase
+from django.utils import timezone
 
 from ..management.commands import bulkimportusers as b
 from ..management.commands.bulkexportusers import labels
@@ -306,8 +308,8 @@ class ImportTestCase(TestCase):
         call_command("bulkimportusers", first_filename, facility=self.facility.id)
 
         # Get the initial count of users with the username "peter"
-        initial_peter_count = FacilityUser.objects.filter(username="peter").count()
-        peter1 = FacilityUser.objects.get(username="peter")
+        initial_peter_count = FacilityUser.all_objects.filter(username="peter").count()
+        peter1 = FacilityUser.all_objects.get(username="peter")
         passwd1 = peter1.password
         # Check that the count of users with the username "peter" is one
         assert initial_peter_count == 1
@@ -334,8 +336,8 @@ class ImportTestCase(TestCase):
         call_command("bulkimportusers", second_filename, facility=self.facility.id)
 
         # Check that the count of users with the username "peter" is still one
-        assert FacilityUser.objects.filter(username="peter").count() == 1
-        peter2 = FacilityUser.objects.get(username="peter")
+        assert FacilityUser.all_objects.filter(username="peter").count() == 1
+        peter2 = FacilityUser.all_objects.get(username="peter")
         passwd2 = peter2.password
         # Check that the password of the existing user remains unchanged
         assert passwd2 == passwd1
@@ -371,10 +373,10 @@ class ImportTestCase(TestCase):
         call_command("bulkimportusers", first_filename, facility=self.facility.id)
 
         # Assert that we have created a user like this in both facilities.
-        assert FacilityUser.objects.filter(
+        assert FacilityUser.all_objects.filter(
             username="peter", facility=facility2
         ).exists()
-        assert FacilityUser.objects.filter(
+        assert FacilityUser.all_objects.filter(
             username="peter", facility=self.facility
         ).exists()
 
@@ -408,10 +410,10 @@ class ImportTestCase(TestCase):
         ]
         self.create_csv(first_filename, rows)
         call_command("bulkimportusers", first_filename, facility=self.facility.id)
-        user1 = FacilityUser.objects.get(username="new_learner")
+        user1 = FacilityUser.all_objects.get(username="new_learner")
         passwd1 = user1.password
         uid1 = user1.id
-        user2 = FacilityUser.objects.get(username="new_coach")
+        user2 = FacilityUser.all_objects.get(username="new_coach")
         passwd2 = user2.password
         uid2 = user2.id
 
@@ -445,9 +447,9 @@ class ImportTestCase(TestCase):
         ]
         self.create_csv(second_filename, rows)
         call_command("bulkimportusers", second_filename, facility=self.facility.id)
-        assert passwd1 != FacilityUser.objects.get(username="new_learner").password
+        assert passwd1 != FacilityUser.all_objects.get(username="new_learner").password
         # When updating, an asterisk should keep the previous password:
-        assert passwd2 == FacilityUser.objects.get(username="new_coach").password
+        assert passwd2 == FacilityUser.all_objects.get(username="new_coach").password
 
     def test_delete_users_and_classes(self):
         self.import_exported_csv()
@@ -486,17 +488,17 @@ class ImportTestCase(TestCase):
         )
 
         # Previous users have been deleted, excepting the existing admin:
-        learners = FacilityUser.objects.filter(
+        learners = FacilityUser.all_objects.filter(
             facility=self.facility, roles__kind=None
         ).all()
         assert len(learners) == 1
-        coaches = FacilityUser.objects.filter(
+        coaches = FacilityUser.all_objects.filter(
             facility=self.facility,
             roles__collection_id=self.facility,
             roles__kind=role_kinds.COACH,
         ).all()
         assert len(coaches) == 1
-        admins = FacilityUser.objects.filter(
+        admins = FacilityUser.all_objects.filter(
             facility=self.facility,
             roles__collection_id=self.facility,
             roles__kind=role_kinds.ADMIN,
@@ -516,7 +518,7 @@ class ImportTestCase(TestCase):
 
     def test_add_users_and_classes(self):
         self.import_exported_csv()
-        old_users = FacilityUser.objects.count()
+        old_users = FacilityUser.all_objects.count()
         # new csv to import and update classes, adding users and keeping previous not been in the csv:
         _, new_filename = tempfile.mkstemp(suffix=".csv")
         rows = [
@@ -546,7 +548,7 @@ class ImportTestCase(TestCase):
         ]
         self.create_csv(new_filename, rows)
         call_command("bulkimportusers", new_filename, facility=self.facility.id)
-        assert FacilityUser.objects.count() == old_users + 2
+        assert FacilityUser.all_objects.count() == old_users + 2
         current_classes = Classroom.objects.filter(parent_id=self.facility).all()
         for classroom in current_classes:
             if classroom.name == "classroom0":
@@ -558,11 +560,11 @@ class ImportTestCase(TestCase):
             )  # ['learnerag', 'learnerclassXgroup0', 'new_learner']
 
         # check demographics import:
-        new_learner = FacilityUser.objects.get(username="new_learner")
+        new_learner = FacilityUser.all_objects.get(username="new_learner")
         assert new_learner.gender == demographics.FEMALE
         assert new_learner.birth_year == "2001"
         assert new_learner.id_number == "KALITE"
-        new_coach = FacilityUser.objects.get(username="new_coach")
+        new_coach = FacilityUser.all_objects.get(username="new_coach")
         assert new_coach.gender == demographics.MALE
 
     def test_classes_names_case_insensitive(self):
@@ -642,3 +644,41 @@ class ImportTestCase(TestCase):
         result = out_log.getvalue().strip().split("\n")
 
         assert len(result) == number_of_rows
+
+    def test_import_undeletes_soft_deleted_user(self):
+        """Test that importing a soft-deleted user with matching UUID un-deletes them"""
+        # Create a user and soft-delete them
+        user = FacilityUser.objects.create(
+            username="testuser",
+            password=make_password("password"),
+            facility=self.facility,
+        )
+        user.date_deleted = timezone.now()
+        user.save()
+
+        self.assertIsNotNone(FacilityUser.all_objects.get(id=user.id).date_deleted)
+        self.assertFalse(FacilityUser.objects.filter(id=user.id).exists())
+
+        _, csv_filename = tempfile.mkstemp(suffix=".csv")
+        rows = [
+            [
+                str(user.id),
+                "testuser",
+                "newpassword",
+                "Test User",
+                "LEARNER",
+                "",
+                "",
+                "",
+                "",
+                "",
+            ]
+        ]
+        self.create_csv(csv_filename, rows)
+
+        call_command("bulkimportusers", csv_filename, facility=self.facility.id)
+
+        imported_user = FacilityUser.objects.get(id=user.id)
+        self.assertIsNone(imported_user.date_deleted)
+        self.assertEqual(imported_user.username, "testuser")
+        self.assertTrue(imported_user.check_password("newpassword"))

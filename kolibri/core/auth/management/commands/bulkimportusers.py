@@ -275,7 +275,7 @@ class Validator(object):
         lowercase_username = username.lower()
 
         # Check if a user with the provided username exists (case-insensitive)
-        existing_user = FacilityUser.objects.filter(
+        existing_user = FacilityUser.all_objects.filter(
             username__iexact=lowercase_username, facility=self.facility
         ).first()
         # Convert existing keys in self.users to lowercase
@@ -567,7 +567,7 @@ class Command(AsyncCommand):
             if u[self.header_translation["UUID"]] != ""
         ]
         existing_users = (
-            FacilityUser.objects.filter(facility=self.default_facility)
+            FacilityUser.all_objects.filter(facility=self.default_facility)
             .filter(id__in=users_uuid)
             .values_list("id", flat=True)
         )
@@ -579,13 +579,16 @@ class Command(AsyncCommand):
             user_row = users[user]
             values = self.get_field_values(user_row)
             if values["uuid"] in existing_users:
-                user_obj = FacilityUser.objects.get(
+                user_obj = FacilityUser.all_objects.get(
                     id=values["uuid"], facility=self.default_facility
                 )
+                # If user was soft-deleted, un-delete them
+                if user_obj.date_deleted is not None:
+                    user_obj.date_deleted = None
                 keeping_users.append(user_obj)
                 if user_obj.username != user:
                     # check for duplicated username in the facility
-                    existing_user = FacilityUser.objects.get(
+                    existing_user = FacilityUser.all_objects.get(
                         username__iexact=user, facility=self.default_facility
                     )
                     if existing_user:
@@ -603,7 +606,7 @@ class Command(AsyncCommand):
             else:
                 # If UUID is not specified, check for a username clash
                 if values["uuid"] == "":
-                    existing_user = FacilityUser.objects.filter(
+                    existing_user = FacilityUser.all_objects.filter(
                         username__iexact=user, facility=self.default_facility
                     ).first()
                     if existing_user:
@@ -742,7 +745,7 @@ class Command(AsyncCommand):
         users_not_to_delete += admins.values_list("id", flat=True)
         if options["userid"]:
             users_not_to_delete.append(options["userid"])
-        users_to_delete = FacilityUser.objects.filter(
+        users_to_delete = FacilityUser.all_objects.filter(
             facility=self.default_facility
         ).exclude(id__in=users_not_to_delete)
         # Classes not included in the csv will be cleared of users,
@@ -767,7 +770,7 @@ class Command(AsyncCommand):
     def get_user(self, username, users):
         user = users.get(username, None)
         if not user:  # the user has not been created nor updated:
-            user = FacilityUser.objects.get(
+            user = FacilityUser.all_objects.get(
                 username=username, facility=self.default_facility
             )
         return user

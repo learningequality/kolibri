@@ -3,15 +3,24 @@ import importlib
 import json
 import logging
 import os
+import pkgutil
 import sys
 import tempfile
 
-from pkg_resources import DistributionNotFound
-from pkg_resources import get_distribution
-from pkg_resources import resource_exists
-from pkg_resources import resource_filename
-from pkg_resources import resource_isdir
-from pkg_resources import resource_listdir
+# Use modern APIs exclusively, with backports for older Python versions
+try:
+    # Python 3.8+ has importlib.metadata
+    from importlib.metadata import distribution, PackageNotFoundError
+except ImportError:
+    # Python 3.6-3.7 need the backport
+    from importlib_metadata import distribution, PackageNotFoundError
+
+try:
+    # Python 3.9+ has full importlib.resources
+    from importlib.resources import files
+except ImportError:
+    # Python 3.6-3.8 need the backport
+    from importlib_resources import files
 
 logger = logging.getLogger("webpack_json")
 logger.setLevel(level=logging.INFO)
@@ -20,6 +29,39 @@ handler.setLevel(logging.INFO)
 logger.addHandler(handler)
 
 BUILD_CONFIG = "buildConfig.js"
+
+
+def resource_exists(package, resource):
+    """Check if a resource exists in a package."""
+    try:
+        return (files(package) / resource).is_file()
+    except (ModuleNotFoundError, AttributeError, TypeError):
+        return False
+
+
+def resource_filename(package, resource):
+    """Get the filename of a resource in a package."""
+    try:
+        return str(files(package) / resource)
+    except (ModuleNotFoundError, AttributeError, TypeError):
+        raise FileNotFoundError(f"Resource {resource} not found in {package}")
+
+
+def resource_isdir(package, resource):
+    """Check if a resource is a directory in a package."""
+    try:
+        return (files(package) / resource).is_dir()
+    except (ModuleNotFoundError, AttributeError, TypeError):
+        return False
+
+
+def resource_listdir(package, resource):
+    """List contents of a directory resource in a package."""
+    try:
+        path = files(package) / resource if resource != "." else files(package)
+        return [item.name for item in path.iterdir()]
+    except (ModuleNotFoundError, AttributeError, TypeError):
+        return []
 
 
 def load_plugins_from_file(file_path):
@@ -57,25 +99,29 @@ def expand_glob(build_item):
     parent_module_path = ".".join(
         [item for item in build_item.split(".") if item and item != "*"]
     )
+
     try:
-        for file in resource_listdir(parent_module_path, "."):
-            if resource_isdir(parent_module_path, file):
+        parent_module = importlib.import_module(parent_module_path)
+        # Use pkgutil for module discovery - it's stable and handles namespace packages well
+        for _, modname, ispkg in pkgutil.iter_modules(
+            parent_module.__path__, parent_module_path + "."
+        ):
+            if ispkg:
                 try:
-                    child_module_path = parent_module_path + "." + file
-                    plugin = plugin_data(child_module_path)
+                    plugin = plugin_data(modname)
                     if plugin is not None:
                         plugins.append(plugin)
                 except ImportError:
                     continue
-    except OSError:
+    except (ImportError, AttributeError):
         pass
     return plugins
 
 
 def get_version(module_path):
     try:
-        return get_distribution(module_path).version
-    except (DistributionNotFound, AttributeError):
+        return distribution(module_path).version
+    except (PackageNotFoundError, AttributeError):
         try:
             module = importlib.import_module(module_path)
             return module.__version__
@@ -114,9 +160,8 @@ def plugin_data(module_path):
                 "module_path": module_path,
                 "version": version,
             }
-    # Python 3.{4,5,6} raises a NotImplementedError for an empty directory
-    # Python 3.7 raises a TypeError for an empty directory
-    except (NotImplementedError, TypeError):
+    # Handle cases where the module doesn't have the expected structure
+    except (FileNotFoundError, ModuleNotFoundError):
         pass
     raise ImportError("No frontend build assets for plugin {}".format(module_path))
 

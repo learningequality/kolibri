@@ -35,7 +35,7 @@ describe('Mediator', () => {
       mediator.handleMessage({ data: { event, nameSpace, data } });
       expect(callback).toHaveBeenCalledWith(data);
     });
-    it('should call a registered callback even if another callback registered for the same event errors', () => {
+    it('should debug log if a callback registered for the same event errors', () => {
       console.debug = jest.fn(); // eslint-disable-line no-console
       const callbackError = jest.fn(() => {
         throw new Error();

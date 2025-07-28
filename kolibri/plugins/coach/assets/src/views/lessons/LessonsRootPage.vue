@@ -103,7 +103,6 @@
                         v-else
                         :key="`switch-${lesson.id}`"
                         name="toggle-lesson-visibility"
-                        label=""
                         :checked="lesson.active"
                         :value="lesson.active"
                         @change="toggleModal(lesson)"

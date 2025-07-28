@@ -11,8 +11,6 @@ Talk to us
 ----------
 
 * Get product support in our `Community Forums <http://community.learningequality.org/>`__.
-* Get development contributions support in `Kolibri GitHub Discussions <https://github.com/learningequality/kolibri/discussions>`__.
-* Email us at contributors@learningequality.org
 
 Translate
 ---------
@@ -36,7 +34,7 @@ Please make sure to use the template. Replace the HTML comments (the ``<!-- ... 
 Write code
 ----------
 
-See `How can I contribute? <https://github.com/learningequality/kolibri/blob/develop/CONTRIBUTING.md>`__
+Visit the `Contributing to our open code base <https://learningequality.org/contributing-to-our-open-code-base/>`__
 
 Write documentation
 -------------------

@@ -767,11 +767,4 @@
     margin-left: 8px;
   }
 
-  .header-content h2 {
-    position: absolute;
-    top: 50%;
-    text-align: left;
-    transform: translate(0, -50%);
-  }
-
 </style>

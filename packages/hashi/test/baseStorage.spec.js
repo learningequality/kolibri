@@ -110,13 +110,6 @@ describe('BaseStorage hashi shim', () => {
         });
         expect(shim.key(1)).toEqual('test1');
       });
-      it('should return the key of the passed in index', () => {
-        baseStorage.__setData({
-          test: 'test',
-          test1: 'test',
-        });
-        expect(shim.key(1)).toEqual('test1');
-      });
       it('should return null if an invalid index is passed in', () => {
         baseStorage.__setData({
           test: 'test',

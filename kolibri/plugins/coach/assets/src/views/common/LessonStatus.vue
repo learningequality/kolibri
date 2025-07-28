@@ -12,6 +12,7 @@
         }"
       >
         <KGridItem
+          id="toggle-lesson-visibility-label"
           class="status-label"
           :style="{ marginBottom: 0 }"
           :layout4="{ span: 3 }"
@@ -27,7 +28,7 @@
         >
           <KSwitch
             name="toggle-lesson-visibility"
-            label=""
+            :ariaLabelledBy="'toggle-lesson-visibility-label'"
             :checked="lesson.active"
             :value="lesson.active"
             @change="toggleModal(lesson)"

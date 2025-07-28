@@ -7,6 +7,7 @@ from mock import patch
 
 from .sqlalchemytesting import django_connection_engine
 from kolibri.core.content import models as content
+from kolibri.core.content.utils.content_delete import delete_content
 
 
 def get_engine(connection_string):
@@ -24,7 +25,12 @@ class DeleteChannelTestCase(TransactionTestCase):
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     def delete_channel(self):
-        call_command("deletechannel", self.the_channel_id)
+        delete_content(
+            channel_id=self.the_channel_id,
+            node_ids=None,
+            exclude_node_ids=None,
+            force_delete=False,
+        )
 
     def test_channelmetadata_delete_remove_metadata_object(self):
         self.delete_channel()

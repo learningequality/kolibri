@@ -80,26 +80,6 @@ describe('the kolibri hashi shim', () => {
     });
   });
 
-  describe('getContentById method', () => {
-    response = { node: { id: 'abc123' } };
-    id = 'abc123';
-    beforeEach(function () {
-      mockMessage = {
-        data: { dataType: 'Model', id: 'abc123' },
-        event: 'datarequested',
-        nameSpace: 'hashi',
-      };
-      mockMediatorPromise = jest
-        .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
-        .mockResolvedValue(response);
-    });
-    it('should return a promise that resolves to a ContentNode object', () => {
-      return kolibri.shim.getContentById(id).then(data => {
-        expect(data).toEqual(response);
-      });
-    });
-  });
-
   describe('navigateTo method', () => {
     it('should return a promise', () => {
       expect(kolibri.shim.navigateTo()).toBeInstanceOf(Promise);
@@ -139,7 +119,7 @@ describe('the kolibri hashi shim', () => {
     });
   });
 
-  xdescribe('version getter', () => {
+  describe.skip('version getter', () => {
     it('returns the correct version number', () => {
       // "testversion" is set in jest.conf. In production, this is injected by webpack.
       expect(kolibri.shim.version).toEqual('testversion');

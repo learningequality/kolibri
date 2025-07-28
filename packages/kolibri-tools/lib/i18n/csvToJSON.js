@@ -17,6 +17,9 @@ module.exports = function (pathInfo, ignore, langInfo, localeDataFolder, verbose
     logging.info(`Gathering required string ids for ${name}`);
     let messages;
     if (pathData.entry) {
+      if (!pathData.isCoreBundle) {
+        ignore = [...ignore, '**/packages/kolibri/**', '**/node_modules/kolibri/**'];
+      }
       messages = getAllMessagesFromEntryFiles(pathData.entry, moduleFilePath, ignore, verbose);
     } else {
       messages = getAllMessagesFromFilePath(moduleFilePath, ignore, verbose);

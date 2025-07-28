@@ -20,7 +20,6 @@ from django.conf import settings
 from django.contrib.staticfiles.finders import find as find_staticfiles
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.serializers.json import DjangoJSONEncoder
-from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 from django.utils.translation import get_language_info
@@ -79,15 +78,19 @@ class WebpackBundleHook(hooks.KolibriHook):
             return hook
         raise WebpackError("No bundle with that name is loaded: '{}'".format(unique_id))
 
-    @cached_property
+    @property
     def _stats_file_content(self):
         """
         :returns: A dict of the data contained in the JSON files which are
           written by Webpack.
         """
+        DEVELOPER_MODE = getattr(settings, "DEVELOPER_MODE", False)
+        if hasattr(self, "_cached_stats_file_content") and not DEVELOPER_MODE:
+            return self._cached_stats_file_content
+
         stats = self.get_stats()
 
-        if getattr(settings, "DEVELOPER_MODE", False):
+        if DEVELOPER_MODE:
             timeout = 0
 
             while stats["status"] == "compile":
@@ -105,6 +108,8 @@ class WebpackBundleHook(hooks.KolibriHook):
         stats_file_content = {
             "files": stats.get("chunks", {}).get(self.unique_id, []),
         }
+
+        self._cached_stats_file_content = stats_file_content
 
         return stats_file_content
 

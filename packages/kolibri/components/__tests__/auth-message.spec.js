@@ -34,7 +34,6 @@ describe('auth message component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useUser.mockImplementation(() => useUserMock());
-    window.location.href = 'http://localhost:8000/#/test_url';
   });
 
   it('shows the correct details when there are no props', () => {
@@ -96,17 +95,7 @@ describe('auth message component', () => {
       const wrapper = makeWrapper();
       const link = wrapper.find('[data-test=signinlink]');
       expect(link.attributes()).toMatchObject({
-        href: 'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Ftest_url',
-        text: 'Sign in to Kolibri',
-      });
-    });
-
-    it('if the next param is in URL, it is what is used in the sign-in page link', () => {
-      window.location.href = 'http://localhost:8000/#/some_other_url';
-      const wrapper = makeWrapper();
-      const link = wrapper.find('[data-test=signinlink]');
-      expect(link.attributes()).toMatchObject({
-        href: 'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Flocalhost%3A8000%2F%23%2Fsome_other_url',
+        href: 'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Fkolibri.time%2F%23%2F',
         text: 'Sign in to Kolibri',
       });
     });

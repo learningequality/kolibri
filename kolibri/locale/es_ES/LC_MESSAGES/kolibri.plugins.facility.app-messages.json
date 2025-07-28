@@ -233,7 +233,7 @@
   "Preview.error": "Error",
   "Preview.import": "Importar",
   "Preview.importError": "No fue posible importar a causa de los siguientes errores:",
-  "Preview.rowNumber": "Numero fila",
+  "Preview.rowNumber": "Número fila",
   "Preview.skipped": "Omitida",
   "Preview.someRowErrors": "Estas filas tienen errores y se van a omitir si continuas:",
   "Preview.someSkipped": "Estas filas se omitieron:",

@@ -13,10 +13,10 @@
     "test-jest-cov": "yarn run test-jest --coverage",
     "coverage": "yarn run test-jest-cov",
     "build": "yarn run hashi-build && kolibri-tools build prod --file ./build_tools/build_plugins.txt --transpile",
-    "makemessages": "kolibri-tools i18n-extract-messages --pluginFile ./build_tools/build_plugins.txt --namespace kolibri-common --searchPath ./packages/kolibri-common",
-    "createprofiles": "kolibri-tools i18n-profile --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/strings.csv --namespace kolibri-common --searchPath ./packages/kolibri-common",
-    "auditdittostrings": "kolibri-tools i18n-audit --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/ditto.csv --namespace kolibri-common --searchPath ./packages/kolibri-common",
-    "transfercontext": "kolibri-tools i18n-transfer-context --pluginFile ./build_tools/build_plugins.txt --namespace kolibri-common --searchPath ./packages/kolibri-common",
+    "makemessages": "kolibri-tools i18n-extract-messages --pluginFile ./build_tools/build_plugins.txt --namespace kolibri-common --searchPath ./packages/kolibri-common --namespace kolibri-core --searchPath ./packages/kolibri",
+    "createprofiles": "kolibri-tools i18n-profile --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/strings.csv --namespace kolibri-common --searchPath ./packages/kolibri-common --namespace kolibri-core --searchPath ./packages/kolibri",
+    "auditdittostrings": "kolibri-tools i18n-audit --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/ditto.csv --namespace kolibri-common --searchPath ./packages/kolibri-common --namespace kolibri-core --searchPath ./packages/kolibri",
+    "transfercontext": "kolibri-tools i18n-transfer-context --pluginFile ./build_tools/build_plugins.txt --namespace kolibri-common --searchPath ./packages/kolibri-common --namespace kolibri-core --searchPath ./packages/kolibri",
     "watch": "kolibri-tools build dev --file ./build_tools/build_plugins.txt --cache",
     "watch-hot": "yarn run watch --hot",
     "app-python-devserver": "DJANGO_SETTINGS_MODULE=kolibri.deployment.default.settings.dev python ./integration_testing/scripts/run_kolibri_app_mode.py",
@@ -49,7 +49,7 @@
   },
   "private": true,
   "devDependencies": {
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "xhr-mock": "^2.5.1",
     "concurrently": "^8.0.1"
   },
@@ -58,14 +58,14 @@
   },
   "engineStrict": true,
   "engines": {
-    "node": ">= 18.20.0",
+    "node": ">= 20.19.0",
     "yarn": ">= 1.12.3"
   },
   "browserslist": [
     "extends browserslist-config-kolibri"
   ],
   "volta": {
-    "node": "18.20.7",
+    "node": "20.19.3",
     "yarn": "1.22.22"
   }
 }

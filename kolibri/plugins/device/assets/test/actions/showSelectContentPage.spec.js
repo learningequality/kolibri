@@ -7,7 +7,7 @@ import { makeSelectContentPageStore } from '../utils/makeStore';
 
 jest.mock('kolibri/apiResources/TaskResource');
 jest.mock('kolibri-common/apiResources/ChannelResource');
-jest.genMockFromModule('../../src/apiResources/deviceChannel');
+jest.createMockFromModule('../../src/apiResources/deviceChannel');
 
 // Have store suddenly add a Task to the store so the task waiting step
 // resolves successfully

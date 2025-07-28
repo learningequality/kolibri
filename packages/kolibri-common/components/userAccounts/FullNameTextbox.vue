@@ -72,6 +72,12 @@
       focus() {
         return this.$refs.textbox.focus();
       },
+      /**
+       * @public
+       */
+      reset() {
+        this.blurred = false;
+      },
     },
   };
 

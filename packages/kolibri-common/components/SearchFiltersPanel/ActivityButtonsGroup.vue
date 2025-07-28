@@ -1,7 +1,10 @@
 <template>
 
   <div>
-    <h2 class="title">
+    <h2
+      v-if="Object.keys(availableLearningActivities).length > 0"
+      class="title"
+    >
       {{ $tr('activities') }}
     </h2>
     <div class="wrapper">
@@ -15,7 +18,9 @@
           :appearanceOverrides="
             isKeyActive(key) ? { ...activityStyles, ...activityActiveStyles } : activityStyles
           "
-          :disabled="availableActivities && !availableActivities[key] && !isKeyActive(key)"
+          :disabled="
+            searchLoading || (availableActivities && !availableActivities[key] && !isKeyActive(key))
+          "
           @click="$emit('input', key)"
         >
           <KIcon
@@ -44,12 +49,13 @@
     name: 'ActivityButtonsGroup',
     mixins: [commonCoreStrings],
     setup() {
-      const { availableLearningActivities, searchableLabels, activeSearchTerms } =
+      const { availableLearningActivities, searchableLabels, activeSearchTerms, searchLoading } =
         injectBaseSearch();
       return {
         availableLearningActivities,
         searchableLabels,
         activeSearchTerms,
+        searchLoading,
       };
     },
     computed: {

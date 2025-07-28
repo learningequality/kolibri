@@ -30,7 +30,7 @@ export function showExam(store, params, alreadyOnQuiz) {
       ([classroom, exam]) => {
         if (shouldResolve()) {
           store.commit('classAssignments/SET_CURRENT_CLASSROOM', classroom);
-          fetchExamWithContent(exam).then(({ exam: converted, exercises: contentNodes }) => {
+          (fetchExamWithContent(exam).then(({ exam: converted, exercises: contentNodes }) => {
             if (shouldResolve()) {
               let { question_sources } = converted;
 
@@ -95,7 +95,7 @@ export function showExam(store, params, alreadyOnQuiz) {
               shouldResolve()
                 ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
                 : null;
-            };
+            });
         }
       },
       error => {

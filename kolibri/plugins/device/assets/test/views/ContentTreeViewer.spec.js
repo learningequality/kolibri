@@ -121,7 +121,7 @@ describe('ContentTreeViewer component', () => {
     expect(contentNodeRows()).toHaveLength(1);
   });
 
-  it('it shows an empty state if the topic has no children', () => {
+  it('shows an empty state if the topic has no children', () => {
     setChildren([]);
     const wrapper = makeWrapper({ store });
     const { contentsSection, emptyState } = getElements(wrapper);

@@ -33,6 +33,9 @@
       },
     },
     computed: {
+      isLatestExamVersion() {
+        return this.exam?.data_model_version >= 3;
+      },
       options() {
         const options = [
           {
@@ -41,7 +44,7 @@
           },
           { label: this.coreString('deleteAction'), value: 'DELETE' },
         ];
-        if (!this.exam?.archive) {
+        if (this.isLatestExamVersion) {
           options.unshift({
             label: this.exam?.draft
               ? this.coreString('editAction')

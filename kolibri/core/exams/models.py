@@ -448,7 +448,6 @@ class IndividualSyncableExam(AbstractFacilityDataModel):
             "creator_id",
             "date_created",
             "date_activated",
-            "collection_id",
         ]:
             serialized.pop(key, None)
         return serialized

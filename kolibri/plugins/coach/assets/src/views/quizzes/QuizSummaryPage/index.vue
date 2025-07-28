@@ -284,17 +284,15 @@
         const title = examTitle.trim().substring(0, 100).trim();
 
         const assignments = serverAssignmentPayload(groupIds, classroomId);
-
         const newQuiz = {
           title,
           draft: true,
           collection: classroomId,
-          assignments,
+          assignments: adHocLearnerIds.length > 0 ? [] : assignments,
           learner_ids: adHocLearnerIds,
           // This ensures backward compatibility for all question_sources versions
           question_sources: (await convertExamQuestionSources(this.exam)).question_sources,
         };
-
         ExamResource.saveModel({ data: newQuiz })
           .then(result => {
             this.showSnackbarNotification('quizCopied');

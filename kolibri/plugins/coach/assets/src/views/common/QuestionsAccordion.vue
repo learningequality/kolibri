@@ -56,7 +56,7 @@
           }"
         >
           <AccordionItem
-            :title="displayQuestionTitle(question, getQuestionContent(question).title)"
+            :title="getDisplayQuestionTitle(question, getQuestionContent(question)?.title)"
             :disabledTitle="questionItemsToReplace?.includes(question.item)"
             :aria-selected="questionIsChecked(question)"
             :headerAppearanceOverrides="{
@@ -100,6 +100,7 @@
                 :style="{ userSelect: dragActive ? 'none !important' : 'text' }"
               >
                 <ContentRenderer
+                  v-if="getQuestionContent(question)"
                   :ref="`contentRenderer-${question.item}`"
                   :kind="getQuestionContent(question).kind"
                   :lang="getQuestionContent(question).lang"
@@ -115,6 +116,13 @@
                   @updateContentState="() => null"
                   @error="err => $emit('error', err)"
                 />
+                <div v-else>
+                  <KIcon
+                    icon="warning"
+                    :style="{ fill: $themePalette.yellow.v_600 }"
+                  />
+                  {{ coreString('resourceNotFoundOnDevice') }}
+                </div>
                 <slot
                   name="questionExtraContent"
                   :question="question"
@@ -133,15 +141,13 @@
 <script>
 
   import { computed, ref } from 'vue';
-  import {
-    enhancedQuizManagementStrings,
-    displayQuestionTitle,
-  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import Draggable from 'kolibri-common/components/sortable/Draggable';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import useDrag from './useDrag.js';
 
@@ -155,6 +161,7 @@
       AccordionItem,
       AccordionContainer,
     },
+    mixins: [commonCoreStrings],
     setup(props) {
       const dragActive = ref(false);
 
@@ -244,7 +251,6 @@
         moveUpOne,
         moveDownOne,
         questionIsChecked,
-        displayQuestionTitle,
         questionCheckboxDisabled,
 
         selectAllLabel$,
@@ -348,6 +354,9 @@
             this.selectableQuestions.map(question => question.item),
           );
         }
+      },
+      getDisplayQuestionTitle(question, title) {
+        return title || this.coreString('resourceNotFoundOnDevice');
       },
     },
   };

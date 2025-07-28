@@ -7,6 +7,9 @@
     <h1 :style="{ color: $themeTokens.text }">
       {{ sectionSettings$() }}
     </h1>
+    <div>
+      <MissingResourceAlert v-if="exam.missing_resource" />
+    </div>
 
     <KTextbox
       ref="sectionTitle"
@@ -134,6 +137,7 @@
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { PageNames } from '../../../../../constants/index';
   import { coachStrings } from '../../../../common/commonCoachStrings.js';
@@ -141,6 +145,9 @@
 
   export default {
     name: 'SectionEditor',
+    components: {
+      MissingResourceAlert,
+    },
     mixins: [commonCoreStrings],
     setup(_, context) {
       const router = getCurrentInstance().proxy.$router;
@@ -148,8 +155,9 @@
       const route = computed(() => store.state.route);
       const { createSnackbar } = useSnackbar();
 
+      const examMap = computed(() => store.state.classSummary.examMap);
+
       const {
-        sectionSettings$,
         sectionTitle$,
         sectionTitleUniqueWarning$,
         optionalDescriptionLabel$,
@@ -308,10 +316,10 @@
         section_title,
         resourceButtonLabel,
         showResourceButton,
+        examMap,
         maxQuestionsLabel,
         // i18n
         displaySectionTitle,
-        sectionSettings$,
         sectionTitle$,
         optionalDescriptionLabel$,
         numberOfQuestionsSelected$,
@@ -328,6 +336,9 @@
       };
     },
     computed: {
+      exam() {
+        return this.examMap[this.$route.params.quizId] || {};
+      },
       dividerStyle() {
         return `color : ${this.$themeTokens.fineLine}`;
       },
@@ -458,10 +469,10 @@
     left: 0;
     display: flex;
     justify-content: space-between;
-    padding: 1em;
+    padding: 1em 2em;
     margin-top: 1em;
     background-color: #ffffff;
-    border-top: 1px solid black;
+    @extend %dropshadow-2dp;
   }
 
   /deep/ .textbox {

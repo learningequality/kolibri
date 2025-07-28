@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-04-07 13:38-0400\n"
-"PO-Revision-Date: 2025-04-08 20:23\n"
+"PO-Revision-Date: 2025-04-23 20:44\n"
 "Last-Translator: \n"
 "Language-Team: Haitian Creole\n"
 "Language: ht_HT\n"
@@ -74,7 +74,7 @@ msgstr "Sèks ({})"
 #: core/auth/management/commands/bulkexportusers.py:63
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "Enskripsyon etidyan ({})"
+msgstr "Enskripsyon aprenan ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:70
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
@@ -89,12 +89,12 @@ msgstr "Tip itilizatè ({})"
 #: core/auth/management/commands/bulkexportusers.py:140
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "Enskripsyon etidyan ({})"
+msgstr "Enskripsyon aprenan ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:147
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "Atribisyon edikatè ({})"
+msgstr "Atribisyon antrenè ({})"
 
 #: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
@@ -104,11 +104,11 @@ msgstr "Erè yo pa t atann [{}]: {}"
 #: core/auth/management/commands/bulkimportusers.py:80
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
-msgstr "Valè nan kolòn lan '{}' gen twòp karaktè"
+msgstr "Valè nan kolòn '{}' gen twòp karaktè"
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr "Valè nan kolòn lan '{}' pa valid"
+msgstr "Valè nan kolòn '{}' pa valid"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -217,12 +217,12 @@ msgstr "Tit kontni an"
 #: core/logger/csv_export.py:132
 msgctxt "CSV column header for the time of the first interaction in the exported logs"
 msgid "Time of first interaction"
-msgstr "Lè premye entèaksyon an"
+msgstr "Lè premye entèraksyon an"
 
 #: core/logger/csv_export.py:139
 msgctxt "CSV column header for the time of the last interaction in the exported logs"
 msgid "Time of last interaction"
-msgstr "Lè dènye entèaksyon"
+msgstr "Lè dènye entèraksyon"
 
 #: core/logger/csv_export.py:146
 msgctxt "CSV column header for the percentage of completion in the exported logs"
@@ -232,7 +232,7 @@ msgstr "Lè sa fini"
 #: core/logger/csv_export.py:153
 msgctxt "CSV column header for the time spent in a resource in the exported logs"
 msgid "Time Spent (sec)"
-msgstr "Tan ki Pase (sec)"
+msgstr "Tan ki Pase (seg)"
 
 #: core/logger/csv_export.py:156
 msgid "Progress (0-1)"
@@ -244,7 +244,7 @@ msgstr "Tip kontni"
 
 #: core/logger/csv_export.py:288
 msgid "Folder level {i+1}"
-msgstr ""
+msgstr "Pozisyon dosye a nan estrikti tematik la (similè ak fil daryàn): yon dosye ki nan rasin chèn lan t ap nan \"Dosye nivo 1\", yon dosye ki anndan dosye sa a t ap nan \"Dosye nivo 2\", elatriye."
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
 #: core/tasks/job.py:86
@@ -290,7 +290,7 @@ msgstr "Sinon, tanpri mande èd nan fowòm kominote nou yo"
 
 #: core/templates/kolibri/loading_page.html:91
 msgid "Refresh page"
-msgstr "Rafrechi paj la"
+msgstr "Aktyalize paj la"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"

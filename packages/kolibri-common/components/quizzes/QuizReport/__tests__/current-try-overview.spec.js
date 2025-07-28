@@ -199,7 +199,7 @@ describe('ExamReport/CurrentTryOverview', () => {
         'displays %i as a percentage when currentTry.correct = %i',
         async n => {
           await wrapper.setProps({ currentTry: { ...defaultTry, correct: n } });
-          expect(wrapper.find('[data-test="try-score"]').toHaveTextContent(`${n}%`));
+          expect(wrapper.find('[data-test="try-score"]')).toHaveTextContent(`${n}%`);
         },
       );
     });

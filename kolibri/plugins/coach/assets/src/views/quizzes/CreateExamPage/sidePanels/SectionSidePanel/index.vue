@@ -6,10 +6,24 @@
     alignment="right"
     sidePanelWidth="700px"
     closeButtonIconType="close"
+    :addBottomBorder="false"
     @closePanel="handleClosePanel"
     @shouldFocusFirstEl="findFirstEl()"
   >
     <template #header>
+      <h1
+        v-if="$route.name === PageNames.QUIZ_SECTION_ORDER"
+        class="sidepanel-title"
+      >
+        {{ editAction$() }} -
+        {{ sectionOrderLabel$() }}
+      </h1>
+      <h1
+        v-else
+        class="sidepanel-title"
+      >
+        {{ editSectionLabel$() }}
+      </h1>
       <KIconButton
         v-if="canGoBack"
         icon="back"
@@ -26,6 +40,8 @@
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { ref, watch, computed, getCurrentInstance } from 'vue';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../../../constants';
 
   export default {
@@ -40,6 +56,8 @@
 
       const canGoBack = ref(false);
       const showSidePanel = computed(() => route.value?.name !== PageNames.EXAM_CREATION_ROOT);
+      const { editSectionLabel$, sectionOrderLabel$ } = enhancedQuizManagementStrings;
+      const { editAction$ } = coreStrings;
 
       function handleClosePanel() {
         router.push({
@@ -71,6 +89,10 @@
         canGoBack,
         showSidePanel,
         handleClosePanel,
+        editSectionLabel$,
+        sectionOrderLabel$,
+        editAction$,
+        PageNames,
       };
     },
     methods: {
@@ -84,3 +106,17 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .sidepanel-title {
+    padding-left: 16px;
+    font-size: 18px;
+  }
+
+  /deep/ .header-content {
+    padding-right: 8px;
+  }
+
+</style>

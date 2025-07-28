@@ -2,7 +2,6 @@
 
   <KModal
     :title="$tr('welcomeModalHeader')"
-    :submitText="coreString('continueAction')"
     @submit="$emit('submit')"
   >
     <p
@@ -12,6 +11,11 @@
     >
       {{ paragraph }}
     </p>
+    <template #actions>
+      <KButton @click="$emit('submit')">
+        {{ coreString('continueAction') }}
+      </KButton>
+    </template>
   </KModal>
 
 </template>
@@ -20,6 +24,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
 
@@ -29,7 +34,8 @@
     setup() {
       const { isLearnerOnlyImport } = useUser();
       const { facilities } = useFacilities();
-      return { isLearnerOnlyImport, facilities };
+      const { onMyOwnWelcomeMessage$ } = kolibriOnboardingGuideStrings;
+      return { isLearnerOnlyImport, facilities, onMyOwnWelcomeMessage$ };
     },
     props: {
       importedFacility: {
@@ -54,7 +60,7 @@
           return [this.$tr('learnOnlyDeviceWelcomeMessage1'), sndParagraph];
         }
         if (this.isOnMyOwnUser) {
-          return [this.coreString('nothingInLibraryLearner')];
+          return [this.onMyOwnWelcomeMessage$()];
         }
         if (this.importedFacility) {
           return [

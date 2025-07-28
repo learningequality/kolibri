@@ -154,7 +154,7 @@
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import IdentifierTextbox from './IdentifierTextbox';
+  import IdentifierTextbox from './users/sidePanels/UserCreate/IdentifierTextbox.vue';
 
   export default {
     name: 'UserEditPage',

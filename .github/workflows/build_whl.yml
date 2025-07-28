@@ -22,6 +22,9 @@ jobs:
     steps:
     - name: Install Ubuntu dependencies
       run: |
+        echo "deb http://archive.debian.org/debian-archive/debian/ buster main" > /etc/apt/sources.list
+        echo "deb http://archive.debian.org/debian-archive/debian-security/ buster/updates main" >> /etc/apt/sources.list
+        echo "Acquire::Check-Valid-Until \"false\";" > /etc/apt/apt.conf.d/99archive
         apt-get -y -qq update
         apt-get install -y gettext sudo sqlite3 binutils-aarch64-linux-gnu binutils-arm-linux-gnueabihf git-lfs
     - uses: actions/checkout@v4
@@ -31,7 +34,7 @@ jobs:
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18.x'
+        node-version: '20.x'
     - name: Install Yarn
       run: npm install -g yarn@1
     - name: Get yarn cache directory path

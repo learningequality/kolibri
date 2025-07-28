@@ -27,22 +27,22 @@ describe('xAPI data validation', () => {
     it('should throw an error when more than one IFI is supplied', () => {
       expect(() => {
         Agent.clean({ mbox, openid });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when no IFI is supplied', () => {
       expect(() => {
         Agent.clean({});
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when mbox without prefixed mailto: is supplied', () => {
       expect(() => {
         Agent.clean({ mbox: 'test@test.com' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when mbox is prefixed but is an obviously invalid email', () => {
       expect(() => {
         Agent.clean({ mbox: 'mailto:testtest.com' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return mbox when mbox is valid', () => {
       expect(Agent.clean({ mbox })).toEqual({ mbox });
@@ -50,12 +50,12 @@ describe('xAPI data validation', () => {
     it('should throw an error when mbox_sha1sum is not a 40 digit hex', () => {
       expect(() => {
         Agent.clean({ mbox_sha1sum: 'test@test.com' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when mbox_sha1sum is not a string', () => {
       expect(() => {
         Agent.clean({ mbox_sha1sum: 1234 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return mbox_sha1sum when mbox_sha1sum is valid', () => {
       const mbox_sha1sum = '6f9b9af3cd6e8b8a73c2cdced37fe9f59226e27d';
@@ -64,7 +64,7 @@ describe('xAPI data validation', () => {
     it('should throw an error when openid is not a string', () => {
       expect(() => {
         Agent.clean({ openid: 1234 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return openid when openid is valid', () => {
       expect(Agent.clean({ openid })).toEqual({ openid });
@@ -72,22 +72,22 @@ describe('xAPI data validation', () => {
     it('should throw an error when account.homePage is not defined', () => {
       expect(() => {
         Agent.clean({ account: { name: 'valid' } });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when account.homePage is not a string', () => {
       expect(() => {
         Agent.clean({ account: { name: 'valid', homePage: [] } });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when account.name is not defined', () => {
       expect(() => {
         Agent.clean({ account: { homePage: 'valid' } });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when account.name is not a string', () => {
       expect(() => {
         Agent.clean({ account: { name: [], homePage: 'valid' } });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return account when account is valid', () => {
       const account = {
@@ -99,12 +99,12 @@ describe('xAPI data validation', () => {
     it('should throw an error when objectType is not a string', () => {
       expect(() => {
         Agent.clean({ mbox, objectType: 1234 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when objectType is not Agent', () => {
       expect(() => {
         Agent.clean({ mbox, objectType: 'Secret' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return objectType when objectType is valid', () => {
       expect(Agent.clean({ mbox, objectType: 'Agent' })).toEqual({ mbox, objectType: 'Agent' });
@@ -112,7 +112,7 @@ describe('xAPI data validation', () => {
     it('should throw an error when name is not a string', () => {
       expect(() => {
         Agent.clean({ mbox, name: 1234 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return name when name is valid', () => {
       expect(Agent.clean({ mbox, name: 'Name' })).toEqual({ mbox, name: 'Name' });
@@ -123,32 +123,32 @@ describe('xAPI data validation', () => {
     it('should throw an error when more than one IFI is supplied', () => {
       expect(() => {
         Group.clean({ objectType, mbox, openid });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when objectType is not Group', () => {
       expect(() => {
         Group.clean({ objectType: 'Agent', mbox });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when no IFI and no member is supplied', () => {
       expect(() => {
         Group.clean({ objectType });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when an invalid member is supplied', () => {
       expect(() => {
         Group.clean({ objectType, member: [{ mbox, openid }] });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when member is not an array', () => {
       expect(() => {
         Group.clean({ objectType, member: 'member' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when name is not a string', () => {
       expect(() => {
         Group.clean({ objectType, mbox, name: 1234 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return name when name is valid', () => {
       expect(Group.clean({ objectType, mbox, name: 'Name' })).toEqual({
@@ -169,22 +169,22 @@ describe('xAPI data validation', () => {
     it('should throw an error no id is supplied', () => {
       expect(() => {
         Verb.clean({});
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when id is not a string', () => {
       expect(() => {
         Verb.clean({ id: 123 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when id is not an IRI', () => {
       expect(() => {
         Verb.clean({ id: '/resource' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when display is not an object', () => {
       expect(() => {
         Verb.clean({ id: '123', display: 'this' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return id when id is valid', () => {
       expect(Verb.clean({ id: 'http://test.org' })).toEqual({ id: 'http://test.org' });
@@ -197,32 +197,32 @@ describe('xAPI data validation', () => {
     it('should throw an error when type is not a string', () => {
       expect(() => {
         ActivityDefinition.clean({ type: 123 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when type is not an IRI', () => {
       expect(() => {
         ActivityDefinition.clean({ type: '123' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when name is not an object', () => {
       expect(() => {
         ActivityDefinition.clean({ name: 'this' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when name is not a languageMap', () => {
       expect(() => {
         ActivityDefinition.clean({ name: { this: 'that' } });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when description is not an object', () => {
       expect(() => {
         ActivityDefinition.clean({ description: 'this' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when description is not a languageMap', () => {
       expect(() => {
         ActivityDefinition.clean({ description: { this: 'that' } });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return type when type is valid', () => {
       expect(ActivityDefinition.clean({ type: 'http://test.org' })).toEqual({
@@ -232,7 +232,7 @@ describe('xAPI data validation', () => {
     it('should throw an error when type is CMI interaction and interactionType is not defined', () => {
       expect(() => {
         ActivityDefinition.clean({ type: 'http://adlnet.gov/expapi/activities/cmi.interaction' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return the object when type is CMI interaction and interactionType is defined', () => {
       const value = {
@@ -252,7 +252,7 @@ describe('xAPI data validation', () => {
         test.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({ interactionType: 'true-false', [option]: [{ id: 'test' }] });
-          }).toThrowError(xAPIValidationError);
+          }).toThrow(xAPIValidationError);
         });
         test.each(['true', 'false'])(
           'should not throw an error if %s is a correct response',
@@ -278,7 +278,7 @@ describe('xAPI data validation', () => {
           option => {
             expect(() => {
               ActivityDefinition.clean({ interactionType: 'choice', [option]: [{ id: 'test' }] });
-            }).toThrowError(xAPIValidationError);
+            }).toThrow(xAPIValidationError);
           },
         );
         test('should give a warning if correct response is not in choices', () => {
@@ -315,7 +315,7 @@ describe('xAPI data validation', () => {
                 interactionType: 'sequencing',
                 [option]: [{ id: 'test' }],
               });
-            }).toThrowError(xAPIValidationError);
+            }).toThrow(xAPIValidationError);
           },
         );
         test('should give a warning if correct response is not in choices', () => {
@@ -349,7 +349,7 @@ describe('xAPI data validation', () => {
           option => {
             expect(() => {
               ActivityDefinition.clean({ interactionType: 'matching', [option]: [{ id: 'test' }] });
-            }).toThrowError(xAPIValidationError);
+            }).toThrow(xAPIValidationError);
           },
         );
         test('should give a warning if correct response is not in source', () => {
@@ -416,7 +416,7 @@ describe('xAPI data validation', () => {
                 interactionType: 'performance',
                 [option]: [{ id: 'test' }],
               });
-            }).toThrowError(xAPIValidationError);
+            }).toThrow(xAPIValidationError);
           },
         );
         test('should give a warning if correct response is not in steps', () => {
@@ -460,7 +460,7 @@ describe('xAPI data validation', () => {
           option => {
             expect(() => {
               ActivityDefinition.clean({ interactionType: 'likert', [option]: [{ id: 'test' }] });
-            }).toThrowError(xAPIValidationError);
+            }).toThrow(xAPIValidationError);
           },
         );
         test('should give a warning if one of the correct responses is not in scale', () => {
@@ -484,7 +484,7 @@ describe('xAPI data validation', () => {
         test.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({ interactionType: 'fill-in', [option]: [{ id: 'test' }] });
-          }).toThrowError(xAPIValidationError);
+          }).toThrow(xAPIValidationError);
         });
       });
       describe('long-fill-in interaction', () => {
@@ -494,14 +494,14 @@ describe('xAPI data validation', () => {
               interactionType: 'long-fill-in',
               [option]: [{ id: 'test' }],
             });
-          }).toThrowError(xAPIValidationError);
+          }).toThrow(xAPIValidationError);
         });
       });
       describe('numeric interaction', () => {
         test.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({ interactionType: 'numeric', [option]: [{ id: 'test' }] });
-          }).toThrowError(xAPIValidationError);
+          }).toThrow(xAPIValidationError);
         });
         test('should give a warning if correct response is not a valid number', () => {
           ActivityDefinition.clean({
@@ -585,7 +585,7 @@ describe('xAPI data validation', () => {
         test.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({ interactionType: 'other', [option]: [{ id: 'test' }] });
-          }).toThrowError(xAPIValidationError);
+          }).toThrow(xAPIValidationError);
         });
       });
     });
@@ -597,22 +597,22 @@ describe('xAPI data validation', () => {
     it('should throw an error when id is not a string', () => {
       expect(() => {
         Activity.clean({ id: 123 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when id is not an IRI', () => {
       expect(() => {
         Activity.clean({ id: '123' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when objectType is not a string', () => {
       expect(() => {
         Activity.clean({ objectType: null });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when objectType is not Activity', () => {
       expect(() => {
         Activity.clean({ objectType: 'this' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return id when id is valid', () => {
       expect(Activity.clean({ id: 'http://test.org' })).toEqual({ id: 'http://test.org' });
@@ -622,22 +622,22 @@ describe('xAPI data validation', () => {
     it('should throw an error when id is not a string', () => {
       expect(() => {
         StatementRef.clean({ id: 123 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when id is not a UUID', () => {
       expect(() => {
         StatementRef.clean({ id: '123' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when objectType is not a string', () => {
       expect(() => {
         StatementRef.clean({ objectType: null });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when objectType is not StatementRef', () => {
       expect(() => {
         StatementRef.clean({ objectType: 'this' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return id when id is valid and objectType is specified', () => {
       const id = v4();
@@ -673,39 +673,39 @@ describe('xAPI data validation', () => {
     it('should throw an error when id is defined', () => {
       expect(() => {
         SubStatement.clean({ id: v4(), ...substmt });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when version is defined', () => {
       expect(() => {
         SubStatement.clean({ version: '1.0.0', ...substmt });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when authority is defined', () => {
       expect(() => {
         SubStatement.clean({ authority: {}, ...substmt });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when stored is defined', () => {
       expect(() => {
         SubStatement.clean({ stored: '2020-11-10', ...substmt });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when objectType is not defined', () => {
       expect(() => {
         SubStatement.clean({ ...substmt, objectType: undefined });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when objectType is not StatementRef', () => {
       expect(() => {
         SubStatement.clean({ ...substmt, objectType: 'this' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return object when valid', () => {
       expect(SubStatement.clean(substmt)).toEqual(substmt);
     });
   });
   describe('Object validation', () => {
-    it.each(SampleObjects)('it should return object %# when object is valid', obj => {
+    it.each(SampleObjects)('should return object %# when object is valid', obj => {
       const schema = ObjectSchema(obj);
       expect(schema.clean(obj)).toEqual(obj);
     });
@@ -720,27 +720,27 @@ describe('xAPI data validation', () => {
     it('should throw an error when scaled is less than -1', () => {
       expect(() => {
         Score.clean({ ...score, scaled: -2 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when scaled is greater than 1', () => {
       expect(() => {
         Score.clean({ ...score, scaled: 2 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when min is greater than max', () => {
       expect(() => {
         Score.clean({ ...score, min: 26 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when raw is greater than max', () => {
       expect(() => {
         Score.clean({ ...score, raw: 26 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when raw is less than min', () => {
       expect(() => {
         Score.clean({ ...score, raw: 4 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return object when valid', () => {
       expect(Score.clean(score)).toEqual(score);
@@ -758,27 +758,27 @@ describe('xAPI data validation', () => {
     it('should throw an error when success is not Boolean', () => {
       expect(() => {
         Result.clean({ ...result, success: 0 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when completion is not Boolean', () => {
       expect(() => {
         Result.clean({ ...result, completion: 0 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when response is not a string', () => {
       expect(() => {
         Result.clean({ ...result, response: 0 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when duration is not an ISO 8601 duration', () => {
       expect(() => {
         Result.clean({ ...result, duration: 'hello' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when extensions is not an object', () => {
       expect(() => {
         Result.clean({ ...result, extensions: 'hello' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return object when valid', () => {
       expect(Result.clean(result)).toEqual(result);
@@ -807,22 +807,22 @@ describe('xAPI data validation', () => {
     it('should throw an error when registration is not a UUID', () => {
       expect(() => {
         Context.clean({ ...context, registration: 0 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when revision is not a string', () => {
       expect(() => {
         Context.clean({ ...context, revision: 0 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when platform is not a string', () => {
       expect(() => {
         Context.clean({ ...context, platform: 0 });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when language is not a valid language code', () => {
       expect(() => {
         Context.clean({ ...context, language: 'testing_this-now' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should return object when valid', () => {
       expect(Context.clean(context)).toEqual(context);
@@ -865,57 +865,57 @@ describe('xAPI data validation', () => {
     it('should throw an error when usageType is not an IRI', () => {
       expect(() => {
         Attachment.clean({ ...attachment, usageType: 'test' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when usageType is undefined', () => {
       expect(() => {
         Attachment.clean({ ...attachment, usageType: undefined });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when display is not a languageMap', () => {
       expect(() => {
         Attachment.clean({ ...attachment, display: { test: 'this' } });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when display is undefined', () => {
       expect(() => {
         Attachment.clean({ ...attachment, display: undefined });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when description is not a languageMap', () => {
       expect(() => {
         Attachment.clean({ ...attachment, description: { test: 'this' } });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when contentType is not a mimetype', () => {
       expect(() => {
         Attachment.clean({ ...attachment, contentType: 'notamimetype' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when contentType is undefined', () => {
       expect(() => {
         Attachment.clean({ ...attachment, contentType: undefined });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when length is not an integer', () => {
       expect(() => {
         Attachment.clean({ ...attachment, length: 'notaninteger' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when length is undefined', () => {
       expect(() => {
         Attachment.clean({ ...attachment, length: undefined });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when sha2 is not a SHA2 hex', () => {
       expect(() => {
         Attachment.clean({ ...attachment, sha2: 'aafafafafafafafafaf' });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it('should throw an error when sha2 is undefined', () => {
       expect(() => {
         Attachment.clean({ ...attachment, sha2: undefined });
-      }).toThrowError(xAPIValidationError);
+      }).toThrow(xAPIValidationError);
     });
     it.each(sha2s)('should return object when valid sha2 %i is used', sha2 => {
       expect(Attachment.clean({ ...attachment, sha2 })).toEqual({ ...attachment, sha2 });
@@ -925,15 +925,12 @@ describe('xAPI data validation', () => {
     });
   });
   describe('Statement validation', () => {
-    it.each(SampleStatements)(
-      'it should return statement %# when statement is valid',
-      statement => {
-        expect(Statement.clean({ version: '1.0.0', ...statement })).toEqual({
-          version: '1.0.0',
-          ...statement,
-        });
-      },
-    );
+    it.each(SampleStatements)('should return statement %# when statement is valid', statement => {
+      expect(Statement.clean({ version: '1.0.0', ...statement })).toEqual({
+        version: '1.0.0',
+        ...statement,
+      });
+    });
     it('should add defaults to the statement', () => {
       const statement = {
         actor: {
