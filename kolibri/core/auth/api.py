@@ -82,8 +82,8 @@ from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.auth.permissions.general import DenyAll
-from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.tasks import cleanup_expired_deleted_users
+from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import allow_guest_access
