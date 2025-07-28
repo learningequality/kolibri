@@ -695,9 +695,8 @@ def cleanup_expired_deleted_users():
     expired_users = FacilityUser.soft_deleted_objects.filter(
         date_deleted__lte=threshold
     )
-    expired_users_count = expired_users.count()
-    if expired_users_count > 0:
-        expired_users.delete()
+
+    expired_users.delete()
 
     # Check if any soft-deleted users remain (regardless of date_deleted)
     if FacilityUser.soft_deleted_objects.exists():
