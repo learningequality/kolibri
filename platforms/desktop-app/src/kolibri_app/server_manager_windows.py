@@ -40,8 +40,8 @@ from kolibri_app.logger import logging
 # Named pipe for IPC between UI process and server subprocess
 PIPE_NAME = r"\\.\pipe\KolibriAppServerIPC"
 
-MAX_PIPE_RETRIES = 3
-PIPE_RETRY_DELAY = 1
+MAX_PIPE_RETRIES = 5
+PIPE_RETRY_DELAY = 2
 
 
 def is_service_running(service_name):
@@ -125,11 +125,6 @@ class WindowsServerManager:
 
         logging.warning(
             "Connection to Kolibri service lost. Attempting to start a local server."
-        )
-        wx.MessageBox(
-            "The connection to the background Kolibri service was lost. A new local server will be started for this session.",
-            "Service Disconnected",
-            wx.OK | wx.ICON_INFORMATION,
         )
 
         self._server_mode = "local"
@@ -463,7 +458,7 @@ class WindowsServerManager:
             )
             wx.CallAfter(self._handle_service_disconnection)
             # Exit thread, a new server process will be started.
-            return True
+            return False
         return False
 
     def _handle_local_pipe_error(self):
