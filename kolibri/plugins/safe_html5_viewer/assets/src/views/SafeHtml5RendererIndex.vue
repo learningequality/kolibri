@@ -1,22 +1,23 @@
 <template>
 
-  <div
-    :style="cssVars"
-    class="renderer-wrapper"
-  >
+  <div :style="cssVars">
     <KCircularLoader
       v-if="loading || !html"
       :delay="false"
       class="loader"
     />
-    <SafeHTML
+    <div
       v-else
-      :html="html"
-      :styleOverrides="{
-        windowSizeClass: windowSizeClass,
-      }"
-      @expand-img="openLightbox"
-    />
+      class="safe-html-wrapper"
+    >
+      <SafeHTML
+        :html="html"
+        :styleOverrides="{
+          windowSizeClass: windowSizeClass,
+        }"
+        @expand-img="openLightbox"
+      />
+    </div>
     <Lightbox
       v-show="lightboxOpen"
       role="dialog"
@@ -171,7 +172,7 @@
     left: calc(50% - 16px);
   }
 
-  .renderer-wrapper > div.safe-html {
+  .safe-html-wrapper {
     max-height: 100%;
     padding: 40px 16px;
     overflow-y: auto;
