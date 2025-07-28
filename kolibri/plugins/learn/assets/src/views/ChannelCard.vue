@@ -66,12 +66,10 @@
       </div>
       <div
         v-if="isRemote"
+        :data-onboarding-id="isFirst ? 'wifiIconFirstChannelCard' : null"
         class="wifi-icon"
       >
-        <KIcon
-          :data-onboarding-id="isFirst ? 'wifiIconFirstChannelCard' : null"
-          icon="wifi"
-        />
+        <KIcon icon="wifi" />
       </div>
     </div>
   </router-link>

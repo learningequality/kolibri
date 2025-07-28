@@ -186,8 +186,8 @@
       </SidePanelModal>
       <TooltipTour
         v-if="tourActive"
-        :pageTitle="coreString('libraryLabel')"
-        @tourEnded="tourActive = false"
+        page="LibraryPage"
+        @tourEnded="endTour()"
       />
     </LearnAppBarPage>
   </div>
@@ -266,7 +266,7 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { tourActive, startTour } = useTour();
+      const { tourActive, startTour, endTour } = useTour();
       const {
         isUserLoggedIn,
         isCoach,
@@ -438,6 +438,7 @@
         isLearnerOnlyImport,
         tourActive,
         startTour,
+        endTour,
       };
     },
     props: {

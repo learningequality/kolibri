@@ -12,7 +12,7 @@
       <h1 class="visuallyhidden">
         {{
           onboardingStepDescription$({
-            pageTitle: pageTitle,
+            pageTitle: getTranslatedPageLabel(),
             currentStep: currentStepIndex + 1,
             totalSteps: steps.length,
           })
@@ -74,6 +74,10 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
 
+  const pageLabels = {
+    LibraryPage: 'libraryLabel',
+  };
+
   export default {
     name: 'TooltipContent',
     mixins: [commonCoreStrings],
@@ -84,7 +88,7 @@
       };
     },
     props: {
-      pageTitle: {
+      page: {
         type: String,
         required: true,
       },
@@ -112,6 +116,10 @@
       },
       focusLastEl() {
         this.$refs.continueButton?.$el.focus();
+      },
+      getTranslatedPageLabel() {
+        const labelKey = pageLabels[this.page];
+        return labelKey ? this.coreString(labelKey) : this.page;
       },
     },
   };

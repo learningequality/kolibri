@@ -28,7 +28,7 @@
   export default {
     name: 'TooltipTour',
     props: {
-      pageTitle: {
+      page: {
         type: String,
         required: true,
       },
@@ -43,7 +43,7 @@
     },
     computed: {
       steps() {
-        return onboardingSteps[this.pageTitle] || [];
+        return onboardingSteps[this.page] || [];
       },
       highlightStyle() {
         return {
@@ -88,7 +88,7 @@
           const TooltipConstructor = Vue.extend(TooltipContent);
           const instance = new TooltipConstructor({
             propsData: {
-              pageTitle: this.pageTitle,
+              page: this.page,
               steps: this.steps,
               currentStepIndex: this.currentStepIndex,
             },
