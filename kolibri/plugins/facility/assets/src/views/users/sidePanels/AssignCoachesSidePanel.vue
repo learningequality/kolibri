@@ -10,64 +10,67 @@
     </template>
 
     <div class="assign-coaches-content">
-      <div
-        v-if="isLoading"
-        class="sidepanel-loading-overlay"
-      >
-        <KCircularLoader :size="48" />
-      </div>
-
-      <p>You've selected {{ selectedUsersCount }} users</p>
-      <div class="warning-message">
-        <KIcon
-          icon="warning"
-          color="yellow"
-          class="sidepanel-icon"
-        />
-        {{ selectedUsersCount }} users are not enrolled in any class
-      </div>
-      <div class="warning-message">
-        <KIcon
-          icon="warning"
-          color="yellow"
-          class="sidepanel-icon"
-        />
-        {{ selectedUsersCount }} users are coaches
-      </div>
-      <div class="info-message">
-        <KIcon
-          icon="info"
-          color="orange"
-          class="sidepanel-icon"
-        />
-        Users already not in selected classes will not be affected.
-      </div>
-      <hr class="divider" >
-      <h2>Assign users to selected classes</h2>
-      <SelectableList
-        v-model="selectedClasses"
-        :options="formattedClasses"
-        aria-labelledby="classes-heading"
-        :selectAllLabel="'Select all classes'"
-        :searchLabel="'Search classes...'"
-      />
-
-      <!-- Footer Buttons -->
-      <div class="footer-buttons">
-        <KButton
-          appearance="secondary-button"
-          @click="handleCancel"
+      <KCircularLoader v-if="isLoading" />
+      <div v-else>
+        <div
+          v-if="showErrorWarning"
+          class="enroll-warning-label"
+          :style="{ color: $themeTokens.error }"
         >
-          Cancel
-        </KButton>
-        <KButton
-          primary
-          appearance="raised-button"
-          :disabled="!hasSelectedClasses || isLoading"
-          @click="handleEnroll"
-        >
-          {{ 'Enroll' }}
-        </KButton>
+          <span>{{ defaultErrorMessage$() }}</span>
+        </div>
+        <p>You've selected {{ selectedUsersCount }} users</p>
+        <div class="warning-message">
+          <KIcon
+            icon="warning"
+            color="yellow"
+            class="sidepanel-icon"
+          />
+          {{ selectedUsersCount }} users are not enrolled in any class
+        </div>
+        <div class="warning-message">
+          <KIcon
+            icon="warning"
+            color="yellow"
+            class="sidepanel-icon"
+          />
+          {{ selectedUsersCount }} users are coaches
+        </div>
+        <div class="info-message">
+          <KIcon
+            icon="info"
+            color="orange"
+            class="sidepanel-icon"
+          />
+          Users already not in selected classes will not be affected.
+        </div>
+        <hr class="divider" >
+        <h2>Assign users to selected classes</h2>
+        <SelectableList
+          v-model="selectedClasses"
+          :options="formattedClasses"
+          aria-labelledby="classes-heading"
+          :selectAllLabel="'Select all classes'"
+          :searchLabel="'Search classes...'"
+        />
+
+        <!-- Footer Buttons -->
+        <div class="footer-buttons">
+          <KButton
+            appearance="secondary-button"
+            @click="handleCancel"
+          >
+            Cancel
+          </KButton>
+          <KButton
+            primary
+            appearance="raised-button"
+            :disabled="!hasSelectedClasses || isLoading"
+            @click="handleEnroll"
+          >
+            {{ 'Enroll' }}
+          </KButton>
+        </div>
       </div>
     </div>
   </SidePanelModal>
@@ -77,9 +80,11 @@
 
 <script>
 
+  import { ref, computed, getCurrentInstance } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import KIcon from 'kolibri-design-system/lib/KIcon';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { UserKinds } from 'kolibri/constants';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
   import SelectableList from '../../ManageClassPage/SelectableList';
@@ -92,6 +97,104 @@
       SelectableList,
     },
     mixins: [commonCoreStrings],
+    setup(props) {
+      const selectedClasses = ref([]); // Array of selected class IDs
+      const isLoading = ref(false);
+      const showErrorWarning = ref(false);
+      const instance = getCurrentInstance();
+
+      const { defaultErrorMessage$ } = bulkUserManagementStrings;
+
+      // Computed properties
+      const formattedClasses = computed(() =>
+        props.classes.map(cls => ({
+          id: cls.id,
+          label: cls.name,
+        })),
+      );
+
+      const selectedUsersCount = computed(() => props.selectedUsers.size);
+
+      const hasSelectedClasses = computed(() => selectedClasses.value.length > 0);
+
+      const getSelectedClassObjects = computed(() =>
+        props.classes.filter(cls => selectedClasses.value.includes(cls.id)),
+      );
+
+      // Methods
+      async function handleEnroll() {
+        if (!hasSelectedClasses.value) {
+          return;
+        }
+
+        isLoading.value = true;
+        showErrorWarning.value = false;
+
+        try {
+          await assignCoachesToClasses();
+          instance.proxy.$router.back();
+        } catch (error) {
+          showErrorWarning.value = true;
+        } finally {
+          isLoading.value = false;
+        }
+      }
+
+      async function assignCoachesToClasses() {
+        const selectedClasses = getSelectedClassObjects.value;
+        const userIds = Array.from(props.selectedUsers);
+
+        for (const classObj of selectedClasses) {
+          try {
+            // First, get existing coaches for this class
+            const existingRoles = await RoleResource.fetchCollection({
+              getParams: {
+                collection: classObj.id,
+                kind: UserKinds.COACH,
+              },
+            });
+            // Filter out users who are already coaches
+            const existingCoachIds = new Set(existingRoles.map(role => role.user));
+            const newCoachIds = userIds.filter(userId => !existingCoachIds.has(userId));
+
+            if (newCoachIds.length === 0) {
+              console.log(`All selected users are already coaches for class: ${classObj.name}`);
+              continue;
+            }
+
+            // Only assign new coaches
+            await RoleResource.saveCollection({
+              data: newCoachIds.map(userId => ({
+                collection: classObj.id,
+                user: userId,
+                kind: UserKinds.COACH,
+              })),
+            });
+          } catch (error) {
+            console.error(`Failed to assign coaches to class ${classObj.id} (${classObj.name}):`, error);
+            throw error;
+          }
+        }
+      }
+
+
+
+      function handleCancel() {
+        instance.proxy.$router.back();
+      }
+
+      return {
+        selectedClasses,
+        isLoading,
+        formattedClasses,
+        selectedUsersCount,
+        hasSelectedClasses,
+        showErrorWarning,
+        defaultErrorMessage$,
+        handleEnroll,
+        handleCancel,
+      };
+    },
     props: {
       /* eslint-disable vue/no-unused-properties */
       selectedUsers: {
@@ -102,70 +205,6 @@
       classes: {
         type: Array,
         default: () => [],
-      },
-    },
-    data() {
-      return {
-        selectedClasses: [], // Array of selected class IDs
-        isLoading: false,
-      };
-    },
-    computed: {
-      formattedClasses() {
-        return this.classes.map(cls => ({
-          id: cls.id,
-          label: cls.name,
-        }));
-      },
-      selectedUsersCount() {
-        return this.selectedUsers.size;
-      },
-      hasSelectedClasses() {
-        return this.selectedClasses.length > 0;
-      },
-      getSelectedClassObjects() {
-        return this.classes.filter(cls => this.selectedClasses.includes(cls.id));
-      },
-      userIds() {
-        return Array.from(this.selectedUsers);
-      },
-    },
-    methods: {
-      async handleEnroll() {
-        if (!this.hasSelectedClasses) {
-          return;
-        }
-
-        this.isLoading = true;
-
-        try {
-          await this.assignCoachesToClasses();
-          this.$router.back();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('Failed to assign coaches:', error);
-        } finally {
-          this.isLoading = false;
-        }
-      },
-
-      async assignCoachesToClasses() {
-        const selectedClasses = this.getSelectedClassObjects;
-        const userIds = this.userIds;
-
-        for (const classObj of selectedClasses) {
-          await RoleResource.saveCollection({
-            data: userIds.map(userId => ({
-              collection: classObj.id,
-              user: userId,
-              kind: UserKinds.COACH,
-            })),
-          });
-        }
-      },
-
-      handleCancel() {
-        this.$router.back();
       },
     },
   };
@@ -179,17 +218,8 @@
     position: relative;
   }
 
-  .sidepanel-loading-overlay {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(255, 255, 255, 0.8);
+  .enroll-warning-label {
+    margin-bottom: 10px;
   }
 
   .warning-message {
