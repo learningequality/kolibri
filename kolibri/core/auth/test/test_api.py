@@ -42,7 +42,6 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.signals import cascade_delete_user
 from kolibri.core.device.models import OSUser
 from kolibri.core.device.utils import set_device_settings
-from kolibri.core.tasks.main import job_storage
 
 
 class FacilityFactory(factory.DjangoModelFactory):
@@ -1032,6 +1031,7 @@ class UserUpdateTestCase(APITestCase):
         self.assertEqual(response.data[0]["metadata"]["field"], "extra_demographics")
 
 
+@patch("kolibri.core.auth.api.cleanup_expired_deleted_users")
 class UserDeleteTestCase(APITestCase):
     databases = "__all__"
 
@@ -1052,7 +1052,7 @@ class UserDeleteTestCase(APITestCase):
     def tearDown(self):
         self.user.delete()
 
-    def test_user_delete(self):
+    def test_user_delete(self, mock_cleanup_task):
         response = self.client.delete(
             reverse("kolibri:core:facilityuser-detail", kwargs={"pk": self.user.pk}),
             format="json",
@@ -1064,10 +1064,7 @@ class UserDeleteTestCase(APITestCase):
             ).exists()
         )
         self.assertFalse(models.FacilityUser.objects.filter(id=self.user.id).exists())
-        jobs = job_storage.get_all_jobs()
-        self.assertTrue(
-            any(job.job_id == "cleanup_expired_deleted_users" for job in jobs)
-        )
+        mock_cleanup_task.enqueue.assert_called_once()
 
     def test_superuser_delete_self(self):
         response = self.client.delete(
