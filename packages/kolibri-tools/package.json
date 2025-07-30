@@ -53,7 +53,7 @@
     "jscodeshift": "^17.3.0",
     "kolibri": "^0.18.0",
     "kolibri-format": "^1.0.0",
-    "launch-editor-middleware": "^2.10.0",
+    "launch-editor-middleware": "^2.11.0",
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.9.2",
     "node-sass": "9.0.0",
