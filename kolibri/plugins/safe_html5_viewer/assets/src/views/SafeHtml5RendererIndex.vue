@@ -19,15 +19,14 @@
       />
     </div>
     <Lightbox
-      v-show="lightboxOpen"
-      role="dialog"
       aria-label="Expanded image"
+      :open="lightboxOpen"
       :src="lightboxImgSrc"
       :alt="lightboxImgAlt"
       :styleOverrides="{
         windowSizeClass: windowSizeClass,
       }"
-      @close="closeLightbox"
+      @closeLightbox="closeLightbox"
     />
   </div>
 

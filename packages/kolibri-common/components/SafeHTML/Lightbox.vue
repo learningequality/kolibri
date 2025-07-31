@@ -1,62 +1,92 @@
 <template>
 
-  <div>
+  <dialog
+    v-if="open"
+    ref="dialogRef"
+    closedby="any"
+    class="lightbox-dialog"
+    @close="closeLightbox"
+  >
     <div class="action-bar">
       <div :class="$computedClass(btnHoverStyle)">
         <KIconButton
-          class="zoom-out-btn"
+          id="zoom-out-btn"
           icon="remove"
           color="#FFFFFF"
           size="small"
           aria-label="Zoom out"
-          tooltip="Zoom out"
-          @click="close"
+          @click="closeLightbox"
         />
+        <!-- Use UiTooltip separately with appendToBody=false so tooltip stays above backdrop -->
+        <UiTooltip
+          :zIndex="24"
+          openOn="hover"
+          :appendToBody="false"
+          :trigger="`#zoom-out-btn`"
+        >
+          Zoom out
+        </UiTooltip>
       </div>
       <div :class="$computedClass(btnHoverStyle)">
         <KIconButton
-          class="zoom-in-btn"
+          id="zoom-in-btn"
           icon="add"
           color="#FFFFFF"
           size="small"
           aria-label="Zoom in"
-          tooltip="Zoom in"
-          @click="close"
+          @click="closeLightbox"
         />
+        <UiTooltip
+          :zIndex="24"
+          openOn="hover"
+          :appendToBody="false"
+          :trigger="`#zoom-in-btn`"
+        >
+          Zoom in
+        </UiTooltip>
       </div>
       <div :class="$computedClass(btnHoverStyle)">
         <KIconButton
-          class="close-btn"
+          id="close-btn"
           icon="close"
           color="#FFFFFF"
           size="small"
           aria-label="Close"
-          tooltip="Close"
-          @click="close"
+          @click="closeLightbox"
         />
+        <UiTooltip
+          :zIndex="24"
+          openOn="hover"
+          :appendToBody="false"
+          :trigger="`#close-btn`"
+        >
+          Close
+        </UiTooltip>
       </div>
     </div>
-    <div
-      class="backdrop"
-      @click.self="close"
+    <img
+      :src="src"
+      :alt="alt"
+      class="expanded-image"
+      :class="styleOverrides.windowSizeClass"
     >
-      <img
-        :src="src"
-        :alt="alt"
-        class="expanded-image"
-        :class="styleOverrides.windowSizeClass"
-      >
-    </div>
-  </div>
+  </dialog>
 
 </template>
 
 
 <script>
 
+  import UiTooltip from 'kolibri-design-system/lib//keen/UiTooltip.vue';
+
   export default {
     name: 'Lightbox',
+    components: { UiTooltip },
     props: {
+      open: {
+        type: Boolean,
+        required: true,
+      },
       src: { type: String, required: true },
       alt: { type: String, default: '' },
       styleOverrides: {
@@ -75,9 +105,32 @@
         };
       },
     },
+    watch: {
+      open(val) {
+        if (val) {
+          this.$nextTick(() => {
+            if (this.$refs.dialogRef) {
+              this.$refs.dialogRef.showModal();
+              this.$refs.dialogRef.addEventListener('click', this.onBackdropClick);
+            }
+          });
+        } else {
+          if (this.$refs.dialogRef) {
+            this.$refs.dialogRef.close();
+            this.$refs.dialogRef.removeEventListener('click', this.onBackdropClick);
+          }
+        }
+      },
+    },
     methods: {
-      close() {
-        this.$emit('close');
+      closeLightbox() {
+        this.$emit('closeLightbox');
+      },
+      // Fallback backdrop click handler for browsers without `closedby` support
+      onBackdropClick(e) {
+        if (e.target === this.$refs.dialogRef) {
+          this.closeLightbox();
+        }
       },
     },
   };
@@ -92,7 +145,7 @@
     top: 0;
     right: 0;
     left: 0;
-    z-index: 10;
+    z-index: 110;
     display: flex;
     gap: 8px;
     align-items: center;
@@ -102,22 +155,25 @@
     background-color: #000000;
   }
 
-  .backdrop {
+  .lightbox-dialog {
     position: fixed;
-    top: 40px;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 10;
+    inset: 40px 0 0;
+    z-index: 100;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 32px;
+    overflow: visible;
+    background: none;
+    border: 0;
+  }
+
+  .lightbox-dialog::backdrop {
     background-color: rgba(51, 51, 51, 0.5);
   }
 
   .expanded-image {
-    z-index: 10;
+    position: relative;
+    z-index: 110;
     width: auto;
     max-width: calc(100vw - 64px);
     height: auto;
