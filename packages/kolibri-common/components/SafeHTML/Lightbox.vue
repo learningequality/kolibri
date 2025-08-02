@@ -15,11 +15,11 @@
           color="#FFFFFF"
           size="small"
           aria-label="Zoom out"
-          @click="closeLightbox"
+          :disabled="scale <= minScale"
+          @click="zoomOut"
         />
         <!-- Use UiTooltip separately with appendToBody=false so tooltip stays above backdrop -->
         <UiTooltip
-          :zIndex="24"
           openOn="hover"
           :appendToBody="false"
           :trigger="`#zoom-out-btn`"
@@ -34,10 +34,10 @@
           color="#FFFFFF"
           size="small"
           aria-label="Zoom in"
-          @click="closeLightbox"
+          :disabled="scale >= maxScale"
+          @click="zoomIn"
         />
         <UiTooltip
-          :zIndex="24"
           openOn="hover"
           :appendToBody="false"
           :trigger="`#zoom-in-btn`"
@@ -55,7 +55,6 @@
           @click="closeLightbox"
         />
         <UiTooltip
-          :zIndex="24"
           openOn="hover"
           :appendToBody="false"
           :trigger="`#close-btn`"
@@ -69,6 +68,7 @@
       :alt="alt"
       class="expanded-image"
       :class="styleOverrides.windowSizeClass"
+      :style="{ transform: `scale(${scale})` }"
     >
   </dialog>
 
@@ -94,6 +94,14 @@
         default: () => ({}),
       },
     },
+    data() {
+      return {
+        scale: 1,
+        minScale: 1,
+        maxScale: 4,
+        scaleStep: 0.25,
+      };
+    },
     computed: {
       btnHoverStyle() {
         return {
@@ -112,6 +120,7 @@
             if (this.$refs.dialogRef) {
               this.$refs.dialogRef.showModal();
               this.$refs.dialogRef.addEventListener('click', this.onBackdropClick);
+              this.scale = 1; // Reset scale when opening lightbox
             }
           });
         } else {
@@ -123,6 +132,16 @@
       },
     },
     methods: {
+      zoomIn() {
+        if (this.scale < this.maxScale) {
+          this.scale = Math.min(this.scale + this.scaleStep, this.maxScale);
+        }
+      },
+      zoomOut() {
+        if (this.scale > this.minScale) {
+          this.scale = Math.max(this.scale - this.scaleStep, this.minScale);
+        }
+      },
       closeLightbox() {
         this.$emit('closeLightbox');
       },
@@ -145,7 +164,7 @@
     top: 0;
     right: 0;
     left: 0;
-    z-index: 110;
+    z-index: 120;
     display: flex;
     gap: 8px;
     align-items: center;
