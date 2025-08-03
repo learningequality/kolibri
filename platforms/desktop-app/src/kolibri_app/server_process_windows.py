@@ -20,6 +20,7 @@ import os
 import sys
 import time
 from threading import Event
+from threading import Lock
 from threading import Thread
 
 import pywintypes
@@ -59,6 +60,7 @@ class WindowsIpcPlugin(SimplePlugin):
         super().__init__(bus)
         self.pipe_thread = None
         self.pipe = None
+        self.pipe_lock = Lock()
         self.shutdown_event = Event()
 
         self.server_ready_event = Event()
@@ -76,9 +78,7 @@ class WindowsIpcPlugin(SimplePlugin):
     def STOP(self):
         """Plugin stop method: cleans up the IPC thread."""
         self.shutdown_event.set()
-        if self.pipe:
-            # This helps unblock the ConnectNamedPipe call
-            win32file.CloseHandle(self.pipe)
+        self._cleanup_pipe()
         if self.pipe_thread:
             self.pipe_thread.join(timeout=5)
         logging.info("WindowsIpcPlugin stopped.")
@@ -227,9 +227,15 @@ class WindowsIpcPlugin(SimplePlugin):
         """
         Clean up the pipe handle safely.
         """
-        if self.pipe:
-            win32file.CloseHandle(self.pipe)
-            self.pipe = None
+        with self.pipe_lock:
+            if self.pipe:
+                try:
+                    win32file.CloseHandle(self.pipe)
+                except pywintypes.error as e:
+                    # This is expected if STOP() already closed the handle.
+                    logging.debug(f"Error closing pipe handle during cleanup: {e}")
+                finally:
+                    self.pipe = None
 
     def _pipe_server_loop(self):
         """
@@ -240,13 +246,24 @@ class WindowsIpcPlugin(SimplePlugin):
         security_attributes = self._create_security_attributes()
 
         while not self.shutdown_event.is_set():
-            self.pipe = None
+            # Create the handle locally so we don't expose a partially
+            # created object to other threads.
+            pipe_handle = self._create_named_pipe(security_attributes)
+
+            # Assign the handle to the instance within the lock.
+            with self.pipe_lock:
+                if self.shutdown_event.is_set():
+                    # Handle edge case where STOP was called while we created the pipe.
+                    win32file.CloseHandle(pipe_handle)
+                    break
+                self.pipe = pipe_handle
+
             try:
-                self.pipe = self._create_named_pipe(security_attributes)
                 self._wait_for_client_connection()
                 self._process_client_messages()
 
             except pywintypes.error as e:
+                # This is expected when the handle is closed by STOP()
                 self._handle_pipe_error(e)
             except (json.JSONDecodeError, UnicodeDecodeError, OSError) as e:
                 if not self.shutdown_event.is_set():
