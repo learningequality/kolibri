@@ -51,9 +51,15 @@
         >
           <KTextTruncator
             :text="contentNode.title"
-            :maxLines="1"
+            :maxLines="titleMaxLines(contentNode)"
           />
         </h3>
+        <p>
+          <KTextTruncator
+            :text="contentNode.description"
+            :maxLines="1"
+          />
+        </p>
         <KButton
           v-if="contentNode.copies && contentNode.copies.length"
           appearance="basic-link"
@@ -120,6 +126,14 @@
       },
       channelTitle() {
         return this.getChannelTitle(this.contentNode && this.contentNode.channel_id);
+      },
+    },
+    methods: {
+      titleMaxLines(content) {
+        if (!content.is_leaf) {
+          return 3;
+        }
+        return content.description ? 1 : 3;
       },
     },
   };
