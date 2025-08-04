@@ -94,7 +94,7 @@
             >
               <template #options>
                 <CoreMenuOption
-                  v-for="item in topItems"
+                  v-for="(item, index) in topItems"
                   :key="item.name"
                   :label="item.label"
                   :subRoutes="item.routes"
@@ -102,6 +102,7 @@
                   :icon="item.icon"
                   :linkActive="item.active"
                   data-test="side-nav-item"
+                  :data-onboarding-id="index === 3 ? 'deviceMenuOption' : null"
                   @toggleMenu="toggleNav"
                 />
                 <SideNavDivider />
@@ -379,11 +380,12 @@
         return this.$tr('poweredBy', { version: __version });
       },
       topItems() {
-        return this.navItems
+        const items = this.navItems
           .filter(item => item.section !== NavComponentSections.ACCOUNT)
           .sort(this.compareMenuItems)
           .filter(this.filterByRole)
           .filter(this.filterByFullFacilityOnly);
+        return items;
       },
       accountItems() {
         const accountItems = this.navItems

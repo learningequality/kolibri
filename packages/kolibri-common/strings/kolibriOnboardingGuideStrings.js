@@ -73,3 +73,12 @@ export const kolibriOnboardingGuideStrings = createTranslator('kolibriOnboarding
       'Provides screen reader users with information about where they are in the onboarding process',
   },
 });
+export function onboardingGuideString(...args) {
+  return kolibriOnboardingGuideStrings.$tr(...args);
+}
+
+export default {
+  methods: {
+    onboardingGuideString,
+  },
+};

@@ -24,6 +24,7 @@
       <div
         class="inner"
         :style="{ borderColor: $themeTokens.primary }"
+        data-onboarding-id="folders"
       >
         {{ coreString('folders') }}
       </div>
@@ -45,10 +46,16 @@
       <div
         class="inner"
         :style="{ borderColor: $themeTokens.primary }"
+        data-onboarding-id="search"
       >
         {{ coreString('searchLabel') }}
       </div>
     </router-link>
+    <TooltipTour
+      v-if="tourActive"
+      page="ExploreLibraries"
+      @tourEnded="endTour()"
+    />
   </div>
 
 </template>
@@ -58,15 +65,25 @@
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import TooltipTour from 'kolibri-common/components/onboarding/TooltipTour.vue';
+  import useTour from 'kolibri-common/composables/useTour';
   import { PageNames } from '../../constants';
 
   export default {
     name: 'ToggleHeaderTabs',
+    components: {
+      TooltipTour,
+    },
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsLarge } = useKResponsiveWindow();
+      const { tourActive, startTour, endTour } = useTour();
+
       return {
         windowIsLarge,
+        tourActive,
+        startTour,
+        endTour,
       };
     },
     props: {
@@ -127,6 +144,11 @@
         }
         return {};
       },
+    },
+    mounted() {
+      if (this.topics.length && this.windowIsLarge) {
+        this.startTour();
+      }
     },
   };
 

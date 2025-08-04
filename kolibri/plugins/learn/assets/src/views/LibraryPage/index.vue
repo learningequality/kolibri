@@ -567,7 +567,7 @@
     },
     methods: {
       hideWelcomeModal() {
-        window.localStorage.setItem(welcomeDismissalKey, true);
+        window.localStorage.setItem(welcomeDismissalKey, false);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
         setTimeout(() => {
           this.startTour();

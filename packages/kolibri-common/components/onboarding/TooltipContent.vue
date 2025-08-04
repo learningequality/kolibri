@@ -36,7 +36,7 @@
       </div>
 
       <div class="onboarding-tooltip-body">
-        <p id="tooltip-title">{{ steps[currentStepIndex].content }}</p>
+        <p id="tooltip-title">{{ steps[currentStepIndex].content() }}</p>
       </div>
 
       <div class="onboarding-tooltip-footer">

@@ -36,7 +36,10 @@
             data-onboarding-id="menubar"
             :color="themeConfig.appBar.textColor"
             :ariaLabel="$tr('openNav')"
-            @click="$emit('toggleSideNav')"
+            @click="
+              $emit('toggleSideNav');
+              $emit('startTour');
+            "
           />
         </template>
 

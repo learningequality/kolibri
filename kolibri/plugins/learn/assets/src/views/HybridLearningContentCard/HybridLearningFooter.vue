@@ -6,7 +6,10 @@
       :contentNode="contentNode"
       :style="{ maxWidth: `calc(100% - ${24 + 32 * footerLength}px)` }"
     />
-    <div class="footer-icons">
+    <div
+      class="footer-icons"
+      data-onboarding-id="channelCardIcon"
+    >
       <KIconButton
         v-if="downloadableByLearner"
         icon="download"
@@ -87,6 +90,11 @@
     >
       <p>{{ $tr('removeFromMyLibraryInfo') }}</p>
     </KModal>
+    <TooltipTour
+      v-if="tourActive"
+      page="ViewAndDownloadResources"
+      @tourEnded="endTour()"
+    />
   </div>
 
 </template>
@@ -99,6 +107,8 @@
   import CoreMenu from 'kolibri/components/CoreMenu';
   import CoreMenuOption from 'kolibri/components/CoreMenu/CoreMenuOption';
   import useUser from 'kolibri/composables/useUser';
+  import useTour from 'kolibri-common/composables/useTour';
+  import TooltipTour from 'kolibri-common/components/onboarding/TooltipTour.vue';
   import ProgressBar from '../ProgressBar';
   import commonLearnStrings from '../commonLearnStrings';
   import useDownloadRequests from '../../composables/useDownloadRequests';
@@ -110,18 +120,23 @@
       ProgressBar,
       CoreMenu,
       CoreMenuOption,
+      TooltipTour,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
       const { addDownloadRequest, downloadRequestMap, removeDownloadRequest } =
         useDownloadRequests();
       const { isLearner, isUserLoggedIn } = useUser();
+      const { tourActive, startTour, endTour } = useTour();
       return {
         addDownloadRequest,
         downloadRequestMap,
         removeDownloadRequest,
         isLearner,
         isUserLoggedIn,
+        tourActive,
+        startTour,
+        endTour,
       };
     },
     props: {
@@ -180,6 +195,16 @@
         }
       },
     },
+    mounted() {
+      const showDownloadButton = this.downloadableByLearner;
+      const showInfoButton = this.contentNode.is_leaf;
+      const shouldShowTooltip = (showDownloadButton || showInfoButton) && !this.bookmarked;
+
+      if (shouldShowTooltip) {
+        this.startTour();
+      }
+    },
+
     methods: {
       findFirstEl() {
         this.$nextTick(() => {
