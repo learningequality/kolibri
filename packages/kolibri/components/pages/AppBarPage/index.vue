@@ -19,6 +19,7 @@
           :showNavigation="showNavigation"
           :showAppNavView="isAppContextAndTouchDevice"
           @toggleSideNav="navShown = !navShown"
+          @startTour="handleStartTour"
         >
           <template #sub-nav>
             <slot name="subNav"></slot>
@@ -51,6 +52,11 @@
         @shouldFocusFirstEl="findFirstEl()"
       />
     </transition>
+    <TooltipTour
+      v-if="tourActive"
+      page="SideNavigation"
+      @tourEnded="endTour()"
+    />
   </div>
 
 </template>
@@ -66,6 +72,8 @@
   import useUser from 'kolibri/composables/useUser';
   import { ref, getCurrentInstance } from 'vue';
   import { useSwipe } from '@vueuse/core';
+  import TooltipTour from 'kolibri.coreVue.components.TooltipTour'; // eslint-disable-line
+  import useTour from 'kolibri.coreVue.composables.useTour'; // eslint-disable-line
   import ScrollingHeader from '../ScrollingHeader';
   import AppBar from './internal/AppBar';
   import SideNav from './internal/SideNav';
@@ -76,6 +84,7 @@
       AppBar,
       ScrollingHeader,
       SideNav,
+      TooltipTour,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -83,6 +92,7 @@
       const isRtl = ref(instance?.proxy.isRtl);
       const swipeZone = ref(null);
       const navShown = ref(false);
+      const { startTour, tourActive, endTour } = useTour();
       useSwipe(swipeZone, {
         onSwipeEnd: (e, direction) => {
           if (direction === 'right' && !navShown.value && !isRtl.value) {
@@ -99,6 +109,9 @@
         isAppContext,
         swipeZone,
         navShown,
+        startTour,
+        tourActive,
+        endTour,
       };
     },
     props: {
@@ -215,6 +228,9 @@
       updateAppBarHeight() {
         // Update the app bar height when window is resized
         this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 124;
+      },
+      handleStartTour() {
+        this.startTour();
       },
     },
   };
