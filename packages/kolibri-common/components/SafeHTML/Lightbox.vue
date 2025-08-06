@@ -6,6 +6,7 @@
     closedby="any"
     class="lightbox-dialog"
     @close="closeLightbox"
+    @keydown="onKeyDown"
   >
     <div class="action-bar">
       <div :class="$computedClass(btnHoverStyle)">
@@ -64,11 +65,15 @@
       </div>
     </div>
     <img
+      ref="imageRef"
       :src="src"
       :alt="alt"
       class="expanded-image"
       :class="styleOverrides.windowSizeClass"
-      :style="{ transform: `scale(${scale})` }"
+      :style="imgStyle"
+      @load="calculateSize"
+      @mousedown="onMouseDown"
+      @dragstart.prevent
     >
   </dialog>
 
@@ -100,9 +105,40 @@
         minScale: 1,
         maxScale: 4,
         scaleStep: 0.25,
+        baseSize: { width: 0, height: 0 },
+        origin: { x: 0, y: 0 },
+        delta: { x: 0, y: 0 },
+        backdropSize: { width: 0, height: 0 },
+        isDragging: false,
+        dragStart: { x: 0, y: 0 },
       };
     },
     computed: {
+      imgStyle() {
+        if (this.scale == 1) {
+          const vw = window.innerWidth;
+          const vh = window.innerHeight;
+          const isSmallWindow = this.styleOverrides.windowSizeClass.includes('small-window');
+          if (!isSmallWindow) {
+            return {
+              maxWidth: `${vw - 64}px`,
+              maxHeight: `${vh - 40 - 64}px`,
+            };
+          } else {
+            return {
+              maxWidth: `${vw - 32}px`,
+              maxHeight: `${vh - 40 - 32}px`,
+            };
+          }
+        } else {
+          return {
+            width: this.baseSize.width * this.scale + 'px',
+            height: this.baseSize.height * this.scale + 'px',
+            transform: `translate(${this.delta.x}px, ${this.delta.y}px)`,
+            cursor: this.isDragging ? 'grabbing' : 'grab',
+          };
+        }
+      },
       btnHoverStyle() {
         return {
           borderRadius: '100%',
@@ -132,18 +168,86 @@
       },
     },
     methods: {
-      zoomIn() {
-        if (this.scale < this.maxScale) {
-          this.scale = Math.min(this.scale + this.scaleStep, this.maxScale);
-        }
+      calculateSize() {
+        const img = this.$refs.imageRef;
+        this.baseSize.width = img.width;
+        this.baseSize.height = img.height;
+
+        this.backdropSize.width = window.innerWidth;
+        this.backdropSize.height = window.innerHeight - 40;
+      },
+      getDeltaLimits() {
+        const DeltaLimitX = Math.max(
+          (this.baseSize.width * this.scale - this.backdropSize.width) / 2,
+          0,
+        );
+        const DeltaLimitY = Math.max(
+          (this.baseSize.height * this.scale - this.backdropSize.height) / 2,
+          0,
+        );
+        return { DeltaLimitX, DeltaLimitY };
+      },
+      clamp(val, min, max) {
+        return Math.max(min, Math.min(val, max));
+      },
+      clampPosition() {
+        const { DeltaLimitX, DeltaLimitY } = this.getDeltaLimits();
+        this.delta.x = this.clamp(this.delta.x, -DeltaLimitX, DeltaLimitX);
+        this.delta.y = this.clamp(this.delta.y, -DeltaLimitY, DeltaLimitY);
+      },
+      onMouseDown(e) {
+        if (this.scale <= 1) return; // No reposition if not zoomed
+        e.preventDefault();
+        this.isDragging = true;
+        this.dragStart = { x: e.clientX, y: e.clientY };
+        this.origin = { x: this.delta.x, y: this.delta.y };
+        window.addEventListener('mousemove', this.onMouseMove);
+        window.addEventListener('mouseup', this.onMouseUp);
+      },
+      onMouseMove(e) {
+        if (!this.isDragging) return;
+        this.delta.x = this.origin.x + (e.clientX - this.dragStart.x);
+        this.delta.y = this.origin.y + (e.clientY - this.dragStart.y);
+        this.clampPosition();
+      },
+      onMouseUp() {
+        this.isDragging = false;
+        window.removeEventListener('mousemove', this.onMouseMove);
+        window.removeEventListener('mouseup', this.onMouseUp);
+      },
+      onKeyDown(e) {
+        if (this.scale <= 1) return;
+        const step = 50;
+        if (e.key === 'ArrowLeft') this.delta.x += step;
+        if (e.key === 'ArrowRight') this.delta.x -= step;
+        if (e.key === 'ArrowUp') this.delta.y += step;
+        if (e.key === 'ArrowDown') this.delta.y -= step;
+        this.clampPosition();
+      },
+      resetPosition() {
+        this.delta.x = 0;
+        this.delta.y = 0;
       },
       zoomOut() {
         if (this.scale > this.minScale) {
           this.scale = Math.max(this.scale - this.scaleStep, this.minScale);
         }
+        this.$nextTick(() => {
+          this.clampPosition();
+        });
+        if (this.scale === 1) this.resetPosition();
+      },
+      zoomIn() {
+        if (this.scale < this.maxScale) {
+          this.scale = Math.min(this.scale + this.scaleStep, this.maxScale);
+          this.$nextTick(() => {
+            this.clampPosition();
+          });
+        }
       },
       closeLightbox() {
         this.$emit('closeLightbox');
+        this.resetPosition();
       },
       // Fallback backdrop click handler for browsers without `closedby` support
       onBackdropClick(e) {
@@ -194,14 +298,7 @@
     position: relative;
     z-index: 110;
     width: auto;
-    max-width: calc(100vw - 64px);
     height: auto;
-    max-height: calc(100vh - 40px - 64px);
-  }
-
-  .expanded-image.small-window {
-    max-width: calc(100vw - 32px);
-    max-height: calc(100vh - 40px - 32px);
   }
 
 </style>
