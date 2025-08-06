@@ -266,12 +266,13 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { tourActive, isTourActive, startTour, endTour } = useTour();
+      const { tourActive, isTourActive, startTour, endTour, resumeTour } = useTour();
       const {
         isUserLoggedIn,
         isCoach,
         isAdmin,
-        isSuperuser,
+        isSuperuser, 
+        user_id,
         canManageContent,
         isLearnerOnlyImport,
       } = useUser();
@@ -440,6 +441,8 @@
         isTourActive,
         startTour,
         endTour,
+        resumeTour,
+        userId:user_id,
       };
     },
     props: {
@@ -546,6 +549,14 @@
         }
         document.documentElement.style.position = '';
       },
+    },
+    mounted() {
+      const isTourStarted = this.resumeTour(this.userId, 'LibraryPage');
+      if (isTourStarted) {
+        this.$nextTick(() => {
+          this.startTour();
+        });
+      }
     },
     created() {
       const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';

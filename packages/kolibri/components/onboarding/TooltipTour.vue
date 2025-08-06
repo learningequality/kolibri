@@ -55,10 +55,10 @@
     },
     data() {
       return {
-        currentStepIndex: 0,
         tippyInstance: null,
         showOverlay: false,
         rect: {},
+        userId: this.user_id,
       };
     },
     computed: {
@@ -83,7 +83,9 @@
       },
     },
     mounted() {
-      this.showTooltip();
+       this.$nextTick(() => {
+        this.showTooltip();
+      });
       window.document.documentElement.style['overflow'] = 'hidden';
     },
     destroyed() {
@@ -99,10 +101,11 @@
         this.$nextTick(() => {
           const currentStep = this.steps[this.currentStepIndex];
           if (!currentStep) return;
-
           const target = document.querySelector(`[data-onboarding-id="${currentStep.key}"]`);
 
           if (!target) {
+            // eslint-disable-next-line no-console
+            console.log('returned from line 94');
             return;
           }
 
