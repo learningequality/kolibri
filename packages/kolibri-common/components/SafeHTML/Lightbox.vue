@@ -115,29 +115,12 @@
     },
     computed: {
       imgStyle() {
-        if (this.scale == 1) {
-          const vw = window.innerWidth;
-          const vh = window.innerHeight;
-          const isSmallWindow = this.styleOverrides.windowSizeClass.includes('small-window');
-          if (!isSmallWindow) {
-            return {
-              maxWidth: `${vw - 64}px`,
-              maxHeight: `${vh - 40 - 64}px`,
-            };
-          } else {
-            return {
-              maxWidth: `${vw - 32}px`,
-              maxHeight: `${vh - 40 - 32}px`,
-            };
-          }
-        } else {
-          return {
-            width: this.baseSize.width * this.scale + 'px',
-            height: this.baseSize.height * this.scale + 'px',
-            transform: `translate(${this.delta.x}px, ${this.delta.y}px)`,
-            cursor: this.isDragging ? 'grabbing' : 'grab',
-          };
-        }
+        return {
+          width: this.baseSize.width * this.scale + 'px',
+          height: this.baseSize.height * this.scale + 'px',
+          transform: `translate(${this.delta.x}px, ${this.delta.y}px)`,
+          cursor: this.isDragging ? 'grabbing' : 'grab',
+        };
       },
       btnHoverStyle() {
         return {
@@ -167,14 +150,36 @@
         }
       },
     },
+    mounted() {
+      window.addEventListener('resize', this.onWindowResize);
+    },
+    beforeDestroy() {
+      window.removeEventListener('resize', this.onWindowResize);
+    },
     methods: {
       calculateSize() {
-        const img = this.$refs.imageRef;
-        this.baseSize.width = img.width;
-        this.baseSize.height = img.height;
-
         this.backdropSize.width = window.innerWidth;
-        this.backdropSize.height = window.innerHeight - 40;
+        this.backdropSize.height = window.innerHeight - 40; // 40px for action bar
+        const isSmallWindow = this.styleOverrides.windowSizeClass.includes('small-window');
+        const maxW = this.backdropSize.width - (isSmallWindow ? 32 : 64); // 32px margin for small window, 64px for larger
+        const maxH = this.backdropSize.height - (isSmallWindow ? 32 : 64);
+
+        const img = this.$refs.imageRef;
+        const naturalW = img.naturalWidth;
+        const naturalH = img.naturalHeight;
+
+        const widthRatio = maxW / naturalW;
+        const heightRatio = maxH / naturalH;
+        const scale = Math.min(widthRatio, heightRatio, 1);
+        this.baseSize.width = Math.round(naturalW * scale);
+        this.baseSize.height = Math.round(naturalH * scale);
+      },
+      onWindowResize() {
+        const img = this.$refs.imageRef;
+        if (img && img.complete) {
+          this.calculateSize();
+          this.clampDelta();
+        }
       },
       getDeltaLimits() {
         const DeltaLimitX = Math.max(
@@ -190,7 +195,7 @@
       clamp(val, min, max) {
         return Math.max(min, Math.min(val, max));
       },
-      clampPosition() {
+      clampDelta() {
         const { DeltaLimitX, DeltaLimitY } = this.getDeltaLimits();
         this.delta.x = this.clamp(this.delta.x, -DeltaLimitX, DeltaLimitX);
         this.delta.y = this.clamp(this.delta.y, -DeltaLimitY, DeltaLimitY);
@@ -208,7 +213,7 @@
         if (!this.isDragging) return;
         this.delta.x = this.origin.x + (e.clientX - this.dragStart.x);
         this.delta.y = this.origin.y + (e.clientY - this.dragStart.y);
-        this.clampPosition();
+        this.clampDelta();
       },
       onMouseUp() {
         this.isDragging = false;
@@ -222,7 +227,7 @@
         if (e.key === 'ArrowRight') this.delta.x -= step;
         if (e.key === 'ArrowUp') this.delta.y += step;
         if (e.key === 'ArrowDown') this.delta.y -= step;
-        this.clampPosition();
+        this.clampDelta();
       },
       resetPosition() {
         this.delta.x = 0;
@@ -233,7 +238,7 @@
           this.scale = Math.max(this.scale - this.scaleStep, this.minScale);
         }
         this.$nextTick(() => {
-          this.clampPosition();
+          this.clampDelta();
         });
         if (this.scale === 1) this.resetPosition();
       },
@@ -241,7 +246,7 @@
         if (this.scale < this.maxScale) {
           this.scale = Math.min(this.scale + this.scaleStep, this.maxScale);
           this.$nextTick(() => {
-            this.clampPosition();
+            this.clampDelta();
           });
         }
       },
@@ -297,8 +302,6 @@
   .expanded-image {
     position: relative;
     z-index: 110;
-    width: auto;
-    height: auto;
   }
 
 </style>
