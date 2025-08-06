@@ -380,12 +380,11 @@
         return this.$tr('poweredBy', { version: __version });
       },
       topItems() {
-        const items = this.navItems
+        return this.navItems
           .filter(item => item.section !== NavComponentSections.ACCOUNT)
           .sort(this.compareMenuItems)
           .filter(this.filterByRole)
           .filter(this.filterByFullFacilityOnly);
-        return items;
       },
       accountItems() {
         const accountItems = this.navItems

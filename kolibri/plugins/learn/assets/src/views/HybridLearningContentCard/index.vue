@@ -6,6 +6,7 @@
       class="card card-link"
       :class="[$computedClass({ ':focus': $coreOutline })]"
       :style="{ backgroundColor: $themeTokens.surface }"
+      @click.native="handleCardClick"
     >
       <div
         class="header-bar"
@@ -120,6 +121,13 @@
       },
       channelTitle() {
         return this.getChannelTitle(this.contentNode && this.contentNode.channel_id);
+      },
+    },
+
+    methods: {
+      handleCardClick() {
+        console.log('event emitted'); //eslint-disable-line
+        this.$emit('cardClicked');
       },
     },
   };

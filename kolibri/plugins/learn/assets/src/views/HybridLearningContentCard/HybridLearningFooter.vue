@@ -91,7 +91,7 @@
       <p>{{ $tr('removeFromMyLibraryInfo') }}</p>
     </KModal>
     <TooltipTour
-      v-if="tourActive"
+      v-if="tourActive && startTheTour"
       page="ViewAndDownloadResources"
       @tourEnded="endTour()"
     />
@@ -152,6 +152,10 @@
         type: Boolean,
         default: false,
       },
+      startTheTour: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -195,16 +199,19 @@
         }
       },
     },
-    mounted() {
-      const showDownloadButton = this.downloadableByLearner;
-      const showInfoButton = this.contentNode.is_leaf;
-      const shouldShowTooltip = (showDownloadButton || showInfoButton) && !this.bookmarked;
 
-      if (shouldShowTooltip) {
-        this.startTour();
-      }
+    watch: {
+      startTheTour(newVal) {
+        if (newVal) {
+          const showDownloadButton = this.downloadableByLearner;
+          const showInfoButton = this.contentNode.is_leaf;
+          const shouldShowTooltip = (showDownloadButton || showInfoButton) && !this.bookmarked;
+          if (newVal && shouldShowTooltip) {
+            this.startTour();
+          }
+        }
+      },
     },
-
     methods: {
       findFirstEl() {
         this.$nextTick(() => {
