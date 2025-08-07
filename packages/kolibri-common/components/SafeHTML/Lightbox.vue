@@ -84,6 +84,15 @@
 
   import UiTooltip from 'kolibri-design-system/lib//keen/UiTooltip.vue';
 
+  function supportsDialogClosedBy() {
+    const dialog = document.createElement('dialog');
+    return 'closedBy' in dialog;
+  }
+
+  function clamp(val, min, max) {
+    return Math.max(min, Math.min(val, max));
+  }
+
   export default {
     name: 'Lightbox',
     components: { UiTooltip },
@@ -111,6 +120,7 @@
         backdropSize: { width: 0, height: 0 },
         isDragging: false,
         dragStart: { x: 0, y: 0 },
+        backdropClickValid: false,
       };
     },
     computed: {
@@ -119,7 +129,7 @@
           width: this.baseSize.width * this.scale + 'px',
           height: this.baseSize.height * this.scale + 'px',
           transform: `translate(${this.delta.x}px, ${this.delta.y}px)`,
-          cursor: this.isDragging ? 'grabbing' : 'grab',
+          cursor: this.scale > 1 ? (this.isDragging ? 'grabbing' : 'grab') : 'auto',
         };
       },
       btnHoverStyle() {
@@ -138,14 +148,19 @@
           this.$nextTick(() => {
             if (this.$refs.dialogRef) {
               this.$refs.dialogRef.showModal();
-              this.$refs.dialogRef.addEventListener('click', this.onBackdropClick);
-              this.scale = 1; // Reset scale when opening lightbox
+              if (!supportsDialogClosedBy()) {
+                this.$refs.dialogRef.addEventListener('mousedown', this.onBackdropMouseDown);
+                this.$refs.dialogRef.addEventListener('mouseup', this.onBackdropMouseUp);
+              }
             }
           });
         } else {
           if (this.$refs.dialogRef) {
             this.$refs.dialogRef.close();
-            this.$refs.dialogRef.removeEventListener('click', this.onBackdropClick);
+            if (!supportsDialogClosedBy()) {
+              this.$refs.dialogRef.removeEventListener('mousedown', this.onBackdropMouseDown);
+              this.$refs.dialogRef.removeEventListener('mouseup', this.onBackdropMouseUp);
+            }
           }
         }
       },
@@ -165,6 +180,7 @@
         const maxH = this.backdropSize.height - (isSmallWindow ? 32 : 64);
 
         const img = this.$refs.imageRef;
+        if (!img) return;
         const naturalW = img.naturalWidth;
         const naturalH = img.naturalHeight;
 
@@ -192,13 +208,10 @@
         );
         return { DeltaLimitX, DeltaLimitY };
       },
-      clamp(val, min, max) {
-        return Math.max(min, Math.min(val, max));
-      },
       clampDelta() {
         const { DeltaLimitX, DeltaLimitY } = this.getDeltaLimits();
-        this.delta.x = this.clamp(this.delta.x, -DeltaLimitX, DeltaLimitX);
-        this.delta.y = this.clamp(this.delta.y, -DeltaLimitY, DeltaLimitY);
+        this.delta.x = clamp(this.delta.x, -DeltaLimitX, DeltaLimitX);
+        this.delta.y = clamp(this.delta.y, -DeltaLimitY, DeltaLimitY);
       },
       onMouseDown(e) {
         if (this.scale <= 1) return; // No reposition if not zoomed
@@ -253,12 +266,19 @@
       closeLightbox() {
         this.$emit('closeLightbox');
         this.resetPosition();
+        this.scale = 1;
       },
-      // Fallback backdrop click handler for browsers without `closedby` support
-      onBackdropClick(e) {
-        if (e.target === this.$refs.dialogRef) {
+      // Fallback backdrop mouse event handlers for browsers without `closedby` support
+      onBackdropMouseDown(e) {
+        // Only track if mousedown started on the backdrop (not on the actionbar nor image)
+        this.backdropClickValid = e.target === this.$refs.dialogRef;
+      },
+      onBackdropMouseUp(e) {
+        // Only close if started AND ended on the backdrop
+        if (this.backdropClickValid && e.target === this.$refs.dialogRef) {
           this.closeLightbox();
         }
+        this.backdropClickValid = false;
       },
     },
   };
@@ -290,6 +310,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
     overflow: visible;
     background: none;
     border: 0;
@@ -302,6 +323,12 @@
   .expanded-image {
     position: relative;
     z-index: 110;
+  }
+
+  .lightbox-dialog,
+  .expanded-image,
+  .action-bar {
+    user-select: none;
   }
 
 </style>
