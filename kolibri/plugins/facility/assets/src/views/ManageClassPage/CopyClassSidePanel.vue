@@ -69,7 +69,7 @@
               :text="copyClasslabel$()"
               :primary="true"
               :disabled="Boolean(classNameInvalidText) || submitting"
-              @click="openConfirmationModal"
+              @click="handleSubmitingClassCopy"
             />
           </div>
         </div>
@@ -78,7 +78,7 @@
 
     <ConfirmCopyClassModal
       v-if="isModalOpen"
-      @confirm="handleSubmitingClassCopy"
+      @confirm="$emit('closeSidePanel')"
       @cancel="isModalOpen = false"
     />
   </div>
@@ -134,10 +134,6 @@
         classCoachesIds.value = props.coachesIds;
       };
 
-      const openConfirmationModal = () => {
-        isModalOpen.value = true;
-      };
-
       setClassNameAndCoachIds();
 
       return {
@@ -152,7 +148,6 @@
         createSnackbar,
         classCoachesIds,
         submitting,
-        openConfirmationModal,
         isModalOpen,
         hasDataChanged,
       };
@@ -216,18 +211,14 @@
         }
       },
     },
-    beforeRouteLeave(to, __, next) {
-      if (this.hasDataChanged) {
-        this.isModalOpen = true;
-        next(false);
-      } else {
-        next();
-      }
-    },
     methods: {
       ...mapActions('classAssignMembers', ['assignCoachesToClass']),
       closeSidePanelModal() {
-        this.$emit('closeSidePanel');
+        if (this.hasDataChanged) {
+          this.isModalOpen = true;
+        } else {
+          this.$emit('closeSidePanel');
+        }
       },
       async handleSubmitingClassCopy() {
         this.submitting = true;
