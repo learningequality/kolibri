@@ -54,12 +54,6 @@
             :maxLines="titleMaxLines(contentNode)"
           />
         </h3>
-        <p>
-          <KTextTruncator
-            :text="contentNode.description"
-            :maxLines="1"
-          />
-        </p>
         <KButton
           v-if="contentNode.copies && contentNode.copies.length"
           appearance="basic-link"
@@ -130,6 +124,9 @@
     },
     methods: {
       titleMaxLines(content) {
+        // If the content is a folder,show 3 lines of title text.
+        // If a resource card, we show 1 line of title if it has a description,
+        // or 3 lines if it does not.
         if (!content.is_leaf) {
           return 3;
         }
