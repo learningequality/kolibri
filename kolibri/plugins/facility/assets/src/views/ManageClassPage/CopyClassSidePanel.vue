@@ -69,12 +69,18 @@
               :text="copyClasslabel$()"
               :primary="true"
               :disabled="Boolean(classNameInvalidText) || submitting"
-              @click="handleSubmitingClassCopy"
+              @click="openConfirmationModal"
             />
           </div>
         </div>
       </template>
     </SidePanelModal>
+
+    <ConfirmCopyClassModal
+      v-if="isModalOpen"
+      @confirm="handleSubmitingClassCopy"
+      @cancel="isModalOpen = false"
+    />
   </div>
 
 </template>
@@ -90,6 +96,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import SelectableList from '../common/SelectableList.vue';
+  import ConfirmCopyClassModal from './ConfirmCopyClassModal.vue';
 
   export default {
     name: 'CopyClassSidePanel',
@@ -97,12 +104,15 @@
       SelectableList,
       SidePanelModal,
       UserTypeDisplay,
+      ConfirmCopyClassModal,
     },
     mixins: [commonCoreStrings],
     setup(props) {
       const classCoachesIds = ref([]);
       const copiedClassName = ref(null);
       const submitting = ref(false);
+      const isModalOpen = ref(false);
+      const hasDataChanged = ref(false);
       const { className } = props;
 
       const {
@@ -124,6 +134,10 @@
         classCoachesIds.value = props.coachesIds;
       };
 
+      const openConfirmationModal = () => {
+        isModalOpen.value = true;
+      };
+
       setClassNameAndCoachIds();
 
       return {
@@ -138,6 +152,9 @@
         createSnackbar,
         classCoachesIds,
         submitting,
+        openConfirmationModal,
+        isModalOpen,
+        hasDataChanged,
       };
     },
     props: {
@@ -186,6 +203,26 @@
           },
         };
       },
+    },
+    watch: {
+      copiedClassName(newValue) {
+        if (newValue) {
+          this.hasDataChanged = true;
+        }
+      },
+      classCoachesIds(newValue) {
+        if (newValue) {
+          this.hasDataChanged = true;
+        }
+      },
+    },
+    beforeRouteLeave(to, __, next) {
+      if (this.hasDataChanged) {
+        this.isModalOpen = true;
+        next(false);
+      } else {
+        next();
+      }
     },
     methods: {
       ...mapActions('classAssignMembers', ['assignCoachesToClass']),
