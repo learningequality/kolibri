@@ -16,7 +16,7 @@
           color="#FFFFFF"
           size="small"
           aria-label="Zoom out"
-          :disabled="scale <= minScale"
+          :disabled="scale === minScale"
           @click="zoomOut"
         />
         <!-- Use UiTooltip separately with appendToBody=false so tooltip stays above backdrop -->
@@ -35,7 +35,8 @@
           color="#FFFFFF"
           size="small"
           aria-label="Zoom in"
-          :disabled="scale >= maxScale"
+          :disabled="scale === maxScale"
+          autofocus
           @click="zoomIn"
         />
         <UiTooltip
@@ -68,6 +69,7 @@
       ref="imageRef"
       :src="src"
       :alt="alt"
+      tabindex="-1"
       class="expanded-image"
       :class="styleOverrides.windowSizeClass"
       :style="imgStyle"
@@ -164,6 +166,16 @@
           }
         }
       },
+      scale(newScale) {
+        this.$nextTick(() => {
+          if (!this.$refs.imageRef) return;
+          // Keep focus within the dialog when zoom-out or zoom-in button become disabled
+          if (newScale == this.minScale || newScale == this.maxScale) {
+            this.$refs.imageRef.focus();
+            return;
+          }
+        });
+      },
     },
     mounted() {
       window.addEventListener('resize', this.onWindowResize);
@@ -234,13 +246,34 @@
         window.removeEventListener('mouseup', this.onMouseUp);
       },
       onKeyDown(e) {
-        if (this.scale <= 1) return;
+        this.handleArrowKeys(e);
+        this.handleTab(e);
+      },
+      handleArrowKeys(e) {
+        if (this.scale === 1) return;
         const step = 50;
         if (e.key === 'ArrowLeft') this.delta.x += step;
         if (e.key === 'ArrowRight') this.delta.x -= step;
         if (e.key === 'ArrowUp') this.delta.y += step;
         if (e.key === 'ArrowDown') this.delta.y -= step;
         this.clampDelta();
+      },
+      handleTab(e) {
+        var focusables = this.$refs.dialogRef.querySelectorAll('button:not([disabled])');
+        if (!focusables.length) return;
+        var firstFocusable = focusables[0];
+        var lastFocusable = focusables[focusables.length - 1];
+        if (e.shiftKey && e.key === 'Tab') {
+          if (document.activeElement === firstFocusable) {
+            lastFocusable.focus();
+            e.preventDefault();
+          }
+        } else if (e.key === 'Tab') {
+          if (document.activeElement === lastFocusable) {
+            firstFocusable.focus();
+            e.preventDefault();
+          }
+        }
       },
       resetPosition() {
         this.delta.x = 0;

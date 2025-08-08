@@ -9,6 +9,8 @@
     <div
       v-else
       class="safe-html-wrapper"
+      tabindex="0"
+      aria-label="Article content"
     >
       <SafeHTML
         :html="html"
