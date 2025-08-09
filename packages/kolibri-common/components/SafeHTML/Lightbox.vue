@@ -17,7 +17,7 @@
           size="small"
           aria-label="Zoom out"
           :disabled="scale === minScale"
-          @click="zoomOut"
+          @click="zoomImage('out')"
         />
         <!-- Use UiTooltip separately with appendToBody=false so tooltip stays above backdrop -->
         <UiTooltip
@@ -37,7 +37,7 @@
           aria-label="Zoom in"
           :disabled="scale === maxScale"
           autofocus
-          @click="zoomIn"
+          @click="zoomImage('in')"
         />
         <UiTooltip
           openOn="hover"
@@ -71,10 +71,11 @@
       :alt="alt"
       tabindex="-1"
       class="expanded-image"
-      :class="styleOverrides.windowSizeClass"
+      :class="[styleOverrides.windowSizeClass, { 'with-transition': allowTransition }]"
       :style="imgStyle"
       @load="calculateSize"
       @mousedown="onMouseDown"
+      @wheel="onWheel"
       @dragstart.prevent
     >
   </dialog>
@@ -123,6 +124,7 @@
         isDragging: false,
         dragStart: { x: 0, y: 0 },
         backdropClickValid: false,
+        allowTransition: false,
       };
     },
     computed: {
@@ -147,6 +149,7 @@
     watch: {
       open(val) {
         if (val) {
+          this.allowTransition = false; // disable transitions initially
           this.$nextTick(() => {
             if (this.$refs.dialogRef) {
               this.$refs.dialogRef.showModal();
@@ -155,6 +158,12 @@
                 this.$refs.dialogRef.addEventListener('mouseup', this.onBackdropMouseUp);
               }
             }
+            // Enable transitions after first paint plus an extra delay
+            requestAnimationFrame(() => {
+              setTimeout(() => {
+                this.allowTransition = true;
+              }, 50);
+            });
           });
         } else {
           if (this.$refs.dialogRef) {
@@ -164,6 +173,7 @@
               this.$refs.dialogRef.removeEventListener('mouseup', this.onBackdropMouseUp);
             }
           }
+          this.allowTransition = false; // disable transitions on close
         }
       },
       scale(newScale) {
@@ -229,6 +239,7 @@
         if (this.scale <= 1) return; // No reposition if not zoomed
         e.preventDefault();
         this.isDragging = true;
+        this.allowTransition = false; // disable transitions while dragging
         this.dragStart = { x: e.clientX, y: e.clientY };
         this.origin = { x: this.delta.x, y: this.delta.y };
         window.addEventListener('mousemove', this.onMouseMove);
@@ -242,6 +253,7 @@
       },
       onMouseUp() {
         this.isDragging = false;
+        this.allowTransition = true;
         window.removeEventListener('mousemove', this.onMouseMove);
         window.removeEventListener('mouseup', this.onMouseUp);
       },
@@ -265,8 +277,8 @@
         var lastFocusable = focusables[focusables.length - 1];
         if (e.shiftKey && e.key === 'Tab') {
           if (document.activeElement === firstFocusable) {
-            lastFocusable.focus();
             e.preventDefault();
+            lastFocusable.focus();
           }
         } else if (e.key === 'Tab') {
           if (document.activeElement === lastFocusable) {
@@ -279,21 +291,33 @@
         this.delta.x = 0;
         this.delta.y = 0;
       },
-      zoomOut() {
-        if (this.scale > this.minScale) {
-          this.scale = Math.max(this.scale - this.scaleStep, this.minScale);
+      zoomImage(direction = 'in', relX = 0, relY = 0) {
+        const prevScale = this.scale;
+        let newScale = this.scale;
+        if (direction === 'in' && this.scale < this.maxScale) {
+          newScale = Math.min(this.scale + this.scaleStep, this.maxScale);
+        } else if (direction === 'out' && this.scale > this.minScale) {
+          newScale = Math.max(this.scale - this.scaleStep, this.minScale);
         }
-        this.$nextTick(() => {
-          this.clampDelta();
-        });
+        if (newScale === prevScale) return;
+        this.delta.x -= relX * this.baseSize.width * (newScale - prevScale);
+        this.delta.y -= relY * this.baseSize.height * (newScale - prevScale);
+        this.scale = newScale;
+        this.$nextTick(() => this.clampDelta());
         if (this.scale === 1) this.resetPosition();
       },
-      zoomIn() {
-        if (this.scale < this.maxScale) {
-          this.scale = Math.min(this.scale + this.scaleStep, this.maxScale);
-          this.$nextTick(() => {
-            this.clampDelta();
-          });
+      onWheel(e) {
+        e.preventDefault();
+        const img = this.$refs.imageRef;
+        if (!img) return;
+        const rect = img.getBoundingClientRect();
+        // Cursor's position ratio relative to the center of the image
+        const relX = (e.clientX - rect.left) / rect.width - 0.5;
+        const relY = (e.clientY - rect.top) / rect.height - 0.5;
+        if (e.deltaY < 0) {
+          this.zoomImage('in', relX, relY);
+        } else {
+          this.zoomImage('out', relX, relY);
         }
       },
       closeLightbox() {
@@ -356,6 +380,13 @@
   .expanded-image {
     position: relative;
     z-index: 110;
+  }
+
+  .expanded-image.with-transition {
+    transition:
+      transform 0.3s cubic-bezier(0.2, 0, 0.2, 1),
+      width 0.3s cubic-bezier(0.2, 0, 0.2, 1),
+      height 0.3s cubic-bezier(0.2, 0, 0.2, 1);
   }
 
   .lightbox-dialog,
