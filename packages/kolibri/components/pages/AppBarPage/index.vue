@@ -230,7 +230,9 @@
         this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 124;
       },
       handleStartTour() {
-        this.startTour();
+        setTimeout(() => {
+          this.startTour();
+        }, 400);
       },
     },
   };
