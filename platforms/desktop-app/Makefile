@@ -10,6 +10,8 @@ else
 	PYTHON_EXEC_WITH_PATH := PYTHONPATH="./src:./kolibrisrc:$$PYTHONPATH" $(PYTHON_EXEC)
 endif
 
+NSSM_VERSION := 2.24
+
 guard-%:
 	@ if [ "${${*}}" = "" ]; then \
 		echo "Environment variable $* not set"; \
@@ -81,6 +83,68 @@ pyinstaller: clean
 
 build-dmg: needs-version
 	$(PYTHON_EXEC) -m dmgbuild -s build_config/dmgbuild_settings.py "Kolibri ${KOLIBRI_VERSION}" dist/kolibri-${KOLIBRI_VERSION}.dmg
+
+.PHONY: webview2
+# Download WebView2 runtime installer
+webview2:
+	@if [ ! -f MicrosoftEdgeWebView2RuntimeInstallerX64.exe ]; then \
+		echo "Downloading WebView2 full installer..."; \
+		( \
+			trap 'echo "Interrupted. Cleaning up..."; rm -f MicrosoftEdgeWebView2RuntimeInstallerX64.exe; exit 1' INT TERM; \
+			wget https://go.microsoft.com/fwlink/?linkid=2124701 -O MicrosoftEdgeWebView2RuntimeInstallerX64.exe || { \
+				echo "\Download failed. Cleaning up..."; \
+				rm -f MicrosoftEdgeWebView2RuntimeInstallerX64.exe; \
+				exit 1; \
+			} \
+		); \
+	else \
+		echo "WebView2 full installer already present."; \
+	fi
+
+.PHONY: nssm
+# Download NSSM for Windows service management
+nssm:
+	@if [ ! -f nssm.exe ]; then \
+		echo "Downloading NSSM..."; \
+		( \
+			trap 'echo "Interrupted. Cleaning up..."; rm -f nssm.zip; rm -rf nssm; exit 1' INT TERM; \
+			mkdir -p nssm && \
+			wget https://nssm.cc/release/nssm-$(NSSM_VERSION).zip -O nssm.zip || { \
+				echo "Download failed. Cleaning up..."; \
+				rm -f nssm.zip; rm -rf nssm; \
+				exit 1; \
+			}; \
+			unzip -n nssm.zip -d nssm || { \
+				echo "Unzip failed. Cleaning up..."; \
+				rm -f nssm.zip; rm -rf nssm; \
+				exit 1; \
+			}; \
+			cp nssm/nssm-$(NSSM_VERSION)/win64/nssm.exe . && \
+			rm -rf nssm nssm.zip \
+		); \
+	else \
+		echo "NSSM already present."; \
+	fi
+
+# Windows Installer Build
+.PHONY: build-installer-windows
+build-installer-windows: needs-version nssm webview2
+ifeq ($(OS),Windows_NT)
+	# Assumes Inno Setup is installed in the default location.
+	# MSYS_NO_PATHCONV=1 prevents Git Bash/MINGW from converting the /D flag into a file path.
+	MSYS_NO_PATHCONV=1 "C:\Program Files (x86)\Inno Setup 6\iscc.exe" /DAppVersion=$(KOLIBRI_VERSION) kolibri.iss
+else
+	@echo "Windows installer can only be built on Windows."
+endif
+
+# Code signing for the installer
+.PHONY: codesign-installer-windows
+codesign-installer-windows: build-installer-windows
+	$(MAKE) guard-WIN_CODESIGN_PFX
+	$(MAKE) guard-WIN_CODESIGN_PWD
+	$(MAKE) guard-WIN_CODESIGN_CERT
+	# MSYS_NO_PATHCONV=1 prevents Git Bash/MINGW from converting option flags (like /f, /p) into file paths.
+	MSYS_NO_PATHCONV=1 "C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe" sign /f ${WIN_CODESIGN_PFX} /p ${WIN_CODESIGN_PWD} /ac ${WIN_CODESIGN_CERT} /tr http://timestamp.ssl.trustwave.com /td SHA256 /fd SHA256 "dist-installer/kolibri-setup-$(KOLIBRI_VERSION).exe"
 
 compile-mo:
 	find src/kolibri_app/locales -name LC_MESSAGES -exec msgfmt {}/wxapp.po -o {}/wxapp.mo \;
