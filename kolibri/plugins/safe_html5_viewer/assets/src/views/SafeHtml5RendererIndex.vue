@@ -39,10 +39,10 @@
 
   import ZipFile from 'kolibri-zip';
   import SafeHTML from 'kolibri-common/components/SafeHTML';
-  import Lightbox from 'kolibri-common/components/SafeHTML/Lightbox.vue';
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { computed } from 'vue';
+  import Lightbox from './Lightbox.vue';
 
   export default {
     name: 'SafeHtml5RendererIndex',
