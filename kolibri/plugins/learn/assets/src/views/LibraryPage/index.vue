@@ -526,6 +526,9 @@
       studioId() {
         return KolibriStudioId;
       },
+      loading() {
+        return this.$store.state.core.loading;
+      },
     },
     watch: {
       rootNodes(newNodes) {
@@ -549,14 +552,16 @@
         }
         document.documentElement.style.position = '';
       },
-    },
-    mounted() {
-      const isTourStarted = this.resumeTour(this.userId, 'LibraryPage');
-      if (isTourStarted) {
-        this.$nextTick(() => {
-          this.startTour();
-        });
-      }
+      loading(newVal, oldVal) {
+        if (oldVal && !newVal) {
+          const isTourStarted = this.resumeTour(this.userId, 'LibraryPage');
+          if (isTourStarted) {
+            setTimeout(() => {
+              this.startTour();
+            }, 3000);
+          }
+        }
+      },
     },
     created() {
       const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';

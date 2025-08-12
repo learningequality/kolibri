@@ -104,8 +104,6 @@
           const target = document.querySelector(`[data-onboarding-id="${currentStep.key}"]`);
 
           if (!target) {
-            // eslint-disable-next-line no-console
-            console.log('returned from line 94');
             return;
           }
 

@@ -1,6 +1,9 @@
 import { ref } from 'vue';
 import { onboardingSteps } from 'kolibri-common/utils/onboardingSteps.js';
 
+const TOUR_PROGRESS_KEY = 'kolibri_onboarding_tour_progress';
+const TOUR_COMPLETE_KEY = 'kolibri_onboarding_tour_complete';
+const TOUR_ACTIVE = 'kolibri_onboarding_tour_active';
 const tourActive = ref(false);
 const currentStepIndex = ref(0);
 
@@ -44,12 +47,13 @@ function resumeTour(userId, page) {
     if (progress.stepIndex + 1 < steps.length) {
       // Still steps left on current page
       currentStepIndex.value = progress.stepIndex + 1;
+      return true;
     } else {
-      // No more pages, end tour
-      this.endTour();
-      return;
+      endTour();
+      return false;
     }
   }
+  return false;
 }
 
 export default function useTour() {
