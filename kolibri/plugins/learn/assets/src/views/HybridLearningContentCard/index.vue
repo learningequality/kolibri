@@ -123,14 +123,12 @@
       },
     },
     methods: {
-      titleMaxLines(content) {
-        // If the content is a folder,show 3 lines of title text.
-        // If a resource card, we show 1 line of title if it has a description,
-        // or 3 lines if it does not.
-        if (!content.is_leaf) {
-          return 3;
-        }
-        return content.description ? 1 : 3;
+      titleMaxLines() {
+        // All content cards now display up to 3 lines of title text.
+        // Previously, the number of lines varied based on whether the card
+        // displayed a description, but since descriptions are no longer shown,
+        // we  are  now using 3 lines for all cards for consistency.
+        return 3;
       },
     },
   };
