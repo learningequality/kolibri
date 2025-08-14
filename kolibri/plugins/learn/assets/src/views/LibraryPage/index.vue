@@ -271,7 +271,7 @@
         isUserLoggedIn,
         isCoach,
         isAdmin,
-        isSuperuser, 
+        isSuperuser,
         user_id,
         canManageContent,
         isLearnerOnlyImport,
@@ -442,7 +442,7 @@
         startTour,
         endTour,
         resumeTour,
-        userId:user_id,
+        userId: user_id,
       };
     },
     props: {
