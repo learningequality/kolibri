@@ -1,7 +1,28 @@
 <template>
 
   <div>
-    <KModal :title="moveToTrashLabel$({ num: selectedUsers.size })">
+    <KModal
+      v-if="usersRemoved"
+      :title="undoTrashHeading$({ num: usersRemoved.length })"
+      :submitText="undoAction$()"
+      :cancelText="coreStrings.dismissAction$()"
+      :submitDisabled="loading"
+      :cancelDisabled="loading"
+      @cancel="confimClosureOnDeleting"
+      @submit="undoMoveToTrash"
+    >
+      <KCircularLoader v-if="loading" />
+      <p>
+        {{ undoTrashMessageA$({ numUsers: usersRemoved.length }) }}
+      </p>
+      <p>
+        {{ undoTrashMessageB$() }}
+      </p>
+    </KModal>
+    <KModal
+      v-else
+      :title="moveToTrashLabel$({ num: selectedUsers.size })"
+    >
       <KCircularLoader v-if="loading" />
       <div
         v-else
@@ -48,7 +69,7 @@
 
 <script>
 
-  import { computed, ref } from 'vue';
+  import { computed, ref, getCurrentInstance } from 'vue';
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
 
@@ -57,6 +78,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+  import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
 
@@ -72,6 +94,9 @@
       const loading = ref(false);
       const users = ref([]);
       const usersRemoved = ref(null);
+      const { $store, $router } = getCurrentInstance().proxy;
+      const activeFacilityId =
+        $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
 
       const {
         trashUndoneNotice$,
@@ -102,6 +127,26 @@
         } finally {
           loading.value = false;
         }
+      };
+
+      const confimClosureOnDeleting = () => {
+        ClassroomResource.fetchCollection({
+          getParams: { parent: activeFacilityId },
+          force: true,
+        }).then(classrooms => {
+          classrooms.flatMap(classObj =>
+            classObj.coaches.map(coach => {
+              if (props.selectedUsers.has(coach.id)) {
+                $store.dispatch('classEditManagement/removeClassCoach', {
+                  classId: classObj.id,
+                  userId: coach.id,
+                });
+              }
+            }),
+          );
+          emit('change', { resetSelection: true });
+          close();
+        });
       };
 
       const close = () => {
@@ -172,6 +217,7 @@
         moveToTrashLabel$,
         numAdminsSelected$,
         moveToTrashWarning$,
+        confimClosureOnDeleting,
       };
     },
     props: {
