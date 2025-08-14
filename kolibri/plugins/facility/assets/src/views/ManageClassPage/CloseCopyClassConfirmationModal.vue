@@ -18,7 +18,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
-    name: 'ConfirmCopyClassModal',
+    name: 'CloseCopyClassConfirmationModal',
     mixins: [commonCoreStrings],
   };
 

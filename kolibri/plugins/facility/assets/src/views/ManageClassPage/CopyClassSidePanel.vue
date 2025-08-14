@@ -76,7 +76,7 @@
       </template>
     </SidePanelModal>
 
-    <ConfirmCopyClassModal
+    <CloseCopyClassConfirmationModal
       v-if="isModalOpen"
       @confirm="$emit('closeSidePanel')"
       @cancel="isModalOpen = false"
@@ -96,7 +96,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import SelectableList from '../common/SelectableList.vue';
-  import ConfirmCopyClassModal from './ConfirmCopyClassModal.vue';
+  import CloseCopyClassConfirmationModal from './CloseCopyClassConfirmationModal.vue';
 
   export default {
     name: 'CopyClassSidePanel',
@@ -104,7 +104,7 @@
       SelectableList,
       SidePanelModal,
       UserTypeDisplay,
-      ConfirmCopyClassModal,
+      CloseCopyClassConfirmationModal,
     },
     mixins: [commonCoreStrings],
     setup(props) {
