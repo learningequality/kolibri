@@ -2,10 +2,10 @@ Feature: Admin creates classes
   Admin needs to be able create classes for each facility
 
   Background:
-    Given I am signed in to Kolibri as facility admin user
-      And I am on *Facility > Classes* page
+    Given I am signed in to Kolibri as a facility admin user
+      And I am at *Facility > Classes* page
 
-  Scenario: Create class
+  Scenario: Create a new class
     When I click on the *New class* button
     Then I see the *Create new class* modal
     When I enter a class name

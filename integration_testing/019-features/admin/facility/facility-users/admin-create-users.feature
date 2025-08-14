@@ -1,5 +1,5 @@
 Feature: Admin creates users
-  Admin needs to be able to create user accounts for each role in the facility
+  Admin users need to be able to create user accounts for each role in the facility
 
   Background:
     Given I am signed in to Kolibri as a facility admin user
@@ -78,3 +78,19 @@ Feature: Admin creates users
       And I see the *User created* snackbar message
       And I see the new facility admin user in the *New users* table
       And I see the *Admin* label next to the full name of the user
+
+  Scenario: Create multiple users in a row
+    Given I am at the *Create new user* side panel
+    	And I have filled in all the required fields
+    	And I have selected the desired user type from the *User type* drop-down
+    When I click the *Save and add another* button
+    Then the page reloads
+      And I see the *User created* snackbar message
+      And the *Create new user* side panel remains open
+      And the for fields are reset to their default state
+    When I fill in all the required fields with the credentials of a new user
+    	And I click again the *Save and add another* button
+    Then the page reloads
+      And I see the *User created* snackbar message
+      And the *Create new user* side panel remains open
+      And the for fields are reset to their default state

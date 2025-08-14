@@ -1,13 +1,14 @@
 Feature: Admin can delete classes
-  Admin needs to be able to delete classes from the facility
+  Admin users need to be able to delete classes from the facility
 
   Background:
     Given I am signed in to Kolibri as a facility admin user
-      And I am on *Facility > Classes* page
+      And I am at the *Facility > Classes* page
       And there is a class created in the facility
 
   Scenario: Delete class
-    When I click on the *Delete class* button for a class
+    When I click on the *…* button for a class
+    	And I click the *Delete class* option
     Then I see the *Delete class* modal
     When I click the *Delete* button
     Then the modal closes

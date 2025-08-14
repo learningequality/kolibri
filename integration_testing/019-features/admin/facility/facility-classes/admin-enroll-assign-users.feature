@@ -3,7 +3,7 @@ Feature: Admin enrolls learners and assign coaches to classes
 
   Background:
     Given I am signed in to Kolibri as a facility admin user
-      And I am on *Facility > Classes* page
+      And I am at the *Facility > Classes* page
       And there is a class created in the facility
       And there are learner and coach users created in the facility
 
