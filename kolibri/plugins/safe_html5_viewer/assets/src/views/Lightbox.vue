@@ -5,6 +5,7 @@
     ref="dialogRef"
     closedby="any"
     class="lightbox-dialog"
+    data-testid="lightbox-dialog"
     @close="closeLightbox"
     @keydown="onKeyDown"
   >
