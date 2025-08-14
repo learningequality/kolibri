@@ -34,17 +34,20 @@ function isTourCompleted() {
   return localStorage.getItem(TOUR_COMPLETE_KEY) === 'true';
 }
 function resumeTour(userId, page) {
-  const progressOfUser = JSON.parse(localStorage.getItem(TOUR_PROGRESS_KEY));
-  const progress = progressOfUser?.userId === userId ? progressOfUser : null;
+  const progress = getTourProgress(userId);
+  if (!progress) {
+    return false;
+  }
   const pageKeys = Object.keys(onboardingSteps);
   const currentPageIndex = pageKeys.indexOf(page);
-  const welcomeDismissalKey = localStorage.getItem('DEVICE_WELCOME_MODAL_DISMISSED');
+  const welcomeDismissed = localStorage.getItem('DEVICE_WELCOME_MODAL_DISMISSED');
   const prevPage = currentPageIndex === 0 ? null : pageKeys[currentPageIndex - 1];
-  const prevPageSteps = prevPage ? onboardingSteps[prevPage] : null;
+  const prevPageSteps = prevPage ? onboardingSteps[prevPage] : [];
   const isLastStepOfPrevPage = prevPageSteps && progress.stepIndex === prevPageSteps.length - 1;
   const steps = onboardingSteps[page] || [];
-  if (welcomeDismissalKey && progress && (progress.page === page || isLastStepOfPrevPage)) {
-    if (progress.stepIndex + 1 < steps.length) {
+  const isSamePage = progress.page === page;
+  if (welcomeDismissed && progress && (isSamePage || isLastStepOfPrevPage)) {
+    if (progress.stepIndex + 1 < steps.steps.length) {
       // Still steps left on current page
       currentStepIndex.value = progress.stepIndex + 1;
       return true;

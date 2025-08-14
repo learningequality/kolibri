@@ -26,6 +26,7 @@
   import TooltipContent from './TooltipContent.vue';
   import useTour from '../../composables/useTour';
   import useUser from '../../../kolibri/composables/useUser';
+  import TooltipContent from './TooltipContent.vue';
 
   export default {
     name: 'TooltipTour',
@@ -36,7 +37,7 @@
         saveTourProgress,
         completeTour,
         currentStepIndex,
-        userId:user_id,
+        userId: user_id,
       };
     },
     props: {
@@ -58,7 +59,6 @@
         tippyInstance: null,
         showOverlay: false,
         rect: {},
-        userId: this.user_id,
       };
     },
     computed: {
@@ -83,7 +83,7 @@
       },
     },
     mounted() {
-       this.$nextTick(() => {
+      this.$nextTick(() => {
         this.showTooltip();
       });
       window.document.documentElement.style['overflow'] = 'hidden';
