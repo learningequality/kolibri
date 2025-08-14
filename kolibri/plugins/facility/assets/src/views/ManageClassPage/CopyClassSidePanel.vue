@@ -222,7 +222,7 @@
       },
       async handleSubmitingClassCopy() {
         this.submitting = true;
-
+        this.isModalOpen = false;
         try {
           await this.$store.dispatch('classManagement/createClass', this.copiedClassName);
           await this.$nextTick();
@@ -248,7 +248,7 @@
               return c;
             });
 
-            this.closeSidePanelModal();
+            this.$emit('closeSidePanel');
             this.$store.commit('classManagement/SET_STATE', { classes: updatedClasses });
             this.createSnackbar(this.classCopiedSuccessfully$());
           }
