@@ -9,12 +9,15 @@
     @close="closeLightbox"
     @keydown="onKeyDown"
   >
-    <div class="action-bar">
-      <div :class="$computedClass(btnHoverStyle)">
+    <div
+      class="action-bar"
+      :style="{ backgroundColor: $themePalette.grey.v_900 }"
+    >
+      <div :class="scale !== minScale ? $computedClass(btnHoverStyle) : ''">
         <KIconButton
           id="zoom-out-btn"
           icon="remove"
-          color="#FFFFFF"
+          :color="$themeTokens.surface"
           size="small"
           aria-label="Zoom out"
           :disabled="scale === minScale"
@@ -29,11 +32,11 @@
           Zoom out
         </UiTooltip>
       </div>
-      <div :class="$computedClass(btnHoverStyle)">
+      <div :class="scale !== maxScale ? $computedClass(btnHoverStyle) : ''">
         <KIconButton
           id="zoom-in-btn"
           icon="add"
-          color="#FFFFFF"
+          :color="$themeTokens.surface"
           size="small"
           aria-label="Zoom in"
           :disabled="scale === maxScale"
@@ -52,7 +55,7 @@
         <KIconButton
           id="close-btn"
           icon="close"
-          color="#FFFFFF"
+          :color="$themeTokens.surface"
           size="small"
           aria-label="Close"
           @click="closeLightbox"
@@ -272,10 +275,10 @@
         this.clampDelta();
       },
       handleTab(e) {
-        var focusables = this.$refs.dialogRef.querySelectorAll('button:not([disabled])');
+        const focusables = this.$refs.dialogRef.querySelectorAll('button:not([disabled])');
         if (!focusables.length) return;
-        var firstFocusable = focusables[0];
-        var lastFocusable = focusables[focusables.length - 1];
+        const firstFocusable = focusables[0];
+        const lastFocusable = focusables[focusables.length - 1];
         if (e.shiftKey && e.key === 'Tab') {
           if (document.activeElement === firstFocusable) {
             e.preventDefault();
@@ -358,7 +361,6 @@
     justify-content: end;
     height: 40px;
     padding-right: 8px;
-    background-color: #000000;
   }
 
   .lightbox-dialog {
