@@ -107,8 +107,8 @@
   import CoreMenu from 'kolibri/components/CoreMenu';
   import CoreMenuOption from 'kolibri/components/CoreMenu/CoreMenuOption';
   import useUser from 'kolibri/composables/useUser';
-  import useTour from 'kolibri-common/composables/useTour';
-  import TooltipTour from 'kolibri-common/components/onboarding/TooltipTour.vue';
+  import useTour from 'kolibri/composables/useTour';
+  import TooltipTour from 'kolibri/components/onboarding/TooltipTour.vue';
   import ProgressBar from '../ProgressBar';
   import commonLearnStrings from '../commonLearnStrings';
   import useDownloadRequests from '../../composables/useDownloadRequests';

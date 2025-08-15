@@ -213,8 +213,8 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
   import useChannels from 'kolibri-common/composables/useChannels';
-  import TooltipTour from 'kolibri-common/components/onboarding/TooltipTour.vue';
-  import useTour from 'kolibri-common/composables/useTour';
+  import TooltipTour from 'kolibri/components/onboarding/TooltipTour.vue';
+  import useTour from 'kolibri/composables/useTour';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';

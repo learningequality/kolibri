@@ -90,7 +90,6 @@ module.exports = {
   'kolibri.coreVue.components.NotificationsRoot': 'kolibri/components/pages/NotificationsRoot',
   'kolibri.coreVue.components.KolibriLoadingSnippet':
     'kolibri-common/components/KolibriLoadingSnippet',
-  'kolibri.coreVue.components.TooltipTour': 'kolibri-common/components/onboarding/TooltipTour',
   'kolibri.coreVue.componentSets.sync': {
     _type: 'complex',
     _defaultPath: 'kolibri-common/components/syncComponentSet', // Default path for automatic mapping
@@ -133,7 +132,6 @@ module.exports = {
   'kolibri.coreVue.composables.useUserSyncStatus': 'kolibri/composables/useUserSyncStatus',
   'kolibri.coreVue.composables.useNow': 'kolibri/composables/useNow',
   'kolibri.coreVue.composables.useTotalProgress': 'kolibri/composables/useTotalProgress',
-  'kolibri.coreVue.composables.useTour': 'kolibri-common/composables/useTour',
   'kolibri.resources': {
     _type: 'complex',
     _defaultPath: 'kolibri-common/apiResources', // Default path for automatic mapping
