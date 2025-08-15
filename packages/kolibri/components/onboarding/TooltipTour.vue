@@ -22,7 +22,7 @@
 
   import tippy from 'tippy.js';
   import Vue from 'vue';
-  import { onboardingSteps } from 'kolibri/utils/onboardingSteps.js';
+  import { onboardingSteps } from 'kolibri/utils/onboardingSteps';
   import TooltipContent from './TooltipContent.vue';
 
   export default {

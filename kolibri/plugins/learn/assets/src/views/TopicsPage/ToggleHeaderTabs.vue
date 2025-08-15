@@ -65,7 +65,7 @@
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import TooltipTour from 'kolibri/components/onboarding/TooltipTour.vue';
+  import TooltipTour from 'kolibri/components/onboarding/TooltipTour';
   import useTour from 'kolibri/composables/useTour';
   import { PageNames } from '../../constants';
 

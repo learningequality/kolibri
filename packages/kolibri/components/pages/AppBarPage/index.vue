@@ -72,8 +72,8 @@
   import useUser from 'kolibri/composables/useUser';
   import { ref, getCurrentInstance } from 'vue';
   import { useSwipe } from '@vueuse/core';
-  import TooltipTour from 'kolibri/components/onboarding/TooltipTour'; // eslint-disable-line
-  import useTour from 'kolibri/composables/useTour'; // eslint-disable-line
+  import TooltipTour from 'kolibri/components/onboarding/TooltipTour';
+  import useTour from 'kolibri/composables/useTour';
   import ScrollingHeader from '../ScrollingHeader';
   import AppBar from './internal/AppBar';
   import SideNav from './internal/SideNav';
