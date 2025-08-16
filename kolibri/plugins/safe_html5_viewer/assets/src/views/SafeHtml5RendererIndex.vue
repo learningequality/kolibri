@@ -17,19 +17,8 @@
         :styleOverrides="{
           windowSizeClass: windowSizeClass,
         }"
-        @expand-img="openLightbox"
       />
     </div>
-    <Lightbox
-      aria-label="Expanded image"
-      :open="lightboxOpen"
-      :src="lightboxImgSrc"
-      :alt="lightboxImgAlt"
-      :styleOverrides="{
-        windowSizeClass: windowSizeClass,
-      }"
-      @closeLightbox="closeLightbox"
-    />
   </div>
 
 </template>
@@ -42,14 +31,12 @@
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { computed } from 'vue';
-  import Lightbox from './Lightbox.vue';
 
   export default {
     name: 'SafeHtml5RendererIndex',
     __usesContentViewerComposable: true,
     components: {
       SafeHTML,
-      Lightbox,
     },
     setup(props, context) {
       const { windowIsSmall } = useKResponsiveWindow();
@@ -73,9 +60,6 @@
       return {
         loading: true,
         html: null,
-        lightboxOpen: false,
-        lightboxImgSrc: '',
-        lightboxImgAlt: '',
       };
     },
     computed: {
@@ -148,16 +132,6 @@
         this.timeout = setTimeout(() => {
           this.recordProgress();
         }, 5000);
-      },
-      openLightbox(payload) {
-        this.lightboxOpen = true;
-        this.lightboxImgSrc = payload.src;
-        this.lightboxImgAlt = payload.alt || '';
-      },
-      closeLightbox() {
-        this.lightboxOpen = false;
-        this.lightboxImgSrc = '';
-        this.lightboxImgAlt = '';
       },
     },
   };

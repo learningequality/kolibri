@@ -4,6 +4,7 @@
     v-if="open"
     ref="dialogRef"
     closedby="any"
+    aria-label="Expanded image"
     class="lightbox-dialog"
     data-testid="lightbox-dialog"
     @close="closeLightbox"

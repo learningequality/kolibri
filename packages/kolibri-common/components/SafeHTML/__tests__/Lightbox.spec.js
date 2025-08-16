@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
-import Lightbox from '../src/views/Lightbox.vue';
+import Lightbox from '../Lightbox.vue';
 
 const sampleOpen = true;
 const sampleSrc = 'test_img.jpg';

@@ -104,10 +104,13 @@ export function createSafeHTML(customComponents = {}) {
           }
 
           if (tagName === 'img') {
-            const handler = context.listeners && context.listeners['expand-img'];
             return h(SafeHtmlImage, {
               attrs: attributes,
-              on: handler ? { 'expand-img': handler } : {},
+              props: {
+                src: attributes.src,
+                alt: attributes.alt,
+                styleOverrides: context.props.styleOverrides,
+              },
             });
           }
 
