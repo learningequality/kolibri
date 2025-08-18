@@ -1,0 +1,378 @@
+"""
+Windows taskbar icon implementation for Kolibri App.
+
+Provides system tray functionality:
+- Service and UI startup configuration
+- Server status notifications
+- Right-click context menu for common actions
+- Integration with Windows registry for startup settings
+"""
+import ctypes
+import os
+import subprocess
+import sys
+import webbrowser
+import winreg
+
+import wx
+from wx.adv import TaskBarIcon
+
+from kolibri_app.constants import APP_NAME
+from kolibri_app.constants import SERVICE_NAME
+from kolibri_app.constants import TRAY_ICON_ICO
+from kolibri_app.constants import WEBVIEW2_RUNTIME_GUID
+from kolibri_app.i18n import _
+from kolibri_app.logger import logging
+
+
+def is_webview2_installed():
+    """Check if WebView2 runtime is installed on the system."""
+    try:
+        # Check for WebView2 runtime in registry
+        with winreg.OpenKey(
+            winreg.HKEY_LOCAL_MACHINE,
+            rf"SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{WEBVIEW2_RUNTIME_GUID}",
+        ) as key:
+            winreg.QueryValueEx(key, "pv")
+            return True
+    except (FileNotFoundError, OSError):
+        try:
+            # Alternative registry path for 64-bit
+            with winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                rf"SOFTWARE\Microsoft\EdgeUpdate\Clients\{WEBVIEW2_RUNTIME_GUID}",
+            ) as key:
+                winreg.QueryValueEx(key, "pv")
+                return True
+        except (FileNotFoundError, OSError):
+            return False
+
+
+def get_startup_registry_key():
+    """Get the Windows startup registry key for current user."""
+    return winreg.OpenKey(
+        winreg.HKEY_CURRENT_USER,
+        r"Software\Microsoft\Windows\CurrentVersion\Run",
+        0,
+        winreg.KEY_ALL_ACCESS,
+    )
+
+
+def is_ui_startup_enabled():
+    """Check if Kolibri UI is set to open on startup."""
+    try:
+        with get_startup_registry_key() as key:
+            winreg.QueryValueEx(key, f"{APP_NAME}_UI")
+            return True
+    except (FileNotFoundError, OSError):
+        return False
+
+
+def set_ui_startup_enabled(enabled):
+    """Enable or disable Kolibri UI startup on logon."""
+    try:
+        with get_startup_registry_key() as key:
+            if enabled:
+                exe_path = sys.executable
+                if getattr(sys, "frozen", False):
+                    # Running as PyInstaller bundle - launch with UI
+                    startup_cmd = f'"{exe_path}"'
+                else:
+                    # Running in development
+                    startup_cmd = f'"{exe_path}" -m kolibri_app'
+
+                winreg.SetValueEx(key, f"{APP_NAME}_UI", 0, winreg.REG_SZ, startup_cmd)
+                logging.info("Enabled Kolibri UI startup on logon")
+            else:
+                winreg.DeleteValue(key, f"{APP_NAME}_UI")
+                logging.info("Disabled Kolibri UI startup on logon")
+            return True
+    except (FileNotFoundError, OSError) as e:
+        logging.error(f"Failed to modify UI startup setting: {e}")
+        return False
+
+
+def get_service_start_type():
+    """Check the start type of the Kolibri Windows service."""
+    service_name = SERVICE_NAME
+    try:
+        # Configure subprocess to run hidden (prevents console window flash)
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = subprocess.SW_HIDE
+
+        result = subprocess.run(
+            ["sc", "qc", service_name],
+            capture_output=True,
+            text=True,
+            check=True,
+            startupinfo=startupinfo,
+        )
+        for line in result.stdout.splitlines():
+            line = line.strip()
+            if line.startswith("START_TYPE"):
+                if "2   AUTO_START" in line:
+                    return "auto"
+                if "4   DISABLED" in line:
+                    return "disabled"
+        logging.warning("Could not determine service start type from 'sc qc' output.")
+        return "unknown"
+    except subprocess.CalledProcessError:
+        logging.info(f"Service '{service_name}' not found or 'sc' command failed.")
+        return "not_found"
+    except FileNotFoundError:
+        logging.error("Command 'sc' not found.")
+        return "not_found"
+
+
+class KolibriTaskBarIcon(TaskBarIcon):
+    def __init__(self, app):
+        super(KolibriTaskBarIcon, self).__init__()
+        self.app = app
+        self.server_starting_notified = (
+            False  # Track if we've shown the starting notification
+        )
+
+        self.Bind(wx.adv.EVT_TASKBAR_LEFT_DOWN, self.on_left_click)
+
+        self.set_icon(TRAY_ICON_ICO, f"{APP_NAME}")
+
+    def set_icon(self, path, tooltip):
+        """Sets the icon and tooltip for the taskbar icon."""
+
+        if getattr(sys, "frozen", False):
+            # If running as a PyInstaller bundle, use the _MEIPASS directory
+            resource_path = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+        else:
+            # In development, resource_path will be the project's root directory
+            resource_path = os.path.abspath(".")
+
+        final_path = os.path.join(resource_path, path)
+
+        try:
+            icon = wx.Icon(final_path, wx.BITMAP_TYPE_ICO)
+            self.SetIcon(icon, tooltip)
+        except (FileNotFoundError, wx.wxAssertionError, OSError) as e:
+            logging.error(f"Error setting icon from path '{final_path}': {e}")
+
+    def show_notification(self, title, message, timeout=5):
+        """
+        Show a Windows tray notification.
+
+        Args:
+            title: The notification title
+            message: The notification message
+            timeout: How long to show the notification (in seconds)
+        """
+        try:
+            # Create notification
+            self.ShowBalloon(title, message, timeout * 1000)
+
+        except (ImportError, AttributeError, OSError) as e:
+            logging.error(f"Failed to show notification: {e}")
+            # Fallback to a simple message box if notifications fail
+            wx.CallAfter(wx.MessageBox, message, title, wx.OK | wx.ICON_INFORMATION)
+
+    def notify_server_starting(self):
+        """Show notification that server is starting."""
+        if not self.server_starting_notified:
+            self.show_notification(
+                _("Kolibri"), _("Kolibri is starting... Please wait."), timeout=3
+            )
+            self.server_starting_notified = True
+
+    def notify_server_ready(self, url):
+        """Show notification that server is ready."""
+        self.server_starting_notified = False  # Reset for next time
+        message = _("Kolibri is running.")
+        self.show_notification(_("Kolibri Ready"), message, timeout=5)
+
+    def notify_server_failed(self):
+        """Show notification that server failed to start."""
+        self.server_starting_notified = False  # Reset for next time
+        home_path = os.environ.get("KOLIBRI_HOME", "")
+        log_path = os.path.join(home_path, "logs")
+        message = _("Kolibri failed to start.\nCheck logs at: {}").format(log_path)
+        self.show_notification(_("Kolibri Error"), message, timeout=10)
+
+    def on_left_click(self, event):
+        """
+        Handles left-click on the taskbar icon.
+        """
+        main_window = self.app.view
+        if main_window and main_window.view.IsShown():
+            # Window is visible, just bring it to the front
+            main_window.view.Raise()
+        else:
+            # Window exists but is hidden, show it
+            main_window.view.Show()
+            main_window.view.Raise()
+
+    def CreatePopupMenu(self):
+        """Create and return the right-click menu."""
+        menu = wx.Menu()
+
+        # 1. Open UI
+        open_item = menu.Append(wx.ID_ANY, _("Open UI"))
+        open_item.Enable(bool(self.app.kolibri_url))
+        self.Bind(wx.EVT_MENU, self.on_open_ui, open_item)
+
+        menu.AppendSeparator()
+
+        # 2. Open kolibri UI on logon (Toggle) - Per-user setting
+        startup_ui_item = menu.AppendCheckItem(wx.ID_ANY, _("Open Kolibri UI on logon"))
+        startup_ui_item.Check(is_ui_startup_enabled())
+        self.Bind(wx.EVT_MENU, self.on_toggle_startup_ui, startup_ui_item)
+
+        # 3. Run Kolibri service on start (Toggle) - System-wide setting
+        self.run_on_start_item = menu.AppendCheckItem(
+            wx.ID_ANY, _("Run Kolibri service on start")
+        )
+        start_type = get_service_start_type()
+        if start_type in ["auto", "disabled"]:
+            self.run_on_start_item.Check(start_type == "auto")
+        else:
+            self.run_on_start_item.Enable(False)
+            self.run_on_start_item.SetItemLabel(
+                _("Run Kolibri service on start (Unavailable)")
+            )
+        self.Bind(wx.EVT_MENU, self.on_toggle_service_startup, self.run_on_start_item)
+
+        menu.AppendSeparator()
+
+        # 4. Exit
+        exit_item = menu.Append(wx.ID_EXIT, _("Exit"))
+        self.Bind(wx.EVT_MENU, self.on_exit, exit_item)
+
+        return menu
+
+    def on_open_ui(self, event):
+        """Open UI - either in WebView2 or browser depending on availability."""
+        if not self.app.kolibri_url:
+            wx.MessageBox(
+                _("Kolibri server is not ready yet."),
+                _("Info"),
+                wx.OK | wx.ICON_INFORMATION,
+            )
+            return
+
+        if is_webview2_installed():
+            # WebView2 is available, show/create the main window
+            main_window = self.app.view
+            if main_window and main_window.view.IsShown():
+                # Window is visible, just bring it to the front
+                main_window.view.Raise()
+            elif main_window:
+                # Window exists but is hidden, show it
+                main_window.view.Show()
+                main_window.view.Raise()
+            else:
+                # Create new window
+                self.app.create_kolibri_window()
+        else:
+            # WebView2 not available, open in default browser
+            webbrowser.open(self.app.kolibri_url)
+
+    def on_toggle_startup_ui(self, event):
+        """Toggle the 'Open kolibri UI on logon' setting."""
+        enabled = event.IsChecked()
+        if set_ui_startup_enabled(enabled):
+            status_translated = _("enabled") if enabled else _("disabled")
+            self.show_notification(
+                _("Kolibri UI Startup Updated"),
+                _("Opening the UI on logon has been {}.").format(status_translated),
+            )
+        else:
+            # Revert checkbox state if operation failed
+            event.GetEventObject().Check(not enabled)
+            self.show_notification(
+                _("Kolibri UI Startup Error"),
+                _("Failed to change the UI startup setting."),
+            )
+
+    def on_toggle_service_startup(self, event):
+        """Handle toggling the service start type with a UAC prompt."""
+        is_checked = event.IsChecked()
+        new_state = "auto" if is_checked else "disabled"
+
+        try:
+            exe_path = sys.executable
+            if getattr(sys, "frozen", False):
+                params = f"--configure-service {new_state}"
+                exe_to_run = exe_path
+            else:
+                params = f"-m kolibri_app --configure-service {new_state}"
+                exe_to_run = exe_path
+
+            ret = ctypes.windll.shell32.ShellExecuteW(
+                None, "runas", exe_to_run, params, None, 1
+            )
+
+            if ret <= 32:
+                logging.error(
+                    f"Failed to elevate for service configuration. Code: {ret}"
+                )
+                event.GetEventObject().Check(not is_checked)
+                wx.MessageBox(
+                    _("Administrator rights are required to change this setting."),
+                    _("Error"),
+                    wx.OK | wx.ICON_ERROR,
+                )
+                return
+
+            # Schedule verification and tray icon configuration
+            wx.CallLater(3000, self.verify_service_change, is_checked)
+
+        except (OSError, PermissionError) as e:
+            logging.error(f"Error trying to change service startup: {e}")
+            event.GetEventObject().Check(not is_checked)
+            wx.MessageBox(
+                _("An error occurred while changing the service setting: {}").format(e),
+                _("Error"),
+                wx.OK | wx.ICON_ERROR,
+            )
+
+    def verify_service_change(self, was_checked):
+        """Check if the service start type was updated and notify the user."""
+        new_start_type = get_service_start_type()
+        expected_state = "auto" if was_checked else "disabled"
+
+        if new_start_type == expected_state:
+            status_translated = _("enabled") if was_checked else _("disabled")
+            self.show_notification(
+                _("Kolibri Service Updated"),
+                _("Automatic startup has been {}.").format(status_translated),
+            )
+        else:
+            # Revert the checkbox if the operation failed
+            self.run_on_start_item.Check(not was_checked)
+            self.show_notification(
+                _("Kolibri Service Error"),
+                _("Failed to update the service startup setting."),
+            )
+
+    def on_exit(self, event):
+        """
+        Handles the exit menu item.
+        - When running with background service: Does not stop the service
+        - When running local server: Stops the local server
+        """
+        server_manager = self.app.server_manager
+
+        if (
+            hasattr(server_manager, "_server_mode")
+            and server_manager._server_mode == "service"
+        ):
+            # Running with service - don't stop the service, just exit the UI
+            logging.info("Exiting tray icon (service will continue running)")
+            # Don't call app.shutdown() to avoid stopping the service
+        else:
+            # Running local server - stop the server
+            logging.info("Exiting and stopping local server")
+            self.app.shutdown()
+
+        # Destroy the tray icon
+        wx.CallAfter(self.Destroy)
+
+        # Exit the main loop
+        self.app.ExitMainLoop()

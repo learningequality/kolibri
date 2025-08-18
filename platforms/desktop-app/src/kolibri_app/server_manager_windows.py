@@ -34,6 +34,7 @@ import winerror
 import wx
 from kolibri.utils.conf import KOLIBRI_HOME
 
+from kolibri_app.constants import SERVICE_NAME
 from kolibri_app.logger import logging
 
 
@@ -103,7 +104,7 @@ class WindowsServerManager:
             return
 
         # Service name defined in Inno Setup script
-        service_name = "Kolibri"
+        service_name = SERVICE_NAME
 
         # Start pipe client for communication with service or subprocess
         self.start_pipe_client()
@@ -320,11 +321,24 @@ class WindowsServerManager:
             self._setup_subprocess_logging()
             self._assign_process_to_job_object()
 
+            # Monitor the process for early failure
+            # Give it a moment to start, then check if it's still running
+            wx.CallLater(3000, self._check_server_process_health)
+
         except (OSError, subprocess.SubprocessError) as e:
             logging.error(f"Failed to launch server process: {e}", exc_info=True)
+            # Notify the app that server failed to start
+            wx.CallAfter(self.app.notify_server_failed)
             wx.MessageBox(
                 f"Failed to start Kolibri server: {e}", "Error", wx.OK | wx.ICON_ERROR
             )
+
+    def _check_server_process_health(self):
+        """Check if the server process is still running after initial startup."""
+        if self.server_process and self.server_process.poll() is not None:
+            # Process has terminated unexpectedly
+            logging.error("Server process terminated unexpectedly during startup")
+            wx.CallAfter(self.app.notify_server_failed)
 
     def _log_subprocess_output(self, pipe, pipe_name):
         """

@@ -34,6 +34,7 @@ OutputDir=dist-installer
 OutputBaseFilename=kolibri-setup-{#AppVersion}
 WizardStyle=modern
 PrivilegesRequired=admin
+ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayIcon={app}\{#AppExeName}
 SetupLogging=yes
 CloseApplicationsFilter={#AppExeName}
@@ -41,13 +42,17 @@ CloseApplicationsFilter={#AppExeName}
 [Registry]
 ; This registry key is used to detect the installed version for upgrades/repairs.
 Root: HKLM; Subkey: "Software\Kolibri"; ValueType: string; ValueName: "Version"; ValueData: "{#AppVersion}"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\Kolibri"; ValueType: dword; ValueName: "ShowTrayIcon"; ValueData: "1"; Tasks: installservice
+Root: HKLM; Subkey: "Software\Kolibri"; ValueType: dword; ValueName: "ShowTrayIcon"; ValueData: "0"; Tasks: not installservice
+Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueName: "KolibriTray"; Flags: uninsdeletevalue
 
 [Tasks]
-Name: "installservice"; Description: "Install Kolibri as a Windows Service (starts on boot)"; GroupDescription: "Installation Type:";
+Name: "installservice"; Description: "Run Kolibri automatically when the computer starts"; GroupDescription: "Installation Type:";
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [Dirs]
 Name: "{#KolibriDataDir}"
+Name: "{#KolibriDataDir}\logs"
 
 [Files]
 ; WebView2 runtime installer, placed in {tmp} and deleted after installation
@@ -239,71 +244,70 @@ begin
     AppDir := ExpandConstant('{app}');
     NssmPath := ExpandConstant('{#NssmExePath}');
 
-    // Check if user selected service installation
-    if (WizardIsTaskSelected('installservice')) then
+    Log('Post-install step: Installing or updating the Kolibri service...');
+
+    // Check if service exists to decide install vs update
+    if IsServiceInstalled('{#ServiceName}') then
     begin
-      Log('Post-install step: User selected to install/update the Kolibri service...');
+      // Update existing service
+      Log('Service "{#ServiceName}" already exists. Updating configuration...');
+      Params := 'set "{#ServiceName}" Application "' + AppPath + '"';
+      ExecChecked(NssmPath, Params, '', 'Update Service Executable Path');
 
-      // Check if service exists to decide install vs update
-      if IsServiceInstalled('{#ServiceName}') then
-      begin
-        // Update existing service
-        Log('Service "{#ServiceName}" already exists. Updating configuration...');
-        Params := 'set "{#ServiceName}" Application "' + AppPath + '"';
-        ExecChecked(NssmPath, Params, '', 'Update Service Executable Path');
+      Params := 'set "{#ServiceName}" AppParameters "--run-as-server"';
+      ExecChecked(NssmPath, Params, '', 'Update Service Parameters');
 
-        Params := 'set "{#ServiceName}" AppParameters "--run-as-server"';
-        ExecChecked(NssmPath, Params, '', 'Update Service Parameters');
-
-        Params := 'set "{#ServiceName}" AppDirectory "' + AppDir + '"';
-        ExecChecked(NssmPath, Params, '', 'Update Service Working Directory');
-      end
-      else
-      begin
-        // Install new service
-        Log('Service "{#ServiceName}" not found. Performing fresh installation...');
-        Params := 'install "{#ServiceName}" "' + AppPath + '" --run-as-server';
-        ExecChecked(NssmPath, Params, '', 'Install {#ServiceName} Service');
-      end;
-
-      // Apply common service configuration
-      Log('Applying common service configuration...');
-      ExecChecked(NssmPath, 'set "{#ServiceName}" ObjectName "NT AUTHORITY\LocalService"', '', 'Set Service User to LocalService');
-
-      // Grant Modify access to service account
-      ExecChecked(ExpandConstant(ICACLS_EXE_PATH), '"' + ExpandConstant('{#KolibriDataDir}') + '" /grant "NT AUTHORITY\LocalService":(OI)(CI)M /T', '', 'Grant Permissions to Data Folder for Service');
-
-      // Grant Modify access to Users for UI app state/logs
-      ExecChecked(ExpandConstant(ICACLS_EXE_PATH), '"' + ExpandConstant('{#KolibriDataDir}') + '" /grant "Users":(OI)(CI)M /T', '', 'Grant Permissions to Data Folder for Users');
-
-      ExecChecked(NssmPath, 'set "{#ServiceName}" Start SERVICE_AUTO_START', '', 'Set Service Start Type to Automatic');
-      ExecChecked(ExpandConstant(SC_EXE_PATH), 'start "{#ServiceName}"', '', 'Start {#ServiceName} Service');
-      ExecChecked(NssmPath, 'set "{#ServiceName}" Description "This service runs the Kolibri server in the background"', '', 'Set Service Description');
-      Log('Service configuration completed successfully.');
+      Params := 'set "{#ServiceName}" AppDirectory "' + AppDir + '"';
+      ExecChecked(NssmPath, Params, '', 'Update Service Working Directory');
     end
     else
     begin
-      // Remove existing service if user unchecked service task
-      Log('Service task was not selected. Checking for pre-existing service to remove.');
-      if IsServiceInstalled('{#ServiceName}') then
-      begin
-        Log('Found existing service "{#ServiceName}". Stopping and removing it as requested by user.');
+      // Install new service
+      Log('Service "{#ServiceName}" not found. Performing fresh installation...');
+      Params := 'install "{#ServiceName}" "' + AppPath + '" --run-as-server';
+      ExecChecked(NssmPath, Params, '', 'Install {#ServiceName} Service');
+    end;
 
-        // Stop service (okay if it fails - may already be stopped)
-        Exec(ExpandConstant('{sys}\net.exe'), 'stop "{#ServiceName}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-        if ResultCode = 0 then
-          Log('Service stopped successfully.')
-        else
-          Log(Format('net stop command finished with exit code %d. This is acceptable if the service was not running.', [ResultCode]));
+    // Apply common service configuration
+    Log('Applying common service configuration...');
+    ExecChecked(NssmPath, 'set "{#ServiceName}" ObjectName "NT AUTHORITY\LocalService"', '', 'Set Service User to LocalService');
+    ExecChecked(ExpandConstant(ICACLS_EXE_PATH), '"' + ExpandConstant('{#KolibriDataDir}') + '" /grant "NT AUTHORITY\LocalService":(OI)(CI)M /T', '', 'Grant Permissions to Data Folder for Service');
+    ExecChecked(ExpandConstant(ICACLS_EXE_PATH), '"' + ExpandConstant('{#KolibriDataDir}') + '" /grant "Users":(OI)(CI)M /T', '', 'Grant Permissions to Data Folder for Users');
+    ExecChecked(NssmPath, 'set "{#ServiceName}" Description "This service runs the Kolibri server in the background"', '', 'Set Service Description');
 
-        // Remove service definition (use ExecChecked - user should know if this fails)
-        ExecChecked(NssmPath, 'remove "{#ServiceName}" confirm', '', 'Remove {#ServiceName} Service');
-        Log('Service removed successfully.');
-      end
+    // Conditionally set the service start type based on user selection
+    if (WizardIsTaskSelected('installservice')) then
+    begin
+      Log('User selected to enable the service. Setting to Auto-Start and starting it.');
+      ExecChecked(NssmPath, 'set "{#ServiceName}" Start SERVICE_AUTO_START', '', 'Set Service Start Type to Automatic');
+      ExecChecked(ExpandConstant(SC_EXE_PATH), 'start "{#ServiceName}"', '', 'Start {#ServiceName} Service');
+    end
+    else
+    begin
+      Log('User did not select to enable the service. Setting to Disabled.');
+      // Stop the service first, in case it was running from a previous installation.
+      Exec(ExpandConstant(SC_EXE_PATH), 'stop "{#ServiceName}"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+      if ResultCode = 0 then
+        Log('Service was running and has been stopped.')
       else
-      begin
-        Log('No pre-existing service found. No removal action needed.');
-      end;
+        Log(Format('sc stop finished with code %d. This is normal if the service was not running.', [ResultCode]));
+
+      // Set the service to be disabled.
+      ExecChecked(NssmPath, 'set "{#ServiceName}" Start SERVICE_DISABLED', '', 'Set Service Start Type to Disabled');
+    end;
+    Log('Service configuration completed successfully.');
+    // Add tray icon to startup if service is enabled
+    if (WizardIsTaskSelected('installservice')) then
+    begin
+      Log('Adding tray icon to startup for all users.');
+      // Add to HKLM Run key for all users
+      RegWriteStringValue(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Run',
+        'KolibriTray', ExpandConstant('"{app}\{#AppExeName}" --tray-only'));
+    end
+    else
+    begin
+      // Remove from startup if exists
+      RegDeleteValue(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', 'KolibriTray');
     end;
   end;
 end;

@@ -212,8 +212,12 @@ class KolibriView(object):
         self.webview.ClearHistory()
 
     def OnClose(self, event):
-        self.shutdown()
-        event.Skip()
+        if WINDOWS:
+            # On Windows, just hide the window.
+            self.view.Hide()
+        else:
+            self.shutdown()
+            event.Skip()
 
     def OnBeforeLoad(self, event):
         if not self.app.should_load_url(event.URL):
