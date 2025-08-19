@@ -1,6 +1,17 @@
 <template>
 
   <div>
+    <KModal
+      v-if="isModalOpen"
+      :title="coreString('closeConfirmationTitle')"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
+      @submit="$emit('closeSidePanel')"
+      @cancel="isModalOpen = false"
+    >
+      <p>{{ coreString('closeConfirmationMessage') }}</p>
+    </KModal>
+
     <SidePanelModal
       alignment="right"
       sidePanelWidth="700px"
@@ -75,12 +86,6 @@
         </div>
       </template>
     </SidePanelModal>
-
-    <CloseCopyClassConfirmationModal
-      v-if="isModalOpen"
-      @confirm="$emit('closeSidePanel')"
-      @cancel="isModalOpen = false"
-    />
   </div>
 
 </template>
@@ -96,7 +101,6 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import SelectableList from '../common/SelectableList.vue';
-  import CloseCopyClassConfirmationModal from './CloseCopyClassConfirmationModal.vue';
 
   export default {
     name: 'CopyClassSidePanel',
@@ -104,7 +108,6 @@
       SelectableList,
       SidePanelModal,
       UserTypeDisplay,
-      CloseCopyClassConfirmationModal,
     },
     mixins: [commonCoreStrings],
     setup(props) {
