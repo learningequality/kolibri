@@ -42,12 +42,12 @@ function resumeTour(userId, page) {
   const currentPageIndex = pageKeys.indexOf(page);
   const welcomeDismissed = localStorage.getItem('DEVICE_WELCOME_MODAL_DISMISSED');
   const prevPage = currentPageIndex === 0 ? null : pageKeys[currentPageIndex - 1];
-  const prevPageSteps = prevPage ? onboardingSteps[prevPage] : [];
+  const prevPageSteps = prevPage ? onboardingSteps[prevPage].steps : [];
   const isLastStepOfPrevPage = prevPageSteps && progress.stepIndex === prevPageSteps.length - 1;
-  const steps = onboardingSteps[page] || [];
+  const steps = onboardingSteps[page].steps || [];
   const isSamePage = progress.page === page;
   if (welcomeDismissed && progress && (isSamePage || isLastStepOfPrevPage)) {
-    if (progress.stepIndex + 1 < steps.steps.length) {
+    if (progress.stepIndex + 1 < steps.length) {
       // Still steps left on current page
       currentStepIndex.value = progress.stepIndex + 1;
       return true;
