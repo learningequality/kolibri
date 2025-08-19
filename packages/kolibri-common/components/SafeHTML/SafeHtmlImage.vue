@@ -1,6 +1,9 @@
 <template>
 
-  <div class="image-container">
+  <div
+    class="image-container"
+    data-testid="image-container"
+  >
     <div class="img-wrapper">
       <img
         :src="src"
