@@ -93,6 +93,7 @@
     <TooltipTour
       v-if="tourActive && isTourActive('ViewAndDownloadResources')"
       page="ViewAndDownloadResources"
+      :spotlightOpacity="0.16"
       @tourEnded="endTour('ViewAndDownloadResources')"
     />
   </div>

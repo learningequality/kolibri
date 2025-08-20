@@ -32,6 +32,10 @@
         type: String,
         required: true,
       },
+      spotlightOpacity: {
+        type: Number,
+        default: 0.5,
+      },
     },
     data() {
       return {
@@ -56,7 +60,7 @@
           width: `${this.rect.width}px`,
           height: `${this.rect.height}px`,
           borderRadius: '4px',
-          boxShadow: '0 0 0 10000px rgba(0, 0, 0, 0.5)',
+          boxShadow: `0 0 0 10000px rgba(0, 0, 0, ${this.spotlightOpacity})`,
           pointerEvents: 'none',
           zIndex: 998,
         };
@@ -138,7 +142,6 @@
         const currentStep = this.steps[this.currentStepIndex];
         const target = document.querySelector(`[data-onboarding-id="${currentStep.key}"]`);
         if (!target) return;
-
         const rect = target.getBoundingClientRect();
         this.rect = rect;
       },
