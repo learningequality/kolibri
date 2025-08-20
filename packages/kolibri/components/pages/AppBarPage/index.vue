@@ -53,9 +53,9 @@
       />
     </transition>
     <TooltipTour
-      v-if="tourActive"
+      v-if="tourActive && isTourActive('SideNavigation')"
       page="SideNavigation"
-      @tourEnded="endTour()"
+      @tourEnded="endTour('SideNavigation')"
     />
   </div>
 
@@ -92,7 +92,7 @@
       const isRtl = ref(instance?.proxy.isRtl);
       const swipeZone = ref(null);
       const navShown = ref(false);
-      const { startTour, tourActive, endTour } = useTour();
+      const { startTour, tourActive, isTourActive, endTour } = useTour();
       useSwipe(swipeZone, {
         onSwipeEnd: (e, direction) => {
           if (direction === 'right' && !navShown.value && !isRtl.value) {
@@ -111,6 +111,7 @@
         navShown,
         startTour,
         tourActive,
+        isTourActive,
         endTour,
       };
     },
@@ -231,7 +232,7 @@
       },
       handleStartTour() {
         setTimeout(() => {
-          this.startTour();
+          this.startTour('SideNavigation');
         }, 400);
       },
     },

@@ -185,9 +185,9 @@
         />
       </SidePanelModal>
       <TooltipTour
-        v-if="tourActive"
+        v-if="tourActive && isTourActive('LibraryPage')"
         page="LibraryPage"
-        @tourEnded="endTour()"
+        @tourEnded="endTour('LibraryPage')"
       />
     </LearnAppBarPage>
   </div>
@@ -266,7 +266,7 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { tourActive, startTour, endTour } = useTour();
+      const { tourActive, isTourActive, startTour, endTour } = useTour();
       const {
         isUserLoggedIn,
         isCoach,
@@ -437,6 +437,7 @@
         canManageContent,
         isLearnerOnlyImport,
         tourActive,
+        isTourActive,
         startTour,
         endTour,
       };
@@ -570,7 +571,7 @@
         window.localStorage.setItem(welcomeDismissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
         setTimeout(() => {
-          this.startTour();
+          this.startTour('LibraryPage');
         }, 800);
       },
       findFirstEl() {

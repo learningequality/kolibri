@@ -15,14 +15,11 @@
         :contentNode="contentNode"
         :to="contentLink(contentNode.id, contentNode.is_leaf)"
         @openCopiesModal="$emit('openCopiesModal', contentNode.copies)"
-        @cardClicked="handleCardClicked(contentNode.id)"
       >
         <template #footer>
           <HybridLearningFooter
-            :key="contentNode.id + '-' + tourCardId"
             :contentNode="contentNode"
             :allowDownloads="allowDownloads"
-            :startTheTour="tourCardId === contentNode.id"
             @toggleInfoPanel="$emit('toggleInfoPanel', contentNode)"
           />
         </template>
@@ -99,11 +96,6 @@
         default: 1,
       },
     },
-    data() {
-      return {
-        tourCardId: null,
-      };
-    },
     computed: {
       componentType() {
         if (this.windowIsSmall) {
@@ -120,12 +112,6 @@
         return this.keepCurrentBackLink && !isResource
           ? this.genContentLinkKeepCurrentBackLink(id, isResource)
           : this.genContentLinkBackLinkCurrentPage(id, isResource);
-      },
-      handleCardClicked(id) {
-        this.tourCardId = null;
-        this.$nextTick(() => {
-          this.tourCardId = id;
-        });
       },
     },
   };

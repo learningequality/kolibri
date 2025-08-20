@@ -91,9 +91,9 @@
       <p>{{ $tr('removeFromMyLibraryInfo') }}</p>
     </KModal>
     <TooltipTour
-      v-if="tourActive && startTheTour"
+      v-if="tourActive && isTourActive('ViewAndDownloadResources')"
       page="ViewAndDownloadResources"
-      @tourEnded="endTour()"
+      @tourEnded="endTour('ViewAndDownloadResources')"
     />
   </div>
 
@@ -127,7 +127,7 @@
       const { addDownloadRequest, downloadRequestMap, removeDownloadRequest } =
         useDownloadRequests();
       const { isLearner, isUserLoggedIn } = useUser();
-      const { tourActive, startTour, endTour } = useTour();
+      const { tourActive, isTourActive, startTour, endTour } = useTour();
       return {
         addDownloadRequest,
         downloadRequestMap,
@@ -135,6 +135,7 @@
         isLearner,
         isUserLoggedIn,
         tourActive,
+        isTourActive,
         startTour,
         endTour,
       };
@@ -149,10 +150,6 @@
         default: false,
       },
       bookmarked: {
-        type: Boolean,
-        default: false,
-      },
-      startTheTour: {
         type: Boolean,
         default: false,
       },
@@ -199,18 +196,13 @@
         }
       },
     },
-
-    watch: {
-      startTheTour(newVal) {
-        if (newVal) {
-          const showDownloadButton = this.downloadableByLearner;
-          const showInfoButton = this.contentNode.is_leaf;
-          const shouldShowTooltip = (showDownloadButton || showInfoButton) && !this.bookmarked;
-          if (newVal && shouldShowTooltip) {
-            this.startTour();
-          }
-        }
-      },
+    mounted() {
+      const showDownloadButton = this.downloadableByLearner;
+      const showInfoButton = this.contentNode.is_leaf;
+      const shouldShowTooltip = (showDownloadButton || showInfoButton) && !this.bookmarked;
+      if (shouldShowTooltip) {
+        this.startTour('ViewAndDownloadResources');
+      }
     },
     methods: {
       findFirstEl() {

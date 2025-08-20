@@ -72,7 +72,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { kolibriOnboardingGuideStrings } from 'kolibri-common/strings/kolibriOnboardingGuideStrings';
+  import { kolibriOnboardingGuideStrings } from 'kolibri/uiText/kolibriOnboardingGuideStrings';
 
   export default {
     name: 'TooltipContent',

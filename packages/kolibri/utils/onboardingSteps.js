@@ -32,25 +32,31 @@ export const onboardingSteps = {
       {
         key: 'deviceMenuOption',
         content: () => onboardingGuideString('deviceMenuOptionDescription'),
-      stepIndex: 0,
-    },
-  ],
-  ExploreLibraries: [
-    {
-      key: 'folders',
-      content: () => onboardingGuideString('foldersTabLabelDescription'),
-      stepIndex: 0,
-    },
-    {
-      key: 'search',
-      content: () => onboardingGuideString('searchTabLabelDescription'),
-      stepIndex: 1,
-    },
-  ],
-  ViewAndDownloadResources: [
-    {
-      key: 'channelCardIcon',
-      content: () => onboardingGuideString('channelCardIconDescription'),
+        stepIndex: 0,
+      },
+    ],
+  },
+  ExploreLibraries: {
+    label: 'exploreGlobalLibrary',
+    steps: [
+      {
+        key: 'folders',
+        content: () => onboardingGuideString('foldersTabLabelDescription'),
+        stepIndex: 0,
+      },
+      {
+        key: 'search',
+        content: () => onboardingGuideString('searchTabLabelDescription'),
+        stepIndex: 1,
+      },
+    ],
+  },
+  ViewAndDownloadResources: {
+    label: 'viewInformation',
+    steps: [
+      {
+        key: 'channelCardIcon',
+        content: () => onboardingGuideString('channelCardIconDescription'),
         stepIndex: 0,
       },
     ],

@@ -52,9 +52,9 @@
       </div>
     </router-link>
     <TooltipTour
-      v-if="tourActive"
+      v-if="tourActive && isTourActive('ExploreLibraries')"
       page="ExploreLibraries"
-      @tourEnded="endTour()"
+      @tourEnded="endTour('ExploreLibraries')"
     />
   </div>
 
@@ -77,11 +77,12 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsLarge } = useKResponsiveWindow();
-      const { tourActive, startTour, endTour } = useTour();
+      const { tourActive, isTourActive, startTour, endTour } = useTour();
 
       return {
         windowIsLarge,
         tourActive,
+        isTourActive,
         startTour,
         endTour,
       };
@@ -147,7 +148,7 @@
     },
     mounted() {
       if (this.topics.length && this.windowIsLarge) {
-        this.startTour();
+        this.startTour('ExploreLibraries');
       }
     },
   };
