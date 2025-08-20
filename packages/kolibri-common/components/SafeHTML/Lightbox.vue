@@ -76,7 +76,7 @@
       :alt="alt"
       tabindex="-1"
       class="expanded-image"
-      :class="[styleOverrides.windowSizeClass, { 'with-transition': allowTransition }]"
+      :class="styleOverrides.windowSizeClass"
       :style="imgStyle"
       @load="calculateSize"
       @mousedown="onMouseDown"
@@ -129,7 +129,6 @@
         isDragging: false,
         dragStart: { x: 0, y: 0 },
         backdropClickValid: false,
-        allowTransition: false,
       };
     },
     computed: {
@@ -154,7 +153,6 @@
     watch: {
       open(val) {
         if (val) {
-          this.allowTransition = false; // disable transitions initially
           this.$nextTick(() => {
             if (this.$refs.dialogRef) {
               this.$refs.dialogRef.showModal();
@@ -163,14 +161,11 @@
                 this.$refs.dialogRef.addEventListener('mouseup', this.onBackdropMouseUp);
               }
             }
-            // Enable transitions after first paint plus an extra delay
-            requestAnimationFrame(() => {
-              setTimeout(() => {
-                this.allowTransition = true;
-              }, 300);
-            });
           });
         } else {
+          if (this.$refs.imageRef) {
+            this.$refs.imageRef.classList.remove('with-transition');
+          }
           if (this.$refs.dialogRef) {
             this.$refs.dialogRef.close();
             if (!supportsDialogClosedBy()) {
@@ -178,7 +173,6 @@
               this.$refs.dialogRef.removeEventListener('mouseup', this.onBackdropMouseUp);
             }
           }
-          this.allowTransition = false; // disable transitions on close
         }
       },
       scale(newScale) {
@@ -199,6 +193,21 @@
       window.removeEventListener('resize', this.onWindowResize);
     },
     methods: {
+      enableTransitionsAfterPaint() {
+        // Wait for Vue to apply reactive DOM updates for the new imgStyle
+        this.$nextTick(() => {
+          // Wait until just before the next paint (frame)
+          requestAnimationFrame(() => {
+            // Wait until just before the following paint, ensuring image is visually rendered
+            requestAnimationFrame(() => {
+              if (this.$refs.imageRef && !this._isDestroyed) {
+                // Enable CSS transitions now that the image is fully painted
+                this.$refs.imageRef.classList.add('with-transition');
+              }
+            });
+          });
+        });
+      },
       calculateSize() {
         this.backdropSize.width = window.innerWidth;
         this.backdropSize.height = window.innerHeight - 40; // 40px for action bar
@@ -216,6 +225,8 @@
         const scale = Math.min(widthRatio, heightRatio, 1);
         this.baseSize.width = Math.round(naturalW * scale);
         this.baseSize.height = Math.round(naturalH * scale);
+
+        this.enableTransitionsAfterPaint();
       },
       onWindowResize() {
         const img = this.$refs.imageRef;
@@ -244,7 +255,7 @@
         if (this.scale <= 1) return; // No reposition if not zoomed
         e.preventDefault();
         this.isDragging = true;
-        this.allowTransition = false; // disable transitions while dragging
+        this.$refs.imageRef.classList.remove('with-transition');
         this.dragStart = { x: e.clientX, y: e.clientY };
         this.origin = { x: this.delta.x, y: this.delta.y };
         window.addEventListener('mousemove', this.onMouseMove);
@@ -258,7 +269,7 @@
       },
       onMouseUp() {
         this.isDragging = false;
-        this.allowTransition = true;
+        this.$refs.imageRef.classList.add('with-transition');
         window.removeEventListener('mousemove', this.onMouseMove);
         window.removeEventListener('mouseup', this.onMouseUp);
       },
