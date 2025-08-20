@@ -15,9 +15,9 @@
         class="expand-btn expand-btn-transition"
         icon="expand"
         appearance="raised-button"
-        aria-label="Expand image"
+        :aria-label="$tr('expandImage')"
         aria-haspopup="dialog"
-        tooltip="Expand image"
+        :tooltip="$tr('expandImage')"
         @click="openLightbox"
       />
     </div>
@@ -63,6 +63,9 @@
       closeLightbox() {
         this.lightboxOpen = false;
       },
+    },
+    $trs: {
+      expandImage: 'Expand image',
     },
   };
 

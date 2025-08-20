@@ -10,7 +10,7 @@
       v-else
       class="safe-html-wrapper"
       tabindex="0"
-      aria-label="Article content"
+      :aria-label="$tr('articleContent')"
     >
       <SafeHTML
         :html="html"
@@ -133,6 +133,9 @@
           this.recordProgress();
         }, 5000);
       },
+    },
+    $trs: {
+      articleContent: 'Article content',
     },
   };
 

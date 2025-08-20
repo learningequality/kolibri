@@ -4,7 +4,7 @@
     v-if="open"
     ref="dialogRef"
     closedby="any"
-    aria-label="Expanded image"
+    :aria-label="$tr('expandedImage')"
     class="lightbox-dialog"
     data-testid="lightbox-dialog"
     @close="closeLightbox"
@@ -20,7 +20,7 @@
           icon="remove"
           :color="$themeTokens.surface"
           size="small"
-          aria-label="Zoom out"
+          :aria-label="$tr('zoomOut')"
           :disabled="scale === minScale"
           @click="zoomImage('out')"
         />
@@ -30,7 +30,7 @@
           :appendToBody="false"
           :trigger="`#zoom-out-btn`"
         >
-          Zoom out
+          {{ $tr('zoomOut') }}
         </UiTooltip>
       </div>
       <div :class="scale !== maxScale ? $computedClass(btnHoverStyle) : ''">
@@ -39,7 +39,7 @@
           icon="add"
           :color="$themeTokens.surface"
           size="small"
-          aria-label="Zoom in"
+          :aria-label="$tr('zoomIn')"
           :disabled="scale === maxScale"
           autofocus
           @click="zoomImage('in')"
@@ -49,7 +49,7 @@
           :appendToBody="false"
           :trigger="`#zoom-in-btn`"
         >
-          Zoom in
+          {{ $tr('zoomIn') }}
         </UiTooltip>
       </div>
       <div :class="$computedClass(btnHoverStyle)">
@@ -58,7 +58,7 @@
           icon="close"
           :color="$themeTokens.surface"
           size="small"
-          aria-label="Close"
+          :aria-label="$tr('close')"
           @click="closeLightbox"
         />
         <UiTooltip
@@ -66,7 +66,7 @@
           :appendToBody="false"
           :trigger="`#close-btn`"
         >
-          Close
+          {{ $tr('close') }}
         </UiTooltip>
       </div>
     </div>
@@ -167,7 +167,7 @@
             requestAnimationFrame(() => {
               setTimeout(() => {
                 this.allowTransition = true;
-              }, 50);
+              }, 300);
             });
           });
         } else {
@@ -342,6 +342,12 @@
         }
         this.backdropClickValid = false;
       },
+    },
+    $trs: {
+      expandedImage: 'Expanded image',
+      zoomOut: 'Zoom out',
+      zoomIn: 'Zoom in',
+      close: 'Close',
     },
   };
 
