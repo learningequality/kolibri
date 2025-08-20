@@ -8,6 +8,6 @@
     "intersection-observer": "0.12.2",
     "pdfjs-dist": "^2.16.105",
     "vue-virtual-scroller": "1.1.2",
-    "web-streams-polyfill": "^4.1.0"
+    "web-streams-polyfill": "^4.2.0"
   }
 }
