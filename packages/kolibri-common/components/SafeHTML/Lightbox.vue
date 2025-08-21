@@ -16,7 +16,7 @@
     >
       <div :class="scale !== minScale ? $computedClass(btnHoverStyle) : ''">
         <KIconButton
-          id="zoom-out-btn"
+          ref="zoomOutBtn"
           icon="remove"
           :color="$themeTokens.surface"
           size="small"
@@ -24,18 +24,17 @@
           :disabled="scale === minScale"
           @click="zoomImage('out')"
         />
-        <!-- Use UiTooltip separately with appendToBody=false so tooltip stays above backdrop -->
-        <UiTooltip
-          openOn="hover"
-          :appendToBody="false"
-          :trigger="`#zoom-out-btn`"
+        <!-- Use KTooltip separately because KIconButton's tooltip goes underneath backdrop -->
+        <KTooltip
+          reference="zoomOutBtn"
+          :refs="$refs"
         >
           {{ $tr('zoomOut') }}
-        </UiTooltip>
+        </KTooltip>
       </div>
       <div :class="scale !== maxScale ? $computedClass(btnHoverStyle) : ''">
         <KIconButton
-          id="zoom-in-btn"
+          ref="zoomInBtn"
           icon="add"
           :color="$themeTokens.surface"
           size="small"
@@ -44,30 +43,28 @@
           autofocus
           @click="zoomImage('in')"
         />
-        <UiTooltip
-          openOn="hover"
-          :appendToBody="false"
-          :trigger="`#zoom-in-btn`"
+        <KTooltip
+          reference="zoomInBtn"
+          :refs="$refs"
         >
           {{ $tr('zoomIn') }}
-        </UiTooltip>
+        </KTooltip>
       </div>
       <div :class="$computedClass(btnHoverStyle)">
         <KIconButton
-          id="close-btn"
+          ref="closeBtn"
           icon="close"
           :color="$themeTokens.surface"
           size="small"
           :aria-label="$tr('close')"
           @click="closeLightbox"
         />
-        <UiTooltip
-          openOn="hover"
-          :appendToBody="false"
-          :trigger="`#close-btn`"
+        <KTooltip
+          reference="closeBtn"
+          :refs="$refs"
         >
           {{ $tr('close') }}
-        </UiTooltip>
+        </KTooltip>
       </div>
     </div>
     <img
@@ -90,8 +87,6 @@
 
 <script>
 
-  import UiTooltip from 'kolibri-design-system/lib//keen/UiTooltip.vue';
-
   function supportsDialogClosedBy() {
     const dialog = document.createElement('dialog');
     return 'closedBy' in dialog;
@@ -103,7 +98,6 @@
 
   export default {
     name: 'Lightbox',
-    components: { UiTooltip },
     props: {
       open: {
         type: Boolean,
