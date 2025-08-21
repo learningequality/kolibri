@@ -60,7 +60,7 @@ class KolibriView(object):
         self.view = wx.Frame(None, -1, APP_NAME, size=size)
         self.view.SetMinSize((350, 400))
 
-        if WINDOWS and html2.WebView.IsBackendAvailable(html2.WebViewBackendEdge):
+        if WINDOWS:
             backend = html2.WebViewBackendEdge
         else:
             backend = html2.WebViewBackendDefault

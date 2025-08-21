@@ -15,6 +15,7 @@ from kolibri_app.view import KolibriView
 if WINDOWS:
     from kolibri_app.server_manager_windows import WindowsServerManager as ServerManager
     from kolibri_app.taskbar_icon import KolibriTaskBarIcon
+    from kolibri_app.taskbar_icon import is_webview2_installed
     import win32con
     import win32gui
     import ctypes
@@ -81,9 +82,14 @@ class KolibriApp(wx.App):
 
         self.server_manager = ServerManager(self)
 
-        # Only create main window if not in tray-only mode
+        # Only create main window if not in tray-only mode and WebView2 is available
         if not self.tray_only:
-            self.create_kolibri_window()
+            if WINDOWS and not is_webview2_installed():
+                logging.info(
+                    "WebView2 not available, browser will open when server is ready"
+                )
+            else:
+                self.create_kolibri_window()
 
         atexit.register(self.cleanup_on_exit)
         self.start_server()
@@ -173,6 +179,19 @@ class KolibriApp(wx.App):
         self.shutdown()
 
     def create_kolibri_window(self, url=None):
+        # On Windows, check if WebView2 is available
+        if WINDOWS and not is_webview2_installed():
+            # WebView2 not available, open in browser instead
+            if url:
+                webbrowser.open(url)
+            elif self.kolibri_url:
+                webbrowser.open(self.kolibri_url)
+            else:
+                logging.warning(
+                    "Cannot open UI: WebView2 not available and no URL ready yet"
+                )
+            return None
+
         window = KolibriView(self, url=url)
 
         self.windows.append(window)
@@ -242,9 +261,17 @@ class KolibriApp(wx.App):
         if WINDOWS:
             self.task_bar_icon.notify_server_ready(final_url)
 
-        # Only load URL in view if we have a main window (not in tray-only mode)
+        # Handle UI loading based on WebView2 availability
         if self.view:
+            # We have a WebView window, load URL in it
             wx.CallAfter(self.view.load_url, final_url)
+        elif not self.tray_only:
+            # Not in tray-only mode but no view (likely WebView2 unavailable), open in browser
+            if WINDOWS and not is_webview2_installed():
+                logging.info("WebView2 not available, opening in browser")
+                webbrowser.open(final_url)
+            else:
+                logging.info("No main window available to load URL")
         else:
             logging.info("Running in tray-only mode, URL ready for when UI is opened")
 

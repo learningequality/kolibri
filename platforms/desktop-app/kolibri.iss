@@ -67,11 +67,11 @@ Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExeName}"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Tasks: desktopicon
 
 [Run]
-; Run WebView2 installer only if runtime is not already installed
+; Run WebView2 installer only if runtime is not already installed and windows version is not legacy (7, 8, 8.1)
 Filename: "{tmp}\MicrosoftEdgeWebView2RuntimeInstallerX64.exe"; \
     Parameters: "/silent /install"; \
     Flags: runhidden waituntilterminated; \
-    Check: not IsWebView2Installed
+    Check: not IsWebView2Installed and ShouldInstallWebView2
 ; Launch app UI after installation completes
 Filename: "{app}\{#AppExeName}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall shellexec
 
@@ -119,6 +119,35 @@ begin
    begin
       Log(Format('Command "%s" completed successfully.', [Description]));
    end;
+end;
+
+// Function to check if the OS is Windows 7, 8, or 8.1
+function IsLegacyWindows(): Boolean;
+var
+  WinVersion: TWindowsVersion;
+begin
+  GetWindowsVersionEx(WinVersion);
+
+  // Windows versions older than Windows 10 have a Major version number less than 10.
+  // (e.g., Win 7 is 6.1, Win 8 is 6.2, Win 8.1 is 6.3)
+  if WinVersion.Major < 10 then
+  begin
+    Log('Detected legacy Windows version');
+    Result := True;
+  end
+  else
+  begin
+    Log('Detected modern Windows version');
+    Result := False;
+  end;
+end;
+
+// This function will be called by the [Run] section's "Check" parameter.
+// It returns true ONLY if we should proceed with the WebView2 installation.
+function ShouldInstallWebView2(): Boolean;
+begin
+  // We should install WebView2 if the OS is NOT a legacy version.
+  Result := not IsLegacyWindows();
 end;
 
 // Check for existing versions and handle upgrade/downgrade/repair scenarios
