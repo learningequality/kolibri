@@ -180,3 +180,9 @@ img.safe-html {
 .expand-btn:focus {
   opacity: 1;
 }
+
+math.safe-html {
+  @include text-style(normal, 32px, 130%);
+
+  margin: 8px auto;
+}

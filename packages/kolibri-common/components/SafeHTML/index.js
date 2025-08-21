@@ -7,6 +7,7 @@ import SafeHtmlImage from './SafeHtmlImage.vue';
 const ALLOWED_URI_REGEXP = /^(?:(?:blob:https?|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
 const FORBID_TAGS = ['style', 'link'];
 const FORBID_ATTR = ['style', 'width', 'height'];
+const ADD_TAGS = ['semantics'];
 
 // Factory function to create SafeHTML with custom component support
 export function createSafeHTML(customComponents = {}) {
@@ -33,6 +34,7 @@ export function createSafeHTML(customComponents = {}) {
     },
     render(h, context) {
       const docFragment = DOMPurify.sanitize(context.props.html, {
+        ADD_TAGS,
         FORBID_TAGS,
         ALLOWED_URI_REGEXP,
         FORBID_ATTR,
