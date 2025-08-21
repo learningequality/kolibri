@@ -8,7 +8,7 @@
       :cancelText="coreStrings.dismissAction$()"
       :submitDisabled="loading"
       :cancelDisabled="loading"
-      @cancel="confimClosureOnDeleting"
+      @cancel="confimClosureOnDelete"
       @submit="undoMoveToTrash"
     >
       <KCircularLoader v-if="loading" />
@@ -129,23 +129,28 @@
         }
       };
 
-      const confimClosureOnDeleting = () => {
+      const confimClosureOnDelete = () => {
         ClassroomResource.fetchCollection({
           getParams: { parent: activeFacilityId },
           force: true,
         }).then(classrooms => {
-          classrooms.flatMap(classObj =>
-            classObj.coaches.map(coach => {
+          const removePromises = [];
+
+          classrooms.forEach(classObj => {
+            classObj.coaches.forEach(coach => {
               if (props.selectedUsers.has(coach.id)) {
-                $store.dispatch('classEditManagement/removeClassCoach', {
+                const promise = $store.dispatch('classEditManagement/removeClassCoach', {
                   classId: classObj.id,
                   userId: coach.id,
                 });
+                removePromises.push(promise);
               }
-            }),
-          );
-          emit('change', { resetSelection: true });
-          close();
+            });
+          });
+          return Promise.all(removePromises).then(() => {
+            emit('change', { resetSelection: true });
+            close();
+          });
         });
       };
 
@@ -217,7 +222,7 @@
         moveToTrashLabel$,
         numAdminsSelected$,
         moveToTrashWarning$,
-        confimClosureOnDeleting,
+        confimClosureOnDelete,
       };
     },
     props: {
@@ -242,8 +247,6 @@
 <style lang="scss" scoped>
 
   .fix-line-height {
-    // Override default global line-height of 1.15 which is not enough
-    // space for single lines content modal and makes scrollbar appear.
     line-height: 1.5;
   }
 
