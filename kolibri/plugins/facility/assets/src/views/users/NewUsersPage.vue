@@ -154,6 +154,8 @@
   import store from 'kolibri/store';
   import { computed, onMounted, ref } from 'vue';
   import { useRoute } from 'vue-router/composables';
+  import useUser from 'kolibri/composables/useUser';
+  import { UserKinds } from 'kolibri/constants';
 
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';

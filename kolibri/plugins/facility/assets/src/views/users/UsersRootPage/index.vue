@@ -155,7 +155,7 @@
     mixins: [commonCoreStrings],
     setup() {
       usePreviousRoute();
-      const { currentUserId } = useUser();
+      const { currentUserId, isSuperuser, isAdmin } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const selectedUsers = ref(new Set());
       const isMoveToTrashModalOpen = ref(false);
@@ -169,6 +169,7 @@
         enrollToClass$,
         removeFromClass$,
         deleteSelection$,
+        canNotdeletSelfTooltip$,
       } = bulkUserManagementStrings;
 
       const { $store, $router } = getCurrentInstance().proxy;
@@ -227,8 +228,11 @@
         enrollToClass$,
         removeFromClass$,
         deleteSelection$,
+        canNotdeletSelfTooltip$,
         selectedUsers,
         currentUserId,
+        isSuperuser,
+        isAdmin,
       };
     },
     computed: {
@@ -277,6 +281,30 @@
               user.is_superuser,
           );
       },
+      hasSelectedSuperusers() {
+        if (!this.hasSelectedUsers || !this.facilityUsers) return false;
+
+        return this.facilityUsers
+          .filter(user => this.selectedUsers.has(user.id))
+          .some(user => {
+            const isSuperuser =
+              user.kind === UserKinds.SUPERUSER ||
+              user.kind === 'superuser' ||
+              user.is_superuser === true;
+            return isSuperuser;
+          });
+      },
+      canDeleteSelection() {
+        if (!this.hasSelectedUsers) return false;
+
+        if (this.listContainsLoggedInUser) return false;
+        if (this.isSuperuser) return true;
+        if (this.isAdmin) {
+          return !this.hasSelectedSuperusers;
+        }
+
+        return false;
+      },
     },
     methods: {
       overrideRoute,
@@ -287,6 +315,12 @@
             params: { facility_id: this.$store.getters.activeFacilityId },
           });
         }
+      },
+      deleteSelectionTooltip() {
+        if (this.listContainsLoggedInUser) {
+          return this.canNotdeletSelfTooltip$();
+        }
+        return this.deleteSelection$();
       },
     },
   };
