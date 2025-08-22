@@ -19,7 +19,6 @@
           :showNavigation="showNavigation"
           :showAppNavView="isAppContextAndTouchDevice"
           @toggleSideNav="navShown = !navShown"
-          @startTour="handleStartTour"
         >
           <template #sub-nav>
             <slot name="subNav"></slot>
@@ -48,7 +47,6 @@
         ref="sideNav"
         :navShown="navShown"
         :showAppNavView="isAppContextAndTouchDevice"
-        :startTourTrigger="sideNavTourActive"
         @toggleSideNav="navShown = !navShown"
         @shouldFocusFirstEl="findFirstEl()"
       />
@@ -131,7 +129,6 @@
         lastScrollTop: 0,
         hideAppBars: true,
         throttledHandleScroll: null,
-        sideNavTourActive: false,
       };
     },
     computed: {
@@ -219,9 +216,6 @@
       updateAppBarHeight() {
         // Update the app bar height when window is resized
         this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 124;
-      },
-      handleStartTour() {
-        this.sideNavTourActive = true;
       },
     },
   };

@@ -4,6 +4,7 @@ const tourActive = ref(false);
 const tourActiveMap = reactive({});
 
 function startTour(pageName) {
+  // Small delay to let users see the page before tour darkens it
   setTimeout(() => {
     tourActive.value = true;
     Object.keys(tourActiveMap).forEach(key => {

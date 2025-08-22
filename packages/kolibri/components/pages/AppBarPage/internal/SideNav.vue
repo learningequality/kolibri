@@ -373,10 +373,6 @@
         type: Boolean,
         default: false,
       },
-      startTourTrigger: {
-        type: Boolean,
-        default: false,
-      },
     },
     data() {
       return {
@@ -449,15 +445,9 @@
         this.$nextTick(() => {
           if (isShown) {
             this.focusFirstEl();
+            this.startTour('SideNavigation');
           }
         });
-      },
-      startTourTrigger(newVal) {
-        if (newVal) {
-          this.$nextTick(() => {
-            this.startTour('SideNavigation');
-          });
-        }
       },
     },
     mounted() {

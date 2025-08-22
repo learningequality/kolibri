@@ -570,9 +570,7 @@
       hideWelcomeModal() {
         window.localStorage.setItem(welcomeDismissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
-        setTimeout(() => {
-          this.startTour('LibraryPage');
-        }, 800);
+        this.startTour('LibraryPage');
       },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
