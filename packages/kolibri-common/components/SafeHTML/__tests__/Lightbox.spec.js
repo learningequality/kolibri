@@ -18,66 +18,71 @@ const renderComponent = () => {
   });
 };
 
+function mockNaturalDimensions(img, width = 800, height = 600) {
+  Object.defineProperty(img, 'naturalWidth', { value: width });
+  Object.defineProperty(img, 'naturalHeight', { value: height });
+}
+
+async function clickBtnNTimes(user, btn, times) {
+  for (let i = 0; i < times; i++) {
+    await user.click(btn);
+  }
+}
+
 describe('Lightbox', () => {
+  let user, lightboxDialog, img, zoomOut, zoomIn, close, emitted;
+  beforeEach(async () => {
+    user = userEvent.setup();
+    emitted = renderComponent().emitted;
+
+    lightboxDialog = screen.getByTestId('lightbox-dialog');
+    img = screen.getByAltText(sampleAlt);
+    zoomOut = screen.getByLabelText('Zoom out');
+    zoomIn = screen.getByLabelText('Zoom in');
+    close = screen.getByLabelText('Close');
+
+    mockNaturalDimensions(img);
+    img.dispatchEvent(new Event('load')); // Trigger load event so calculateSize is called
+  });
+
   describe('first render', () => {
     test('smoke test', () => {
-      renderComponent();
-      expect(screen.getByTestId('lightbox-dialog')).toBeInTheDocument();
+      expect(lightboxDialog).toBeInTheDocument();
     });
 
     test('renders all the buttons', () => {
-      renderComponent();
-      expect(screen.getByLabelText('Zoom out')).toBeInTheDocument();
-      expect(screen.getByLabelText('Zoom in')).toBeInTheDocument();
-      expect(screen.getByLabelText('Close')).toBeInTheDocument();
+      expect(zoomOut).toBeInTheDocument();
+      expect(zoomIn).toBeInTheDocument();
+      expect(close).toBeInTheDocument();
     });
 
     test('renders the image', () => {
-      renderComponent();
-      expect(screen.getByAltText(sampleAlt)).toBeInTheDocument();
+      expect(img).toBeInTheDocument();
     });
 
     test("the 'Zoom out' icon button is initially disabled", () => {
-      renderComponent();
-      expect(screen.getByLabelText('Zoom out')).toBeDisabled();
+      expect(zoomOut).toBeDisabled();
     });
   });
 
   describe('zooming out on the image', () => {
     test("decreases the scale when the 'Zoom out' button is clicked by a mouse", async () => {
-      const user = userEvent.setup();
-      renderComponent();
-
-      const img = screen.getByAltText(sampleAlt);
-      // Mock natural dimensions
-      Object.defineProperty(img, 'naturalWidth', { value: 800 });
-      Object.defineProperty(img, 'naturalHeight', { value: 600 });
-      // Trigger load event so calculateSize is called
-      await img.dispatchEvent(new Event('load'));
       // Zoom in first so we can zoom out later
-      await user.click(screen.getByLabelText('Zoom in'));
+      await user.click(zoomIn);
       const prevWidth = parseInt(img.style.width);
       const prevHeight = parseInt(img.style.height);
 
-      await user.click(screen.getByLabelText('Zoom out'));
+      await user.click(zoomOut);
       expect(parseInt(img.style.width)).toBeLessThan(prevWidth);
       expect(parseInt(img.style.height)).toBeLessThan(prevHeight);
     });
 
     test("decreases the scale when the 'Zoom out' button is clicked by a keyboard", async () => {
-      const user = userEvent.setup();
-      renderComponent();
-
-      const img = screen.getByAltText(sampleAlt);
-      Object.defineProperty(img, 'naturalWidth', { value: 800 });
-      Object.defineProperty(img, 'naturalHeight', { value: 600 });
-      await img.dispatchEvent(new Event('load'));
-      await user.click(screen.getByLabelText('Zoom in'));
-      await user.click(screen.getByLabelText('Zoom in'));
+      await clickBtnNTimes(user, zoomIn, 2);
       let prevWidth = parseInt(img.style.width);
       let prevHeight = parseInt(img.style.height);
 
-      screen.getByLabelText('Zoom out').focus();
+      zoomOut.focus();
       await user.keyboard('{enter}');
       expect(parseInt(img.style.width)).toBeLessThan(prevWidth);
       expect(parseInt(img.style.height)).toBeLessThan(prevHeight);
@@ -90,15 +95,7 @@ describe('Lightbox', () => {
     });
 
     test('decreases the scale when scrolling the mouse wheel down on the image', async () => {
-      const user = userEvent.setup();
-      renderComponent();
-
-      const img = screen.getByAltText(sampleAlt);
-      Object.defineProperty(img, 'naturalWidth', { value: 800 });
-      Object.defineProperty(img, 'naturalHeight', { value: 600 });
-      await img.dispatchEvent(new Event('load'));
-
-      await user.click(screen.getByLabelText('Zoom in'));
+      await user.click(zoomIn);
       const prevWidth = parseInt(img.style.width);
       const prevHeight = parseInt(img.style.height);
 
@@ -112,35 +109,19 @@ describe('Lightbox', () => {
 
   describe('zooming in on the image', () => {
     test("increases the scale when the 'Zoom in' button is clicked by a mouse", async () => {
-      const user = userEvent.setup();
-      renderComponent();
-
-      const img = screen.getByAltText(sampleAlt);
-      // Mock natural dimensions
-      Object.defineProperty(img, 'naturalWidth', { value: '800' });
-      Object.defineProperty(img, 'naturalHeight', { value: '600' });
-      // Trigger load event so calculateSize is called
-      await img.dispatchEvent(new Event('load'));
       const prevWidth = parseInt(img.style.width);
       const prevHeight = parseInt(img.style.height);
 
-      await user.click(screen.getByLabelText('Zoom in'));
+      await user.click(zoomIn);
       expect(parseInt(img.style.width)).toBeGreaterThan(prevWidth);
       expect(parseInt(img.style.height)).toBeGreaterThan(prevHeight);
     });
 
     test("increases the scale when the 'Zoom in' button is clicked by a keyboard", async () => {
-      const user = userEvent.setup();
-      renderComponent();
-
-      const img = screen.getByAltText(sampleAlt);
-      Object.defineProperty(img, 'naturalWidth', { value: '800' });
-      Object.defineProperty(img, 'naturalHeight', { value: '600' });
-      await img.dispatchEvent(new Event('load'));
       let prevWidth = parseInt(img.style.width);
       let prevHeight = parseInt(img.style.height);
 
-      screen.getByLabelText('Zoom in').focus();
+      zoomIn.focus();
       await user.keyboard('{enter}');
       expect(parseInt(img.style.width)).toBeGreaterThan(prevWidth);
       expect(parseInt(img.style.height)).toBeGreaterThan(prevHeight);
@@ -153,12 +134,6 @@ describe('Lightbox', () => {
     });
 
     test('increases the scale when scrolling the mouse wheel up on the image', async () => {
-      renderComponent();
-
-      const img = screen.getByAltText(sampleAlt);
-      Object.defineProperty(img, 'naturalWidth', { value: 800 });
-      Object.defineProperty(img, 'naturalHeight', { value: 600 });
-      await img.dispatchEvent(new Event('load'));
       const prevWidth = parseInt(img.style.width);
       const prevHeight = parseInt(img.style.height);
 
@@ -170,30 +145,14 @@ describe('Lightbox', () => {
     });
 
     test("disables the 'Zoom in' button after it's clicked for 12 times", async () => {
-      const user = userEvent.setup();
-      renderComponent();
-
-      for (let i = 0; i < 12; i++) {
-        await user.click(screen.getByLabelText('Zoom in'));
-      }
+      await clickBtnNTimes(user, zoomIn, 12);
+      expect(zoomIn).toBeDisabled();
     });
   });
 
   describe('panning the image', () => {
     test("moves the image when it's dragged by a mouse", async () => {
-      const user = userEvent.setup();
-      renderComponent();
-
-      const img = screen.getByAltText(sampleAlt);
-      // Mock natural dimensions
-      Object.defineProperty(img, 'naturalWidth', { value: '800' });
-      Object.defineProperty(img, 'naturalHeight', { value: '600' });
-      // Trigger load event so calculateSize is called
-      await img.dispatchEvent(new Event('load'));
-      // Zoom image to maximum scale
-      for (let i = 0; i < 12; i++) {
-        await user.click(screen.getByLabelText('Zoom in'));
-      }
+      await clickBtnNTimes(user, zoomIn, 12); // Zoom image to maximum scale
 
       const prevTransform = img.style.transform;
       await fireEvent.mouseDown(img, { clientX: 100, clientY: 100 });
@@ -203,16 +162,7 @@ describe('Lightbox', () => {
     });
 
     test('moves the image when an arrow key on a keyboard is pressed', async () => {
-      const user = userEvent.setup();
-      renderComponent();
-
-      const img = screen.getByAltText(sampleAlt);
-      Object.defineProperty(img, 'naturalWidth', { value: '800' });
-      Object.defineProperty(img, 'naturalHeight', { value: '600' });
-      await img.dispatchEvent(new Event('load'));
-      for (let i = 0; i < 12; i++) {
-        await user.click(screen.getByLabelText('Zoom in'));
-      }
+      await clickBtnNTimes(user, zoomIn, 12);
 
       let prevTransform = img.style.transform;
       await user.keyboard('{ArrowRight}');
@@ -234,17 +184,13 @@ describe('Lightbox', () => {
 
   describe('closing the Lightbox', () => {
     test("emits the 'closeLightbox' event when the 'Close' button is clicked by a mouse", async () => {
-      const user = userEvent.setup();
-      const { emitted } = renderComponent();
-      await user.click(screen.getByLabelText('Close'));
+      await user.click(close);
       expect(emitted()).toHaveProperty('closeLightbox');
       expect(emitted().closeLightbox).toHaveLength(1);
     });
 
     test("emits the 'closeLightbox' event when the 'Close' button is clicked by a keyboard", async () => {
-      const user = userEvent.setup();
-      const { emitted } = renderComponent();
-      screen.getByLabelText('Close').focus();
+      close.focus();
       await user.keyboard('{enter}');
       expect(emitted()).toHaveProperty('closeLightbox');
       expect(emitted().closeLightbox).toHaveLength(1);
@@ -253,8 +199,7 @@ describe('Lightbox', () => {
     });
 
     test("emits the 'closeLightbox' event when triggering the native dialog.close() method", async () => {
-      const { emitted } = renderComponent();
-      await screen.getByTestId('lightbox-dialog').dispatchEvent(new Event('close'));
+      await lightboxDialog.dispatchEvent(new Event('close'));
       expect(emitted()).toHaveProperty('closeLightbox');
       expect(emitted().closeLightbox).toHaveLength(1);
     });
