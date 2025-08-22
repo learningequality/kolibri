@@ -4,11 +4,13 @@ const tourActive = ref(false);
 const tourActiveMap = reactive({});
 
 function startTour(pageName) {
-  tourActive.value = true;
-  Object.keys(tourActiveMap).forEach(key => {
-    tourActiveMap[key] = false;
-  });
-  tourActiveMap[pageName] = true;
+  setTimeout(() => {
+    tourActive.value = true;
+    Object.keys(tourActiveMap).forEach(key => {
+      tourActiveMap[key] = false;
+    });
+    tourActiveMap[pageName] = true;
+  }, 400);
 }
 
 function endTour(pageName) {

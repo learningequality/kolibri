@@ -48,15 +48,11 @@
         ref="sideNav"
         :navShown="navShown"
         :showAppNavView="isAppContextAndTouchDevice"
+        :startTourTrigger="sideNavTourActive"
         @toggleSideNav="navShown = !navShown"
         @shouldFocusFirstEl="findFirstEl()"
       />
     </transition>
-    <TooltipTour
-      v-if="tourActive && isTourActive('SideNavigation')"
-      page="SideNavigation"
-      @tourEnded="endTour('SideNavigation')"
-    />
   </div>
 
 </template>
@@ -72,8 +68,6 @@
   import useUser from 'kolibri/composables/useUser';
   import { ref, getCurrentInstance } from 'vue';
   import { useSwipe } from '@vueuse/core';
-  import TooltipTour from 'kolibri/components/onboarding/TooltipTour';
-  import useTour from 'kolibri/composables/useTour';
   import ScrollingHeader from '../ScrollingHeader';
   import AppBar from './internal/AppBar';
   import SideNav from './internal/SideNav';
@@ -84,7 +78,6 @@
       AppBar,
       ScrollingHeader,
       SideNav,
-      TooltipTour,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -92,7 +85,7 @@
       const isRtl = ref(instance?.proxy.isRtl);
       const swipeZone = ref(null);
       const navShown = ref(false);
-      const { startTour, tourActive, isTourActive, endTour } = useTour();
+
       useSwipe(swipeZone, {
         onSwipeEnd: (e, direction) => {
           if (direction === 'right' && !navShown.value && !isRtl.value) {
@@ -109,10 +102,6 @@
         isAppContext,
         swipeZone,
         navShown,
-        startTour,
-        tourActive,
-        isTourActive,
-        endTour,
       };
     },
     props: {
@@ -142,6 +131,7 @@
         lastScrollTop: 0,
         hideAppBars: true,
         throttledHandleScroll: null,
+        sideNavTourActive: false,
       };
     },
     computed: {
@@ -231,9 +221,7 @@
         this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 124;
       },
       handleStartTour() {
-        setTimeout(() => {
-          this.startTour('SideNavigation');
-        }, 400);
+        this.sideNavTourActive = true;
       },
     },
   };

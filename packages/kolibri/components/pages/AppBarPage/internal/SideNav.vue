@@ -94,7 +94,7 @@
             >
               <template #options>
                 <CoreMenuOption
-                  v-for="(item, index) in topItems"
+                  v-for="item in topItems"
                   :key="item.name"
                   :label="item.label"
                   :subRoutes="item.routes"
@@ -102,7 +102,7 @@
                   :icon="item.icon"
                   :linkActive="item.active"
                   data-test="side-nav-item"
-                  :data-onboarding-id="index === 3 ? 'deviceMenuOption' : null"
+                  :data-onboarding-id="item.label === 'Device' ? 'deviceMenuOption' : null"
                   @toggleMenu="toggleNav"
                 />
                 <SideNavDivider />
@@ -247,6 +247,11 @@
       :style="{ color: $themeTokens.text }"
       @cancel="languageModalShown = false"
     />
+    <TooltipTour
+      v-if="tourActive && isTourActive('SideNavigation')"
+      page="SideNavigation"
+      @tourEnded="endTour('SideNavigation')"
+    />
   </div>
 
 </template>
@@ -270,6 +275,8 @@
   import useUserSyncStatus from 'kolibri/composables/useUserSyncStatus';
   import { useSwipe } from '@vueuse/core';
   import { ref, getCurrentInstance } from 'vue';
+  import TooltipTour from 'kolibri/components/onboarding/TooltipTour';
+  import useTour from 'kolibri/composables/useTour';
   import SyncStatusDisplay from '../../../SyncStatusDisplay';
   import LearnOnlyDeviceNotice from './LearnOnlyDeviceNotice';
   import TotalPoints from './TotalPoints';
@@ -300,6 +307,7 @@
       TotalPoints,
       LanguageSwitcherModal,
       BottomNavigationBar,
+      TooltipTour,
     },
     mixins: [commonCoreStrings],
     setup(props, { emit }) {
@@ -331,6 +339,7 @@
       } = useUser();
       const { status, lastSynced } = useUserSyncStatus();
       const { topBarHeight, navItems } = useNav();
+      const { startTour, tourActive, isTourActive, endTour } = useTour();
       return {
         fullName: full_name,
         username,
@@ -349,6 +358,10 @@
         userLastSynced: lastSynced,
         navItems,
         sideNavInside,
+        startTour,
+        tourActive,
+        isTourActive,
+        endTour,
       };
     },
     props: {
@@ -357,6 +370,10 @@
         required: true,
       },
       showAppNavView: {
+        type: Boolean,
+        default: false,
+      },
+      startTourTrigger: {
         type: Boolean,
         default: false,
       },
@@ -434,6 +451,13 @@
             this.focusFirstEl();
           }
         });
+      },
+      startTourTrigger(newVal) {
+        if (newVal) {
+          this.$nextTick(() => {
+            this.startTour('SideNavigation');
+          });
+        }
       },
     },
     mounted() {

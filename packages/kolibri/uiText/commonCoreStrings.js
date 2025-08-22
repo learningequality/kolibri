@@ -595,6 +595,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Important: please remember this account information. Write it down if needed.',
     context: 'Helper/information text to remind user to take note of their account information.',
   },
+  sideNavLabel: {
+    message: 'Side navigation',
+    context:
+      'Refers to the sidebar menu in Kolibri that allows switching between main app sections like Learn, Coach, Facility, Device.',
+  },
 
   // Learning Activities
   all: {
