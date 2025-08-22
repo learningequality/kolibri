@@ -92,6 +92,146 @@ const
   ICACLS_EXE_PATH = '{sys}\icacls.exe';
   SC_EXE_PATH = '{sys}\sc.exe';
 
+procedure TerminateLegacyApp();
+var
+  ResultCode: Integer;
+begin
+  // First, attempt to terminate the running legacy application process to unlock files.
+  Log('Attempting to terminate the legacy Kolibri process Kolibri.exe...');
+  Exec(ExpandConstant('{#TaskkillExePath}'),
+       '/F /IM "Kolibri.exe"',
+       '',
+       SW_HIDE, ewWaitUntilTerminated,
+       ResultCode);
+
+  if ResultCode = 0 then
+    Log('Successfully terminated the legacy Kolibri process.')
+  else if ResultCode = TASKKILL_ERR_NOT_FOUND then
+    Log('Legacy Kolibri process was not found running (this is normal).')
+  else
+    // Log a warning, but don't abort the installation. We'll still try to delete.
+    Log(Format('Warning: taskkill failed to terminate the legacy process with exit code: %d', [ResultCode]));
+end;
+
+// This procedure performs a forceful, silent cleanup of any legacy files and registry keys.
+procedure ForcefullyCleanUpLegacyApp();
+var
+  LegacyInstallPath: String;
+  LegacyAppId: String;
+begin
+  LegacyAppId := 'Kolibri-Foundation for Learning Equality_is1';
+  Log('Starting forceful cleanup of legacy application remnants.');
+
+  // Check if the legacy application is registered as installed.
+  if RegKeyExists(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\' + LegacyAppId) then
+  begin
+    if RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\' + LegacyAppId, 'InstallLocation', LegacyInstallPath) then
+    begin
+      Log('Found legacy installation path in registry: ' + LegacyInstallPath);
+
+      if DirExists(LegacyInstallPath) then
+      begin
+        Log('Legacy directory exists. Deleting...');
+        if DelTree(LegacyInstallPath, True, True, True) then
+          Log('Successfully deleted legacy installation directory.')
+        else
+          Log('WARNING: Could not delete legacy installation directory at: ' + LegacyInstallPath);
+      end
+      else
+        Log('Legacy directory path found in registry, but it does not exist on disk: ' + LegacyInstallPath);
+    end
+    else
+    begin
+      Log('Could not read legacy InstallLocation from registry. The application files may remain if installed in a custom location.');
+    end;
+
+    Log('Deleting legacy uninstall registry key...');
+    if RegDeleteKeyIncludingSubkeys(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\' + LegacyAppId) then
+      Log('Successfully deleted legacy uninstall registry key.')
+    else
+      Log('WARNING: Failed to delete legacy uninstall registry key.');
+  end
+  else
+    Log('Legacy application uninstall key not found. No cleanup needed.');
+
+  // Clean up legacy desktop shortcut, if it exists.
+  if FileExists(ExpandConstant('{commondesktop}\Kolibri.lnk')) then
+  begin
+    Log('Deleting legacy desktop shortcut...');
+    if DeleteFile(ExpandConstant('{commondesktop}\Kolibri.lnk')) then
+        Log('Successfully deleted legacy desktop shortcut.')
+    else
+        Log('WARNING: Failed to delete legacy desktop shortcut.');
+  end;
+
+  Log('Forceful legacy cleanup finished.');
+end;
+
+// This procedure moves user data from the legacy per-user location to the new system-wide location.
+procedure MigrateLegacyUserData();
+var
+  LegacyAppId, SourcePath, DestPath, Params: String;
+  ResultCode: Integer;
+begin
+  LegacyAppId := 'Kolibri-Foundation for Learning Equality_is1';
+  Log('Checking if legacy user data migration is needed.');
+
+  // Condition 1: Only proceed if the legacy app was actually installed.
+  if not RegKeyExists(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\' + LegacyAppId) then
+  begin
+    Log('Legacy application not detected. Skipping user data migration.');
+    Exit;
+  end;
+
+  // Define source and destination paths.
+  SourcePath := GetEnv('USERPROFILE') + '\.kolibri';
+  DestPath := ExpandConstant('{#KolibriDataDir}'); // Resolves to C:\ProgramData\kolibri
+
+  // Condition 2: Check if the old data folder actually exists.
+  if not DirExists(SourcePath) then
+  begin
+    Log('Legacy user data folder not found at: ' + SourcePath + '. No data to migrate.');
+    Exit;
+  end;
+
+  // Condition 3: SAFETY CHECK: Abort migration if a database file already exists in the new data folder.  if FileExists(DestPath + '\db.sqlite3') then
+  if FileExists(DestPath + '\db.sqlite3') then
+  begin
+    Log('WARNING: A database file (db.sqlite3) was found in the new data directory (' + DestPath + '). Migration will be skipped to prevent data loss.');
+    Exit;
+  end;
+
+
+  Log('Legacy user data found at "' + SourcePath + '". Migrating to "' + DestPath + '".');
+
+  // Use robocopy to move files with correct permissions.
+  // /E       - Copies subdirectories, including empty ones.
+  // /COPYALL - Copies all file info, including permissions (ACLs). CRITICAL for ProgramData.
+  // /MOVE    - Moves files and directories (deletes from source after copying).
+  // /NJH     - No Job Header.
+  // /NJS     - No Job Summary.
+  Params := '"' + SourcePath + '" "' + DestPath + '" /E /COPYALL /MOVE /NJH /NJS';
+
+  if Exec('robocopy.exe', Params, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  begin
+    // Robocopy returns codes < 8 for success (e.g., 1 means files were copied successfully).
+    if ResultCode < 8 then
+      Log('User data migration successful. Robocopy exit code: ' + IntToStr(ResultCode))
+    else
+    begin
+      Log('ERROR: User data migration failed. Robocopy exit code: ' + IntToStr(ResultCode));
+      // Even if robocopy runs but fails, we should inform the user.
+      MsgBox('Kolibri was unable to automatically move your user data to the new location. Please move the contents of "' + SourcePath + '" to "' + DestPath + '" manually.', mbError, MB_OK);
+    end
+  end
+  else
+  begin
+    // This block runs if robocopy.exe itself could not be found or executed.
+    Log('ERROR: Failed to execute robocopy.exe. Ensure it is in the system PATH. Error code: ' + IntToStr(ResultCode));
+    MsgBox('Kolibri was unable to automatically move your user data to the new location. Please move the contents of "' + SourcePath + '" to "' + DestPath + '" manually.', mbError, MB_OK);
+  end;
+end;
+
 // Robust wrapper for executing external commands with error checking
 procedure ExecChecked(const Filename, Params, WorkingDir: String; const Description: String);
 var
@@ -275,7 +415,7 @@ begin
 
     Log('Post-install step: Installing or updating the Kolibri service...');
 
-    // Check if service exists to decide install vs update
+    // STEP 1: Install or update the service definition, but DO NOT start it yet.
     if IsServiceInstalled('{#ServiceName}') then
     begin
       // Update existing service
@@ -297,12 +437,21 @@ begin
       ExecChecked(NssmPath, Params, '', 'Install {#ServiceName} Service');
     end;
 
-    // Apply common service configuration
+    // STEP 2: Apply common service configuration and directory permissions.
+    // This is important so the migration step can write to the ProgramData folder.
     Log('Applying common service configuration...');
     ExecChecked(NssmPath, 'set "{#ServiceName}" ObjectName "NT AUTHORITY\LocalService"', '', 'Set Service User to LocalService');
+    ExecChecked(NssmPath, 'set "{#ServiceName}" Description "This service runs the Kolibri server in the background"', '', 'Set Service Description');
     ExecChecked(ExpandConstant(ICACLS_EXE_PATH), '"' + ExpandConstant('{#KolibriDataDir}') + '" /grant "NT AUTHORITY\LocalService":(OI)(CI)M /T', '', 'Grant Permissions to Data Folder for Service');
     ExecChecked(ExpandConstant(ICACLS_EXE_PATH), '"' + ExpandConstant('{#KolibriDataDir}') + '" /grant "Users":(OI)(CI)M /T', '', 'Grant Permissions to Data Folder for Users');
-    ExecChecked(NssmPath, 'set "{#ServiceName}" Description "This service runs the Kolibri server in the background"', '', 'Set Service Description');
+
+    // STEP 3: Handle legacy migration and cleanup.
+    // This is now safe to do because the service has not started and the data directory is empty.
+    Log('Starting legacy migration and cleanup...');
+    TerminateLegacyApp();
+    MigrateLegacyUserData();
+    ForcefullyCleanUpLegacyApp();
+    Log('Data migration complete.');
 
     // Conditionally set the service start type based on user selection
     if (WizardIsTaskSelected('installservice')) then
