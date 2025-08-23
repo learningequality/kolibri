@@ -41,7 +41,7 @@
     setup(props, context) {
       const { windowIsSmall } = useKResponsiveWindow();
       const windowSizeClass = computed(() => {
-        return windowIsSmall.value ? ' small-window' : '';
+        return windowIsSmall.value ? 'small-window' : '';
       });
       const { defaultFile, forceDurationBasedProgress, durationBasedProgress } = useContentViewer(
         props,
