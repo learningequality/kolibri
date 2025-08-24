@@ -23,10 +23,17 @@
   import tippy from 'tippy.js';
   import Vue from 'vue';
   import { onboardingSteps } from 'kolibri-common/utils/onboardingSteps.js';
+  import useTour from 'kolibri-common/composables/useTour';
   import TooltipContent from './TooltipContent.vue';
 
   export default {
     name: 'TooltipTour',
+    setup() {
+      const { tourActive } = useTour();
+      return {
+        tourActive,
+      };
+    },
     props: {
       page: {
         type: String,
@@ -39,6 +46,7 @@
         tippyInstance: null,
         showOverlay: false,
         rect: {},
+        resizeHandler: null,
       };
     },
     computed: {
@@ -65,11 +73,29 @@
     mounted() {
       this.showTooltip();
       window.document.documentElement.style['overflow'] = 'hidden';
+      window.addEventListener('resize', () => {
+        if (this.tippyInstance) {
+          this.tippyInstance.destroy();
+          this.tippyInstance = null;
+        }
+        if (this.tourActive) this.showTooltip();
+      });
     },
     destroyed() {
+      window.removeEventListener('resize', this.resizeHandler);
+      if (this.tippyInstance) this.tippyInstance.destroy();
       window.document.documentElement.style['overflow'] = 'auto';
     },
     methods: {
+      getVisibleOnboardingElement(key) {
+        const all = Array.from(document.querySelectorAll(`[data-onboarding-id="${key}"]`));
+        return all.find(el => {
+          const style = window.getComputedStyle(el);
+          return (
+            style.opacity !== '0' && style.pointerEvents !== 'none' && el.offsetParent !== null
+          );
+        });
+      },
       showTooltip() {
         if (this.tippyInstance) {
           this.tippyInstance.destroy();
@@ -80,7 +106,7 @@
           const currentStep = this.steps[this.currentStepIndex];
           if (!currentStep) return;
 
-          const target = document.querySelector(`[data-onboarding-id="${currentStep.key}"]`);
+          const target = this.getVisibleOnboardingElement(currentStep.key);
 
           if (!target) {
             return;
@@ -103,12 +129,16 @@
           instance.$mount();
           this.updateOverlay();
           window.addEventListener('scroll', this.updateOverlay, true);
-          window.addEventListener('resize', this.updateOverlay);
+          window.addEventListener('resize', () => {
+            window.requestAnimationFrame(this.updateOverlay);
+          });
+          const placement = window.innerWidth < 680 ? 'bottom' : 'right-start';
+
           try {
             this.tippyInstance = tippy(target, {
               content: instance.$el,
               allowHTML: true,
-              placement: 'right-start',
+              placement: placement,
               interactive: true,
               trigger: 'manual',
               appendTo: document.body,
@@ -136,9 +166,9 @@
       },
       updateOverlay() {
         const currentStep = this.steps[this.currentStepIndex];
-        const target = document.querySelector(`[data-onboarding-id="${currentStep.key}"]`);
+        const target = this.getVisibleOnboardingElement(currentStep.key);
         if (!target) return;
-
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         const rect = target.getBoundingClientRect();
         this.rect = rect;
       },
