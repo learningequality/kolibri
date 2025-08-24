@@ -137,6 +137,9 @@ else
 	@echo "Windows installer can only be built on Windows."
 endif
 
+# Default value for the signtool path
+SIGNTOOL_PATH ?= "C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe"
+
 # Code signing for the installer
 .PHONY: codesign-installer-windows
 codesign-installer-windows: build-installer-windows
@@ -144,7 +147,7 @@ codesign-installer-windows: build-installer-windows
 	$(MAKE) guard-WIN_CODESIGN_PWD
 	$(MAKE) guard-WIN_CODESIGN_CERT
 	# MSYS_NO_PATHCONV=1 prevents Git Bash/MINGW from converting option flags (like /f, /p) into file paths.
-	MSYS_NO_PATHCONV=1 "C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe" sign /f ${WIN_CODESIGN_PFX} /p ${WIN_CODESIGN_PWD} /ac ${WIN_CODESIGN_CERT} /tr http://timestamp.ssl.trustwave.com /td SHA256 /fd SHA256 "dist-installer/kolibri-setup-$(KOLIBRI_VERSION).exe"
+	MSYS_NO_PATHCONV=1 "$(SIGNTOOL_PATH)" sign /f ${WIN_CODESIGN_PFX} /p ${WIN_CODESIGN_PWD} /ac ${WIN_CODESIGN_CERT} /tr http://timestamp.ssl.trustwave.com /td SHA256 /fd SHA256 "dist-installer/kolibri-setup-$(KOLIBRI_VERSION).exe"
 
 compile-mo:
 	find src/kolibri_app/locales -name LC_MESSAGES -exec msgfmt {}/wxapp.po -o {}/wxapp.mo \;
