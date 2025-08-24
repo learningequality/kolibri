@@ -229,13 +229,13 @@
           this.clampDelta();
         }
       },
-      getDeltaLimits() {
+      getDeltaLimits(newScale = this.scale) {
         const DeltaLimitX = Math.max(
-          (this.baseSize.width * this.scale - this.backdropSize.width) / 2,
+          (this.baseSize.width * newScale - this.backdropSize.width) / 2,
           0,
         );
         const DeltaLimitY = Math.max(
-          (this.baseSize.height * this.scale - this.backdropSize.height) / 2,
+          (this.baseSize.height * newScale - this.backdropSize.height) / 2,
           0,
         );
         return { DeltaLimitX, DeltaLimitY };
@@ -303,6 +303,7 @@
       },
       zoomImage(direction = 'in', relX = 0, relY = 0) {
         const prevScale = this.scale;
+        // Calculate new scale
         let newScale = this.scale;
         if (direction === 'in' && this.scale < this.maxScale) {
           newScale = Math.min(this.scale + this.scaleStep, this.maxScale);
@@ -310,10 +311,19 @@
           newScale = Math.max(this.scale - this.scaleStep, this.minScale);
         }
         if (newScale === prevScale) return;
-        this.delta.x -= relX * this.baseSize.width * (newScale - prevScale);
-        this.delta.y -= relY * this.baseSize.height * (newScale - prevScale);
+
+        // Calculate and clamp new delta values
+        const { DeltaLimitX, DeltaLimitY } = this.getDeltaLimits(newScale);
+        let newDeltaX = this.delta.x - relX * this.baseSize.width * (newScale - prevScale);
+        let newDeltaY = this.delta.y - relY * this.baseSize.height * (newScale - prevScale);
+        newDeltaX = clamp(newDeltaX, -DeltaLimitX, DeltaLimitX);
+        newDeltaY = clamp(newDeltaY, -DeltaLimitY, DeltaLimitY);
+
+        // Update delta and scale together
+        this.delta.x = newDeltaX;
+        this.delta.y = newDeltaY;
         this.scale = newScale;
-        this.$nextTick(() => this.clampDelta());
+
         if (this.scale === 1) this.resetPosition();
       },
       onWheel(e) {
