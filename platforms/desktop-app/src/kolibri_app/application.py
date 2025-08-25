@@ -125,12 +125,20 @@ class KolibriApp(wx.App):
     def show_or_create_ui(self):
         """Show existing UI window or create a new one."""
         if self.windows and self.windows[0]:
-            # We have an existing window, show it
+            # We have an existing window, handle it
             main_window = self.windows[0]
-            if not main_window.view.IsShown():
-                main_window.view.Show()
-            main_window.view.Raise()
-            main_window.view.SetFocus()
+            view = main_window.view
+
+            # If window is minimized, make it non-minimized.
+            if view.IsIconized():
+                view.Iconize(False)
+
+            # If the window is closed, show it.
+            if not view.IsShown():
+                view.Show()
+
+            # Always bring the window to the foreground.
+            view.Raise()
         else:
             # No window exists, create one
             if self.kolibri_url:

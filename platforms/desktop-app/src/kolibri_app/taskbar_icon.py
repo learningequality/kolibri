@@ -200,13 +200,18 @@ class KolibriTaskBarIcon(TaskBarIcon):
         Handles left-click on the taskbar icon.
         """
         main_window = self.app.view
-        if main_window and main_window.view.IsShown():
-            # Window is visible, just bring it to the front
-            main_window.view.Raise()
-        else:
-            # Window exists but is hidden, show it
-            main_window.view.Show()
-            main_window.view.Raise()
+        if main_window:
+            view = main_window.view
+            # If window is minimized, make it non-minimized.
+            if view.IsIconized():
+                view.Iconize(False)
+
+            # If the window is closed, show it.
+            if not view.IsShown():
+                view.Show()
+
+            # Always bring the window to the foreground.
+            view.Raise()
 
     def CreatePopupMenu(self):
         """Create and return the right-click menu."""
@@ -259,13 +264,18 @@ class KolibriTaskBarIcon(TaskBarIcon):
         if is_webview2_installed():
             # WebView2 is available, show/create the main window
             main_window = self.app.view
-            if main_window and main_window.view.IsShown():
-                # Window is visible, just bring it to the front
-                main_window.view.Raise()
-            elif main_window:
-                # Window exists but is hidden, show it
-                main_window.view.Show()
-                main_window.view.Raise()
+            if main_window:
+                view = main_window.view
+                # If window is minimized, make it non-minimized.
+                if view.IsIconized():
+                    view.Iconize(False)
+
+                # If the window is closed, show it.
+                if not view.IsShown():
+                    view.Show()
+
+                # Always bring the window to the foreground.
+                view.Raise()
             else:
                 # Create new window
                 self.app.create_kolibri_window()
