@@ -165,10 +165,11 @@
       nextStep() {
         if (this.currentStepIndex < this.steps.length - 1) {
           this.currentStepIndex++;
-          this.saveTourProgress(this.userId, this.page, this.currentStepIndex);
+          this.saveTourProgress(this.userId, this.page, this.currentStepIndex, true);
           this.showTooltip();
         } else {
           // Check if current page is the last key in onboardingSteps
+          this.saveTourProgress(this.userId, this.page, this.currentStepIndex, false);
           const pageKeys = Object.keys(onboardingSteps);
           const isLastPage = this.page === pageKeys[pageKeys.length - 1];
           if (isLastPage) {
@@ -180,7 +181,7 @@
       prevStep() {
         if (this.currentStepIndex > 0) {
           this.currentStepIndex--;
-          this.saveTourProgress(this.userId, this.page, this.currentStepIndex);
+          this.saveTourProgress(this.userId, this.page, this.currentStepIndex, true);
           this.showTooltip();
         }
       },

@@ -21,8 +21,11 @@ function getTourProgress(userId) {
   return progress?.userId === userId ? progress : null;
 }
 
-function saveTourProgress(userId, page, stepIndex) {
-  localStorage.setItem(TOUR_PROGRESS_KEY, JSON.stringify({ userId, page, stepIndex }));
+function saveTourProgress(userId, page, stepIndex, isTourActive) {
+  localStorage.setItem(
+    TOUR_PROGRESS_KEY,
+    JSON.stringify({ userId, page, stepIndex, isTourActive }),
+  );
 }
 
 function completeTour() {
@@ -35,7 +38,7 @@ function isTourCompleted() {
 }
 function resumeTour(userId, page) {
   const progress = getTourProgress(userId);
-  if (!progress) {
+  if ((progress && progress.isTourActive === false) || !progress) {
     return false;
   }
   const pageKeys = Object.keys(onboardingSteps);
@@ -50,6 +53,9 @@ function resumeTour(userId, page) {
     if (progress.stepIndex + 1 < steps.length) {
       // Still steps left on current page
       currentStepIndex.value = progress.stepIndex + 1;
+      return true;
+    } else if (progress.stepIndex + 1 === steps.length) {
+      currentStepIndex.value = progress.stepIndex;
       return true;
     } else {
       endTour();
