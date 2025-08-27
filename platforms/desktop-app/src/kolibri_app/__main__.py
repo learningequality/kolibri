@@ -22,7 +22,7 @@ def _configure_service_start_type(service_name, start_type):
 
 
 def _update_tray_icon_startup(new_state, service_name):
-    """Update tray icon startup registry entry and start service if needed."""
+    """Update tray icon startup registry entry."""
     import winreg
 
     try:
@@ -41,11 +41,6 @@ def _update_tray_icon_startup(new_state, service_name):
                     tray_cmd = f'"{sys.executable}" -m kolibri_app --tray-only'
                 winreg.SetValueEx(key, "KolibriTray", 0, winreg.REG_SZ, tray_cmd)
                 logging.info("Added tray icon to system startup")
-
-                # Start the service
-                logging.info(f"Attempting to start service '{service_name}'.")
-                start_cmd = ["sc", "start", service_name]
-                subprocess.run(start_cmd, capture_output=True, text=True)
             else:
                 # Remove tray icon from system startup
                 try:
