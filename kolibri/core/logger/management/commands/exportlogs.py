@@ -63,7 +63,7 @@ class Command(AsyncCommand):
             "--facility",
             action="store",
             type=str,
-            help="Facility id to import the users into",
+            help="Facility id to export log data from",
         )
         parser.add_argument(
             "--locale",
