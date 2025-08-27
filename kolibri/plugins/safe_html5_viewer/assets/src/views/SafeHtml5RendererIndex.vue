@@ -1,6 +1,9 @@
 <template>
 
-  <div :style="cssVars">
+  <div
+    data-testid="safe-html-renderer-container"
+    :style="cssVars"
+  >
     <KCircularLoader
       v-if="loading || !html"
       :delay="false"
