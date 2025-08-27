@@ -69,7 +69,7 @@ datas_list = [
 
 if sys.platform == "win32":
     datas_list.extend([
-        ('icons', 'icons'),
+        ('src/kolibri_app/icons', 'kolibri_app/icons'),
         ('nssm.exe', 'nssm')
     ])
 
@@ -121,7 +121,7 @@ exe = EXE(
     codesign_identity=os.environ.get("MAC_CODESIGN_ID"),
     entitlements_file="build_config/entitlements.plist",
     console=False,
-    icon='icons/kolibri.ico'
+    icon='src/kolibri_app/icons/kolibri.ico'
 )
 
 coll = COLLECT(
@@ -140,7 +140,7 @@ if sys.platform == 'darwin':
     app = BUNDLE(
         coll,
         name="Kolibri.app",
-        icon="icons/kolibri.icns",
+        icon="src/kolibri_app/icons/kolibri.icns",
         bundle_identifier="org.learningequality.Kolibri",
         version=kolibri_version,
         info_plist={

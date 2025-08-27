@@ -12,6 +12,7 @@ import os
 import sys
 import webbrowser
 import winreg
+from importlib.resources import files
 
 import pywintypes
 import win32service
@@ -149,16 +150,12 @@ class KolibriTaskBarIcon(TaskBarIcon):
     def set_icon(self, path, tooltip):
         """Sets the icon and tooltip for the taskbar icon."""
 
-        if getattr(sys, "frozen", False):
-            # If running as a PyInstaller bundle, use the _MEIPASS directory
-            resource_path = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
-        else:
-            # In development, resource_path will be the project's root directory
-            resource_path = os.path.abspath(".")
-
-        final_path = os.path.join(resource_path, path)
-
+        # 'path' is expected to be 'icons/kolibri.ico'
         try:
+            # We need the absolute path for wx.Icon, so resolve() is necessary
+            icon_resource_path = files("kolibri_app") / path
+            final_path = str(icon_resource_path.resolve())
+
             icon = wx.Icon(final_path, wx.BITMAP_TYPE_ICO)
             self.SetIcon(icon, tooltip)
         except (FileNotFoundError, wx.wxAssertionError, OSError) as e:
