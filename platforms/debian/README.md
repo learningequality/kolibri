@@ -27,6 +27,12 @@ Either kind of build needs a kolibri tar file. These can be found as an asset in
 make get-tar tar=<tar-asset-url>
 ```
 
+If you have previously built on your machine, be sure to run:
+```
+make clean
+```
+To clean up any previous dist files and folders.
+
 ### Building a binary
 
 To build the binary (Debian file), first install required dependencies:
