@@ -3,7 +3,7 @@
 symlinks = {"Applications": "/Applications"}
 
 # Volume icon
-badge_icon = "icons/kolibri.icns"
+badge_icon = "src/kolibri_app/icons/kolibri.icns"
 
 files = ["dist/Kolibri.app"]
 
@@ -13,6 +13,6 @@ icon_locations = {
     "Applications": (550, 120),
 }
 
-background = "icons/Layout.png"
+background = "src/kolibri_app/icons/Layout.png"
 
 window_rect = ((0, 1000), (734, 550))
