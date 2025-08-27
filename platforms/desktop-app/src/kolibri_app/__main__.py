@@ -1,7 +1,9 @@
 import datetime
-import subprocess
 import sys
 from multiprocessing import freeze_support
+
+import pywintypes
+import win32service
 
 from kolibri_app.application import KolibriApp
 from kolibri_app.constants import SERVICE_NAME
@@ -14,11 +16,45 @@ if WINDOWS:
 
 def _configure_service_start_type(service_name, start_type):
     """Configure the Windows service start type."""
-    start_type_arg = "auto" if start_type == "auto" else "disabled"
-    config_cmd = ["sc", "config", service_name, f"start={start_type_arg}"]
+    start_type_map = {
+        "auto": win32service.SERVICE_AUTO_START,
+        "disabled": win32service.SERVICE_DISABLED,
+    }
 
-    result = subprocess.run(config_cmd, check=True, capture_output=True, text=True)
-    logging.info(f"'sc config' output: {result.stdout}")
+    if start_type not in start_type_map:
+        raise ValueError(f"Invalid start type: {start_type}")
+
+    scm_handle = None
+    service_handle = None
+    try:
+        scm_handle = win32service.OpenSCManager(
+            None, None, win32service.SC_MANAGER_ALL_ACCESS
+        )
+        service_handle = win32service.OpenService(
+            scm_handle, service_name, win32service.SERVICE_CHANGE_CONFIG
+        )
+
+        win32service.ChangeServiceConfig(
+            service_handle,
+            win32service.SERVICE_NO_CHANGE,
+            start_type_map[start_type],
+            win32service.SERVICE_NO_CHANGE,
+            None,
+            None,
+            0,
+            None,
+            None,
+            None,
+            None,
+        )
+        logging.info(
+            f"Successfully configured service '{service_name}' start type to '{start_type}'."
+        )
+    finally:
+        if service_handle:
+            win32service.CloseServiceHandle(service_handle)
+        if scm_handle:
+            win32service.CloseServiceHandle(scm_handle)
 
 
 def _update_tray_icon_startup(new_state, service_name):
@@ -66,13 +102,9 @@ def run_service_command(new_state):
         logging.info("Service configuration successful.")
         return 0
 
-    except FileNotFoundError:
-        logging.error("'sc.exe' not found. Is it in the system's PATH?")
-        return 1
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Failed to execute service command. Return code: {e.returncode}")
-        logging.error(f"Stderr: {e.stderr}")
-        return e.returncode
+    except pywintypes.error as e:
+        logging.error(f"Failed to configure the service. Win32 Error: {e}")
+        return e.winerror
 
 
 def main():

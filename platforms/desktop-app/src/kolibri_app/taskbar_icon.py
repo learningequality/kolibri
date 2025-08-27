@@ -9,11 +9,13 @@ Provides system tray functionality:
 """
 import ctypes
 import os
-import subprocess
 import sys
 import webbrowser
 import winreg
 
+import pywintypes
+import win32service
+import winerror
 import wx
 from wx.adv import TaskBarIcon
 
@@ -95,34 +97,41 @@ def set_ui_startup_enabled(enabled):
 def get_service_start_type():
     """Check the start type of the Kolibri Windows service."""
     service_name = SERVICE_NAME
-    try:
-        # Configure subprocess to run hidden (prevents console window flash)
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        startupinfo.wShowWindow = subprocess.SW_HIDE
+    scm_handle = None
+    service_handle = None
 
-        result = subprocess.run(
-            ["sc", "qc", service_name],
-            capture_output=True,
-            text=True,
-            check=True,
-            startupinfo=startupinfo,
+    try:
+        scm_handle = win32service.OpenSCManager(
+            None, None, win32service.SC_MANAGER_CONNECT
         )
-        for line in result.stdout.splitlines():
-            line = line.strip()
-            if line.startswith("START_TYPE"):
-                if "2   AUTO_START" in line:
-                    return "auto"
-                if "4   DISABLED" in line:
-                    return "disabled"
-        logging.warning("Could not determine service start type from 'sc qc' output.")
-        return "unknown"
-    except subprocess.CalledProcessError:
-        logging.info(f"Service '{service_name}' not found or 'sc' command failed.")
-        return "not_found"
-    except FileNotFoundError:
-        logging.error("Command 'sc' not found.")
-        return "not_found"
+
+        service_handle = win32service.OpenService(
+            scm_handle, service_name, win32service.SERVICE_QUERY_CONFIG
+        )
+
+        config = win32service.QueryServiceConfig(service_handle)
+        start_type = config[1]
+
+        if start_type == win32service.SERVICE_AUTO_START:
+            return "auto"
+        elif start_type == win32service.SERVICE_DISABLED:
+            return "disabled"
+        else:
+            return "unknown"
+
+    except pywintypes.error as e:
+        if e.winerror == winerror.ERROR_SERVICE_DOES_NOT_EXIST:
+            logging.info(f"Service '{service_name}' not found.")
+            return "not_found"
+        else:
+            logging.error(f"Failed to query service status for '{service_name}': {e}")
+            return "unknown"
+
+    finally:
+        if service_handle:
+            win32service.CloseServiceHandle(service_handle)
+        if scm_handle:
+            win32service.CloseServiceHandle(scm_handle)
 
 
 class KolibriTaskBarIcon(TaskBarIcon):
@@ -302,8 +311,8 @@ class KolibriTaskBarIcon(TaskBarIcon):
 
     def on_toggle_service_startup(self, event):
         """Handle toggling the service start type with a UAC prompt."""
-        is_checked = event.IsChecked()
-        new_state = "auto" if is_checked else "disabled"
+        is_auto_start_enabled = event.IsChecked()
+        new_state = "auto" if is_auto_start_enabled else "disabled"
 
         try:
             exe_path = sys.executable
@@ -314,15 +323,15 @@ class KolibriTaskBarIcon(TaskBarIcon):
                 params = f"-m kolibri_app --configure-service {new_state}"
                 exe_to_run = exe_path
 
-            ret = ctypes.windll.shell32.ShellExecuteW(
+            shell_execute_result = ctypes.windll.shell32.ShellExecuteW(
                 None, "runas", exe_to_run, params, None, 1
             )
 
-            if ret <= 32:
+            if shell_execute_result <= 32:
                 logging.error(
-                    f"Failed to elevate for service configuration. Code: {ret}"
+                    f"Failed to elevate for service configuration. Code: {shell_execute_result}"
                 )
-                event.GetEventObject().Check(not is_checked)
+                self.run_on_start_item.Check(not is_auto_start_enabled)
                 wx.MessageBox(
                     _("Administrator rights are required to change this setting."),
                     _("Error"),
@@ -331,31 +340,31 @@ class KolibriTaskBarIcon(TaskBarIcon):
                 return
 
             # Schedule verification and tray icon configuration
-            wx.CallLater(3000, self.verify_service_change, is_checked)
+            wx.CallLater(3000, self.verify_service_change, is_auto_start_enabled)
 
         except (OSError, PermissionError) as e:
             logging.error(f"Error trying to change service startup: {e}")
-            event.GetEventObject().Check(not is_checked)
+            self.run_on_start_item.Check(not is_auto_start_enabled)
             wx.MessageBox(
                 _("An error occurred while changing the service setting: {}").format(e),
                 _("Error"),
                 wx.OK | wx.ICON_ERROR,
             )
 
-    def verify_service_change(self, was_checked):
+    def verify_service_change(self, is_auto_start_enabled):
         """Check if the service start type was updated and notify the user."""
         new_start_type = get_service_start_type()
-        expected_state = "auto" if was_checked else "disabled"
+        expected_state = "auto" if is_auto_start_enabled else "disabled"
 
         if new_start_type == expected_state:
-            status_translated = _("enabled") if was_checked else _("disabled")
+            status_translated = _("enabled") if is_auto_start_enabled else _("disabled")
             self.show_notification(
                 _("Kolibri Service Updated"),
                 _("Automatic startup has been {}.").format(status_translated),
             )
         else:
             # Revert the checkbox if the operation failed
-            self.run_on_start_item.Check(not was_checked)
+            self.run_on_start_item.Check(not is_auto_start_enabled)
             self.show_notification(
                 _("Kolibri Service Error"),
                 _("Failed to update the service startup setting."),
