@@ -88,7 +88,7 @@ jobs:
   exe:
     name: Build EXE file
     needs: whl
-    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.8
+    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.9
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       release: true
