@@ -16,55 +16,36 @@
     >
       <div :class="scale !== minScale ? $computedClass(btnHoverStyle) : ''">
         <KIconButton
-          ref="zoomOutBtn"
           icon="remove"
           :color="$themeTokens.surface"
           size="small"
           :aria-label="$tr('zoomOut')"
+          :tooltip="$tr('zoomOut')"
           :disabled="scale === minScale"
           @click="zoomImage('out')"
         />
-        <!-- Use KTooltip separately because KIconButton's tooltip goes underneath backdrop -->
-        <KTooltip
-          reference="zoomOutBtn"
-          :refs="$refs"
-        >
-          {{ $tr('zoomOut') }}
-        </KTooltip>
       </div>
       <div :class="scale !== maxScale ? $computedClass(btnHoverStyle) : ''">
         <KIconButton
-          ref="zoomInBtn"
           icon="add"
           :color="$themeTokens.surface"
           size="small"
           :aria-label="$tr('zoomIn')"
+          :tooltip="$tr('zoomIn')"
           :disabled="scale === maxScale"
           autofocus
           @click="zoomImage('in')"
         />
-        <KTooltip
-          reference="zoomInBtn"
-          :refs="$refs"
-        >
-          {{ $tr('zoomIn') }}
-        </KTooltip>
       </div>
       <div :class="$computedClass(btnHoverStyle)">
         <KIconButton
-          ref="closeBtn"
           icon="close"
           :color="$themeTokens.surface"
           size="small"
           :aria-label="$tr('close')"
+          :tooltip="$tr('close')"
           @click="closeLightbox"
         />
-        <KTooltip
-          reference="closeBtn"
-          :refs="$refs"
-        >
-          {{ $tr('close') }}
-        </KTooltip>
       </div>
     </div>
     <img
