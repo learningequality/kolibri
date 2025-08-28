@@ -111,13 +111,14 @@ jobs:
       run: |
         $baseName = (Get-ChildItem -Path dist-installer -Filter *.exe).BaseName
         $unsignedName = "$baseName-unsigned.exe"
-        $finalName = "$baseName.exe"
+        # The final name depends on whether this is a release build
+        $finalName = if ('${{ inputs.release }}' -eq 'true') { "$baseName.exe" } else { $unsignedName }
         # Rename the built file to have the "-unsigned" suffix
         Rename-Item -Path "dist-installer\$baseName.exe" -NewName $unsignedName
         echo "unsigned-exe-file-name=$unsignedName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
         echo "final-exe-file-name=$finalName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
-    - name: Sign files with Azure Trusted Signing
+    - name: Sign installer with Azure Trusted Signing
       if: ${{ inputs.release }}
       uses: azure/trusted-signing-action@v0
       with:
@@ -134,9 +135,10 @@ jobs:
         timestamp-digest: 'SHA256'
 
     - name: Prepare Final Artifact
+      if: ${{ inputs.release }}
       shell: pwsh
       run: |
-        # Always rename the file from "-unsigned.exe" to its final name before uploading.
+        # Only for a release, rename the file from "-unsigned.exe" to its final name after signing.
         Rename-Item -Path "dist-installer\${{ steps.get-exe-filename.outputs.unsigned-exe-file-name }}" -NewName "${{ steps.get-exe-filename.outputs.final-exe-file-name }}"
 
     - name: Upload installer artifact
