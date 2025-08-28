@@ -191,11 +191,13 @@
         loading.value = true;
         const membershipsPromise = MembershipResource.fetchCollection({
           getParams: { user_ids: Array.from(props.selectedUsers).join(',') },
+          force: true,
         });
         const userModelsPromise = FacilityUserResource.fetchCollection({
           getParams: {
             by_ids: Array.from(props.selectedUsers).join(','),
           },
+          force: true,
         });
         try {
           const [membershipsData, userModels] = await Promise.all([
