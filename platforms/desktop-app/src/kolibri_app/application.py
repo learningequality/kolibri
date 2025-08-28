@@ -15,7 +15,7 @@ from kolibri_app.view import KolibriView
 if WINDOWS:
     from kolibri_app.server_manager_windows import WindowsServerManager as ServerManager
     from kolibri_app.taskbar_icon import KolibriTaskBarIcon
-    from kolibri_app.taskbar_icon import is_webview2_installed
+    from kolibri_app.windows_registry import is_webview2_installed
     import win32con
     import win32gui
     import ctypes

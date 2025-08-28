@@ -11,7 +11,6 @@ import ctypes
 import os
 import sys
 import webbrowser
-import winreg
 from importlib.resources import files
 
 import pywintypes
@@ -23,81 +22,16 @@ from wx.adv import TaskBarIcon
 from kolibri_app.constants import APP_NAME
 from kolibri_app.constants import SERVICE_NAME
 from kolibri_app.constants import TRAY_ICON_ICO
-from kolibri_app.constants import WEBVIEW2_RUNTIME_GUID
 from kolibri_app.i18n import _
 from kolibri_app.logger import logging
+from kolibri_app.windows_registry import is_ui_startup_enabled
+from kolibri_app.windows_registry import is_webview2_installed
+from kolibri_app.windows_registry import set_ui_startup_enabled
 
 DEFAULT_NOTIFICATION_TIMEOUT = 5
 
 VERIFICATION_MAX_RETRIES = 15
 VERIFICATION_RETRY_INTERVAL_MS = 1000
-
-
-def is_webview2_installed():
-    """Check if WebView2 runtime is installed on the system."""
-    try:
-        # Check for WebView2 runtime in registry
-        with winreg.OpenKey(
-            winreg.HKEY_LOCAL_MACHINE,
-            rf"SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{WEBVIEW2_RUNTIME_GUID}",
-        ) as key:
-            winreg.QueryValueEx(key, "pv")
-            return True
-    except (FileNotFoundError, OSError):
-        try:
-            # Alternative registry path for 64-bit
-            with winreg.OpenKey(
-                winreg.HKEY_LOCAL_MACHINE,
-                rf"SOFTWARE\Microsoft\EdgeUpdate\Clients\{WEBVIEW2_RUNTIME_GUID}",
-            ) as key:
-                winreg.QueryValueEx(key, "pv")
-                return True
-        except (FileNotFoundError, OSError):
-            return False
-
-
-def get_startup_registry_key():
-    """Get the Windows startup registry key for current user."""
-    return winreg.OpenKey(
-        winreg.HKEY_CURRENT_USER,
-        r"Software\Microsoft\Windows\CurrentVersion\Run",
-        0,
-        winreg.KEY_ALL_ACCESS,
-    )
-
-
-def is_ui_startup_enabled():
-    """Check if Kolibri UI is set to open on startup."""
-    try:
-        with get_startup_registry_key() as key:
-            winreg.QueryValueEx(key, f"{APP_NAME}_UI")
-            return True
-    except (FileNotFoundError, OSError):
-        return False
-
-
-def set_ui_startup_enabled(enabled):
-    """Enable or disable Kolibri UI startup on logon."""
-    try:
-        with get_startup_registry_key() as key:
-            if enabled:
-                exe_path = sys.executable
-                if getattr(sys, "frozen", False):
-                    # Running as PyInstaller bundle - launch with UI
-                    startup_cmd = f'"{exe_path}"'
-                else:
-                    # Running in development
-                    startup_cmd = f'"{exe_path}" -m kolibri_app'
-
-                winreg.SetValueEx(key, f"{APP_NAME}_UI", 0, winreg.REG_SZ, startup_cmd)
-                logging.info("Enabled Kolibri UI startup on logon")
-            else:
-                winreg.DeleteValue(key, f"{APP_NAME}_UI")
-                logging.info("Disabled Kolibri UI startup on logon")
-            return True
-    except (FileNotFoundError, OSError) as e:
-        logging.error(f"Failed to modify UI startup setting: {e}")
-        return False
 
 
 def get_service_start_type():

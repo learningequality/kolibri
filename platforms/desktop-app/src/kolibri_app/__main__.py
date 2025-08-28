@@ -12,6 +12,7 @@ from kolibri_app.logger import logging
 
 if WINDOWS:
     from kolibri_app.server_process_windows import ServerProcess
+    from kolibri_app.windows_registry import update_tray_icon_startup
 
 
 def _configure_service_start_type(service_name, start_type):
@@ -57,37 +58,6 @@ def _configure_service_start_type(service_name, start_type):
             win32service.CloseServiceHandle(scm_handle)
 
 
-def _update_tray_icon_startup(new_state, service_name):
-    """Update tray icon startup registry entry."""
-    import winreg
-
-    try:
-        with winreg.OpenKey(
-            winreg.HKEY_LOCAL_MACHINE,
-            r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
-            0,
-            winreg.KEY_ALL_ACCESS,
-        ) as key:
-            if new_state == "auto":
-                # Add tray icon to system startup
-                exe_path = sys.executable
-                if getattr(sys, "frozen", False):
-                    tray_cmd = f'"{exe_path}" --tray-only'
-                else:
-                    tray_cmd = f'"{sys.executable}" -m kolibri_app --tray-only'
-                winreg.SetValueEx(key, "KolibriTray", 0, winreg.REG_SZ, tray_cmd)
-                logging.info("Added tray icon to system startup")
-            else:
-                # Remove tray icon from system startup
-                try:
-                    winreg.DeleteValue(key, "KolibriTray")
-                    logging.info("Removed tray icon from system startup")
-                except FileNotFoundError:
-                    pass  # Key doesn't exist, which is fine
-    except (OSError, PermissionError, winreg.error) as e:
-        logging.error(f"Failed to update tray icon startup: {e}")
-
-
 def run_service_command(new_state):
     """Executes sc commands to configure and optionally start the service."""
     service_name = SERVICE_NAME
@@ -97,7 +67,7 @@ def run_service_command(new_state):
 
     try:
         _configure_service_start_type(service_name, new_state)
-        _update_tray_icon_startup(new_state, service_name)
+        update_tray_icon_startup(new_state)
 
         logging.info("Service configuration successful.")
         return 0
