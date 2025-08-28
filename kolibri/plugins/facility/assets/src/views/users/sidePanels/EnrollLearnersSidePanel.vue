@@ -7,52 +7,49 @@
       @closePanel="closeSidePanel"
     >
       <template #header>
-        <h1>{{ enrollToClass$() }}</h1>
+        <h1 style="font-size: 20px">
+          {{ enrollUsersInClasses$({ num: selectedUsers.size }) }}
+        </h1>
       </template>
       <KCircularLoader v-if="loading" />
       <div v-else>
         <div
           v-if="showErrorWarning"
-          class="enroll-warning-label"
           :style="{ color: $themeTokens.error }"
+          class="warning-text"
         >
           <span>{{ defaultErrorMessage$() }}</span>
         </div>
-        <div class="enroll-warning-label">
-          <span>{{ numUsersYouHaveSelected$({ num: selectedUsers.size }) }}</span>
-        </div>
         <div
-          v-if="usersNotEnrolled > 0"
-          class="enroll-warning-label"
+          class="info-box"
+          :style="{ backgroundColor: $themePalette.grey.v_100 }"
         >
-          <KIcon
-            icon="warningIncomplete"
-            class="enroll-warning-icon"
-          />
-          <span>{{ numUsersNotEnrolled$({ num: usersNotEnrolled }) }}</span>
+          <div style="display: flex">
+            <KIcon
+              icon="infoOutline"
+              class="enroll-info-icon"
+            />
+            <template v-if="usersNotEnrolled > 0">
+              <div class="info-wrapper">
+                <span>
+                  {{ numUsersNotEnrolled$({ num: usersNotEnrolled }) }}
+                </span>
+                <span>{{ usersInClassNotAffected$() }}</span>
+              </div>
+            </template>
+            <template v-else>
+              <div class="info-wrapper">
+                <span>{{ usersInClassNotAffected$() }}</span>
+              </div>
+            </template>
+          </div>
         </div>
-        <div
-          v-if="classCoaches.length > 0"
-          class="enroll-warning-label"
+        <h2
+          id="enroll-in-selected-classes"
+          style="font-size: 16px"
         >
-          <KIcon
-            icon="warningIncomplete"
-            class="enroll-warning-icon"
-          />
-          <span>{{ numUsersCoaches$({ num: classCoaches.length }) }}</span>
-        </div>
-        <div
-          v-if="selectedUsers.size > 0"
-          class="enroll-warning-label"
-        >
-          <KIcon
-            icon="info"
-            :color="$themePalette.orange.v_400"
-            class="enroll-warning-icon"
-          />
-          <span>{{ usersInClassNotAffected$() }}</span>
-        </div>
-        <h2 id="enroll-in-selected-classes">{{ enrollInSelectedClasses$() }}</h2>
+          {{ SelectClassesLabel$() }}
+        </h2>
         <SelectableList
           v-model="selectedOptions"
           :options="classList"
@@ -103,14 +100,12 @@
 <script>
 
   import { useRoute } from 'vue-router/composables';
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
-  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import { UserKinds } from 'kolibri/constants';
   import groupBy from 'lodash/groupBy';
   import SelectableList from '../../common/SelectableList.vue';
   import useActionWithUndo from '../../../composables/useActionWithUndo';
@@ -126,31 +121,27 @@
     },
     mixins: [commonCoreStrings],
     setup(props) {
+      const loading = ref(false);
       const showErrorWarning = ref(false);
       const selectedOptions = ref([]);
-      const classCoaches = ref([]);
       const classLearners = ref([]);
-      const loading = ref(false);
-      const membershipsByUser = ref({});
+      const classMembershipsByUser = ref({});
       const createdMemberships = ref(null);
-
       const {
-        enrollToClass$,
-        numUsersNotEnrolled$,
-        usersInClassNotAffected$,
-        numUsersCoaches$,
-        searchForAClass$,
-        enrollInAllClasses$,
-        enrollInSelectedClasses$,
-        numUsersYouHaveSelected$,
-        enrollUndoneNotice$,
         enrollAction$,
         discardAction$,
         discardWarning$,
-        keepEditingAction$,
         discardChanges$,
-        defaultErrorMessage$,
+        searchForAClass$,
+        keepEditingAction$,
+        SelectClassesLabel$,
+        enrollUndoneNotice$,
+        enrollInAllClasses$,
         usersEnrolledNotice$,
+        defaultErrorMessage$,
+        numUsersNotEnrolled$,
+        enrollUsersInClasses$,
+        usersInClassNotAffected$,
       } = bulkUserManagementStrings;
 
       const route = useRoute();
@@ -186,31 +177,14 @@
 
       // Methods
       async function setClassUsers() {
-        classLearners.value = [];
-        classCoaches.value = [];
         loading.value = true;
-        const membershipsPromise = MembershipResource.fetchCollection({
-          getParams: { user_ids: Array.from(props.selectedUsers).join(',') },
-          force: true,
-        });
-        const userModelsPromise = FacilityUserResource.fetchCollection({
-          getParams: {
-            by_ids: Array.from(props.selectedUsers).join(','),
-          },
-          force: true,
-        });
         try {
-          const [membershipsData, userModels] = await Promise.all([
-            membershipsPromise,
-            userModelsPromise,
-          ]);
-          membershipsByUser.value = groupBy(membershipsData, 'user');
-          classLearners.value = Object.keys(membershipsByUser.value);
-          classCoaches.value = Array.from(
-            userModels
-              .filter(user => user.roles.some(role => role.kind.includes(UserKinds.COACH)))
-              .reduce((set, user) => set.add(user.id), new Set()),
-          );
+          const classMemberships = await MembershipResource.fetchCollection({
+            getParams: { user_ids: Array.from(props.selectedUsers).join(',') },
+            force: true,
+          });
+          classMembershipsByUser.value = groupBy(classMemberships, 'user');
+          classLearners.value = Object.keys(classMembershipsByUser.value);
         } finally {
           loading.value = false;
         }
@@ -219,7 +193,7 @@
       async function _enrollLearners() {
         loading.value = true;
         const enrollments = selectedOptions.value.flatMap(collection_id => {
-          const alreadyEnrolled = membershipsByUser.value;
+          const alreadyEnrolled = classMembershipsByUser.value;
           return Array.from(props.selectedUsers)
             .filter(
               userId => !(alreadyEnrolled[userId] || []).some(m => m.collection === collection_id),
@@ -263,29 +237,34 @@
         }
       }
 
+      onMounted(() => {
+        setClassUsers();
+      });
+
       return {
-        enrollToClass$,
-        numUsersNotEnrolled$,
-        usersInClassNotAffected$,
-        numUsersCoaches$,
-        searchForAClass$,
-        enrollInAllClasses$,
-        enrollInSelectedClasses$,
-        numUsersYouHaveSelected$,
-        defaultErrorMessage$,
+        // ref and computed properties
+        loading,
+        classList,
+        selectedOptions,
+        usersNotEnrolled,
+        showErrorWarning,
+        hasUnsavedChanges,
+
+        // translation functions
         enrollAction$,
         discardAction$,
         discardWarning$,
-        keepEditingAction$,
         discardChanges$,
-        showErrorWarning,
-        selectedOptions,
-        classCoaches,
-        loading,
-        classList,
-        usersNotEnrolled,
-        hasUnsavedChanges,
-        setClassUsers,
+        searchForAClass$,
+        keepEditingAction$,
+        SelectClassesLabel$,
+        enrollInAllClasses$,
+        defaultErrorMessage$,
+        numUsersNotEnrolled$,
+        enrollUsersInClasses$,
+        usersInClassNotAffected$,
+
+        // methods
         enrollLearners,
         closeSidePanel,
       };
@@ -307,9 +286,6 @@
     beforeRouteLeave(to, from, next) {
       this.$refs.closeConfirmationGuardRef?.beforeRouteLeave(to, from, next);
     },
-    created() {
-      this.setClassUsers();
-    },
   };
 
 </script>
@@ -317,28 +293,35 @@
 
 <style lang="scss" scoped>
 
-  .enroll-warning-icon {
-    position: relative;
-    top: 0.4em;
-    width: 1.5em;
-    height: 1.5em;
-    margin-right: 0.5em;
+  .info-box {
+    padding: 8px;
+    border-radius: 4px;
   }
 
-  .enroll-warning-label {
+  .enroll-info-icon {
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    margin-right: 4px;
+  }
+
+  .info-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+
+  .warning-text {
     margin-bottom: 10px;
+    margin-left: 5px;
   }
 
   .bottom-nav-container {
     display: flex;
     justify-content: flex-end;
     width: 100%;
-  }
-
-  .adjust-line-height {
-    // Override default global line-height of 1.15 to prevent
-    // scrollbars in KModal and add space for single-line content
-    line-height: 1.5;
   }
 
 </style>
