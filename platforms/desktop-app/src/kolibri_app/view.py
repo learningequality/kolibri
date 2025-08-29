@@ -11,9 +11,11 @@ from wx import html2
 from kolibri_app.constants import APP_NAME
 from kolibri_app.constants import LINUX
 from kolibri_app.constants import MAC
+from kolibri_app.constants import TRAY_ICON_ICO
 from kolibri_app.constants import WINDOWS
 from kolibri_app.i18n import _
 from kolibri_app.i18n import locale_info
+from kolibri_app.logger import logging
 
 LOADER_PAGE = "loading.html"
 
@@ -59,6 +61,14 @@ class KolibriView(object):
 
         self.view = wx.Frame(None, -1, APP_NAME, size=size)
         self.view.SetMinSize((350, 400))
+
+        # Set the window icon
+        if WINDOWS:
+            try:
+                icon_path = files("kolibri_app") / TRAY_ICON_ICO
+                self.view.SetIcon(wx.Icon(str(icon_path), wx.BITMAP_TYPE_ICO))
+            except (FileNotFoundError, wx.wxAssertionError, OSError) as e:
+                logging.warning(f"Failed to set window icon: {e}")
 
         if WINDOWS:
             backend = html2.WebViewBackendEdge
