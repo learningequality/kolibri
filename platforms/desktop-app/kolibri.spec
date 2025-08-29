@@ -63,6 +63,16 @@ def monkey_patched_entry_points(**params):
 metadata.entry_points = monkey_patched_entry_points
 """.format(entry_point_packages))
 
+datas_list = [
+    ('src/kolibri_app/assets', 'kolibri_app/assets'),
+] + locale_datas
+
+if sys.platform == "win32":
+    datas_list.extend([
+        ('src/kolibri_app/icons', 'kolibri_app/icons'),
+        ('nssm.exe', 'nssm')
+    ])
+
 binaries_list = []
 if sys.platform == "win32":
     dll_path = os.path.join(os.path.dirname(wx.__file__), 'WebView2Loader.dll')
@@ -78,7 +88,7 @@ a = Analysis(
     [os.path.join('src', 'kolibri_app', '__main__.py')],
     pathex=['kolibrisrc', os.path.join('kolibrisrc', 'kolibri', 'dist')],
     binaries=binaries_list,
-    datas=[('src/kolibri_app/assets', 'kolibri_app/assets')] + locale_datas,
+    datas=datas_list,
     hiddenimports=['_cffi_backend'],
     hookspath=['hooks'],
     runtime_hooks=['hooks/pyi_rth_kolibri.py', 'hooks/kolibri_plugins_entrypoints_hook.py'],
@@ -111,7 +121,7 @@ exe = EXE(
     codesign_identity=os.environ.get("MAC_CODESIGN_ID"),
     entitlements_file="build_config/entitlements.plist",
     console=False,
-    icon='icons/kolibri.ico'
+    icon='src/kolibri_app/icons/kolibri.ico'
 )
 
 coll = COLLECT(
@@ -130,7 +140,7 @@ if sys.platform == 'darwin':
     app = BUNDLE(
         coll,
         name="Kolibri.app",
-        icon="icons/kolibri.icns",
+        icon="src/kolibri_app/icons/kolibri.icns",
         bundle_identifier="org.learningequality.Kolibri",
         version=kolibri_version,
         info_plist={

@@ -76,6 +76,9 @@ build-mac-app:
 	test -f ${LIBPYTHON_FOLDER}/libpython3.10.dylib || ln -s ${LIBPYTHON_FOLDER}/libpython3.10m.dylib ${LIBPYTHON_FOLDER}/libpython3.10.dylib
 	$(MAKE) pyinstaller
 
+ifeq ($(OS),Windows_NT)
+pyinstaller: nssm
+endif
 pyinstaller: clean
 	mkdir -p logs
 	pip3 install .

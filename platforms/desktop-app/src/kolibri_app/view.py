@@ -60,7 +60,7 @@ class KolibriView(object):
         self.view = wx.Frame(None, -1, APP_NAME, size=size)
         self.view.SetMinSize((350, 400))
 
-        if WINDOWS and html2.WebView.IsBackendAvailable(html2.WebViewBackendEdge):
+        if WINDOWS:
             backend = html2.WebViewBackendEdge
         else:
             backend = html2.WebViewBackendDefault
@@ -212,8 +212,12 @@ class KolibriView(object):
         self.webview.ClearHistory()
 
     def OnClose(self, event):
-        self.shutdown()
-        event.Skip()
+        if WINDOWS:
+            # On Windows, just hide the window.
+            self.view.Hide()
+        else:
+            self.shutdown()
+            event.Skip()
 
     def OnBeforeLoad(self, event):
         if not self.app.should_load_url(event.URL):

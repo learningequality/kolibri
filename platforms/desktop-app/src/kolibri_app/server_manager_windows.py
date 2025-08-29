@@ -30,10 +30,12 @@ import win32con
 import win32file
 import win32job
 import win32pipe
+import win32service
 import winerror
 import wx
 from kolibri.utils.conf import KOLIBRI_HOME
 
+from kolibri_app.constants import SERVICE_NAME
 from kolibri_app.logger import logging
 
 
@@ -49,31 +51,28 @@ def is_service_running(service_name):
     Check if a Windows service is running.
     Returns True if the service is running, False otherwise.
     """
+    scm_handle = None
+    service_handle = None
     try:
-        # Hide console window that can flash when calling sc.exe
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        startupinfo.wShowWindow = subprocess.SW_HIDE
-
-        result = subprocess.run(
-            ["sc", "query", service_name],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            text=True,
-            check=True,
-            timeout=5,
-            startupinfo=startupinfo,
+        scm_handle = win32service.OpenSCManager(
+            None, None, win32service.SC_MANAGER_CONNECT
         )
-        return "STATE" in result.stdout and "RUNNING" in result.stdout
-    except (
-        subprocess.CalledProcessError,
-        subprocess.TimeoutExpired,
-        FileNotFoundError,
-    ):
-        # CalledProcessError: service doesn't exist
-        # TimeoutExpired: safety timeout
-        # FileNotFoundError: sc.exe not in PATH
+        service_handle = win32service.OpenService(
+            scm_handle, service_name, win32service.SERVICE_QUERY_STATUS
+        )
+
+        status = win32service.QueryServiceStatus(service_handle)
+        return status[1] == win32service.SERVICE_RUNNING
+
+    except pywintypes.error as e:
+        if e.winerror != winerror.ERROR_SERVICE_DOES_NOT_EXIST:
+            logging.error(f"Error checking service status for '{service_name}': {e}")
         return False
+    finally:
+        if service_handle:
+            win32service.CloseServiceHandle(service_handle)
+        if scm_handle:
+            win32service.CloseServiceHandle(scm_handle)
 
 
 class WindowsServerManager:
@@ -103,7 +102,7 @@ class WindowsServerManager:
             return
 
         # Service name defined in Inno Setup script
-        service_name = "Kolibri"
+        service_name = SERVICE_NAME
 
         # Start pipe client for communication with service or subprocess
         self.start_pipe_client()
@@ -320,11 +319,24 @@ class WindowsServerManager:
             self._setup_subprocess_logging()
             self._assign_process_to_job_object()
 
+            # Monitor the process for early failure
+            # Give it a moment to start, then check if it's still running
+            wx.CallLater(3000, self._check_server_process_health)
+
         except (OSError, subprocess.SubprocessError) as e:
             logging.error(f"Failed to launch server process: {e}", exc_info=True)
+            # Notify the app that server failed to start
+            wx.CallAfter(self.app.notify_server_failed)
             wx.MessageBox(
                 f"Failed to start Kolibri server: {e}", "Error", wx.OK | wx.ICON_ERROR
             )
+
+    def _check_server_process_health(self):
+        """Check if the server process is still running after initial startup."""
+        if self.server_process and self.server_process.poll() is not None:
+            # Process has terminated unexpectedly
+            logging.error("Server process terminated unexpectedly during startup")
+            wx.CallAfter(self.app.notify_server_failed)
 
     def _log_subprocess_output(self, pipe, pipe_name):
         """
