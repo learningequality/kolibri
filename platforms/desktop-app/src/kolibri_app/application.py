@@ -137,8 +137,11 @@ class KolibriApp(wx.App):
             if not view.IsShown():
                 view.Show()
 
-            # Always bring the window to the foreground.
+            # Use the "wx.STAY_ON_TOP" to forcefully bring the window to the foreground
+            style = view.GetWindowStyle()
+            view.SetWindowStyle(style | wx.STAY_ON_TOP)
             view.Raise()
+            view.SetWindowStyle(style)
         else:
             # No window exists, create one
             if self.kolibri_url:
