@@ -34,7 +34,7 @@ setup(
         "wxPython==4.2.2",
         "cryptography==45.0.6",
         "cffi==1.14.4",
-        "pywin32==310; sys_platform == 'win32'",
+        "pywin32==311; sys_platform == 'win32'",
     ],
     extras_require={"dev": ["pre-commit"]},
 )
