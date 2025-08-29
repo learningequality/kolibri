@@ -1,4 +1,4 @@
-.PHONY: clean get-whl install-whl clean-whl build-mac-app pyinstaller build-dmg compile-mo codesign-windows needs-version
+.PHONY: clean get-whl install-whl clean-whl build-mac-app pyinstaller build-dmg compile-mo needs-version
 
 ifeq ($(OS),Windows_NT)
     OSNAME := WIN32
@@ -140,23 +140,8 @@ else
 	@echo "Windows installer can only be built on Windows."
 endif
 
-# Code signing for the installer
-.PHONY: codesign-installer-windows
-codesign-installer-windows: build-installer-windows
-	$(MAKE) guard-WIN_CODESIGN_PFX
-	$(MAKE) guard-WIN_CODESIGN_PWD
-	$(MAKE) guard-WIN_CODESIGN_CERT
-	# MSYS_NO_PATHCONV=1 prevents Git Bash/MINGW from converting option flags (like /f, /p) into file paths.
-	MSYS_NO_PATHCONV=1 "C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe" sign /f ${WIN_CODESIGN_PFX} /p ${WIN_CODESIGN_PWD} /ac ${WIN_CODESIGN_CERT} /tr http://timestamp.ssl.trustwave.com /td SHA256 /fd SHA256 "dist-installer/kolibri-setup-$(KOLIBRI_VERSION).exe"
-
 compile-mo:
 	find src/kolibri_app/locales -name LC_MESSAGES -exec msgfmt {}/wxapp.po -o {}/wxapp.mo \;
-
-codesign-windows:
-	$(MAKE) guard-WIN_CODESIGN_PFX
-	$(MAKE) guard-WIN_CODESIGN_PWD
-	$(MAKE) guard-WIN_CODESIGN_CERT
-	C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe sign /f ${WIN_CODESIGN_PFX} /p ${WIN_CODESIGN_PWD} /ac ${WIN_CODESIGN_CERT} /tr http://timestamp.ssl.trustwave.com /td SHA256 /fd SHA256 dist/kolibri-${KOLIBRI_VERSION}.exe
 
 .PHONY: codesign-mac-app
 codesign-mac-app:

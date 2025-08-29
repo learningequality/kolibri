@@ -1,4 +1,4 @@
-name: Build DMG for PRs
+name: Build Packages for PRs
 
 on:
   pull_request:
@@ -30,9 +30,18 @@ jobs:
             const whlUrl = whlAsset.browser_download_url;
             return whlUrl;
 
+  # Build macOS DMG
   build_dmg:
     name: Build Unsigned DMG
     needs: latest_kolibri_release
     uses: ./.github/workflows/build_mac.yml
+    with:
+      whl-url: ${{ needs.latest_kolibri_release.outputs.whl-url }}
+
+  # Build Windows installer
+  build_exe:
+    name: Build Unsigned EXE
+    needs: latest_kolibri_release
+    uses: ./.github/workflows/build_windows.yml
     with:
       whl-url: ${{ needs.latest_kolibri_release.outputs.whl-url }}

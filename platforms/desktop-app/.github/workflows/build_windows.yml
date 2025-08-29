@@ -1,0 +1,148 @@
+name: Build Windows installer
+
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      whl-url:
+        description: 'URL for Kolibri whl file'
+        required: true
+      release:
+        description: 'Is this a release asset?'
+        required: false
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      whl-file-name:
+        required: false
+        type: string
+      whl-url:
+        required: false
+        type: string
+      ref:
+        description: 'A ref for this workflow to check out its own repo'
+        required: false
+        type: string
+      release:
+        description: 'Is this a release asset?'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      AZURE_TENANT_ID:
+        required: false
+      AZURE_CLIENT_ID:
+        required: false
+      AZURE_CLIENT_SECRET:
+        required: false
+    outputs:
+      exe-file-name:
+        description: "EXE file name"
+        value: ${{ jobs.build_exe.outputs.exe-file-name }}
+
+jobs:
+  build_exe:
+    name: Build EXE file
+    runs-on: windows-latest
+    outputs:
+      exe-file-name: ${{ steps.get-exe-filename.outputs.final-exe-file-name }}
+    steps:
+    - name: Validate whl reference inputs
+      if: ${{ (inputs.whl-file-name && inputs.whl-url) || (!inputs.whl-file-name && !inputs.whl-url) }}
+      run: |
+        echo "Must specify exactly one reference for the whl file to build the EXE with."
+        exit 1
+
+    - name: Check out code
+      uses: actions/checkout@v4
+      if: ${{ !inputs.ref }}
+
+    - name: Check out specific ref
+      uses: actions/checkout@v4
+      if: ${{ inputs.ref }}
+      with:
+        repository: learningequality/kolibri-app
+        ref: ${{ inputs.ref }}
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~\AppData\Local\pip\Cache
+        key: ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'build_requires.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install build dependencies
+      run: make dependencies
+
+    - name: Install wget and Inno Setup
+      run: choco install wget innosetup --no-progress
+
+    - name: Download and install the whl from URL
+      if: ${{ inputs.whl-url }}
+      run: make get-whl whl=${{ inputs.whl-url }}
+
+    - name: Download the whl from artifacts
+      if: ${{ inputs.whl-file-name }}
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.whl-file-name }}
+        path: whl
+
+    - name: Install whl from artifacts
+      if: ${{ inputs.whl-file-name }}
+      run: make install-whl whl=whl/${{ inputs.whl-file-name }}
+
+    - name: Build the application with PyInstaller
+      run: make pyinstaller
+
+    - name: Build the Windows installer
+      run: make build-installer-windows
+
+    - name: Get EXE filenames
+      id: get-exe-filename
+      shell: pwsh
+      run: |
+        $baseName = (Get-ChildItem -Path dist-installer -Filter *.exe).BaseName
+        $unsignedName = "$baseName-unsigned.exe"
+        # The final name depends on whether this is a release build
+        $finalName = if ('${{ inputs.release }}' -eq 'true') { "$baseName.exe" } else { $unsignedName }
+        # Rename the built file to have the "-unsigned" suffix
+        Rename-Item -Path "dist-installer\$baseName.exe" -NewName $unsignedName
+        echo "unsigned-exe-file-name=$unsignedName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+        echo "final-exe-file-name=$finalName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+    - name: Sign installer with Azure Trusted Signing
+      if: ${{ inputs.release }}
+      uses: azure/trusted-signing-action@v0
+      with:
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+        endpoint: 'https://wus2.codesigning.azure.net/'
+        trusted-signing-account-name: 'LE-Trusted-Signing-Acct'
+        certificate-profile-name: 'LE-Windows-Certificates'
+        files-folder: dist-installer
+        files-folder-filter: ${{ steps.get-exe-filename.outputs.unsigned-exe-file-name }}
+        file-digest: SHA256
+        timestamp-rfc3161: 'http://timestamp.acs.microsoft.com'
+        timestamp-digest: 'SHA256'
+
+    - name: Prepare Final Artifact
+      if: ${{ inputs.release }}
+      shell: pwsh
+      run: |
+        # Only for a release, rename the file from "-unsigned.exe" to its final name after signing.
+        Rename-Item -Path "dist-installer\${{ steps.get-exe-filename.outputs.unsigned-exe-file-name }}" -NewName "${{ steps.get-exe-filename.outputs.final-exe-file-name }}"
+
+    - name: Upload installer artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.get-exe-filename.outputs.final-exe-file-name }}
+        path: dist-installer/${{ steps.get-exe-filename.outputs.final-exe-file-name }}
