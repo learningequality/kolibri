@@ -12,7 +12,7 @@
     <div
       v-else
       class="safe-html-wrapper"
-      tabindex="0"
+      role="region"
       :aria-label="$tr('articleContent')"
     >
       <SafeHTML
