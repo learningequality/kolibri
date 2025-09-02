@@ -52,7 +52,15 @@ class LoggerAwareQueueHandler(QueueHandler):
                 )
                 record.exc_info = None
             if hasattr(record, "args"):
-                record.args = tuple(str(arg) for arg in record.args)
+                # Convert args to strings only if they aren't already pickle-safe
+                safe_args = []
+                for arg in record.args:
+                    # Keep numeric types as-is for format compatibility
+                    if isinstance(arg, (int, float, bool, type(None))):
+                        safe_args.append(arg)
+                    else:
+                        safe_args.append(str(arg))
+                record.args = tuple(safe_args)
 
         record = super().prepare(record)
         record._logger_name = self.logger_name

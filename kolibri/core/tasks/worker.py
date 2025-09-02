@@ -7,9 +7,17 @@ from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.utils import db_connection
 from kolibri.core.tasks.utils import InfiniteLoopThread
+from kolibri.utils.logger import setup_worker_logging
 from kolibri.utils.multiprocessing_compat import PoolExecutor
 
 logger = logging.getLogger(__name__)
+
+
+def _init_worker(log_queue):
+    """
+    Initialize worker process, setting up logging to use the given log queue.
+    """
+    setup_worker_logging(log_queue)
 
 
 def execute_job(
@@ -18,7 +26,6 @@ def execute_job(
     worker_process=None,
     worker_thread=None,
     worker_extra=None,
-    log_queue=None,
 ):
     """
     Call the function stored in the job.func.
@@ -41,7 +48,7 @@ def execute_job(
     django_connection.close()
 
 
-def execute_job_with_python_worker(job_id, log_queue=None):
+def execute_job_with_python_worker(job_id):
     """
     Call execute_job but additionally with the current host, process and thread information taken
     directly from python internals.
@@ -55,7 +62,6 @@ def execute_job_with_python_worker(job_id, log_queue=None):
         worker_host=socket.gethostname(),
         worker_process=str(os.getpid()),
         worker_thread=str(threading.get_ident()),
-        log_queue=log_queue,
     )
 
 
@@ -105,7 +111,11 @@ class Worker(object):
         self.workers.shutdown(wait=wait)
 
     def start_workers(self):
-        pool = PoolExecutor(max_workers=self.max_workers)
+        pool = PoolExecutor(
+            max_workers=self.max_workers,
+            initializer=_init_worker,
+            initargs=(self.log_queue,),
+        )
         return pool
 
     def handle_finished_future(self, future):
@@ -199,7 +209,6 @@ class Worker(object):
         future = self.workers.submit(
             execute_job_with_python_worker,
             job_id=job.job_id,
-            log_queue=self.log_queue,
         )
 
         # Check if the job ID already exists in the future_job_mapping dictionary
