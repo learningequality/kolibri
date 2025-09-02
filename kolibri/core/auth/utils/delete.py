@@ -29,6 +29,7 @@ from kolibri.core.auth.models import Role
 from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import LearnerDeviceStatus
+from kolibri.core.device.models import SyncQueue
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.exams.models import IndividualSyncableExam
@@ -399,6 +400,7 @@ def _get_user_related_models(user):
             Role.objects.filter(user_id_filter),
             Membership.objects.filter(user_id_filter),
             Bookmark.objects.filter(user_id_filter),
+            SyncQueue.objects.filter(user_id_filter),
             FacilityUser.objects.filter(id=user.id),
         ],
     )
