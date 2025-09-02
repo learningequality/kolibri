@@ -796,7 +796,7 @@ base_option_spec = {
     "Tasks": {
         "USE_WORKER_MULTIPROCESSING": {
             "type": "multiprocess_bool",
-            "default": False,
+            "default": True,
             "description": """
                 Whether to use Python multiprocessing for worker pools. If False, then it will use threading. This may be useful,
                 if running on a dedicated device with multiple cores, and a lot of asynchronous tasks get run.
