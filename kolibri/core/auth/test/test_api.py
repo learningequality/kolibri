@@ -2578,6 +2578,8 @@ class SetNonSpecifiedPasswordViewTestCase(APITestCase):
 
 
 class DeleteImportedUserTestCase(APITransactionTestCase):
+    databases = "__all__"
+
     def setUp(self):
         super().setUp()
         provision_device()
