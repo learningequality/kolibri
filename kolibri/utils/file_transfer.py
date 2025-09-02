@@ -119,6 +119,40 @@ class ChunkedFileDoesNotExist(Exception):
 CHUNK_SUFFIX = ".chunks"
 
 
+class TransferFileBase(BufferedIOBase, metaclass=ABCMeta):
+    """Abstract base class for file transfer destination objects."""
+
+    @property
+    @abstractmethod
+    def file_size(self):
+        pass
+
+    @file_size.setter
+    @abstractmethod
+    def file_size(self, value):
+        pass
+
+    @abstractmethod
+    def is_complete(self, start=None, end=None):
+        pass
+
+    @abstractmethod
+    def finalize_file(self):
+        pass
+
+    @abstractmethod
+    def delete(self):
+        pass
+
+    @abstractmethod
+    def md5_checksum(self):
+        pass
+
+    @abstractmethod
+    def ensure_writable(self):
+        pass
+
+
 class ChunkedFileDirectoryManager(object):
     """
     A class to manage all chunked files in a directory and all its descendant directories.
@@ -192,21 +226,35 @@ class ChunkedFileDirectoryManager(object):
         return self._do_file_eviction(chunked_file_stats, total_size - max_size)
 
 
-class ChunkedFile(BufferedIOBase):
+class ChunkedFile(TransferFileBase):
     # Set chunk size to 128KB
     chunk_size = 128 * 1024
 
-    def __init__(self, filepath):
+    def __init__(self, filepath, raise_if_empty=False, raise_if_exists=False):
         self.filepath = filepath
         self.chunk_dir = filepath + CHUNK_SUFFIX
-        mkdirp(self.chunk_dir, exist_ok=True)
-        self.cache_dir = os.path.join(self.chunk_dir, ".cache")
+        if raise_if_empty and not os.path.exists(self.chunk_dir):
+            raise FileNotFoundError("Chunked file does not exist")
+        if raise_if_exists and os.path.exists(self.filepath):
+            raise FileExistsError("File already exists at {}".format(self.filepath))
+        self._initialize()
         self.position = 0
         self._file_size = None
 
     def _open_cache(self):
         self._check_for_chunk_dir()
         return Cache(self.cache_dir)
+
+    def _initialize(self):
+        mkdirp(self.chunk_dir, exist_ok=True)
+        self.cache_dir = os.path.join(self.chunk_dir, ".cache")
+        self.position = 0
+
+    def ensure_writable(self):
+        try:
+            self._check_for_chunk_dir()
+        except ChunkedFileDoesNotExist:
+            self._initialize()
 
     @property
     def chunks_count(self):
@@ -462,6 +510,148 @@ class ChunkedFile(BufferedIOBase):
         return True
 
 
+class TransferFile(TransferFileBase):
+    """Simple file transfer class that writes directly to disk without chunking."""
+
+    # Match ChunkedFile chunk size for compatibility
+    chunk_size = 128 * 1024
+
+    def __init__(self, filepath):
+        self.filepath = filepath
+        self._file_size = None
+        self._file_obj = None
+        self._finalized = False
+        self._tmp_filepath = filepath + ".transfer"
+        self.hasher = hashlib.md5()
+        self._bytes_written = 0
+
+        # ensure the directories in the destination path exist
+        mkdirp(os.path.dirname(self.filepath), exist_ok=True)
+
+    @property
+    def file_size(self):
+        if self._file_size is None:
+            raise ValueError("file_size is not set")
+        return self._file_size
+
+    @file_size.setter
+    def file_size(self, value):
+        if not isinstance(value, int):
+            raise TypeError("file_size must be an integer")
+        self._file_size = value
+
+    def is_complete(self, start=None, end=None):
+        """For TransferFile, complete means we've written all expected bytes."""
+        if os.path.exists(self.filepath):
+            return True
+        if self._file_size is not None:
+            return self._bytes_written >= self._file_size
+        return False
+
+    def ensure_writable(self):
+        pass
+
+    def write(self, data):
+        """Write data to the transfer file."""
+        if self._file_obj is None:
+            self._file_obj = open(self._tmp_filepath, "wb")
+        self._file_obj.write(data)
+        self.hasher.update(data)
+        self._bytes_written += len(data)
+
+    def write_all(self, data_generator, progress_callback=None):
+        """Write all data from generator to file."""
+        for data in data_generator:
+            self.write(data)
+            if callable(progress_callback):
+                progress_callback(data)
+
+    def chunk_generator(self, data):
+        """Generate chunks from data (for compatibility with ChunkedFile interface)."""
+        return (
+            data[i : i + self.chunk_size] for i in range(0, len(data), self.chunk_size)
+        )
+
+    def finalize_file(self):
+        """Move temporary file to final destination."""
+        if self._finalized:
+            return
+        if self._file_obj:
+            self._file_obj.close()
+            self._file_obj = None
+        if os.path.exists(self._tmp_filepath):
+            replace(self._tmp_filepath, self.filepath)
+        self._finalized = True
+
+    def delete(self):
+        """Delete the transfer file and any temporary files."""
+        if self._file_obj:
+            self._file_obj.close()
+            self._file_obj = None
+        try:
+            os.remove(self._tmp_filepath)
+        except OSError:
+            pass
+        try:
+            os.remove(self.filepath)
+        except OSError:
+            pass
+
+    def md5_checksum(self):
+        """Return MD5 checksum from incremental hasher."""
+        return self.hasher.hexdigest()
+
+    def close(self):
+        """Close the file object."""
+        if self._file_obj:
+            self._file_obj.close()
+            self._file_obj = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+    def readable(self):
+        return False
+
+    def writable(self):
+        return True
+
+    def seekable(self):
+        return False
+
+    # Compatibility methods for ChunkedFile interface used by FileDownload
+    def get_next_missing_range(self, start=None, end=None, full_range=False):
+        """For TransferFile, if not complete, return the full range."""
+        if self.is_complete(start, end):
+            return None, None, None
+        # Return full file range as missing
+        range_start = start or 0
+        range_end = (
+            end if end is not None else (self._file_size - 1 if self._file_size else 0)
+        )
+        return (0,), range_start, range_end
+
+    @contextmanager
+    def lock_chunks(self, *chunk_indices):
+        """No-op context manager for compatibility."""
+        yield
+
+    def chunk_complete(self, chunk_index):
+        """For TransferFile, chunks don't exist - return based on file completion."""
+        return self.is_complete()
+
+    def all_chunks(self, *skip_chunks):
+        """Return empty generator since TransferFile doesn't use chunks."""
+        return iter([])
+
+    def write_chunks(self, chunks, data_generator, progress_callback=None):
+        """Write chunks - for TransferFile just write all data sequentially."""
+        self.write_all(data_generator, progress_callback)
+
+
 class Transfer(metaclass=ABCMeta):
     DEFAULT_TIMEOUT = 60
 
@@ -522,14 +712,6 @@ class Transfer(metaclass=ABCMeta):
     def run(self, progress_update=None):
         pass
 
-    @abstractmethod
-    def _move_tmp_to_dest(self):
-        pass
-
-    @abstractmethod
-    def delete(self):
-        pass
-
     def __enter__(self):
         self.start()
         return self
@@ -548,14 +730,13 @@ class Transfer(metaclass=ABCMeta):
         logger.info("Canceling import: {}".format(self.source))
         self.close()
         try:
-            self.delete()
+            self.dest_file_obj.delete()
         except OSError:
             pass
         self.canceled = True
 
-    @abstractmethod
     def _checksum_correct(self):
-        pass
+        return self.dest_file_obj.md5_checksum() == self.checksum
 
     def _verify_checksum(self):
         # If checksum of the destination file is different from the localfile
@@ -566,7 +747,7 @@ class Transfer(metaclass=ABCMeta):
             e = "File {} is corrupted.".format(self.source)
             logger.error("An error occurred during content import: {}".format(e))
             try:
-                self.delete()
+                self.dest_file_obj.delete()
             except OSError:
                 pass
             raise TransferFailed(
@@ -586,7 +767,7 @@ class Transfer(metaclass=ABCMeta):
             return
 
         self._verify_checksum()
-        self._move_tmp_to_dest()
+        self.dest_file_obj.finalize_file()
         self.finalized = True
 
     def close(self):
@@ -639,14 +820,24 @@ class FileDownload(Transfer):
             source, dest, checksum=checksum, cancel_check=cancel_check
         )
 
-        self._initialize_chunked_file()
+        self._initialize_dest_file()
 
-    def _initialize_chunked_file(self):
-        self.dest_file_obj = ChunkedFile(self.dest)
-
+    def _set_completed(self):
         self.completed = self.dest_file_obj.is_complete(
             start=self.range_start, end=self.range_end
         )
+
+    def _initialize_dest_file(self):
+        try:
+            self.dest_file_obj = ChunkedFile(
+                self.dest,
+                raise_if_empty=self.full_ranges,
+                raise_if_exists=self.full_ranges,
+            )
+        except FileNotFoundError:
+            # No chunked file exists, use TransferFile for direct download
+            self.dest_file_obj = TransferFile(self.dest)
+        self._set_completed()
 
     def set_range(self, range_start, range_end):
         if range_start is not None and not isinstance(range_start, int):
@@ -673,6 +864,10 @@ class FileDownload(Transfer):
             self.transfer_size = value
 
     @property
+    def chunked_file_download(self):
+        return isinstance(self.dest_file_obj, ChunkedFile)
+
+    @property
     def finalize_download(self):
         return (
             self._finalize_download
@@ -684,20 +879,6 @@ class FileDownload(Transfer):
         if not self.finalize_download:
             return
         return super(FileDownload, self).finalize()
-
-    def _move_tmp_to_dest(self):
-        try:
-            self.dest_file_obj.finalize_file()
-            self.dest_file_obj.delete()
-        except FileNotFoundError as e:
-            if not os.path.exists(self.dest):
-                raise e
-
-    def delete(self):
-        self.dest_file_obj.delete()
-
-    def _checksum_correct(self):
-        return self.dest_file_obj.md5_checksum() == self.checksum
 
     def _catch_exception_and_retry(func):
         def inner(self, *args, **kwargs):
@@ -717,7 +898,7 @@ class FileDownload(Transfer):
                         logger.error(
                             "Error writing to chunked file, retrying: {}".format(e)
                         )
-                        self._initialize_chunked_file()
+                        self._initialize_dest_file()
                         self._headers_set = False
                         self._set_headers()
                     logger.info(
@@ -733,10 +914,11 @@ class FileDownload(Transfer):
 
     @_catch_exception_and_retry
     def run(self, progress_update=None):
+        self._set_completed()
         if not self.completed:
             try:
                 self._run_download(progress_update=progress_update)
-            except ChunkedFileDoesNotExist:
+            except (ChunkedFileDoesNotExist, ValueError):
                 # If the chunked file does not exist, we need to start from the beginning
                 # unless a simultaneous download has already completed the file.
                 if not os.path.exists(self.dest):
@@ -759,19 +941,7 @@ class FileDownload(Transfer):
         self.transfer_size = header_info["transfer_size"]
         self._headers_set = True
 
-    def _set_headers(self):
-        if self._headers_set:
-            return
-
-        response = self.session.head(
-            self.source, timeout=self.timeout, allow_redirects=True
-        )
-        response.raise_for_status()
-
-        if response.url != self.source:
-            logger.debug("Redirected from {} to {}".format(self.source, response.url))
-            self.source = response.url
-
+    def _set_transfer_info_from_response(self, response):
         self.compressed = bool(response.headers.get("content-encoding", ""))
 
         self.content_length_header = "content-length" in response.headers
@@ -786,6 +956,21 @@ class FileDownload(Transfer):
             if gcs_content_length:
                 self.transfer_size = int(gcs_content_length)
         self._headers_set = True
+
+    def _set_headers(self):
+        if self._headers_set or not self.chunked_file_download:
+            return
+
+        response = self.session.head(
+            self.source, timeout=self.timeout, allow_redirects=True
+        )
+        response.raise_for_status()
+
+        if response.url != self.source:
+            logger.debug("Redirected from {} to {}".format(self.source, response.url))
+            self.source = response.url
+
+        self._set_transfer_info_from_response(response)
 
     @_catch_exception_and_retry
     def start(self):
@@ -821,6 +1006,7 @@ class FileDownload(Transfer):
                     data_generator = response.iter_content(
                         self.dest_file_obj.chunk_size
                     )
+                    self.dest_file_obj.ensure_writable()
                     if range_response_supported:
                         self.dest_file_obj.write_chunks(
                             chunk_indices,
@@ -848,22 +1034,21 @@ class FileDownload(Transfer):
                 )
 
     def _run_no_byte_range_download(self, progress_callback):
-        with self.dest_file_obj.lock_chunks(self.dest_file_obj.all_chunks()):
-            response = self.session.get(self.source, stream=True, timeout=self.timeout)
-            response.raise_for_status()
-            generator = response.iter_content(self.dest_file_obj.chunk_size)
-            self.dest_file_obj.write_all(generator, progress_callback=progress_callback)
-
-    def _run_no_byte_range_download_no_total_size(self, progress_callback):
         response = self.session.get(self.source, stream=True, timeout=self.timeout)
         response.raise_for_status()
-        # Doing this exhausts the iterator, so if we need to do this, we need
-        # to return the dummy iterator below, as the iterator will be empty,
-        # and all content is now stored in memory. So we should avoid doing this as much
-        # as we can, hence the total size check before this function is invoked.
-        self.total_size = len(response.content)
-        with self.dest_file_obj.lock_chunks(self.dest_file_obj.all_chunks()):
+        if not self._headers_set:
+            self._set_transfer_info_from_response(response)
+        if not self.total_size:
+            # Doing this exhausts the iterator, so if we need to do this, we need
+            # to return the dummy iterator below, as the iterator will be empty,
+            # and all content is now stored in memory. So we should avoid doing this as much
+            # as we can, hence the total size check before this function is invoked.
+            self.total_size = len(response.content)
             generator = self.dest_file_obj.chunk_generator(response.content)
+        else:
+            generator = response.iter_content(self.dest_file_obj.chunk_size)
+        self.dest_file_obj.ensure_writable()
+        with self.dest_file_obj.lock_chunks(self.dest_file_obj.all_chunks()):
             self.dest_file_obj.write_all(generator, progress_callback=progress_callback)
 
     def _run_download(self, progress_update=None):
@@ -879,12 +1064,18 @@ class FileDownload(Transfer):
         # from their Accept-Ranges header. So we need to check if the server supports range requests
         # by trying to make a range request, and if it fails, we need to fall back to the old
         # behavior of downloading the whole file.
-        if self.content_length_header and not self.compressed:
+        # We also only bother doing byte range downloads if we are writing to a ChunkedFile,
+        # as there is no point in doing byte range requests if we are downloading to a single
+        # file anyway.
+        byte_range_download = (
+            self.content_length_header
+            and not self.compressed
+            and isinstance(self.dest_file_obj, ChunkedFile)
+        )
+        if byte_range_download:
             self._run_byte_range_download(progress_callback)
-        elif self.total_size:
-            self._run_no_byte_range_download(progress_callback)
         else:
-            self._run_no_byte_range_download_no_total_size(progress_callback)
+            self._run_no_byte_range_download(progress_callback)
 
     def close(self):
         if hasattr(self, "response"):
@@ -898,30 +1089,12 @@ class FileCopy(Transfer):
             raise AssertionError(
                 "File copy has already been started, and cannot be started again"
             )
-        self.dest_tmp = self.dest + ".transfer"
-        if os.path.isfile(self.dest_tmp):
-            try:
-                os.remove(self.dest_tmp)
-            except OSError:
-                pass
-        self.dest_file_obj = open(self.dest_tmp, "wb")
+        self.dest_file_obj = TransferFile(self.dest)
         self.total_size = os.path.getsize(self.source)
         self.transfer_size = self.total_size
+        self.dest_file_obj.file_size = self.total_size
         self.source_file_obj = open(self.source, "rb")
         self.started = True
-        self.hasher = hashlib.md5()
-
-    def _move_tmp_to_dest(self):
-        replace(self.dest_tmp, self.dest)
-
-    def delete(self):
-        try:
-            os.remove(self.dest_tmp)
-        except OSError:
-            pass
-
-    def _checksum_correct(self):
-        return self.hasher.hexdigest() == self.checksum
 
     def run(self, progress_update=None):
         while True:
@@ -930,7 +1103,6 @@ class FileCopy(Transfer):
             if not block:
                 break
             self.dest_file_obj.write(block)
-            self.hasher.update(block)
             if callable(progress_update):
                 progress_update(len(block))
         self.complete_close_and_finalize()

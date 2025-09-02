@@ -180,7 +180,9 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         self.source = "http://example.com/testfile"
         self.set_session_mock()
 
-    def _assert_request_calls(self, start_range=0, end_range=None):
+    def _assert_request_calls(
+        self, start_range=0, end_range=None, chunked_file_exists=True
+    ):
         end_range = end_range or self.file_size - 1
         first_download_chunk = start_range // ChunkedFile.chunk_size
         last_download_chunk = end_range // ChunkedFile.chunk_size
@@ -203,20 +205,34 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
                 collapsed_chunks.append((start, end))
             download_chunks = collapsed_chunks
 
-        calls = [
-            call(
-                self.source,
-                headers={
-                    "Range": "bytes={}-{}".format(
-                        i * ChunkedFile.chunk_size,
-                        min(j * ChunkedFile.chunk_size, self.file_size) - 1,
-                    )
-                },
-                stream=True,
-                timeout=60,
-            )
-            for i, j in download_chunks
-        ]
+        calls = []
+
+        unchunked_download = (
+            self.full_ranges
+            and len(download_chunks) == 1
+            and download_chunks[0] == (0, last_download_chunk + 1)
+        )
+
+        for i, j in download_chunks:
+            if unchunked_download and not chunked_file_exists:
+                download_call = call(
+                    self.source,
+                    stream=True,
+                    timeout=60,
+                )
+            else:
+                download_call = call(
+                    self.source,
+                    headers={
+                        "Range": "bytes={}-{}".format(
+                            i * ChunkedFile.chunk_size,
+                            min(j * ChunkedFile.chunk_size, self.file_size) - 1,
+                        )
+                    },
+                    stream=True,
+                    timeout=60,
+                )
+            calls.append(download_call)
 
         if not self.byte_range_support:
             if self.attempt_byte_range:
@@ -266,6 +282,32 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         self._assert_downloaded_content()
         self.assertEqual(self.mock_session.head.call_count, 0)
         self.assertEqual(self.mock_session.get.call_count, 0)
+
+    def test_download_run_no_existing_chunked_file(self):
+        """Test downloading entire file when no chunked file exists"""
+        # Create a fresh destination without any chunked file setup
+        fresh_dest = self.destdir + "/fresh_file_{}".format(self.num_files + 100)
+
+        with FileDownload(
+            self.source,
+            fresh_dest,
+            self.checksum,
+            session=self.mock_session,
+            full_ranges=self.full_ranges,
+        ) as fd:
+            fd.run()
+
+        # Verify file was downloaded correctly
+        with open(fresh_dest, "rb") as f:
+            downloaded_content = f.read()
+        self.assertEqual(downloaded_content, self.content)
+
+        # For entire file download with no existing chunked file,
+        # and full ranges set should skip HEAD request and download directly
+        self.assertEqual(
+            self.mock_session.head.call_count, 0 if self.full_ranges else 1
+        )
+        self._assert_request_calls(chunked_file_exists=False)
 
     def test_download_checksum_validation(self):
         # Test FileDownload checksum validation
@@ -498,14 +540,23 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
                 session=self.mock_session,
                 full_ranges=self.full_ranges,
             ) as fd1:
+                chunked_file_download = fd1.chunked_file_download
                 fd1.run()
             fd2.run()
         self._assert_downloaded_content()
+        if self.byte_range_support and not self.full_ranges and chunked_file_download:
+            expected_calls = self.chunks_count
+        elif (
+            not self.byte_range_support
+            and self.full_ranges
+            and not chunked_file_download
+        ):
+            expected_calls = 2
+        else:
+            expected_calls = 1
         self.assertEqual(
             self.mock_session.get.call_count,
-            self.chunks_count
-            if self.byte_range_support and not self.full_ranges
-            else 1,
+            expected_calls,
         )
         self._assert_request_calls()
 
@@ -528,7 +579,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             if self.byte_range_support and not self.full_ranges
             else 1,
         )
-        self._assert_request_calls()
+        self._assert_request_calls(chunked_file_exists=False)
 
 
 class TestTransferNoFullRangesDownloadByteRangeSupport(
