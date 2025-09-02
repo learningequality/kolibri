@@ -282,6 +282,10 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
             # Allow for two open file descriptors per download:
             # The temporary download file that the file is streamed to initially, and then
             # the actual destination file that it is moved to.
+            # Note that with the possibility of a chunked file download,
+            # the true number of file descriptors used may be higher,
+            # but this is unlikely to be a problem in practice, and we build in extra tolerance
+            # in the fd_safe_executor max worker calculation.
             with fd_safe_executor(fds_per_task=2) as executor:
                 self.executor = executor
                 batch_size = 100
@@ -392,8 +396,27 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         )
 
         self.session = requests.Session()
+        # Because we create the executor in the run method, we need to track
+        # we need to mount the adapter in the create_file_transfer method
+        # so that we can introspect the executor to configure the pool correctly.
+        self._adapter_mounted = False
+
+    def _mount_adapter(self):
+        if not self._adapter_mounted:
+            # If we are using a ThreadPoolExecutor, then we need to make sure
+            # that the requests session has enough connections to handle
+            # the number of threads.
+            max_workers = self.executor._max_workers
+            adapter = requests.adapters.HTTPAdapter(
+                pool_connections=max_workers,
+                pool_maxsize=max_workers,
+            )
+            self.session.mount("http://", adapter)
+            self.session.mount("https://", adapter)
+            self._adapter_mounted = True
 
     def create_file_transfer(self, f, filename, dest):
+        self._mount_adapter()
         url = paths.get_content_storage_remote_url(filename, baseurl=self.baseurl)
         return transfer.FileDownload(
             url,

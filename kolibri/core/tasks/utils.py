@@ -358,12 +358,16 @@ def fd_safe_executor(fds_per_task=2):
         else concurrent.futures.ThreadPoolExecutor
     )
 
-    max_workers = 10
+    max_workers = 50
 
-    if not use_multiprocessing:
-        # If we're not using multiprocessing for workers, we may need
-        # to limit the number of workers depending on the number of allowed
-        # file descriptors.
+    # We may need to limit the number of workers depending
+    # on the number of allowed file descriptors.
+
+    if conf.OPTIONS["Tasks"]["USE_WORKER_MULTIPROCESSING"]:
+        # If we are using multiprocessing, then file descriptors are not shared.
+        # So we can use all the available file descriptors for this task.
+        max_descriptors_per_task = get_fd_limit()
+    else:
         # This is a heuristic method, where we know there can be issues if
         # the max number of file descriptors for a process is 256, and we use 10
         # workers, with potentially 4 concurrent tasks downloading files.
@@ -376,12 +380,11 @@ def fd_safe_executor(fds_per_task=2):
         max_descriptors_per_task = (
             get_fd_limit() - server_reserved_fd_count
         ) / conf.OPTIONS["Tasks"]["REGULAR_PRIORITY_WORKERS"]
-        # Each task only needs to have a maximum of `fds_per_task` open file descriptors at once.
-        # To add tolerance, we divide the number of file descriptors that could be allocated to
-        # this task by double this number which should give us leeway in case of unforeseen
-        # descriptor use during the process.
-        max_workers = min(
-            max_workers, max(1, max_descriptors_per_task // (fds_per_task * 2))
-        )
-
+    # Each task only needs to have a maximum of `fds_per_task` open file descriptors at once.
+    # To add tolerance, we divide the number of file descriptors that could be allocated to
+    # this task by 1.5 times this number which should give us leeway in case of unforeseen
+    # descriptor use during the process.
+    max_workers = min(
+        max_workers, max(1, max_descriptors_per_task // (fds_per_task * 2))
+    )
     return executor(max_workers=max_workers)
