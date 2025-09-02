@@ -557,7 +557,7 @@
           const isTourStarted = this.resumeTour(this.userId, 'LibraryPage');
           if (isTourStarted) {
             setTimeout(() => {
-              this.startTour();
+              this.startTour('LibraryPage');
             }, 3000);
           }
         }

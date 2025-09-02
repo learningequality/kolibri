@@ -23,8 +23,7 @@
   import tippy from 'tippy.js';
   import Vue from 'vue';
   import { onboardingSteps } from 'kolibri/utils/onboardingSteps';
-  import TooltipContent from './TooltipContent.vue';
-  import useTour from '../../composables/useTour';
+  import useTour from 'kolibri/composables/useTour';
   import useUser from '../../../kolibri/composables/useUser';
   import TooltipContent from './TooltipContent.vue';
 
