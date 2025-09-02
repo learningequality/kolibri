@@ -140,10 +140,23 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             )
 
 
+class MembershipListSerializer(serializers.ListSerializer):
+    def create(self, validated_data):
+        created_objects = []
+
+        for model_data in validated_data:
+            obj, created = Membership.objects.get_or_create(**model_data)
+            if created:
+                created_objects.append(obj)
+
+        return created_objects
+
+
 class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membership
         fields = ("id", "collection", "user")
+        list_serializer_class = MembershipListSerializer
 
     def save(self, **kwargs):
         try:
