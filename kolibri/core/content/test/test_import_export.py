@@ -1125,7 +1125,10 @@ class ImportContentTestCase(TestCase):
             2201062 + 336974,
         )
         get_free_space_mock.side_effect = [100000000000, 0, 0, 0, 0, 0, 0]
-        with self.assertRaises(InsufficientStorageSpaceError):
+        # Ensure single threaded operation for deterministic testing
+        with patch(
+            "kolibri.core.tasks.utils.get_fd_limit", return_value=1
+        ), self.assertRaises(InsufficientStorageSpaceError):
             manager = RemoteChannelResourceImportManager(self.the_channel_id)
             manager.run()
         self.annotation_mock.set_content_visibility.assert_called_with(
@@ -1466,7 +1469,9 @@ class ImportContentTestCase(TestCase):
             10,
         )
         manager = RemoteChannelResourceImportManager(self.the_channel_id)
-        manager.run()
+        # Ensure single threaded operation for deterministic testing
+        with patch("kolibri.core.tasks.utils.get_fd_limit", return_value=1):
+            manager.run()
         self.annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [
