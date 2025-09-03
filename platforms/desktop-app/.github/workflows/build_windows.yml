@@ -55,11 +55,11 @@ jobs:
         exit 1
 
     - name: Check out code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       if: ${{ !inputs.ref }}
 
     - name: Check out specific ref
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       if: ${{ inputs.ref }}
       with:
         repository: learningequality/kolibri-app
@@ -90,7 +90,7 @@ jobs:
 
     - name: Download the whl from artifacts
       if: ${{ inputs.whl-file-name }}
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: ${{ inputs.whl-file-name }}
         path: whl
