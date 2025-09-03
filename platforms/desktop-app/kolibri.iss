@@ -153,17 +153,6 @@ begin
   end
   else
     Log('Legacy application uninstall key not found. No cleanup needed.');
-
-  // Clean up legacy desktop shortcut, if it exists.
-  if FileExists(ExpandConstant('{commondesktop}\Kolibri.lnk')) then
-  begin
-    Log('Deleting legacy desktop shortcut...');
-    if DeleteFile(ExpandConstant('{commondesktop}\Kolibri.lnk')) then
-        Log('Successfully deleted legacy desktop shortcut.')
-    else
-        Log('WARNING: Failed to delete legacy desktop shortcut.');
-  end;
-
   Log('Forceful legacy cleanup finished.');
 end;
 
