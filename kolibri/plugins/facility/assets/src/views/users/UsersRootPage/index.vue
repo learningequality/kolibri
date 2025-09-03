@@ -111,7 +111,6 @@
           :onBlur="onModalBlur"
           :onChange="onChange"
           @clearSelection="clearSelectedUsers"
-          @hook:beforeDestroy="selectedUsers = new Set()"
         />
 
         <!-- Modals -->

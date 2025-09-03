@@ -123,7 +123,7 @@
       CloseConfirmationGuard,
     },
     mixins: [commonCoreStrings],
-    setup(props) {
+    setup(props, { emit }) {
       const loading = ref(false);
       const showErrorWarning = ref(false);
       const selectedOptions = ref([]);
@@ -221,6 +221,7 @@
         props.onChange({
           affectedClasses: selectedOptions.value,
         });
+        emit('clearSelection');
         goBack();
         return true;
       }

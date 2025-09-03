@@ -124,7 +124,7 @@
       SelectableList,
       CloseConfirmationGuard,
     },
-    setup(props) {
+    setup(props, { emit }) {
       const selectedClasses = ref([]); // Array of selected class IDs
       const isLoading = ref(false);
       const showErrorWarning = ref(false);
@@ -270,6 +270,7 @@
       });
 
       function closeSidePanel() {
+        emit('clearSelection');
         goBack();
       }
 
