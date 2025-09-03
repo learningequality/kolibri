@@ -205,6 +205,7 @@
       });
 
       const selectedUsers = ref(new Set());
+      const currentUserId = store.getters.currentUserId;
 
       const showUsersTable = computed(
         () =>
@@ -269,6 +270,7 @@
         noNewUsersLabel$,
         addNewUserLabel$,
         noNewUsersDescription$,
+        currentUserId,
       };
     },
     computed: {
