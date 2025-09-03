@@ -370,12 +370,32 @@
           node: this.content,
           lessonId: this.lessonId,
           repeat,
-        }).then(() => {
-          this.sessionReady = true;
-          this.wasComplete = this.progress >= 1;
-          // Set progress into the content node progress store in case it was not already loaded
-          this.cacheProgress();
-        });
+        })
+          .then(() => {
+            this.sessionReady = true;
+            this.wasComplete = this.progress >= 1;
+            // Set progress into the content node progress store in case it was not already loaded
+            this.cacheProgress();
+          })
+          .catch(error => {
+            if (
+              error.response &&
+              error.response.status === 400 &&
+              error.response.data &&
+              error.response.data.includes('Invalid lesson_id')
+            ) {
+              this.$router.replace({ ...this.$route, query: null });
+              return this.initContentSession({
+                node: this.content,
+                repeat,
+              }).then(() => {
+                this.sessionReady = true;
+                this.wasComplete = this.progress >= 1;
+                this.cacheProgress();
+              });
+            }
+            throw error;
+          });
       },
       repeat() {
         this.stopTracking().then(() => {
