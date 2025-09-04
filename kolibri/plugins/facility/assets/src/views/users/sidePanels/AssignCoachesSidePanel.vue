@@ -215,6 +215,7 @@
           props.onChange({
             affectedClasses: selectedClasses.value,
           });
+          emit('clearSelection');
           closeSidePanel();
           return true;
         } catch (error) {
@@ -270,7 +271,6 @@
       });
 
       function closeSidePanel() {
-        emit('clearSelection');
         goBack();
       }
 
