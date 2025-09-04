@@ -2,7 +2,6 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.learningequality.Kolibri"
     android:installLocation="auto"
     >
 
@@ -38,7 +37,6 @@
         android:theme="@android:style/Theme.NoTitleBar"
         android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true"
-        android:extractNativeLibs="true"
         >
 
 
@@ -82,14 +80,14 @@
             android:name="androidx.work.multiprocess.RemoteWorkManagerService"
             android:process="@string/task_worker_process"
             android:exported="true"
-            tools:replace="android:process, android:exported"
+            tools:replace="android:exported"
             />
 
         <service
             android:name="androidx.work.impl.background.systemjob.SystemJobService"
             android:process="@string/task_worker_process"
             android:exported="true"
-            tools:replace="android:process, android:exported"
+            tools:replace="android:exported"
             />
 
         <service
