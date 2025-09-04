@@ -50,7 +50,7 @@
             id="enroll-in-selected-classes"
             style="font-size: 16px"
           >
-            {{ SelectClassesLabel$() }}
+            {{ selectClassesLabel$() }}
           </h2>
           <SelectableList
             v-model="selectedOptions"
@@ -137,7 +137,7 @@
         discardChanges$,
         searchForAClass$,
         keepEditingAction$,
-        SelectClassesLabel$,
+        selectClassesLabel$,
         enrollUndoneNotice$,
         enrollInAllClasses$,
         usersEnrolledNotice$,
@@ -184,6 +184,7 @@
         try {
           const classMemberships = await MembershipResource.fetchCollection({
             getParams: { user_ids: Array.from(props.selectedUsers).join(',') },
+            force: true,
           });
           classMembershipsByUser.value = groupBy(classMemberships, 'user');
           classLearners.value = Object.keys(classMembershipsByUser.value);
@@ -259,7 +260,7 @@
         discardChanges$,
         searchForAClass$,
         keepEditingAction$,
-        SelectClassesLabel$,
+        selectClassesLabel$,
         enrollInAllClasses$,
         defaultErrorMessage$,
         numUsersNotEnrolled$,

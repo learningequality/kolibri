@@ -50,7 +50,7 @@
             id="remove-from-selected-classes"
             style="font-size: 16px"
           >
-            {{ SelectClassesLabel$() }}
+            {{ selectClassesLabel$() }}
           </h2>
           <SelectableList
             v-model="selectedOptions"
@@ -147,7 +147,7 @@
         removeUsersFromClassesHeading$,
         usersNotInClasses$,
         removeFromAllClassesLabel$,
-        SelectClassesLabel$,
+        selectClassesLabel$,
         removeAction$,
         usersRemovedNotice$,
         undoUsersRemovedMessage$,
@@ -323,7 +323,7 @@
         discardChanges$,
         usersNotInClasses$,
         removeFromAllClassesLabel$,
-        SelectClassesLabel$,
+        selectClassesLabel$,
         removeAction$,
 
         // methods

@@ -62,7 +62,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Apply filters',
     context: 'Label for the button that applies the selected filters',
   },
-  SelectClassesLabel: {
+  selectClassesLabel: {
     message: 'Select classes',
     context: 'Heading label for selecting classes in side panels',
   },

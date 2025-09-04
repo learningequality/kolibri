@@ -157,6 +157,10 @@ class MembershipSerializer(serializers.ModelSerializer):
         model = Membership
         fields = ("id", "collection", "user")
         list_serializer_class = MembershipListSerializer
+        validators = []
+
+    def validate(self, attrs):
+        return attrs
 
     def save(self, **kwargs):
         try:

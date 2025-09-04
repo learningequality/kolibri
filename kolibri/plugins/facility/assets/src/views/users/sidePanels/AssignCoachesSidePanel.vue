@@ -47,7 +47,7 @@
             </template>
           </div>
 
-          <h2>{{ SelectClassesLabel$() }}</h2>
+          <h2>{{ selectClassesLabel$() }}</h2>
           <SelectableList
             v-model="selectedClasses"
             :options="formattedClasses"
@@ -153,7 +153,7 @@
         keepEditingAction$,
         discardChanges$,
         numUsersNotEligible$,
-        SelectClassesLabel$,
+        selectClassesLabel$,
         assignUsersHeading$,
         assignToAllClasses$,
       } = bulkUserManagementStrings;
@@ -281,7 +281,7 @@
         usersInClassNotAffected$,
         assignAction$,
         searchForAClass$,
-        SelectClassesLabel$,
+        selectClassesLabel$,
         handleAssign,
         closeSidePanel,
         discardAction$,
