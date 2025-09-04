@@ -160,6 +160,7 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import { UserKinds } from 'kolibri/constants';
+  import useUser from 'kolibri/composables/useUser';
   import useUserManagement from '../../composables/useUserManagement';
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
   import { PageNames } from '../../constants';
@@ -205,7 +206,7 @@
       });
 
       const selectedUsers = ref(new Set());
-      const currentUserId = store.getters.currentUserId;
+      const { currentUserId } = useUser();
 
       const showUsersTable = computed(
         () =>
