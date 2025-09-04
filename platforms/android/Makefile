@@ -17,8 +17,9 @@ else
 	PLATFORM := linux
 endif
 
-ANDROID_API := 33
-ANDROIDNDKVER := 25.2.9519653
+ANDROID_API := 35
+ANDROIDNDKVER := 28.2.13676358
+SDKMANAGER_VERSION := 13114758
 
 ifdef ANDROID_SDK_ROOT
 else
@@ -191,19 +192,19 @@ logcat:
 
 $(SDK)/cmdline-tools/latest/bin/sdkmanager:
 	@echo "Downloading Android SDK command line tools"
-	wget https://dl.google.com/android/repository/commandlinetools-$(PLATFORM)-9477386_latest.zip
+	wget https://dl.google.com/android/repository/commandlinetools-$(PLATFORM)-${SDKMANAGER_VERSION}_latest.zip
 	rm -rf cmdline-tools
-	unzip commandlinetools-$(PLATFORM)-9477386_latest.zip -d $(SDK)
+	unzip commandlinetools-$(PLATFORM)-${SDKMANAGER_VERSION}_latest.zip -d $(SDK)
 	mv $(SDK)/cmdline-tools $(SDK)/latest
 	mkdir -p $(SDK)/cmdline-tools
 	mv $(SDK)/latest $(SDK)/cmdline-tools/latest
-	rm commandlinetools-$(PLATFORM)-9477386_latest.zip
+	rm commandlinetools-$(PLATFORM)-${SDKMANAGER_VERSION}_latest.zip
 
 sdk: $(SDK)/cmdline-tools/latest/bin/sdkmanager
 	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "platform-tools"
 	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "platforms;android-$(ANDROID_API)"
 	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "system-images;android-$(ANDROID_API);default;x86_64"
-	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "build-tools;30.0.3"
+	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "build-tools;35.0.0"
 	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "ndk;$(ANDROIDNDKVER)"
 	ln -sfT ndk/$(ANDROIDNDKVER) $(SDK)/ndk-bundle
 	@echo "Accepting all licenses"
