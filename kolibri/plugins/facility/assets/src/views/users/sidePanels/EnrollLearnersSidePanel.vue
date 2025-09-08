@@ -103,7 +103,7 @@
 <script>
 
   import { useRoute } from 'vue-router/composables';
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
@@ -192,6 +192,7 @@
           loading.value = false;
         }
       }
+      setClassUsers();
 
       async function _enrollLearners() {
         loading.value = true;
@@ -239,10 +240,6 @@
           await MembershipResource.deleteCollection({ by_ids: ids });
         }
       }
-
-      onMounted(() => {
-        setClassUsers();
-      });
 
       return {
         // ref and computed properties
