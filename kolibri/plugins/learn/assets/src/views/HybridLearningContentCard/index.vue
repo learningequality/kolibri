@@ -51,7 +51,7 @@
         >
           <KTextTruncator
             :text="contentNode.title"
-            :maxLines="1"
+            :maxLines="titleMaxLines(contentNode)"
           />
         </h3>
         <KButton
@@ -120,6 +120,15 @@
       },
       channelTitle() {
         return this.getChannelTitle(this.contentNode && this.contentNode.channel_id);
+      },
+    },
+    methods: {
+      titleMaxLines() {
+        // All content cards now display up to 3 lines of title text.
+        // Previously, the number of lines varied based on whether the card
+        // displayed a description, but since descriptions are no longer shown,
+        // we  are  now using 3 lines for all cards for consistency.
+        return 3;
       },
     },
   };
