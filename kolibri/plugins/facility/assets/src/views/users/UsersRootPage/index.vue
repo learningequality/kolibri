@@ -168,7 +168,7 @@
         enrollToClass$,
         removeFromClass$,
         deleteSelection$,
-        canNotdeletSelfTooltip$,
+        cannotDeleteSelfTooltip$,
       } = bulkUserManagementStrings;
 
       const { $store, $router } = getCurrentInstance().proxy;
@@ -227,7 +227,7 @@
         enrollToClass$,
         removeFromClass$,
         deleteSelection$,
-        canNotdeletSelfTooltip$,
+        cannotDeleteSelfTooltip$,
         selectedUsers,
         currentUserId,
         isSuperuser,
@@ -285,10 +285,7 @@
         return this.facilityUsers
           .filter(user => this.selectedUsers.has(user.id))
           .some(user => {
-            const isSuperuser =
-              user.kind === UserKinds.SUPERUSER ||
-              user.kind === 'superuser' ||
-              user.is_superuser === true;
+            const isSuperuser = user.kind === UserKinds.SUPERUSER || user.is_superuser === true;
             return isSuperuser;
           });
       },
@@ -303,7 +300,7 @@
       },
       deleteSelectionTooltip() {
         if (this.listContainsLoggedInUser) {
-          return this.canNotdeletSelfTooltip$();
+          return this.cannotDeleteSelfTooltip$();
         }
         return this.deleteSelection$();
       },
