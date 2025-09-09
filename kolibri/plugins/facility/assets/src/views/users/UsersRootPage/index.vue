@@ -57,44 +57,43 @@
             <component
               :is="canAssignCoaches ? 'router-link' : 'span'"
               :to="overrideRoute($route, { name: PageNames.ASSIGN_COACHES_SIDE_PANEL })"
-              :class="{ 'disabled-link': !canAssignCoaches }"
+              :class="{ 'disabled-link': !canAssignCoaches || !hasSelectedUsers }"
             >
               <KIconButton
                 icon="assignCoaches"
                 :ariaLabel="assignCoach$()"
                 :tooltip="assignCoach$()"
-                :disabled="!canAssignCoaches"
+                :disabled="!canAssignCoaches || !hasSelectedUsers"
               />
             </component>
             <component
               :is="canEnrollOrRemoveFromClass ? 'router-link' : 'span'"
               :to="overrideRoute($route, { name: PageNames.ENROLL_LEARNERS_SIDE_PANEL })"
-              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
+              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass || !hasSelectedUsers }"
             >
               <KIconButton
                 icon="add"
                 :ariaLabel="enrollToClass$()"
                 :tooltip="enrollToClass$()"
-                :disabled="!canEnrollOrRemoveFromClass"
+                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
               />
             </component>
             <component
               :is="canEnrollOrRemoveFromClass ? 'router-link' : 'span'"
               :to="overrideRoute($route, { name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL })"
-              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
+              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass || !hasSelectedUsers }"
             >
               <KIconButton
                 icon="remove"
                 :ariaLabel="removeFromClass$()"
                 :tooltip="removeFromClass$()"
-                :disabled="!canEnrollOrRemoveFromClass"
+                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
               />
             </component>
             <KIconButton
               icon="trash"
-              :ariaLabel="deleteSelection$()"
-              :tooltip="deleteSelection$()"
-              :disabled="!hasSelectedUsers || listContainsLoggedInUser"
+              :tooltip="deleteSelectionTooltip"
+              :disabled="!canDeleteSelection || !hasSelectedUsers"
               @click="isMoveToTrashModalOpen = true"
             />
           </template>
@@ -283,7 +282,6 @@
       },
       hasSelectedSuperusers() {
         if (!this.hasSelectedUsers || !this.facilityUsers) return false;
-
         return this.facilityUsers
           .filter(user => this.selectedUsers.has(user.id))
           .some(user => {
@@ -296,14 +294,18 @@
       },
       canDeleteSelection() {
         if (!this.hasSelectedUsers) return false;
-
         if (this.listContainsLoggedInUser) return false;
         if (this.isSuperuser) return true;
         if (this.isAdmin) {
           return !this.hasSelectedSuperusers;
         }
-
         return false;
+      },
+      deleteSelectionTooltip() {
+        if (this.listContainsLoggedInUser) {
+          return this.canNotdeletSelfTooltip$();
+        }
+        return this.deleteSelection$();
       },
     },
     methods: {
@@ -315,12 +317,6 @@
             params: { facility_id: this.$store.getters.activeFacilityId },
           });
         }
-      },
-      deleteSelectionTooltip() {
-        if (this.listContainsLoggedInUser) {
-          return this.canNotdeletSelfTooltip$();
-        }
-        return this.deleteSelection$();
       },
     },
   };

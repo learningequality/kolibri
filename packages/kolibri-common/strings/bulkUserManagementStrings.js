@@ -123,7 +123,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Remove selected users',
     context: 'Label for bulk-action button that will allow user to delete selected users',
   },
-  canNotdeletSelfTooltip: {
+  cannotDeleteSelfTooltip: {
     message: 'You cannot delete your self.',
     context:
       'Tooltip text that appears when a admin and supper admin  attempts to delete their own account from the user management table.',
