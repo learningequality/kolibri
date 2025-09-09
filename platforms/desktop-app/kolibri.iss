@@ -476,6 +476,24 @@ begin
       // Remove from startup if exists
       RegDeleteValue(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', 'KolibriTray');
     end;
+
+    // Handle the desktop icon based on user selection during upgrades/repairs.
+    if not WizardIsTaskSelected('desktopicon') then
+    begin
+      if FileExists(ExpandConstant('{commondesktop}\Kolibri.lnk')) then
+      begin
+        Log('User opted not to create a desktop icon. Removing existing shortcut.');
+        if DeleteFile(ExpandConstant('{commondesktop}\Kolibri.lnk')) then
+            Log('Successfully removed the old desktop shortcut.')
+        else
+            Log('WARNING: Failed to delete the old desktop shortcut.');
+      end;
+    end
+    else
+    begin
+        // If the user checked the box, the [Icons] section will create/overwrite it.
+        Log('User opted to create a desktop icon. The [Icons] section will manage it.');
+    end;
   end;
 end;
 
