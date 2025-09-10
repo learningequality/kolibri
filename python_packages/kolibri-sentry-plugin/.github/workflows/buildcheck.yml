@@ -26,14 +26,14 @@ jobs:
         if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       - name: Set up Python 3.9
         if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: 3.9
           cache: 'pip'
           cache-dependency-path: setup.py
       - name: Set up NodeJS
         if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 18
           cache: 'yarn'
