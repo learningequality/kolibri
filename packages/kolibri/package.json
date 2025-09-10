@@ -78,7 +78,7 @@
     "vuex"
   ],
   "dependencies": {
-    "@vueuse/core": "^11.3.0",
+    "@vueuse/core": "^13.9.0",
     "axios": "^1.11.0",
     "fontfaceobserver": "^2.3.0",
     "frame-throttle": "^3.0.0",
