@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Get latest Kolibri release
         id: get_latest_kolibri_release
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           result-encoding: string
           script: |
