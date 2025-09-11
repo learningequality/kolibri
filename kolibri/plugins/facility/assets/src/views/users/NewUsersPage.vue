@@ -181,8 +181,8 @@
     setup() {
       usePreviousRoute();
       const route = useRoute();
-      const usersTableRef = ref(null);
       const { currentUserId, isSuperuser, isAdmin } = useUser();
+      const usersTableRef = ref(null);
       const isMoveToTrashModalOpen = ref(false);
 
       const activeFacilityId = route.params.facility_id || store.getters.activeFacilityId;
