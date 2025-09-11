@@ -175,8 +175,8 @@
     <MoveToTrashModal
       v-if="modalShown === Modals.DELETE_USER"
       :selectedUsers="userToChangeSet"
+      :onUsersChange="event => $emit('change', event)"
       @close="closeModal"
-      @change="$emit('change', { resetSelection: true })"
     />
   </div>
 
