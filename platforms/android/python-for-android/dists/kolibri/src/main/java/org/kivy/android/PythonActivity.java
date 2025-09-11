@@ -32,7 +32,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 
 import android.widget.AbsoluteLayout;
+import android.widget.FrameLayout;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowInsets;
+import android.view.View;
+import android.graphics.Insets;
 
 import android.webkit.WebBackForwardList;
 import android.webkit.WebViewClient;
@@ -177,7 +181,6 @@ public class PythonActivity extends Activity {
             String unencodedHtml = PythonActivity.mActivity.getString(R.string.loading_page_html);
             String encodedHtml = Base64.encodeToString(unencodedHtml.getBytes(), Base64.NO_PADDING);
             mWebView.loadData(encodedHtml, "text/html", "base64");
-            mWebView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
             mWebView.setWebViewClient(new WebViewClient() {
                     @Override
                     public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -200,8 +203,46 @@ public class PythonActivity extends Activity {
 
                     }
                 });
-            mLayout = new AbsoluteLayout(PythonActivity.mActivity);
-            mLayout.addView(mWebView);
+
+            // Handle edge-to-edge insets only on Android 15+ (API 35+) where edge-to-edge is enforced
+            if (android.os.Build.VERSION.SDK_INT >= 35) {
+                // Use FrameLayout for Android 15+ to properly support margins for edge-to-edge
+                mLayout = new FrameLayout(PythonActivity.mActivity);
+
+                // Set WebView with FrameLayout params that support margins
+                FrameLayout.LayoutParams webViewParams = new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+                );
+                mWebView.setLayoutParams(webViewParams);
+                mLayout.addView(mWebView);
+
+                mLayout.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+                    @Override
+                    public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+                        // Get system bar insets using the Android 11+ API
+                        android.graphics.Insets systemBarsInsets = insets.getInsets(WindowInsets.Type.systemBars());
+
+                        // Apply margins to the WebView to avoid system bars
+                        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mWebView.getLayoutParams();
+                        params.leftMargin = systemBarsInsets.left;
+                        params.topMargin = systemBarsInsets.top;
+                        params.rightMargin = systemBarsInsets.right;
+                        params.bottomMargin = systemBarsInsets.bottom;
+                        mWebView.setLayoutParams(params);
+
+                        // Return the insets unchanged to allow other views to also handle them
+                        return insets;
+                    }
+                });
+                // Enable edge-to-edge but handle insets properly
+                mLayout.setFitsSystemWindows(false);
+            } else {
+                // For older Android versions, use the original AbsoluteLayout setup
+                mLayout = new AbsoluteLayout(PythonActivity.mActivity);
+                mWebView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+                mLayout.addView(mWebView);
+            }
 
             setContentView(mLayout);
 

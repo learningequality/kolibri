@@ -23,7 +23,7 @@ public class PythonUtil {
     // We read this directly from the VERSION_CODE,
     // so that any upgrade of the app causes the Python
     // code to be extracted again.
-    private static final String PrivateVersion = Integer.toString(BuildConfig.VERSION_CODE);
+    private static final String PrivateVersion = BuildConfig.VERSION_CODE;
 
     protected static void addLibraryIfExists(ArrayList<String> libsList, String pattern, File libsDir) {
         // pattern should be the name of the lib file, without the

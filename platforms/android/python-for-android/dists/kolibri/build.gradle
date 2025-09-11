@@ -2,20 +2,17 @@
 buildscript {
     repositories {
        google()
-       jcenter()
+       mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.2'
+        classpath 'com.android.tools.build:gradle:8.13.0'
     }
 }
 
 allprojects {
     repositories {
         google()
-        jcenter()
-        flatDir {
-            dirs 'libs'
-        }
+        mavenCentral()
     }
 }
 
@@ -24,7 +21,9 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdk 34
+    namespace = 'org.learningequality.Kolibri'
+    compileSdkVersion = 35
+    buildToolsVersion = "35.0.0"
     def versionPropsFile = file('version.properties')
     Properties versionProps = new Properties()
 
@@ -45,21 +44,23 @@ android {
     def nameNoDebug = name.replace("-debug", "")
 
     defaultConfig {
-        minSdkVersion 23
-        targetSdk 34
-        versionCode code
-        versionName name
+        minSdkVersion = 23
+        targetSdk = 35
+        versionCode = code
+        versionName = name
         manifestPlaceholders = [:]
-        multiDexEnabled true
+        multiDexEnabled = true
         setProperty("archivesBaseName", "kolibri-$nameNoDebug")
+        buildConfigField "String", "VERSION_CODE", "\"${code.toString()}\""
     }
 
     packagingOptions {
         jniLibs {
             useLegacyPackaging = true
         }
-        exclude 'lib/**/gdbserver'
-        exclude 'lib/**/gdb.setup'
+        resources {
+            excludes += ['lib/**/gdbserver', 'lib/**/gdb.setup']
+        }
     }
 
     signingConfigs {
@@ -73,30 +74,32 @@ android {
 
     buildTypes {
         debug {
-            debuggable true
+            debuggable = true
         }
         release {
-            signingConfig signingConfigs.release
+            signingConfig = signingConfigs.release
         }
     }
 
     compileOptions {
 
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
 
     }
 
     sourceSets {
         main {
             jniLibs.srcDir 'libs'
-            java {
-                }
         }
     }
 
-    aaptOptions {
-        noCompress "tflite"
+
+    buildFeatures {
+        buildConfig = true
+    }
+    androidResources {
+        noCompress 'tflite'
     }
 
 }

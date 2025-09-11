@@ -6,7 +6,7 @@ Wraps Kolibri in an android-compatibility layer. Relies on Python-For-Android to
 
 1. Setup a Python virtual environment in which to do development. The Kolibri developer documentation has a [How To guide for doing this with pyenv](https://kolibri-dev.readthedocs.io/en/develop/howtos/pyenv_virtualenv.html) but any Python virtualenv should work.
 
-2. Ensure you have all [necessary packages for Python for Android](https://python-for-android.readthedocs.io/en/latest/quickstart/#installing-dependencies). Ensure you install java version 1.11, `sudo apt install openjdk-11-jdk` ,  and set it as the default java version: `sudo update-alternatives --auto javac` and `sudo update-alternatives --auto java`.
+2. Ensure you have all [necessary packages for Python for Android](https://python-for-android.readthedocs.io/en/latest/quickstart.html#installing-prerequisites). Ensure you install java version 1.17, `sudo apt install openjdk-17-jdk` ,  and set it as the default java version: `sudo update-alternatives --auto javac` and `sudo update-alternatives --auto java`.
 
 3. The `make setup` command will install the Android SDK and Android NDK.
 

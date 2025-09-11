@@ -20,7 +20,7 @@ locale_code_map = {
 
 XML_TEMPLATE = """
 <resources>
-    <string name="loading_page_html"><![CDATA[
+    <string name="loading_page_html" formatted="false"><![CDATA[
         {}
     ]]></string>
 </resources>
@@ -53,7 +53,7 @@ def generate_loading_pages(output_dir):
 def _find_string(lang, string):
     from kolibri.main import initialize
     from django.utils.translation import override
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
     from django.utils.translation import to_locale
 
     initialize(skip_update=True)
