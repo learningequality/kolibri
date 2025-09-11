@@ -5,7 +5,7 @@ from datetime import datetime
 from play_store_api import get_latest_version_code
 
 
-android_installer_version = "0.1.5"
+android_installer_version = "0.1.6"
 
 
 BUILD_TYPE_DEBUG = "debug"
