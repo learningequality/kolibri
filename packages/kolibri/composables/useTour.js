@@ -49,6 +49,7 @@ function completeTour() {
 function isTourCompleted() {
   return localStorage.getItem(TOUR_COMPLETE_KEY) === 'true';
 }
+
 function resumeTour(userId, page) {
   const progress = getTourProgress(userId);
   if ((progress && progress.isTourActive === false) || !progress) {
@@ -56,7 +57,8 @@ function resumeTour(userId, page) {
   }
   const pageKeys = Object.keys(onboardingSteps);
   const currentPageIndex = pageKeys.indexOf(page);
-  const welcomeDismissed = localStorage.getItem('DEVICE_WELCOME_MODAL_DISMISSED');
+  const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+  const welcomeDismissed = localStorage.getItem(`${welcomeDismissalKey}-${userId}`);
   const prevPage = currentPageIndex === 0 ? null : pageKeys[currentPageIndex - 1];
   const prevPageSteps = prevPage ? onboardingSteps[prevPage].steps : [];
   const isLastStepOfPrevPage = prevPageSteps && progress.stepIndex === prevPageSteps.length - 1;
@@ -78,6 +80,34 @@ function resumeTour(userId, page) {
   return false;
 }
 
+function waitForStepElements(page) {
+  return new Promise((resolve, reject) => {
+    const steps = onboardingSteps[page]?.steps || [];
+    if (!steps.length) {
+      return reject(new Error(`No steps found for page: ${page}`));
+    }
+
+    const allAvailable = () =>
+      steps.every(step => document.querySelector(`[data-onboarding-id="${step.key}"]`));
+
+    if (allAvailable()) {
+      return resolve(true);
+    }
+
+    const observer = new MutationObserver(() => {
+      if (allAvailable()) {
+        observer.disconnect();
+        resolve(true);
+      }
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+  });
+}
+
 export default function useTour() {
   return {
     tourActive,
@@ -91,5 +121,6 @@ export default function useTour() {
     tourActiveMap,
     resumeTour,
     currentStepIndex,
+    waitForStepElements,
   };
 }

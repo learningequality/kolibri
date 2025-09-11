@@ -266,8 +266,9 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { tourActive, isTourActive, startTour, endTour, resumeTour } = useTour();
-      const { isUserLoggedIn, isCoach, isAdmin, isSuperuser, isLearner, user_id } = useUser();
+      const { tourActive, isTourActive, startTour, endTour, resumeTour, waitForStepElements } =
+        useTour();
+      const { isUserLoggedIn, isCoach, isAdmin, isSuperuser, isLearner, currentUserId } = useUser();
 
       const { allowDownloadOnMeteredConnection } = useDeviceSettings();
       const {
@@ -434,7 +435,8 @@
         startTour,
         endTour,
         resumeTour,
-        userId: user_id,
+        currentUserId,
+        waitForStepElements,
       };
     },
     props: {
@@ -466,7 +468,7 @@
       welcomeModalVisible() {
         return (
           this.welcomeModalVisibleState &&
-          window.localStorage.getItem(`${welcomeDismissalKey}-${this.userId}`) !== 'true'
+          window.localStorage.getItem(`${welcomeDismissalKey}-${this.currentUserId}`) !== 'true'
         );
       },
       showOtherLibraries() {
@@ -543,11 +545,15 @@
       },
       loading(newVal, oldVal) {
         if (oldVal && !newVal) {
-          const isTourStarted = this.resumeTour(this.userId, 'LibraryPage');
+          const isTourStarted = this.resumeTour(this.currentUserId, 'LibraryPage');
           if (isTourStarted) {
-            setTimeout(() => {
-              this.startTour('LibraryPage');
-            }, 3000);
+            this.waitForStepElements('LibraryPage')
+              .then(() => {
+                this.startTour('LibraryPage');
+              })
+              .catch(error => {
+                this.$store.dispatch('handleApiError', { error });
+              });
           }
         }
       },
@@ -555,7 +561,9 @@
     created() {
       const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
-      if (window.sessionStorage.getItem(`${welcomeDismissalKey}-${this.userId}`) !== 'true') {
+      if (
+        window.sessionStorage.getItem(`${welcomeDismissalKey}-${this.currentUserId}`) !== 'true'
+      ) {
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
       }
 
@@ -573,7 +581,7 @@
     },
     methods: {
       hideWelcomeModal() {
-        window.localStorage.setItem(`${welcomeDismissalKey}-${this.userId}`, true);
+        window.localStorage.setItem(`${welcomeDismissalKey}-${this.currentUserId}`, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
         this.startTour('LibraryPage');
       },
