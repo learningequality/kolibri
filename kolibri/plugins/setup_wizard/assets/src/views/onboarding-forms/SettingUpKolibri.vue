@@ -212,29 +212,45 @@
       async pollProvisionTask() {
         try {
           const tasks = await TaskResource.list({ queue: PROVISION_TASK_QUEUE });
-          const [task] = tasks || [];
+          const task = tasks[tasks.length - 1]; // Get the most recent task
           if (!task) {
             throw new Error('Device provisioning task not found');
           }
           if (task.status === TaskStatuses.COMPLETED) {
             const facilityId = task.extra_metadata.facility_id;
+
             // Taking the username from the task extra metadata in case the superuser was created
             // from the OS user.
             const username = task.extra_metadata.username;
+
+            // Taking the auth token and superuser ID from the task extra metadata in case
+            // the superuser was imported, and we don't have a password for them. In this case,
+            // the auth token will allow us to log them in.
+            const authToken = task.extra_metadata.auth_token;
+            const superuserId = task.extra_metadata.superuser_id;
+
             this.clearPollingTasks();
             this.wrapOnboarding();
             if (this.deviceProvisioningData.superuser || this.userBasedOnOs) {
               const { password } = this.deviceProvisioningData.superuser || {};
-              return this.kolibriLogin({
-                facilityId,
+              const error = await this.kolibriLogin({
+                facility: facilityId,
                 username,
                 password,
+                auth_token: authToken,
+                user_id: superuserId,
               });
+              if (error) {
+                // If we get an error logging in, just redirect to the sign-in page
+                return redirectBrowser();
+              }
+              return;
             } else {
               return redirectBrowser();
             }
           } else if (task.status === TaskStatuses.FAILED) {
-            this.$store.dispatch('handleApiError', { error: task.error });
+            this.clearPollingTasks();
+            this.$store.dispatch('handleApiError', { error: task.traceback });
           } else {
             setTimeout(() => {
               this.pollProvisionTask();

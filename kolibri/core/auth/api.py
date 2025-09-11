@@ -95,6 +95,7 @@ from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
+from kolibri.core.utils.token_generator import TokenGenerator
 from kolibri.core.utils.urls import reverse_path
 from kolibri.plugins.app.utils import interface
 from kolibri.utils.urls import validator
@@ -921,23 +922,157 @@ class SetNonSpecifiedPasswordView(views.APIView):
         return Response()
 
 
-@method_decorator([ensure_csrf_cookie], name="dispatch")
-class SessionViewSet(viewsets.ViewSet):
+class CreateSessionSerializer(serializers.Serializer):
+    username = serializers.CharField(required=False, default=None)
+    user_id = HexOnlyUUIDField(required=False, default=None)
+    password = serializers.CharField(
+        default="",
+        write_only=True,
+        required=False,
+        allow_blank=True,
+    )
+    facility = serializers.PrimaryKeyRelatedField(
+        queryset=Facility.objects.all(),
+        default=Facility.get_default_facility,
+        required=False,
+    )
+    auth_token = serializers.CharField(required=False, default=None)
+
+    def validate(self, attrs):
+        username = attrs.get("username")
+        password = attrs.get("password")
+        facility = attrs.get("facility")
+        user_id = attrs.get("user_id")
+        auth_token = attrs.get("auth_token")
+
+        request = self.context.get("request")
+
+        user = None
+
+        # OS User authentication
+        if interface.enabled and valid_app_key_on_request(request):
+            # If we are in app context, then try to get the automatically created OS User
+            # if it matches the username, without needing a password.
+            user = self._check_os_user(request, username)
+
+        # user_id/auth_token authentication
+        if user is None and user_id and auth_token:
+            if TokenGenerator().check_token(user_id, auth_token):
+                user = FacilityUser.objects.filter(
+                    id=user_id, facility=facility
+                ).first()
+
+        # username/password authentication
+        if user is None:
+            # Otherwise attempt full authentication
+            user = authenticate(username=username, password=password, facility=facility)
+
+        if user is not None and user.is_active:
+            attrs["user"] = user
+            return attrs
+
+        # Otherwise, throw a meaningful validation error
+        self._throw_validation_error(username, password, facility)
+
     def _check_os_user(self, request, username):
-        auth_token = request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
-        if auth_token:
+        app_auth_token = request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
+        if app_auth_token:
             try:
-                user = FacilityUser.objects.get_or_create_os_user(auth_token)
+                user = FacilityUser.objects.get_or_create_os_user(app_auth_token)
                 if user is not None and user.username == username:
                     return user
             except ValidationError as e:
                 logger.error(e)
 
-    def create(self, request):
-        username = request.data.get("username", "")
-        password = request.data.get("password", "")
-        facility_id = request.data.get("facility", None)
+    def _throw_validation_error(self, username, password, facility):
+        """
+        Throw a RestValidationError with a helpful error message
+        depending on what went wrong with authentication.
+        """
+        # Find the FacilityUser we're looking for
+        try:
+            unauthenticated_user = FacilityUser.objects.get(
+                username__iexact=username, facility=facility
+            )
+        except (ValueError, ObjectDoesNotExist):
+            raise RestValidationError(
+                detail={
+                    "username": [
+                        {
+                            "id": error_constants.NOT_FOUND,
+                            "metadata": {
+                                "field": "username",
+                                "message": "Username not found.",
+                            },
+                        }
+                    ]
+                }
+            )
+        except FacilityUser.MultipleObjectsReturned:
+            # Handle case of multiple matching usernames
+            unauthenticated_user = FacilityUser.objects.filter(
+                username__exact=username, facility=facility
+            ).first()
 
+        if unauthenticated_user.password == NOT_SPECIFIED and not hasattr(
+            unauthenticated_user, "os_user"
+        ):
+            # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
+            # while the "Require learners to log in with password" setting was disabled - but now
+            # it is enabled again.
+            # Alternatively, they may have been created as an OSUser for automatic login with an
+            # authentication token. If this is the case, then we do not allow for the password to be set.
+            raise RestValidationError(
+                detail={
+                    "password": [
+                        {
+                            "id": error_constants.PASSWORD_NOT_SPECIFIED,
+                            "metadata": {
+                                "field": "password",
+                                "message": "Username is valid, but password needs to be set before login.",
+                            },
+                        }
+                    ]
+                }
+            )
+
+        if (
+            not password
+            and FacilityUser.objects.filter(
+                username__iexact=username, facility=facility
+            ).exists()
+        ):
+            # Password was missing, but username is valid, prompt to give password
+            raise RestValidationError(
+                detail={
+                    "password": [
+                        {
+                            "id": error_constants.MISSING_PASSWORD,
+                            "metadata": {
+                                "field": "password",
+                                "message": "Username is valid, but password is missing.",
+                            },
+                        }
+                    ]
+                }
+            )
+
+        # If no other error message was raised, then throw a generic invalid credentials message
+        raise RestValidationError(
+            detail={
+                "non_field_errors": [
+                    {
+                        "id": error_constants.INVALID_CREDENTIALS,
+                        "metadata": {},
+                    }
+                ]
+            }
+        )
+
+
+@method_decorator([ensure_csrf_cookie], name="dispatch")
+class SessionViewSet(viewsets.ViewSet):
+    def create(self, request):
         # Only enforce this when running in an app
         if (
             interface.enabled
@@ -949,89 +1084,30 @@ class SessionViewSet(viewsets.ViewSet):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
-        user = None
-        if interface.enabled and valid_app_key_on_request(request):
-            # If we are in app context, then try to get the automatically created OS User
-            # if it matches the username, without needing a password.
-            user = self._check_os_user(request, username)
-        if user is None:
-            # Otherwise attempt full authentication
-            user = authenticate(
-                username=username, password=password, facility=facility_id
-            )
-        if user is not None and user.is_active:
-            # Correct password, and the user is marked "active"
-            login(request, user)
-            # Success!
-            return self.get_session_response(request)
-        # Otherwise, try to give a helpful error message
-        # Find the FacilityUser we're looking for
-        try:
-            unauthenticated_user = FacilityUser.objects.get(
-                username__iexact=username, facility=facility_id
-            )
-        except (ValueError, ObjectDoesNotExist):
-            return Response(
-                [
-                    {
-                        "id": error_constants.NOT_FOUND,
-                        "metadata": {
-                            "field": "username",
-                            "message": "Username not found.",
-                        },
-                    }
-                ],
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        except FacilityUser.MultipleObjectsReturned:
-            # Handle case of multiple matching usernames
-            unauthenticated_user = FacilityUser.objects.filter(
-                username__exact=username, facility=facility_id
-            ).first()
-        if unauthenticated_user.password == NOT_SPECIFIED and not hasattr(
-            unauthenticated_user, "os_user"
-        ):
-            # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
-            # while the "Require learners to log in with password" setting was disabled - but now
-            # it is enabled again.
-            # Alternatively, they may have been created as an OSUser for automatic login with an
-            # authentication token. If this is the case, then we do not allow for the password to be set.
-            return Response(
-                [
-                    {
-                        "id": error_constants.PASSWORD_NOT_SPECIFIED,
-                        "metadata": {
-                            "field": "password",
-                            "message": "Username is valid, but password needs to be set before login.",
-                        },
-                    }
-                ],
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        if (
-            not password
-            and FacilityUser.objects.filter(
-                username__iexact=username, facility=facility_id
-            ).exists()
-        ):
-            # Password was missing, but username is valid, prompt to give password
-            return Response(
-                [
-                    {
-                        "id": error_constants.MISSING_PASSWORD,
-                        "metadata": {
-                            "field": "password",
-                            "message": "Username is valid, but password is missing.",
-                        },
-                    }
-                ],
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        # Respond with error
-        return Response(
-            [{"id": error_constants.INVALID_CREDENTIALS, "metadata": {}}],
-            status=status.HTTP_401_UNAUTHORIZED,
+        serializer = CreateSessionSerializer(
+            data=request.data, context={"request": request}
         )
+        if serializer.is_valid():
+            user = serializer.validated_data["user"]
+            login(request, user)
+            return self.get_session_response(request)
+
+        errors = serializer.errors
+        return self._get_error_response(errors)
+
+    def _get_error_response(self, errors):
+        """
+        Helper method to construct a standardized error response.
+        """
+        error_list = []
+        response_status = status.HTTP_400_BAD_REQUEST
+        for field, field_errors in errors.items():
+            for error in field_errors:
+                error_list.append(error)
+                if error.get("id") == error_constants.INVALID_CREDENTIALS:
+                    response_status = status.HTTP_401_UNAUTHORIZED
+
+        return Response(error_list, status=response_status)
 
     def destroy(self, request, pk=None):
         logout(request)
