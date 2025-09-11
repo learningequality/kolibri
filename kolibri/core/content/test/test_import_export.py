@@ -272,6 +272,35 @@ class GetImportExportNodesTestCase(TestCase):
             expected_content_nodes,
         )
 
+    def test_unavailable_node_with_available_files_included_when_available_false(self):
+        # Get a node that exists in the test data
+        test_node = ContentNode.objects.get(
+            pk=self.c2c1_node_id, channel_id=self.the_channel_id
+        )
+
+        # Mark the node as unavailable but ensure its files are available
+        test_node.available = False
+        test_node.save()
+
+        # Ensure all local files for this node are marked as available
+        for file_obj in test_node.files.all():
+            local_file = file_obj.local_file
+            local_file.available = True
+            local_file.save()
+
+        # When available=False, the node should be included in the result
+        # even though it's marked unavailable (because it has available files)
+        matched_nodes_queries_list = get_import_export_nodes(
+            self.the_channel_id, renderable_only=False, available=False
+        )
+
+        result_node_ids = [
+            node.pk
+            for node in itertools.chain.from_iterable(matched_nodes_queries_list)
+        ]
+
+        self.assertIn(self.c2c1_node_id, result_node_ids)
+
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class GetContentNodesDataTestCase(TestCase):
