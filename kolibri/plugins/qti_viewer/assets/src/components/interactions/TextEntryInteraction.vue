@@ -3,7 +3,7 @@
   <input
     v-if="interactive"
     v-model="variable"
-    class="qti-text-entry-interaction qti-text-entry-interaction-interactive"
+    class="qti-text-entry-interaction"
     :placeholder="placeholder"
     :style="{
       minWidth: `${Math.min(expectedLength ?? 20, 20)}ch`,
@@ -75,14 +75,6 @@
 
 
 <style scoped>
-
-  .qti-text-entry-interaction-interactive {
-    padding: 8px;
-    font-family: inherit;
-    font-size: inherit;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-  }
 
   .qti-text-entry-interaction-report {
     box-sizing: border-box;
