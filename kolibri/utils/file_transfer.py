@@ -4,7 +4,7 @@ import math
 import os
 import shutil
 import sys
-from abc import ABCMeta
+from abc import ABC
 from abc import abstractmethod
 from contextlib import contextmanager
 from io import BufferedIOBase
@@ -119,7 +119,7 @@ class ChunkedFileDoesNotExist(Exception):
 CHUNK_SUFFIX = ".chunks"
 
 
-class TransferFileBase(BufferedIOBase, metaclass=ABCMeta):
+class TransferFileBase(BufferedIOBase, ABC):
     """Abstract base class for file transfer destination objects."""
 
     @property
@@ -258,7 +258,7 @@ class ChunkedFile(TransferFileBase):
 
     @property
     def chunks_count(self):
-        return int(math.ceil(float(self.file_size) / float(self.chunk_size)))
+        return math.ceil(float(self.file_size) / float(self.chunk_size))
 
     @property
     def file_size(self):
@@ -525,8 +525,7 @@ class TransferFile(TransferFileBase):
         self.hasher = hashlib.md5()
         self._bytes_written = 0
 
-        # ensure the directories in the destination path exist
-        mkdirp(os.path.dirname(self.filepath), exist_ok=True)
+        self.ensure_writable()
 
     @property
     def file_size(self):
@@ -549,7 +548,8 @@ class TransferFile(TransferFileBase):
         return False
 
     def ensure_writable(self):
-        pass
+        # ensure the directories in the destination path exist
+        mkdirp(os.path.dirname(self.filepath), exist_ok=True)
 
     def write(self, data):
         """Write data to the transfer file."""
@@ -652,7 +652,7 @@ class TransferFile(TransferFileBase):
         self.write_all(data_generator, progress_callback)
 
 
-class Transfer(metaclass=ABCMeta):
+class Transfer(ABC):
     DEFAULT_TIMEOUT = 60
 
     def __init__(
@@ -914,6 +914,9 @@ class FileDownload(Transfer):
 
     @_catch_exception_and_retry
     def run(self, progress_update=None):
+        # The initial _set_completed call is done when the dest_file_obj is initialized
+        # we call this again in case in the meantime, another process has completed the file,
+        # or cleaned up the chunked file.
         self._set_completed()
         if not self.completed:
             try:
