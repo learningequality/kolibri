@@ -62,7 +62,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Apply filters',
     context: 'Label for the button that applies the selected filters',
   },
-  SelectClassesLabel: {
+  selectClassesLabel: {
     message: 'Select classes',
     context: 'Heading label for selecting classes in side panels',
   },
@@ -268,8 +268,8 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Enroll in all classes',
     context: 'Label for the selection to enroll users in all classes',
   },
-  enrollInSelectedClasses: {
-    message: 'Enroll users in selected classes',
+  enrollUsersInClasses: {
+    message: 'Enroll {num, number} {num, plural, one {user} other {users}}',
     context: 'Heading for the selection to enroll users in the selected classes',
   },
   enrollAction: {

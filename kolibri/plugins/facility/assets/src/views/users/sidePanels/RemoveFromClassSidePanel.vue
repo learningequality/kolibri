@@ -4,6 +4,7 @@
     <SidePanelModal
       alignment="right"
       sidePanelWidth="700px"
+      :addBottomBorder="false"
       @closePanel="goBack"
     >
       <template #header>
@@ -11,52 +12,54 @@
           {{ removeUsersFromClassesHeading$({ numUsers: selectedUsers.size }) }}
         </h1>
       </template>
-      <KCircularLoader v-if="loading" />
-      <div v-else>
-        <div
-          v-if="showErrorWarning"
-          :style="{ color: $themeTokens.error }"
-          class="warning-text"
-        >
-          <span>{{ defaultErrorMessage$() }}</span>
-        </div>
-        <div
-          class="info-box"
-          :style="{ backgroundColor: $themePalette.grey.v_100 }"
-        >
-          <div style="display: flex">
-            <KIcon
-              icon="infoOutline"
-              class="remove-info-icon"
-            />
-            <template v-if="selectedUsers.size > 0 && classCoaches.length > 0">
-              <div class="info-wrapper">
-                <span>
-                  {{ numUsersCoaches$({ num: classCoaches.length }) }}
-                </span>
-                <span>{{ usersNotInClasses$() }}</span>
-              </div>
-            </template>
-            <template v-else>
-              <div class="info-wrapper">
-                <span>{{ usersNotInClasses$() }}</span>
-              </div>
-            </template>
+      <div class="side-panel-content">
+        <KCircularLoader v-if="loading" />
+        <div v-else>
+          <div
+            v-if="showErrorWarning"
+            :style="{ color: $themeTokens.error }"
+            class="warning-text"
+          >
+            <span>{{ defaultErrorMessage$() }}</span>
           </div>
+          <div
+            class="info-box"
+            :style="{ backgroundColor: $themePalette.grey.v_100 }"
+          >
+            <div style="display: flex">
+              <KIcon
+                icon="infoOutline"
+                class="remove-info-icon"
+              />
+              <template v-if="selectedUsers.size > 0 && classCoaches.length > 0">
+                <div class="info-wrapper">
+                  <span>
+                    {{ numUsersCoaches$({ num: classCoaches.length }) }}
+                  </span>
+                  <span>{{ usersNotInClasses$() }}</span>
+                </div>
+              </template>
+              <template v-else>
+                <div class="info-wrapper">
+                  <span>{{ usersNotInClasses$() }}</span>
+                </div>
+              </template>
+            </div>
+          </div>
+          <h2
+            id="remove-from-selected-classes"
+            style="font-size: 16px"
+          >
+            {{ selectClassesLabel$() }}
+          </h2>
+          <SelectableList
+            v-model="selectedOptions"
+            :options="classList"
+            :selectAllLabel="removeFromAllClassesLabel$()"
+            aria-labelledby="remove-from-selected-classes"
+            :searchLabel="searchForAClass$()"
+          />
         </div>
-        <h2
-          id="remove-from-selected-classes"
-          style="font-size: 16px"
-        >
-          {{ SelectClassesLabel$() }}
-        </h2>
-        <SelectableList
-          v-model="selectedOptions"
-          :options="classList"
-          :selectAllLabel="removeFromAllClassesLabel$()"
-          aria-labelledby="remove-from-selected-classes"
-          :searchLabel="searchForAClass$()"
-        />
       </div>
       <template #bottomNavigation>
         <div class="bottom-nav-container">
@@ -144,7 +147,7 @@
         removeUsersFromClassesHeading$,
         usersNotInClasses$,
         removeFromAllClassesLabel$,
-        SelectClassesLabel$,
+        selectClassesLabel$,
         removeAction$,
         usersRemovedNotice$,
         undoUsersRemovedMessage$,
@@ -320,7 +323,7 @@
         discardChanges$,
         usersNotInClasses$,
         removeFromAllClassesLabel$,
-        SelectClassesLabel$,
+        selectClassesLabel$,
         removeAction$,
 
         // methods
@@ -351,6 +354,21 @@
 
 
 <style lang="scss" scoped>
+
+  .side-panel-content {
+    position: relative;
+  }
+
+  /* stylelint-disable-next-line selector-pseudo-element-no-unknown */
+  ::v-deep(.side-panel-content) {
+    padding-top: 0 !important ;
+  }
+
+  /* stylelint-disable-next-line selector-pseudo-element-no-unknown */
+  ::v-deep(.side-panel-header) {
+    padding-right: 32px !important ;
+    padding-left: 32px !important ;
+  }
 
   .info-box {
     padding: 8px;
