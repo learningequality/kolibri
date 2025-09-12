@@ -2,8 +2,8 @@ from django.contrib.auth import login
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .utils import TokenGenerator
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.utils.token_generator import TokenGenerator
 
 
 class OnMyOwnSetupViewset(APIView):
