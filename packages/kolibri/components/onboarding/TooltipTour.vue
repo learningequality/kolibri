@@ -20,8 +20,8 @@
 
 <script>
 
-  import tippy from 'tippy.js';
   import Vue from 'vue';
+  import tippy from 'tippy.js/umd';
   import { onboardingSteps } from 'kolibri/utils/onboardingSteps';
   import useTour from 'kolibri/composables/useTour';
   import useUser from '../../../kolibri/composables/useUser';
@@ -234,48 +234,23 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
-  .onboarding-tooltip-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .onboarding-tooltip-progress {
-    display: flex;
-    gap: 8px;
-  }
-
-  .dot {
-    width: 12px;
-    height: 12px;
-    background: #cccccc;
-    border-radius: 50%;
-  }
-
-  .dot.active {
-    background: #4368f5;
-  }
-
-  .onboarding-tooltip-body {
-    margin-top: 12px;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
   .tippy-tooltip.onboarding-theme[data-animatefill] {
     background-color: transparent;
   }
 
   .tippy-tooltip.onboarding-theme .tippy-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
     background-color: white;
+    border-radius: inherit;
+    transform: scale(0.2);
+    transform-origin: top left;
   }
 
-  .onboarding-tooltip-footer {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: flex-end;
-    margin-top: 16px;
+  .tippy-tooltip.onboarding-theme[data-state='visible'] > .tippy-backdrop {
+    opacity: 1;
+    transform: scale(1);
   }
 
 </style>

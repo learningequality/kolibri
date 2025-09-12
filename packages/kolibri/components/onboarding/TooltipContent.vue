@@ -23,7 +23,11 @@
           <span
             v-for="(step, index) in steps"
             :key="index"
-            :class="['dot', { active: index === currentStepIndex }]"
+            class="dot"
+            :style="{
+              backgroundColor:
+                index === currentStepIndex ? $themeBrand.primary.v_500 : $themePalette.grey.v_300,
+            }"
           ></span>
         </div>
         <KIconButton
@@ -97,7 +101,6 @@
         default: 0,
       },
     },
-
     mounted() {
       this.$nextTick(() => {
         const btn = this.$refs.closeButton?.$el;
@@ -120,3 +123,39 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .onboarding-tooltip-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .onboarding-tooltip-progress {
+      display: flex;
+      gap: 8px;
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+    }
+  }
+
+  .onboarding-tooltip-body {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .onboarding-tooltip-footer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+
+</style>
