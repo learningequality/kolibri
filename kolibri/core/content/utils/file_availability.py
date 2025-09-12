@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import re
@@ -101,40 +102,97 @@ def get_available_checksums_from_remote(channel_id, peer_id):
     return checksums
 
 
+def _max_mtime_in_immediate_subdirs(content_dir, max_mtime):
+    if not content_dir:
+        return max_mtime
+    try:
+        with os.scandir(content_dir) as entries:
+            for entry in entries:
+                if entry.is_dir(follow_symlinks=False):
+                    try:
+                        max_mtime = max(
+                            max_mtime,
+                            entry.stat(follow_symlinks=False).st_mtime_ns,
+                        )
+                    except (FileNotFoundError, PermissionError, OSError):
+                        pass
+    except (FileNotFoundError, PermissionError, OSError):
+        pass
+    return max_mtime
+
+
+def _content_dir_version(content_dir):
+    # Fingerprint using max mtime across content dir and its immediate subdirectories.
+    if not content_dir:
+        return 0
+    try:
+        max_mtime = os.stat(content_dir).st_mtime_ns
+    except (FileNotFoundError, NotADirectoryError, PermissionError, OSError):
+        return 0
+    return _max_mtime_in_immediate_subdirs(content_dir, max_mtime)
+
+
+def _collect_disk_checksums(content_dir):
+
+    checksums = set()
+    if not content_dir:
+        return checksums
+
+    try:
+        for _, _, files in os.walk(content_dir):
+            for name in files:
+                checksum = os.path.splitext(name)[0]
+                if checksum_regex.match(checksum):
+                    checksums.add(checksum)
+    except (FileNotFoundError, PermissionError, OSError):
+        return set()
+    return checksums
+
+
 def get_available_checksums_from_disk(channel_id, drive_id):
+    """
+    Version cache keys by a content-dir fingerprint so changes
+    on disk invalidate both per-disk and per-channel caches.
+    """
     try:
         basepath = get_mounted_drive_by_id(drive_id).datafolder
     except KeyError:
         raise LocationError("Drive with id {} does not exist".format(drive_id))
-    PER_DISK_CACHE_KEY = "DISK_AVAILABLE_CHECKSUMS_{basepath}".format(basepath=basepath)
+
+    try:
+        content_dir = get_content_storage_dir_path(datafolder=basepath)
+    except Exception:
+        content_dir = None
+
+    key_base = hashlib.sha1(str(basepath).encode("utf-8")).hexdigest()[:16]
+    version = _content_dir_version(content_dir)
+
+    PER_DISK_CACHE_KEY = f"DISK_AVAILABLE_CHECKSUMS_{key_base}_{version}"
     PER_DISK_PER_CHANNEL_CACHE_KEY = (
-        "DISK_AVAILABLE_CHECKSUMS_{basepath}_{channel_id}".format(
-            basepath=basepath, channel_id=channel_id
-        )
+        f"DISK_AVAILABLE_CHECKSUMS_{key_base}_{channel_id}_{version}"
     )
+
     if PER_DISK_PER_CHANNEL_CACHE_KEY not in process_cache:
         if PER_DISK_CACHE_KEY not in process_cache:
-            content_dir = get_content_storage_dir_path(datafolder=basepath)
+            try:
+                content_dir = get_content_storage_dir_path(datafolder=basepath)
+            except Exception:
+                content_dir = None
 
-            disk_checksums = []
-
-            for _, _, files in os.walk(content_dir):
-                for name in files:
-                    checksum = os.path.splitext(name)[0]
-                    # Only add valid checksums formatted according to our standard filename
-                    if checksum_regex.match(checksum):
-                        disk_checksums.append(checksum)
-            # Cache is per device, so a relatively long lived one should
-            # be fine.
-            process_cache.set(PER_DISK_CACHE_KEY, disk_checksums, 3600)
+            # Cache as frozenset to avoid repeated conversions
+            disk_checksums = _collect_disk_checksums(content_dir)
+            process_cache.set(PER_DISK_CACHE_KEY, frozenset(disk_checksums), 3600)
         else:
-            disk_checksums = process_cache.get(PER_DISK_CACHE_KEY)
+            disk_checksums = set(process_cache.get(PER_DISK_CACHE_KEY))
+
         checksums = set(
-            LocalFile.objects.filter(
-                files__contentnode__channel_id=channel_id
-            ).values_list("id", flat=True)
-        ).intersection(set(disk_checksums))
+            LocalFile.objects.filter(files__contentnode__channel_id=channel_id)
+            .values_list("id", flat=True)
+            .distinct()
+        ).intersection(disk_checksums)
+
         process_cache.set(PER_DISK_PER_CHANNEL_CACHE_KEY, checksums, 3600)
     else:
         checksums = process_cache.get(PER_DISK_PER_CHANNEL_CACHE_KEY)
+
     return checksums
