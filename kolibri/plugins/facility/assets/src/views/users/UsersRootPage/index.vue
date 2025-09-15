@@ -140,7 +140,7 @@
   import MoveToTrashModal from '../common/MoveToTrashModal.vue';
 
   export default {
-    name: 'UserPage',
+    name: 'UsersRootPage',
     metaInfo() {
       return {
         title: this.coreString('usersLabel'),
