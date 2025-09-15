@@ -218,6 +218,9 @@
           // were enrolled
           createdMemberships.value = [];
         }
+        props.onChange({
+          affectedClasses: selectedOptions.value,
+        });
         goBack();
         return true;
       }
@@ -238,6 +241,9 @@
         if (createdMemberships.value?.length > 0) {
           const ids = createdMemberships.value.map(m => m.id).join(',');
           await MembershipResource.deleteCollection({ by_ids: ids });
+          props.onChange({
+            affectedClasses: selectedOptions.value,
+          });
         }
       }
 
@@ -279,6 +285,10 @@
         required: true,
       },
       onBlur: {
+        type: Function,
+        default: () => {},
+      },
+      onChange: {
         type: Function,
         default: () => {},
       },

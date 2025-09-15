@@ -318,7 +318,7 @@
 
       const handleSubmitSuccess = () => {
         createSnackbar(notificationStrings.userCreated$());
-        props.onUsersChange();
+        props.onChange();
       };
 
       const handleSubmitFailure = error => {
@@ -489,7 +489,7 @@
         type: Array,
         default: () => [],
       },
-      onUsersChange: {
+      onChange: {
         type: Function,
         default: () => {},
       },

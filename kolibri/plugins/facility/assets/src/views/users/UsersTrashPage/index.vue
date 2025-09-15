@@ -32,7 +32,7 @@
           :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL__TRASH"
           :numAppliedFilters="numAppliedFilters"
           @clearFilters="resetFilters"
-          @change="onUsersChange"
+          @change="onChange"
         >
           <template #userActions>
             <KIconButton
@@ -81,13 +81,13 @@
         :backRoute="overrideRoute($route, { name: PageNames.USERS_TRASH_PAGE })"
         :classes="classes"
         :selectedUsers="selectedUsers"
-        @change="onUsersChange"
+        @change="onChange"
       />
       <PermanentDeleteModal
         v-if="usersToDelete"
         :selectedUsers="usersToDelete"
         @close="usersToDelete = null"
-        @change="onUsersChange"
+        @change="onChange"
       />
     </template>
   </ImmersivePage>
@@ -131,6 +131,7 @@
       const activeFacilityId = route.params.facility_id || store.getters.activeFacilityId;
 
       const {
+        selectedUsers,
         facilityUsers,
         search,
         classes,
@@ -138,15 +139,13 @@
         usersCount,
         dataLoading,
         numAppliedFilters,
-        fetchUsers,
+        onChange,
         fetchClasses,
         resetFilters,
       } = useUserManagement({
         activeFacilityId,
         softDeletedUsers: true,
       });
-
-      const selectedUsers = ref(new Set());
 
       const showUsersTable = computed(
         () =>
@@ -155,13 +154,6 @@
           numAppliedFilters.value > 0 ||
           dataLoading.value,
       );
-
-      function onUsersChange({ resetSelection = false } = {}) {
-        fetchUsers();
-        if (resetSelection) {
-          selectedUsers.value.clear();
-        }
-      }
 
       const {
         backToUsers$,
@@ -182,7 +174,7 @@
             by_ids: Array.from(users).join(','),
           });
           createSnackbar(usersRecoveredNotice$({ num: users.size }));
-          onUsersChange({ resetSelection: true });
+          onChange({ resetSelection: true });
           loading.value = false;
         } catch (error) {
           loading.value = false;
@@ -235,8 +227,8 @@
         userDropdownMenuOptions,
 
         // Methods
+        onChange,
         recoverUsers,
-        onUsersChange,
         overrideRoute,
         resetFilters,
         handleDropdownSelect,

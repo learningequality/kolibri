@@ -118,7 +118,7 @@
           createSnackbar(usersTrashedNotice$());
           loading.value = false;
           usersRemoved.value = Array.from(props.selectedUsers);
-          props.onUsersChange({ resetSelection: true });
+          props.onChange({ resetSelection: true });
           close();
           return true;
         } catch (error) {
@@ -133,7 +133,7 @@
           by_ids: usersRemoved.value.join(','),
         });
         createSnackbar(trashUndoneNotice$());
-        props.onUsersChange();
+        props.onChange();
       };
 
       const { performAction: moveToTrash } = useActionWithUndo({
@@ -183,7 +183,7 @@
         type: Function,
         default: () => {},
       },
-      onUsersChange: {
+      onChange: {
         type: Function,
         default: () => {},
       },

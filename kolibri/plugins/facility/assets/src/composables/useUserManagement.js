@@ -13,6 +13,7 @@ export default function useUserManagement({
   dateJoinedGt,
   softDeletedUsers = false,
 } = {}) {
+  const selectedUsers = ref(new Set());
   const facilityUsers = ref([]);
   const totalPages = ref(0);
   const usersCount = ref(0);
@@ -75,6 +76,20 @@ export default function useUserManagement({
     }
   };
 
+  function onChange({ resetSelection = false, affectedClasses = null } = {}) {
+    if (resetSelection) {
+      selectedUsers.value = new Set();
+    }
+    if (
+      // If there isn't any specific class affected, always refetch
+      affectedClasses === null ||
+      // If there are affected classes, only refetch if one of them is in the current filters
+      routeFilters.value.classes.some(classId => affectedClasses.includes(classId))
+    ) {
+      fetchUsers();
+    }
+  }
+
   // re-running fetchUsers whenever the relevant query params change
   watch(
     () => [
@@ -94,6 +109,7 @@ export default function useUserManagement({
   );
 
   return {
+    selectedUsers,
     facilityUsers,
     totalPages,
     usersCount,
@@ -106,6 +122,7 @@ export default function useUserManagement({
     classes,
     numAppliedFilters,
     // methods
+    onChange,
     fetchUsers,
     fetchClasses,
     resetFilters,
