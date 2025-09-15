@@ -381,7 +381,7 @@ def fd_safe_executor(fds_per_task=2):
         # this task by double this number which should give us leeway in case of unforeseen
         # descriptor use during the process.
         max_workers = min(
-            max_workers, min(1, max_descriptors_per_task // (fds_per_task * 2))
+            max_workers, max(1, max_descriptors_per_task // (fds_per_task * 2))
         )
 
     return executor(max_workers=max_workers)
