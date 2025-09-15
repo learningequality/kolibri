@@ -711,7 +711,8 @@
 
   .move-down {
     position: relative;
-    margin-top: 24px;
+
+    /* margin-top: 24px; */
   }
 
   .role-badge {
@@ -742,7 +743,7 @@
   }
 
   .filter-button {
-    padding-top: 8px;
+    padding-top: 10px;
     margin-left: 1em;
   }
 

@@ -5,19 +5,17 @@
       <!-- Adding 24 pixels to the max height to prevent having too much bottom padding space -->
       <KPageContainer
         class="flex-column"
-        :style="{ maxHeight: pageContentHeight + 24 + 'px' }"
+        :style="{ maxHeight: pageContentHeight + 24 + 'px', padding: '3em 2em' }"
       >
-        <p>
-          <KRouterLink
-            v-if="userIsMultiFacilityAdmin"
-            :to="{
-              name: $store.getters.facilityPageLinks.AllFacilitiesPage.name,
-              params: { subtopicName: 'UserPage' },
-            }"
-            icon="back"
-            :text="coreString('changeLearningFacility')"
-          />
-        </p>
+        <KRouterLink
+          v-if="userIsMultiFacilityAdmin"
+          :to="{
+            name: $store.getters.facilityPageLinks.AllFacilitiesPage.name,
+            params: { subtopicName: 'UserPage' },
+          }"
+          icon="back"
+          :text="coreString('changeLearningFacility')"
+        />
         <div class="users-page-header">
           <h1>{{ coreString('usersLabel') }}</h1>
           <div class="users-page-header-actions">
@@ -335,10 +333,10 @@
     gap: 16px;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 2em;
 
     h1 {
-      margin: 16px 0;
+      margin: 0;
     }
 
     .users-page-header-actions {

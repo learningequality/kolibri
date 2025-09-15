@@ -7,15 +7,15 @@
     <template #default="{ pageContentHeight }">
       <KPageContainer
         class="page-container"
-        :style="{ maxHeight: pageContentHeight + 24 + 'px' }"
+        :style="{ maxHeight: pageContentHeight + 24 + 'px', padding: '3em 2em' }"
+        style="position: relative"
       >
-        <p>
-          <KRouterLink
-            :to="$store.getters.facilityPageLinks.UserPage"
-            icon="back"
-            :text="backToUsers$()"
-          />
-        </p>
+        <KRouterLink
+          :to="$store.getters.facilityPageLinks.UserPage"
+          icon="back"
+          :text="backToUsers$()"
+          style="position: absolute; top: 1.5em; left: 2em"
+        />
         <div class="new-users-page-header">
           <h1>{{ newUsers$() }}</h1>
           <div>
@@ -334,7 +334,6 @@
     display: flex;
     flex-direction: column;
     max-width: 1000px;
-    margin: 24px auto;
   }
 
   .new-users-page-header {
