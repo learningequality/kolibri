@@ -8,16 +8,19 @@ const tourActive = ref(false);
 const currentStepIndex = ref(0);
 const tourActiveMap = reactive({});
 
+// Temporarily disabling tour; uncomment lines 15-22 to re-enable
+// eslint-disable-next-line no-unused-vars
 function startTour(pageName) {
   // Small delay to let users see the page before tour darkens it
-  setTimeout(() => {
-    localStorage.setItem(TOUR_ACTIVE, 'true');
-    tourActive.value = true;
-    Object.keys(tourActiveMap).forEach(key => {
-      tourActiveMap[key] = false;
-    });
-    tourActiveMap[pageName] = true;
-  }, 400);
+  // setTimeout(() => {
+  //   localStorage.setItem(TOUR_ACTIVE, 'true');
+  //   tourActive.value = true;
+  //   Object.keys(tourActiveMap).forEach(key => {
+  //     tourActiveMap[key] = false;
+  //   });
+  //   tourActiveMap[pageName] = true;
+  // }, 400);
+  return;
 }
 
 function endTour(pageName) {
