@@ -9,6 +9,7 @@ from morango.models import UUIDField
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.general import IsOwn
 from kolibri.core.upgrade import matches_version
+from kolibri.core.utils.model_router import KolibriModelRouter
 from kolibri.deployment.default.sqlite_db_names import NETWORK_LOCATION
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
@@ -219,51 +220,14 @@ class DynamicNetworkLocation(NetworkLocation):
             )
 
 
-class NetworkLocationRouter(object):
+class NetworkLocationRouter(KolibriModelRouter):
     """
     Determine how to route database calls for the Network Location models.
     All other models will be routed to the default database.
     """
 
-    def db_for_read(self, model, **hints):
-        """Send all read operations on Notifications app models to NETWORK_LOCATION."""
-        if issubclass(model, NetworkLocation):
-            return NETWORK_LOCATION
-        return None
-
-    def db_for_write(self, model, **hints):
-        """Send all write operations on Notifications app models to NETWORK_LOCATION."""
-        if issubclass(model, NetworkLocation):
-            return NETWORK_LOCATION
-        return None
-
-    def allow_relation(self, obj1, obj2, **hints):
-        """Determine if relationship is allowed between two objects."""
-        obj1_instance = isinstance(obj1, NetworkLocation)
-        obj2_instance = isinstance(obj2, NetworkLocation)
-        # Allow any relation between two models that are both in the Network Location models.
-        if obj1_instance and obj2_instance:
-            return True
-        # No opinion if neither object is in the Network Location models (defer to default or other routers).
-        elif not obj1_instance and not obj2_instance:
-            return None
-
-        # Block relationship if one object is in the Network Location models and the other isn't.
-        return False
-
-    def allow_migrate(self, db, app_label, model_name=None, **hints):
-        """Ensure that the Network Location models's models get created on the right database."""
-        if app_label == NetworkLocation._meta.app_label and any(
-            model_name == m._meta.model_name
-            for m in (NetworkLocation, StaticNetworkLocation, DynamicNetworkLocation)
-        ):
-            # The Network Location models should be migrated only on the NETWORK_LOCATION database.
-            return db == NETWORK_LOCATION
-        elif db == NETWORK_LOCATION:
-            # Ensure that all other apps don't get migrated on the NETWORK_LOCATION database.
-            return False
-        # No opinion for all other scenarios
-        return None
+    MODEL_CLASSES = {NetworkLocation, StaticNetworkLocation, DynamicNetworkLocation}
+    DB_NAME = NETWORK_LOCATION
 
 
 class PinnedDevice(models.Model):
