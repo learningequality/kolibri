@@ -1,11 +1,11 @@
 <template>
 
-  <FacilityAppBarPage>
+  <FacilityAppBarPage class="wrapper">
     <template #default="{ pageContentHeight }">
       <!-- Adding 24 pixels to the max height to prevent having too much bottom padding space -->
       <KPageContainer
         class="flex-column"
-        :style="{ maxHeight: pageContentHeight + 24 + 'px', padding: '3em 2em' }"
+        :style="{ maxHeight: pageContentHeight + 24 + 'px', padding: '2em 2em 1em' }"
       >
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
@@ -333,7 +333,7 @@
     gap: 16px;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 2em;
+    margin-bottom: 1.5em;
 
     h1 {
       margin: 0;
@@ -351,6 +351,13 @@
   .flex-column {
     display: flex;
     flex-direction: column;
+  }
+
+  /deep/ .main-wrapper {
+    // The default padding causes root scroll which defeats
+    // the purpose of our maxHeight style on the KPageContainer.
+    // Uses !important because the overridden style is inline
+    padding-bottom: 0 !important;
   }
 
 </style>

@@ -126,7 +126,7 @@
 
   .pagination-nav {
     /* Ensure space for pagination buttons on touch devices */
-    margin: 1em 0 0.5em;
+    margin-top: 1em;
     text-align: right;
   }
 

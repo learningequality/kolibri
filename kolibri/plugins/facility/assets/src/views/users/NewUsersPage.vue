@@ -7,14 +7,12 @@
     <template #default="{ pageContentHeight }">
       <KPageContainer
         class="page-container"
-        :style="{ maxHeight: pageContentHeight + 24 + 'px', padding: '3em 2em' }"
-        style="position: relative"
+        :style="{ maxHeight: pageContentHeight + 24 + 'px', padding: '2em 2em 1em' }"
       >
         <KRouterLink
           :to="$store.getters.facilityPageLinks.UserPage"
           icon="back"
           :text="backToUsers$()"
-          style="position: absolute; top: 1.5em; left: 2em"
         />
         <div class="new-users-page-header">
           <h1>{{ newUsers$() }}</h1>
@@ -331,9 +329,11 @@
 <style lang="scss" scoped>
 
   .page-container {
+    position: relative;
     display: flex;
     flex-direction: column;
     max-width: 1000px;
+    margin: 0 auto auto;
   }
 
   .new-users-page-header {
@@ -341,7 +341,11 @@
     gap: 16px;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin: 1em 0 1.5em;
+
+    h1 {
+      margin: 0;
+    }
   }
 
   .empty-new-users {
@@ -371,6 +375,13 @@
         font-size: 14px;
       }
     }
+  }
+
+  /deep/ .main-wrapper {
+    // The default padding causes root scroll which defeats
+    // the purpose of our maxHeight style on the KPageContainer.
+    // Uses !important because the overridden style is inline
+    padding-bottom: 0 !important;
   }
 
 </style>

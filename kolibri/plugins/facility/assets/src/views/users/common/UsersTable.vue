@@ -732,6 +732,8 @@
   .search-filter-section {
     display: flex;
     justify-content: start;
+    // Ensure space enough for keyboard nav outline before table content
+    padding-bottom: 0.5em;
   }
 
   .user-type-icon {
