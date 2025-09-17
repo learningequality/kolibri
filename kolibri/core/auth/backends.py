@@ -3,7 +3,10 @@ Implements custom auth backends as described in the Django docs, for our custom 
 The appropriate classes should be listed in the AUTHENTICATION_BACKENDS. Note that authentication
 backends are checked in the order they're listed.
 """
+from django.contrib.sessions.backends.db import SessionStore as DBStore
+
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import Session
 
 
 FACILITY_CREDENTIAL_KEY = "facility"
@@ -71,3 +74,18 @@ class FacilityUserBackend(object):
             return FacilityUser.objects.get(pk=user_id)
         except FacilityUser.DoesNotExist:
             return None
+
+
+class SessionStore(DBStore):
+    @classmethod
+    def get_model_class(cls):
+        return Session
+
+    def create_model_instance(self, data):
+        obj = super().create_model_instance(data)
+        try:
+            user_id = data.get("_auth_user_id")
+        except (ValueError, TypeError):
+            user_id = None
+        obj.user_id = user_id
+        return obj

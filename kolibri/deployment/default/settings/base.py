@@ -67,7 +67,6 @@ INSTALLED_APPS = [
     "kolibri.core",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_filters",
@@ -160,6 +159,7 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
         }
 
     DATABASE_ROUTERS = (
+        "kolibri.core.auth.models.SessionRouter",
         "kolibri.core.notifications.models.NotificationsRouter",
         "kolibri.core.device.models.SyncQueueRouter",
         "kolibri.core.discovery.models.NetworkLocationRouter",
@@ -403,14 +403,9 @@ SILENCED_SYSTEM_CHECKS = ["auth.W004"]
 
 # Session configuration
 
-SESSION_ENGINE = "django.contrib.sessions.backends.file"
-
-SESSION_FILE_PATH = os.path.join(conf.KOLIBRI_HOME, "sessions")
+SESSION_ENGINE = "kolibri.core.auth.backends"
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
-
-if not os.path.exists(SESSION_FILE_PATH):
-    os.mkdir(SESSION_FILE_PATH)
 
 SESSION_COOKIE_NAME = "kolibri"
 

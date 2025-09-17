@@ -24,6 +24,7 @@ from threading import local
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import UserManager
+from django.contrib.sessions.base_session import AbstractBaseSession
 from django.core import validators
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
@@ -35,6 +36,7 @@ from django.utils.functional import cached_property
 from morango.models import Certificate
 from morango.models import SyncableModel
 from morango.models import SyncableModelManager
+from morango.models import UUIDField
 from mptt.models import TreeForeignKey
 
 from .constants import collection_kinds
@@ -78,11 +80,38 @@ from kolibri.core.device.utils import set_device_settings
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.fields import JSONField
+from kolibri.core.utils.model_router import KolibriModelRouter
 from kolibri.core.utils.validators import JSON_Schema_Validator
+from kolibri.deployment.default.sqlite_db_names import SESSIONS
 from kolibri.plugins.app.utils import interface
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
+
+
+class Session(AbstractBaseSession):
+    """
+    Custom session model with user_id tracking for session management.
+    Inherits from Django's AbstractBaseSession and adds user_id field.
+    """
+
+    user_id = UUIDField(blank=True, null=True, db_index=True)
+
+    @classmethod
+    def get_session_store_class(cls):
+        from .backends import SessionStore
+
+        return SessionStore
+
+
+class SessionRouter(KolibriModelRouter):
+    """
+    Determine how to route database calls for custom Session model.
+    """
+
+    MODEL_CLASSES = {Session}
+    DB_NAME = SESSIONS
+
 
 DEMOGRAPHIC_FIELDS_KEY = "demographic_fields"
 
