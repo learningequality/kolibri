@@ -54,47 +54,53 @@
           @change="onChange"
         >
           <template #userActions>
-            <component
-              :is="canAssignCoaches ? 'router-link' : 'span'"
-              :to="overrideRoute($route, { name: PageNames.ASSIGN_COACHES_SIDE_PANEL })"
-              :class="{ 'disabled-link': !canAssignCoaches || !hasSelectedUsers }"
-            >
-              <KIconButton
-                icon="assignCoaches"
-                :ariaLabel="assignCoach$()"
-                :tooltip="assignCoach$()"
-                :disabled="!canAssignCoaches || !hasSelectedUsers"
-              />
-            </component>
-            <component
-              :is="canEnrollOrRemoveFromClass ? 'router-link' : 'span'"
-              :to="overrideRoute($route, { name: PageNames.ENROLL_LEARNERS_SIDE_PANEL })"
-              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass || !hasSelectedUsers }"
-            >
-              <KIconButton
-                icon="add"
-                :ariaLabel="enrollToClass$()"
-                :tooltip="enrollToClass$()"
-                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
-              />
-            </component>
-            <component
-              :is="canEnrollOrRemoveFromClass ? 'router-link' : 'span'"
-              :to="overrideRoute($route, { name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL })"
-              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass || !hasSelectedUsers }"
-            >
-              <KIconButton
-                icon="remove"
-                :ariaLabel="removeFromClass$()"
-                :tooltip="removeFromClass$()"
-                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
-              />
-            </component>
             <KIconButton
+              ref="assignButton"
+              icon="assignCoaches"
+              :ariaLabel="assignCoach$()"
+              :disabled="!canAssignCoaches || !hasSelectedUsers"
+              @click="navigateToSidePanel(PageNames.ASSIGN_COACHES_SIDE_PANEL)"
+            />
+            <KTooltip
+              reference="assignButton"
+              :refs="$refs"
+              :text="assignCoach$()"
+            />
+            <KIconButton
+              ref="enrollButton"
+              icon="add"
+              :ariaLabel="enrollToClass$()"
+              :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
+              @click="navigateToSidePanel(PageNames.ENROLL_LEARNERS_SIDE_PANEL)"
+            />
+            <KTooltip
+              reference="enrollButton"
+              :refs="$refs"
+              :text="enrollToClass$()"
+            />
+            <KIconButton
+              ref="removeButton"
+              icon="remove"
+              :ariaLabel="removeFromClass$()"
+              :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
+              @click="navigateToSidePanel(PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL)"
+            />
+            <KTooltip
+              reference="removeButton"
+              :refs="$refs"
+              :text="removeFromClass$()"
+            />
+            <KIconButton
+              ref="trashButton"
               icon="trash"
-              :tooltip="deleteSelectionTooltip"
+              :ariaLabel="deleteSelectionTooltip"
               :disabled="!canDeleteSelection || !hasSelectedUsers"
               @click="isMoveToTrashModalOpen = true"
+            />
+            <KTooltip
+              reference="trashButton"
+              :refs="$refs"
+              :text="deleteSelectionTooltip"
             />
           </template>
         </UsersTable>
@@ -300,6 +306,10 @@
     },
     methods: {
       overrideRoute,
+      navigateToSidePanel(sidePanelName) {
+        const newRoute = this.overrideRoute(this.$route, { name: sidePanelName });
+        this.$router.push(newRoute);
+      },
       handlePageDropdownSelection(option) {
         if (option.value) {
           this.$router.push({
@@ -334,11 +344,6 @@
       align-items: center;
       justify-content: flex-end;
     }
-  }
-
-  .disabled-link {
-    pointer-events: none;
-    cursor: not-allowed;
   }
 
   .flex-column {
