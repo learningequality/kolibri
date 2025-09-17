@@ -1,5 +1,5 @@
 wheel
 pkginfo
-PyInstaller==6.15.0
+PyInstaller==6.16.0
 dmgbuild==1.6.5; sys_platform == 'darwin'
 attrdict==2.0.1  # required to install wxpython
