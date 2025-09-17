@@ -990,35 +990,41 @@ class ClassroomViewSet(ValuesViewset):
                 ]
             )
         )
+        soft_deleted_user_ids = list(
+            FacilityUser.soft_deleted_objects.all().values_list("id", flat=True)
+        )
+        active_coach_ids = [
+            coach_id for coach_id in coach_ids if coach_id not in soft_deleted_user_ids
+        ]
         facility_roles = {
             obj.pop("user"): obj
             for obj in Role.objects.filter(
-                user_id__in=coach_ids, collection__kind=collection_kinds.FACILITY
+                user_id__in=active_coach_ids, collection__kind=collection_kinds.FACILITY
             ).values("user", "kind", "collection", "id")
         }
+
         for key, group in groupby(items, lambda x: x["id"]):
             coaches = []
             for item in group:
                 user_id = item.pop("role__user__id")
-                if (
-                    user_id in facility_roles
-                    and facility_roles[user_id]["collection"] == item["parent"]
-                ):
-                    roles = [facility_roles[user_id]]
-                else:
-                    roles = []
-                coach = {
-                    "id": user_id,
-                    "facility": item["parent"],
-                    # Coerce to bool if None
-                    "is_superuser": bool(
-                        item.pop("role__user__devicepermissions__is_superuser")
-                    ),
-                    "full_name": item.pop("role__user__full_name"),
-                    "username": item.pop("role__user__username"),
-                    "roles": roles,
-                }
-                if coach["id"]:
+                if user_id in active_coach_ids:
+                    if (
+                        user_id in facility_roles
+                        and facility_roles[user_id]["collection"] == item["parent"]
+                    ):
+                        roles = [facility_roles[user_id]]
+                    else:
+                        roles = []
+                    coach = {
+                        "id": user_id,
+                        "facility": item["parent"],
+                        "is_superuser": bool(
+                            item.pop("role__user__devicepermissions__is_superuser")
+                        ),
+                        "full_name": item.pop("role__user__full_name"),
+                        "username": item.pop("role__user__username"),
+                        "roles": roles,
+                    }
                     coaches.append(coach)
             item["coaches"] = coaches
             output.append(item)
