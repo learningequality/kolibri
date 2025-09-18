@@ -64,6 +64,7 @@
       </KGrid>
       <KTable
         class="move-down user-roster"
+        :stickyColumns="['firstTwo', 'last']"
         :headers="tableHeaders"
         :caption="coreStrings.usersLabel$()"
         :rows="tableRows"
