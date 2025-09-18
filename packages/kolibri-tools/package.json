@@ -36,7 +36,7 @@
     "chalk": "4.1.2",
     "check-node-version": "^4.2.1",
     "cli-table": "^0.3.11",
-    "commander": "^13.1.0",
+    "commander": "^14.0.1",
     "core-js": "^3",
     "css-loader": "7.1.2",
     "css-minimizer-webpack-plugin": "7.0.2",
