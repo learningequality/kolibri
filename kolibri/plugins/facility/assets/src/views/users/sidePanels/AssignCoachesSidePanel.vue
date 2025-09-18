@@ -212,6 +212,9 @@
 
         try {
           await assignCoachesToClasses();
+          props.onChange({
+            affectedClasses: selectedClasses.value,
+          });
           closeSidePanel();
           return true;
         } catch (error) {
@@ -252,6 +255,9 @@
         if (createdRoles.value.length > 0) {
           const roleIds = createdRoles.value.map(role => role.id);
           await RoleResource.deleteCollection({ by_ids: roleIds });
+          props.onChange({
+            affectedClasses: selectedClasses.value,
+          });
         }
       }
 
@@ -295,17 +301,19 @@
       };
     },
     props: {
-      /* eslint-disable vue/no-unused-properties */
       selectedUsers: {
         type: Set,
         default: () => new Set(),
       },
-      /* eslint-enable vue/no-unused-properties */
       classes: {
         type: Array,
         default: () => [],
       },
       onBlur: {
+        type: Function,
+        default: () => {},
+      },
+      onChange: {
         type: Function,
         default: () => {},
       },

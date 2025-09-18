@@ -255,6 +255,9 @@
             ? RoleResource.saveCollection({ data: assignments })
             : Promise.resolve(),
         ]);
+        props.onChange({
+          affectedClasses: selectedOptions.value,
+        });
       }
 
       function getItemsToRemove(byUser, selectedSet) {
@@ -281,6 +284,9 @@
           await removeItems(RoleResource, coachRolesToRemove);
           removedLearnerMemberships.value = learnerMembershipsToRemove || [];
           removedCoachRoles.value = coachRolesToRemove || [];
+          props.onChange({
+            affectedClasses: selectedOptions.value,
+          });
           goBack();
           return true;
         } catch (error) {
@@ -341,6 +347,10 @@
         default: () => [],
       },
       onBlur: {
+        type: Function,
+        default: () => {},
+      },
+      onChange: {
         type: Function,
         default: () => {},
       },

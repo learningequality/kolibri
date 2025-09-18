@@ -38,7 +38,7 @@
           :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL__NEW_USERS"
           :numAppliedFilters="numAppliedFilters"
           @clearFilters="resetFilters"
-          @change="onUsersChange"
+          @change="onChange"
         >
           <template #userActions>
             <component
@@ -131,7 +131,7 @@
         :classes="classes"
         :selectedUsers="selectedUsers"
         :onBlur="onModalBlur"
-        :onUsersChange="onUsersChange"
+        :onChange="onChange"
         @hook:beforeDestroy="selectedUsers = new Set()"
       />
 
@@ -140,7 +140,7 @@
         v-if="isMoveToTrashModalOpen"
         :selectedUsers="selectedUsers"
         :onBlur="onModalBlur"
-        :onUsersChange="onUsersChange"
+        :onChange="onChange"
         @close="isMoveToTrashModalOpen = false"
       />
     </template>
@@ -191,6 +191,7 @@
       newUsersCreationTreshold.setDate(newUsersCreationTreshold.getDate() - MAX_NEW_USER_DAYS);
 
       const {
+        selectedUsers,
         facilityUsers,
         search,
         classes,
@@ -198,7 +199,7 @@
         usersCount,
         dataLoading,
         numAppliedFilters,
-        fetchUsers,
+        onChange,
         fetchClasses,
         resetFilters,
       } = useUserManagement({
@@ -206,7 +207,6 @@
         dateJoinedGt: newUsersCreationTreshold,
       });
 
-      const selectedUsers = ref(new Set());
       const showUsersTable = computed(
         () =>
           facilityUsers.value.length > 0 ||
@@ -214,13 +214,6 @@
           numAppliedFilters.value > 0 ||
           dataLoading.value,
       );
-
-      function onUsersChange({ resetSelection = false } = {}) {
-        fetchUsers();
-        if (resetSelection) {
-          selectedUsers.value.clear();
-        }
-      }
 
       const {
         newUser$,
@@ -256,8 +249,8 @@
         emptyPlusCloudSvg,
         numAppliedFilters,
         isMoveToTrashModalOpen,
+        onChange,
         onModalBlur,
-        onUsersChange,
         overrideRoute,
         resetFilters,
         newUser$,

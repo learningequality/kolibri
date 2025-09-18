@@ -51,7 +51,7 @@
           :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL"
           :numAppliedFilters="numAppliedFilters"
           @clearFilters="resetFilters"
-          @change="onUsersChange"
+          @change="onChange"
         >
           <template #userActions>
             <component
@@ -103,7 +103,7 @@
           :selectedUsers="selectedUsers"
           :classes="classes"
           :onBlur="onModalBlur"
-          :onUsersChange="onUsersChange"
+          :onChange="onChange"
           @clearSelection="clearSelectedUsers"
           @hook:beforeDestroy="selectedUsers = new Set()"
         />
@@ -113,7 +113,7 @@
           v-if="isMoveToTrashModalOpen"
           :selectedUsers="selectedUsers"
           :onBlur="onModalBlur"
-          :onUsersChange="onUsersChange"
+          :onChange="onChange"
           @close="isMoveToTrashModalOpen = false"
         />
       </KPageContainer>
@@ -140,7 +140,7 @@
   import MoveToTrashModal from '../common/MoveToTrashModal.vue';
 
   export default {
-    name: 'UserPage',
+    name: 'UsersRootPage',
     metaInfo() {
       return {
         title: this.coreString('usersLabel'),
@@ -156,7 +156,6 @@
       usePreviousRoute();
       const { currentUserId, isSuperuser, isAdmin } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
-      const selectedUsers = ref(new Set());
       const isMoveToTrashModalOpen = ref(false);
       const usersTableRef = ref(null);
 
@@ -175,23 +174,17 @@
       const activeFacilityId =
         $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
       const {
+        selectedUsers,
         facilityUsers,
         totalPages,
         usersCount,
         dataLoading,
         classes,
         numAppliedFilters,
-        fetchUsers,
+        onChange,
         fetchClasses,
         resetFilters,
       } = useUserManagement({ activeFacilityId });
-
-      const onUsersChange = ({ resetSelection = false } = {}) => {
-        fetchUsers();
-        if (resetSelection) {
-          selectedUsers.value = new Set();
-        }
-      };
 
       onMounted(() => {
         fetchClasses();
@@ -216,9 +209,9 @@
         usersTableRef,
         numAppliedFilters,
         isMoveToTrashModalOpen,
+        onChange,
         onModalBlur,
         resetFilters,
-        onUsersChange,
         clearSelectedUsers,
         newUser$,
         viewTrash$,

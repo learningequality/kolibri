@@ -31,9 +31,10 @@
  * useUserManagement.mockImplementation(() => useUserManagementMock())
  * ```
  */
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 
 const MOCK_DEFAULTS = {
+  selectedUsers: ref(new Set()),
   facilityUsers: computed(() => []),
   totalPages: computed(() => 0),
   usersCount: computed(() => 0),
@@ -45,8 +46,10 @@ const MOCK_DEFAULTS = {
   search: computed(() => null),
   userType: computed(() => null),
   classes: computed(() => []),
+  onChange: jest.fn(),
   fetchUsers: jest.fn(),
   fetchClasses: jest.fn(),
+  resetFilters: jest.fn(),
 };
 
 export function useUserManagementMock(overrides = {}) {
