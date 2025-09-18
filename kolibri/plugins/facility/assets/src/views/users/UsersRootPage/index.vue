@@ -57,44 +57,43 @@
             <component
               :is="canAssignCoaches ? 'router-link' : 'span'"
               :to="overrideRoute($route, { name: PageNames.ASSIGN_COACHES_SIDE_PANEL })"
-              :class="{ 'disabled-link': !canAssignCoaches }"
+              :class="{ 'disabled-link': !canAssignCoaches || !hasSelectedUsers }"
             >
               <KIconButton
                 icon="assignCoaches"
                 :ariaLabel="assignCoach$()"
                 :tooltip="assignCoach$()"
-                :disabled="!canAssignCoaches"
+                :disabled="!canAssignCoaches || !hasSelectedUsers"
               />
             </component>
             <component
               :is="canEnrollOrRemoveFromClass ? 'router-link' : 'span'"
               :to="overrideRoute($route, { name: PageNames.ENROLL_LEARNERS_SIDE_PANEL })"
-              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
+              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass || !hasSelectedUsers }"
             >
               <KIconButton
                 icon="add"
                 :ariaLabel="enrollToClass$()"
                 :tooltip="enrollToClass$()"
-                :disabled="!canEnrollOrRemoveFromClass"
+                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
               />
             </component>
             <component
               :is="canEnrollOrRemoveFromClass ? 'router-link' : 'span'"
               :to="overrideRoute($route, { name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL })"
-              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
+              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass || !hasSelectedUsers }"
             >
               <KIconButton
                 icon="remove"
                 :ariaLabel="removeFromClass$()"
                 :tooltip="removeFromClass$()"
-                :disabled="!canEnrollOrRemoveFromClass"
+                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
               />
             </component>
             <KIconButton
               icon="trash"
-              :ariaLabel="deleteSelection$()"
-              :tooltip="deleteSelection$()"
-              :disabled="!hasSelectedUsers || listContainsLoggedInUser"
+              :tooltip="deleteSelectionTooltip"
+              :disabled="!canDeleteSelection || !hasSelectedUsers"
               @click="isMoveToTrashModalOpen = true"
             />
           </template>
@@ -155,7 +154,7 @@
     mixins: [commonCoreStrings],
     setup() {
       usePreviousRoute();
-      const { currentUserId } = useUser();
+      const { currentUserId, isSuperuser, isAdmin } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const selectedUsers = ref(new Set());
       const isMoveToTrashModalOpen = ref(false);
@@ -169,6 +168,7 @@
         enrollToClass$,
         removeFromClass$,
         deleteSelection$,
+        cannotDeleteSelfTooltip$,
       } = bulkUserManagementStrings;
 
       const { $store, $router } = getCurrentInstance().proxy;
@@ -227,8 +227,11 @@
         enrollToClass$,
         removeFromClass$,
         deleteSelection$,
+        cannotDeleteSelfTooltip$,
         selectedUsers,
         currentUserId,
+        isSuperuser,
+        isAdmin,
       };
     },
     computed: {
@@ -276,6 +279,30 @@
               user.kind === UserKinds.SUPERUSER ||
               user.is_superuser,
           );
+      },
+      hasSelectedSuperusers() {
+        if (!this.hasSelectedUsers || !this.facilityUsers) return false;
+        return this.facilityUsers
+          .filter(user => this.selectedUsers.has(user.id))
+          .some(user => {
+            const isSuperuser = user.kind === UserKinds.SUPERUSER || user.is_superuser === true;
+            return isSuperuser;
+          });
+      },
+      canDeleteSelection() {
+        if (!this.hasSelectedUsers) return false;
+        if (this.listContainsLoggedInUser) return false;
+        if (this.isSuperuser) return true;
+        if (this.isAdmin) {
+          return !this.hasSelectedSuperusers;
+        }
+        return false;
+      },
+      deleteSelectionTooltip() {
+        if (this.listContainsLoggedInUser) {
+          return this.cannotDeleteSelfTooltip$();
+        }
+        return this.deleteSelection$();
       },
     },
     methods: {

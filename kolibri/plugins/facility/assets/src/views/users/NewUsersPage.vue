@@ -48,13 +48,13 @@
                   name: PageNames.ASSIGN_COACHES_SIDE_PANEL__NEW_USERS,
                 })
               "
-              :class="{ 'disabled-link': !canAssignCoaches }"
+              :class="{ 'disabled-link': !canAssignCoaches || !hasSelectedUsers }"
             >
               <KIconButton
                 icon="assignCoaches"
                 :ariaLabel="assignCoach$()"
                 :tooltip="assignCoach$()"
-                :disabled="!canAssignCoaches"
+                :disabled="!canAssignCoaches || !hasSelectedUsers"
               />
             </component>
             <component
@@ -64,13 +64,13 @@
                   name: PageNames.ENROLL_LEARNERS_SIDE_PANEL__NEW_USERS,
                 })
               "
-              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
+              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass || !hasSelectedUsers }"
             >
               <KIconButton
                 icon="add"
                 :ariaLabel="enrollToClass$()"
                 :tooltip="enrollToClass$()"
-                :disabled="!canEnrollOrRemoveFromClass"
+                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
               />
             </component>
             <component
@@ -86,14 +86,14 @@
                 icon="remove"
                 :ariaLabel="removeFromClass$()"
                 :tooltip="removeFromClass$()"
-                :disabled="!canEnrollOrRemoveFromClass"
+                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
               />
             </component>
             <KIconButton
               icon="trash"
               :ariaLabel="deleteSelection$()"
               :tooltip="deleteSelection$()"
-              :disabled="!hasSelectedUsers || listContainsLoggedInUser"
+              :disabled="!canDeleteSelection || !hasSelectedUsers"
               @click="isMoveToTrashModalOpen = true"
             />
           </template>
@@ -154,13 +154,13 @@
   import store from 'kolibri/store';
   import { computed, onMounted, ref } from 'vue';
   import { useRoute } from 'vue-router/composables';
+  import useUser from 'kolibri/composables/useUser';
 
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import { UserKinds } from 'kolibri/constants';
-  import useUser from 'kolibri/composables/useUser';
   import useUserManagement from '../../composables/useUserManagement';
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
   import { PageNames } from '../../constants';
@@ -181,6 +181,7 @@
     setup() {
       usePreviousRoute();
       const route = useRoute();
+      const { currentUserId, isSuperuser, isAdmin } = useUser();
       const usersTableRef = ref(null);
       const isMoveToTrashModalOpen = ref(false);
 
@@ -206,8 +207,6 @@
       });
 
       const selectedUsers = ref(new Set());
-      const { currentUserId } = useUser();
-
       const showUsersTable = computed(
         () =>
           facilityUsers.value.length > 0 ||
@@ -272,6 +271,8 @@
         addNewUserLabel$,
         noNewUsersDescription$,
         currentUserId,
+        isSuperuser,
+        isAdmin,
       };
     },
     computed: {
@@ -285,7 +286,7 @@
         if (!this.hasSelectedUsers) return false;
         return this.facilityUsers
           .filter(user => this.selectedUsers.has(user.id))
-          .some(
+          .every(
             user =>
               user.kind.includes(UserKinds.COACH) ||
               user.kind === UserKinds.ADMIN ||
@@ -305,6 +306,27 @@
               user.kind === UserKinds.SUPERUSER ||
               user.is_superuser,
           );
+      },
+      hasSelectedSuperusers() {
+        if (!this.hasSelectedUsers || !this.facilityUsers) return false;
+
+        return this.facilityUsers
+          .filter(user => this.selectedUsers.has(user.id))
+          .some(user => {
+            const isSuperuser = user.kind === UserKinds.SUPERUSER || user.is_superuser === true;
+            return isSuperuser;
+          });
+      },
+      canDeleteSelection() {
+        if (!this.hasSelectedUsers) return false;
+
+        if (this.listContainsLoggedInUser) return false;
+        if (this.isSuperuser) return true;
+        if (this.isAdmin) {
+          return !this.hasSelectedSuperusers;
+        }
+
+        return false;
       },
     },
   };
