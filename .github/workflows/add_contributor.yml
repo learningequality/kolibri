@@ -58,7 +58,7 @@ jobs:
 
       - name: Push changes to develop
         if: env.new_author == 'true'
-        uses: ad-m/github-push-action@v0.8.0
+        uses: ad-m/github-push-action@v1.0.0
         with:
           github_token: ${{ steps.generate-token.outputs.token }}
           branch: 'develop'
