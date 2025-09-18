@@ -44,6 +44,8 @@ DUMMY_PASSWORD = "password"
 
 
 class DeviceSettingsTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         cls.settings = {
@@ -105,6 +107,8 @@ class DeviceSettingsTestCase(APITestCase):
 
 
 class DevicePermissionsTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         clear_process_cache()
@@ -144,6 +148,8 @@ class DevicePermissionsTestCase(APITestCase):
 
 @override_option("Deployment", "MINIMUM_DISK_SPACE", 0)
 class FreeSpaceTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         clear_process_cache()
         provision_device()
@@ -170,6 +176,8 @@ class FreeSpaceTestCase(APITestCase):
 
 
 class DeviceInfoTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -268,6 +276,8 @@ class DeviceInfoTestCase(APITestCase):
 
 
 class DeviceNameTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         cls.device_name = {"name": "test device"}
@@ -329,6 +339,8 @@ class DeviceNameTestCase(APITestCase):
 
 
 class UserSyncStatusTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()

@@ -46,6 +46,8 @@ class URLTestCaseBase(TestCase):
     TestCase base-class for the URL tests.
     """
 
+    databases = "__all__"
+
     def setUp(self):
         # Make sure the cache is empty before we are doing our tests.
         clear_url_caches()

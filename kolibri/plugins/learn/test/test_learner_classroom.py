@@ -18,6 +18,8 @@ from kolibri.core.logger.models import MasteryLog
 
 
 class LearnerClassroomTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         clear_process_cache()
         provision_device()

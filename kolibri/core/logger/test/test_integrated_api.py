@@ -67,6 +67,8 @@ def create_assigned_lesson_for_user(user):
 
 
 class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
@@ -464,6 +466,8 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
 
 
 class ProgressTrackingViewSetStartSessionResumeTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
@@ -553,6 +557,8 @@ class ProgressTrackingViewSetStartSessionResumeTestCase(APITestCase):
 
 
 class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
@@ -945,6 +951,8 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
 
 
 class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
@@ -1250,6 +1258,8 @@ class ProgressTrackingViewSetAnonymousUpdateSessionTestCase(
 class ProgressTrackingViewSetLoggedInUpdateSessionTestCase(
     UpdateSessionBase, APITestCase
 ):
+    databases = "__all__"
+
     def setUp(self):
         self.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
@@ -2101,6 +2111,8 @@ class ProgressTrackingViewSetAnonymousUpdateSessionAssessmentTestCase(
 class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
     ProgressTrackingViewSetUpdateSessionAssessmentBase, APITestCase
 ):
+    databases = "__all__"
+
     def setUp(self):
         self.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
@@ -2292,6 +2304,8 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
 class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
     ProgressTrackingViewSetUpdateSessionAssessmentBase, APITestCase
 ):
+    databases = "__all__"
+
     def setUp(self):
         self.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
@@ -2558,6 +2572,8 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
 class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentPracticeQuizTestCase(
     ProgressTrackingViewSetUpdateSessionAssessmentBase, APITestCase
 ):
+    databases = "__all__"
+
     def setUp(self):
         self.facility = FacilityFactory.create()
         # provision device to pass the setup_wizard middleware check
@@ -2893,6 +2909,8 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentPracticeQuizTestCase
 
 
 class CSRFProtectedLoggerTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.client_csrf = APIClient(enforce_csrf_checks=True)
         self.facility = FacilityFactory.create()

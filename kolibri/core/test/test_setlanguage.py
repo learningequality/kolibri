@@ -10,6 +10,7 @@ from django.utils.translation import LANGUAGE_SESSION_KEY
 
 @override_settings(LANGUAGE_CODE="en")
 class I18NTests(TestCase):
+    databases = "__all__"
     """
     Tests set_language view in kolibri/core/views.py
     Copied from https://github.com/django/django/blob/stable/1.11.x/tests/view_tests/tests/test_i18n.py

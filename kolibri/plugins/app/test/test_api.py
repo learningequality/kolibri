@@ -12,6 +12,8 @@ from kolibri.plugins.utils.test.helpers import plugin_enabled
 
 
 class InitializeEndpointTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         cls.facility = FacilityFactory.create()

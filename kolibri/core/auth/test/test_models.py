@@ -664,6 +664,9 @@ class FacilityTestCase(TestCase):
 
 
 class FacilityUserTestCase(TestCase):
+
+    databases = "__all__"
+
     def test_all_objects_manager_returns_all_users(self):
         self.facility = Facility.objects.create(name="My Facility")
         FacilityUser.objects.create(

@@ -18,6 +18,8 @@ class LessonCreationTestCase(APITestCase):
     Tests for creating and fetching new Lessons
     """
 
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()

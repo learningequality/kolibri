@@ -16,6 +16,8 @@ from kolibri.core.content.models import ContentNode
 
 
 class BookmarkAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()

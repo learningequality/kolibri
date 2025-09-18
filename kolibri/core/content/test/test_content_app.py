@@ -662,6 +662,8 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
     Testcase for content API methods
     """
 
+    databases = "__all__"
+
     maxDiff = None
 
     def test_prerequisite_for_filter(self):
@@ -2001,6 +2003,8 @@ def mock_patch_decorator(func):
 
 
 class KolibriStudioAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         DeviceSettings.objects.create(is_provisioned=True)

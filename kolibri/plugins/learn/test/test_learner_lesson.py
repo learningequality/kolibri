@@ -12,6 +12,8 @@ from kolibri.core.lessons.models import LessonAssignment
 
 
 class LearnerLessonTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         clear_process_cache()
         provision_device()
