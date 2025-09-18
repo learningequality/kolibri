@@ -4,6 +4,7 @@ Tests of the core auth models (Role, Membership, Collection, FacilityUser, etc).
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
+from django.utils import timezone
 
 from ..constants import collection_kinds
 from ..constants import role_kinds
@@ -20,6 +21,7 @@ from ..models import FacilityUser
 from ..models import LearnerGroup
 from ..models import Membership
 from ..models import Role
+from ..models import Session
 from .helpers import create_superuser
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.device.models import DeviceSettings
@@ -787,3 +789,123 @@ class CollectionHierarchyTestCase(TestCase):
         adhocgroup = AdHocGroup.objects.create(parent=clsroom)
         with self.assertRaises(InvalidCollectionHierarchy):
             AdHocGroup.objects.create(parent=adhocgroup)
+
+
+class UserSessionCleanupTestCase(TestCase):
+    """
+    Tests that sessions are cleaned up when users are soft deleted or hard deleted.
+    """
+
+    databases = "__all__"
+
+    def setUp(self):
+        self.facility = Facility.objects.create(name="Test Facility")
+        self.user = FacilityUser.objects.create(
+            username="testuser", facility=self.facility, full_name="Test User"
+        )
+
+    def _create_test_session(self, user, session_key):
+        """Helper to create a test session for a user."""
+        return Session.objects.create(
+            session_key=session_key,
+            session_data="test_data",
+            expire_date=timezone.now() + timezone.timedelta(days=1),
+            user_id=user.id,
+        )
+
+    def test_individual_soft_delete_cleans_up_sessions(self):
+        """Test that individual soft delete removes user sessions."""
+        self._create_test_session(self.user, "test_session_1")
+
+        # Verify session exists
+        self.assertTrue(Session.objects.filter(user_id=self.user.id).exists())
+
+        # Soft delete the user
+        self.user.date_deleted = timezone.now()
+        self.user.save()
+
+        # Verify sessions are deleted
+        self.assertFalse(Session.objects.filter(user_id=self.user.id).exists())
+
+    def test_bulk_soft_delete_cleans_up_sessions(self):
+        """Test that bulk soft delete removes user sessions."""
+        user2 = FacilityUser.objects.create(
+            username="testuser2", facility=self.facility, full_name="Test User 2"
+        )
+
+        self._create_test_session(self.user, "test_session_1")
+        self._create_test_session(user2, "test_session_2")
+
+        # Verify sessions exist
+        self.assertEqual(
+            Session.objects.filter(user_id__in=[self.user.id, user2.id]).count(), 2
+        )
+
+        # Bulk soft delete users
+        FacilityUser.objects.filter(id__in=[self.user.id, user2.id]).update(
+            date_deleted=timezone.now()
+        )
+
+        # Verify sessions are deleted
+        self.assertEqual(
+            Session.objects.filter(user_id__in=[self.user.id, user2.id]).count(), 0
+        )
+
+    def test_individual_hard_delete_cleans_up_sessions(self):
+        """Test that individual hard delete removes user sessions."""
+        self._create_test_session(self.user, "test_session_1")
+        user_id = self.user.id
+
+        # Verify session exists
+        self.assertTrue(Session.objects.filter(user_id=user_id).exists())
+
+        # Hard delete the user
+        self.user.delete()
+
+        # Verify sessions are deleted
+        self.assertFalse(Session.objects.filter(user_id=user_id).exists())
+
+    def test_bulk_hard_delete_cleans_up_sessions(self):
+        """Test that bulk hard delete removes user sessions."""
+        user2 = FacilityUser.objects.create(
+            username="testuser2", facility=self.facility, full_name="Test User 2"
+        )
+
+        self._create_test_session(self.user, "test_session_1")
+        self._create_test_session(user2, "test_session_2")
+        user_ids = [self.user.id, user2.id]
+
+        # Verify sessions exist
+        self.assertEqual(Session.objects.filter(user_id__in=user_ids).count(), 2)
+
+        # Bulk hard delete users (using all_objects to bypass soft delete filtering)
+        FacilityUser.all_objects.filter(id__in=user_ids).delete()
+
+        # Verify sessions are deleted
+        self.assertEqual(Session.objects.filter(user_id__in=user_ids).count(), 0)
+
+    def test_soft_delete_only_affects_non_deleted_users(self):
+        """Test that only non-soft-deleted users have their sessions cleaned up."""
+        user2 = FacilityUser.objects.create(
+            username="testuser2",
+            facility=self.facility,
+            full_name="Test User 2",
+            date_deleted=timezone.now(),
+        )
+
+        self._create_test_session(self.user, "test_session_1")
+        self._create_test_session(user2, "test_session_2")
+
+        # Verify both sessions exist
+        self.assertEqual(
+            Session.objects.filter(user_id__in=[self.user.id, user2.id]).count(), 2
+        )
+
+        # Bulk update with date_deleted (should only affect user, not user2)
+        FacilityUser.all_objects.filter(id__in=[self.user.id, user2.id]).update(
+            date_deleted=timezone.now()
+        )
+
+        # Only the first user's session should be deleted (user2 was already soft deleted)
+        self.assertFalse(Session.objects.filter(user_id=self.user.id).exists())
+        self.assertTrue(Session.objects.filter(user_id=user2.id).exists())

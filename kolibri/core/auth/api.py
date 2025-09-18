@@ -56,7 +56,6 @@ from rest_framework.response import Response
 
 from .constants import collection_kinds
 from .constants import role_kinds
-from .middleware import clear_user_cache_on_delete
 from .models import Classroom
 from .models import Collection
 from .models import Facility
@@ -594,7 +593,6 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
             user = self.get_object()
             user.date_deleted = now()
             user.save()
-            self._invalidate_removed_users_session([user])
             try:
                 cleanup_expired_deleted_users.enqueue()
             except JobRunning:
@@ -604,22 +602,10 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
             # Bulk deletion
             return self.bulk_destroy(request, *args, **kwargs)
 
-    def _invalidate_removed_users_session(self, users):
-        """
-        Invalidate removed users sessions by clearing their cache.
-        So the next time they make a request, the auth middleware will try to fetch
-        the most up-to-date information for the user, and won't find the user
-        since it was soft deleted.
-        """
-        for user in users:
-            clear_user_cache_on_delete(None, user)
-
     def perform_bulk_destroy(self, objects):
         if objects.filter(id=self.request.user.id).exists():
             raise PermissionDenied("Super user cannot delete self")
-        removed_users = list(objects)
         objects.update(date_deleted=now())
-        self._invalidate_removed_users_session(removed_users)
 
     def perform_update(self, serializer):
         instance = serializer.save()

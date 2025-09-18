@@ -89,3 +89,9 @@ class SessionStore(DBStore):
             user_id = None
         obj.user_id = user_id
         return obj
+
+    @classmethod
+    def delete_all_sessions(cls, user_ids):
+        store = cls()
+        sessions = store.get_model_class().objects.filter(user_id__in=user_ids)
+        sessions.delete()

@@ -36,6 +36,7 @@ from django.utils.functional import cached_property
 from morango.models import Certificate
 from morango.models import SyncableModel
 from morango.models import SyncableModelManager
+from morango.models import SyncableModelQuerySet
 from morango.models import UUIDField
 from mptt.models import TreeForeignKey
 
@@ -102,6 +103,12 @@ class Session(AbstractBaseSession):
         from .backends import SessionStore
 
         return SessionStore
+
+    @classmethod
+    def delete_all_sessions(cls, user_ids):
+        store_class = cls.get_session_store_class()
+        store_class.delete_all_sessions(user_ids)
+        logger.info("Deleted all sessions for user IDs: {}".format(user_ids))
 
 
 class SessionRouter(KolibriModelRouter):
@@ -660,7 +667,43 @@ class KolibriAnonymousUser(AnonymousUser, KolibriBaseUserMixin):
         return queryset.none()
 
 
-class FacilityUserModelManager(SyncableModelManager, UserManager):
+class FacilityUserQuerySet(SyncableModelQuerySet):
+    def update(self, **kwargs):
+        # Check if date_deleted is being set to a non-null value (soft delete)
+        user_ids = []
+        if "date_deleted" in kwargs and kwargs["date_deleted"] is not None:
+            # Get user IDs that are currently not soft deleted
+            user_ids = list(
+                self.filter(date_deleted__isnull=True).values_list("id", flat=True)
+            )
+
+        # Perform the update
+        result = super().update(**kwargs)
+
+        # Clean up sessions for soft deleted users
+        if user_ids:
+            Session.delete_all_sessions(user_ids)
+
+        return result
+
+    def delete(self):
+        # Get user IDs before deletion for session cleanup
+        user_ids = list(self.values_list("id", flat=True))
+
+        # Perform the deletion
+        result = super().delete()
+
+        # Clean up sessions after successful deletion
+        Session.delete_all_sessions(user_ids)
+        return result
+
+
+class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
+    def get_queryset(self):
+        return FacilityUserQuerySet(self.model, using=self._db)
+
+
+class FacilityUserModelManager(BaseFacilityUserModelManager):
     def get_queryset(self):
         return super().get_queryset().filter(date_deleted__isnull=True)
 
@@ -747,7 +790,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
             return user
 
 
-class SoftDeletedFacilityUserModelManager(SyncableModelManager, UserManager):
+class SoftDeletedFacilityUserModelManager(BaseFacilityUserModelManager):
     """
     Custom manager for FacilityUser that only returns users who have a non-NULL value in their date_deleted field.
     """
@@ -802,7 +845,7 @@ def validate_role_kinds(kinds):
     return kinds
 
 
-class AllObjectsFacilityUserModelManager(SyncableModelManager, UserManager):
+class AllObjectsFacilityUserModelManager(BaseFacilityUserModelManager):
     def get_queryset(self):
         return super(AllObjectsFacilityUserModelManager, self).get_queryset()
 
@@ -833,7 +876,7 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
 
     all_objects = AllObjectsFacilityUserModelManager()
     objects = FacilityUserModelManager()
-
+    syncing_objects = BaseFacilityUserModelManager()
     soft_deleted_objects = SoftDeletedFacilityUserModelManager()
 
     USERNAME_FIELD = "username"
@@ -1089,6 +1132,28 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         return '"{user}"@"{facility}"'.format(
             user=self.full_name or self.username, facility=self.facility
         )
+
+    def save(self, *args, **kwargs):
+        # Call the parent save method first
+        result = super().save(*args, **kwargs)
+
+        # Clean up sessions after successful save if user is deleted
+        # This handles both local deletions and deletions synced via Morango
+        # (Morango creates new instances from deserialized data, so we can't
+        # reliably track changes - just clean up whenever date_deleted is set)
+        if self.date_deleted is not None and self.pk is not None:
+            Session.delete_all_sessions([self.id])
+
+        return result
+
+    def delete(self, *args, **kwargs):
+        """
+        Override delete to ensure sessions are cleaned up during hard delete.
+        """
+        user_id = self.id
+        result = super().delete(*args, **kwargs)
+        Session.delete_all_sessions([user_id])
+        return result
 
     def has_perm(self, perm, obj=None):
         # ensure the superuser has full access to the Django admin
