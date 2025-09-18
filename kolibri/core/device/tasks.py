@@ -22,6 +22,7 @@ from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.permissions import FirstProvisioning
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
+from kolibri.core.utils.token_generator import TokenGenerator
 from kolibri.plugins.app.utils import GET_OS_USER
 from kolibri.plugins.app.utils import interface
 
@@ -143,6 +144,8 @@ def provisiondevice(**data):  # noqa C901
 
         auth_token = data.pop("auth_token", None)
 
+        superuser_created = False
+
         if "superuser" in data:
             superuser_data = data["superuser"]
             # We've imported a facility if the username exists
@@ -159,6 +162,7 @@ def provisiondevice(**data):  # noqa C901
                         facility=facility,
                         full_name=superuser_data.get("full_name"),
                     )
+                    superuser_created = True
                 except Exception:
                     raise ParseError(
                         "`username`, `password`, or `full_name` are missing in `superuser`"
@@ -223,7 +227,19 @@ def provisiondevice(**data):  # noqa C901
 
         job = get_current_job()
         if job:
-            job.update_metadata(
-                facility_id=facility.id,
-                username=superuser.username if superuser else None,
-            )
+            updates = {
+                "facility_id": facility.id,
+                "superuser_id": superuser.id if superuser else None,
+                "username": superuser.username if superuser else None,
+            }
+
+            # If superuser was imported, and learners are not allowed to log in
+            # without a password, then we will need a token so that the frontend can
+            # authenticate the superuser in case it does not know the password.
+            if (
+                not superuser_created
+                and not facility.dataset.learner_can_login_with_no_password
+            ):
+                updates["auth_token"] = TokenGenerator().make_token(superuser.id)
+
+            job.update_metadata(**updates)

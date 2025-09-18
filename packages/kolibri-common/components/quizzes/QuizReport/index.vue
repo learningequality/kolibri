@@ -201,7 +201,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import MasteryLogResource from 'kolibri-common/apiResources/MasteryLogResource';
-  import { now } from 'kolibri/utils/serverClock';
+  import useNow from 'kolibri/composables/useNow';
   import { annotateSections } from 'kolibri-common/quizzes/utils';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
@@ -226,8 +226,10 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
+      const { now } = useNow();
       return {
         windowIsSmall,
+        now,
       };
     },
     props: {
@@ -353,7 +355,6 @@
     data() {
       return {
         showCorrectAnswer: false,
-        now: now(),
         pastTries: [],
         currentTry: null,
         loading: true,

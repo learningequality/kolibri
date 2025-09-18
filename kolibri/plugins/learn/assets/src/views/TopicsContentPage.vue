@@ -129,11 +129,14 @@
       <AlsoInThis
         style="margin-top: 8px"
         :contentNodes="viewResourcesContents"
+        :moreContentNodesAvailable="moreResourcesContentAvailable"
+        :moreContentNodesLoading="moreResourcesContentLoading"
         :nextFolder="nextFolder"
         :isLesson="lessonContext"
         :loading="resourcesSidePanelLoading"
         :currentResourceId="currentResourceId"
         :missingLessonResources="missingLessonResources"
+        @loadMoreContentNodes="loadMoreResourcesContent"
       />
     </SidePanelModal>
     <KModal
@@ -248,6 +251,9 @@
       const channel = ref(null);
       const content = ref(null);
       const loading = ref(false);
+      const viewResourcesContents = ref([]);
+      const moreResourcesContentAvailable = ref(null);
+      const moreResourcesContentLoading = ref(false);
 
       function _loadTopicsContent(shouldResolve, baseurl) {
         const id = props.id;
@@ -309,6 +315,31 @@
         });
       }
 
+      function loadMoreResourcesContent() {
+        const more = moreResourcesContentAvailable.value;
+        if (!more) {
+          return Promise.resolve(viewResourcesContents.value);
+        }
+        moreResourcesContentLoading.value = true;
+        // Fetch progress data for logged in users on local content
+        const shouldFetchProgress = get(isUserLoggedIn) && !props.deviceId;
+        if (shouldFetchProgress) {
+          fetchContentNodeTreeProgress(more);
+        }
+        // Fetch additional content nodes
+        return ContentNodeResource.fetchTree(more)
+          .then(({ children }) => {
+            viewResourcesContents.value = [...viewResourcesContents.value, ...children.results];
+            moreResourcesContentAvailable.value = children.more;
+          })
+          .catch(error => {
+            store.dispatch('handleApiError', { error });
+          })
+          .finally(() => {
+            moreResourcesContentLoading.value = false;
+          });
+      }
+
       watch(() => props.id, showTopicsContent);
       showTopicsContent();
 
@@ -335,6 +366,10 @@
         isSuperuser,
         currentUserId,
         showCompletedDownloadSnackbar,
+        viewResourcesContents,
+        moreResourcesContentAvailable,
+        loadMoreResourcesContent,
+        moreResourcesContentLoading,
       };
     },
     props: {
@@ -365,7 +400,6 @@
         sidePanelContent: null,
         showViewResourcesSidePanel: false,
         nextFolder: null,
-        viewResourcesContents: [],
         resourcesSidePanelFetched: false,
         resourcesSidePanelLoading: false,
         contentPageMounted: false,
@@ -622,6 +656,7 @@
           }
           this.nextFolder = nextFolders.find(c => c.kind === ContentNodeKinds.TOPIC) || null;
           this.viewResourcesContents = parent.children.results.filter(n => n.id);
+          this.moreResourcesContentAvailable = parent.children.more || null;
         });
       },
       navigateBack() {

@@ -3,7 +3,6 @@ from morango.errors import MorangoError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from .utils import TokenGenerator
 from kolibri.core import error_constants
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.middleware import clear_user_cache_on_delete
@@ -25,6 +24,7 @@ from kolibri.core.tasks.permissions import IsFacilityAdmin
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import PermissionsFromAny
 from kolibri.core.tasks.utils import get_current_job
+from kolibri.core.utils.token_generator import TokenGenerator
 from kolibri.core.utils.urls import reverse_path
 from kolibri.utils.translation import gettext as _
 

@@ -123,7 +123,7 @@
   import sortBy from 'lodash/sortBy';
   import map from 'lodash/map';
   import get from 'lodash/get';
-  import { mapState } from 'vuex';
+  import { mapActions, mapState } from 'vuex';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import TaskResource from 'kolibri/apiResources/TaskResource';
@@ -222,6 +222,7 @@
       });
     },
     methods: {
+      ...mapActions('manageContent', ['refreshChannelList']),
       handleSubmit() {
         this.disableModal = true;
 
@@ -238,10 +239,13 @@
               this.loadingTask = true;
               const taskId = task.id;
               const taskList = state => state.manageContent.taskList;
-              const stopWatching = this.$store.watch(taskList, tasks => {
+              const stopWatching = this.$store.watch(taskList, async tasks => {
                 const match = tasks.find(task => task.id === taskId) || {};
                 if (match && match.extra_metadata.database_ready) {
                   stopWatching();
+                  // Reload the channel list to ensure the
+                  // new version is updated before redirecting
+                  await this.refreshChannelList();
                   this.$router.push({
                     ...this.$router.getRoute(PageNames.SELECT_CONTENT),
                     query: {
