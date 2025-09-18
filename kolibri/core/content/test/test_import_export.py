@@ -272,6 +272,35 @@ class GetImportExportNodesTestCase(TestCase):
             expected_content_nodes,
         )
 
+    def test_unavailable_node_with_available_files_included_when_available_false(self):
+        # Get a node that exists in the test data
+        test_node = ContentNode.objects.get(
+            pk=self.c2c1_node_id, channel_id=self.the_channel_id
+        )
+
+        # Mark the node as unavailable but ensure its files are available
+        test_node.available = False
+        test_node.save()
+
+        # Ensure all local files for this node are marked as available
+        for file_obj in test_node.files.all():
+            local_file = file_obj.local_file
+            local_file.available = True
+            local_file.save()
+
+        # When available=False, the node should be included in the result
+        # even though it's marked unavailable (because it has available files)
+        matched_nodes_queries_list = get_import_export_nodes(
+            self.the_channel_id, renderable_only=False, available=False
+        )
+
+        result_node_ids = [
+            node.pk
+            for node in itertools.chain.from_iterable(matched_nodes_queries_list)
+        ]
+
+        self.assertIn(self.c2c1_node_id, result_node_ids)
+
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class GetContentNodesDataTestCase(TestCase):
@@ -983,10 +1012,14 @@ class ImportContentTestCase(TestCase):
         )
 
         node_id = [self.c2c1_node_id]
-        manager = RemoteChannelResourceImportManager(
-            self.the_channel_id, node_ids=node_id, renderable_only=False
-        )
-        manager.run()
+        with patch(
+            "kolibri.core.content.utils.resource_import.transfer.FileDownload.run",
+            side_effect=HTTPError("Not Found", response=MagicMock(status_code=404)),
+        ):
+            manager = RemoteChannelResourceImportManager(
+                self.the_channel_id, node_ids=node_id, renderable_only=False
+            )
+            manager.run()
         logger_mock.assert_called_once()
         self.assertIn("4 files are skipped", logger_mock.call_args_list[0][0][0])
         self.annotation_mock.set_content_visibility.assert_called_with(
@@ -1030,9 +1063,7 @@ class ImportContentTestCase(TestCase):
         )
 
     @patch("kolibri.core.content.utils.resource_import.get_free_space")
-    @patch(
-        "kolibri.core.content.utils.resource_import.transfer.FileDownload._move_tmp_to_dest"
-    )
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload.finalize")
     @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
     )
@@ -1078,9 +1109,7 @@ class ImportContentTestCase(TestCase):
             manager.run()
 
     @patch("kolibri.core.content.utils.resource_import.get_free_space")
-    @patch(
-        "kolibri.core.content.utils.resource_import.transfer.FileDownload._move_tmp_to_dest"
-    )
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload.finalize")
     @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
     )
@@ -1125,7 +1154,10 @@ class ImportContentTestCase(TestCase):
             2201062 + 336974,
         )
         get_free_space_mock.side_effect = [100000000000, 0, 0, 0, 0, 0, 0]
-        with self.assertRaises(InsufficientStorageSpaceError):
+        # Ensure single threaded operation for deterministic testing
+        with patch(
+            "kolibri.core.tasks.utils.get_fd_limit", return_value=1
+        ), self.assertRaises(InsufficientStorageSpaceError):
             manager = RemoteChannelResourceImportManager(self.the_channel_id)
             manager.run()
         self.annotation_mock.set_content_visibility.assert_called_with(
@@ -1361,9 +1393,6 @@ class ImportContentTestCase(TestCase):
         mock_overall_progress.assert_any_call(expected_file_size)
 
     @patch(
-        "kolibri.core.content.utils.resource_import.transfer.FileDownload._move_tmp_to_dest"
-    )
-    @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
     )
     @patch(
@@ -1379,7 +1408,6 @@ class ImportContentTestCase(TestCase):
         _checksum_correct_mock,
         is_cancelled_mock,
         path_mock,
-        _move_tmp_to_dest_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1420,9 +1448,7 @@ class ImportContentTestCase(TestCase):
             admin_imported=True,
         )
 
-    @patch(
-        "kolibri.core.content.utils.resource_import.transfer.FileDownload._move_tmp_to_dest"
-    )
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload.finalize")
     @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
     )
@@ -1466,7 +1492,9 @@ class ImportContentTestCase(TestCase):
             10,
         )
         manager = RemoteChannelResourceImportManager(self.the_channel_id)
-        manager.run()
+        # Ensure single threaded operation for deterministic testing
+        with patch("kolibri.core.tasks.utils.get_fd_limit", return_value=1):
+            manager.run()
         self.annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [
@@ -1971,7 +1999,10 @@ class ImportContentTestCase(TestCase):
             10,
         )
 
-        with self.assertRaises(HTTPError):
+        with patch(
+            "kolibri.core.content.utils.resource_import.transfer.FileDownload.run",
+            side_effect=HTTPError,
+        ), self.assertRaises(HTTPError):
             manager = RemoteChannelResourceImportManager(
                 self.the_channel_id,
                 node_ids=[self.c2c1_node_id],

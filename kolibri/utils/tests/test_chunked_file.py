@@ -49,6 +49,7 @@ class TestChunkedFile(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.chunked_file.chunk_dir, ignore_errors=True)
+        shutil.rmtree(self.file_path, ignore_errors=True)
 
     def test_read(self):
         # Read from the beginning
@@ -297,6 +298,16 @@ class TestChunkedFile(unittest.TestCase):
         with self.assertRaises(ChunkedFileDoesNotExist):
             with self.chunked_file.lock_chunks(0):
                 pass
+
+    def test_chunked_file_raise_if_empty(self):
+        with self.assertRaises(FileNotFoundError):
+            ChunkedFile("empty_file", raise_if_empty=True)
+
+    def test_chunked_file_raise_if_exists(self):
+        with open(self.file_path, "wb") as f:
+            f.write(b"data")
+        with self.assertRaises(FileExistsError):
+            ChunkedFile(self.file_path, raise_if_exists=True)
 
 
 # The expected number of bytes taken up by files used in the diskcache
