@@ -124,7 +124,7 @@
       SelectableList,
       CloseConfirmationGuard,
     },
-    setup(props, { emit }) {
+    setup(props) {
       const selectedClasses = ref([]); // Array of selected class IDs
       const isLoading = ref(false);
       const showErrorWarning = ref(false);
@@ -214,8 +214,8 @@
           await assignCoachesToClasses();
           props.onChange({
             affectedClasses: selectedClasses.value,
+            resetSelection: true,
           });
-          emit('clearSelection');
           closeSidePanel();
           return true;
         } catch (error) {
