@@ -711,8 +711,6 @@
 
   .move-down {
     position: relative;
-
-    /* margin-top: 24px; */
   }
 
   .role-badge {
