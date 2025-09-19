@@ -29,6 +29,9 @@ LANDING_PAGE_LEARN = "learn"
 APP_KEY_COOKIE_NAME = "app_key_cookie"
 APP_AUTH_TOKEN_COOKIE_NAME = "app_auth_token_cookie"
 
+DEVICE_UNUSABLE_NO_SUPERUSERS = "NO_SUPERUSERS"
+DEVICE_UNUSABLE_SUPERUSERS_SOFT_DELETED = "SUPERUSERS_SOFT_DELETED"
+
 
 class DeviceNotProvisioned(Exception):
     pass
@@ -494,3 +497,37 @@ def is_full_facility_import(dataset_id):
         .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
         .exists()
     )
+
+
+device_is_provisioned = False
+
+
+def is_provisioned():
+    # First check if the device has been provisioned
+    global device_is_provisioned
+    device_is_provisioned = device_is_provisioned or device_provisioned()
+    return device_is_provisioned
+
+
+def reset_device_provisioned_flag():
+    global device_is_provisioned
+    device_is_provisioned = False
+
+
+def get_device_unusable_reason():
+    from kolibri.core.auth.models import FacilityUser
+
+    is_soud = get_device_setting("subset_of_users_device")
+    if not is_soud:
+        return None
+
+    superadmins = FacilityUser.all_objects.filter(devicepermissions__is_superuser=True)
+    if not superadmins.exists():
+        return DEVICE_UNUSABLE_NO_SUPERUSERS
+
+    non_soft_deleted_superadmins = FacilityUser.objects.filter(
+        devicepermissions__is_superuser=True
+    )
+    if not non_soft_deleted_superadmins.exists():
+        return DEVICE_UNUSABLE_SUPERUSERS_SOFT_DELETED
+    return None

@@ -11,7 +11,8 @@ from morango.models import Store
 from kolibri.core.auth.management.utils import confirm_or_exit
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
+from kolibri.core.auth.utils.deprovision import deprovision
+from kolibri.core.auth.utils.deprovision import get_deprovision_progress_total
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.logger.models import AttemptLog
@@ -57,12 +58,10 @@ class Command(AsyncCommand):
         )
 
     def deprovision(self):
-        with DisablePostDeleteSignal(), self.start_progress(
-            total=len(MODELS_TO_DELETE)
+        with self.start_progress(
+            total=get_deprovision_progress_total()
         ) as progress_update:
-            for Model in MODELS_TO_DELETE:
-                Model.objects.all().delete()
-                progress_update(1)
+            deprovision(progress_update=progress_update)
 
     def handle_async(self, *args, **options):
 
