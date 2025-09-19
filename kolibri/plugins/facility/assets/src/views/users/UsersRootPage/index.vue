@@ -132,6 +132,7 @@
 <script>
 
   import { ref, getCurrentInstance, onMounted } from 'vue';
+  import { useRoute, useRouter } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
@@ -160,6 +161,8 @@
     mixins: [commonCoreStrings],
     setup() {
       usePreviousRoute();
+      const route = useRoute();
+      const router = useRouter();
       const { currentUserId, isSuperuser, isAdmin } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const isMoveToTrashModalOpen = ref(false);
@@ -204,6 +207,11 @@
         usersTableRef.value?.focus();
       }
 
+      function navigateToSidePanel(sidePanelName) {
+        const newRoute = overrideRoute(route, { name: sidePanelName });
+        router.push(newRoute);
+      }
+
       return {
         PageNames,
         userIsMultiFacilityAdmin,
@@ -231,6 +239,7 @@
         currentUserId,
         isSuperuser,
         isAdmin,
+        navigateToSidePanel,
       };
     },
     computed: {
@@ -305,11 +314,6 @@
       },
     },
     methods: {
-      overrideRoute,
-      navigateToSidePanel(sidePanelName) {
-        const newRoute = this.overrideRoute(this.$route, { name: sidePanelName });
-        this.$router.push(newRoute);
-      },
       handlePageDropdownSelection(option) {
         if (option.value) {
           this.$router.push({
