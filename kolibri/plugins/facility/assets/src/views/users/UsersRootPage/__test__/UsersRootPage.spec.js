@@ -39,6 +39,7 @@ describe('UserPage component', () => {
   beforeAll(() => {
     useKResponsiveWindow.mockImplementation(() => ({
       windowIsSmall: false,
+      windowBreakpoint: 4,
     }));
   });
   // replace the real XHR object with the mock XHR object before each test

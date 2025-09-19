@@ -64,6 +64,7 @@
       </KGrid>
       <KTable
         class="move-down user-roster"
+        :stickyColumns="stickyColumns"
         :headers="tableHeaders"
         :caption="coreStrings.usersLabel$()"
         :rows="tableRows"
@@ -204,6 +205,7 @@
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import useUser from 'kolibri/composables/useUser';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
 
   import { Modals } from '../../../constants';
@@ -621,6 +623,12 @@
         focus,
       });
 
+      const { windowBreakpoint } = useKResponsiveWindow();
+      const stickyColumns = computed(() => [
+        windowBreakpoint.value <= 2 ? 'first' : 'firstTwo',
+        'last',
+      ]);
+
       return {
         // Computed Properties
         tableHeaders,
@@ -635,6 +643,7 @@
         userToChange,
         userToChangeSet,
         filterTextboxRef,
+        stickyColumns,
 
         // Methods
         handleSelectAllToggle,
