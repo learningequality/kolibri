@@ -247,6 +247,7 @@ def provisiondevice(**data):  # noqa C901
 
             job.update_metadata(**updates)
 
+
 @register_task(
     permission_classes=[IsDeviceUnusable],
     cancellable=False,
