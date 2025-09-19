@@ -3,10 +3,10 @@
   <SidePanelModal
     v-if="showSidePanel"
     ref="resourcePanel"
+    hideHeaderBorder
     alignment="right"
     sidePanelWidth="700px"
     closeButtonIconType="close"
-    :addBottomBorder="false"
     @closePanel="handleClosePanel"
     @shouldFocusFirstEl="findFirstEl()"
   >

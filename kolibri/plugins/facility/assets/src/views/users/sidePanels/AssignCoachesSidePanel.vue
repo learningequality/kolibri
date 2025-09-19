@@ -2,13 +2,15 @@
 
   <div>
     <SidePanelModal
+      hideHeaderBorder
       alignment="right"
       sidePanelWidth="700px"
-      :addBottomBorder="false"
+      :contentContainerStyleOverrides="{ padding: '0px 24px 24px' }"
+      :headerContainerStyleOverrides="{ paddingLeft: '24px', paddingRight: '24px' }"
       @closePanel="closeSidePanel"
     >
       <template #header>
-        <h1>{{ assignUsersHeading$({ num: selectedUsersCount }) }}</h1>
+        <h1 class="side-panel-title">{{ assignUsersHeading$({ num: selectedUsersCount }) }}</h1>
       </template>
 
       <div class="assign-coaches-content">
@@ -23,7 +25,7 @@
           </div>
 
           <div
-            class="top-info-box"
+            class="info-box"
             :style="{ backgroundColor: $themePalette.grey.v_100 }"
           >
             <template v-if="ineligibleUsersCount > 0">
@@ -47,11 +49,16 @@
             </template>
           </div>
 
-          <h2>{{ selectClassesLabel$() }}</h2>
+          <h2
+            id="assign-coaches-selected-classes"
+            class="side-panel-subtitle"
+          >
+            {{ selectClassesLabel$() }}
+          </h2>
           <SelectableList
             v-model="selectedClasses"
             :options="formattedClasses"
-            aria-labelledby="classes-heading"
+            aria-labelledby="assign-coaches-selected-classes"
             :selectAllLabel="assignToAllClasses$()"
             :searchLabel="searchForAClass$()"
           />
@@ -102,7 +109,6 @@
   import { ref, computed } from 'vue';
   import { useRoute } from 'vue-router/composables';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import KIcon from 'kolibri-design-system/lib/KIcon';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { UserKinds } from 'kolibri/constants';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
@@ -120,7 +126,6 @@
     name: 'AssignCoachesSidePanel',
     components: {
       SidePanelModal,
-      KIcon,
       SelectableList,
       CloseConfirmationGuard,
     },
@@ -328,8 +333,14 @@
 
 <style scoped>
 
-  .assign-coaches-content {
-    position: relative;
+  .side-panel-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .side-panel-subtitle {
+    font-size: 16px;
+    font-weight: 600;
   }
 
   .assign-warning-label {
@@ -348,19 +359,10 @@
     line-height: 1.5;
   }
 
-  .top-info-box {
-    padding: 12px;
-    margin-bottom: 16px;
-    border-radius: 8px;
-  }
-  /* stylelint-disable-next-line selector-pseudo-element-no-unknown */
-  ::v-deep(.side-panel-content) {
-    padding-top: 0 !important ;
-  }
-  /* stylelint-disable-next-line selector-pseudo-element-no-unknown */
-  ::v-deep(.side-panel-header) {
-    padding-right: 32px !important ;
-    padding-left: 32px !important ;
+  .info-box {
+    padding: 8px;
+    margin-bottom: 24px;
+    border-radius: 4px;
   }
 
   .info-flex {

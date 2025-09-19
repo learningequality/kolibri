@@ -1,8 +1,11 @@
 <template>
 
   <SidePanelModal
+    hideHeaderBorder
     alignment="right"
     sidePanelWidth="700px"
+    :contentContainerStyleOverrides="{ padding: '12px 24px 24px' }"
+    :headerContainerStyleOverrides="{ paddingLeft: '24px', paddingRight: '24px' }"
     @closePanel="goBack"
   >
     <template #header>

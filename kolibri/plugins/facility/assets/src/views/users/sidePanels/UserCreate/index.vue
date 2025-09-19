@@ -1,9 +1,12 @@
 <template>
 
   <SidePanelModal
+    hideHeaderBorder
     alignment="right"
     sidePanelWidth="700px"
     closeButtonIconType="close"
+    :contentContainerStyleOverrides="{ padding: '0px 24px 24px' }"
+    :headerContainerStyleOverrides="{ paddingLeft: '24px', paddingRight: '24px' }"
     @closePanel="close"
   >
     <template #header>
@@ -12,6 +15,13 @@
       </h1>
     </template>
     <template #default>
+      <div
+        v-if="showErrorWarning"
+        :style="{ color: $themeTokens.error }"
+        class="warning-text"
+      >
+        <span>{{ defaultErrorMessage$() }}</span>
+      </div>
       <form
         v-if="!loading"
         :id="formId"
@@ -226,6 +236,8 @@
       const formSubmitted = ref(false);
       const caughtErrors = ref([]);
 
+      const showErrorWarning = ref(false);
+
       const resetForm = () => {
         fullName.value = '';
         username.value = '';
@@ -327,7 +339,7 @@
         if (caughtErrors.value.length > 0) {
           focusOnInvalidField();
         } else {
-          store.dispatch('handleApiError', { error });
+          showErrorWarning.value = true;
         }
       };
 
@@ -445,7 +457,7 @@
       });
 
       const { saveAndClose$ } = coreStrings;
-      const { saveAndAddAnother$ } = bulkUserManagementStrings;
+      const { saveAndAddAnother$, defaultErrorMessage$ } = bulkUserManagementStrings;
       return {
         classesAction,
         fullName,
@@ -478,6 +490,7 @@
         facilityConfig,
         saveAndClose$,
         saveAndAddAnother$,
+        defaultErrorMessage$,
       };
     },
     props: {
@@ -541,6 +554,11 @@
     gap: 16px;
     justify-content: flex-end;
     width: 100%;
+  }
+
+  .warning-text {
+    margin-bottom: 10px;
+    margin-left: 5px;
   }
 
 </style>

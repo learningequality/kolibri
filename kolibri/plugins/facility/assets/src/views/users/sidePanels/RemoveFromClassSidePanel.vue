@@ -2,13 +2,15 @@
 
   <div>
     <SidePanelModal
+      hideHeaderBorder
       alignment="right"
       sidePanelWidth="700px"
-      :addBottomBorder="false"
+      :contentContainerStyleOverrides="{ padding: '0px 24px 24px' }"
+      :headerContainerStyleOverrides="{ paddingLeft: '24px', paddingRight: '24px' }"
       @closePanel="goBack"
     >
       <template #header>
-        <h1 style="font-size: 20px">
+        <h1 class="side-panel-title">
           {{ removeUsersFromClassesHeading$({ numUsers: selectedUsers.size }) }}
         </h1>
       </template>
@@ -48,7 +50,7 @@
           </div>
           <h2
             id="remove-from-selected-classes"
-            style="font-size: 16px"
+            class="side-panel-subtitle"
           >
             {{ selectClassesLabel$() }}
           </h2>
@@ -365,23 +367,23 @@
 
 <style lang="scss" scoped>
 
+  .side-panel-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .side-panel-subtitle {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
   .side-panel-content {
     position: relative;
   }
 
-  /* stylelint-disable-next-line selector-pseudo-element-no-unknown */
-  ::v-deep(.side-panel-content) {
-    padding-top: 0 !important ;
-  }
-
-  /* stylelint-disable-next-line selector-pseudo-element-no-unknown */
-  ::v-deep(.side-panel-header) {
-    padding-right: 32px !important ;
-    padding-left: 32px !important ;
-  }
-
   .info-box {
     padding: 8px;
+    margin-bottom: 24px;
     border-radius: 4px;
   }
 

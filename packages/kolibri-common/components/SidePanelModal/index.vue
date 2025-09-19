@@ -20,8 +20,12 @@
           <!-- Fixed header -->
           <div
             ref="fixedHeader"
-            :class="{ 'side-panel-header': true, immersive: immersive }"
-            :style="headerStyles"
+            :class="{
+              'side-panel-header': true,
+              immersive: immersive,
+              'floating-shadow': isScrolled && hideHeaderBorder,
+            }"
+            :style="[headerStyles, headerContainerStyleOverrides]"
           >
             <div
               class="header-content"
@@ -46,7 +50,8 @@
           <!-- Default slot for inserting content which will scroll on overflow -->
           <div
             class="side-panel-content"
-            @scroll="isScrolled = $event.target.scrollTop > 0"
+            :style="contentContainerStyleOverrides"
+            @scroll="handleScroll"
           >
             <slot :isScrolled="isScrolled"></slot>
           </div>
@@ -74,8 +79,9 @@
 
 <script>
 
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { get } from '@vueuse/core';
+  import throttle from 'lodash/throttle';
   import Backdrop from 'kolibri/components/Backdrop';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -88,12 +94,22 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
+
+      const isScrolled = ref(false);
+
+      const _handleScroll = event => {
+        isScrolled.value = event.target.scrollTop > 0;
+      };
+
+      const handleScroll = computed(() => throttle(_handleScroll, 100));
+
       return {
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
         // @type {RefImpl<number>}
+        handleScroll,
         windowBreakpoint,
         lastFocus: null,
-        isScrolled: ref(false),
+        isScrolled,
       };
     },
     props: {
@@ -130,10 +146,20 @@
         required: false,
         default: false,
       },
-      addBottomBorder: {
+      hideHeaderBorder: {
         type: Boolean,
         required: false,
-        default: true,
+        default: false,
+      },
+      headerContainerStyleOverrides: {
+        type: Object,
+        required: false,
+        default: null,
+      },
+      contentContainerStyleOverrides: {
+        type: Object,
+        required: false,
+        default: null,
       },
     },
     computed: {
@@ -165,9 +191,9 @@
       headerStyles() {
         return {
           backgroundColor: this.immersive ? this.$themeTokens.appBar : this.$themeTokens.surface,
-          borderBottom: this.addBottomBorder
-            ? `1px solid ${this.$themePalette.grey.v_400}`
-            : 'none',
+          borderBottom: this.hideHeaderBorder
+            ? 'none'
+            : `1px solid ${this.$themePalette.grey.v_400}`,
         };
       },
       sidePanelStyles() {
@@ -266,6 +292,10 @@
       padding: 24px 32px 16px;
       overflow-x: hidden;
       overflow-y: auto;
+    }
+
+    .floating-shadow {
+      @extend %dropshadow-1dp;
     }
 
     .bottom-navigation {
