@@ -624,7 +624,10 @@
       });
 
       const { windowBreakpoint } = useKResponsiveWindow();
-      const stickyColumns = computed(() => [windowBreakpoint <= 2 ? 'first' : 'firstTwo', 'last']);
+      const stickyColumns = computed(() => [
+        windowBreakpoint.value <= 2 ? 'first' : 'firstTwo',
+        'last',
+      ]);
 
       return {
         // Computed Properties
