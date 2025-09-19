@@ -41,60 +41,53 @@
           @change="onChange"
         >
           <template #userActions>
-            <component
-              :is="canAssignCoaches ? 'router-link' : 'span'"
-              :to="
-                overrideRoute($route, {
-                  name: PageNames.ASSIGN_COACHES_SIDE_PANEL__NEW_USERS,
-                })
-              "
-              :class="{ 'disabled-link': !canAssignCoaches || !hasSelectedUsers }"
-            >
-              <KIconButton
-                icon="assignCoaches"
-                :ariaLabel="assignCoach$()"
-                :tooltip="assignCoach$()"
-                :disabled="!canAssignCoaches || !hasSelectedUsers"
-              />
-            </component>
-            <component
-              :is="canEnrollOrRemoveFromClass ? 'router-link' : 'span'"
-              :to="
-                overrideRoute($route, {
-                  name: PageNames.ENROLL_LEARNERS_SIDE_PANEL__NEW_USERS,
-                })
-              "
-              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass || !hasSelectedUsers }"
-            >
-              <KIconButton
-                icon="add"
-                :ariaLabel="enrollToClass$()"
-                :tooltip="enrollToClass$()"
-                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
-              />
-            </component>
-            <component
-              :is="canEnrollOrRemoveFromClass ? 'router-link' : 'span'"
-              :to="
-                overrideRoute($route, {
-                  name: PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL__NEW_USERS,
-                })
-              "
-              :class="{ 'disabled-link': !canEnrollOrRemoveFromClass }"
-            >
-              <KIconButton
-                icon="remove"
-                :ariaLabel="removeFromClass$()"
-                :tooltip="removeFromClass$()"
-                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
-              />
-            </component>
             <KIconButton
+              ref="assignButton"
+              icon="assignCoaches"
+              :ariaLabel="assignCoach$()"
+              :disabled="!canAssignCoaches || !hasSelectedUsers"
+              @click="navigateToSidePanel(PageNames.ASSIGN_COACHES_SIDE_PANEL__NEW_USERS)"
+            />
+            <KTooltip
+              reference="assignButton"
+              :refs="$refs"
+              :text="assignCoach$()"
+            />
+            <KIconButton
+              ref="enrollButton"
+              icon="add"
+              :ariaLabel="enrollToClass$()"
+              :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
+              @click="navigateToSidePanel(PageNames.ENROLL_LEARNERS_SIDE_PANEL__NEW_USERS)"
+            />
+            <KTooltip
+              reference="enrollButton"
+              :refs="$refs"
+              :text="enrollToClass$()"
+            />
+            <KIconButton
+              ref="removeButton"
+              icon="remove"
+              :ariaLabel="removeFromClass$()"
+              :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
+              @click="navigateToSidePanel(PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL__NEW_USERS)"
+            />
+            <KTooltip
+              reference="removeButton"
+              :refs="$refs"
+              :text="removeFromClass$()"
+            />
+            <KIconButton
+              ref="trashButton"
               icon="trash"
               :ariaLabel="deleteSelection$()"
-              :tooltip="deleteSelection$()"
               :disabled="!canDeleteSelection || !hasSelectedUsers"
               @click="isMoveToTrashModalOpen = true"
+            />
+            <KTooltip
+              reference="trashButton"
+              :refs="$refs"
+              :text="deleteSelection$()"
             />
           </template>
         </UsersTable>
@@ -153,7 +146,7 @@
 
   import store from 'kolibri/store';
   import { computed, onMounted, ref } from 'vue';
-  import { useRoute } from 'vue-router/composables';
+  import { useRoute, useRouter } from 'vue-router/composables';
   import useUser from 'kolibri/composables/useUser';
 
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
@@ -181,6 +174,7 @@
     setup() {
       usePreviousRoute();
       const route = useRoute();
+      const router = useRouter();
       const { currentUserId, isSuperuser, isAdmin } = useUser();
       const usersTableRef = ref(null);
       const isMoveToTrashModalOpen = ref(false);
@@ -232,6 +226,11 @@
         usersTableRef.value?.focus();
       }
 
+      function navigateToSidePanel(sidePanelName) {
+        const newRoute = overrideRoute(route, { name: sidePanelName });
+        router.push(newRoute);
+      }
+
       onMounted(() => {
         fetchClasses();
       });
@@ -252,6 +251,7 @@
         onChange,
         onModalBlur,
         overrideRoute,
+        navigateToSidePanel,
         resetFilters,
         newUser$,
         newUsers$,

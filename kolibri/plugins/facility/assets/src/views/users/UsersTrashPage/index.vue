@@ -36,17 +36,28 @@
         >
           <template #userActions>
             <KIconButton
+              ref="recoverButton"
               icon="refresh"
               :disabled="!selectedUsers.size || loading"
-              :tooltip="selectedUsers.size > 1 ? recoverSelectionLabel$() : recoverLabel$()"
+              :ariaLabel="selectedUsers.size > 1 ? recoverSelectionLabel$() : recoverLabel$()"
               @click="recoverUsers(selectedUsers)"
             />
+            <KTooltip
+              reference="recoverButton"
+              :refs="$refs"
+              :text="selectedUsers.size > 1 ? recoverSelectionLabel$() : recoverLabel$()"
+            />
             <KIconButton
+              ref="deleteButton"
               icon="trash"
               :disabled="!selectedUsers.size || loading"
               :ariaLabel="deletePermanentlyLabel$()"
-              :tooltip="deletePermanentlyLabel$()"
               @click="usersToDelete = selectedUsers"
+            />
+            <KTooltip
+              reference="deleteButton"
+              :refs="$refs"
+              :text="deletePermanentlyLabel$()"
             />
           </template>
           <template #userDropdownMenu="{ user }">
