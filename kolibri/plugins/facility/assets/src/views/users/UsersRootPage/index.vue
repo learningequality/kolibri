@@ -1,6 +1,13 @@
 <template>
 
-  <FacilityAppBarPage class="wrapper">
+  <FacilityAppBarPage
+    class="wrapper"
+    :appearanceOverrides="{
+      maxWidth: '1440px',
+      margin: '0 auto',
+      padding: '2em',
+    }"
+  >
     <template #default="{ pageContentHeight }">
       <!-- Adding 24 pixels to the max height to prevent having too much bottom padding space -->
       <KPageContainer
