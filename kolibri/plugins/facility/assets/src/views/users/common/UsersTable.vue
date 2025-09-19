@@ -624,6 +624,7 @@
       });
 
       const { windowBreakpoint } = useKResponsiveWindow();
+      const stickyColumns = computed(() => [windowBreakpoint <= 2 ? 'first' : 'firstTwo', 'last']);
 
       return {
         // Computed Properties
@@ -639,6 +640,7 @@
         userToChange,
         userToChangeSet,
         filterTextboxRef,
+        stickyColumns,
 
         // Methods
         handleSelectAllToggle,
@@ -662,7 +664,6 @@
         selectAllLabel$,
         numUsersSelected$,
         clearFiltersLabel$,
-        stickyColumns: computed(() => [windowBreakpoint.value <= 2 ? 'first' : 'firstTwo', 'last']),
       };
     },
     props: {
