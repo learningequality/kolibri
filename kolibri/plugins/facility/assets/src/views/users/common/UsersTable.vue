@@ -501,21 +501,24 @@
         const { checked } = selectAllState.value;
 
         if (checked) {
-          visibleUserIds.forEach(id => _selectedUsers.value.delete(id));
+          _selectedUsers.value = new Set(
+            [..._selectedUsers.value].filter(id => !visibleUserIds.includes(id)),
+          );
         } else {
-          visibleUserIds.forEach(id => _selectedUsers.value.add(id));
+          const newSet = new Set(_selectedUsers.value);
+          visibleUserIds.forEach(id => newSet.add(id));
+          _selectedUsers.value = newSet;
         }
-
-        _selectedUsers.value = new Set(_selectedUsers.value);
       };
 
       const handleUserSelectionToggle = user => {
-        if (_selectedUsers.value.has(user.id)) {
-          _selectedUsers.value.delete(user.id);
+        const newSet = new Set(_selectedUsers.value);
+        if (newSet.has(user.id)) {
+          newSet.delete(user.id);
         } else {
-          _selectedUsers.value.add(user.id);
+          newSet.add(user.id);
         }
-        _selectedUsers.value = new Set(_selectedUsers.value);
+        _selectedUsers.value = newSet;
       };
 
       const clearSelectedUsers = () => {

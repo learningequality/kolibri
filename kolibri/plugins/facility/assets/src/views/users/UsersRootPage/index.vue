@@ -204,7 +204,7 @@
 
       function onModalBlur() {
         selectedUsers.value.clear();
-        usersTableRef.value?.focus();
+        selectedUsers.value = new Set(selectedUsers.value);
       }
 
       function navigateToSidePanel(sidePanelName) {

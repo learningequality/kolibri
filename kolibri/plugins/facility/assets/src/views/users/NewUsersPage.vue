@@ -223,6 +223,7 @@
 
       function onModalBlur() {
         selectedUsers.value.clear();
+        selectedUsers.value = new Set(selectedUsers.value);
         usersTableRef.value?.focus();
       }
 
