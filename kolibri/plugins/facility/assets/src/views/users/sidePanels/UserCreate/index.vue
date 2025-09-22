@@ -524,6 +524,8 @@
 
 <style lang="scss" scoped>
 
+  @import '../common';
+
   .coach-selector {
     padding: 0;
     margin: 0;
@@ -539,21 +541,8 @@
     width: 100%;
   }
 
-  .side-panel-title {
-    font-size: 18px;
-    font-weight: 600;
-  }
-
   /deep/ .textbox {
     max-width: 100% !important;
-  }
-
-  .bottom-nav-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    justify-content: flex-end;
-    width: 100%;
   }
 
   .warning-text {

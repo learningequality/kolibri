@@ -18,7 +18,7 @@
         <div v-else>
           <div
             v-if="showErrorWarning"
-            class="assign-warning-label"
+            class="warning-text"
             :style="{ color: $themeTokens.error }"
           >
             <span>{{ defaultErrorMessage$() }}</span>
@@ -28,25 +28,21 @@
             class="info-box"
             :style="{ backgroundColor: $themePalette.grey.v_100 }"
           >
-            <template v-if="ineligibleUsersCount > 0">
-              <div class="info-flex">
-                <KIcon
-                  icon="infoOutline"
-                  class="info-icon"
-                />
-                <div class="info-lines">
-                  <div class="info-line">
+            <div style="display: flex">
+              <KIcon
+                icon="infoOutline"
+                class="info-icon"
+              />
+              <div class="info-wrapper">
+                <template v-if="ineligibleUsersCount > 0">
+                  <span>
                     {{ numUsersNotEligible$({ num: ineligibleUsersCount }) }}
-                  </div>
-                  <div class="info-line">{{ usersInClassNotAffected$() }}</div>
-                </div>
+                  </span>
+                  <span>{{ usersInClassNotAffected$() }}</span>
+                </template>
+                <span v-else>{{ usersInClassNotAffected$() }}</span>
               </div>
-            </template>
-            <template v-else>
-              <div class="info-lines">
-                <div class="info-line">{{ usersInClassNotAffected$() }}</div>
-              </div>
-            </template>
+            </div>
           </div>
 
           <h2
@@ -164,6 +160,10 @@
       } = bulkUserManagementStrings;
 
       const loadUsers = async () => {
+        if (!props.selectedUsers || props.selectedUsers.size === 0) {
+          facilityUsers.value = [];
+          return;
+        }
         isLoading.value = true;
         const users = await FacilityUserResource.fetchCollection({
           getParams: {
@@ -333,62 +333,6 @@
 
 <style scoped>
 
-  .side-panel-title {
-    font-size: 18px;
-    font-weight: 600;
-  }
-
-  .side-panel-subtitle {
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .assign-warning-label {
-    margin-bottom: 10px;
-  }
-
-  .bottom-nav-container {
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
-  }
-
-  .adjust-line-height {
-    /* Override default global line-height of 1.15 to prevent
-       scrollbars in KModal and add space for single-line content */
-    line-height: 1.5;
-  }
-
-  .info-box {
-    padding: 8px;
-    margin-bottom: 24px;
-    border-radius: 4px;
-  }
-
-  .info-flex {
-    display: flex;
-    align-items: flex-start;
-  }
-
-  .info-icon {
-    flex: 0 0 24px;
-    width: 24px;
-    height: 24px;
-    margin-right: 4px;
-  }
-
-  .info-lines {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .info-line {
-    line-height: 1.4;
-  }
-
-  .info-line:last-child {
-    margin-bottom: 0;
-  }
+  @import './common';
 
 </style>

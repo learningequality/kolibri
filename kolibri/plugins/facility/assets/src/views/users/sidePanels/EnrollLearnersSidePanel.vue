@@ -31,7 +31,7 @@
             <div style="display: flex">
               <KIcon
                 icon="infoOutline"
-                class="enroll-info-icon"
+                class="info-icon"
               />
               <template v-if="usersNotEnrolled > 0">
                 <div class="info-wrapper">
@@ -305,46 +305,6 @@
 
 <style lang="scss" scoped>
 
-  .side-panel-title {
-    font-size: 18px;
-    font-weight: 600;
-  }
-
-  .side-panel-subtitle {
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .info-box {
-    padding: 8px;
-    margin-bottom: 24px;
-    border-radius: 4px;
-  }
-
-  .enroll-info-icon {
-    flex: 0 0 22px;
-    width: 22px;
-    height: 22px;
-    margin-right: 4px;
-  }
-
-  .info-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 2px;
-    line-height: 1.4;
-  }
-
-  .warning-text {
-    margin-bottom: 10px;
-    margin-left: 5px;
-  }
-
-  .bottom-nav-container {
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
-  }
+  @import './common';
 
 </style>

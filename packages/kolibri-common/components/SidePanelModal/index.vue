@@ -106,10 +106,10 @@
       return {
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
         // @type {RefImpl<number>}
-        handleScroll,
         windowBreakpoint,
         lastFocus: null,
         isScrolled,
+        handleScroll,
       };
     },
     props: {

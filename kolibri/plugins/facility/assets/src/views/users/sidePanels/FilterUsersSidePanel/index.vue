@@ -248,10 +248,7 @@
 
 <style lang="scss" scoped>
 
-  .side-panel-title {
-    font-size: 18px;
-    font-weight: 600;
-  }
+  @import '../common';
 
   .filter-section {
     margin-bottom: 24px;
@@ -271,13 +268,6 @@
 
   .birth-year-range-select {
     max-width: 316px;
-  }
-
-  .bottom-nav-container {
-    display: flex;
-    gap: 16px;
-    justify-content: flex-end;
-    width: 100%;
   }
 
 </style>
