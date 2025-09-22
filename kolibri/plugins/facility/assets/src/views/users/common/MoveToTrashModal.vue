@@ -216,6 +216,7 @@
         // methods
         close,
         moveToTrash,
+        usersRemoved,
 
         // translation functions
         moveToTrashAction$,
