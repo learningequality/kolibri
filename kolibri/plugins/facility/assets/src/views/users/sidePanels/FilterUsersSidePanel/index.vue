@@ -1,8 +1,12 @@
 <template>
 
   <SidePanelModal
+    hideHeaderBorder
     alignment="right"
+    class="bum-side-panel"
     sidePanelWidth="700px"
+    :contentContainerStyleOverrides="{ padding: '12px 24px 24px' }"
+    :headerContainerStyleOverrides="{ paddingLeft: '24px', paddingRight: '24px' }"
     @closePanel="goBack"
   >
     <template #header>
@@ -245,9 +249,10 @@
 
 <style lang="scss" scoped>
 
-  .side-panel-title {
-    font-size: 18px;
-    font-weight: 600;
+  @import '../common';
+
+  .bum-side-panel {
+    @include bum-side-panel;
   }
 
   .filter-section {
@@ -268,13 +273,6 @@
 
   .birth-year-range-select {
     max-width: 316px;
-  }
-
-  .bottom-nav-container {
-    display: flex;
-    gap: 16px;
-    justify-content: flex-end;
-    width: 100%;
   }
 
 </style>

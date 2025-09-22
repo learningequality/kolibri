@@ -2,13 +2,16 @@
 
   <div>
     <SidePanelModal
+      hideHeaderBorder
       alignment="right"
       sidePanelWidth="700px"
-      :addBottomBorder="false"
+      :contentContainerStyleOverrides="{ padding: '0px 24px 24px' }"
+      class="bum-side-panel"
+      :headerContainerStyleOverrides="{ paddingLeft: '24px', paddingRight: '24px' }"
       @closePanel="closeSidePanel"
     >
       <template #header>
-        <h1 style="font-size: 20px">
+        <h1 class="side-panel-title">
           {{ enrollUsersInClasses$({ num: selectedUsers.size }) }}
         </h1>
       </template>
@@ -29,7 +32,7 @@
             <div style="display: flex">
               <KIcon
                 icon="infoOutline"
-                class="enroll-info-icon"
+                class="info-icon"
               />
               <template v-if="usersNotEnrolled > 0">
                 <div class="info-wrapper">
@@ -48,7 +51,7 @@
           </div>
           <h2
             id="enroll-in-selected-classes"
-            style="font-size: 16px"
+            class="side-panel-subtitle"
           >
             {{ selectClassesLabel$() }}
           </h2>
@@ -303,50 +306,10 @@
 
 <style lang="scss" scoped>
 
-  .side-panel-content {
-    position: relative;
-  }
+  @import './common';
 
-  /* stylelint-disable-next-line selector-pseudo-element-no-unknown */
-  ::v-deep(.side-panel-content) {
-    padding-top: 0 !important ;
-  }
-
-  /* stylelint-disable-next-line selector-pseudo-element-no-unknown */
-  ::v-deep(.side-panel-header) {
-    padding-right: 32px !important ;
-    padding-left: 32px !important ;
-  }
-
-  .info-box {
-    padding: 8px;
-    border-radius: 4px;
-  }
-
-  .enroll-info-icon {
-    flex: 0 0 22px;
-    width: 22px;
-    height: 22px;
-    margin-right: 4px;
-  }
-
-  .info-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 2px;
-    line-height: 1.4;
-  }
-
-  .warning-text {
-    margin-bottom: 10px;
-    margin-left: 5px;
-  }
-
-  .bottom-nav-container {
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
+  .bum-side-panel {
+    @include bum-side-panel;
   }
 
 </style>

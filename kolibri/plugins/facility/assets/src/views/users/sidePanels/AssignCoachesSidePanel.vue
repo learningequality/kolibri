@@ -2,13 +2,16 @@
 
   <div>
     <SidePanelModal
+      hideHeaderBorder
       alignment="right"
       sidePanelWidth="700px"
-      :addBottomBorder="false"
+      class="bum-side-panel"
+      :contentContainerStyleOverrides="{ padding: '0px 24px 24px' }"
+      :headerContainerStyleOverrides="{ paddingLeft: '24px', paddingRight: '24px' }"
       @closePanel="closeSidePanel"
     >
       <template #header>
-        <h1>{{ assignUsersHeading$({ num: selectedUsersCount }) }}</h1>
+        <h1 class="side-panel-title">{{ assignUsersHeading$({ num: selectedUsersCount }) }}</h1>
       </template>
 
       <div class="assign-coaches-content">
@@ -16,42 +19,43 @@
         <div v-else>
           <div
             v-if="showErrorWarning"
-            class="assign-warning-label"
+            class="warning-text"
             :style="{ color: $themeTokens.error }"
           >
             <span>{{ defaultErrorMessage$() }}</span>
           </div>
 
           <div
-            class="top-info-box"
+            class="info-box"
             :style="{ backgroundColor: $themePalette.grey.v_100 }"
           >
-            <template v-if="ineligibleUsersCount > 0">
-              <div class="info-flex">
-                <KIcon
-                  icon="infoOutline"
-                  class="info-icon"
-                />
-                <div class="info-lines">
-                  <div class="info-line">
+            <div style="display: flex">
+              <KIcon
+                icon="infoOutline"
+                class="info-icon"
+              />
+              <div class="info-wrapper">
+                <template v-if="ineligibleUsersCount > 0">
+                  <span>
                     {{ numUsersNotEligible$({ num: ineligibleUsersCount }) }}
-                  </div>
-                  <div class="info-line">{{ usersInClassNotAffected$() }}</div>
-                </div>
+                  </span>
+                  <span>{{ usersInClassNotAffected$() }}</span>
+                </template>
+                <span v-else>{{ usersInClassNotAffected$() }}</span>
               </div>
-            </template>
-            <template v-else>
-              <div class="info-lines">
-                <div class="info-line">{{ usersInClassNotAffected$() }}</div>
-              </div>
-            </template>
+            </div>
           </div>
 
-          <h2>{{ selectClassesLabel$() }}</h2>
+          <h2
+            id="assign-coaches-selected-classes"
+            class="side-panel-subtitle"
+          >
+            {{ selectClassesLabel$() }}
+          </h2>
           <SelectableList
             v-model="selectedClasses"
             :options="formattedClasses"
-            aria-labelledby="classes-heading"
+            aria-labelledby="assign-coaches-selected-classes"
             :selectAllLabel="assignToAllClasses$()"
             :searchLabel="searchForAClass$()"
           />
@@ -102,7 +106,6 @@
   import { ref, computed } from 'vue';
   import { useRoute } from 'vue-router/composables';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import KIcon from 'kolibri-design-system/lib/KIcon';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { UserKinds } from 'kolibri/constants';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
@@ -120,7 +123,6 @@
     name: 'AssignCoachesSidePanel',
     components: {
       SidePanelModal,
-      KIcon,
       SelectableList,
       CloseConfirmationGuard,
     },
@@ -159,6 +161,10 @@
       } = bulkUserManagementStrings;
 
       const loadUsers = async () => {
+        if (!props.selectedUsers || props.selectedUsers.size === 0) {
+          facilityUsers.value = [];
+          return;
+        }
         isLoading.value = true;
         const users = await FacilityUserResource.fetchCollection({
           getParams: {
@@ -326,67 +332,12 @@
 </script>
 
 
-<style scoped>
+<style lang="scss" scoped>
 
-  .assign-coaches-content {
-    position: relative;
-  }
+  @import './common';
 
-  .assign-warning-label {
-    margin-bottom: 10px;
-  }
-
-  .bottom-nav-container {
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
-  }
-
-  .adjust-line-height {
-    /* Override default global line-height of 1.15 to prevent
-       scrollbars in KModal and add space for single-line content */
-    line-height: 1.5;
-  }
-
-  .top-info-box {
-    padding: 12px;
-    margin-bottom: 16px;
-    border-radius: 8px;
-  }
-  /* stylelint-disable-next-line selector-pseudo-element-no-unknown */
-  ::v-deep(.side-panel-content) {
-    padding-top: 0 !important ;
-  }
-  /* stylelint-disable-next-line selector-pseudo-element-no-unknown */
-  ::v-deep(.side-panel-header) {
-    padding-right: 32px !important ;
-    padding-left: 32px !important ;
-  }
-
-  .info-flex {
-    display: flex;
-    align-items: flex-start;
-  }
-
-  .info-icon {
-    flex: 0 0 24px;
-    width: 24px;
-    height: 24px;
-    margin-right: 4px;
-  }
-
-  .info-lines {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .info-line {
-    line-height: 1.4;
-  }
-
-  .info-line:last-child {
-    margin-bottom: 0;
+  .bum-side-panel {
+    @include bum-side-panel;
   }
 
 </style>
