@@ -1005,29 +1005,38 @@ class ClassroomViewSet(ValuesViewset):
 
         for key, group in groupby(items, lambda x: x["id"]):
             coaches = []
-            for item in group:
-                user_id = item.pop("role__user__id")
+            group_list = list(group)
+            base_item = group_list[0]
+
+            for item in group_list:
+                user_id = item.get("role__user__id")
                 if user_id in active_coach_ids:
-                    if (
-                        user_id in facility_roles
-                        and facility_roles[user_id]["collection"] == item["parent"]
-                    ):
-                        roles = [facility_roles[user_id]]
-                    else:
-                        roles = []
+                    roles = []
+                    if user_id in facility_roles and facility_roles[user_id][
+                        "collection"
+                    ] == item.get("parent"):
+                        roles.append(facility_roles[user_id])
+
                     coach = {
                         "id": user_id,
-                        "facility": item["parent"],
+                        "facility": item.get("parent"),
                         "is_superuser": bool(
-                            item.pop("role__user__devicepermissions__is_superuser")
+                            item.get("role__user__devicepermissions__is_superuser")
                         ),
-                        "full_name": item.pop("role__user__full_name"),
-                        "username": item.pop("role__user__username"),
+                        "full_name": item.get("role__user__full_name"),
+                        "username": item.get("role__user__username"),
                         "roles": roles,
                     }
                     coaches.append(coach)
-            item["coaches"] = coaches
-            output.append(item)
+            consolidated_item = {
+                "id": base_item.get("id"),
+                "name": base_item.get("name"),
+                "parent": base_item.get("parent"),
+                "learner_count": base_item.get("learner_count"),
+                "coaches": coaches,
+            }
+            output.append(consolidated_item)
+
         return output
 
 
