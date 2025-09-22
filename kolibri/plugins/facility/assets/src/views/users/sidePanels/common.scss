@@ -1,48 +1,50 @@
-.side-panel-title {
-  font-size: 18px;
-  font-weight: 600;
-}
+@mixin bum-side-panel {
+  .side-panel-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
 
-.side-panel-subtitle {
-  font-size: 16px;
-  font-weight: 600;
-}
+  .side-panel-subtitle {
+    font-size: 16px;
+    font-weight: 600;
+  }
 
-.bottom-nav-container {
-  display: flex;
-  gap: 16px;
-  justify-content: flex-end;
-  width: 100%;
-}
+  .bottom-nav-container {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    width: 100%;
+  }
 
-.adjust-line-height {
-  /* Override default global line-height of 1.15 to prevent
+  .adjust-line-height {
+    /* Override default global line-height of 1.15 to prevent
        scrollbars in KModal and add space for single-line content */
-  line-height: 1.5;
-}
+    line-height: 1.5;
+  }
 
-.info-box {
-  padding: 8px;
-  margin-bottom: 24px;
-  border-radius: 4px;
-}
+  .info-box {
+    padding: 8px;
+    margin-bottom: 24px;
+    border-radius: 4px;
+  }
 
-.info-icon {
-  flex: 0 0 22px;
-  width: 22px !important;
-  height: 22px !important;
-  margin-right: 4px;
-}
+  .info-icon {
+    flex: 0 0 22px;
+    width: 22px !important;
+    height: 22px !important;
+    margin-right: 4px;
+  }
 
-.info-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 2px;
-  line-height: 1.4;
-}
+  .info-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 2px;
+    line-height: 1.4;
+  }
 
-.warning-text {
-  margin-bottom: 10px;
-  margin-left: 5px;
+  .warning-text {
+    margin-bottom: 10px;
+    margin-left: 5px;
+  }
 }

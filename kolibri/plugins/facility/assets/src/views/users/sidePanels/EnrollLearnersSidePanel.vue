@@ -6,6 +6,7 @@
       alignment="right"
       sidePanelWidth="700px"
       :contentContainerStyleOverrides="{ padding: '0px 24px 24px' }"
+      class="bum-side-panel"
       :headerContainerStyleOverrides="{ paddingLeft: '24px', paddingRight: '24px' }"
       @closePanel="closeSidePanel"
     >
@@ -306,5 +307,9 @@
 <style lang="scss" scoped>
 
   @import './common';
+
+  .bum-side-panel {
+    @include bum-side-panel;
+  }
 
 </style>

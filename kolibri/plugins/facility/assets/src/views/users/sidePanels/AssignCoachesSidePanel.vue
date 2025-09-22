@@ -5,6 +5,7 @@
       hideHeaderBorder
       alignment="right"
       sidePanelWidth="700px"
+      class="bum-side-panel"
       :contentContainerStyleOverrides="{ padding: '0px 24px 24px' }"
       :headerContainerStyleOverrides="{ paddingLeft: '24px', paddingRight: '24px' }"
       @closePanel="closeSidePanel"
@@ -331,8 +332,12 @@
 </script>
 
 
-<style scoped>
+<style lang="scss" scoped>
 
   @import './common';
+
+  .bum-side-panel {
+    @include bum-side-panel;
+  }
 
 </style>

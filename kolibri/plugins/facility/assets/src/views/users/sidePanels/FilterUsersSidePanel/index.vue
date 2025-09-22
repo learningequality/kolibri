@@ -3,6 +3,7 @@
   <SidePanelModal
     hideHeaderBorder
     alignment="right"
+    class="bum-side-panel"
     sidePanelWidth="700px"
     :contentContainerStyleOverrides="{ padding: '12px 24px 24px' }"
     :headerContainerStyleOverrides="{ paddingLeft: '24px', paddingRight: '24px' }"
@@ -249,6 +250,10 @@
 <style lang="scss" scoped>
 
   @import '../common';
+
+  .bum-side-panel {
+    @include bum-side-panel;
+  }
 
   .filter-section {
     margin-bottom: 24px;
