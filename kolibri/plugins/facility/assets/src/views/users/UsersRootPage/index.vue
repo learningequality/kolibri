@@ -203,6 +203,7 @@
       }
 
       function onModalBlur() {
+        selectedUsers.value.clear();
         usersTableRef.value?.focus();
       }
 
