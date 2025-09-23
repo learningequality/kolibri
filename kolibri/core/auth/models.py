@@ -1463,6 +1463,7 @@ class Facility(Collection):
     _KIND = collection_kinds.FACILITY
 
     objects = CollectionProxyManager()
+    syncing_objects = CollectionProxyManager()
 
     class Meta:
         proxy = True
@@ -1584,6 +1585,7 @@ class Classroom(Collection):
     _KIND = collection_kinds.CLASSROOM
 
     objects = CollectionProxyManager()
+    syncing_objects = CollectionProxyManager()
 
     class Meta:
         proxy = True
@@ -1654,6 +1656,7 @@ class LearnerGroup(Collection):
     _KIND = collection_kinds.LEARNERGROUP
 
     objects = CollectionProxyManager()
+    syncing_objects = CollectionProxyManager()
 
     class Meta:
         proxy = True
@@ -1701,6 +1704,7 @@ class AdHocGroup(Collection):
     _KIND = collection_kinds.ADHOCLEARNERSGROUP
 
     objects = CollectionProxyManager()
+    syncing_objects = CollectionProxyManager()
 
     class Meta:
         proxy = True

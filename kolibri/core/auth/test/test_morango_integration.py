@@ -705,6 +705,18 @@ class EcosystemSingleUserTestCase(MultipleServerTestCase):
             2,
         )
 
+        # Mark learner1 as soft deleted on s0
+        learner1.date_deleted = timezone.now()
+        learner1.save(using=s0.db_alias)
+
+        # Sync from s1 to s0 with the now soft-deleted learner1
+        s1.sync(s0, facility, user=learner1)
+
+        # Assert that learner1 on s1 is now also marked as soft deleted
+        self.assertIsNotNone(
+            FacilityUser.all_objects.using(s1.db_alias).get(id=learner1.id).date_deleted
+        )
+
     @multiple_kolibri_servers(2)
     def test_single_user_sync_resumption(self, servers):
         self.maxDiff = None
