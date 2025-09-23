@@ -111,7 +111,6 @@
           :onBlur="onModalBlur"
           :onChange="onChange"
           @clearSelection="clearSelectedUsers"
-          @hook:beforeDestroy="selectedUsers = new Set()"
         />
 
         <!-- Modals -->
@@ -204,7 +203,8 @@
       }
 
       function onModalBlur() {
-        usersTableRef.value?.focus();
+        selectedUsers.value.clear();
+        selectedUsers.value = new Set(selectedUsers.value);
       }
 
       function navigateToSidePanel(sidePanelName) {

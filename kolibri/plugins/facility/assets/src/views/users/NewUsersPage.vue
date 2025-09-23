@@ -125,7 +125,6 @@
         :selectedUsers="selectedUsers"
         :onBlur="onModalBlur"
         :onChange="onChange"
-        @hook:beforeDestroy="selectedUsers = new Set()"
       />
 
       <!-- Modals -->
@@ -223,6 +222,8 @@
       } = bulkUserManagementStrings;
 
       function onModalBlur() {
+        selectedUsers.value.clear();
+        selectedUsers.value = new Set(selectedUsers.value);
         usersTableRef.value?.focus();
       }
 

@@ -260,6 +260,7 @@
         ]);
         props.onChange({
           affectedClasses: selectedOptions.value,
+          resetSelection: true,
         });
       }
 

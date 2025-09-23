@@ -220,6 +220,7 @@
           await assignCoachesToClasses();
           props.onChange({
             affectedClasses: selectedClasses.value,
+            resetSelection: true,
           });
           closeSidePanel();
           return true;

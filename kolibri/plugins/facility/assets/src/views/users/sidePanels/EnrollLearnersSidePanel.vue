@@ -223,6 +223,7 @@
         }
         props.onChange({
           affectedClasses: selectedOptions.value,
+          resetSelection: true,
         });
         goBack();
         return true;
