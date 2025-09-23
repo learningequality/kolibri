@@ -141,6 +141,7 @@
         return new Fuse(options.value, {
           threshold: 0.1,
           keys: ['label'],
+          ignoreLocation: true,
         });
       });
 
