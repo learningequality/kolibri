@@ -10,12 +10,16 @@ from le_utils.constants import content_kinds
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
 from morango.models import InstanceIDModel
+from morango.models import ScopeDefinition
 from morango.models import SyncSession
 from morango.models import TransferSession
+from morango.sync.controller import MorangoProfileController
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework.test import APITransactionTestCase
 
 import kolibri
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import provision_device
@@ -274,6 +278,26 @@ class PublicAPITestCase(APITestCase):
         response = self.client.get(get_channel_lookup_url(baseurl="/"))
         data = response.json()
         self.assertEqual(len(data), 2)
+
+
+def get_single_user_sync_filter(user):
+    """
+    Helper function to programmatically generate single user sync filter partitions.
+    This uses the Morango ScopeDefinition to create proper partitions for single user syncing.
+
+    :param user: FacilityUser instance
+    :return: List of partition strings for single user syncing
+    """
+    scope_params = {
+        "dataset_id": user.dataset_id,
+        "user_id": user.id,
+    }
+    scope_def = ScopeDefinition.objects.get(id=ScopeDefinitions.SINGLE_USER)
+    scope = scope_def.get_scope(scope_params)
+    # Return the read_filter, as the tests below are for serialization of a
+    # deletion of a single user synced user on a full facility device to be synced
+    # to a single user device.
+    return scope.read_filter
 
 
 class SyncQueueViewSetTestCase(APITestCase):
@@ -557,3 +581,157 @@ class SyncQueueViewSetTestCase(APITestCase):
         data = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["keep_alive"], 3 * HANDSHAKING_TIME)
+
+
+class SyncQueueViewSetDeletedUsersTestCase(APITransactionTestCase):
+    """
+    IMPORTANT: These tests are to never be changed. They are enforcing a
+    public API contract. If the tests fail, then the implementation needs
+    to be changed, and not the tests themselves.
+    """
+
+    databases = "__all__"
+
+    def setUp(self):
+        setup_device()
+        self.facility = Facility.get_default_facility()
+        self.learner = FacilityUser.objects.create(
+            username="test",
+            password="***",
+            facility=self.facility,
+        )
+        self.instance_id = uuid.uuid4().hex
+
+    def test_create_soft_deleted_user_should_sync(self):
+        soft_deleted_user = FacilityUser.objects.create(
+            username="soft_deleted",
+            password="***",
+            facility=self.facility,
+        )
+        user_filter = get_single_user_sync_filter(soft_deleted_user)
+        controller = MorangoProfileController(FacilityUser.morango_profile)
+        controller.serialize_into_store(user_filter)
+        # Soft delete the user by setting date_deleted
+        soft_deleted_user.date_deleted = timezone.now()
+        soft_deleted_user.save()
+
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue"),
+            data={
+                "user": soft_deleted_user.id,
+                "instance": self.instance_id,
+            },
+            format="json",
+        )
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["status"], SyncQueueStatus.Ready)
+
+    def test_create_deleted_user_should_sync(self):
+        deleted_user = FacilityUser.objects.create(
+            username="deleted",
+            password="***",
+            facility=self.facility,
+        )
+        user_id = deleted_user.id
+        user_filter = get_single_user_sync_filter(deleted_user)
+        controller = MorangoProfileController(FacilityUser.morango_profile)
+        controller.serialize_into_store(user_filter)
+        # Delete the user
+        deleted_user.delete()
+
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue"),
+            data={
+                "user": user_id,
+                "instance": self.instance_id,
+            },
+            format="json",
+        )
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["status"], SyncQueueStatus.Ready)
+
+    def test_create_morango_hard_deleted_user_should_sync(self):
+        morango_deleted_user = FacilityUser.objects.create(
+            username="morango_deleted",
+            password="***",
+            facility=self.facility,
+        )
+        user_id = morango_deleted_user.id
+        user_filter = get_single_user_sync_filter(morango_deleted_user)
+        controller = MorangoProfileController(FacilityUser.morango_profile)
+        controller.serialize_into_store(user_filter)
+
+        # Hard delete the user using Morango's hard_delete flag
+        morango_deleted_user.delete(hard_delete=True)
+
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue"),
+            data={
+                "user": user_id,
+                "instance": self.instance_id,
+            },
+            format="json",
+        )
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["status"], SyncQueueStatus.Ready)
+
+    def test_create_store_deleted_user_should_sync(self):
+        controller = MorangoProfileController(FacilityUser.morango_profile)
+        store_deleted_user = FacilityUser.objects.create(
+            username="store_deleted",
+            password="***",
+            facility=self.facility,
+        )
+        user_id = store_deleted_user.id
+        user_filter = get_single_user_sync_filter(store_deleted_user)
+        controller.serialize_into_store(user_filter)
+
+        # Delete the user first, then serialize into store
+        store_deleted_user.delete()
+
+        # Serialize deleted models into Store
+        controller.serialize_into_store(user_filter)
+
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue"),
+            data={
+                "user": user_id,
+                "instance": self.instance_id,
+            },
+            format="json",
+        )
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["status"], SyncQueueStatus.Ready)
+
+    def test_create_store_hard_deleted_user_should_sync(self):
+        controller = MorangoProfileController(FacilityUser.morango_profile)
+        store_hard_deleted_user = FacilityUser.objects.create(
+            username="store_hard_deleted",
+            password="***",
+            facility=self.facility,
+        )
+        user_id = store_hard_deleted_user.id
+        user_filter = get_single_user_sync_filter(store_hard_deleted_user)
+        controller.serialize_into_store(user_filter)
+
+        # Hard delete the user first, then serialize into store
+        store_hard_deleted_user.delete(hard_delete=True)
+
+        # Serialize deleted models into Store
+        controller.serialize_into_store(user_filter)
+
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue"),
+            data={
+                "user": user_id,
+                "instance": self.instance_id,
+            },
+            format="json",
+        )
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["status"], SyncQueueStatus.Ready)
