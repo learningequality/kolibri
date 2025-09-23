@@ -711,7 +711,6 @@
 
   .move-down {
     position: relative;
-    margin-top: 24px;
   }
 
   .role-badge {
@@ -731,6 +730,8 @@
   .search-filter-section {
     display: flex;
     justify-content: start;
+    // Ensure space enough for keyboard nav outline before table content
+    padding-bottom: 0.5em;
   }
 
   .user-type-icon {
@@ -742,7 +743,7 @@
   }
 
   .filter-button {
-    padding-top: 8px;
+    padding-top: 10px;
     margin-left: 1em;
   }
 

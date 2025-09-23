@@ -1,23 +1,28 @@
 <template>
 
-  <FacilityAppBarPage>
+  <FacilityAppBarPage
+    class="wrapper"
+    :appearanceOverrides="{
+      maxWidth: '1440px',
+      margin: '0 auto',
+      padding: '2em',
+    }"
+  >
     <template #default="{ pageContentHeight }">
       <!-- Adding 24 pixels to the max height to prevent having too much bottom padding space -->
       <KPageContainer
         class="flex-column"
-        :style="{ maxHeight: pageContentHeight + 24 + 'px' }"
+        :style="{ maxHeight: pageContentHeight - 48 + 'px', padding: '2em 2em 1em' }"
       >
-        <p>
-          <KRouterLink
-            v-if="userIsMultiFacilityAdmin"
-            :to="{
-              name: $store.getters.facilityPageLinks.AllFacilitiesPage.name,
-              params: { subtopicName: 'UserPage' },
-            }"
-            icon="back"
-            :text="coreString('changeLearningFacility')"
-          />
-        </p>
+        <KRouterLink
+          v-if="userIsMultiFacilityAdmin"
+          :to="{
+            name: $store.getters.facilityPageLinks.AllFacilitiesPage.name,
+            params: { subtopicName: 'UserPage' },
+          }"
+          icon="back"
+          :text="coreString('changeLearningFacility')"
+        />
         <div class="users-page-header">
           <h1>{{ coreString('usersLabel') }}</h1>
           <div class="users-page-header-actions">
@@ -335,10 +340,10 @@
     gap: 16px;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 1.5em;
 
     h1 {
-      margin: 16px 0;
+      margin: 0;
     }
 
     .users-page-header-actions {
@@ -353,6 +358,13 @@
   .flex-column {
     display: flex;
     flex-direction: column;
+  }
+
+  /deep/ .main-wrapper {
+    // The default padding causes root scroll which defeats
+    // the purpose of our maxHeight style on the KPageContainer.
+    // Uses !important because the overridden style is inline
+    padding-bottom: 0 !important;
   }
 
 </style>

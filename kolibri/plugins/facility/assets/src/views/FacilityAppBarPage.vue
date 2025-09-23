@@ -1,10 +1,11 @@
 <template>
 
-  <AppBarPage :title="title">
+  <AppBarPage
+    :title="title"
+    :appearanceOverrides="appearanceOverrides"
+  >
     <template #default="{ pageContentHeight }">
-      <div style="max-width: 1000px; margin: 0 auto">
-        <slot :pageContentHeight="pageContentHeight"></slot>
-      </div>
+      <slot :pageContentHeight="pageContentHeight"></slot>
     </template>
   </AppBarPage>
 
@@ -28,6 +29,11 @@
     props: {
       appBarTitle: {
         type: String,
+        default: null,
+      },
+      appearanceOverrides: {
+        type: Object,
+        required: false,
         default: null,
       },
     },

@@ -125,7 +125,8 @@
 <style lang="scss" scoped>
 
   .pagination-nav {
-    margin-bottom: 8px;
+    /* Ensure space for pagination buttons on touch devices */
+    margin-top: 1em;
     text-align: right;
   }
 
