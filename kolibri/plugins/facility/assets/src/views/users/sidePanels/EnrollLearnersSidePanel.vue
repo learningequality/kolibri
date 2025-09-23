@@ -234,7 +234,6 @@
             const newMemberships = await MembershipResource.saveCollection({ data: enrollments });
             createdMemberships.value = newMemberships;
           } catch (error) {
-            // Why doesn't this ever get run here?
             store.dispatch('handleApiError', { error });
             loading.value = false;
             return false;
