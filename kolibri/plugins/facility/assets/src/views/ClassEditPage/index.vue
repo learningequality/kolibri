@@ -9,7 +9,7 @@
           icon="back"
         />
       </p>
-      <div>
+      <div class="title-and-options">
         <h1
           class="title-header"
           dir="auto"
@@ -20,11 +20,16 @@
           />
         </h1>
         <KButton
-          :text="$tr('renameButtonLabel')"
-          appearance="basic-link"
-          :primary="true"
-          @click="displayModal(Modals.EDIT_CLASS_NAME)"
-        />
+          hasDropdown
+          :text="coreString('optionsLabel')"
+        >
+          <template #menu>
+            <KDropdownMenu
+              :options="dropDownOptions"
+              @select="handleOptionSelection($event, classDetails)"
+            />
+          </template>
+        </KButton>
       </div>
 
       <p>{{ $tr('coachEnrollmentPageTitle') }}</p>
@@ -36,6 +41,7 @@
         :classid="classDetails.id"
         :classes="classes"
         @cancel="closeModal"
+        @success="closeModal"
       />
       <UserRemoveConfirmationModal
         v-if="modalShown === Modals.REMOVE_USER"
@@ -43,6 +49,19 @@
         :username="userToBeRemoved.username"
         @submit="removalAction({ classId: classDetails.id, userId: userToBeRemoved.id })"
         @cancel="closeModal"
+      />
+      <ClassCopyModal
+        v-if="modalShown === Modals.COPY_CLASS"
+        :classToCopy="classToCopy"
+        :classes="classes"
+        @close="displayModal(false)"
+        @success="goToClassesPage"
+      />
+      <ClassDeleteModal
+        v-if="Boolean(classToDelete)"
+        :classToDelete="classToDelete"
+        @cancel="clearClassToDelete"
+        @success="handleDeleteSuccess"
       />
       <!-- /Modals -->
 
@@ -61,6 +80,7 @@
           <KRouterLink
             :text="$tr('assignCoachesButtonLabel')"
             :to="$store.getters.facilityPageLinks.CoachClassAssignmentPage"
+            primary
             appearance="raised-button"
           />
         </KGridItem>
@@ -125,11 +145,16 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
+  import { ref } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import UserTable from 'kolibri-common/components/UserTable';
-  import { Modals } from '../../constants';
+  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import { PageNames, Modals } from '../../constants.js';
   import FacilityAppBarPage from '../FacilityAppBarPage';
-  import ClassRenameModal from './ClassRenameModal';
+  import ClassCopyModal from '../common/ClassCopyModal.vue';
+  import ClassDeleteModal from '../common/ClassDeleteModal';
+  import ClassRenameModal from '../common/ClassRenameModal';
+  import useDeleteClass from '../../composables/useDeleteClass';
   import UserRemoveConfirmationModal from './UserRemoveConfirmationModal';
 
   export default {
@@ -140,12 +165,28 @@
       };
     },
     components: {
+      ClassCopyModal,
+      ClassDeleteModal,
       FacilityAppBarPage,
       ClassRenameModal,
       UserTable,
       UserRemoveConfirmationModal,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const classToCopy = ref({});
+      const { copyClass$, renameClassLabel$, deleteClass$ } = bulkUserManagementStrings;
+      const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
+      return {
+        classToCopy,
+        copyClass$,
+        renameClassLabel$,
+        deleteClass$,
+        classToDelete,
+        selectClassToDelete,
+        clearClassToDelete,
+      };
+    },
     data() {
       return {
         userToBeRemoved: null,
@@ -168,9 +209,31 @@
       Modals() {
         return Modals;
       },
+      dropDownOptions() {
+        return [
+          {
+            label: this.copyClass$(),
+            value: 'COPY_CLASS',
+            id: 'copy',
+          },
+          {
+            label: this.renameClassLabel$(),
+            value: 'EDIT_CLASS_NAME',
+            id: 'rename',
+          },
+          {
+            label: this.deleteClass$(),
+            value: 'DELETE_CLASS',
+            id: 'delete',
+          },
+        ];
+      },
     },
     methods: {
       ...mapActions('classEditManagement', ['displayModal']),
+      goToClassesPage() {
+        this.$router.push({ name: PageNames.CLASS_MGMT_PAGE });
+      },
       closeModal() {
         this.displayModal(false);
       },
@@ -190,6 +253,25 @@
           window.localStorage.setItem(`${welcomeDismissalKey}-${args.userId}`, true);
           this.showSnackbarNotification('learnersRemovedNoCount', { count: 1 });
         });
+      },
+      handleDeleteSuccess() {
+        this.clearClassToDelete();
+        this.goToClassesPage();
+      },
+      handleOptionSelection(selection, classroom) {
+        if (selection.value === Modals.DELETE_CLASS) {
+          this.selectClassToDelete(classroom);
+          return;
+        }
+        if (selection.value === Modals.EDIT_CLASS_NAME) {
+          this.displayModal(Modals.EDIT_CLASS_NAME);
+          return;
+        }
+        if (selection.value === Modals.COPY_CLASS) {
+          this.classToCopy = classroom;
+          this.displayModal(Modals.COPY_CLASS);
+          return;
+        }
       },
     },
     $trs: {
@@ -219,11 +301,6 @@
         message: 'Edit Class',
         context: 'Page title.',
       },
-      renameButtonLabel: {
-        message: 'Rename',
-        context:
-          "Users can change the name of a class using the 'Rename' button beside the class name.",
-      },
     },
   };
 
@@ -232,8 +309,16 @@
 
 <style lang="scss" scoped>
 
+  .title-and-options {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   .title-header {
-    display: inline-block;
+    display: inline;
     margin-right: 8px;
   }
 

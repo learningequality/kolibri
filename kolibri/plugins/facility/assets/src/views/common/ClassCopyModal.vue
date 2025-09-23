@@ -162,6 +162,7 @@
           }
 
           store.commit('classManagement/SET_STATE', { classes: [...classes, createdClass.value] });
+          context.emit('success');
           closeWithSnackbar(classCopiedSuccessfully$());
         } catch (error) {
           handleApiFailure(error);

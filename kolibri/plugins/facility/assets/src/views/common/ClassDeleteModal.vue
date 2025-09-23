@@ -18,7 +18,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useDeleteClass from './useDeleteClass';
+  import useDeleteClass from '../../composables/useDeleteClass';
 
   export default {
     name: 'ClassDeleteModal',
