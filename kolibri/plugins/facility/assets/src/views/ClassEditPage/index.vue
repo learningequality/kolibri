@@ -54,15 +54,14 @@
         v-if="modalShown === Modals.COPY_CLASS"
         :classToCopy="classToCopy"
         :classes="classes"
-        :callback="goToClassesPage"
         @close="displayModal(false)"
+        @success="goToClassesPage"
       />
       <ClassDeleteModal
         v-if="Boolean(classToDelete)"
         :classToDelete="classToDelete"
-        :callback="goToClassesPage"
         @cancel="clearClassToDelete"
-        @success="clearClassToDelete"
+        @success="handleDeleteSuccess"
       />
       <!-- /Modals -->
 
@@ -254,6 +253,10 @@
           window.localStorage.setItem(`${welcomeDismissalKey}-${args.userId}`, true);
           this.showSnackbarNotification('learnersRemovedNoCount', { count: 1 });
         });
+      },
+      handleDeleteSuccess() {
+        this.clearClassToDelete();
+        this.goToClassesPage();
       },
       handleOptionSelection(selection, classroom) {
         if (selection.value === Modals.DELETE_CLASS) {

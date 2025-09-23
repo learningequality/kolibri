@@ -83,7 +83,7 @@
       } = bulkUserManagementStrings;
       const { coreString } = commonCoreStrings.methods;
       const { createSnackbar } = useSnackbar();
-      const { classToCopy, classes, callback } = props;
+      const { classToCopy, classes } = props;
 
       const classNameInvalidText = computed(() => {
         if (!loading.value) {
@@ -162,8 +162,8 @@
           }
 
           store.commit('classManagement/SET_STATE', { classes: [...classes, createdClass.value] });
+          context.emit('success');
           closeWithSnackbar(classCopiedSuccessfully$());
-          if (callback) callback();
         } catch (error) {
           handleApiFailure(error);
         } finally {
@@ -216,11 +216,6 @@
       };
     },
     props: {
-      callback: {
-        type: Function,
-        required: false,
-        default: null,
-      },
       classToCopy: {
         type: Object,
         required: true,

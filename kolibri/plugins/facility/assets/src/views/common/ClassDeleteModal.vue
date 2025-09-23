@@ -37,18 +37,12 @@
         type: Object,
         required: true,
       },
-      callback: {
-        type: Function,
-        required: false,
-        default: null,
-      },
     },
     methods: {
       classDelete() {
         this.deleteSelectedClassModel().then(() => {
           this.$emit('success');
           this.showSnackbarNotification('classDeleted');
-          if (this.callback) this.callback();
         });
       },
     },
