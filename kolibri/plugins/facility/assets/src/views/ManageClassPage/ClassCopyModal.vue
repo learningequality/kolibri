@@ -87,8 +87,9 @@
 
       const classNameInvalidText = computed(() => {
         if (!loading.value) {
+          const nameValue = copiedClassName.value || '';
           const normalize = str => str.replace(/\s+/g, ' ').toLowerCase();
-          const name = (normalize(copiedClassName.value) || '').trim();
+          const name = normalize(nameValue).trim();
           if (!name) {
             return coreString('requiredFieldError');
           } else if (classes.some(row => normalize(row.name) === name)) {
