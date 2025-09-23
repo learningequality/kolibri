@@ -12,7 +12,7 @@
       <!-- Adding 24 pixels to the max height to prevent having too much bottom padding space -->
       <KPageContainer
         class="flex-column"
-        :style="{ maxHeight: pageContentHeight + 24 + 'px', padding: '2em 2em 1em' }"
+        :style="{ maxHeight: pageContentHeight - 48 + 'px', padding: '2em 2em 1em' }"
       >
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
