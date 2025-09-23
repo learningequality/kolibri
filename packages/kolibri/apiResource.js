@@ -1054,7 +1054,7 @@ export class Resource {
       }
       console.groupEnd();
     }
-    if (Object.keys(err.config.params).length) {
+    if (err.config?.params && Object.keys(err.config.params).length) {
       console.group('Query parameters');
       for (const [k, v] of Object.entries(err.config.params)) {
         console.log(`${k}: ${v}`);
@@ -1073,7 +1073,7 @@ export class Resource {
         }
       } catch (e) {} // eslint-disable-line no-empty
     }
-    if (Object.keys(err.config.headers).length) {
+    if (err.config?.headers && Object.keys(err.config.headers).length) {
       console.group('Headers');
       for (const [k, v] of Object.entries(err.config.headers)) {
         console.log(`${k}: ${v}`);
