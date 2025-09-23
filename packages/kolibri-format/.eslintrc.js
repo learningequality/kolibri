@@ -76,6 +76,7 @@ module.exports = {
           ".vue"
         ],
       },
+      exports: true,
     },
   },
   rules: {
