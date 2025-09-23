@@ -102,6 +102,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Rename class',
     context: 'Label for dropdown item that allows user to modify the name of a class',
   },
+  deleteClass: {
+    message: 'Delete class',
+    context: 'Label for dropdown item that allows user to delete a class',
+  },
 
   // Bulk actions
   enrollToClass: {

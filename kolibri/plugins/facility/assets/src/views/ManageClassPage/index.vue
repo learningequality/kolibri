@@ -130,11 +130,11 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
-  import ClassRenameModal from '../ClassEditPage/ClassRenameModal.vue';
+  import ClassRenameModal from '../common/ClassRenameModal.vue';
+  import ClassDeleteModal from '../common/ClassDeleteModal';
+  import useDeleteClass from '../../composables/useDeleteClass';
+  import ClassCopyModal from '../common/ClassCopyModal.vue';
   import ClassCreateModal from './ClassCreateModal';
-  import ClassDeleteModal from './ClassDeleteModal';
-  import useDeleteClass from './useDeleteClass';
-  import ClassCopyModal from './ClassCopyModal.vue';
 
   export default {
     name: 'ManageClassPage',
@@ -162,7 +162,7 @@
       const store = getCurrentInstance().proxy.$store;
       const displayModal = payload => store.dispatch('classManagement/displayModal', payload);
 
-      const { copyClass$, renameClassLabel$ } = bulkUserManagementStrings;
+      const { copyClass$, renameClassLabel$, deleteClass$ } = bulkUserManagementStrings;
 
       const handleOptionSelection = (selection, classroom) => {
         if (selection.value === Modals.DELETE_CLASS) {
@@ -189,6 +189,7 @@
         getFacilities,
         copyClass$,
         renameClassLabel$,
+        deleteClass$,
         classDetails,
         classToCopy,
         handleOptionSelection,
@@ -252,7 +253,7 @@
             id: 'rename',
           },
           {
-            label: this.$tr('deleteClass'),
+            label: this.deleteClass$(),
             value: 'DELETE_CLASS',
             id: 'delete',
           },
@@ -317,10 +318,6 @@
       addNew: {
         message: 'New class',
         context: 'Button used to create a new class.',
-      },
-      deleteClass: {
-        message: 'Delete class',
-        context: 'Option to delete a class.',
       },
       tableCaption: {
         message: 'List of classes',

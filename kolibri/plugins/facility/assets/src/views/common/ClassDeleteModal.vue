@@ -18,7 +18,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useDeleteClass from './useDeleteClass';
+  import useDeleteClass from '../../composables/useDeleteClass';
 
   export default {
     name: 'ClassDeleteModal',
@@ -37,12 +37,18 @@
         type: Object,
         required: true,
       },
+      callback: {
+        type: Function,
+        required: false,
+        default: null,
+      },
     },
     methods: {
       classDelete() {
         this.deleteSelectedClassModel().then(() => {
           this.$emit('success');
           this.showSnackbarNotification('classDeleted');
+          if (this.callback) this.callback();
         });
       },
     },
