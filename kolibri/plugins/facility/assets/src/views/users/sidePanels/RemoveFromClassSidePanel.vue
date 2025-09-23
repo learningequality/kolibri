@@ -326,6 +326,10 @@
       });
 
       onMounted(() => {
+        // Answering the question "what happens when we refresh?"
+        if (props.selectedUsers.size === 0) {
+          goBack();
+        }
         setClassUsers();
       });
 

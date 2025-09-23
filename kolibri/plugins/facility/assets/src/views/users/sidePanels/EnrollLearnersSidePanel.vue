@@ -114,7 +114,7 @@
 <script>
 
   import { useRoute } from 'vue-router/composables';
-  import { ref, computed } from 'vue';
+  import { onMounted, getCurrentInstance, ref, computed } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
@@ -135,6 +135,23 @@
     },
     mixins: [commonCoreStrings],
     setup(props) {
+      const store = getCurrentInstance().proxy.$store;
+      const route = useRoute();
+      const goBack = useGoBack({
+        getFallbackRoute: () => {
+          return overrideRoute(route, {
+            name: getRootRouteName(route),
+          });
+        },
+      });
+
+      onMounted(() => {
+        // Answering the question "what happens when we refresh?"
+        if (props.selectedUsers.size === 0) {
+          goBack();
+        }
+      });
+
       const loading = ref(false);
       const showErrorWarning = ref(false);
       const selectedOptions = ref([]);
@@ -223,7 +240,8 @@
             const newMemberships = await MembershipResource.saveCollection({ data: enrollments });
             createdMemberships.value = newMemberships;
           } catch (error) {
-            showErrorWarning.value = true;
+            // Why doesn't this ever get run here?
+            store.dispatch('handleApiError', { error });
             loading.value = false;
             return false;
           }

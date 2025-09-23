@@ -111,7 +111,7 @@
 
 <script>
 
-  import { ref, computed } from 'vue';
+  import { onMounted, ref, computed } from 'vue';
   import { useRoute } from 'vue-router/composables';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
@@ -149,6 +149,13 @@
             name: getRootRouteName(route),
           });
         },
+      });
+
+      onMounted(() => {
+        // Answering the question "what happens when we refresh?"
+        if (props.selectedUsers.size === 0) {
+          goBack();
+        }
       });
 
       const {
