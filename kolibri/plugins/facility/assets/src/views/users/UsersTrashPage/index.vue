@@ -265,7 +265,7 @@
   .page-container {
     display: flex;
     flex-direction: column;
-    max-width: 1000px;
+    max-width: 1440px;
     margin: 24px auto;
   }
 
