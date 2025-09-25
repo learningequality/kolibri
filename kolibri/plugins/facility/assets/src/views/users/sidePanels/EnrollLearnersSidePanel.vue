@@ -56,12 +56,20 @@
             {{ selectClassesLabel$() }}
           </h2>
           <SelectableList
+            v-if="classList.length"
             v-model="selectedOptions"
             :options="classList"
             :selectAllLabel="enrollInAllClasses$()"
             aria-labelledby="enroll-in-selected-classes"
             :searchLabel="searchForAClass$()"
           />
+          <p v-else>
+            {{ noClassesInFacilityNotice$() }}
+            <KRouterLink
+              :text="classesLabel$()"
+              :to="$store.getters.facilityPageLinks.ManageClassPage"
+            />
+          </p>
         </div>
       </div>
       <template #bottomNavigation>
@@ -108,7 +116,7 @@
   import { useRoute } from 'vue-router/composables';
   import { ref, computed } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
@@ -148,7 +156,10 @@
         numUsersNotEnrolled$,
         enrollUsersInClasses$,
         usersInClassNotAffected$,
+        noClassesInFacilityNotice$,
       } = bulkUserManagementStrings;
+
+      const { classesLabel$ } = coreStrings;
 
       const route = useRoute();
       const goBack = useGoBack({
@@ -261,6 +272,7 @@
         hasUnsavedChanges,
 
         // translation functions
+        classesLabel$,
         enrollAction$,
         discardAction$,
         discardWarning$,
@@ -273,6 +285,7 @@
         numUsersNotEnrolled$,
         enrollUsersInClasses$,
         usersInClassNotAffected$,
+        noClassesInFacilityNotice$,
 
         // methods
         enrollLearners,

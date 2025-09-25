@@ -53,12 +53,20 @@
             {{ selectClassesLabel$() }}
           </h2>
           <SelectableList
+            v-if="formattedClasses.length"
             v-model="selectedClasses"
             :options="formattedClasses"
             aria-labelledby="assign-coaches-selected-classes"
             :selectAllLabel="assignToAllClasses$()"
             :searchLabel="searchForAClass$()"
           />
+          <p v-else>
+            {{ noClassesInFacilityNotice$() }}
+            <KRouterLink
+              :text="coreStrings.classesLabel$()"
+              :to="$store.getters.facilityPageLinks.ManageClassPage"
+            />
+          </p>
         </div>
       </div>
       <template #bottomNavigation>
@@ -158,6 +166,7 @@
         selectClassesLabel$,
         assignUsersHeading$,
         assignToAllClasses$,
+        noClassesInFacilityNotice$,
       } = bulkUserManagementStrings;
 
       const loadUsers = async () => {
@@ -304,6 +313,7 @@
         numUsersNotEligible$,
         assignUsersHeading$,
         assignToAllClasses$,
+        noClassesInFacilityNotice$,
         closeConfirmationGuardRef,
       };
     },

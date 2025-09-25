@@ -66,6 +66,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Select classes',
     context: 'Heading label for selecting classes in side panels',
   },
+  noClassesInFacilityNotice: {
+    message: 'There are no classes in this facility.',
+    context: 'Message shown when there are no classes in the facility',
+  },
 
   // Date range filters
   lastNDaysLabel: {
@@ -258,6 +262,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   removeAction: {
     message: 'Remove',
     context: 'Label for the button that will remove users from classes',
+  },
+  noUsersClassesNotice: {
+    message: 'None of the selected users are enrolled or assigned to any classes.',
+    context: 'Message shown when none of the selected users are in any classes',
   },
 
   // Enroll to class

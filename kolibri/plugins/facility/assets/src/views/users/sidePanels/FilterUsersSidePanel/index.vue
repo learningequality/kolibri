@@ -44,7 +44,10 @@
           </template>
         </SelectableList>
       </section>
-      <section class="filter-section">
+      <section
+        v-if="classesOptions.length"
+        class="filter-section"
+      >
         <h2 id="class-filter-label">{{ coreStrings.classLabel$() }}</h2>
         <SelectableList
           v-model="workingFilters.classes"

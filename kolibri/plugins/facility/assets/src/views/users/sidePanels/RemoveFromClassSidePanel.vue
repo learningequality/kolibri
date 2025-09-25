@@ -56,12 +56,16 @@
             {{ selectClassesLabel$() }}
           </h2>
           <SelectableList
+            v-if="classList.length"
             v-model="selectedOptions"
             :options="classList"
             :selectAllLabel="removeFromAllClassesLabel$()"
             aria-labelledby="remove-from-selected-classes"
             :searchLabel="searchForAClass$()"
           />
+          <p v-else>
+            {{ noUsersClassesNotice$() }}
+          </p>
         </div>
       </div>
       <template #bottomNavigation>
@@ -154,6 +158,7 @@
         removeAction$,
         usersRemovedNotice$,
         undoUsersRemovedMessage$,
+        noUsersClassesNotice$,
       } = bulkUserManagementStrings;
 
       const goBack = useGoBack({
@@ -335,6 +340,7 @@
         removeFromAllClassesLabel$,
         selectClassesLabel$,
         removeAction$,
+        noUsersClassesNotice$,
 
         // methods
         removeUsers,
