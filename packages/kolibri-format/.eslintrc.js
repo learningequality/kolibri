@@ -228,6 +228,18 @@ module.exports = {
     'vue/match-component-file-name': ERROR,
     'vue/component-options-name-casing': [ERROR, 'PascalCase'],
     'vue/no-unused-properties': [ERROR, { groups: ['props', 'data', 'computed', 'methods', 'setup'], deepData: true, ignorePublicMembers: true }],
+    // Prevent unwrapped strings in templates to ensure we are doing i18n properly
+    "vue/no-bare-strings-in-template": [ERROR, {
+      "allowlist": [
+        "(", ")", ",", ".", "&", "+", "-", "=", "*", "/", "#", "%", "!", "?", ":", "[", "]", "{", "}", "<", ">", "\u00b7", "\u2022", "\u2010", "\u2013", "\u2014", "\u2212", "|"
+      ],
+      "attributes": {
+        "/.+/": ["title", "aria-label", "aria-placeholder", "aria-roledescription", "aria-valuetext", "ariaLabel", "ariaPlaceholder", "ariaRoledescription", "ariaValuetext", "label", "text", "description", "tooltip", "submitText", "cancelText", "errorMessage"],
+        "input": ["placeholder"],
+        "img": ["alt"]
+      },
+      "directives": ["v-text"]
+    }],
 
     'import/first': ERROR,
     'import/no-duplicates': ERROR,
