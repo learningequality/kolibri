@@ -28,7 +28,7 @@ from kolibri.core.device.translation import get_accept_headers_language
 from kolibri.core.device.translation import get_device_language
 from kolibri.core.device.translation import get_settings_language
 from kolibri.core.device.utils import allow_guest_access
-from kolibri.core.device.utils import is_provisioned
+from kolibri.core.device.utils import device_provisioned
 from kolibri.core.hooks import LogoutRedirectHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.theme_hook import ThemeHook
@@ -134,7 +134,7 @@ class RootURLRedirectView(View):
         Redirects user based on the highest role they have for which a redirect is defined.
         """
         # If it has not been provisioned and we have something that can handle setup, redirect there.
-        if not is_provisioned() and SetupHook.provision_url:
+        if not device_provisioned() and SetupHook.provision_url:
             return redirect(SetupHook.provision_url())
 
         if request.user.is_authenticated:

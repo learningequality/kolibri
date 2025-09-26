@@ -499,21 +499,6 @@ def is_full_facility_import(dataset_id):
     )
 
 
-device_is_provisioned = False
-
-
-def is_provisioned():
-    # First check if the device has been provisioned
-    global device_is_provisioned
-    device_is_provisioned = device_is_provisioned or device_provisioned()
-    return device_is_provisioned
-
-
-def reset_device_provisioned_flag():
-    global device_is_provisioned
-    device_is_provisioned = False
-
-
 def get_device_unusable_reason():
     from kolibri.core.auth.models import FacilityUser
 
