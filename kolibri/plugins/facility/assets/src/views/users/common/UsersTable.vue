@@ -497,7 +497,10 @@
           : new Set();
       });
 
-      // --- Methods ---
+      const resetToFirstPage = () => {
+        currentPage.value = 1;
+      };
+
       const handleSelectAllToggle = () => {
         const visibleUserIds = facilityUsers.value.map(user => user.id);
         const { checked } = selectAllState.value;
@@ -624,6 +627,7 @@
 
       expose({
         focus,
+        resetToFirstPage,
       });
 
       const { windowBreakpoint } = useKResponsiveWindow();

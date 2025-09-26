@@ -56,7 +56,7 @@
           :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL"
           :numAppliedFilters="numAppliedFilters"
           @clearFilters="resetFilters"
-          @change="onChange"
+          @change="handleBulkActionSuccess"
         >
           <template #userActions>
             <KIconButton
@@ -114,7 +114,7 @@
           :selectedUsers="selectedUsers"
           :classes="classes"
           :onBlur="onModalBlur"
-          :onChange="onChange"
+          :onChange="handleBulkActionSuccess"
           @clearSelection="clearSelectedUsers"
         />
 
@@ -123,8 +123,8 @@
           v-if="isMoveToTrashModalOpen"
           :selectedUsers="selectedUsers"
           :onBlur="onModalBlur"
-          :onChange="onChange"
-          @close="isMoveToTrashModalOpen = false"
+          :onChange="handleBulkActionSuccess"
+          @close="handleTrashModalClose"
         />
       </KPageContainer>
     </template>
@@ -212,6 +212,21 @@
         selectedUsers.value = new Set(selectedUsers.value);
       }
 
+      function handleTrashModalClose() {
+        isMoveToTrashModalOpen.value = false;
+      }
+
+      function handleBulkActionSuccess(event) {
+        clearSelectedUsers();
+        if (usersTableRef.value) {
+          usersTableRef.value.resetToFirstPage();
+        }
+        onChange(event);
+        if (route.matched.length > 1) {
+          router.push({ name: $store.getters.facilityPageLinks.UsersRootPage.name });
+        }
+      }
+
       function navigateToSidePanel(sidePanelName) {
         const newRoute = overrideRoute(route, { name: sidePanelName });
         router.push(newRoute);
@@ -228,7 +243,7 @@
         usersTableRef,
         numAppliedFilters,
         isMoveToTrashModalOpen,
-        onChange,
+        handleBulkActionSuccess,
         onModalBlur,
         resetFilters,
         clearSelectedUsers,
@@ -245,6 +260,7 @@
         isSuperuser,
         isAdmin,
         navigateToSidePanel,
+        handleTrashModalClose,
       };
     },
     computed: {
