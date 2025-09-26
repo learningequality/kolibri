@@ -2,174 +2,123 @@
 
 ## Frequently asked questions
 
-- How does the build system work overall?
+- **How does the build system work overall?**
 
-    The `Kolibri Python Package` pipeline creates a `whl` file and triggers every other pipeline. Those pipelines download the `whl` (or the `.deb`, in the pi image's case) from the associated build in `Kolibri Python Package` to build their own installer. See below for more detail.
+    Kolibri uses GitHub Actions with two primary build workflows: **PR builds** for testing and validation, and **release builds** for distribution. PR builds (`pr_build_kolibri.yml`) create artifacts for testing pull requests, while release builds (`release_kolibri.yml`) create final distribution packages when releases are published. Both workflows orchestrate multi-platform builds using external repositories for platform-specific installers.
 
-    One key thing to remember: each build is associated with a specific commit. Builds happen as a Github "check" for each commit, and can be found on the associated commit inside of its "checks" links - denoted by a green checkmark (or a red X in the case of a failed build).
+- **How do I access builds for a PR?**
 
-- How do I access builds for a PR?
+    The easiest way is through the automated comment that gets posted on each PR. After the build completes, a comment appears with a table of all available artifacts and download links. This comment is automatically updated each time new builds complete. Alternatively, you can access artifacts through the "Checks" section by clicking on the "Kolibri Build Assets for Pull Request" workflow.
 
-    The easiest way to do so would be to go through Github. Navigate to the PR page. If it's an open PR, the "Checks" section should be salient - one of those checks should be Buildkite's, and that will take you to the associated build page.
-
-    If it's a closed PR, click on the "Commits" section. Every commit that has a green checkmark to its right is a commit that had checks run against it. Find the commit you're interested in and click on the checkmark to get the link to the associated build.
-
-    If you want one of the installers in a build, click on the link to the build pipeline triggered for that installer. From that installer build's page, you should be able to unblock the "Block" step and start the build of the specified installer. See below for more detail.
-
-- How do I trigger builds that are blocked?
-
-    "Block" steps can be unblocked via the Builkite GUI, on the build page. Clicking on the "Block" step should present you with a confirmation modal, asking if you want to proceed.
-
-    Most "secondary" pipelines - installer pipelines - have a "Block" step as their first, so that the build won't run unless the parent `Kolibri Python Package` build is a release.
-
-- How do I access builds for tagged releases?
-
-    The best way to do so is, again, from Github. Navigate to the "Releases" page on Github. On the left of the Release name, you should see the short-SHA of a Github commit. This short SHA is also a link. Clicking on it will take you to the Github page for that commit. Underneath the commit message, you should find a green checkmark (or a red "X" if it didn't build properly).
-
-    Clicking on the symbol should link to the build page you're looking for.
-
-- How do I find builds for specific tags?
-
-    The best way to do so is from Github. Navigate to the "Tags" page on Github. On the left of the Tag name, you should see the short-SHA of a Github commit. This short SHA is also a link. Clicking on it will take you to the Github page for that commit. Underneath the commit message, you should find a green checkmark (or a red "X" if it didn't build properly).
-    Clicking on the symbol should link to the build page you're looking for.
-
-## Design goals
-
-The build pipeline currently uses Buildkite as its build system. Buildkite is flexible in that the build queue is hosted on their servers, while the build agents (the servers that actually run the build scripts) are self hosted.
-
-The design goals of the pipeline in its current iteration are chiefly:
-
-- Continuously integrate authors' changes into a built package/installer/app (asset)
-- Provide *timely* alerts to all authors of Pull Requests (PRs) and Releases to Kolibri-related projects on Github (GH)
-- Make those assets available to testers and developers
-- In the event of a release, make those assets available on the corresponding release page in GH
-
-These goals are described at a high level, and carry some implicit meaning. These implications translated to some more concrete goals in the pipeline's most recent iteration:
-
-- For the sake of speed:
-    - Automatically build as few assets as possible on a per-PR basis.
-- For the the sake of convenience:
-    - Allow for testers/developers to request additional assets without human intervention.
-- For the sake of resilience:
-    - Have more than one build agent, distributed geographically.
-
-There is certainly overlap in those goals. For example, a faster build translates to a more convenient release process for our release managers, who must ensure that assets build after tagging a release.
-
-## Overview of Buildkite
-
-Before describing the current architecture, it might be helpful to provide context by giving an overview of how Buildkite works.
-
-This entire section will not be describing any of LE's build pipelines in particular - only how Buildkite manages pipelines.
-
-Without diving too deep (LINK please visit their official documentation if you'd like more detail), the Buildkite product has 2 main components, (illustrated on this page (LINK to agent page)):
-
-1. The Buildkite Agent API
-2. The Buildkite Agent Daemon
-
-### API and vocabulary
-
-The API is hosted on Buildkite servers. It's primary purpose is to receive build *steps* in the form of (mostly) YAML, and distribute them as *jobs* to Agents.
-
-A *step*, in this context, is a YAML-formatted instruction - in all of our product repositories, our steps live inside of `.buildkite/pipeline.yml`. It's the serial form of instructions for Buildkite.
-
-A *job* is the instantiation of a step, or the de-serialized form of a step. They aren't always running, but are used as references for the processes involved in running the commands dictated by the step. Jobs are assigned to Agents, and can run on any of the Agents connected to our account's Buildkite API.
-
-A *build* can be considered a container for jobs. After the `pipeline.yml` file is de-serialized, all jobs are added to a *build* before being delegated to an agent.
-
-Apart from the job allocation functionality, Buildkite conveniently provides us with:
-
-- A Webhook server/client
-- A web UI
-- Ephemeral asset hosting
-
- A *pipeline* can be thought of as a sort of container for builds (each build must belong to a pipeline), as well as a housing mechanism for the features described above; those settings can all be configured on a per-pipeline basis.
-
-Here's a visual of what concept is a property of which:
-
-![Mapping of terms](Pipeline_vocab_illustrated.png)
-
-### Github integration
-
-The Webhook client functionality is critical, as it allows us to integrate with Github.
-
-Github alerts Buildkite that a new PR, commit, or tag has been created via webhook. This spurs the Buildkite servers to create a job, instructing the Agent to pull the GH repo and send Buildkite the steps it needs to be carried out.
-
-The step that defines this job cannot not be defined inside of the `pipeline.yaml` file commited to the repository. This *must* be defined on Buildkite's servers using their web GUI.
-
-### Agent
-
-The agent is hosted on LE servers. Some of these servers are physically located in the LE physical office, and others are physically located in a cloud provider's server farm.
-
-All of these servers have a Buildkite Agent application installed as a background service. It's primary purpose is to receive jobs from the Buildkite API and execute them.
-
-Apart from the obvious authentication components that are required to access the API, the agent provides us with:
-
-- [An agent-level hooks system](https://buildkite.com/docs/agent/v3/hooks)
-- The ability to completely self-manage our build environments and secrets
-
-### The value of self hosted
-
-Many build systems provide a free tier of hosting. In the best of those cases, you provide them a Docker image that they then deploy. Your jobs run inside of that image. The mechanism with which secrets (envars and files) are passed to these systems vary wildly.
-
-We could probably make those systems work if need be. By self hosting, however, we completely control various facets of the build pipeline:
-
-- Secrets
-    - Where they live
-    - How they're stored or downloaded
-    - Their form (envar vs JSON file, etc.)
-- Complete control of our dependencies, down to the OS/Kernel.
-- The ability to invest in the one-time-cost (as opposed to the ongoing cost of cloud-provided hosting) of physical hardware , customized to our workload.
-    - "Hybrid Cloud" setups - where the bulk of the workload is on-premises, with some off-premises secondary workloads.
-
-## Learning Equality's pipelines
-
-There is one pipeline per installer, each is configured to listen to a different GH repository. :
-
-- `Kolibri Python Package`
-    - [https://github.com/learningequality/kolibri](https://github.com/learningequality/kolibri)
-- `Kolibri MacOS`
-    - [https://github.com/learningequality/kolibri-installer-mac](https://github.com/learningequality/kolibri-installer-mac)
-- `Kolibri Android Installer`
-    - [https://github.com/learningequality/kolibri-installer-android](https://github.com/learningequality/kolibri-installer-android)
-- `Kolibri Debian`
-    - [https://github.com/learningequality/kolibri-installer-debian](https://github.com/learningequality/kolibri-installer-debian)
-- `Kolibri Windows`
-    - [https://github.com/learningequality/kolibri-installer-windows](https://github.com/learningequality/kolibri-installer-windows)
-- `Kolibri Raspian Image`
-    - [https://github.com/learningequality/pi-gen](https://github.com/learningequality/pi-gen)
-
-This implies a few things:
-
-- A [manually triggered build](https://buildkite.com/docs/tutorials/getting-started#create-your-first-build) (clicking on the "New Build" button on Buildkite) will pull from a specific repository.
-- An automatically triggered build will pull from the same repository, given that the webhook has been set and the [triggers are properly configured](https://buildkite.com/docs/integrations/github#running-builds-on-pull-requests)
-- After pulling the repository, each pipeline assumes that there is a file defining steps in the repository it just downloaded.
-By default, it will use `.buildkite/pipeline.json`. This can be changed, but we don't do that in any of our pipelines.
-
-With one exception, each pipeline's sole concern is to build the asset it is named for, then upload it to the appropriate destinations. The exception, and the "appropriate destinations", will be explained below.
-
-### Pipeline orchestration
-
-Presently, the `Kolibri Python Package` Pipeline carries more responsibility than the rest.
-
-Whereas the other pipelines' responsibilities stop at building and uploading their installer, `Kolibri Python Package` acts as the "kick off" point for the other installers. Being the only pipeline listening to the Kolibri repository on Github for changes, it is the only pipeline triggered by those changes.
-
-After building the `.whl` and `.pex` in a single step, the `Kolibri Python Package` proceeds to trigger the other installers, most of which rely on the `.whl` file (The single exception is `Kolibri Raspbian Image`, which relies on the `.deb` installer).
-
-These *trigger steps* live inside of the `Kolibri Python Package`, but send metadata to each of the other pipelines and trigger an entirely new build in each one.
-
-### Block steps
-
-These triggered builds are created simultaneously; this does not mean that the jobs belonging to the builds are assigned simultaneously. The very first thing a new build does is pull the repository and de-serialize the steps living inside the `.buildkite` folder.
-
-For non-release builds, each Build's first step is a "Block" step - this kind of step does not create a job. At this point, the Build is "finished". That is, finished for now: the build will progress once user input confirming procession has been received.
-
-The "finished" signal on the triggered builds report back to the `Kolibri Python Package` pipeline, indicating it as "complete" even if no build has been run.
-
-**This allows for efficiency: Time won't be wasted waiting for every single installer to be built for non-release pipelines. If a developer *wants* one of the other installers, they may navigate to the appropriate pipeline and unblock the step.**
-
-### Release builds
-
-In the case that this build belongs to a release-tagged Git commit, a few conditions are triggered:
-
-1. The "Upload Release Artifact" step, conditional based on the existence of a Git tag, now exists at the end of the artifact build steps (Both standard and triggered builds).
-2. The Block step at the start of each "child" pipeline, conditional based on the existence of a Git tag, ceases to exist. This means that all of the triggered builds, in each of the triggered pipelines, will run and generate a artifact. The longest of these is the Raspbian image.
+- **How do I access builds for tagged releases?**
+
+    Go to the GitHub "Releases" page and find your release. Release artifacts are automatically attached as downloadable assets on the release page itself. Each release will have Python packages (WHL/PEX), macOS app (DMG), Linux package (DEB), Windows installer (EXE), Android app (APK), and Raspberry Pi image (ZIP) files available for download.
+
+## Build types and triggers
+
+Kolibri has two distinct build workflows that serve different purposes:
+
+**Release Types**:
+- **Final releases** (e.g., v1.0.0): Production releases that go through manual approval and are published to PyPI and Google Play Store
+- **Prereleases** (e.g., v1.0.0-beta1): Testing releases that skip manual approval and are not published to final distribution channels
+
+### PR builds (`pr_build_kolibri.yml`)
+- **Purpose**: Generate test artifacts for pull request validation
+- **Trigger**: Automatically on every pull request
+- **Artifacts**: Available for download from GitHub Actions and linked in PR comments
+- **Scope**: Creates all platform installers for comprehensive testing
+- **Audience**: Developers, testers, and reviewers
+
+### Release builds (`release_kolibri.yml`)
+- **Purpose**: Create and distribute final release packages
+- **Trigger**: When a GitHub release is published
+- **Artifacts**: Attached to GitHub releases and distributed to public channels
+- **Scope**: Full production build with code signing and publishing
+- **Audience**: End users and distribution channels
+
+## Repository structure
+
+### Main repository: `learningequality/kolibri`
+- Core application code and build orchestration
+- Workflow definitions in `.github/workflows/`
+- Produces foundational Python packages (WHL, TAR, PEX)
+
+### Platform installer repositories:
+Each external repository specializes in one platform:
+
+- **`kolibri-app`**: macOS .dmg with app signing and notarization
+- **`kolibri-installer-debian`**: .deb packages for Debian/Ubuntu
+- **`kolibri-installer-windows`**: .exe with Windows code signing
+- **`kolibri-installer-android`**: .apk with Google Play Store publishing
+- **`kolibri-image-pi`**: Raspberry Pi disk images
+
+## Workflow orchestration
+
+Both PR and release workflows follow a similar orchestration pattern but with different end goals:
+
+### Common build sequence:
+1. **Python Package Build**: Creates WHL (Python wheel - a built package format) and TAR (source archive) files using `build_whl.yml`
+2. **PEX Build**: Creates a PEX (Python EXecutable - a self-contained Python application) using the WHL
+3. **Platform Builds**: Triggers external repository workflows:
+   - **DMG** (macOS disk image): `learningequality/kolibri-app`
+   - **DEB** (Debian/Ubuntu package): `learningequality/kolibri-installer-debian`
+   - **EXE** (Windows installer): `learningequality/kolibri-installer-windows`
+   - **APK** (Android app package): `learningequality/kolibri-installer-android`
+   - **ZIP** (Raspberry Pi disk image): `learningequality/kolibri-image-pi`
+
+### How external workflows are called
+
+Platform-specific builds use the `uses` keyword to call workflows in external repositories:
+
+```yaml
+dmg:
+  uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@v0.4.4
+  with:
+    whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+    ref: v0.4.4
+```
+
+Key aspects:
+- **Specialized tooling**: Each platform repository contains platform-specific build tools
+- **Version pinning**: External workflows are pinned to specific versions (e.g., `@v0.4.4`) for stability
+- **Ref parameter**: Ensures external workflows use the correct version of their own code (required due to GitHub Actions limitations)
+- **Parallel execution**: All platform builds run simultaneously
+- **Artifact passing**: Python packages are passed between workflows
+
+### PR artifacts
+
+- Artifacts stored in GitHub Actions for temporary access
+- Automated PR comments with download links
+- No code signing or publishing steps
+- Focus on validation and testing
+
+1. Developer creates/updates PR
+2. `pr_build_kolibri.yml` triggers automatically
+3. Artifacts generated and stored in GitHub Actions
+4. `pr_build_comment.yml` posts/updates a comment with download links
+5. Reviewers and testers download artifacts for validation
+6. Artifacts expire after GitHub's retention period
+
+### Release artifacts
+
+- Include code signing for production distribution
+- **Automatic steps**: Build all artifacts, upload to GitHub release assets, upload to Google Cloud Storage, and upload to TestPyPI
+- **Manual approval required** (final releases only): PyPI publishing and Google Play Store publishing require manual approval through GitHub's environment protection
+- **Prerelease behavior**: Prereleases skip the manual approval and do not publish to PyPI or Google Play Store
+- Artifacts attached to GitHub releases
+
+1. Maintainer publishes GitHub release
+2. `release_kolibri.yml` triggers automatically
+3. **Automatic steps** (all releases):
+   - Production builds with code signing
+   - Upload artifacts to GitHub release page
+   - Upload to Google Cloud Storage
+   - Upload to TestPyPI (test instance of Python Package Index for validation)
+4. **Manual approval step** (final releases only):
+   - A maintainer must manually approve the release through GitHub's web interface
+   - The workflow pauses and waits for approval before proceeding
+   - Prereleases skip this step entirely
+5. **After approval** (final releases only):
+   - Upload to PyPI (Python packages)
+   - Publish to Google Play Store (Android APK)
+6. Permanent public availability
