@@ -6,14 +6,8 @@ import { ref } from 'vue';
 import isFunction from 'lodash/isFunction';
 import isPlainObject from 'lodash/isPlainObject';
 import isArray from 'lodash/isArray';
-import {
-  BASE_TYPE,
-  coerceValueWithBaseType,
-  validatePoint,
-  validatePair,
-  validateDuration,
-  validateFile,
-} from './values';
+import { BASE_TYPE } from '../../constants';
+import { coerceValueWithBaseType } from './values';
 
 export const CARDINALITY = {
   SINGLE: 'single',
@@ -38,44 +32,6 @@ function parseFieldDeclarations(xmlNode) {
   }
 
   return Object.keys(declarations).length > 0 ? declarations : null;
-}
-
-function isBaseTypeCompatible(value, baseType) {
-  if (value === null || value === undefined) {
-    return true;
-  }
-
-  switch (baseType) {
-    case BASE_TYPE.BOOLEAN:
-      return typeof value === 'boolean';
-
-    case BASE_TYPE.INTEGER:
-      return typeof value === 'number' && Number.isInteger(value);
-
-    case BASE_TYPE.FLOAT:
-      return typeof value === 'number' && !Number.isInteger(value);
-
-    case BASE_TYPE.STRING:
-    case BASE_TYPE.IDENTIFIER:
-    case BASE_TYPE.URI:
-      return typeof value === 'string';
-
-    case BASE_TYPE.POINT:
-      return validatePoint(value);
-
-    case BASE_TYPE.PAIR:
-    case BASE_TYPE.DIRECTED_PAIR:
-      return validatePair(value);
-
-    case BASE_TYPE.DURATION:
-      return validateDuration(value);
-
-    case BASE_TYPE.FILE:
-      return validateFile(value);
-
-    default:
-      return false;
-  }
 }
 
 const ARRAY_TYPES = new Set([BASE_TYPE.DIRECTED_PAIR, BASE_TYPE.PAIR, BASE_TYPE.POINT]);
@@ -117,14 +73,8 @@ export class QTIVariable {
   }
 
   set value(newValue) {
-    if (this.isValueCompatible(newValue)) {
-      this._value.value = this.coerceValue(newValue);
-      this._valueSetCallback();
-    } else {
-      throw new TypeError(
-        `Value type mismatch for ${this.identifier}: expected ${this.baseType}, got ${typeof newValue}`,
-      );
-    }
+    this._value.value = this.coerceValue(newValue);
+    this._valueSetCallback();
   }
 
   reset() {
@@ -171,6 +121,11 @@ export class QTIVariable {
   }
 
   coerceValue(values) {
+    // Handle null/undefined/empty cases per QTI specification
+    if (values === null || values === undefined || values === 'NULL' || values === '') {
+      return null;
+    }
+
     if (this.cardinality === CARDINALITY.SINGLE) {
       if (isArray(values)) {
         if ((!ARRAY_TYPES.has(this.baseType) && values.length > 1) || values.length > 2) {
@@ -182,19 +137,19 @@ export class QTIVariable {
       return coerceValueWithBaseType(values, this.baseType);
     } else if (this.cardinality === CARDINALITY.RECORD) {
       // For record cardinality, values should be a JavaScript object
-      if (isPlainObject(values)) {
-        const result = {};
-        for (const [key, value] of Object.entries(values)) {
-          const fieldDeclaration = this.fieldDeclarations?.[key];
-          if (!fieldDeclaration) {
-            throw new TypeError(`Field '${key}' is not defined in record declaration`);
-          }
-          result[key] = fieldDeclaration.coerceValue(value);
-        }
-        return result;
-      } else {
+      if (!isPlainObject(values)) {
         throw new TypeError('Record cardinality requires a JavaScript object');
       }
+
+      const result = {};
+      for (const [key, value] of Object.entries(values)) {
+        const fieldDeclaration = this.fieldDeclarations?.[key];
+        if (!fieldDeclaration) {
+          throw new TypeError(`Field '${key}' is not defined in record declaration`);
+        }
+        result[key] = fieldDeclaration.coerceValue(value);
+      }
+      return result;
     } else {
       // Multiple or ordered cardinality
       const coercedValues = values.map(v => coerceValueWithBaseType(v, this.baseType));
@@ -220,48 +175,6 @@ export class QTIVariable {
     return {
       defaultValue: parseFloat(node.getAttribute('default-value')) || 0,
     };
-  }
-
-  isValueCompatible(value) {
-    if (value === null || value === undefined) {
-      // Null or undefined is compatible with any declaration
-      return true;
-    }
-
-    // Check base type based on cardinality
-    if (this.cardinality === CARDINALITY.SINGLE) {
-      return isBaseTypeCompatible(value, this.baseType);
-    } else if (
-      this.cardinality === CARDINALITY.MULTIPLE ||
-      this.cardinality === CARDINALITY.ORDERED
-    ) {
-      if (!Array.isArray(value)) {
-        return false;
-      }
-      // For multiple/ordered, check each element
-      for (const val of value) {
-        if (!isBaseTypeCompatible(val, this.baseType)) {
-          return false;
-        }
-      }
-      return true;
-    } else if (this.cardinality === CARDINALITY.RECORD) {
-      if (!isPlainObject(value)) {
-        return false;
-      }
-      // For record, check each value in the object using field declarations
-      for (const [fieldId, val] of Object.entries(value)) {
-        const fieldDeclaration = this.fieldDeclarations?.[fieldId];
-        if (!fieldDeclaration) {
-          return false;
-        }
-        if (!fieldDeclaration.isValueCompatible(val)) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
   }
 }
 
