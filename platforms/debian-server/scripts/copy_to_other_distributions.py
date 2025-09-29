@@ -20,7 +20,9 @@ import optparse
 import sys
 import time
 from collections import defaultdict
+import subprocess
 
+import os
 from launchpadlib.launchpad import Launchpad
 
 
@@ -32,21 +34,51 @@ PPA_OWNER = 'learningequality'
 PPA_NAME = 'kolibri-proposed'
 PACKAGE_WHITELIST = ['kolibri-server']
 
-SOURCE_SERIES = 'bionic'
-TARGET_SERIESES = ['xenial', 'bionic', 'eoan', 'focal']
+SOURCE_SERIES = 'jammy'
+## Fall back if dynamic fetching does not work.
+TARGET_SERIESES = ["plucky", "noble", "jammy", "focal"]
 POCKET = 'Release'
 
 APP_NAME = 'ppa-kolibri-server-copy-packages'
 
 
-#
-# Logging
-#
-
 log = logging.getLogger(APP_NAME)
 
 STARTUP_TIME = LAST_LOG_TIME = time.time()
 REQUESTS = LAST_REQUESTS = 0
+
+
+def get_launchpad_client():
+    cache_dir = os.environ.get("LP_CACHE_DIR", "/tmp/launchpadlib-cache")
+    creds_file = os.environ.get("LP_CREDENTIALS_FILE")  # set by CI
+    if creds_file:
+        # The application name must match the one used in APP_NAME in create_lp_creds.py
+        return Launchpad.login_with(
+            application_name="ppa-kolibri-server-jammy-package",  # must match APP_NAME used locally
+            service_root="production",
+            cache_dir=cache_dir,
+            credentials_file=creds_file,
+        )
+    # Fallback for local dev without explicit creds file (will open browser)
+    return Launchpad.login_with(
+        application_name="ppa-kolibri-server-copy-packages",
+        service_root="production",
+        cache_dir=cache_dir,
+    )
+
+
+def get_supported_series_dynamically(source_series):
+    try:
+        out = subprocess.check_output(["ubuntu-distro-info", "--supported", "--series"], text=True).strip()
+        all_series = out.split()
+        series = [s for s in all_series if s and s != source_series]
+        log.info("Dynamic series discovery:")
+        log.info("  Target series (will copy to): %s", ', '.join(series))
+        return series
+    except Exception as e:
+        log.warning("Failed to get dynamic series list: %s", e)
+        log.info("Falling back to hardcoded target series: %s", ', '.join(TARGET_SERIESES))
+        return TARGET_SERIESES
 
 
 class DebugFormatter(logging.Formatter):
@@ -73,11 +105,13 @@ def enable_http_debugging():
 def install_request_counter():
     import httplib2
     orig = httplib2.Http.request
+
     @functools.wraps(orig)
     def wrapper(*args, **kw):
         global REQUESTS
         REQUESTS += 1
         return orig(*args, **kw)
+
     httplib2.Http.request = wrapper
 
 
@@ -115,6 +149,7 @@ class once(object):
 def cache(fn):
     """Trivial memoization decorator."""
     cache = fn.cache = {}
+
     @functools.wraps(fn)
     def inner(*args):
         # The way we use the cache is suboptimal for methods: it is
@@ -129,6 +164,7 @@ def cache(fn):
         except TypeError:
             raise TypeError('%s argument types preclude caching: %s' %
                             (fn.__name__, repr(args)))
+
     return inner
 
 
@@ -136,8 +172,9 @@ def cache(fn):
 # Launchpad API wrapper with heavy caching
 #
 
+
 class LaunchpadWrapper(object):
-    application_name = 'ppa-gtimelog-copy-packages'
+    application_name = 'ppa-kolibri-server-copy-packages'
     launchpad_instance = 'production'
 
     ppa_owner = PPA_OWNER
@@ -147,30 +184,29 @@ class LaunchpadWrapper(object):
         self.queue = defaultdict(set)
 
     # Trivial caching wrappers for Launchpad API
-
     @once
     def lp(self):
         log.debug("Logging in...")
         # cost: 2 HTTP requests
-        return Launchpad.login_with(self.application_name, self.launchpad_instance)
+        return get_launchpad_client()
 
     @once
     def owner(self):
-        lp = self.lp                # ensure correct ordering of debug messages
+        lp = self.lp  # ensure correct ordering of debug messages
         log.debug("Getting the owner...")
         # cost: 1 HTTP request
         return lp.people[self.ppa_owner]
 
     @once
     def ppa(self):
-        owner = self.owner          # ensure correct ordering of debug messages
+        owner = self.owner  # ensure correct ordering of debug messages
         log.debug("Getting the PPA...")
         # cost: 1 HTTP request
         return owner.getPPAByName(name=self.ppa_name)
 
     @cache
     def get_series(self, name):
-        ppa = self.ppa              # ensure correct ordering of debug messages
+        ppa = self.ppa  # ensure correct ordering of debug messages
         log.debug("Locating the series: %s...", name)
         # cost: 1 HTTP request
         return ppa.distribution.getSeries(name_or_version=name)
@@ -190,24 +226,6 @@ class LaunchpadWrapper(object):
                   source.source_package_version)
         # cost: 1 HTTP request, plus another one for accessing the list
         return source.getBuilds()
-
-    # Package availability: for a certain package name + version
-    # - source package is available but not published
-    # - source package is published, but binary package is not built
-    # - binary package is built but not published
-    # - binary package is published
-    # And then there are also superseded, deleted and obsolete packages.
-    # Figuring out binary package status costs extra HTTP requests.
-
-    # We're dealing with arch: any packages only, so there's only one
-    # relevant binary package.  It should be trivial to extend this to
-    # arch: all.
-
-    # A package can be copied when it has a published binary package
-    # in the source series.
-
-    # A package should be copied when it can be copied, and it doesn't
-    # exist in the target series.
 
     @cache
     def get_source_packages(self, series_name, package_names=None):
@@ -236,8 +254,6 @@ class LaunchpadWrapper(object):
 
     def has_published_binaries(self, name, version, series_name):
         builds = self.get_builds_for(name, version, series_name)
-        # XXX: this is probably somewhat bogus
-        # e.g. it doesn't check that the binary has been published
         return not builds or builds[0].buildstate == u'Successfully built'
 
     @cache
@@ -308,7 +324,8 @@ def main():
                                                  SOURCE_SERIES):
         mentioned = False
         notices = []
-        for target_series_name in TARGET_SERIESES:
+        target_series_names = get_supported_series_dynamically(SOURCE_SERIES)
+        for target_series_name in target_series_names:
             source = lp.get_source_for(name, version, target_series_name)
             if source is None:
                 mentioned = True
@@ -344,4 +361,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
