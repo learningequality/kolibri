@@ -56,9 +56,9 @@
             {{ selectClassesLabel$() }}
           </h2>
           <SelectableList
-            v-if="classList.length"
+            v-if="userClasses.length"
             v-model="selectedOptions"
-            :options="classList"
+            :options="userClasses"
             :selectAllLabel="removeFromAllClassesLabel$()"
             aria-labelledby="remove-from-selected-classes"
             :searchLabel="searchForAClass$()"
@@ -170,7 +170,7 @@
       });
 
       // computed properties
-      const classList = computed(() => {
+      const userClasses = computed(() => {
         // Get all class IDs where selected users are enrolled as learners
         const learnerClassIds = Object.values(membershipsByUser.value || {})
           .flat()
@@ -325,7 +325,7 @@
         selectedOptions,
         classCoaches,
         loading,
-        classList,
+        userClasses,
 
         // translation functions
         removeUsersFromClassesHeading$,
