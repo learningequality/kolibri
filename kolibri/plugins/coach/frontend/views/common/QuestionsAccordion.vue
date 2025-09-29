@@ -99,10 +99,8 @@
                 <ContentViewer
                   v-if="questionContentExists(question)"
                   :ref="`contentRenderer-${question.item}`"
-                  :lang="getQuestionContent(question).lang"
-                  :files="getQuestionContent(question).files"
+                  :contentNode="getQuestionContent(question)"
                   :itemId="question.question_id"
-                  :assessment="true"
                   :allowHints="false"
                   :interactive="false"
                   :showCorrectAnswer="true"

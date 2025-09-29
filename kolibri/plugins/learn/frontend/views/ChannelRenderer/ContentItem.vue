@@ -95,11 +95,7 @@
           return {};
         }
         return {
-          kind: this.contentNode.kind,
-          lang: this.contentNode.lang,
-          files: this.contentNode.files,
-          options: this.contentNode.options,
-          available: this.contentNode.available,
+          contentNode: this.contentNode,
           extraFields: this.extra_fields,
           progress: this.progress,
           userId: this.currentUserId,
@@ -111,15 +107,8 @@
         if (!this.contentIsExercise) {
           return {};
         }
-        const assessment = this.contentNode.assessmentmetadata || {};
         return {
-          kind: this.contentNode.kind,
-          files: this.contentNode.files,
-          lang: this.contentNode.lang,
-          randomize: this.contentNode.randomize,
-          masteryModel: assessment.mastery_model,
-          assessmentIds: assessment.assessment_item_ids,
-          available: this.contentNode.available,
+          contentNode: this.contentNode,
           extraFields: this.extra_fields,
           progress: this.progress,
           userId: this.currentUserId,

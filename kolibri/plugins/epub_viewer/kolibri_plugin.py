@@ -13,3 +13,4 @@ class DocumentEPUBRenderPlugin(KolibriPluginBase):
 class DocumentEPUBRenderAsset(content_hooks.ContentRendererHook):
     bundle_id = "main"
     presets = (format_presets.EPUB,)
+    allow_object_tag = True

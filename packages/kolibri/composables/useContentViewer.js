@@ -1,184 +1,190 @@
-import Vue, { ref, computed, getCurrentInstance } from 'vue';
+import { computed, inject } from 'vue';
 import { get } from '@vueuse/core';
 import logger from 'kolibri-logging';
 import { ContentErrorConstants } from 'kolibri/constants';
-import {
-  defaultLanguage,
-  languageValidator,
-  getContentLangDir,
-  languageDirections,
-} from 'kolibri/utils/i18n';
+import { getContentLangDir, languageDirections } from 'kolibri/utils/i18n';
 import { getRenderableFiles, getDefaultFile } from '../components/internal/ContentViewer/utils';
-import ContentViewerError from '../components/internal/ContentViewer/ContentViewerError';
+import { CONTENT_VIEWER_CONTEXT_KEY } from '../components/internal/ContentViewer';
 
 const logging = logger.getLogger(__filename);
 
-const ContentViewerErrorComponent = Vue.extend(ContentViewerError);
+/**
+ * @typedef {import('vue').ComputedRef} Ref
+ */
 
-const fileFieldMap = {
-  storage_url: {
-    type: String,
-  },
-  id: {
-    type: String,
-  },
-  priority: {
-    type: Number,
-  },
-  available: {
-    type: Boolean,
-  },
-  file_size: {
-    type: Number,
-  },
-  checksum: {
-    type: String,
-  },
-  extension: {
-    type: String,
-  },
-  preset: {
-    type: String,
-  },
-  lang: {
-    type: Object,
-    validator: lang => lang === null || languageValidator(lang),
-  },
-  supplementary: {
-    type: Boolean,
-  },
-  thumbnail: {
-    type: Boolean,
-  },
-};
+/**
+ * @typedef {object} ContentViewerApi
+ * @property {Ref<Array>} files - All available files for this content
+ * @property {Ref<object|null>} defaultFile - Primary file selected for viewing
+ * @property {Ref<Array>} supplementaryFiles - Subtitle and transcript files
+ * @property {Ref<Array>} thumbnailFiles - Thumbnail and poster image files
+ * @property {Ref<object>} options - Content-specific rendering configuration
+ * @property {Ref<object>} lang - Language metadata for the content
+ * @property {Ref<number|null>} duration - Content duration in seconds
+ * @property {Ref<boolean>} forceDurationBasedProgress - Forces progress to track elapsed time
+ * @property {Ref<number|null>} durationBasedProgress - Progress from time spent over duration
+ * @property {Ref<string>} contentDirection - Text direction, 'ltr' or 'rtl'
+ * @property {Ref<boolean>} contentIsRtl - True when content reads right-to-left
+ * @property {Function} reportError - Emit an error to the parent ContentViewer
+ * @property {Function} reportLoadingError - Emit a content-loading error
+ * @property {Ref} itemData - Raw assessment item payload
+ * @property {Ref<string>} itemId - Identifier of the current assessment item
+ * @property {Ref<object>} answerState - Saved learner responses
+ * @property {Ref<boolean>} interactive - Allows learner interaction when true
+ * @property {Ref<boolean>} showCorrectAnswer - Reveals correct answers when true
+ * @property {Ref<boolean>} allowHints - Permits taking hints when true
+ * @property {Ref<object>} extraFields - Additional persisted metadata fields
+ * @property {Ref<string>} userId - Id of the interacting or reviewed user
+ * @property {Ref<string>} userFullName - Full name of the interacting or reviewed user
+ * @property {Ref<number>} timeSpent - Seconds spent on this content
+ * @property {Ref<number>} progress - Completion fraction from 0 to 1
+ */
 
-function fileValidator(file) {
-  let result = true;
-  for (const key in fileFieldMap) {
-    const val =
-      typeof file[key] !== 'undefined' &&
-      typeof file[key] === typeof fileFieldMap[key].type() &&
-      (fileFieldMap[key].validator ? fileFieldMap[key].validator(file[key]) : true);
-    if (!val) {
-      logging.error(`Validation failed for '${key}' in `, file);
-      result = false;
-    }
+/**
+ * Composable for content viewer components.
+ *
+ * This composable provides access to content viewer state and utilities for
+ * viewer components that are rendered within a ContentViewer wrapper.
+ *
+ * The ContentViewer wrapper component is responsible for:
+ * - Resolving the appropriate viewer component based on content type
+ * - Extracting files from either contentNode props or DOM elements
+ * - Providing a unified context to all descendant viewer components
+ * @param {object} context - The Vue component context object
+ * @param {Function} context.emit - The component's emit function for emitting events
+ * @param {object} [options={}] - Configuration options
+ * @param {import('vue').Ref|number|null} [options.defaultDuration=null] - Default duration for
+ * duration-based progress calculation. Can be a Vue ref or a static number. Used when the
+ * content doesn't have an explicit duration set.
+ * @param {{[key: string]: Function}} [options.customExtractors={}] - Custom file extractors
+ * for DOM-based viewing. These extractors are called when the ContentViewer receives
+ * a DOM node prop instead of files.
+ * The object keys are CSS selectors, and the values are extractor functions.
+ * When the ContentViewer has a node prop that matches a selector, the
+ * corresponding extractor function is called to extract file objects from the element.
+ * @returns {ContentViewerApi} Content viewer state and utilities
+ * @throws {Error} If called outside of a ContentViewer component hierarchy
+ * @example
+ * // Custom extractors for video and audio elements
+ *   const customExtractors = {
+ *     'video': (element) => {
+ *       const files = [];
+ *       if (element.src) {
+ *         files.push({
+ *           storage_url: element.src,
+ *           preset: 'high_res_video',
+ *           available: true,
+ *           supplementary: false,
+ *           thumbnail: false,
+ *         });
+ *       }
+ *       // Extract from <source> children
+ *       for (const source of element.querySelectorAll('source')) {
+ *         files.push({
+ *           storage_url: source.src,
+ *           preset: 'high_res_video',
+ *           available: true,
+ *         });
+ *       }
+ *       return files;
+ *     },
+ *     'audio': (element) => {
+ *       // Similar extraction for audio elements
+ *       return [{ storage_url: element.src, preset: 'audio', available: true }];
+ *     },
+ *   };
+ *   // Usage in a viewer component's setup function
+ *   setup(props, context) {
+ *     const { files, defaultFile } = useContentViewer(context, {
+ *       customExtractors,
+ *       defaultDuration: 300, // 5 minutes
+ *     });
+ *     // ...
+ *   }
+ * @example
+ * // Basic usage in a viewer component
+ * import useContentViewer from 'kolibri/composables/useContentViewer';
+ *
+ * export default {
+ *   name: 'MyViewer',
+ *   setup(props, context) {
+ *     const {
+ *       defaultFile,
+ *       files,
+ *       reportLoadingError,
+ *       contentDirection,
+ *     } = useContentViewer(context);
+ *
+ *     return {
+ *       defaultFile,
+ *       files,
+ *       reportLoadingError,
+ *       contentDirection,
+ *     };
+ *   },
+ * };
+ */
+export default function useContentViewer(
+  { emit },
+  { defaultDuration = null, customExtractors = {} } = {},
+) {
+  // Inject props from ContentViewer
+  const injectedContext = inject(CONTENT_VIEWER_CONTEXT_KEY);
+
+  if (!injectedContext) {
+    throw new Error(
+      'useContentViewer must be called within a component that is a descendant of ContentViewer',
+    );
   }
-  return result;
-}
 
-function multipleFileValidator(files) {
-  return files.reduce((acc, file) => acc && fileValidator(file), true);
-}
+  const {
+    files,
+    itemData,
+    itemId,
+    answerState,
+    showCorrectAnswer,
+    interactive,
+    lang,
+    options,
+    extraFields,
+    userId,
+    allowHints,
+    timeSpent,
+    duration,
+    userFullName,
+    progress,
+    embedded,
+    setCustomExtractors,
+  } = injectedContext;
 
-export const contentViewerProps = {
-  files: {
-    type: Array,
-    default: () => [],
-    validator: multipleFileValidator,
-  },
-  // As an alternative to passing a file object to set the state of the
-  // content viewer, can also pass raw itemData (which will be parsed by
-  // the viewer if there are no files or file object).
-  // The type could depend on the viewer, so we enforce nothing here
-  // except a null default.
-  itemData: {
-    default: null,
-  },
-  // If just itemData is passed, we have no mechanism for knowing the preset
-  // of the data, and hence which viewer to choose. If itemData is utilized
-  // the preset must be explicitly set.
-  preset: {
-    default: null,
-    type: String,
-  },
-  itemId: {
-    type: String,
-  },
-  answerState: {
-    type: Object,
-    default: () => ({}),
-  },
-  allowHints: {
-    type: Boolean,
-    default: true,
-  },
-  extraFields: {
-    type: Object,
-    default: () => ({}),
-  },
-  options: {
-    type: Object,
-    default: () => ({}),
-  },
-  // Allow content viewers to display in a static mode
-  // where user interaction is not allowed
-  interactive: {
-    type: Boolean,
-    default: true,
-  },
-  lang: {
-    type: Object,
-    default: () => defaultLanguage,
-    validator: languageValidator,
-  },
-  showCorrectAnswer: {
-    type: Boolean,
-    default: false,
-  },
-  timeSpent: {
-    type: Number,
-    default: 0,
-  },
-  duration: {
-    type: Number,
-    default: null,
-  },
-  userId: {
-    type: String,
-    default: '',
-  },
-  userFullName: {
-    type: String,
-    default: '',
-  },
-  progress: {
-    type: Number,
-    default: 0,
-  },
-};
+  setCustomExtractors(customExtractors);
 
-export default function useContentViewer(props, { emit }, { defaultDuration = null } = {}) {
-  const instance = getCurrentInstance();
-  const _resourceError = ref(null);
-
-  // Computed properties
   const forceDurationBasedProgress = computed(() => {
-    return props.options.force_duration_based_progress || false;
+    return options.value.force_duration_based_progress || false;
   });
 
   const durationBasedProgress = computed(() => {
-    const duration = props.duration || get(defaultDuration);
-    if (!duration) {
+    const dur = duration.value || get(defaultDuration);
+    if (!dur) {
       return null;
     }
-    return props.timeSpent / duration;
+    return timeSpent.value / dur;
   });
 
   const defaultFile = computed(() => {
-    return getDefaultFile(getRenderableFiles(props.files));
+    return getDefaultFile(getRenderableFiles(files.value));
   });
 
   const supplementaryFiles = computed(() => {
-    return props.files.filter(file => file.supplementary && file.available);
+    return files.value.filter(file => file.supplementary && file.available);
   });
 
   const thumbnailFiles = computed(() => {
-    return props.files.filter(file => file.thumbnail && file.available);
+    return files.value.filter(file => file.thumbnail && file.available);
   });
 
   const contentDirection = computed(() => {
-    return getContentLangDir(props.lang);
+    return getContentLangDir(lang.value);
   });
 
   const contentIsRtl = computed(() => {
@@ -204,20 +210,8 @@ export default function useContentViewer(props, { emit }, { defaultDuration = nu
     return null;
   };
 
-  let _errorComponent;
-
   const reportError = error => {
     emit('error', error);
-    _resourceError.value = error;
-    if (!_errorComponent) {
-      const domNode = document.createElement('div');
-      instance.$el.prepend(domNode);
-      _errorComponent = new ContentViewerErrorComponent({
-        el: domNode,
-        parent: instance,
-        propsData: { error: _resourceError, files: props.files },
-      });
-    }
   };
 
   const reportLoadingError = error => {
@@ -228,7 +222,10 @@ export default function useContentViewer(props, { emit }, { defaultDuration = nu
   };
 
   return {
-    _resourceError,
+    files,
+    options,
+    lang,
+    duration,
     forceDurationBasedProgress,
     durationBasedProgress,
     defaultFile,
@@ -242,5 +239,17 @@ export default function useContentViewer(props, { emit }, { defaultDuration = nu
     takeHint,
     reportLoadingError,
     reportError,
+    itemData,
+    itemId,
+    answerState,
+    allowHints,
+    extraFields,
+    interactive,
+    showCorrectAnswer,
+    timeSpent,
+    userId,
+    userFullName,
+    progress,
+    embedded,
   };
 }

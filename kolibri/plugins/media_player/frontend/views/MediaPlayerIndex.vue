@@ -96,11 +96,12 @@
   import { mapActions, mapState, mapGetters } from 'vuex';
   import videojs from 'video.js';
   import throttle from 'lodash/throttle';
-  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import useContentViewer from 'kolibri/composables/useContentViewer';
   import { languageIdToCode } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
+  import customExtractors from '../utils/fileExtractors';
   import Settings from '../utils/settings';
   import { ReplayButton, ForwardButton } from './customButtons';
   import MediaPlayerFullscreen from './MediaPlayerFullscreen';
@@ -129,24 +130,32 @@
       const player = ref(null);
       const { windowIsSmall, windowIsPortrait } = useKResponsiveWindow();
       const { elementWidth } = useKResponsiveElement();
-      const { thumbnailFiles, supplementaryFiles, reportLoadingError } = useContentViewer(
-        props,
-        context,
-        {
-          defaultDuration: computed(() => player?.value?.duration()),
-        },
-      );
+      const {
+        files,
+        thumbnailFiles,
+        supplementaryFiles,
+        extraFields,
+        forceDurationBasedProgress,
+        durationBasedProgress,
+        reportLoadingError,
+      } = useContentViewer(context, {
+        defaultDuration: computed(() => player?.value?.duration()),
+        customExtractors,
+      });
       return {
         windowIsSmall,
         windowIsPortrait,
         elementWidth,
+        files,
         thumbnailFiles,
         supplementaryFiles,
+        extraFields,
+        forceDurationBasedProgress,
+        durationBasedProgress,
         reportLoadingError,
         player,
       };
     },
-    props: contentViewerProps,
     data: () => ({
       dummyTime: 0,
       progressStartingPoint: 0,

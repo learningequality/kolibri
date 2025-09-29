@@ -1,39 +1,55 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
-
 import { createTranslator } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-import AssessmentWrapper, { hintTranslator } from '../index.vue';
 
-const { completedLabel$ } = coreStrings;
+import AssessmentWrapper from '../index.vue';
 
 jest.mock('kolibri/composables/useUser');
 
 const {
-  goal$,
   check$,
   next$,
-  inputAnswer$,
-  correct$,
   tryAgain$,
+  correct$,
   greatKeepGoing$,
-  itemError$,
+  hintUsed$,
+  inputAnswer$,
+  itemError$: itemErrorMessage$,
   tryDifferentQuestion$,
+  tryNextQuestion$,
+  goal$,
 } = createTranslator(AssessmentWrapper.name, AssessmentWrapper.$trs);
+
+const { hint$, noMoreHint$ } = createTranslator('PerseusRendererIndex', {
+  hint: { message: 'Use a hint ({hintsLeft, number} left)' },
+  noMoreHint: { message: 'No more hints' },
+});
+
+const { completedLabel$ } = coreStrings;
 
 const ASSESSMENT_IDS = ['item-1', 'item-2', 'item-3', 'item-4', 'item-5'];
 const DEFAULT_MASTERY_MODEL = { type: 'm_of_n', m: 3, n: 5 };
 
 function buildProps(overrides = {}) {
+  const {
+    assessmentIds = ASSESSMENT_IDS,
+    randomize = false,
+    masteryModel = DEFAULT_MASTERY_MODEL,
+    ...rest
+  } = overrides;
   return {
-    files: [],
-    assessmentIds: ASSESSMENT_IDS,
-    randomize: false,
-    masteryModel: DEFAULT_MASTERY_MODEL,
+    contentNode: {
+      assessmentmetadata: {
+        assessment_item_ids: assessmentIds,
+        randomize,
+        mastery_model: masteryModel,
+      },
+    },
     pastattempts: [],
     mastered: false,
     totalattempts: 0,
     hasNextResource: false,
-    ...overrides,
+    ...rest,
   };
 }
 
@@ -57,8 +73,7 @@ function makeContentViewerStub({ checkAnswerFn, availableHints = 0, totalHints =
   return {
     name: 'ContentViewer',
     props: [
-      'lang',
-      'files',
+      'contentNode',
       'extraFields',
       'assessment',
       'itemId',
@@ -111,9 +126,11 @@ function renderComponent(props = {}, { stubs, ...restOptions } = {}) {
   const mergedProps = buildProps(props);
   return render(AssessmentWrapper, {
     props: mergedProps,
-    // ContentViewer is a complex renderer intentionally implemented as a stub
-    // to allow for testing AssessmentWrapper behavior in response to events
-    // emitted by ContentViewer
+    // The jest setup ships a minimal global ContentViewer stub, but AssessmentWrapper
+    // calls `this.$refs.contentViewer.checkAnswer()` and reads `availableHints`/`totalHints`
+    // from the viewer, which the global stub doesn't expose. Override it here.
+    // ContentViewer is globally registered, not imported, so jest.mock can't substitute
+    // it — a stub is the appropriate seam.
     // eslint-disable-next-line kolibri/tests-no-stubs
     stubs: {
       ContentViewer: DefaultStub,
@@ -406,7 +423,7 @@ describe('AssessmentWrapper', () => {
       await fireEvent.click(screen.getByTestId('trigger-item-error'));
 
       await waitFor(() => {
-        expect(screen.getByText(itemError$())).toBeInTheDocument();
+        expect(screen.getByText(itemErrorMessage$())).toBeInTheDocument();
         expect(screen.getByText(tryDifferentQuestion$())).toBeInTheDocument();
       });
     });
@@ -416,7 +433,7 @@ describe('AssessmentWrapper', () => {
       await fireEvent.click(screen.getByTestId('trigger-item-error'));
 
       await waitFor(() => {
-        expect(getStatusText()).toBe('Try next question');
+        expect(getStatusText()).toBe(tryNextQuestion$());
       });
     });
 
@@ -450,7 +467,7 @@ describe('AssessmentWrapper', () => {
       await fireEvent.click(screen.getByText(tryDifferentQuestion$()));
 
       await waitFor(() => {
-        expect(screen.queryByText(itemError$())).not.toBeInTheDocument();
+        expect(screen.queryByText(itemErrorMessage$())).not.toBeInTheDocument();
         expect(screen.getByText(check$())).toBeInTheDocument();
       });
     });
@@ -474,7 +491,7 @@ describe('AssessmentWrapper', () => {
       await fireEvent.click(screen.getByTestId('trigger-hint-taken'));
 
       await waitFor(() => {
-        expect(getStatusText()).toBe('Hint used');
+        expect(getStatusText()).toBe(hintUsed$());
       });
     });
   });
@@ -540,10 +557,8 @@ describe('AssessmentWrapper', () => {
   describe('hints UI', () => {
     it('does not show hint buttons when totalHints is 0', () => {
       renderComponent();
-      expect(
-        screen.queryByText(hintTranslator.hint$({ hintsLeft: 1 }), { exact: false }),
-      ).not.toBeInTheDocument();
-      expect(screen.queryByText(hintTranslator.noMoreHint$())).not.toBeInTheDocument();
+      expect(screen.queryByText(hint$({ hintsLeft: 0 }))).not.toBeInTheDocument();
+      expect(screen.queryByText(noMoreHint$())).not.toBeInTheDocument();
     });
 
     it('shows hint button with count after startTracking', async () => {
@@ -553,7 +568,7 @@ describe('AssessmentWrapper', () => {
       await fireEvent.click(screen.getByTestId('trigger-start-tracking'));
 
       await waitFor(() => {
-        expect(screen.getByText(hintTranslator.hint$({ hintsLeft: 3 }))).toBeInTheDocument();
+        expect(screen.getByText(hint$({ hintsLeft: 3 }))).toBeInTheDocument();
       });
     });
 
@@ -564,7 +579,7 @@ describe('AssessmentWrapper', () => {
       await fireEvent.click(screen.getByTestId('trigger-start-tracking'));
 
       await waitFor(() => {
-        expect(screen.getByText(hintTranslator.noMoreHint$())).toBeInTheDocument();
+        expect(screen.getByText(noMoreHint$())).toBeInTheDocument();
       });
     });
 
@@ -575,10 +590,10 @@ describe('AssessmentWrapper', () => {
       await fireEvent.click(screen.getByTestId('trigger-start-tracking'));
 
       await waitFor(() => {
-        expect(screen.getByText(hintTranslator.hint$({ hintsLeft: 3 }))).toBeInTheDocument();
+        expect(screen.getByText(hint$({ hintsLeft: 3 }))).toBeInTheDocument();
       });
 
-      await fireEvent.click(screen.getByText(hintTranslator.hint$({ hintsLeft: 3 })));
+      await fireEvent.click(screen.getByText(hint$({ hintsLeft: 3 })));
 
       await waitFor(() => {
         expect(emitted().updateInteraction).toBeTruthy();
@@ -594,22 +609,26 @@ describe('AssessmentWrapper', () => {
         assessmentIds: ['a', 'b'],
         masteryModel: { type: 'do_all' },
       });
-      expect(screen.getAllByText(goal$({ count: 2 })).length).toBeGreaterThanOrEqual(1);
+      const elements = screen.getAllByText(goal$({ count: 2 }));
+      expect(elements.length).toBeGreaterThanOrEqual(1);
     });
 
     it('shows correct goal for num_correct_in_a_row_2', () => {
       renderComponent({ masteryModel: { type: 'num_correct_in_a_row_2' } });
-      expect(screen.getAllByText(goal$({ count: 2 })).length).toBeGreaterThanOrEqual(1);
+      const elements = screen.getAllByText(goal$({ count: 2 }));
+      expect(elements.length).toBeGreaterThanOrEqual(1);
     });
 
     it('shows correct goal for num_correct_in_a_row_3', () => {
       renderComponent({ masteryModel: { type: 'num_correct_in_a_row_3' } });
-      expect(screen.getAllByText(goal$({ count: 3 })).length).toBeGreaterThanOrEqual(1);
+      const elements = screen.getAllByText(goal$({ count: 3 }));
+      expect(elements.length).toBeGreaterThanOrEqual(1);
     });
 
     it('shows correct goal for num_correct_in_a_row_10', () => {
       renderComponent({ masteryModel: { type: 'num_correct_in_a_row_10' } });
-      expect(screen.getAllByText(goal$({ count: 10 })).length).toBeGreaterThanOrEqual(1);
+      const elements = screen.getAllByText(goal$({ count: 10 }));
+      expect(elements.length).toBeGreaterThanOrEqual(1);
     });
 
     it('renders the correct number of attempt placeholder slots for do_all', () => {

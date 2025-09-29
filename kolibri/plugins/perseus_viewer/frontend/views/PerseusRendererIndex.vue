@@ -44,7 +44,7 @@
   import logger from 'kolibri-logging';
   import { Mapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import useContentViewer from 'kolibri/composables/useContentViewer';
   import urls from 'kolibri/urls';
   import { createElement as e } from 'react';
   import { createRoot } from 'react-dom/client';
@@ -280,18 +280,32 @@
     },
     setup(props, context) {
       const { windowBreakpoint } = useKResponsiveWindow();
-      const { defaultFile, contentDirection } = useContentViewer(props, context);
-      const { keypadAPI, keypadContextValue } = useKeypad();
+      const {
+        defaultFile,
+        contentDirection,
+        itemData,
+        itemId,
+        answerState,
+        showCorrectAnswer,
+        interactive,
+        lang,
+      } = useContentViewer(context);
 
+      const { keypadAPI, keypadContextValue } = useKeypad();
       return {
         windowBreakpoint,
         defaultFile,
         contentDirection,
         keypadAPI,
         keypadContextValue,
+        itemData,
+        itemId,
+        answerState,
+        showCorrectAnswer,
+        interactive,
+        lang,
       };
     },
-    props: contentViewerProps,
     data: () => ({
       // Is the perseus item loading?
       loading: true,

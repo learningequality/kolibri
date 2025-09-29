@@ -59,14 +59,12 @@
             />
             <ContentViewer
               v-if="currentInteraction"
+              :contentNode="exercise"
               :itemId="currentLearner.item"
-              :assessment="true"
               :allowHints="false"
-              :files="exercise.files"
               :answerState="answerState"
               :showCorrectAnswer="showCorrectAnswer"
               :interactive="false"
-              :extraFields="exercise.extra_fields"
             />
           </div>
         </template>

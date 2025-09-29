@@ -24,10 +24,12 @@
 <script>
 
   import ZipFile from 'kolibri-zip';
-  import SafeHTML from 'kolibri-common/components/SafeHTML';
+  import { createSafeHTML } from 'kolibri-common/components/SafeHTML';
   import debounce from 'lodash/debounce';
-  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import useContentViewer from 'kolibri/composables/useContentViewer';
   import urls from 'kolibri/urls';
+
+  const SafeHTML = createSafeHTML({}, { allowedOrigins: [urls.zipContentOrigin()] });
 
   export default {
     name: 'SafeHtml5RendererIndex',
@@ -35,18 +37,15 @@
       SafeHTML,
     },
     setup(props, context) {
-      const { defaultFile, forceDurationBasedProgress, durationBasedProgress } = useContentViewer(
-        props,
-        context,
-        { defaultDuration: 300 },
-      );
+      const { defaultFile, options, forceDurationBasedProgress, durationBasedProgress } =
+        useContentViewer(context, { defaultDuration: 300 });
       return {
         defaultFile,
+        options,
         forceDurationBasedProgress,
         durationBasedProgress,
       };
     },
-    props: contentViewerProps,
     data() {
       return {
         loading: true,

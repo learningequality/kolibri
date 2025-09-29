@@ -170,6 +170,14 @@ class UrlResolver {
       port: this.__zipContentPort,
     });
   }
+  zipContentOrigin() {
+    return new URL(
+      generateUrl(this.__zipContentUrl || '', {
+        origin: this.__zipContentOrigin,
+        port: this.__zipContentPort,
+      }),
+    ).origin;
+  }
   static(url) {
     if (!this.__staticUrl) {
       throw new ReferenceError('Static Url is not defined');
@@ -216,7 +224,11 @@ export const createUrlResolver = () => {
         if (prop in target) {
           return target[prop];
         }
-        return target._getUrlFunction(prop);
+        // Guard against Symbol props (e.g. Symbol.toPrimitive) which are
+        // passed by the JS runtime during type coercion and by Jest during mocking.
+        if (typeof prop === 'string') {
+          return target._getUrlFunction(prop);
+        }
       },
     });
   }

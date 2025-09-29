@@ -59,6 +59,7 @@ export default {
   'kolibri/utils/baseClient': require('kolibri/utils/baseClient'),
   'kolibri/utils/browserInfo': require('kolibri/utils/browserInfo'),
   'kolibri/utils/i18n': require('kolibri/utils/i18n'),
+  'kolibri/utils/mimetypes': require('kolibri/utils/mimetypes'),
   'kolibri/utils/objectSpecs': require('kolibri/utils/objectSpecs'),
   'kolibri/utils/onboardingSteps': require('kolibri/utils/onboardingSteps'),
   'kolibri/utils/redirectBrowser': require('kolibri/utils/redirectBrowser'),

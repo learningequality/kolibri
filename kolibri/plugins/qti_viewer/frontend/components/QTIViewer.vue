@@ -15,7 +15,7 @@
 
   import { computed, provide, ref, watch } from 'vue';
   import logger from 'kolibri-logging';
-  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import useContentViewer from 'kolibri/composables/useContentViewer';
   import useQTIResource from '../composables/useQTIResource';
   import { loadQTIPackage, parseXML } from '../utils/xml';
   import AssessmentItem from './AssessmentItem.vue';
@@ -29,20 +29,28 @@
     },
     inheritAttrs: false,
     setup(props, context) {
-      const { defaultFile, reportLoadingError } = useContentViewer(props, context);
+      const {
+        defaultFile,
+        itemData,
+        itemId,
+        answerState,
+        userId,
+        interactive,
+        reportLoadingError,
+      } = useContentViewer(context);
       const packageLoading = ref(true);
       // Store resources by identifier
       const resourcesMap = ref({});
 
       // Reactively get current resource based on itemId
       const currentResource = computed(() => {
-        return resourcesMap.value[props.itemId] || null;
+        return resourcesMap.value[itemId.value] || null;
       });
 
       const resourceUrl = computed(() => currentResource.value?.href);
       // If itemData is provided, we only support injecting AssessmentItem XML
       const resourceType = computed(() =>
-        props.itemData ? 'imsqti_item_xmlv3p0' : currentResource.value?.type,
+        itemData.value ? 'imsqti_item_xmlv3p0' : currentResource.value?.type,
       );
 
       const {
@@ -53,15 +61,15 @@
 
       const xmlDoc = computed(() => {
         // If itemData is provided, use it directly
-        if (props.itemData) {
-          return parseXML(props.itemData);
+        if (itemData.value) {
+          return parseXML(itemData.value);
         }
         // Otherwise, use the resource XML document
         return resourceXmlDoc.value;
       });
 
       const loading = computed(() => {
-        if (props.itemData) {
+        if (itemData.value) {
           return false;
         }
         return packageLoading.value || resourceLoading.value;
@@ -127,8 +135,8 @@
         'QTI_CONTEXT',
         computed(
           () =>
-            props.answerState?.QTI_CONTEXT ?? {
-              candidateIdentifier: props.userId,
+            answerState.value?.QTI_CONTEXT ?? {
+              candidateIdentifier: userId.value,
               testIdentifier: defaultFile?.checksum,
               environmentIdentifier: __version,
             },
@@ -137,11 +145,11 @@
 
       provide(
         'answerState',
-        computed(() => props.answerState || {}),
+        computed(() => answerState.value || {}),
       );
       provide(
         'interactive',
-        computed(() => props.interactive),
+        computed(() => interactive.value),
       );
 
       return {
@@ -154,7 +162,6 @@
         checkAnswer,
       };
     },
-    props: contentViewerProps,
   };
 
 </script>

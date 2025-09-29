@@ -15,9 +15,13 @@ const createComponent = (totalattempts, pastattempts, masteryModel) => {
   const propsData = {
     id: 'test',
     kind: 'test',
-    assessmentIds: [],
-    masteryModel: masteryModel || {},
-    randomize: false,
+    contentNode: {
+      assessmentmetadata: {
+        assessment_item_ids: [],
+        mastery_model: masteryModel || {},
+        randomize: false,
+      },
+    },
     totalattempts,
     pastattempts,
   };

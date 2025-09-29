@@ -59,7 +59,7 @@
   import { now } from 'kolibri/utils/serverClock';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
   import Sandbox from 'kolibri-sandbox';
-  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import useContentViewer from 'kolibri/composables/useContentViewer';
 
   const defaultContentHeight = '500px';
   const frameTopbarHeight = '37px';
@@ -69,16 +69,33 @@
       CoreFullscreen,
     },
     setup(props, context) {
-      const { defaultFile, forceDurationBasedProgress, durationBasedProgress, reportError } =
-        useContentViewer(props, context, { defaultDuration: 300 });
-      return {
-        defaultFile,
+      const {
+        options,
+        lang,
         forceDurationBasedProgress,
         durationBasedProgress,
+        defaultFile,
         reportError,
+        extraFields,
+        timeSpent,
+        userId,
+        userFullName,
+        progress,
+      } = useContentViewer(context, { defaultDuration: 300 });
+      return {
+        options,
+        lang,
+        forceDurationBasedProgress,
+        durationBasedProgress,
+        defaultFile,
+        reportError,
+        extraFields,
+        timeSpent,
+        userId,
+        userFullName,
+        progress,
       };
     },
-    props: contentViewerProps,
     data() {
       return {
         iframeHeight: (this.options && this.options.height) || defaultContentHeight,
