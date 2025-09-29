@@ -142,4 +142,24 @@ describe('Mediator', function () {
       });
     });
   });
+  describe('objectViewerMimetypes method', function () {
+    it('should return an empty array when no DOM viewers are registered', function () {
+      expect(mediator.objectViewerMimetypes()).toEqual([]);
+    });
+    it('should extract the MIME types from object[type="..."] selectors', function () {
+      mediator._contentViewerRegistry._dom_viewer = {
+        'object[type="application/pdf"]': () => {},
+        'object[type="video/mp4"]': () => {},
+      };
+      expect(mediator.objectViewerMimetypes().sort()).toEqual(['application/pdf', 'video/mp4']);
+    });
+    it('should ignore non-object selectors like bare tag names', function () {
+      mediator._contentViewerRegistry._dom_viewer = {
+        video: () => {},
+        audio: () => {},
+        'object[type="application/pdf"]': () => {},
+      };
+      expect(mediator.objectViewerMimetypes()).toEqual(['application/pdf']);
+    });
+  });
 });

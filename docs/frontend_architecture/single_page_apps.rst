@@ -92,13 +92,13 @@ A special kind of Kolibri Module is dedicated to rendering particular content ty
     :members:
     :noindex:
 
-The ``ContentViewer`` class has one required property ``viewerComponent`` which should return a Vue component that wraps the content rendering code. This component will be passed ``files``, ``file``, ``itemData``, ``preset``, ``itemId``, ``answerState``, ``allowHints``, ``extraFields``, ``interactive``, ``lang``, ``showCorrectAnswer``, ``defaultItemPreset``, ``availableFiles``, ``defaultFile``, ``supplementaryFiles``, ``thumbnailFiles``, ``contentDirection``, and ``contentIsRtl`` props, defining the files associated with the piece of content, and other required data for rendering.
+The ``ContentViewer`` class has one required property ``viewerComponent`` which should return a Vue component that wraps the content rendering code. The ``ContentViewer`` wrapper accepts a ``contentNode`` prop containing the content metadata (including ``files``, ``lang``, ``options``, and ``duration``), and provides all necessary data to descendant viewer components via the ``useContentViewer`` composable.
 
-The component should use the `useContentViewer` composable and the `contentViewerProps`, importable as follows:
+The component should use the `useContentViewer` composable, importable as follows:
 
 .. code-block:: javascript
 
-  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import useContentViewer from 'kolibri/composables/useContentViewer';
 
 In order to log data about users viewing content, the component should emit ``startTracking``, ``updateProgress``, and ``stopTracking`` events, using the Vue ``$emit`` method. ``startTracking`` and ``stopTracking`` are emitted without any arguments, whereas ``updateProgress`` should be emitted with a single value between 0 and 1 representing the current proportion of progress on the content.
 

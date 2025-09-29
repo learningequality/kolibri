@@ -87,11 +87,7 @@
       <AssessmentWrapper
         v-else
         class="content-viewer"
-        :files="contentNode.files"
-        :lang="contentNode.lang"
-        :randomize="contentNode.assessmentmetadata.randomize"
-        :masteryModel="contentNode.assessmentmetadata.mastery_model"
-        :assessmentIds="contentNode.assessmentmetadata.assessment_item_ids"
+        :contentNode="contentNode"
         :extraFields="extra_fields"
         :progress="progress"
         :userId="currentUserId"

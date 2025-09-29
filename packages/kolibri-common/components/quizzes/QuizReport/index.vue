@@ -164,12 +164,10 @@
             />
           </div>
           <ContentViewer
+            :contentNode="exercise"
             :itemId="renderableItemId"
             :allowHints="false"
-            :files="exercise.files"
-            :extraFields="exercise.extra_fields"
             :interactive="false"
-            :assessment="true"
             :answerState="answerState"
             :showCorrectAnswer="showCorrectAnswer"
           />

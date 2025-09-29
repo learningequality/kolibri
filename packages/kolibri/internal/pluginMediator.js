@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import logging from 'kolibri-logging';
 import scriptLoader from 'kolibri/utils/scriptLoader';
-import { VIEWER_SUFFIX } from 'kolibri/constants';
 import { languageDirections, currentLanguage } from 'kolibri/utils/i18n';
 import { rtlManager } from 'kolibri/rtlcss';
 import ContentViewerLoading from '../components/internal/ContentViewer/ContentViewerLoading';
@@ -10,6 +9,9 @@ import ContentViewerError from '../components/internal/ContentViewer/ContentView
 /**
  * @typedef {import('kolibri-module').default} KolibriModule
  */
+
+const VIEWER_SUFFIX = '_viewer';
+const DOM_VIEWER_SUFFIX = '_dom_viewer';
 
 const logger = logging.getLogger(__filename);
 
@@ -24,6 +26,10 @@ const publicMethods = [
   'registerContentViewer',
   'loadDirectionalCSS',
   'ready',
+  'presetViewerComponent',
+  'elementViewerComponent',
+  'canHandleElement',
+  'objectViewerMimetypes',
 ];
 
 const domParser = new DOMParser();
@@ -163,6 +169,27 @@ export default function pluginMediatorFactory(facade) {
       }
       delete this._languageAssetRegistry;
     },
+    _registerViewerType(kolibriModuleName, items, suffix) {
+      for (const item of items) {
+        const registryKey = item + suffix;
+        if (!this._contentViewerRegistry[suffix]) {
+          this._contentViewerRegistry[suffix] = {};
+        }
+        const registry = this._contentViewerRegistry[suffix];
+        if (registry[item]) {
+          logger.warn(`Kolibri Modules: Two content viewers are registering for ${registryKey}`);
+          continue;
+        }
+        registry[item] = () => ({
+          component: this.retrieveContentViewer(kolibriModuleName),
+          loading: ContentViewerLoading,
+          error: ContentViewerError,
+          delay: 0,
+          timeout: 30000,
+        });
+      }
+    },
+
     /**
      * A method for registering content viewers for asynchronous loading and track
      * which file types we have registered viewers for.
@@ -170,31 +197,13 @@ export default function pluginMediatorFactory(facade) {
      * @param {string[]} kolibriModuleUrls - the URLs of the Javascript
      * files that constitute the kolibriModule
      * @param {string[]} contentPresets - the names of presets this content viewer can render
+     * @param {string[]} domTags - DOM tags handled
      */
-    registerContentViewer(kolibriModuleName, kolibriModuleUrls, contentPresets) {
+    registerContentViewer(kolibriModuleName, kolibriModuleUrls, contentPresets = [], domTags = []) {
       this._contentViewerUrls[kolibriModuleName] = kolibriModuleUrls;
-      contentPresets.forEach(preset => {
-        if (this._contentViewerRegistry[preset]) {
-          logger.warn(`Kolibri Modules: Two content viewers are registering for ${preset}`);
-        } else {
-          this._contentViewerRegistry[preset] = kolibriModuleName;
-          Vue.component(preset + VIEWER_SUFFIX, () => ({
-            /* Check the Kolibri core app for a content viewer module that is able to
-             * handle the rendering of the current content node.
-             */
-            component: this.retrieveContentViewer(preset),
-            // A component to use while the async component is loading
-            loading: ContentViewerLoading,
-            // A component to use if the load fails
-            error: ContentViewerError,
-            // Delay before showing the loading component.
-            delay: 0,
-            // The error component will be displayed if a timeout is
-            // provided and exceeded.
-            timeout: 30000,
-          }));
-        }
-      });
+
+      this._registerViewerType(kolibriModuleName, contentPresets, VIEWER_SUFFIX);
+      this._registerViewerType(kolibriModuleName, domTags, DOM_VIEWER_SUFFIX);
     },
 
     /**
@@ -209,9 +218,7 @@ export default function pluginMediatorFactory(facade) {
         const moduleName = element.getAttribute('data-viewer');
         try {
           const data = JSON.parse(decodeMarkedSafeText(element.innerHTML.trim()));
-          const presets = data.presets;
-          const urls = data.urls;
-          this.registerContentViewer(moduleName, urls, presets);
+          this.registerContentViewer(moduleName, data.urls, data.presets, data.css_selectors);
         } catch (e) {
           logger.error(`Error parsing content viewer for ${moduleName}`);
         }
@@ -220,24 +227,22 @@ export default function pluginMediatorFactory(facade) {
 
     /**
      * A method to retrieve a content viewer component.
-     * @param {string} preset - Content preset whose viewer component should be resolved
+     * @param {string} kolibriModuleName - module providing the viewer
      * @returns {Promise} Promise that resolves with loaded content viewer Vue component
      */
-    retrieveContentViewer(preset) {
+    retrieveContentViewer(kolibriModuleName) {
       return new Promise((resolve, reject) => {
-        const kolibriModuleName = this._contentViewerRegistry[preset];
         function resolveComponent(module) {
           if (module.viewerComponent) {
             resolve(module.viewerComponent);
           } else {
             reject(
-              `Content viewer registered for ${preset} but no viewerComponent found in module ${kolibriModuleName}`,
+              `Content viewer registered but no viewerComponent found in module ${kolibriModuleName}`,
             );
           }
         }
         if (!kolibriModuleName) {
-          // Our content viewer registry does not have a viewer for this content preset.
-          reject(`No registered content viewer available for preset: ${preset}`);
+          reject(`No registered content viewer available for: kolibriModuleName`);
         } else if (this._kolibriModuleRegistry[kolibriModuleName]) {
           // There is a named viewer for this preset, and it is already loaded.
           resolveComponent(this._kolibriModuleRegistry[kolibriModuleName]);
@@ -272,6 +277,78 @@ export default function pluginMediatorFactory(facade) {
         }
       });
     },
+    /**
+     * Get a viewer component for a preset
+     * @param {string} preset - Content preset name
+     * @returns {Function|null} Component resolver function or null
+     */
+    presetViewerComponent(preset) {
+      const viewerRegistry = this._contentViewerRegistry[VIEWER_SUFFIX];
+      return viewerRegistry?.[preset] || null;
+    },
+
+    /**
+     * Get a viewer component for a DOM element
+     * @param {?HTMLElement} element - DOM element, or null on the contentNode path
+     * @returns {Function|null} Component resolver function or null
+     */
+    elementViewerComponent(element) {
+      if (!element) {
+        return null;
+      }
+      const domViewerRegistry = this._contentViewerRegistry[DOM_VIEWER_SUFFIX];
+      if (!domViewerRegistry) {
+        return null;
+      }
+
+      // Check each registered selector to find a match
+      for (const [selector, component] of Object.entries(domViewerRegistry)) {
+        if (element.matches(selector)) {
+          return component;
+        }
+      }
+
+      return null;
+    },
+
+    /**
+     * Check if an element can be handled by any registered content viewer
+     * @param {?HTMLElement} element - DOM element to check, or null
+     * @returns {boolean} True if element can be handled
+     */
+    canHandleElement(element) {
+      if (!element) {
+        return false;
+      }
+      const domViewerRegistry = this._contentViewerRegistry[DOM_VIEWER_SUFFIX];
+      if (!domViewerRegistry) {
+        return false;
+      }
+
+      const allSelectors = Object.keys(domViewerRegistry).join(',');
+      return allSelectors && element.matches(allSelectors);
+    },
+
+    /**
+     * Get the MIME types handled by registered content viewers via their
+     * object[type="..."] selectors.
+     * @returns {string[]} Handled object MIME types
+     */
+    objectViewerMimetypes() {
+      const domViewerRegistry = this._contentViewerRegistry[DOM_VIEWER_SUFFIX];
+      if (!domViewerRegistry) {
+        return [];
+      }
+      const mimetypes = [];
+      for (const selector of Object.keys(domViewerRegistry)) {
+        const match = selector.match(/^object\[type=["']?([^"'\]]+)["']?\]$/);
+        if (match) {
+          mimetypes.push(match[1]);
+        }
+      }
+      return mimetypes;
+    },
+
     /*
      * Method to load the direction specific CSS for a particular content viewer
      * @param {ContentViewerModule} contentViewerModule The content viewer module to load the

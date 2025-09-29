@@ -89,7 +89,7 @@
     Navigation as HooperNavigation,
     Pagination as HooperPagination,
   } from 'hooper';
-  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import useContentViewer from 'kolibri/composables/useContentViewer';
   import { handleError } from 'kolibri/utils/appError';
 
   export default {
@@ -103,13 +103,26 @@
       HooperNavigation,
     },
     setup(props, context) {
-      const { files } = useContentViewer(props, context, { defaultDuration: 300 });
+      const {
+        files,
+        defaultFile,
+        extraFields,
+        itemData,
+        durationBasedProgress,
+        forceDurationBasedProgress,
+      } = useContentViewer(context, {
+        defaultDuration: 300,
+      });
       return {
         files,
+        defaultFile,
         handleError,
+        extraFields,
+        itemData,
+        durationBasedProgress,
+        forceDurationBasedProgress,
       };
     },
-    props: contentViewerProps,
     data: () => ({
       isInFullscreen: false,
       slides: [],

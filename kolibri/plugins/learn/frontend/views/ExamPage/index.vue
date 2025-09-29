@@ -185,10 +185,8 @@
               <ContentViewer
                 v-if="content && itemId"
                 ref="contentViewer"
-                :files="content.files"
-                :extraFields="content.extra_fields"
+                :contentNode="content"
                 :itemId="itemId"
-                :assessment="true"
                 :allowHints="false"
                 :answerState="currentAttempt.answer"
                 @interaction="interactionHandler"

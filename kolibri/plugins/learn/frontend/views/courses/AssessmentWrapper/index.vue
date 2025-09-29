@@ -54,8 +54,7 @@
           >
             <ContentViewer
               ref="contentViewer"
-              :lang="lang"
-              :files="files"
+              :contentNode="contentNode"
               :extraFields="extraFields"
               :assessment="true"
               :itemId="currentItemId"
@@ -166,13 +165,13 @@
 
 <script>
 
+  import { computed } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { MasteryModelGenerators } from 'kolibri/constants';
-  import { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import shuffled from 'kolibri-common/utils/shuffled';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
-  import { createTranslator } from 'kolibri/utils/i18n';
   import useUser from 'kolibri/composables/useUser';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import ResourceLayout from '../../ResourceLayout/index.vue';
@@ -205,28 +204,31 @@
       ResourceLayout,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props) {
       const { currentUserId } = useUser();
       const { practiceAction$, nextLabel$ } = coursesStrings;
+      const assessmentIds = computed(
+        () => props.contentNode.assessmentmetadata.assessment_item_ids,
+      );
+      const randomize = computed(() => props.contentNode.assessmentmetadata.randomize);
+      const masteryModel = computed(() => props.contentNode.assessmentmetadata.mastery_model);
       return {
         currentUserId,
         practiceAction$,
         nextLabel$,
+        assessmentIds,
+        randomize,
+        masteryModel,
       };
     },
     props: {
-      ...contentViewerProps,
-      assessmentIds: {
-        type: Array,
-        required: true,
-      },
-      randomize: {
-        type: Boolean,
-        required: true,
-      },
-      masteryModel: {
+      contentNode: {
         type: Object,
         required: true,
+      },
+      extraFields: {
+        type: Object,
+        default: () => ({}),
       },
       pastattempts: {
         type: Array,

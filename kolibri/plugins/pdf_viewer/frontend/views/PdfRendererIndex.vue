@@ -6,6 +6,8 @@
     :class="{
       'pdf-controls-open': showControls,
       'pdf-full-screen': isInFullscreen,
+      'pdf-embedded': embedded,
+      'pdf-mobile-embedded': mobileEmbedded,
     }"
     :style="{ backgroundColor: $themeTokens.text }"
     @changeFullscreen="isInFullscreen = $event"
@@ -131,7 +133,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
-  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import useContentViewer from 'kolibri/composables/useContentViewer';
   import { ref, computed } from 'vue';
   import '../utils/domPolyfills';
   import { EventBus } from '../utils/event_utils';
@@ -160,7 +162,14 @@
       const defaultDuration = computed(() => {
         return totalPages.value ? totalPages.value * 30 : null;
       });
-      const { defaultFile, reportLoadingError } = useContentViewer(props, context, {
+      const {
+        defaultFile,
+        reportLoadingError,
+        embedded,
+        extraFields,
+        forceDurationBasedProgress,
+        durationBasedProgress,
+      } = useContentViewer(context, {
         defaultDuration,
       });
       return {
@@ -169,9 +178,12 @@
         totalPages,
         defaultFile,
         reportLoadingError,
+        embedded,
+        extraFields,
+        forceDurationBasedProgress,
+        durationBasedProgress,
       };
     },
-    props: contentViewerProps,
     data: () => ({
       loadingProgress: null,
       scale: null,
@@ -210,10 +222,7 @@
         return this.firstPageHeight * this.scale + MARGIN;
       },
       savedLocation() {
-        if (this.extraFields && this.extraFields.contentState) {
-          return this.extraFields.contentState.savedLocation;
-        }
-        return 0;
+        return this.extraFields?.contentState?.savedLocation ?? 0;
       },
       savedVisitedPages: {
         get() {

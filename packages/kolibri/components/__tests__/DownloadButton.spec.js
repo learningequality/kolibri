@@ -1,16 +1,19 @@
 import Vue from 'vue';
 import { render, screen } from '@testing-library/vue';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
-import { VIEWER_SUFFIX } from 'kolibri/constants';
+import kolibri from 'kolibri';
 import DownloadButton from '../DownloadButton';
 
 jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri');
 
 const getDownloadableFile = (isExercise = false) => {
   const PRESET = isExercise ? 'exercise' : 'thumbnail';
 
-  // Register a component with the preset name so that the file is considered renderable
-  Vue.component(PRESET + VIEWER_SUFFIX, { template: '<div></div>' });
+  // Mock the preset viewer component so that the file is considered renderable
+  kolibri.presetViewerComponent = jest
+    .fn()
+    .mockImplementation(preset => (preset === PRESET ? { template: '<div></div>' } : null));
 
   return {
     preset: PRESET,

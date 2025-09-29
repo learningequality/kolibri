@@ -5,10 +5,7 @@
       <ContentViewer
         v-if="!content.assessmentmetadata"
         class="content-viewer"
-        :lang="content.lang"
-        :files="content.files"
-        :options="content.options"
-        :duration="content.duration"
+        :contentNode="content"
         :extraFields="extra_fields"
         :progress="progress"
         :userId="currentUserId"
@@ -50,11 +47,7 @@
       <AssessmentWrapper
         v-else
         class="content-viewer"
-        :files="content.files"
-        :lang="content.lang"
-        :randomize="content.assessmentmetadata.randomize"
-        :masteryModel="content.assessmentmetadata.mastery_model"
-        :assessmentIds="content.assessmentmetadata.assessment_item_ids"
+        :contentNode="content"
         :extraFields="extra_fields"
         :progress="progress"
         :userId="currentUserId"

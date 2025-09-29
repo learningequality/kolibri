@@ -45,7 +45,7 @@
     },
     props: {
       error: {
-        type: Object,
+        type: [Object, Error],
         default: null,
       },
       files: {

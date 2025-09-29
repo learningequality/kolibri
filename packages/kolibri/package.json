@@ -65,6 +65,7 @@
     "./utils/baseClient": "./utils/baseClient",
     "./utils/browserInfo": "./utils/browserInfo",
     "./utils/i18n": "./utils/i18n",
+    "./utils/mimetypes": "./utils/mimetypes",
     "./utils/objectSpecs": "./utils/objectSpecs",
     "./utils/onboardingSteps": "./utils/onboardingSteps",
     "./utils/redirectBrowser": "./utils/redirectBrowser",

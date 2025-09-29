@@ -52,10 +52,8 @@
       >
         <ContentViewer
           ref="contentViewer"
-          :lang="lang"
-          :files="files"
+          :contentNode="contentNode"
           :extraFields="extraFields"
-          :assessment="true"
           :itemId="currentItemId"
           :progress="progress"
           :userId="userId"
@@ -144,10 +142,10 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { MasteryModelGenerators } from 'kolibri/constants';
-  import { contentViewerProps } from 'kolibri/composables/useContentViewer';
   import shuffled from 'kolibri-common/utils/shuffled';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { computed } from 'vue';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
   import { createTranslator } from 'kolibri/utils/i18n';
@@ -181,27 +179,46 @@
       CoreInfoIcon,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props) {
       const { windowIsSmall } = useKResponsiveWindow();
       const { currentUserId } = useUser();
+      const assessmentIds = computed(
+        () => props.contentNode.assessmentmetadata.assessment_item_ids,
+      );
+      const randomize = computed(() => props.contentNode.assessmentmetadata.randomize);
+      const masteryModel = computed(() => props.contentNode.assessmentmetadata.mastery_model);
       return {
         windowIsSmall,
         currentUserId,
+        assessmentIds,
+        randomize,
+        masteryModel,
       };
     },
     props: {
-      ...contentViewerProps,
-      assessmentIds: {
-        type: Array,
-        required: true,
-      },
-      randomize: {
-        type: Boolean,
-        required: true,
-      },
-      masteryModel: {
+      contentNode: {
         type: Object,
         required: true,
+      },
+      extraFields: {
+        type: Object,
+        default: () => ({}),
+      },
+      progress: {
+        type: Number,
+        default: 0,
+      },
+      userId: {
+        type: String,
+        default: '',
+      },
+      userFullName: {
+        type: String,
+        default: '',
+      },
+      timeSpent: {
+        type: Number,
+        default: 0,
       },
       pastattempts: {
         type: Array,
