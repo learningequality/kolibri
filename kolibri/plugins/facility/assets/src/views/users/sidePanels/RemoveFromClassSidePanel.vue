@@ -63,8 +63,17 @@
             aria-labelledby="remove-from-selected-classes"
             :searchLabel="searchForAClass$()"
           />
-          <p v-else>
+          <p v-else-if="classes.length">
+            <!-- There are classes in the facility, but users are not enrolled in any of them -->
             {{ noUsersClassesNotice$() }}
+          </p>
+          <p v-else>
+            <!-- There are no classes in the facility -->
+            {{ noClassesInFacilityNotice$() }}
+            <KRouterLink
+              :text="classesLabel$()"
+              :to="$store.getters.facilityPageLinks.ManageClassPage"
+            />
           </p>
         </div>
       </div>
@@ -112,7 +121,7 @@
   import { ref, computed, onMounted } from 'vue';
   import { useRoute } from 'vue-router/composables';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
@@ -159,7 +168,10 @@
         usersRemovedNotice$,
         undoUsersRemovedMessage$,
         noUsersClassesNotice$,
+        noClassesInFacilityNotice$,
       } = bulkUserManagementStrings;
+
+      const { classesLabel$ } = coreStrings;
 
       const goBack = useGoBack({
         getFallbackRoute: () => {
@@ -328,6 +340,7 @@
         userClasses,
 
         // translation functions
+        classesLabel$,
         removeUsersFromClassesHeading$,
         numUsersCoaches$,
         searchForAClass$,
@@ -341,6 +354,7 @@
         selectClassesLabel$,
         removeAction$,
         noUsersClassesNotice$,
+        noClassesInFacilityNotice$,
 
         // methods
         removeUsers,
