@@ -15,6 +15,9 @@ from django.utils.http import http_date
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
 from django_filters.rest_framework import DjangoFilterBackend
+from morango.models import DeletedModels
+from morango.models import HardDeletedModels
+from morango.models import Store
 from rest_framework import exceptions
 from rest_framework import filters
 from rest_framework import serializers
@@ -300,7 +303,14 @@ class SyncQueueAPIView(APIView):
         user_id = serializer.validated_data["user"]
         instance_id = serializer.validated_data["instance"]
 
-        if not FacilityUser.objects.filter(id=user_id).exists():
+        if (
+            not FacilityUser.all_objects.filter(id=user_id).exists()
+            and not DeletedModels.objects.filter(id=user_id).exists()
+            and not HardDeletedModels.objects.filter(id=user_id).exists()
+            and not Store.objects.filter(id=user_id)
+            .filter(Q(deleted=True) | Q(hard_deleted=True))
+            .exists()
+        ):
             content = "This user is not registered in any of this server facilities"
             raise exceptions.NotFound(content)
 

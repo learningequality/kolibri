@@ -165,9 +165,11 @@ def get_all_user_ids():
         if is_full_facility_import(dataset_id):
             continue
 
-        for user_id in FacilityUser.objects.filter(dataset_id=dataset_id).values_list(
-            "id", flat=True
-        ):
+        # Include users that are soft-deleted, to allow for either propagation of deletions
+        # or restoration of users on the server to be synced to the client.
+        for user_id in FacilityUser.all_objects.filter(
+            dataset_id=dataset_id
+        ).values_list("id", flat=True):
             yield user_id
 
 
