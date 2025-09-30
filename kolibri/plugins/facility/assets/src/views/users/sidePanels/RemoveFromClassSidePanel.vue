@@ -56,12 +56,25 @@
             {{ selectClassesLabel$() }}
           </h2>
           <SelectableList
+            v-if="userClasses.length"
             v-model="selectedOptions"
-            :options="classList"
+            :options="userClasses"
             :selectAllLabel="removeFromAllClassesLabel$()"
             aria-labelledby="remove-from-selected-classes"
             :searchLabel="searchForAClass$()"
           />
+          <p v-else-if="classes.length">
+            <!-- There are classes in the facility, but users are not enrolled in any of them -->
+            {{ noUsersClassesNotice$() }}
+          </p>
+          <p v-else>
+            <!-- There are no classes in the facility -->
+            {{ noClassesInFacilityNotice$() }}
+            <KRouterLink
+              :text="classesLabel$()"
+              :to="$store.getters.facilityPageLinks.ManageClassPage"
+            />
+          </p>
         </div>
       </div>
       <template #bottomNavigation>
@@ -108,7 +121,7 @@
   import { ref, computed, onMounted } from 'vue';
   import { useRoute } from 'vue-router/composables';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
@@ -154,7 +167,11 @@
         removeAction$,
         usersRemovedNotice$,
         undoUsersRemovedMessage$,
+        noUsersClassesNotice$,
+        noClassesInFacilityNotice$,
       } = bulkUserManagementStrings;
+
+      const { classesLabel$ } = coreStrings;
 
       const goBack = useGoBack({
         getFallbackRoute: () => {
@@ -165,7 +182,7 @@
       });
 
       // computed properties
-      const classList = computed(() => {
+      const userClasses = computed(() => {
         // Get all class IDs where selected users are enrolled as learners
         const learnerClassIds = Object.values(membershipsByUser.value || {})
           .flat()
@@ -320,9 +337,10 @@
         selectedOptions,
         classCoaches,
         loading,
-        classList,
+        userClasses,
 
         // translation functions
+        classesLabel$,
         removeUsersFromClassesHeading$,
         numUsersCoaches$,
         searchForAClass$,
@@ -335,6 +353,8 @@
         removeFromAllClassesLabel$,
         selectClassesLabel$,
         removeAction$,
+        noUsersClassesNotice$,
+        noClassesInFacilityNotice$,
 
         // methods
         removeUsers,
