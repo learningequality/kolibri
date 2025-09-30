@@ -178,7 +178,9 @@
               <div class="side-nav-scrollable-area-footer-info">
                 <p>{{ footerMsg }}</p>
                 <!-- Not translated -->
+                <!-- eslint-disable vue/no-bare-strings-in-template -->
                 <p>© {{ copyrightYear }} Learning Equality</p>
+                <!-- eslint-enable vue/no-bare-strings-in-template -->
                 <p>
                   <KButton
                     ref="privacyLink"

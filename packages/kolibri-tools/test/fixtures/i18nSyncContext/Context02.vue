@@ -1,5 +1,6 @@
 <template>
 
+  <!-- eslint-disable vue/no-bare-strings-in-template -->
   <div>Context02</div>
 
 </template>

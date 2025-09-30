@@ -35,11 +35,13 @@
       <h2>{{ $tr('kolibriAboutTitle') }}</h2>
       <p>{{ $tr('kolibriAboutP1') }}</p>
       <p>
+        <!-- eslint-disable vue/no-bare-strings-in-template -->
         <KExternalLink
           text="https://learningequality.org/kolibri-privacy-policy/"
           href="https://learningequality.org/kolibri-privacy-policy/"
           :openInNewTab="true"
         />
+        <!-- eslint-enable vue/no-bare-strings-in-template -->
       </p>
       <p>{{ $tr('kolibriAboutP2') }}</p>
       <p>{{ $tr('kolibriAboutP3') }}</p>
