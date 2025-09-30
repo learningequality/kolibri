@@ -9,6 +9,7 @@
       minWidth: `${Math.min(expectedLength ?? 20, 20)}ch`,
       maxWidth: '90%',
     }"
+    :type="inputType"
   >
   <div
     v-else
@@ -31,6 +32,7 @@
     StringProp,
     FormatProp,
   } from '../../utils/props';
+  import { BASE_TYPE } from '../../constants';
 
   export default {
     name: 'TextEntryInteraction',
@@ -41,21 +43,32 @@
       const typedProps = useTypedProps(props);
       const interactive = inject('interactive');
 
+      const inputDeclaration = computed(() => {
+        return responses[typedProps.responseIdentifier.value];
+      });
+
       const variable = computed({
         get() {
-          const v = responses[typedProps.responseIdentifier.value];
-          return v.value || '';
+          return inputDeclaration.value.value || '';
         },
         set(newValue) {
-          const v = responses[typedProps.responseIdentifier.value];
-          v.value = newValue;
+          inputDeclaration.value.value = newValue;
         },
+      });
+
+      const inputType = computed(() => {
+        const baseType = inputDeclaration.value?.baseType;
+        if (baseType === BASE_TYPE.INTEGER || baseType === BASE_TYPE.FLOAT) {
+          return 'number';
+        }
+        return 'text';
       });
 
       return {
         variable,
         placeholder: typedProps.placeholderText,
         interactive,
+        inputType,
       };
     },
     props: {
