@@ -25,6 +25,7 @@
             <th>{{ $tr('cookiePurposeTableHeader') }}</th>
             <th>{{ $tr('cookieExpiryTableHeader') }}</th>
           </tr>
+          <!-- eslint-disable vue/no-bare-strings-in-template -->
           <tr>
             <td>kolibri_csrftoken</td>
             <td>{{ $tr('csrftokenCookiePurpose') }}</td>
@@ -40,6 +41,7 @@
             <td>{{ $tr('kolibriCookieConsentPurpose') }}</td>
             <td>{{ $tr('twoYearExpiry') }}</td>
           </tr>
+          <!-- eslint-enable vue/no-bare-strings-in-template -->
         </table>
       </section>
 
@@ -52,11 +54,13 @@
             <th>{{ $tr('cookiePurposeTableHeader') }}</th>
             <th>{{ $tr('cookieExpiryTableHeader') }}</th>
           </tr>
+          <!-- eslint-disable vue/no-bare-strings-in-template -->
           <tr>
             <td>visitor_id</td>
             <td>{{ $tr('visitorIdPurpose') }}</td>
             <td>{{ $tr('twoYearExpiry') }}</td>
           </tr>
+          <!-- eslint-enable vue/no-bare-strings-in-template -->
         </table>
       </section>
       <section>

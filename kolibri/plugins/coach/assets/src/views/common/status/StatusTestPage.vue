@@ -1,5 +1,6 @@
 <template>
 
+  <!-- eslint-disable vue/no-bare-strings-in-template -->
   <div
     class="overview"
     :style="{ backgroundColor: $themeTokens.surface }"

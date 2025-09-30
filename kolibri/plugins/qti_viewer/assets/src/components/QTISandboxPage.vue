@@ -1,5 +1,6 @@
 <template>
 
+  <!-- eslint-disable vue/no-bare-strings-in-template -->
   <div class="qti-sandbox">
     <div class="qti-sandbox-header">
       <h1>QTI Sandbox</h1>

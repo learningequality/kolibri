@@ -52,7 +52,7 @@
           appearance="flat-button"
           @click="$emit('back')"
         >
-          Back
+          {{ coreString('backAction') }}
         </KButton>
 
         <KButton

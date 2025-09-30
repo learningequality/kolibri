@@ -1,5 +1,6 @@
 <template>
 
+  <!-- eslint-disable vue/no-bare-strings-in-template -->
   <!-- eslint-disable max-len -->
   <div :style="{ padding: '32px', backgroundColor: $themeTokens.surface }">
     <h1>Prompts while "Planning a lesson"</h1>

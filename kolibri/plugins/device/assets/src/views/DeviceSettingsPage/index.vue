@@ -249,7 +249,7 @@
                 class="slider-section"
                 :class="$computedClass(sliderSectionStyle)"
               >
-                <p class="slider-min-max">0</p>
+                <p class="slider-min-max">{{ $formatNumber(0) }}</p>
                 <input
                   id="slider"
                   v-model="limitForAutodownload"

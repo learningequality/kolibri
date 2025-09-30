@@ -19,6 +19,7 @@
         </tr>
       </thead>
       <tbody>
+        <!-- eslint-disable vue/no-bare-strings-in-template -->
         <tr>
           <td>
             {{ $tr('uuid') }}<br >
@@ -30,6 +31,8 @@
           <td><code>UUID</code></td>
           <td>{{ $tr('uuidInfo') }}</td>
         </tr>
+        <!-- eslint-enable vue/no-bare-strings-in-template -->
+        <!-- eslint-disable vue/no-bare-strings-in-template -->
         <tr>
           <td>
             {{ $tr('username') }}<br >
@@ -63,6 +66,8 @@
           <td><code>FULL_NAME</code></td>
           <td>{{ $tr('fullNameInfo') }}</td>
         </tr>
+        <!-- eslint-enable vue/no-bare-strings-in-template -->
+        <!-- eslint-disable vue/no-bare-strings-in-template -->
         <tr>
           <td>
             {{ $tr('userType') }}<br >
@@ -82,6 +87,8 @@
             </ul>
           </td>
         </tr>
+        <!-- eslint-enable vue/no-bare-strings-in-template -->
+        <!-- eslint-disable vue/no-bare-strings-in-template -->
         <tr>
           <td>
             {{ $tr('identifier') }}<br >
@@ -104,6 +111,8 @@
           <td><code>BIRTH_YEAR</code></td>
           <td>{{ $tr('yearInfo') }}</td>
         </tr>
+        <!-- eslint-enable vue/no-bare-strings-in-template -->
+        <!-- eslint-disable vue/no-bare-strings-in-template -->
         <tr>
           <td>
             {{ $tr('gender') }}<br >
@@ -122,6 +131,8 @@
             </ul>
           </td>
         </tr>
+        <!-- eslint-enable vue/no-bare-strings-in-template -->
+        <!-- eslint-disable vue/no-bare-strings-in-template -->
         <tr>
           <td>
             {{ $tr('enrolled') }}<br >
@@ -140,6 +151,8 @@
             </ul>
           </td>
         </tr>
+        <!-- eslint-enable vue/no-bare-strings-in-template -->
+        <!-- eslint-disable vue/no-bare-strings-in-template -->
         <tr>
           <td>
             {{ $tr('assigned') }}<br >
@@ -158,6 +171,7 @@
             </ul>
           </td>
         </tr>
+        <!-- eslint-enable vue/no-bare-strings-in-template -->
       </tbody>
     </table>
   </KModal>

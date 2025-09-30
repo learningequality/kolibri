@@ -163,6 +163,7 @@
     >
       <p>{{ $tr('oidcGenericExplanation') }}</p>
       <p>
+        <!-- eslint-disable vue/no-bare-strings-in-template -->
         <KExternalLink
           text="https://learningequality.org/kolibri"
           :primary="true"
@@ -170,6 +171,7 @@
           :openInNewTab="true"
           appearance="basic-link"
         />
+        <!-- eslint-enable vue/no-bare-strings-in-template -->
       </p>
     </KModal>
   </div>
