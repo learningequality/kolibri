@@ -1,23 +1,33 @@
 <template>
 
-  <div class="image-container">
+  <div
+    class="image-container"
+    data-testid="image-container"
+  >
     <div class="img-wrapper">
       <img
         :src="src"
         :alt="alt"
         v-bind="$attrs"
-        @click="handleExpand"
+        @click="openLightbox"
       >
       <KIconButton
         class="expand-btn expand-btn-transition"
         icon="expand"
         appearance="raised-button"
-        aria-label="Expand image"
+        :aria-label="$tr('expandImage')"
         aria-haspopup="dialog"
-        tooltip="Expand image"
-        @click="handleExpand"
+        :tooltip="$tr('expandImage')"
+        @click="openLightbox"
       />
     </div>
+    <Lightbox
+      :open="lightboxOpen"
+      :src="src"
+      :alt="alt"
+      :styleOverrides="styleOverrides"
+      @closeLightbox="closeLightbox"
+    />
   </div>
 
 </template>
@@ -25,17 +35,37 @@
 
 <script>
 
+  import Lightbox from './Lightbox.vue';
+
   export default {
     name: 'SafeHtmlImage',
+    components: {
+      Lightbox,
+    },
     inheritAttrs: false,
     props: {
       src: { type: String, required: true },
       alt: { type: String, default: '' },
+      styleOverrides: {
+        type: Object,
+        default: () => ({}),
+      },
+    },
+    data() {
+      return {
+        lightboxOpen: false,
+      };
     },
     methods: {
-      handleExpand() {
-        this.$emit('expand-img', { src: this.src, alt: this.alt });
+      openLightbox() {
+        this.lightboxOpen = true;
       },
+      closeLightbox() {
+        this.lightboxOpen = false;
+      },
+    },
+    $trs: {
+      expandImage: 'Expand image',
     },
   };
 

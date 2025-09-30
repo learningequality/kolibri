@@ -1,19 +1,27 @@
 <template>
 
-  <div :style="cssVars">
+  <div
+    data-testid="safe-html-renderer-container"
+    :style="cssVars"
+  >
     <KCircularLoader
       v-if="loading || !html"
       :delay="false"
       class="loader"
     />
-    <SafeHTML
+    <div
       v-else
-      :html="html"
-      :styleOverrides="{
-        windowSizeClass: windowSizeClass,
-      }"
-      @expand-img="openLightbox"
-    />
+      class="safe-html-wrapper"
+      role="region"
+      :aria-label="$tr('articleContent')"
+    >
+      <SafeHTML
+        :html="html"
+        :styleOverrides="{
+          windowSizeClass: windowSizeClass,
+        }"
+      />
+    </div>
   </div>
 
 </template>
@@ -35,7 +43,7 @@
     setup(props, context) {
       const { windowIsSmall } = useKResponsiveWindow();
       const windowSizeClass = computed(() => {
-        return windowIsSmall.value ? ' small-window' : '';
+        return windowIsSmall.value ? 'small-window' : '';
       });
       const { defaultFile, forceDurationBasedProgress, durationBasedProgress } = useContentViewer(
         props,
@@ -127,10 +135,9 @@
           this.recordProgress();
         }, 5000);
       },
-      openLightbox(/* payload */) {
-        // TODO: Implement lightbox when ready
-        // payload contains: { src, alt }
-      },
+    },
+    $trs: {
+      articleContent: 'Article content',
     },
   };
 
@@ -145,9 +152,10 @@
     left: calc(50% - 16px);
   }
 
-  .content-viewer > div {
+  .safe-html-wrapper {
+    max-height: 100%;
     padding: 40px 16px;
-    background-color: white;
+    overflow-y: auto;
   }
 
 </style>

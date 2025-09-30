@@ -24,7 +24,7 @@ export default {
           captionAttrs[attr.name] = attr.value;
         }
         captionAttrs.id = captionId;
-        captionAttrs.class = 'safe-html' + windowSizeClass;
+        captionAttrs.class = windowSizeClass ? `safe-html ${windowSizeClass}` : 'safe-html';
         children.push(h('caption', { attrs: captionAttrs }, mapChildren(childNode.childNodes)));
       } else {
         children.push(mapNode(childNode));
@@ -42,7 +42,11 @@ export default {
       'div',
       {
         class: 'table-container',
-        attrs: { role: 'region', 'aria-labelledby': captionId },
+        attrs: {
+          role: 'region',
+          'aria-labelledby': captionId,
+          'data-testid': 'table-container',
+        },
       },
       [h('table', { attrs: attributes, style: { width: tableWidth } }, children)],
     );
