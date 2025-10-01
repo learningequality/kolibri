@@ -13,6 +13,7 @@ from kolibri.core.device.models import DeviceSettings
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.tasks.main import job_storage
 
 MODELS_TO_DELETE = [
     AttemptLog,
@@ -37,6 +38,9 @@ def deprovision(progress_update=None):
             Model.objects.all().delete()
             if progress_update:
                 progress_update(1)
+
+        # Clear all completed, failed or cancelled jobs
+        job_storage.clear()
 
 
 def get_deprovision_progress_total():

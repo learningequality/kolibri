@@ -386,6 +386,7 @@ def execute_sync(context):
         baseurl=context.network_location.base_url,
         keep_alive=True,
         noninteractive=True,
+        no_provision=True,
     )
 
     if sync_session_id:
