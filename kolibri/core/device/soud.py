@@ -18,6 +18,7 @@ from rest_framework import status
 
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
+from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import SyncQueue
@@ -49,7 +50,10 @@ class Context(object):
 
     @cached_property
     def user(self):
-        return FacilityUser.objects.get(id=self.user_id)
+        try:
+            return FacilityUser.all_objects.get(id=self.user_id)
+        except FacilityUser.DoesNotExist:
+            return None
 
     @property
     def has_sync_queue(self):
@@ -388,7 +392,11 @@ def execute_sync(context):
         command = "resumesync"
         kwargs["id"] = sync_session_id
     else:
-        kwargs["facility"] = context.user.facility_id
+        kwargs["facility"] = (
+            context.user.facility_id
+            if context.user
+            else Facility.get_default_facility().id
+        )
 
     sync_queue.status = SyncQueueStatus.Syncing
     sync_queue.save()
