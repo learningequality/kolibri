@@ -7,61 +7,6 @@
       :totalPageNumber="totalPages"
       :numFilteredItems="usersCount"
     >
-      <KGrid>
-        <KGridItem
-          :layout="{ alignment: 'right' }"
-          :layout8="{ span: 5 }"
-          :layout12="{ span: 7 }"
-        >
-          <div class="search-filter-section">
-            <FilterTextbox
-              ref="filterTextboxRef"
-              v-model="searchTerm"
-              :placeholder="coreStrings.searchForUser$()"
-              :aria-label="coreStrings.searchForUser$()"
-              class="move-down search-box"
-            />
-            <KRouterLink
-              appearance="basic-link"
-              :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
-              class="filter-button move-down"
-              :to="overrideRoute($route, { name: filterPageName })"
-            />
-            <KButton
-              v-if="numAppliedFilters > 0"
-              appearance="basic-link"
-              :text="clearFiltersLabel$()"
-              class="filter-button move-down"
-              :style="{
-                color: $themePalette.red.v_600 + ' !important',
-              }"
-              @click="$emit('clearFilters')"
-            />
-          </div>
-        </KGridItem>
-        <KGridItem
-          :layout="{ alignment: 'right' }"
-          :layout8="{ span: 3 }"
-          :layout12="{ span: 5 }"
-          class="move-down"
-        >
-          <span
-            v-if="selectedUsers.size > 0"
-            class="mr-8"
-          >
-            <span class="selected-count">
-              {{ numUsersSelected$({ n: selectedUsers.size }) }}
-            </span>
-
-            <KButton
-              appearance="basic-link"
-              :text="coreStrings.clearAction$()"
-              @click="clearSelectedUsers"
-            />
-          </span>
-          <slot name="userActions"></slot>
-        </KGridItem>
-      </KGrid>
       <KTable
         class="move-down user-roster"
         :stickyColumns="stickyColumns"
@@ -165,6 +110,23 @@
           </span>
         </template>
       </KTable>
+      <template #paginationFooter>
+        <div>
+          <div
+            v-if="selectedUsers.size > 0"
+          >
+            <span style="margin: 0 1em;">
+              {{ numUsersSelected$({ n: selectedUsers.size }) }}
+            </span>
+
+            <KButton
+              appearance="basic-link"
+              :text="coreStrings.clearAction$()"
+              @click="$emit('clearSelectedUsers')"
+            />
+          </div>
+        </div>
+      </template>
     </PaginatedListContainerWithBackend>
     <ResetUserPasswordModal
       v-if="modalShown === Modals.RESET_USER_PASSWORD"
@@ -212,6 +174,7 @@
   import { overrideRoute } from '../../../utils';
   import MoveToTrashModal from './MoveToTrashModal.vue';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
+  import UsersTableToolbar from './UsersTableToolbar';
 
   const ALL_FILTER = 'all';
   const SELECTION_COLUMN_ID = 'selection';
@@ -232,6 +195,7 @@
       BirthYearDisplayText,
       ResetUserPasswordModal,
       PaginatedListContainerWithBackend,
+      UsersTableToolbar,
     },
     setup(props, { emit, expose }) {
       const route = useRoute();
@@ -727,28 +691,8 @@
     overflow-x: auto;
   }
 
-  .search-filter-section {
-    display: flex;
-    justify-content: start;
-    // Ensure space enough for keyboard nav outline before table content
-    padding-bottom: 0.5em;
-  }
-
   .user-type-icon {
     width: auto;
-  }
-
-  .search-box {
-    width: 294px;
-  }
-
-  .filter-button {
-    padding-top: 10px;
-    margin-left: 1em;
-  }
-
-  .mr-8 {
-    margin-right: 8px;
   }
 
   .screen-reader-only {
@@ -769,5 +713,28 @@
     // Min height is set to 0 to allow flex items to shrink
     min-height: 0;
   }
+
+/deep/ .pagination-nav {
+  position: fixed;
+  box-shadow:
+    0 0 4px rgba(0, 0, 0, 0.42),
+    0 4px 2px rgba(0, 0, 0, 0.82);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 1em 0;
+  background-color: white;
+  z-index: 8;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+
+.pagination-actions {
+margin: 0 1em;
+}
+
+}
 
 </style>

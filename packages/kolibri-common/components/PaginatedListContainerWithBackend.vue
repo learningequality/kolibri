@@ -18,28 +18,31 @@
     </div>
 
     <nav class="pagination-nav">
-      <span
-        dir="auto"
-        class="pagination-label"
-      >
-        {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
-      </span>
-      <KButtonGroup>
-        <KIconButton
-          :ariaLabel="$tr('previousResults')"
-          :disabled="previousButtonDisabled"
-          size="small"
-          icon="back"
-          @click="changePage(-1)"
-        />
-        <KIconButton
-          :ariaLabel="$tr('nextResults')"
-          :disabled="nextButtonDisabled"
-          size="small"
-          icon="forward"
-          @click="changePage(+1)"
-        />
-      </KButtonGroup>
+      <slot name="paginationFooter"></slot>
+      <div class='pagination-actions'>
+        <span
+          dir="auto"
+          class="pagination-label"
+        >
+          {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
+        </span>
+        <KButtonGroup>
+          <KIconButton
+            :ariaLabel="$tr('previousResults')"
+            :disabled="previousButtonDisabled"
+            size="small"
+            icon="back"
+            @click="changePage(-1)"
+          />
+          <KIconButton
+            :ariaLabel="$tr('nextResults')"
+            :disabled="nextButtonDisabled"
+            size="small"
+            icon="forward"
+            @click="changePage(+1)"
+          />
+        </KButtonGroup>
+      </div>
     </nav>
   </div>
 
