@@ -1,0 +1,137 @@
+{
+  "version": "v1.0.0",
+
+  "entity": {
+    "type": "organisation",
+    "role": "owner",
+    "name": "Learning Equality",
+    "email": "gifts@learningequality.org",
+    "description": "Learning Equality is committed to enabling every person in the world to achieve a quality basic education, through supporting the creation and distribution of open educational resources, and facilitating their use around the world. Through this work, we aim to build a new, open, and fundamentally student-centered educational model, and ultimately promote human flourishing.",
+    "webpageUrl": {
+      "url": "https://learningequality.org",
+      "wellKnown": "https://learningequality.org/.well-known/funding-manifest-urls"
+    }
+  },
+
+  "projects": [{
+    "guid": "kolibri",
+    "name": "Kolibri",
+    "description": "The Kolibri Learning Platform is an offline-first platform for teaching and learning with technology without requiring the Internet.",
+    "webpageUrl": {
+      "url": "https://learningequality.org/kolibri/about-kolibri/",
+      "wellKnown": "https://learningequality.org/.well-known/funding-manifest-urls"
+    },
+    "repositoryUrl": {
+      "url": "https://github.com/learningequality/kolibri"
+    },
+    "licenses": ["spdx:MIT"],
+    "tags": ["education", "knowledge", "mobility", "web-development"]
+  }],
+
+  "funding": {
+    "channels": [
+      {
+        "guid": "github-sponsors",
+        "type": "other",
+        "address": "https://github.com/sponsors/learningequality",
+        "description": "Join us in supporting the sustainability of our work through code contributions or sponsorships."
+      },
+      {
+        "guid": "learningequality-donate",
+        "type": "other",
+        "address": "https://learningequality.org/donate/",
+        "description": "Through our open-source products and initiatives we support underserved communities without the Internet with quality tech-enabled learning experiences. Your generous support can help us reshape the narrative for learners and educators in rural schools, refugee camps, correctional facilities, and out-of-school programs around the world, from Jordan to Honduras, India to Uganda. Join us in breaking educational barriers—your support fuels a global movement for a future where everyone can thrive!"
+      },
+      {
+        "guid": "every-org",
+        "type": "payment-provider",
+        "address": "https://www.every.org/learningequality",
+        "description": "Through our open-source products and initiatives we support communities without the Internet with quality tech-enabled learning. Your support can help us reshape the narrative for learners and educators in rural schools, refugee camps, correctional facilities, and out-of-school programs around the world. Every.org accepts a wide variety of donation methods, including credit cards, bank transfers, digital wallets, PayPal, Venmo, cryptocurrency, stocks, and Donor Advised Funds (DAFs)."
+      },
+      {
+        "guid": "check",
+        "type": "cheque",
+        "address": "Payable to: Learning Equality c/o Jamie Alexandre; Address: 9700 Gilman Dr. PMB 323, La Jolla, CA 92093",
+        "description": "Through our open-source products and initiatives we support underserved communities without the Internet with quality tech-enabled learning experiences. Your generous support can help us reshape the narrative for learners and educators in rural schools, refugee camps, correctional facilities, and out-of-school programs around the world, from Jordan to Honduras, India to Uganda. Join us in breaking educational barriers—your support fuels a global movement for a future where everyone can thrive!"
+      }
+    ],
+
+    "plans": [
+      {
+        "guid": "any-time",
+        "status": "active",
+        "name": "Building equity in education with every contribution",
+        "description": "Join us in breaking educational barriers—your support fuels a global movement for a future where everyone can thrive!",
+        "amount": 0,
+        "currency": "USD",
+        "frequency": "one-time",
+        "channels": [
+          "github-sponsors",
+          "learningequality-donate",
+          "every-org",
+          "check"
+        ]
+      },
+      {
+        "guid": "github-sponsors-1",
+        "status": "active",
+        "name": "$1 a month",
+        "description": "Access 100,000 learning resources free to use in Kolibri. Show your support by helping learners around the globe.",
+        "amount": 1,
+        "currency": "USD",
+        "frequency": "monthly",
+        "channels": [
+          "github-sponsors"
+        ]
+      },
+      {
+        "guid": "github-sponsors-10",
+        "status": "active",
+        "name": "$10 a month",
+        "description": "Covers the cost of a day of online hosting for our library of free learning resources, for distribution offline.",
+        "amount": 10,
+        "currency": "USD",
+        "frequency": "monthly",
+        "channels": [
+          "github-sponsors"
+        ]
+      },
+      {
+        "guid": "github-sponsors-25",
+        "status": "active",
+        "name": "$25 a month",
+        "description": "Helps us maintain and release fixes and improvements to our collection of open source platforms and libraries.",
+        "amount": 25,
+        "currency": "USD",
+        "frequency": "monthly",
+        "channels": [
+          "github-sponsors"
+        ]
+      },
+      {
+        "guid": "github-sponsors-100",
+        "status": "active",
+        "name": "$100 a month",
+        "description": "Makes a new collection of learning materials to help children learn in their own language available for use on Kolibri.",
+        "amount": 100,
+        "currency": "USD",
+        "frequency": "monthly",
+        "channels": [
+          "github-sponsors"
+        ]
+      },
+      {
+        "guid": "github-sponsors-1000",
+        "status": "active",
+        "name": "$1,000 a month",
+        "description": "Share your ideas for future Kolibri development with the Learning Equality Product Lead by joining a 30 minute Q&A session. Help us deepen Kolibri's reach and impact!",
+        "amount": 1000,
+        "currency": "USD",
+        "frequency": "monthly",
+        "channels": [
+          "github-sponsors"
+        ]
+      }
+    ]
+  }
+}
