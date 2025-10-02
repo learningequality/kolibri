@@ -48,5 +48,5 @@ urlpatterns = urlpatterns + [
         name="schema-redoc",
     ),
     re_path(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
-    path("__debug__/", include("debug_toolbar.urls")),
+    path("profile/", include("silk.urls", namespace="silk")),
 ]

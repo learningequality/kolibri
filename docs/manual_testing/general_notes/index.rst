@@ -76,16 +76,12 @@ Within the Chrome Dev Tools, navigate to the Network panel. Select a connection 
 For Kolibri, our target audience's network condition can be mimicked by setting connectivity to Regular 3G (100ms, 750kb/s, 250 kb/s).
 
 
-Performance testing with Django Debug Toolbar
----------------------------------------------
+Performance testing with Django Silk
+------------------------------------
 
-We have built in support for Django Debug Toolbar, a Django application that provides a set of panels to display various debug information about the current request/response. It is particularly useful for performance testing.
+We have built in support for Django Silk, a live profiling and inspection tool for Django that provides comprehensive request and database query profiling. It is particularly useful for performance testing and identifying bottlenecks.
 
-To use this, ensure that you have development dependencies installed. You can then run the development or production servers with the following environment variable set::
-
-  DJANGO_SETTINGS_MODULE=kolibri.deployment.default.settings.debug_toolbar
-
-This will activate the debug toolbar, and will display in the HTML page of the site as an overlay. It is most useful when looking at individual API requests using the browsable API. The simplest way to see it for an API request is to go to that API request in the Network tab in the browser developer tools and open the URL in a new tab.
+It is enabled by default when running the development server, which automatically captures all HTTP requests and database queries. The Silk interface can be accessed at `/profile/` when running in development mode. It provides detailed information about request timing, SQL queries, and can generate performance graphs and statistics. This is particularly useful for analyzing API performance and identifying database query bottlenecks.
 
 
 Generating user data

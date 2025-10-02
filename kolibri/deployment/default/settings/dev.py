@@ -5,14 +5,16 @@ from .base import *  # noqa isort:skip @UnusedWildImport
 DEBUG = True
 
 # Settings might be tuples, so switch to lists
-INSTALLED_APPS = list(INSTALLED_APPS) + ["drf_yasg"]  # noqa F405
+INSTALLED_APPS = list(INSTALLED_APPS) + ["drf_yasg", "silk"]  # noqa F405
 webpack_middleware = "kolibri.core.webpack.middleware.WebpackErrorHandler"
 no_login_popup_middleware = (
     "kolibri.core.auth.middleware.XhrPreventLoginPromptMiddleware"
 )
+silk_middleware = "silk.middleware.SilkyMiddleware"
 MIDDLEWARE = list(MIDDLEWARE) + [  # noqa F405
     webpack_middleware,
     no_login_popup_middleware,
+    silk_middleware,
 ]
 
 INTERNAL_IPS = ["127.0.0.1"]
@@ -21,6 +23,14 @@ ROOT_URLCONF = "kolibri.deployment.default.dev_urls"
 
 DEVELOPER_MODE = True
 os.environ.update({"KOLIBRI_DEVELOPER_MODE": "True"})
+
+# Django Silk profiling
+SILKY_PYTHON_PROFILER = True
+SILKY_AUTHENTICATION = False
+SILKY_AUTHORISATION = False
+# Limit stored requests in dev
+SILKY_MAX_RECORDED_REQUESTS = 10 ** 3
+SILKY_MAX_RECORDED_REQUESTS_CHECK_PERCENT = 10
 
 
 REST_FRAMEWORK = {
