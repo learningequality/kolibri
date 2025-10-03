@@ -24,37 +24,59 @@
             icon="back"
             :text="coreString('changeLearningFacility')"
           />
-          <div class="users-page-header">
-            <h1>{{ coreString('usersLabel') }}</h1>
-            <div class="users-page-header-actions">
-              <KButton
-                hasDropdown
-                :primary="false"
-                :text="coreString('optionsLabel')"
-              >
-                <template #menu>
-                  <KDropdownMenu
-                    :options="pageDropdownOptions"
-                    @select="handlePageDropdownSelection"
-                  />
-                </template>
-              </KButton>
-              <KRouterLink
-                primary
-                appearance="raised-button"
-                :text="newUser$()"
-                :to="$store.getters.facilityPageLinks.UserCreatePage"
-              />
-            </div>
-          </div>
 
-          <UsersTableToolbar
-            :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL"
-            :selectedUsers="selectedUsers"
-            :numAppliedFilters="numAppliedFilters"
-          >
-            <template #userActions>
-              <div>
+          <UsersTableToolbar>
+            <template #topRow>
+              <div class="top-row-left">
+                <h1>{{ coreString('usersLabel') }}</h1>
+                <FilterTextbox
+                  ref="filterTextboxRef"
+                  v-model="searchTerm"
+                  :placeholder="coreString('searchForUser')"
+                  :aria-label="coreString('searchForUser')"
+                  class="search-box"
+                />
+                <KRouterLink
+                  appearance="basic-link"
+                  :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
+                  class="filter-button"
+                  :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL })"
+                />
+              </div>
+              <div class="users-page-header-actions">
+                <KButton
+                  hasDropdown
+                  :primary="false"
+                  :text="coreString('optionsLabel')"
+                >
+                  <template #menu>
+                    <KDropdownMenu
+                      :options="pageDropdownOptions"
+                      @select="handlePageDropdownSelection"
+                    />
+                  </template>
+                </KButton>
+                <KRouterLink
+                  primary
+                  appearance="raised-button"
+                  :text="newUser$()"
+                  :to="$store.getters.facilityPageLinks.UserCreatePage"
+                />
+              </div>
+            </template>
+            <template #bottomRow>
+              <div class="bottom-row-left">
+                <div
+                  v-if="hasSelectedUsers"
+                  class="selection-status"
+                >
+                  <span>{{ numUsersSelected$({ n: selectedUsers.size }) }}</span>
+                  <KButton
+                    appearance="basic-link"
+                    :text="coreString('clearAction')"
+                    @click="clearSelectedUsers"
+                  />
+                </div>
                 <KIconButton
                   ref="assignButton"
                   icon="assignCoaches"
@@ -104,20 +126,21 @@
                   :text="deleteSelectionTooltip"
                 />
               </div>
+              <PaginationActions
+                v-model="currentPage"
+                :itemsPerPage="itemsPerPage"
+                :totalPageNumber="totalPages"
+                :numFilteredItems="usersCount"
+              />
             </template>
           </UsersTableToolbar>
         </div>
         <UsersTable
           class="users-table"
           :facilityUsers="facilityUsers"
-          :usersCount="usersCount"
-          :totalPages="totalPages"
           :dataLoading="dataLoading"
           :selectedUsers.sync="selectedUsers"
-          :filterPageName="PageNames.FILTER_USERS_SIDE_PANEL"
-          :numAppliedFilters="numAppliedFilters"
           @clearSelectedUsers="clearSelectedUsers"
-          @clearFilters="resetFilters"
           @change="onChange"
         />
         <!-- For sidepanels -->
@@ -146,7 +169,9 @@
 
 <script>
 
-  import { ref, getCurrentInstance, onMounted } from 'vue';
+  import FilterTextbox from 'kolibri/components/FilterTextbox';
+  import PaginationActions from 'kolibri-common/components/PaginationActions';
+  import { ref, computed, getCurrentInstance, onMounted } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
@@ -161,6 +186,8 @@
   import UsersTable from '../common/UsersTable.vue';
   import { overrideRoute } from '../../../utils';
   import MoveToTrashModal from '../common/MoveToTrashModal.vue';
+  import useUsersTableSearch from '../../../composables/useUsersTableSearch';
+  import usePagination from '../../../composables/usePagination';
 
   export default {
     name: 'UsersRootPage',
@@ -174,6 +201,8 @@
       UsersTableToolbar,
       MoveToTrashModal,
       FacilityAppBarPage,
+      FilterTextbox,
+      PaginationActions,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -193,6 +222,10 @@
         removeFromClass$,
         deleteSelection$,
         cannotDeleteSelfTooltip$,
+        numFilters$,
+        filterLabel$,
+        numUsersSelected$,
+        clearFiltersLabel$,
       } = bulkUserManagementStrings;
 
       const { $store, $router } = getCurrentInstance().proxy;
@@ -210,6 +243,10 @@
         fetchClasses,
         resetFilters,
       } = useUserManagement({ activeFacilityId });
+
+      // Use our new composables
+      const { searchTerm, filterTextboxRef } = useUsersTableSearch();
+      const { currentPage, itemsPerPage } = usePagination({ usersCount, totalPages });
 
       onMounted(() => {
         fetchClasses();
@@ -229,20 +266,50 @@
         router.push(newRoute);
       }
 
+      const hasSelectedUsers = computed(() => {
+        return selectedUsers.value && selectedUsers.value.size > 0;
+      });
+
       return {
+        // Route utilities
+        overrideRoute,
         PageNames,
+
+        // User and facility info
         userIsMultiFacilityAdmin,
+        currentUserId,
+        isSuperuser,
+        isAdmin,
+
+        // Table data
         facilityUsers,
         totalPages,
         usersCount,
         dataLoading,
         classes,
+        selectedUsers,
         numAppliedFilters,
+        hasSelectedUsers,
+
+        // Search functionality from composable
+        searchTerm,
+        filterTextboxRef,
+
+        // Pagination from composable
+        currentPage,
+        itemsPerPage,
+
+        // Modal state
         isMoveToTrashModalOpen,
+
+        // Methods
         onChange,
         onModalBlur,
         resetFilters,
         clearSelectedUsers,
+        navigateToSidePanel,
+
+        // Strings
         newUser$,
         viewTrash$,
         assignCoach$,
@@ -251,11 +318,9 @@
         removeFromClass$,
         deleteSelection$,
         cannotDeleteSelfTooltip$,
-        selectedUsers,
-        currentUserId,
-        isSuperuser,
-        isAdmin,
-        navigateToSidePanel,
+        numFilters$,
+        filterLabel$,
+        numUsersSelected$,
       };
     },
     computed: {
@@ -272,9 +337,6 @@
             value: PageNames.USERS_TRASH_PAGE,
           },
         ];
-      },
-      hasSelectedUsers() {
-        return this.selectedUsers && this.selectedUsers.size > 0;
       },
       listContainsLoggedInUser() {
         return this.selectedUsers.has(this.currentUserId);
@@ -360,24 +422,12 @@
 
 <style lang="scss" scoped>
 
-  .users-page-header {
+  .users-page-header-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 16px;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5em;
-
-    h1 {
-      margin: 0;
-    }
-
-    .users-page-header-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      align-items: center;
-      justify-content: flex-end;
-    }
+    justify-content: flex-end;
   }
 
   .users-container {
@@ -403,6 +453,39 @@
     box-shadow:
       0 0 2px rgba(0, 0, 0, 0.12),
       0 2px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  .top-row-left {
+    display: flex;
+    flex: 1;
+    gap: 1em;
+    align-items: center;
+
+    h1 {
+      margin: 0;
+      white-space: nowrap;
+    }
+  }
+
+  .search-box {
+    flex: 1;
+    max-width: 400px;
+  }
+
+  .filter-button {
+    white-space: nowrap;
+  }
+
+  .bottom-row-left {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+
+    .selection-status {
+      display: flex;
+      gap: 0.5em;
+      align-items: center;
+    }
   }
 
 </style>

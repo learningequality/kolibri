@@ -1,13 +1,7 @@
 <template>
 
   <div class="flex-column">
-    <PaginatedListContainerWithBackend
-      v-model="currentPage"
-      class="paginated-wrapper"
-      :itemsPerPage="itemsPerPage"
-      :totalPageNumber="totalPages"
-      :numFilteredItems="usersCount"
-    >
+    <PaginatedListContainerWithBackend class="paginated-wrapper">
       <KTable
         class="move-down user-roster"
         :stickyColumns="stickyColumns"
@@ -111,21 +105,6 @@
           </span>
         </template>
       </KTable>
-      <template #paginationFooter>
-        <div>
-          <div v-if="selectedUsers.size > 0">
-            <span style="margin: 0 1em">
-              {{ numUsersSelected$({ n: selectedUsers.size }) }}
-            </span>
-
-            <KButton
-              appearance="basic-link"
-              :text="coreStrings.clearAction$()"
-              @click="$emit('clearSelectedUsers')"
-            />
-          </div>
-        </div>
-      </template>
     </PaginatedListContainerWithBackend>
     <ResetUserPasswordModal
       v-if="modalShown === Modals.RESET_USER_PASSWORD"
@@ -150,10 +129,8 @@
   import store from 'kolibri/store';
   import cloneDeep from 'lodash/cloneDeep';
   import useNow from 'kolibri/composables/useNow';
-  import { toRefs, ref, computed, onBeforeUnmount, getCurrentInstance } from 'vue';
+  import { toRefs, ref, computed, getCurrentInstance } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
-  import pickBy from 'lodash/pickBy';
-  import debounce from 'lodash/debounce';
   import { UserKinds } from 'kolibri/constants';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { getUserKindDisplayMap } from 'kolibri-common/uiText/userKinds';
@@ -172,7 +149,6 @@
   import MoveToTrashModal from './MoveToTrashModal.vue';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
 
-  const ALL_FILTER = 'all';
   const SELECTION_COLUMN_ID = 'selection';
 
   // Constant for the number of days until the user is permanently deleted
@@ -191,7 +167,7 @@
       ResetUserPasswordModal,
       PaginatedListContainerWithBackend,
     },
-    setup(props, { emit, expose }) {
+    setup(props, { emit }) {
       const route = useRoute();
       const router = useRouter();
       const { isSuperuser, currentUserId } = useUser();
@@ -202,7 +178,6 @@
       const { facilityUsers } = toRefs(props);
       const modalShown = ref(null);
       const userToChange = ref(null);
-      const filterTextboxRef = ref(null);
 
       const { selectAllLabel$ } = enhancedQuizManagementStrings;
       const {
@@ -350,15 +325,6 @@
         return { checked: isChecked, indeterminate: isIndeterminate };
       });
 
-      const userKinds = computed(() => {
-        return [
-          { label: coreStrings.allLabel$(), value: ALL_FILTER },
-          { label: coreStrings.learnersLabel$(), value: UserKinds.LEARNER },
-          { label: coreStrings.coachesLabel$(), value: UserKinds.COACH },
-          { label: coreStrings.adminsLabel$(), value: UserKinds.ADMIN },
-          { label: coreStrings.superAdminsLabel$(), value: UserKinds.SUPERUSER },
-        ];
-      });
 
       const userRoleBadgeStyle = computed(() => {
         const $themeTokens = themeTokens();
@@ -369,81 +335,6 @@
             color: $themeTokens.text,
           },
         };
-      });
-
-      const roleFilter = computed({
-        get() {
-          return userKinds.value.find(k => k.value === route.query.user_type) || userKinds.value[0];
-        },
-        set(value) {
-          value = value.value;
-          if (value === ALL_FILTER) {
-            value = null;
-          }
-          router.push({
-            ...route,
-            query: pickBy({
-              ...route.query,
-              user_type: value,
-              page: null,
-            }),
-          });
-        },
-      });
-
-      const emitSearchTerm = value => {
-        if (value === '') {
-          value = null;
-        }
-        router.push({
-          ...route,
-          query: pickBy({
-            ...route.query,
-            search: value,
-            page: null,
-          }),
-        });
-      };
-      const debouncedSearchTerm = debounce(emitSearchTerm, 300);
-
-      const searchTerm = computed({
-        get() {
-          return route.query.search || '';
-        },
-        set(value) {
-          debouncedSearchTerm(value);
-        },
-      });
-
-      const currentPage = computed({
-        get() {
-          return Number(route.query.page) || 1;
-        },
-        set(value) {
-          router.push({
-            ...route,
-            query: pickBy({
-              ...route.query,
-              page: value,
-            }),
-          });
-        },
-      });
-
-      const itemsPerPage = computed({
-        get() {
-          return Number(route.query.page_size) || 30;
-        },
-        set(value) {
-          router.push({
-            ...route,
-            query: pickBy({
-              ...route.query,
-              page_size: value,
-              page: null,
-            }),
-          });
-        },
       });
 
       const userToChangeSet = computed(() => {
@@ -497,7 +388,7 @@
         query.page = 1;
         router.push({
           path: route.path,
-          query: pickBy(query),
+          query: query,
         });
       };
 
@@ -513,10 +404,13 @@
       };
 
       const getEmptyMessageForItems = items => {
+        const search = route.query.search || '';
+        const roleType = route.query.user_type;
+
         if (facilityUsers.value.length === 0) {
           return coreStrings.noUsersExistLabel$();
-        } else if (roleFilter.value && searchTerm.value === '') {
-          switch (roleFilter.value.value) {
+        } else if (roleType && search === '') {
+          switch (roleType) {
             case UserKinds.LEARNER:
               return noLearnersExist$();
             case UserKinds.COACH:
@@ -529,7 +423,7 @@
               return '';
           }
         } else if (items.length === 0) {
-          return allUsersFilteredOut$({ filterText: searchTerm.value });
+          return allUsersFilteredOut$({ filterText: search });
         }
         return '';
       };
@@ -562,21 +456,6 @@
         }
       };
 
-      onBeforeUnmount(() => {
-        const { query } = route;
-        if (query.ordering || query.order || query.page) {
-          router.replace({ query: null });
-        }
-      });
-
-      const focus = () => {
-        filterTextboxRef.value?.focus();
-      };
-
-      expose({
-        focus,
-      });
-
       const { windowBreakpoint } = useKResponsiveWindow();
       const stickyColumns = computed(() => [
         windowBreakpoint.value <= 2 ? 'first' : 'firstTwo',
@@ -589,8 +468,6 @@
         tableRows,
         selectAllState,
         userRoleBadgeStyle,
-        currentPage,
-        itemsPerPage,
         Modals,
         modalShown,
         userToChange,
@@ -613,20 +490,11 @@
         coreStrings,
         selectLabel$,
         selectAllLabel$,
-        numUsersSelected$,
       };
     },
     props: {
       facilityUsers: {
         type: Array,
-        required: true,
-      },
-      usersCount: {
-        type: Number,
-        required: true,
-      },
-      totalPages: {
-        type: Number,
         required: true,
       },
       dataLoading: {
