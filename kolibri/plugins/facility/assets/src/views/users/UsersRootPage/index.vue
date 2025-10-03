@@ -9,11 +9,12 @@
       padding: '0px',
     }"
   >
-    <template #default="{ pageContentHeight }">
-      <div
-        :style="containerStyles"
-      >
-        <div class='header-shadow' :style="headerStyles">
+    <template>
+      <div :style="containerStyles">
+        <div
+          class="header-shadow"
+          :style="headerStyles"
+        >
           <KRouterLink
             v-if="userIsMultiFacilityAdmin"
             :to="{
@@ -108,7 +109,6 @@
         </div>
         <UsersTable
           class="users-table"
-          ref="usersTableRef"
           :facilityUsers="facilityUsers"
           :usersCount="usersCount"
           :totalPages="totalPages"
@@ -148,14 +148,13 @@
 
   import { ref, getCurrentInstance, onMounted } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
-  import UsersTableToolbar from '../common/UsersTableToolbar';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import useUser from 'kolibri/composables/useUser';
   import { UserKinds } from 'kolibri/constants';
   import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';
+  import UsersTableToolbar from '../common/UsersTableToolbar';
   import useUserManagement from '../../../composables/useUserManagement';
   import FacilityAppBarPage from '../../FacilityAppBarPage';
   import { PageNames } from '../../../constants';
@@ -184,7 +183,6 @@
       const { currentUserId, isSuperuser, isAdmin } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const isMoveToTrashModalOpen = ref(false);
-      const usersTableRef = ref(null);
 
       const {
         newUser$,
@@ -231,10 +229,7 @@
         router.push(newRoute);
       }
 
-      const { windowIsSmall } = useKResponsiveWindow();
-
       return {
-        windowIsSmall,
         PageNames,
         userIsMultiFacilityAdmin,
         facilityUsers,
@@ -242,7 +237,6 @@
         usersCount,
         dataLoading,
         classes,
-        usersTableRef,
         numAppliedFilters,
         isMoveToTrashModalOpen,
         onChange,
@@ -336,24 +330,15 @@
       },
       headerStyles() {
         return {
-          position: 'fixed',
-          top: this.windowIsSmall ? '6em' : '4em',
-          left: 0,
-          right: 0,
-          backgroundColor: 'white',
-          padding: '1em 1em 0.5em',
-          zIndex: 8,
+          padding: '16px',
         };
       },
       containerStyles() {
-        const paddings = {
-          paddingTop: this.windowIsSmall ? '15.25em!important' : '11.25em!important',
-          paddingBottom: '4em',
-          paddingLeft: 0,
-          paddingRight: 0,
-        };
         return {
-          ...paddings,
+          paddingTop: '64px',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
           backgroundColor: 'white',
         };
       },
@@ -396,14 +381,14 @@
   }
 
   .users-container {
-    height: 100%;
-    background-color: white;
     display: flex;
     flex-direction: column;
-    // !important to override
-    margin: 0!important;
+    height: 100%;
     // top: 4em (app bar) + 2em (internal padding)
     padding: 6em 2em 1em;
+    // !important to override
+    margin: 0 !important;
+    background-color: white;
   }
 
   /deep/ .main-wrapper {
@@ -412,17 +397,12 @@
     // Uses !important because the overridden style is inline
     padding-bottom: 0 !important;
   }
+
   .header-shadow {
+    z-index: 4;
     box-shadow:
       0 0 2px rgba(0, 0, 0, 0.12),
       0 2px 2px rgba(0, 0, 0, 0.2);
-  }
-
-  /deep/ .users-table thead {
-    position: static;
-    width: 100%;
-    background-color: white;
-    z-index: 8;
   }
 
 </style>

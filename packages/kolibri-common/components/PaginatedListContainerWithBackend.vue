@@ -13,13 +13,13 @@
       </KGridItem>
     </KGrid>
 
-    <div class="flex-column">
+    <div class="flex-column table-content">
       <slot> </slot>
     </div>
 
     <nav class="pagination-nav">
       <slot name="paginationFooter"></slot>
-      <div class='pagination-actions'>
+      <div class="pagination-actions">
         <span
           dir="auto"
           class="pagination-label"

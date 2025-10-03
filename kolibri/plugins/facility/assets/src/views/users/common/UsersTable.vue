@@ -3,6 +3,7 @@
   <div class="flex-column">
     <PaginatedListContainerWithBackend
       v-model="currentPage"
+      class="paginated-wrapper"
       :itemsPerPage="itemsPerPage"
       :totalPageNumber="totalPages"
       :numFilteredItems="usersCount"
@@ -112,10 +113,8 @@
       </KTable>
       <template #paginationFooter>
         <div>
-          <div
-            v-if="selectedUsers.size > 0"
-          >
-            <span style="margin: 0 1em;">
+          <div v-if="selectedUsers.size > 0">
+            <span style="margin: 0 1em">
               {{ numUsersSelected$({ n: selectedUsers.size }) }}
             </span>
 
@@ -156,7 +155,6 @@
   import pickBy from 'lodash/pickBy';
   import debounce from 'lodash/debounce';
   import { UserKinds } from 'kolibri/constants';
-  import FilterTextbox from 'kolibri/components/FilterTextbox';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { getUserKindDisplayMap } from 'kolibri-common/uiText/userKinds';
   import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
@@ -171,10 +169,8 @@
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
 
   import { Modals } from '../../../constants';
-  import { overrideRoute } from '../../../utils';
   import MoveToTrashModal from './MoveToTrashModal.vue';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
-  import UsersTableToolbar from './UsersTableToolbar';
 
   const ALL_FILTER = 'all';
   const SELECTION_COLUMN_ID = 'selection';
@@ -188,14 +184,12 @@
     name: 'UsersTable',
     components: {
       CoreInfoIcon,
-      FilterTextbox,
       UserTypeDisplay,
       MoveToTrashModal,
       GenderDisplayText,
       BirthYearDisplayText,
       ResetUserPasswordModal,
       PaginatedListContainerWithBackend,
-      UsersTableToolbar,
     },
     setup(props, { emit, expose }) {
       const route = useRoute();
@@ -213,15 +207,12 @@
       const { selectAllLabel$ } = enhancedQuizManagementStrings;
       const {
         createdAt$,
-        numFilters$,
         selectLabel$,
-        filterLabel$,
         noAdminsExist$,
         resetPassword$,
         noCoachesExist$,
         noLearnersExist$,
         numUsersSelected$,
-        clearFiltersLabel$,
         noSuperAdminsExist$,
         allUsersFilteredOut$,
         permanentDeletion$,
@@ -487,10 +478,6 @@
         _selectedUsers.value = newSet;
       };
 
-      const clearSelectedUsers = () => {
-        _selectedUsers.value = new Set();
-      };
-
       const isUserSelected = user => {
         return _selectedUsers.value.has(user.id);
       };
@@ -602,23 +589,19 @@
         tableRows,
         selectAllState,
         userRoleBadgeStyle,
-        searchTerm,
         currentPage,
         itemsPerPage,
         Modals,
         modalShown,
         userToChange,
         userToChangeSet,
-        filterTextboxRef,
         stickyColumns,
 
         // Methods
         handleSelectAllToggle,
         handleUserSelectionToggle,
-        clearSelectedUsers,
         isUserSelected,
         changeSortHandler,
-        overrideRoute,
         userCanBeEdited,
         getTranslatedSelectedArialabel,
         getEmptyMessageForItems,
@@ -628,12 +611,9 @@
 
         // Strings
         coreStrings,
-        numFilters$,
         selectLabel$,
-        filterLabel$,
         selectAllLabel$,
         numUsersSelected$,
-        clearFiltersLabel$,
       };
     },
     props: {
@@ -652,14 +632,6 @@
       dataLoading: {
         type: Boolean,
         default: false,
-      },
-      filterPageName: {
-        type: String,
-        required: true,
-      },
-      numAppliedFilters: {
-        type: Number,
-        default: 0,
       },
       selectedUsers: {
         type: Set,
@@ -714,27 +686,30 @@
     min-height: 0;
   }
 
-/deep/ .pagination-nav {
-  position: fixed;
-  box-shadow:
-    0 0 4px rgba(0, 0, 0, 0.42),
-    0 4px 2px rgba(0, 0, 0, 0.82);
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  padding: 1em 0;
-  background-color: white;
-  z-index: 8;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
+  /deep/ .pagination-nav {
+    /deep/ .pagination-nav {
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 1em 0;
+      margin-top: 0;
+      background-color: white;
+      box-shadow:
+        0 0 4px rgba(0, 0, 0, 0.42),
+        0 4px 2px rgba(0, 0, 0, 0.82);
 
-.pagination-actions {
-margin: 0 1em;
-}
+      .pagination-actions {
+        margin: 0 1em;
+      }
+    }
 
-}
+    .paginated-wrapper /deep/ .table-content {
+      display: block;
+      overflow: auto;
+    }
+  }
 
 </style>
