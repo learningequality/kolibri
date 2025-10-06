@@ -1,7 +1,6 @@
 <template>
 
   <div class="flex-column">
-
     <slot name="topActions"></slot>
 
     <KGrid v-if="$slots.otherFilter || $slots.filter">
@@ -21,14 +20,12 @@
     </div>
 
     <slot name="bottomActions"></slot>
-
   </div>
 
 </template>
 
 
 <script>
-
 
   export default {
     name: 'PaginatedListContainerWithBackend',

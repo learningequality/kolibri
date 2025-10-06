@@ -187,7 +187,6 @@
         resetPassword$,
         noCoachesExist$,
         noLearnersExist$,
-        numUsersSelected$,
         noSuperAdminsExist$,
         allUsersFilteredOut$,
         permanentDeletion$,
@@ -324,7 +323,6 @@
 
         return { checked: isChecked, indeterminate: isIndeterminate };
       });
-
 
       const userRoleBadgeStyle = computed(() => {
         const $themeTokens = themeTokens();
@@ -578,6 +576,13 @@
       display: block;
       overflow: auto;
     }
+  }
+
+  /deep/ .k-table-wrapper {
+    // Applying the padding here avoids the scrollbar having padding
+    // between itself and the window's edge and floating. This way
+    // it looks like a root-level scrollbar (even though there isn't one)
+    padding: 0 1em;
   }
 
 </style>

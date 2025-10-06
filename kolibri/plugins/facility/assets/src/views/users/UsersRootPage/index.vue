@@ -32,9 +32,9 @@
                 <FilterTextbox
                   ref="filterTextboxRef"
                   v-model="searchTerm"
+                  class="search-box"
                   :placeholder="coreString('searchForUser')"
                   :aria-label="coreString('searchForUser')"
-                  class="search-box"
                 />
                 <KRouterLink
                   appearance="basic-link"
@@ -57,6 +57,7 @@
                   </template>
                 </KButton>
                 <KRouterLink
+                  v-if="!windowIsSmall"
                   primary
                   appearance="raised-button"
                   :text="newUser$()"
@@ -66,17 +67,6 @@
             </template>
             <template #bottomRow>
               <div class="bottom-row-left">
-                <div
-                  v-if="hasSelectedUsers"
-                  class="selection-status"
-                >
-                  <span>{{ numUsersSelected$({ n: selectedUsers.size }) }}</span>
-                  <KButton
-                    appearance="basic-link"
-                    :text="coreString('clearAction')"
-                    @click="clearSelectedUsers"
-                  />
-                </div>
                 <KIconButton
                   ref="assignButton"
                   icon="assignCoaches"
@@ -125,6 +115,17 @@
                   :refs="$refs"
                   :text="deleteSelectionTooltip"
                 />
+                <div
+                  v-if="hasSelectedUsers"
+                  class="selection-status"
+                >
+                  <span>{{ numUsersSelected$({ n: selectedUsers.size }) }}</span>
+                  <KButton
+                    appearance="basic-link"
+                    :text="coreString('clearAction')"
+                    @click="clearSelectedUsers"
+                  />
+                </div>
               </div>
               <PaginationActions
                 v-model="currentPage"
@@ -174,6 +175,7 @@
   import { ref, computed, getCurrentInstance, onMounted } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import useUser from 'kolibri/composables/useUser';
@@ -225,7 +227,6 @@
         numFilters$,
         filterLabel$,
         numUsersSelected$,
-        clearFiltersLabel$,
       } = bulkUserManagementStrings;
 
       const { $store, $router } = getCurrentInstance().proxy;
@@ -241,7 +242,6 @@
         numAppliedFilters,
         onChange,
         fetchClasses,
-        resetFilters,
       } = useUserManagement({ activeFacilityId });
 
       // Use our new composables
@@ -270,7 +270,9 @@
         return selectedUsers.value && selectedUsers.value.size > 0;
       });
 
+      const { windowIsSmall } = useKResponsiveWindow();
       return {
+        windowIsSmall,
         // Route utilities
         overrideRoute,
         PageNames,
@@ -305,7 +307,6 @@
         // Methods
         onChange,
         onModalBlur,
-        resetFilters,
         clearSelectedUsers,
         navigateToSidePanel,
 
@@ -325,7 +326,7 @@
     },
     computed: {
       pageDropdownOptions() {
-        return [
+        const opts = [
           {
             label: this.viewNewUsers$(),
             id: 'view_new_users',
@@ -337,6 +338,14 @@
             value: PageNames.USERS_TRASH_PAGE,
           },
         ];
+        if (this.windowIsSmall) {
+          opts.unshift({
+            label: this.newUser$(),
+            id: 'new_user',
+            value: PageNames.ADD_NEW_USER_SIDE_PANEL__NEW_USERS,
+          });
+        }
+        return opts;
       },
       listContainsLoggedInUser() {
         return this.selectedUsers.has(this.currentUserId);
@@ -397,7 +406,7 @@
       },
       containerStyles() {
         return {
-          paddingTop: '64px',
+          paddingTop: this.windowIsSmall ? '108px' : '64px',
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
@@ -408,10 +417,12 @@
     methods: {
       handlePageDropdownSelection(option) {
         if (option.value) {
-          this.$router.push({
-            name: option.value,
-            params: { facility_id: this.$store.getters.activeFacilityId },
-          });
+          if (option.id === 'new_user') {
+            this.$router.push({
+              name: option.value,
+              params: { facility_id: this.$store.getters.activeFacilityId },
+            });
+          }
         }
       },
     },
@@ -449,10 +460,8 @@
   }
 
   .header-shadow {
-    z-index: 4;
-    box-shadow:
-      0 0 2px rgba(0, 0, 0, 0.12),
-      0 2px 2px rgba(0, 0, 0, 0.2);
+    z-index: 8;
+    box-shadow: 0 4px 4px -4px rgba(0, 0, 0, 0.8);
   }
 
   .top-row-left {
@@ -469,6 +478,7 @@
 
   .search-box {
     flex: 1;
+    width: 100% !important;
     max-width: 400px;
   }
 
@@ -478,7 +488,7 @@
 
   .bottom-row-left {
     display: flex;
-    gap: 1em;
+    gap: 0.25em;
     align-items: center;
 
     .selection-status {
