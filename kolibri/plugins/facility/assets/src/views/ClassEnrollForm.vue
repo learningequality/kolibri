@@ -1,18 +1,20 @@
 <template>
 
   <form>
-    <PaginatedListContainerWithBackend
-      v-model="currentPage"
-      :items="facilityUsers"
-      :itemsPerPage="itemsPerPage"
-      :totalPageNumber="totalPages"
-      :numFilteredItems="totalLearners"
-    >
-      <template #filter>
-        <FilterTextbox
-          v-model="search"
-          :placeholder="coreString('searchForUser')"
-        />
+    <PaginatedListContainerWithBackend>
+      <template #topActions>
+        <div class="flex-row">
+          <FilterTextbox
+            v-model="search"
+            :placeholder="coreString('searchForUser')"
+          />
+          <PaginationActions
+            v-model="currentPage"
+            :itemsPerPage="itemsPerPage"
+            :totalPageNumber="totalPages"
+            :numFilteredItems="totalLearners"
+          />
+        </div>
       </template>
       <template>
         <UserTable
@@ -24,6 +26,14 @@
         />
       </template>
     </PaginatedListContainerWithBackend>
+    <PaginationActions
+      v-if="totalPages > 1"
+      v-model="currentPage"
+      style="text-align: right"
+      :itemsPerPage="itemsPerPage"
+      :totalPageNumber="totalPages"
+      :numFilteredItems="totalLearners"
+    />
     <SelectionBottomBar
       :count="selectedUsers.length"
       :disabled="disabled || selectedUsers.length === 0"
@@ -44,6 +54,7 @@
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import UserTable from 'kolibri-common/components/UserTable';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
+  import PaginationActions from 'kolibri-common/components/PaginationActions';
   import SelectionBottomBar from './SelectionBottomBar';
 
   export default {
@@ -51,6 +62,7 @@
     components: {
       SelectionBottomBar,
       PaginatedListContainerWithBackend,
+      PaginationActions,
       UserTable,
       FilterTextbox,
     },
@@ -166,6 +178,13 @@
   .footer {
     display: flex;
     justify-content: flex-end;
+  }
+
+  .flex-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1em 0;
   }
 
 </style>
