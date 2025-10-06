@@ -854,6 +854,29 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
 
         return super(FacilityUser, cls).deserialize(dict_model)
 
+    @classmethod
+    def get_is_active_q(cls, relation_prefix=""):
+        """
+        Returns a Q object that can be used to filter related models by non-deleted users in an abstract way.
+
+        Example:
+            If you want to filter lesson assignments by active users, instead of doing:
+                LessonAssignment.objects.filter(collection__membership__user__date_deleted__isnull=True)
+            you can do:
+                LessonAssignment.objects.filter(FacilityUser.get_is_active_q(relation_prefix="collection__membership"))
+
+            For direct relations like `Role`, you can leave the `relation_prefix` blank:
+                Role.objects.filter(FacilityUser.get_is_active_q())
+
+            This is useful because it abstracts away the actual field name, so if we ever change it, we only need to change
+            it in one place.
+
+        """
+        q = "user__date_deleted__isnull"
+        if relation_prefix:
+            q = f"{relation_prefix}__{q}"
+        return Q(**{q: True})
+
     def calculate_partition(self):
         return "{dataset_id}:user-ro:{user_id}".format(
             dataset_id=self.dataset_id, user_id=self.ID_PLACEHOLDER

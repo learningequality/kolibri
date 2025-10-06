@@ -242,7 +242,11 @@ def serialize_coach_assigned_quiz_status(exam_data):
 
 
 def serialize_groups(queryset):
-    queryset = annotate_array_aggregate(queryset, member_ids="membership__user__id")
+    queryset = annotate_array_aggregate(
+        queryset,
+        filter=FacilityUser.get_is_active_q("membership"),
+        member_ids="membership__user__id",
+    )
     return list(queryset.values("id", "name", "member_ids"))
 
 

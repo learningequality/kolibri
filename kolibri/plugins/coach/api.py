@@ -277,7 +277,10 @@ class ExerciseDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewset):
         classroom_id = request.GET.get("classroom_id", None)
         group_id = request.GET.get("group_id", None)
         lesson_id = request.GET.get("lesson_id", None)
-        queryset = AttemptLog.objects.filter(masterylog__summarylog__content_id=pk)
+        queryset = AttemptLog.objects.filter(
+            FacilityUser.get_is_active_q("sessionlog"),
+            masterylog__summarylog__content_id=pk,
+        )
         if lesson_id is not None:
             collection_ids = Lesson.objects.get(
                 id=lesson_id
@@ -349,7 +352,10 @@ class QuizDifficultQuestionsViewset(viewsets.ViewSet):
         except Exam.DoesNotExist:
             raise Http404
         quiz_active = quiz["active"]
-        queryset = AttemptLog.objects.filter(sessionlog__content_id=pk)
+        queryset = AttemptLog.objects.filter(
+            FacilityUser.get_is_active_q("sessionlog"),
+            sessionlog__content_id=pk,
+        )
         if quiz_active:
             queryset = queryset.filter(masterylog__complete=True)
         if group_id is not None:

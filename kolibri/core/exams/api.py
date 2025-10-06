@@ -11,6 +11,7 @@ from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.annotation import total_file_size
 from kolibri.core.exams import models
@@ -103,6 +104,14 @@ class ExamViewset(ValuesViewset):
 
     def serialize_draft(self, queryset):
         objects = queryset.values(*self.draft_values)
+
+        all_exam_learners_set = {
+            learner_id for obj in objects for learner_id in obj.get("learner_ids", [])
+        }
+        non_deleted_learners = FacilityUser.objects.filter(
+            id__in=all_exam_learners_set
+        ).values_list("id", flat=True)
+
         for item in objects:
             # Set the draft flag to True
             item["draft"] = True
@@ -111,6 +120,12 @@ class ExamViewset(ValuesViewset):
             item["archive"] = False
             item["date_archived"] = None
             item["date_activated"] = None
+            # Filter out any deleted learners
+            item["learner_ids"] = [
+                learner_id
+                for learner_id in item.get("learner_ids", [])
+                if learner_id in non_deleted_learners
+            ]
         return objects
 
     def filter_querysets(self, exam_queryset, draft_queryset):
@@ -231,7 +246,9 @@ class ExamViewset(ValuesViewset):
                 exam_id__in=exam_ids, collection__kind=ADHOCLEARNERSGROUP
             )
             adhoc_assignments = annotate_array_aggregate(
-                adhoc_assignments, learner_ids="collection__membership__user_id"
+                adhoc_assignments,
+                learner_ids="collection__membership__user_id",
+                filter=FacilityUser.get_is_active_q("collection__membership"),
             )
             adhoc_assignments = {
                 a["exam"]: a
