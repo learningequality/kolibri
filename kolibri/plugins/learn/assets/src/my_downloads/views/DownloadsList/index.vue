@@ -1,12 +1,14 @@
 <template>
 
   <form>
-    <PaginatedListContainerWithBackend
+    <PaginationActions
       v-model="currentPage"
+      class="top-pagination-actions"
       :itemsPerPage="itemsPerPage"
       :totalPageNumber="totalPageNumber"
       :numFilteredItems="downloadItemListLength"
-    >
+    />
+    <PaginatedListContainerWithBackend>
       <CoreTable>
         <template #headers>
           <th>
@@ -141,6 +143,13 @@
       @cancel="resourcesToDelete = []"
       @success="emitCurrentlySelectedResourcesForRemoval"
     />
+    <PaginationActions
+      v-model="currentPage"
+      class="bottom-pagination-actions"
+      :itemsPerPage="itemsPerPage"
+      :totalPageNumber="totalPageNumber"
+      :numFilteredItems="downloadItemListLength"
+    />
   </form>
 
 </template>
@@ -154,6 +163,7 @@
   import CoreTable from 'kolibri/components/CoreTable';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
+  import PaginationActions from 'kolibri-common/components/PaginationActions';
   import { computed, getCurrentInstance } from 'vue';
   import { get } from '@vueuse/core';
   import { createTranslator } from 'kolibri/utils/i18n';
@@ -179,6 +189,7 @@
       SelectionBottomBar,
       ConfirmationDeleteModal,
       PaginatedListContainerWithBackend,
+      PaginationActions,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -446,6 +457,17 @@
     display: inline-block;
     margin-left: 0;
     vertical-align: bottom;
+  }
+
+  .top-pagination-actions {
+    margin-top: 1em;
+    margin-bottom: -2em;
+    text-align: right;
+  }
+
+  .bottom-pagination-actions {
+    margin-top: 1em;
+    text-align: right;
   }
 
 </style>
