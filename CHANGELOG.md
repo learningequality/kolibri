@@ -2,6 +2,17 @@
 
 List of the most important changes for each release.
 
+## 0.18.4
+
+This release is a hotfix to address a bug in the QTI survey functionality (feature flagged).
+
+### Added
+* Remove unneeded post-approval BCK upload by @rtibbles in https://github.com/learningequality/kolibri/pull/13756
+
+### Fixed
+* QTI Survey fixes by @rtibbles in https://github.com/learningequality/kolibri/pull/13791
+
+
 ## 0.18.3
 
 ### High level overview

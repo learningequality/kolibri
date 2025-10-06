@@ -2,6 +2,8 @@ import isBoolean from 'lodash/isBoolean';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
 
+import { BASE_TYPE } from '../../constants';
+
 export function coerceBoolean(value) {
   if (isString(value)) {
     return value === 'true';
@@ -138,21 +140,6 @@ export function validateFile(value) {
   return value instanceof File;
 }
 
-// Base type constants
-export const BASE_TYPE = {
-  IDENTIFIER: 'identifier',
-  BOOLEAN: 'boolean',
-  INTEGER: 'integer',
-  FLOAT: 'float',
-  STRING: 'string',
-  POINT: 'point',
-  PAIR: 'pair',
-  DIRECTED_PAIR: 'directedPair',
-  DURATION: 'duration',
-  FILE: 'file',
-  URI: 'uri',
-};
-
 /**
  * Coerces a value to the specified QTI base type
  * @param {*} value - The value to coerce
@@ -167,15 +154,27 @@ export function coerceValueWithBaseType(value, baseType) {
 
   switch (baseType) {
     case BASE_TYPE.BOOLEAN:
+      if (!validateBoolean(value)) {
+        throw new TypeError(`Cannot coerce ${value} to boolean`);
+      }
       return coerceBoolean(value);
     case BASE_TYPE.INTEGER:
+      if (!validateNumber(value)) {
+        throw new TypeError(`Cannot coerce ${value} to integer`);
+      }
       return parseInt(value);
     case BASE_TYPE.FLOAT:
+      if (!validateNumber(value)) {
+        throw new TypeError(`Cannot coerce ${value} to float`);
+      }
       return parseFloat(value);
     case BASE_TYPE.STRING:
     case BASE_TYPE.IDENTIFIER:
     case BASE_TYPE.URI:
-      return String(value);
+      if (typeof value !== 'string') {
+        throw new TypeError(`Cannot coerce ${value} to string`);
+      }
+      return value;
     case BASE_TYPE.POINT:
       return coercePoint(value);
     case BASE_TYPE.PAIR:
@@ -184,7 +183,10 @@ export function coerceValueWithBaseType(value, baseType) {
     case BASE_TYPE.DURATION:
       return coerceDuration(value);
     case BASE_TYPE.FILE:
-      return value; // Files are not coerced, just passed through
+      if (!validateFile(value)) {
+        throw new TypeError(`Cannot coerce ${value} to file`);
+      }
+      return value;
     default:
       return value;
   }
