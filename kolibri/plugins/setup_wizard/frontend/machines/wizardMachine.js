@@ -1,7 +1,9 @@
-import { checkCapability } from 'kolibri/utils/appCapabilities';
 import { Presets } from 'kolibri/constants';
 
 import { getImportLodUsersDefinition } from 'kolibri-common/machines/importLodUsersMachine';
+import { get } from '@vueuse/core';
+import pluginData from 'kolibri-plugin-data';
+import useUser from 'kolibri/composables/useUser';
 
 /**
  * __ Setting up the XState Visualizer __
@@ -23,8 +25,8 @@ import { getImportLodUsersDefinition } from 'kolibri-common/machines/importLodUs
  *    OR
  *    Know that we will need to directly copy and paste them into the visualizer
  *
- * For now, this means copying the imports from `../constants` and writing a
- * function in place of `checkCapability`.
+ * For now, this means copying the imports from `../constants` and writing an
+ * object in place of `pluginData`.
  */
 
 /**
@@ -47,8 +49,10 @@ import { getImportLodUsersDefinition } from 'kolibri-common/machines/importLodUs
 import { assign, createMachine } from 'xstate';
 import { DeviceTypePresets, FacilityTypePresets, UsePresets } from '../constants';
 
-// NOTE: Uncomment the following function if you're using the visualizer
-// const checkCapability = capabilityToCheck => ["get_os_user"].includes(capabilityToCheck);
+// NOTE: Uncomment the following object if you're using the visualizer
+// const pluginData = { canGetOsUser: true };
+
+const { isAppContext } = useUser();
 
 const importLodUsersDefinition = getImportLodUsersDefinition();
 
@@ -436,7 +440,7 @@ export const wizardMachine = createMachine(
       isGroupSetup: context => {
         return context.onMyOwnOrGroup === UsePresets.GROUP;
       },
-      canGetOsUser: () => checkCapability('get_os_user'),
+      canGetOsUser: () => get(isAppContext) && pluginData.canGetOSUser,
       isNewFacility: context => {
         return context.facilityNewOrImport === FacilityTypePresets.NEW;
       },

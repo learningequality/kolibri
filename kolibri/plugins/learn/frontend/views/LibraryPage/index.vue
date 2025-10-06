@@ -199,6 +199,7 @@
   import { get, set } from '@vueuse/core';
 
   import { onMounted, getCurrentInstance, ref, watch } from 'vue';
+  import pluginData from 'kolibri-plugin-data';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';
@@ -206,8 +207,7 @@
   import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { mapState } from 'vuex';
-  import MeteredConnectionNotificationModal from 'kolibri-common/components/MeteredConnectionNotificationModal.vue';
-  import appCapabilities, { checkCapability } from 'kolibri/utils/appCapabilities';
+  import checkMeteredConnection from 'kolibri-common/utils/checkMeteredConnection';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import { searchKeys } from 'kolibri-common/composables/useBaseSearch';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
@@ -234,6 +234,7 @@
   import SearchResultsGrid from '../SearchResultsGrid';
   import LearnAppBarPage from '../LearnAppBarPage';
   import PostSetupModalGroup from '../../../../device/frontend/views/PostSetupModalGroup.vue';
+  import MeteredConnectionNotificationModal from './MeteredConnectionNotificationModal.vue';
   import ResumableContentGrid from './ResumableContentGrid';
   import OtherLibraries from './OtherLibraries';
   import NoResourcePage from './NoResourcePage';
@@ -476,7 +477,7 @@
         if (!validUser) {
           return false;
         }
-        if (!checkCapability('check_is_metered')) {
+        if (!pluginData.canCheckMeteredConnection) {
           return true;
         }
         if (this.allowDownloadOnMeteredConnection) {
@@ -563,9 +564,9 @@
         !this.deviceId &&
         this.isUserLoggedIn &&
         !this.allowDownloadOnMeteredConnection &&
-        checkCapability('check_is_metered')
+        pluginData.canCheckMeteredConnection
       ) {
-        appCapabilities.checkIsMetered().then(isMetered => {
+        checkMeteredConnection().then(isMetered => {
           this.usingMeteredConnection = isMetered;
         });
       }

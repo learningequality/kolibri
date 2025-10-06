@@ -4,6 +4,7 @@ from le_utils.constants import modalities
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import LEARNER
 from kolibri.core.content.hooks import ContentNodeDisplayHook
+from kolibri.core.device.hooks import CheckIsMeteredHook
 from kolibri.core.device.utils import allow_learner_unassigned_resource_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import get_device_setting
@@ -70,6 +71,7 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             "allowDownloadOnMeteredConnection": get_device_setting(
                 "allow_download_on_metered_connection"
             ),
+            "canCheckMeteredConnection": CheckIsMeteredHook.is_registered,
             "allowGuestAccess": get_device_setting("allow_guest_access"),
             "allowLearnerDownloads": get_device_setting(
                 "allow_learner_download_resources"
