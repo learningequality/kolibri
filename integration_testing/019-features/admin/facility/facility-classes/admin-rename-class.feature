@@ -1,4 +1,4 @@
-Feature: Admin copies a class
+Feature: Admin renames a class
   Admin users need to be able to rename classes in each facility
 
   Background:
@@ -7,7 +7,7 @@ Feature: Admin copies a class
       And there is at least one already created class
 
   Scenario: Rename a class
-    When I click on the *…* button for a class
+    When I click on the *⋮* button for a class
     	And I click the *Rename* option
     Then I see the *Rename class* modal
     	And I see a *Class name* field

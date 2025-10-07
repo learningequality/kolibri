@@ -14,16 +14,14 @@ Feature: Admin enrolls users in class(es)
     Then I see the *Enroll to class* side panel
       And I see info messages for the number of selected users, how many users are not enrolled in any class etc
       And I see a general info message that users already in selected classes will not be affected
-      And I see search field and a table with the available classes
+      And I see a search field and a table with the available classes
       And the *Enroll* button is disabled
     When I select a class
       And I click the *Enroll* button
     Then the page reloads
-      And I see the *Selected users have been enrolled* snackbar message
-      And I see a *N users have been enrolled* modal
-    When I dismiss the modal
-    	And I go to *Facility > Classes*
-    Then I can see that the users have been enrolled in the specified class
+      And I see the *Selected users have been enrolled UNDO* snackbar message
+    When I go to *Facility > Classes*
+    Then I can verify that the users have been enrolled in the specified class
 
   Scenario: Enroll users in several classes
     Given I've selected several users and I am at the *Enroll to class* side panel
@@ -31,9 +29,7 @@ Feature: Admin enrolls users in class(es)
       And I click the *Enroll* button
     Then the page reloads
       And I see the *Selected users have been enrolled* snackbar message
-      And I see a *N users have been enrolled* modal
-    When I dismiss the modal
-    	And I go to *Facility > Classes*
+    When I go to *Facility > Classes*
     Then I can see that the users have been enrolled in the specified classes
 
   Scenario: Undo the enrollment of users
@@ -41,8 +37,8 @@ Feature: Admin enrolls users in class(es)
     When I select several or all of the available classes
       And I click the *Enroll* button
     Then the page reloads
-      And I see the *Selected users have been enrolled* snackbar message
-      And I see a *N users have been enrolled* modal
+      And I see the *Selected users have been enrolled UNDO* snackbar message
     When I click the *Undo* button
-    	And I go to *Facility > Classes*
+   	Then I see an *Enroll action has been undone* snackbar message
+    When I go to *Facility > Classes*
     Then I can see that the users have not been enrolled in the specified classes

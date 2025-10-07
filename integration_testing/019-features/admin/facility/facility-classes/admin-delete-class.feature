@@ -7,7 +7,7 @@ Feature: Admin can delete classes
       And there is a class created in the facility
 
   Scenario: Delete class
-    When I click on the *…* button for a class
+    When I click on the *⋮* button for a class
     	And I click the *Delete class* option
     Then I see the *Delete class* modal
     When I click the *Delete* button

@@ -6,7 +6,7 @@ Feature: Admin edit users
       And I am at *Facility > Users* page
 
   Scenario: Admin can edit the user's full name
-    When I click on the *Options* button for the user I want to edit
+    When I click on the *⋮* button for the user I want to edit
       And I select the *Edit details* option
     Then I see the *Edit user details* page
     When I click or tab into the *Full name* field
@@ -17,10 +17,10 @@ Feature: Admin edit users
       And I see the user with edited full name
 
   Scenario: Admin can edit the user's username
-    When I click on the *Options* button for the user I want to edit
+    When I click on the *⋮* button for the user I want to edit
       And I select the *Edit details* option
     Then I see the *Edit user details* page
-    When I click or tab into *Username* field
+    When I click or tab into the *Username* field
       And I edit the username as needed
       And I click the *Save* button
     Then I am back at the *Facility > Users* page
@@ -28,7 +28,7 @@ Feature: Admin edit users
       And I see the user with edited username
 
   Scenario: Admin can edit the user's identifier
-    When I click on the *Options* button for the user I want to edit
+    When I click on the *⋮* button for the user I want to edit
       And I select the *Edit details* option
     Then I see the *Edit user details* page
     When I click or tab into *Identifier* field
@@ -39,7 +39,7 @@ Feature: Admin edit users
       And I see the user with edited identifier
 
   Scenario: Admin can edit the user's birth year
-    When I click on the *Options* button for the user I want to edit
+    When I click on the *⋮* button for the user I want to edit
       And I select the *Edit details* option
     Then I see the *Edit user details* page
     When I click or tab into *Birth year* field
@@ -50,7 +50,7 @@ Feature: Admin edit users
       And I see the user with edited birth year
 
   Scenario: Admin can edit the user's gender
-    When I click on the *Options* button for the user I want to edit
+    When I click on the *⋮* button for the user I want to edit
       And I select the *Edit details* option
     Then I see the *Edit user details* page
     When I click or tab into *Gender* field
@@ -61,7 +61,7 @@ Feature: Admin edit users
       And I see the user with edited gender option
 
   Scenario: Admin can change user type
-    When I click on the *Options* button for the user I want to edit
+    When I click on the *⋮* button for the user I want to edit
       And I select the *Edit details* option
     Then I see the *Edit user details* page
     When I click or tab into *User type*
@@ -74,7 +74,7 @@ Feature: Admin edit users
 
   Scenario: Admin can change a class coach user to facility coach user
     Given there is class coach in the facility
-    When I click on the *Options* button for the user
+    When I click on the *⋮* button for the user
       And I select the *Edit details* option
     Then I see the *Edit user details* page
       And I see the *Class coach* radio button active under the *User type*
@@ -85,10 +85,11 @@ Feature: Admin edit users
       And I see the user with the *Facility coach* label
 
   Scenario: Admin can reset the user's password
-    When I click on the *Options* button for the user whose password I want to reset
+    When I click on the *⋮* button for the user whose password I want to reset
       And I select the *Reset password* option
     Then I see the *Reset user password* modal
-    When I click or tab into *New password* field
+    	And I see the username of the user
+    When I click or tab into *Password* field
       And I enter the new password
       And I click or tab into the *Re-enter password* field
       And I re-enter the new password
@@ -98,7 +99,7 @@ Feature: Admin edit users
 
   Scenario: Admin cannot edit the user account details of a super admin
     When I find a super admin in the users list
-    Then I see that the *Options* dropdown button is disabled for them
+    Then I see that the *⋮* dropdown button is disabled for them
 
   Scenario: Admin can see the label *Admin* next to their full name, not their facility role
     When I scroll to my name in the user list
@@ -106,5 +107,5 @@ Feature: Admin edit users
 
   Scenario: Admin can’t delete themselves
     When I scroll to my name in the user list
-      And I click on the *Options* dropdown button
+      And I click on the *⋮* dropdown button
     Then I see that the *Delete* action is disabled

@@ -93,4 +93,4 @@ Feature: Admin creates users
     Then the page reloads
       And I see the *User created* snackbar message
       And the *Create new user* side panel remains open
-      And the for fields are reset to their default state
+      And all the fields are reset to their default state
