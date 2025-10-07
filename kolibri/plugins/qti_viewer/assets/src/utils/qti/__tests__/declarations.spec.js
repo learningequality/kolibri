@@ -4,7 +4,7 @@
  */
 
 import { QTIVariable, areTypesCompatible, areDeclarationsCompatible } from '../declarations';
-import { BASE_TYPE } from '../values';
+import { BASE_TYPE } from '../../../constants';
 
 const parser = new DOMParser();
 
@@ -78,18 +78,26 @@ describe('QTIVariable', () => {
     expect(areTypesCompatible('string', 'boolean')).toBe(false);
   });
 
-  test('should validate value compatibility', () => {
+  test('should throw TypeError for incompatible values', () => {
     const xmlString =
       '<qti-response-declaration identifier="SCORE" base-type="integer" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
 
-    // Valid values
-    expect(declaration.isValueCompatible(42)).toBe(true);
-    expect(declaration.isValueCompatible(null)).toBe(true);
+    // Valid values should not throw
+    expect(() => {
+      declaration.value = 42;
+    }).not.toThrow();
+    expect(() => {
+      declaration.value = null;
+    }).not.toThrow();
 
-    // Invalid values
-    expect(declaration.isValueCompatible('not a number')).toBe(false);
-    expect(declaration.isValueCompatible([1, 2, 3])).toBe(false); // Array for single cardinality
+    // Invalid values should throw TypeError
+    expect(() => {
+      declaration.value = 'not a number';
+    }).toThrow(TypeError);
+    expect(() => {
+      declaration.value = [1, 2, 3];
+    }).toThrow(TypeError); // Array for single cardinality
   });
 
   test('should parse boolean values correctly', () => {
@@ -153,86 +161,142 @@ describe('QTIVariable', () => {
     expect(declaration.areaMapping.defaultValue).toBe(0);
   });
 
-  test('should validate point values', () => {
+  test('should throw TypeError for invalid point values', () => {
     const xmlString =
       '<qti-response-declaration identifier="POINT" base-type="point" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
 
-    expect(declaration.isValueCompatible([10, 20])).toBe(true);
-    expect(declaration.isValueCompatible([0, 0])).toBe(true);
-    expect(declaration.isValueCompatible([10])).toBe(false); // Wrong length
-    expect(declaration.isValueCompatible('not a point')).toBe(false);
+    expect(() => {
+      declaration.value = [10, 20];
+    }).not.toThrow();
+    expect(() => {
+      declaration.value = [0, 0];
+    }).not.toThrow();
+    expect(() => {
+      declaration.value = [10];
+    }).toThrow(TypeError); // Wrong length
+    expect(() => {
+      declaration.value = 'not a point';
+    }).toThrow(TypeError);
   });
 
-  test('should validate pair values', () => {
+  test('should throw TypeError for invalid pair values', () => {
     const xmlString =
       '<qti-response-declaration identifier="PAIR" base-type="pair" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
 
-    expect(declaration.isValueCompatible(['A', 'B'])).toBe(true);
-    expect(declaration.isValueCompatible(['X', 'Y'])).toBe(true);
-    expect(declaration.isValueCompatible(['A'])).toBe(false); // Wrong length
-    expect(declaration.isValueCompatible('not a pair')).toBe(false);
+    expect(() => {
+      declaration.value = ['A', 'B'];
+    }).not.toThrow();
+    expect(() => {
+      declaration.value = ['X', 'Y'];
+    }).not.toThrow();
+    expect(() => {
+      declaration.value = ['A'];
+    }).toThrow(TypeError); // Wrong length
+    expect(() => {
+      declaration.value = 'not a pair';
+    }).toThrow(TypeError);
   });
 
-  test('should validate directed pair values', () => {
+  test('should throw TypeError for invalid directed pair values', () => {
     const xmlString =
       '<qti-response-declaration identifier="DIRECTED" base-type="directedPair" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
 
-    expect(declaration.isValueCompatible(['A', 'B'])).toBe(true);
-    expect(declaration.isValueCompatible(['X', 'Y'])).toBe(true);
-    expect(declaration.isValueCompatible(['A'])).toBe(false); // Wrong length
-    expect(declaration.isValueCompatible('not a directed pair')).toBe(false);
+    expect(() => {
+      declaration.value = ['A', 'B'];
+    }).not.toThrow();
+    expect(() => {
+      declaration.value = ['X', 'Y'];
+    }).not.toThrow();
+    expect(() => {
+      declaration.value = ['A'];
+    }).toThrow(TypeError); // Wrong length
+    expect(() => {
+      declaration.value = 'not a directed pair';
+    }).toThrow(TypeError);
   });
 
-  test('should validate duration values', () => {
+  test('should throw TypeError for invalid duration values', () => {
     const xmlString =
       '<qti-response-declaration identifier="TIME" base-type="duration" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
 
-    expect(declaration.isValueCompatible(3600)).toBe(true); // 1 hour
-    expect(declaration.isValueCompatible(0)).toBe(true); // 0 seconds
-    expect(declaration.isValueCompatible(-10)).toBe(false); // Negative duration
-    expect(declaration.isValueCompatible('not a duration')).toBe(false);
+    expect(() => {
+      declaration.value = 3600;
+    }).not.toThrow(); // 1 hour
+    expect(() => {
+      declaration.value = 0;
+    }).not.toThrow(); // 0 seconds
+    expect(() => {
+      declaration.value = -10;
+    }).toThrow(TypeError); // Negative duration
+    expect(() => {
+      declaration.value = 'not a duration';
+    }).toThrow(TypeError);
   });
 
-  test('should validate file values', () => {
+  test('should throw TypeError for invalid file values', () => {
     const xmlString =
       '<qti-response-declaration identifier="UPLOAD" base-type="file" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
 
     const file = new File(['test content'], 'test.txt', { type: 'text/plain' });
-    expect(declaration.isValueCompatible(file)).toBe(true);
+    expect(() => {
+      declaration.value = file;
+    }).not.toThrow();
 
-    expect(declaration.isValueCompatible({ data: 'content', mimeType: 'text/plain' })).toBe(false);
-    expect(declaration.isValueCompatible('not a file')).toBe(false);
-    expect(declaration.isValueCompatible(123)).toBe(false);
+    expect(() => {
+      declaration.value = { data: 'content', mimeType: 'text/plain' };
+    }).toThrow(TypeError);
+    expect(() => {
+      declaration.value = 'not a file';
+    }).toThrow(TypeError);
+    expect(() => {
+      declaration.value = 123;
+    }).toThrow(TypeError);
   });
 
-  test('should validate float values correctly', () => {
+  test('should throw TypeError for invalid float values', () => {
     const xmlString =
       '<qti-response-declaration identifier="DECIMAL" base-type="float" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
 
-    expect(declaration.isValueCompatible(3.14)).toBe(true);
-    expect(declaration.isValueCompatible(0.5)).toBe(true);
-    expect(declaration.isValueCompatible(42)).toBe(false); // Integer, not float
-    expect(declaration.isValueCompatible('not a float')).toBe(false);
+    expect(() => {
+      declaration.value = 3.14;
+    }).not.toThrow();
+    expect(() => {
+      declaration.value = 0.5;
+    }).not.toThrow();
+    expect(() => {
+      declaration.value = 42;
+    }).not.toThrow(); // Integer coerced to float, which is valid
+    expect(() => {
+      declaration.value = 'not a float';
+    }).toThrow(TypeError);
   });
 
-  test('should validate URI values', () => {
+  test('should throw TypeError for invalid URI values', () => {
     const xmlString =
       '<qti-response-declaration identifier="LINK" base-type="uri" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
 
-    expect(declaration.isValueCompatible('https://example.com')).toBe(true);
-    expect(declaration.isValueCompatible('file:///path/to/file')).toBe(true);
-    expect(declaration.isValueCompatible(123)).toBe(false);
-    expect(declaration.isValueCompatible(true)).toBe(false);
+    expect(() => {
+      declaration.value = 'https://example.com';
+    }).not.toThrow();
+    expect(() => {
+      declaration.value = 'file:///path/to/file';
+    }).not.toThrow();
+    expect(() => {
+      declaration.value = 123;
+    }).toThrow(TypeError);
+    expect(() => {
+      declaration.value = true;
+    }).toThrow(TypeError);
   });
 
-  test('should validate record cardinality with no field declarations', () => {
+  test('should throw TypeError for invalid record cardinality with no field declarations', () => {
     const xmlString =
       '<qti-response-declaration identifier="RECORD" base-type="string" cardinality="record" />';
     const declaration = createDeclaration(xmlString);
@@ -241,11 +305,21 @@ describe('QTIVariable', () => {
     expect(declaration.fieldDeclarations).toBe(null); // No field declarations defined
 
     // Without field declarations, records should reject any non-empty objects
-    expect(declaration.isValueCompatible({})).toBe(true); // Empty object is valid
-    expect(declaration.isValueCompatible({ key1: 'value1' })).toBe(false); // No field declarations
-    expect(declaration.isValueCompatible('single value')).toBe(false); // Not an object
-    expect(declaration.isValueCompatible(['array', 'value'])).toBe(false); // Array is not valid for record
-    expect(declaration.isValueCompatible(null)).toBe(true); // Null is always compatible
+    expect(() => {
+      declaration.value = {};
+    }).not.toThrow(); // Empty object is valid
+    expect(() => {
+      declaration.value = { key1: 'value1' };
+    }).toThrow(TypeError); // No field declarations
+    expect(() => {
+      declaration.value = 'single value';
+    }).toThrow(TypeError); // Not an object
+    expect(() => {
+      declaration.value = ['array', 'value'];
+    }).toThrow(TypeError); // Array is not valid for record
+    expect(() => {
+      declaration.value = null;
+    }).not.toThrow(); // Null is always compatible
   });
 
   test('should check declaration compatibility', () => {
@@ -288,18 +362,18 @@ describe('Value coercion methods', () => {
     // String coercion - QTI strict: only "true" and "false" (case sensitive)
     expect(declaration.coerceValue('true')).toBe(true);
     expect(declaration.coerceValue('false')).toBe(false);
-    expect(declaration.coerceValue('True')).toBe(false);
-    expect(declaration.coerceValue('False')).toBe(false);
+    expect(() => declaration.coerceValue('True')).toThrow(TypeError);
+    expect(() => declaration.coerceValue('False')).toThrow(TypeError);
 
     // Boolean passthrough
     expect(declaration.coerceValue(true)).toBe(true);
     expect(declaration.coerceValue(false)).toBe(false);
 
-    // Other types
-    expect(declaration.coerceValue(1)).toBe(true);
-    expect(declaration.coerceValue(0)).toBe(false);
+    // Invalid types should throw
+    expect(() => declaration.coerceValue(1)).toThrow(TypeError);
+    expect(() => declaration.coerceValue(0)).toThrow(TypeError);
     expect(declaration.coerceValue('')).toBe(null);
-    expect(declaration.coerceValue('anything')).toBe(false);
+    expect(() => declaration.coerceValue('anything')).toThrow(TypeError);
   });
 
   test('should coerce integer values from multiple input types', () => {
@@ -350,10 +424,10 @@ describe('Value coercion methods', () => {
     expect(declaration.coerceValue('hello')).toBe('hello');
     expect(declaration.coerceValue('')).toBe(null); // Empty string is NULL per QTI spec
 
-    // Other types
-    expect(declaration.coerceValue(42)).toBe('42');
-    expect(declaration.coerceValue(true)).toBe('true');
-    expect(declaration.coerceValue(false)).toBe('false');
+    // Non-string types should throw TypeError
+    expect(() => declaration.coerceValue(42)).toThrow(TypeError);
+    expect(() => declaration.coerceValue(true)).toThrow(TypeError);
+    expect(() => declaration.coerceValue(false)).toThrow(TypeError);
     expect(declaration.coerceValue(null)).toBe(null);
   });
 
@@ -426,10 +500,10 @@ describe('Value coercion methods', () => {
     const file = new File(['test content'], 'test.txt', { type: 'text/plain' });
     expect(declaration.coerceValue(file)).toBe(file);
 
-    // Non-File objects also pass through (validation happens elsewhere)
+    // Non-File objects should throw TypeError
     const notAFile = { data: 'content', mimeType: 'text/plain' };
-    expect(declaration.coerceValue(notAFile)).toBe(notAFile);
-    expect(declaration.coerceValue('not a file')).toBe('not a file');
+    expect(() => declaration.coerceValue(notAFile)).toThrow(TypeError);
+    expect(() => declaration.coerceValue('not a file')).toThrow(TypeError);
   });
 
   test('should handle null and undefined values in coercion', () => {
@@ -448,8 +522,12 @@ describe('Value coercion methods', () => {
       '<qti-response-declaration identifier="MULTI" base-type="string" cardinality="multiple" />',
     );
 
-    const result = declaration.coerceValue(['hello', 42, true, null]);
-    expect(result).toEqual(['hello', '42', 'true', null]);
+    // Only string values should be accepted
+    const result = declaration.coerceValue(['hello', 'world', null]);
+    expect(result).toEqual(['hello', 'world', null]);
+
+    // Non-string values should throw
+    expect(() => declaration.coerceValue(['hello', 42, true, null])).toThrow(TypeError);
   });
 
   test('should coerce single values to arrays for single cardinality', () => {
@@ -545,61 +623,65 @@ describe('Value coercion methods', () => {
     const declaration = createDeclaration(xmlString);
 
     // Valid values matching exactly the defined field specifications
-    expect(
-      declaration.isValueCompatible({
+    expect(() => {
+      declaration.value = {
         name: 'John Doe',
         score: 95,
         passed: true,
-      }),
-    ).toBe(true);
+      };
+    }).not.toThrow();
 
     // Partial object with only defined fields should be valid
-    expect(
-      declaration.isValueCompatible({
+    expect(() => {
+      declaration.value = {
         name: 'Jane Smith',
         score: 87,
-      }),
-    ).toBe(true);
+      };
+    }).not.toThrow();
 
     // Invalid values - wrong types for specific fields
-    expect(
-      declaration.isValueCompatible({
+    expect(() => {
+      declaration.value = {
         name: 123, // Should be string
         score: 95,
         passed: true,
-      }),
-    ).toBe(false);
+      };
+    }).toThrow(TypeError);
 
-    expect(
-      declaration.isValueCompatible({
+    expect(() => {
+      declaration.value = {
         name: 'John Doe',
         score: 'not a number', // Should be integer
         passed: true,
-      }),
-    ).toBe(false);
+      };
+    }).toThrow(TypeError);
 
-    expect(
-      declaration.isValueCompatible({
+    expect(() => {
+      declaration.value = {
         name: 'John Doe',
         score: 95,
         passed: 'not a boolean', // Should be boolean
-      }),
-    ).toBe(false);
+      };
+    }).toThrow(TypeError);
 
     // Invalid - field not defined in the declaration
-    expect(
-      declaration.isValueCompatible({
+    expect(() => {
+      declaration.value = {
         name: 'John Doe',
         score: 95,
         undefinedField: 'this field was not declared', // Not in field declarations
-      }),
-    ).toBe(false);
+      };
+    }).toThrow(TypeError);
 
     // Invalid - array instead of object
-    expect(declaration.isValueCompatible(['name', 'John', 'score', 95])).toBe(false);
+    expect(() => {
+      declaration.value = ['name', 'John', 'score', 95];
+    }).toThrow(TypeError);
 
     // Empty object should be valid (no fields to validate)
-    expect(declaration.isValueCompatible({})).toBe(true);
+    expect(() => {
+      declaration.value = {};
+    }).not.toThrow();
   });
 
   test('should coerce values strictly using defined field declarations', () => {
@@ -614,30 +696,36 @@ describe('Value coercion methods', () => {
     `;
     const declaration = createDeclaration(xmlString);
 
-    // Test coercion with defined fields only
+    // Test coercion with defined fields only - non-string name should throw
+    expect(() =>
+      declaration.coerceValue({
+        name: 123, // Non-string should throw TypeError
+        score: '95',
+        passed: 'true',
+      }),
+    ).toThrow(TypeError);
+
+    // Valid coercion
     expect(
       declaration.coerceValue({
-        name: 123, // Will be coerced to string via field declaration
+        name: 'John', // String value
         score: '95', // Will be coerced to integer via field declaration
         passed: 'true', // Will be coerced to boolean via field declaration
       }),
     ).toEqual({
-      name: '123',
+      name: 'John',
       score: 95,
       passed: true,
     });
 
-    // Test partial object coercion
-    expect(
+    // Test partial object coercion - non-string name should throw
+    expect(() =>
       declaration.coerceValue({
-        name: 789,
+        name: 789, // Non-string should throw TypeError
         score: '92',
         // passed field omitted - should be fine
       }),
-    ).toEqual({
-      name: '789',
-      score: 92,
-    });
+    ).toThrow(TypeError);
 
     // Test that undefined fields cause errors during coercion
     expect(() =>
@@ -677,30 +765,30 @@ describe('Value coercion methods', () => {
     });
 
     // Test validation with complex types
-    expect(
-      declaration.isValueCompatible({
+    expect(() => {
+      declaration.value = {
         studentName: 'Jane',
         selectedChoices: ['B', 'D', 'E'],
         coordinates: [5, 15],
-      }),
-    ).toBe(true);
+      };
+    }).not.toThrow();
 
     // Test invalid complex types
-    expect(
-      declaration.isValueCompatible({
+    expect(() => {
+      declaration.value = {
         studentName: 'Jane',
         selectedChoices: 'B', // Should be array for multiple cardinality
         coordinates: [5, 15],
-      }),
-    ).toBe(false);
+      };
+    }).toThrow(TypeError);
 
-    expect(
-      declaration.isValueCompatible({
+    expect(() => {
+      declaration.value = {
         studentName: 'Jane',
         selectedChoices: ['B', 'D'],
         coordinates: [5], // Should be array of length 2 for point
-      }),
-    ).toBe(false);
+      };
+    }).toThrow(TypeError);
   });
 });
 

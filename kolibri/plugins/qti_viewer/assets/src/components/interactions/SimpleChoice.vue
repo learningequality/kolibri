@@ -74,7 +74,8 @@
 <style lang="scss" scoped>
 
   .qti-simple-choice {
-    padding: 8px;
+    position: relative;
+    padding: 8px 8px 8px 52px;
     margin: 4px;
     cursor: pointer;
     border: 1px solid transparent;
@@ -86,17 +87,19 @@
     }
 
     &::before {
+      position: absolute;
+      top: 50%;
+      left: 8px;
       box-sizing: border-box;
-      display: inline-block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 32px;
       height: 32px;
-      margin-right: 12px;
       font-size: 14px;
       font-weight: bold;
-      line-height: 28px;
-      text-align: center;
-      vertical-align: middle;
       border-radius: 50%;
+      transform: translateY(-50%);
     }
   }
 
