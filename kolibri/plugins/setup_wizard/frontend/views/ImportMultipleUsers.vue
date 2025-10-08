@@ -5,6 +5,7 @@
     :step="step"
     :steps="steps"
     :showBackArrow="true"
+    :backArrowDisabled="learnersBeingImported.length > 0"
     :eventOnGoBack="backArrowEvent"
     :title="selectAUser$()"
     :description="facilityDescription"
@@ -52,6 +53,7 @@
     <template #buttons>
       <div></div>
     </template>
+    <GlobalSnackbar />
   </OnboardingStepBase>
 
 </template>
@@ -65,8 +67,10 @@
   import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
   import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
   import { DemographicConstants } from 'kolibri/constants';
-  import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
+  import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import UserTable from 'kolibri-common/components/UserTable';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
+  import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
   import { FooterMessageTypes, SoudQueue } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 
@@ -85,14 +89,19 @@
       OnboardingStepBase,
       PaginatedListContainer,
       UserTable,
+      GlobalSnackbar,
     },
     mixins: [commonCoreStrings, commonSyncElements],
     setup() {
-      const { selectAUser$, importedLabel$ } = lodUsersManagementStrings;
+      const { selectAUser$, importedLabel$, importUserError$ } = lodUsersManagementStrings;
+      const { createSnackbar } = useSnackbar();
 
       return {
+        createSnackbar,
+
         selectAUser$,
         importedLabel$,
+        importUserError$,
       };
     },
     data() {
@@ -151,6 +160,9 @@
     beforeMount() {
       this.isPolling = true;
       this.pollImportTask();
+      this.learnersBeingImported = this.wizardService.state.context.usersBeingImported.map(
+        u => u.id,
+      );
     },
     methods: {
       importedLearners() {
@@ -159,14 +171,20 @@
       pollImportTask() {
         TaskResource.list({ queue: SoudQueue }).then(tasks => {
           if (tasks.length) {
+            let isFailingTasks = false;
             tasks.forEach(task => {
-              if (task.status === TaskStatuses.COMPLETED) {
-                // Remove completed user id from 'being imported'
+              if ([TaskStatuses.COMPLETED, TaskStatuses.FAILED].includes(task.status)) {
+                // Remove completed/failed user id from 'being imported'
                 const taskUserId = task.extra_metadata.user_id;
                 this.learnersBeingImported = this.learnersBeingImported.filter(
                   id => id != taskUserId,
                 );
-
+                this.wizardService.send({
+                  type: 'REMOVE_USER_BEING_IMPORTED',
+                  value: taskUserId,
+                });
+              }
+              if (task.status === TaskStatuses.COMPLETED) {
                 // Update the wizard context to know this user has been imported - only if they
                 // haven't already been added to the list (ie, imported by other means)
                 const taskUsername = task.extra_metadata.username;
@@ -186,8 +204,14 @@
                     value: taskUsername,
                   });
                 }
+              } else if (task.status === TaskStatuses.FAILED) {
+                isFailingTasks = true;
               }
             });
+            if (isFailingTasks) {
+              this.createSnackbar(this.importUserError$());
+              TaskResource.clearAll(SoudQueue);
+            }
           }
         });
         if (this.isPolling) {
@@ -196,11 +220,11 @@
           }, 2000);
         }
       },
-      startImport(learner) {
+      async startImport(learner) {
         // Push the learner into being imported, we'll remove it if we get an error later on
         this.learnersBeingImported.push(learner.id);
 
-        const task_name = 'kolibri.core.auth.tasks.peeruserimport';
+        const task_name = TaskTypes.IMPORTLODUSER;
         const params = {
           type: task_name,
           ...this.wizardService.state.context.remoteAdmin,
@@ -216,9 +240,21 @@
             value: { username: learner.username, password: DemographicConstants.NOT_SPECIFIED },
           });
         }
-        TaskResource.startTask(params).catch(() => {
+        try {
+          const newTask = await TaskResource.startTask(params);
+          this.wizardService.send({
+            type: 'ADD_USER_BEING_IMPORTED',
+            value: {
+              id: learner.id,
+              full_name: learner.full_name,
+              username: learner.username,
+              taskId: newTask.id,
+            },
+          });
+        } catch (error) {
+          this.createSnackbar(this.importUserError$());
           this.learnersBeingImported = this.learnersBeingImported.filter(id => id != learner.id);
-        });
+        }
       },
       isImported(learner) {
         return this.importedLearners().find(u => u === learner.username);
