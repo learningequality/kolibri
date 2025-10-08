@@ -7,6 +7,7 @@ import uuid
 from threading import Thread
 
 import click
+from django.db.utils import OperationalError
 from django.utils.functional import SimpleLazyObject
 from django.utils.module_loading import import_string
 from sqlalchemy import create_engine
@@ -383,3 +384,19 @@ def fd_safe_executor(fds_per_task=2):
         )
 
     return executor(max_workers=max_workers)
+
+
+class DatabaseLockedError(OperationalError):
+    """
+    Custom exception that is only raised when the underlying error
+    is an OperationalError whose message contains 'database is locked'.
+    """
+
+    def __init__(self, *args, **kwargs):
+        error_message = str(args[0]) if args else ""
+
+        if "database is locked" not in error_message.lower():
+            # If the condition is not met, re-raise the original error.
+            raise OperationalError(*args, **kwargs)
+
+        super().__init__(*args, **kwargs)

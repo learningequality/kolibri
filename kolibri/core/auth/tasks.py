@@ -7,6 +7,8 @@ from django.core.files.storage import default_storage
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.utils import timezone
+from morango.errors import MorangoError
+from requests.exceptions import HTTPError
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import ValidationError
@@ -41,6 +43,7 @@ from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.permissions import IsAdminForJob
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import NotProvisioned
+from kolibri.core.tasks.utils import DatabaseLockedError
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
 from kolibri.utils.time_utils import naive_utc_datetime
@@ -607,6 +610,7 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     permission_classes=[IsSuperAdmin() | NotProvisioned()],
     status_fn=status_fn,
     long_running=True,
+    retry_on=[DatabaseLockedError, MorangoError, HTTPError],
 )
 def peeruserimport(command, **kwargs):
     call_command(command, **kwargs)

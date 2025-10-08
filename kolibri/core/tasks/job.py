@@ -4,6 +4,7 @@ import logging
 import traceback
 import uuid
 from collections import namedtuple
+from datetime import timedelta
 
 from kolibri.core.tasks.constants import (  # noqa F401 - imported for backwards compatibility
     Priority,
@@ -101,6 +102,13 @@ def default_status_text(job):
 
 ALLOWED_RETRY_IN_KWARGS = {"priority", "repeat", "interval", "retry_interval"}
 
+RETRY_ON_DELAY = timedelta(
+    seconds=5
+)  # Delay before retrying a job that failed due to a retryable exception
+MAX_RETRIES = (
+    3  # Maximum number of retries for a job that failed due to a retryable exception
+)
+
 
 class Job:
     """
@@ -129,6 +137,7 @@ class Job:
         "facility_id",
         "func",
         "long_running",
+        "retry_on",
     }
 
     def to_json(self):
@@ -169,6 +178,7 @@ class Job:
         kwargs["track_progress"] = job.track_progress
         kwargs["cancellable"] = job.cancellable
         kwargs["long_running"] = job.long_running
+        kwargs["retry_on"] = job.retry_on.copy()
         kwargs["extra_metadata"] = job.extra_metadata.copy()
         kwargs["facility_id"] = job.facility_id
         return cls(job.func, **kwargs)
@@ -190,6 +200,7 @@ class Job:
         total_progress=0,
         result=None,
         long_running=False,
+        retry_on=None,
     ):
         """
         Create a new Job that will run func given the arguments passed to Job(). If the track_progress keyword parameter
@@ -231,6 +242,7 @@ class Job:
         self.kwargs = kwargs or {}
         self._storage = None
         self.func = callable_to_import_path(func)
+        self.retry_on = [callable_to_import_path(exc) for exc in (retry_on or [])]
 
     def _check_storage_attached(self):
         if self._storage is None:
@@ -362,6 +374,8 @@ class Job:
 
         args, kwargs = copy.copy(self.args), copy.copy(self.kwargs)
 
+        should_retry = False
+
         try:
             # First check whether the job has been cancelled
             self.check_for_cancel()
@@ -370,6 +384,7 @@ class Job:
         except UserCancelledError:
             self.storage.mark_job_as_canceled(self.job_id)
         except Exception as e:
+            should_retry = self.should_retry(e)
             # If any error occurs, mark the job as failed and save the exception
             traceback_str = traceback.format_exc()
             e.traceback = traceback_str
@@ -379,9 +394,25 @@ class Job:
             self.storage.mark_job_as_failed(self.job_id, e, traceback_str)
 
         self.storage.reschedule_finished_job_if_needed(
-            self.job_id, delay=self._retry_in_delay, **self._retry_in_kwargs
+            self.job_id,
+            delay=RETRY_ON_DELAY if should_retry else self._retry_in_delay,
+            **self._retry_in_kwargs,
         )
         setattr(current_state_tracker, "job", None)
+
+    def should_retry(self, exception):
+        retries = self.extra_metadata.get("retries", 0) + 1
+        self.extra_metadata["retries"] = retries
+        self.save_meta()
+        if retries > MAX_RETRIES:
+            return False
+
+        for retry_exception in self.retry_on:
+            exc = import_path_to_callable(retry_exception)
+            if isinstance(exception, exc):
+                logger.info(f"Retrying job {self.job_id} due to exception {exception}")
+                return True
+        return False
 
     @property
     def task(self):

@@ -159,6 +159,7 @@ class RegisteredTask:
         permission_classes=None,
         long_running=False,
         status_fn=None,
+        retry_on=None,
     ):
         """
         :param func: Function to be wrapped as a Registered task
@@ -229,6 +230,7 @@ class RegisteredTask:
         self.track_progress = track_progress
         self.long_running = long_running
         self._status_fn = status_fn
+        self.retry_on = self._validate_retry_on(retry_on)
 
         # Make this wrapper object look seamlessly like the wrapped function
         update_wrapper(self, func)
@@ -257,6 +259,17 @@ class RegisteredTask:
                 yield permission_class()
             else:
                 yield permission_class
+
+    def _validate_retry_on(self, retry_on):
+        if retry_on is None:
+            return []
+
+        if not isinstance(retry_on, list):
+            raise TypeError("retry_on must be a list of exceptions")
+        for item in retry_on:
+            if not issubclass(item, Exception):
+                raise TypeError("Each item in retry_on must be an Exception subclass")
+        return retry_on
 
     def check_job_permissions(self, user, job, view):
         for permission in self.permissions:
@@ -395,6 +408,7 @@ class RegisteredTask:
             cancellable=job_kwargs.pop("cancellable", self.cancellable),
             track_progress=job_kwargs.pop("track_progress", self.track_progress),
             long_running=job_kwargs.pop("long_running", self.long_running),
+            retry_on=self.retry_on,
             **job_kwargs
         )
         return job_obj
