@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { events, MessageStatuses } from './hashiBase';
+import { events, MessageStatuses } from './base';
 
 function isUndefined(x) {
   return typeof x === 'undefined';

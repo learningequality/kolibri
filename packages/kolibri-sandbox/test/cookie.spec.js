@@ -6,7 +6,7 @@ const emptyData = {
   byPath: {},
 };
 
-describe('The hashi cookie shim', () => {
+describe('The cookie shim', () => {
   let cookie;
   let mediator;
   beforeEach(() => {

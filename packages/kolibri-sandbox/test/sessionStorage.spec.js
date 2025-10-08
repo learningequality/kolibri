@@ -1,7 +1,7 @@
 import Mediator from '../src/mediator';
 import SessionStorage from '../src/sessionStorage';
 
-describe('SessionStorage hashi shim', () => {
+describe('SessionStorage shim', () => {
   let sessionStorage;
   let mediator;
   beforeEach(() => {

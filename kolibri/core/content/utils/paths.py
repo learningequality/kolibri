@@ -256,7 +256,7 @@ def get_file_checksums_url(channel_id, baseurl, version="1"):
     )
 
 
-HASHI = "hashi/"
+SANDBOX = "sandbox/"
 
 ZIPCONTENT = "zipcontent/"
 
@@ -287,26 +287,28 @@ def get_zip_content_base_path():
     return "{}{}".format(get_content_url(zip_content_path_prefix()), ZIPCONTENT)
 
 
-HASHI_FILENAME = None
+SANDBOX_FILENAME = None
 
 
-def get_hashi_html_filename():
-    global HASHI_FILENAME
-    if HASHI_FILENAME is None or getattr(settings, "DEVELOPER_MODE", None):
+def get_sandbox_html_filename():
+    global SANDBOX_FILENAME
+    if SANDBOX_FILENAME is None or getattr(settings, "DEVELOPER_MODE", None):
         with io.open(
             os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "../build/hashi_filename")
+                os.path.join(os.path.dirname(__file__), "../build/sandbox_filename")
             ),
             mode="r",
             encoding="utf-8",
         ) as f:
-            HASHI_FILENAME = f.read().strip()
-    return HASHI_FILENAME
+            SANDBOX_FILENAME = f.read().strip()
+    return SANDBOX_FILENAME
 
 
 def zip_content_static_root():
     return join_url(get_content_url(zip_content_path_prefix()), "static/")
 
 
-def get_hashi_path():
-    return "{}{}{}".format(zip_content_static_root(), HASHI, get_hashi_html_filename())
+def get_sandbox_path():
+    return "{}{}{}".format(
+        zip_content_static_root(), SANDBOX, get_sandbox_html_filename()
+    )

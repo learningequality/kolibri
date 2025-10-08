@@ -1,27 +1,27 @@
 import 'mutationobserver-shim';
-import Hashi from '../src/iframeClient';
-import { events, nameSpace } from '../src/hashiBase';
+import Sandbox from '../src/iframeClient';
+import { events, nameSpace } from '../src/base';
 
-describe('Hashi iframeClient', () => {
-  let hashi;
+describe('Sandbox iframeClient', () => {
+  let sandbox;
   beforeEach(() => {
     window.name = nameSpace;
-    hashi = new Hashi();
+    sandbox = new Sandbox();
   });
   describe('constructor method', () => {
     it('should bind a listener to a readycheck event to send a ready event', () => {
-      hashi.mediator.sendMessage = jest.fn();
+      sandbox.mediator.sendMessage = jest.fn();
       return new Promise(resolve => {
-        hashi.mediator.registerMessageHandler({
+        sandbox.mediator.registerMessageHandler({
           nameSpace,
           event: events.READYCHECK,
           callback: () => {
             resolve();
           },
         });
-        hashi.mediator.sendLocalMessage({ nameSpace, event: events.READYCHECK });
+        sandbox.mediator.sendLocalMessage({ nameSpace, event: events.READYCHECK });
       }).then(() => {
-        expect(hashi.mediator.sendMessage).toHaveBeenCalledWith({
+        expect(sandbox.mediator.sendMessage).toHaveBeenCalledWith({
           nameSpace,
           event: events.IFRAMEREADY,
           data: true,
@@ -29,21 +29,21 @@ describe('Hashi iframeClient', () => {
       });
     });
     it('should bind a listener to a ready event to call the createIframe callback', () => {
-      expect(hashi.mediator.__messageHandlers[nameSpace][events.MAINREADY].length).toBe(1);
+      expect(sandbox.mediator.__messageHandlers[nameSpace][events.MAINREADY].length).toBe(1);
     });
     it('should call the createIframe method when the main ready event is triggered', () => {
       const createIframe = jest.fn();
-      hashi.mediator.__messageHandlers[nameSpace][events.MAINREADY] = [createIframe];
-      hashi.mediator.sendMessage = jest.fn();
+      sandbox.mediator.__messageHandlers[nameSpace][events.MAINREADY] = [createIframe];
+      sandbox.mediator.sendMessage = jest.fn();
       return new Promise(resolve => {
-        hashi.mediator.registerMessageHandler({
+        sandbox.mediator.registerMessageHandler({
           nameSpace,
           event: events.MAINREADY,
           callback: () => {
             resolve();
           },
         });
-        hashi.mediator.sendLocalMessage({ nameSpace, event: events.MAINREADY });
+        sandbox.mediator.sendLocalMessage({ nameSpace, event: events.MAINREADY });
       }).then(() => {
         expect(createIframe).toHaveBeenCalled();
       });

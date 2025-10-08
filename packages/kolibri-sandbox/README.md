@@ -1,25 +1,25 @@
-Kolibri Hashi: HTML5 App Bridge Library
+Kolibri Sandbox: HTML5 App Bridge Library
 ========================================
 
 About
 -----
 
-Hashi is a library to allow for mocking of various HTML5 APIs inside a sandboxed iframe. In addition, it leverages the postMessage API to allow for controlled communication and data persistence from inside the sandboxed iframe. This means that HTML5 apps within Kolibri can have persistent state that is backed by the ContentSummaryLog for that particular user.
+Kolibri Sandbox is a library to allow for mocking of various HTML5 APIs inside a sandboxed iframe. In addition, it leverages the postMessage API to allow for controlled communication and data persistence from inside the sandboxed iframe. This means that HTML5 apps within Kolibri can have persistent state that is backed by the ContentSummaryLog for that particular user.
 
-The inner Hashi mocks the localStorage, sessionStorage, and document.cookie interfaces inside the iframe, allowing HTML5 apps contained therein to access them as if they were not sandboxed, but still safely.
+The code inside the iframe mocks the localStorage, sessionStorage, and document.cookie interfaces inside the iframe, allowing HTML5 apps contained therein to access them as if they were not sandboxed, but still safely.
 
-Once this has been setup, it sends a ready event to any external Hashi that may be listening that it is ready. Once it receives a return ready event, it loads up the actual HTML for the page and writes that into the document.
+Once this has been setup, it sends a ready event to the external code that may be listening that it is ready. Once it receives a return ready event, it loads up the actual HTML for the page and writes that into the document.
 
-This inner Hashi then communicates with a hashi object external to the iframe that is setup by the HTML5AppRenderer, that then communicates changes in persistent state to be saved into the extraFields object on the ContentSummaryLog.
+This inner code then communicates with an object external to the iframe that is setup by the HTML5AppRenderer, that then communicates changes in persistent state to be saved into the extraFields object on the ContentSummaryLog.
 
 Getting Started
 ----------------
 
-Step 1: Install Hashi package deps (run from Kolibri root)
+Step 1: Install package deps (run from Kolibri root)
 
 `yarn`
 
-Step 2: Build Kolibri and hashi
+Step 2: Build Kolibri and kolibri-sandbox
 
 `yarn run build`
 
@@ -123,7 +123,7 @@ In `mainClient.js`, there are listeners registered for all of the core event typ
 The listeners for "outgoing" messages are all in `CustomContentRenderer.vue`, the Vue component that renders the full screen view of the HTML5 App and manages requests to the kolibri backend.
 
 ```
-    this.hashi.on(events.MODELREQUESTED, message => {
+    this.sandbox.on(events.MODELREQUESTED, message => {
     this.fetchContentModel.call(this, message);
     });
 ```
@@ -140,7 +140,7 @@ Here, when the event is omitted, the component uses existing kolibri helper func
         return createReturnMsg({ message, err });
         })
         .then(newMsg => {
-        this.hashi.mediator.sendMessage(newMsg);
+        this.sandbox.mediator.sendMessage(newMsg);
         });
     },
 ```
@@ -152,7 +152,7 @@ function createReturnMsg({ message, data, err }) {
     // Infer status from data or err
     const status = data ? MessageStatuses.SUCCESS : MessageStatuses.FAILURE;
     return {
-      nameSpace: 'hashi',
+      nameSpace: 'sandbox',
       event: events.DATARETURNED,
       data: {
         message_id: message.message_id,

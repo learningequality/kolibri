@@ -4,7 +4,7 @@ import Cookie from './cookie';
 import H5P from './H5P/H5PInterface';
 import SCORM from './SCORM';
 import xAPI from './xAPI/xAPIInterface';
-import { events, nameSpace, DataTypes } from './hashiBase';
+import { events, nameSpace, DataTypes } from './base';
 import Kolibri from './kolibri';
 
 /*

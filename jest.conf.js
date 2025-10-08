@@ -9,7 +9,7 @@ module.exports = Object.assign(baseConfig, {
     'kolibri/**/assets/src/**/*.{js,vue}',
     '!**/node_modules/**',
     'kolibri/**/**/assets/src/**/*.{js,vue}',
-    'packages/hashi/src/*.js',
+    'packages/kolibri-sandbox/src/*.js',
     'packages/kolibri-tools/lib/src/*.js',
   ],
 });

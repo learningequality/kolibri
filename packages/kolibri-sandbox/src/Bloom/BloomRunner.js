@@ -1,6 +1,6 @@
 import ZipFile from 'kolibri-zip';
 import { DOMMapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
-import { events } from '../hashiBase';
+import { events } from '../base';
 
 const domParser = new DOMParser();
 

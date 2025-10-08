@@ -4,7 +4,7 @@
  */
 import BaseShim from './baseShim';
 import Mediator from './mediator';
-import { events, nameSpace, DataTypes } from './hashiBase';
+import { events, nameSpace, DataTypes } from './base';
 
 /**
  * Type definition for Language metadata

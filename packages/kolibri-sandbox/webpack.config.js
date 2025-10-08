@@ -14,7 +14,7 @@ Plugin.prototype.apply = function (compiler) {
       HtmlWebpackPlugin.getHooks(compilation).afterEmit.tapAsync('HashiWritePlugin', (data, cb) => {
         var outputFilename = path.resolve(
           __dirname,
-          '../../kolibri/core/content/build/hashi_filename',
+          '../../kolibri/core/content/build/sandbox_filename',
         );
         fs.mkdirSync(path.dirname(outputFilename), { recursive: true });
 
@@ -29,9 +29,9 @@ Plugin.prototype.apply = function (compiler) {
 module.exports = {
   entry: path.resolve(__dirname, './src/iframe.js'),
   output: {
-    filename: 'hashiframe-[contenthash].js',
+    filename: 'sandbox-[contenthash].js',
     chunkFilename: '[name]-[contenthash].bundle.js',
-    path: path.resolve(__dirname, '../../kolibri/core/content/static/hashi'),
+    path: path.resolve(__dirname, '../../kolibri/core/content/static/sandbox'),
   },
   mode: 'none',
   module: {
@@ -51,7 +51,7 @@ module.exports = {
   plugins: [
     new Plugin(),
     new HtmlWebpackPlugin({
-      filename: 'hashi-[fullhash].html',
+      filename: 'sandbox-[fullhash].html',
       template: 'src/iframe.html',
     }),
   ],

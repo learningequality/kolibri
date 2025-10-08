@@ -1,4 +1,4 @@
-import { events } from './hashiBase';
+import { events } from './base';
 
 export default class BaseShim {
   constructor(mediator) {

@@ -41,4 +41,4 @@ export const MessageStatuses = {
   SUCCESS: 'success',
 };
 
-export const nameSpace = 'hashi';
+export const nameSpace = 'sandbox';

@@ -10,7 +10,7 @@ from django_js_reverse.core import generate_json
 
 import kolibri
 from kolibri.core.content.utils.paths import get_content_storage_url
-from kolibri.core.content.utils.paths import get_hashi_path
+from kolibri.core.content.utils.paths import get_sandbox_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
 from kolibri.core.content.utils.paths import get_zip_content_config
 from kolibri.core.device.utils import allow_other_browsers_to_connect
@@ -78,7 +78,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
                     baseurl=OPTIONS["Deployment"]["URL_PATH_PREFIX"]
                 ),
                 "__zipContentUrl": get_zip_content_base_path(),
-                "__hashiUrl": get_hashi_path(),
+                "__sandboxUrl": get_sandbox_path(),
                 "__zipContentOrigin": zip_content_origin,
                 "__zipContentPort": zip_content_port,
             }

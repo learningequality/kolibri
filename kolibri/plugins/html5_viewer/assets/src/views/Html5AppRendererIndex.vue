@@ -58,7 +58,7 @@
   import urls from 'kolibri/urls';
   import { now } from 'kolibri/utils/serverClock';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
-  import Hashi from 'hashi';
+  import Sandbox from 'kolibri-sandbox';
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
 
   const defaultContentHeight = '500px';
@@ -88,7 +88,7 @@
     },
     computed: {
       rooturl() {
-        return urls.hashi();
+        return urls.sandbox();
       },
       iframeWidth() {
         return (this.options && this.options.width) || 'auto';
@@ -125,33 +125,33 @@
     },
     watch: {
       userData(newValue) {
-        if (newValue && this.hashi) {
-          this.hashi.updateData({ userData: newValue });
+        if (newValue && this.sandbox) {
+          this.sandbox.updateData({ userData: newValue });
         }
       },
     },
     mounted() {
-      this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
-      this.hashi.onStateUpdate(data => {
+      this.sandbox = new Sandbox({ iframe: this.$refs.iframe, now });
+      this.sandbox.onStateUpdate(data => {
         this.$emit('updateContentState', data);
-        const hashiProgress = this.hashi.getProgress();
-        if (hashiProgress !== null && !this.forceDurationBasedProgress) {
-          this.$emit('updateProgress', hashiProgress);
-          if (hashiProgress >= 1) {
+        const progress = this.sandbox.getProgress();
+        if (progress !== null && !this.forceDurationBasedProgress) {
+          this.$emit('updateProgress', progress);
+          if (progress >= 1) {
             this.$emit('finished');
           }
         }
       });
-      this.hashi.on('navigateTo', message => {
+      this.sandbox.on('navigateTo', message => {
         this.$emit('navigateTo', message);
       });
-      this.hashi.on(this.hashi.events.RESIZE, scrollHeight => {
+      this.sandbox.on(this.sandbox.events.RESIZE, scrollHeight => {
         this.iframeHeight = scrollHeight;
       });
-      this.hashi.on(this.hashi.events.LOADING, loading => {
+      this.sandbox.on(this.sandbox.events.LOADING, loading => {
         this.loading = loading;
       });
-      this.hashi.on(this.hashi.events.ERROR, err => {
+      this.sandbox.on(this.sandbox.events.ERROR, err => {
         this.loading = false;
         this.reportError(err);
       });
@@ -169,7 +169,7 @@
         );
       }
 
-      this.hashi.initialize(
+      this.sandbox.initialize(
         (this.extraFields && this.extraFields.contentState) || {},
         this.userData,
         storageUrl,
@@ -192,8 +192,8 @@
         if (this.forceDurationBasedProgress) {
           progress = this.durationBasedProgress;
         } else {
-          const hashiProgress = this.hashi ? this.hashi.getProgress() : null;
-          progress = hashiProgress === null ? this.durationBasedProgress : hashiProgress;
+          const sandboxProgress = this.sandbox ? this.sandbox.getProgress() : null;
+          progress = sandboxProgress === null ? this.durationBasedProgress : sandboxProgress;
         }
         this.$emit('updateProgress', progress);
         if (progress >= 1) {

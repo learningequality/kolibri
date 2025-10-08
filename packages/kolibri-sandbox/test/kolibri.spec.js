@@ -1,7 +1,8 @@
 import Mediator from '../src/mediator';
 import Kolibri from '../src/kolibri';
+import { nameSpace } from '../src/base';
 
-describe('the kolibri hashi shim', () => {
+describe('the kolibri shim', () => {
   let kolibri, mediator;
   beforeEach(() => {
     mediator = new Mediator(window);
@@ -29,7 +30,7 @@ describe('the kolibri hashi shim', () => {
     mockMessage = {
       data: { dataType: 'Model', id: 'abc123' },
       event: 'datarequested',
-      nameSpace: 'hashi',
+      nameSpace,
     };
     response = { node: { id: 'abc123' } };
     beforeEach(function () {
@@ -59,7 +60,7 @@ describe('the kolibri hashi shim', () => {
       mockMessage = {
         data: { dataType: 'Collection', options: options },
         event: 'datarequested',
-        nameSpace: 'hashi',
+        nameSpace,
       };
       mockMediatorPromise = jest
         .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
@@ -98,7 +99,7 @@ describe('the kolibri hashi shim', () => {
       mockMessage = {
         data: {},
         event: 'context',
-        nameSpace: 'hashi',
+        nameSpace,
       };
       mockMediatorPromise = jest
         .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
@@ -137,7 +138,7 @@ describe('the kolibri hashi shim', () => {
       });
       expect(sendMessageAwaitReplySpy).toHaveBeenCalledWith({
         event: 'themechanged',
-        nameSpace: 'hashi',
+        nameSpace,
         data: {
           appBarColor: 'pink',
           textColor: 'blue',
@@ -151,7 +152,7 @@ describe('the kolibri hashi shim', () => {
       mockMessage = {
         data: {},
         event: 'context',
-        nameSpace: 'hashi',
+        nameSpace,
       };
       mockMediatorPromise = jest
         .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
@@ -176,7 +177,7 @@ describe('the kolibri hashi shim', () => {
           options,
           dataType: 'SearchResult',
         },
-        nameSpace: 'hashi',
+        nameSpace,
       });
     });
   });

@@ -15,7 +15,7 @@ describe('UrlResolver', () => {
       __mediaUrl: '/media/',
       __contentUrl: '/content/',
       __zipContentUrl: '/zipcontent/',
-      __hashiUrl: '/hashi/',
+      __sandboxUrl: '/sandbox/',
       __zipContentOrigin: 'http://localhost',
       __zipContentPort: '8000',
       urls: {
@@ -103,8 +103,8 @@ describe('UrlResolver', () => {
       expect(Urls.media('images/logo.png')).toBe('http://kolibri.time/media/images/logo.png');
     });
 
-    test('generates hashi URLs', () => {
-      expect(Urls.hashi()).toBe('http://localhost:8000/hashi/');
+    test('generates sandbox URLs', () => {
+      expect(Urls.sandbox()).toBe('http://localhost:8000/sandbox/');
     });
 
     test('generates zip content URLs', () => {

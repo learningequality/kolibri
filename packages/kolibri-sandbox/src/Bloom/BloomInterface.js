@@ -1,5 +1,5 @@
 import BaseShim from '../baseShim';
-import { events, nameSpace } from '../hashiBase';
+import { events, nameSpace } from '../base';
 
 export default class Bloom extends BaseShim {
   constructor(mediator) {

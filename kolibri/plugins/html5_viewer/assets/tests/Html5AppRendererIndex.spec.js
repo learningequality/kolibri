@@ -10,7 +10,7 @@ describe('recordProgress', () => {
       $emit: jest.fn(),
       durationBasedProgress: 0.1,
       pollProgress: jest.fn(),
-      hashi: {
+      sandbox: {
         getProgress() {
           return 0.1;
         },
@@ -18,8 +18,8 @@ describe('recordProgress', () => {
     };
   });
 
-  it('should be able to calculate progress using time-based tracking when hashiProgress is null', () => {
-    context.hashi = null;
+  it('should be able to calculate progress using time-based tracking when progress is null', () => {
+    context.sandbox = null;
     methods.recordProgress.call(context);
 
     expect(context.$emit.mock.calls[0][0]).toBe('updateProgress');

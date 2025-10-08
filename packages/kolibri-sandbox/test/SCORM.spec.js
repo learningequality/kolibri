@@ -2,7 +2,7 @@ import flatMap from 'lodash/flatMap';
 import Mediator from '../src/mediator';
 import SCORM from '../src/SCORM';
 
-describe('SCORM hashi shim', () => {
+describe('SCORM shim', () => {
   let scorm;
   let mediator;
   beforeEach(() => {

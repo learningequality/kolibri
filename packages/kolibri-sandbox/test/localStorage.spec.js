@@ -1,8 +1,8 @@
 import Mediator from '../src/mediator';
 import LocalStorage from '../src/localStorage';
-import { events } from '../src/hashiBase';
+import { events } from '../src/base';
 
-describe('LocalStorage hashi shim', () => {
+describe('LocalStorage shim', () => {
   let localStorage;
   let mediator;
   beforeEach(() => {

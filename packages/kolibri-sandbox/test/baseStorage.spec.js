@@ -1,7 +1,7 @@
 import Mediator from '../src/mediator';
 import BaseStorage from '../src/baseStorage';
 
-describe('BaseStorage hashi shim', () => {
+describe('BaseStorage shim', () => {
   let baseStorage;
   let mediator;
   beforeEach(() => {

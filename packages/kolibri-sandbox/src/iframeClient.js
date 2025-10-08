@@ -5,7 +5,7 @@ import Cookie from './cookie';
 import SCORM from './SCORM';
 import Kolibri from './kolibri';
 import patchIndexedDB from './patchIndexedDB';
-import { events, nameSpace } from './hashiBase';
+import { events, nameSpace } from './base';
 import H5P from './H5P/H5PInterface';
 import xAPI from './xAPI/xAPIInterface';
 import Bloom from './Bloom/BloomInterface';
@@ -121,7 +121,7 @@ export default class SandboxEnvironment {
       this.Bloom.init(this.iframe, startUrl);
     } else {
       this.iframe.onload = () => {
-        const error = this.iframe.contentDocument.head.querySelector('meta[name="hashi-error"]');
+        const error = this.iframe.contentDocument.head.querySelector('meta[name="sandbox-error"]');
         if (error) {
           this.mediator.sendMessage({
             nameSpace,

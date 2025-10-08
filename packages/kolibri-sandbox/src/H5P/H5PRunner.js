@@ -120,7 +120,7 @@ export default class H5PRunner {
     this.iframe = iframe;
     // Relative URL to H5P - ideal to keep this simple by convention
     // this will avoid having to pass in extra initialization info into
-    // hashi.
+    // the sandbox.
     this.iframe.src = `../h5p/${H5PFilename}`;
     // This is the path to the H5P file which we load in its entirety.
     this.filepath = filepath;
