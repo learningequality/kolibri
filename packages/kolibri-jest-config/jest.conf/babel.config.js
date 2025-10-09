@@ -1,4 +1,4 @@
-const babelConfig = require('../babel.config');
+const babelConfig = require('kolibri-build/babel.config');
 
 babelConfig.plugins.push('@babel/plugin-transform-runtime');
 
