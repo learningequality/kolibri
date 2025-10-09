@@ -21,6 +21,7 @@
               name: $store.getters.facilityPageLinks.AllFacilitiesPage.name,
               params: { subtopicName: 'UserPage' },
             }"
+            style="margin: 0.5em 0 1em"
             icon="back"
             :text="coreString('changeLearningFacility')"
           />
@@ -428,12 +429,10 @@
     methods: {
       handlePageDropdownSelection(option) {
         if (option.value) {
-          if (option.id === 'new_user') {
-            this.$router.push({
-              name: option.value,
-              params: { facility_id: this.$store.getters.activeFacilityId },
-            });
-          }
+          this.$router.push({
+            name: option.value,
+            params: { facility_id: this.$store.getters.activeFacilityId },
+          });
         }
       },
     },
