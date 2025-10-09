@@ -42,6 +42,13 @@
                   class="filter-button"
                   :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL })"
                 />
+                <KButton
+                  v-if="numAppliedFilters > 0"
+                  appearance="basic-link"
+                  :appearanceOverrides="{ color: $themeTokens.error }"
+                  :text="clearFiltersLabel$()"
+                  @click="resetFilters"
+                />
               </div>
               <div class="users-page-header-actions">
                 <KButton
@@ -227,6 +234,7 @@
         numFilters$,
         filterLabel$,
         numUsersSelected$,
+        clearFiltersLabel$,
       } = bulkUserManagementStrings;
 
       const { $store, $router } = getCurrentInstance().proxy;
@@ -242,6 +250,7 @@
         numAppliedFilters,
         onChange,
         fetchClasses,
+        resetFilters,
       } = useUserManagement({ activeFacilityId });
 
       // Use our new composables
@@ -309,6 +318,7 @@
         onModalBlur,
         clearSelectedUsers,
         navigateToSidePanel,
+        resetFilters,
 
         // Strings
         newUser$,
@@ -322,6 +332,7 @@
         numFilters$,
         filterLabel$,
         numUsersSelected$,
+        clearFiltersLabel$,
       };
     },
     computed: {
