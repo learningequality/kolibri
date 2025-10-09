@@ -1,7 +1,7 @@
 /*
  * Vendored from https://github.com/lukeed/webpack-messages and https://github.com/lukeed/webpack-format-messages
  */
-const logger = require('./logging');
+const logger = require('kolibri-logging');
 
 const logging = logger.getLogger('Kolibri Build');
 

@@ -1,6 +1,6 @@
 var path = require('node:path');
 var fs = require('node:fs');
-var logging = require('./logging');
+var logging = require('kolibri-logging');
 
 var deleteRecursive = function (p) {
   logging.info('Scanning ' + p);

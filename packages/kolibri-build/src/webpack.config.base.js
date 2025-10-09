@@ -128,7 +128,7 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
       extensions: ['.js', '.vue', '.scss'],
       modules: [
         // Add resolution paths for modules to allow any plugin to
-        // access kolibri-tools/node_modules modules during bundling.
+        // access kolibri-build/node_modules modules during bundling.
         base_dir,
         path.join(base_dir, 'node_modules'),
       ],
@@ -136,7 +136,7 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
     resolveLoader: {
       modules: [
         // Add resolution paths for loaders to allow any plugin to
-        // access kolibri-tools/node_modules loaders during bundling.
+        // access kolibri-build/node_modules loaders during bundling.
         base_dir,
         path.join(base_dir, 'node_modules'),
       ],

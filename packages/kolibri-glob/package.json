@@ -1,0 +1,21 @@
+{
+  "name": "kolibri-glob",
+  "version": "1.0.0",
+  "description": "A wrapper around fast-glob for Kolibri tools",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/learningequality/kolibri.git",
+    "directory": "packages/kolibri-glob"
+  },
+  "author": "Learning Equality",
+  "license": "MIT",
+  "private": false,
+  "main": "src/index.js",
+  "dependencies": {
+    "fast-glob": "^3.3.3"
+  },
+  "engines": {
+    "node": ">= 20.19.0",
+    "npm": ">= 8"
+  }
+}

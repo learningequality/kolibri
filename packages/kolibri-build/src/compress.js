@@ -7,7 +7,7 @@ const {
   truncate,
   writeFileSync,
 } = require('node:fs');
-const logger = require('./logging');
+const logger = require('kolibri-logging');
 
 const logging = logger.getLogger('Kolibri Compressor');
 

@@ -1,13 +1,13 @@
 const path = require('path');
 const _ = require('lodash');
-const webpackConfigPlugin = require('../lib/webpack.config.plugin');
+const webpackConfigPlugin = require('../webpack.config.plugin');
 
-jest.mock('../lib/apiSpecExportTools', () => ({
+jest.mock('../apiSpecExportTools', () => ({
   coreAliases: () => ({}),
   coreExternals: () => ({}),
 }));
 
-jest.mock('../lib/logging', () => ({
+jest.mock('kolibri-logging', () => ({
   error: () => {},
   getLogger: () => {
     return {

@@ -1,7 +1,7 @@
-const { kolibriName } = require('kolibri-tools/lib/kolibriName');
 const {
   sources: { ConcatSource },
 } = require('webpack');
+const { kolibriName } = require('./kolibriName');
 
 class MessageRegistrationPlugin {
   constructor({ injectAfterBundle = false, moduleName } = {}) {
