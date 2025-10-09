@@ -575,15 +575,25 @@
 
     .paginated-wrapper /deep/ .table-content {
       display: block;
+      padding: 0 1em;
       overflow: auto;
     }
   }
 
   /deep/ .k-table-wrapper {
+    // Ensure space enough for swipe zone on mobile
+    tr td:first-child,
+    tr th:first-child {
+      padding-left: 2em;
+    }
+
     // Applying the padding here avoids the scrollbar having padding
     // between itself and the window's edge and floating. This way
     // it looks like a root-level scrollbar (even though there isn't one)
-    padding: 0 1em;
+    tr td:last-child,
+    tr th:last-child {
+      padding-right: 1em;
+    }
   }
 
 </style>
