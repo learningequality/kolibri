@@ -14,9 +14,6 @@
   "bin": {
     "kolibri-tools": "./lib/cli.js"
   },
-  "scripts": {
-    "prepack": "node ./build_kolibri_tools.js"
-  },
   "dependencies": {
     "@babel/core": "^7.28.4",
     "@babel/plugin-syntax-import-assertions": "^7.27.1",

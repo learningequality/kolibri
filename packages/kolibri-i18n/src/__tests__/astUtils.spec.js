@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const logging = require('../../logging');
+const logging = require('kolibri-logging');
 const astUtils = require('../astUtils');
 const { CONTEXT_LINE } = require('../constants');
 

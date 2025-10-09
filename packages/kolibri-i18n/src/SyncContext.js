@@ -5,9 +5,9 @@ const traverse = require('ast-traverse');
 const get = require('lodash/get');
 const vueCompiler = require('vue-template-compiler');
 const { writeSourceToFile } = require('kolibri-format');
-const glob = require('../glob');
-const logging = require('../logging');
-const { insertContent } = require('../vueTools');
+const glob = require('kolibri-glob');
+const logging = require('kolibri-logging');
+const { insertContent } = require('./vueTools');
 const {
   getVueSFCName,
   parseAST,

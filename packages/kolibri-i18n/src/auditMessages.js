@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { parse } = require('csv-parse/sync');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-const logging = require('../logging');
+const logging = require('kolibri-logging');
 const { getAllMessagesFromFilePath } = require('./astUtils');
 const { checkForDuplicateIds, forEachPathInfo } = require('./utils');
 

@@ -1,4 +1,4 @@
-import { toLocale } from '../lib/i18n/utils';
+import { toLocale } from '../utils';
 
 const langLocales = [
   ['en', 'en'],

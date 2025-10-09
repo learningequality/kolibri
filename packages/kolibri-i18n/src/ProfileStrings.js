@@ -6,7 +6,7 @@ const reduce = require('lodash/reduce');
 const get = require('lodash/get');
 const isEqual = require('lodash/isEqual');
 const vueCompiler = require('vue-template-compiler');
-const logging = require('../logging');
+const logging = require('kolibri-logging');
 const {
   getAllMessagesFromEntryFiles,
   getAllMessagesFromFilePath,

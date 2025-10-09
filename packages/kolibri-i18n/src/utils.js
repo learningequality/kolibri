@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const intersection = require('lodash/intersection');
 const { parse } = require('csv-parse/sync');
-const glob = require('../glob');
-const logging = require('../logging');
+const glob = require('kolibri-glob');
+const logging = require('kolibri-logging');
 const { addAliases, resetAliases } = require('./moduleResolver');
 
 /*

@@ -17,7 +17,7 @@ const recastOptions = {
 };
 
 // Rewiring the functions to test.
-const i18nSyncContext = rewire('../lib/i18n/SyncContext');
+const i18nSyncContext = rewire('../SyncContext');
 const isCreateTranslator = i18nSyncContext.__get__('isCreateTranslator');
 const is$trs = i18nSyncContext.__get__('is$trs');
 const processVueFiles = i18nSyncContext.__get__('processVueFiles');
@@ -25,7 +25,7 @@ const processJSFiles = i18nSyncContext.__get__('processJSFiles');
 const parseCSVDefinitions = i18nSyncContext.__get__('parseCSVDefinitions');
 
 // File loading.
-const fixturePath = path.resolve(__dirname + '/fixtures/i18nSyncContext');
+const fixturePath = path.resolve(__dirname, '../__fixtures__/i18nSyncContext');
 // Vue file with simple string definitions only.
 const Vue1Path = path.resolve(fixturePath + '/Context01.vue');
 const Vue1 = fs.readFileSync(Vue1Path);

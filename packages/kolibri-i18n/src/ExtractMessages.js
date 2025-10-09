@@ -3,7 +3,7 @@ const path = require('path');
 const sortBy = require('lodash/sortBy');
 const del = require('del');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-const logging = require('../logging');
+const logging = require('kolibri-logging');
 const { getAllMessagesFromFilePath } = require('./astUtils');
 const { checkForDuplicateIds, forEachPathInfo } = require('./utils');
 

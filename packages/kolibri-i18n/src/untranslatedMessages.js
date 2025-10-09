@@ -1,5 +1,5 @@
 const Table = require('cli-table');
-const logger = require('../logging');
+const logger = require('kolibri-logging');
 const { forEachPathInfo, parseCSVDefinitions } = require('./utils');
 const { getAllMessagesFromEntryFiles, getAllMessagesFromFilePath } = require('./astUtils');
 

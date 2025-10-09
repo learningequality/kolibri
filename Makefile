@@ -224,44 +224,44 @@ i18n-django-compilemessages:
 	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages --skip-update
 
 i18n-upload: i18n-extract
-	python packages/kolibri-tools/lib/i18n/crowdin.py upload-sources ${branch}
+	python packages/kolibri-i18n/src/crowdin.py upload-sources ${branch}
 
 i18n-pretranslate:
-	python packages/kolibri-tools/lib/i18n/crowdin.py pretranslate ${branch}
+	python packages/kolibri-i18n/src/crowdin.py pretranslate ${branch}
 
 i18n-pretranslate-approve-all:
-	python packages/kolibri-tools/lib/i18n/crowdin.py pretranslate ${branch} --approve-all
+	python packages/kolibri-i18n/src/crowdin.py pretranslate ${branch} --approve-all
 
 i18n-download-translations:
-	python packages/kolibri-tools/lib/i18n/crowdin.py rebuild-translations ${branch}
-	python packages/kolibri-tools/lib/i18n/crowdin.py download-translations ${branch}
-	yarn exec kolibri-tools i18n-code-gen -- --output-dir ./packages/kolibri/utils/internal
+	python packages/kolibri-i18n/src/crowdin.py rebuild-translations ${branch}
+	python packages/kolibri-i18n/src/crowdin.py download-translations ${branch}
+	yarn exec kolibri-i18n i18n-code-gen -- --output-dir ./packages/kolibri/utils/internal
 	$(MAKE) i18n-django-compilemessages
-	yarn exec kolibri-tools i18n-create-message-files -- --pluginFile ./build_tools/build_plugins.txt
+	yarn exec kolibri-i18n create-message-files -- --pluginFile ./build_tools/build_plugins.txt
 
 i18n-download-source-fonts:
-	python packages/kolibri-tools/lib/i18n/fonts.py download-source-fonts
+	python packages/kolibri-i18n/src/fonts.py download-source-fonts
 
 i18n-regenerate-fonts:
-	python packages/kolibri-tools/lib/i18n/fonts.py generate-full-fonts
-	python packages/kolibri-tools/lib/i18n/fonts.py generate-subset-fonts
+	python packages/kolibri-i18n/src/fonts.py generate-full-fonts
+	python packages/kolibri-i18n/src/fonts.py generate-subset-fonts
 
 i18n-download: i18n-download-translations i18n-regenerate-fonts i18n-transfer-context
 
 i18n-screenshot-report:
-	python packages/kolibri-tools/lib/i18n/crowdin.py screenshot-report ${branch}
+	python packages/kolibri-i18n/src/crowdin.py screenshot-report ${branch}
 
 i18n-transfer-screenshots:
-	python packages/kolibri-tools/lib/i18n/crowdin.py transfer-screenshots ${branch} ${source}
+	python packages/kolibri-i18n/src/crowdin.py transfer-screenshots ${branch} ${source}
 
 i18n-install-font:
-	python packages/kolibri-tools/lib/i18n/fonts.py add-source-font ${name}
+	python packages/kolibri-i18n/src/fonts.py add-source-font ${name}
 
 i18n-download-glossary:
-	python packages/kolibri-tools/lib/i18n/crowdin.py download-glossary
+	python packages/kolibri-i18n/src/crowdin.py download-glossary
 
 i18n-upload-glossary:
-	python packages/kolibri-tools/lib/i18n/crowdin.py upload-glossary
+	python packages/kolibri-i18n/src/crowdin.py upload-glossary
 
 docker-clean:
 	rm -f *.iid *.cid
