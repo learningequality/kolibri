@@ -5,13 +5,21 @@
     :route="$store.getters.facilityPageLinks.UserPage"
     :appearanceOverrides="{
       width: '100%',
-      height: '100vh',
+      height: '100ersh',
       margin: '0px',
       padding: '0px',
     }"
   >
-    <template>
-      <div :style="containerStyles">
+    <template #default="{ appBarHeight }">
+      <div
+        :style="{
+          paddingTop: windowIsSmall ? 64 + appBarHeight + 'px' : '64px',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          backgroundColor: 'white',
+        }"
+      >
         <div
           class="header-shadow"
           :style="headerStyles"
@@ -364,15 +372,6 @@
       headerStyles() {
         return {
           padding: '16px',
-        };
-      },
-      containerStyles() {
-        return {
-          paddingTop: this.windowIsSmall ? '108px' : '64px',
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          backgroundColor: 'white',
         };
       },
     },

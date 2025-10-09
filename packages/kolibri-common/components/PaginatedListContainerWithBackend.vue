@@ -36,20 +36,8 @@
 
 <style lang="scss" scoped>
 
-  .pagination-nav {
-    /* Ensure space for pagination buttons on touch devices */
-    margin-top: 1em;
-    text-align: right;
-  }
-
   .text-filter {
     margin-top: 14px;
-  }
-
-  .pagination-label {
-    position: relative;
-    top: -2px;
-    display: inline;
   }
 
   .flex-column {

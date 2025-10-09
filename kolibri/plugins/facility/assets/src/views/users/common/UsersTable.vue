@@ -553,33 +553,6 @@
     min-height: 0;
   }
 
-  /deep/ .pagination-nav {
-    /deep/ .pagination-nav {
-      z-index: 2;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      padding: 1em 0;
-      margin-top: 0;
-      background-color: white;
-      box-shadow:
-        0 0 4px rgba(0, 0, 0, 0.42),
-        0 4px 2px rgba(0, 0, 0, 0.82);
-
-      .pagination-actions {
-        margin: 0 1em;
-      }
-    }
-
-    .paginated-wrapper /deep/ .table-content {
-      display: block;
-      padding: 0 1em;
-      overflow: auto;
-    }
-  }
-
   /deep/ .k-table-wrapper {
     // Ensure space enough for swipe zone on mobile
     tr td:first-child,
