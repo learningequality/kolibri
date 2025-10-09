@@ -125,6 +125,8 @@
 
   .container {
     min-height: 450px;
+    // Ensure we can scroll to where there is space beneath container
+    margin-bottom: 2em;
   }
 
   .selector {
