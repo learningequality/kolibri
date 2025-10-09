@@ -403,23 +403,25 @@
 
       const getEmptyMessageForItems = items => {
         const search = route.query.search || '';
-        const roleType = route.query.user_type;
+        const roleTypes = route.query.user_types;
 
         if (facilityUsers.value.length === 0) {
           return coreStrings.noUsersExistLabel$();
-        } else if (roleType && search === '') {
-          switch (roleType) {
-            case UserKinds.LEARNER:
-              return noLearnersExist$();
-            case UserKinds.COACH:
-              return noCoachesExist$();
-            case UserKinds.ADMIN:
-              return noAdminsExist$();
-            case UserKinds.SUPERUSER:
-              return noSuperAdminsExist$();
-            default:
-              return '';
+        } else if (roleTypes && search === '') {
+          // TODO The language here will likely change - note that there is no
+          if (roleTypes.includes(UserKinds.LEARNER)) {
+            return noLearnersExist$();
           }
+          if (roleTypes.includes(UserKinds.COACH)) {
+            return noCoachesExist$();
+          }
+          if (roleTypes.includes(UserKinds.ADMIN)) {
+            return noAdminsExist$();
+          }
+          if (roleTypes.includes(UserKinds.SUPERUSER)) {
+            return noSuperAdminsExist$();
+          }
+          return '';
         } else if (items.length === 0) {
           return allUsersFilteredOut$({ filterText: search });
         }
