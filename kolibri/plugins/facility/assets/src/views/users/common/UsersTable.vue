@@ -9,7 +9,7 @@
         :caption="coreStrings.usersLabel$()"
         :rows="tableRows"
         :dataLoading="dataLoading"
-        :emptyMessage="getEmptyMessageForItems(facilityUsers)"
+        :emptyMessage="getEmptyMessage"
         sortable
         disableBuiltinSorting
         @changeSort="changeSortHandler"
@@ -401,32 +401,31 @@
         return selectLabel$() + ' ' + user.full_name + ', ' + userKindMap[user.kind];
       };
 
-      const getEmptyMessageForItems = items => {
+      const getEmptyMessage = computed(() => {
         const search = route.query.search || '';
-        const roleTypes = route.query.user_types;
+        const roleTypes = route.query.user_types?.split(',') || [];
 
         if (facilityUsers.value.length === 0) {
-          return coreStrings.noUsersExistLabel$();
-        } else if (roleTypes && search === '') {
-          // TODO The language here will likely change - note that there is no
-          if (roleTypes.includes(UserKinds.LEARNER)) {
-            return noLearnersExist$();
+          if (!roleTypes.length) {
+            return coreStrings.noUsersExistLabel$();
+          } else if (search === '') {
+            // TODO The language here will likely change - note that there is no
+            if (roleTypes.includes(UserKinds.LEARNER)) {
+              return noLearnersExist$();
+            }
+            if (roleTypes.includes(UserKinds.COACH)) {
+              return noCoachesExist$();
+            }
+            if (roleTypes.includes(UserKinds.ADMIN)) {
+              return noAdminsExist$();
+            }
+            if (roleTypes.includes(UserKinds.SUPERUSER)) {
+              return noSuperAdminsExist$();
+            }
           }
-          if (roleTypes.includes(UserKinds.COACH)) {
-            return noCoachesExist$();
-          }
-          if (roleTypes.includes(UserKinds.ADMIN)) {
-            return noAdminsExist$();
-          }
-          if (roleTypes.includes(UserKinds.SUPERUSER)) {
-            return noSuperAdminsExist$();
-          }
-          return '';
-        } else if (items.length === 0) {
-          return allUsersFilteredOut$({ filterText: search });
         }
-        return '';
-      };
+        return allUsersFilteredOut$({ filterText: search });
+      });
 
       const closeModal = () => {
         modalShown.value = null;
@@ -481,7 +480,7 @@
         changeSortHandler,
         userCanBeEdited,
         getTranslatedSelectedArialabel,
-        getEmptyMessageForItems,
+        getEmptyMessage,
         closeModal,
         getManageUserOptions,
         handleManageUserAction,
