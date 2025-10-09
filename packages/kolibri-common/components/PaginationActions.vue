@@ -85,13 +85,6 @@
         this.$emit('input', clamp(this.value + change, 1, this.totalPageNumber));
       },
     },
-    methods: {
-      changePage(change) {
-        // Clamp the newPage number between the bounds if browser doesn't correctly
-        // disable buttons (see #6454 issue with old versions of MS Edge)
-        this.$emit('input', clamp(this.value + change, 1, this.totalPageNumber));
-      },
-    },
     $trs: {
       previousResults: {
         message: 'Previous results',

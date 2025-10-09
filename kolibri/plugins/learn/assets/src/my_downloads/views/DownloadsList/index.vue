@@ -1,13 +1,6 @@
 <template>
 
   <form>
-    <PaginationActions
-      v-model="currentPage"
-      class="top-pagination-actions"
-      :itemsPerPage="itemsPerPage"
-      :totalPageNumber="totalPageNumber"
-      :numFilteredItems="downloadItemListLength"
-    />
     <PaginatedListContainerWithBackend>
       <CoreTable>
         <template #headers>
@@ -457,12 +450,6 @@
     display: inline-block;
     margin-left: 0;
     vertical-align: bottom;
-  }
-
-  .top-pagination-actions {
-    margin-top: 1em;
-    margin-bottom: -2em;
-    text-align: right;
   }
 
   .bottom-pagination-actions {
