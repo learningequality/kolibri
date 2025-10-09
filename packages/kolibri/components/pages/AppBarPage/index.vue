@@ -142,7 +142,7 @@
       },
       wrapperStyles() {
         return this.appearanceOverrides
-          ? {...this.paddingTop, ...this.appearanceOverrides }
+          ? { ...this.paddingTop, ...this.appearanceOverrides }
           : {
             width: '100%',
             maxWidth: '1064px',
