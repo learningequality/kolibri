@@ -4,8 +4,11 @@
     :title="title"
     :appearanceOverrides="appearanceOverrides"
   >
-    <template #default="{ pageContentHeight }">
-      <slot :pageContentHeight="pageContentHeight"></slot>
+    <template #default="{ pageContentHeight, appBarHeight }">
+      <slot
+        :pageContentHeight="pageContentHeight"
+        :appBarHeight="appBarHeight"
+      ></slot>
     </template>
   </AppBarPage>
 

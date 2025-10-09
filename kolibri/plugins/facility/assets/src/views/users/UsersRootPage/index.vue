@@ -9,13 +9,14 @@
       padding: '0px',
     }"
   >
-    <template #default="{ appBarHeight }">
+    <template #default="{ appBarHeight, pageContentHeight }">
       <div
         :style="{
-          paddingTop: windowIsSmall ? 64 + appBarHeight + 'px' : '64px',
+          paddingTop: appBarHeight + 'px',
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
+          maxHeight: pageContentHeight,
           backgroundColor: 'white',
         }"
       >
