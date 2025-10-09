@@ -34,14 +34,7 @@
     gap: 1em;
   }
 
-  .top-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1em;
-    align-items: center;
-    justify-content: space-between;
-  }
-
+  .top-row,
   .bottom-row {
     display: flex;
     flex-wrap: wrap;
