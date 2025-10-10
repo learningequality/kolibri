@@ -554,18 +554,14 @@
   }
 
   /deep/ .k-table-wrapper {
-    // Ensure space enough for swipe zone on mobile
     tr td:first-child,
     tr th:first-child {
-      padding-left: 2em;
+      padding: 0.675em 1em;
     }
 
-    // Applying the padding here avoids the scrollbar having padding
-    // between itself and the window's edge and floating. This way
-    // it looks like a root-level scrollbar (even though there isn't one)
     tr td:last-child,
     tr th:last-child {
-      padding-right: 1em;
+      padding: 0.675em 1em;
     }
   }
 
