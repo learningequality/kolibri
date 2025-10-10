@@ -7,7 +7,7 @@
       width: '100%',
       height: '100%',
       margin: '0px',
-      padding: '0px',
+      padding: '0 1em',
     }"
   >
     <template #default="{ appBarHeight, pageContentHeight }">
@@ -16,8 +16,8 @@
           display: 'flex',
           flexDirection: 'column',
           maxWidth: '1440px',
-          margin: appBarHeight + 'px auto 0',
-          maxHeight: pageContentHeight + 'px',
+          margin: appBarHeight + 24 + 'px auto 0',
+          maxHeight: pageContentHeight - appBarHeight - 24 + 'px',
           backgroundColor: $themeTokens.surface,
         }"
       >
@@ -37,6 +37,7 @@
               <div class="top-row-left">
                 <h1>{{ newUsers$() }}</h1>
                 <FilterTextbox
+                  v-if="facilityUsers.length"
                   ref="filterTextboxRef"
                   v-model="searchTerm"
                   class="search-box"
@@ -44,6 +45,7 @@
                   :aria-label="coreString('searchForUser')"
                 />
                 <KRouterLink
+                  v-if="facilityUsers.length"
                   appearance="basic-link"
                   :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
                   class="filter-button"

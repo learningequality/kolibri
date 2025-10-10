@@ -6,27 +6,26 @@
       width: '100%',
       height: '100%',
       margin: '0px',
-      padding: windowIsSmall ? '1em' : '0px',
+      padding: '0 1em',
     }"
   >
     <template #default="{ appBarHeight, pageContentHeight }">
-      <div
+      <KPageContainer
         :style="{
           display: 'flex',
           flexDirection: 'column',
           maxWidth: '1440px',
-          margin: appBarHeight + 'px auto 0',
-          maxHeight: pageContentHeight + 'px',
+          margin: appBarHeight + 24 + 'px auto 0',
+          maxHeight: 16 + (pageContentHeight - appBarHeight) + 'px',
           backgroundColor: $themeTokens.surface,
         }"
       >
         <div
           class="header-shadow"
           :style="{
-            top: appBarHeight + 'px',
+            top: 0,
             position: 'sticky',
             padding: '1em',
-            zIndex: 12,
             backgroundColor: $themeTokens.surface,
           }"
         >
@@ -46,6 +45,7 @@
               <div class="top-row-left">
                 <h1>{{ coreString('usersLabel') }}</h1>
                 <FilterTextbox
+                  v-if="facilityUsers.length"
                   ref="filterTextboxRef"
                   v-model="searchTerm"
                   class="search-box"
@@ -53,6 +53,7 @@
                   :aria-label="coreString('searchForUser')"
                 />
                 <KRouterLink
+                  v-if="facilityUsers.length"
                   appearance="basic-link"
                   class="filter-button"
                   :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL })"
@@ -184,7 +185,7 @@
           :onChange="onChange"
           @close="isMoveToTrashModalOpen = false"
         />
-      </div>
+      </KPageContainer>
     </template>
   </FacilityAppBarPage>
 
