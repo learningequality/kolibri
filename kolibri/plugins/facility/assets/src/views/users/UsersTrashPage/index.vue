@@ -17,7 +17,7 @@
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
-          backgroundColor: 'white',
+          backgroundColor: $themeTokens.surface,
         }"
       >
         <div

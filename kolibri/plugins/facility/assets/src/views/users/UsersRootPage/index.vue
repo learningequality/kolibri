@@ -17,7 +17,7 @@
           flexDirection: 'column',
           height: '100%',
           maxHeight: pageContentHeight,
-          backgroundColor: 'white',
+          backgroundColor: $themeTokens.surface,
         }"
       >
         <div
