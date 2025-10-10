@@ -11,19 +11,24 @@
     }"
   >
     <template #default="{ appBarHeight, pageContentHeight }">
-      <div
+      <KPageContainer
         :style="{
           display: 'flex',
           flexDirection: 'column',
           maxWidth: '1440px',
           margin: appBarHeight + 24 + 'px auto 0',
-          maxHeight: pageContentHeight - appBarHeight - 24 + 'px',
+          maxHeight: pageContentHeight - appBarHeight - 48 + 'px',
           backgroundColor: $themeTokens.surface,
         }"
       >
         <div
           class="header-shadow"
-          :style="headerStyles"
+          :style="{
+            top: 0,
+            position: 'sticky',
+            padding: '1em 1em 0 1em',
+            backgroundColor: $themeTokens.surface,
+          }"
         >
           <KRouterLink
             :to="$store.getters.facilityPageLinks.UserPage"
@@ -176,7 +181,7 @@
             :to="$store.getters.facilityPageLinks.UserCreatePage"
           />
         </div>
-      </div>
+      </KPageContainer>
       <!-- For sidepanels -->
       <router-view
         :backRoute="overrideRoute($route, { name: PageNames.NEW_USERS_PAGE })"
@@ -420,11 +425,6 @@
         }
         return false;
       },
-      headerStyles() {
-        return {
-          padding: '16px',
-        };
-      },
     },
   };
 
@@ -442,7 +442,6 @@
   }
 
   .header-shadow {
-    z-index: 8;
     box-shadow: 0 4px 4px -4px rgba(0, 0, 0, 0.8);
   }
 
@@ -514,6 +513,13 @@
     // the purpose of our maxHeight style on the KPageContainer.
     // Uses !important because the overridden style is inline
     padding-bottom: 0 !important;
+  }
+
+  /deep/ thead {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    box-shadow: 0 4px 4px -4px rgba(0, 0, 0, 0.8);
   }
 
 </style>

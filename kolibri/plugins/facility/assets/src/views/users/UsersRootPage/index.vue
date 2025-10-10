@@ -16,7 +16,7 @@
           flexDirection: 'column',
           maxWidth: '1440px',
           margin: appBarHeight + 24 + 'px auto 0',
-          maxHeight: 16 + (pageContentHeight - appBarHeight) + 'px',
+          maxHeight: 24 + (pageContentHeight - appBarHeight) + 'px',
           backgroundColor: $themeTokens.surface,
         }"
       >
@@ -25,7 +25,7 @@
           :style="{
             top: 0,
             position: 'sticky',
-            padding: '1em',
+            padding: '1em 1em 0 1em',
             backgroundColor: $themeTokens.surface,
           }"
         >
@@ -471,8 +471,17 @@
     padding-bottom: 0 !important;
   }
 
+  /*
   .header-shadow {
-    z-index: 8;
+    box-shadow: 0 4px 4px -4px rgba(0, 0, 0, 0.8);
+    z-index: 4;
+  }
+*/
+
+  /deep/ thead {
+    position: sticky;
+    top: 0;
+    z-index: 4;
     box-shadow: 0 4px 4px -4px rgba(0, 0, 0, 0.8);
   }
 

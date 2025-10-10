@@ -11,19 +11,24 @@
     }"
   >
     <template #default="{ appBarHeight, pageContentHeight }">
-      <div
+      <KPageContainer
         :style="{
           display: 'flex',
           flexDirection: 'column',
           maxWidth: '1440px',
           margin: appBarHeight + 24 + 'px auto 0',
-          maxHeight: pageContentHeight - appBarHeight - 24 + 'px',
+          maxHeight: pageContentHeight - appBarHeight - 48 + 'px',
           backgroundColor: $themeTokens.surface,
         }"
       >
         <div
           class="header-shadow"
-          :style="headerStyles"
+          :style="{
+            top: 0,
+            position: 'sticky',
+            padding: '1em',
+            backgroundColor: $themeTokens.surface,
+          }"
         >
           <KRouterLink
             :to="$store.getters.facilityPageLinks.UserPage"
@@ -149,7 +154,7 @@
             </p>
           </div>
         </div>
-      </div>
+      </KPageContainer>
       <!-- For sidepanels -->
       <router-view
         :selectedUsers="selectedUsers"
@@ -367,13 +372,6 @@
         clearFiltersLabel$,
       };
     },
-    computed: {
-      headerStyles() {
-        return {
-          padding: '16px',
-        };
-      },
-    },
   };
 
 </script>
@@ -382,13 +380,13 @@
 <style lang="scss" scoped>
 
   .header-shadow {
-    z-index: 8;
     box-shadow: 0 4px 4px -4px rgba(0, 0, 0, 0.8);
   }
 
   .top-row-left {
     display: flex;
     flex: 1;
+    flex-wrap: wrap;
     gap: 1em;
     align-items: center;
 
@@ -422,7 +420,8 @@
 
   .page-description {
     flex-grow: 1;
-    text-align: right;
+    margin: 0 !important;
+    text-align: center;
   }
 
   .empty-removed-users {
@@ -452,6 +451,13 @@
         font-size: 14px;
       }
     }
+  }
+
+  /deep/ thead {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    box-shadow: 0 4px 4px -4px rgba(0, 0, 0, 0.8);
   }
 
 </style>
