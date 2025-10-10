@@ -6,23 +6,29 @@
       width: '100%',
       height: '100%',
       margin: '0px',
-      padding: '0px',
+      padding: windowIsSmall ? '1em' : '0px',
     }"
   >
     <template #default="{ appBarHeight, pageContentHeight }">
       <div
         :style="{
-          paddingTop: appBarHeight + 'px',
           display: 'flex',
           flexDirection: 'column',
-          height: '100%',
-          maxHeight: pageContentHeight,
+          maxWidth: '1440px',
+          margin: appBarHeight + 'px auto 0',
+          maxHeight: pageContentHeight + 'px',
           backgroundColor: $themeTokens.surface,
         }"
       >
         <div
           class="header-shadow"
-          :style="headerStyles"
+          :style="{
+            top: appBarHeight + 'px',
+            position: 'sticky',
+            padding: '1em',
+            zIndex: 12,
+            backgroundColor: $themeTokens.surface,
+          }"
         >
           <KRouterLink
             v-if="userIsMultiFacilityAdmin"
@@ -48,9 +54,9 @@
                 />
                 <KRouterLink
                   appearance="basic-link"
-                  :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
                   class="filter-button"
                   :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL })"
+                  :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
                 />
                 <KButton
                   v-if="numAppliedFilters > 0"
@@ -419,11 +425,6 @@
           return this.cannotDeleteSelfTooltip$();
         }
         return this.deleteSelection$();
-      },
-      headerStyles() {
-        return {
-          padding: '16px',
-        };
       },
     },
     methods: {

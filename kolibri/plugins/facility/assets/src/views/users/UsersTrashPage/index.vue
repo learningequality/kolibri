@@ -13,10 +13,11 @@
     <template #default="{ appBarHeight }">
       <div
         :style="{
-          paddingTop: windowIsSmall ? 64 + appBarHeight + 'px' : '64px',
           display: 'flex',
           flexDirection: 'column',
-          height: '100%',
+          maxWidth: '1440px',
+          margin: appBarHeight + 'px auto 0',
+          maxHeight: pageContentHeight + 'px',
           backgroundColor: $themeTokens.surface,
         }"
       >
@@ -175,7 +176,6 @@
   import { computed, onMounted, ref } from 'vue';
   import { useRoute } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
@@ -314,10 +314,7 @@
         fetchClasses();
       });
 
-      const { windowIsSmall } = useKResponsiveWindow();
-
       return {
-        windowIsSmall,
         // Route utilities
         overrideRoute,
         PageNames,

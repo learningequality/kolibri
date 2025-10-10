@@ -13,12 +13,12 @@
     <template #default="{ appBarHeight, pageContentHeight }">
       <div
         :style="{
-          paddingTop: appBarHeight + 'px',
-          maxHeight: pageContentHeight,
           display: 'flex',
           flexDirection: 'column',
-          height: '100%',
-          backgroundColor: '$themeTokens.surface',
+          maxWidth: '1440px',
+          margin: appBarHeight + 'px auto 0',
+          maxHeight: pageContentHeight + 'px',
+          backgroundColor: $themeTokens.surface,
         }"
       >
         <div
