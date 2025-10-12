@@ -822,6 +822,18 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Web design',
     context: 'Category type. See https://en.wikipedia.org/wiki/Web_design',
   },
+  artificialIntelligence: {
+    message: 'Artificial intelligence',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Artificial_intelligence',
+  },
+  machineLearning: {
+    message: 'Machine learning',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Machine_learning',
+  },
+  dataScience: {
+    message: 'Data science',
+    context: 'Category type. See https://en.wikipedia.org/wiki/Data_science',
+  },
 
   // Basic Skills
   literacy: {

@@ -1,0 +1,276 @@
+[
+    {
+        "model": "content.channelmetadata",
+        "pk": "8127788f84364f86bd45c263430a1809",
+        "fields": {
+            "name": "AI and Coding Professional Skills",
+            "description": "Free resources on artificial intelligence and modern coding practices, including machine learning basics, programming fundamentals, and practical coding tutorials",
+            "author": "Professional Skills Team",
+            "min_schema_version": "1",
+            "version": 1,
+            "thumbnail": "",
+            "last_updated": null,
+            "tagline": "Learn AI and coding skills for the modern workplace",
+            "public": true
+        }
+    },
+    {
+        "model": "content.contenttag",
+        "pk": "32b7095f5189472db509f4688b6bd5a7",
+        "fields": {
+            "tag_name": "artificial-intelligence"
+        }
+    },
+    {
+        "model": "content.contenttag",
+        "pk": "9f9dc816b8e04b7c887a0d61df13ae5d",
+        "fields": {
+            "tag_name": "machine-learning"
+        }
+    },
+    {
+        "model": "content.contenttag",
+        "pk": "c6b3de7811f4439db88f2d669e03aaee",
+        "fields": {
+            "tag_name": "programming"
+        }
+    },
+    {
+        "model": "content.contenttag",
+        "pk": "adf640d23851469d9ebb381f8458e4ee",
+        "fields": {
+            "tag_name": "data-science"
+        }
+    },
+    {
+        "model": "content.contenttag",
+        "pk": "f43344d4ee4649ca9a444172cd211e99",
+        "fields": {
+            "tag_name": "python"
+        }
+    },
+    {
+        "model": "content.contentnode",
+        "pk": "a48fa22ec7cc4f6bb10bdda754574292",
+        "fields": {
+            "title": "AI and Coding Professional Skills",
+            "description": "Resources for learning artificial intelligence and modern coding skills",
+            "kind": "topic",
+            "content_id": "8daf5a43d99840fd9d79235eabc8e5a7",
+            "channel_id": "8127788f84364f86bd45c263430a1809",
+            "author": "",
+            "license_name": "CC BY",
+            "license_owner": "",
+            "license_description": "",
+            "parent": null,
+            "lft": 1,
+            "rght": 20,
+            "tree_id": 1,
+            "level": 0,
+            "sort_order": null,
+            "available": true,
+            "lang": null,
+            "thumbnail_encoding": "",
+            "categories": "professionalSkills",
+            "grade_levels": "",
+            "resource_types": "",
+            "learning_activities": "",
+            "accessibility_labels": "",
+            "learner_needs": "",
+            "duration": null,
+            "options": null
+        }
+    },
+    {
+        "model": "content.contentnode",
+        "pk": "ad617c18cc1c49bab76fc8580a374ce0",
+        "fields": {
+            "title": "Introduction to Artificial Intelligence",
+            "description": "Learn the fundamentals of AI, including what it is, how it works, and its applications in the modern world. This resource covers basic concepts like machine learning, neural networks, and AI ethics.",
+            "kind": "document",
+            "content_id": "8c96861e48d14edc8a50c7bb1b4305ee",
+            "channel_id": "8127788f84364f86bd45c263430a1809",
+            "author": "AI Education Collective",
+            "license_name": "CC BY-SA",
+            "license_owner": "",
+            "license_description": "",
+            "parent": "a48fa22ec7cc4f6bb10bdda754574292",
+            "lft": 2,
+            "rght": 3,
+            "tree_id": 1,
+            "level": 1,
+            "sort_order": 1.0,
+            "available": true,
+            "lang": null,
+            "thumbnail_encoding": "",
+            "categories": "professionalSkills",
+            "grade_levels": "",
+            "resource_types": "document",
+            "learning_activities": "read",
+            "accessibility_labels": "",
+            "learner_needs": "",
+            "duration": 1200,
+            "options": null
+        }
+    },
+    {
+        "model": "content.contentnode",
+        "pk": "ab29755742824625872e739b69061dd4",
+        "fields": {
+            "title": "Machine Learning Basics",
+            "description": "Understanding machine learning algorithms, supervised vs unsupervised learning, and practical applications. Learn about classification, regression, and clustering with real-world examples.",
+            "kind": "video",
+            "content_id": "6077c1a9e42442078b5626d9f196a4d6",
+            "channel_id": "8127788f84364f86bd45c263430a1809",
+            "author": "Tech Skills Academy",
+            "license_name": "CC BY",
+            "license_owner": "",
+            "license_description": "",
+            "parent": "a48fa22ec7cc4f6bb10bdda754574292",
+            "lft": 4,
+            "rght": 5,
+            "tree_id": 1,
+            "level": 1,
+            "sort_order": 2.0,
+            "available": true,
+            "lang": null,
+            "thumbnail_encoding": "",
+            "categories": "professionalSkills",
+            "grade_levels": "",
+            "resource_types": "video",
+            "learning_activities": "watch",
+            "accessibility_labels": "",
+            "learner_needs": "",
+            "duration": 900,
+            "options": null
+        }
+    },
+    {
+        "model": "content.contentnode",
+        "pk": "045b083e9e294153ad88719d115279c8",
+        "fields": {
+            "title": "Python Programming Fundamentals",
+            "description": "Learn Python programming from scratch. This comprehensive guide covers variables, data types, control structures, functions, and object-oriented programming basics.",
+            "kind": "document",
+            "content_id": "7f586e8d5fde41cb9e981d42772de055",
+            "channel_id": "8127788f84364f86bd45c263430a1809",
+            "author": "Code Academy",
+            "license_name": "CC BY",
+            "license_owner": "",
+            "license_description": "",
+            "parent": "a48fa22ec7cc4f6bb10bdda754574292",
+            "lft": 6,
+            "rght": 7,
+            "tree_id": 1,
+            "level": 1,
+            "sort_order": 3.0,
+            "available": true,
+            "lang": null,
+            "thumbnail_encoding": "",
+            "categories": "professionalSkills",
+            "grade_levels": "",
+            "resource_types": "document",
+            "learning_activities": "read",
+            "accessibility_labels": "",
+            "learner_needs": "",
+            "duration": 1800,
+            "options": null
+        }
+    },
+    {
+        "model": "content.contentnode",
+        "pk": "0c11908f92c945a8974f220ae01d5b8c",
+        "fields": {
+            "title": "Data Science with Python",
+            "description": "Explore data science concepts using Python libraries like NumPy, Pandas, and Matplotlib. Learn data manipulation, visualization, and basic statistical analysis.",
+            "kind": "video",
+            "content_id": "e730573fb59347a1ba6b0b4c57fd8a5e",
+            "channel_id": "8127788f84364f86bd45c263430a1809",
+            "author": "Data Science Hub",
+            "license_name": "CC BY-SA",
+            "license_owner": "",
+            "license_description": "",
+            "parent": "a48fa22ec7cc4f6bb10bdda754574292",
+            "lft": 8,
+            "rght": 9,
+            "tree_id": 1,
+            "level": 1,
+            "sort_order": 4.0,
+            "available": true,
+            "lang": null,
+            "thumbnail_encoding": "",
+            "categories": "professionalSkills",
+            "grade_levels": "",
+            "resource_types": "video",
+            "learning_activities": "watch",
+            "accessibility_labels": "",
+            "learner_needs": "",
+            "duration": 1200,
+            "options": null
+        }
+    },
+    {
+        "model": "content.contentnode",
+        "pk": "91745e6cf4454796a71df81e291814fb",
+        "fields": {
+            "title": "AI Ethics and Responsible AI",
+            "description": "Understanding the ethical implications of AI, bias in machine learning, privacy concerns, and best practices for developing responsible AI systems.",
+            "kind": "document",
+            "content_id": "6083f94d0f1e472db91dde20b9cb4949",
+            "channel_id": "8127788f84364f86bd45c263430a1809",
+            "author": "Ethics in Tech",
+            "license_name": "CC BY",
+            "license_owner": "",
+            "license_description": "",
+            "parent": "a48fa22ec7cc4f6bb10bdda754574292",
+            "lft": 10,
+            "rght": 11,
+            "tree_id": 1,
+            "level": 1,
+            "sort_order": 5.0,
+            "available": true,
+            "lang": null,
+            "thumbnail_encoding": "",
+            "categories": "professionalSkills",
+            "grade_levels": "",
+            "resource_types": "document",
+            "learning_activities": "read",
+            "accessibility_labels": "",
+            "learner_needs": "",
+            "duration": 600,
+            "options": null
+        }
+    },
+    {
+        "model": "content.contentnode",
+        "pk": "6aca54fba4cc40e6849e01a2bb5a7784",
+        "fields": {
+            "title": "Modern Web Development",
+            "description": "Learn modern web development practices including HTML5, CSS3, JavaScript, and responsive design. Perfect for beginners looking to build professional websites.",
+            "kind": "video",
+            "content_id": "58708900878745a9b2dfd56b40c4f747",
+            "channel_id": "8127788f84364f86bd45c263430a1809",
+            "author": "Web Dev Pro",
+            "license_name": "CC BY",
+            "license_owner": "",
+            "license_description": "",
+            "parent": "a48fa22ec7cc4f6bb10bdda754574292",
+            "lft": 12,
+            "rght": 13,
+            "tree_id": 1,
+            "level": 1,
+            "sort_order": 6.0,
+            "available": true,
+            "lang": null,
+            "thumbnail_encoding": "",
+            "categories": "professionalSkills",
+            "grade_levels": "",
+            "resource_types": "video",
+            "learning_activities": "watch",
+            "accessibility_labels": "",
+            "learner_needs": "",
+            "duration": 1500,
+            "options": null
+        }
+    }
+]
