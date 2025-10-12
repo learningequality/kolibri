@@ -1,3 +1,4 @@
+import functools
 import json
 import logging
 import os
@@ -115,7 +116,7 @@ def _is_base_font(name):
     return True
 
 
-@utils.memoize
+@functools.cache
 def _get_fixed_weight_fonts(recursive_tree):
     file_paths = [
         item["path"]
@@ -136,7 +137,7 @@ def _get_fixed_weight_fonts(recursive_tree):
     return fixed_weight_fonts
 
 
-@utils.memoize
+@functools.cache
 def _get_variable_fonts(recursive_tree):
     font_names = {}
     for item in recursive_tree["tree"]:
@@ -146,7 +147,7 @@ def _get_variable_fonts(recursive_tree):
     return font_names
 
 
-@utils.memoize
+@functools.cache
 def _get_variable_slim_fonts(recursive_tree):
     font_names = {}
     for item in recursive_tree["tree"]:
@@ -326,6 +327,6 @@ def fetch_fonts():
                 font.save(output_path)
 
 
-@utils.memoize
+@functools.cache
 def get_path(font_name, weight):
     return os.path.join(TTF_PATH, "{}-{}.ttf".format(font_name, weight))

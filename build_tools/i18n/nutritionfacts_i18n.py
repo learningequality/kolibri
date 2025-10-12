@@ -49,9 +49,11 @@ def main(title, message, link_text):
     Generate JSON suitable for sending in nutrition facts notifications
     """
 
-    available_languages = utils.available_languages(
-        include_in_context=False, include_english=True
-    )
+    available_languages = utils.available_languages()
+    # Filter out in-context language (ach-ug) but include English
+    available_languages = [
+        lang for lang in available_languages if lang[utils.KEY_INTL_CODE] != "ach-ug"
+    ]
 
     output = {}
     for lang_object in available_languages:

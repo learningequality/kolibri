@@ -5,6 +5,7 @@ For usage instructions, see:
 """
 import argparse
 import base64
+import functools
 import io
 import json
 import logging
@@ -49,8 +50,6 @@ Constants
 OUTPUT_PATH = os.path.abspath(
     os.path.join(
         os.path.dirname(__file__),
-        os.pardir,
-        os.pardir,
         os.pardir,
         os.pardir,
         "kolibri",
@@ -117,7 +116,7 @@ def _scoped(scope, name):
     return "{}.{}".format(scope, name)
 
 
-@utils.memoize
+@functools.cache
 def _woff_font_path(name, weight):
     file_name = "{name}.{weight}.woff".format(name=name, weight=FONT_WEIGHT_MAP[weight])
     return os.path.join(OUTPUT_PATH, file_name)
@@ -145,7 +144,7 @@ def _load_font(path):
         sys.exit(1)
 
 
-@utils.memoize
+@functools.cache
 def _font_priorities(default_font):
     """
     Given a default font, return a list of all possible font names roughly in the order
@@ -171,10 +170,10 @@ def _font_priorities(default_font):
 
     # finally look at the remaining langauges
     font_names.extend([fn for fn in noto_source.FONT_MANIFEST if fn not in font_names])
-    return font_names
+    return tuple(font_names)  # Return tuple for immutability
 
 
-@utils.memoize
+@functools.cache
 def _font_glyphs(font_path):
     """
     extract set of all glyphs from a font
@@ -330,7 +329,7 @@ def command_gen_full_fonts():
         for weight in noto_source.WEIGHTS:
             _write_full_font(font_name, weight)
 
-    languages = utils.available_languages(include_in_context=True, include_english=True)
+    languages = utils.available_languages()
     for lang_info in languages:
         _gen_full_css_modern(lang_info)
         _gen_full_css_basic(lang_info)
@@ -429,7 +428,7 @@ def _get_lang_strings(locale_dir):
     return strings
 
 
-@utils.memoize
+@functools.cache
 def _get_common_strings():
     """
     Text useful for all languages: displaying the language switcher, Kolibri version
@@ -458,14 +457,14 @@ def _get_common_strings():
     strings.extend([chr(c) for c in range(32, 127)])
 
     # text from language names, both lower- and upper-case
-    languages = utils.available_languages(include_in_context=True, include_english=True)
+    languages = utils.available_languages()
     for lang in languages:
         strings.append(lang[utils.KEY_LANG_NAME])
         strings.append(lang[utils.KEY_LANG_NAME].upper())
         strings.append(lang[utils.KEY_ENG_NAME])
         strings.append(lang[utils.KEY_ENG_NAME].upper())
 
-    return strings
+    return tuple(strings)  # Return tuple for immutability
 
 
 def _merge_fonts(fonts, output_file_path):
@@ -533,7 +532,7 @@ def _subset_and_merge_fonts(text, default_font, scope):
         _merge_fonts(subset, os.path.join(OUTPUT_PATH, subset_path))
 
 
-def command_gen_subset_fonts(locale_data_folder):
+def command_gen_subset_fonts():
     """
     Creates custom fonts that attempt to contain all the glyphs and other font features
     that are used in user-facing text for the translation in each language.
@@ -554,13 +553,11 @@ def command_gen_subset_fonts(locale_data_folder):
         scope=SCOPE_COMMON,
     )
 
-    languages = utils.available_languages(include_in_context=True, include_english=True)
+    languages = utils.available_languages()
     for lang_info in languages:
         logging.info("gen subset for {}".format(lang_info[utils.KEY_ENG_NAME]))
         strings = []
-        strings.extend(
-            _get_lang_strings(utils.local_locale_path(lang_info, locale_data_folder))
-        )
+        strings.extend(_get_lang_strings(utils.local_locale_path(lang_info)))
 
         name = lang_info[utils.KEY_INTL_CODE]
         _subset_and_merge_fonts(
@@ -573,7 +570,7 @@ def command_gen_subset_fonts(locale_data_folder):
     _generate_inline_font_css(name=SCOPE_COMMON, font_family=SCOPE_COMMON)
 
     # generate language-specific subset font files
-    languages = utils.available_languages(include_in_context=True, include_english=True)
+    languages = utils.available_languages()
     for lang in languages:
         _generate_inline_font_css(
             name=_scoped(SCOPE_SUBSET, lang[utils.KEY_INTL_CODE]),
@@ -638,8 +635,6 @@ def main():
     parser = argparse.ArgumentParser(description=description)
     subparsers = parser.add_subparsers(dest="command")
 
-    config = utils.read_config_file()
-
     subparsers.add_parser(
         "update-font-manifest",
         help="Update manifest from https://github.com/notofonts/notofonts.github.io",
@@ -665,8 +660,6 @@ def main():
 
     subparsers.add_parser(
         "generate-subset-fonts", help="Generate subset fonts based on app text"
-    ).add_argument(
-        "--locale-data-folder", type=str, default=config.get("locale_data_folder", "")
     )
 
     subparsers.add_parser("generate-full-fonts", help="Generate full fonts")
@@ -680,7 +673,7 @@ def main():
     elif args.command == "download-source-fonts":
         command_download_source_fonts()
     elif args.command == "generate-subset-fonts":
-        command_gen_subset_fonts(args.locale_data_folder)
+        command_gen_subset_fonts()
     elif args.command == "generate-full-fonts":
         command_gen_full_fonts()
     else:

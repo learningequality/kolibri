@@ -1,4 +1,5 @@
 SHELL := /bin/bash
+CROWDIN_BRANCH := release
 
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
 .PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release staticdeps staticdeps-cext strip-staticdeps writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-translations i18n-download-glossary i18n-upload-glossary docker-whl docker-demoserver docker-devserver docker-envlist
@@ -42,13 +43,13 @@ help:
 	@echo "--------------------"
 	@echo ""
 	@echo "i18n-extract: extract all strings from application (both front- and back-end)"
-	@echo "i18n-upload branch=<crowdin-branch>: upload sources to Crowdin"
-	@echo "i18n-pretranslate branch=<crowdin-branch>: pretranslate on Crowdin"
-	@echo "i18n-pretranslate-approve branch=<crowdin-branch>: pretranslate and pre-approve on Crowdin"
-	@echo "i18n-download branch=<crowdin-branch>: download strings from Crowdin"
+	@echo "i18n-upload: upload sources to Crowdin"
+	@echo "i18n-pretranslate: pretranslate on Crowdin"
+	@echo "i18n-pretranslate-approve: pretranslate and pre-approve on Crowdin"
+	@echo "i18n-download: download strings from Crowdin"
 	@echo "i18n-download-source-fonts: retrieve source Google Noto fonts"
 	@echo "i18n-regenerate-fonts: regenerate font files"
-	@echo "i18n-stats branch=<crowdin-branch>: output information about translation status"
+	@echo "i18n-stats: output information about translation status"
 	@echo "i18n-django-compilemessages: compiles .po files to .mo files for Django"
 	@echo "i18n-install-font name=<noto-font>: Downloads and installs a new or updated font"
 	@echo "i18n-download-glossary: Download the glossary file from crowdin and update locally
@@ -224,44 +225,39 @@ i18n-django-compilemessages:
 	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages --skip-update
 
 i18n-upload: i18n-extract
-	python packages/kolibri-i18n/src/crowdin.py upload-sources ${branch}
+	yarn exec crowdin upload sources -- --branch ${CROWDIN_BRANCH}
 
 i18n-pretranslate:
-	python packages/kolibri-i18n/src/crowdin.py pretranslate ${branch}
+	yarn exec crowdin pre-translate -- --branch ${CROWDIN_BRANCH} --translate-untranslated-only --method=tm
 
 i18n-pretranslate-approve-all:
-	python packages/kolibri-i18n/src/crowdin.py pretranslate ${branch} --approve-all
+	yarn exec crowdin pre-translate -- --branch ${CROWDIN_BRANCH} --translate-untranslated-only --method=tm --auto-approve-option=all
 
 i18n-download-translations:
-	python packages/kolibri-i18n/src/crowdin.py rebuild-translations ${branch}
-	python packages/kolibri-i18n/src/crowdin.py download-translations ${branch}
-	yarn exec kolibri-i18n i18n-code-gen -- --output-dir ./packages/kolibri/utils/internal
+	yarn exec crowdin download -- --branch ${CROWDIN_BRANCH}
+	python build_tools/i18n/cleanup_unsupported_languages.py
+	yarn exec kolibri-i18n code-gen -- --output-dir ./packages/kolibri/utils/internal
 	$(MAKE) i18n-django-compilemessages
 	yarn exec kolibri-i18n create-message-files -- --pluginFile ./build_tools/build_plugins.txt
 
 i18n-download-source-fonts:
-	python packages/kolibri-i18n/src/fonts.py download-source-fonts
+	python build_tools/i18n/fonts.py download-source-fonts
 
 i18n-regenerate-fonts:
-	python packages/kolibri-i18n/src/fonts.py generate-full-fonts
-	python packages/kolibri-i18n/src/fonts.py generate-subset-fonts
+	python build_tools/i18n/fonts.py generate-full-fonts
+	python build_tools/i18n/fonts.py generate-subset-fonts
 
 i18n-download: i18n-download-translations i18n-regenerate-fonts i18n-transfer-context
 
-i18n-screenshot-report:
-	python packages/kolibri-i18n/src/crowdin.py screenshot-report ${branch}
-
-i18n-transfer-screenshots:
-	python packages/kolibri-i18n/src/crowdin.py transfer-screenshots ${branch} ${source}
 
 i18n-install-font:
-	python packages/kolibri-i18n/src/fonts.py add-source-font ${name}
+	python build_tools/i18n/fonts.py add-source-font ${name}
 
 i18n-download-glossary:
-	python packages/kolibri-i18n/src/crowdin.py download-glossary
+	yarn exec crowdin glossary download
 
 i18n-upload-glossary:
-	python packages/kolibri-i18n/src/crowdin.py upload-glossary
+	yarn exec crowdin glossary upload
 
 docker-clean:
 	rm -f *.iid *.cid
