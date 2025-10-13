@@ -172,15 +172,6 @@
 
       const { classesLabel$ } = coreStrings;
 
-      const route = useRoute();
-      const goBack = useGoBack({
-        getFallbackRoute: () => {
-          return overrideRoute(route, {
-            name: getRootRouteName(route),
-          });
-        },
-      });
-
       // Computed properties
       const classList = computed(() =>
         props.classes
