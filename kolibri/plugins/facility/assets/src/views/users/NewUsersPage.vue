@@ -7,7 +7,7 @@
       width: '100%',
       height: '100%',
       margin: '0px',
-      padding: '0 1em',
+      padding: windowIsSmall ? '0 0.25em' : '0 1em',
     }"
   >
     <template #default="{ appBarHeight, pageContentHeight }">
@@ -64,7 +64,10 @@
                   @click="resetFilters"
                 />
               </div>
-              <div class="users-page-header-actions">
+              <div
+                v-if="!windowIsSmall"
+                class="users-page-header-actions"
+              >
                 <KRouterLink
                   primary
                   appearance="raised-button"
@@ -134,6 +137,17 @@
                     @click="clearSelectedUsers"
                   />
                 </div>
+              </div>
+              <div
+                v-if="windowIsSmall"
+                class="users-page-header-actions"
+              >
+                <KRouterLink
+                  primary
+                  appearance="raised-button"
+                  :text="newUser$()"
+                  :to="$store.getters.facilityPageLinks.UserCreatePage"
+                />
               </div>
               <PaginationActions
                 v-model="currentPage"
@@ -218,6 +232,7 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import { UserKinds } from 'kolibri/constants';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUsersTableSearch from '../../composables/useUsersTableSearch';
   import usePagination from '../../composables/usePagination';
   import useUserManagement from '../../composables/useUserManagement';
@@ -318,6 +333,8 @@
         fetchClasses();
       });
 
+      const { windowIsSmall } = useKResponsiveWindow();
+
       return {
         // Route utilities
         overrideRoute,
@@ -370,6 +387,8 @@
         currentUserId,
         isSuperuser,
         isAdmin,
+
+        windowIsSmall,
       };
     },
     computed: {

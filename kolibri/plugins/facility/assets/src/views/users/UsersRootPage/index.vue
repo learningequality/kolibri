@@ -6,7 +6,7 @@
       width: '100%',
       height: '100%',
       margin: '0px',
-      padding: '0 1em',
+      padding: windowIsSmall ? '0 0.25em' : '0 1em',
     }"
   >
     <template #default="{ appBarHeight, pageContentHeight }">
@@ -65,7 +65,10 @@
                   @click="resetFilters"
                 />
               </div>
-              <div class="users-page-header-actions">
+              <div
+                v-if="!windowIsSmall"
+                class="users-page-header-actions"
+              >
                 <KButton
                   hasDropdown
                   :primary="false"
@@ -148,6 +151,30 @@
                     @click="clearSelectedUsers"
                   />
                 </div>
+              </div>
+              <div
+                v-if="windowIsSmall"
+                class="users-page-header-actions"
+              >
+                <KButton
+                  hasDropdown
+                  :primary="false"
+                  :text="coreString('optionsLabel')"
+                >
+                  <template #menu>
+                    <KDropdownMenu
+                      :options="pageDropdownOptions"
+                      @select="handlePageDropdownSelection"
+                    />
+                  </template>
+                </KButton>
+                <KRouterLink
+                  v-if="!windowIsSmall"
+                  primary
+                  appearance="raised-button"
+                  :text="newUser$()"
+                  :to="$store.getters.facilityPageLinks.UserCreatePage"
+                />
               </div>
               <PaginationActions
                 v-model="currentPage"

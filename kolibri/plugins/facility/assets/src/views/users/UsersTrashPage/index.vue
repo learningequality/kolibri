@@ -7,7 +7,7 @@
       width: '100%',
       height: '100%',
       margin: '0px',
-      padding: '0 1em',
+      padding: windowIsSmall ? '0 0.25em' : '0 1em',
     }"
   >
     <template #default="{ appBarHeight, pageContentHeight }">
@@ -188,6 +188,7 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
 
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUserManagement from '../../../composables/useUserManagement';
   import { PageNames } from '../../../constants';
   import { overrideRoute } from '../../../utils';
@@ -319,7 +320,11 @@
         fetchClasses();
       });
 
+      const { windowIsSmall } = useKResponsiveWindow();
+
       return {
+        windowIsSmall,
+
         // Route utilities
         overrideRoute,
         PageNames,
