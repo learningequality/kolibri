@@ -15,11 +15,12 @@ jobs:
         id: version
         run: 
           VERSION=${GITHUB_REF#refs/tags/v}
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
       
       - name: Extract version from changelog
         id: changelog_version
         run: |
-        CHANGELOG_VERSION=$(dpkg-parsechangelog -S Version | sed -rne 's,([^-\+]+)+(\+dfsg)*.*,\1,p'i)
+        CHANGELOG_VERSION=$(dpkg-parsechangelog -S Version)
         echo "CHANGELOG_VERSION=${CHANGELOG_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Validate Version consistency
@@ -45,20 +46,13 @@ jobs:
       - name: Import GPG key
         run: |
           echo -n "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode | gpg --import --no-tty --batch --yes
-      - name: Build  unsigned package
-        env:
-          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
-        run: |
-          echo "Building unsigned package..."
-          make dist
-          echo "Build completed successfully!"
       - name: sign and upload package
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           Key ID: ${{ secrets.GPG_KEY_ID }}
         run: |
           echo "Signing package..."
-          make sign-and-dist
+          make sign-and-upload
           echo "upload completed successfully!"
 
   copy_to_other_distributions:
@@ -88,7 +82,7 @@ jobs:
   block_release_step:
     if: ${{ !github.event.release.prerelease }}
     name: Job to block publish of a release until it has been manually approved
-    needs: copy_to_series
+    needs: copy_to_other_distributions
     runs-on: ubuntu-latest
     environment: release
     steps:

@@ -1,4 +1,5 @@
 from launchpadlib.launchpad import Launchpad
+import os
 
 
 # 1) One-time: generate credentials locally
@@ -18,10 +19,12 @@ from launchpadlib.launchpad import Launchpad
 # Exact APP name should be passed in build workflow
 # Launchpad.login_with(application_name="APP_NAME", ...)
 APP_NAME = "ppa-kolibri-server-jammy-package"  
-CACHE_DIR = "/absolute/path/to/lp-cache"       
-CREDS_FILE = "/absolute/path/to/launchpad.credentials"
 
-Launchpad.login_with(APP_NAME, "production", cache_dir=CACHE_DIR, credentials_file=CREDS_FILE)
+
+CREDS_FILE = os.environ.get("LP_CREDENTIALS_FILE", "launchpad.credentials")
+
+
+Launchpad.login_with(APP_NAME, "production", credentials_file=CREDS_FILE)
 print(f"Credentials saved to: {CREDS_FILE}")
 
 

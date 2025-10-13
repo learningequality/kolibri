@@ -16,20 +16,14 @@ SRC_PPA = "kolibri-proposed"
 DST_PPA = "kolibri"
 PACKAGE_WHITELIST = {"kolibri-server"}
 APP_NAME = "ppa-kolibri-server-jammy-package"
-CACHE_DIR = os.environ.get("LP_CACHE_DIR", "/tmp/launchpadlib-cache")
 
 
 def main():
-    creds_file = os.environ.get("LP_CREDENTIALS_FILE")
-    if not creds_file or not os.path.exists(creds_file):
-        print("LP_CREDENTIALS_FILE is required and must point to a valid file", file=sys.stderr)
-        return 2
+
 
     lp = Launchpad.login_with(
         application_name=APP_NAME,
         service_root="production",
-        cache_dir=CACHE_DIR,
-        credentials_file=creds_file,
     )
 
     owner = lp.people[OWNER]

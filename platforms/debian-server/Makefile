@@ -22,10 +22,11 @@ deb: orig
 
 dist: orig
 	@mkdir -p dist
+	echo "Building unsigned package..."
 	dpkg-buildpackage -S -us -uc --output-directory=dist/
-
+	@echo "Package built successfully!"
 # build and sign (signing uses environment GPG_PASSPHRASE and KEYID)
-sign-and-dist:
+sign-and-upload: dist
 	@echo "Signing and uploading package..."
 	debsign -p"gpg --batch --yes --pinentry-mode loopback --passphrase $(GPG_PASSPHRASE)" dist/*.changes
 	@echo "Uploading to PPA..."

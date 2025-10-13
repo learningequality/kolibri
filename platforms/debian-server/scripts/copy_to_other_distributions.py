@@ -49,27 +49,17 @@ REQUESTS = LAST_REQUESTS = 0
 
 
 def get_launchpad_client():
-    cache_dir = os.environ.get("LP_CACHE_DIR", "/tmp/launchpadlib-cache")
-    creds_file = os.environ.get("LP_CREDENTIALS_FILE")  # set by CI
-    if creds_file:
-        # The application name must match the one used in APP_NAME in create_lp_creds.py
-        return Launchpad.login_with(
-            application_name="ppa-kolibri-server-jammy-package",  # must match APP_NAME used locally
-            service_root="production",
-            cache_dir=cache_dir,
-            credentials_file=creds_file,
-        )
-    # Fallback for local dev without explicit creds file (will open browser)
+    # If LP_CREDENTIALS_FILE is set, launchpadlib will automatically use it.
+    # Use the same application name as used to create credentials.
     return Launchpad.login_with(
-        application_name="ppa-kolibri-server-copy-packages",
+        application_name="ppa-kolibri-server-jammy-package",
         service_root="production",
-        cache_dir=cache_dir,
     )
 
 
 def get_supported_series_dynamically(source_series):
     try:
-        out = subprocess.check_output(["ubuntu-distro-info", "--supported", "--series"], text=True).strip()
+        out = subprocess.check_output(["ubuntu-distro-info", "--supported"], text=True).strip()
         all_series = out.split()
         series = [s for s in all_series if s and s != source_series]
         log.info("Dynamic series discovery:")
