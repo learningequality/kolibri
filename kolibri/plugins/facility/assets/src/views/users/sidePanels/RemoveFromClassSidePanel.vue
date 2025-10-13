@@ -268,14 +268,20 @@
             kind: UserKinds.COACH,
           }))
           : [];
-        await Promise.all([
-          enrollments.length
-            ? MembershipResource.saveCollection({ data: enrollments })
-            : Promise.resolve(),
-          assignments.length
-            ? RoleResource.saveCollection({ data: assignments })
-            : Promise.resolve(),
-        ]);
+        try {
+          await Promise.all([
+            enrollments.length
+              ? MembershipResource.saveCollection({ data: enrollments })
+              : Promise.resolve(),
+            assignments.length
+              ? RoleResource.saveCollection({ data: assignments })
+              : Promise.resolve(),
+          ]);
+        } catch (_) {
+          showErrorWarning.value = true;
+        } finally {
+          loading.value = false;
+        }
         props.onChange({
           affectedClasses: selectedOptions.value,
           resetSelection: true,
