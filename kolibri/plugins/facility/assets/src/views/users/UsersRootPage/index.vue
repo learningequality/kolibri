@@ -23,8 +23,6 @@
         <div
           class="header-shadow"
           :style="{
-            top: 0,
-            position: 'sticky',
             padding: '1em 1em 0 1em',
             backgroundColor: $themeTokens.surface,
           }"
