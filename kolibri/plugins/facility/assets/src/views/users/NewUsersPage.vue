@@ -40,7 +40,7 @@
               <div class="top-row-left">
                 <h1>{{ newUsers$() }}</h1>
                 <FilterTextbox
-                  v-if="facilityUsers.length || searchTerm"
+                  v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
                   ref="filterTextboxRef"
                   v-model="searchTerm"
                   class="search-box"
@@ -48,7 +48,7 @@
                   :aria-label="coreString('searchForUser')"
                 />
                 <KRouterLink
-                  v-if="facilityUsers.length || searchTerm"
+                  v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
                   appearance="basic-link"
                   :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
                   class="filter-button"

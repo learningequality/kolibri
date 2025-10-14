@@ -43,7 +43,7 @@
               <div class="top-row-left">
                 <h1>{{ coreString('usersLabel') }}</h1>
                 <FilterTextbox
-                  v-if="facilityUsers.length || searchTerm"
+                  v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
                   ref="filterTextboxRef"
                   v-model="searchTerm"
                   class="search-box"
@@ -51,7 +51,7 @@
                   :aria-label="coreString('searchForUser')"
                 />
                 <KRouterLink
-                  v-if="facilityUsers.length || searchTerm"
+                  v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
                   appearance="basic-link"
                   class="filter-button"
                   :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL })"
