@@ -22,7 +22,7 @@
 
 <script>
 
-  import { computed, toRefs,  ref } from 'vue';
+  import { computed, toRefs, ref } from 'vue';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import { ClassesActions } from '../../../../constants';
