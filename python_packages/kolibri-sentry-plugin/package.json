@@ -10,7 +10,7 @@
     "lint-frontend:format": "yarn run lint-frontend --write"
   },
   "dependencies": {
-    "@sentry/vue": "^10.8.0",
+    "@sentry/vue": "^10.19.0",
     "browserslist-config-kolibri": "^0.18.0",
     "kolibri": "^0.18.0",
     "kolibri-plugin-data": "^1.0.0"
