@@ -33,7 +33,7 @@ jobs:
           cache-dependency-path: setup.py
       - name: Set up NodeJS
         if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: 18
           cache: 'yarn'
