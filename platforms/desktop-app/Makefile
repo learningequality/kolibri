@@ -86,13 +86,13 @@ build-dmg: needs-version
 .PHONY: webview2
 # Download WebView2 runtime installer
 webview2:
-	@if [ ! -f MicrosoftEdgeWebView2RuntimeInstallerX64.exe ]; then \
+	@if [ ! -f installer/MicrosoftEdgeWebView2RuntimeInstallerX64.exe ]; then \
 		echo "Downloading WebView2 full installer..."; \
 		( \
-			trap 'echo "Interrupted. Cleaning up..."; rm -f MicrosoftEdgeWebView2RuntimeInstallerX64.exe; exit 1' INT TERM; \
-			wget https://go.microsoft.com/fwlink/?linkid=2124701 -O MicrosoftEdgeWebView2RuntimeInstallerX64.exe || { \
+			trap 'echo "Interrupted. Cleaning up..."; rm -f installer/MicrosoftEdgeWebView2RuntimeInstallerX64.exe; exit 1' INT TERM; \
+			wget https://go.microsoft.com/fwlink/?linkid=2124701 -O installer/MicrosoftEdgeWebView2RuntimeInstallerX64.exe || { \
 				echo "\Download failed. Cleaning up..."; \
-				rm -f MicrosoftEdgeWebView2RuntimeInstallerX64.exe; \
+				rm -f installer/MicrosoftEdgeWebView2RuntimeInstallerX64.exe; \
 				exit 1; \
 			} \
 		); \
@@ -106,10 +106,29 @@ build-installer-windows: needs-version webview2
 ifeq ($(OS),Windows_NT)
 	# Assumes Inno Setup is installed in the default location.
 	# MSYS_NO_PATHCONV=1 prevents Git Bash/MINGW from converting the /D flag into a file path.
-	MSYS_NO_PATHCONV=1 "C:\Program Files (x86)\Inno Setup 6\iscc.exe" /DAppVersion=$(KOLIBRI_VERSION) kolibri.iss
+	MSYS_NO_PATHCONV=1 "C:\Program Files (x86)\Inno Setup 6\iscc.exe" /DAppVersion=$(KOLIBRI_VERSION) installer/kolibri.iss
 else
 	@echo "Windows installer can only be built on Windows."
 endif
+
+INNO_DEFAULT_ISL ?= C:/Program Files (x86)/Inno Setup 6/Default.isl
+INNO_LANGUAGES_DIR ?= C:/Program Files (x86)/Inno Setup 6/Languages
+
+.PHONY: new-language
+new-language:
+	$(MAKE) guard-LANG
+	@echo "Creating new language scaffolding for '$(LANG)'..."
+	$(PYTHON_EXEC) installer/translations/create_new_language.py \
+		--name "$(LANG)" \
+		--inno-languages-dir "$(INNO_LANGUAGES_DIR)"
+
+.PHONY: update-translations
+update-translations:
+	@echo "Updating master language file from '$(INNO_DEFAULT_ISL)'..."
+	$(PYTHON_EXEC) installer/translations/update_from_inno_default.py \
+		--new-default "$(INNO_DEFAULT_ISL)" \
+		--project-master "installer/translations/English.isl"
+	@echo "Update complete. Please review update_report.txt and commit the changes to English.isl."
 
 compile-mo:
 	find src/kolibri_app/locales -name LC_MESSAGES -exec msgfmt {}/wxapp.po -o {}/wxapp.mo \;

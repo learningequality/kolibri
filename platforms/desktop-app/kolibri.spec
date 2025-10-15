@@ -70,7 +70,7 @@ datas_list = [
 if sys.platform == "win32":
     datas_list.extend([
         ('src/kolibri_app/icons', 'kolibri_app/icons'),
-        ('vendor/nssm/nssm.exe', 'nssm')
+        (os.path.join('installer', 'nssm.exe'), 'nssm')
     ])
 
 binaries_list = []
