@@ -7,6 +7,12 @@ Feature: Admin creates users
       And I am at *Facility > Users* page
 
   Scenario: Create a new learner user account
+  	When I look at the *New users* page
+    Then I see a *New user* button and an *Options* drop-down
+      And I see the *Assign coach*, *Enroll in class*, *Remove from class* and *Remove selected users* icons
+      And I see the *Search for a user* field
+      And I see a *Filter* link
+      And I see the user's table with the *Full name*, *Username*, *Identifier*, *Gender*, *Birth year* and *Created at* columns
     When I click the *New user* button
     Then I see the *Create new user* side panel
     When I enter the user's full name
