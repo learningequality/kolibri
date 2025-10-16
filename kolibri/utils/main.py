@@ -31,6 +31,7 @@ from kolibri.utils.database import sqlite_check_foreign_keys
 from kolibri.utils.debian_check import check_debian_user
 from kolibri.utils.logger import get_base_logging_config
 from kolibri.utils.sanity_checks import check_content_directory_exists_and_writable
+from kolibri.utils.sanity_checks import check_database_is_migrated
 from kolibri.utils.sanity_checks import check_default_options_exist
 from kolibri.utils.sanity_checks import check_django_stack_ready
 from kolibri.utils.sanity_checks import check_log_file_location
@@ -38,8 +39,6 @@ from kolibri.utils.sanity_checks import DatabaseInaccessible
 from kolibri.utils.sanity_checks import DatabaseNotMigrated
 from kolibri.utils.server import get_status
 from kolibri.utils.server import NotRunning
-
-# from kolibri.utils.sanity_checks import check_database_is_migrated
 
 logger = logging.getLogger(__name__)
 
@@ -315,9 +314,7 @@ def initialize(  # noqa C901
         check_django_stack_ready()
 
         try:
-            # check_database_is_migrated()
-            # Temporary replacing this check to always migrate
-            _migrate_databases()
+            check_database_is_migrated()
         except DatabaseNotMigrated:
             try:
                 _migrate_databases()

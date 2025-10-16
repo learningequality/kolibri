@@ -162,6 +162,7 @@ class TasksViewSet(viewsets.GenericViewSet):
                 interval=enqueue_args.get("repeat_interval", 0),
                 repeat=enqueue_args.get("repeat", 0),
                 retry_interval=enqueue_args.get("retry_interval", None),
+                max_retries=enqueue_args.get("max_retries", None),
             )
         elif enqueue_args.get("enqueue_in"):
             return job_storage.enqueue_in(
@@ -172,12 +173,14 @@ class TasksViewSet(viewsets.GenericViewSet):
                 interval=enqueue_args.get("repeat_interval", 0),
                 repeat=enqueue_args.get("repeat", 0),
                 retry_interval=enqueue_args.get("retry_interval", None),
+                max_retries=enqueue_args.get("max_retries", None),
             )
         return job_storage.enqueue_job(
             job,
             queue=registered_task.queue,
             priority=enqueue_args.get("priority", registered_task.priority),
             retry_interval=enqueue_args.get("retry_interval", None),
+            max_retries=enqueue_args.get("max_retries", None),
         )
 
     def create(self, request):

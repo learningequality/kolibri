@@ -187,7 +187,12 @@ class Storage:
         return job
 
     def enqueue_job(
-        self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
+        self,
+        job,
+        queue=DEFAULT_QUEUE,
+        priority=Priority.REGULAR,
+        retry_interval=None,
+        max_retries=None,
     ):
         """
         Add the job given by j to the job queue.
@@ -204,6 +209,7 @@ class Storage:
                 interval=0,
                 repeat=0,
                 retry_interval=retry_interval,
+                max_retries=max_retries,
             )
         except JobRunning:
             logger.debug(
@@ -214,7 +220,12 @@ class Storage:
             return job.job_id
 
     def enqueue_lifo(
-        self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
+        self,
+        job,
+        queue=DEFAULT_QUEUE,
+        priority=Priority.REGULAR,
+        retry_interval=None,
+        max_retries=None,
     ):
         naive_utc_now = datetime.utcnow()
         with self.session_scope() as session:
@@ -240,6 +251,7 @@ class Storage:
                 interval=0,
                 repeat=0,
                 retry_interval=retry_interval,
+                max_retries=max_retries,
             )
         except JobRunning:
             logger.debug(
@@ -644,6 +656,7 @@ class Storage:
             retry_interval=retry_interval
             if retry_interval is not NO_VALUE
             else orm_job.retry_interval,
+            max_retries=orm_job.max_retries,
         )
 
         if exception is not None:
@@ -658,12 +671,19 @@ class Storage:
             # enqueuing changes - so if it is still set to repeat, it will repeat again after the
             # delayed rerun.
             new_scheduled_time = self._now() + delay
-        elif orm_job.state == State.FAILED and kwargs["retry_interval"] is not None:
+        elif self._should_retry_on_task_failed(
+            orm_job, exception, kwargs["retry_interval"]
+        ):
             # If the task has failed, and a retry interval has been specified (either in the original enqueue,
             # or from the passed in kwargs) then requeue as a retry.
             new_scheduled_time = self._now() + timedelta(
                 seconds=kwargs["retry_interval"]
+                if kwargs["retry_interval"] is not None
+                else 10
             )
+            # Increment the retries count.
+            current_retries = orm_job.retries if orm_job.retries is not None else 0
+            kwargs["retries"] = current_retries + 1
 
         elif (
             orm_job.state in {State.COMPLETED, State.FAILED, State.CANCELED}
@@ -681,6 +701,28 @@ class Storage:
             job = self._orm_to_job(orm_job)
             # Use the schedule method so that any scheduling hooks are run for this next run of the job.
             self.schedule(new_scheduled_time, job, **kwargs)
+
+    def _should_retry_on_task_failed(self, orm_job, exception, retry_interval):
+        """
+        Determine if a job should be retried based on its retry settings and the exception raised.
+        """
+        if orm_job.state != State.FAILED:
+            return False
+
+        if retry_interval is None and orm_job.max_retries is None:
+            # retry_interval or max_retries should be set to enable retries
+            return False
+
+        current_retries = orm_job.retries if orm_job.retries is not None else 0
+        if orm_job.max_retries is not None and current_retries >= orm_job.max_retries:
+            return False
+
+        job = self._orm_to_job(orm_job)
+        retry_on = job.task.retry_on
+        if retry_on:
+            return any(issubclass(exception, exc) for exc in retry_on)
+
+        return True
 
     def _update_job(self, job_id, state=None, **kwargs):
         with self.session_scope() as session:
@@ -736,6 +778,7 @@ class Storage:
         interval=0,
         repeat=0,
         retry_interval=None,
+        max_retries=None,
     ):
         """
         Add the job for the specified time
@@ -748,6 +791,7 @@ class Storage:
             interval=interval,
             repeat=repeat,
             retry_interval=retry_interval,
+            max_retries=max_retries,
         )
 
     def enqueue_in(
@@ -759,6 +803,7 @@ class Storage:
         interval=0,
         repeat=0,
         retry_interval=None,
+        max_retries=None,
     ):
         """
         Add the job in the specified time delta
@@ -774,6 +819,7 @@ class Storage:
             interval=interval,
             repeat=repeat,
             retry_interval=retry_interval,
+            max_retries=max_retries,
         )
 
     def schedule(
@@ -785,6 +831,7 @@ class Storage:
         interval=0,
         repeat=0,
         retry_interval=None,
+        max_retries=None,
     ):
         """
         Add the job for the specified time, interval, and number of repeats.
@@ -820,6 +867,7 @@ class Storage:
                 interval=interval,
                 repeat=repeat,
                 retry_interval=retry_interval,
+                max_retries=max_retries,
                 scheduled_time=naive_utc_datetime(dt),
                 saved_job=job.to_json(),
             )

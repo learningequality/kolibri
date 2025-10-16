@@ -233,6 +233,10 @@
           device_id: this.device.id,
           user_id: learner.id,
           using_admin: true,
+          enqueue_args: {
+            retry_interval: 5,
+            max_retries: 3,
+          },
         };
         if (!this.wizardService.state.context.firstImportedLodUser) {
           this.wizardService.send({
