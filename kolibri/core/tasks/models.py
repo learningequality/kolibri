@@ -24,21 +24,18 @@ class KolibriTasksRouter(object):
     def allow_relation(self, obj1, obj2, **hints):
         """Determine if relationship is allowed between two objects."""
 
-        # Allow any relation between two models that are both in the Notifications app.
         if (
             obj1._meta.app_label == "kolibritasks"
             and obj2._meta.app_label == "kolibritasks"
         ):
             return True
-        # No opinion if neither object is in the Notifications app (defer to default or other routers).
         elif "kolibritasks" not in [obj1._meta.app_label, obj2._meta.app_label]:
             return None
 
-        # Block relationship if one object is in the Notifications app and the other isn't.
         return False
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
-        """Ensure that the Notifications app's models get created on the right database."""
+        """Ensure that the kolibritasks app's models get created on the right database."""
         if app_label == "kolibritasks":
             # The kolibritasks app should be migrated only on the JOB_STORAGE database.
             return db == JOB_STORAGE
@@ -54,7 +51,7 @@ class Job(models.Model):
     """
     Django model corresponding to the 'jobs' table in SQLAlchemy.
 
-    This model is not meant to be used for normal CRUD operations.
+    This model is not meant to be used for normal CRUD operations (yet).
     It exists solely for Django to manage the migrations
     of the 'jobs' table, which is handled by SQLAlchemy.
     """
@@ -105,7 +102,7 @@ class Job(models.Model):
     max_retries = models.IntegerField(null=True, blank=True)
 
     class Meta:
-        db_table = "jobs"  # Usar la misma tabla que SQLAlchemy
+        db_table = "jobs"
         indexes = [
             models.Index(
                 fields=["queue", "scheduled_time"], name="queue__scheduled_time"

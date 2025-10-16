@@ -1,7 +1,10 @@
-# Initial migration for the jobs table. This migration should be
-# skipped if the table was created by SQLAlchemy.
+# Initial migration for the jobs table. This model/index creation should be
+# skipped if the table was previously created by SQLAlchemy.
 from django.db import migrations
 from django.db import models
+
+from kolibri.core.tasks.operations import AddIndexIfNotExists
+from kolibri.core.tasks.operations import CreateModelIfNotExists
 
 
 class Migration(migrations.Migration):
@@ -11,7 +14,7 @@ class Migration(migrations.Migration):
     dependencies = []
 
     operations = [
-        migrations.CreateModel(
+        CreateModelIfNotExists(
             name="Job",
             fields=[
                 ("id", models.CharField(max_length=36, primary_key=True)),
@@ -44,7 +47,7 @@ class Migration(migrations.Migration):
                 "db_table": "jobs",
             },
         ),
-        migrations.AddIndex(
+        AddIndexIfNotExists(
             model_name="job",
             index=models.Index(
                 fields=["queue", "scheduled_time"], name="queue__scheduled_time"

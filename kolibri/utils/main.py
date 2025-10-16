@@ -36,7 +36,6 @@ from kolibri.utils.sanity_checks import check_django_stack_ready
 from kolibri.utils.sanity_checks import check_log_file_location
 from kolibri.utils.sanity_checks import DatabaseInaccessible
 from kolibri.utils.sanity_checks import DatabaseNotMigrated
-from kolibri.utils.sanity_checks import ensure_job_tables_created
 from kolibri.utils.server import get_status
 from kolibri.utils.server import NotRunning
 
@@ -292,17 +291,6 @@ def initialize(  # noqa C901
     _setup_django()
 
     _post_django_initialization()
-
-    if not skip_update:
-        try:
-            ensure_job_tables_created()
-        except Exception as e:
-            logging.error(
-                "The job tables were not fully migrated. Tried to "
-                "create them in the database and an error occurred: "
-                "{}".format(e)
-            )
-            raise
 
     if updated and not skip_update:
         conditional_backup(kolibri.__version__, version)

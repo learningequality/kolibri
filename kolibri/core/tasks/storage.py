@@ -111,7 +111,6 @@ class Storage:
         if self.engine.name == "sqlite":
             self.set_sqlite_pragmas()
         self.Base = Base
-        self.Base.metadata.create_all(self.engine)
         self.sessionmaker = sessionmaker(bind=self.engine)
         self._hooks = list(StorageHook.registered_hooks)
 
@@ -147,14 +146,6 @@ class Storage:
                 connection.execute(select(ORMJob).where(ORMJob.id == job_id)).fetchone()
                 is not None
             )
-
-    @staticmethod
-    def create_default_tables(engine):
-        """
-        Creates the default tables for the job storage backend. If the tables
-        already exist, this does nothing.
-        """
-        Base.metadata.create_all(engine)
 
     @staticmethod
     def recreate_default_tables(engine):
@@ -394,6 +385,9 @@ class Storage:
         return self.filter_jobs(queue=queue, repeating=repeating)
 
     def test_table_readable(self):
+        """
+        @deprecated
+        """
         # Have to use the self-referential `self.engine.engine` as the inspection
         # used inside this function complains if we use the `self.engine` object
         # as it is a Django SimpleLazyObject and it doesn't like it!
