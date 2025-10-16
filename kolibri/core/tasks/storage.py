@@ -27,6 +27,7 @@ from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.validation import validate_exception
 from kolibri.core.tasks.validation import validate_interval
 from kolibri.core.tasks.validation import validate_priority
 from kolibri.core.tasks.validation import validate_repeat
@@ -45,6 +46,10 @@ class ORMJob(Base):
     The DB representation of a common.classes.Job object,
     storing the relevant details needed by the job storage
     backend.
+
+    Migrations are carried out using Django's migration framework, so
+    any changes to this model should also be done in the django model
+    in kolibri.core.tasks.models.Job
     """
 
     __tablename__ = "jobs"
@@ -87,6 +92,12 @@ class ORMJob(Base):
     worker_process = Column(String, nullable=True)
     worker_thread = Column(String, nullable=True)
     worker_extra = Column(String, nullable=True)
+
+    # Columns for retry logic
+    # Number of times the job has been retried
+    retries = Column(Integer, nullable=True)
+    # Maximum number of retries allowed for the job
+    max_retries = Column(Integer, nullable=True)
 
     __table_args__ = (Index("queue__scheduled_time", "queue", "scheduled_time"),)
 
@@ -138,8 +149,17 @@ class Storage:
             )
 
     @staticmethod
+    def create_default_tables(engine):
+        """
+        Creates the default tables for the job storage backend. If the tables
+        already exist, this does nothing.
+        """
+        Base.metadata.create_all(engine)
+
+    @staticmethod
     def recreate_default_tables(engine):
         """
+        @deprecated
         Recreates the default tables for the job storage backend.
         """
         Base.metadata.drop_all(engine)
@@ -587,6 +607,7 @@ class Storage:
         interval=None,
         repeat=NO_VALUE,
         retry_interval=NO_VALUE,
+        exception=None,
     ):
         """
         Because repeat and retry_interval are nullable, None is a semantic value, so we need to use a sentinel value NO_VALUE
@@ -609,6 +630,9 @@ class Storage:
         if delay is not None:
             validate_timedelay(delay)
 
+        if exception is not None:
+            validate_exception(exception)
+
         orm_job = self.get_orm_job(job_id)
 
         # Only allow this function to be run on a job that is in a finished state.
@@ -628,6 +652,9 @@ class Storage:
             else orm_job.retry_interval,
         )
 
+        if exception is not None:
+            # TODO: Implement retry on exception logic.
+            pass
         # Set a null new_scheduled_time so that we finish processing if none of the cases below pertain.
         new_scheduled_time = None
         if delay is not None:

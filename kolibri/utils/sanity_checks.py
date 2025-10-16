@@ -123,12 +123,28 @@ def ensure_job_tables_created():
     from kolibri.core.tasks.main import job_storage
     from kolibri.core.tasks.main import connection
     from kolibri.core.tasks.storage import Storage
+    from kolibri.core.tasks.schema_utils import sync_django_migration_state
+    from kolibri.core.tasks.schema_utils import sync_initial_migration_state
 
     try:
         job_storage.test_table_readable()
+        try:
+            # If the table is created and up to date, mark all migrations as applied
+            sync_django_migration_state()
+        except Exception as e:
+            logger.warning(f"Could not sync Django migration state: {e}")
     except (SQLAlchemyOperationalError, SQLAlchemyProgrammingError, DBSchemaError):
-        logger.warning("Database table for job storage was not accessible, recreating.")
-        Storage.recreate_default_tables(connection)
+        logger.warning("Database table for job storage was not accessible, creating.")
+        # If the table doesn't exist, create it
+        # If the table exists but is not up to date, mark initial migration (table creation) as applied
+        # and migrations will take care of updating the schema
+        Storage.create_default_tables(connection)
+        try:
+            sync_initial_migration_state()
+        except Exception as e:
+            logger.warning(
+                f"Could not sync Django migration state after recreation: {e}"
+            )
     except Exception as e:
         raise DatabaseInaccessible(db_exception=e)
 

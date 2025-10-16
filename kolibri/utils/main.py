@@ -31,7 +31,6 @@ from kolibri.utils.database import sqlite_check_foreign_keys
 from kolibri.utils.debian_check import check_debian_user
 from kolibri.utils.logger import get_base_logging_config
 from kolibri.utils.sanity_checks import check_content_directory_exists_and_writable
-from kolibri.utils.sanity_checks import check_database_is_migrated
 from kolibri.utils.sanity_checks import check_default_options_exist
 from kolibri.utils.sanity_checks import check_django_stack_ready
 from kolibri.utils.sanity_checks import check_log_file_location
@@ -40,6 +39,8 @@ from kolibri.utils.sanity_checks import DatabaseNotMigrated
 from kolibri.utils.sanity_checks import ensure_job_tables_created
 from kolibri.utils.server import get_status
 from kolibri.utils.server import NotRunning
+
+# from kolibri.utils.sanity_checks import check_database_is_migrated
 
 logger = logging.getLogger(__name__)
 
@@ -288,6 +289,11 @@ def initialize(  # noqa C901
     if not skip_update:
         _upgrades_before_django_setup(updated, version)
 
+    _setup_django()
+
+    _post_django_initialization()
+
+    if not skip_update:
         try:
             ensure_job_tables_created()
         except Exception as e:
@@ -297,10 +303,6 @@ def initialize(  # noqa C901
                 "{}".format(e)
             )
             raise
-
-    _setup_django()
-
-    _post_django_initialization()
 
     if updated and not skip_update:
         conditional_backup(kolibri.__version__, version)
@@ -325,7 +327,9 @@ def initialize(  # noqa C901
         check_django_stack_ready()
 
         try:
-            check_database_is_migrated()
+            # check_database_is_migrated()
+            # Temporary replacing this check to always migrate
+            _migrate_databases()
         except DatabaseNotMigrated:
             try:
                 _migrate_databases()

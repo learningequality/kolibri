@@ -20,6 +20,7 @@ from tzlocal.utils import ZoneInfoNotFoundError
 import kolibri
 from kolibri.deployment.default.cache import CACHES
 from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
+from kolibri.deployment.default.sqlite_db_names import JOB_STORAGE
 from kolibri.plugins.utils.settings import apply_settings
 from kolibri.utils import conf
 from kolibri.utils import i18n
@@ -140,6 +141,11 @@ WSGI_APPLICATION = "kolibri.deployment.default.wsgi.application"
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
+    job_storage_path = conf.OPTIONS["Tasks"]["JOB_STORAGE_FILEPATH"]
+    # if job_storage_path is relative, make it relative to KOLIBRI_HOME
+    if not os.path.isabs(job_storage_path):
+        job_storage_path = os.path.join(conf.KOLIBRI_HOME, job_storage_path)
+
     # Using custom SQLite backend that uses BEGIN IMMEDIATE transactions.
     # Once upgraded to Django 5.2+, revert to "django.db.backends.sqlite3" and use
     # the transaction_mode option instead.
@@ -150,6 +156,11 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
                 conf.KOLIBRI_HOME,
                 conf.OPTIONS["Database"]["DATABASE_NAME"] or "db.sqlite3",
             ),
+            "OPTIONS": {"timeout": 100},
+        },
+        JOB_STORAGE: {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": job_storage_path,
             "OPTIONS": {"timeout": 100},
         },
     }
@@ -166,6 +177,7 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
         "kolibri.core.notifications.models.NotificationsRouter",
         "kolibri.core.device.models.SyncQueueRouter",
         "kolibri.core.discovery.models.NetworkLocationRouter",
+        "kolibri.core.tasks.models.KolibriTasksRouter",
     )
 
 elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
