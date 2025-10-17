@@ -31,3 +31,23 @@ Feature: Admin copies a class
     Then the modal closes
       And I see a *Class copied successfully* snackbar message
       And I see that none of the learners and coaches are copied
+
+  Scenario: Copy a class with learners and coaches from the class details page
+  	When I click on the class name
+  	Then I see the class details page
+    When I click on the *Options* drop-down
+    	And I click the *Copy class* option
+    Then I see the *Copy class* modal
+    	And I see a *Class name* field
+    	And I see a *Copy of <class name>* text in the field
+    	And I see a *Copy all learners (N)* checkbox
+    	And I see a *Copy all coaches (N)* checkbox
+    	And both checkboxes are not selected by default
+    When I enter a new class name in the *Class name* field
+    	And I select both checkboxes
+      And I click the *Make a copy* button
+    Then the modal closes
+    	And I am back at *Facility > Classes*
+      And I see a *Class copied successfully* snackbar message
+      And I see the copied class in the *Classes* table
+      And I see the correct number of coped coaches and learners

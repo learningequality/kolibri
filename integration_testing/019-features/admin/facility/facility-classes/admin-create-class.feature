@@ -1,5 +1,5 @@
 Feature: Admin creates classes
-  Admin needs to be able create classes for each facility
+  Admin needs to be able to create classes for each facility
 
   Background:
     Given I am signed in to Kolibri as a facility admin user
@@ -11,4 +11,5 @@ Feature: Admin creates classes
     When I enter a class name
       And I click the *Save* button
     Then the modal closes
-      And I see the new class in the *Classes* table
+    	And I see the *Class created* snackbar message
+      And I see the new class listed in the *Classes* table

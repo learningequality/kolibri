@@ -20,7 +20,8 @@ Feature: Admin renames a class
 
   Scenario: Rename a class while managing the class coaches and learners
   	Given I am at the class page
-    When I click on the *Rename* link to the right of the class name
+    When I click on the *Options* drop-down
+    	And I click the *Rename class* option
     Then I see the *Rename class* modal
     	And I see a *Class name* field
     	And I see a *<class name>* text in the field

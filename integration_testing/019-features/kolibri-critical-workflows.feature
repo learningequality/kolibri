@@ -389,40 +389,51 @@ Feature: Kolibri critical workflows
   Scenario: Super admin creates a learner user account
   	Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Users*
+    When I look at the *New users* page
+    Then I see a *New user* button and an *Options* drop-down
+      And I see the *Assign coach*, *Enroll in class*, *Remove from class* and *Remove selected users* icons
+      And I see the *Search for a user* field
+      And I see a *Filter* link
+      And I see the user's table with the *Full name*, *Username*, *Identifier*, *Gender*, *Birth year* and *Created at* columns
     When I click the *New user* button
-    Then I see the *Create new user* page
-    When I fill in all the required fields
-      And I click the *Save* button
+    Then I see the *Create new user* side panel
+    When I enter the user's full name
+      And I enter the username
+      And I enter the password
+      And I re-enter the password
+      And I leave the default value of *Learner* for the *User type*
+      And I enter *Identifier* #optional
+      And I select *Birth year* and *Gender* #optional
+      And I don't make a selection from the *Enroll in class* field
+      And I click the *Save and close* button
     Then the page reloads
-      And I see the the snackbar confirmation that the user has been created
-      And I see that the new learner is added to the *Users* table
+      And I see the *User created* snackbar message
+      And I see the new learner user in the *New users* table
 
   Scenario: Super admin creates a facility coach user account
   	Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Users*
-    When I click the *New user* button
-    Then I see the *Create new user* page
-    When I select *Coach* from the *User type* drop-down
-    	And I select the *Facility coach* radio-button
-    	And I fill in all the required fields
-      And I click the *Save* button
+    	And I am at the *Create new user* side panel
+    	And I have selected *Coach* from the *User type* drop-down
+    	And have selected the *Facility coach* radio-button
+    	And I have filled in all the required fields
+    When I click the *Save and close* button
     Then the page reloads
-      And I see the the snackbar confirmation that the user has been created
-      And I see that the new facility coach is added to the *Users* table
-      And there's a label *Facility coach* next to the full name of the coach
+      And I see the *User created* snackbar message
+      And I see the new facility coach user in the *New users* table
+      And I see the *Facility coach* label next to the full name of the user
 
   Scenario: Super admin creates an admin user account
   	Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Users*
-    When I click the *New user* button
-    Then I see the *Create new user* page
-    When I select *Admin* from the *User type* drop-down
-    	And I fill in all the required fields
-      And I click the *Save* button
+    	And I am at the *Create new user* side panel
+    	And I have selected *Admin* from the *User type* drop-down
+    	And I have filled in all the required fields
+    When I click the *Save and close* button
     Then the page reloads
-      And I see the the snackbar confirmation that the user has been created
-      And I see that the new admin is added to the *Users* table
-      And there's a label *Admin* next to the full name of the admin
+      And I see the *User created* snackbar message
+      And I see the new facility admin user in the *New users* table
+      And I see the *Admin* label next to the full name of the user
 
   Scenario: Super admin creates a class
   	Given I am signed in to Kolibri as a super admin
@@ -451,6 +462,42 @@ Feature: Kolibri critical workflows
       When I click the *Confirm* button
       Then I see the class page again
         And I see the selected learner user accounts listed in the *Learners* table
+
+  Scenario: Super admin deactivates several users
+    Given I am signed in to Kolibri as a super admin
+  	  And I am at *Facility > Users*
+    When I select several users from the table
+    And I click the *Remove selected users* icon
+    Then I see the *Remove N users* modal
+    When I click the *Yes, remove* button
+    Then the modal closes
+      And I see the *Facility > Users* page again
+      And I see the *Selected users have been removed UNDO* snackbar message
+    When I search for the deactivated users in the search field
+    Then I see the *No users exist* text
+    When I attempt to sign in to Kolibri as a removed user
+    Then I can see that this is not possible
+
+  Scenario: Recover a removed user who was assigned to or enrolled in a class
+    Given I am signed in to Kolibri as a super admin
+  	  And I am at *Facility > Users > Removed users*
+    When I look at the *Removed users* page
+    Then I see a *Removed users* label and the text *Records will show the days remaining before permanent deletion.*
+    	And I see the *Recover* and *Delete permanently* icons
+      And I see the *Search for a user* field and a *Filter* link
+      And I see the removed users table with the *Full name*, *Username*, *Identifier*, *Gender*, *Birth year* and *Permanent deletion* columns
+    When I select a user
+    Then I see that both the *Recover* and *Delete permanently* icons become enabled
+    	And I see *1 user selected* text and a *Clear* link
+    When I click the *Recover* icon
+    Then I see a *1 user recovered* snackbar message
+    	And the user is no longer listed in the *Removed users* table
+    When I go back to the *Facility > Users* page
+    Then I can see that the recovered user is listed in the *Users* table
+    When I go to *Facility > Classes*
+    Then I can see that the user is either enrolled in or assigned to a class #depending on the user's role
+    When I sign in to Kolibri as the recovered user
+    Then I can see that all my previous data and interactions are kept in the state they were before the removal of the user
 
   Scenario: Coach creates a new lesson for the entire class and makes it visible to learners
   	Given I am signed in to Kolibri as a super admin or a coach
