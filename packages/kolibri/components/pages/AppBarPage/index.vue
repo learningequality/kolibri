@@ -38,10 +38,7 @@
       class="main-wrapper"
       :style="[wrapperStyles]"
     >
-      <slot
-        :pageContentHeight="pageContentHeight"
-        :appBarHeight="appBarHeight"
-      ></slot>
+      <slot :pageContentHeight="pageContentHeight"></slot>
     </div>
 
     <transition mode="out-in">

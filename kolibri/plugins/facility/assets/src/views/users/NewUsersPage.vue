@@ -6,18 +6,23 @@
     :appearanceOverrides="{
       width: '100%',
       height: '100%',
-      margin: '0px',
-      padding: windowIsSmall ? '0 0.25em' : '0 1em',
+      padding: windowIsSmall ? '0 0.5em' : '0 1em',
     }"
   >
-    <template #default="{ appBarHeight, pageContentHeight }">
+    <template #default="{ pageContentHeight }">
+      <!--
+      There's some wonky looking math here for styles that basically:
+      Center the content & pad it appropriately against the screen & appbar.
+      This works for the ImmersivePage specifically and sets the content
+      container at ~0.5em padding on small screens and 1em otherwise
+      -->
       <KPageContainer
         :style="{
           display: 'flex',
           flexDirection: 'column',
           maxWidth: '1440px',
-          margin: appBarHeight + 24 + 'px auto 0',
-          maxHeight: pageContentHeight - appBarHeight - 48 + 'px',
+          margin: (windowIsSmall ? 64 : 80) + 'px auto 0',
+          maxHeight: pageContentHeight - (windowIsSmall ? 64 : 96) + 'px',
           backgroundColor: $themeTokens.surface,
         }"
       >
