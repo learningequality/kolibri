@@ -14,6 +14,7 @@
       <KToolbar
         :removeNavIcon="showAppNavView"
         type="clear"
+        :textColor="themeConfig.appBar.textColor"
         class="app-bar"
         :style="{
           height: topBarHeight + 'px',
