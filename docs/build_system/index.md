@@ -12,29 +12,23 @@
 
 - **How do I access builds for tagged releases?**
 
-    Go to the GitHub "Releases" page and find your release. Release artifacts are automatically attached as downloadable assets on the release page itself. Each release will have Python packages (WHL/PEX), macOS app (DMG), Linux package (DEB), Windows installer (EXE), Android app (APK), and Raspberry Pi image (ZIP) files available for download.
+    Go to the Kolibri GitHub "Releases" page and find your release. Release artifacts are automatically attached as downloadable assets on the release page itself. Each release will have Python packages (WHL/PEX), macOS app (DMG), Linux package (DEB), Windows installer (EXE), Android app (APK), and Raspberry Pi image (ZIP) files available for download.
 
 ## Build types and triggers
-
-Kolibri has two distinct build workflows that serve different purposes:
 
 **Release Types**:
 - **Final releases** (e.g., v1.0.0): Production releases that go through manual approval and are published to PyPI and Google Play Store
 - **Prereleases** (e.g., v1.0.0-beta1): Testing releases that skip manual approval and are not published to final distribution channels
 
+Kolibri has two distinct build workflows:
+
 ### PR builds (`pr_build_kolibri.yml`)
-- **Purpose**: Generate test artifacts for pull request validation
-- **Trigger**: Automatically on every pull request
-- **Artifacts**: Available for download from GitHub Actions and linked in PR comments
-- **Scope**: Creates all platform installers for comprehensive testing
-- **Audience**: Developers, testers, and reviewers
+- Triggered automatically on every pull request
+- Creates test artifacts for validation (see "PR artifacts" section below)
 
 ### Release builds (`release_kolibri.yml`)
-- **Purpose**: Create and distribute final release packages
-- **Trigger**: When a GitHub release is published
-- **Artifacts**: Attached to GitHub releases and distributed to public channels
-- **Scope**: Full production build with code signing and publishing
-- **Audience**: End users and distribution channels
+- Triggered when a GitHub release is published
+- Creates production packages with code signing (see "Release artifacts" section below)
 
 ## Repository structure
 
