@@ -26,7 +26,6 @@
         }"
       >
         <div
-          class="header-shadow"
           :style="{
             padding: '1em 1em 0 1em',
             backgroundColor: $themeTokens.surface,
@@ -496,30 +495,12 @@
     justify-content: flex-end;
   }
 
-  .users-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    // top: 4em (app bar) + 2em (internal padding)
-    padding: 6em 2em 1em;
-    // !important to override
-    margin: 0 !important;
-    background-color: white;
-  }
-
   /deep/ .main-wrapper {
     // The default padding causes root scroll which defeats
     // the purpose of our maxHeight style on the KPageContainer.
     // Uses !important because the overridden style is inline
     padding-bottom: 0 !important;
   }
-
-  /*
-  .header-shadow {
-    box-shadow: 0 4px 4px -4px rgba(0, 0, 0, 0.8);
-    z-index: 4;
-  }
-*/
 
   /deep/ thead {
     position: sticky;

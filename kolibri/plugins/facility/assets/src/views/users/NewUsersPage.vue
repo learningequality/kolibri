@@ -27,7 +27,6 @@
         }"
       >
         <div
-          class="header-shadow"
           :style="{
             padding: '1em 1em 0 1em',
             backgroundColor: $themeTokens.surface,
@@ -461,10 +460,6 @@
     gap: 16px;
     align-items: center;
     justify-content: flex-end;
-  }
-
-  .header-shadow {
-    box-shadow: 0 4px 4px -4px rgba(0, 0, 0, 0.8);
   }
 
   .top-row-left {
