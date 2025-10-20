@@ -1052,7 +1052,11 @@ class LearnerGroupViewSet(ValuesViewset):
     values = ("id", "name", "parent", "user_ids")
 
     def annotate_queryset(self, queryset):
-        return annotate_array_aggregate(queryset, user_ids="membership__user__id")
+        return annotate_array_aggregate(
+            queryset,
+            filter=FacilityUser.get_is_active_q("membership"),
+            user_ids="membership__user__id",
+        )
 
 
 class BaseSignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):

@@ -79,11 +79,14 @@ def get_source_field(model, field_path):
 
 def annotate_array_aggregate(queryset, **kwargs):
     model = queryset.model
+    query_filter = kwargs.pop("filter", None)
     if connection.vendor == "postgresql" and NotNullArrayAgg is not None:
         return queryset.annotate(
             **{
                 target: NotNullArrayAgg(
-                    source, result_field=get_source_field(model, source)
+                    source,
+                    result_field=get_source_field(model, source),
+                    filter=query_filter,
                 )
                 for target, source in kwargs.items()
             }
@@ -92,7 +95,11 @@ def annotate_array_aggregate(queryset, **kwargs):
     # is called by row and not across the entire queryset.
     return queryset.values("pk").annotate(
         **{
-            target: GroupConcat(source, result_field=get_source_field(model, source))
+            target: GroupConcat(
+                source,
+                result_field=get_source_field(model, source),
+                filter=query_filter,
+            )
             for target, source in kwargs.items()
         }
     )

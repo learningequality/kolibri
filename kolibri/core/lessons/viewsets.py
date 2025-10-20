@@ -7,6 +7,7 @@ from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.annotation import total_file_size
 from kolibri.core.lessons.models import Lesson
@@ -78,7 +79,9 @@ class LessonViewset(ValuesViewset):
                 lesson_id__in=lesson_ids, collection__kind=ADHOCLEARNERSGROUP
             )
             adhoc_assignments = annotate_array_aggregate(
-                adhoc_assignments, learner_ids="collection__membership__user_id"
+                adhoc_assignments,
+                filter=FacilityUser.get_is_active_q("collection__membership"),
+                learner_ids="collection__membership__user_id",
             )
             adhoc_assignments = {
                 a["lesson"]: a
