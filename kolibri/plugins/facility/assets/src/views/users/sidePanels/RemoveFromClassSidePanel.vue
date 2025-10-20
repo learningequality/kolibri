@@ -119,6 +119,7 @@
 <script>
 
   import { ref, computed, onMounted } from 'vue';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { useRoute } from 'vue-router/composables';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -128,6 +129,7 @@
   import { UserKinds } from 'kolibri/constants';
   import groupBy from 'lodash/groupBy';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
+  import { PageNames } from '../../../constants.js';
   import SelectableList from '../../common/SelectableList.vue';
   import { getRootRouteName, overrideRoute } from '../../../utils';
   import useActionWithUndo from '../../../composables/useActionWithUndo';
@@ -172,6 +174,8 @@
       } = bulkUserManagementStrings;
 
       const { classesLabel$ } = coreStrings;
+
+      const { createSnackbar } = useSnackbar();
 
       const goBack = useGoBack({
         getFallbackRoute: () => {
@@ -267,14 +271,20 @@
             kind: UserKinds.COACH,
           }))
           : [];
-        await Promise.all([
-          enrollments.length
-            ? MembershipResource.saveCollection({ data: enrollments })
-            : Promise.resolve(),
-          assignments.length
-            ? RoleResource.saveCollection({ data: assignments })
-            : Promise.resolve(),
-        ]);
+
+        try {
+          await Promise.all([
+            enrollments.length
+              ? MembershipResource.saveCollection({ data: enrollments })
+              : Promise.resolve(),
+            assignments.length
+              ? RoleResource.saveCollection({ data: assignments })
+              : Promise.resolve(),
+          ]);
+        } catch (_) {
+          createSnackbar(defaultErrorMessage$());
+        }
+
         props.onChange({
           affectedClasses: selectedOptions.value,
           resetSelection: true,
@@ -378,6 +388,19 @@
         type: Function,
         default: () => {},
       },
+    },
+    beforeRouteEnter(to, from, next) {
+      // We can't land here without having navigated to here from the users root page - we can't
+      // have selected any users if we load into this page, so go to the users table.
+      if (from.name === null) {
+        next(
+          // Override to to keep params like facility_id in place
+          overrideRoute(to, {
+            name: PageNames.USER_MGMT_PAGE,
+          }),
+        );
+      }
+      next();
     },
     beforeRouteLeave(to, from, next) {
       this.$refs.closeConfirmationGuardRef?.beforeRouteLeave(to, from, next);

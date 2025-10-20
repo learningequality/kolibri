@@ -122,6 +122,7 @@
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import flatMap from 'lodash/flatMap';
   import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
+  import { PageNames } from '../../../constants.js';
   import { getRootRouteName, overrideRoute } from '../../../utils';
   import SelectableList from '../../common/SelectableList.vue';
   import { _userState } from '../../../modules/mappers';
@@ -334,6 +335,19 @@
         type: Function,
         default: () => {},
       },
+    },
+    beforeRouteEnter(to, from, next) {
+      // We can't land here without having navigated to here from the users root page - we can't
+      // have selected any users if we load into this page, so go to the users table.
+      if (from.name === null) {
+        next(
+          // Override to to keep params like facility_id in place
+          overrideRoute(to, {
+            name: PageNames.USER_MGMT_PAGE,
+          }),
+        );
+      }
+      next();
     },
     beforeRouteLeave(to, from, next) {
       this.$refs.closeConfirmationGuardRef?.beforeRouteLeave(to, from, next);
