@@ -84,7 +84,7 @@
     "frame-throttle": "^3.0.0",
     "intl": "^1.2.4",
     "kolibri-constants": "0.2.12",
-    "kolibri-design-system": "https://github.com/LianaHarris360/kolibri-design-system.git#5f46bcbf10e767294a49c616f16e42e274355b32",
+    "kolibri-design-system": "https://github.com/LianaHarris360/kolibri-design-system.git#01a934da0f3e6196b13bdd77af72f3589569f900",
     "lockr": "0.8.5",
     "lodash": "^4.17.21",
     "path-to-regexp": "1.9.0",
