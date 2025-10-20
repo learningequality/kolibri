@@ -22,7 +22,7 @@
           flexDirection: 'column',
           maxWidth: '1440px',
           margin: (windowIsSmall ? 64 : 80) + 'px auto 0',
-          maxHeight: pageContentHeight - (windowIsSmall ? 64 : 96) + 'px',
+          maxHeight: pageContentHeight - (windowIsSmall ? 70 : 96) + 'px',
           backgroundColor: $themeTokens.surface,
         }"
       >
