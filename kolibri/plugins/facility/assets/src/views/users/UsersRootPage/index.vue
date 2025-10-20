@@ -5,7 +5,7 @@
     :appearanceOverrides="{
       width: '100%',
       height: '100%',
-      padding: windowIsSmall ? '0 0.5em' : '0 1em',
+      padding: windowIsSmallNoApp ? '0 0.5em' : '0 1em',
     }"
   >
     <template #default="{ pageContentHeight }">
@@ -20,8 +20,8 @@
           display: 'flex',
           flexDirection: 'column',
           maxWidth: '1440px',
-          margin: (windowIsSmall ? 112 : 80) + 'px auto 0',
-          maxHeight: pageContentHeight - (windowIsSmall ? 16 : 24) + 'px',
+          margin: topMargin + 'px auto 0',
+          maxHeight: pageContentHeight - (windowIsSmallNoApp ? 16 : 24) + 'px',
           backgroundColor: $themeTokens.surface,
         }"
       >
@@ -153,6 +153,7 @@
                   <KButton
                     appearance="basic-link"
                     :text="coreString('clearAction')"
+                    style="display: inline-block"
                     @click="clearSelectedUsers"
                   />
                 </div>
@@ -265,7 +266,7 @@
       usePreviousRoute();
       const route = useRoute();
       const router = useRouter();
-      const { currentUserId, isSuperuser, isAdmin } = useUser();
+      const { currentUserId, isSuperuser, isAdmin, isAppContext } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const isMoveToTrashModalOpen = ref(false);
 
@@ -327,7 +328,19 @@
       });
 
       const { windowIsSmall } = useKResponsiveWindow();
+
+      const topMargin = computed(() => {
+        if (windowIsSmall.value) {
+          if (isAppContext.value) {
+            return 72;
+          }
+          return 112;
+        }
+        return 80;
+      });
+
       return {
+        topMargin,
         windowIsSmall,
         // Route utilities
         overrideRoute,
