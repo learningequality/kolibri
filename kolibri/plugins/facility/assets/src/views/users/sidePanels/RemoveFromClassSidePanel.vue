@@ -119,6 +119,7 @@
 <script>
 
   import { ref, computed, onMounted } from 'vue';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { useRoute } from 'vue-router/composables';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -173,6 +174,8 @@
       } = bulkUserManagementStrings;
 
       const { classesLabel$ } = coreStrings;
+
+      const { createSnackbar } = useSnackbar();
 
       const goBack = useGoBack({
         getFallbackRoute: () => {
@@ -268,6 +271,7 @@
             kind: UserKinds.COACH,
           }))
           : [];
+
         try {
           await Promise.all([
             enrollments.length
@@ -278,10 +282,9 @@
               : Promise.resolve(),
           ]);
         } catch (_) {
-          showErrorWarning.value = true;
-        } finally {
-          loading.value = false;
+          createSnackbar(defaultErrorMessage$());
         }
+
         props.onChange({
           affectedClasses: selectedOptions.value,
           resetSelection: true,
