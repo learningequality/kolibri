@@ -36,7 +36,7 @@
     <div
       id="main"
       class="main-wrapper"
-      :style="[wrapperStyles, paddingTop]"
+      :style="[wrapperStyles]"
     >
       <slot :pageContentHeight="pageContentHeight"></slot>
     </div>
@@ -142,7 +142,7 @@
       },
       wrapperStyles() {
         return this.appearanceOverrides
-          ? this.appearanceOverrides
+          ? { ...this.paddingTop, ...this.appearanceOverrides }
           : {
             width: '100%',
             maxWidth: '1064px',
@@ -152,6 +152,7 @@
             paddingRight: this.paddingLeftRight,
             paddingBottom: '72px',
             marginTop: 0,
+            ...this.paddingTop,
           };
       },
       paddingTop() {
