@@ -5,7 +5,7 @@
     :appearanceOverrides="{
       width: '100%',
       height: '100%',
-      padding: windowIsSmallNoApp ? '0 0.5em' : '0 1em',
+      padding: '0 1em',
     }"
   >
     <template #default="{ pageContentHeight }">
@@ -21,13 +21,13 @@
           flexDirection: 'column',
           maxWidth: '1440px',
           margin: topMargin + 'px auto 0',
-          maxHeight: pageContentHeight - (windowIsSmallNoApp ? 16 : 24) + 'px',
+          maxHeight: getPageContainerMaxHeight(pageContentHeight),
           backgroundColor: $themeTokens.surface,
         }"
       >
         <div
           :style="{
-            padding: '1em 1em 0 1em',
+            marginTop: windowIsSmall ? '8px' : '16px',
             backgroundColor: $themeTokens.surface,
           }"
         >
@@ -42,40 +42,14 @@
             :text="coreString('changeLearningFacility')"
           />
 
-          <UsersTableToolbar>
-            <template #topRow>
-              <div class="top-row-left">
-                <h1>{{ coreString('usersLabel') }}</h1>
-                <FilterTextbox
-                  v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
-                  ref="filterTextboxRef"
-                  v-model="searchTerm"
-                  class="search-box"
-                  :placeholder="coreString('searchForUser')"
-                  :aria-label="coreString('searchForUser')"
-                />
-                <KRouterLink
-                  v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
-                  appearance="basic-link"
-                  class="filter-button"
-                  :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL })"
-                  :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
-                />
-                <KButton
-                  v-if="numAppliedFilters > 0"
-                  appearance="basic-link"
-                  :appearanceOverrides="{ color: $themeTokens.error }"
-                  :text="clearFiltersLabel$()"
-                  @click="resetFilters"
-                />
-              </div>
-              <div
-                v-if="!windowIsSmall"
-                class="users-page-header-actions"
-              >
+          <UsersTableToolbar
+            :title="coreString('usersLabel')"
+            :hasSelectedUsers="hasSelectedUsers"
+          >
+            <template #headerActions>
+              <div class="header-actions">
                 <KButton
                   hasDropdown
-                  :primary="false"
                   :text="coreString('optionsLabel')"
                 >
                   <template #menu>
@@ -94,93 +68,98 @@
                 />
               </div>
             </template>
-            <template #bottomRow>
-              <div class="bottom-row-left">
-                <KIconButton
-                  ref="assignButton"
-                  icon="assignCoaches"
-                  :ariaLabel="assignCoach$()"
-                  :disabled="!canAssignCoaches || !hasSelectedUsers"
-                  @click="navigateToSidePanel(PageNames.ASSIGN_COACHES_SIDE_PANEL)"
-                />
-                <KTooltip
-                  reference="assignButton"
-                  :refs="$refs"
-                  :text="assignCoach$()"
-                />
-                <KIconButton
-                  ref="enrollButton"
-                  icon="add"
-                  :ariaLabel="enrollToClass$()"
-                  :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
-                  @click="navigateToSidePanel(PageNames.ENROLL_LEARNERS_SIDE_PANEL)"
-                />
-                <KTooltip
-                  reference="enrollButton"
-                  :refs="$refs"
-                  :text="enrollToClass$()"
-                />
-                <KIconButton
-                  ref="removeButton"
-                  icon="remove"
-                  :ariaLabel="removeFromClass$()"
-                  :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
-                  @click="navigateToSidePanel(PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL)"
-                />
-                <KTooltip
-                  reference="removeButton"
-                  :refs="$refs"
-                  :text="removeFromClass$()"
-                />
-                <KIconButton
-                  ref="trashButton"
-                  icon="trash"
-                  :ariaLabel="deleteSelectionTooltip"
-                  :disabled="!canDeleteSelection || !hasSelectedUsers"
-                  @click="isMoveToTrashModalOpen = true"
-                />
-                <KTooltip
-                  reference="trashButton"
-                  :refs="$refs"
-                  :text="deleteSelectionTooltip"
-                />
-                <div
-                  v-if="hasSelectedUsers"
-                  class="selection-status"
-                >
-                  <span>{{ numUsersSelected$({ n: selectedUsers.size }) }}</span>
-                  <KButton
-                    appearance="basic-link"
-                    :text="coreString('clearAction')"
-                    style="display: inline-block"
-                    @click="clearSelectedUsers"
-                  />
-                </div>
-              </div>
-              <div
-                v-if="windowIsSmall"
-                class="users-page-header-actions"
-              >
-                <KButton
-                  hasDropdown
-                  :primary="false"
-                  :text="coreString('optionsLabel')"
-                >
-                  <template #menu>
-                    <KDropdownMenu
-                      :options="pageDropdownOptions"
-                      @select="handlePageDropdownSelection"
-                    />
-                  </template>
-                </KButton>
-                <KRouterLink
-                  v-if="!windowIsSmall"
-                  primary
-                  appearance="raised-button"
-                  :text="newUser$()"
-                  :to="$store.getters.facilityPageLinks.UserCreatePage"
-                />
-              </div>
+            <template #searchbox>
+              <FilterTextbox
+                v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
+                ref="filterTextboxRef"
+                v-model="searchTerm"
+                class="search-box"
+                :placeholder="coreString('searchForUser')"
+                :aria-label="coreString('searchForUser')"
+              />
+            </template>
+            <template #filterLink>
+              <KRouterLink
+                v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
+                appearance="basic-link"
+                class="filter-button"
+                :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL })"
+                :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
+              />
+            </template>
+            <template #clearFiltersButton>
+              <KButton
+                v-if="numAppliedFilters > 0"
+                appearance="basic-link"
+                :appearanceOverrides="{ color: $themeTokens.error }"
+                :text="clearFiltersLabel$()"
+                @click="resetFilters"
+              />
+            </template>
+            <template #selectionInfo>
+              <span
+                :style="{
+                  color: $themeTokens.annotation,
+                }"
+              >{{ numUsersSelected$({ n: selectedUsers.size }) }}</span>
+              <KButton
+                appearance="basic-link"
+                :text="coreString('clearAction')"
+                style="display: inline-block"
+                @click="clearSelectedUsers"
+              />
+            </template>
+            <template #userActions>
+              <KIconButton
+                ref="assignButton"
+                icon="assignCoaches"
+                :ariaLabel="assignCoach$()"
+                :disabled="!canAssignCoaches || !hasSelectedUsers"
+                @click="navigateToSidePanel(PageNames.ASSIGN_COACHES_SIDE_PANEL)"
+              />
+              <KTooltip
+                reference="assignButton"
+                :refs="$refs"
+                :text="assignCoach$()"
+              />
+              <KIconButton
+                ref="enrollButton"
+                icon="add"
+                :ariaLabel="enrollToClass$()"
+                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
+                @click="navigateToSidePanel(PageNames.ENROLL_LEARNERS_SIDE_PANEL)"
+              />
+              <KTooltip
+                reference="enrollButton"
+                :refs="$refs"
+                :text="enrollToClass$()"
+              />
+              <KIconButton
+                ref="removeButton"
+                icon="remove"
+                :ariaLabel="removeFromClass$()"
+                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
+                @click="navigateToSidePanel(PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL)"
+              />
+              <KTooltip
+                reference="removeButton"
+                :refs="$refs"
+                :text="removeFromClass$()"
+              />
+              <KIconButton
+                ref="trashButton"
+                icon="trash"
+                :ariaLabel="deleteSelectionTooltip"
+                :disabled="!canDeleteSelection || !hasSelectedUsers"
+                @click="isMoveToTrashModalOpen = true"
+              />
+              <KTooltip
+                reference="trashButton"
+                :refs="$refs"
+                :text="deleteSelectionTooltip"
+              />
+            </template>
+            <template #paginationControls>
               <PaginationActions
                 v-model="currentPage"
                 :itemsPerPage="itemsPerPage"
@@ -192,6 +171,14 @@
         </div>
         <UsersTable
           class="users-table"
+          :style="
+            windowIsSmall
+              ? {
+                marginLeft: '-16px',
+                marginRight: '-16px',
+              }
+              : {}
+          "
           :facilityUsers="facilityUsers"
           :dataLoading="dataLoading"
           :selectedUsers.sync="selectedUsers"
@@ -235,7 +222,7 @@
   import useUser from 'kolibri/composables/useUser';
   import { UserKinds } from 'kolibri/constants';
   import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';
-  import UsersTableToolbar from '../common/UsersTableToolbar';
+  import UsersTableToolbar from '../common/UsersTableToolbar/index.vue';
   import useUserManagement from '../../../composables/useUserManagement';
   import FacilityAppBarPage from '../../FacilityAppBarPage';
   import { PageNames } from '../../../constants';
@@ -303,6 +290,7 @@
       // Use our new composables
       const { searchTerm, filterTextboxRef } = useUsersTableSearch();
       const { currentPage, itemsPerPage } = usePagination({ usersCount, totalPages });
+      const { windowIsSmall, windowIsShort } = useKResponsiveWindow();
 
       onMounted(() => {
         fetchClasses();
@@ -322,11 +310,17 @@
         router.push(newRoute);
       }
 
+      function getPageContainerMaxHeight(pageContentHeight) {
+        if (windowIsShort.value) {
+          return 'None';
+        }
+        const maxHeight = pageContentHeight - 24;
+        return maxHeight + 'px';
+      }
+
       const hasSelectedUsers = computed(() => {
         return selectedUsers.value && selectedUsers.value.size > 0;
       });
-
-      const { windowIsSmall } = useKResponsiveWindow();
 
       const topMargin = computed(() => {
         if (windowIsSmall.value) {
@@ -378,6 +372,7 @@
         clearSelectedUsers,
         navigateToSidePanel,
         resetFilters,
+        getPageContainerMaxHeight,
 
         // Strings
         newUser$,
@@ -505,7 +500,7 @@
   /deep/ thead {
     position: sticky;
     top: 0;
-    z-index: 4;
+    z-index: 3;
     box-shadow: 0 4px 4px -4px rgba(0, 0, 0, 0.8);
   }
 
@@ -531,16 +526,11 @@
     white-space: nowrap;
   }
 
-  .bottom-row-left {
+  .header-actions {
     display: flex;
-    gap: 0.25em;
+    gap: 16px;
     align-items: center;
-
-    .selection-status {
-      display: flex;
-      gap: 0.5em;
-      align-items: center;
-    }
+    margin-left: auto;
   }
 
 </style>
