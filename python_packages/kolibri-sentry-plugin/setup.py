@@ -33,7 +33,7 @@ setup(
         ),
     },
     package_dir={plugin_name: plugin_name},
-    install_requires=["sentry-sdk==2.41.0"],
+    install_requires=["sentry-sdk==2.42.1"],
     extras_require={
         "dev": {
             "pre-commit==4.3.0",
