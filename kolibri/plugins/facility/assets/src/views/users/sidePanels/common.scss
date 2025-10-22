@@ -1,4 +1,8 @@
 @mixin bum-side-panel {
+  position: relative;
+  // Ensures we are above the app-mode bottom bar when present
+  z-index: 21;
+
   .side-panel-title {
     font-size: 18px;
     font-weight: 600;
