@@ -8,12 +8,6 @@
       <slot name="headerActions"></slot>
     </div>
     <div
-      v-if="$slots.usersSubheader && showUsersTable"
-      class="users-subheader"
-    >
-      <slot name="usersSubheader"></slot>
-    </div>
-    <div
       v-if="showUsersTable"
       class="users-filters"
     >
@@ -119,10 +113,6 @@
     display: flex;
     gap: 8px;
     align-items: center;
-  }
-
-  .users-subheader {
-    margin-bottom: 16px;
   }
 
 </style>

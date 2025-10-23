@@ -34,11 +34,6 @@
             :hasSelectedUsers="hasSelectedUsers"
             :showUsersTable="showUsersTable"
           >
-            <template #usersSubheader>
-              <p class="page-description">
-                {{ removedUsersPageDescription$() }}
-              </p>
-            </template>
             <template #searchbox>
               <FilterTextbox
                 ref="filterTextboxRef"
@@ -261,7 +256,6 @@
         usersRecoveredNotice$,
         recoverSelectionLabel$,
         deletePermanentlyLabel$,
-        removedUsersPageDescription$,
         numFilters$,
         filterLabel$,
         numUsersSelected$,
@@ -406,7 +400,6 @@
         removedUsersTitle$,
         removedUsersNotice$,
         noRemovedUsersLabel$,
-        removedUsersPageDescription$,
         numFilters$,
         filterLabel$,
         numUsersSelected$,

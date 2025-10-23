@@ -9,12 +9,6 @@
     <template #headerActions>
       <slot name="headerActions"></slot>
     </template>
-    <template
-      v-if="$slots.usersSubheader"
-      #usersSubheader
-    >
-      <slot name="usersSubheader"></slot>
-    </template>
     <template #searchbox>
       <slot name="searchbox"></slot>
     </template>
