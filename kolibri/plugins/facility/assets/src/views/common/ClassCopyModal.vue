@@ -67,7 +67,7 @@
       const classCoachesIds = ref([]);
       const classLearnerIds = ref([]);
       const loading = ref(false);
-      const copyAllLearners = ref(false);
+      const copyAllLearners = ref(true);
       const copyAllCoaches = ref(false);
       const createdClass = ref(null);
       const copiedClassName = ref(null);
