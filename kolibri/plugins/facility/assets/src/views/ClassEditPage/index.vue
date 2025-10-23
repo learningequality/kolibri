@@ -149,7 +149,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import UserTable from 'kolibri-common/components/UserTable';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
-  import { PageNames, Modals } from '../../constants.js';
+  import { Modals } from '../../constants.js';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassCopyModal from '../common/ClassCopyModal.vue';
   import ClassDeleteModal from '../common/ClassDeleteModal';
@@ -232,7 +232,7 @@
     methods: {
       ...mapActions('classEditManagement', ['displayModal']),
       goToClassesPage() {
-        this.$router.push({ name: PageNames.CLASS_MGMT_PAGE });
+        this.$router.push(this.$store.getters.facilityPageLinks.ManageClassPage);
       },
       closeModal() {
         this.displayModal(false);
