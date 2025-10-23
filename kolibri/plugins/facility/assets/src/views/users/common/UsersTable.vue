@@ -89,6 +89,8 @@
             <KIconButton
               icon="optionsVertical"
               :disabled="!userCanBeEdited(content)"
+              :style="activeRowId === row[0].id ? { backgroundColor: 'rgba(0,0,0,.1)' } : {}"
+              @click="handleSelectedButtonState(row[0].id)"
             >
               <template #menu>
                 <slot
@@ -98,6 +100,7 @@
                   <KDropdownMenu
                     :options="getManageUserOptions(content.id)"
                     @select="handleManageUserAction($event, content)"
+                    @close="activeRowId = null"
                   />
                 </slot>
               </template>
@@ -178,6 +181,7 @@
       const { facilityUsers } = toRefs(props);
       const modalShown = ref(null);
       const userToChange = ref(null);
+      const activeRowId = ref(null);
 
       const { selectAllLabel$ } = enhancedQuizManagementStrings;
       const {
@@ -443,6 +447,9 @@
           },
         ];
       };
+      const handleSelectedButtonState = id => {
+        activeRowId.value = id;
+      };
 
       const handleManageUserAction = (action, user) => {
         if (action.value === Modals.EDIT_USER) {
@@ -472,8 +479,10 @@
         userToChange,
         userToChangeSet,
         stickyColumns,
+        activeRowId,
 
         // Methods
+        handleSelectedButtonState,
         handleSelectAllToggle,
         handleUserSelectionToggle,
         isUserSelected,
