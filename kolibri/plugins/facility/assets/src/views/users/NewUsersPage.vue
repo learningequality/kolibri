@@ -16,143 +16,122 @@
       This works for the ImmersivePage specifically and sets the content
       container at ~0.5em padding on small screens and 1em otherwise
       -->
-      <KPageContainer
-        :style="{
-          display: 'flex',
-          flexDirection: 'column',
-          maxWidth: '1440px',
-          margin: (windowIsSmall ? 64 : 80) + 'px auto 0',
-          maxHeight: pageContentHeight - (windowIsSmall ? 70 : 96) + 'px',
-          backgroundColor: $themeTokens.surface,
-        }"
-      >
+      <KPageContainer :style="getPageContainerStyles(pageContentHeight)">
         <div
           :style="{
-            padding: '1em 1em 0 1em',
             backgroundColor: $themeTokens.surface,
           }"
         >
           <KRouterLink
             :to="$store.getters.facilityPageLinks.UserPage"
             icon="back"
-            style="margin: 0.5em 0 1em"
+            style="margin: 1em 0 0.25em"
             :text="backToUsers$()"
           />
 
-          <UsersTableToolbar>
-            <template #topRow>
-              <div class="top-row-left">
-                <h1>{{ newUsers$() }}</h1>
-                <FilterTextbox
-                  v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
-                  ref="filterTextboxRef"
-                  v-model="searchTerm"
-                  class="search-box"
-                  :placeholder="coreString('searchForUser')"
-                  :aria-label="coreString('searchForUser')"
-                />
-                <KRouterLink
-                  v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
-                  appearance="basic-link"
-                  :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
-                  class="filter-button"
-                  :to="
-                    overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL__NEW_USERS })
-                  "
-                />
-                <KButton
-                  v-if="numAppliedFilters > 0"
-                  appearance="basic-link"
-                  :appearanceOverrides="{ color: $themeTokens.error }"
-                  :text="clearFiltersLabel$()"
-                  @click="resetFilters"
-                />
-              </div>
-              <div
-                v-if="!windowIsSmall"
-                class="users-page-header-actions"
-              >
-                <KRouterLink
-                  primary
-                  appearance="raised-button"
-                  :text="newUser$()"
-                  :to="$store.getters.facilityPageLinks.UserCreatePage"
-                />
-              </div>
+          <UsersTableToolbar
+            :title="newUsers$()"
+            :hasSelectedUsers="hasSelectedUsers"
+            :showUsersTable="showUsersTable"
+          >
+            <template #headerActions>
+              <KRouterLink
+                primary
+                appearance="raised-button"
+                :text="newUser$()"
+                :to="$store.getters.facilityPageLinks.UserCreatePage"
+              />
             </template>
-            <template #bottomRow>
-              <div class="bottom-row-left">
-                <KIconButton
-                  ref="assignButton"
-                  icon="assignCoaches"
-                  :ariaLabel="assignCoach$()"
-                  :disabled="!canAssignCoaches || !hasSelectedUsers"
-                  @click="navigateToSidePanel(PageNames.ASSIGN_COACHES_SIDE_PANEL__NEW_USERS)"
-                />
-                <KTooltip
-                  reference="assignButton"
-                  :refs="$refs"
-                  :text="assignCoach$()"
-                />
-                <KIconButton
-                  ref="enrollButton"
-                  icon="add"
-                  :ariaLabel="enrollToClass$()"
-                  :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
-                  @click="navigateToSidePanel(PageNames.ENROLL_LEARNERS_SIDE_PANEL__NEW_USERS)"
-                />
-                <KTooltip
-                  reference="enrollButton"
-                  :refs="$refs"
-                  :text="enrollToClass$()"
-                />
-                <KIconButton
-                  ref="removeButton"
-                  icon="remove"
-                  :ariaLabel="removeFromClass$()"
-                  :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
-                  @click="navigateToSidePanel(PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL__NEW_USERS)"
-                />
-                <KTooltip
-                  reference="removeButton"
-                  :refs="$refs"
-                  :text="removeFromClass$()"
-                />
-                <KIconButton
-                  ref="trashButton"
-                  icon="trash"
-                  :ariaLabel="deleteSelection$()"
-                  :disabled="!canDeleteSelection || !hasSelectedUsers"
-                  @click="isMoveToTrashModalOpen = true"
-                />
-                <KTooltip
-                  reference="trashButton"
-                  :refs="$refs"
-                  :text="deleteSelection$()"
-                />
-                <div
-                  v-if="hasSelectedUsers"
-                  class="selection-status"
-                >
-                  <span>{{ numUsersSelected$({ n: selectedUsers.size }) }}</span>
-                  <KButton
-                    appearance="basic-link"
-                    :text="coreString('clearAction')"
-                    @click="clearSelectedUsers"
-                  />
-                </div>
-              </div>
-              <div
-                v-if="windowIsSmall"
-                class="users-page-header-actions"
-              >
-                <KRouterLink
-                  primary
-                  appearance="raised-button"
-                  :text="newUser$()"
-                  :to="$store.getters.facilityPageLinks.UserCreatePage"
-                />
-              </div>
+            <template #searchbox>
+              <FilterTextbox
+                ref="filterTextboxRef"
+                v-model="searchTerm"
+                class="search-box"
+                :placeholder="coreString('searchForUser')"
+                :aria-label="coreString('searchForUser')"
+              />
+            </template>
+
+            <template #filterLink>
+              <KRouterLink
+                appearance="basic-link"
+                :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
+                class="filter-button"
+                :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL__NEW_USERS })"
+              />
+            </template>
+            <template #clearFiltersButton>
+              <KButton
+                v-if="numAppliedFilters > 0"
+                appearance="basic-link"
+                :appearanceOverrides="{ color: $themeTokens.error }"
+                :text="clearFiltersLabel$()"
+                @click="resetFilters"
+              />
+            </template>
+            <template #selectionInfo>
+              <span
+                :style="{
+                  color: $themeTokens.annotation,
+                }"
+              >{{ numUsersSelected$({ n: selectedUsers.size }) }}</span>
+              <KButton
+                appearance="basic-link"
+                :text="coreString('clearAction')"
+                @click="clearSelectedUsers"
+              />
+            </template>
+            <template #userActions>
+              <KIconButton
+                ref="assignButton"
+                icon="assignCoaches"
+                :ariaLabel="assignCoach$()"
+                :disabled="!canAssignCoaches || !hasSelectedUsers"
+                @click="navigateToSidePanel(PageNames.ASSIGN_COACHES_SIDE_PANEL__NEW_USERS)"
+              />
+              <KTooltip
+                reference="assignButton"
+                :refs="$refs"
+                :text="assignCoach$()"
+              />
+              <KIconButton
+                ref="enrollButton"
+                icon="add"
+                :ariaLabel="enrollToClass$()"
+                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
+                @click="navigateToSidePanel(PageNames.ENROLL_LEARNERS_SIDE_PANEL__NEW_USERS)"
+              />
+              <KTooltip
+                reference="enrollButton"
+                :refs="$refs"
+                :text="enrollToClass$()"
+              />
+              <KIconButton
+                ref="removeButton"
+                icon="remove"
+                :ariaLabel="removeFromClass$()"
+                :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
+                @click="navigateToSidePanel(PageNames.REMOVE_FROM_CLASSES_SIDE_PANEL__NEW_USERS)"
+              />
+              <KTooltip
+                reference="removeButton"
+                :refs="$refs"
+                :text="removeFromClass$()"
+              />
+              <KIconButton
+                ref="trashButton"
+                icon="trash"
+                :ariaLabel="deleteSelection$()"
+                :disabled="!canDeleteSelection || !hasSelectedUsers"
+                @click="isMoveToTrashModalOpen = true"
+              />
+              <KTooltip
+                reference="trashButton"
+                :refs="$refs"
+                :text="deleteSelection$()"
+              />
+            </template>
+            <template #paginationControls>
               <PaginationActions
                 v-model="currentPage"
                 :itemsPerPage="itemsPerPage"
@@ -165,6 +144,7 @@
         <UsersTable
           v-if="showUsersTable"
           class="users-table"
+          :style="usersTableStyles"
           :facilityUsers="facilityUsers"
           :dataLoading="dataLoading"
           :selectedUsers.sync="selectedUsers"
@@ -244,7 +224,7 @@
   import { PageNames } from '../../constants';
   import { overrideRoute } from '../../utils';
   import UsersTable from './common/UsersTable.vue';
-  import UsersTableToolbar from './common/UsersTableToolbar';
+  import UsersTableToolbar from './common/UsersTableToolbar/index.vue';
   import MoveToTrashModal from './common/MoveToTrashModal.vue';
 
   // Constant for the maximum number of days to consider a user as a "new user"
@@ -290,6 +270,8 @@
         dateJoinedGt: newUsersCreationTreshold,
       });
 
+      const { windowIsSmall, windowIsShort } = useKResponsiveWindow();
+
       const showUsersTable = computed(
         () =>
           facilityUsers.value.length > 0 ||
@@ -297,6 +279,18 @@
           numAppliedFilters.value > 0 ||
           dataLoading.value,
       );
+
+      const usersTableStyles = computed(() => {
+        if (windowIsSmall.value) {
+          // If window is small, these negative margins removes the padding added by
+          // the ImmersivePage container to make the table full-bleed horizontally
+          return {
+            marginLeft: '-16px',
+            marginRight: '-16px',
+          };
+        }
+        return {};
+      });
 
       // Use our new composables
       const { searchTerm, filterTextboxRef } = useUsersTableSearch();
@@ -333,13 +327,38 @@
         router.push(newRoute);
       }
 
+      const shouldCropUsersTable = computed(() => !windowIsShort.value);
+
+      function getPageContainerMaxHeight(pageContentHeight) {
+        if (!shouldCropUsersTable.value) {
+          return 'None';
+        }
+        const maxHeight = pageContentHeight - (windowIsSmall.value ? 70 : 96);
+        return maxHeight + 'px';
+      }
+
+      function getPageContainerStyles(pageContentHeight) {
+        // TODO: This should refer to the actual appbar height
+        const marginTop = windowIsSmall.value ? 64 : 80;
+        // If table is not cropped, add some bottom margin to prevent the table from
+        // touching the bottom edge
+        const marginBottom = shouldCropUsersTable.value ? 0 : 16;
+
+        return {
+          display: 'flex',
+          flexDirection: 'column',
+          maxWidth: '1440px',
+          margin: `${marginTop}px auto ${marginBottom}px`,
+          maxHeight: getPageContainerMaxHeight(pageContentHeight),
+        };
+      }
+
       onMounted(() => {
         fetchClasses();
       });
 
-      const { windowIsSmall } = useKResponsiveWindow();
-
       return {
+        usersTableStyles,
         // Route utilities
         overrideRoute,
         PageNames,
@@ -370,6 +389,7 @@
         clearSelectedUsers,
         navigateToSidePanel,
         resetFilters,
+        getPageContainerStyles,
 
         // Strings
         newUser$,
@@ -535,7 +555,7 @@
   /deep/ thead {
     position: sticky;
     top: 0;
-    z-index: 4;
+    z-index: 3;
     box-shadow: 0 4px 4px -4px rgba(0, 0, 0, 0.8);
   }
 

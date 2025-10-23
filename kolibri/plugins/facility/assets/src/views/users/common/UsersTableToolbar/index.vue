@@ -4,9 +4,16 @@
     :is="layoutComponent"
     :title="title"
     :hasSelectedUsers="hasSelectedUsers"
+    :showUsersTable="showUsersTable"
   >
     <template #headerActions>
       <slot name="headerActions"></slot>
+    </template>
+    <template
+      v-if="$slots.usersSubheader"
+      #usersSubheader
+    >
+      <slot name="usersSubheader"></slot>
     </template>
     <template #searchbox>
       <slot name="searchbox"></slot>
@@ -55,6 +62,11 @@
       hasSelectedUsers: {
         type: Boolean,
         required: true,
+      },
+      showUsersTable: {
+        type: Boolean,
+        required: false,
+        default: true,
       },
     },
   };

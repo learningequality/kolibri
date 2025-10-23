@@ -7,7 +7,16 @@
       </h1>
       <slot name="headerActions"></slot>
     </div>
-    <div class="users-filters">
+    <div
+      v-if="$slots.usersSubheader && showUsersTable"
+      class="users-subheader"
+    >
+      <slot name="usersSubheader"></slot>
+    </div>
+    <div
+      v-if="showUsersTable"
+      class="users-filters"
+    >
       <slot name="searchbox"></slot>
       <slot name="filterLink"></slot>
     </div>
@@ -27,7 +36,10 @@
     >
       <slot name="selectionInfo"></slot>
     </div>
-    <div class="user-controllers">
+    <div
+      v-if="showUsersTable"
+      class="user-controllers"
+    >
       <div
         v-if="hasSelectedUsers"
         class="user-actions"
@@ -37,6 +49,7 @@
       <slot name="paginationControls"></slot>
     </div>
     <div
+      v-if="showUsersTable"
       :style="{
         height: '1px',
         backgroundColor: $themeTokens.fineLine,
@@ -61,6 +74,11 @@
       hasSelectedUsers: {
         type: Boolean,
         required: true,
+      },
+      showUsersTable: {
+        type: Boolean,
+        required: false,
+        default: true,
       },
     },
   };
@@ -124,6 +142,10 @@
     gap: 8px;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .users-subheader {
     margin-bottom: 16px;
   }
 

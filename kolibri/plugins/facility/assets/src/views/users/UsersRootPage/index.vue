@@ -15,16 +15,7 @@
       This works specifically for the AppBarPage ancestry and sets the content
       container at ~0.5em padding on small screens and 1em otherwise
       -->
-      <KPageContainer
-        :style="{
-          display: 'flex',
-          flexDirection: 'column',
-          maxWidth: '1440px',
-          margin: topMargin + 'px auto 0',
-          maxHeight: getPageContainerMaxHeight(pageContentHeight),
-          backgroundColor: $themeTokens.surface,
-        }"
-      >
+      <KPageContainer :style="getPageContainerStyles(pageContentHeight)">
         <div
           :style="{
             marginTop: windowIsSmall ? '8px' : '16px',
@@ -37,7 +28,7 @@
               name: $store.getters.facilityPageLinks.AllFacilitiesPage.name,
               params: { subtopicName: 'UserPage' },
             }"
-            style="margin: 0.5em 0 1em"
+            style="margin: 1em 0 0.25em"
             icon="back"
             :text="coreString('changeLearningFacility')"
           />
@@ -45,6 +36,7 @@
           <UsersTableToolbar
             :title="coreString('usersLabel')"
             :hasSelectedUsers="hasSelectedUsers"
+            :showUsersTable="showUsersTable"
           >
             <template #headerActions>
               <div class="header-actions">
@@ -70,7 +62,6 @@
             </template>
             <template #searchbox>
               <FilterTextbox
-                v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
                 ref="filterTextboxRef"
                 v-model="searchTerm"
                 class="search-box"
@@ -80,7 +71,6 @@
             </template>
             <template #filterLink>
               <KRouterLink
-                v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
                 appearance="basic-link"
                 class="filter-button"
                 :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL })"
@@ -171,14 +161,7 @@
         </div>
         <UsersTable
           class="users-table"
-          :style="
-            windowIsSmall
-              ? {
-                marginLeft: '-16px',
-                marginRight: '-16px',
-              }
-              : {}
-          "
+          :style="usersTableStyles"
           :facilityUsers="facilityUsers"
           :dataLoading="dataLoading"
           :selectedUsers.sync="selectedUsers"
@@ -310,19 +293,18 @@
         router.push(newRoute);
       }
 
+      const shouldCropUsersTable = computed(() => !windowIsShort.value);
+
       function getPageContainerMaxHeight(pageContentHeight) {
-        if (windowIsShort.value) {
+        if (!shouldCropUsersTable.value) {
           return 'None';
         }
         const maxHeight = pageContentHeight - 24;
         return maxHeight + 'px';
       }
 
-      const hasSelectedUsers = computed(() => {
-        return selectedUsers.value && selectedUsers.value.size > 0;
-      });
-
-      const topMargin = computed(() => {
+      const marginTop = computed(() => {
+        // TODO: This should refer to the actual appbar height
         if (windowIsSmall.value) {
           if (isAppContext.value) {
             return 72;
@@ -332,9 +314,39 @@
         return 80;
       });
 
+      function getPageContainerStyles(pageContentHeight) {
+        // If table is not cropped, add some bottom margin to prevent the table from
+        // touching the bottom edge
+        const marginBottom = shouldCropUsersTable.value ? 0 : 16;
+
+        return {
+          display: 'flex',
+          flexDirection: 'column',
+          maxWidth: '1440px',
+          margin: `${marginTop.value}px auto ${marginBottom}px`,
+          maxHeight: getPageContainerMaxHeight(pageContentHeight),
+        };
+      }
+
+      const hasSelectedUsers = computed(() => {
+        return selectedUsers.value && selectedUsers.value.size > 0;
+      });
+
+      const usersTableStyles = computed(() => {
+        if (windowIsSmall.value) {
+          // If window is small, these negative margins removes the padding added by
+          // the ImmersivePage container to make the table full-bleed horizontally
+          return {
+            marginLeft: '-16px',
+            marginRight: '-16px',
+          };
+        }
+        return {};
+      });
+
       return {
-        topMargin,
         windowIsSmall,
+        usersTableStyles,
         // Route utilities
         overrideRoute,
         PageNames,
@@ -372,7 +384,7 @@
         clearSelectedUsers,
         navigateToSidePanel,
         resetFilters,
-        getPageContainerMaxHeight,
+        getPageContainerStyles,
 
         // Strings
         newUser$,
