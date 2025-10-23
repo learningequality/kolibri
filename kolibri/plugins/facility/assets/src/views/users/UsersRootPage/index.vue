@@ -36,7 +36,6 @@
           <UsersTableToolbar
             :title="coreString('usersLabel')"
             :hasSelectedUsers="hasSelectedUsers"
-            :showUsersTable="showUsersTable"
           >
             <template #headerActions>
               <div class="header-actions">
@@ -293,7 +292,7 @@
         router.push(newRoute);
       }
 
-      const shouldCropUsersTable = computed(() => !windowIsShort.value);
+      const shouldCropUsersTable = computed(() => !windowIsShort?.value);
 
       function getPageContainerMaxHeight(pageContentHeight) {
         if (!shouldCropUsersTable.value) {
