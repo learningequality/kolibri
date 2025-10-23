@@ -126,6 +126,7 @@
           :facilityUsers="facilityUsers"
           :dataLoading="dataLoading"
           :selectedUsers.sync="selectedUsers"
+          :numAppliedFilters="numAppliedFilters"
           @clearSelectedUsers="clearSelectedUsers"
           @change="onChange"
         >

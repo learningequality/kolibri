@@ -9,7 +9,7 @@
         :caption="coreStrings.usersLabel$()"
         :rows="tableRows"
         :dataLoading="dataLoading"
-        :emptyMessage="getEmptyMessage"
+        :emptyMessage="emptyMessage"
         sortable
         disableBuiltinSorting
         @changeSort="changeSortHandler"
@@ -128,10 +128,11 @@
 
   import store from 'kolibri/store';
   import cloneDeep from 'lodash/cloneDeep';
+  import debounce from 'lodash/debounce';
+  import pickBy from 'lodash/pickBy';
   import useNow from 'kolibri/composables/useNow';
   import { toRefs, ref, computed, getCurrentInstance } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
-  import { UserKinds } from 'kolibri/constants';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { getUserKindDisplayMap } from 'kolibri-common/uiText/userKinds';
   import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
@@ -183,12 +184,11 @@
       const {
         createdAt$,
         selectLabel$,
-        noAdminsExist$,
         resetPassword$,
-        noCoachesExist$,
-        noLearnersExist$,
-        noSuperAdminsExist$,
-        allUsersFilteredOut$,
+        noUsersInFacility$,
+        noUsersMatchSearch$,
+        noUsersMatchFilter$,
+        noUsersMatchFiltersAndSearch$,
         permanentDeletion$,
       } = bulkUserManagementStrings;
 
@@ -371,6 +371,31 @@
         return _selectedUsers.value.has(user.id);
       };
 
+      const emitSearchTerm = value => {
+        if (value === '') {
+          value = null;
+        }
+        router.push({
+          ...route,
+          query: pickBy({
+            ...route.query,
+            search: value,
+            page: null,
+          }),
+        });
+      };
+
+      const debouncedSearchTerm = debounce(emitSearchTerm, 300);
+
+      const searchTerm = computed({
+        get() {
+          return route.query.search || '';
+        },
+        set(value) {
+          debouncedSearchTerm(value);
+        },
+      });
+
       const changeSortHandler = ({ sortKey, sortOrder }) => {
         const columnId = tableHeaders.value[sortKey]?.columnId || null;
         const query = { ...route.query };
@@ -401,31 +426,26 @@
         return selectLabel$() + ' ' + user.full_name + ', ' + userKindMap[user.kind];
       };
 
-      const getEmptyMessage = computed(() => {
-        const search = route.query.search || '';
-        const roleTypes = route.query.user_types?.split(',') || [];
-
-        if (facilityUsers.value.length === 0) {
-          if (!roleTypes.length) {
-            return coreStrings.noUsersExistLabel$();
-          } else if (search === '') {
-            // TODO The language here will likely change - note that there is no
-            if (roleTypes.includes(UserKinds.LEARNER)) {
-              return noLearnersExist$();
-            }
-            if (roleTypes.includes(UserKinds.COACH)) {
-              return noCoachesExist$();
-            }
-            if (roleTypes.includes(UserKinds.ADMIN)) {
-              return noAdminsExist$();
-            }
-            if (roleTypes.includes(UserKinds.SUPERUSER)) {
-              return noSuperAdminsExist$();
-            }
-          }
-        }
-        return allUsersFilteredOut$({ filterText: search });
+      const emptyMessage = computed(() => {
+        return getEmptyMessageForItems(facilityUsers.value);
       });
+
+      const getEmptyMessageForItems = items => {
+        const activeFiltersCount = props.numAppliedFilters;
+
+        if (items.length === 0) {
+          if (searchTerm.value && activeFiltersCount > 0) {
+            return noUsersMatchFiltersAndSearch$({ filtersCount: activeFiltersCount });
+          }
+          if (searchTerm.value) {
+            return noUsersMatchSearch$({ filterText: searchTerm.value });
+          }
+          if (activeFiltersCount > 0) {
+            return noUsersMatchFilter$({ filtersCount: activeFiltersCount });
+          }
+          return noUsersInFacility$();
+        }
+      };
 
       const closeModal = () => {
         modalShown.value = null;
@@ -480,7 +500,7 @@
         changeSortHandler,
         userCanBeEdited,
         getTranslatedSelectedArialabel,
-        getEmptyMessage,
+        emptyMessage,
         closeModal,
         getManageUserOptions,
         handleManageUserAction,
@@ -502,6 +522,10 @@
       },
       selectedUsers: {
         type: Set,
+        required: true,
+      },
+      numAppliedFilters: {
+        type: Number,
         required: true,
       },
     },
