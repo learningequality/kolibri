@@ -449,10 +449,12 @@ class MorangoSyncCommand(AsyncCommand):
 
             if not no_provision:
                 with self._lock():
-                    if user_id:
-                        provision_single_user_device(
-                            FacilityUser.objects.get(id=user_id)
-                        )
+                    try:
+                        user = FacilityUser.all_objects.get(id=user_id)
+                    except FacilityUser.DoesNotExist:
+                        user = None
+                    if user:
+                        provision_single_user_device(user)
                     else:
                         create_superuser_and_provision_device(
                             username, dataset_id, noninteractive=noninteractive

@@ -197,3 +197,13 @@ class FirstProvisioning(BasePermission):
 
     def user_can_read_job(self, user, job):
         return True
+
+
+class IsDeviceUnusable(BasePermission):
+    def user_can_run_job(self, user, job):
+        from kolibri.core.device.utils import get_device_unusable_reason
+
+        return get_device_unusable_reason() is not None
+
+    def user_can_read_job(self, user, job):
+        return True

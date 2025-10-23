@@ -6,7 +6,7 @@
         <div class="main-cell table-cell">
           <!-- remote access disabled -->
           <div
-            v-if="!$store.getters.allowAccess"
+            v-if="!$store.getters.allowAccess || deviceUnusableReason"
             class="box"
             :style="{ backgroundColor: $themeTokens.surface }"
           >
@@ -24,10 +24,16 @@
             >
               {{ logoText }}
             </h1>
-            <p data-test="restrictedAccess">
-              {{ $tr('restrictedAccess') }}
-            </p>
-            <p>{{ $tr('restrictedAccessDescription') }}</p>
+            <template v-if="!$store.getters.allowAccess">
+              <p data-test="restrictedAccess">
+                {{ $tr('restrictedAccess') }}
+              </p>
+              <p>{{ $tr('restrictedAccessDescription') }}</p>
+            </template>
+            <DeviceUnusableMessage
+              v-else
+              :reason="deviceUnusableReason"
+            />
           </div>
           <!-- remote access enabled -->
           <div
@@ -193,10 +199,11 @@
   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
   import commonUserStrings from './commonUserStrings';
   import getUrlParameter from './getUrlParameter';
+  import DeviceUnusableMessage from './DeviceUnusableMessage.vue';
 
   export default {
     name: 'AuthBase',
-    components: { CoreLogo, LanguageSwitcherFooter, PrivacyInfoModal },
+    components: { CoreLogo, LanguageSwitcherFooter, PrivacyInfoModal, DeviceUnusableMessage },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
       const { facilityConfig } = useFacilities();
@@ -272,6 +279,9 @@
       },
       showGuestAccess() {
         return plugin_data.allowGuestAccess && !this.oidcProviderFlow;
+      },
+      deviceUnusableReason() {
+        return plugin_data.deviceUnusableReason;
       },
       versionMsg() {
         return this.$tr('poweredBy', { version: __version });

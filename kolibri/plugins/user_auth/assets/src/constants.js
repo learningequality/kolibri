@@ -9,3 +9,8 @@ export const ComponentMap = {
 export const pageNameToModuleMap = {
   [ComponentMap.SIGN_IN]: 'signIn',
 };
+
+export const DeviceUnusableReason = {
+  NO_SUPERUSERS: 'NO_SUPERUSERS',
+  SUPERUSERS_SOFT_DELETED: 'SUPERUSERS_SOFT_DELETED',
+};

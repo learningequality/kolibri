@@ -128,23 +128,13 @@ class GuestRedirectView(View):
         return RootURLRedirectView.as_view()(request)
 
 
-device_is_provisioned = False
-
-
-def is_provisioned():
-    # First check if the device has been provisioned
-    global device_is_provisioned
-    device_is_provisioned = device_is_provisioned or device_provisioned()
-    return device_is_provisioned
-
-
 class RootURLRedirectView(View):
     def get(self, request):
         """
         Redirects user based on the highest role they have for which a redirect is defined.
         """
         # If it has not been provisioned and we have something that can handle setup, redirect there.
-        if not is_provisioned() and SetupHook.provision_url:
+        if not device_provisioned() and SetupHook.provision_url:
             return redirect(SetupHook.provision_url())
 
         if request.user.is_authenticated:

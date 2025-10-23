@@ -25,6 +25,7 @@ export const TaskTypes = {
   EXPORTUSERSTOCSV: 'kolibri.core.auth.tasks.exportuserstocsv',
   IMPORTLODUSER: 'kolibri.core.auth.tasks.peeruserimport',
   PROVISIONDEVICE: 'kolibri.core.device.tasks.provisiondevice',
+  DEPROVISIONDEVICE: 'kolibri.core.device.tasks.deprovisiondevice',
 };
 
 // identical to facility constants.js

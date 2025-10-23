@@ -10,6 +10,7 @@ from kolibri.core.auth.constants.facility_presets import choices
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import FacilitySerializer
+from kolibri.core.auth.utils.deprovision import deprovision
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import OSUser
 from kolibri.core.device.serializers import DeviceSerializerMixin
@@ -20,6 +21,7 @@ from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.permissions import FirstProvisioning
+from kolibri.core.tasks.permissions import IsDeviceUnusable
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
 from kolibri.core.utils.token_generator import TokenGenerator
@@ -29,6 +31,7 @@ from kolibri.plugins.app.utils import interface
 logger = logging.getLogger(__name__)
 
 PROVISION_TASK_QUEUE = "device_provision"
+DEPROVISION_TASK_QUEUE = "device_deprovision"
 
 
 class DeviceProvisionValidator(DeviceSerializerMixin, JobValidator):
@@ -243,3 +246,15 @@ def provisiondevice(**data):  # noqa C901
                 updates["auth_token"] = TokenGenerator().make_token(superuser.id)
 
             job.update_metadata(**updates)
+
+
+@register_task(
+    permission_classes=[IsDeviceUnusable],
+    cancellable=False,
+    queue=DEPROVISION_TASK_QUEUE,
+)
+def deprovisiondevice():
+    """
+    Task for deprovisioning a device.
+    """
+    deprovision()
