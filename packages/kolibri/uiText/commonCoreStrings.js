@@ -31,6 +31,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Clear',
     context: 'Button that allows to clear a single *task* from the list in the task manager.',
   },
+  clearSelectionAction: {
+    message: 'Clear selection',
+    context: 'Button that allows a user to clear their current selection.',
+  },
   clearAllAction: {
     message: 'Clear all',
     context: 'Button that allows a user to clear all selections or filters.',

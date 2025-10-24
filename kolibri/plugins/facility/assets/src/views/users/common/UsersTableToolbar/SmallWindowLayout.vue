@@ -13,6 +13,7 @@
     >
       <slot name="searchbox"></slot>
       <slot name="filterLink"></slot>
+      <slot name="clearFiltersButton"></slot>
     </div>
     <div
       v-if="hasSelectedUsers"
@@ -120,7 +121,7 @@
 
     h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 26px;
     }
   }
 

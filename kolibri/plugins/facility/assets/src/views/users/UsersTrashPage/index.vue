@@ -68,7 +68,7 @@
               >{{ numUsersSelected$({ n: selectedUsers.size }) }}</span>
               <KButton
                 appearance="basic-link"
-                :text="coreString('clearAction')"
+                :text="coreString('clearSelectionAction')"
                 @click="clearSelectedUsers"
               />
             </template>
@@ -302,7 +302,7 @@
       ];
 
       const usersTableStyles = computed(() => {
-        if (windowIsSmall.value) {
+        if (windowIsSmall.value && facilityUsers.value.length > 0) {
           // If window is small, these negative margins removes the padding added by
           // the ImmersivePage container to make the table full-bleed horizontally
           return {
