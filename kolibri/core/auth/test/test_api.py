@@ -2365,6 +2365,57 @@ class MembershipAPITestCase(APITestCase):
         )
 
 
+class RoleAPITestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.user2 = FacilityUserFactory.create(facility=cls.facility)
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+
+    def login_superuser(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def test_cannot_assign_learner_as_coach_in_same_classroom(self):
+        """Test that assigning a learner as coach in the same classroom is silently skipped"""
+        from kolibri.core.auth.constants import role_kinds
+
+        self.login_superuser()
+
+        # Create a membership (learner enrollment) for the user in the classroom
+        models.Membership.objects.create(user=self.user1, collection=self.classroom)
+
+        # Try to assign the same user as a coach to the same classroom
+        response = self.client.post(
+            reverse("kolibri:core:role-list"),
+            data=[
+                {
+                    "user": self.user1.id,
+                    "collection": self.classroom.id,
+                    "kind": role_kinds.COACH,
+                }
+            ],
+            format="json",
+        )
+
+        # Should return 201 but with empty array (silently filtered)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(response.data), 0)
+
+        # Verify no coach role was created
+        self.assertFalse(
+            models.Role.objects.filter(
+                user=self.user1, collection=self.classroom, kind=role_kinds.COACH
+            ).exists()
+        )
+
+
 class GroupMembership(APITestCase):
     @classmethod
     def setUpTestData(cls):

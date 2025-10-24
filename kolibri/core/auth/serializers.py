@@ -28,6 +28,35 @@ logger = logging.getLogger(__name__)
 
 
 class RoleListSerializer(serializers.ListSerializer):
+    def validate(self, attrs):
+        from .constants import collection_kinds, role_kinds
+
+        validated = []
+        for role_data in attrs:
+            user_id = role_data["user"].id
+            collection = role_data["collection"]
+            kind = role_data["kind"]
+
+            # Only check classroom-level coach roles
+            if collection.kind != collection_kinds.CLASSROOM:
+                validated.append(role_data)
+                continue
+
+            if kind not in [role_kinds.COACH, role_kinds.ASSIGNABLE_COACH]:
+                validated.append(role_data)
+                continue
+
+            # Check if user is already enrolled in this classroom
+            has_membership = Membership.objects.filter(
+                user_id=user_id, collection_id=collection.id
+            ).exists()
+
+            if not has_membership:
+                validated.append(role_data)
+            # else: silently skip this role
+
+        return validated
+
     def create(self, validated_data):
         created_objects = []
 
