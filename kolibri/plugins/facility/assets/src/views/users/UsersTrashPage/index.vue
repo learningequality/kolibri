@@ -16,101 +16,89 @@
       This works for the ImmersivePage specifically and sets the content
       container at ~0.5em padding on small screens and 1em otherwise
       -->
-      <KPageContainer
-        :style="{
-          display: 'flex',
-          flexDirection: 'column',
-          maxWidth: '1440px',
-          margin: (windowIsSmall ? 64 : 80) + 'px auto 0',
-          maxHeight: pageContentHeight - (windowIsSmall ? 70 : 96) + 'px',
-          backgroundColor: $themeTokens.surface,
-        }"
-      >
+      <KPageContainer :style="getPageContainerStyles(pageContentHeight)">
         <div
           :style="{
-            padding: '1em 1em 0 1em',
             backgroundColor: $themeTokens.surface,
           }"
         >
           <KRouterLink
             :to="$store.getters.facilityPageLinks.UserPage"
             icon="back"
-            style="margin: 0.5em 0 1em"
+            style="margin: 1em 0 0.25em"
             :text="backToUsers$()"
           />
 
-          <UsersTableToolbar>
-            <template #topRow>
-              <div class="top-row-left">
-                <h1>{{ removedUsersTitle$() }}</h1>
-                <FilterTextbox
-                  v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
-                  ref="filterTextboxRef"
-                  v-model="searchTerm"
-                  class="search-box"
-                  :placeholder="coreString('searchForUser')"
-                  :aria-label="coreString('searchForUser')"
-                />
-                <KRouterLink
-                  v-if="facilityUsers.length || searchTerm || numAppliedFilters > 0"
-                  appearance="basic-link"
-                  :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
-                  class="filter-button"
-                  :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL__TRASH })"
-                />
-                <KButton
-                  v-if="numAppliedFilters > 0"
-                  appearance="basic-link"
-                  :appearanceOverrides="{ color: $themeTokens.error }"
-                  :text="clearFiltersLabel$()"
-                  @click="resetFilters"
-                />
-                <p
-                  v-if="showUsersTable"
-                  class="page-description"
-                >
-                  {{ removedUsersPageDescription$() }}
-                </p>
-              </div>
+          <UsersTableToolbar
+            :title="removedUsersTitle$()"
+            :hasSelectedUsers="hasSelectedUsers"
+            :showUsersTable="showUsersTable"
+          >
+            <template #searchbox>
+              <FilterTextbox
+                ref="filterTextboxRef"
+                v-model="searchTerm"
+                class="search-box"
+                :placeholder="coreString('searchForUser')"
+                :aria-label="coreString('searchForUser')"
+              />
             </template>
-            <template #bottomRow>
-              <div class="bottom-row-left">
-                <KIconButton
-                  ref="recoverButton"
-                  icon="refresh"
-                  :disabled="!hasSelectedUsers || loading"
-                  :ariaLabel="selectedUsers.size > 1 ? recoverSelectionLabel$() : recoverLabel$()"
-                  @click="recoverUsers(selectedUsers)"
-                />
-                <KTooltip
-                  reference="recoverButton"
-                  :refs="$refs"
-                  :text="selectedUsers.size > 1 ? recoverSelectionLabel$() : recoverLabel$()"
-                />
-                <KIconButton
-                  ref="deleteButton"
-                  icon="trash"
-                  :disabled="!hasSelectedUsers || loading"
-                  :ariaLabel="deletePermanentlyLabel$()"
-                  @click="usersToDelete = selectedUsers"
-                />
-                <KTooltip
-                  reference="deleteButton"
-                  :refs="$refs"
-                  :text="deletePermanentlyLabel$()"
-                />
-                <div
-                  v-if="hasSelectedUsers"
-                  class="selection-status"
-                >
-                  <span>{{ numUsersSelected$({ n: selectedUsers.size }) }}</span>
-                  <KButton
-                    appearance="basic-link"
-                    :text="coreString('clearAction')"
-                    @click="clearSelectedUsers"
-                  />
-                </div>
-              </div>
+            <template #filterLink>
+              <KRouterLink
+                appearance="basic-link"
+                :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
+                class="filter-button"
+                :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL__TRASH })"
+              />
+            </template>
+            <template #clearFiltersButton>
+              <KButton
+                v-if="numAppliedFilters > 0"
+                appearance="basic-link"
+                :appearanceOverrides="{ color: $themeTokens.error }"
+                :text="clearFiltersLabel$()"
+                @click="resetFilters"
+              />
+            </template>
+            <template #selectionInfo>
+              <span
+                :style="{
+                  color: $themeTokens.annotation,
+                }"
+              >{{ numUsersSelected$({ n: selectedUsers.size }) }}</span>
+              <KButton
+                appearance="basic-link"
+                :text="coreString('clearSelectionAction')"
+                @click="clearSelectedUsers"
+              />
+            </template>
+            <template #userActions>
+              <KIconButton
+                ref="recoverButton"
+                icon="refresh"
+                :disabled="!hasSelectedUsers || loading"
+                :ariaLabel="selectedUsers.size > 1 ? recoverSelectionLabel$() : recoverLabel$()"
+                @click="recoverUsers(selectedUsers)"
+              />
+              <KTooltip
+                reference="recoverButton"
+                :refs="$refs"
+                :text="selectedUsers.size > 1 ? recoverSelectionLabel$() : recoverLabel$()"
+              />
+              <KIconButton
+                ref="deleteButton"
+                icon="trash"
+                :disabled="!hasSelectedUsers || loading"
+                :ariaLabel="deletePermanentlyLabel$()"
+                @click="usersToDelete = selectedUsers"
+              />
+              <KTooltip
+                reference="deleteButton"
+                :refs="$refs"
+                :text="deletePermanentlyLabel$()"
+              />
+            </template>
+            <template #paginationControls>
               <PaginationActions
                 v-model="currentPage"
                 :itemsPerPage="itemsPerPage"
@@ -123,6 +111,7 @@
         <UsersTable
           v-if="showUsersTable"
           class="users-table"
+          :style="usersTableStyles"
           :facilityUsers="facilityUsers"
           :dataLoading="dataLoading"
           :selectedUsers.sync="selectedUsers"
@@ -197,7 +186,7 @@
   import { PageNames } from '../../../constants';
   import { overrideRoute } from '../../../utils';
   import UsersTable from '../common/UsersTable.vue';
-  import UsersTableToolbar from '../common/UsersTableToolbar';
+  import UsersTableToolbar from '../common/UsersTableToolbar/index.vue';
   import emptyTrashCloudSvg from '../../../images/empty_trash_cloud.svg';
   import useUsersTableSearch from '../../../composables/useUsersTableSearch';
   import usePagination from '../../../composables/usePagination';
@@ -240,6 +229,8 @@
         softDeletedUsers: true,
       });
 
+      const { windowIsSmall, windowIsShort } = useKResponsiveWindow();
+
       const showUsersTable = computed(
         () =>
           facilityUsers.value.length > 0 ||
@@ -265,7 +256,6 @@
         usersRecoveredNotice$,
         recoverSelectionLabel$,
         deletePermanentlyLabel$,
-        removedUsersPageDescription$,
         numFilters$,
         filterLabel$,
         numUsersSelected$,
@@ -311,6 +301,18 @@
         },
       ];
 
+      const usersTableStyles = computed(() => {
+        if (windowIsSmall.value && facilityUsers.value.length > 0) {
+          // If window is small, these negative margins removes the padding added by
+          // the ImmersivePage container to make the table full-bleed horizontally
+          return {
+            marginLeft: '-16px',
+            marginRight: '-16px',
+          };
+        }
+        return {};
+      });
+
       const handleDropdownSelect = (action, user) => {
         const userSet = new Set([user.id]);
         if (action.value === UserActions.RESTORE) {
@@ -320,14 +322,39 @@
         }
       };
 
+      const shouldCropUsersTable = computed(() => !windowIsShort.value);
+
+      function getPageContainerMaxHeight(pageContentHeight) {
+        if (!shouldCropUsersTable.value) {
+          return 'None';
+        }
+        const maxHeight = pageContentHeight - (windowIsSmall.value ? 70 : 96);
+        return maxHeight + 'px';
+      }
+
+      function getPageContainerStyles(pageContentHeight) {
+        // TODO: This should refer to the actual appbar height
+        const marginTop = windowIsSmall.value ? 64 : 80;
+        // If table is not cropped, add some bottom margin to prevent the table from
+        // touching the bottom edge
+        const marginBottom = shouldCropUsersTable.value ? 0 : 16;
+
+        return {
+          display: 'flex',
+          flexDirection: 'column',
+          maxWidth: '1440px',
+          margin: `${marginTop}px auto ${marginBottom}px`,
+          maxHeight: getPageContainerMaxHeight(pageContentHeight),
+        };
+      }
+
       onMounted(() => {
         fetchClasses();
       });
 
-      const { windowIsSmall } = useKResponsiveWindow();
-
       return {
         windowIsSmall,
+        usersTableStyles,
 
         // Route utilities
         overrideRoute,
@@ -363,6 +390,7 @@
         recoverUsers,
         resetFilters,
         handleDropdownSelect,
+        getPageContainerStyles,
 
         // Strings
         backToUsers$,
@@ -372,7 +400,6 @@
         removedUsersTitle$,
         removedUsersNotice$,
         noRemovedUsersLabel$,
-        removedUsersPageDescription$,
         numFilters$,
         filterLabel$,
         numUsersSelected$,
@@ -422,9 +449,7 @@
   }
 
   .page-description {
-    flex-grow: 1;
     margin: 0 !important;
-    text-align: center;
   }
 
   .empty-removed-users {
@@ -459,7 +484,7 @@
   /deep/ thead {
     position: sticky;
     top: 0;
-    z-index: 4;
+    z-index: 3;
     box-shadow: 0 4px 4px -4px rgba(0, 0, 0, 0.8);
   }
 
