@@ -2332,6 +2332,38 @@ class MembershipAPITestCase(APITestCase):
             expected_count,
         )
 
+    def test_cannot_enroll_coach_as_learner_in_same_classroom(self):
+        """Test that enrolling a coach as a learner in the same classroom is silently skipped"""
+        from kolibri.core.auth.constants import role_kinds
+
+        self.login_superuser()
+
+        # Create a new user to test with
+        test_user = FacilityUserFactory.create(facility=self.facility)
+
+        # Create a coach role for the user in the classroom
+        models.Role.objects.create(
+            user=test_user, collection=self.classroom, kind=role_kinds.COACH
+        )
+
+        # Try to enroll the same user as a learner in the same classroom
+        response = self.client.post(
+            reverse("kolibri:core:membership-list"),
+            data=[{"user": test_user.id, "collection": self.classroom.id}],
+            format="json",
+        )
+
+        # Should return 201 but with empty array (silently filtered)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(response.data), 0)
+
+        # Verify no membership was created
+        self.assertFalse(
+            models.Membership.objects.filter(
+                user=test_user, collection=self.classroom
+            ).exists()
+        )
+
 
 class GroupMembership(APITestCase):
     @classmethod

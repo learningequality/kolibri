@@ -141,6 +141,32 @@ class FacilityUserSerializer(serializers.ModelSerializer):
 
 
 class MembershipListSerializer(serializers.ListSerializer):
+    def validate(self, attrs):
+        from .constants import collection_kinds, role_kinds
+
+        validated = []
+        for membership_data in attrs:
+            user_id = membership_data["user"].id
+            collection = membership_data["collection"]
+
+            # Only check classroom-level memberships
+            if collection.kind != collection_kinds.CLASSROOM:
+                validated.append(membership_data)
+                continue
+
+            # Check if user is already a coach for this classroom
+            has_coach_role = Role.objects.filter(
+                user_id=user_id,
+                collection_id=collection.id,
+                kind__in=[role_kinds.COACH, role_kinds.ASSIGNABLE_COACH],
+            ).exists()
+
+            if not has_coach_role:
+                validated.append(membership_data)
+            # else: silently skip this membership
+
+        return validated
+
     def create(self, validated_data):
         created_objects = []
 
