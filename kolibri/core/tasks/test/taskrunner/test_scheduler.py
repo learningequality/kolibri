@@ -2,27 +2,31 @@ import datetime
 
 import pytest
 
+from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.storage import Storage
-from kolibri.core.tasks.test.base import connection
 from kolibri.utils.time_utils import local_now
-from kolibri.utils.time_utils import naive_utc_datetime
 
 
 @pytest.fixture
 def job_storage():
-    with connection() as c:
-        s = Storage(connection=c)
-        s.clear(force=True)
-        yield s
-        s.clear(force=True)
+    s = Storage()
+    s.clear(force=True)
+    yield s
+    s.clear(force=True)
 
 
+@register_task
+def add(x, y):
+    return x + y
+
+
+@pytest.mark.django_db(databases="__all__")
 class TestScheduler:
     @pytest.fixture
     def job(self):
-        return Job(id)
+        return Job(add)
 
     def test_enqueue_at_a_function(self, job_storage, job):
         job_id = job_storage.enqueue_at(local_now(), job)
@@ -34,10 +38,9 @@ class TestScheduler:
         now = local_now()
         job_id = job_storage.enqueue_at(now, job)
 
-        with job_storage.session_scope() as session:
-            _, scheduled_job = job_storage._get_job_and_orm_job(job_id, session)
-            scheduled_time = scheduled_job.scheduled_time
-        assert scheduled_time == naive_utc_datetime(now)
+        _, scheduled_job = job_storage._get_job_and_orm_job(job_id)
+        scheduled_time = scheduled_job.scheduled_time
+        assert scheduled_time == now
 
     def test_enqueue_at_preserves_extra_metadata(self, job_storage, job):
         metadata = {"saved": True}
@@ -59,19 +62,17 @@ class TestScheduler:
         job_storage._now = lambda: now
         job_id = job_storage.enqueue_in(diff, job)
 
-        with job_storage.session_scope() as session:
-            _, scheduled_job = job_storage._get_job_and_orm_job(job_id, session)
-            scheduled_time = scheduled_job.scheduled_time
-        assert scheduled_time == naive_utc_datetime(now) + diff
+        _, scheduled_job = job_storage._get_job_and_orm_job(job_id)
+        scheduled_time = scheduled_job.scheduled_time
+        assert scheduled_time == now + diff
 
     def test_schedule_a_function_sets_time(self, job_storage, job):
         now = local_now()
         job_id = job_storage.schedule(now, job)
 
-        with job_storage.session_scope() as session:
-            _, scheduled_job = job_storage._get_job_and_orm_job(job_id, session)
-            scheduled_time = scheduled_job.scheduled_time
-        assert scheduled_time == naive_utc_datetime(now)
+        _, scheduled_job = job_storage._get_job_and_orm_job(job_id)
+        scheduled_time = scheduled_job.scheduled_time
+        assert scheduled_time == now
 
     def test_schedule_a_function_gives_value_error_without_datetime(
         self, job_storage, job
@@ -112,9 +113,8 @@ class TestScheduler:
         job_id = job_storage.schedule(now, job, interval=1000, repeat=None)
         job_storage.complete_job(job_id)
         job_storage.reschedule_finished_job_if_needed(job_id)
-        with job_storage.session_scope() as session:
-            _, scheduled_job = job_storage._get_job_and_orm_job(job_id, session)
-            repeat = scheduled_job.repeat
+        _, scheduled_job = job_storage._get_job_and_orm_job(job_id)
+        repeat = scheduled_job.repeat
         assert repeat is None
 
     def test_scheduled_repeating_function_enqueues_job(self, job_storage, job):
@@ -131,9 +131,8 @@ class TestScheduler:
         job_id = job_storage.schedule(now, job, interval=1000, repeat=1)
         job_storage.complete_job(job_id)
         job_storage.reschedule_finished_job_if_needed(job_id)
-        with job_storage.session_scope() as session:
-            _, scheduled_job = job_storage._get_job_and_orm_job(job_id, session)
-            repeat = scheduled_job.repeat
+        _, scheduled_job = job_storage._get_job_and_orm_job(job_id)
+        repeat = scheduled_job.repeat
         assert repeat == 0
 
     def test_scheduled_repeating_function_sets_new_job_at_interval(
@@ -144,12 +143,9 @@ class TestScheduler:
         job_storage._now = lambda: now
         job_storage.complete_job(job_id)
         job_storage.reschedule_finished_job_if_needed(job_id)
-        with job_storage.session_scope() as session:
-            _, scheduled_job = job_storage._get_job_and_orm_job(job_id, session)
-            scheduled_time = scheduled_job.scheduled_time
-        assert scheduled_time == naive_utc_datetime(now) + datetime.timedelta(
-            seconds=1000
-        )
+        _, scheduled_job = job_storage._get_job_and_orm_job(job_id)
+        scheduled_time = scheduled_job.scheduled_time
+        assert scheduled_time == now + datetime.timedelta(seconds=1000)
 
     def test_scheduled_repeating_function_failure_sets_new_job_at_retry_interval(
         self, job_storage, job
@@ -161,17 +157,16 @@ class TestScheduler:
         job_storage._now = lambda: now
         job_storage.mark_job_as_failed(job_id, "Exception", "Traceback")
         job_storage.reschedule_finished_job_if_needed(job_id)
-        with job_storage.session_scope() as session:
-            _, scheduled_job = job_storage._get_job_and_orm_job(job_id, session)
-            scheduled_time = scheduled_job.scheduled_time
-        assert scheduled_time == naive_utc_datetime(now) + datetime.timedelta(seconds=5)
+        _, scheduled_job = job_storage._get_job_and_orm_job(job_id)
+        scheduled_time = scheduled_job.scheduled_time
+        assert scheduled_time == now + datetime.timedelta(seconds=5)
 
 
 class TestReschedule(TestScheduler):
     @pytest.fixture
     def job(self, job_storage):
         now = local_now()
-        job_id = job_storage.schedule(now, Job(id), interval=1, repeat=123)
+        job_id = job_storage.schedule(now, Job(add), interval=1, repeat=123)
         return job_storage.get_job(job_id)
 
     def test_reschedule_a_function_gives_job_running_error(self, job_storage, job):

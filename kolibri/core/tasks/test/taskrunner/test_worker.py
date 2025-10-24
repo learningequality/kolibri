@@ -5,7 +5,6 @@ import pytest
 from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
-from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.test.taskrunner.test_job_running import EventProxy
 from kolibri.core.tasks.worker import Worker
 from kolibri.utils import conf
@@ -41,14 +40,14 @@ def toggle_flag(flag_id):
 
 @pytest.fixture
 def worker():
-    with connection() as c:
-        b = Worker(c, regular_workers=1, high_workers=1)
-        b.storage.clear(force=True)
-        yield b
-        b.storage.clear(force=True)
-        b.shutdown()
+    b = Worker(regular_workers=1, high_workers=1)
+    b.storage.clear(force=True)
+    yield b
+    b.storage.clear(force=True)
+    b.shutdown()
 
 
+@pytest.mark.django_db(databases="__all__", transaction=True)
 def test_keyerror_prevention(worker):
     # Create a job with the same ID as the one in worker.enqueue_job_runs_job
     job = Job(id, args=(9,))
@@ -63,6 +62,7 @@ def test_keyerror_prevention(worker):
     assert job.state == "COMPLETED"
 
 
+@pytest.mark.django_db(databases="__all__", transaction=True)
 def test_keyerror_prevention_multiple_jobs(worker):
     # Create multiple jobs with the same ID to trigger the race condition
     job1 = Job(id, args=(9,))
@@ -90,6 +90,7 @@ def test_keyerror_prevention_multiple_jobs(worker):
     assert job2.state == "COMPLETED"
 
 
+@pytest.mark.django_db(databases="__all__", transaction=True)
 class TestWorker:
     def test_enqueue_job_runs_job(self, worker):
         job = Job(id, args=(9,))
@@ -105,7 +106,7 @@ class TestWorker:
         # Do conditional check in here, as it seems to not work properly
         # inside a pytest.mark.skipIf
         if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
-            b = Worker(worker.storage.engine, regular_workers=1, high_workers=1)
+            b = Worker(regular_workers=1, high_workers=1)
             job = Job(toggle_flag, args=(flag.event_id,))
             worker.storage.enqueue_job(job, QUEUE)
 
