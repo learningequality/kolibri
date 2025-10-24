@@ -2,9 +2,7 @@ import logging
 
 from django.http.response import Http404
 from django.utils.decorators import method_decorator
-from django.utils.timezone import make_aware
 from django.views.decorators.csrf import csrf_protect
-from pytz import utc
 from rest_framework import decorators
 from rest_framework import serializers
 from rest_framework import status
@@ -100,8 +98,7 @@ class TasksViewSet(viewsets.GenericViewSet):
             "args": job.args,
             "kwargs": job.kwargs,
             "extra_metadata": job.extra_metadata,
-            # Output is UTC naive, coerce to UTC aware.
-            "scheduled_datetime": make_aware(orm_job.scheduled_time, utc).isoformat(),
+            "scheduled_datetime": orm_job.scheduled_time.isoformat(),
             "repeat": orm_job.repeat,
             "repeat_interval": orm_job.interval,
             "retry_interval": orm_job.retry_interval,

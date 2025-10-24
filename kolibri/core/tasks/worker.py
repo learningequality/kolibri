@@ -5,7 +5,6 @@ from django.db import connection as django_connection
 
 from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.storage import Storage
-from kolibri.core.tasks.utils import db_connection
 from kolibri.core.tasks.utils import InfiniteLoopThread
 from kolibri.utils.multiprocessing_compat import PoolExecutor
 
@@ -25,17 +24,13 @@ def execute_job(
     :return: None
     """
 
-    connection = db_connection()
-
-    storage = Storage(connection)
+    storage = Storage()
 
     job = storage.get_job(job_id)
 
     job.update_worker_info(worker_host, worker_process, worker_thread, worker_extra)
 
     job.execute()
-
-    connection.dispose()
 
     # Close any django connections opened here
     django_connection.close()
@@ -60,7 +55,7 @@ def execute_job_with_python_worker(job_id, log_queue=None):
 
 
 class Worker:
-    def __init__(self, connection, regular_workers=2, high_workers=1, log_queue=None):
+    def __init__(self, regular_workers=2, high_workers=1, log_queue=None):
         # Internally, we use concurrent.future.Future to run and track
         # job executions. We need to keep track of which future maps to which
         # job they were made from, and we use the job_future_mapping dict to do
@@ -72,7 +67,7 @@ class Worker:
         # Key: job_id, Value: future object
         self.future_job_mapping = {}
 
-        self.storage = Storage(connection)
+        self.storage = Storage()
 
         self.requeue_stalled_jobs()
 

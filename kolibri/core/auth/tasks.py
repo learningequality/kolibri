@@ -46,7 +46,6 @@ from kolibri.core.tasks.permissions import NotProvisioned
 from kolibri.core.tasks.utils import DatabaseLockedError
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
-from kolibri.utils.time_utils import naive_utc_datetime
 from kolibri.utils.translation import gettext as _
 
 
@@ -472,7 +471,7 @@ def enqueue_soud_sync_processing():
 
     # Check if there is already an enqueued job
     try:
-        converted_next_run = naive_utc_datetime(timezone.now() + next_run)
+        converted_next_run = timezone.now() + next_run
         orm_job = job_storage.get_orm_job(SOUD_SYNC_PROCESSING_JOB_ID)
         if (
             orm_job.state not in (State.COMPLETED, State.FAILED, State.CANCELED)

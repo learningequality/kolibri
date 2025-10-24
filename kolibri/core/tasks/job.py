@@ -4,7 +4,6 @@ import logging
 import traceback
 import uuid
 from collections import namedtuple
-from datetime import timedelta
 
 from kolibri.core.tasks.constants import (  # noqa F401 - imported for backwards compatibility
     Priority,
@@ -101,13 +100,6 @@ def default_status_text(job):
 
 
 ALLOWED_RETRY_IN_KWARGS = {"priority", "repeat", "interval", "retry_interval"}
-
-RETRY_ON_DELAY = timedelta(
-    seconds=5
-)  # Delay before retrying a job that failed due to a retryable exception
-MAX_RETRIES = (
-    3  # Maximum number of retries for a job that failed due to a retryable exception
-)
 
 
 class Job:

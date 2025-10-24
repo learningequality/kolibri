@@ -162,10 +162,14 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": job_storage_path,
             "OPTIONS": {"timeout": 100},
+            "TEST": {
+                "NAME": os.path.join(conf.KOLIBRI_HOME, "test_job_storage.sqlite3")
+            },
         },
     }
 
     for additional_db in ADDITIONAL_SQLITE_DATABASES:
+        # TODO ADD JOB_STORAGE to ADDITIONAL_SQLITE_DATABASES and check it here
         DATABASES[additional_db] = {
             "ENGINE": "kolibri.deployment.default.db.backends.sqlite3",
             "NAME": os.path.join(conf.KOLIBRI_HOME, "{}.sqlite3".format(additional_db)),
