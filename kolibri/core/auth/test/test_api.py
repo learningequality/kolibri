@@ -2364,6 +2364,51 @@ class MembershipAPITestCase(APITestCase):
             ).exists()
         )
 
+    def test_bulk_enroll_filters_coaches_silently(self):
+        """Test that bulk enrollment filters out coaches but creates valid memberships"""
+        from kolibri.core.auth.constants import role_kinds
+
+        self.login_superuser()
+
+        # Create two new users for this test
+        user1 = FacilityUserFactory.create(facility=self.facility)
+        user2 = FacilityUserFactory.create(facility=self.facility)
+
+        # user1 is a coach for classroom
+        models.Role.objects.create(
+            user=user1, collection=self.classroom, kind=role_kinds.COACH
+        )
+
+        # user2 is not a coach
+        # Try to enroll both users
+        response = self.client.post(
+            reverse("kolibri:core:membership-list"),
+            data=[
+                {"user": user1.id, "collection": self.classroom.id},
+                {"user": user2.id, "collection": self.classroom.id},
+            ],
+            format="json",
+        )
+
+        # Should return 201 with only user2's membership
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["user"], user2.id)
+
+        # Verify user1 was not enrolled
+        self.assertFalse(
+            models.Membership.objects.filter(
+                user=user1, collection=self.classroom
+            ).exists()
+        )
+
+        # Verify user2 was enrolled
+        self.assertTrue(
+            models.Membership.objects.filter(
+                user=user2, collection=self.classroom
+            ).exists()
+        )
+
 
 class RoleAPITestCase(APITestCase):
     @classmethod
@@ -2412,6 +2457,53 @@ class RoleAPITestCase(APITestCase):
         self.assertFalse(
             models.Role.objects.filter(
                 user=self.user1, collection=self.classroom, kind=role_kinds.COACH
+            ).exists()
+        )
+
+    def test_bulk_assign_coaches_filters_learners_silently(self):
+        """Test that bulk coach assignment filters out learners but creates valid roles"""
+        from kolibri.core.auth.constants import role_kinds
+
+        self.login_superuser()
+
+        # user1 is enrolled as learner in classroom
+        models.Membership.objects.create(user=self.user1, collection=self.classroom)
+
+        # user2 is not enrolled
+        # Try to assign both as coaches
+        response = self.client.post(
+            reverse("kolibri:core:role-list"),
+            data=[
+                {
+                    "user": self.user1.id,
+                    "collection": self.classroom.id,
+                    "kind": role_kinds.COACH,
+                },
+                {
+                    "user": self.user2.id,
+                    "collection": self.classroom.id,
+                    "kind": role_kinds.COACH,
+                },
+            ],
+            format="json",
+        )
+
+        # Should return 201 with only user2's role
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["user"], self.user2.id)
+
+        # Verify user1 was not assigned as coach
+        self.assertFalse(
+            models.Role.objects.filter(
+                user=self.user1, collection=self.classroom, kind=role_kinds.COACH
+            ).exists()
+        )
+
+        # Verify user2 was assigned as coach
+        self.assertTrue(
+            models.Role.objects.filter(
+                user=self.user2, collection=self.classroom, kind=role_kinds.COACH
             ).exists()
         )
 
