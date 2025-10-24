@@ -2409,6 +2409,39 @@ class MembershipAPITestCase(APITestCase):
             ).exists()
         )
 
+    def test_can_enroll_in_learnergroup(self):
+        """Test that LearnerGroup memberships work normally (validation only applies to classrooms)"""
+        self.login_superuser()
+
+        # Create a new user for this test
+        user1 = FacilityUserFactory.create(facility=self.facility)
+
+        # First enroll user in classroom (required for learnergroup membership)
+        models.Membership.objects.create(user=user1, collection=self.classroom)
+
+        # Create learner group
+        learner_group = LearnerGroupFactory.create(
+            name="Test Group", parent=self.classroom
+        )
+
+        # Try to enroll user in the learner group (should succeed)
+        response = self.client.post(
+            reverse("kolibri:core:membership-list"),
+            data=[{"user": user1.id, "collection": learner_group.id}],
+            format="json",
+        )
+
+        # Should succeed
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(response.data), 1)
+
+        # Verify membership was created
+        self.assertTrue(
+            models.Membership.objects.filter(
+                user=user1, collection=learner_group
+            ).exists()
+        )
+
 
 class RoleAPITestCase(APITestCase):
     @classmethod
@@ -2504,6 +2537,39 @@ class RoleAPITestCase(APITestCase):
         self.assertTrue(
             models.Role.objects.filter(
                 user=self.user2, collection=self.classroom, kind=role_kinds.COACH
+            ).exists()
+        )
+
+    def test_can_assign_learner_as_facility_admin(self):
+        """Test that learners CAN be assigned as facility admins (validation only for classroom coaches)"""
+        from kolibri.core.auth.constants import role_kinds
+
+        self.login_superuser()
+
+        # Enroll user as learner in classroom
+        models.Membership.objects.create(user=self.user1, collection=self.classroom)
+
+        # Try to assign user as facility admin (should succeed)
+        response = self.client.post(
+            reverse("kolibri:core:role-list"),
+            data=[
+                {
+                    "user": self.user1.id,
+                    "collection": self.facility.id,
+                    "kind": role_kinds.ADMIN,
+                }
+            ],
+            format="json",
+        )
+
+        # Should succeed
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(response.data), 1)
+
+        # Verify role was created
+        self.assertTrue(
+            models.Role.objects.filter(
+                user=self.user1, collection=self.facility, kind=role_kinds.ADMIN
             ).exists()
         )
 
