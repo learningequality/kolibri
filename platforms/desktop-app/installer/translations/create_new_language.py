@@ -19,7 +19,6 @@ Workflow:
 """
 import argparse
 import configparser
-import shutil
 from pathlib import Path
 
 SOURCE_TEMPLATE = "English.isl"
@@ -49,13 +48,18 @@ def _merge_with_standard_isl(standard_path: Path, master_path: Path, dest_path: 
 
         # Add the [CustomMessages] section if it exists in the master
         if "CustomMessages" in master_config:
-            final_config["CustomMessages"] = master_config["CustomMessages"]
+            # First, ensure the [CustomMessages] section exists. If not, add it.
+            if not final_config.has_section("CustomMessages"):
+                final_config.add_section("CustomMessages")
+
+            for key, _ in master_config.items("CustomMessages"):
+                final_config.set("CustomMessages", key, "")
         else:
             print("Warning: No [CustomMessages] section found in the English template.")
             final_config.add_section("CustomMessages")  # Add an empty section
 
         # Write the merged result to the new file
-        with open(dest_path, "w", encoding="utf-8") as f:
+        with open(dest_path, "w", encoding="utf-8-sig") as f:
             final_config.write(f, space_around_delimiters=False)
 
         return "merged"
@@ -67,17 +71,39 @@ def _merge_with_standard_isl(standard_path: Path, master_path: Path, dest_path: 
         return "error"
 
 
-def _copy_from_english_template(source_path: Path, dest_path: Path):
+def _create_from_english_template(source_path: Path, dest_path: Path):
     """
-    Creates a new language file by copying the English template.
+    Creates a new language file from the English template, but with empty values
+    for all translatable strings.
     """
-    print("Falling back to creating from the English template.")
-    try:
-        shutil.copy(source_path, dest_path)
-        return "copied"
-    except (shutil.SameFileError, FileNotFoundError, PermissionError, OSError) as e:
-        print(f"Copy error: {e}")
-        return "error"
+    print("Falling back to creating a blank template from English.isl.")
+    # Load the English template
+    template_config = configparser.ConfigParser(
+        allow_no_value=True, interpolation=None, strict=False
+    )
+    template_config.optionxform = str
+    template_config.read(source_path, encoding="utf-8-sig")
+
+    # Create a new config for the new language
+    new_lang_config = configparser.ConfigParser(
+        allow_no_value=True, interpolation=None, strict=False
+    )
+    new_lang_config.optionxform = str
+
+    # Iterate through the template sections
+    for section in template_config.sections():
+        new_lang_config.add_section(section)
+        if section == "LangOptions":
+            for key, value in template_config.items(section):
+                new_lang_config.set(section, key, value)
+        else:
+            for key, _ in template_config.items(section):
+                new_lang_config.set(section, key, "")
+
+    with open(dest_path, "w", encoding="utf-8-sig") as f:
+        new_lang_config.write(f, space_around_delimiters=False)
+
+    return "created"
 
 
 def create_new_language_file(language_name: str, inno_languages_dir: str):
@@ -105,12 +131,12 @@ def create_new_language_file(language_name: str, inno_languages_dir: str):
         # Case 1: Standard Inno Setup file exists. MERGE IT.
         mode = _merge_with_standard_isl(standard_isl_path, source_path, dest_path)
     else:
-        # Case 2: No standard file found. FALL BACK to copying.
+        # Case 2: No standard file found. FALL BACK to creating a blank template.
         if inno_languages_dir:
             print(f"Info: Standard Inno Setup file not found for '{language_name}'.")
         else:
             print("Info: Inno Setup languages directory not provided.")
-        mode = _copy_from_english_template(source_path, dest_path)
+        mode = _create_from_english_template(source_path, dest_path)
 
     if mode != "error":
         print_success_message(dest_path, mode)
@@ -125,7 +151,7 @@ def print_success_message(path, mode):
     print(
         r'   Example for Spanish, Name: "es"; MessagesFile: "translations\Spanish.isl"'
     )
-    if mode == "copied":
+    if mode == "created":
         print("2. Configure the [LangOptions] section in the new .isl file")
 
 

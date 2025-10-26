@@ -102,7 +102,7 @@ webview2:
 
 # Windows Installer Build
 .PHONY: build-installer-windows
-build-installer-windows: needs-version webview2
+build-installer-windows: translations-compile needs-version webview2
 ifeq ($(OS),Windows_NT)
 	# Assumes Inno Setup is installed in the default location.
 	# MSYS_NO_PATHCONV=1 prevents Git Bash/MINGW from converting the /D flag into a file path.
@@ -121,6 +121,39 @@ new-language:
 	$(PYTHON_EXEC) installer/translations/create_new_language.py \
 		--name "$(LANG)" \
 		--inno-languages-dir "$(INNO_LANGUAGES_DIR)"
+
+TRANSLATIONS_DIR := installer/translations
+ISL_TO_PO_SCRIPT := $(TRANSLATIONS_DIR)/isl_to_po.py
+PO_TO_ISL_SCRIPT := $(TRANSLATIONS_DIR)/po_to_isl.py
+
+# Usage example: make translations-export LANG=German LANG_CODE=de_DE
+# Exports a single .isl file to a .po file for translators.
+.PHONY: translations-export
+translations-export:
+	$(MAKE) guard-LANG
+	$(MAKE) guard-LANG_CODE
+	@echo "Exporting '$(LANG).isl' to a .po file for translators..."
+	$(PYTHON_EXEC) $(ISL_TO_PO_SCRIPT) \
+		-t $(TRANSLATIONS_DIR)/English.isl \
+		-i $(TRANSLATIONS_DIR)/$(LANG).isl \
+		-o $(TRANSLATIONS_DIR)/$(LANG).po \
+		-l "$(LANG_CODE)"
+
+# Compiles all .po files in the translations dir into their final .isl format.
+# Runs automatically before the windows installer is built.
+.PHONY: translations-compile
+translations-compile:
+	@echo "Compiling .po files to .isl format for Inno Setup..."
+	@for po_file in $(TRANSLATIONS_DIR)/*.po; do \
+		if [ -f "$$po_file" ]; then \
+			lang_name=$$(basename "$$po_file" .po); \
+			echo "  -> Processing $${lang_name}.po -> $${lang_name}.isl"; \
+			$(PYTHON_EXEC) $(PO_TO_ISL_SCRIPT) \
+				-t $(TRANSLATIONS_DIR)/English.isl \
+				-i "$$po_file" \
+				-o "$(TRANSLATIONS_DIR)/$${lang_name}.isl"; \
+		fi \
+	done
 
 .PHONY: update-translations
 update-translations:

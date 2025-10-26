@@ -3,3 +3,4 @@ pkginfo
 PyInstaller==6.19.0
 dmgbuild==1.6.7; sys_platform == 'darwin'
 attrdict==2.0.1  # required to install wxpython
+polib==1.2.0 # required for handling .po translation files
