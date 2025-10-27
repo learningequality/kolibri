@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 class RoleListSerializer(serializers.ListSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.skipped_items = []
+        self.invalid_items = []
 
     def validate(self, attrs):
 
@@ -76,7 +76,7 @@ class RoleListSerializer(serializers.ListSerializer):
 
         for item in classroom_coach_items:
             if (item["collection"].id, item["user"].id) in existing_memberships:
-                self.skipped_items.append(item)
+                self.invalid_items.append(item)
             else:
                 valid_items.append(item)
 

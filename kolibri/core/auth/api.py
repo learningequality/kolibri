@@ -819,15 +819,15 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
         response_data = {"created": serializer.data}
         status_code = status.HTTP_201_CREATED
 
-        if hasattr(serializer, "skipped_items") and serializer.skipped_items:
+        if hasattr(serializer, "invalid_items") and serializer.invalid_items:
             status_code = status.HTTP_207_MULTI_STATUS
-            response_data["skipped"] = [
+            response_data["invalid"] = [
                 {
                     "user": item["user"].id,
                     "collection": item["collection"].id,
                     "kind": item["kind"],
                 }
-                for item in serializer.skipped_items
+                for item in serializer.invalid_items
             ]
 
         return Response(response_data, status=status_code)

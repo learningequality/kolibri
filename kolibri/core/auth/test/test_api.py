@@ -2333,7 +2333,10 @@ class MembershipAPITestCase(APITestCase):
         )
 
     def test_cannot_enroll_coach_as_learner_in_same_classroom(self):
-        """Test that enrolling a coach as a learner in the same classroom is silently skipped"""
+        """
+        Test that enrolling a coach as a learner in the same classroom is included in
+        the invalid_items
+        """
 
         self.login_superuser()
 
@@ -2538,14 +2541,14 @@ class RoleAPITestCase(APITestCase):
             format="json",
         )
 
-        # Should return 207 with skipped items
+        # Should return 207 with invalid items
         self.assertEqual(response.status_code, 207)
         self.assertIn("created", response.data)
-        self.assertIn("skipped", response.data)
+        self.assertIn("invalid", response.data)
         self.assertEqual(len(response.data["created"]), 0)
-        self.assertEqual(len(response.data["skipped"]), 1)
-        self.assertEqual(response.data["skipped"][0]["user"], self.user1.id)
-        self.assertEqual(response.data["skipped"][0]["collection"], self.classroom.id)
+        self.assertEqual(len(response.data["invalid"]), 1)
+        self.assertEqual(response.data["invalid"][0]["user"], self.user1.id)
+        self.assertEqual(response.data["invalid"][0]["collection"], self.classroom.id)
 
         # Verify no coach role was created
         self.assertFalse(
@@ -2584,11 +2587,11 @@ class RoleAPITestCase(APITestCase):
         # Should return 207 with mixed results
         self.assertEqual(response.status_code, 207)
         self.assertIn("created", response.data)
-        self.assertIn("skipped", response.data)
+        self.assertIn("invalid", response.data)
         self.assertEqual(len(response.data["created"]), 1)
-        self.assertEqual(len(response.data["skipped"]), 1)
+        self.assertEqual(len(response.data["invalid"]), 1)
         self.assertEqual(response.data["created"][0]["user"], self.user2.id)
-        self.assertEqual(response.data["skipped"][0]["user"], self.user1.id)
+        self.assertEqual(response.data["invalid"][0]["user"], self.user1.id)
 
         # Verify user1 was not assigned as coach
         self.assertFalse(
