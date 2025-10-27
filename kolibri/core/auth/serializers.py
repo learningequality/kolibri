@@ -30,32 +30,58 @@ logger = logging.getLogger(__name__)
 class RoleListSerializer(serializers.ListSerializer):
     def validate(self, attrs):
         from .constants import collection_kinds, role_kinds
+        from collections import defaultdict
 
-        validated = []
+        # Separate classroom-level coach roles from others
+        classroom_coach_items = []
+        other_items = []
+
         for role_data in attrs:
-            user_id = role_data["user"].id
             collection = role_data["collection"]
             kind = role_data["kind"]
 
-            # Only check classroom-level coach roles
-            if collection.kind != collection_kinds.CLASSROOM:
-                validated.append(role_data)
-                continue
+            # Only validate classroom-level coach roles
+            if collection.kind == collection_kinds.CLASSROOM and kind in [
+                role_kinds.COACH,
+                role_kinds.ASSIGNABLE_COACH,
+            ]:
+                classroom_coach_items.append(role_data)
+            else:
+                other_items.append(role_data)
 
-            if kind not in [role_kinds.COACH, role_kinds.ASSIGNABLE_COACH]:
-                validated.append(role_data)
-                continue
+        # If no classroom coach items, return everything as-is
+        if not classroom_coach_items:
+            return attrs
 
-            # Check if user is already enrolled in this classroom
-            has_membership = Membership.objects.filter(
-                user_id=user_id, collection_id=collection.id
-            ).exists()
+        # Group classroom coach items by collection to minimize queries
+        items_by_collection = defaultdict(list)
+        for item in classroom_coach_items:
+            collection_id = item["collection"].id
+            items_by_collection[collection_id].append(item)
 
-            if not has_membership:
-                validated.append(role_data)
-            # else: silently skip this role
+        # For each collection, do one bulk query to get all conflicting users
+        members_by_collection = {}
+        for collection_id, items in items_by_collection.items():
+            user_ids = [item["user"].id for item in items]
+            # Single query per collection instead of N queries
+            member_user_ids = set(
+                Membership.objects.filter(
+                    collection_id=collection_id, user_id__in=user_ids
+                ).values_list("user_id", flat=True)
+            )
+            members_by_collection[collection_id] = member_user_ids
 
-        return validated
+        # Filter out items where user is already a member
+        validated_coach_items = []
+        for item in classroom_coach_items:
+            user_id = item["user"].id
+            collection_id = item["collection"].id
+            if user_id not in members_by_collection[collection_id]:
+                validated_coach_items.append(item)
+            # else: silently skip - user is already a member
+
+        # Return other items + validated coach items
+        return other_items + validated_coach_items
 
     def create(self, validated_data):
         created_objects = []
@@ -172,29 +198,54 @@ class FacilityUserSerializer(serializers.ModelSerializer):
 class MembershipListSerializer(serializers.ListSerializer):
     def validate(self, attrs):
         from .constants import collection_kinds, role_kinds
+        from collections import defaultdict
 
-        validated = []
+        # Separate classroom memberships from others
+        classroom_items = []
+        non_classroom_items = []
+
         for membership_data in attrs:
-            user_id = membership_data["user"].id
             collection = membership_data["collection"]
+            if collection.kind == collection_kinds.CLASSROOM:
+                classroom_items.append(membership_data)
+            else:
+                non_classroom_items.append(membership_data)
 
-            # Only check classroom-level memberships
-            if collection.kind != collection_kinds.CLASSROOM:
-                validated.append(membership_data)
-                continue
+        # If no classroom items, return everything as-is
+        if not classroom_items:
+            return attrs
 
-            # Check if user is already a coach for this classroom
-            has_coach_role = Role.objects.filter(
-                user_id=user_id,
-                collection_id=collection.id,
-                kind__in=[role_kinds.COACH, role_kinds.ASSIGNABLE_COACH],
-            ).exists()
+        # Group classroom items by collection to minimize queries
+        items_by_collection = defaultdict(list)
+        for item in classroom_items:
+            collection_id = item["collection"].id
+            items_by_collection[collection_id].append(item)
 
-            if not has_coach_role:
-                validated.append(membership_data)
-            # else: silently skip this membership
+        # For each collection, do one bulk query to get all conflicting users
+        coaches_by_collection = {}
+        for collection_id, items in items_by_collection.items():
+            user_ids = [item["user"].id for item in items]
+            # Single query per collection instead of N queries
+            coach_user_ids = set(
+                Role.objects.filter(
+                    collection_id=collection_id,
+                    user_id__in=user_ids,
+                    kind__in=[role_kinds.COACH, role_kinds.ASSIGNABLE_COACH],
+                ).values_list("user_id", flat=True)
+            )
+            coaches_by_collection[collection_id] = coach_user_ids
 
-        return validated
+        # Filter out items where user is already a coach
+        validated_classroom_items = []
+        for item in classroom_items:
+            user_id = item["user"].id
+            collection_id = item["collection"].id
+            if user_id not in coaches_by_collection[collection_id]:
+                validated_classroom_items.append(item)
+            # else: silently skip - user is already a coach
+
+        # Return non-classroom items + validated classroom items
+        return non_classroom_items + validated_classroom_items
 
     def create(self, validated_data):
         created_objects = []
