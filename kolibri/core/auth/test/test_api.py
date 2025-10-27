@@ -2355,9 +2355,14 @@ class MembershipAPITestCase(APITestCase):
             format="json",
         )
 
-        # Should return 201 but with empty array (silently filtered)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(response.data), 0)
+        # Should return 207 with invalid items
+        self.assertEqual(response.status_code, 207)
+        self.assertIn("created", response.data)
+        self.assertIn("invalid", response.data)
+        self.assertEqual(len(response.data["created"]), 0)
+        self.assertEqual(len(response.data["invalid"]), 1)
+        self.assertEqual(response.data["invalid"][0]["user"], test_user.id)
+        self.assertEqual(response.data["invalid"][0]["collection"], self.classroom.id)
 
         # Verify no membership was created
         self.assertFalse(
@@ -2391,10 +2396,14 @@ class MembershipAPITestCase(APITestCase):
             format="json",
         )
 
-        # Should return 201 with only user2's membership
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["user"], user2.id)
+        # Should return 207 with mixed results
+        self.assertEqual(response.status_code, 207)
+        self.assertIn("created", response.data)
+        self.assertIn("invalid", response.data)
+        self.assertEqual(len(response.data["created"]), 1)
+        self.assertEqual(len(response.data["invalid"]), 1)
+        self.assertEqual(response.data["created"][0]["user"], user2.id)
+        self.assertEqual(response.data["invalid"][0]["user"], user1.id)
 
         # Verify user1 was not enrolled
         self.assertFalse(
@@ -2445,9 +2454,12 @@ class MembershipAPITestCase(APITestCase):
             format="json",
         )
 
-        # Should return 201 with only the 2 non-conflicting memberships
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(response.data), 2)
+        # Should return 207 with mixed results
+        self.assertEqual(response.status_code, 207)
+        self.assertIn("created", response.data)
+        self.assertIn("invalid", response.data)
+        self.assertEqual(len(response.data["created"]), 2)
+        self.assertEqual(len(response.data["invalid"]), 2)
 
         # Verify user1 enrolled in classroom2 (not classroom1)
         self.assertFalse(
@@ -2493,7 +2505,8 @@ class MembershipAPITestCase(APITestCase):
 
         # Should succeed
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(response.data), 1)
+        self.assertIn("created", response.data)
+        self.assertEqual(len(response.data["created"]), 1)
 
         # Verify membership was created
         self.assertTrue(

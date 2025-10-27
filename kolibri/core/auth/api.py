@@ -786,6 +786,27 @@ class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet)
     serializer_class = MembershipSerializer
     filterset_class = MembershipFilter
 
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        response_data = {"created": serializer.data}
+        status_code = status.HTTP_201_CREATED
+
+        if hasattr(serializer, "invalid_items") and serializer.invalid_items:
+            status_code = status.HTTP_207_MULTI_STATUS
+            response_data["invalid"] = [
+                {
+                    "user": item["user"].id,
+                    "collection": item["collection"].id,
+                }
+                for item in serializer.invalid_items
+            ]
+
+        return Response(response_data, status=status_code)
+
 
 class RoleFilter(FilterSet):
     user_ids = CharFilter(method="filter_user_ids")

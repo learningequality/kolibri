@@ -1,5 +1,4 @@
 import logging
-from collections import defaultdict
 
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import MinLengthValidator
@@ -195,53 +194,46 @@ class FacilityUserSerializer(serializers.ModelSerializer):
 
 
 class MembershipListSerializer(serializers.ListSerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.invalid_items = []
+
     def validate(self, attrs):
         # Separate classroom memberships from others
         classroom_items = []
-        non_classroom_items = []
+        other_items = []
+        user_ids_to_validate = []
+        class_collection_ids = []
 
         for membership_data in attrs:
             collection = membership_data["collection"]
             if collection.kind == collection_kinds.CLASSROOM:
                 classroom_items.append(membership_data)
+                class_collection_ids.append(collection.id)
+                user_ids_to_validate.append(membership_data["user"].id)
             else:
-                non_classroom_items.append(membership_data)
+                other_items.append(membership_data)
 
         # If no classroom items, return everything as-is
         if not classroom_items:
             return attrs
 
-        # Group classroom items by collection to minimize queries
-        items_by_collection = defaultdict(list)
-        for item in classroom_items:
-            collection_id = item["collection"].id
-            items_by_collection[collection_id].append(item)
+        existing_roles = Role.objects.filter(
+            collection_id__in=class_collection_ids,
+            user_id__in=user_ids_to_validate,
+            kind__in=[role_kinds.ASSIGNABLE_COACH, role_kinds.COACH],
+        ).values_list("collection_id", "user_id")
 
-        # For each collection, do one bulk query to get all conflicting users
-        coaches_by_collection = {}
-        for collection_id, items in items_by_collection.items():
-            user_ids = [item["user"].id for item in items]
-            # Single query per collection instead of N queries
-            coach_user_ids = set(
-                Role.objects.filter(
-                    collection_id=collection_id,
-                    user_id__in=user_ids,
-                    kind__in=[role_kinds.COACH, role_kinds.ASSIGNABLE_COACH],
-                ).values_list("user_id", flat=True)
-            )
-            coaches_by_collection[collection_id] = coach_user_ids
+        valid_items = []
 
-        # Filter out items where user is already a coach
-        validated_classroom_items = []
         for item in classroom_items:
-            user_id = item["user"].id
-            collection_id = item["collection"].id
-            if user_id not in coaches_by_collection[collection_id]:
-                validated_classroom_items.append(item)
-            # else: silently skip - user is already a coach
+            if (item["collection"].id, item["user"].id) in existing_roles:
+                self.invalid_items.append(item)
+            else:
+                valid_items.append(item)
 
         # Return non-classroom items + validated classroom items
-        return non_classroom_items + validated_classroom_items
+        return other_items + valid_items
 
     def create(self, validated_data):
         created_objects = []
