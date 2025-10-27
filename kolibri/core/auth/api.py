@@ -810,6 +810,28 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     filterset_class = RoleFilter
     filterset_fields = ["user", "collection", "kind", "user_ids"]
 
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        response_data = {"created": serializer.data}
+        status_code = status.HTTP_201_CREATED
+
+        if hasattr(serializer, "skipped_items") and serializer.skipped_items:
+            status_code = status.HTTP_207_MULTI_STATUS
+            response_data["skipped"] = [
+                {
+                    "user": item["user"].id,
+                    "collection": item["collection"].id,
+                    "kind": item["kind"],
+                }
+                for item in serializer.skipped_items
+            ]
+
+        return Response(response_data, status=status_code)
+
 
 dataset_keys = [
     "dataset__id",

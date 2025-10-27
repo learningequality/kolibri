@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import MinLengthValidator
@@ -7,7 +8,9 @@ from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 from rest_framework.validators import UniqueTogetherValidator
 
+from .constants import collection_kinds
 from .constants import facility_presets
+from .constants import role_kinds
 from .errors import IncompatibleDeviceSettingError
 from .errors import InvalidCollectionHierarchy
 from .errors import InvalidMembershipError
@@ -28,13 +31,23 @@ logger = logging.getLogger(__name__)
 
 
 class RoleListSerializer(serializers.ListSerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.skipped_items = []
+
     def validate(self, attrs):
-        from .constants import collection_kinds, role_kinds
-        from collections import defaultdict
 
         # Separate classroom-level coach roles from others
         classroom_coach_items = []
+
+        # Other items is for items that don't need to be validated for
+        # whether or not they're enrolled in a class already
         other_items = []
+
+        # Tracking the collections & users to query against for validating
+        # if they're members of the class already
+        assignable_coach_ids = []
+        class_collection_ids = []
 
         for role_data in attrs:
             collection = role_data["collection"]
@@ -46,6 +59,8 @@ class RoleListSerializer(serializers.ListSerializer):
                 role_kinds.ASSIGNABLE_COACH,
             ]:
                 classroom_coach_items.append(role_data)
+                assignable_coach_ids.append(role_data["user"].id)
+                class_collection_ids.append(collection.id)
             else:
                 other_items.append(role_data)
 
@@ -53,35 +68,19 @@ class RoleListSerializer(serializers.ListSerializer):
         if not classroom_coach_items:
             return attrs
 
-        # Group classroom coach items by collection to minimize queries
-        items_by_collection = defaultdict(list)
+        existing_memberships = Membership.objects.filter(
+            collection_id__in=class_collection_ids, user_id__in=assignable_coach_ids
+        ).values_list("collection_id", "user_id")
+
+        valid_items = []
+
         for item in classroom_coach_items:
-            collection_id = item["collection"].id
-            items_by_collection[collection_id].append(item)
+            if (item["collection"].id, item["user"].id) in existing_memberships:
+                self.skipped_items.append(item)
+            else:
+                valid_items.append(item)
 
-        # For each collection, do one bulk query to get all conflicting users
-        members_by_collection = {}
-        for collection_id, items in items_by_collection.items():
-            user_ids = [item["user"].id for item in items]
-            # Single query per collection instead of N queries
-            member_user_ids = set(
-                Membership.objects.filter(
-                    collection_id=collection_id, user_id__in=user_ids
-                ).values_list("user_id", flat=True)
-            )
-            members_by_collection[collection_id] = member_user_ids
-
-        # Filter out items where user is already a member
-        validated_coach_items = []
-        for item in classroom_coach_items:
-            user_id = item["user"].id
-            collection_id = item["collection"].id
-            if user_id not in members_by_collection[collection_id]:
-                validated_coach_items.append(item)
-            # else: silently skip - user is already a member
-
-        # Return other items + validated coach items
-        return other_items + validated_coach_items
+        return other_items + valid_items
 
     def create(self, validated_data):
         created_objects = []
@@ -197,9 +196,6 @@ class FacilityUserSerializer(serializers.ModelSerializer):
 
 class MembershipListSerializer(serializers.ListSerializer):
     def validate(self, attrs):
-        from .constants import collection_kinds, role_kinds
-        from collections import defaultdict
-
         # Separate classroom memberships from others
         classroom_items = []
         non_classroom_items = []

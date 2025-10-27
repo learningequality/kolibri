@@ -2334,7 +2334,6 @@ class MembershipAPITestCase(APITestCase):
 
     def test_cannot_enroll_coach_as_learner_in_same_classroom(self):
         """Test that enrolling a coach as a learner in the same classroom is silently skipped"""
-        from kolibri.core.auth.constants import role_kinds
 
         self.login_superuser()
 
@@ -2366,7 +2365,6 @@ class MembershipAPITestCase(APITestCase):
 
     def test_bulk_enroll_filters_coaches_silently(self):
         """Test that bulk enrollment filters out coaches but creates valid memberships"""
-        from kolibri.core.auth.constants import role_kinds
 
         self.login_superuser()
 
@@ -2411,7 +2409,6 @@ class MembershipAPITestCase(APITestCase):
 
     def test_bulk_enroll_multiple_classrooms_filters_correctly(self):
         """Test that bulk enrollment across multiple classrooms filters per-collection"""
-        from kolibri.core.auth.constants import role_kinds
 
         self.login_superuser()
 
@@ -2522,7 +2519,6 @@ class RoleAPITestCase(APITestCase):
 
     def test_cannot_assign_learner_as_coach_in_same_classroom(self):
         """Test that assigning a learner as coach in the same classroom is silently skipped"""
-        from kolibri.core.auth.constants import role_kinds
 
         self.login_superuser()
 
@@ -2542,9 +2538,14 @@ class RoleAPITestCase(APITestCase):
             format="json",
         )
 
-        # Should return 201 but with empty array (silently filtered)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(response.data), 0)
+        # Should return 207 with skipped items
+        self.assertEqual(response.status_code, 207)
+        self.assertIn("created", response.data)
+        self.assertIn("skipped", response.data)
+        self.assertEqual(len(response.data["created"]), 0)
+        self.assertEqual(len(response.data["skipped"]), 1)
+        self.assertEqual(response.data["skipped"][0]["user"], self.user1.id)
+        self.assertEqual(response.data["skipped"][0]["collection"], self.classroom.id)
 
         # Verify no coach role was created
         self.assertFalse(
@@ -2555,7 +2556,6 @@ class RoleAPITestCase(APITestCase):
 
     def test_bulk_assign_coaches_filters_learners_silently(self):
         """Test that bulk coach assignment filters out learners but creates valid roles"""
-        from kolibri.core.auth.constants import role_kinds
 
         self.login_superuser()
 
@@ -2581,10 +2581,14 @@ class RoleAPITestCase(APITestCase):
             format="json",
         )
 
-        # Should return 201 with only user2's role
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["user"], self.user2.id)
+        # Should return 207 with mixed results
+        self.assertEqual(response.status_code, 207)
+        self.assertIn("created", response.data)
+        self.assertIn("skipped", response.data)
+        self.assertEqual(len(response.data["created"]), 1)
+        self.assertEqual(len(response.data["skipped"]), 1)
+        self.assertEqual(response.data["created"][0]["user"], self.user2.id)
+        self.assertEqual(response.data["skipped"][0]["user"], self.user1.id)
 
         # Verify user1 was not assigned as coach
         self.assertFalse(
@@ -2602,7 +2606,6 @@ class RoleAPITestCase(APITestCase):
 
     def test_can_assign_learner_as_facility_admin(self):
         """Test that learners CAN be assigned as facility admins (validation only for classroom coaches)"""
-        from kolibri.core.auth.constants import role_kinds
 
         self.login_superuser()
 
@@ -2622,9 +2625,11 @@ class RoleAPITestCase(APITestCase):
             format="json",
         )
 
-        # Should succeed
+        # Should succeed with all items created
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(response.data), 1)
+        self.assertIn("created", response.data)
+        self.assertEqual(len(response.data["created"]), 1)
+        self.assertEqual(response.data["created"][0]["user"], self.user1.id)
 
         # Verify role was created
         self.assertTrue(
