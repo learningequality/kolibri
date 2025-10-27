@@ -2409,6 +2409,66 @@ class MembershipAPITestCase(APITestCase):
             ).exists()
         )
 
+    def test_bulk_enroll_multiple_classrooms_filters_correctly(self):
+        """Test that bulk enrollment across multiple classrooms filters per-collection"""
+        from kolibri.core.auth.constants import role_kinds
+
+        self.login_superuser()
+
+        # Create a second classroom
+        classroom2 = ClassroomFactory.create(parent=self.facility)
+
+        # Create two users
+        user1 = FacilityUserFactory.create(facility=self.facility)
+        user2 = FacilityUserFactory.create(facility=self.facility)
+
+        # user1 is a coach for classroom1, user2 is a coach for classroom2
+        models.Role.objects.create(
+            user=user1, collection=self.classroom, kind=role_kinds.COACH
+        )
+        models.Role.objects.create(
+            user=user2, collection=classroom2, kind=role_kinds.COACH
+        )
+
+        # Try to enroll both users in both classrooms (4 memberships total)
+        response = self.client.post(
+            reverse("kolibri:core:membership-list"),
+            data=[
+                {
+                    "user": user1.id,
+                    "collection": self.classroom.id,
+                },  # CONFLICT - filtered
+                {"user": user1.id, "collection": classroom2.id},  # OK
+                {"user": user2.id, "collection": self.classroom.id},  # OK
+                {"user": user2.id, "collection": classroom2.id},  # CONFLICT - filtered
+            ],
+            format="json",
+        )
+
+        # Should return 201 with only the 2 non-conflicting memberships
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(response.data), 2)
+
+        # Verify user1 enrolled in classroom2 (not classroom1)
+        self.assertFalse(
+            models.Membership.objects.filter(
+                user=user1, collection=self.classroom
+            ).exists()
+        )
+        self.assertTrue(
+            models.Membership.objects.filter(user=user1, collection=classroom2).exists()
+        )
+
+        # Verify user2 enrolled in classroom1 (not classroom2)
+        self.assertTrue(
+            models.Membership.objects.filter(
+                user=user2, collection=self.classroom
+            ).exists()
+        )
+        self.assertFalse(
+            models.Membership.objects.filter(user=user2, collection=classroom2).exists()
+        )
+
     def test_can_enroll_in_learnergroup(self):
         """Test that LearnerGroup memberships work normally (validation only applies to classrooms)"""
         self.login_superuser()
