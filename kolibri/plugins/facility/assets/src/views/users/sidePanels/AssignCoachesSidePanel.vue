@@ -116,6 +116,8 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { UserKinds } from 'kolibri/constants';
+  import client from 'kolibri/client';
+  import urls from 'kolibri/urls';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -140,6 +142,7 @@
       const isLoading = ref(false);
       const showErrorWarning = ref(false);
       const createdRoles = ref(null);
+      const invalidRoles = ref(null);
       const facilityUsers = ref([]);
       const route = useRoute();
       const closeConfirmationGuardRef = ref(null);
@@ -153,7 +156,9 @@
       });
 
       const {
-        coachesAssignedNotice$,
+        coachesAllAssignedNotice$,
+        coachesAllInvalidNotice$,
+        coachesSomeInvalidNotice$,
         assignCoachUndoneNotice$,
         usersInClassNotAffected$,
         assignAction$,
@@ -259,13 +264,19 @@
           })),
         );
 
-        const newRoles = await RoleResource.saveCollection({
+        // Errors will be caught in _handleAssign
+        const response = await client({
+          url: urls['kolibri:core:role_list'](),
+          method: 'POST',
           data: roleData,
         });
 
+        const { created, invalid } = response.data;
+
         // Only add roles that were actually created (have an id)
-        const actuallyCreatedRoles = newRoles.filter(role => role.id);
+        const actuallyCreatedRoles = created.filter(role => role.id);
         createdRoles.value = actuallyCreatedRoles;
+        invalidRoles.value = invalid || [];
       }
 
       async function handleUndoAssignments() {
@@ -278,12 +289,24 @@
         }
       }
 
+      const snackbarMessage$ = () => {
+        if(createdRoles.value.length) {
+          if(invalidRoles.value.length) {
+            return coachesSomeInvalidNotice$();
+          } else {
+            return coachesAllAssignedNotice$();
+          }
+        }
+        return coachesAllInvalidNotice$();
+      };
+
       const { performAction: handleAssign } = useActionWithUndo({
         action: _handleAssign,
-        actionNotice$: coachesAssignedNotice$,
+        actionNotice$: snackbarMessage$,
         undoAction: handleUndoAssignments,
         undoActionNotice$: assignCoachUndoneNotice$,
         onBlur: props.onBlur,
+        canUndo: computed(() => createdRoles.value.length),
       });
 
       function closeSidePanel() {

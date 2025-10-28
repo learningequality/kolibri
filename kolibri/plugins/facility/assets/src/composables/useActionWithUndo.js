@@ -1,7 +1,9 @@
 import { computed } from 'vue';
-import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import useSnackbar from 'kolibri/composables/useSnackbar';
+import {
+  bulkUserManagementStrings
+} from 'kolibri-common/strings/bulkUserManagementStrings';
 
 /**
  *
@@ -28,8 +30,8 @@ import useSnackbar from 'kolibri/composables/useSnackbar';
  * @property {() => Promise<void>} performAction - A method to manually trigger the main action
  * with all the undo machinery set up.
  *
- * @param {ComputedRef<boolean>} options.canUndo - A computed ref that will return true when the undo
- * can be performed (Default: ComputedRef -> true)
+ * @param {ComputedRef<boolean>} options.canUndo - A computed ref that will return true when the
+ * undo can be performed (Default: ComputedRef -> true)
  *
  * @returns {UseActionWithUndoObject}
  */

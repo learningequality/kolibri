@@ -198,10 +198,18 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
 
   // Assign coaches to class
-  coachesAssignedNotice: {
-    message: 'Selected coaches have been assigned',
+  coachesAllAssignedNotice: {
+    message: 'All selected coaches have been assigned',
     context:
       'Success notification shown after coaches have been successfully assigned to users/classes.',
+  },
+  coachesSomeInvalidNotice: {
+    message: 'Some selected coaches were assigned, but some selected users were not assigned because they are already enrolled in a selected class.',
+    context: 'Some of the user\'s selected coaches were assigned, but others were not because they are already enrolled in the class as a Learner.',
+  },
+  coachesAllInvalidNotice: {
+    message: 'None of the selected coaches were assigned. Please check that they are not enrolled in the selected classes and try again.',
+    context: 'Some of the user\'s selected coaches were assigned, but others were not because they are already enrolled in the class as a Learner.',
   },
   assignCoachUndoneNotice: {
     message: 'Assign action has been undone',
@@ -276,6 +284,14 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   usersEnrolledNotice: {
     message: 'Selected users have been enrolled',
     context: 'Confirmation message when users are enrolled in classes',
+  },
+  usersEnrolledSomeInvalidNotice: {
+    message: 'Some selected users were enrolled. Some users were not enrolled because they are assigned as coaches.',
+    context: 'Some of the user\'s selected users were enrolled, but some were not due to their being assigned as coaches',
+  },
+  usersEnrolledAllInvalidNotice: {
+    message: 'None of the selected users were enrolled. Check that your selected users are not assigned as coaches to the selected classes and try again',
+    context: 'The user\'s selected users were not allowed to be enrolled because they are assigned as coaches to the selected classes.',
   },
   enrollUndoneNotice: {
     message: 'Enroll action has been undone',

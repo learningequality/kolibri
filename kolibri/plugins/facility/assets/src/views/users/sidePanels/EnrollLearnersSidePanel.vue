@@ -113,6 +113,8 @@
 
 <script>
 
+  import client from 'kolibri/client';
+  import urls from 'kolibri/urls';
   import { useRoute } from 'vue-router/composables';
   import { getCurrentInstance, ref, computed } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
@@ -152,6 +154,7 @@
       const classLearners = ref([]);
       const classMembershipsByUser = ref({});
       const createdMemberships = ref(null);
+      const invalidMemberships = ref(null);
       const {
         enrollAction$,
         discardAction$,
@@ -163,6 +166,8 @@
         enrollUndoneNotice$,
         enrollInAllClasses$,
         usersEnrolledNotice$,
+        usersEnrolledSomeInvalidNotice$,
+        usersEnrolledAllInvalidNotice$,
         defaultErrorMessage$,
         numUsersNotEnrolled$,
         enrollUsersInClasses$,
@@ -222,9 +227,16 @@
         });
         if (enrollments.length > 0) {
           try {
-            const newMemberships = await MembershipResource.saveCollection({ data: enrollments });
-            createdMemberships.value = newMemberships;
+            const response = await client({
+              url: urls['kolibri:core:membership_list'](),
+              method: 'POST',
+              data: enrollments,
+            });
+            const { created, invalid } = response.data;
+            createdMemberships.value = created;
+            invalidMemberships.value = invalid;
           } catch (error) {
+            console.log(error);
             store.dispatch('handleApiError', { error });
             loading.value = false;
             return false;
@@ -233,6 +245,7 @@
           // Setting an empty array to flag that the operation was successful and no users
           // were enrolled
           createdMemberships.value = [];
+          invalidMemberships.value = [];
         }
         props.onChange({
           affectedClasses: selectedOptions.value,
@@ -242,12 +255,24 @@
         return true;
       }
 
+      const snackbarMessage$ = () => {
+        if(createdMemberships.value.length) {
+          if(invalidMemberships.value.length) {
+            return usersEnrolledSomeInvalidNotice$();
+          } else {
+            return usersEnrolledNotice$();
+          }
+        }
+        return usersEnrolledAllInvalidNotice$();
+      };
+
       const { performAction: enrollLearners } = useActionWithUndo({
         action: _enrollLearners,
-        actionNotice$: usersEnrolledNotice$,
+        actionNotice$: snackbarMessage$,
         undoAction: handleUndoEnrollments,
         undoActionNotice$: enrollUndoneNotice$,
         onBlur: props.onBlur,
+        canUndo: computed(() => invalidMemberships.value),
       });
 
       function closeSidePanel() {
