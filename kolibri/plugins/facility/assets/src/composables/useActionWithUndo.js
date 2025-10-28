@@ -34,7 +34,7 @@ import useSnackbar from 'kolibri/composables/useSnackbar';
  * @returns {UseActionWithUndoObject}
  */
 export default function useActionWithUndo({
-  canUndo = (computed(() => true)),
+  canUndo = computed(() => true),
   action,
   actionNotice$,
   undoAction,
@@ -45,7 +45,7 @@ export default function useActionWithUndo({
   const { createSnackbar, clearSnackbar } = useSnackbar();
 
   const performUndoAction = async () => {
-    if(!canUndo.value) return;
+    if (!canUndo.value) return;
 
     clearSnackbar();
     try {
@@ -67,7 +67,7 @@ export default function useActionWithUndo({
       autofocus: true,
       autoDismiss: true,
       duration: 6000,
-      actionText: (canUndo.value ? undoAction$() : coreStrings.dismissAction$()),
+      actionText: canUndo.value ? undoAction$() : coreStrings.dismissAction$(),
       onBlur,
       actionCallback: performUndoAction,
     });
