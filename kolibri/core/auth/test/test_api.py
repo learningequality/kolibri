@@ -2371,7 +2371,7 @@ class MembershipAPITestCase(APITestCase):
             ).exists()
         )
 
-    def test_bulk_enroll_filters_coaches_silently(self):
+    def test_bulk_enroll_filters_coaches(self):
         """Test that bulk enrollment filters out coaches but creates valid memberships"""
 
         self.login_superuser()
@@ -2534,7 +2534,10 @@ class RoleAPITestCase(APITestCase):
         )
 
     def test_cannot_assign_learner_as_coach_in_same_classroom(self):
-        """Test that assigning a learner as coach in the same classroom is silently skipped"""
+        """
+        Test that assigning a learner as coach in the same classroom results
+        in `invalid` returned with the skipped users
+        """
 
         self.login_superuser()
 
@@ -2570,7 +2573,7 @@ class RoleAPITestCase(APITestCase):
             ).exists()
         )
 
-    def test_bulk_assign_coaches_filters_learners_silently(self):
+    def test_bulk_assign_coaches_filters_learners(self):
         """Test that bulk coach assignment filters out learners but creates valid roles"""
 
         self.login_superuser()
