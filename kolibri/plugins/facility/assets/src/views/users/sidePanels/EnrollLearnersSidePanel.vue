@@ -236,7 +236,6 @@
             createdMemberships.value = created;
             invalidMemberships.value = invalid;
           } catch (error) {
-            console.log(error);
             store.dispatch('handleApiError', { error });
             loading.value = false;
             return false;
