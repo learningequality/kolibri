@@ -1,4 +1,6 @@
+import { computed } from 'vue';
 import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import useSnackbar from 'kolibri/composables/useSnackbar';
 
 /**
@@ -26,9 +28,13 @@ import useSnackbar from 'kolibri/composables/useSnackbar';
  * @property {() => Promise<void>} performAction - A method to manually trigger the main action
  * with all the undo machinery set up.
  *
+ * @param {ComputedRef<boolean>} options.canUndo - A computed ref that will return true when the undo
+ * can be performed (Default: ComputedRef -> true)
+ *
  * @returns {UseActionWithUndoObject}
  */
 export default function useActionWithUndo({
+  canUndo = (computed(() => true)),
   action,
   actionNotice$,
   undoAction,
@@ -39,6 +45,8 @@ export default function useActionWithUndo({
   const { createSnackbar, clearSnackbar } = useSnackbar();
 
   const performUndoAction = async () => {
+    if(!canUndo.value) return;
+
     clearSnackbar();
     try {
       await undoAction();
@@ -59,7 +67,7 @@ export default function useActionWithUndo({
       autofocus: true,
       autoDismiss: true,
       duration: 6000,
-      actionText: undoAction$(),
+      actionText: (canUndo.value ? undoAction$() : coreStrings.dismissAction$()),
       onBlur,
       actionCallback: performUndoAction,
     });
