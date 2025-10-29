@@ -28,6 +28,7 @@ export default function useUserManagement({
   const ordering = computed(() => route.value.query.ordering || null);
   const order = computed(() => route.value.query.order || '');
   const search = computed(() => route.value.query.search || null);
+  const by_ids = computed(() => route.value.query.by_ids || null);
 
   const { routeFilters, numAppliedFilters, getBackendFilters, resetFilters } = useUsersFilters({
     classes,
@@ -37,8 +38,14 @@ export default function useUserManagement({
     dataLoading.value = true;
     try {
       const fetchResource = softDeletedUsers ? DeletedFacilityUserResource : FacilityUserResource;
-      const resp = await fetchResource.fetchCollection({
-        getParams: pickBy({
+      const getParams = Boolean(by_ids.value) ?
+        {
+          by_ids: by_ids.value,
+          member_of: activeFacilityId,
+          page: page.value,
+          page_size: pageSize.value,
+        } :
+        pickBy({
           member_of: activeFacilityId,
           date_joined__gte: dateJoinedGt?.toISOString(),
           page: page.value,
@@ -46,9 +53,13 @@ export default function useUserManagement({
           search: search.value?.trim() || null,
           ordering: order.value === 'desc' ? `-${ordering.value}` : ordering.value || null,
           ...getBackendFilters(),
-        }),
+        });
+
+      const resp = await fetchResource.fetchCollection({
+        getParams,
         force: true,
       });
+
       facilityUsers.value = resp.results.map(_userState);
       totalPages.value = resp.total_pages;
       usersCount.value = resp.count;
@@ -76,7 +87,7 @@ export default function useUserManagement({
     }
   };
 
-  function onChange({ resetSelection = false, affectedClasses = null } = {}) {
+  function onChange({ resetSelection = false, affectedClasses = null, created = [], invalid = [] } = {}) {
     if (resetSelection) {
       selectedUsers.value = new Set();
     }

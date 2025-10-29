@@ -25,6 +25,7 @@ export default function useUsersFilters({ classes }) {
       birthYearStart: route.query.birth_year_start || null,
       birthYearEnd: route.query.birth_year_end || null,
       creationDate: route.query.creation_date || null,
+      by_ids: route.query.by_ids?.split(',') || [],
     };
   });
 
@@ -36,9 +37,13 @@ export default function useUsersFilters({ classes }) {
       end: null,
     },
     creationDate: {},
+    by_ids: [],
   });
 
   const numAppliedFilters = computed(() => {
+    if (routeFilters.value.by_ids?.length) {
+      return 1;
+    }
     let count = 0;
     if (routeFilters.value.userTypes.length) {
       count += 1;
@@ -119,6 +124,13 @@ export default function useUsersFilters({ classes }) {
   watch(
     routeFilters,
     newFilters => {
+      if(workingFilters.by_ids?.length) {
+        // If we're filtering by by_ids, it's programmatic navigation
+        // so we will clear all existing filters and set the ids alone
+        resetWorkingFilters();
+        workingFilters.by_ids = newFilters.by_ids;
+        return;
+      }
       workingFilters.userTypes = [...newFilters.userTypes];
       workingFilters.classes = [...newFilters.classes];
       workingFilters.birthYear.start = newFilters.birthYearStart;
@@ -141,6 +153,13 @@ export default function useUsersFilters({ classes }) {
   const applyFilters = ({ nextRouteName } = {}) => {
     const nextQuery = { ...route.query };
     delete nextQuery.page; // Reset to the first page when applying filters
+
+    if (workingFilters.by_ids.length) {
+      nextQuery.by_ids = workingFilters.by_ids.join(',');
+      return router.push({ ...route, name: nextRouteName || route.name, query: nextQuery });
+    } else {
+      delete nextQuery.by_ids;
+    }
 
     if (workingFilters.userTypes.length) {
       nextQuery.user_types = workingFilters.userTypes.join(',');
@@ -219,6 +238,7 @@ export default function useUsersFilters({ classes }) {
     workingFilters.birthYear.start = null;
     workingFilters.birthYear.end = null;
     workingFilters.creationDate = {};
+    workingFilters.by_id = [];
   };
 
   const resetFilters = () => {
