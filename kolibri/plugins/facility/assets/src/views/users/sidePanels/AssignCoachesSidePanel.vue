@@ -319,7 +319,7 @@
           }
         }
         if(invalidRoles.value?.length) {
-          return unableToAssignAlert$();
+          return someFailedToAssign$();
         }
       };
 

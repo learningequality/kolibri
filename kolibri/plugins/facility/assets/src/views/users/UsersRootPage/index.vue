@@ -304,7 +304,9 @@
       }
 
       function navigateToSidePanel(sidePanelName) {
-        const newRoute = overrideRoute(route, { name: sidePanelName });
+        const { query } = route;
+        delete query.failedActionType;
+        const newRoute = overrideRoute(route, { name: sidePanelName, query });
         router.push(newRoute);
       }
 
@@ -359,15 +361,12 @@
         return {};
       });
 
-
-      // Alerting users about enrollment/assignment errors
-      const alertDismissed = ref(false)
-
-      function handleAlertDismissal() {
-        alertDismissed.value = true
-      }
-
-      const showingInvalidUsers = computed(() => !alertDismissed.value && Boolean(route.query.by_ids));
+      const showingInvalidUsers = computed(() => {
+        return (
+          Boolean(route.query.by_ids) &&
+          Boolean(route.query.failedActionType)
+        );
+      });
       const warningMessage = computed(
         () => {
           switch(route.query?.failedActionType) {
@@ -376,13 +375,13 @@
             case(InvalidActionTypes.ENROLL):
               return someFailedToEnroll$();
             default:
+              // When the page loads
               return '';
           }
         }
       );
 
       return {
-        handleAlertDismissal,
         warningMessage,
         showingInvalidUsers,
         windowIsSmall,
@@ -527,12 +526,6 @@
         }
       },
     },
-    beforeRouteLeave(to,__,next) {
-      this.alertDismissed = false;
-      const { query } = to;
-      delete query.failedActionType;
-      next(this.overrideRoute(to, { query }))
-    }
   };
 
 </script>

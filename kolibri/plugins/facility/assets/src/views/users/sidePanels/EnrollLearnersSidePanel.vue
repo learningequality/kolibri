@@ -137,14 +137,17 @@
       CloseConfirmationGuard,
     },
     mixins: [commonCoreStrings],
-    setup(props) {
+    setup(props, { emit }) {
       const store = getCurrentInstance().proxy.$store;
       const route = useRoute();
       const router = useRouter();
       const goBack = useGoBack({
         getFallbackRoute: () => {
+          const { query } = route;
+          delete query.failedActionType;
           return overrideRoute(route, {
             name: getRootRouteName(route),
+            query,
           });
         },
       });
@@ -220,7 +223,6 @@
       async function _enrollLearners() {
         loading.value = true;
         const enrollments = selectedOptions.value.flatMap(collection_id => {
-          const alreadyEnrolled = classMembershipsByUser.value;
           return Array.from(props.selectedUsers)
             .map(user => ({ collection: collection_id, user }));
         });
@@ -239,9 +241,10 @@
 
             // nextTick to give the hasUnsavedChanges a chance to react
             // so that the confirmation guard doesn't trigger in this case
-            nextTick(() => {
-              if(invalid?.length) {
-                return router.push(
+            return nextTick(() => {
+              // This doesn't need to be done in the assign side panel but IDK for sure why
+              if(Boolean(invalid)) {
+                router.push(
                   overrideRoute(
                     route,
                     {
@@ -253,8 +256,9 @@
                     },
                   )
                 );
+                emit('clearSelection');
+                return true;
               } else {
-                goBack();
                 return true;
               }
             });
@@ -285,7 +289,7 @@
             return usersEnrolledNotice$();
           }
         }
-        if(invalidRoles.value?.length) {
+        if(invalidMemberships.value?.length) {
           return someFailedToEnroll$();
         }
       };
