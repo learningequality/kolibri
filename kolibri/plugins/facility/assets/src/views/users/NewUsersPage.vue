@@ -139,6 +139,15 @@
                 :numFilteredItems="usersCount"
               />
             </template>
+            <template #alert>
+              <UiAlert
+                v-if="showingInvalidUsers"
+                type="warning"
+                :dismissible="false"
+              >
+                {{ warningMessage }}
+              </UiAlert>
+            </template>
           </UsersTableToolbar>
         </div>
         <UsersTable
@@ -186,6 +195,7 @@
         :selectedUsers="selectedUsers"
         :onBlur="onModalBlur"
         :onChange="onChange"
+        @clearSelection="clearSelectedUsers"
       />
 
       <!-- Modals -->
@@ -211,18 +221,17 @@
   import { useRoute, useRouter } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
-
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
-
   import { UserKinds } from 'kolibri/constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUsersTableSearch from '../../composables/useUsersTableSearch';
   import usePagination from '../../composables/usePagination';
   import useUserManagement from '../../composables/useUserManagement';
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
-  import { PageNames } from '../../constants';
+  import { InvalidActionTypes, PageNames } from '../../constants';
   import { overrideRoute } from '../../utils';
   import UsersTable from './common/UsersTable.vue';
   import UsersTableToolbar from './common/UsersTableToolbar/index.vue';
@@ -240,6 +249,7 @@
       MoveToTrashModal,
       FilterTextbox,
       PaginationActions,
+      UiAlert,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -312,6 +322,8 @@
         filterLabel$,
         numUsersSelected$,
         clearFiltersLabel$,
+        someFailedToAssign$,
+        someFailedToEnroll$,
       } = bulkUserManagementStrings;
 
       function clearSelectedUsers() {
@@ -358,7 +370,30 @@
         fetchClasses();
       });
 
+      // Alerting users about enrollment/assignment errors
+      const alertDismissed = ref(false)
+
+      function handleAlertDismissal() {
+        alertDismissed.value = true
+      }
+
+      const showingInvalidUsers = computed(() => !alertDismissed.value && Boolean(route.query.by_ids));
+      const warningMessage = computed(
+        () => {
+          switch(route.query?.failedActionType) {
+            case(InvalidActionTypes.ASSIGN):
+              return someFailedToAssign$();
+            case(InvalidActionTypes.ENROLL):
+              return someFailedToEnroll$();
+            default:
+              return '';
+          }
+        }
+      );
+
       return {
+        warningMessage,
+        showingInvalidUsers,
         usersTableStyles,
         // Route utilities
         overrideRoute,
