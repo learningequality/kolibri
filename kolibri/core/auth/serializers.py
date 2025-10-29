@@ -86,8 +86,7 @@ class RoleListSerializer(serializers.ListSerializer):
 
         for model_data in validated_data:
             obj, created = Role.objects.get_or_create(**model_data)
-            if created:
-                created_objects.append(obj)
+            created_objects.append(obj)
 
         return created_objects
 
@@ -240,8 +239,7 @@ class MembershipListSerializer(serializers.ListSerializer):
 
         for model_data in validated_data:
             obj, created = Membership.objects.get_or_create(**model_data)
-            if created:
-                created_objects.append(obj)
+            created_objects.append(obj)
 
         return created_objects
 
