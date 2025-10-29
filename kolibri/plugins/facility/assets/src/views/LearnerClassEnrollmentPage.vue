@@ -28,6 +28,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import ClassEnrollForm from './ClassEnrollForm';
 
   export default {
@@ -44,7 +45,15 @@
     mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
-      return { createSnackbar };
+      const {
+        usersEnrolledNotice$,
+        someLearnersEnrolledNotice$,
+      } = bulkUserManagementStrings;
+      return {
+        createSnackbar,
+        usersEnrolledNotice$,
+        someLearnersEnrolledNotice$,
+      };
     },
     data() {
       return {
@@ -72,7 +81,15 @@
           window.localStorage.setItem(`${welcomeDismissalKey}-${id}`, false);
         });
         this.enrollLearnersInClass({ classId: this.class.id, users: selectedUsers })
-          .then(() => {
+          .then(response => {
+            const { created, invalid } = response.data;
+            if(created?.length) {
+              if(invalid?.length) {
+                this.createSnackbar(this.someLearnersEnrolledNotice$());
+              } else {
+                this.createSnackbar(this.usersEnrolledNotice$());
+              }
+            }
             this.$router
               .push(this.$store.getters.facilityPageLinks.ClassEditPage(this.class.id))
               .then(() => {

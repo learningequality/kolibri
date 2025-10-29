@@ -43,6 +43,7 @@
       </div>
       <slot name="paginationControls"></slot>
     </div>
+    <div><slot name="alert"></slot></div>
     <div
       v-if="showUsersTable"
       :style="{

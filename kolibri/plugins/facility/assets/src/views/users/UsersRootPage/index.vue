@@ -99,6 +99,7 @@
               />
             </template>
             <template #userActions>
+
               <KIconButton
                 ref="assignButton"
                 icon="assignCoaches"
@@ -156,6 +157,15 @@
                 :numFilteredItems="usersCount"
               />
             </template>
+            <template #alert>
+              <UiAlert
+                v-if="showingInvalidUsers"
+                type="warning"
+                :dismissible="false"
+              >
+                {{ warningMessage }}
+              </UiAlert>
+            </template>
           </UsersTableToolbar>
         </div>
         <UsersTable
@@ -201,6 +211,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import useUser from 'kolibri/composables/useUser';
   import { UserKinds } from 'kolibri/constants';
@@ -208,7 +219,7 @@
   import UsersTableToolbar from '../common/UsersTableToolbar/index.vue';
   import useUserManagement from '../../../composables/useUserManagement';
   import FacilityAppBarPage from '../../FacilityAppBarPage';
-  import { PageNames } from '../../../constants';
+  import { InvalidActionTypes, PageNames } from '../../../constants';
   import UsersTable from '../common/UsersTable.vue';
   import { overrideRoute } from '../../../utils';
   import MoveToTrashModal from '../common/MoveToTrashModal.vue';
@@ -228,6 +239,7 @@
       MoveToTrashModal,
       FacilityAppBarPage,
       FilterTextbox,
+      UiAlert,
       PaginationActions,
     },
     mixins: [commonCoreStrings],
@@ -252,7 +264,10 @@
         filterLabel$,
         numUsersSelected$,
         clearFiltersLabel$,
+        someFailedToAssign$,
+        someFailedToEnroll$,
       } = bulkUserManagementStrings;
+
 
       const { $store, $router } = getCurrentInstance().proxy;
       const activeFacilityId =
@@ -344,7 +359,32 @@
         return {};
       });
 
+
+      // Alerting users about enrollment/assignment errors
+      const alertDismissed = ref(false)
+
+      function handleAlertDismissal() {
+        alertDismissed.value = true
+      }
+
+      const showingInvalidUsers = computed(() => !alertDismissed.value && Boolean(route.query.by_ids));
+      const warningMessage = computed(
+        () => {
+          switch(route.query?.failedActionType) {
+            case(InvalidActionTypes.ASSIGN):
+              return someFailedToAssign$();
+            case(InvalidActionTypes.ENROLL):
+              return someFailedToEnroll$();
+            default:
+              return '';
+          }
+        }
+      );
+
       return {
+        handleAlertDismissal,
+        warningMessage,
+        showingInvalidUsers,
         windowIsSmall,
         usersTableStyles,
         // Route utilities
@@ -487,6 +527,12 @@
         }
       },
     },
+    beforeRouteLeave(to,__,next) {
+      this.alertDismissed = false;
+      const { query } = to;
+      delete query.failedActionType;
+      next(this.overrideRoute(to, { query }))
+    }
   };
 
 </script>

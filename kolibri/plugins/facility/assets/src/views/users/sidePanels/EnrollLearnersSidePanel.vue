@@ -115,8 +115,8 @@
 
   import client from 'kolibri/client';
   import urls from 'kolibri/urls';
-  import { useRoute } from 'vue-router/composables';
-  import { getCurrentInstance, ref, computed } from 'vue';
+  import { useRouter, useRoute } from 'vue-router/composables';
+  import { getCurrentInstance, ref, computed, nextTick } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
@@ -125,7 +125,7 @@
   import groupBy from 'lodash/groupBy';
   import SelectableList from '../../common/SelectableList.vue';
   import useActionWithUndo from '../../../composables/useActionWithUndo';
-  import { PageNames } from '../../../constants.js';
+  import { InvalidActionTypes, PageNames } from '../../../constants.js';
   import { getRootRouteName, overrideRoute } from '../../../utils';
   import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
 
@@ -140,6 +140,7 @@
     setup(props) {
       const store = getCurrentInstance().proxy.$store;
       const route = useRoute();
+      const router = useRouter();
       const goBack = useGoBack({
         getFallbackRoute: () => {
           return overrideRoute(route, {
@@ -161,13 +162,13 @@
         discardWarning$,
         discardChanges$,
         searchForAClass$,
+        someLearnersEnrolledNotice$,
+        unableToEnrollAlert$,
         keepEditingAction$,
         selectClassesLabel$,
         enrollUndoneNotice$,
         enrollInAllClasses$,
         usersEnrolledNotice$,
-        usersEnrolledSomeInvalidNotice$,
-        usersEnrolledAllInvalidNotice$,
         defaultErrorMessage$,
         numUsersNotEnrolled$,
         enrollUsersInClasses$,
@@ -193,7 +194,8 @@
       });
 
       const hasUnsavedChanges = computed(() => {
-        if (createdMemberships.value) {
+        // If either of these are not empty, then the enroll action has been taken
+        if (createdMemberships.value || invalidMemberships.value) {
           return false;
         }
         return selectedOptions.value.length > 0;
@@ -220,9 +222,6 @@
         const enrollments = selectedOptions.value.flatMap(collection_id => {
           const alreadyEnrolled = classMembershipsByUser.value;
           return Array.from(props.selectedUsers)
-            .filter(
-              userId => !(alreadyEnrolled[userId] || []).some(m => m.collection === collection_id),
-            )
             .map(user => ({ collection: collection_id, user }));
         });
         if (enrollments.length > 0) {
@@ -232,9 +231,33 @@
               method: 'POST',
               data: enrollments,
             });
+
             const { created, invalid } = response.data;
+
             createdMemberships.value = created;
             invalidMemberships.value = invalid;
+
+            // nextTick to give the hasUnsavedChanges a chance to react
+            // so that the confirmation guard doesn't trigger in this case
+            nextTick(() => {
+              if(invalid?.length) {
+                return router.push(
+                  overrideRoute(
+                    route,
+                    {
+                      name: getRootRouteName(route),
+                      query: {
+                        by_ids: invalidMemberships.value.map(r => r.user).join(','),
+                        failedActionType: InvalidActionTypes.ENROLL,
+                      },
+                    },
+                  )
+                );
+              } else {
+                goBack();
+                return true;
+              }
+            });
           } catch (error) {
             store.dispatch('handleApiError', { error });
             loading.value = false;
@@ -255,15 +278,19 @@
       }
 
       const snackbarMessage$ = () => {
-        if(createdMemberships.value.length) {
-          if(invalidMemberships.value.length) {
-            return usersEnrolledSomeInvalidNotice$();
+        if(createdMemberships.value?.length) {
+          if(invalidMemberships.value?.length) {
+            return someLearnersEnrolledNotice$();
           } else {
             return usersEnrolledNotice$();
           }
         }
-        return usersEnrolledAllInvalidNotice$();
+        if(invalidRoles.value?.length) {
+          return unableToEnrollAlert$();
+        }
       };
+
+      const canUndo = computed(() => createdMemberships.value?.length)
 
       const { performAction: enrollLearners } = useActionWithUndo({
         action: _enrollLearners,
@@ -271,7 +298,7 @@
         undoAction: handleUndoEnrollments,
         undoActionNotice$: enrollUndoneNotice$,
         onBlur: props.onBlur,
-        canUndo: computed(() => invalidMemberships.value),
+        canUndo,
       });
 
       function closeSidePanel() {

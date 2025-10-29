@@ -112,7 +112,7 @@
 <script>
 
   import { ref, computed } from 'vue';
-  import { useRoute } from 'vue-router/composables';
+  import { useRouter, useRoute } from 'vue-router/composables';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { UserKinds } from 'kolibri/constants';
@@ -124,7 +124,7 @@
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import flatMap from 'lodash/flatMap';
   import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
-  import { PageNames } from '../../../constants.js';
+  import { InvalidActionTypes, PageNames } from '../../../constants.js';
   import { getRootRouteName, overrideRoute } from '../../../utils';
   import SelectableList from '../../common/SelectableList.vue';
   import { _userState } from '../../../modules/mappers';
@@ -145,6 +145,7 @@
       const invalidRoles = ref(null);
       const facilityUsers = ref([]);
       const route = useRoute();
+      const router = useRouter();
       const closeConfirmationGuardRef = ref(null);
 
       const goBack = useGoBack({
@@ -158,7 +159,8 @@
       const {
         coachesAllAssignedNotice$,
         coachesAllInvalidNotice$,
-        coachesSomeInvalidNotice$,
+        unableToAssignAlert$,
+        someCoachesAssignedNotice$,
         assignCoachUndoneNotice$,
         usersInClassNotAffected$,
         assignAction$,
@@ -237,8 +239,24 @@
             affectedClasses: selectedClasses.value,
             resetSelection: true,
           });
-          closeSidePanel();
-          return true;
+          if(invalidRoles.value.length) {
+            router.push(
+              overrideRoute(
+                route,
+                {
+                  name: getRootRouteName(route),
+                  query: {
+                    by_ids: invalidRoles.value.map(r => r.user).join(','),
+                    failedActionType: InvalidActionTypes.ASSIGN,
+                  },
+                },
+              )
+            );
+            return true;
+          } else {
+            closeSidePanel();
+            return true;
+          }
         } catch (error) {
           showErrorWarning.value = true;
           isLoading.value = false;
@@ -275,12 +293,15 @@
 
         // Only add roles that were actually created (have an id)
         const actuallyCreatedRoles = created.filter(role => role.id);
+
         createdRoles.value = actuallyCreatedRoles;
         invalidRoles.value = invalid || [];
       }
 
+      const canUndo = computed(() => createdRoles.value?.length)
+
       async function handleUndoAssignments() {
-        if (createdRoles.value.length > 0) {
+        if (createdRoles.value?.length > 0) {
           const roleIds = createdRoles.value.map(role => role.id);
           await RoleResource.deleteCollection({ by_ids: roleIds });
           props.onChange({
@@ -290,14 +311,16 @@
       }
 
       const snackbarMessage$ = () => {
-        if(createdRoles.value.length) {
-          if(invalidRoles.value.length) {
-            return coachesSomeInvalidNotice$();
+        if(createdRoles.value?.length) {
+          if(invalidRoles.value?.length) {
+            return someCoachesAssignedNotice$();
           } else {
             return coachesAllAssignedNotice$();
           }
         }
-        return coachesAllInvalidNotice$();
+        if(invalidRoles.value?.length) {
+          return unableToAssignAlert$();
+        }
       };
 
       const { performAction: handleAssign } = useActionWithUndo({
@@ -306,7 +329,7 @@
         undoAction: handleUndoAssignments,
         undoActionNotice$: assignCoachUndoneNotice$,
         onBlur: props.onBlur,
-        canUndo: computed(() => createdRoles.value.length),
+        canUndo,
       });
 
       function closeSidePanel() {

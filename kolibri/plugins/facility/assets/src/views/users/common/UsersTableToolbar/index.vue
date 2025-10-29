@@ -27,6 +27,9 @@
     <template #paginationControls>
       <slot name="paginationControls"></slot>
     </template>
+    <template #alert>
+      <slot name="alert"></slot>
+    </template>
   </component>
 
 </template>

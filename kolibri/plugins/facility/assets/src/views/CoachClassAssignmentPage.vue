@@ -29,6 +29,8 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import ClassEnrollForm from './ClassEnrollForm';
+  import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import useActionWithUndo from '../composables/useActionWithUndo';
 
   export default {
     name: 'CoachClassAssignmentPage',
@@ -44,7 +46,16 @@
     mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
-      return { createSnackbar };
+      const {
+        someLearnersEnrolledNotice$,
+        coachesAllAssignedNotice$,
+        someCoachesAssignedNotice$,
+      } = bulkUserManagementStrings;
+      return {
+        someCoachesAssignedNotice$,
+        coachesAllAssignedNotice$,
+        createSnackbar,
+      };
     },
     data() {
       return {
@@ -68,13 +79,17 @@
       assignCoaches(coaches) {
         this.formIsDisabled = true;
         this.assignCoachesToClass({ classId: this.class.id, coaches })
-          .then(() => {
-            // do this in action?
+          .then(response => {
+            const { created, invalid } = response.data;
+            if(created?.length) {
+              if(invalid?.length) {
+                this.createSnackbar(this.someCoachesAssignedNotice$());
+              } else {
+                this.createSnackbar(this.coachesAllAssignedNotice$());
+              }
+            }
             this.$router
               .push(this.$store.getters.facilityPageLinks.ClassEditPage(this.class.id))
-              .then(() => {
-                this.showSnackbarNotification('coachesAssignedNoCount', { count: coaches.length });
-              });
           })
           .catch(() => {
             this.formIsDisabled = false;
