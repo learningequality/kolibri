@@ -97,7 +97,7 @@ jobs:
       run: make get-whl whl=${{ inputs.whl-url }}
     - name: Download the whlfile from artifacts
       if: ${{ inputs.whl-file-name }}
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: ${{ inputs.whl-file-name }}
         path: whl
@@ -139,7 +139,7 @@ jobs:
     - name: Get DMG filename
       id: get-dmg-filename
       run: echo "dmg-file-name=$(ls dist | grep .dmg | cat)" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       with:
         name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
         path: dist/${{ steps.get-dmg-filename.outputs.dmg-file-name }}
