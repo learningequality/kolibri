@@ -38,22 +38,22 @@ export default function useUserManagement({
     dataLoading.value = true;
     try {
       const fetchResource = softDeletedUsers ? DeletedFacilityUserResource : FacilityUserResource;
-      const getParams = Boolean(by_ids.value) ?
-        {
-          by_ids: by_ids.value,
-          member_of: activeFacilityId,
-          page: page.value,
-          page_size: pageSize.value,
-        } :
-        pickBy({
-          member_of: activeFacilityId,
-          date_joined__gte: dateJoinedGt?.toISOString(),
-          page: page.value,
-          page_size: pageSize.value,
-          search: search.value?.trim() || null,
-          ordering: order.value === 'desc' ? `-${ordering.value}` : ordering.value || null,
-          ...getBackendFilters(),
-        });
+      const getParams = by_ids.value
+        ? {
+            by_ids: by_ids.value,
+            member_of: activeFacilityId,
+            page: page.value,
+            page_size: pageSize.value,
+          }
+        : pickBy({
+            member_of: activeFacilityId,
+            date_joined__gte: dateJoinedGt?.toISOString(),
+            page: page.value,
+            page_size: pageSize.value,
+            search: search.value?.trim() || null,
+            ordering: order.value === 'desc' ? `-${ordering.value}` : ordering.value || null,
+            ...getBackendFilters(),
+          });
 
       const resp = await fetchResource.fetchCollection({
         getParams,
@@ -87,7 +87,12 @@ export default function useUserManagement({
     }
   };
 
-  function onChange({ resetSelection = false, affectedClasses = null, created = [], invalid = [] } = {}) {
+  function onChange({
+    resetSelection = false,
+    affectedClasses = null,
+    created = [],
+    invalid = [],
+  } = {}) {
     if (resetSelection) {
       selectedUsers.value = new Set();
     }

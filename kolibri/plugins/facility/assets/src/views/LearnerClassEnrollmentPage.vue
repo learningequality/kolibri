@@ -45,10 +45,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
-      const {
-        usersEnrolledNotice$,
-        someLearnersEnrolledNotice$,
-      } = bulkUserManagementStrings;
+      const { usersEnrolledNotice$, someLearnersEnrolledNotice$ } = bulkUserManagementStrings;
       return {
         createSnackbar,
         usersEnrolledNotice$,
@@ -83,8 +80,8 @@
         this.enrollLearnersInClass({ classId: this.class.id, users: selectedUsers })
           .then(response => {
             const { created, invalid } = response.data;
-            if(created?.length) {
-              if(invalid?.length) {
+            if (created?.length) {
+              if (invalid?.length) {
                 this.createSnackbar(this.someLearnersEnrolledNotice$());
               } else {
                 this.createSnackbar(this.usersEnrolledNotice$());

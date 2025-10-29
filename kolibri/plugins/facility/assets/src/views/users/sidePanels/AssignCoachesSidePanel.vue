@@ -239,18 +239,15 @@
             affectedClasses: selectedClasses.value,
             resetSelection: true,
           });
-          if(invalidRoles.value.length) {
+          if (invalidRoles.value.length) {
             router.push(
-              overrideRoute(
-                route,
-                {
-                  name: getRootRouteName(route),
-                  query: {
-                    by_ids: invalidRoles.value.map(r => r.user).join(','),
-                    failedActionType: InvalidActionTypes.ASSIGN,
-                  },
+              overrideRoute(route, {
+                name: getRootRouteName(route),
+                query: {
+                  by_ids: invalidRoles.value.map(r => r.user).join(','),
+                  failedActionType: InvalidActionTypes.ASSIGN,
                 },
-              )
+              }),
             );
             return true;
           } else {
@@ -298,7 +295,7 @@
         invalidRoles.value = invalid || [];
       }
 
-      const canUndo = computed(() => createdRoles.value?.length)
+      const canUndo = computed(() => createdRoles.value?.length);
 
       async function handleUndoAssignments() {
         if (createdRoles.value?.length > 0) {
@@ -311,14 +308,14 @@
       }
 
       const snackbarMessage$ = () => {
-        if(createdRoles.value?.length) {
-          if(invalidRoles.value?.length) {
+        if (createdRoles.value?.length) {
+          if (invalidRoles.value?.length) {
             return someCoachesAssignedNotice$();
           } else {
             return coachesAllAssignedNotice$();
           }
         }
-        if(invalidRoles.value?.length) {
+        if (invalidRoles.value?.length) {
           return someFailedToAssign$();
         }
       };

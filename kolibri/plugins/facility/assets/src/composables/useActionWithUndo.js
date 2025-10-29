@@ -1,9 +1,7 @@
 import { computed } from 'vue';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import useSnackbar from 'kolibri/composables/useSnackbar';
-import {
-  bulkUserManagementStrings
-} from 'kolibri-common/strings/bulkUserManagementStrings';
+import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
 /**
  *

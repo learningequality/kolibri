@@ -223,8 +223,7 @@
       async function _enrollLearners() {
         loading.value = true;
         const enrollments = selectedOptions.value.flatMap(collection_id => {
-          return Array.from(props.selectedUsers)
-            .map(user => ({ collection: collection_id, user }));
+          return Array.from(props.selectedUsers).map(user => ({ collection: collection_id, user }));
         });
         if (enrollments.length > 0) {
           try {
@@ -243,18 +242,15 @@
             // so that the confirmation guard doesn't trigger in this case
             return nextTick(() => {
               // This doesn't need to be done in the assign side panel but IDK for sure why
-              if(Boolean(invalid)) {
+              if (invalid) {
                 router.push(
-                  overrideRoute(
-                    route,
-                    {
-                      name: getRootRouteName(route),
-                      query: {
-                        by_ids: invalidMemberships.value.map(r => r.user).join(','),
-                        failedActionType: InvalidActionTypes.ENROLL,
-                      },
+                  overrideRoute(route, {
+                    name: getRootRouteName(route),
+                    query: {
+                      by_ids: invalidMemberships.value.map(r => r.user).join(','),
+                      failedActionType: InvalidActionTypes.ENROLL,
                     },
-                  )
+                  }),
                 );
                 emit('clearSelection');
                 return true;
@@ -282,19 +278,19 @@
       }
 
       const snackbarMessage$ = () => {
-        if(createdMemberships.value?.length) {
-          if(invalidMemberships.value?.length) {
+        if (createdMemberships.value?.length) {
+          if (invalidMemberships.value?.length) {
             return someLearnersEnrolledNotice$();
           } else {
             return usersEnrolledNotice$();
           }
         }
-        if(invalidMemberships.value?.length) {
+        if (invalidMemberships.value?.length) {
           return someFailedToEnroll$();
         }
       };
 
-      const canUndo = computed(() => createdMemberships.value?.length)
+      const canUndo = computed(() => createdMemberships.value?.length);
 
       const { performAction: enrollLearners } = useActionWithUndo({
         action: _enrollLearners,

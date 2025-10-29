@@ -371,25 +371,25 @@
       });
 
       // Alerting users about enrollment/assignment errors
-      const alertDismissed = ref(false)
+      const alertDismissed = ref(false);
 
       function handleAlertDismissal() {
-        alertDismissed.value = true
+        alertDismissed.value = true;
       }
 
-      const showingInvalidUsers = computed(() => !alertDismissed.value && Boolean(route.query.by_ids));
-      const warningMessage = computed(
-        () => {
-          switch(route.query?.failedActionType) {
-            case(InvalidActionTypes.ASSIGN):
-              return someFailedToAssign$();
-            case(InvalidActionTypes.ENROLL):
-              return someFailedToEnroll$();
-            default:
-              return '';
-          }
-        }
+      const showingInvalidUsers = computed(
+        () => !alertDismissed.value && Boolean(route.query.by_ids),
       );
+      const warningMessage = computed(() => {
+        switch (route.query?.failedActionType) {
+          case InvalidActionTypes.ASSIGN:
+            return someFailedToAssign$();
+          case InvalidActionTypes.ENROLL:
+            return someFailedToEnroll$();
+          default:
+            return '';
+        }
+      });
 
       return {
         warningMessage,

@@ -124,7 +124,7 @@ export default function useUsersFilters({ classes }) {
   watch(
     routeFilters,
     newFilters => {
-      if(workingFilters.by_ids?.length) {
+      if (workingFilters.by_ids?.length) {
         // If we're filtering by by_ids, it's programmatic navigation
         // so we will clear all existing filters and set the ids alone
         resetWorkingFilters();

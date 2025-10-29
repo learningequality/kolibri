@@ -99,7 +99,6 @@
               />
             </template>
             <template #userActions>
-
               <KIconButton
                 ref="assignButton"
                 icon="assignCoaches"
@@ -268,7 +267,6 @@
         someFailedToEnroll$,
       } = bulkUserManagementStrings;
 
-
       const { $store, $router } = getCurrentInstance().proxy;
       const activeFacilityId =
         $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
@@ -362,24 +360,19 @@
       });
 
       const showingInvalidUsers = computed(() => {
-        return (
-          Boolean(route.query.by_ids) &&
-          Boolean(route.query.failedActionType)
-        );
+        return Boolean(route.query.by_ids) && Boolean(route.query.failedActionType);
       });
-      const warningMessage = computed(
-        () => {
-          switch(route.query?.failedActionType) {
-            case(InvalidActionTypes.ASSIGN):
-              return someFailedToAssign$();
-            case(InvalidActionTypes.ENROLL):
-              return someFailedToEnroll$();
-            default:
-              // When the page loads
-              return '';
-          }
+      const warningMessage = computed(() => {
+        switch (route.query?.failedActionType) {
+          case InvalidActionTypes.ASSIGN:
+            return someFailedToAssign$();
+          case InvalidActionTypes.ENROLL:
+            return someFailedToEnroll$();
+          default:
+            // When the page loads
+            return '';
         }
-      );
+      });
 
       return {
         warningMessage,

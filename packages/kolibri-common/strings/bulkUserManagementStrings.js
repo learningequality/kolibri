@@ -205,19 +205,23 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
   someLearnersEnrolledNotice: {
     message: 'Some learners enrolled succesfully, but some were not',
-    context: 'Shown at the top of a table that is filtered to show the users which did not get assigned successfully',
+    context:
+      'Shown at the top of a table that is filtered to show the users which did not get assigned successfully',
   },
   someCoachesAssignedNotice: {
     message: 'Some coaches assigned succesfully, but some were not.',
-    context: 'Shown at the top of a table that is filtered to show the users which did not get assigned successfully',
+    context:
+      'Shown at the top of a table that is filtered to show the users which did not get assigned successfully',
   },
   someFailedToAssign: {
     message: 'The users shown were unable to be assigned.',
-    context: 'Shown at the top of a table that is filtered to show the users which did not get assigned successfully',
+    context:
+      'Shown at the top of a table that is filtered to show the users which did not get assigned successfully',
   },
   someFailedToEnroll: {
     message: 'The users shown were unable to be enrolled.',
-    context: 'Shown at the top of a table that is filtered to show the users which did not get assigned successfully',
+    context:
+      'Shown at the top of a table that is filtered to show the users which did not get assigned successfully',
   },
   assignCoachUndoneNotice: {
     message: 'Assign action has been undone',
