@@ -159,7 +159,7 @@
       const {
         coachesAllAssignedNotice$,
         coachesAllInvalidNotice$,
-        unableToAssignAlert$,
+        someFailedToAssign$,
         someCoachesAssignedNotice$,
         assignCoachUndoneNotice$,
         usersInClassNotAffected$,
@@ -347,6 +347,7 @@
         ineligibleUsersCount,
         showErrorWarning,
         defaultErrorMessage$,
+        someFailedToAssign$,
         usersInClassNotAffected$,
         assignAction$,
         searchForAClass$,

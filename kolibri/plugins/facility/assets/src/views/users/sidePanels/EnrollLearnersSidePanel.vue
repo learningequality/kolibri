@@ -163,7 +163,7 @@
         discardChanges$,
         searchForAClass$,
         someLearnersEnrolledNotice$,
-        unableToEnrollAlert$,
+        someFailedToEnroll$,
         keepEditingAction$,
         selectClassesLabel$,
         enrollUndoneNotice$,
@@ -286,7 +286,7 @@
           }
         }
         if(invalidRoles.value?.length) {
-          return unableToEnrollAlert$();
+          return someFailedToEnroll$();
         }
       };
 
