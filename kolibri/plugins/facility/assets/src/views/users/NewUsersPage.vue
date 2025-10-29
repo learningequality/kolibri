@@ -373,10 +373,6 @@
       // Alerting users about enrollment/assignment errors
       const alertDismissed = ref(false);
 
-      function handleAlertDismissal() {
-        alertDismissed.value = true;
-      }
-
       const showingInvalidUsers = computed(
         () => !alertDismissed.value && Boolean(route.query.by_ids),
       );

@@ -240,24 +240,23 @@
 
             // nextTick to give the hasUnsavedChanges a chance to react
             // so that the confirmation guard doesn't trigger in this case
-            return nextTick(() => {
-              // This doesn't need to be done in the assign side panel but IDK for sure why
-              if (invalid) {
-                router.push(
-                  overrideRoute(route, {
-                    name: getRootRouteName(route),
-                    query: {
-                      by_ids: invalidMemberships.value.map(r => r.user).join(','),
-                      failedActionType: InvalidActionTypes.ENROLL,
-                    },
-                  }),
-                );
-                emit('clearSelection');
-                return true;
-              } else {
-                return true;
-              }
-            });
+            await nextTick();
+            // This doesn't need to be done in the assign side panel but IDK for sure why
+            if (invalid) {
+              router.push(
+                overrideRoute(route, {
+                  name: getRootRouteName(route),
+                  query: {
+                    by_ids: invalidMemberships.value.map(r => r.user).join(','),
+                    failedActionType: InvalidActionTypes.ENROLL,
+                  },
+                }),
+              );
+              emit('clearSelection');
+              return true;
+            } else {
+              return true;
+            }
           } catch (error) {
             store.dispatch('handleApiError', { error });
             loading.value = false;

@@ -87,12 +87,7 @@ export default function useUserManagement({
     }
   };
 
-  function onChange({
-    resetSelection = false,
-    affectedClasses = null,
-    created = [],
-    invalid = [],
-  } = {}) {
+  function onChange({ resetSelection = false, affectedClasses = null } = {}) {
     if (resetSelection) {
       selectedUsers.value = new Set();
     }
