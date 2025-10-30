@@ -4,7 +4,7 @@
     multiple
     :label="fieldLabel"
     :options="selectOptions"
-    :value="selectedOption"
+    :value="selectValue"
     :disabled="disabled"
     :truncateOptionsLabel="false"
     @select="onSelect"
@@ -22,7 +22,7 @@
 
 <script>
 
-  import { computed, toRefs, ref } from 'vue';
+  import { computed, toRefs } from 'vue';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import { ClassesActions } from '../../../../constants';
@@ -33,7 +33,6 @@
     name: 'ClassesSelect',
     setup(props, { emit }) {
       const { classes } = toRefs(props);
-      const selectedOption = ref({});
 
       const { enrollAClassLabel$, assignToAClassLabel$, enrollToAllClasses$, assignToAllClasses$ } =
         bulkUserManagementStrings;
@@ -104,7 +103,6 @@
         selectValue,
         displayText,
         selectOptions,
-        selectedOption,
       };
     },
     props: {
