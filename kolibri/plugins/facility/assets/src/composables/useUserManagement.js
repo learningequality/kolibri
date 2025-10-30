@@ -44,6 +44,7 @@ export default function useUserManagement({
             member_of: activeFacilityId,
             page: page.value,
             page_size: pageSize.value,
+            ordering: order.value === 'desc' ? `-${ordering.value}` : ordering.value || 'username',
           }
         : pickBy({
             member_of: activeFacilityId,
