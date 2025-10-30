@@ -137,7 +137,7 @@
       CloseConfirmationGuard,
     },
     mixins: [commonCoreStrings],
-    setup(props, { emit }) {
+    setup(props) {
       const store = getCurrentInstance().proxy.$store;
       const route = useRoute();
       const router = useRouter();
@@ -252,7 +252,6 @@
                   },
                 }),
               );
-              emit('clearSelection');
               return true;
             }
           } catch (error) {
