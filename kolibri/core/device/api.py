@@ -272,7 +272,10 @@ def map_status(record):
 
 
 class UserSyncStatusViewSet(ReadOnlyValuesViewset):
-    permission_classes = (KolibriAuthPermissions,)
+    permission_classes = (
+        IsAuthenticated,
+        KolibriAuthPermissions,
+    )
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = UserSyncStatus.objects.all()
     filterset_class = SyncStatusFilter
