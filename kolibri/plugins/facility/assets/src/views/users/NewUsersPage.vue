@@ -370,12 +370,8 @@
         fetchClasses();
       });
 
-      // Alerting users about enrollment/assignment errors
-      const alertDismissed = ref(false);
+      const showingInvalidUsers = computed(() => Boolean(route.query.by_ids));
 
-      const showingInvalidUsers = computed(
-        () => !alertDismissed.value && Boolean(route.query.by_ids),
-      );
       const warningMessage = computed(() => {
         switch (route.query?.failedActionType) {
           case InvalidActionTypes.ASSIGN:
