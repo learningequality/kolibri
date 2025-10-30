@@ -118,9 +118,9 @@
 
 <script>
 
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, nextTick } from 'vue';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { useRoute } from 'vue-router/composables';
+  import { useRouter, useRoute } from 'vue-router/composables';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
@@ -154,6 +154,7 @@
       const removedLearnerMemberships = ref([]);
       const removedCoachRoles = ref([]);
       const route = useRoute();
+      const router = useRouter();
       const {
         numUsersCoaches$,
         searchForAClass$,
@@ -318,7 +319,19 @@
           props.onChange({
             affectedClasses: selectedOptions.value,
           });
-          goBack();
+          if (route.query.failedActionType) {
+            const { query } = route;
+            delete query.failedActionType;
+            await nextTick();
+            router.push(
+              overrideRoute(route, {
+                name: getRootRouteName(route),
+                query,
+              }),
+            );
+          } else {
+            goBack();
+          }
           return true;
         } catch (error) {
           showErrorWarning.value = true;

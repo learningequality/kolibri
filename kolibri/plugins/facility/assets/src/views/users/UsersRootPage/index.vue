@@ -302,9 +302,7 @@
       }
 
       function navigateToSidePanel(sidePanelName) {
-        const { query } = route;
-        delete query.failedActionType;
-        const newRoute = overrideRoute(route, { name: sidePanelName, query });
+        const newRoute = overrideRoute(route, { name: sidePanelName });
         router.push(newRoute);
       }
 
@@ -362,6 +360,7 @@
       const showingInvalidUsers = computed(() => {
         return Boolean(route.query.by_ids) && Boolean(route.query.failedActionType);
       });
+
       const warningMessage = computed(() => {
         switch (route.query?.failedActionType) {
           case InvalidActionTypes.ASSIGN:
