@@ -147,6 +147,8 @@
 <script>
 
   import store from 'kolibri/store';
+  import client from 'kolibri/client';
+  import urls from 'kolibri/urls';
   import { ref, computed, nextTick, onBeforeMount, getCurrentInstance } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import CatchErrors from 'kolibri/utils/CatchErrors';
@@ -157,7 +159,6 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
-  import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { UserKinds, ERROR_CONSTANTS, DemographicConstants } from 'kolibri/constants';
@@ -331,7 +332,6 @@
 
       const handleSubmitSuccess = () => {
         createSnackbar(notificationStrings.userCreated$());
-        props.onChange();
       };
 
       const handleSubmitFailure = error => {
@@ -356,21 +356,26 @@
       };
 
       const enrollLearnerInClasses = (userId, classIds) => {
-        return MembershipResource.saveCollection({
-          data: classIds.map(classId => ({
-            collection: classId,
-            user: userId,
-          })),
+        return client({
+          url: urls['kolibri:core:membership_list'](),
+          method: 'POST',
+          data: classIds.map(cid => ({ collection: cid, user: userId })),
         });
       };
 
       const assignCoachToClasses = (userId, classIds) => {
-        return RoleResource.saveCollection({
-          data: classIds.map(classId => ({
-            collection: classId,
-            user: userId,
-            kind: UserKinds.COACH,
-          })),
+        // The endpoint still expects COACH for the kind when assigning,
+        // even if the user's facility role is an admin
+        let kind;
+        if (newUserRole.value === UserKinds.ADMIN) {
+          kind = UserKinds.COACH;
+        } else {
+          kind = newUserRole.value;
+        }
+        return client({
+          url: urls['kolibri:core:role_list'](),
+          method: 'POST',
+          data: classIds.map(cid => ({ collection: cid, user: userId, kind })),
         });
       };
 
@@ -400,6 +405,9 @@
           } else {
             await enrollLearnerInClasses(facilityUser.id, selectedClasses.value);
           }
+          // affectedClasses null here to force users reload, even if classes are
+          // affected
+          props.onChange({ affectedClasses: null });
         }
       };
 
@@ -469,6 +477,7 @@
         passwordValid,
         gender,
         birthYear,
+        showErrorWarning,
         extraDemographics,
         idNumber,
         loading,
