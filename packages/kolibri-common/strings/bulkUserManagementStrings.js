@@ -213,6 +213,16 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context:
       'Shown at the top of a table that is filtered to show the users which did not get assigned successfully',
   },
+  noCoachesAssigned: {
+    message: 'No selected coaches could be assigned.',
+    context:
+      'The user has selected users who are unable to be assigned, an edge case possible if multiple tabs or people are working simultaneously.',
+  },
+  noLearnersEnrolled: {
+    message: 'No selected learners could be enrolled.',
+    context:
+      'The user has selected users who are unable to be enrolled, an edge case possible if multiple tabs or people are working simultaneously.',
+  },
   someFailedToAssign: {
     message: 'The users shown were unable to be assigned.',
     context:

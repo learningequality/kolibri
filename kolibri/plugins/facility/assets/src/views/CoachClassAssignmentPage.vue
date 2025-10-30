@@ -83,6 +83,9 @@
                 this.createSnackbar(this.coachesAllAssignedNotice$());
               }
             }
+            if (invalid?.length) {
+              this.createSnackbar(this.noCoachesAssigned$());
+            }
             this.$router.push(this.$store.getters.facilityPageLinks.ClassEditPage(this.class.id));
           })
           .catch(() => {

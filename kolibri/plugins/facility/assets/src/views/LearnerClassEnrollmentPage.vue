@@ -86,6 +86,9 @@
               } else {
                 this.createSnackbar(this.usersEnrolledNotice$());
               }
+              if (invalid?.length) {
+                this.createSnackbar(this.noLearnersEnrolled$());
+              }
             }
             this.$router
               .push(this.$store.getters.facilityPageLinks.ClassEditPage(this.class.id))
