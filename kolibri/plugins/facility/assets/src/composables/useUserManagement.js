@@ -38,23 +38,16 @@ export default function useUserManagement({
     dataLoading.value = true;
     try {
       const fetchResource = softDeletedUsers ? DeletedFacilityUserResource : FacilityUserResource;
-      const getParams = by_ids.value
-        ? pickBy({
-            by_ids: by_ids.value,
-            member_of: activeFacilityId,
-            page: page.value,
-            page_size: pageSize.value,
-            ordering: order.value === 'desc' ? `-${ordering.value}` : ordering.value || null,
-          })
-        : pickBy({
-            member_of: activeFacilityId,
-            date_joined__gte: dateJoinedGt?.toISOString(),
-            page: page.value,
-            page_size: pageSize.value,
-            search: search.value?.trim() || null,
-            ordering: order.value === 'desc' ? `-${ordering.value}` : ordering.value || null,
-            ...getBackendFilters(),
-          });
+      const getParams = pickBy({
+        by_ids: by_ids.value,
+        member_of: activeFacilityId,
+        date_joined__gte: dateJoinedGt?.toISOString(),
+        page: page.value,
+        page_size: pageSize.value,
+        search: search.value?.trim() || null,
+        ordering: order.value === 'desc' ? `-${ordering.value}` : ordering.value || null,
+        ...getBackendFilters(),
+      });
 
       const resp = await fetchResource.fetchCollection({
         getParams,
