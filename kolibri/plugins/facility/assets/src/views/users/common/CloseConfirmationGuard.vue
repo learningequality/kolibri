@@ -90,7 +90,7 @@
         if (props.hasUnsavedChanges && !closeConfirmationToRoute.value) {
           isConfirmationModalOpen.value = true;
           closeConfirmationToRoute.value = to;
-          return;
+          next(false);
         } else {
           next();
         }
