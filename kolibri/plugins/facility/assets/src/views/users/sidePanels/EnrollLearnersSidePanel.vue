@@ -254,8 +254,6 @@
               );
               emit('clearSelection');
               return true;
-            } else {
-              return true;
             }
           } catch (error) {
             store.dispatch('handleApiError', { error });
