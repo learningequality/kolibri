@@ -39,13 +39,13 @@ export default function useUserManagement({
     try {
       const fetchResource = softDeletedUsers ? DeletedFacilityUserResource : FacilityUserResource;
       const getParams = by_ids.value
-        ? {
+        ? pickBy({
             by_ids: by_ids.value,
             member_of: activeFacilityId,
             page: page.value,
             page_size: pageSize.value,
-            ordering: order.value === 'desc' ? `-${ordering.value}` : ordering.value || 'username',
-          }
+            ordering: order.value === 'desc' ? `-${ordering.value}` : ordering.value || null,
+          })
         : pickBy({
             member_of: activeFacilityId,
             date_joined__gte: dateJoinedGt?.toISOString(),
