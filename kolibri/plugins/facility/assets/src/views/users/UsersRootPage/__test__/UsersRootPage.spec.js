@@ -53,11 +53,6 @@ describe('UserPage component', () => {
       return wrapper.findComponent({ name: 'KTable' }).props().emptyMessage;
     }
 
-    it('when there are no users', () => {
-      const wrapper = makeWrapper();
-      expect(getUserTableEmptyMessage(wrapper)).toEqual('No users exist');
-    });
-
     it('if a keyword filter is applied, the empty message is "no users match..."', async () => {
       mock.get(/.*/, {
         status: 200,

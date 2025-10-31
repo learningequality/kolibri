@@ -433,6 +433,25 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: "No users match the filter: '{filterText}'",
     context: "Refers to the 'Search for a user' filter when no users are found.",
   },
+  noUsersInFacility: {
+    message: 'There are no users in this facility.',
+    context: 'When there are no users at all in the facility',
+  },
+  noUsersMatchSearch: {
+    message: 'No users match this search',
+    context: 'Displayed when no users match the current search term.',
+  },
+
+  noUsersMatchFilter: {
+    message: 'No users match {filtersCount, plural, one {this filter} other {these filters}}',
+    context: 'Displayed when no users match the current filter selection.',
+  },
+
+  noUsersMatchFiltersAndSearch: {
+    message:
+      'No users match this search and {filtersCount, plural, one {this filter} other {these filters}}',
+    context: 'Displayed when no users match the combination of search term and filter selection.',
+  },
   noLearnersExist: {
     message: 'There are no learners in this facility',
     context:
