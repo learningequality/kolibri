@@ -366,16 +366,10 @@
       const assignCoachToClasses = (userId, classIds) => {
         // The endpoint still expects COACH for the kind when assigning,
         // even if the user's facility role is an admin
-        let kind;
-        if (newUserRole.value === UserKinds.ADMIN) {
-          kind = UserKinds.COACH;
-        } else {
-          kind = newUserRole.value;
-        }
         return client({
           url: urls['kolibri:core:role_list'](),
           method: 'POST',
-          data: classIds.map(cid => ({ collection: cid, user: userId, kind })),
+          data: classIds.map(cid => ({ collection: cid, user: userId, kind: UserKinds.COACH })),
         });
       };
 
