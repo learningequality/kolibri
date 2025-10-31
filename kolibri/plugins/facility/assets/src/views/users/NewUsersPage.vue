@@ -196,6 +196,7 @@
         :onBlur="onModalBlur"
         :onChange="onChange"
         @clearSelection="clearSelectedUsers"
+        @failedAction="val => (failedAction = val)"
       />
 
       <!-- Modals -->
@@ -391,6 +392,7 @@
         warningMessage,
         showingInvalidUsers,
         usersTableStyles,
+        failedAction,
         // Route utilities
         overrideRoute,
         PageNames,
