@@ -118,9 +118,9 @@
 
 <script>
 
-  import { ref, computed, onMounted, nextTick } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { useRouter, useRoute } from 'vue-router/composables';
+  import { useRoute } from 'vue-router/composables';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
@@ -143,7 +143,7 @@
       CloseConfirmationGuard,
     },
     mixins: [commonCoreStrings],
-    setup(props) {
+    setup(props, { emit }) {
       const closeConfirmationGuardRef = ref(null);
       const showErrorWarning = ref(false);
       const selectedOptions = ref([]);
@@ -154,7 +154,6 @@
       const removedLearnerMemberships = ref([]);
       const removedCoachRoles = ref([]);
       const route = useRoute();
-      const router = useRouter();
       const {
         numUsersCoaches$,
         searchForAClass$,
@@ -319,19 +318,10 @@
           props.onChange({
             affectedClasses: selectedOptions.value,
           });
-          if (route.query.failedActionType) {
-            const { query } = route;
-            delete query.failedActionType;
-            await nextTick();
-            router.push(
-              overrideRoute(route, {
-                name: getRootRouteName(route),
-                query,
-              }),
-            );
-          } else {
-            goBack();
-          }
+
+          // Clears failed action notification
+          emit('failedAction', null);
+          goBack();
           return true;
         } catch (error) {
           showErrorWarning.value = true;

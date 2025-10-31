@@ -25,11 +25,6 @@ export const PageNames = {
   ENROLL_LEARNERS_SIDE_PANEL__NEW_USERS: 'ENROLL_LEARNERS_SIDE_PANEL__NEW_USERS',
 };
 
-export const InvalidActionTypes = {
-  ASSIGN: 'assign',
-  ENROLL: 'enroll',
-};
-
 // modal names
 export const Modals = {
   CREATE_CLASS: 'CREATE_CLASS',

@@ -125,7 +125,7 @@
   import groupBy from 'lodash/groupBy';
   import SelectableList from '../../common/SelectableList.vue';
   import useActionWithUndo from '../../../composables/useActionWithUndo';
-  import { InvalidActionTypes, PageNames } from '../../../constants.js';
+  import { ClassesActions, PageNames } from '../../../constants.js';
   import { getRootRouteName, overrideRoute } from '../../../utils';
   import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
 
@@ -137,17 +137,14 @@
       CloseConfirmationGuard,
     },
     mixins: [commonCoreStrings],
-    setup(props) {
+    setup(props, { emit }) {
       const store = getCurrentInstance().proxy.$store;
       const route = useRoute();
       const router = useRouter();
       const goBack = useGoBack({
         getFallbackRoute: () => {
-          const { query } = route;
-          delete query.failedActionType;
           return overrideRoute(route, {
             name: getRootRouteName(route),
-            query,
           });
         },
       });
@@ -243,12 +240,12 @@
             await nextTick();
             // This doesn't need to be done in the assign side panel but IDK for sure why
             if (invalid) {
+              emit('failedAction', ClassesActions.ENROLL_LEARNER);
               router.push(
                 overrideRoute(route, {
                   name: getRootRouteName(route),
                   query: {
                     by_ids: invalidMemberships.value.map(r => r.user).join(','),
-                    failedActionType: InvalidActionTypes.ENROLL,
                   },
                 }),
               );
@@ -262,6 +259,7 @@
         } else {
           // Setting an empty array to flag that the operation was successful and no users
           // were enrolled
+          emit('failedAction', null);
           createdMemberships.value = [];
           invalidMemberships.value = [];
         }

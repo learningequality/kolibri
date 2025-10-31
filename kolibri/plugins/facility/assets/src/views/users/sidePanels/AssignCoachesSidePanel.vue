@@ -124,7 +124,7 @@
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import flatMap from 'lodash/flatMap';
   import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
-  import { InvalidActionTypes, PageNames } from '../../../constants.js';
+  import { ClassesActions, PageNames } from '../../../constants.js';
   import { getRootRouteName, overrideRoute } from '../../../utils';
   import SelectableList from '../../common/SelectableList.vue';
   import { _userState } from '../../../modules/mappers';
@@ -137,7 +137,7 @@
       SelectableList,
       CloseConfirmationGuard,
     },
-    setup(props) {
+    setup(props, { emit }) {
       const selectedClasses = ref([]); // Array of selected class IDs
       const isLoading = ref(false);
       const showErrorWarning = ref(false);
@@ -239,17 +239,18 @@
             resetSelection: true,
           });
           if (invalidRoles.value.length) {
+            emit('failedAction', ClassesActions.ASSIGN_COACH);
             router.push(
               overrideRoute(route, {
                 name: getRootRouteName(route),
                 query: {
                   by_ids: invalidRoles.value.map(r => r.user).join(','),
-                  failedActionType: InvalidActionTypes.ASSIGN,
                 },
               }),
             );
             return true;
           } else {
+            emit('failedAction', null);
             closeSidePanel();
             return true;
           }

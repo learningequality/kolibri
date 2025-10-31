@@ -184,6 +184,7 @@
           :onBlur="onModalBlur"
           :onChange="onChange"
           @clearSelection="clearSelectedUsers"
+          @failedAction="val => (failedAction = val)"
         />
 
         <!-- Modals -->
@@ -218,7 +219,7 @@
   import UsersTableToolbar from '../common/UsersTableToolbar/index.vue';
   import useUserManagement from '../../../composables/useUserManagement';
   import FacilityAppBarPage from '../../FacilityAppBarPage';
-  import { InvalidActionTypes, PageNames } from '../../../constants';
+  import { ClassesActions, PageNames } from '../../../constants';
   import UsersTable from '../common/UsersTable.vue';
   import { overrideRoute } from '../../../utils';
   import MoveToTrashModal from '../common/MoveToTrashModal.vue';
@@ -357,18 +358,19 @@
         return {};
       });
 
+      const failedAction = ref(null);
+
       const showingInvalidUsers = computed(() => {
-        return Boolean(route.query.by_ids) && Boolean(route.query.failedActionType);
+        return Boolean(route.query.by_ids) && Boolean(failedAction.value);
       });
 
       const warningMessage = computed(() => {
-        switch (route.query?.failedActionType) {
-          case InvalidActionTypes.ASSIGN:
+        switch (failedAction.value) {
+          case ClassesActions.ASSIGN_COACH:
             return someFailedToAssign$();
-          case InvalidActionTypes.ENROLL:
+          case ClassesActions.ENROLL_LEARNER:
             return someFailedToEnroll$();
           default:
-            // When the page loads
             return '';
         }
       });
@@ -378,6 +380,7 @@
         showingInvalidUsers,
         windowIsSmall,
         usersTableStyles,
+        failedAction,
         // Route utilities
         overrideRoute,
         PageNames,

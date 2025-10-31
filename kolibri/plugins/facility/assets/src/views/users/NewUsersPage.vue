@@ -231,7 +231,7 @@
   import usePagination from '../../composables/usePagination';
   import useUserManagement from '../../composables/useUserManagement';
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
-  import { InvalidActionTypes, PageNames } from '../../constants';
+  import { ClassesActions, PageNames } from '../../constants';
   import { overrideRoute } from '../../utils';
   import UsersTable from './common/UsersTable.vue';
   import UsersTableToolbar from './common/UsersTableToolbar/index.vue';
@@ -370,13 +370,17 @@
         fetchClasses();
       });
 
-      const showingInvalidUsers = computed(() => Boolean(route.query.by_ids));
+      const failedAction = ref(null);
+
+      const showingInvalidUsers = computed(() => {
+        return Boolean(route.query.by_ids) && Boolean(failedAction.value);
+      });
 
       const warningMessage = computed(() => {
-        switch (route.query?.failedActionType) {
-          case InvalidActionTypes.ASSIGN:
+        switch (failedAction.value) {
+          case ClassesActions.ASSIGN_COACH:
             return someFailedToAssign$();
-          case InvalidActionTypes.ENROLL:
+          case ClassesActions.ENROLL_LEARNER:
             return someFailedToEnroll$();
           default:
             return '';
