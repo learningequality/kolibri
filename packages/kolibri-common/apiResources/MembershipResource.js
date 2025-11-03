@@ -1,4 +1,5 @@
 import { Resource } from 'kolibri/apiResource';
+import client from 'kolibri/client';
 
 /**
  * @example Get all memberships for a given user
@@ -6,4 +7,12 @@ import { Resource } from 'kolibri/apiResource';
  */
 export default new Resource({
   name: 'membership',
+  saveCollection({ data = [], getParams = {} } = {}) {
+    return client({
+      url: this.collectionUrl(),
+      method: 'POST',
+      params: getParams,
+      data,
+    });
+  },
 });

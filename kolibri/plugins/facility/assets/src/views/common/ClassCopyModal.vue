@@ -131,7 +131,7 @@
         });
       }
 
-      function assignLearnersToClass() {
+      function enrollLearnersToClass() {
         if (!copyAllLearners.value || !classLearnerIds.value.length) return Promise.resolve();
         return MembershipResource.saveCollection({
           data: classLearnerIds.value.map(learnerId => ({
@@ -145,7 +145,7 @@
         loading.value = true;
         try {
           await createClass();
-          await Promise.all([assignCoachesToClass(), assignLearnersToClass()]);
+          await Promise.all([assignCoachesToClass(), enrollLearnersToClass()]);
 
           // Update createdClass obj with copied data if necessary
           if (copyAllCoaches.value) {
