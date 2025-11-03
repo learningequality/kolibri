@@ -399,10 +399,10 @@
           } else {
             await enrollLearnerInClasses(facilityUser.id, selectedClasses.value);
           }
-          // affectedClasses null here to force users reload, even if classes are
-          // affected
-          props.onChange({ affectedClasses: null });
         }
+        // affectedClasses null here to force users reload, even if classes are
+        // affected
+        props.onChange({ affectedClasses: null });
       };
 
       const submitForm = async () => {
