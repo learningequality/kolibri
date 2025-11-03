@@ -1,7 +1,7 @@
 <template>
 
   <div class="flex-column">
-    <PaginatedListContainerWithBackend class="paginated-wrapper">
+    <div class="paginated-wrapper">
       <KTable
         class="move-down user-roster"
         :stickyColumns="stickyColumns"
@@ -105,7 +105,7 @@
           </span>
         </template>
       </KTable>
-    </PaginatedListContainerWithBackend>
+    </div>
     <ResetUserPasswordModal
       v-if="modalShown === Modals.RESET_USER_PASSWORD"
       :id="userToChange.id"
@@ -141,7 +141,6 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import useUser from 'kolibri/composables/useUser';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
@@ -166,7 +165,6 @@
       GenderDisplayText,
       BirthYearDisplayText,
       ResetUserPasswordModal,
-      PaginatedListContainerWithBackend,
     },
     setup(props, { emit }) {
       const route = useRoute();

@@ -1,31 +1,29 @@
 <template>
 
   <form>
-    <PaginatedListContainerWithBackend>
-      <template #topActions>
-        <div class="flex-row">
-          <FilterTextbox
-            v-model="search"
-            :placeholder="coreString('searchForUser')"
-          />
-          <PaginationActions
-            v-model="currentPage"
-            :itemsPerPage="itemsPerPage"
-            :totalPageNumber="totalPages"
-            :numFilteredItems="totalLearners"
-          />
-        </div>
-      </template>
-      <template>
-        <UserTable
-          v-model="selectedUsers"
-          :users="usersNotInClass"
-          :selectable="true"
-          :emptyMessage="emptyMessageForItems(usersNotInClass)"
-          :showDemographicInfo="true"
+    <div>
+      <div class="flex-row">
+        <FilterTextbox
+          v-model="search"
+          :placeholder="coreString('searchForUser')"
         />
-      </template>
-    </PaginatedListContainerWithBackend>
+        <PaginationActions
+          v-model="currentPage"
+          :itemsPerPage="itemsPerPage"
+          :totalPageNumber="totalPages"
+          :numFilteredItems="totalLearners"
+        />
+      </div>
+    </div>
+    <template>
+      <UserTable
+        v-model="selectedUsers"
+        :users="usersNotInClass"
+        :selectable="true"
+        :emptyMessage="emptyMessageForItems(usersNotInClass)"
+        :showDemographicInfo="true"
+      />
+    </template>
     <PaginationActions
       v-if="totalPages > 1"
       v-model="currentPage"
@@ -53,7 +51,6 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import UserTable from 'kolibri-common/components/UserTable';
-  import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import PaginationActions from 'kolibri-common/components/PaginationActions';
   import SelectionBottomBar from './SelectionBottomBar';
 
@@ -61,7 +58,6 @@
     name: 'ClassEnrollForm',
     components: {
       SelectionBottomBar,
-      PaginatedListContainerWithBackend,
       PaginationActions,
       UserTable,
       FilterTextbox,
