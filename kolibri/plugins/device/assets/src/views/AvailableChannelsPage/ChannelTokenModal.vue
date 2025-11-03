@@ -24,6 +24,7 @@
       :label="$tr('channelTokenLabel')"
       :invalid="!tokenIsValid"
       :invalidText="$tr('invalidTokenMessage')"
+      :showInvalidText="!tokenIsValid"
       autofocus
       :disabled="formIsDisabled || $attrs.disabled"
       autocapitalize="none"
