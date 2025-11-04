@@ -45,10 +45,9 @@
     mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
-      const { usersEnrolledNotice$, someLearnersEnrolledNotice$ } = bulkUserManagementStrings;
+      const { someLearnersEnrolledNotice$ } = bulkUserManagementStrings;
       return {
         createSnackbar,
-        usersEnrolledNotice$,
         someLearnersEnrolledNotice$,
       };
     },
@@ -80,22 +79,25 @@
         this.enrollLearnersInClass({ classId: this.class.id, users: selectedUsers })
           .then(response => {
             const { created, invalid } = response.data;
-            if (created?.length) {
-              if (invalid?.length) {
-                this.createSnackbar(this.someLearnersEnrolledNotice$());
-              } else {
-                this.createSnackbar(this.usersEnrolledNotice$());
-              }
-              if (invalid?.length) {
-                this.createSnackbar(this.noLearnersEnrolled$());
-              }
-            }
             this.$router
               .push(this.$store.getters.facilityPageLinks.ClassEditPage(this.class.id))
               .then(() => {
-                this.showSnackbarNotification('learnersEnrolledNoCount', {
-                  count: selectedUsers.length,
-                });
+                if (created?.length) {
+                  if (invalid?.length) {
+                    // Patrial success - some users were unable to be enrolled
+                    // For example, if a user has been assigned as a coach to the class
+                    // after this page loaded
+                    this.createSnackbar(this.someLearnersEnrolledNotice$());
+                  } else {
+                    this.showSnackbarNotification('learnersEnrolledNoCount', {
+                      count: created.length,
+                    });
+                  }
+                } else {
+                  // Whether we have invalid or not, if we haven't created any memberships
+                  // we should say "no learners enrolled"
+                  this.createSnackbar(this.noLearnersEnrolled$());
+                }
               });
           })
           .catch(() => {

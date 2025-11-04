@@ -45,10 +45,9 @@
     mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
-      const { coachesAllAssignedNotice$, someCoachesAssignedNotice$ } = bulkUserManagementStrings;
+      const { someCoachesAssignedNotice$ } = bulkUserManagementStrings;
       return {
         someCoachesAssignedNotice$,
-        coachesAllAssignedNotice$,
         createSnackbar,
       };
     },
@@ -76,17 +75,25 @@
         this.assignCoachesToClass({ classId: this.class.id, coaches })
           .then(response => {
             const { created, invalid } = response.data;
-            if (created?.length) {
-              if (invalid?.length) {
-                this.createSnackbar(this.someCoachesAssignedNotice$());
-              } else {
-                this.createSnackbar(this.coachesAllAssignedNotice$());
-              }
-            }
-            if (invalid?.length) {
-              this.createSnackbar(this.noCoachesAssigned$());
-            }
-            this.$router.push(this.$store.getters.facilityPageLinks.ClassEditPage(this.class.id));
+            this.$router
+              .push(this.$store.getters.facilityPageLinks.ClassEditPage(this.class.id))
+              .then(() => {
+                if (created?.length) {
+                  if (invalid?.length) {
+                    // Partial success
+                    this.createSnackbar(this.someCoachesAssignedNotice$());
+                  } else {
+                    // Full success
+                    this.showSnackbarNotification('coachesAssignedNoCount', {
+                      count: created.length,
+                    });
+                  }
+                } else {
+                  // Whether we have invalid or not, if we haven't created any role assignments,
+                  // we should say "no coaches assigned".
+                  this.createSnackbar(this.noCoachesAssigned$());
+                }
+              });
           })
           .catch(() => {
             this.formIsDisabled = false;
