@@ -113,8 +113,6 @@
 
 <script>
 
-  import client from 'kolibri/client';
-  import urls from 'kolibri/urls';
   import { useRouter, useRoute } from 'vue-router/composables';
   import { getCurrentInstance, ref, computed, nextTick } from 'vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
@@ -224,12 +222,7 @@
         });
         if (enrollments.length > 0) {
           try {
-            const response = await client({
-              url: urls['kolibri:core:membership_list'](),
-              method: 'POST',
-              data: enrollments,
-            });
-
+            const response = await MembershipResource.saveCollection({ data: enrollments });
             const { created, invalid } = response.data;
 
             createdMemberships.value = created;

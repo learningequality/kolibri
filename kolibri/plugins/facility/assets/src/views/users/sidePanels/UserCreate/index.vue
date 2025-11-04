@@ -147,20 +147,19 @@
 <script>
 
   import store from 'kolibri/store';
-  import client from 'kolibri/client';
-  import urls from 'kolibri/urls';
   import { ref, computed, nextTick, onBeforeMount, getCurrentInstance } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
+  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+  import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { UserKinds, ERROR_CONSTANTS, DemographicConstants } from 'kolibri/constants';
   import BirthYearSelect from 'kolibri-common/components/userAccounts/BirthYearSelect';
   import FullNameTextbox from 'kolibri-common/components/userAccounts/FullNameTextbox';
@@ -356,19 +355,13 @@
       };
 
       const enrollLearnerInClasses = (userId, classIds) => {
-        return client({
-          url: urls['kolibri:core:membership_list'](),
-          method: 'POST',
+        return MembershipResource.saveCollection({
           data: classIds.map(cid => ({ collection: cid, user: userId })),
         });
       };
 
       const assignCoachToClasses = (userId, classIds) => {
-        // The endpoint still expects COACH for the kind when assigning,
-        // even if the user's facility role is an admin
-        return client({
-          url: urls['kolibri:core:role_list'](),
-          method: 'POST',
+        return RoleResource.saveCollection({
           data: classIds.map(cid => ({ collection: cid, user: userId, kind: UserKinds.COACH })),
         });
       };

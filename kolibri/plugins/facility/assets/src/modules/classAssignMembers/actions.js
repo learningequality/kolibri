@@ -1,12 +1,10 @@
-import client from 'kolibri/client';
-import urls from 'kolibri/urls';
+import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
+import RoleResource from 'kolibri-common/apiResources/RoleResource';
 import { UserKinds } from 'kolibri/constants';
 import uniq from 'lodash/uniq';
 
-export async function enrollLearnersInClass(store, { classId, users }) {
-  return client({
-    url: urls['kolibri:core:membership_list'](),
-    method: 'POST',
+export async function enrollLearnersInClass(_, { classId, users }) {
+  return MembershipResource.saveCollection({
     data: uniq(users).map(userId => ({
       collection: classId,
       user: userId,
@@ -14,10 +12,8 @@ export async function enrollLearnersInClass(store, { classId, users }) {
   });
 }
 
-export async function assignCoachesToClass(store, { classId, coaches }) {
-  return client({
-    url: urls['kolibri:core:role_list'](),
-    method: 'POST',
+export async function assignCoachesToClass(_, { classId, coaches }) {
+  return RoleResource.saveCollection({
     data: uniq(coaches).map(userId => ({
       collection: classId,
       user: userId,

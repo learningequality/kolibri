@@ -116,8 +116,6 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { UserKinds } from 'kolibri/constants';
-  import client from 'kolibri/client';
-  import urls from 'kolibri/urls';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -280,12 +278,7 @@
         );
 
         // Errors will be caught in _handleAssign
-        const response = await client({
-          url: urls['kolibri:core:role_list'](),
-          method: 'POST',
-          data: roleData,
-        });
-
+        const response = await RoleResource.saveCollection({ data: roleData });
         const { created, invalid } = response.data;
 
         // Only add roles that were actually created (have an id)
