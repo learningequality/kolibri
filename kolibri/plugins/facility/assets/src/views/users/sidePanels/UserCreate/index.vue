@@ -492,6 +492,7 @@
         saveAndClose$,
         saveAndAddAnother$,
         defaultErrorMessage$,
+        showErrorWarning,
       };
     },
     props: {
