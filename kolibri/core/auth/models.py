@@ -24,6 +24,7 @@ from threading import local
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import UserManager
+from django.contrib.sessions.base_session import AbstractBaseSession
 from django.core import validators
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
@@ -35,6 +36,8 @@ from django.utils.functional import cached_property
 from morango.models import Certificate
 from morango.models import SyncableModel
 from morango.models import SyncableModelManager
+from morango.models import SyncableModelQuerySet
+from morango.models import UUIDField
 from mptt.models import TreeForeignKey
 
 from .constants import collection_kinds
@@ -78,11 +81,44 @@ from kolibri.core.device.utils import set_device_settings
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.fields import JSONField
+from kolibri.core.utils.model_router import KolibriModelRouter
 from kolibri.core.utils.validators import JSON_Schema_Validator
+from kolibri.deployment.default.sqlite_db_names import SESSIONS
 from kolibri.plugins.app.utils import interface
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
+
+
+class Session(AbstractBaseSession):
+    """
+    Custom session model with user_id tracking for session management.
+    Inherits from Django's AbstractBaseSession and adds user_id field.
+    """
+
+    user_id = UUIDField(blank=True, null=True, db_index=True)
+
+    @classmethod
+    def get_session_store_class(cls):
+        from .backends import SessionStore
+
+        return SessionStore
+
+    @classmethod
+    def delete_all_sessions(cls, user_ids):
+        store_class = cls.get_session_store_class()
+        store_class.delete_all_sessions(user_ids)
+        logger.info("Deleted all sessions for user IDs: {}".format(user_ids))
+
+
+class SessionRouter(KolibriModelRouter):
+    """
+    Determine how to route database calls for custom Session model.
+    """
+
+    MODEL_CLASSES = {Session}
+    DB_NAME = SESSIONS
+
 
 DEMOGRAPHIC_FIELDS_KEY = "demographic_fields"
 
@@ -631,7 +667,43 @@ class KolibriAnonymousUser(AnonymousUser, KolibriBaseUserMixin):
         return queryset.none()
 
 
-class FacilityUserModelManager(SyncableModelManager, UserManager):
+class FacilityUserQuerySet(SyncableModelQuerySet):
+    def update(self, **kwargs):
+        # Check if date_deleted is being set to a non-null value (soft delete)
+        user_ids = []
+        if "date_deleted" in kwargs and kwargs["date_deleted"] is not None:
+            # Get user IDs that are currently not soft deleted
+            user_ids = list(
+                self.filter(date_deleted__isnull=True).values_list("id", flat=True)
+            )
+
+        # Perform the update
+        result = super().update(**kwargs)
+
+        # Clean up sessions for soft deleted users
+        if user_ids:
+            Session.delete_all_sessions(user_ids)
+
+        return result
+
+    def delete(self):
+        # Get user IDs before deletion for session cleanup
+        user_ids = list(self.values_list("id", flat=True))
+
+        # Perform the deletion
+        result = super().delete()
+
+        # Clean up sessions after successful deletion
+        Session.delete_all_sessions(user_ids)
+        return result
+
+
+class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
+    def get_queryset(self):
+        return FacilityUserQuerySet(self.model, using=self._db)
+
+
+class FacilityUserModelManager(BaseFacilityUserModelManager):
     def get_queryset(self):
         return super().get_queryset().filter(date_deleted__isnull=True)
 
@@ -718,7 +790,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
             return user
 
 
-class SoftDeletedFacilityUserModelManager(SyncableModelManager, UserManager):
+class SoftDeletedFacilityUserModelManager(BaseFacilityUserModelManager):
     """
     Custom manager for FacilityUser that only returns users who have a non-NULL value in their date_deleted field.
     """
@@ -773,7 +845,7 @@ def validate_role_kinds(kinds):
     return kinds
 
 
-class AllObjectsFacilityUserModelManager(SyncableModelManager, UserManager):
+class AllObjectsFacilityUserModelManager(BaseFacilityUserModelManager):
     def get_queryset(self):
         return super(AllObjectsFacilityUserModelManager, self).get_queryset()
 
@@ -804,7 +876,7 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
 
     all_objects = AllObjectsFacilityUserModelManager()
     objects = FacilityUserModelManager()
-
+    syncing_objects = BaseFacilityUserModelManager()
     soft_deleted_objects = SoftDeletedFacilityUserModelManager()
 
     USERNAME_FIELD = "username"
@@ -1060,6 +1132,28 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         return '"{user}"@"{facility}"'.format(
             user=self.full_name or self.username, facility=self.facility
         )
+
+    def save(self, *args, **kwargs):
+        # Call the parent save method first
+        result = super().save(*args, **kwargs)
+
+        # Clean up sessions after successful save if user is deleted
+        # This handles both local deletions and deletions synced via Morango
+        # (Morango creates new instances from deserialized data, so we can't
+        # reliably track changes - just clean up whenever date_deleted is set)
+        if self.date_deleted is not None and self.pk is not None:
+            Session.delete_all_sessions([self.id])
+
+        return result
+
+    def delete(self, *args, **kwargs):
+        """
+        Override delete to ensure sessions are cleaned up during hard delete.
+        """
+        user_id = self.id
+        result = super().delete(*args, **kwargs)
+        Session.delete_all_sessions([user_id])
+        return result
 
     def has_perm(self, perm, obj=None):
         # ensure the superuser has full access to the Django admin

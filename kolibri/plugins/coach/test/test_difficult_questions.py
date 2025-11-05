@@ -25,6 +25,8 @@ DUMMY_PASSWORD = "password"
 
 
 class ExerciseDifficultQuestionTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         provision_device()
         self.facility = Facility.objects.create(name="My Facility")
@@ -455,6 +457,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
 
 
 class QuizDifficultQuestionTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         provision_device()
         self.facility = Facility.objects.create(name="My Facility")
@@ -765,6 +769,8 @@ class QuizDifficultQuestionTestCase(APITestCase):
 
 
 class PracticeQuizDifficultQuestionTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         provision_device()
         self.facility = Facility.objects.create(name="My Facility")

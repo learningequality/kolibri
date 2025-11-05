@@ -215,7 +215,7 @@ def _get_users(dataset_id):
             Role.objects.filter(dataset_id_filter),
             Membership.objects.filter(dataset_id_filter),
             Bookmark.objects.filter(dataset_id_filter),
-            FacilityUser.objects.filter(dataset_id_filter),
+            FacilityUser.all_objects.filter(dataset_id_filter),
             Facility.objects.filter(dataset_id_filter),
         ],
     )

@@ -82,7 +82,7 @@ class Context(object):
 
     @property
     def dataset_id(self):
-        return self.user.dataset_id
+        return self.user and self.user.dataset_id
 
     @cached_property
     def request_data(self):
@@ -268,6 +268,14 @@ def request_sync(context, network_location=None):
             sync_queue.sync_session_id = None
         sync_queue.increment_and_backoff_next_attempt()
         sync_queue.save()
+        return
+
+    if not context.user:
+        logger.warning("{} User does not exist".format(context))
+        if sync_queue.sync_session_id:
+            # remove sync session
+            queue_soud_sync_cleanup(sync_queue.sync_session_id)
+        sync_queue.delete()
         return
 
     try:

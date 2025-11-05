@@ -387,6 +387,8 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
 
 
 class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
+    databases = "__all__"
+
     def test_summary(self):
         for content_index, content_id in enumerate(self.content_ids):
             content_mod = content_index % 2
@@ -503,6 +505,8 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
 
 
 class TotalContentProgressViewSetTest(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         cls.facility = FacilityFactory.create()

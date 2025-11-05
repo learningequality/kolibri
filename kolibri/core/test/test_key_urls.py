@@ -15,6 +15,8 @@ from kolibri.core.device.translation import get_settings_language
 
 
 class BeforeDeviceProvisionTests(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         clear_process_cache()
 
@@ -28,6 +30,8 @@ class BeforeDeviceProvisionTests(APITestCase):
 
 
 class KolibriTagNavigationTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -188,6 +192,8 @@ class AllUrlsTest(APITestCase):
 
 
 class LogoutLanguagePersistenceTest(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         provision_device()
         facility = FacilityFactory.create()

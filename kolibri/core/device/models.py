@@ -31,6 +31,7 @@ from kolibri.core.fields import JSONField
 from kolibri.core.public.constants.user_sync_options import STALE_QUEUE_TIME
 from kolibri.core.utils.cache import process_cache as cache
 from kolibri.core.utils.lock import retry_on_db_lock
+from kolibri.core.utils.model_router import KolibriModelRouter
 from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.deployment.default.sqlite_db_names import SYNC_QUEUE
 from kolibri.plugins.app.utils import interface
@@ -453,50 +454,15 @@ class SyncQueue(models.Model):
         unique_together = ("user_id", "instance_id")
 
 
-class SyncQueueRouter(object):
+class SyncQueueRouter(KolibriModelRouter):
     """
     Determine how to route database calls for the SyncQueue model.
     All other models will be routed to the default database.
     """
 
-    def db_for_read(self, model, **hints):
-        """Send all read operations on the SyncQueue model to SYNC_QUEUE."""
-        if model is SyncQueue:
-            return SYNC_QUEUE
-        return None
-
-    def db_for_write(self, model, **hints):
-        """Send all write operations on the SyncQueue model to SYNC_QUEUE."""
-        if model is SyncQueue:
-            return SYNC_QUEUE
-        return None
-
-    def allow_relation(self, obj1, obj2, **hints):
-        """Determine if relationship is allowed between two objects."""
-
-        # Allow any relation between SyncQueue and SyncQueue.
-        if obj1._meta.model is SyncQueue and obj2._meta.model is SyncQueue:
-            return True
-        # No opinion if neither object is a SyncQueue.
-        elif SyncQueue not in [obj1._meta.model, obj2._meta.model]:
-            return None
-
-        # Block relationship if one object is a SyncQueue model and the other isn't.
-        return False
-
-    def allow_migrate(self, db, app_label, model_name=None, **hints):
-        """Ensure that the SyncQueue models get created on the right database."""
-        if app_label == SyncQueue._meta.app_label and (
-            model_name == SyncQueue._meta.model_name or hints.get("is_syncqueue")
-        ):
-            # The SyncQueue model should be migrated only on the SYNC_QUEUE database.
-            return db == SYNC_QUEUE
-        elif db == SYNC_QUEUE:
-            # Ensure that all other apps don't get migrated on the SYNC_QUEUE database.
-            return False
-
-        # No opinion for all other scenarios
-        return None
+    MODEL_CLASSES = {SyncQueue}
+    DB_NAME = SYNC_QUEUE
+    HINT_KEY = "is_syncqueue"
 
 
 class UserSyncStatus(models.Model):

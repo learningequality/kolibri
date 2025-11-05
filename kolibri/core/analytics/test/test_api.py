@@ -14,6 +14,8 @@ from kolibri.core.auth.test.test_api import FacilityUserFactory
 
 
 class PingbackNotificationTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -71,6 +73,8 @@ class PingbackNotificationTestCase(APITestCase):
 
 
 class PingbackNotificationDismissedTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()

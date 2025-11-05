@@ -20,6 +20,7 @@ DUMMY_PASSWORD = "password"
 
 
 class ChannelOrderTestCase(APITestCase):
+    databases = "__all__"
 
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
@@ -147,6 +148,7 @@ class ChannelOrderTestCase(APITestCase):
 
 
 class DeviceChannelMetadataAPITestCase(APITestCase):
+    databases = "__all__"
     """
     Testcase for channel API methods
     """
@@ -242,6 +244,7 @@ class DeviceChannelMetadataAPITestCase(APITestCase):
 
 
 class CalculateImportExportSizeViewTestCase(APITestCase):
+    databases = "__all__"
     """
     Testcase for channel API methods
     """

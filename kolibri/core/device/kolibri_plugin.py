@@ -53,6 +53,7 @@ class SyncQueueStatusHook(FacilityDataSyncHook):
     ):
         # if we're concluding a single user sync, update SyncQueue status accordingly
         if context.sync_session and single_user_id is not None:
+            from kolibri.core.auth.models import FacilityUser
             from kolibri.core.device.models import SyncQueueStatus
             from kolibri.core.device.models import SyncQueue
 
@@ -61,15 +62,20 @@ class SyncQueueStatusHook(FacilityDataSyncHook):
                 if context.is_server
                 else context.sync_session.server_instance_id
             )
-            SyncQueue.objects.update_or_create(
-                user_id=single_user_id,
-                instance_id=instance_id,
-                defaults={
-                    "status": SyncQueueStatus.Pending,
-                    "updated": time.time(),
-                    "last_sync": time.time(),
-                },
-            )
+            if FacilityUser.all_objects.filter(id=single_user_id).exists():
+                # user still exists, mark as pending
+                SyncQueue.objects.update_or_create(
+                    user_id=single_user_id,
+                    instance_id=instance_id,
+                    defaults={
+                        "status": SyncQueueStatus.Pending,
+                        "updated": time.time(),
+                        "last_sync": time.time(),
+                    },
+                )
+            else:
+                # user has been deleted, remove from sync queue for all instances
+                SyncQueue.objects.filter(user_id=single_user_id).delete()
 
 
 class LearnerDeviceStatusOperation(KolibriVersionedSyncOperation):

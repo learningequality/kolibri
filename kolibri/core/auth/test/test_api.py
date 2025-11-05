@@ -75,6 +75,8 @@ class FacilityUserFactory(factory.DjangoModelFactory):
 
 
 class LearnerGroupAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -231,6 +233,8 @@ class LearnerGroupAPITestCase(APITestCase):
 
 
 class ClassroomAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -786,6 +790,8 @@ def _add_demographic_schema_to_facility(facility):
 
 
 class UserCreationTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -1297,6 +1303,8 @@ class UserDeleteTestCase(APITestCase):
 
 
 class UserRetrieveTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -1423,6 +1431,8 @@ class UserRetrieveTestCase(APITestCase):
 
 
 class FacilityUserOrderingTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -1520,6 +1530,8 @@ class FacilityUserOrderingTestCase(APITestCase):
 
 
 class FacilityUserFilterTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -1880,6 +1892,8 @@ class SignUpBase(object):
 
 
 class AnonSignUpTestCase(SignUpBase, APITestCase):
+    databases = "__all__"
+
     def post_to_sign_up(self, data):
         return self.client.post(
             reverse("kolibri:core:signup-list"), data=data, format="json"
@@ -1899,6 +1913,8 @@ class PublicSignUpTestCase(SignUpBase, APITestCase):
 
 
 class FacilityDatasetAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -2127,6 +2143,8 @@ class FacilityDatasetAPITestCase(APITestCase):
 
 
 class IsPINValidAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -2206,6 +2224,8 @@ class IsPINValidAPITestCase(APITestCase):
 
 
 class MembershipAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -2334,6 +2354,8 @@ class MembershipAPITestCase(APITestCase):
 
 
 class GroupMembership(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -2437,6 +2459,8 @@ class DuplicateUsernameTestCase(APITestCase):
 
 
 class CSRFProtectedAuthTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()

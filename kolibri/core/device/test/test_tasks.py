@@ -23,6 +23,8 @@ from kolibri.plugins.utils.test.helpers import plugin_enabled
 
 
 class DeviceProvisionTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         clear_process_cache()
 

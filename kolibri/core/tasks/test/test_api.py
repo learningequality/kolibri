@@ -60,6 +60,8 @@ class dummy_orm_job_data(object):
 
 
 class BaseAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         DeviceSettings.objects.create(is_provisioned=True)
@@ -1474,6 +1476,8 @@ class TaskManagementAPITestCase(BaseAPITestCase):
 
 @patch("kolibri.core.tasks.api.job_storage")
 class TaskAPIPermissionsTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         DeviceSettings.objects.create(is_provisioned=True)
         self.facility = Facility.objects.create(name="facility")
@@ -1487,6 +1491,8 @@ class TaskAPIPermissionsTestCase(APITestCase):
 
 
 class CSRFProtectedTaskTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.client_csrf = APIClient(enforce_csrf_checks=True)
 
