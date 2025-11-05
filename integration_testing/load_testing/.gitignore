@@ -1,0 +1,5 @@
+# Generated files from load testing
+generated/
+har_files/*.*
+# Allow committing of HAR files that are for released versions
+!har_files/*_kolibri_[0-9]*.[0-9]*.[0-9].har

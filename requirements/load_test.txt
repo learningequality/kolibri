@@ -1,0 +1,7 @@
+# Load Testing Requirements
+# Inherits Kolibri's base requirements (includes click, requests, Django, etc.)
+-r ./base.txt
+
+# Load testing specific dependencies
+playwright>=1.40
+locust>=2.20

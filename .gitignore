@@ -1,4 +1,5 @@
 *.py[cod]
+__pycache__
 
 # Host directory where `make dockerbuild` outputs .pex and .whl files
 # same directory is mounted under /docker/mnt inside containers and
