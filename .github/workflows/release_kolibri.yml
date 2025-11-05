@@ -166,7 +166,7 @@ jobs:
         ]
     steps:
     - name: Download ${{ matrix.filename }} artifact
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: ${{ matrix.filename }}
         path: dist
@@ -187,7 +187,7 @@ jobs:
     needs: [whl]
     steps:
     - name: Download WHL artifact
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: ${{ needs.whl.outputs.whl-file-name }}
         path: dist
