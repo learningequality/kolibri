@@ -85,10 +85,9 @@ class RoleListSerializer(serializers.ListSerializer):
     def create(self, validated_data):
         created_objects = []
 
-        with transaction.atomic():
-            for model_data in validated_data:
-                obj, _ = Role.objects.get_or_create(**model_data)
-                created_objects.append(obj)
+        for model_data in validated_data:
+            obj, _ = Role.objects.get_or_create(**model_data)
+            created_objects.append(obj)
 
         return created_objects
 
@@ -239,10 +238,9 @@ class MembershipListSerializer(serializers.ListSerializer):
     def create(self, validated_data):
         created_objects = []
 
-        with transaction.atomic():
-            for model_data in validated_data:
-                obj, _ = Membership.objects.get_or_create(**model_data)
-                created_objects.append(obj)
+        for model_data in validated_data:
+            obj, _ = Membership.objects.get_or_create(**model_data)
+            created_objects.append(obj)
 
         return created_objects
 
