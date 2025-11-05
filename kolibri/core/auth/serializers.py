@@ -53,10 +53,11 @@ class RoleListSerializer(serializers.ListSerializer):
             kind = role_data["kind"]
 
             # Only validate classroom-level coach roles
-            if (
-                collection.kind == collection_kinds.CLASSROOM
-                and kind == role_kinds.COACH
-            ):
+            if collection.kind == collection_kinds.CLASSROOM and kind in [
+                role_kinds.COACH,
+                role_kinds.ADMIN,
+                role_kinds.ASSIGNABLE_COACH,
+            ]:
                 classroom_coach_items.append(role_data)
                 assignable_coach_ids.append(role_data["user"].id)
                 class_collection_ids.append(collection.id)
@@ -221,7 +222,7 @@ class MembershipListSerializer(serializers.ListSerializer):
         existing_roles = Role.objects.filter(
             collection_id__in=class_collection_ids,
             user_id__in=user_ids_to_validate,
-            kind=role_kinds.COACH,
+            kind__in=[role_kinds.COACH, role_kinds.ADMIN, role_kinds.ASSIGNABLE_COACH],
         ).values_list("collection_id", "user_id")
 
         valid_items = []
