@@ -45,9 +45,10 @@
     mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
-      const { someCoachesAssignedNotice$ } = bulkUserManagementStrings;
+      const { noCoachesAssigned$, someCoachesAssignedNotice$ } = bulkUserManagementStrings;
       return {
         someCoachesAssignedNotice$,
+        noCoachesAssigned$,
         createSnackbar,
       };
     },
