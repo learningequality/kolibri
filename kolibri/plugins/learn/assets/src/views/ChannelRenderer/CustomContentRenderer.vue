@@ -26,14 +26,14 @@
 
   import { get } from '@vueuse/core';
   import urls from 'kolibri/urls';
-  import Hashi from 'hashi';
+  import Sandbox from 'kolibri-sandbox';
   import { now } from 'kolibri/utils/serverClock';
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import ContentNodeSearchResource from 'kolibri-common/apiResources/ContentNodeSearchResource';
   import router from 'kolibri/router';
   import { ContentNodeKinds } from 'kolibri/constants';
-  import { events, MessageStatuses } from 'hashi/src/hashiBase';
+  import { events, nameSpace, MessageStatuses } from 'kolibri-sandbox/src/base';
   import useChannels from 'kolibri-common/composables/useChannels';
   import { validateChannelTheme } from '../../utils/validateChannelTheme';
   import useContentLink from '../../composables/useContentLink';
@@ -45,7 +45,7 @@
     // Infer status from data or err
     const status = data ? MessageStatuses.SUCCESS : MessageStatuses.FAILURE;
     return {
-      nameSpace: 'hashi',
+      nameSpace,
       event: events.DATARETURNED,
       data: {
         message_id: message.message_id,
@@ -84,49 +84,49 @@
         return JSON.stringify(decodeURI(fetchedEncodedContext));
       },
       rooturl() {
-        return urls.hashi();
+        return urls.sandbox();
       },
       currentChannel() {
         return get(channelsMap)[this.topic.channel_id];
       },
     },
     mounted() {
-      this.hashi = new Hashi({ iframe: this.$refs.iframe, now });
+      this.sandbox = new Sandbox({ iframe: this.$refs.iframe, now });
       const zipFile = this.topic.files.find(f => f.extension === 'zip');
-      this.hashi.on(events.COLLECTIONREQUESTED, message => {
+      this.sandbox.on(events.COLLECTIONREQUESTED, message => {
         this.fetchContentCollection(message);
       });
-      this.hashi.on(events.COLLECTIONPAGEREQUESTED, message => {
+      this.sandbox.on(events.COLLECTIONPAGEREQUESTED, message => {
         this.fetchMore(message);
       });
-      this.hashi.on(events.MODELREQUESTED, message => {
+      this.sandbox.on(events.MODELREQUESTED, message => {
         this.fetchContentModel.call(this, message);
       });
-      this.hashi.on(events.NAVIGATETO, message => {
+      this.sandbox.on(events.NAVIGATETO, message => {
         this.navigateTo.call(this, message);
       });
-      this.hashi.on(events.CONTEXT, message => {
+      this.sandbox.on(events.CONTEXT, message => {
         this.getOrUpdateContext.call(this, message);
       });
-      this.hashi.on(events.THEMECHANGED, message => {
+      this.sandbox.on(events.THEMECHANGED, message => {
         this.updateTheme.call(this, message);
       });
-      this.hashi.on(events.SEARCHRESULTREQUESTED, message => {
+      this.sandbox.on(events.SEARCHRESULTREQUESTED, message => {
         this.fetchSearchResult.call(this, message);
       });
-      this.hashi.on(events.KOLIBRIVERSIONREQUESTED, message => {
+      this.sandbox.on(events.KOLIBRIVERSIONREQUESTED, message => {
         this.sendKolibriVersion.call(this, message);
       });
-      this.hashi.on(events.CHANNELMETADATAREQUESTED, message => {
+      this.sandbox.on(events.CHANNELMETADATAREQUESTED, message => {
         this.sendChannelMetadata.call(this, message);
       });
-      this.hashi.on(events.CHANNELFILTEROPTIONSREQUESTED, message => {
+      this.sandbox.on(events.CHANNELFILTEROPTIONSREQUESTED, message => {
         this.sendChannelFilterOptions.call(this, message);
       });
-      this.hashi.on(events.RANDOMCOLLECTIONREQUESTED, message => {
+      this.sandbox.on(events.RANDOMCOLLECTIONREQUESTED, message => {
         this.sendRandomCollection.call(this, message);
       });
-      this.hashi.initialize(
+      this.sandbox.initialize(
         {},
         {},
         urls.zipContentUrl(zipFile.checksum, zipFile.extension, 'index.html'),
@@ -178,7 +178,7 @@
             return createReturnMsg({ message, err });
           })
           .then(newMsg => {
-            this.hashi.mediator.sendMessage(newMsg);
+            this.sandbox.mediator.sendMessage(newMsg);
           });
       },
 
@@ -204,7 +204,7 @@
             return createReturnMsg({ message, err });
           })
           .then(newMsg => {
-            this.hashi.mediator.sendMessage(newMsg);
+            this.sandbox.mediator.sendMessage(newMsg);
           });
       },
 
@@ -217,7 +217,7 @@
             return createReturnMsg({ message, err });
           })
           .then(newMsg => {
-            this.hashi.mediator.sendMessage(newMsg);
+            this.sandbox.mediator.sendMessage(newMsg);
           });
       },
 
@@ -256,7 +256,7 @@
             return createReturnMsg({ message, err });
           })
           .then(newMsg => {
-            this.hashi.mediator.sendMessage(newMsg);
+            this.sandbox.mediator.sendMessage(newMsg);
           });
       },
 
@@ -293,7 +293,7 @@
             return createReturnMsg({ message, err });
           })
           .then(newMsg => {
-            this.hashi.mediator.sendLocalMessage(newMsg);
+            this.sandbox.mediator.sendLocalMessage(newMsg);
           });
       },
       getOrUpdateContext(message) {
@@ -310,22 +310,22 @@
         }
 
         const newMsg = createReturnMsg({ message, data: {} });
-        this.hashi.mediator.sendLocalMessage(newMsg);
+        this.sandbox.mediator.sendLocalMessage(newMsg);
       },
       updateTheme(message) {
         const themeCopy = { ...message };
         delete themeCopy.message_id;
         this.channelTheme = validateChannelTheme(themeCopy);
         const newMsg = createReturnMsg({ message, data: {} });
-        return this.hashi.mediator.sendMessage(newMsg);
+        return this.sandbox.mediator.sendMessage(newMsg);
       },
       sendKolibriVersion(message) {
         const newMsg = createReturnMsg({ message, data: __version });
-        return this.hashi.mediator.sendMessage(newMsg);
+        return this.sandbox.mediator.sendMessage(newMsg);
       },
       sendChannelMetadata(message) {
         const newMsg = createReturnMsg({ message, data: this.currentChannel });
-        return this.hashi.mediator.sendMessage(newMsg);
+        return this.sandbox.mediator.sendMessage(newMsg);
       },
       sendChannelFilterOptions(message) {
         return ChannelResource.fetchFilterOptions(this.topic.channel_id)
@@ -343,7 +343,7 @@
             return createReturnMsg({ message, err });
           })
           .then(newMsg => {
-            this.hashi.mediator.sendMessage(newMsg);
+            this.sandbox.mediator.sendMessage(newMsg);
           });
       },
       sendRandomCollection(message) {
@@ -377,7 +377,7 @@
             return createReturnMsg({ message, err });
           })
           .then(newMsg => {
-            this.hashi.mediator.sendMessage(newMsg);
+            this.sandbox.mediator.sendMessage(newMsg);
           });
       },
     },

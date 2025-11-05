@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const { Command } = require('commander');
 const Minimatch = require('minimatch').Minimatch;
-const glob = require('./glob');
+const glob = require('kolibri-glob');
 const { logging, lint, noChange } = require('./index');
 
 const program = new Command();

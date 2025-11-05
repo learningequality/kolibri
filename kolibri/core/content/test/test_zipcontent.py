@@ -10,15 +10,15 @@ from django.utils.http import http_date
 
 from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.zip_wsgi import generate_zip_content_response
-from kolibri.core.content.zip_wsgi import INITIALIZE_HASHI_FROM_IFRAME
+from kolibri.core.content.zip_wsgi import INITIALIZE_SANDBOX_FROM_IFRAME
 from kolibri.utils.tests.helpers import override_option
 
 
-hashi_injection = '<script type="text/javascript">{}</script>'.format(
-    INITIALIZE_HASHI_FROM_IFRAME
+sandbox_injection = '<script type="text/javascript">{}</script>'.format(
+    INITIALIZE_SANDBOX_FROM_IFRAME
 )
 
-empty_content = "<html><head>{}</head><body></body></html>".format(hashi_injection)
+empty_content = "<html><head>{}</head><body></body></html>".format(sandbox_injection)
 
 # datetime.datetime(2016, 9, 10, 19, 14, 7) in time from EPOCH
 # do this to avoid having to backport `timestamp` method of datetime
@@ -185,30 +185,30 @@ class ZipContentTestCase(TestCase):
         )
         self.assertEqual(response.get("Access-Control-Allow-Headers", ""), headerval)
 
-    def test_request_for_html_no_head_return_hashi_modified_html(self):
+    def test_request_for_html_no_head_return_sandbox_modified_html(self):
         response = self._get_file("")
         self.assertEqual(response.content.decode("utf-8"), empty_content)
 
-    def test_request_for_html_body_no_script_return_hashi_modified_html(self):
+    def test_request_for_html_body_no_script_return_sandbox_modified_html(self):
         response = self._get_file(self.other_name)
         self.assertEqual(response.content.decode("utf-8"), empty_content)
 
-    def test_request_for_html_body_script_return_hashi_modified_html(self):
+    def test_request_for_html_body_script_return_sandbox_modified_html(self):
         response = self._get_file(self.script_name)
         content = (
             "<html><head>{}<script>test</script></head><body></body></html>".format(
-                hashi_injection
+                sandbox_injection
             )
         )
         self.assertEqual(response.content.decode("utf-8"), content)
 
-    def test_request_for_html_body_script_with_extra_slash_return_hashi_modified_html(
+    def test_request_for_html_body_script_with_extra_slash_return_sandbox_modified_html(
         self,
     ):
         response = self._get_file("/" + self.script_name)
         content = (
             "<html><head>{}<script>test</script></head><body></body></html>".format(
-                hashi_injection
+                sandbox_injection
             )
         )
         self.assertEqual(response.content.decode("utf-8"), content)
@@ -241,7 +241,7 @@ class ZipContentTestCase(TestCase):
         response = self._get_file(self.script_name)
         expected_content = (
             "<html><head>{}<script>test</script></head><body></body></html>".format(
-                hashi_injection
+                sandbox_injection
             )
         )
         file_size = len(expected_content)
@@ -334,7 +334,7 @@ class ZipContentTestCase(TestCase):
         # Should return full modified file, not range
         content = (
             "<html><head>{}<script>test</script></head><body></body></html>".format(
-                hashi_injection
+                sandbox_injection
             )
         )
         self.assertEqual(response.status_code, 200)

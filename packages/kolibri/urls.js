@@ -133,8 +133,8 @@ class UrlResolver {
     return plugin_data?.urls?.[dataKey];
   }
 
-  get __hashiUrl() {
-    return this._getPluginData('__hashiUrl');
+  get __sandboxUrl() {
+    return this._getPluginData('__sandboxUrl');
   }
 
   get __staticUrl() {
@@ -161,11 +161,11 @@ class UrlResolver {
     return this._getPluginData('__contentUrl');
   }
 
-  hashi() {
-    if (!this.__hashiUrl) {
+  sandbox() {
+    if (!this.__sandboxUrl) {
       throw new ReferenceError('Hashi Url is not defined');
     }
-    return generateUrl(this.__hashiUrl, {
+    return generateUrl(this.__sandboxUrl, {
       origin: this.__zipContentOrigin,
       port: this.__zipContentPort,
     });

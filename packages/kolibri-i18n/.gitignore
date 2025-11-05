@@ -1,0 +1,4 @@
+# Ignore any copied version of language info
+src/i18n/language_info.json
+# Ignore any packaged version of the package
+*.tgz

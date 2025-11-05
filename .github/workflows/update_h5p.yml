@@ -38,7 +38,7 @@ jobs:
             # Get the latest commit from the API response
             latest_commit = "${{ fromJson(steps.get-commit.outputs.data).commit.sha }}".strip()
             # Check stored commit
-            commit_file = Path('packages/hashi/.h5p-commit-sha')
+            commit_file = Path('packages/kolibri-sandbox/.h5p-commit-sha')
             stored_commit = ""
             if commit_file.exists():
                 stored_commit = commit_file.read_text().strip()
@@ -76,10 +76,10 @@ jobs:
         if: steps.check-commit.outputs.changed == 'true'
         run: |
           # Update the commit file
-          echo "${{ steps.check-commit.outputs.latest_commit }}" > packages/hashi/.h5p-commit-sha
+          echo "${{ steps.check-commit.outputs.latest_commit }}" > packages/kolibri-sandbox/.h5p-commit-sha
 
           # Run your script here
-          yarn workspace hashi run build-h5p
+          yarn workspace kolibri-sandbox run build-h5p
 
       - name: Generate App Token
         if: steps.check-commit.outputs.changed == 'true'

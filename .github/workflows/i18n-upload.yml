@@ -1,0 +1,36 @@
+name: Upload translations to Crowdin
+
+on:
+  workflow_dispatch:
+
+jobs:
+  upload:
+    name: Extract and upload strings to Crowdin
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+          cache-dependency-path: 'build_tools/i18n/*.py'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'yarn'
+
+      - name: Install gettext
+        run: sudo apt-get update && sudo apt-get install -y gettext
+
+      - name: Install JavaScript dependencies
+        run: yarn --frozen-lockfile
+
+      - name: Extract and upload strings to Crowdin
+        env:
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_API_KEY }}
+        run: make i18n-upload

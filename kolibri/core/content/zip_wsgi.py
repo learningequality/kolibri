@@ -140,10 +140,10 @@ def django_response_to_wsgi(response, environ, start_response):
 
 allowed_methods = set(["GET", "OPTIONS"])
 
-# This is also included in packages/hashi/src/h5p.html
+# This is also included in packages/sandbox/src/h5p.html
 # ideally, we should never ever update this code
 # but if we do we should update it there.
-INITIALIZE_HASHI_FROM_IFRAME = "if (window.parent && window.parent.hashi) {try {window.parent.hashi.initializeIframe(window);} catch (e) {}}"
+INITIALIZE_SANDBOX_FROM_IFRAME = "if (window.parent && window.parent.sandbox) {try {window.parent.sandbox.initializeIframe(window);} catch (e) {}}"
 
 
 def parse_html(content):
@@ -162,7 +162,7 @@ def parse_html(content):
         # Element class for both. Depending on the system and python version we are on,
         # we may be using the C implementation or the pure python and a mismatch will cause an error.
         script_tag = head.makeelement("script", {"type": "text/javascript"})
-        script_tag.text = INITIALIZE_HASHI_FROM_IFRAME
+        script_tag.text = INITIALIZE_SANDBOX_FROM_IFRAME
 
         head.insert(0, script_tag)
         # Currently, html5lib strips the doctype, but it's important for correct rendering, so check the original
@@ -296,7 +296,7 @@ YEAR_IN_SECONDS = 60 * 60 * 24 * 365
 ERROR_TEMPLATE = """
 <html>
     <head>
-        <meta name="hashi-error" content="{error}">
+        <meta name="sandbox-error" content="{error}">
     </head>
     <body>
     </body>
