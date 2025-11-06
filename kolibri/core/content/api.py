@@ -1566,11 +1566,15 @@ class UserContentNodeFilter(ContentNodeFilter):
     popular = BooleanFilter(method="filter_by_popular")
 
     def filter_by_lesson(self, queryset, name, value):
-        lesson = Lesson.objects.filter(
-            lesson_assignments__collection__membership__user=self.request.user,
-            is_active=True,
-            pk=value,
-        ).first()
+        lesson = (
+            Lesson.objects.filter(
+                lesson_assignments__collection__membership__user=self.request.user,
+                is_active=True,
+                pk=value,
+            ).first()
+            if self.request.user.is_authenticated
+            else None
+        )
         if lesson is None:
             return queryset.none()
         node_ids = list(map(lambda x: x["contentnode_id"], lesson.resources))
@@ -1579,7 +1583,7 @@ class UserContentNodeFilter(ContentNodeFilter):
     def filter_by_resume(self, queryset, name, value):
         user = self.request.user
         # if user is anonymous, don't return any nodes
-        if not user.is_facility_user:
+        if user.is_anonymous:
             return queryset.none()
         # get the most recently viewed, but not finished, content nodes
         content_ids = (
@@ -1599,7 +1603,7 @@ class UserContentNodeFilter(ContentNodeFilter):
         user = self.request.user
         # if user is anonymous, don't return any nodes
         # if person requesting is not the data they are requesting for, also return no nodes
-        if not user.is_facility_user:
+        if user.is_anonymous:
             return queryset.none()
         completed_content_ids = ContentSummaryLog.objects.filter(
             user=user, progress=1
@@ -1705,7 +1709,7 @@ class UserContentNodeViewset(
         user = self.request.user
 
         queryset = models.ContentNode.objects.filter(available=True)
-        if not user.is_facility_user:
+        if user.is_anonymous:
             user = None
 
         queryset = queryset.annotate(
@@ -1753,7 +1757,7 @@ class ContentNodeProgressViewset(TreeQueryMixin, BaseValuesViewset, ListModelMix
         user = self.request.user
 
         queryset = models.ContentNode.objects.filter(available=True)
-        if not user.is_facility_user:
+        if user.is_anonymous:
             user = None
 
         queryset = queryset.annotate(

@@ -419,7 +419,7 @@ class DeleteFacilityValidator(JobValidator):
             # deleting the only facility on a device, as the only user who could do
             # that must also be a member of that facility.
             user = self.context["user"]
-            if user.is_facility_user and user.facility_id == facility.id:
+            if user.is_authenticated and user.facility_id == facility.id:
                 raise serializers.ValidationError("User is member of facility")
         return facility
 

@@ -436,7 +436,6 @@ class KolibriBaseUserMixin:
 
     is_staff = False
     is_superuser = False
-    is_facility_user = False
 
     can_manage_content = False
 
@@ -891,8 +890,6 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
     date_joined = DateTimeTzField("date joined", default=local_now, editable=False)
 
     facility = models.ForeignKey("Facility", on_delete=models.CASCADE)
-
-    is_facility_user = True
 
     gender = models.CharField(
         max_length=16, choices=GENDER_CHOICES, default="", blank=True

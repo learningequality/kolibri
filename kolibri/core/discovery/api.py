@@ -10,7 +10,6 @@ from .models import LocationTypes
 from .models import NetworkLocation
 from .models import PinnedDevice
 from .models import StaticNetworkLocation
-from .permissions import NetworkLocationPermissions
 from .serializers import NetworkLocationSerializer
 from .serializers import PinnedDeviceSerializer
 from .utils.network import errors
@@ -26,7 +25,7 @@ from kolibri.core.utils.urls import reverse_path
 
 
 class NetworkLocationViewSet(viewsets.ModelViewSet):
-    permission_classes = [NetworkLocationPermissions | NotProvisionedHasPermission]
+    permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
     serializer_class = NetworkLocationSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = [
@@ -97,7 +96,7 @@ class StaticNetworkLocationViewSet(NetworkLocationViewSet):
 
 class NetworkLocationFacilitiesView(BaseValuesViewset):
     queryset = NetworkLocation.objects.all()
-    permission_classes = [NetworkLocationPermissions | NotProvisionedHasPermission]
+    permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
     values = ("device_id", "instance_id", "device_name", "device_address", "facilities")
 
     def retrieve(self, request, pk=None):
