@@ -266,6 +266,7 @@
         onChange,
         fetchClasses,
         resetFilters,
+        clearSelectedUsers,
       } = useUserManagement({
         activeFacilityId,
         dateJoinedGt: newUsersCreationTreshold,
@@ -313,10 +314,6 @@
         numUsersSelected$,
         clearFiltersLabel$,
       } = bulkUserManagementStrings;
-
-      function clearSelectedUsers() {
-        selectedUsers.value = new Set();
-      }
 
       function onModalBlur() {
         selectedUsers.value.clear();

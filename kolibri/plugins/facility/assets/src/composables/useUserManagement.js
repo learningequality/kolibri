@@ -34,8 +34,7 @@ export default function useUserManagement({
   });
 
   const clearSelectedUsers = () => {
-    selectedUsers.value.clear();
-    selectedUsers.value = new Set(selectedUsers.value);
+    selectedUsers.value = new Set();
   };
 
   const fetchUsers = async () => {
