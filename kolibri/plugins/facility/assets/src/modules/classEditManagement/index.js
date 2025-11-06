@@ -41,6 +41,10 @@ export default {
     },
     DELETE_CLASS_COACH(state, id) {
       state.classCoaches = state.classCoaches.filter(user => user.id !== id);
+      // Note that we only do this here because we use `currentClass.coaches` when relevant,
+      // but there is no equivalent `currentClass.learners` - instead code uses `classLearners`
+      // where relevant. This is a bit of a stop-gap before this is converted away from Vuex
+      // in the near future.
       if (state.currentClass) {
         state.currentClass.coaches = state.currentClass.coaches.filter(u => u.id !== id);
       }
