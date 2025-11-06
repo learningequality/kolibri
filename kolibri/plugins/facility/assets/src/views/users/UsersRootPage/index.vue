@@ -279,8 +279,8 @@
         fetchClasses();
       });
 
-      watch(numAppliedFilters, (newValue, oldValue) => {
-        if (newValue !== oldValue) {
+      watch([numAppliedFilters, searchTerm], (newValues, oldValues) => {
+        if (newValues[0] !== oldValues[0] || newValues[1] !== oldValues[1]) {
           clearSelectedUsers();
         }
       });
