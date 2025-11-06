@@ -196,7 +196,7 @@
 
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import PaginationActions from 'kolibri-common/components/PaginationActions';
-  import { ref, computed, getCurrentInstance, onMounted } from 'vue';
+  import { ref, computed, getCurrentInstance, onMounted, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -277,6 +277,12 @@
 
       onMounted(() => {
         fetchClasses();
+      });
+
+      watch(numAppliedFilters, (newValue, oldValue) => {
+        if (newValue !== oldValue) {
+          clearSelectedUsers();
+        }
       });
 
       function clearSelectedUsers() {
