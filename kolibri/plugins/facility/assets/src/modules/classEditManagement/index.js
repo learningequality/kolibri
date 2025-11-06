@@ -41,6 +41,9 @@ export default {
     },
     DELETE_CLASS_COACH(state, id) {
       state.classCoaches = state.classCoaches.filter(user => user.id !== id);
+      if (state.currentClass) {
+        state.currentClass.coaches = state.currentClass.coaches.filter(u => u.id !== id);
+      }
     },
   },
   actions: {
