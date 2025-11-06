@@ -168,7 +168,6 @@
           @clearSelectedUsers="clearSelectedUsers"
           @change="onChange"
         />
-        <!-- For sidepanels -->
         <router-view
           :selectedUsers="selectedUsers"
           :classes="classes"
@@ -177,7 +176,6 @@
           @clearSelection="clearSelectedUsers"
         />
 
-        <!-- Modals -->
         <MoveToTrashModal
           v-if="isMoveToTrashModalOpen"
           :selectedUsers="selectedUsers"
@@ -196,7 +194,7 @@
 
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import PaginationActions from 'kolibri-common/components/PaginationActions';
-  import { ref, computed, getCurrentInstance, onMounted, watch } from 'vue';
+  import { ref, computed, getCurrentInstance, onMounted } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -268,6 +266,7 @@
         onChange,
         fetchClasses,
         resetFilters,
+        clearSelectedUsers,
       } = useUserManagement({ activeFacilityId });
 
       // Use our new composables
@@ -278,16 +277,6 @@
       onMounted(() => {
         fetchClasses();
       });
-
-      watch([numAppliedFilters, searchTerm], (newValues, oldValues) => {
-        if (newValues[0] !== oldValues[0] || newValues[1] !== oldValues[1]) {
-          clearSelectedUsers();
-        }
-      });
-
-      function clearSelectedUsers() {
-        selectedUsers.value = new Set();
-      }
 
       function onModalBlur() {
         selectedUsers.value.clear();
