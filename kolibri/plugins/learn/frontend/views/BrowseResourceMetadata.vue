@@ -107,7 +107,7 @@
     </div>
 
     <div
-      v-if="content.learner_needs"
+      v-if="learnerNeedsLabels"
       class="section"
       data-test="learner-needs"
     >
