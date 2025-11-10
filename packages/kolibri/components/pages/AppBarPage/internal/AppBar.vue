@@ -99,9 +99,13 @@
                 {{ $tr('pointsMessage', { points: totalPoints }) }}
               </div>
             </span>
-            <span
+            <KButton
               v-if="isUserLoggedIn"
-              tabindex="-1"
+              ref="userMenuButton"
+              hasDropdown
+              appearance="flat-button"
+              :primary="false"
+              class="user-menu-button"
             >
               <KIcon
                 icon="person"
@@ -109,14 +113,20 @@
                   fill: themeConfig.appBar.textColor,
                   height: '24px',
                   width: '24px',
-                  margin: '4px',
-                  top: '8px',
+                  marginRight: '8px',
                 }"
               />
               <span class="username">
                 {{ usernameForDisplay }}
               </span>
-            </span>
+              <template #menu>
+                <KDropdownMenu
+                  :hasIcons="true"
+                  :options="userMenuOptions"
+                  @select="handleUserMenuSelect"
+                />
+              </template>
+            </KButton>
           </div>
         </template>
       </KToolbar>
@@ -143,9 +153,13 @@
 
   import { get } from '@vueuse/core';
   import { computed, getCurrentInstance } from 'vue';
+  import { UserKinds, NavComponentSections } from 'kolibri/constants';
+  import urls from 'kolibri/urls';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import KToolbar from 'kolibri-design-system/lib/KToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
+  import KButton from 'kolibri-design-system/lib/buttons-and-links/KButton';
+  import KDropdownMenu from 'kolibri-design-system/lib/KDropdownMenu';
   import themeConfig from 'kolibri/styles/themeConfig';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useTotalProgress from 'kolibri/composables/useTotalProgress';
@@ -154,6 +168,53 @@
   import SkipNavigationLink from '../../../SkipNavigationLink';
   import Navbar from './Navbar';
 
+  const navItemRoleOrder = [
+    UserKinds.ANONYMOUS,
+    UserKinds.LEARNER,
+    UserKinds.COACH,
+    UserKinds.ADMIN,
+    UserKinds.CAN_MANAGE_CONTENT,
+    UserKinds.SUPERUSER,
+  ];
+
+  function compareMenuItems(navItemA, navItemB) {
+    if (navItemA.role !== navItemB.role) {
+      return navItemRoleOrder.indexOf(navItemA.role) - navItemRoleOrder.indexOf(navItemB.role);
+    }
+    return navItemA.url.localeCompare(navItemB.url);
+  }
+
+  function filterByRole(navItem, userState) {
+    if (!navItem.role) {
+      return true;
+    }
+    if (navItem.role === UserKinds.COACH) {
+      return userState.isCoach || userState.isAdmin || userState.isSuperuser;
+    }
+    if (navItem.role === UserKinds.ADMIN) {
+      return userState.isAdmin || userState.isSuperuser;
+    }
+    if (navItem.role === UserKinds.CAN_MANAGE_CONTENT) {
+      return userState.canManageContent || userState.isSuperuser;
+    }
+    if (navItem.role === UserKinds.SUPERUSER) {
+      return userState.isSuperuser;
+    }
+    if (navItem.role === UserKinds.ANONYMOUS) {
+      return !userState.isUserLoggedIn;
+    }
+    if (navItem.role === UserKinds.LEARNER) {
+      return (
+        userState.isLearner || userState.isCoach || userState.isAdmin || userState.isSuperuser
+      );
+    }
+    return true;
+  }
+
+  function filterByFullFacilityOnly(item, isLearnerOnlyImport) {
+    return !isLearnerOnlyImport || !item.fullFacilityOnly;
+  }
+
   const hashedValuePattern = /^[a-f0-9]{30}$/;
 
   export default {
@@ -161,6 +222,8 @@
     components: {
       KToolbar,
       KIconButton,
+      KButton,
+      KDropdownMenu,
       SkipNavigationLink,
       Navbar,
     },
@@ -170,7 +233,17 @@
       const $route = computed(() => store.state.route);
       const { windowIsSmall } = useKResponsiveWindow();
       const { topBarHeight, navItems } = useNav();
-      const { isLearner, isUserLoggedIn, username, full_name } = useUser();
+      const {
+        isLearner,
+        isUserLoggedIn,
+        username,
+        full_name,
+        isSuperuser,
+        isAdmin,
+        isCoach,
+        canManageContent,
+        isLearnerOnlyImport,
+      } = useUser();
       const { totalPoints, fetchPoints } = useTotalProgress();
       const links = computed(() => {
         const currentItem = get(navItems).find(nc => nc.url === window.location.pathname);
@@ -189,11 +262,17 @@
         themeConfig,
         windowIsSmall,
         topBarHeight,
+        navItems,
         links,
         isUserLoggedIn,
         isLearner,
         username,
         fullName: full_name,
+        isSuperuser,
+        isAdmin,
+        isCoach,
+        canManageContent,
+        isLearnerOnlyImport,
         totalPoints,
         fetchPoints,
       };
@@ -249,6 +328,45 @@
           right: rightOffset,
         };
       },
+      accountMenuItems() {
+        if (!this.navItems) {
+          return [];
+        }
+        const userState = {
+          isCoach: this.isCoach,
+          isAdmin: this.isAdmin,
+          isSuperuser: this.isSuperuser,
+          canManageContent: this.canManageContent,
+          isUserLoggedIn: this.isUserLoggedIn,
+          isLearner: this.isLearner,
+        };
+        return this.navItems
+          .filter(item => item.section === NavComponentSections.ACCOUNT)
+          .filter(item => filterByRole(item, userState))
+          .filter(item => filterByFullFacilityOnly(item, this.isLearnerOnlyImport))
+          .sort(compareMenuItems);
+      },
+      logoutUrl() {
+        return urls['kolibri:core:logout'] && urls['kolibri:core:logout']();
+      },
+      userMenuOptions() {
+        const options = this.accountMenuItems.map(item => ({
+          label: item.label,
+          value: item.url,
+          id: item.name || item.url,
+          icon: item.icon,
+        }));
+        if (this.logoutUrl && this.isUserLoggedIn) {
+          options.push({
+            label: this.$tr('signOut'),
+            value: this.logoutUrl,
+            id: 'sign-out',
+            icon: 'logout',
+            external: true,
+          });
+        }
+        return options;
+      },
     },
     created() {
       if (this.isLearner) {
@@ -295,6 +413,34 @@
         }
         return value;
       },
+      handleUserMenuSelect(option) {
+        if (!option) {
+          return;
+        }
+
+        if (option.external && option.value) {
+          window.location.assign(option.value);
+          return;
+        }
+
+        if (!option.value) {
+          return;
+        }
+
+        if (typeof option.value === 'string') {
+          if (option.value.startsWith('http')) {
+            window.location.assign(option.value);
+            return;
+          }
+          window.location.assign(option.value);
+          return;
+        }
+
+        if (option.value.name) {
+          const route = this.$router.getRoute(option.value.name);
+          this.$router.push(route).catch(() => {});
+        }
+      },
     },
     $trs: {
       openNav: {
@@ -311,6 +457,11 @@
         context:
           'Information for screen reader users about what information they will get by clicking a button',
       },
+      signOut: {
+        message: 'Sign out',
+        context:
+          "Users can exit Kolibri by selecting 'Sign out' from the user menu in the upper right corner.",
+      },
     },
   };
 
@@ -324,27 +475,16 @@
   .user-menu-button {
     text-transform: none;
     vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 8px;
   }
 
   .username {
-    position: relative;
-    bottom: 3px;
-    max-width: 200px;
-    // overflow-x hidden seems to affect overflow-y also, so include a fixed height
-    height: 16px;
     padding-left: 8px;
-    // overflow: hidden on both x and y so that the -y doesn't show scroll buttons
-    // at certain zooms/screen sizes
-    overflow: hidden;
-    font-size: small;
+    font-size: 0.95rem;
     font-weight: bold;
-    text-overflow: ellipsis;
-  }
-
-  @media (max-width: 750px) {
-    .username {
-      max-width: 50px;
-    }
+    white-space: nowrap;
   }
 
   // Holdover from keen-ui to keep dropdown profile correctly formatted.
