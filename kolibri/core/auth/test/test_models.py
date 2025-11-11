@@ -24,6 +24,7 @@ from ..models import Role
 from ..models import Session
 from .helpers import create_superuser
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
+from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.utils.time_utils import local_now
 
@@ -912,3 +913,83 @@ class UserSessionCleanupTestCase(TestCase):
         # Only the first user's session should be deleted (user2 was already soft deleted)
         self.assertFalse(Session.objects.filter(user_id=self.user.id).exists())
         self.assertTrue(Session.objects.filter(user_id=user2.id).exists())
+
+
+class CreateSuperuserRegressionTestCase(TestCase):
+    """
+    Regression test for issue #13897 where the createsuperuser command failed
+    because the default manager (all_objects) inherited from Django's UserManager
+    which tried to pass an 'email' parameter that FacilityUser doesn't accept.
+
+    The fix was to move create_user and create_superuser methods from
+    FacilityUserModelManager to BaseFacilityUserModelManager so all managers
+    inherit the correct implementation.
+    """
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create(name="Test Facility")
+
+    def test_create_superuser_with_all_objects_manager(self):
+        """Test that all_objects manager can create superuser without email parameter."""
+        username = "admin1"
+        password = "password123"
+
+        # Use all_objects manager (the default manager, which was broken before)
+        superuser = FacilityUser.all_objects.create_superuser(
+            username=username,
+            password=password,
+            facility=self.facility,
+            full_name="Admin User",
+        )
+
+        # Verify the user was created
+        self.assertEqual(superuser.username, username)
+        self.assertEqual(superuser.full_name, "Admin User")
+        self.assertTrue(superuser.check_password(password))
+
+        # Verify it's a superuser
+        self.assertTrue(superuser.is_superuser)
+
+        # Verify DevicePermissions were set
+        device_perms = DevicePermissions.objects.get(user=superuser)
+        self.assertTrue(device_perms.is_superuser)
+        self.assertTrue(device_perms.can_manage_content)
+
+    def test_create_superuser_with_objects_manager(self):
+        """Test that objects manager can create superuser."""
+        username = "admin2"
+        password = "password456"
+
+        # Use objects manager
+        superuser = FacilityUser.objects.create_superuser(
+            username=username,
+            password=password,
+            facility=self.facility,
+        )
+
+        # Verify the user was created
+        self.assertEqual(superuser.username, username)
+        self.assertTrue(superuser.check_password(password))
+        self.assertTrue(superuser.is_superuser)
+
+    def test_create_user_accepts_email_parameter(self):
+        """
+        Test that create_user accepts email parameter (for Django compatibility)
+        but doesn't try to pass it to the model constructor.
+        """
+        username = "testuser"
+        password = "testpass"
+        # Django's createsuperuser command might pass email even if we don't need it
+        user = FacilityUser.all_objects.create_user(
+            username=username,
+            email="ignored@example.com",  # This should be accepted but ignored
+            password=password,
+            facility=self.facility,
+        )
+
+        # Verify the user was created successfully (email was ignored)
+        self.assertEqual(user.username, username)
+        self.assertTrue(user.check_password(password))
