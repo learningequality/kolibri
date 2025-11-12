@@ -29,7 +29,7 @@
     "enhanced-resolve": "^5.18.3",
     "kolibri-glob": "^1.0.0",
     "kolibri-logging": "^1.0.0",
-    "launch-editor-middleware": "^2.11.1",
+    "launch-editor-middleware": "^2.12.0",
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.9.4",
     "node-sass": "9.0.0",
