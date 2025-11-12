@@ -55,7 +55,7 @@ jobs:
       run: make get-tar tar=${{ inputs.tar-url }}
     - name: Download the tarfile from artifacts
       if: ${{ inputs.tar-file-name }}
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: ${{ inputs.tar-file-name }}
         path: build_src
@@ -68,7 +68,7 @@ jobs:
     - name: Get DEB filename
       id: get-deb-filename
       run: echo "deb-file-name=$(ls dist | grep .deb | cat)" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       with:
         name: ${{ steps.get-deb-filename.outputs.deb-file-name }}
         path: dist/${{ steps.get-deb-filename.outputs.deb-file-name }}
