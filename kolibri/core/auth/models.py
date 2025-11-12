@@ -701,11 +701,6 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
     def get_queryset(self):
         return FacilityUserQuerySet(self.model, using=self._db)
 
-
-class FacilityUserModelManager(BaseFacilityUserModelManager):
-    def get_queryset(self):
-        return super().get_queryset().filter(date_deleted__isnull=True)
-
     def create_user(self, username, email=None, password=None, **extra_fields):
         """
         Creates and saves a User with the given username.
@@ -787,6 +782,11 @@ class FacilityUserModelManager(BaseFacilityUserModelManager):
                     "Error creating FacilityUser for OS user: {}".format(os_username)
                 )
             return user
+
+
+class FacilityUserModelManager(BaseFacilityUserModelManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(date_deleted__isnull=True)
 
 
 class SoftDeletedFacilityUserModelManager(BaseFacilityUserModelManager):
