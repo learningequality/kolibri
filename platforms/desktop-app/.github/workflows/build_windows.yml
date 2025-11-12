@@ -90,7 +90,7 @@ jobs:
 
     - name: Download the whl from artifacts
       if: ${{ inputs.whl-file-name }}
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: ${{ inputs.whl-file-name }}
         path: whl
@@ -142,7 +142,7 @@ jobs:
         Rename-Item -Path "dist-installer\${{ steps.get-exe-filename.outputs.unsigned-exe-file-name }}" -NewName "${{ steps.get-exe-filename.outputs.final-exe-file-name }}"
 
     - name: Upload installer artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: ${{ steps.get-exe-filename.outputs.final-exe-file-name }}
         path: dist-installer/${{ steps.get-exe-filename.outputs.final-exe-file-name }}
