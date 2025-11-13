@@ -15,15 +15,14 @@
         />
       </div>
     </div>
-    <template>
-      <UserTable
-        v-model="selectedUsers"
-        :users="usersNotInClass"
-        :selectable="true"
-        :emptyMessage="emptyMessageForItems(usersNotInClass)"
-        :showDemographicInfo="true"
-      />
-    </template>
+    <UserTable
+      v-model="selectedUsers"
+      :users="usersNotInClass"
+      :selectable="true"
+      :emptyMessage="emptyMessageForItems(usersNotInClass)"
+      :showDemographicInfo="true"
+    />
+
     <PaginationActions
       v-if="totalPages > 1"
       v-model="currentPage"
