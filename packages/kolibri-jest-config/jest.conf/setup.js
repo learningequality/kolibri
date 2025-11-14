@@ -56,8 +56,6 @@ Vue.config.silent = true;
 Vue.config.devtools = false;
 Vue.config.productionTip = false;
 
-i18nSetup(true);
-
 Object.defineProperty(window, 'scrollTo', { value: () => {}, writable: true });
 
 // Shows better NodeJS unhandled promise rejection errors
@@ -76,3 +74,7 @@ global.flushPromises = function flushPromises() {
   });
 };
 /* eslint-enable vue/one-component-per-file */
+
+module.exports = async function () {
+  await i18nSetup(true);
+};
