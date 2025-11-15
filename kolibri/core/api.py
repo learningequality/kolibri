@@ -1,3 +1,14 @@
+"""
+Kolibri API base classes and utilities.
+
+IMPORTANT: Most Kolibri APIs are internal and unstable, designed for Kolibri's own use.
+They may change without notice. Do not build external applications that depend on these APIs.
+
+EXCEPTION: Public APIs under /public/ URLs are maintained with backwards compatibility.
+See kolibri/core/public/api_urls.py for the public API definitions.
+
+For more information, see: docs/backend_architecture/index.rst
+"""
 import uuid
 
 from django.http import Http404
