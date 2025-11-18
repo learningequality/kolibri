@@ -1,85 +1,58 @@
 <template>
 
   <form>
-    <PaginatedListContainerWithBackend>
-      <CoreTable>
-        <template #headers>
-          <th>
-            <KCheckbox
-              showLabel
-              class="select-all"
-              :label="coreString('nameLabel')"
-              :checked="areAllSelected"
-              :indeterminate="areAnySelected && !areAllSelected"
-              :disabled="!areAnyAvailable"
-              :style="{ color: $themeTokens.annotation }"
-              @change="selectAll($event)"
-            />
-          </th>
-          <th v-if="windowIsLarge">
-            {{ coreString('fileSize') }}
-          </th>
-          <th v-if="windowIsLarge">
-            {{ coreString('dateAdded') }}
-          </th>
-          <th v-if="windowIsLarge">
-            {{ coreString('statusLabel') }}
-          </th>
-        </template>
-        <template #tbody>
-          <tbody v-if="!loading">
-            <tr
-              v-for="download in paginatedDownloads"
-              :key="download.contentnode_id"
-              :style="download.status !== 'COMPLETED' ? { color: $themeTokens.annotation } : {}"
-            >
-              <td :class="{ 'small-resource-details': !windowIsLarge }">
-                <KCheckbox
-                  :checked="Boolean(selectedDownloadsMap[download.contentnode_id])"
-                  class="download-checkbox"
-                  @change="handleCheckResource(download.contentnode_id, $event)"
-                >
-                  <KLabeledIcon
-                    v-if="download.metadata"
-                    :icon="getIcon(download.metadata.learning_activities)"
-                    :label="download.metadata.title"
-                    :style="nonCompleteStatus(download) ? { color: $themeTokens.annotation } : {}"
-                  />
-                </KCheckbox>
-                <div
-                  v-if="!windowIsLarge"
-                  class="small-screen-status"
-                >
-                  <p>
-                    {{ formattedResourceSize(download) }} &nbsp;&nbsp;
-                    {{ formatDownloadRequestedDate(download) }}
-                  </p>
-                  <KIcon
-                    v-if="download.status !== 'IN_PROGRESS'"
-                    :icon="downloadStatusIcon(download)"
-                    :color="download.status === 'PENDING' ? $themeTokens.annotation : null"
-                    class="icon"
-                  />
-                  <div
-                    v-if="download.status === 'IN_PROGRESS'"
-                    class="inline-loader"
-                  >
-                    <KCircularLoader
-                      :size="20"
-                      :disableDefaultTransition="true"
-                      class="icon"
-                    />
-                  </div>
-                  <span class="status-text">{{ formattedDownloadStatus(download) }} </span>
-                </div>
-              </td>
-              <td v-if="windowIsLarge">
-                {{ formattedResourceSize(download) }}
-              </td>
-              <td v-if="windowIsLarge">
-                {{ formatDownloadRequestedDate(download) }}
-              </td>
-              <td v-if="windowIsLarge">
+    <CoreTable>
+      <template #headers>
+        <th>
+          <KCheckbox
+            showLabel
+            class="select-all"
+            :label="coreString('nameLabel')"
+            :checked="areAllSelected"
+            :indeterminate="areAnySelected && !areAllSelected"
+            :disabled="!areAnyAvailable"
+            :style="{ color: $themeTokens.annotation }"
+            @change="selectAll($event)"
+          />
+        </th>
+        <th v-if="windowIsLarge">
+          {{ coreString('fileSize') }}
+        </th>
+        <th v-if="windowIsLarge">
+          {{ coreString('dateAdded') }}
+        </th>
+        <th v-if="windowIsLarge">
+          {{ coreString('statusLabel') }}
+        </th>
+      </template>
+      <template #tbody>
+        <tbody v-if="!loading">
+          <tr
+            v-for="download in paginatedDownloads"
+            :key="download.contentnode_id"
+            :style="download.status !== 'COMPLETED' ? { color: $themeTokens.annotation } : {}"
+          >
+            <td :class="{ 'small-resource-details': !windowIsLarge }">
+              <KCheckbox
+                :checked="Boolean(selectedDownloadsMap[download.contentnode_id])"
+                class="download-checkbox"
+                @change="handleCheckResource(download.contentnode_id, $event)"
+              >
+                <KLabeledIcon
+                  v-if="download.metadata"
+                  :icon="getIcon(download.metadata.learning_activities)"
+                  :label="download.metadata.title"
+                  :style="nonCompleteStatus(download) ? { color: $themeTokens.annotation } : {}"
+                />
+              </KCheckbox>
+              <div
+                v-if="!windowIsLarge"
+                class="small-screen-status"
+              >
+                <p>
+                  {{ formattedResourceSize(download) }} &nbsp;&nbsp;
+                  {{ formatDownloadRequestedDate(download) }}
+                </p>
                 <KIcon
                   v-if="download.status !== 'IN_PROGRESS'"
                   :icon="downloadStatusIcon(download)"
@@ -97,34 +70,59 @@
                   />
                 </div>
                 <span class="status-text">{{ formattedDownloadStatus(download) }} </span>
-              </td>
-              <td class="resource-action">
-                <KButton
-                  v-if="nonCompleteStatus(download)"
-                  :text="coreString('viewAction')"
-                  appearance="flat-button"
-                  :disabled="true"
+              </div>
+            </td>
+            <td v-if="windowIsLarge">
+              {{ formattedResourceSize(download) }}
+            </td>
+            <td v-if="windowIsLarge">
+              {{ formatDownloadRequestedDate(download) }}
+            </td>
+            <td v-if="windowIsLarge">
+              <KIcon
+                v-if="download.status !== 'IN_PROGRESS'"
+                :icon="downloadStatusIcon(download)"
+                :color="download.status === 'PENDING' ? $themeTokens.annotation : null"
+                class="icon"
+              />
+              <div
+                v-if="download.status === 'IN_PROGRESS'"
+                class="inline-loader"
+              >
+                <KCircularLoader
+                  :size="20"
+                  :disableDefaultTransition="true"
+                  class="icon"
                 />
-                <KExternalLink
-                  v-else
-                  :text="coreString('viewAction')"
-                  appearance="flat-button"
-                  :href="genExternalContentURLBackLinkCurrentPage(download.contentnode_id)"
-                />
-                <KButton
-                  :text="coreString('removeAction')"
-                  appearance="flat-button"
-                  @click="markSingleResourceForRemoval(download)"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </template>
-      </CoreTable>
-      <p v-if="!loading && !downloadItemListLength">
-        {{ coreString('noResourcesDownloaded') }}
-      </p>
-    </PaginatedListContainerWithBackend>
+              </div>
+              <span class="status-text">{{ formattedDownloadStatus(download) }} </span>
+            </td>
+            <td class="resource-action">
+              <KButton
+                v-if="nonCompleteStatus(download)"
+                :text="coreString('viewAction')"
+                appearance="flat-button"
+                :disabled="true"
+              />
+              <KExternalLink
+                v-else
+                :text="coreString('viewAction')"
+                appearance="flat-button"
+                :href="genExternalContentURLBackLinkCurrentPage(download.contentnode_id)"
+              />
+              <KButton
+                :text="coreString('removeAction')"
+                appearance="flat-button"
+                @click="markSingleResourceForRemoval(download)"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </template>
+    </CoreTable>
+    <p v-if="!loading && !downloadItemListLength">
+      {{ coreString('noResourcesDownloaded') }}
+    </p>
     <SelectionBottomBar
       :count="Object.keys(selectedDownloadsMap).length"
       :size="formattedSelectedSize"
@@ -155,7 +153,6 @@
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import CoreTable from 'kolibri/components/CoreTable';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import PaginationActions from 'kolibri-common/components/PaginationActions';
   import { computed, getCurrentInstance } from 'vue';
   import { get } from '@vueuse/core';
@@ -181,7 +178,6 @@
       CoreTable,
       SelectionBottomBar,
       ConfirmationDeleteModal,
-      PaginatedListContainerWithBackend,
       PaginationActions,
     },
     mixins: [commonCoreStrings],
