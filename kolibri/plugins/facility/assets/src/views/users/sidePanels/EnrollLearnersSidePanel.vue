@@ -26,6 +26,7 @@
             <span>{{ defaultErrorMessage$() }}</span>
           </div>
           <div
+            v-if="numCoachesSelected > 0"
             class="info-box"
             :style="{ backgroundColor: $themePalette.grey.v_100 }"
           >
@@ -34,19 +35,9 @@
                 icon="infoOutline"
                 class="info-icon"
               />
-              <template v-if="usersNotEnrolled > 0">
-                <div class="info-wrapper">
-                  <span>
-                    {{ numUsersNotEnrolled$({ num: usersNotEnrolled }) }}
-                  </span>
-                  <span>{{ usersInClassNotAffected$() }}</span>
-                </div>
-              </template>
-              <template v-else>
-                <div class="info-wrapper">
-                  <span>{{ usersInClassNotAffected$() }}</span>
-                </div>
-              </template>
+              <div class="info-wrapper">
+                <span>{{ coachesToEnroll$({ num: numCoachesSelected }) }}</span>
+              </div>
             </div>
           </div>
           <h2
@@ -115,6 +106,7 @@
 
   import { useRoute } from 'vue-router/composables';
   import { getCurrentInstance, ref, computed } from 'vue';
+  import { UserKinds } from 'kolibri/constants';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
@@ -123,6 +115,7 @@
   import groupBy from 'lodash/groupBy';
   import SelectableList from '../../common/SelectableList.vue';
   import useActionWithUndo from '../../../composables/useActionWithUndo';
+  import useUserManagement from '../../../composables/useUserManagement';
   import { PageNames } from '../../../constants.js';
   import { getRootRouteName, overrideRoute } from '../../../utils';
   import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
@@ -160,17 +153,18 @@
         searchForAClass$,
         keepEditingAction$,
         selectClassesLabel$,
-        enrollUndoneNotice$,
+        actionSuccesful$,
         enrollInAllClasses$,
         usersEnrolledNotice$,
         defaultErrorMessage$,
-        numUsersNotEnrolled$,
         enrollUsersInClasses$,
-        usersInClassNotAffected$,
         noClassesInFacilityNotice$,
+        coachesToEnroll$,
       } = bulkUserManagementStrings;
 
       const { classesLabel$ } = coreStrings;
+
+      const { facilityUsers } = useUserManagement();
 
       // Computed properties
       const classList = computed(() =>
@@ -182,9 +176,20 @@
           .sort((a, b) => a.label.localeCompare(b.label)),
       );
 
-      const usersNotEnrolled = computed(() => {
-        const enrolledUsers = new Set(classLearners.value);
-        return [...props.selectedUsers].filter(userId => !enrolledUsers.has(userId)).length;
+      const numCoachesSelected = computed(() => {
+        if (!facilityUsers.value?.length) {
+          return 0;
+        }
+        return [...props.selectedUsers].filter(userId => {
+          const user = facilityUsers.value.find(u => u.id === userId);
+          if (!user) return false;
+          return (
+            user.kind.includes(UserKinds.COACH) ||
+            user.kind === UserKinds.ADMIN ||
+            user.kind === UserKinds.SUPERUSER ||
+            user.is_superuser
+          );
+        }).length;
       });
 
       const hasUnsavedChanges = computed(() => {
@@ -246,7 +251,7 @@
         action: _enrollLearners,
         actionNotice$: usersEnrolledNotice$,
         undoAction: handleUndoEnrollments,
-        undoActionNotice$: enrollUndoneNotice$,
+        undoActionNotice$: actionSuccesful$,
         onBlur: props.onBlur,
       });
 
@@ -269,7 +274,7 @@
         loading,
         classList,
         selectedOptions,
-        usersNotEnrolled,
+        numCoachesSelected,
         showErrorWarning,
         hasUnsavedChanges,
 
@@ -284,10 +289,9 @@
         selectClassesLabel$,
         enrollInAllClasses$,
         defaultErrorMessage$,
-        numUsersNotEnrolled$,
         enrollUsersInClasses$,
-        usersInClassNotAffected$,
         noClassesInFacilityNotice$,
+        coachesToEnroll$,
 
         // methods
         enrollLearners,

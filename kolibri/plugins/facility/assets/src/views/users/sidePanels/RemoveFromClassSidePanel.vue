@@ -25,30 +25,6 @@
           >
             <span>{{ defaultErrorMessage$() }}</span>
           </div>
-          <div
-            class="info-box"
-            :style="{ backgroundColor: $themePalette.grey.v_100 }"
-          >
-            <div style="display: flex">
-              <KIcon
-                icon="infoOutline"
-                class="info-icon"
-              />
-              <template v-if="selectedUsers.size > 0 && classCoaches.length > 0">
-                <div class="info-wrapper">
-                  <span>
-                    {{ numUsersCoaches$({ num: classCoaches.length }) }}
-                  </span>
-                  <span>{{ usersNotInClasses$() }}</span>
-                </div>
-              </template>
-              <template v-else>
-                <div class="info-wrapper">
-                  <span>{{ usersNotInClasses$() }}</span>
-                </div>
-              </template>
-            </div>
-          </div>
           <h2
             id="remove-from-selected-classes"
             class="side-panel-subtitle"
@@ -155,7 +131,6 @@
       const removedCoachRoles = ref([]);
       const route = useRoute();
       const {
-        numUsersCoaches$,
         searchForAClass$,
         discardAction$,
         discardWarning$,
@@ -163,12 +138,11 @@
         discardChanges$,
         defaultErrorMessage$,
         removeUsersFromClassesHeading$,
-        usersNotInClasses$,
         removeFromAllClassesLabel$,
         selectClassesLabel$,
         removeAction$,
         usersRemovedNotice$,
-        undoUsersRemovedMessage$,
+        actionSuccessful$,
         noUsersClassesNotice$,
         noClassesInFacilityNotice$,
       } = bulkUserManagementStrings;
@@ -331,7 +305,7 @@
         action: _removeUsers,
         actionNotice$: usersRemovedNotice$,
         undoAction: undoUserRemoval,
-        undoActionNotice$: undoUsersRemovedMessage$,
+        undoActionNotice$: actionSuccessful$,
         onBlur: props.onBlur,
       });
 
@@ -345,21 +319,18 @@
         hasUnsavedChanges,
         showErrorWarning,
         selectedOptions,
-        classCoaches,
         loading,
         userClasses,
 
         // translation functions
         classesLabel$,
         removeUsersFromClassesHeading$,
-        numUsersCoaches$,
         searchForAClass$,
         defaultErrorMessage$,
         discardAction$,
         discardWarning$,
         keepEditingAction$,
         discardChanges$,
-        usersNotInClasses$,
         removeFromAllClassesLabel$,
         selectClassesLabel$,
         removeAction$,
