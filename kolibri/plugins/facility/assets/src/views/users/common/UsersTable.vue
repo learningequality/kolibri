@@ -589,12 +589,12 @@
   /deep/ .k-table-wrapper {
     tr td:first-child,
     tr th:first-child {
-      padding: 0.675em 1em;
+      padding: 0 1em;
     }
 
     tr td:last-child,
     tr th:last-child {
-      padding: 0.675em 1em;
+      padding: 0 1em;
     }
   }
 
