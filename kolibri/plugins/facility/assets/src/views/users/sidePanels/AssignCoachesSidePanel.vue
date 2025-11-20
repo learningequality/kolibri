@@ -39,9 +39,7 @@
                   <span>
                     {{ numUsersNotEligible$({ num: ineligibleUsersCount }) }}
                   </span>
-                  <span>{{ usersInClassNotAffected$() }}</span>
                 </template>
-                <span v-else>{{ usersInClassNotAffected$() }}</span>
               </div>
             </div>
           </div>
@@ -154,8 +152,7 @@
 
       const {
         coachesAssignedNotice$,
-        assignCoachUndoneNotice$,
-        usersInClassNotAffected$,
+        actionSuccessful$,
         assignAction$,
         searchForAClass$,
         defaultErrorMessage$,
@@ -282,7 +279,7 @@
         action: _handleAssign,
         actionNotice$: coachesAssignedNotice$,
         undoAction: handleUndoAssignments,
-        undoActionNotice$: assignCoachUndoneNotice$,
+        undoActionNotice$: actionSuccessful$,
         onBlur: props.onBlur,
       });
 
@@ -301,7 +298,6 @@
         ineligibleUsersCount,
         showErrorWarning,
         defaultErrorMessage$,
-        usersInClassNotAffected$,
         assignAction$,
         searchForAClass$,
         selectClassesLabel$,

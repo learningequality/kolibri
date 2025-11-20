@@ -46,7 +46,9 @@
             <template #filterLink>
               <KRouterLink
                 appearance="basic-link"
-                :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
+                :text="
+                  numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : coreString('filter')
+                "
                 class="filter-button"
                 :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL__TRASH })"
               />
@@ -258,7 +260,6 @@
         recoverSelectionLabel$,
         deletePermanentlyLabel$,
         numFilters$,
-        filterLabel$,
         numUsersSelected$,
         clearFiltersLabel$,
       } = bulkUserManagementStrings;
@@ -402,7 +403,6 @@
         removedUsersNotice$,
         noRemovedUsersLabel$,
         numFilters$,
-        filterLabel$,
         numUsersSelected$,
         clearFiltersLabel$,
       };

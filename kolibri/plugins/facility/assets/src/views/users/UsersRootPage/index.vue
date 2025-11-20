@@ -73,7 +73,9 @@
                 appearance="basic-link"
                 class="filter-button"
                 :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL })"
-                :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
+                :text="
+                  numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : coreString('filter')
+                "
               />
             </template>
             <template #clearFiltersButton>
@@ -114,14 +116,14 @@
               <KIconButton
                 ref="enrollButton"
                 icon="add"
-                :ariaLabel="enrollToClass$()"
+                :ariaLabel="enrollInClass$()"
                 :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
                 @click="navigateToSidePanel(PageNames.ENROLL_LEARNERS_SIDE_PANEL)"
               />
               <KTooltip
                 reference="enrollButton"
                 :refs="$refs"
-                :text="enrollToClass$()"
+                :text="enrollInClass$()"
               />
               <KIconButton
                 ref="removeButton"
@@ -244,12 +246,11 @@
         viewTrash$,
         assignCoach$,
         viewNewUsers$,
-        enrollToClass$,
+        enrollInClass$,
         removeFromClass$,
         deleteSelection$,
         cannotDeleteSelfTooltip$,
         numFilters$,
-        filterLabel$,
         numUsersSelected$,
         clearFiltersLabel$,
       } = bulkUserManagementStrings;
@@ -391,12 +392,11 @@
         viewTrash$,
         assignCoach$,
         viewNewUsers$,
-        enrollToClass$,
+        enrollInClass$,
         removeFromClass$,
         deleteSelection$,
         cannotDeleteSelfTooltip$,
         numFilters$,
-        filterLabel$,
         numUsersSelected$,
         clearFiltersLabel$,
       };

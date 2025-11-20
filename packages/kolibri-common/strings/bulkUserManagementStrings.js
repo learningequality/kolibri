@@ -6,10 +6,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'New user',
     context: 'Button label that lets the user create a new user',
   },
-  searchForAUser: {
-    message: 'Search for a user',
-    context: 'Placeholder text for user search input',
-  },
   numUsersSelected: {
     message: '{n, number} {n, plural, one {user} other {users}} selected',
     context: 'A label showing the number of users selected',
@@ -21,10 +17,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   createdAt: {
     message: 'Created at',
     context: 'Label for the created at column in the user table.',
-  },
-  filterLabel: {
-    message: 'Filter',
-    context: 'Label for the filter dropdown',
   },
   clearFiltersLabel: {
     message: 'Clear filters',
@@ -41,10 +33,6 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   selectLabel: {
     message: 'Select',
     context: 'Label for the selecting a user',
-  },
-  numUsersYouHaveSelected: {
-    message: "You've selected {num, number} {num, plural, one {user} other {users}}",
-    context: 'Label showing the number of users selected',
   },
   searchForAClass: {
     message: 'Search for a class',
@@ -99,7 +87,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Label for dropdown item that links user to page of recently added users',
   },
   viewTrash: {
-    message: 'View removed users',
+    message: 'View deleted users',
     context: 'Label for dropdown item that links user to trash page of soft-deleted users',
   },
   renameClassLabel: {
@@ -112,8 +100,8 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
 
   // Bulk actions
-  enrollToClass: {
-    message: 'Enroll to class',
+  enrollInClass: {
+    message: 'Enroll in class',
     context:
       'Label for bulk-action button that will allow user to enroll selected learners to classes',
   },
@@ -128,13 +116,8 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
       'Label for bulk-action button that will allow user to assign selected coaches to classes',
   },
   deleteSelection: {
-    message: 'Remove selected users',
+    message: 'Delete selected',
     context: 'Label for bulk-action button that will allow user to delete selected users',
-  },
-  cannotDeleteSelfTooltip: {
-    message: 'You cannot delete yourself.',
-    context:
-      'Tooltip text that appears when a admin and supper admin  attempts to delete their own account from the user management table.',
   },
   selectAllLabel: {
     message: 'Select all',
@@ -153,7 +136,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Heading for the confirmation modal that asks user if they want to discard changes',
   },
   discardAction: {
-    message: 'Yes, Discard',
+    message: 'Discard',
     context: 'Label for the button to dismiss selection changes',
   },
   discardWarning: {
@@ -164,63 +147,24 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Keep editing',
     context: 'Label for the button to keep editing selections in the side panel',
   },
-
-  // Selection warnings
-  numUsersNotEnrolled: {
-    message:
-      '{num, number} {num, plural, one {user is} other {users are}} not enrolled in any class',
-    context:
-      'A notice indicating the number of users that are selected which are not enrolled in a class',
-  },
-  numLearnersEnrolledInNClasses: {
-    message:
-      '{num, number} {num, plural, one {learner is enrolled in} other {learners are enrolled in}} {numClasses, number} {numClasses, plural, one {class} other {classes}}',
-    context:
-      'A notice indicating the number of users that are selected which are enrolled in a class',
-  },
-  numUsersCoaches: {
-    message: '{num, number} {num, plural, one {user is a coach} other {users are coaches}}',
-    context: 'A notice indicating the number of users the user selected that are coaches',
-  },
-  numCoachesAssignedToNClasses: {
-    message:
-      '{num, number} {num, plural, one {coach is assigned to} other {coaches are assigned to}} {numClasses, number} {numClasses, plural, one {class} other {classes}}',
-    context:
-      'A notice indicating the number of coaches that are selected which are assigned to a class',
-  },
   numAdminsSelected: {
     message: '{num, number} {num, plural, one {admin} other {admins}} selected',
     context: 'A notice indicating the number of admins that are selected',
   },
-  usersNotInClasses: {
-    message: 'Users already not in these classes stay unchanged',
-    context: 'Warning message about users already not in selected classes',
-  },
 
   // Assign coaches to class
   coachesAssignedNotice: {
-    message: 'Selected coaches have been assigned',
+    message: 'Coaches assigned',
     context:
       'Success notification shown after coaches have been successfully assigned to users/classes.',
   },
-  assignCoachUndoneNotice: {
-    message: 'Assign action has been undone',
-    context:
-      'Notification shown after the user has chosen to undo a recent coach assignment action.',
-  },
-  coachesAssignedToClassLabel: {
-    message: 'Coaches assigned to this class',
-    context: 'label to indicate coaches assigned to a class in sidepanel',
+  actionSuccessful: {
+    message: 'Action successful',
+    context: 'Notification shown after the user has completed a task that has updated successfully',
   },
   assignAction: {
     message: 'Assign',
     context: 'Label for the button that will assign coaches to classes',
-  },
-  numUsersNotAssigned: {
-    message:
-      '{num, number} {num, plural, one {user is} other {users are}} not assigned to any class',
-    context:
-      'A notice indicating the number of users that are selected which are not assigned to a class as coaches',
   },
   numUsersNotEligible: {
     message:
@@ -230,26 +174,9 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
 
   // Remove from class
-  usersNotInClassNotAffected: {
-    message: 'Users already not in selected classes will not be affected',
-    context: 'Warning message about users already not in selected classes',
-  },
-  undoUsersRemovedHeading: {
-    message:
-      '{num, number} {num, plural, one {user has} other {users have}} been removed. Undo this?',
-    context: 'Heading for undo confirmation after removing users',
-  },
-  undoUsersRemovedMessage: {
-    message: 'Remove users undone',
-    context: 'Snackbare message for undo confirmation after removing users',
-  },
   usersRemovedNotice: {
     message: 'Selected users removed',
     context: 'Confirmation message when users are removed from classes',
-  },
-  removeUndoneNotice: {
-    message: 'Remove action has been undone',
-    context: 'Confirmation message when remove action is undone',
   },
   removeUsersFromClassesHeading: {
     message: 'Remove {numUsers, number} {numUsers, plural, one {user} other {users}} from classes',
@@ -269,17 +196,9 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
 
   // Enroll to class
-  usersInClassNotAffected: {
-    message: 'Users already in selected classes will not be affected',
-    context: 'Warning message about users already in selected classes',
-  },
   usersEnrolledNotice: {
-    message: 'Selected users have been enrolled',
+    message: 'Users enrolled',
     context: 'Confirmation message when users are enrolled in classes',
-  },
-  enrollUndoneNotice: {
-    message: 'Enroll action has been undone',
-    context: 'Confirmation message when enroll action is undone',
   },
   enrollInAllClasses: {
     message: 'Enroll in all classes',
@@ -288,6 +207,12 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   enrollUsersInClasses: {
     message: 'Enroll {num, number} {num, plural, one {user} other {users}}',
     context: 'Heading for the selection to enroll users in the selected classes',
+  },
+  coachesToEnroll: {
+    message:
+      "{num, number} {num, plural, one {selected coach user} other {selected coach users}} will be enrolled in class as {num, plural, one {a learner} other {learners}}. If you need to assign them as {num, plural, one {a coach} other {coaches}}, use the 'Assign coach' button instead.",
+    context:
+      'Warning to the user that they have selected coaches but are enrolling them as learners in a class',
   },
   enrollAction: {
     message: 'Enroll',
@@ -305,37 +230,29 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     message: 'Assign to all classes',
     context: 'Label for checkbox that allows user to assign selected users to all classes',
   },
-  enrollToAllClasses: {
-    message: 'Enroll to all classes',
-    context: 'Label for checkbox that allows user to enroll selected users in all classes',
-  },
 
   // Move to trash
   moveToTrashLabel: {
-    message: 'Remove {num, number} {num, plural, one {user} other {users}}',
+    message: 'Delete {num, number} {num, plural, one {user} other {users}}',
     context: 'Title of the modal that allows users to move selected users to trash',
   },
   moveToTrashAction: {
-    message: 'Yes, remove',
+    message: 'Delete',
     context: 'Label for the button that confirms moving users to trash',
   },
   movingToTrash: {
-    message: 'Removing users',
+    message: 'Deleting users',
     context:
       'Message to users when they click to move users to the trash to indicate that something is happening in the background',
   },
   moveToTrashWarning: {
     message:
-      'Users will be removed from all classes and immediately deactivated. Deactivated users will be deleted permanently after 30 days.',
+      'Users will be immediately removed from all classes and permanently deleted after 30 days.',
     context: 'Warning message about trash deletion timeline',
   },
   usersTrashedNotice: {
-    message: 'Selected users have been removed',
-    context: 'Brief notification confirming users were removed',
-  },
-  trashUndoneNotice: {
-    message: 'Remove has been undone',
-    context: 'Notification confirming that the trash action was reversed',
+    message: 'Users deleted',
+    context: 'Brief notification confirming users were deleted',
   },
 
   // Copy a class
@@ -375,43 +292,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
 
   // User Creation Modal
-  newUsersCreatedSuccess: {
-    message: '{n, number} new {n, plural, one {user} other {users}} successfully created!',
-    context: 'Title of modal shown on successful creation of users',
-  },
-  newUsersModalMessage: {
-    message: 'You have successfully created {n, number} new {n, plural, one {user} other {users}}.',
-    context: 'Initial message body in success modal when users are created',
-  },
-  whatsNext: {
-    message: "Here's what you can do next:",
-    context: 'Message preceding a list of things the user can do now that they added users',
-  },
-  carryOutBulkActions: {
-    message: 'Carry out bulk actions',
-    context: 'One of the options explained to the user',
-  },
-  carryOutBulkActionsExplainer: {
-    message: 'Like enrolling your entire selection in one or more classes',
-  },
   saveAndAddAnother: {
     message: 'Save and add another',
     context:
       'Button label on user creation form that submits the current form and then clears it for another entry on success',
-  },
-  saveAndContinue: {
-    message: 'Save and continue',
-    context:
-      'Action label for users to save a new user and make another without leaving the current form',
-  },
-  saveAndContinueExplainer: {
-    message:
-      'You can close this modal interface and all your newly added users will be saved to this facility in the Users page',
-    context: 'Explaining what the user can do if they save and continue',
-  },
-  enrollInClass: {
-    message: 'Enroll in class',
-    context: 'Action button label for beginning bulk actions',
   },
   copyOfClass: {
     message: 'Copy of {class}',
@@ -452,36 +336,16 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
       'No users match this search and {filtersCount, plural, one {this filter} other {these filters}}',
     context: 'Displayed when no users match the combination of search term and filter selection.',
   },
-  noLearnersExist: {
-    message: 'There are no learners in this facility',
-    context:
-      "Displayed when there are no learners in the facility. Seen when using the 'User type' filter on the 'Users' page.",
-  },
-  noCoachesExist: {
-    message: 'There are no coaches in this facility',
-    context:
-      "Displayed when there are no coaches in the facility. Seen when using the 'User type' filter on the 'Users' page.",
-  },
-  noSuperAdminsExist: {
-    message: 'There are no super admins in this facility',
-    context:
-      "Displayed when there are no super admins in the facility. Seen when using the 'User type' filter on the 'Users' page.",
-  },
-  noAdminsExist: {
-    message: 'There are no admins in this facility',
-    context:
-      "Displayed when there are no admins in the facility. Seen when using the 'User type' filter on the 'Users' page.",
-  },
   noNewUsersLabel: {
     message: 'No new users',
     context: 'Displayed when there are no recently created users in the facility.',
   },
   noNewUsersDescription: {
-    message: 'New users added in the last 30 days will be stored here',
+    message: 'New users created in the last 30 days will appear here',
     context: 'Description shown when there are no recently created users in the facility.',
   },
-  addNewUserLabel: {
-    message: 'Add new user',
+  createNewUserLabel: {
+    message: 'Create new user',
     context: 'Label for button that opens the user creation modal',
   },
   assignUsersHeading: {
@@ -490,20 +354,16 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
   // Trash page
   removedUsersTitle: {
-    message: 'Removed users',
+    message: 'Deleted users',
     context: 'Title of the page listing users who have been removed from the facility.',
   },
   noRemovedUsersLabel: {
-    message: 'No removed users',
+    message: 'No deleted users',
     context: 'Displayed when there are no users who have been removed from the facility.',
   },
   removedUsersNotice: {
-    message: 'Removed users are stored here for 30 days before being permanently deleted',
+    message: 'Deleted users will appear here for 30 days before being permanently deleted',
     context: 'Displayed when there are users who have been removed from the facility.',
-  },
-  removedUsersPageDescription: {
-    message: 'Records will show the days remaining before permanent deletion.',
-    context: 'Description shown on the trash page below the title.',
   },
   deletePermanentlyLabel: {
     message: 'Delete permanently',
@@ -514,7 +374,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Label for the button to recover a user from the trash.',
   },
   recoverSelectionLabel: {
-    message: 'Recover selection',
+    message: 'Recover selected',
     context: 'Label for the button to recover multiple users from the trash.',
   },
   permanentDeletion: {
@@ -537,7 +397,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Message to indicate that users are being deleted.',
   },
   usersDeletedNotice: {
-    message: 'Selected users have been deleted',
+    message: 'Selected users deleted',
     context: 'Displayed when users have been successfully deleted.',
   },
   usersRecoveredNotice: {
