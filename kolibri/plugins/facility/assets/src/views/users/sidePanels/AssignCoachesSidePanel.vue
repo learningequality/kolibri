@@ -11,7 +11,7 @@
       @closePanel="closeSidePanel"
     >
       <template #header>
-        <h1 class="side-panel-title">{{ assignUsersHeading$({ num: selectedUsersCount }) }}</h1>
+        <h1 class="side-panel-title">{{ assignUsersHeading$({ num: eligibleUsersCount }) }}</h1>
       </template>
 
       <div class="assign-coaches-content">
@@ -26,6 +26,7 @@
           </div>
 
           <div
+            v-if="ineligibleUsersCount > 0"
             class="info-box"
             :style="{ backgroundColor: $themePalette.grey.v_100 }"
           >
@@ -35,7 +36,7 @@
                 class="info-icon"
               />
               <div class="info-wrapper">
-                <template v-if="ineligibleUsersCount > 0">
+                <template>
                   <span>
                     {{ numUsersNotEligible$({ num: ineligibleUsersCount }) }}
                   </span>
@@ -190,8 +191,6 @@
           .map(({ id, name }) => ({ id, label: name }));
       });
 
-      const selectedUsersCount = computed(() => props.selectedUsers.size);
-
       const hasSelectedClasses = computed(() => selectedClasses.value.length > 0);
 
       const hasUnsavedChanges = computed(() => {
@@ -217,6 +216,7 @@
         return facilityUsers.value.filter(user => user.kind === UserKinds.LEARNER);
       });
       const ineligibleUsersCount = computed(() => ineligibleUsers.value.length);
+      const eligibleUsersCount = computed(() => eligibleUsers.value.length);
 
       // Methods
       async function _handleAssign() {
@@ -292,9 +292,9 @@
         selectedClasses,
         isLoading,
         formattedClasses,
-        selectedUsersCount,
         hasSelectedClasses,
         hasUnsavedChanges,
+        eligibleUsersCount,
         ineligibleUsersCount,
         showErrorWarning,
         defaultErrorMessage$,

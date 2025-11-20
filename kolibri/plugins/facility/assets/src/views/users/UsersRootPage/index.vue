@@ -140,14 +140,14 @@
               <KIconButton
                 ref="trashButton"
                 icon="trash"
-                :ariaLabel="deleteSelectionTooltip"
+                :ariaLabel="deleteSelection$()"
                 :disabled="!canDeleteSelection || !hasSelectedUsers"
                 @click="isMoveToTrashModalOpen = true"
               />
               <KTooltip
                 reference="trashButton"
                 :refs="$refs"
-                :text="deleteSelectionTooltip"
+                :text="deleteSelection$()"
               />
             </template>
             <template #paginationControls>
@@ -249,7 +249,6 @@
         enrollInClass$,
         removeFromClass$,
         deleteSelection$,
-        cannotDeleteSelfTooltip$,
         numFilters$,
         numUsersSelected$,
         clearFiltersLabel$,
@@ -395,7 +394,6 @@
         enrollInClass$,
         removeFromClass$,
         deleteSelection$,
-        cannotDeleteSelfTooltip$,
         numFilters$,
         numUsersSelected$,
         clearFiltersLabel$,
@@ -469,12 +467,6 @@
           return !this.hasSelectedSuperusers;
         }
         return false;
-      },
-      deleteSelectionTooltip() {
-        if (this.listContainsLoggedInUser) {
-          return this.cannotDeleteSelfTooltip$();
-        }
-        return this.deleteSelection$();
       },
     },
     methods: {

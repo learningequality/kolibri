@@ -168,7 +168,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   },
   numUsersNotEligible: {
     message:
-      "{num, number} {num, plural, one {learner} other {learners}} can't be assigned as coaches. They won't be added.",
+      "{num, number} {num, plural, one {learner} other {learners}} can't be assigned as coaches.",
     context:
       'A notice indicating the number of learners that are selected which cannot be assigned as coaches and will be skipped',
   },
@@ -229,6 +229,10 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
   assignToAllClasses: {
     message: 'Assign to all classes',
     context: 'Label for checkbox that allows user to assign selected users to all classes',
+  },
+  enrollToAllClasses: {
+    message: 'Enroll to all classes',
+    context: 'Label for checkbox that allows user to enroll selected users in all classes',
   },
 
   // Move to trash
@@ -349,7 +353,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Label for button that opens the user creation modal',
   },
   assignUsersHeading: {
-    message: 'Assign {num, number} {num, plural, one {user} other {users}}',
+    message: 'Assign {num, number} {num, plural, one {coach} other {coaches}}',
     context: 'Side panel H1 heading showing the number of selected users to assign as coaches',
   },
   // Trash page
@@ -383,7 +387,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
       'Label for the column of the users table indicating when a user will be deleted permanently.',
   },
   deleteSelectionLabel: {
-    message: 'Delete selection?',
+    message: 'Delete selected?',
     context: 'Label for the confirmation dialog when permanently deleting multiple users.',
   },
   deleteSelectionDescription: {

@@ -74,7 +74,7 @@
       const usersRemoved = ref(null);
 
       const {
-        trashUndoneNotice$,
+        actionSuccessful$,
         movingToTrash$,
         moveToTrashAction$,
         moveToTrashLabel$,
@@ -132,7 +132,7 @@
         await DeletedFacilityUserResource.restoreCollection({
           by_ids: usersRemoved.value.join(','),
         });
-        createSnackbar(trashUndoneNotice$());
+        createSnackbar(actionSuccessful$());
         props.onChange();
       };
 
@@ -140,7 +140,7 @@
         action: _moveToTrash,
         actionNotice$: usersTrashedNotice$,
         undoAction: undoMoveToTrash,
-        undoActionNotice$: trashUndoneNotice$,
+        undoActionNotice$: actionSuccessful$,
         onBlur: props.onBlur,
       });
 

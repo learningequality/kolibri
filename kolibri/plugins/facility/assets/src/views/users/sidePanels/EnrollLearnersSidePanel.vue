@@ -112,10 +112,11 @@
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
+  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import groupBy from 'lodash/groupBy';
+  import { _userState } from '../../../modules/mappers';
   import SelectableList from '../../common/SelectableList.vue';
   import useActionWithUndo from '../../../composables/useActionWithUndo';
-  import useUserManagement from '../../../composables/useUserManagement';
   import { PageNames } from '../../../constants.js';
   import { getRootRouteName, overrideRoute } from '../../../utils';
   import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
@@ -141,6 +142,7 @@
 
       const loading = ref(false);
       const showErrorWarning = ref(false);
+      const facilityUsers = ref([]);
       const selectedOptions = ref([]);
       const classLearners = ref([]);
       const classMembershipsByUser = ref({});
@@ -151,9 +153,9 @@
         discardWarning$,
         discardChanges$,
         searchForAClass$,
+        actionSuccessful$,
         keepEditingAction$,
         selectClassesLabel$,
-        actionSuccesful$,
         enrollInAllClasses$,
         usersEnrolledNotice$,
         defaultErrorMessage$,
@@ -164,7 +166,21 @@
 
       const { classesLabel$ } = coreStrings;
 
-      const { facilityUsers } = useUserManagement();
+      const loadUsers = async () => {
+        if (!props.selectedUsers || props.selectedUsers.size === 0) {
+          facilityUsers.value = [];
+          return;
+        }
+        loading.value = true;
+        const users = await FacilityUserResource.fetchCollection({
+          getParams: {
+            by_ids: Array.from(props.selectedUsers).join(','),
+          },
+        });
+        facilityUsers.value = users.map(_userState);
+        loading.value = false;
+      };
+      loadUsers();
 
       // Computed properties
       const classList = computed(() =>
@@ -251,7 +267,7 @@
         action: _enrollLearners,
         actionNotice$: usersEnrolledNotice$,
         undoAction: handleUndoEnrollments,
-        undoActionNotice$: actionSuccesful$,
+        undoActionNotice$: actionSuccessful$,
         onBlur: props.onBlur,
       });
 
