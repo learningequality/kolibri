@@ -22,7 +22,6 @@ from kolibri.utils.file_transfer import retry_import
 from kolibri.utils.file_transfer import RETRY_STATUS_CODE
 from kolibri.utils.file_transfer import SSLERROR
 from kolibri.utils.file_transfer import TransferFailed
-from kolibri.utils.filesystem import mkdirp
 
 
 class BaseTestTransfer(unittest.TestCase):
@@ -38,7 +37,7 @@ class BaseTestTransfer(unittest.TestCase):
             math.ceil(float(self.file_size) / float(ChunkedFile.chunk_size))
         )
 
-        mkdirp(self.dest + ".chunks", exist_ok=True)
+        os.makedirs(self.dest + ".chunks", exist_ok=True)
 
         hash = hashlib.md5()
 
