@@ -26,6 +26,7 @@
             <span>{{ defaultErrorMessage$() }}</span>
           </div>
           <div
+            v-if="numCoachesSelected > 0"
             class="info-box"
             :style="{ backgroundColor: $themePalette.grey.v_100 }"
           >
@@ -34,19 +35,9 @@
                 icon="infoOutline"
                 class="info-icon"
               />
-              <template v-if="usersNotEnrolled > 0">
-                <div class="info-wrapper">
-                  <span>
-                    {{ numUsersNotEnrolled$({ num: usersNotEnrolled }) }}
-                  </span>
-                  <span>{{ usersInClassNotAffected$() }}</span>
-                </div>
-              </template>
-              <template v-else>
-                <div class="info-wrapper">
-                  <span>{{ usersInClassNotAffected$() }}</span>
-                </div>
-              </template>
+              <div class="info-wrapper">
+                <span>{{ coachesToEnroll$({ num: numCoachesSelected }) }}</span>
+              </div>
             </div>
           </div>
           <h2
@@ -115,12 +106,15 @@
 
   import { useRoute } from 'vue-router/composables';
   import { getCurrentInstance, ref, computed } from 'vue';
+  import { UserKinds } from 'kolibri/constants';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
+  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import groupBy from 'lodash/groupBy';
+  import { _userState } from '../../../modules/mappers';
   import SelectableList from '../../common/SelectableList.vue';
   import useActionWithUndo from '../../../composables/useActionWithUndo';
   import { PageNames } from '../../../constants.js';
@@ -148,6 +142,7 @@
 
       const loading = ref(false);
       const showErrorWarning = ref(false);
+      const facilityUsers = ref([]);
       const selectedOptions = ref([]);
       const classLearners = ref([]);
       const classMembershipsByUser = ref({});
@@ -158,19 +153,34 @@
         discardWarning$,
         discardChanges$,
         searchForAClass$,
+        actionSuccessful$,
         keepEditingAction$,
         selectClassesLabel$,
-        enrollUndoneNotice$,
         enrollInAllClasses$,
         usersEnrolledNotice$,
         defaultErrorMessage$,
-        numUsersNotEnrolled$,
         enrollUsersInClasses$,
-        usersInClassNotAffected$,
         noClassesInFacilityNotice$,
+        coachesToEnroll$,
       } = bulkUserManagementStrings;
 
       const { classesLabel$ } = coreStrings;
+
+      const loadUsers = async () => {
+        if (!props.selectedUsers || props.selectedUsers.size === 0) {
+          facilityUsers.value = [];
+          return;
+        }
+        loading.value = true;
+        const users = await FacilityUserResource.fetchCollection({
+          getParams: {
+            by_ids: Array.from(props.selectedUsers).join(','),
+          },
+        });
+        facilityUsers.value = users.map(_userState);
+        loading.value = false;
+      };
+      loadUsers();
 
       // Computed properties
       const classList = computed(() =>
@@ -182,9 +192,20 @@
           .sort((a, b) => a.label.localeCompare(b.label)),
       );
 
-      const usersNotEnrolled = computed(() => {
-        const enrolledUsers = new Set(classLearners.value);
-        return [...props.selectedUsers].filter(userId => !enrolledUsers.has(userId)).length;
+      const numCoachesSelected = computed(() => {
+        if (!facilityUsers.value?.length) {
+          return 0;
+        }
+        return [...props.selectedUsers].filter(userId => {
+          const user = facilityUsers.value.find(u => u.id === userId);
+          if (!user) return false;
+          return (
+            user.kind.includes(UserKinds.COACH) ||
+            user.kind === UserKinds.ADMIN ||
+            user.kind === UserKinds.SUPERUSER ||
+            user.is_superuser
+          );
+        }).length;
       });
 
       const hasUnsavedChanges = computed(() => {
@@ -246,7 +267,7 @@
         action: _enrollLearners,
         actionNotice$: usersEnrolledNotice$,
         undoAction: handleUndoEnrollments,
-        undoActionNotice$: enrollUndoneNotice$,
+        undoActionNotice$: actionSuccessful$,
         onBlur: props.onBlur,
       });
 
@@ -269,7 +290,7 @@
         loading,
         classList,
         selectedOptions,
-        usersNotEnrolled,
+        numCoachesSelected,
         showErrorWarning,
         hasUnsavedChanges,
 
@@ -284,10 +305,9 @@
         selectClassesLabel$,
         enrollInAllClasses$,
         defaultErrorMessage$,
-        numUsersNotEnrolled$,
         enrollUsersInClasses$,
-        usersInClassNotAffected$,
         noClassesInFacilityNotice$,
+        coachesToEnroll$,
 
         // methods
         enrollLearners,

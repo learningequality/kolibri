@@ -55,7 +55,9 @@
             <template #filterLink>
               <KRouterLink
                 appearance="basic-link"
-                :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
+                :text="
+                  numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : coreString('filter')
+                "
                 class="filter-button"
                 :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL__NEW_USERS })"
               />
@@ -97,14 +99,14 @@
               <KIconButton
                 ref="enrollButton"
                 icon="add"
-                :ariaLabel="enrollToClass$()"
+                :ariaLabel="enrollInClass$()"
                 :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
                 @click="navigateToSidePanel(PageNames.ENROLL_LEARNERS_SIDE_PANEL__NEW_USERS)"
               />
               <KTooltip
                 reference="enrollButton"
                 :refs="$refs"
-                :text="enrollToClass$()"
+                :text="enrollInClass$()"
               />
               <KIconButton
                 ref="removeButton"
@@ -174,7 +176,7 @@
           <KRouterLink
             primary
             appearance="raised-button"
-            :text="addNewUserLabel$()"
+            :text="createNewUserLabel$()"
             :to="$store.getters.facilityPageLinks.UserCreatePage"
           />
         </div>
@@ -302,14 +304,13 @@
         newUsers$,
         backToUsers$,
         assignCoach$,
-        enrollToClass$,
+        enrollInClass$,
         removeFromClass$,
         deleteSelection$,
         noNewUsersLabel$,
-        addNewUserLabel$,
+        createNewUserLabel$,
         noNewUsersDescription$,
         numFilters$,
-        filterLabel$,
         numUsersSelected$,
         clearFiltersLabel$,
       } = bulkUserManagementStrings;
@@ -397,14 +398,13 @@
         newUsers$,
         backToUsers$,
         assignCoach$,
-        enrollToClass$,
+        enrollInClass$,
         removeFromClass$,
         deleteSelection$,
         noNewUsersLabel$,
-        addNewUserLabel$,
+        createNewUserLabel$,
         noNewUsersDescription$,
         numFilters$,
-        filterLabel$,
         numUsersSelected$,
         clearFiltersLabel$,
 

@@ -11,7 +11,7 @@
       @closePanel="closeSidePanel"
     >
       <template #header>
-        <h1 class="side-panel-title">{{ assignUsersHeading$({ num: selectedUsersCount }) }}</h1>
+        <h1 class="side-panel-title">{{ assignUsersHeading$({ num: eligibleUsersCount }) }}</h1>
       </template>
 
       <div class="assign-coaches-content">
@@ -26,6 +26,7 @@
           </div>
 
           <div
+            v-if="ineligibleUsersCount > 0"
             class="info-box"
             :style="{ backgroundColor: $themePalette.grey.v_100 }"
           >
@@ -35,13 +36,11 @@
                 class="info-icon"
               />
               <div class="info-wrapper">
-                <template v-if="ineligibleUsersCount > 0">
+                <template>
                   <span>
                     {{ numUsersNotEligible$({ num: ineligibleUsersCount }) }}
                   </span>
-                  <span>{{ usersInClassNotAffected$() }}</span>
                 </template>
-                <span v-else>{{ usersInClassNotAffected$() }}</span>
               </div>
             </div>
           </div>
@@ -154,8 +153,7 @@
 
       const {
         coachesAssignedNotice$,
-        assignCoachUndoneNotice$,
-        usersInClassNotAffected$,
+        actionSuccessful$,
         assignAction$,
         searchForAClass$,
         defaultErrorMessage$,
@@ -193,8 +191,6 @@
           .map(({ id, name }) => ({ id, label: name }));
       });
 
-      const selectedUsersCount = computed(() => props.selectedUsers.size);
-
       const hasSelectedClasses = computed(() => selectedClasses.value.length > 0);
 
       const hasUnsavedChanges = computed(() => {
@@ -220,6 +216,7 @@
         return facilityUsers.value.filter(user => user.kind === UserKinds.LEARNER);
       });
       const ineligibleUsersCount = computed(() => ineligibleUsers.value.length);
+      const eligibleUsersCount = computed(() => eligibleUsers.value.length);
 
       // Methods
       async function _handleAssign() {
@@ -282,7 +279,7 @@
         action: _handleAssign,
         actionNotice$: coachesAssignedNotice$,
         undoAction: handleUndoAssignments,
-        undoActionNotice$: assignCoachUndoneNotice$,
+        undoActionNotice$: actionSuccessful$,
         onBlur: props.onBlur,
       });
 
@@ -295,13 +292,12 @@
         selectedClasses,
         isLoading,
         formattedClasses,
-        selectedUsersCount,
         hasSelectedClasses,
         hasUnsavedChanges,
+        eligibleUsersCount,
         ineligibleUsersCount,
         showErrorWarning,
         defaultErrorMessage$,
-        usersInClassNotAffected$,
         assignAction$,
         searchForAClass$,
         selectClassesLabel$,
