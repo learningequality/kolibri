@@ -31,7 +31,7 @@ module.exports = {
     filename: 'h5p-[contenthash].js',
     path: path.resolve(__dirname, '../../kolibri/core/content/static/h5p'),
   },
-  mode: 'none',
+  mode: 'production',
   module: {
     rules: [
       {
@@ -69,6 +69,8 @@ module.exports = {
     ],
   },
   optimization: {
+    moduleIds: 'deterministic',
+    chunkIds: 'deterministic',
     minimizer: [
       new TerserPlugin({
         parallel: true,
@@ -90,7 +92,7 @@ module.exports = {
   plugins: [
     new Plugin(),
     new HtmlWebpackPlugin({
-      filename: 'h5p-[fullhash].html',
+      filename: 'h5p-[contenthash].html',
       template: 'src/h5p.html',
       minify: {
         collapseWhitespace: true,
