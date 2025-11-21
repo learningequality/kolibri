@@ -23,6 +23,7 @@ from kolibri.utils.file_transfer import RETRY_STATUS_CODE
 from kolibri.utils.file_transfer import SSLERROR
 from kolibri.utils.file_transfer import TransferFailed
 
+
 class BaseTestTransfer(unittest.TestCase):
     def set_test_data(self, partial=False, incomplete=False, finished=False):
         self.dest = self.destdir + "/test_file_{}".format(self.num_files)

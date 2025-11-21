@@ -20,7 +20,6 @@ from requests.exceptions import HTTPError
 from requests.exceptions import Timeout
 
 
-
 try:
     # Pre-empt the PanicException that importing cryptography can cause
     # when we are using a non-compatible version of cffi on Python 3.13
