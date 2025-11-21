@@ -19,7 +19,6 @@ from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from requests.exceptions import Timeout
 
-from kolibri.utils.filesystem import mkdirp
 
 
 try:
@@ -246,7 +245,7 @@ class ChunkedFile(TransferFileBase):
         return Cache(self.cache_dir)
 
     def _initialize(self):
-        mkdirp(self.chunk_dir, exist_ok=True)
+        os.makedirs(self.chunk_dir, exist_ok=True)
         self.cache_dir = os.path.join(self.chunk_dir, ".cache")
         self.position = 0
 
@@ -549,7 +548,7 @@ class TransferFile(TransferFileBase):
 
     def ensure_writable(self):
         # ensure the directories in the destination path exist
-        mkdirp(os.path.dirname(self.filepath), exist_ok=True)
+        os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
 
     def write(self, data):
         """Write data to the transfer file."""
@@ -690,7 +689,7 @@ class Transfer(ABC):
             )
 
         # ensure the directories in the destination path exist
-        mkdirp(os.path.dirname(self.dest), exist_ok=True)
+        os.makedirs(os.path.dirname(self.dest), exist_ok=True)
 
     @abstractmethod
     def start(self):
