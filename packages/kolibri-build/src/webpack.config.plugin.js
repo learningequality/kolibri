@@ -19,6 +19,7 @@ const WebpackRTLPlugin = require('./webpackRtlPlugin');
 const { kolibriName } = require('./kolibriName');
 const WebpackMessages = require('./webpackMessages');
 const MessageRegistrationPlugin = require('./webpackMessageRegistrationPlugin');
+const { createCssInsert } = require('./createCssInsert');
 
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle
@@ -136,9 +137,11 @@ module.exports = (
       new MiniCssExtractPlugin({
         filename: '[name]' + data.version + '.css',
         chunkFilename: '[name]' + data.version + '[id].css',
+        insert: createCssInsert(data.name),
       }),
       new WebpackRTLPlugin({
         minify: false,
+        isCoreBundle,
       }),
       // BundleTracker creates stats about our built files which we can then pass to Django to
       // allow our template tags to load the correct frontend files.
