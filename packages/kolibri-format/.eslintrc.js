@@ -252,6 +252,7 @@ module.exports = {
     'kolibri/vue-watch-no-string': ERROR,
     'kolibri/vue-no-unused-translations': ERROR,
     'kolibri/vue-no-undefined-string-uses': ERROR,
+    'kolibri/no-undefined-translator-keys': ERROR,
     'kolibri/vue-string-objects-formatting': ERROR,
     'kolibri/vue-component-block-padding': ERROR,
     'kolibri/vue-component-block-tag-newline': ERROR,
