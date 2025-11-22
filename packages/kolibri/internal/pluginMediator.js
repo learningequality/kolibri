@@ -2,7 +2,8 @@ import Vue from 'vue';
 import logging from 'kolibri-logging';
 import scriptLoader from 'kolibri/utils/scriptLoader';
 import { VIEWER_SUFFIX } from 'kolibri/constants';
-import { languageDirection, languageDirections, currentLanguage } from 'kolibri/utils/i18n';
+import { languageDirections, currentLanguage } from 'kolibri/utils/i18n';
+import { rtlManager } from 'kolibri/rtlcss';
 import ContentViewerLoading from '../components/internal/ContentViewer/ContentViewerLoading';
 import ContentViewerError from '../components/internal/ContentViewer/ContentViewerError';
 
@@ -383,42 +384,21 @@ export default function pluginMediatorFactory(facade) {
         } else {
           // We have a content viewer for this, but it has not been loaded, so load it, and then
           // resolve the promise when it has been loaded.
-          const urls = this._contentViewerUrls[kolibriModuleName].filter(
-            url =>
-              // By default we load CSS for the particular direction that the user interface
-              // is set to so we filter CSS files that do not match the current language direction.
-              // LTR CSS files are just end with .css, whereas RTL files end with .rtl.css
-              (languageDirection === languageDirections.RTL &&
-                url.includes(languageDirections.RTL)) ||
-              (languageDirection === languageDirections.LTR &&
-                !url.includes(languageDirections.RTL)) ||
-              !url.endsWith('css'),
-          );
-          Promise.all(urls.map(scriptLoader))
-            // Load all the urls that we just filtered (all the javascript
-            // and css files that we think we want by default).
-            .then(scriptsArray => {
-              // If we want to dynamically switch css, e.g. we loaded RTL css and later decide we
-              // need LTR, we need to keep track of the script/link tags that we instantiated when
-              // we loaded the css so that we can remove them from the DOM, and prevent a styling
-              // collision from the two conflicting style sheets
-              const storeTags = module => {
-                // Function to keep track of the <link>/<script> tags for each URL.
-                module.urlTags = {};
-                urls.forEach((url, index) => {
-                  // Key by URL and then track the DOM node returned from the scriptLoader
-                  module.urlTags[url] = scriptsArray[index];
-                });
-              };
-              // Either store them immediately on the module, if it is loaded
+          const allUrls = this._contentViewerUrls[kolibriModuleName];
+          const cssUrls = allUrls.filter(url => url.endsWith('css'));
+          const jsUrls = allUrls.filter(url => !url.endsWith('css'));
+          // Register CSS URLs with rtlManager so it can create tagged link elements
+          // and switch direction later via the same loadDirectionalCSS code path.
+          rtlManager.registerBundleCSS(kolibriModuleName, cssUrls);
+          rtlManager.loadRegisteredBundleCSS(kolibriModuleName);
+          Promise.all(jsUrls.map(scriptLoader))
+            .then(() => {
               if (this._kolibriModuleRegistry[kolibriModuleName]) {
-                storeTags(this._kolibriModuleRegistry[kolibriModuleName]);
                 resolveComponent(this._kolibriModuleRegistry[kolibriModuleName]);
               } else {
-                // Or wait until the module has been registered
+                // Wait until the module has been registered
                 this.on('kolibri_register', moduleName => {
                   if (moduleName === kolibriModuleName) {
-                    storeTags(this._kolibriModuleRegistry[kolibriModuleName]);
                     resolveComponent(this._kolibriModuleRegistry[kolibriModuleName]);
                   }
                 });
@@ -439,46 +419,17 @@ export default function pluginMediatorFactory(facade) {
      * @return {Promise} Promise that resolves when new CSS has loaded
      */
     loadDirectionalCSS(contentViewerModule, direction) {
-      return new Promise((resolve, reject) => {
-        if (!contentViewerModule.urlTags) {
-          reject(`${contentViewerModule.name} has not already loaded - improper method call`);
-        }
-        const urls = this._contentViewerUrls[contentViewerModule.name];
-        // Find the URL for the specified direction
-        // Note that this will only work if we have one CSS file per module - which is
-        // currently the case
-        const cssUrl = urls.find(
-          url =>
-            (direction === languageDirections.RTL && url.includes(languageDirections.RTL)) ||
-            (direction === languageDirections.LTR &&
-              !url.includes(languageDirections.RTL) &&
-              url.endsWith('css')),
-        );
-        // Find the URL for the direction not specified
-        const otherCssUrl = urls.find(
-          url =>
-            (direction !== languageDirections.RTL && url.includes(languageDirections.RTL)) ||
-            (direction !== languageDirections.LTR &&
-              !url.includes(languageDirections.RTL) &&
-              url.endsWith('css')),
-        );
-        if (!cssUrl || contentViewerModule.urlTags[cssUrl]) {
-          // There is no css file to try to load or
-          // this css file is already loaded and in the DOM, nothing to do.
-          resolve();
-        } else {
-          // First unload the other direction CSS from the DOM
-          if (contentViewerModule.urlTags[otherCssUrl]) {
-            contentViewerModule.urlTags[otherCssUrl].remove();
-            delete contentViewerModule.urlTags[otherCssUrl];
-          }
-          // Now load the new CSS and keep track of it for future unloading.
-          scriptLoader(cssUrl).then(tag => {
-            contentViewerModule.urlTags[cssUrl] = tag;
-            resolve();
-          });
-        }
-      });
+      // Use the RTL manager to dynamically switch CSS direction for webpack bundles.
+      // The RTL manager handles all CSS files for the bundle, not just a single file.
+      const bundleName = contentViewerModule.name;
+
+      if (direction === languageDirections.RTL) {
+        return rtlManager.enableRTL(bundleName);
+      } else if (direction === languageDirections.LTR) {
+        return rtlManager.disableRTL(bundleName);
+      } else {
+        return Promise.reject(`Invalid direction: ${direction}`);
+      }
     },
   };
   publicMethods.forEach(method => {
