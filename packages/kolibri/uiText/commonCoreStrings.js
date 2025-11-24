@@ -1632,7 +1632,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Label for the deselected state of a checkbox. Not visible in the UI.',
   },
   allNOptionsSelectedLabel: {
-    message: 'All {count, number} {count, plural, one {option} other {options}} selected',
+    message: 'All options selected',
     context: 'Label for the selected state of a checkbox. Not visible in the UI.',
   },
   noOptionsSelectedLabel: {
