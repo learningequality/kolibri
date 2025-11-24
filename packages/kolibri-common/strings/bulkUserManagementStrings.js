@@ -307,7 +307,7 @@ export const bulkUserManagementStrings = createTranslator('BulkUserManagementStr
     context: 'Default error message for API errors.',
   },
   birthYearRangeError: {
-    message: 'The start year cannot be greater than the end year.',
+    message: 'The start year must not be later than the end year.',
     context:
       'Error message shown when the start year is greater than the end year in the birth year range filter.',
   },
