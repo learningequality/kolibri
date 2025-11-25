@@ -45,3 +45,40 @@ jobs:
     uses: ./.github/workflows/build_windows.yml
     with:
       whl-url: ${{ needs.latest_kolibri_release.outputs.whl-url }}
+
+  # Smoke test Windows installer
+  smoke_test_windows:
+    name: Smoke Test Windows
+    needs: build_exe
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Windows installer
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build_exe.outputs.exe-file-name }}
+          path: ./artifacts
+
+      - name: Run smoke test
+        shell: bash
+        run: |
+          ./scripts/smoke_test_windows.sh "./artifacts/${{ needs.build_exe.outputs.exe-file-name }}"
+
+  # Smoke test macOS DMG
+  smoke_test_macos:
+    name: Smoke Test macOS
+    needs: build_dmg
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download macOS DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build_dmg.outputs.dmg-file-name }}
+          path: ./artifacts
+
+      - name: Run smoke test
+        run: |
+          ./scripts/smoke_test_macos.sh "./artifacts/${{ needs.build_dmg.outputs.dmg-file-name }}"
