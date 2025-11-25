@@ -1,8 +1,9 @@
 import * as Sentry from '@sentry/vue';
 import kolibri from 'kolibri';
 import plugin_data from 'kolibri-plugin-data';
-import Vue from 'vue';
+import Vue, { watch } from 'vue';
 import store from 'kolibri/store';
+import useUser from 'kolibri/composables/useUser';
 import { currentLanguage } from 'kolibri/utils/i18n';
 
 if (plugin_data.sentryDSN) {
@@ -38,16 +39,26 @@ if (plugin_data.sentryDSN) {
       }
     },
   );
-  store.watch(
-    state => state.session,
-    session => {
-      Sentry.setUser({
-        id: session.user_id,
-        full_name: session.full_name,
-        username: session.username,
-        facility_id: session.facility_id,
-        type: JSON.stringify(session.kind),
-      });
+
+  // Use the useUser composable to track user changes
+  const user = useUser();
+
+  // Watch for changes to the current user and update Sentry scope
+  watch(
+    () => user.currentUserId.value,
+    () => {
+      if (user.isUserLoggedIn.value) {
+        Sentry.setUser({
+          id: user.currentUserId.value,
+          full_name: user.full_name.value,
+          username: user.username.value,
+          facility_id: user.userFacilityId.value,
+          type: JSON.stringify(user.kind.value),
+        });
+      } else {
+        Sentry.setUser(null);
+      }
     },
+    { immediate: true },
   );
 }
