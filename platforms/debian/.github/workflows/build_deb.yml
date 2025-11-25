@@ -37,9 +37,9 @@ jobs:
       run: |
         echo "Must specify exactly one reference for the tar file to build the APK with."
         exit 1
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       if: ${{ !inputs.ref }}
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       if: ${{ inputs.ref }}
       with:
         repository: learningequality/kolibri-installer-debian
