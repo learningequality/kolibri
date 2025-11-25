@@ -25,7 +25,7 @@
     "csv-writer": "^1.3.0",
     "del": "^6.1.1",
     "enhanced-resolve": "^5.18.3",
-    "ini": "^5.0.0",
+    "ini": "^6.0.0",
     "kolibri-build": "^1.0.0",
     "kolibri-format": "^1.0.0",
     "kolibri-glob": "^1.0.0",
