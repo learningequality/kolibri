@@ -35,7 +35,7 @@
   "DownloadRequests.downloadStartedLabel": "ਡਾਊਨਲੋਡ ਕਰਨ ਦੀ ਬੇਨਤੀ ਕੀਤੀ",
   "DownloadRequests.goToDownloadsPage": "ਡਾਊਨਲੋਡ 'ਤੇ ਜਾਓ",
   "DownloadRequests.resourceRemoved": "ਮੇਰੀ ਲਾਇਬ੍ਰੇਰੀ ਤੋਂ ਸਰੋਤ ਹਟਾਇਆ ਗਿਆ",
-  "PaginatedListContainerWithBackend.nextResults": "ਅਗਲੇ ਨਤੀਜੇ",
-  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredItems, number }",
-  "PaginatedListContainerWithBackend.previousResults": "ਪਿਛਲੇ ਨਤੀਜੇ"
+  "PaginationActions.nextResults": "ਅਗਲੇ ਨਤੀਜੇ",
+  "PaginationActions.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } of { numFilteredItems, number }",
+  "PaginationActions.previousResults": "ਪਿਛਲੇ ਨਤੀਜੇ"
 }

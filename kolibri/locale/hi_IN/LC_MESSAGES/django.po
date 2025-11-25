@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-07 13:38-0400\n"
-"PO-Revision-Date: 2025-04-14 15:12\n"
+"POT-Creation-Date: 2025-11-21 11:18-0800\n"
+"PO-Revision-Date: 2025-11-24 13:58\n"
 "Last-Translator: \n"
 "Language-Team: Hindi\n"
 "Language: hi_IN\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: hi\n"
-"X-Crowdin-File: /release-v0.18.x/django.po\n"
+"X-Crowdin-File: /release/django.po\n"
 "X-Crowdin-File-ID: 4879\n"
 
 #: core/auth/constants/commands_errors.py:13
@@ -30,6 +30,26 @@ msgstr "कोई तयशुदा सुविधा मौजूद नह�
 #: core/auth/management/commands/bulkimportusers.py:100
 msgid "Error trying to write csv file: {}"
 msgstr "csv फाईल लिखने के प्रयास में त्रुटि: {}"
+
+#: core/auth/constants/user_kinds.py:24
+msgid "Admin"
+msgstr "एडमिन"
+
+#: core/auth/constants/user_kinds.py:25
+msgid "Super admin"
+msgstr "सुपर एडमिन"
+
+#: core/auth/constants/user_kinds.py:26
+msgid "Class coach"
+msgstr "कोच की कक्षा"
+
+#: core/auth/constants/user_kinds.py:27
+msgid "Facility coach"
+msgstr "सुविधा का कोच"
+
+#: core/auth/constants/user_kinds.py:28
+msgid "Learner"
+msgstr "शिक्षणार्थी/पाठक"
 
 #: core/auth/management/commands/bulkexportusers.py:45
 #: core/auth/management/commands/bulkexportusers.py:122
@@ -150,13 +170,13 @@ msgid "Database ID is not valid"
 msgstr "डेटाबेस आईडी मान्य नहीं है"
 
 #. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
-#: core/auth/tasks.py:54
+#: core/auth/tasks.py:56
 msgid "Data syncing in progress"
 msgstr "डेटा समन्‍वयित किया जा रहा है"
 
 #. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
 #. to encourage them to stay connected to their network to ensure a successful sync.
-#: core/auth/tasks.py:58
+#: core/auth/tasks.py:60
 msgid "Do not disconnect your device from the network."
 msgstr "अपने डिवाइस को नेटवर्क से डिस्कनेक्ट न करें।"
 
@@ -176,7 +196,7 @@ msgstr "लाइब्रेरी अपडेट हो गई"
 msgid "Library update failed"
 msgstr "लाइब्रेरी अपडेट विफल"
 
-#: core/device/serializers.py:48
+#: core/device/serializers.py:35
 msgid "Language is not supported by Kolibri"
 msgstr "भाषा कोलिब्री द्वारा समर्थित नहीं है"
 
@@ -190,61 +210,62 @@ msgstr "खोजा जा रहा है"
 msgid "Looking for other Kolibri devices"
 msgstr "अन्य Kolibri डिवाइस की खोज की जा रही है"
 
-#: core/logger/csv_export.py:122
+#: core/logger/csv_export.py:131
 msgid "Facility name"
 msgstr "सुविधा नाम"
 
-#: core/logger/csv_export.py:123
+#: core/logger/csv_export.py:132
 msgid "Username"
 msgstr "यूजरनेम"
 
-#: core/logger/csv_export.py:124
+#: core/logger/csv_export.py:135
+msgctxt "CSV column header for the type of user"
+msgid "User type"
+msgstr "उपयोगकर्ता प्रकार"
+
+#: core/logger/csv_export.py:137
 msgid "Channel id"
 msgstr "चैनल आईडी"
 
-#: core/logger/csv_export.py:125
+#: core/logger/csv_export.py:138
 msgid "Channel name"
 msgstr "चैनल का नाम"
 
-#: core/logger/csv_export.py:126
+#: core/logger/csv_export.py:139
 msgid "Content id"
 msgstr "कंटेंट आईडी"
 
-#: core/logger/csv_export.py:127
+#: core/logger/csv_export.py:140
 msgid "Content title"
 msgstr "कॉन्टेंट का शीर्षक"
 
-#: core/logger/csv_export.py:132
+#: core/logger/csv_export.py:145
 msgctxt "CSV column header for the time of the first interaction in the exported logs"
 msgid "Time of first interaction"
 msgstr "पहली बातचीत का समय"
 
-#: core/logger/csv_export.py:139
+#: core/logger/csv_export.py:152
 msgctxt "CSV column header for the time of the last interaction in the exported logs"
 msgid "Time of last interaction"
 msgstr "अंतिम बातचीत का समय"
 
-#: core/logger/csv_export.py:146
+#: core/logger/csv_export.py:159
 msgctxt "CSV column header for the percentage of completion in the exported logs"
 msgid "Time of completion"
 msgstr "पूरा होने का समय"
 
-#: core/logger/csv_export.py:153
+#: core/logger/csv_export.py:166
 msgctxt "CSV column header for the time spent in a resource in the exported logs"
 msgid "Time Spent (sec)"
 msgstr "बिताया गया समय (सेकंड)"
 
-#: core/logger/csv_export.py:156
+#: core/logger/csv_export.py:169
 msgid "Progress (0-1)"
 msgstr "प्रगति (0-1)"
 
-#: core/logger/csv_export.py:157
+#: core/logger/csv_export.py:170
 msgid "Content kind"
 msgstr "कॉन्टेंट का प्रकार"
-
-#: core/logger/csv_export.py:288
-msgid "Folder level {i+1}"
-msgstr "फ़ोल्डर स्तर {i+1}"
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
 #: core/tasks/job.py:86
@@ -312,7 +333,7 @@ msgstr "आप अपने वर्तमान ब्राउज़र क�
 msgid "Kolibri"
 msgstr "Kolibri"
 
-#: core/views.py:196
+#: core/views.py:186
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "कोई उपयुक्त रीडायरेक्ट पृष्ठ नहीं मिले । संभावना है कि कोलिब्री की व्यवस्था ठीक से नहीं की गई है"
 
