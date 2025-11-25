@@ -9,7 +9,7 @@ Feature: Admin creates users
   Scenario: Create a new learner user account
   	When I look at the *New users* page
     Then I see a *New user* button and an *Options* drop-down
-      And I see the *Assign coach*, *Enroll in class*, *Remove from class* and *Remove selected users* icons
+      And I see the *Assign coach*, *Enroll in class*, *Remove from class* and *Delete selected users* icons
       And I see the *Search for a user* field
       And I see a *Filter* link
       And I see the user's table with the *Full name*, *Username*, *Identifier*, *Gender*, *Birth year* and *Created at* columns
@@ -65,7 +65,7 @@ Feature: Admin creates users
     Given I am at the *Create new user* side panel
     	And I have selected *Coach* from the *User type* drop-down #this scenario can be executed for facility coach and admin users too
     	And I have filled in all the required fields
-    When I open the *Assign to class* drop-down
+    When I open the *Assign to a class* drop-down
       And I select a class #or all/multiple classes
       And I click the *Save and close* button
     Then the page reloads

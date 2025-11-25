@@ -21,7 +21,7 @@ Feature: Admin can search for a user or filter the users
   Scenario: Search for a user that doesn't exist
     When I click or tab into the search field
       And I start typing the user's full name or username of a user that doesn't exist
-    Then I see only the following text: *No users exist*
+    Then I see only the following text: *No users match this search*
 
   Scenario: Clear search
     Given that I've entered the user's name or username in the search field
@@ -31,18 +31,18 @@ Feature: Admin can search for a user or filter the users
     Then I see the full (unfiltered) list of users
       And I see the full number of pages
 
-  Scenario: Search for and find a user using the user type dropdown filter
-    When I click to open the *User type* filter
-      And I select a type
-    Then in the list bellow I see only the users with the selected type
-      And I see the number of pages decreased accordingly
-    When I click or tab into the search field to further filter the results
-      And I start writing the user's full name or username
-    Then I see the list of users below is being filtered according to the characters I write
-      And I see the number of pages decreasing accordingly
-    When I write enough characters for all other users to be excluded
-    Then I see just the user I was searching for
-      And I see the number of pages as '1 of 1'
+  Scenario: Search for and find a user using the user filter
+    When I click on the *Filter* link
+    Then I see the *Filter users* side panel
+    	And I see sections for the following filters: User type, Class and Birth year
+    When I select any of the available options
+    	And I click the *Apply filters* button
+    Then I see only users matching the applied filters
+    	And I see an *N filters* link
+    	And I see a *Clear filters* link
+    When I click the *Clear filters* link
+    Then I see the full (unfiltered) list of users
+      And I see the full number of pages
 
   Scenario: Search by navigating pages
     When I click the right arrow (next page) button
