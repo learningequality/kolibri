@@ -233,7 +233,7 @@ i18n-pretranslate:
 i18n-pretranslate-approve-all:
 	yarn exec crowdin pre-translate -- --branch ${CROWDIN_BRANCH} --translate-untranslated-only --method=tm --auto-approve-option=all
 
-i18n-download-translations:
+i18n-download-translations: i18n-extract-frontend
 	yarn exec crowdin download -- --branch ${CROWDIN_BRANCH}
 	python build_tools/i18n/cleanup_unsupported_languages.py
 	yarn exec kolibri-i18n code-gen -- --output-dir ./packages/kolibri/utils/internal
