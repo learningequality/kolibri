@@ -84,7 +84,10 @@ jobs:
       run: |
         sudo installer -pkg ~/python.pkg -target /
         unlink /usr/local/bin/python || true
+        unlink /usr/local/bin/pip || true
+        unlink /usr/local/bin/pip3 || true
         ln -s /usr/local/bin/python3 /usr/local/bin/python
+        ln -s /Library/Frameworks/Python.framework/Versions/3.10/bin/pip3 /usr/local/bin/pip
     - uses: actions/cache@v4
       with:
         path: ~/Library/Caches/pip

@@ -1,12 +1,12 @@
 .PHONY: clean get-whl install-whl clean-whl build-mac-app pyinstaller build-dmg compile-mo needs-version
 
+PYTHON_EXEC := python
+
 ifeq ($(OS),Windows_NT)
     OSNAME := WIN32
-    PYTHON_EXEC := python
 	PYTHON_EXEC_WITH_PATH := PYTHONPATH="./src;./kolibrisrc;%PYTHONPATH%" $(PYTHON_EXEC)
 else
     OSNAME := $(shell uname -s)
-    PYTHON_EXEC := python3
 	PYTHON_EXEC_WITH_PATH := PYTHONPATH="./src:./kolibrisrc:$$PYTHONPATH" $(PYTHON_EXEC)
 endif
 
@@ -31,11 +31,11 @@ clean-whl:
 
 install-whl:
 	rm -rf kolibrisrc
-	pip3 install ${whl} -t kolibrisrc/
+	pip install ${whl} -t kolibrisrc/
 	# Read SQLAlchemy version from the unpacked whl file to avoid hard coding.
 	# Manually install the sqlalchemy version
 	@version=$$(grep -Eo '__version__ = "([0-9]+\.[0-9]+\.[0-9]+)"' kolibrisrc/kolibri/dist/sqlalchemy/__init__.py | grep -Eo "([0-9]+\.[0-9]+\.[0-9]+)"); \
-	pip3 install sqlalchemy==$$version --no-binary :all:
+	pip install sqlalchemy==$$version --no-binary :all:
 	# Delete sqlalchemy from the dist folder
 	rm -rf kolibrisrc/kolibri/dist/sqlalchemy
 	rm -rf kolibrisrc/kolibri/dist/SQLAlchemy*
@@ -68,7 +68,7 @@ get-whl: clean-whl
 	$(MAKE) install-whl whl="$(OUTPUT_PATH)"
 
 dependencies:
-	PYINSTALLER_COMPILE_BOOTLOADER=1 pip3 install -r build_requires.txt --no-binary pyinstaller
+	PYINSTALLER_COMPILE_BOOTLOADER=1 pip install -r build_requires.txt --no-binary pyinstaller
 	$(PYTHON_EXEC) -c "import PyInstaller; import os; os.truncate(os.path.join(PyInstaller.__path__[0], 'hooks', 'rthooks', 'pyi_rth_django.py'), 0)"
 
 build-mac-app:
@@ -81,7 +81,7 @@ pyinstaller: nssm
 endif
 pyinstaller: clean
 	mkdir -p logs
-	pip3 install .
+	pip install .
 	$(PYTHON_EXEC) -OO -m PyInstaller kolibri.spec
 
 build-dmg: needs-version
