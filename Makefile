@@ -247,8 +247,7 @@ i18n-regenerate-fonts:
 	python build_tools/i18n/fonts.py generate-full-fonts
 	python build_tools/i18n/fonts.py generate-subset-fonts
 
-i18n-download: i18n-download-translations i18n-regenerate-fonts i18n-transfer-context
-
+i18n-download: i18n-download-translations i18n-regenerate-fonts
 
 i18n-install-font:
 	python build_tools/i18n/fonts.py add-source-font ${name}
