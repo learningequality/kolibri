@@ -11,7 +11,7 @@ Feature: Admin can view and manage the new users
     	And I select the *View new users* option
     Then I see the *New users* page
       And I see a *New user* button
-      And I see the *Assign coach*, *Enroll in class*, *Remove from class* and *Remove selected users* icons
+      And I see the *Assign coach*, *Enroll in class*, *Remove from class* and *Delete selected* icons
       And I see the *Search for a user* field
       And I see a *Filter* link
       And I see the user's table with the *Full name*, *Username*, *Identifier*, *Gender*, *Birth year* and *Created at* columns

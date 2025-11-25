@@ -391,9 +391,9 @@ Feature: Kolibri critical workflows
   	  And I am at *Facility > Users*
     When I look at the *New users* page
     Then I see a *New user* button and an *Options* drop-down
-      And I see the *Assign coach*, *Enroll in class*, *Remove from class* and *Remove selected users* icons
-      And I see the *Search for a user* field
+    	And I see the *Search for a user* field
       And I see a *Filter* link
+      And I see the disabled *Assign coach*, *Enroll in class*, *Remove from class* and *Delete selected* icons
       And I see the user's table with the *Full name*, *Username*, *Identifier*, *Gender*, *Birth year* and *Created at* columns
     When I click the *New user* button
     Then I see the *Create new user* side panel
@@ -409,6 +409,33 @@ Feature: Kolibri critical workflows
     Then the page reloads
       And I see the *User created* snackbar message
       And I see the new learner user in the *New users* table
+
+  Scenario: Create a new learner user account and enroll the learner in a class
+    Given I am signed in to Kolibri as a super admin
+  	  And I am at *Facility > Users > Create new user* side panel
+    	And I have filled in all the required fields
+    When I open the *Enroll in class* drop-down
+      And I select a class #or multiple classes
+      And I click the *Save and close* button
+    Then the page reloads
+      And I see the *User created* snackbar message
+      And I see the new learner user in the *New users* table
+     When I go to *Facility > Classes*
+     Then I can see that the user is enrolled in the specified class(es)
+
+  Scenario: Create a new coach user account and assign the coach to a class
+    Given I am at *Facility > Users > Create new user* side panel
+    	And I have selected *Coach* from the *User type* drop-down #this scenario can be executed for facility coach and admin users too
+    	And I have filled in all the required fields
+    When I open the *Assign to a class* drop-down
+      And I select a class #or all/multiple classes
+      And I click the *Save and close* button
+    Then the page reloads
+      And I see the *User created* snackbar message
+      And I see the new coach user in the *New users* table
+      And I see the *Coach* label next to the full name of the user
+    When I go to *Facility > Classes*
+     Then I can see that the coach is assigned in the specified class(es)
 
   Scenario: Super admin creates a facility coach user account
   	Given I am signed in to Kolibri as a super admin
@@ -435,7 +462,28 @@ Feature: Kolibri critical workflows
       And I see the new facility admin user in the *New users* table
       And I see the *Admin* label next to the full name of the user
 
-  Scenario: Super admin creates a class
+  Scenario: Search for and find a user using the search field
+    When I click or tab into the search field
+      And I start typing the user's full name or username
+    Then I see that the list of users below is being filtered corresponding to the typed characters
+      And I see the number of pages decreasing accordingly
+    When I've typed enough characters for all the other users to be excluded
+    Then I see only the user matching the typed full name or username
+
+  Scenario: Filter users
+    When I click on the *Filter* link
+    Then I see the *Filter users* side panel
+    	And I see sections for the following filters: User type, Class and Birth year
+    When I select any of the available options
+    	And I click the *Apply filters* button
+    Then I see only users matching the applied filters
+    	And I see an *N filters* link
+    	And I see a *Clear filters* link
+    When I click the *Clear filters* link
+    Then I see the full (unfiltered) list of users
+      And I see the full number of pages
+
+  Scenario: Super admin creates a new class
   	Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Classes*
     When I click the *New class* button
@@ -446,12 +494,31 @@ Feature: Kolibri critical workflows
       And I see the the snackbar confirmation that the class has been created
       And I see that the new class is added to the *Classes* table
 
+  Scenario: Copy a class with learners and coaches
+    Given I am signed in to Kolibri as a super admin
+  	  And I am at *Facility > Classes*
+  	  And there is at least one already created class with enrolled learners and assigned coaches
+    When I click on the *⋮* button for a class
+    	And I click the *Copy class* option
+    Then I see the *Copy class* modal
+    	And I see a *Class name* field
+    	And I see a *Copy of <class name>* text in the field
+    	And I see a selected *Copy all learners (N)* checkbox
+    	And I see an unselected *Copy all coaches (N)* checkbox
+    When I enter a new class name in the *Class name* field
+    	And I select both checkboxes
+      And I click the *Make a copy* button
+    Then the modal closes
+      And I see a *Class copied successfully* snackbar message
+      And I see the copied class in the *Classes* table
+      And I see the correct number of coped coaches and learners
+
   Scenario: Super admin enrolls learners to a class
       Given I am signed in to Kolibri as a super admin
   	  	And I am at *Facility > Classes*
   	  	And there are created classes
       When I click on a class
-      Then I see the class page
+      Then I see the class details page
       When I click the *Enroll learners* button
       Then I see the *Enroll learners into '<class>'* page
         And I see the list of all learners not enrolled in the class
@@ -463,35 +530,35 @@ Feature: Kolibri critical workflows
       Then I see the class page again
         And I see the selected learner user accounts listed in the *Learners* table
 
-  Scenario: Super admin deactivates several users
+  Scenario: Super admin deletes several users
     Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Users*
     When I select several users from the table
-    And I click the *Remove selected users* icon
-    Then I see the *Remove N users* modal
-    When I click the *Yes, remove* button
+    And I click the *Delete selected* icon
+    Then I see the *Delete N users* modal
+    When I click the *Delete* button
     Then the modal closes
       And I see the *Facility > Users* page again
-      And I see the *Selected users have been removed UNDO* snackbar message
-    When I search for the deactivated users in the search field
-    Then I see the *No users exist* text
-    When I attempt to sign in to Kolibri as a removed user
+      And I see the *Users deleted UNDO* snackbar message
+    When I search for the deleted users in the search field
+    Then I see the *No users match this search* text
+    When I attempt to sign in to Kolibri as a deleted user
     Then I can see that this is not possible
 
-  Scenario: Recover a removed user who was assigned to or enrolled in a class
+  Scenario: Recover a deleted user who was assigned to or enrolled in a class
     Given I am signed in to Kolibri as a super admin
-  	  And I am at *Facility > Users > Removed users*
-    When I look at the *Removed users* page
-    Then I see a *Removed users* label and the text *Records will show the days remaining before permanent deletion.*
-    	And I see the *Recover* and *Delete permanently* icons
-      And I see the *Search for a user* field and a *Filter* link
+  	  And I am at *Facility > Users > Deleted users*
+    When I look at the *Deleted users* page
+    Then I see a *Deleted users* label
+    	And I see the *Search for a user* field and a *Filter* link
+    	And I see the disabled *Recover* and *Delete permanently* icons
       And I see the removed users table with the *Full name*, *Username*, *Identifier*, *Gender*, *Birth year* and *Permanent deletion* columns
     When I select a user
     Then I see that both the *Recover* and *Delete permanently* icons become enabled
-    	And I see *1 user selected* text and a *Clear* link
+    	And I see *1 user selected* text and a *Clear selection* link
     When I click the *Recover* icon
     Then I see a *1 user recovered* snackbar message
-    	And the user is no longer listed in the *Removed users* table
+    	And the user is no longer listed in the *Deleted users* table
     When I go back to the *Facility > Users* page
     Then I can see that the recovered user is listed in the *Users* table
     When I go to *Facility > Classes*
