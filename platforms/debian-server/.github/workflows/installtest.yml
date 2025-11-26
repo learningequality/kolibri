@@ -33,7 +33,7 @@ jobs:
           TARGET_IMAGE=${{ matrix.target-image }}
         context: ./
         file: ./test/Dockerfile
-        platforms: linux/amd64,linux/arm64v8
+        platforms: linux/amd64,linux/arm64
         push: false
         target: test
         provenance: false
