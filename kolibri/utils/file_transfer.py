@@ -98,18 +98,6 @@ def retry_import(e):
     return False
 
 
-def replace(file_path, new_file_path):
-    """
-    Do a replace type operation.
-    This is not the same as an atomic replacement, as it could result
-    in the target file being removed before the rename happens.
-    This can be removed once Python 2.7 support is dropped
-    """
-    if os.path.exists(new_file_path):
-        os.remove(new_file_path)
-    os.rename(file_path, new_file_path)
-
-
 class ChunkedFileDoesNotExist(Exception):
     pass
 
@@ -442,7 +430,7 @@ class ChunkedFile(TransferFileBase):
                 chunk_file = self._get_chunk_file_name(chunk_index)
                 with open(chunk_file, "rb") as input_file:
                     shutil.copyfileobj(input_file, output_file)
-        replace(tmp_filepath, self.filepath)
+        os.replace(tmp_filepath, self.filepath)
 
     def _get_expected_chunk_size(self, chunk_index):
         return (
@@ -578,7 +566,7 @@ class TransferFile(TransferFileBase):
             self._file_obj.close()
             self._file_obj = None
         if os.path.exists(self._tmp_filepath):
-            replace(self._tmp_filepath, self.filepath)
+            os.replace(self._tmp_filepath, self.filepath)
         self._finalized = True
 
     def delete(self):
