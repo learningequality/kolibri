@@ -273,6 +273,12 @@ class multiple_kolibri_servers(object):
             except IOError:
                 pass
             server_conn.close()
+            # Remove the database alias from settings to prevent subsequent tests
+            # from trying to access databases that no longer exist
+            if server.db_alias in settings.DATABASES:
+                del settings.DATABASES[server.db_alias]
+            if server.db_alias in connections.databases:
+                del connections.databases[server.db_alias]
 
     def __call__(self, f):
         @wraps(f)
