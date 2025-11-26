@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "chalk": "4.1.2",
-    "commander": "^14.0.1",
+    "commander": "^14.0.2",
     "fast-glob": "^3.3.3",
     "jscodeshift": "^17.3.0",
     "kolibri-format": "^1.0.0",
