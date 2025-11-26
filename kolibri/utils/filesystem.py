@@ -14,7 +14,7 @@ def get_path_permission(path):
     """
     try:
         return os.access(resolve_path(path), os.W_OK)
-    except (IOError, OSError):
+    except OSError:
         return False
 
 
@@ -26,7 +26,7 @@ def check_is_directory(path):
     """
     try:
         return os.path.exists(resolve_path(path))
-    except (IOError, OSError):
+    except OSError:
         return False
 
 
@@ -41,5 +41,5 @@ def resolve_path(path):
 
     try:
         return os.path.realpath(os.path.expanduser(path))
-    except (IOError, OSError):
+    except OSError:
         return None

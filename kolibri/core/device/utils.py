@@ -320,7 +320,7 @@ def remove_provisioning_file(file_path):
                 file_path
             )
         )
-    except (IOError, OSError):
+    except OSError:
         logger.warning(
             "Unable to remove provisioning file {} after successful provisioning".format(
                 file_path
@@ -368,7 +368,7 @@ def provision_from_file(file_path):
     try:
         with open(file_path, "r") as f:
             options = json.load(f)
-    except IOError:
+    except OSError:
         raise ValidationError("File {} could not be opened".format(file_path))
     except ValueError:
         raise ValidationError("File {} did not contain valid JSON".format(file_path))

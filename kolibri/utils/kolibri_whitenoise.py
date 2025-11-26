@@ -387,7 +387,7 @@ class DynamicWhiteNoise(WhiteNoise):
                     try:
                         comp_path = "{}.{}".format(path, ext)
                         stat_cache[comp_path] = os.stat(comp_path)
-                    except (IOError, OSError):
+                    except OSError:
                         pass
                 self.add_file_to_dictionary(url, path, stat_cache=stat_cache)
         elif (

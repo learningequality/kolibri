@@ -239,7 +239,7 @@ def get_version_file():
     """
     try:
         return pkgutil.get_data("kolibri", "VERSION").decode("utf-8")
-    except IOError:
+    except OSError:
         return None
 
 
