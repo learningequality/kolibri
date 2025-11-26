@@ -27,7 +27,7 @@ jobs:
         echo "Acquire::Check-Valid-Until \"false\";" > /etc/apt/apt.conf.d/99archive
         apt-get -y -qq update
         apt-get install -y gettext sudo sqlite3 binutils-aarch64-linux-gnu binutils-arm-linux-gnueabihf git-lfs
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
         lfs: true

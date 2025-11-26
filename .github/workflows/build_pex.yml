@@ -20,7 +20,7 @@ jobs:
     outputs:
       pex-file-name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - uses: actions/cache@v4
       with:
         path: ~/.cache/pip
