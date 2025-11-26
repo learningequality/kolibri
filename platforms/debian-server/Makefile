@@ -21,7 +21,17 @@ deb: orig
 	dpkg-buildpackage -b -us -uc
 
 dist: orig
-	dpkg-buildpackage -S -us -uc
+	@mkdir -p dist
+	echo "Building unsigned package..."
+	dpkg-buildpackage -S -us -uc --output-directory=dist/
+	@echo "Package built successfully!"
+# build and sign (signing uses environment GPG_PASSPHRASE and KEYID)
+sign-and-upload: dist
+	@echo "Signing and uploading package..."
+	debsign -p"gpg --batch --yes --pinentry-mode loopback --passphrase $(GPG_PASSPHRASE)" dist/*.changes
+	@echo "Uploading to PPA..."
+	dput --unchecked ppa:learningequality/kolibri-proposed dist/*.changes
+	@echo "Upload completed successfully!"
 
 # Solution from: https://stackoverflow.com/a/43145972/405682
 VERSION:=$(shell dpkg-parsechangelog -S Version | sed -rne 's,([^-\+]+)+(\+dfsg)*.*,\1,p'i)
