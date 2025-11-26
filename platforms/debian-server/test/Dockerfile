@@ -34,7 +34,7 @@ COPY hashi_uwsgi.ini hashi_uwsgi.ini
 COPY kolibri_server_setup.py kolibri_server_setup.py
 COPY nginx.conf nginx.conf
 COPY nginx.d_README nginx.d_README
-COPY ppa-copy-packages.py ppa-copy-packages.py
+COPY copy_to_other_distributions.py copy_to_other_distributions.py
 COPY uwsgi.d_README uwsgi.d_README
 COPY uwsgi.ini uwsgi.ini
 
