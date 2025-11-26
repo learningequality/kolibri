@@ -36,5 +36,6 @@ jobs:
         platforms: linux/amd64,linux/arm64v8
         push: false
         target: test
+        provenance: false
 
 
