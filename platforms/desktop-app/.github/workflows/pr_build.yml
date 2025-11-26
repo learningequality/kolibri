@@ -69,7 +69,7 @@ jobs:
   smoke_test_macos:
     name: Smoke Test macOS
     needs: build_dmg
-    runs-on: macos-13
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v6
 
