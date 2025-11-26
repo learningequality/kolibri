@@ -138,7 +138,7 @@ def check_default_options_exist():
     if not os.path.exists(options_path):
         try:
             generate_empty_options_file()
-        except IOError:
+        except OSError:
             logger.warning(
                 "Failed to create an options.ini file at this path: {}".format(
                     options_path

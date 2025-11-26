@@ -96,7 +96,7 @@ def test_conditional_backup():
     default_path = default_backup_folder()
     try:
         os.rmdir(default_path)
-    except (IOError, OSError):
+    except OSError:
         pass
     os.mkdir(default_path)
 

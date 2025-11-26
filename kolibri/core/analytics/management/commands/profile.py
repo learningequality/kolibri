@@ -91,7 +91,7 @@ class Command(BaseCommand):
             with open(PROFILE_LOCK, "w") as f:
                 f.write("%d" % this_pid)
                 f.write("\n{}".format(file_timestamp))
-        except (IOError, OSError):
+        except OSError:
             logger.error(
                 "Impossible to create profile lock file. Kolibri won't profile its requests"
             )

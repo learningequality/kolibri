@@ -617,7 +617,7 @@ class ProcessControlPlugin(Monitor):
             with open(PROCESS_CONTROL_FLAG, "r") as f:
                 try:
                     command = f.read().strip()
-                except (IOError, OSError):
+                except OSError:
                     # If the file does not exist, or there is
                     # an error when reading the file, we just carry on.
                     command = ""
@@ -944,7 +944,7 @@ def signal_restart():
     try:
         with open(PROCESS_CONTROL_FLAG, "w") as f:
             f.write(RESTART)
-    except (IOError, OSError):
+    except OSError:
         return False
     return True
 

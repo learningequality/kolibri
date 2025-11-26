@@ -40,7 +40,7 @@ def add_requirements_to_base():
                     os.path.join(os.path.dirname(__file__), "../requirements.txt"), "a"
                 ) as f:
                     f.writelines(requirements)
-        except IOError:
+        except OSError:
             pass
 
 

@@ -158,7 +158,7 @@ class WebpackBundleHook(hooks.KolibriHook):
                 .joinpath("{plugin}_stats.json".format(plugin=self.unique_id))
                 .read_text()
             )
-        except IOError as e:
+        except OSError as e:
             raise WebpackError(
                 "Error accessing stats file '{}': {}".format(self.unique_id, e)
             )
