@@ -52,10 +52,10 @@ jobs:
     needs: build_exe
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download Windows installer
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: ${{ needs.build_exe.outputs.exe-file-name }}
           path: ./artifacts
@@ -71,10 +71,10 @@ jobs:
     needs: build_dmg
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download macOS DMG
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: ${{ needs.build_dmg.outputs.dmg-file-name }}
           path: ./artifacts
