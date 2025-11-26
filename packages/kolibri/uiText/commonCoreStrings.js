@@ -77,7 +77,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       "'Edit details' changes a set of information in Kolibri.\n\nFor example, in a list of users, selecting OPTIONS > 'Edit details' allows a user to edit other users' information like their name, username or type.",
   },
   filter: {
-    message: 'filter',
+    message: 'Filter',
     context:
       'The filter functionality allows users to find elements in Kolibri more efficiently. For example, in a list of users the filter can be used to view users by permissions, user type or facility.',
   },
@@ -1632,7 +1632,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Label for the deselected state of a checkbox. Not visible in the UI.',
   },
   allNOptionsSelectedLabel: {
-    message: 'All {count, number} {count, plural, one {option} other {options}} selected',
+    message: 'All options selected',
     context: 'Label for the selected state of a checkbox. Not visible in the UI.',
   },
   noOptionsSelectedLabel: {

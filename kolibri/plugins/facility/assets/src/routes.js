@@ -116,7 +116,7 @@ export default [
   {
     name: PageNames.USERS_TRASH_PAGE,
     component: UsersTrashPage,
-    path: '/:facility_id?/users/removed',
+    path: '/:facility_id?/users/deleted',
     handler: toRoute => {
       if (facilityParamRequiredGuard(toRoute, UsersTrashPage.name)) {
         return;

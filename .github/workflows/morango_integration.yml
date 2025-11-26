@@ -20,7 +20,7 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           github_token: ${{ github.token }}
-          paths: '["requirements/base.txt", ".github/workflows/morango_integration.yml"]'
+          paths: '["requirements/base.txt", ".github/workflows/morango_integration.yml", "kolibri/core/auth/**/*.py"]'
   morango_integration_tests_sqlite:
     name: Morango Integration Tests for currently supported Python versions
     needs: pre_job

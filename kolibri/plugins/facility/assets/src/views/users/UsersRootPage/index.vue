@@ -73,7 +73,9 @@
                 appearance="basic-link"
                 class="filter-button"
                 :to="overrideRoute($route, { name: PageNames.FILTER_USERS_SIDE_PANEL })"
-                :text="numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : filterLabel$()"
+                :text="
+                  numAppliedFilters ? numFilters$({ n: numAppliedFilters }) : coreString('filter')
+                "
               />
             </template>
             <template #clearFiltersButton>
@@ -114,14 +116,14 @@
               <KIconButton
                 ref="enrollButton"
                 icon="add"
-                :ariaLabel="enrollToClass$()"
+                :ariaLabel="enrollInClass$()"
                 :disabled="!canEnrollOrRemoveFromClass || !hasSelectedUsers"
                 @click="navigateToSidePanel(PageNames.ENROLL_LEARNERS_SIDE_PANEL)"
               />
               <KTooltip
                 reference="enrollButton"
                 :refs="$refs"
-                :text="enrollToClass$()"
+                :text="enrollInClass$()"
               />
               <KIconButton
                 ref="removeButton"
@@ -138,14 +140,14 @@
               <KIconButton
                 ref="trashButton"
                 icon="trash"
-                :ariaLabel="deleteSelectionTooltip"
+                :ariaLabel="deleteSelection$()"
                 :disabled="!canDeleteSelection || !hasSelectedUsers"
                 @click="isMoveToTrashModalOpen = true"
               />
               <KTooltip
                 reference="trashButton"
                 :refs="$refs"
-                :text="deleteSelectionTooltip"
+                :text="deleteSelection$()"
               />
             </template>
             <template #paginationControls>
@@ -244,12 +246,10 @@
         viewTrash$,
         assignCoach$,
         viewNewUsers$,
-        enrollToClass$,
+        enrollInClass$,
         removeFromClass$,
         deleteSelection$,
-        cannotDeleteSelfTooltip$,
         numFilters$,
-        filterLabel$,
         numUsersSelected$,
         clearFiltersLabel$,
       } = bulkUserManagementStrings;
@@ -391,12 +391,10 @@
         viewTrash$,
         assignCoach$,
         viewNewUsers$,
-        enrollToClass$,
+        enrollInClass$,
         removeFromClass$,
         deleteSelection$,
-        cannotDeleteSelfTooltip$,
         numFilters$,
-        filterLabel$,
         numUsersSelected$,
         clearFiltersLabel$,
       };
@@ -469,12 +467,6 @@
           return !this.hasSelectedSuperusers;
         }
         return false;
-      },
-      deleteSelectionTooltip() {
-        if (this.listContainsLoggedInUser) {
-          return this.cannotDeleteSelfTooltip$();
-        }
-        return this.deleteSelection$();
       },
     },
     methods: {
