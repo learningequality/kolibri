@@ -37,9 +37,9 @@ jobs:
       run: |
         echo "Must specify only one reference for the deb file to build the image with."
         exit 1
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       if: ${{ !inputs.ref }}
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       if: ${{ inputs.ref }}
       with:
         repository: learningequality/kolibri-image-pi
