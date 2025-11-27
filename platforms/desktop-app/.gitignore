@@ -140,3 +140,4 @@ installer/MicrosoftEdgeWebView2RuntimeInstallerX64.exe
 installer/nssm.exe
 update_report.txt
 installer/dist-installer/
+installer/translations/locale/*/*.isl

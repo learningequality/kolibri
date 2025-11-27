@@ -114,44 +114,59 @@ endif
 INNO_DEFAULT_ISL ?= C:/Program Files (x86)/Inno Setup 6/Default.isl
 INNO_LANGUAGES_DIR ?= C:/Program Files (x86)/Inno Setup 6/Languages
 
+TRANSLATIONS_DIR := installer/translations
+LOCALE_DIR := $(TRANSLATIONS_DIR)/locale
+TEMPLATE_ISL := $(TRANSLATIONS_DIR)/en.isl
+SCRIPT_ISL_TO_PO := $(TRANSLATIONS_DIR)/isl_to_po.py
+SCRIPT_PO_TO_ISL := $(TRANSLATIONS_DIR)/po_to_isl.py
+
+# New Language Target
+# Usage: make new-language LANG=es_ES
 .PHONY: new-language
 new-language:
 	$(MAKE) guard-LANG
-	@echo "Creating new language scaffolding for '$(LANG)'..."
-	$(PYTHON_EXEC) installer/translations/create_new_language.py \
-		--name "$(LANG)" \
-		--inno-languages-dir "$(INNO_LANGUAGES_DIR)"
+	@echo "Scaffolding new PO file for locale '$(LANG)'..."
+	$(PYTHON_EXEC) $(SCRIPT_ISL_TO_PO) \
+		--template $(TEMPLATE_ISL) \
+		--output $(LOCALE_DIR)/$(LANG)/messages.po \
+		--lang "$(LANG)" \
+		--inno-dir "$(INNO_LANGUAGES_DIR)" \
+		--no-overwrite
 
-TRANSLATIONS_DIR := installer/translations
-ISL_TO_PO_SCRIPT := $(TRANSLATIONS_DIR)/isl_to_po.py
-PO_TO_ISL_SCRIPT := $(TRANSLATIONS_DIR)/po_to_isl.py
+# Export Source Target (en)
+.PHONY: translations-export-source
+translations-export-source:
+	@echo "Exporting master en.isl to locale/en/messages.po (Source)..."
+	$(PYTHON_EXEC) $(SCRIPT_ISL_TO_PO) \
+		--template $(TEMPLATE_ISL) \
+		--output $(LOCALE_DIR)/en/messages.po \
+		--lang "en"
 
-# Usage example: make translations-export LANG=German LANG_CODE=de_DE
-# Exports a single .isl file to a .po file for translators.
-.PHONY: translations-export
-translations-export:
-	$(MAKE) guard-LANG
-	$(MAKE) guard-LANG_CODE
-	@echo "Exporting '$(LANG).isl' to a .po file for translators..."
-	$(PYTHON_EXEC) $(ISL_TO_PO_SCRIPT) \
-		-t $(TRANSLATIONS_DIR)/English.isl \
-		-i $(TRANSLATIONS_DIR)/$(LANG).isl \
-		-o $(TRANSLATIONS_DIR)/$(LANG).po \
-		-l "$(LANG_CODE)"
-
-# Compiles all .po files in the translations dir into their final .isl format.
-# Runs automatically before the windows installer is built.
+# Compile Target (PO -> ISL)
 .PHONY: translations-compile
 translations-compile:
-	@echo "Compiling .po files to .isl format for Inno Setup..."
-	@for po_file in $(TRANSLATIONS_DIR)/*.po; do \
-		if [ -f "$$po_file" ]; then \
-			lang_name=$$(basename "$$po_file" .po); \
-			echo "  -> Processing $${lang_name}.po -> $${lang_name}.isl"; \
-			$(PYTHON_EXEC) $(PO_TO_ISL_SCRIPT) \
-				-t $(TRANSLATIONS_DIR)/English.isl \
-				-i "$$po_file" \
-				-o "$(TRANSLATIONS_DIR)/$${lang_name}.isl"; \
+	@echo "Compiling PO files to ISL format..."
+	@# Loop through directories in translations/locale/
+	@for lang_dir in $(LOCALE_DIR)/*; do \
+		if [ -d "$$lang_dir" ]; then \
+			lang_code=$$(basename "$$lang_dir"); \
+			\
+			# Skip 'en' because we use the master en.isl template directly \
+			if [ "$$lang_code" = "en" ]; then \
+				continue; \
+			fi; \
+			\
+			po_file="$$lang_dir/messages.po"; \
+			isl_file="$$lang_dir/$${lang_code}.isl"; \
+			\
+			if [ -f "$$po_file" ]; then \
+				echo "  -> Processing $$lang_code ..."; \
+				$(PYTHON_EXEC) $(SCRIPT_PO_TO_ISL) \
+					-t $(TEMPLATE_ISL) \
+					-i "$$po_file" \
+					-o "$$isl_file" \
+					-l "$$lang_code"; \
+			fi \
 		fi \
 	done
 
@@ -160,8 +175,8 @@ update-translations:
 	@echo "Updating master language file from '$(INNO_DEFAULT_ISL)'..."
 	$(PYTHON_EXEC) installer/translations/update_from_inno_default.py \
 		--new-default "$(INNO_DEFAULT_ISL)" \
-		--project-master "installer/translations/English.isl"
-	@echo "Update complete. Please review update_report.txt and commit the changes to English.isl."
+		--project-master "$(TEMPLATE_ISL)"
+	@echo "Update complete. Please review update_report.txt and commit the changes to en.isl."
 
 compile-mo:
 	find src/kolibri_app/locales -name LC_MESSAGES -exec msgfmt {}/wxapp.po -o {}/wxapp.mo \;

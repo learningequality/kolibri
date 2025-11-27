@@ -2,80 +2,63 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: kolibri-windows-installer\n"
-"Report-Msgid-Bugs-To:  \n"
-"POT-Creation-Date: 2025-10-25T16:10:15.833345+03:00\n"
-"PO-Revision-Date: 2025-10-25T16:10:15.833345+03:00\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team:  \n"
+"POT-Creation-Date: 2025-11-27T10:48:24.094016+02:00\n"
+"PO-Revision-Date: 2025-11-27T10:48:24.094016+02:00\n"
 "Language: de_DE\n"
-"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 
-#. [LangOptions]languagename
-msgid "English"
-msgstr "German"
-
-#. [LangOptions]languageid
-msgid "$0409"
-msgstr "$0407"
-
-#. [LangOptions]languagecodepage
-msgid "0"
-msgstr "0"
-
-#. [Messages]SetupAppTitle
+msgctxt "[Messages]SetupAppTitle"
 msgid "Setup"
 msgstr "Setup"
 
-#. [Messages]SetupWindowTitle
+msgctxt "[Messages]SetupWindowTitle"
 msgid "Setup - %1"
 msgstr "Setup - %1"
 
-#. [Messages]UninstallAppTitle
+msgctxt "[Messages]UninstallAppTitle"
 msgid "Uninstall"
 msgstr "Entfernen"
 
-#. [Messages]UninstallAppFullTitle
+msgctxt "[Messages]UninstallAppFullTitle"
 msgid "%1 Uninstall"
 msgstr "%1 entfernen"
 
-#. [Messages]InformationTitle
+msgctxt "[Messages]InformationTitle"
 msgid "Information"
 msgstr "Information"
 
-#. [Messages]ConfirmTitle
+msgctxt "[Messages]ConfirmTitle"
 msgid "Confirm"
 msgstr "Bestätigen"
 
-#. [Messages]ErrorTitle
+msgctxt "[Messages]ErrorTitle"
 msgid "Error"
 msgstr "Fehler"
 
-#. [Messages]SetupLdrStartupMessage
+msgctxt "[Messages]SetupLdrStartupMessage"
 msgid "This will install %1. Do you wish to continue?"
 msgstr "%1 wird jetzt installiert. Möchten Sie fortfahren?"
 
-#. [Messages]LdrCannotCreateTemp
+msgctxt "[Messages]LdrCannotCreateTemp"
 msgid "Unable to create a temporary file. Setup aborted"
 msgstr ""
 "Es konnte keine temporäre Datei erstellt werden. Das Setup wurde abgebrochen"
 
-#. [Messages]LdrCannotExecTemp
+msgctxt "[Messages]LdrCannotExecTemp"
 msgid "Unable to execute file in the temporary directory. Setup aborted"
 msgstr ""
 "Die Datei konnte nicht im temporären Ordner ausgeführt werden. Das Setup "
 "wurde abgebrochen"
 
-#. [Messages]HelpTextNote
+msgctxt "[Messages]HelpTextNote"
 msgid ""
 msgstr ""
 
-#. [Messages]LastErrorMessage
+msgctxt "[Messages]LastErrorMessage"
 msgid "%1.%n%nError %2: %3"
 msgstr "%1.%n%nFehler %2: %3"
 
-#. [Messages]SetupFileMissing
+msgctxt "[Messages]SetupFileMissing"
 msgid ""
 "The file %1 is missing from the installation directory. Please correct the "
 "problem or obtain a new copy of the program."
@@ -83,14 +66,14 @@ msgstr ""
 "Die Datei %1 fehlt im Installationsordner. Bitte beheben Sie das Problem "
 "oder besorgen Sie sich eine neue Kopie des Programms."
 
-#. [Messages]SetupFileCorrupt
+msgctxt "[Messages]SetupFileCorrupt"
 msgid ""
 "The setup files are corrupted. Please obtain a new copy of the program."
 msgstr ""
 "Die Setup-Dateien sind beschädigt. Besorgen Sie sich bitte eine neue Kopie "
 "des Programms."
 
-#. [Messages]SetupFileCorruptOrWrongVer
+msgctxt "[Messages]SetupFileCorruptOrWrongVer"
 msgid ""
 "The setup files are corrupted, or are incompatible with this version of "
 "Setup. Please correct the problem or obtain a new copy of the program."
@@ -99,15 +82,15 @@ msgstr ""
 "Setups. Bitte beheben Sie das Problem oder besorgen Sie sich eine neue Kopie"
 " des Programms."
 
-#. [Messages]InvalidParameter
+msgctxt "[Messages]InvalidParameter"
 msgid "An invalid parameter was passed on the command line:%n%n%1"
 msgstr "Ein ungültiger Parameter wurde auf der Kommandozeile übergeben:%n%n%1"
 
-#. [Messages]SetupAlreadyRunning
+msgctxt "[Messages]SetupAlreadyRunning"
 msgid "Setup is already running."
 msgstr "Setup läuft bereits."
 
-#. [Messages]WindowsVersionNotSupported
+msgctxt "[Messages]WindowsVersionNotSupported"
 msgid ""
 "This program does not support the version of Windows your computer is "
 "running."
@@ -115,19 +98,19 @@ msgstr ""
 "Dieses Programm unterstützt die auf Ihrem Computer installierte Windows-"
 "Version nicht."
 
-#. [Messages]WindowsServicePackRequired
+msgctxt "[Messages]WindowsServicePackRequired"
 msgid "This program requires %1 Service Pack %2 or later."
 msgstr "Dieses Programm benötigt %1 Service Pack %2 oder höher."
 
-#. [Messages]NotOnThisPlatform
+msgctxt "[Messages]NotOnThisPlatform"
 msgid "This program will not run on %1."
 msgstr "Dieses Programm kann nicht unter %1 ausgeführt werden."
 
-#. [Messages]OnlyOnThisPlatform
+msgctxt "[Messages]OnlyOnThisPlatform"
 msgid "This program must be run on %1."
 msgstr "Dieses Programm muss unter %1 ausgeführt werden."
 
-#. [Messages]OnlyOnTheseArchitectures
+msgctxt "[Messages]OnlyOnTheseArchitectures"
 msgid ""
 "This program can only be installed on versions of Windows designed for the "
 "following processor architectures:%n%n%1"
@@ -135,24 +118,24 @@ msgstr ""
 "Dieses Programm kann nur auf Windows-Versionen installiert werden, die "
 "folgende Prozessor-Architekturen unterstützen:%n%n%1"
 
-#. [Messages]WinVersionTooLowError
+msgctxt "[Messages]WinVersionTooLowError"
 msgid "This program requires %1 version %2 or later."
 msgstr "Dieses Programm benötigt %1 Version %2 oder höher."
 
-#. [Messages]WinVersionTooHighError
+msgctxt "[Messages]WinVersionTooHighError"
 msgid "This program cannot be installed on %1 version %2 or later."
 msgstr ""
 "Dieses Programm kann nicht unter %1 Version %2 oder höher installiert "
 "werden."
 
-#. [Messages]AdminPrivilegesRequired
+msgctxt "[Messages]AdminPrivilegesRequired"
 msgid ""
 "You must be logged in as an administrator when installing this program."
 msgstr ""
 "Sie müssen als Administrator angemeldet sein, um dieses Programm "
 "installieren zu können."
 
-#. [Messages]PowerUserPrivilegesRequired
+msgctxt "[Messages]PowerUserPrivilegesRequired"
 msgid ""
 "You must be logged in as an administrator or as a member of the Power Users "
 "group when installing this program."
@@ -160,7 +143,7 @@ msgstr ""
 "Sie müssen als Administrator oder als Mitglied der Hauptbenutzer-Gruppe "
 "angemeldet sein, um dieses Programm installieren zu können."
 
-#. [Messages]SetupAppRunningError
+msgctxt "[Messages]SetupAppRunningError"
 msgid ""
 "Setup has detected that %1 is currently running.%n%nPlease close all "
 "instances of it now, then click OK to continue, or Cancel to exit."
@@ -169,7 +152,7 @@ msgstr ""
 "Sie jetzt alle laufenden Instanzen und klicken Sie auf \"OK\", um "
 "fortzufahren, oder auf \"Abbrechen\", um zu beenden."
 
-#. [Messages]UninstallAppRunningError
+msgctxt "[Messages]UninstallAppRunningError"
 msgid ""
 "Uninstall has detected that %1 is currently running.%n%nPlease close all "
 "instances of it now, then click OK to continue, or Cancel to exit."
@@ -178,15 +161,15 @@ msgstr ""
 "schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf \"OK\", um "
 "fortzufahren, oder auf \"Abbrechen\", um zu beenden."
 
-#. [Messages]PrivilegesRequiredOverrideTitle
+msgctxt "[Messages]PrivilegesRequiredOverrideTitle"
 msgid "Select Setup Install Mode"
 msgstr "Installationsmodus auswählen"
 
-#. [Messages]PrivilegesRequiredOverrideInstruction
+msgctxt "[Messages]PrivilegesRequiredOverrideInstruction"
 msgid "Select install mode"
 msgstr "Bitte wählen Sie den Installationsmodus"
 
-#. [Messages]PrivilegesRequiredOverrideText1
+msgctxt "[Messages]PrivilegesRequiredOverrideText1"
 msgid ""
 "%1 can be installed for all users (requires administrative privileges), or "
 "for you only."
@@ -194,7 +177,7 @@ msgstr ""
 "%1 kann für alle Benutzer (erfordert Administrationsrechte) oder nur für Sie"
 " installiert werden."
 
-#. [Messages]PrivilegesRequiredOverrideText2
+msgctxt "[Messages]PrivilegesRequiredOverrideText2"
 msgid ""
 "%1 can be installed for you only, or for all users (requires administrative "
 "privileges)."
@@ -202,27 +185,27 @@ msgstr ""
 "%1 kann nur für Sie oder für alle Benutzer (erfordert Administrationsrechte)"
 " installiert werden."
 
-#. [Messages]PrivilegesRequiredOverrideAllUsers
+msgctxt "[Messages]PrivilegesRequiredOverrideAllUsers"
 msgid "Install for &all users"
 msgstr "Installation für &alle Benutzer"
 
-#. [Messages]PrivilegesRequiredOverrideAllUsersRecommended
+msgctxt "[Messages]PrivilegesRequiredOverrideAllUsersRecommended"
 msgid "Install for &all users (recommended)"
 msgstr "Installation für &alle Benutzer (empfohlen)"
 
-#. [Messages]PrivilegesRequiredOverrideCurrentUser
+msgctxt "[Messages]PrivilegesRequiredOverrideCurrentUser"
 msgid "Install for &me only"
 msgstr "Installation nur für &Sie"
 
-#. [Messages]PrivilegesRequiredOverrideCurrentUserRecommended
+msgctxt "[Messages]PrivilegesRequiredOverrideCurrentUserRecommended"
 msgid "Install for &me only (recommended)"
 msgstr "Installation nur für &Sie (empfohlen)"
 
-#. [Messages]ErrorCreatingDir
+msgctxt "[Messages]ErrorCreatingDir"
 msgid "Setup was unable to create the directory \"%1\""
 msgstr "Das Setup konnte den Ordner \"%1\" nicht erstellen."
 
-#. [Messages]ErrorTooManyFilesInDir
+msgctxt "[Messages]ErrorTooManyFilesInDir"
 msgid ""
 "Unable to create a file in the directory \"%1\" because it contains too many"
 " files"
@@ -230,11 +213,11 @@ msgstr ""
 "Das Setup konnte eine Datei im Ordner \"%1\" nicht erstellen, weil er zu "
 "viele Dateien enthält."
 
-#. [Messages]ExitSetupTitle
+msgctxt "[Messages]ExitSetupTitle"
 msgid "Exit Setup"
 msgstr "Setup verlassen"
 
-#. [Messages]ExitSetupMessage
+msgctxt "[Messages]ExitSetupMessage"
 msgid ""
 "Setup is not complete. If you exit now, the program will not be "
 "installed.%n%nYou may run Setup again at another time to complete the "
@@ -245,114 +228,114 @@ msgstr ""
 "Zeitpunkt nochmals ausführen, um die Installation zu "
 "vervollständigen.%n%nSetup verlassen?"
 
-#. [Messages]AboutSetupMenuItem
+msgctxt "[Messages]AboutSetupMenuItem"
 msgid "&About Setup..."
 msgstr "&Über das Setup ..."
 
-#. [Messages]AboutSetupTitle
+msgctxt "[Messages]AboutSetupTitle"
 msgid "About Setup"
 msgstr "Über das Setup"
 
-#. [Messages]AboutSetupMessage
+msgctxt "[Messages]AboutSetupMessage"
 msgid "%1 version %2%n%3%n%n%1 home page:%n%4"
 msgstr "%1 Version %2%n%3%n%n%1 Webseite:%n%4"
 
-#. [Messages]AboutSetupNote
+msgctxt "[Messages]AboutSetupNote"
 msgid ""
 msgstr ""
 
-#. [Messages]TranslatorNote
+msgctxt "[Messages]TranslatorNote"
 msgid ""
 msgstr ""
 "German translation maintained by Jens Brand (jens.brand@wolf-software.de)"
 
-#. [Messages]ButtonBack
+msgctxt "[Messages]ButtonBack"
 msgid "< &Back"
 msgstr "< &Zurück"
 
-#. [Messages]ButtonNext
+msgctxt "[Messages]ButtonNext"
 msgid "&Next >"
 msgstr "&Weiter >"
 
-#. [Messages]ButtonInstall
+msgctxt "[Messages]ButtonInstall"
 msgid "&Install"
 msgstr "&Installieren"
 
-#. [Messages]ButtonOK
+msgctxt "[Messages]ButtonOK"
 msgid "OK"
 msgstr "OK"
 
-#. [Messages]ButtonCancel
+msgctxt "[Messages]ButtonCancel"
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#. [Messages]ButtonYes
+msgctxt "[Messages]ButtonYes"
 msgid "&Yes"
 msgstr "&Ja"
 
-#. [Messages]ButtonYesToAll
+msgctxt "[Messages]ButtonYesToAll"
 msgid "Yes to &All"
 msgstr "J&a für Alle"
 
-#. [Messages]ButtonNo
+msgctxt "[Messages]ButtonNo"
 msgid "&No"
 msgstr "&Nein"
 
-#. [Messages]ButtonNoToAll
+msgctxt "[Messages]ButtonNoToAll"
 msgid "N&o to All"
 msgstr "N&ein für Alle"
 
-#. [Messages]ButtonFinish
+msgctxt "[Messages]ButtonFinish"
 msgid "&Finish"
 msgstr "&Fertigstellen"
 
-#. [Messages]ButtonBrowse
+msgctxt "[Messages]ButtonBrowse"
 msgid "&Browse..."
 msgstr "&Durchsuchen ..."
 
-#. [Messages]ButtonWizardBrowse
+msgctxt "[Messages]ButtonWizardBrowse"
 msgid "B&rowse..."
 msgstr "Du&rchsuchen ..."
 
-#. [Messages]ButtonNewFolder
+msgctxt "[Messages]ButtonNewFolder"
 msgid "&Make New Folder"
 msgstr "&Neuen Ordner erstellen"
 
-#. [Messages]SelectLanguageTitle
+msgctxt "[Messages]SelectLanguageTitle"
 msgid "Select Setup Language"
 msgstr "Setup-Sprache auswählen"
 
-#. [Messages]SelectLanguageLabel
+msgctxt "[Messages]SelectLanguageLabel"
 msgid "Select the language to use during the installation."
 msgstr ""
 "Wählen Sie die Sprache aus, die während der Installation benutzt werden "
 "soll:"
 
-#. [Messages]ClickNext
+msgctxt "[Messages]ClickNext"
 msgid "Click Next to continue, or Cancel to exit Setup."
 msgstr "\"Weiter\" zum Fortfahren, \"Abbrechen\" zum Verlassen."
 
-#. [Messages]BeveledLabel
+msgctxt "[Messages]BeveledLabel"
 msgid ""
 msgstr ""
 
-#. [Messages]BrowseDialogTitle
+msgctxt "[Messages]BrowseDialogTitle"
 msgid "Browse For Folder"
 msgstr "Ordner suchen"
 
-#. [Messages]BrowseDialogLabel
+msgctxt "[Messages]BrowseDialogLabel"
 msgid "Select a folder in the list below, then click OK."
 msgstr "Wählen Sie einen Ordner aus und klicken Sie danach auf \"OK\"."
 
-#. [Messages]NewFolderName
+msgctxt "[Messages]NewFolderName"
 msgid "New Folder"
 msgstr "Neuer Ordner"
 
-#. [Messages]WelcomeLabel1
+msgctxt "[Messages]WelcomeLabel1"
 msgid "Welcome to the [name] Setup Wizard"
 msgstr "Willkommen zum [name] Setup-Assistenten"
 
-#. [Messages]WelcomeLabel2
+msgctxt "[Messages]WelcomeLabel2"
 msgid ""
 "This will install [name/ver] on your computer.%n%nIt is recommended that you"
 " close all other applications before continuing."
@@ -361,15 +344,15 @@ msgstr ""
 "installieren.%n%nSie sollten alle anderen Anwendungen beenden, bevor Sie mit"
 " dem Setup fortfahren."
 
-#. [Messages]WizardPassword
+msgctxt "[Messages]WizardPassword"
 msgid "Password"
 msgstr "Passwort"
 
-#. [Messages]PasswordLabel1
+msgctxt "[Messages]PasswordLabel1"
 msgid "This installation is password protected."
 msgstr "Diese Installation wird durch ein Passwort geschützt."
 
-#. [Messages]PasswordLabel3
+msgctxt "[Messages]PasswordLabel3"
 msgid ""
 "Please provide the password, then click Next to continue. Passwords are "
 "case-sensitive."
@@ -377,26 +360,26 @@ msgstr ""
 "Bitte geben Sie das Passwort ein und klicken Sie danach auf \"Weiter\". "
 "Achten Sie auf korrekte Groß-/Kleinschreibung."
 
-#. [Messages]PasswordEditLabel
+msgctxt "[Messages]PasswordEditLabel"
 msgid "&Password:"
 msgstr "&Passwort:"
 
-#. [Messages]IncorrectPassword
+msgctxt "[Messages]IncorrectPassword"
 msgid "The password you entered is not correct. Please try again."
 msgstr ""
 "Das eingegebene Passwort ist nicht korrekt. Bitte versuchen Sie es noch "
 "einmal."
 
-#. [Messages]WizardLicense
+msgctxt "[Messages]WizardLicense"
 msgid "License Agreement"
 msgstr "Lizenzvereinbarung"
 
-#. [Messages]LicenseLabel
+msgctxt "[Messages]LicenseLabel"
 msgid "Please read the following important information before continuing."
 msgstr ""
 "Lesen Sie bitte folgende wichtige Informationen, bevor Sie fortfahren."
 
-#. [Messages]LicenseLabel3
+msgctxt "[Messages]LicenseLabel3"
 msgid ""
 "Please read the following License Agreement. You must accept the terms of "
 "this agreement before continuing with the installation."
@@ -404,81 +387,81 @@ msgstr ""
 "Lesen Sie bitte die folgenden Lizenzvereinbarungen. Benutzen Sie bei Bedarf "
 "die Bildlaufleiste oder drücken Sie die \"Bild Ab\"-Taste."
 
-#. [Messages]LicenseAccepted
+msgctxt "[Messages]LicenseAccepted"
 msgid "I &accept the agreement"
 msgstr "Ich &akzeptiere die Vereinbarung"
 
-#. [Messages]LicenseNotAccepted
+msgctxt "[Messages]LicenseNotAccepted"
 msgid "I &do not accept the agreement"
 msgstr "Ich &lehne die Vereinbarung ab"
 
-#. [Messages]WizardInfoBefore
+msgctxt "[Messages]WizardInfoBefore"
 msgid "Information"
 msgstr "Information"
 
-#. [Messages]InfoBeforeLabel
+msgctxt "[Messages]InfoBeforeLabel"
 msgid "Please read the following important information before continuing."
 msgstr ""
 "Lesen Sie bitte folgende wichtige Informationen, bevor Sie fortfahren."
 
-#. [Messages]InfoBeforeClickLabel
+msgctxt "[Messages]InfoBeforeClickLabel"
 msgid "When you are ready to continue with Setup, click Next."
 msgstr ""
 "Klicken Sie auf \"Weiter\", sobald Sie bereit sind, mit dem Setup "
 "fortzufahren."
 
-#. [Messages]WizardInfoAfter
+msgctxt "[Messages]WizardInfoAfter"
 msgid "Information"
 msgstr "Information"
 
-#. [Messages]InfoAfterLabel
+msgctxt "[Messages]InfoAfterLabel"
 msgid "Please read the following important information before continuing."
 msgstr ""
 "Lesen Sie bitte folgende wichtige Informationen, bevor Sie fortfahren."
 
-#. [Messages]InfoAfterClickLabel
+msgctxt "[Messages]InfoAfterClickLabel"
 msgid "When you are ready to continue with Setup, click Next."
 msgstr ""
 "Klicken Sie auf \"Weiter\", sobald Sie bereit sind, mit dem Setup "
 "fortzufahren."
 
-#. [Messages]WizardUserInfo
+msgctxt "[Messages]WizardUserInfo"
 msgid "User Information"
 msgstr "Benutzerinformationen"
 
-#. [Messages]UserInfoDesc
+msgctxt "[Messages]UserInfoDesc"
 msgid "Please enter your information."
 msgstr "Bitte tragen Sie Ihre Daten ein."
 
-#. [Messages]UserInfoName
+msgctxt "[Messages]UserInfoName"
 msgid "&User Name:"
 msgstr "&Name:"
 
-#. [Messages]UserInfoOrg
+msgctxt "[Messages]UserInfoOrg"
 msgid "&Organization:"
 msgstr "&Organisation:"
 
-#. [Messages]UserInfoSerial
+msgctxt "[Messages]UserInfoSerial"
 msgid "&Serial Number:"
 msgstr "&Seriennummer:"
 
-#. [Messages]UserInfoNameRequired
+msgctxt "[Messages]UserInfoNameRequired"
 msgid "You must enter a name."
 msgstr "Sie müssen einen Namen eintragen."
 
-#. [Messages]WizardSelectDir
+msgctxt "[Messages]WizardSelectDir"
 msgid "Select Destination Location"
 msgstr "Ziel-Ordner wählen"
 
-#. [Messages]SelectDirDesc
+msgctxt "[Messages]SelectDirDesc"
 msgid "Where should [name] be installed?"
 msgstr "Wohin soll [name] installiert werden?"
 
-#. [Messages]SelectDirLabel3
+msgctxt "[Messages]SelectDirLabel3"
 msgid "Setup will install [name] into the following folder."
 msgstr "Das Setup wird [name] in den folgenden Ordner installieren."
 
-#. [Messages]SelectDirBrowseLabel
+msgctxt "[Messages]SelectDirBrowseLabel"
 msgid ""
 "To continue, click Next. If you would like to select a different folder, "
 "click Browse."
@@ -486,26 +469,26 @@ msgstr ""
 "Klicken Sie auf \"Weiter\", um fortzufahren. Klicken Sie auf "
 "\"Durchsuchen\", falls Sie einen anderen Ordner auswählen möchten."
 
-#. [Messages]DiskSpaceGBLabel
+msgctxt "[Messages]DiskSpaceGBLabel"
 msgid "At least [gb] GB of free disk space is required."
 msgstr "Mindestens [gb] GB freier Speicherplatz ist erforderlich."
 
-#. [Messages]DiskSpaceMBLabel
+msgctxt "[Messages]DiskSpaceMBLabel"
 msgid "At least [mb] MB of free disk space is required."
 msgstr "Mindestens [mb] MB freier Speicherplatz ist erforderlich."
 
-#. [Messages]CannotInstallToNetworkDrive
+msgctxt "[Messages]CannotInstallToNetworkDrive"
 msgid "Setup cannot install to a network drive."
 msgstr "Das Setup kann nicht in einen Netzwerk-Pfad installieren."
 
-#. [Messages]CannotInstallToUNCPath
+msgctxt "[Messages]CannotInstallToUNCPath"
 msgid "Setup cannot install to a UNC path."
 msgstr ""
 "Das Setup kann nicht in einen UNC-Pfad installieren. Wenn Sie auf ein "
 "Netzlaufwerk installieren möchten, müssen Sie dem Netzwerkpfad einen "
 "Laufwerksbuchstaben zuordnen."
 
-#. [Messages]InvalidPath
+msgctxt "[Messages]InvalidPath"
 msgid ""
 "You must enter a full path with drive letter; for example:%n%nC:\\APP%n%nor "
 "a UNC path in the form:%n%n\\\\server\\share"
@@ -514,7 +497,7 @@ msgstr ""
 "z. B.:%n%nC:\\Beispiel%n%noder einen UNC-Pfad in der "
 "Form:%n%n\\\\Server\\Freigabe"
 
-#. [Messages]InvalidDrive
+msgctxt "[Messages]InvalidDrive"
 msgid ""
 "The drive or UNC share you selected does not exist or is not accessible. "
 "Please select another."
@@ -522,11 +505,11 @@ msgstr ""
 "Das angegebene Laufwerk bzw. der UNC-Pfad existiert nicht oder es kann nicht"
 " darauf zugegriffen werden. Wählen Sie bitte einen anderen Ordner."
 
-#. [Messages]DiskSpaceWarningTitle
+msgctxt "[Messages]DiskSpaceWarningTitle"
 msgid "Not Enough Disk Space"
 msgstr "Nicht genug freier Speicherplatz"
 
-#. [Messages]DiskSpaceWarning
+msgctxt "[Messages]DiskSpaceWarning"
 msgid ""
 "Setup requires at least %1 KB of free space to install, but the selected "
 "drive only has %2 KB available.%n%nDo you want to continue anyway?"
@@ -535,23 +518,23 @@ msgstr ""
 "aber auf dem ausgewählten Laufwerk sind nur %2 KB verfügbar.%n%nMöchten Sie "
 "trotzdem fortfahren?"
 
-#. [Messages]DirNameTooLong
+msgctxt "[Messages]DirNameTooLong"
 msgid "The folder name or path is too long."
 msgstr "Der Ordnername/Pfad ist zu lang."
 
-#. [Messages]InvalidDirName
+msgctxt "[Messages]InvalidDirName"
 msgid "The folder name is not valid."
 msgstr "Der Ordnername ist nicht gültig."
 
-#. [Messages]BadDirName32
+msgctxt "[Messages]BadDirName32"
 msgid "Folder names cannot include any of the following characters:%n%n%1"
 msgstr "Ordnernamen dürfen keine der folgenden Zeichen enthalten:%n%n%1"
 
-#. [Messages]DirExistsTitle
+msgctxt "[Messages]DirExistsTitle"
 msgid "Folder Exists"
 msgstr "Ordner existiert bereits"
 
-#. [Messages]DirExists
+msgctxt "[Messages]DirExists"
 msgid ""
 "The folder:%n%n%1%n%nalready exists. Would you like to install to that "
 "folder anyway?"
@@ -559,26 +542,26 @@ msgstr ""
 "Der Ordner:%n%n%1%n%n existiert bereits. Möchten Sie trotzdem in diesen "
 "Ordner installieren?"
 
-#. [Messages]DirDoesntExistTitle
+msgctxt "[Messages]DirDoesntExistTitle"
 msgid "Folder Does Not Exist"
 msgstr "Ordner ist nicht vorhanden"
 
-#. [Messages]DirDoesntExist
+msgctxt "[Messages]DirDoesntExist"
 msgid ""
 "The folder:%n%n%1%n%ndoes not exist. Would you like the folder to be "
 "created?"
 msgstr ""
 "Der Ordner:%n%n%1%n%nist nicht vorhanden. Soll der Ordner erstellt werden?"
 
-#. [Messages]WizardSelectComponents
+msgctxt "[Messages]WizardSelectComponents"
 msgid "Select Components"
 msgstr "Komponenten auswählen"
 
-#. [Messages]SelectComponentsDesc
+msgctxt "[Messages]SelectComponentsDesc"
 msgid "Which components should be installed?"
 msgstr "Welche Komponenten sollen installiert werden?"
 
-#. [Messages]SelectComponentsLabel2
+msgctxt "[Messages]SelectComponentsLabel2"
 msgid ""
 "Select the components you want to install; clear the components you do not "
 "want to install. Click Next when you are ready to continue."
@@ -586,23 +569,23 @@ msgstr ""
 "Wählen Sie die Komponenten aus, die Sie installieren möchten. Klicken Sie "
 "auf \"Weiter\", wenn Sie bereit sind, fortzufahren."
 
-#. [Messages]FullInstallation
+msgctxt "[Messages]FullInstallation"
 msgid "Full installation"
 msgstr "Vollständige Installation"
 
-#. [Messages]CompactInstallation
+msgctxt "[Messages]CompactInstallation"
 msgid "Compact installation"
 msgstr "Kompakte Installation"
 
-#. [Messages]CustomInstallation
+msgctxt "[Messages]CustomInstallation"
 msgid "Custom installation"
 msgstr "Benutzerdefinierte Installation"
 
-#. [Messages]NoUninstallWarningTitle
+msgctxt "[Messages]NoUninstallWarningTitle"
 msgid "Components Exist"
 msgstr "Komponenten vorhanden"
 
-#. [Messages]NoUninstallWarning
+msgctxt "[Messages]NoUninstallWarning"
 msgid ""
 "Setup has detected that the following components are already installed on "
 "your computer:%n%n%1%n%nDeselecting these components will not uninstall "
@@ -613,31 +596,31 @@ msgstr ""
 "Komponenten werden nicht vom Computer entfernt.%n%nMöchten Sie trotzdem "
 "fortfahren?"
 
-#. [Messages]ComponentSize1
+msgctxt "[Messages]ComponentSize1"
 msgid "%1 KB"
 msgstr "%1 KB"
 
-#. [Messages]ComponentSize2
+msgctxt "[Messages]ComponentSize2"
 msgid "%1 MB"
 msgstr "%1 MB"
 
-#. [Messages]ComponentsDiskSpaceGBLabel
+msgctxt "[Messages]ComponentsDiskSpaceGBLabel"
 msgid "Current selection requires at least [gb] GB of disk space."
 msgstr "Die aktuelle Auswahl erfordert mindestens [gb] GB Speicherplatz."
 
-#. [Messages]ComponentsDiskSpaceMBLabel
+msgctxt "[Messages]ComponentsDiskSpaceMBLabel"
 msgid "Current selection requires at least [mb] MB of disk space."
 msgstr "Die aktuelle Auswahl erfordert mindestens [mb] MB Speicherplatz."
 
-#. [Messages]WizardSelectTasks
+msgctxt "[Messages]WizardSelectTasks"
 msgid "Select Additional Tasks"
 msgstr "Zusätzliche Aufgaben auswählen"
 
-#. [Messages]SelectTasksDesc
+msgctxt "[Messages]SelectTasksDesc"
 msgid "Which additional tasks should be performed?"
 msgstr "Welche zusätzlichen Aufgaben sollen ausgeführt werden?"
 
-#. [Messages]SelectTasksLabel2
+msgctxt "[Messages]SelectTasksLabel2"
 msgid ""
 "Select the additional tasks you would like Setup to perform while installing"
 " [name], then click Next."
@@ -646,15 +629,15 @@ msgstr ""
 "Installation von [name] ausführen soll, und klicken Sie danach auf "
 "\"Weiter\"."
 
-#. [Messages]WizardSelectProgramGroup
+msgctxt "[Messages]WizardSelectProgramGroup"
 msgid "Select Start Menu Folder"
 msgstr "Startmenü-Ordner auswählen"
 
-#. [Messages]SelectStartMenuFolderDesc
+msgctxt "[Messages]SelectStartMenuFolderDesc"
 msgid "Where should Setup place the program's shortcuts?"
 msgstr "Wo soll das Setup die Programm-Verknüpfungen erstellen?"
 
-#. [Messages]SelectStartMenuFolderLabel3
+msgctxt "[Messages]SelectStartMenuFolderLabel3"
 msgid ""
 "Setup will create the program's shortcuts in the following Start Menu "
 "folder."
@@ -662,7 +645,7 @@ msgstr ""
 "Das Setup wird die Programm-Verknüpfungen im folgenden Startmenü-Ordner "
 "erstellen."
 
-#. [Messages]SelectStartMenuFolderBrowseLabel
+msgctxt "[Messages]SelectStartMenuFolderBrowseLabel"
 msgid ""
 "To continue, click Next. If you would like to select a different folder, "
 "click Browse."
@@ -670,36 +653,36 @@ msgstr ""
 "Klicken Sie auf \"Weiter\", um fortzufahren. Klicken Sie auf "
 "\"Durchsuchen\", falls Sie einen anderen Ordner auswählen möchten."
 
-#. [Messages]MustEnterGroupName
+msgctxt "[Messages]MustEnterGroupName"
 msgid "You must enter a folder name."
 msgstr "Sie müssen einen Ordnernamen eingeben."
 
-#. [Messages]GroupNameTooLong
+msgctxt "[Messages]GroupNameTooLong"
 msgid "The folder name or path is too long."
 msgstr "Der Ordnername/Pfad ist zu lang."
 
-#. [Messages]InvalidGroupName
+msgctxt "[Messages]InvalidGroupName"
 msgid "The folder name is not valid."
 msgstr "Der Ordnername ist nicht gültig."
 
-#. [Messages]BadGroupName
+msgctxt "[Messages]BadGroupName"
 msgid "The folder name cannot include any of the following characters:%n%n%1"
 msgstr "Der Ordnername darf keine der folgenden Zeichen enthalten:%n%n%1"
 
-#. [Messages]NoProgramGroupCheck2
+msgctxt "[Messages]NoProgramGroupCheck2"
 msgid "&Don't create a Start Menu folder"
 msgstr "&Keinen Ordner im Startmenü erstellen"
 
-#. [Messages]WizardReady
+msgctxt "[Messages]WizardReady"
 msgid "Ready to Install"
 msgstr "Bereit zur Installation."
 
-#. [Messages]ReadyLabel1
+msgctxt "[Messages]ReadyLabel1"
 msgid "Setup is now ready to begin installing [name] on your computer."
 msgstr ""
 "Das Setup ist jetzt bereit, [name] auf Ihrem Computer zu installieren."
 
-#. [Messages]ReadyLabel2a
+msgctxt "[Messages]ReadyLabel2a"
 msgid ""
 "Click Install to continue with the installation, or click Back if you want "
 "to review or change any settings."
@@ -707,108 +690,108 @@ msgstr ""
 "Klicken Sie auf \"Installieren\", um mit der Installation zu beginnen, oder "
 "auf \"Zurück\", um Ihre Einstellungen zu überprüfen oder zu ändern."
 
-#. [Messages]ReadyLabel2b
+msgctxt "[Messages]ReadyLabel2b"
 msgid "Click Install to continue with the installation."
 msgstr "Klicken Sie auf \"Installieren\", um mit der Installation zu beginnen."
 
-#. [Messages]ReadyMemoUserInfo
+msgctxt "[Messages]ReadyMemoUserInfo"
 msgid "User information:"
 msgstr "Benutzerinformationen:"
 
-#. [Messages]ReadyMemoDir
+msgctxt "[Messages]ReadyMemoDir"
 msgid "Destination location:"
 msgstr "Ziel-Ordner:"
 
-#. [Messages]ReadyMemoType
+msgctxt "[Messages]ReadyMemoType"
 msgid "Setup type:"
 msgstr "Setup-Typ:"
 
-#. [Messages]ReadyMemoComponents
+msgctxt "[Messages]ReadyMemoComponents"
 msgid "Selected components:"
 msgstr "Ausgewählte Komponenten:"
 
-#. [Messages]ReadyMemoGroup
+msgctxt "[Messages]ReadyMemoGroup"
 msgid "Start Menu folder:"
 msgstr "Startmenü-Ordner:"
 
-#. [Messages]ReadyMemoTasks
+msgctxt "[Messages]ReadyMemoTasks"
 msgid "Additional tasks:"
 msgstr "Zusätzliche Aufgaben:"
 
-#. [Messages]DownloadingLabel2
+msgctxt "[Messages]DownloadingLabel2"
 msgid "Downloading files..."
 msgstr "Lade Dateien herunter..."
 
-#. [Messages]ButtonStopDownload
+msgctxt "[Messages]ButtonStopDownload"
 msgid "&Stop download"
 msgstr "Download &abbrechen"
 
-#. [Messages]StopDownload
+msgctxt "[Messages]StopDownload"
 msgid "Are you sure you want to stop the download?"
 msgstr "Sind Sie sicher, dass Sie den Download abbrechen wollen?"
 
-#. [Messages]ErrorDownloadAborted
+msgctxt "[Messages]ErrorDownloadAborted"
 msgid "Download aborted"
 msgstr "Download abgebrochen"
 
-#. [Messages]ErrorDownloadFailed
+msgctxt "[Messages]ErrorDownloadFailed"
 msgid "Download failed: %1 %2"
 msgstr "Download fehlgeschlagen: %1 %2"
 
-#. [Messages]ErrorDownloadSizeFailed
+msgctxt "[Messages]ErrorDownloadSizeFailed"
 msgid "Getting size failed: %1 %2"
 msgstr "Fehler beim Ermitteln der Größe: %1 %2"
 
-#. [Messages]ErrorProgress
+msgctxt "[Messages]ErrorProgress"
 msgid "Invalid progress: %1 of %2"
 msgstr "Ungültiger Fortschritt: %1 von %2"
 
-#. [Messages]ErrorFileSize
+msgctxt "[Messages]ErrorFileSize"
 msgid "Invalid file size: expected %1, found %2"
 msgstr "Ungültige Dateigröße: erwartet %1, gefunden %2"
 
-#. [Messages]ExtractingLabel
+msgctxt "[Messages]ExtractingLabel"
 msgid "Extracting files..."
 msgstr "Entpacke Dateien..."
 
-#. [Messages]ButtonStopExtraction
+msgctxt "[Messages]ButtonStopExtraction"
 msgid "&Stop extraction"
 msgstr "Entpacken &abbrechen"
 
-#. [Messages]StopExtraction
+msgctxt "[Messages]StopExtraction"
 msgid "Are you sure you want to stop the extraction?"
 msgstr "Sind Sie sicher, dass Sie das Entpacken abbrechen wollen?"
 
-#. [Messages]ErrorExtractionAborted
+msgctxt "[Messages]ErrorExtractionAborted"
 msgid "Extraction aborted"
 msgstr "Entpacken abgebrochen"
 
-#. [Messages]ErrorExtractionFailed
+msgctxt "[Messages]ErrorExtractionFailed"
 msgid "Extraction failed: %1"
 msgstr "Entpacken fehlgeschlagen: %1"
 
-#. [Messages]ArchiveIncorrectPassword
+msgctxt "[Messages]ArchiveIncorrectPassword"
 msgid "The password is incorrect"
 msgstr "Ungültiges Passwort"
 
-#. [Messages]ArchiveIsCorrupted
+msgctxt "[Messages]ArchiveIsCorrupted"
 msgid "The archive is corrupted"
 msgstr "Das Archiv ist defekt"
 
-#. [Messages]ArchiveUnsupportedFormat
+msgctxt "[Messages]ArchiveUnsupportedFormat"
 msgid "The archive format is unsupported"
 msgstr "Das Archivformat wird nicht unterstützt"
 
-#. [Messages]WizardPreparing
+msgctxt "[Messages]WizardPreparing"
 msgid "Preparing to Install"
 msgstr "Vorbereitung der Installation"
 
-#. [Messages]PreparingDesc
+msgctxt "[Messages]PreparingDesc"
 msgid "Setup is preparing to install [name] on your computer."
 msgstr ""
 "Das Setup bereitet die Installation von [name] auf diesem Computer vor."
 
-#. [Messages]PreviousInstallNotCompleted
+msgctxt "[Messages]PreviousInstallNotCompleted"
 msgid ""
 "The installation/removal of a previous program was not completed. You will "
 "need to restart your computer to complete that installation.%n%nAfter "
@@ -821,13 +804,13 @@ msgstr ""
 "Neustart Ihres Computers erneut, um die Installation von [name] "
 "durchzuführen."
 
-#. [Messages]CannotContinue
+msgctxt "[Messages]CannotContinue"
 msgid "Setup cannot continue. Please click Cancel to exit."
 msgstr ""
 "Das Setup kann nicht fortfahren. Bitte klicken Sie auf \"Abbrechen\" zum "
 "Verlassen."
 
-#. [Messages]ApplicationsFound
+msgctxt "[Messages]ApplicationsFound"
 msgid ""
 "The following applications are using files that need to be updated by Setup."
 " It is recommended that you allow Setup to automatically close these "
@@ -836,7 +819,7 @@ msgstr ""
 "Die folgenden Anwendungen benutzen Dateien, die aktualisiert werden müssen. "
 "Es wird empfohlen, Setup zu erlauben, diese Anwendungen zu schließen."
 
-#. [Messages]ApplicationsFound2
+msgctxt "[Messages]ApplicationsFound2"
 msgid ""
 "The following applications are using files that need to be updated by Setup."
 " It is recommended that you allow Setup to automatically close these "
@@ -848,15 +831,15 @@ msgstr ""
 "Nachdem die Installation fertiggestellt wurde, versucht Setup, diese "
 "Anwendungen wieder zu starten."
 
-#. [Messages]CloseApplications
+msgctxt "[Messages]CloseApplications"
 msgid "&Automatically close the applications"
 msgstr "&Schließe die Anwendungen automatisch"
 
-#. [Messages]DontCloseApplications
+msgctxt "[Messages]DontCloseApplications"
 msgid "&Do not close the applications"
 msgstr "Schließe die A&nwendungen nicht"
 
-#. [Messages]ErrorCloseApplications
+msgctxt "[Messages]ErrorCloseApplications"
 msgid ""
 "Setup was unable to automatically close all applications. It is recommended "
 "that you close all applications using files that need to be updated by Setup"
@@ -866,7 +849,7 @@ msgstr ""
 "empfohlen, alle Anwendungen zu schließen, die Dateien benutzen, die vom "
 "Setup vor einer Fortsetzung aktualisiert werden müssen."
 
-#. [Messages]PrepareToInstallNeedsRestart
+msgctxt "[Messages]PrepareToInstallNeedsRestart"
 msgid ""
 "Setup must restart your computer. After restarting your computer, run Setup "
 "again to complete the installation of [name].%n%nWould you like to restart "
@@ -876,24 +859,24 @@ msgstr ""
 "Setup erneut aus, um die Installation von [name] abzuschließen.%n%nWollen "
 "Sie jetzt neu starten?"
 
-#. [Messages]WizardInstalling
+msgctxt "[Messages]WizardInstalling"
 msgid "Installing"
 msgstr "Installiere ..."
 
-#. [Messages]InstallingLabel
+msgctxt "[Messages]InstallingLabel"
 msgid "Please wait while Setup installs [name] on your computer."
 msgstr "Warten Sie bitte, während [name] auf Ihrem Computer installiert wird."
 
-#. [Messages]FinishedHeadingLabel
+msgctxt "[Messages]FinishedHeadingLabel"
 msgid "Completing the [name] Setup Wizard"
 msgstr "Beenden des [name] Setup-Assistenten"
 
-#. [Messages]FinishedLabelNoIcons
+msgctxt "[Messages]FinishedLabelNoIcons"
 msgid "Setup has finished installing [name] on your computer."
 msgstr ""
 "Das Setup hat die Installation von [name] auf Ihrem Computer abgeschlossen."
 
-#. [Messages]FinishedLabel
+msgctxt "[Messages]FinishedLabel"
 msgid ""
 "Setup has finished installing [name] on your computer. The application may "
 "be launched by selecting the installed shortcuts."
@@ -902,11 +885,11 @@ msgstr ""
 "Die Anwendung kann über die installierten Programm-Verknüpfungen gestartet "
 "werden."
 
-#. [Messages]ClickFinish
+msgctxt "[Messages]ClickFinish"
 msgid "Click Finish to exit Setup."
 msgstr "Klicken Sie auf \"Fertigstellen\", um das Setup zu beenden."
 
-#. [Messages]FinishedRestartLabel
+msgctxt "[Messages]FinishedRestartLabel"
 msgid ""
 "To complete the installation of [name], Setup must restart your computer. "
 "Would you like to restart now?"
@@ -914,7 +897,7 @@ msgstr ""
 "Um die Installation von [name] abzuschließen, muss das Setup Ihren Computer "
 "neu starten. Möchten Sie jetzt neu starten?"
 
-#. [Messages]FinishedRestartMessage
+msgctxt "[Messages]FinishedRestartMessage"
 msgid ""
 "To complete the installation of [name], Setup must restart your "
 "computer.%n%nWould you like to restart now?"
@@ -922,31 +905,31 @@ msgstr ""
 "Um die Installation von [name] abzuschließen, muss das Setup Ihren Computer "
 "neu starten.%n%nMöchten Sie jetzt neu starten?"
 
-#. [Messages]ShowReadmeCheck
+msgctxt "[Messages]ShowReadmeCheck"
 msgid "Yes, I would like to view the README file"
 msgstr "Ja, ich möchte die LIESMICH-Datei sehen"
 
-#. [Messages]YesRadio
+msgctxt "[Messages]YesRadio"
 msgid "&Yes, restart the computer now"
 msgstr "&Ja, Computer jetzt neu starten"
 
-#. [Messages]NoRadio
+msgctxt "[Messages]NoRadio"
 msgid "&No, I will restart the computer later"
 msgstr "&Nein, ich werde den Computer später neu starten"
 
-#. [Messages]RunEntryExec
+msgctxt "[Messages]RunEntryExec"
 msgid "Run %1"
 msgstr "%1 starten"
 
-#. [Messages]RunEntryShellExec
+msgctxt "[Messages]RunEntryShellExec"
 msgid "View %1"
 msgstr "%1 anzeigen"
 
-#. [Messages]ChangeDiskTitle
+msgctxt "[Messages]ChangeDiskTitle"
 msgid "Setup Needs the Next Disk"
 msgstr "Nächsten Datenträger einlegen"
 
-#. [Messages]SelectDiskLabel2
+msgctxt "[Messages]SelectDiskLabel2"
 msgid ""
 "Please insert Disk %1 and click OK.%n%nIf the files on this disk can be "
 "found in a folder other than the one displayed below, enter the correct path"
@@ -957,11 +940,11 @@ msgstr ""
 "Ordner befinden, dann geben Sie bitte den korrekten Pfad ein oder klicken "
 "auf \"Durchsuchen\"."
 
-#. [Messages]PathLabel
+msgctxt "[Messages]PathLabel"
 msgid "&Path:"
 msgstr "&Pfad:"
 
-#. [Messages]FileNotInDir2
+msgctxt "[Messages]FileNotInDir2"
 msgid ""
 "The file \"%1\" could not be located in \"%2\". Please insert the correct "
 "disk or select another folder."
@@ -969,335 +952,335 @@ msgstr ""
 "Die Datei \"%1\" befindet sich nicht in \"%2\". Bitte Ordner ändern oder "
 "richtigen Datenträger einlegen."
 
-#. [Messages]SelectDirectoryLabel
+msgctxt "[Messages]SelectDirectoryLabel"
 msgid "Please specify the location of the next disk."
 msgstr "Geben Sie bitte an, wo der nächste Datenträger eingelegt wird."
 
-#. [Messages]SetupAborted
+msgctxt "[Messages]SetupAborted"
 msgid ""
 "Setup was not completed.%n%nPlease correct the problem and run Setup again."
 msgstr ""
 "Das Setup konnte nicht abgeschlossen werden.%n%nBeheben Sie bitte das "
 "Problem und starten Sie das Setup erneut."
 
-#. [Messages]AbortRetryIgnoreSelectAction
+msgctxt "[Messages]AbortRetryIgnoreSelectAction"
 msgid "Select action"
 msgstr "Bitte auswählen"
 
-#. [Messages]AbortRetryIgnoreRetry
+msgctxt "[Messages]AbortRetryIgnoreRetry"
 msgid "&Try again"
 msgstr "&Nochmals versuchen"
 
-#. [Messages]AbortRetryIgnoreIgnore
+msgctxt "[Messages]AbortRetryIgnoreIgnore"
 msgid "&Ignore the error and continue"
 msgstr "&Den Fehler ignorieren und fortfahren"
 
-#. [Messages]AbortRetryIgnoreCancel
+msgctxt "[Messages]AbortRetryIgnoreCancel"
 msgid "Cancel installation"
 msgstr "Installation abbrechen"
 
-#. [Messages]RetryCancelSelectAction
+msgctxt "[Messages]RetryCancelSelectAction"
 msgid "Select action"
 msgstr "Bitte auswählen"
 
-#. [Messages]RetryCancelRetry
+msgctxt "[Messages]RetryCancelRetry"
 msgid "&Try again"
 msgstr "&Wiederholen"
 
-#. [Messages]RetryCancelCancel
+msgctxt "[Messages]RetryCancelCancel"
 msgid "Cancel"
 msgstr "&Abbrechen"
 
-#. [Messages]StatusClosingApplications
+msgctxt "[Messages]StatusClosingApplications"
 msgid "Closing applications..."
 msgstr "Anwendungen werden geschlossen ..."
 
-#. [Messages]StatusCreateDirs
+msgctxt "[Messages]StatusCreateDirs"
 msgid "Creating directories..."
 msgstr "Ordner werden erstellt ..."
 
-#. [Messages]StatusExtractFiles
+msgctxt "[Messages]StatusExtractFiles"
 msgid "Extracting files..."
 msgstr "Dateien werden entpackt ..."
 
-#. [Messages]StatusDownloadFiles
+msgctxt "[Messages]StatusDownloadFiles"
 msgid "Downloading files..."
 msgstr "Dateien werden herunter geladen..."
 
-#. [Messages]StatusCreateIcons
+msgctxt "[Messages]StatusCreateIcons"
 msgid "Creating shortcuts..."
 msgstr "Verknüpfungen werden erstellt ..."
 
-#. [Messages]StatusCreateIniEntries
+msgctxt "[Messages]StatusCreateIniEntries"
 msgid "Creating INI entries..."
 msgstr "INI-Einträge werden erstellt ..."
 
-#. [Messages]StatusCreateRegistryEntries
+msgctxt "[Messages]StatusCreateRegistryEntries"
 msgid "Creating registry entries..."
 msgstr "Registry-Einträge werden erstellt ..."
 
-#. [Messages]StatusRegisterFiles
+msgctxt "[Messages]StatusRegisterFiles"
 msgid "Registering files..."
 msgstr "Dateien werden registriert ..."
 
-#. [Messages]StatusSavingUninstall
+msgctxt "[Messages]StatusSavingUninstall"
 msgid "Saving uninstall information..."
 msgstr "Deinstallationsinformationen werden gespeichert ..."
 
-#. [Messages]StatusRunProgram
+msgctxt "[Messages]StatusRunProgram"
 msgid "Finishing installation..."
 msgstr "Installation wird beendet ..."
 
-#. [Messages]StatusRestartingApplications
+msgctxt "[Messages]StatusRestartingApplications"
 msgid "Restarting applications..."
 msgstr "Neustart der Anwendungen ..."
 
-#. [Messages]StatusRollback
+msgctxt "[Messages]StatusRollback"
 msgid "Rolling back changes..."
 msgstr "Änderungen werden rückgängig gemacht ..."
 
-#. [Messages]ErrorInternal2
+msgctxt "[Messages]ErrorInternal2"
 msgid "Internal error: %1"
 msgstr "Interner Fehler: %1"
 
-#. [Messages]ErrorFunctionFailedNoCode
+msgctxt "[Messages]ErrorFunctionFailedNoCode"
 msgid "%1 failed"
 msgstr "%1 schlug fehl"
 
-#. [Messages]ErrorFunctionFailed
+msgctxt "[Messages]ErrorFunctionFailed"
 msgid "%1 failed; code %2"
 msgstr "%1 schlug fehl; Code %2"
 
-#. [Messages]ErrorFunctionFailedWithMessage
+msgctxt "[Messages]ErrorFunctionFailedWithMessage"
 msgid "%1 failed; code %2.%n%3"
 msgstr "%1 schlug fehl; Code %2.%n%3"
 
-#. [Messages]ErrorExecutingProgram
+msgctxt "[Messages]ErrorExecutingProgram"
 msgid "Unable to execute file:%n%1"
 msgstr "Datei kann nicht ausgeführt werden:%n%1"
 
-#. [Messages]ErrorRegOpenKey
+msgctxt "[Messages]ErrorRegOpenKey"
 msgid "Error opening registry key:%n%1\\%2"
 msgstr "Registry-Schlüssel konnte nicht geöffnet werden:%n%1\\%2"
 
-#. [Messages]ErrorRegCreateKey
+msgctxt "[Messages]ErrorRegCreateKey"
 msgid "Error creating registry key:%n%1\\%2"
 msgstr "Registry-Schlüssel konnte nicht erstellt werden:%n%1\\%2"
 
-#. [Messages]ErrorRegWriteKey
+msgctxt "[Messages]ErrorRegWriteKey"
 msgid "Error writing to registry key:%n%1\\%2"
 msgstr "Fehler beim Schreiben des Registry-Schlüssels:%n%1\\%2"
 
-#. [Messages]ErrorIniEntry
+msgctxt "[Messages]ErrorIniEntry"
 msgid "Error creating INI entry in file \"%1\"."
 msgstr "Fehler beim Erstellen eines INI-Eintrages in der Datei \"%1\"."
 
-#. [Messages]FileAbortRetryIgnoreSkipNotRecommended
+msgctxt "[Messages]FileAbortRetryIgnoreSkipNotRecommended"
 msgid "&Skip this file (not recommended)"
 msgstr "Diese Datei &überspringen (nicht empfohlen)"
 
-#. [Messages]FileAbortRetryIgnoreIgnoreNotRecommended
+msgctxt "[Messages]FileAbortRetryIgnoreIgnoreNotRecommended"
 msgid "&Ignore the error and continue (not recommended)"
 msgstr "Den Fehler &ignorieren und fortfahren (nicht empfohlen)"
 
-#. [Messages]SourceIsCorrupted
+msgctxt "[Messages]SourceIsCorrupted"
 msgid "The source file is corrupted"
 msgstr "Die Quelldatei ist beschädigt"
 
-#. [Messages]SourceDoesntExist
+msgctxt "[Messages]SourceDoesntExist"
 msgid "The source file \"%1\" does not exist"
 msgstr "Die Quelldatei \"%1\" existiert nicht"
 
-#. [Messages]SourceVerificationFailed
+msgctxt "[Messages]SourceVerificationFailed"
 msgid "Verification of the source file failed: %1"
 msgstr "Überprüfung der Quelldatei fehlgeschlagen: %1"
 
-#. [Messages]VerificationSignatureDoesntExist
+msgctxt "[Messages]VerificationSignatureDoesntExist"
 msgid "The signature file \"%1\" does not exist"
 msgstr "Die Signaturdatei \"%1\" existiert nicht"
 
-#. [Messages]VerificationSignatureInvalid
+msgctxt "[Messages]VerificationSignatureInvalid"
 msgid "The signature file \"%1\" is invalid"
 msgstr "Die Signaturdatei \"%1\" ist ungültig"
 
-#. [Messages]VerificationKeyNotFound
+msgctxt "[Messages]VerificationKeyNotFound"
 msgid "The signature file \"%1\" uses an unknown key"
 msgstr "Die Signaturdatei \"%1\" verwendet einen unbekannten Schlüssel"
 
-#. [Messages]VerificationFileNameIncorrect
+msgctxt "[Messages]VerificationFileNameIncorrect"
 msgid "The name of the file is incorrect"
 msgstr "Der Name der Datei ist ungültig"
 
-#. [Messages]VerificationFileTagIncorrect
+msgctxt "[Messages]VerificationFileTagIncorrect"
 msgid "The tag of the file is incorrect"
 msgstr "Der Tag der Datei ist ungültig"
 
-#. [Messages]VerificationFileSizeIncorrect
+msgctxt "[Messages]VerificationFileSizeIncorrect"
 msgid "The size of the file is incorrect"
 msgstr "Die Größe der Datei ist ungültig"
 
-#. [Messages]VerificationFileHashIncorrect
+msgctxt "[Messages]VerificationFileHashIncorrect"
 msgid "The hash of the file is incorrect"
 msgstr "Der Hashwert der Datei ist ungültig"
 
-#. [Messages]ExistingFileReadOnly2
+msgctxt "[Messages]ExistingFileReadOnly2"
 msgid ""
 "The existing file could not be replaced because it is marked read-only."
 msgstr ""
 "Die vorhandene Datei kann nicht ersetzt werden, da sie schreibgeschützt ist."
 
-#. [Messages]ExistingFileReadOnlyRetry
+msgctxt "[Messages]ExistingFileReadOnlyRetry"
 msgid "&Remove the read-only attribute and try again"
 msgstr "&Den Schreibschutz entfernen und noch einmal versuchen"
 
-#. [Messages]ExistingFileReadOnlyKeepExisting
+msgctxt "[Messages]ExistingFileReadOnlyKeepExisting"
 msgid "&Keep the existing file"
 msgstr "Die &vorhandene Datei behalten"
 
-#. [Messages]ErrorReadingExistingDest
+msgctxt "[Messages]ErrorReadingExistingDest"
 msgid "An error occurred while trying to read the existing file:"
 msgstr "Lesefehler in Datei:"
 
-#. [Messages]FileExistsSelectAction
+msgctxt "[Messages]FileExistsSelectAction"
 msgid "Select action"
 msgstr "Aktion auswählen"
 
-#. [Messages]FileExists2
+msgctxt "[Messages]FileExists2"
 msgid "The file already exists."
 msgstr "Die Datei ist bereits vorhanden."
 
-#. [Messages]FileExistsOverwriteExisting
+msgctxt "[Messages]FileExistsOverwriteExisting"
 msgid "&Overwrite the existing file"
 msgstr "Vorhandene Datei &überschreiben"
 
-#. [Messages]FileExistsKeepExisting
+msgctxt "[Messages]FileExistsKeepExisting"
 msgid "&Keep the existing file"
 msgstr "Vorhandene Datei &behalten"
 
-#. [Messages]FileExistsOverwriteOrKeepAll
+msgctxt "[Messages]FileExistsOverwriteOrKeepAll"
 msgid "&Do this for the next conflicts"
 msgstr "&Dies auch für die nächsten Konflikte ausführen"
 
-#. [Messages]ExistingFileNewerSelectAction
+msgctxt "[Messages]ExistingFileNewerSelectAction"
 msgid "Select action"
 msgstr "Aktion auswählen"
 
-#. [Messages]ExistingFileNewer2
+msgctxt "[Messages]ExistingFileNewer2"
 msgid "The existing file is newer than the one Setup is trying to install."
 msgstr ""
 "Die vorhandene Datei ist neuer als die Datei, die installiert werden soll."
 
-#. [Messages]ExistingFileNewerOverwriteExisting
+msgctxt "[Messages]ExistingFileNewerOverwriteExisting"
 msgid "&Overwrite the existing file"
 msgstr "Vorhandene Datei &überschreiben"
 
-#. [Messages]ExistingFileNewerKeepExisting
+msgctxt "[Messages]ExistingFileNewerKeepExisting"
 msgid "&Keep the existing file (recommended)"
 msgstr "Vorhandene Datei &behalten (empfohlen)"
 
-#. [Messages]ExistingFileNewerOverwriteOrKeepAll
+msgctxt "[Messages]ExistingFileNewerOverwriteOrKeepAll"
 msgid "&Do this for the next conflicts"
 msgstr "&Dies auch für die nächsten Konflikte ausführen"
 
-#. [Messages]ErrorChangingAttr
+msgctxt "[Messages]ErrorChangingAttr"
 msgid ""
 "An error occurred while trying to change the attributes of the existing "
 "file:"
 msgstr "Fehler beim Ändern der Datei-Attribute:"
 
-#. [Messages]ErrorCreatingTemp
+msgctxt "[Messages]ErrorCreatingTemp"
 msgid ""
 "An error occurred while trying to create a file in the destination "
 "directory:"
 msgstr "Fehler beim Erstellen einer Datei im Ziel-Ordner:"
 
-#. [Messages]ErrorReadingSource
+msgctxt "[Messages]ErrorReadingSource"
 msgid "An error occurred while trying to read the source file:"
 msgstr "Fehler beim Lesen der Quelldatei:"
 
-#. [Messages]ErrorCopying
+msgctxt "[Messages]ErrorCopying"
 msgid "An error occurred while trying to copy a file:"
 msgstr "Fehler beim Kopieren einer Datei:"
 
-#. [Messages]ErrorDownloading
+msgctxt "[Messages]ErrorDownloading"
 msgid "An error occurred while trying to download a file:"
 msgstr "Beim Download der Datei ist ein Fehler aufgetreten:"
 
-#. [Messages]ErrorExtracting
+msgctxt "[Messages]ErrorExtracting"
 msgid "An error occurred while trying to extract an archive:"
 msgstr "Beim Entpacken eines Archivs ist ein Fehler aufgetreten:"
 
-#. [Messages]ErrorReplacingExistingFile
+msgctxt "[Messages]ErrorReplacingExistingFile"
 msgid "An error occurred while trying to replace the existing file:"
 msgstr "Fehler beim Ersetzen einer vorhandenen Datei:"
 
-#. [Messages]ErrorRestartReplace
+msgctxt "[Messages]ErrorRestartReplace"
 msgid "RestartReplace failed:"
 msgstr "\"Ersetzen nach Neustart\" fehlgeschlagen:"
 
-#. [Messages]ErrorRenamingTemp
+msgctxt "[Messages]ErrorRenamingTemp"
 msgid ""
 "An error occurred while trying to rename a file in the destination "
 "directory:"
 msgstr "Fehler beim Umbenennen einer Datei im Ziel-Ordner:"
 
-#. [Messages]ErrorRegisterServer
+msgctxt "[Messages]ErrorRegisterServer"
 msgid "Unable to register the DLL/OCX: %1"
 msgstr "DLL/OCX konnte nicht registriert werden: %1"
 
-#. [Messages]ErrorRegSvr32Failed
+msgctxt "[Messages]ErrorRegSvr32Failed"
 msgid "RegSvr32 failed with exit code %1"
 msgstr "RegSvr32-Aufruf scheiterte mit Exit-Code %1"
 
-#. [Messages]ErrorRegisterTypeLib
+msgctxt "[Messages]ErrorRegisterTypeLib"
 msgid "Unable to register the type library: %1"
 msgstr "Typen-Bibliothek konnte nicht registriert werden: %1"
 
-#. [Messages]UninstallDisplayNameMark
+msgctxt "[Messages]UninstallDisplayNameMark"
 msgid "%1 (%2)"
 msgstr "%1 (%2)"
 
-#. [Messages]UninstallDisplayNameMarks
+msgctxt "[Messages]UninstallDisplayNameMarks"
 msgid "%1 (%2, %3)"
 msgstr "%1 (%2, %3)"
 
-#. [Messages]UninstallDisplayNameMark32Bit
+msgctxt "[Messages]UninstallDisplayNameMark32Bit"
 msgid "32-bit"
 msgstr "32 Bit"
 
-#. [Messages]UninstallDisplayNameMark64Bit
+msgctxt "[Messages]UninstallDisplayNameMark64Bit"
 msgid "64-bit"
 msgstr "64 Bit"
 
-#. [Messages]UninstallDisplayNameMarkAllUsers
+msgctxt "[Messages]UninstallDisplayNameMarkAllUsers"
 msgid "All users"
 msgstr "Alle Benutzer"
 
-#. [Messages]UninstallDisplayNameMarkCurrentUser
+msgctxt "[Messages]UninstallDisplayNameMarkCurrentUser"
 msgid "Current user"
 msgstr "Aktueller Benutzer"
 
-#. [Messages]ErrorOpeningReadme
+msgctxt "[Messages]ErrorOpeningReadme"
 msgid "An error occurred while trying to open the README file."
 msgstr "Fehler beim Öffnen der LIESMICH-Datei."
 
-#. [Messages]ErrorRestartingComputer
+msgctxt "[Messages]ErrorRestartingComputer"
 msgid "Setup was unable to restart the computer. Please do this manually."
 msgstr ""
 "Das Setup konnte den Computer nicht neu starten. Bitte führen Sie den "
 "Neustart manuell durch."
 
-#. [Messages]UninstallNotFound
+msgctxt "[Messages]UninstallNotFound"
 msgid "File \"%1\" does not exist. Cannot uninstall."
 msgstr "Die Datei \"%1\" existiert nicht. Entfernen der Anwendung fehlgeschlagen."
 
-#. [Messages]UninstallOpenError
+msgctxt "[Messages]UninstallOpenError"
 msgid "File \"%1\" could not be opened. Cannot uninstall"
 msgstr ""
 "Die Datei \"%1\" konnte nicht geöffnet werden. Entfernen der Anwendung "
 "fehlgeschlagen."
 
-#. [Messages]UninstallUnsupportedVer
+msgctxt "[Messages]UninstallUnsupportedVer"
 msgid ""
 "The uninstall log file \"%1\" is in a format not recognized by this version "
 "of the uninstaller. Cannot uninstall"
@@ -1305,24 +1288,24 @@ msgstr ""
 "Das Format der Deinstallationsdatei \"%1\" konnte nicht erkannt werden. "
 "Entfernen der Anwendung fehlgeschlagen."
 
-#. [Messages]UninstallUnknownEntry
+msgctxt "[Messages]UninstallUnknownEntry"
 msgid "An unknown entry (%1) was encountered in the uninstall log"
 msgstr ""
 "In der Deinstallationsdatei wurde ein unbekannter Eintrag (%1) gefunden."
 
-#. [Messages]ConfirmUninstall
+msgctxt "[Messages]ConfirmUninstall"
 msgid ""
 "Are you sure you want to completely remove %1 and all of its components?"
 msgstr ""
 "Sind Sie sicher, dass Sie %1 und alle zugehörigen Komponenten entfernen "
 "möchten?"
 
-#. [Messages]UninstallOnlyOnWin64
+msgctxt "[Messages]UninstallOnlyOnWin64"
 msgid "This installation can only be uninstalled on 64-bit Windows."
 msgstr ""
 "Diese Installation kann nur unter 64-Bit-Windows-Versionen entfernt werden."
 
-#. [Messages]OnlyAdminCanUninstall
+msgctxt "[Messages]OnlyAdminCanUninstall"
 msgid ""
 "This installation can only be uninstalled by a user with administrative "
 "privileges."
@@ -1330,15 +1313,15 @@ msgstr ""
 "Diese Installation kann nur von einem Benutzer mit Administrator-Rechten "
 "entfernt werden."
 
-#. [Messages]UninstallStatusLabel
+msgctxt "[Messages]UninstallStatusLabel"
 msgid "Please wait while %1 is removed from your computer."
 msgstr "Warten Sie bitte, während %1 von Ihrem Computer entfernt wird."
 
-#. [Messages]UninstalledAll
+msgctxt "[Messages]UninstalledAll"
 msgid "%1 was successfully removed from your computer."
 msgstr "%1 wurde erfolgreich von Ihrem Computer entfernt."
 
-#. [Messages]UninstalledMost
+msgctxt "[Messages]UninstalledMost"
 msgid ""
 "%1 uninstall complete.%n%nSome elements could not be removed. These can be "
 "removed manually."
@@ -1346,7 +1329,7 @@ msgstr ""
 "Entfernen von %1 beendet.%n%nEinige Komponenten konnten nicht entfernt "
 "werden. Diese können von Ihnen manuell gelöscht werden."
 
-#. [Messages]UninstalledAndNeedsRestart
+msgctxt "[Messages]UninstalledAndNeedsRestart"
 msgid ""
 "To complete the uninstallation of %1, your computer must be "
 "restarted.%n%nWould you like to restart now?"
@@ -1354,15 +1337,15 @@ msgstr ""
 "Um die Deinstallation von %1 abzuschließen, muss Ihr Computer neu gestartet "
 "werden.%n%nMöchten Sie jetzt neu starten?"
 
-#. [Messages]UninstallDataCorrupted
+msgctxt "[Messages]UninstallDataCorrupted"
 msgid "\"%1\" file is corrupted. Cannot uninstall"
 msgstr "\"%1\"-Datei ist beschädigt. Entfernen der Anwendung fehlgeschlagen."
 
-#. [Messages]ConfirmDeleteSharedFileTitle
+msgctxt "[Messages]ConfirmDeleteSharedFileTitle"
 msgid "Remove Shared File?"
 msgstr "Gemeinsame Datei entfernen?"
 
-#. [Messages]ConfirmDeleteSharedFile2
+msgctxt "[Messages]ConfirmDeleteSharedFile2"
 msgid ""
 "The system indicates that the following shared file is no longer in use by "
 "any programs. Would you like for Uninstall to remove this shared file?%n%nIf"
@@ -1377,95 +1360,95 @@ msgstr ""
 "richtig. Wenn Sie unsicher sind, wählen Sie \"Nein\", um die Datei im System"
 " zu belassen. Es schadet Ihrem System nicht, wenn Sie die Datei behalten."
 
-#. [Messages]SharedFileNameLabel
+msgctxt "[Messages]SharedFileNameLabel"
 msgid "File name:"
 msgstr "Dateiname:"
 
-#. [Messages]SharedFileLocationLabel
+msgctxt "[Messages]SharedFileLocationLabel"
 msgid "Location:"
 msgstr "Ordner:"
 
-#. [Messages]WizardUninstalling
+msgctxt "[Messages]WizardUninstalling"
 msgid "Uninstall Status"
 msgstr "Entfernen (Status)"
 
-#. [Messages]StatusUninstalling
+msgctxt "[Messages]StatusUninstalling"
 msgid "Uninstalling %1..."
 msgstr "Entferne %1 ..."
 
-#. [Messages]ShutdownBlockReasonInstallingApp
+msgctxt "[Messages]ShutdownBlockReasonInstallingApp"
 msgid "Installing %1."
 msgstr "Installation von %1."
 
-#. [Messages]ShutdownBlockReasonUninstallingApp
+msgctxt "[Messages]ShutdownBlockReasonUninstallingApp"
 msgid "Uninstalling %1."
 msgstr "Deinstallation von %1."
 
-#. [CustomMessages]installservicetask
+msgctxt "[CustomMessages]installservicetask"
 msgid "Run Kolibri automatically when the computer starts"
 msgstr ""
 
-#. [CustomMessages]newerversioninstalled
+msgctxt "[CustomMessages]newerversioninstalled"
 msgid ""
 "A newer version of {#AppName} (%1) is already installed. This installer "
 "contains version %2, which is older. The setup will now exit."
 msgstr ""
 
-#. [CustomMessages]sameversioninstalled
+msgctxt "[CustomMessages]sameversioninstalled"
 msgid ""
 "This version of %1 is already installed. Do you want to repair the "
 "installation by reinstalling it?"
 msgstr ""
 
-#. [CustomMessages]olderversioninstalled
+msgctxt "[CustomMessages]olderversioninstalled"
 msgid ""
 "An older version of {#AppName} (%1) was detected. Do you want to upgrade to "
 "version {#AppVersion}?"
 msgstr ""
 
-#. [CustomMessages]confirmuninstalldata
+msgctxt "[CustomMessages]confirmuninstalldata"
 msgid ""
 "Do you want to completely remove all Kolibri user data? This includes all "
 "downloaded content, user accounts, and progress, and cannot be undone."
 msgstr ""
 
-#. [CustomMessages]criticalerror
+msgctxt "[CustomMessages]criticalerror"
 msgid ""
 "A critical error occurred while trying to run a setup command: %1. The "
 "installation cannot continue."
 msgstr ""
 
-#. [CustomMessages]commanderror
+msgctxt "[CustomMessages]commanderror"
 msgid ""
 "A command required for setup failed to execute correctly: %1. Error Code: "
 "%2. The installation cannot continue."
 msgstr ""
 
-#. [CustomMessages]versionparseerror
+msgctxt "[CustomMessages]versionparseerror"
 msgid ""
 "Could not compare versions due to an invalid version format. Please "
 "uninstall the previous version manually and try again."
 msgstr ""
 
-#. [CustomMessages]migrationfailed
+msgctxt "[CustomMessages]migrationfailed"
 msgid ""
 "The installer failed to migrate user data from the old location (%1) to the "
 "new location (%2). Your data has not been moved. Please contact support for "
 "assistance."
 msgstr ""
 
-#. [CustomMessages]createdesktopicon
+msgctxt "[CustomMessages]createdesktopicon"
 msgid "Create a &desktop icon"
 msgstr ""
 
-#. [CustomMessages]additionalicons
+msgctxt "[CustomMessages]additionalicons"
 msgid "Additional icons:"
 msgstr ""
 
-#. [CustomMessages]launchprogram
+msgctxt "[CustomMessages]launchprogram"
 msgid "Launch %1"
 msgstr ""
 
-#. [CustomMessages]installationtype
+msgctxt "[CustomMessages]installationtype"
 msgid "Installation Type:"
 msgstr ""

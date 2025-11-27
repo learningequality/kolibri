@@ -1,10 +1,7 @@
-; Master English messages for Kolibri Installer
-; Last updated: 2025-10-15T09:48:28Z
-
-[LangOptions]
-languagename=English
-languageid=$0409
+﻿[LangOptions]
 languagecodepage=0
+LanguageName=English
+LanguageID=$0409
 
 [Messages]
 SetupAppTitle=Setup

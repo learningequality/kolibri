@@ -2,60 +2,61 @@ import argparse
 import configparser
 
 import polib
+from definitions import LANG_DEFINITIONS
 
 
-def convert_po_to_isl(template_isl_path, translated_po_path, output_isl_path):
+def convert_po_to_isl(
+    template_isl_path, translated_po_path, output_isl_path, locale_code
+):
     encoding = "utf-8-sig"
 
-    # 1. Load the translated .po file
+    # 1. Load PO
     po = polib.pofile(translated_po_path, encoding="utf-8")
 
-    # 2. Create a lookup map from msgid (English) to msgstr (Translated)
+    # 2. Create a lookup map using a Tuple: (msgid, msgctxt)
     translation_map = {
-        entry.msgid: entry.msgstr for entry in po if entry.msgstr and entry.msgid
+        (entry.msgid, entry.msgctxt): entry.msgstr for entry in po if entry.msgstr
     }
 
-    # 3. Load the template .isl file to get the structure and keys
-    template_config = configparser.ConfigParser(interpolation=None)
-    template_config.optionxform = str
-    template_config.read(template_isl_path, encoding=encoding)
+    # 3. Load Template
+    config = configparser.ConfigParser(interpolation=None)
+    config.optionxform = str
+    config.read(template_isl_path, encoding=encoding)
 
-    # 4. Iterate through the template and replace values with translations
-    for section in template_config.sections():
-        for key in template_config[section]:
-            english_string = template_config[section][key]
+    # 4. Update Translations
+    for section in config.sections():
+        for key in config[section]:
+            english_string = config[section][key]
 
-            translated_string = translation_map.get(english_string)
+            context_key = f"[{section}]{key}"
 
-            # If a translation exists, update the value in our config object
+            translated_string = translation_map.get((english_string, context_key))
+
             if translated_string:
-                template_config.set(section, key, translated_string)
+                config.set(section, key, translated_string)
 
-    print(f"Successfully created ISL file: {output_isl_path}")
-    with open(output_isl_path, "w", encoding="utf-8-sig") as f:
-        template_config.write(f, space_around_delimiters=False)
+    # 5. Add LangOptions section
+    if locale_code in LANG_DEFINITIONS:
+        lang_def = LANG_DEFINITIONS[locale_code]
+        if not config.has_section("LangOptions"):
+            config.add_section("LangOptions")
+        config.set("LangOptions", "LanguageName", lang_def["inno_name"])
+        config.set("LangOptions", "LanguageID", lang_def["id"])
+
+    with open(output_isl_path, "w", encoding=encoding) as f:
+        config.write(f, space_around_delimiters=False)
+
+    print(f"Generated: {output_isl_path}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Convert PO files back to ISL format.")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--template", required=True)
+    parser.add_argument("-i", "--input", required=True)
+    parser.add_argument("-o", "--output", required=True)
     parser.add_argument(
-        "-t",
-        "--template",
-        required=True,
-        help="Path to the template ISL file (e.g., English.isl).",
-    )
-    parser.add_argument(
-        "-i",
-        "--input",
-        required=True,
-        help="Path to the translated PO file (e.g., German.po).",
-    )
-    parser.add_argument(
-        "-o",
-        "--output",
-        required=True,
-        help="Path for the output ISL file (e.g., German.isl).",
+        "-l", "--lang", required=True, help="Locale code (e.g. 'es_ES')"
     )
     args = parser.parse_args()
 
-    convert_po_to_isl(args.template, args.input, args.output)
+    convert_po_to_isl(args.template, args.input, args.output, args.lang)
