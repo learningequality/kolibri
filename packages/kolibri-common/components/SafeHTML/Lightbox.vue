@@ -4,7 +4,7 @@
     v-if="open"
     ref="dialogRef"
     closedby="any"
-    :aria-label="$tr('expandedImage')"
+    :aria-label="coreString('expandedImage')"
     class="lightbox-dialog"
     data-testid="lightbox-dialog"
     @close="closeLightbox"
@@ -19,8 +19,8 @@
           icon="remove"
           :color="$themeTokens.surface"
           size="small"
-          :aria-label="$tr('zoomOut')"
-          :tooltip="$tr('zoomOut')"
+          :aria-label="coreString('zoomOut')"
+          :tooltip="coreString('zoomOut')"
           :disabled="scale === minScale"
           @click="zoomImage('out')"
         />
@@ -30,8 +30,8 @@
           icon="add"
           :color="$themeTokens.surface"
           size="small"
-          :aria-label="$tr('zoomIn')"
-          :tooltip="$tr('zoomIn')"
+          :aria-label="coreString('zoomIn')"
+          :tooltip="coreString('zoomIn')"
           :disabled="scale === maxScale"
           autofocus
           @click="zoomImage('in')"
@@ -42,8 +42,8 @@
           icon="close"
           :color="$themeTokens.surface"
           size="small"
-          :aria-label="$tr('close')"
-          :tooltip="$tr('close')"
+          :aria-label="coreString('closeAction')"
+          :tooltip="coreString('closeAction')"
           @click="closeLightbox"
         />
       </div>
@@ -68,7 +68,13 @@
 
 <script>
 
+  import dialogPolyfill from 'dialog-polyfill';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+
   function supportsDialogClosedBy() {
+    if (typeof document === 'undefined') {
+      return false;
+    }
     const dialog = document.createElement('dialog');
     return 'closedBy' in dialog;
   }
@@ -79,13 +85,20 @@
 
   export default {
     name: 'Lightbox',
+    mixins: [commonCoreStrings],
     props: {
       open: {
         type: Boolean,
         required: true,
       },
-      src: { type: String, required: true },
-      alt: { type: String, default: '' },
+      src: {
+        type: String,
+        required: true,
+      },
+      alt: {
+        type: String,
+        default: '',
+      },
       styleOverrides: {
         type: Object,
         default: () => ({}),
@@ -104,6 +117,7 @@
         isDragging: false,
         dragStart: { x: 0, y: 0 },
         backdropClickValid: false,
+        polyfillRegistered: false,
       };
     },
     computed: {
@@ -127,25 +141,40 @@
     },
     watch: {
       open(val) {
+        const dialog = this.$refs.dialogRef;
+
         if (val) {
           this.$nextTick(() => {
-            if (this.$refs.dialogRef) {
-              this.$refs.dialogRef.showModal();
-              if (!supportsDialogClosedBy()) {
-                this.$refs.dialogRef.addEventListener('mousedown', this.onBackdropMouseDown);
-                this.$refs.dialogRef.addEventListener('mouseup', this.onBackdropMouseUp);
-              }
+            const dlg = this.$refs.dialogRef;
+            if (!dlg) return;
+
+            // If this dialog element itself doesn't have showModal, register polyfill.
+            if (typeof dlg.showModal !== 'function' && !this.polyfillRegistered) {
+              dialogPolyfill.registerDialog(dlg);
+              this.polyfillRegistered = true;
+            }
+
+            dlg.showModal();
+
+            if (!supportsDialogClosedBy()) {
+              dlg.addEventListener('mousedown', this.onBackdropMouseDown);
+              dlg.addEventListener('mouseup', this.onBackdropMouseUp);
             }
           });
         } else {
           if (this.$refs.imageRef) {
             this.$refs.imageRef.classList.remove('with-transition');
           }
-          if (this.$refs.dialogRef) {
-            this.$refs.dialogRef.close();
+          if (dialog) {
+            if (typeof dialog.close === 'function') {
+              dialog.close();
+            } else {
+              dialog.removeAttribute('open');
+            }
+
             if (!supportsDialogClosedBy()) {
-              this.$refs.dialogRef.removeEventListener('mousedown', this.onBackdropMouseDown);
-              this.$refs.dialogRef.removeEventListener('mouseup', this.onBackdropMouseUp);
+              dialog.removeEventListener('mousedown', this.onBackdropMouseDown);
+              dialog.removeEventListener('mouseup', this.onBackdropMouseUp);
             }
           }
         }
@@ -153,10 +182,8 @@
       scale(newScale) {
         this.$nextTick(() => {
           if (!this.$refs.imageRef) return;
-          // Keep focus within the dialog when zoom-out or zoom-in button become disabled
-          if (newScale == this.minScale || newScale == this.maxScale) {
+          if (newScale === this.minScale || newScale === this.maxScale) {
             this.$refs.imageRef.focus();
-            return;
           }
         });
       },
@@ -166,6 +193,9 @@
     },
     beforeDestroy() {
       window.removeEventListener('resize', this.onWindowResize);
+      // Extra safety in case the component is destroyed mid-drag
+      window.removeEventListener('mousemove', this.onMouseMove);
+      window.removeEventListener('mouseup', this.onMouseUp);
     },
     methods: {
       enableTransitionsAfterPaint() {
@@ -183,26 +213,34 @@
           });
         });
       },
+
+      /**
+       * Compute base image size (scale=1) to fit within viewport minus margins.
+       */
       calculateSize() {
         this.backdropSize.width = window.innerWidth;
-        this.backdropSize.height = window.innerHeight - 40; // 40px for action bar
-        const isSmallWindow = this.styleOverrides.windowSizeClass.includes('small-window');
-        const maxW = this.backdropSize.width - (isSmallWindow ? 32 : 64); // 32px margin for small window, 64px for larger
+        this.backdropSize.height = window.innerHeight - 40; // action bar height
+
+        const isSmallWindow = this.styleOverrides.windowSizeClass?.includes('small-window');
+        const maxW = this.backdropSize.width - (isSmallWindow ? 32 : 64);
         const maxH = this.backdropSize.height - (isSmallWindow ? 32 : 64);
 
         const img = this.$refs.imageRef;
         if (!img) return;
+
         const naturalW = img.naturalWidth;
         const naturalH = img.naturalHeight;
 
         const widthRatio = maxW / naturalW;
         const heightRatio = maxH / naturalH;
         const scale = Math.min(widthRatio, heightRatio, 1);
+
         this.baseSize.width = Math.round(naturalW * scale);
         this.baseSize.height = Math.round(naturalH * scale);
 
         this.enableTransitionsAfterPaint();
       },
+
       onWindowResize() {
         const img = this.$refs.imageRef;
         if (img && img.complete) {
@@ -221,6 +259,7 @@
         );
         return { DeltaLimitX, DeltaLimitY };
       },
+
       clampDelta() {
         const { DeltaLimitX, DeltaLimitY } = this.getDeltaLimits();
         this.delta.x = clamp(this.delta.x, -DeltaLimitX, DeltaLimitX);
@@ -230,7 +269,9 @@
         if (this.scale <= 1) return; // No reposition if not zoomed
         e.preventDefault();
         this.isDragging = true;
-        this.$refs.imageRef.classList.remove('with-transition');
+        if (this.$refs.imageRef) {
+          this.$refs.imageRef.classList.remove('with-transition');
+        }
         this.dragStart = { x: e.clientX, y: e.clientY };
         this.origin = { x: this.delta.x, y: this.delta.y };
         window.addEventListener('mousemove', this.onMouseMove);
@@ -244,7 +285,9 @@
       },
       onMouseUp() {
         this.isDragging = false;
-        this.$refs.imageRef.classList.add('with-transition');
+        if (this.$refs.imageRef) {
+          this.$refs.imageRef.classList.add('with-transition');
+        }
         window.removeEventListener('mousemove', this.onMouseMove);
         window.removeEventListener('mouseup', this.onMouseUp);
       },
@@ -262,19 +305,24 @@
         this.clampDelta();
       },
       handleTab(e) {
-        const focusables = this.$refs.dialogRef.querySelectorAll('button:not([disabled])');
+        const dialog = this.$refs.dialogRef;
+        if (!dialog) return;
+
+        const focusables = dialog.querySelectorAll('button:not([disabled])');
         if (!focusables.length) return;
-        const firstFocusable = focusables[0];
-        const lastFocusable = focusables[focusables.length - 1];
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
         if (e.shiftKey && e.key === 'Tab') {
-          if (document.activeElement === firstFocusable) {
+          if (document.activeElement === first) {
             e.preventDefault();
-            lastFocusable.focus();
+            last.focus();
           }
         } else if (e.key === 'Tab') {
-          if (document.activeElement === lastFocusable) {
-            firstFocusable.focus();
+          if (document.activeElement === last) {
             e.preventDefault();
+            first.focus();
           }
         }
       },
@@ -300,19 +348,19 @@
         newDeltaX = clamp(newDeltaX, -DeltaLimitX, DeltaLimitX);
         newDeltaY = clamp(newDeltaY, -DeltaLimitY, DeltaLimitY);
 
-        // Update delta and scale together
         this.delta.x = newDeltaX;
         this.delta.y = newDeltaY;
         this.scale = newScale;
 
-        if (this.scale === 1) this.resetPosition();
+        if (this.scale === 1) {
+          this.resetPosition();
+        }
       },
       onWheel(e) {
         e.preventDefault();
         const img = this.$refs.imageRef;
         if (!img) return;
         const rect = img.getBoundingClientRect();
-        // Cursor's position ratio relative to the center of the image
         const relX = (e.clientX - rect.left) / rect.width - 0.5;
         const relY = (e.clientY - rect.top) / rect.height - 0.5;
         if (e.deltaY < 0) {
@@ -326,7 +374,7 @@
         this.resetPosition();
         this.scale = 1;
       },
-      // Fallback backdrop mouse event handlers for browsers without `closedby` support
+
       onBackdropMouseDown(e) {
         // Only track if mousedown started on the backdrop (not on the actionbar nor image)
         this.backdropClickValid = e.target === this.$refs.dialogRef;
@@ -339,18 +387,14 @@
         this.backdropClickValid = false;
       },
     },
-    $trs: {
-      expandedImage: 'Expanded image',
-      zoomOut: 'Zoom out',
-      zoomIn: 'Zoom in',
-      close: 'Close',
-    },
   };
 
 </script>
 
 
 <style>
+
+  @import '~dialog-polyfill/dist/dialog-polyfill.css';
 
   .action-bar {
     position: fixed;
@@ -361,11 +405,12 @@
     display: flex;
     gap: 8px;
     align-items: center;
-    justify-content: end;
+    justify-content: flex-end;
     height: 40px;
     padding-right: 8px;
   }
 
+  /* Main dialog region under the action bar */
   .lightbox-dialog {
     position: fixed;
     inset: 40px 0 0;
@@ -379,10 +424,17 @@
     border: 0;
   }
 
+  /* Native backdrop */
   .lightbox-dialog::backdrop {
     background-color: rgba(51, 51, 51, 0.5);
   }
 
+  /* Polyfill backdrop (dialog + .backdrop sibling) */
+  .lightbox-dialog + .backdrop {
+    background-color: rgba(51, 51, 51, 0.5);
+  }
+
+  /* Image inside dialog */
   .expanded-image {
     position: relative;
     z-index: 110;
