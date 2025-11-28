@@ -82,4 +82,9 @@
       opacity 0.15s;
   }
 
+  .img-wrapper {
+    max-width: 900px;
+    max-height: 584px;
+  }
+
 </style>
