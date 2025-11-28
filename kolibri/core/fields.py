@@ -108,7 +108,7 @@ class JSONField(JSONFieldBase):
         if isinstance(value, str):
             try:
                 return json.loads(value, **self.load_kwargs)
-            except ValueError:
+            except json.JSONDecodeError:
                 pass
 
         return value
@@ -117,7 +117,7 @@ class JSONField(JSONFieldBase):
         if isinstance(value, str):
             try:
                 return json.loads(value, **self.load_kwargs)
-            except ValueError:
+            except json.JSONDecodeError:
                 pass
 
         return value
