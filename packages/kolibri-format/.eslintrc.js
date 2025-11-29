@@ -266,6 +266,7 @@ module.exports = {
     'kolibri/vue-component-require-img-src': ERROR,
     'kolibri/vue-component-class-name-casing': ERROR,
     'kolibri/vue-component-no-duplicate-ids': ERROR,
+    'kolibri/vue-no-rtl-breaking-inline-styles': ERROR,
 
     'prefer-const': [
       ERROR,
