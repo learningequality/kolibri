@@ -94,7 +94,7 @@ repos:
     name: Check LFS files are pointers not binary data
     description: Prevents accidentally committing binary files that should be LFS pointers (issue #7099)
     entry: python .pre-commit-hooks/check_lfs_pointers.py
-    language: python
+    language: system
 -   repo: https://github.com/isidentical/teyit
     rev: 0.4.3
     hooks:
