@@ -24,19 +24,16 @@
   import tippy from 'tippy.js/umd';
   import { onboardingSteps } from 'kolibri/utils/onboardingSteps';
   import useTour from 'kolibri/composables/useTour';
-  import useUser from '../../../kolibri/composables/useUser';
   import TooltipContent from './TooltipContent.vue';
 
   export default {
     name: 'TooltipTour',
     setup() {
       const { saveTourProgress, completeTour, currentStepIndex } = useTour();
-      const { user_id } = useUser();
       return {
         saveTourProgress,
         completeTour,
         currentStepIndex,
-        userId: user_id,
       };
     },
     props: {
@@ -164,11 +161,11 @@
       nextStep() {
         if (this.currentStepIndex < this.steps.length - 1) {
           this.currentStepIndex++;
-          this.saveTourProgress(this.userId, this.page, this.currentStepIndex, true);
+          this.saveTourProgress(this.page, this.currentStepIndex, true);
           this.showTooltip();
         } else {
           // Check if current page is the last key in onboardingSteps
-          this.saveTourProgress(this.userId, this.page, this.currentStepIndex, false);
+          this.saveTourProgress(this.page, this.currentStepIndex, false);
           const pageKeys = Object.keys(onboardingSteps);
           const isLastPage = this.page === pageKeys[pageKeys.length - 1];
           if (isLastPage) {
@@ -180,7 +177,7 @@
       prevStep() {
         if (this.currentStepIndex > 0) {
           this.currentStepIndex--;
-          this.saveTourProgress(this.userId, this.page, this.currentStepIndex, true);
+          this.saveTourProgress(this.page, this.currentStepIndex, true);
           this.showTooltip();
         }
       },
