@@ -7,6 +7,7 @@ import json
 import logging
 import os
 import platform
+from functools import lru_cache
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -19,7 +20,6 @@ from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.content.constants.schema_versions import MIN_CONTENT_SCHEMA_VERSION
 from kolibri.utils.android import ANDROID_PLATFORM_SYSTEM_VALUE
 from kolibri.utils.android import on_android
-from kolibri.utils.lru_cache import lru_cache
 
 logger = logging.getLogger(__name__)
 

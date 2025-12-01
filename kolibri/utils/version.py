@@ -89,8 +89,7 @@ import pkgutil
 import re
 import subprocess
 import sys
-
-from .lru_cache import lru_cache
+from functools import lru_cache
 
 logger = logging.getLogger(__name__)
 
