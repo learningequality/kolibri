@@ -8,7 +8,7 @@
       >
         {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
       </span>
-      <KButtonGroup>
+      <div class="pagination-buttons">
         <KIconButton
           :ariaLabel="$tr('previousResults')"
           :disabled="previousButtonDisabled"
@@ -23,7 +23,7 @@
           icon="forward"
           @click="changePage(+1)"
         />
-      </KButtonGroup>
+      </div>
     </div>
   </nav>
 
@@ -104,3 +104,19 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .pagination-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    .pagination-buttons {
+      display: flex;
+      gap: 4px;
+    }
+  }
+
+</style>
