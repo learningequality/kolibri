@@ -1,4 +1,3 @@
-import io
 import logging
 import os
 import sqlite3
@@ -110,7 +109,7 @@ def repair_sqlite_db(connection):
     # now, let's try to repair it, if possible:
     # os.remove(original_path)
     fixed_db_path = "{}.2".format(original_path)
-    with io.open(fixed_db_path, **KWARGS_IO_WRITE) as f:
+    with open(fixed_db_path, **KWARGS_IO_WRITE) as f:
         # If the connection hasn't been opened yet, then open it
         try:
             for line in connection.connection.iterdump():

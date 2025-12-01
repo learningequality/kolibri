@@ -1,5 +1,4 @@
 import csv
-import io
 import logging
 import os
 import random
@@ -111,7 +110,7 @@ class Command(BaseCommand):
         data_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "user_data.csv")
         )
-        with io.open(data_path, mode="r", encoding="utf-8") as f:
+        with open(data_path, mode="r", encoding="utf-8") as f:
             user_data = [data for data in csv.DictReader(f)]
 
         n_seed = options["seed"]

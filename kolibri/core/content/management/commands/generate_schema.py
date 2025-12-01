@@ -1,5 +1,4 @@
 import inspect
-import io
 import json
 import os
 import shutil
@@ -137,7 +136,7 @@ class Command(BaseCommand):
             metadata, False, True, True, True, False, nocomments=False
         )
 
-        with io.open(
+        with open(
             SQLALCHEMY_CLASSES_PATH_TEMPLATE.format(
                 name=coerce_version_name_to_valid_module_path(version)
             ),
@@ -157,7 +156,7 @@ class Command(BaseCommand):
                 data[table_name] = [get_dict(r) for r in session.query(record).all()]
 
             data_path = DATA_PATH_TEMPLATE.format(name=version)
-            with io.open(data_path, mode="w", encoding="utf-8") as f:
+            with open(data_path, mode="w", encoding="utf-8") as f:
                 json.dump(data, f)
 
             shutil.rmtree(

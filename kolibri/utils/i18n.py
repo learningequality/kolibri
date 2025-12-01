@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import importlib
-import io
 import json
 import locale
 import os
@@ -32,7 +31,7 @@ def _get_language_info():
     file_path = os.path.abspath(
         os.path.join(os.path.dirname(kolibri.__file__), "locale", "language_info.json")
     )
-    with io.open(file_path, encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         languages = json.load(f)
         output = {}
         for language in languages:

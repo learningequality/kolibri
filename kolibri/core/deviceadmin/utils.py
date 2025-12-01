@@ -1,4 +1,3 @@
-import io
 import logging
 import os
 import re
@@ -103,9 +102,8 @@ def dbbackup(old_version, dest_folder=None):
 
     backup_path = os.path.join(dest_folder, fname)
 
-    # Setting encoding=utf-8: io.open() is Python 2 compatible
     # See: https://github.com/learningequality/kolibri/issues/2875
-    with io.open(backup_path, **KWARGS_IO_WRITE) as f:
+    with open(backup_path, **KWARGS_IO_WRITE) as f:
         # If the connection hasn't been opened yet, then open it
         if not db.connections["default"].connection:
             db.connections["default"].connect()
@@ -138,7 +136,6 @@ def dbrestore(from_file):
     else:
         logger.info("In memory database, not truncating: {}".format(dst_file))
 
-    # Setting encoding=utf-8: io.open() is Python 2 compatible
     # See: https://github.com/learningequality/kolibri/issues/2875
     with open(from_file, **KWARGS_IO_READ) as f:
         db.connections["default"].connect()
