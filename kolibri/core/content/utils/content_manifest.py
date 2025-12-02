@@ -13,10 +13,7 @@ try:
 except NameError:
     FileNotFoundError = IOError
 
-try:
-    from json import JSONDecodeError
-except ImportError:
-    JSONDecodeError = ValueError
+from json import JSONDecodeError
 
 
 logger = logging.getLogger(__name__)

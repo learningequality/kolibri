@@ -33,7 +33,7 @@ class ConfigDict(dict):
                 with open(conf_file, "r") as kolibri_conf_file:
                     self.update(json.load(kolibri_conf_file))
                 return
-            except ValueError:
+            except json.JSONDecodeError:
                 logger.warning(
                     "Attempted to load plugins.json but encountered a file that could not be decoded as valid JSON."
                 )
