@@ -4,63 +4,70 @@
     v-if="open"
     ref="dialogRef"
     closedby="any"
-    :aria-label="coreString('expandedImage')"
+    :aria-label="$tr('expandedImage')"
     class="lightbox-dialog"
     data-testid="lightbox-dialog"
     @close="closeLightbox"
     @keydown="onKeyDown"
   >
-    <div
-      class="action-bar"
-      :style="{ backgroundColor: $themePalette.grey.v_900 }"
+    <KFocusTrap
+      @shouldFocusFirstEl="focusFirstEl"
+      @shouldFocusLastEl="focusLastEl"
     >
-      <div :class="scale !== minScale ? $computedClass(btnHoverStyle) : ''">
-        <KIconButton
-          icon="remove"
-          :color="$themeTokens.surface"
-          size="small"
-          :aria-label="coreString('zoomOut')"
-          :tooltip="coreString('zoomOut')"
-          :disabled="scale === minScale"
-          @click="zoomImage('out')"
-        />
+      <div
+        class="action-bar"
+        :style="{ backgroundColor: $themePalette.grey.v_900 }"
+      >
+        <div :class="scale !== minScale ? $computedClass(btnHoverStyle) : ''">
+          <KIconButton
+            icon="remove"
+            :color="$themeTokens.surface"
+            size="small"
+            :aria-label="coreString('zoomOut')"
+            :tooltip="coreString('zoomOut')"
+            :disabled="scale === minScale"
+            @click="zoomImage('out')"
+          />
+        </div>
+        <div :class="scale !== maxScale ? $computedClass(btnHoverStyle) : ''">
+          <KIconButton
+            icon="add"
+            :color="$themeTokens.surface"
+            size="small"
+            :aria-label="coreString('zoomIn')"
+            :tooltip="coreString('zoomIn')"
+            :disabled="scale === maxScale"
+            autofocus
+            @click="zoomImage('in')"
+          />
+        </div>
+        <div :class="$computedClass(btnHoverStyle)">
+          <KIconButton
+            ref="closeButton"
+            icon="close"
+            :color="$themeTokens.surface"
+            size="small"
+            :aria-label="coreString('closeAction')"
+            :tooltip="coreString('closeAction')"
+            @click="closeLightbox"
+          />
+        </div>
       </div>
-      <div :class="scale !== maxScale ? $computedClass(btnHoverStyle) : ''">
-        <KIconButton
-          icon="add"
-          :color="$themeTokens.surface"
-          size="small"
-          :aria-label="coreString('zoomIn')"
-          :tooltip="coreString('zoomIn')"
-          :disabled="scale === maxScale"
-          autofocus
-          @click="zoomImage('in')"
-        />
-      </div>
-      <div :class="$computedClass(btnHoverStyle)">
-        <KIconButton
-          icon="close"
-          :color="$themeTokens.surface"
-          size="small"
-          :aria-label="coreString('closeAction')"
-          :tooltip="coreString('closeAction')"
-          @click="closeLightbox"
-        />
-      </div>
-    </div>
-    <img
-      ref="imageRef"
-      :src="src"
-      :alt="alt"
-      tabindex="-1"
-      class="expanded-image"
-      :class="styleOverrides.windowSizeClass"
-      :style="imgStyle"
-      @load="calculateSize"
-      @mousedown="onMouseDown"
-      @wheel="onWheel"
-      @dragstart.prevent
-    >
+
+      <img
+        ref="imageRef"
+        :src="src"
+        :alt="alt"
+        tabindex="-1"
+        class="expanded-image"
+        :class="styleOverrides.windowSizeClass"
+        :style="imgStyle"
+        @load="calculateSize"
+        @mousedown="onMouseDown"
+        @wheel="onWheel"
+        @dragstart.prevent
+      >
+    </KFocusTrap>
   </dialog>
 
 </template>
@@ -117,7 +124,6 @@
         isDragging: false,
         dragStart: { x: 0, y: 0 },
         backdropClickValid: false,
-        polyfillRegistered: false,
       };
     },
     computed: {
@@ -146,13 +152,10 @@
         if (val) {
           this.$nextTick(() => {
             const dlg = this.$refs.dialogRef;
-            if (!dlg) return;
-
-            // If this dialog element itself doesn't have showModal, register polyfill.
-            if (typeof dlg.showModal !== 'function' && !this.polyfillRegistered) {
-              dialogPolyfill.registerDialog(dlg);
-              this.polyfillRegistered = true;
+            if (!dlg) {
+              return;
             }
+            dialogPolyfill.registerDialog(dlg);
 
             dlg.showModal();
 
@@ -292,11 +295,18 @@
         window.removeEventListener('mouseup', this.onMouseUp);
       },
       onKeyDown(e) {
+        if (e.key === 'Escape' || e.key === 'Esc') {
+          e.preventDefault();
+          this.closeLightbox();
+          return;
+        }
+
         this.handleArrowKeys(e);
-        this.handleTab(e);
       },
       handleArrowKeys(e) {
-        if (this.scale === 1) return;
+        if (this.scale === 1) {
+          return;
+        }
         const step = 50;
         if (e.key === 'ArrowLeft') this.delta.x += step;
         if (e.key === 'ArrowRight') this.delta.x -= step;
@@ -304,26 +314,25 @@
         if (e.key === 'ArrowDown') this.delta.y -= step;
         this.clampDelta();
       },
-      handleTab(e) {
+
+      focusFirstEl() {
         const dialog = this.$refs.dialogRef;
-        if (!dialog) return;
-
+        if (!dialog) {
+          return;
+        }
         const focusables = dialog.querySelectorAll('button:not([disabled])');
-        if (!focusables.length) return;
-
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-
-        if (e.shiftKey && e.key === 'Tab') {
-          if (document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          }
-        } else if (e.key === 'Tab') {
-          if (document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
+        if (focusables.length) {
+          focusables[0].focus();
+        }
+      },
+      focusLastEl() {
+        const dialog = this.$refs.dialogRef;
+        if (!dialog) {
+          return;
+        }
+        const focusables = dialog.querySelectorAll('button:not([disabled])');
+        if (focusables.length) {
+          focusables[focusables.length - 1].focus();
         }
       },
       resetPosition() {
@@ -374,7 +383,7 @@
         this.resetPosition();
         this.scale = 1;
       },
-
+      // Fallback backdrop mouse event handlers for browsers without `closedby` support
       onBackdropMouseDown(e) {
         // Only track if mousedown started on the backdrop (not on the actionbar nor image)
         this.backdropClickValid = e.target === this.$refs.dialogRef;
@@ -385,6 +394,12 @@
           this.closeLightbox();
         }
         this.backdropClickValid = false;
+      },
+    },
+    $trs: {
+      expandedImage: {
+        message: 'Expanded image',
+        context: 'Label for an image that is shown in an expanded view',
       },
     },
   };
