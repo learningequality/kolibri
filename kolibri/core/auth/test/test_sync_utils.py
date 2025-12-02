@@ -79,7 +79,7 @@ class TestProgressTracking(TestCase):
 
 class CanonicalizeAssignmentsTestCase(TestCase):
     def setUp(self):
-        super(CanonicalizeAssignmentsTestCase, self).setUp()
+        super().setUp()
         provision_device()
         self.test_data = create_dummy_facility_data()
         self.ad_hoc_group = AdHocGroup.objects.create(

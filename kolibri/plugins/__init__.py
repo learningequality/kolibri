@@ -116,7 +116,7 @@ class ConfigDict(dict):
         for key in self.SET_KEYS:
             if key in values_copy:
                 values_copy[key] = set(values_copy[key])
-        super(ConfigDict, self).update(values_copy)
+        super()
 
     def save(self):
         # use default OS encoding
@@ -193,7 +193,7 @@ class SingletonMeta(ABCMeta):
     # being overwritten.
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(SingletonMeta, cls).__call__(*args, **kwargs)
+            cls._instances[cls] = super().__call__(*args, **kwargs)
         return cls._instances[cls]
 
 

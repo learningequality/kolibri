@@ -25,7 +25,7 @@ class ClassSummaryTestCase(EvaluationMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         provision_device()
-        super(ClassSummaryTestCase, cls).setUpTestData()
+        super().setUpTestData()
         cls.classroom = Classroom.objects.create(name="classrom", parent=cls.facility)
         cls.another_classroom = Classroom.objects.create(
             name="another classrom", parent=cls.facility

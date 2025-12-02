@@ -17,7 +17,7 @@ from kolibri.core.auth.sync_operations import KolibriVersionedSyncOperation
 
 class KolibriSyncOperationsTestCase(SimpleTestCase):
     def setUp(self):
-        super(KolibriSyncOperationsTestCase, self).setUp()
+        super().setUp()
         self.operation = KolibriSyncOperations()
         self.context = mock.Mock(spec_set=SessionContext)()
 
@@ -175,7 +175,7 @@ class KolibriSyncOperationMixinTestCase(SimpleTestCase):
 
 class KolibriVersionedSyncOperationTestCase(SimpleTestCase):
     def setUp(self):
-        super(KolibriVersionedSyncOperationTestCase, self).setUp()
+        super().setUp()
         self.operation = KolibriVersionedSyncOperation()
         self.operation.version = "0.15.0"
         self.upgrade = mock.Mock()
@@ -300,7 +300,7 @@ class KolibriVersionedSyncOperationTestCase(SimpleTestCase):
 @mock.patch("kolibri.core.auth.sync_operations.this_side_using_single_user_cert")
 class KolibriSingleUserSyncOperationTestCase(SimpleTestCase):
     def setUp(self):
-        super(KolibriSingleUserSyncOperationTestCase, self).setUp()
+        super().setUp()
         self.operation = KolibriSingleUserSyncOperation()
         self.handle_local_user = mock.Mock()
         self.operation.handle_local_user = self.handle_local_user

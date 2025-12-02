@@ -9,7 +9,7 @@ class NetworkDiscoveryForSoUDHookTestCase(TestCase):
     databases = "__all__"
 
     def setUp(self):
-        super(NetworkDiscoveryForSoUDHookTestCase, self).setUp()
+        super().setUp()
         self.hook = NetworkLocationDiscoveryHook.get_hook(
             "kolibri.plugins.learn.NetworkDiscoveryForSoUDHook"
         )

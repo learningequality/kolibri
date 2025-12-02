@@ -15,7 +15,7 @@ class TestMigrations(TransactionTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(TestMigrations, cls).setUpClass()
+        super().setUpClass()
 
         # get the latest migration before starting
         latest_migration = MigrationRecorder.Migration.objects.filter(
@@ -57,4 +57,4 @@ class TestMigrations(TransactionTestCase):
         executor.loader.build_graph()
         executor.migrate([cls.latest_migration])
 
-        super(TestMigrations, cls).tearDownClass()
+        super().tearDownClass()

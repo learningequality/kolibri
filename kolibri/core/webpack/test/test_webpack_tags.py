@@ -6,7 +6,7 @@ from kolibri.plugins.hooks import register_hook
 
 class KolibriTagNavigationTestCase(TestCase):
     def setUp(self):
-        super(KolibriTagNavigationTestCase, self).setUp()
+        super().setUp()
         Hook.__module__ = "test.kolibri_plugin"
         self.test_hook = register_hook(Hook)()
 

@@ -104,14 +104,14 @@ class NetworkLocation(models.Model):
     is_local = models.BooleanField(default=False)
 
     def __init__(self, *args, **kwargs):
-        super(NetworkLocation, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._set_fields_for_type()
 
     def save(self, *args, **kwargs):
         self._set_fields_for_type()
         if self.operating_system is None:
             self.operating_system = ""
-        return super(NetworkLocation, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def _set_fields_for_type(self):
         """Abstract method to set fields for type"""
@@ -163,7 +163,7 @@ class NetworkLocation(models.Model):
 
 class StaticNetworkLocationManager(models.Manager):
     def get_queryset(self):
-        queryset = super(StaticNetworkLocationManager, self).get_queryset()
+        queryset = super().get_queryset()
         return queryset.filter(location_type=LocationTypes.Static).all()
 
 
@@ -179,17 +179,17 @@ class StaticNetworkLocation(NetworkLocation):
 
 class DynamicNetworkLocationManager(models.Manager):
     def get_queryset(self):
-        queryset = super(DynamicNetworkLocationManager, self).get_queryset()
+        queryset = super().get_queryset()
         return queryset.filter(location_type=LocationTypes.Dynamic).all()
 
     def create(self, *args, **kwargs):
         kwargs = _filter_out_unsupported_fields(kwargs)
-        return super(DynamicNetworkLocationManager, self).create(*args, **kwargs)
+        return super().create(*args, **kwargs)
 
     def update_or_create(self, defaults, **kwargs):
         defaults = _filter_out_unsupported_fields(defaults)
 
-        return super(DynamicNetworkLocationManager, self).update_or_create(
+        return super().update_or_create(
             defaults, **kwargs
         )
 
@@ -211,7 +211,7 @@ class DynamicNetworkLocation(NetworkLocation):
             )
 
         if self.instance_id:
-            return super(DynamicNetworkLocation, self).save(*args, **kwargs)
+            return super().save(*args, **kwargs)
         else:
             raise ValidationError(
                 {

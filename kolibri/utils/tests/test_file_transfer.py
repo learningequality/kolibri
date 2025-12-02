@@ -175,7 +175,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         self.mock_session.head.side_effect = self.mock_head_request
 
     def setUp(self):
-        super(TestTransferDownloadByteRangeSupport, self).setUp()
+        super().setUp()
         self.source = "http://example.com/testfile"
         self.set_session_mock()
 
@@ -968,7 +968,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupportNotReported(
 
 class TestTransferCopy(BaseTestTransfer):
     def setUp(self):
-        super(TestTransferCopy, self).setUp()
+        super().setUp()
         self.copy_source = tempfile.NamedTemporaryFile(delete=False).name
         # Test FileCopy iterator
         with open(self.copy_source, "wb") as testfile:

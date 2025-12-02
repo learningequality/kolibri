@@ -15,7 +15,7 @@ class ChannelFieldsTestCase(TestMigrations):
 
     def setUp(self):
         self.file_size = 10
-        super(ChannelFieldsTestCase, self).setUp()
+        super().setUp()
 
     def setUpBeforeMigration(self, apps):
         ChannelMetadata = apps.get_model("content", "ChannelMetadata")
@@ -88,7 +88,7 @@ class ChannelOrderTestCase(TestMigrations):
     app = "content"
 
     def setUp(self):
-        super(ChannelOrderTestCase, self).setUp()
+        super().setUp()
 
     def setUpBeforeMigration(self, apps):
         ChannelMetadata = apps.get_model("content", "ChannelMetadata")

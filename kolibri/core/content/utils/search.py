@@ -94,7 +94,7 @@ class SQLiteBitwiseORAggregate(Aggregate):
         if not num_bits:
             raise ValueError("num_bits must be a positive integer")
         self.num_bits = num_bits
-        super(SQLiteBitwiseORAggregate, self).__init__(
+        super().__init__(
             expression, output_field=IntegerField(), **extra
         )
 

@@ -59,7 +59,7 @@ class BaseDeviceSetupMixin(object):
 
     @classmethod
     def setUpTestData(cls):
-        super(BaseDeviceSetupMixin, cls).setUpTestData()
+        super().setUpTestData()
         clear_process_cache()
         # create dummy channel
         channel_id = uuid.uuid4().hex
@@ -218,7 +218,7 @@ class BaseDeviceSetupMixin(object):
                         )
 
     def tearDown(self):
-        super(BaseDeviceSetupMixin, self).tearDown()
+        super().tearDown()
         DeviceSettings.objects.delete()
 
 

@@ -23,7 +23,7 @@ class ContentAssignmentManagerTestCase(TestCase):
     databases = "__all__"
 
     def setUp(self):
-        super(ContentAssignmentManagerTestCase, self).setUp()
+        super().setUp()
 
         self.model = mock.MagicMock()
         self.model.objects = mock.MagicMock()
@@ -294,7 +294,7 @@ class ContentAssignmentManagerIntegrationTestCase(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(ContentAssignmentManagerIntegrationTestCase, cls).setUpClass()
+        super().setUpClass()
 
         provision_device()
         cls.facility = Facility.objects.create(name="My Facility")

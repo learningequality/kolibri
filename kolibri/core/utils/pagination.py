@@ -34,7 +34,7 @@ class ValuesViewsetPaginator(Paginator):
             )
         self.queryset = object_list
         object_list = object_list.values_list("pk", flat=True).distinct()
-        super(ValuesViewsetPaginator, self).__init__(object_list, *args, **kwargs)
+        super().__init__(object_list, *args, **kwargs)
 
     def _get_page(self, object_list, *args, **kwargs):
         pks = list(object_list)
@@ -54,7 +54,7 @@ class CachedValuesViewsetPaginator(ValuesViewsetPaginator):
             cache_key = "query-count:" + hashlib.md5(query_string).hexdigest()
             value = cache.get(cache_key)
             if value is None:
-                value = super(CachedValuesViewsetPaginator, self).count
+                value = super().count
                 cache.set(cache_key, value, 300)  # save the count for 5 minutes
         except EmptyResultSet:
             # If the query is an empty result set, then this error will be raised by
@@ -210,7 +210,7 @@ class ValuesViewsetLimitOffsetPagination(LimitOffsetPagination):
 
 class ValuesViewsetCursorPagination(CursorPagination):
     def paginate_queryset(self, queryset, request, view=None):
-        pks_queryset = super(ValuesViewsetCursorPagination, self).paginate_queryset(
+        pks_queryset = super().paginate_queryset(
             queryset, request, view=view
         )
         if pks_queryset is None:

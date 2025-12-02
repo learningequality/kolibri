@@ -17,7 +17,7 @@ from kolibri.core.fields import create_timezonestamp
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         # Instantiate the superclass normally
-        super(DynamicFieldsModelSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # enable dynamic fields specification!
         if "request" in self.context and self.context["request"].GET.get(
@@ -123,7 +123,7 @@ class PublicChannelSerializer(serializers.ModelSerializer):
 
 class LowerCaseField(serializers.CharField):
     def to_representation(self, obj):
-        return super(LowerCaseField, self).to_representation(obj).lower()
+        return super().to_representation(obj).lower()
 
 
 class LanguageSerializer(serializers.ModelSerializer):

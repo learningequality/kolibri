@@ -21,7 +21,7 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
     """
 
     def __init__(self):
-        super(CollectionSpecificRoleBasedPermissions, self).__init__(
+        super().__init__(
             target_field=".",
             can_be_created_by=None,
             can_be_read_by=(ADMIN, COACH),

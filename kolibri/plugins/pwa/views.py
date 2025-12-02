@@ -23,7 +23,7 @@ class PwaManifestView(TemplateView):
     content_type = "application/manifest+json"
 
     def get_context_data(self, **kwargs):
-        context = super(PwaManifestView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         theme = ThemeHook.get_theme()
 
         # App should be scoped to the deployment path of Kolibri, no higher
@@ -108,7 +108,7 @@ class PwaServiceWorkerView(TemplateView):
     content_type = "application/javascript"
 
     def get_context_data(self, **kwargs):
-        context = super(PwaServiceWorkerView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         # This needs to increment each time a potentially cached asset changes.
         context["version"] = kolibri.__version__
         return context

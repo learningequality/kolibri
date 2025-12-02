@@ -132,7 +132,7 @@ class ContentSessionLog(BaseLogModel):
         if self.progress < 0:
             raise ValidationError("Progress out of range (<0)")
 
-        super(ContentSessionLog, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class ContentSummaryLog(BaseLogModel):
@@ -166,7 +166,7 @@ class ContentSummaryLog(BaseLogModel):
         if self.progress < 0 or self.progress > 1.01:
             raise ValidationError("Content summary progress out of range (0-1)")
 
-        super(ContentSummaryLog, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class UserSessionLog(BaseLogModel):

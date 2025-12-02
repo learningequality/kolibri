@@ -92,7 +92,7 @@ class LessonSerializer(ModelSerializer):
     def to_internal_value(self, data):
         data = OrderedDict(data)
         data["created_by"] = self.context["request"].user.id
-        return super(LessonSerializer, self).to_internal_value(data)
+        return super().to_internal_value(data)
 
     def create(self, validated_data):
         """

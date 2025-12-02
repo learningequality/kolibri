@@ -20,7 +20,7 @@ class NetworkLocationListenerTestCase(TestCase):
     databases = "__all__"
 
     def setUp(self):
-        super(NetworkLocationListenerTestCase, self).setUp()
+        super().setUp()
         self.instance = KolibriInstance(
             MOCK_ID,
             ip=MOCK_INTERFACE_IP,

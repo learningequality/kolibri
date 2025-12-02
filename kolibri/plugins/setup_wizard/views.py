@@ -11,4 +11,4 @@ class SetupWizardView(TemplateView):
     def dispatch(self, *args, **kwargs):
         if device_provisioned():
             return redirect(reverse("kolibri:core:redirect_user"))
-        return super(SetupWizardView, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)

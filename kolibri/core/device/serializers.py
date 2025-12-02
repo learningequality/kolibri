@@ -89,13 +89,13 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
                         automatic_synchronize_content_requests_and_import.cancel_all()
                         automatic_resource_import.cancel_all()
 
-        instance = super(DeviceSettingsSerializer, self).update(
+        instance = super().update(
             instance, validated_data
         )
         return instance
 
     def validate(self, data):
-        data = super(DeviceSettingsSerializer, self).validate(data)
+        data = super().validate(data)
         if "primary_storage_location" in data:
             if not check_is_directory(data["primary_storage_location"]):
                 raise serializers.ValidationError(

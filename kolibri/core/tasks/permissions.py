@@ -154,7 +154,7 @@ class IsFacilityAdmin(BasePermission):
 
 class IsAdmin(PermissionsFromAny):
     def __init__(self):
-        super(IsAdmin, self).__init__(IsSuperAdmin(), IsFacilityAdmin())
+        super().__init__(IsSuperAdmin(), IsFacilityAdmin())
 
 
 class HasSameFacilityAsJob(BasePermission):
@@ -167,14 +167,14 @@ class HasSameFacilityAsJob(BasePermission):
 
 class IsFacilityAdminForJob(PermissionsFromAll):
     def __init__(self):
-        super(IsFacilityAdminForJob, self).__init__(
+        super().__init__(
             IsFacilityAdmin(), HasSameFacilityAsJob()
         )
 
 
 class IsAdminForJob(PermissionsFromAny):
     def __init__(self):
-        super(IsAdminForJob, self).__init__(IsSuperAdmin(), IsFacilityAdminForJob())
+        super().__init__(IsSuperAdmin(), IsFacilityAdminForJob())
 
 
 class NotProvisioned(BasePermission):

@@ -147,7 +147,7 @@ class BaseValuesViewset(viewsets.GenericViewSet):
     field_map = {}
 
     def __init__(self, *args, **kwargs):
-        super(BaseValuesViewset, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not hasattr(self, "values") or not isinstance(self.values, tuple):
             raise TypeError("values must be defined as a tuple")
         self._values = tuple(self.values)
@@ -252,7 +252,7 @@ class BaseValuesViewset(viewsets.GenericViewSet):
 
 class QueryParamRequest(Request):
     def __init__(self, query_params, *args, **kwargs):
-        super(QueryParamRequest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._query_params = QueryDict(mutable=True)
         for key, value in query_params.items():
             self._query_params[key] = (
@@ -364,10 +364,10 @@ class ValuesViewset(
 class HexUUIDField(UUIDField):
     def __init__(self, **kwargs):
         kwargs["format"] = "hex"
-        super(HexUUIDField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def to_internal_value(self, data):
-        return super(HexUUIDField, self).to_internal_value(data).hex
+        return super().to_internal_value(data).hex
 
     def to_representation(self, value):
         if isinstance(value, uuid.UUID):

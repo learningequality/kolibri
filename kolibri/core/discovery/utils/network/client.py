@@ -41,7 +41,7 @@ class NetworkClient(requests.Session):
         :param timeout: A timeout value in seconds or tuple for (connect, read)
         :type timeout: float|tuple
         """
-        super(NetworkClient, self).__init__()
+        super().__init__()
 
         self.base_url = base_url
         self.timeout = timeout or (DEFAULT_CONNECT_TIMEOUT, DEFAULT_READ_TIMEOUT)
@@ -121,7 +121,7 @@ class NetworkClient(requests.Session):
 
         url = join_url(self.base_url, path)
         try:
-            with super(NetworkClient, self).request(
+            with super().request(
                 method, url, stream=True, **kwargs
             ) as response:
                 if response.raw._connection.sock is None:

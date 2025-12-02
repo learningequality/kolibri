@@ -25,7 +25,7 @@ class ChannelUpdateTestBase(TestCase):
         # Do this as tearDown doesn't get called if there is an error in the test.
         self.addCleanup(patcher.stop)
         self.db_path_mock = patcher.start()
-        super(ChannelUpdateTestBase, self).setUp()
+        super().setUp()
 
     @classmethod
     def set_content_fixture(cls):

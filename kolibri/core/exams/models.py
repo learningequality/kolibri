@@ -263,10 +263,10 @@ class Exam(AbstractExam, AbstractFacilityDataModel):
         We delete all notifications objects whose quiz is this exam id.
         """
         LearnerProgressNotification.objects.filter(quiz_id=self.id).delete()
-        super(Exam, self).delete(using, keep_parents)
+        super().delete(using, keep_parents)
 
     def pre_save(self):
-        super(Exam, self).pre_save()
+        super().pre_save()
 
         # maintain stricter enforcement on when creator is allowed to be null
         if self._state.adding and self.creator is None:
@@ -298,7 +298,7 @@ class Exam(AbstractExam, AbstractFacilityDataModel):
             self.question_sources = [
                 section for section in self.question_sources if section.get("questions")
             ]
-        super(Exam, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("collection")
@@ -348,7 +348,7 @@ class ExamAssignment(AbstractFacilityDataModel):
     )
 
     def pre_save(self):
-        super(ExamAssignment, self).pre_save()
+        super().pre_save()
 
         # this shouldn't happen
         if (

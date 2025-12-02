@@ -35,7 +35,7 @@ class LocalFileByDisk(TransactionTestCase):
     fixtures = ["content_test.json"]
 
     def setUp(self):
-        super(LocalFileByDisk, self).setUp()
+        super().setUp()
         process_cache.clear()
         self.mock_home_dir = tempfile.mkdtemp()
         self.mock_storage_dir = os.path.join(self.mock_home_dir, "content", "storage")
@@ -121,7 +121,7 @@ class LocalFileByDisk(TransactionTestCase):
 
     def tearDown(self):
         shutil.rmtree(self.mock_home_dir)
-        super(LocalFileByDisk, self).tearDown()
+        super().tearDown()
 
 
 local_file_qs = LocalFile.objects.filter(
@@ -136,7 +136,7 @@ class LocalFileRemote(TransactionTestCase):
     fixtures = ["content_test.json"]
 
     def setUp(self):
-        super(LocalFileRemote, self).setUp()
+        super().setUp()
         process_cache.clear()
         self.location = NetworkLocation.objects.create(base_url="test")
 

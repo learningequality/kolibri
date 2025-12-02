@@ -62,7 +62,7 @@ We will refer to below sample code in the later sections also.
         def validate(self, data):
             if data['a'] + data['b'] > 100:
                 raise serializers.ValidationError("Sum of a and b should be less than 100")
-            job_data = super(AddValidator, self).validate(data)
+            job_data = super().validate(data)
             job_data["extra_metadata"].update({"user": "kolibri"})
             return job_data
 

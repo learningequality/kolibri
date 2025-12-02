@@ -91,7 +91,7 @@ class BaseTestCase(TestCase):
 @mock.patch(_module + "Facility.objects.get", new=_facility)
 class ContentRequestsTestCase(TestCase):
     def setUp(self):
-        super(ContentRequestsTestCase, self).setUp()
+        super().setUp()
 
         self.dataset_id = uuid.uuid4().hex
         self.transfer_session = mock.MagicMock()
@@ -140,7 +140,7 @@ class ContentRequestsTestCase(TestCase):
 class ProcessMetadataImportTestCase(BaseTestCase):
     @classmethod
     def setUpTestData(cls):
-        super(ProcessMetadataImportTestCase, cls).setUpTestData()
+        super().setUpTestData()
         cls.facility = Facility.objects.create(name="a")
         cls.learner = FacilityUser.objects.create(
             username="learner", password="password", facility=cls.facility
@@ -151,7 +151,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         cls.facility.add_admin(cls.admin)
 
     def setUp(self):
-        super(ProcessMetadataImportTestCase, self).setUp()
+        super().setUp()
 
         self.mock_client = mock.MagicMock()
 
@@ -345,7 +345,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
 class BaseQuerysetTestCase(BaseTestCase):
     @classmethod
     def setUpTestData(cls):
-        super(BaseQuerysetTestCase, cls).setUpTestData()
+        super().setUpTestData()
         cls.facility = Facility.objects.create(name="a")
         cls.learner = FacilityUser.objects.create(
             username="learner", password="password", facility=cls.facility
@@ -417,7 +417,7 @@ class BaseQuerysetTestCase(BaseTestCase):
 
 class BaseIncompleteDownloadsQuerysetTestCase(BaseQuerysetTestCase):
     def setUp(self):
-        super(BaseIncompleteDownloadsQuerysetTestCase, self).setUp()
+        super().setUp()
         self.admin_request = ContentDownloadRequest.build_for_user(self.admin)
         self.admin_request.contentnode_id = uuid.uuid4().hex
         self.admin_request.save()
@@ -492,7 +492,7 @@ class IncompleteDownloadsQuerysetTestCase(BaseIncompleteDownloadsQuerysetTestCas
 
 class CompletedDownloadsQuerysetTestCase(BaseQuerysetTestCase):
     def setUp(self):
-        super(CompletedDownloadsQuerysetTestCase, self).setUp()
+        super().setUp()
         self.request = ContentDownloadRequest.build_for_user(self.learner)
         self.request.contentnode_id = uuid.uuid4().hex
         self.request.status = ContentRequestStatus.Completed
@@ -677,7 +677,7 @@ class PreferredDevicesTestCase(BaseTestCase):
 
 class PreferredDevicesWithClientTestCase(BaseTestCase):
     def setUp(self):
-        super(PreferredDevicesWithClientTestCase, self).setUp()
+        super().setUp()
 
         capture_connection_patcher = mock.patch(_module + "capture_connection_state")
         self.mock_capture = capture_connection_patcher.start()
@@ -748,7 +748,7 @@ class PreferredDevicesWithClientTestCase(BaseTestCase):
 
 class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
     def setUp(self):
-        super(ProcessContentRequestsTestCase, self).setUp()
+        super().setUp()
         self.request = ContentDownloadRequest.build_for_user(self.learner)
         self.request.contentnode_id = uuid.uuid4().hex
         self.request.save()
@@ -888,7 +888,7 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
 
 class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
     def setUp(self):
-        super(ProcessContentRemovalRequestsTestCase, self).setUp()
+        super().setUp()
         self.download = ContentDownloadRequest.build_for_user(self.learner)
         self.download.contentnode_id = uuid.uuid4().hex
         self.download.status = ContentRequestStatus.Completed
@@ -966,7 +966,7 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
 
 class ProcessDownloadRequestTestCase(BaseQuerysetTestCase):
     def setUp(self):
-        super(ProcessDownloadRequestTestCase, self).setUp()
+        super().setUp()
         self.request = ContentDownloadRequest.build_for_user(self.learner)
         self.request.contentnode_id = uuid.uuid4().hex
         self.request.save()

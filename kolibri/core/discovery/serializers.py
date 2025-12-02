@@ -62,7 +62,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
         data["connection_status"] = ConnectionStatus.Okay
         info = {k: v for (k, v) in client.device_info.items() if v is not None}
         data.update(info)
-        return super(NetworkLocationSerializer, self).validate(data)
+        return super().validate(data)
 
 
 class PinnedDeviceSerializer(ModelSerializer):
@@ -82,4 +82,4 @@ class PinnedDeviceSerializer(ModelSerializer):
         else:
             raise serializers.ValidationError("User must be defined")
         validated_data["user"] = user
-        return super(PinnedDeviceSerializer, self).create(validated_data)
+        return super().create(validated_data)
