@@ -374,7 +374,7 @@ The linting and formatting for the backend is handled using ``pre-commit`` below
 Pre-commit hooks
 ~~~~~~~~~~~~~~~~
 
-A full set of linting and auto-formatting can also be applied by pre-commit hooks. The pre-commit hooks are identical to the automated build check by Travis CI in Pull Requests.
+**It is strongly recommended to use pre-commit hooks** to ensure code quality and consistency before committing. The pre-commit hooks are identical to the automated build checks run by CI in Pull Requests, so using them locally will help you catch issues early.
 
 `pre-commit <http://pre-commit.com/>`__ is used to apply a full set of checks and formatting automatically each time that ``git commit`` runs. If there are errors, the Git commit is aborted and you are asked to fix the error and run ``git commit`` again.
 
@@ -384,17 +384,38 @@ Pre-commit is already installed as a development dependency, but you also need t
 
   pre-commit install
 
+.. important::
+  **Always run this command after cloning the repository** to enable pre-commit hooks for your local development environment.
+
 To run all pre-commit checks in the same way that they will be run on our Github CI servers, run:
 
 .. code-block:: bash
 
   pre-commit run --all-files
 
+This is particularly useful to run before creating a pull request to ensure all files pass checks.
+
 .. tip:: As a convenience, many developers install linting and formatting plugins in their code editor (IDE). Installing ESLint, Prettier, Black, and Flake8 plugins in your editor will catch most (but not all) code-quality checks.
 
 .. tip:: Pre-commit can have issues running from alternative Git clients like GitUp. If you encounter problems while committing changes, run ``pre-commit uninstall`` to disable pre-commit.
 
-.. warning:: If you do not use any linting tools, your code is likely fail our server-side checks and you will need to update the PR in order to get it merged.
+.. warning:: If you do not use pre-commit or other linting tools, your code will likely fail our server-side checks and you will need to update the PR in order to get it merged.
+
+Recommended workflow with pre-commit
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1. Make code changes
+2. Stage your changes: ``git add <files>``
+3. Attempt commit: ``git commit -m "Your message"``
+4. If pre-commit finds issues:
+
+   - Review the errors and warnings
+   - Many formatting issues will be auto-fixed - just review and re-stage the changes
+   - Fix any remaining issues manually
+   - Stage the fixes: ``git add <files>``
+   - Retry the commit: ``git commit -m "Your message"``
+
+5. Once all checks pass, your commit will succeed
 
 
 Design system
