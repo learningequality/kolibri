@@ -75,9 +75,7 @@ custom_demographics_schema = {
 @deconstructible
 class UniqueIdsValidator(NoRepeatedValueJSONArrayValidator):
     def __init__(self, custom_demographics_key):
-        super().__init__(
-            array_key=custom_demographics_key, object_key="id"
-        )
+        super().__init__(array_key=custom_demographics_key, object_key="id")
 
 
 unique_translations_validator = NoRepeatedValueJSONArrayValidator(

@@ -802,9 +802,7 @@ class FileDownload(Transfer):
 
         self.transfer_size = None
 
-        super().__init__(
-            source, dest, checksum=checksum, cancel_check=cancel_check
-        )
+        super().__init__(source, dest, checksum=checksum, cancel_check=cancel_check)
 
         self._initialize_dest_file()
 

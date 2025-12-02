@@ -1560,11 +1560,7 @@ class Role(AbstractFacilityDataModel):
 
 class CollectionProxyManager(SyncableModelManager):
     def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .filter(kind=self.model._KIND)
-        )
+        return super().get_queryset().filter(kind=self.model._KIND)
 
 
 class Facility(Collection):

@@ -86,9 +86,7 @@ class InfiniteLoopThread(Thread):
         self.full_thread_name = "{thread_name}-{thread_id}".format(
             thread_name=self.thread_name, thread_id=self.thread_id
         )
-        super().__init__(
-            name=self.full_thread_name, *args, **kwargs
-        )
+        super().__init__(name=self.full_thread_name, *args, **kwargs)
         self.func = func
         self.wait = wait_between_runs
 

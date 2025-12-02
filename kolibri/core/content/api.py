@@ -847,9 +847,7 @@ class OptionalContentNodePagination(OptionalPagination):
     def paginate_queryset(self, queryset, request, view=None):
         # Record the queryset for use in returning available filters
         self.queryset = queryset
-        return super().paginate_queryset(
-            queryset, request, view=view
-        )
+        return super().paginate_queryset(queryset, request, view=view)
 
     def get_paginated_response(self, data):
         return Response(

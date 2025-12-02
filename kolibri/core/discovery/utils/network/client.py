@@ -121,9 +121,7 @@ class NetworkClient(requests.Session):
 
         url = join_url(self.base_url, path)
         try:
-            with super().request(
-                method, url, stream=True, **kwargs
-            ) as response:
+            with super().request(method, url, stream=True, **kwargs) as response:
                 if response.raw._connection.sock is None:
                     raise requests.exceptions.ConnectionError("No socket available")
 

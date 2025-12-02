@@ -632,9 +632,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
             self.download_request.update_progress(0, total)
 
     def update_progress(self, increment=1, message="", extra_data=None):
-        super().update_progress(
-            increment, message, extra_data
-        )
+        super().update_progress(increment, message, extra_data)
         if self.download_request:
             self.download_request.update_progress(
                 self.download_request.progress + increment,

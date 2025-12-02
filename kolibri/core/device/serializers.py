@@ -89,9 +89,7 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
                         automatic_synchronize_content_requests_and_import.cancel_all()
                         automatic_resource_import.cancel_all()
 
-        instance = super().update(
-            instance, validated_data
-        )
+        instance = super().update(instance, validated_data)
         return instance
 
     def validate(self, data):

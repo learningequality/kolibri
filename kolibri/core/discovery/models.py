@@ -189,9 +189,7 @@ class DynamicNetworkLocationManager(models.Manager):
     def update_or_create(self, defaults, **kwargs):
         defaults = _filter_out_unsupported_fields(defaults)
 
-        return super().update_or_create(
-            defaults, **kwargs
-        )
+        return super().update_or_create(defaults, **kwargs)
 
 
 class DynamicNetworkLocation(NetworkLocation):

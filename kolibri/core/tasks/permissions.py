@@ -167,9 +167,7 @@ class HasSameFacilityAsJob(BasePermission):
 
 class IsFacilityAdminForJob(PermissionsFromAll):
     def __init__(self):
-        super().__init__(
-            IsFacilityAdmin(), HasSameFacilityAsJob()
-        )
+        super().__init__(IsFacilityAdmin(), HasSameFacilityAsJob())
 
 
 class IsAdminForJob(PermissionsFromAny):

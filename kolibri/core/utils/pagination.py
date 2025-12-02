@@ -210,9 +210,7 @@ class ValuesViewsetLimitOffsetPagination(LimitOffsetPagination):
 
 class ValuesViewsetCursorPagination(CursorPagination):
     def paginate_queryset(self, queryset, request, view=None):
-        pks_queryset = super().paginate_queryset(
-            queryset, request, view=view
-        )
+        pks_queryset = super().paginate_queryset(queryset, request, view=view)
         if pks_queryset is None:
             return None
         self.request = request
