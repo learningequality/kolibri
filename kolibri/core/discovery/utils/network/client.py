@@ -225,7 +225,7 @@ class NetworkClient(requests.Session):
                 parsed_url.netloc,
                 parsed_url.path.rstrip("/").replace("api/public/info", ""),
             )
-        except (requests.exceptions.JSONDecodeError, ValueError) as e:
+        except requests.exceptions.JSONDecodeError as e:
             logger.info(
                 "Invalid JSON returned when attempting to connect to a remote server"
             )
