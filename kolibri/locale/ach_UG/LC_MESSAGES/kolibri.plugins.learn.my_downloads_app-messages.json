@@ -35,7 +35,7 @@
   "DownloadRequests.downloadStartedLabel": "crwdns392383:0crwdne392383:0",
   "DownloadRequests.goToDownloadsPage": "crwdns392385:0crwdne392385:0",
   "DownloadRequests.resourceRemoved": "crwdns392387:0crwdne392387:0",
-  "PaginatedListContainerWithBackend.nextResults": "crwdns393577:0crwdne393577:0",
-  "PaginatedListContainerWithBackend.pagination": "crwdns393579:0visibleStartRange={visibleStartRange}crwdnd393579:0visibleEndRange={visibleEndRange}crwdnd393579:0numFilteredItems={numFilteredItems}crwdne393579:0",
-  "PaginatedListContainerWithBackend.previousResults": "crwdns393581:0crwdne393581:0"
+  "PaginationActions.nextResults": "crwdns407550:0crwdne407550:0",
+  "PaginationActions.pagination": "crwdns407552:0visibleStartRange={visibleStartRange}crwdnd407552:0visibleEndRange={visibleEndRange}crwdnd407552:0numFilteredItems={numFilteredItems}crwdne407552:0",
+  "PaginationActions.previousResults": "crwdns407554:0crwdne407554:0"
 }

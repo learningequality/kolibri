@@ -35,7 +35,7 @@
   "DownloadRequests.downloadStartedLabel": "Saukarwa da aka bukata",
   "DownloadRequests.goToDownloadsPage": "Je zuwa wajen saukarwa",
   "DownloadRequests.resourceRemoved": "Ababen da aka cire daga laburarena",
-  "PaginatedListContainerWithBackend.nextResults": "Sakamako na gaba",
-  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } na { numFilteredItems, number }",
-  "PaginatedListContainerWithBackend.previousResults": "Sakamako na baya"
+  "PaginationActions.nextResults": "Sakamako na gaba",
+  "PaginationActions.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } na { numFilteredItems, number }",
+  "PaginationActions.previousResults": "Sakamako na baya"
 }
