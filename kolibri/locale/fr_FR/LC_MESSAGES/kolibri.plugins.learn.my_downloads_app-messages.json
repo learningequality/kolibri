@@ -35,7 +35,7 @@
   "DownloadRequests.downloadStartedLabel": "Téléchargement demandé",
   "DownloadRequests.goToDownloadsPage": "Aller aux téléchargements",
   "DownloadRequests.resourceRemoved": "Ressource supprimée de ma bibliothèque",
-  "PaginatedListContainerWithBackend.nextResults": "Résultats suivants",
-  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } de { numFilteredItems, number }",
-  "PaginatedListContainerWithBackend.previousResults": "Résultats précédents"
+  "PaginationActions.nextResults": "Résultats suivants",
+  "PaginationActions.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } de { numFilteredItems, number }",
+  "PaginationActions.previousResults": "Résultats précédents"
 }

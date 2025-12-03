@@ -42,7 +42,7 @@
   "ConfirmChangeFacility.changeFacilityInfoLine1": "You are about to move your account and progress data to '{target_facility}' learning facility. Your current data will still be available to you and will also be accessible to any administrators of this learning facility.",
   "ConfirmChangeFacility.changeFacilityInfoLine2": "Your user account type will change from '{role}' to 'learner' and you will no longer be able to manage resources on this device. You will need someone with admin permissions in '{facility}' to change your account type back to '{role}'.",
   "ConfirmChangeFacility.changeFacilityInfoLine3": "You can also search for an account in '{target_facility}' to merge with. Progress data from both accounts will be combined into one account.",
-  "ConfirmMerge.confirmMergeInfoLine": "You are about to merge two accounts and their progress data. Progress data includes your interactions with resources, time spent, and points. This cannot be undone.",
+  "ConfirmMerge.confirmMergeInfoLine": "You are about to merge two accounts and their progress data. Progress data includes your interactions with resources, time spent, and points. You cannot undo this.",
   "ConfirmMerge.consequences": "I understand the consequences of merging accounts",
   "CreateAccount.description": "New account for '{fullName}' in '{targetFacility}' learning facility",
   "CreatePassword.description": "‘{targetFacility}’ requires accounts to have passwords. Enter a password that you would like to use for ‘{username}’ in ‘{targetFacility}’",

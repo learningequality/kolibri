@@ -35,7 +35,7 @@
   "DownloadRequests.downloadStartedLabel": "Umeomba upakuaji",
   "DownloadRequests.goToDownloadsPage": "Nenda kwenye vipakuliwa",
   "DownloadRequests.resourceRemoved": "Nyenzo imeondolewa kwenye maktaba yangu",
-  "PaginatedListContainerWithBackend.nextResults": "Matokeo yanayofuata",
-  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number }-{ visibleEndRange, number } kati ya { numFilteredItems, number }",
-  "PaginatedListContainerWithBackend.previousResults": "Matokeo yaliyotangulia"
+  "PaginationActions.nextResults": "Matokeo yanayofuata",
+  "PaginationActions.pagination": "{ visibleStartRange, number }-{ visibleEndRange, number } kati ya { numFilteredItems, number }",
+  "PaginationActions.previousResults": "Matokeo yaliyotangulia"
 }

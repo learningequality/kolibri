@@ -35,7 +35,7 @@
   "DownloadRequests.downloadStartedLabel": "E ɗum ƴama ronndaago",
   "DownloadRequests.goToDownloadsPage": "Yahugo e donndaaɗum",
   "DownloadRequests.resourceRemoved": "Jannginillum ittaama daga suudu defte am",
-  "PaginatedListContainerWithBackend.nextResults": "Jawaabu jokkotooɗum",
-  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } nder { numFilteredItems, number }",
-  "PaginatedListContainerWithBackend.previousResults": "Jawaabu saalaaɗum"
+  "PaginationActions.nextResults": "Jawaabu jokkotooɗum",
+  "PaginationActions.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } nder { numFilteredItems, number }",
+  "PaginationActions.previousResults": "Jawaabu saalaaɗum"
 }
