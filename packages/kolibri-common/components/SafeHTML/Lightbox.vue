@@ -10,57 +10,64 @@
     @close="closeLightbox"
     @keydown="onKeyDown"
   >
-    <div
-      class="action-bar"
-      :style="{ backgroundColor: $themePalette.grey.v_900 }"
+    <KFocusTrap
+      @shouldFocusFirstEl="focusFirstEl"
+      @shouldFocusLastEl="focusLastEl"
     >
-      <div :class="scale !== minScale ? $computedClass(btnHoverStyle) : ''">
-        <KIconButton
-          icon="remove"
-          :color="$themeTokens.surface"
-          size="small"
-          :aria-label="$tr('zoomOut')"
-          :tooltip="$tr('zoomOut')"
-          :disabled="scale === minScale"
-          @click="zoomImage('out')"
-        />
+      <div
+        class="action-bar"
+        :style="{ backgroundColor: $themePalette.grey.v_900 }"
+      >
+        <div :class="scale !== minScale ? $computedClass(btnHoverStyle) : ''">
+          <KIconButton
+            icon="remove"
+            :color="$themeTokens.surface"
+            size="small"
+            :aria-label="coreString('zoomOut')"
+            :tooltip="coreString('zoomOut')"
+            :disabled="scale === minScale"
+            @click="zoomImage('out')"
+          />
+        </div>
+        <div :class="scale !== maxScale ? $computedClass(btnHoverStyle) : ''">
+          <KIconButton
+            icon="add"
+            :color="$themeTokens.surface"
+            size="small"
+            :aria-label="coreString('zoomIn')"
+            :tooltip="coreString('zoomIn')"
+            :disabled="scale === maxScale"
+            autofocus
+            @click="zoomImage('in')"
+          />
+        </div>
+        <div :class="$computedClass(btnHoverStyle)">
+          <KIconButton
+            ref="closeButton"
+            icon="close"
+            :color="$themeTokens.surface"
+            size="small"
+            :aria-label="coreString('closeAction')"
+            :tooltip="coreString('closeAction')"
+            @click="closeLightbox"
+          />
+        </div>
       </div>
-      <div :class="scale !== maxScale ? $computedClass(btnHoverStyle) : ''">
-        <KIconButton
-          icon="add"
-          :color="$themeTokens.surface"
-          size="small"
-          :aria-label="$tr('zoomIn')"
-          :tooltip="$tr('zoomIn')"
-          :disabled="scale === maxScale"
-          autofocus
-          @click="zoomImage('in')"
-        />
-      </div>
-      <div :class="$computedClass(btnHoverStyle)">
-        <KIconButton
-          icon="close"
-          :color="$themeTokens.surface"
-          size="small"
-          :aria-label="$tr('close')"
-          :tooltip="$tr('close')"
-          @click="closeLightbox"
-        />
-      </div>
-    </div>
-    <img
-      ref="imageRef"
-      :src="src"
-      :alt="alt"
-      tabindex="-1"
-      class="expanded-image"
-      :class="styleOverrides.windowSizeClass"
-      :style="imgStyle"
-      @load="calculateSize"
-      @mousedown="onMouseDown"
-      @wheel="onWheel"
-      @dragstart.prevent
-    >
+
+      <img
+        ref="imageRef"
+        :src="src"
+        :alt="alt"
+        tabindex="-1"
+        class="expanded-image"
+        :class="styleOverrides.windowSizeClass"
+        :style="imgStyle"
+        @load="calculateSize"
+        @mousedown="onMouseDown"
+        @wheel="onWheel"
+        @dragstart.prevent
+      >
+    </KFocusTrap>
   </dialog>
 
 </template>
@@ -68,7 +75,13 @@
 
 <script>
 
+  import dialogPolyfill from 'dialog-polyfill';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+
   function supportsDialogClosedBy() {
+    if (typeof document === 'undefined') {
+      return false;
+    }
     const dialog = document.createElement('dialog');
     return 'closedBy' in dialog;
   }
@@ -79,13 +92,20 @@
 
   export default {
     name: 'Lightbox',
+    mixins: [commonCoreStrings],
     props: {
       open: {
         type: Boolean,
         required: true,
       },
-      src: { type: String, required: true },
-      alt: { type: String, default: '' },
+      src: {
+        type: String,
+        required: true,
+      },
+      alt: {
+        type: String,
+        default: '',
+      },
       styleOverrides: {
         type: Object,
         default: () => ({}),
@@ -127,25 +147,37 @@
     },
     watch: {
       open(val) {
+        const dialog = this.$refs.dialogRef;
+
         if (val) {
           this.$nextTick(() => {
-            if (this.$refs.dialogRef) {
-              this.$refs.dialogRef.showModal();
-              if (!supportsDialogClosedBy()) {
-                this.$refs.dialogRef.addEventListener('mousedown', this.onBackdropMouseDown);
-                this.$refs.dialogRef.addEventListener('mouseup', this.onBackdropMouseUp);
-              }
+            const dlg = this.$refs.dialogRef;
+            if (!dlg) {
+              return;
+            }
+            dialogPolyfill.registerDialog(dlg);
+
+            dlg.showModal();
+
+            if (!supportsDialogClosedBy()) {
+              dlg.addEventListener('mousedown', this.onBackdropMouseDown);
+              dlg.addEventListener('mouseup', this.onBackdropMouseUp);
             }
           });
         } else {
           if (this.$refs.imageRef) {
             this.$refs.imageRef.classList.remove('with-transition');
           }
-          if (this.$refs.dialogRef) {
-            this.$refs.dialogRef.close();
+          if (dialog) {
+            if (typeof dialog.close === 'function') {
+              dialog.close();
+            } else {
+              dialog.removeAttribute('open');
+            }
+
             if (!supportsDialogClosedBy()) {
-              this.$refs.dialogRef.removeEventListener('mousedown', this.onBackdropMouseDown);
-              this.$refs.dialogRef.removeEventListener('mouseup', this.onBackdropMouseUp);
+              dialog.removeEventListener('mousedown', this.onBackdropMouseDown);
+              dialog.removeEventListener('mouseup', this.onBackdropMouseUp);
             }
           }
         }
@@ -153,10 +185,8 @@
       scale(newScale) {
         this.$nextTick(() => {
           if (!this.$refs.imageRef) return;
-          // Keep focus within the dialog when zoom-out or zoom-in button become disabled
-          if (newScale == this.minScale || newScale == this.maxScale) {
+          if (newScale === this.minScale || newScale === this.maxScale) {
             this.$refs.imageRef.focus();
-            return;
           }
         });
       },
@@ -166,6 +196,9 @@
     },
     beforeDestroy() {
       window.removeEventListener('resize', this.onWindowResize);
+      // Extra safety in case the component is destroyed mid-drag
+      window.removeEventListener('mousemove', this.onMouseMove);
+      window.removeEventListener('mouseup', this.onMouseUp);
     },
     methods: {
       enableTransitionsAfterPaint() {
@@ -183,26 +216,34 @@
           });
         });
       },
+
+      /**
+       * Compute base image size (scale=1) to fit within viewport minus margins.
+       */
       calculateSize() {
         this.backdropSize.width = window.innerWidth;
-        this.backdropSize.height = window.innerHeight - 40; // 40px for action bar
-        const isSmallWindow = this.styleOverrides.windowSizeClass.includes('small-window');
-        const maxW = this.backdropSize.width - (isSmallWindow ? 32 : 64); // 32px margin for small window, 64px for larger
+        this.backdropSize.height = window.innerHeight - 40; // action bar height
+
+        const isSmallWindow = this.styleOverrides.windowSizeClass?.includes('small-window');
+        const maxW = this.backdropSize.width - (isSmallWindow ? 32 : 64);
         const maxH = this.backdropSize.height - (isSmallWindow ? 32 : 64);
 
         const img = this.$refs.imageRef;
         if (!img) return;
+
         const naturalW = img.naturalWidth;
         const naturalH = img.naturalHeight;
 
         const widthRatio = maxW / naturalW;
         const heightRatio = maxH / naturalH;
         const scale = Math.min(widthRatio, heightRatio, 1);
+
         this.baseSize.width = Math.round(naturalW * scale);
         this.baseSize.height = Math.round(naturalH * scale);
 
         this.enableTransitionsAfterPaint();
       },
+
       onWindowResize() {
         const img = this.$refs.imageRef;
         if (img && img.complete) {
@@ -221,6 +262,7 @@
         );
         return { DeltaLimitX, DeltaLimitY };
       },
+
       clampDelta() {
         const { DeltaLimitX, DeltaLimitY } = this.getDeltaLimits();
         this.delta.x = clamp(this.delta.x, -DeltaLimitX, DeltaLimitX);
@@ -230,7 +272,9 @@
         if (this.scale <= 1) return; // No reposition if not zoomed
         e.preventDefault();
         this.isDragging = true;
-        this.$refs.imageRef.classList.remove('with-transition');
+        if (this.$refs.imageRef) {
+          this.$refs.imageRef.classList.remove('with-transition');
+        }
         this.dragStart = { x: e.clientX, y: e.clientY };
         this.origin = { x: this.delta.x, y: this.delta.y };
         window.addEventListener('mousemove', this.onMouseMove);
@@ -244,16 +288,25 @@
       },
       onMouseUp() {
         this.isDragging = false;
-        this.$refs.imageRef.classList.add('with-transition');
+        if (this.$refs.imageRef) {
+          this.$refs.imageRef.classList.add('with-transition');
+        }
         window.removeEventListener('mousemove', this.onMouseMove);
         window.removeEventListener('mouseup', this.onMouseUp);
       },
       onKeyDown(e) {
+        if (e.key === 'Escape' || e.key === 'Esc') {
+          e.preventDefault();
+          this.closeLightbox();
+          return;
+        }
+
         this.handleArrowKeys(e);
-        this.handleTab(e);
       },
       handleArrowKeys(e) {
-        if (this.scale === 1) return;
+        if (this.scale === 1) {
+          return;
+        }
         const step = 50;
         if (e.key === 'ArrowLeft') this.delta.x += step;
         if (e.key === 'ArrowRight') this.delta.x -= step;
@@ -261,21 +314,25 @@
         if (e.key === 'ArrowDown') this.delta.y -= step;
         this.clampDelta();
       },
-      handleTab(e) {
-        const focusables = this.$refs.dialogRef.querySelectorAll('button:not([disabled])');
-        if (!focusables.length) return;
-        const firstFocusable = focusables[0];
-        const lastFocusable = focusables[focusables.length - 1];
-        if (e.shiftKey && e.key === 'Tab') {
-          if (document.activeElement === firstFocusable) {
-            e.preventDefault();
-            lastFocusable.focus();
-          }
-        } else if (e.key === 'Tab') {
-          if (document.activeElement === lastFocusable) {
-            firstFocusable.focus();
-            e.preventDefault();
-          }
+
+      focusFirstEl() {
+        const dialog = this.$refs.dialogRef;
+        if (!dialog) {
+          return;
+        }
+        const focusables = dialog.querySelectorAll('button:not([disabled])');
+        if (focusables.length) {
+          focusables[0].focus();
+        }
+      },
+      focusLastEl() {
+        const dialog = this.$refs.dialogRef;
+        if (!dialog) {
+          return;
+        }
+        const focusables = dialog.querySelectorAll('button:not([disabled])');
+        if (focusables.length) {
+          focusables[focusables.length - 1].focus();
         }
       },
       resetPosition() {
@@ -300,19 +357,19 @@
         newDeltaX = clamp(newDeltaX, -DeltaLimitX, DeltaLimitX);
         newDeltaY = clamp(newDeltaY, -DeltaLimitY, DeltaLimitY);
 
-        // Update delta and scale together
         this.delta.x = newDeltaX;
         this.delta.y = newDeltaY;
         this.scale = newScale;
 
-        if (this.scale === 1) this.resetPosition();
+        if (this.scale === 1) {
+          this.resetPosition();
+        }
       },
       onWheel(e) {
         e.preventDefault();
         const img = this.$refs.imageRef;
         if (!img) return;
         const rect = img.getBoundingClientRect();
-        // Cursor's position ratio relative to the center of the image
         const relX = (e.clientX - rect.left) / rect.width - 0.5;
         const relY = (e.clientY - rect.top) / rect.height - 0.5;
         if (e.deltaY < 0) {
@@ -340,10 +397,10 @@
       },
     },
     $trs: {
-      expandedImage: 'Expanded image',
-      zoomOut: 'Zoom out',
-      zoomIn: 'Zoom in',
-      close: 'Close',
+      expandedImage: {
+        message: 'Expanded image',
+        context: 'Label for an image that is shown in an expanded view',
+      },
     },
   };
 
@@ -351,6 +408,8 @@
 
 
 <style>
+
+  @import '~dialog-polyfill/dist/dialog-polyfill.css';
 
   .action-bar {
     position: fixed;
@@ -361,11 +420,12 @@
     display: flex;
     gap: 8px;
     align-items: center;
-    justify-content: end;
+    justify-content: flex-end;
     height: 40px;
     padding-right: 8px;
   }
 
+  /* Main dialog region under the action bar */
   .lightbox-dialog {
     position: fixed;
     inset: 40px 0 0;
@@ -379,10 +439,17 @@
     border: 0;
   }
 
+  /* Native backdrop */
   .lightbox-dialog::backdrop {
     background-color: rgba(51, 51, 51, 0.5);
   }
 
+  /* Polyfill backdrop (dialog + .backdrop sibling) */
+  .lightbox-dialog + .backdrop {
+    background-color: rgba(51, 51, 51, 0.5);
+  }
+
+  /* Image inside dialog */
   .expanded-image {
     position: relative;
     z-index: 110;
