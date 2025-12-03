@@ -449,8 +449,9 @@
   }
 
   .bottom-pagination-actions {
+    display: flex;
+    justify-content: flex-end;
     margin-top: 1em;
-    text-align: right;
   }
 
 </style>

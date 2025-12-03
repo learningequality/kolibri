@@ -26,7 +26,7 @@
     <PaginationActions
       v-if="totalPages > 1"
       v-model="currentPage"
-      style="text-align: right"
+      style="display: flex; justify-content: flex-end"
       :itemsPerPage="itemsPerPage"
       :totalPageNumber="totalPages"
       :numFilteredItems="totalLearners"
