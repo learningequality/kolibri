@@ -161,6 +161,31 @@ Feature: Kolibri integration testing scenarios
   		And I can see the *Other libraries* section
   		And I can explore all the available channels there
 
+  Scenario: Learner can import a user
+		Given I am signed in as a learner on a learn-only device (LOD)
+    	And there is a Kolibri server in the network
+    	And I am at *Device > Users*
+		When I click the *Import user* button
+		Then I see the *Select device* modal
+		When I select a device
+			And I click *Continue*
+		Then I am at *Import user*
+			And I see *Enter the user credentials of the account you want to import.*
+			And I see a *Username* and a *Password* field
+			And I see *Don't have the user credentials? Use an admin account*
+			And the *Continue* button is disabled
+		When I enter a valid username and password
+			And I click *Continue*
+		Then I am back at *Facility > Users* page
+			And I see the name of the newly added learner
+			And I see a spinning icon
+ 		When the learner has been imported successfully
+		Then I see a *Successfully imported user* snackbar message
+			And I see a *Remove* button next to the name of the user
+		When I sign out
+			And I sign in with the credentials of the imported user
+		Then I am successfully signed in as the imported user
+
   Scenario: Setup Wizard - Group learning - Full device - Create a formal facility
 		Given I am at the *How are you using Kolibri?* page
 			And I select the *Group learning* option
@@ -505,7 +530,7 @@ Feature: Kolibri integration testing scenarios
       And I see the *User created* snackbar message
       And I see the new learner user in the *New users* table
 
-  Scenario: Create a new learner user account and enroll the learner in a class
+  Scenario: Super admin creates a new learner user account and enroll the learner in a class
     Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Users > Create new user* side panel
     	And I have filled in all the required fields
@@ -518,7 +543,7 @@ Feature: Kolibri integration testing scenarios
      When I go to *Facility > Classes*
      Then I can see that the user is enrolled in the specified class(es)
 
-  Scenario: Create a new coach user account and assign the coach to a class
+  Scenario: Super admin creates a new coach user account and assign the coach to a class
     Given I am at *Facility > Users > Create new user* side panel
     	And I have selected *Coach* from the *User type* drop-down #this scenario can be executed for facility coach and admin users too
     	And I have filled in all the required fields
@@ -558,6 +583,8 @@ Feature: Kolibri integration testing scenarios
       And I see the *Admin* label next to the full name of the user
 
   Scenario: Search for and find a user using the search field
+    Given I am signed in to Kolibri as a super admin
+  	  And I am at *Facility > Users*
     When I click or tab into the search field
       And I start typing the user's full name or username
     Then I see that the list of users below is being filtered corresponding to the typed characters
@@ -566,6 +593,8 @@ Feature: Kolibri integration testing scenarios
     Then I see only the user matching the typed full name or username
 
   Scenario: Filter users
+    Given I am signed in to Kolibri as a super admin
+  	  And I am at *Facility > Users*
     When I click on the *Filter* link
     Then I see the *Filter users* side panel
     	And I see sections for the following filters: User type, Class and Birth year
@@ -625,6 +654,18 @@ Feature: Kolibri integration testing scenarios
       Then I see the class page again
         And I see the selected learner user accounts listed in the *Learners* table
 
+  Scenario: Super admin assigns coaches to a class
+    Given I am at the class page
+    When I click the *Assign coaches* button
+    Then I see the *Assign a coach to '<class>'* page
+      And I see the table with all the coaches who are not assigned to the class yet
+    When I select a coach or several coaches
+    Then I the *Confirm* button becomes enabled
+    When I click the *Confirm* button
+    Then I am back at the class page
+    	And I see a *Coach(es) assigned* snackbar message
+      And I see the selected coaches listed under *Coaches*
+
   Scenario: Super admin deletes several users
     Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Users*
@@ -663,8 +704,8 @@ Feature: Kolibri integration testing scenarios
 
   Scenario: Coach creates a new lesson for the entire class and makes it visible to learners
   	Given I am signed in to Kolibri as a super admin or a coach
-  	  	And I am at *Coach > <class> > Lessons*
-  	  	And there are imported and bookmarked resources to the device
+  	  And I am at *Coach > <class> > Lessons*
+  	  And there are imported and bookmarked resources to the device
     When I click the *New lesson* button
     Then I see the *Create new lesson* modal
     When I fill in the title for the lesson
@@ -1103,6 +1144,79 @@ Feature: Kolibri integration testing scenarios
 		When the facility is done syncing
 			Then I see a message under the facility: *Last synced: just now*
 
+	Scenario: Super admin can remove a facility
+    Given there are at least two facilities on my device
+     	And my super admin account is not a member of the facility
+    When I click the *Options* drop-down for a facility
+    	And I click *Remove*
+    Then I see the *Remove facility from this device* modal
+      And I see that the *I understand the consequences of removing the facility* checkbox is unchecked
+      And I see that the *Remove* button is disabled
+    When I click the checkbox
+      Then I the *Remove* button becomes enabled
+    When I click the *Remove* button
+    Then the facility disappears
+    	And I see a *Removed <facility name> from this device* snackbar message
+      And I see that a task has been added to the task manager
+
+  Scenario: Super admin creates a sync schedule for a device
+		Given I am signed in as a super admin
+			And I am at *Device > Facilities*
+			And I see the list with facilities on my device
+			And there are other devices on which Kolibri is installed
+			And those devices have the same <facility> as my server
+			And those devices are connected to my local network
+			And those devices are currently running Kolibri
+		When I click on the *Options* drop-down for a facility for the first time
+			And I click the *Manage sync schedule* option
+		Then I see the *Sync schedules* page
+			And I see *Set a schedule for Kolibri to automatically sync with other Kolibri devices sharing this facility. Devices with the same sync schedule will be synced one at a time.*
+			And I see the facility's name
+			And I see an *Add device* button
+			And I see a table with the following columns: *Device name*, *Schedule*, *Status*
+			And I see *There are no syncs scheduled*
+		When I click the *Add device* button
+		Then I see the *Select a source* modal
+			And I see the following radio buttons: *Kolibri Data Portal (online)* and *Local network or internet*
+		When I select the *Local network or internet* radio button
+			And I click the *Continue* button
+		Then I see the *Select device* modal
+			And I can see a list with available devices
+		When I select a device
+			And I click the *Continue* button
+		Then I see the *Edit device sync schedule* page
+			And I see the name of the device, the *Frequency* drop-down, the current server time and the *If scheduled sync fails, keep trying* checkbox
+		When I click on the *Frequency* drop-down
+		Then I see the following options: *Every hour*, *Every day*, *Every week*, *Every two weeks* and *Every month*
+		When I select an option
+			And I click the *Save* button
+		Then I am back at the *Sync schedules* page
+			And I see a *Sync schedule added* snackbar message
+			And I see the device name and address, the specified schedule and the device status in the table
+			And I see an *Edit* button
+
+	Scenario: Super admin creates a sync schedule to KDP
+		Given I am at the *Sync schedules* page for a device
+		When I click the *Add device* button
+		Then I see the *Select a source* modal window
+			And I see the following radio buttons: *Kolibri Data Portal (online)* which is selected by default and *Local network or internet*
+		When I click the *Continue* button
+		Then I see the *Register facility* modal window
+		When I enter a valid project token
+			And I click the *Continue* button
+		Then I see the *Register facility* modal window
+			And I see the following text: *Register with <KDP Project name>? Data will be saved to the cloud.
+		When I click the *Register* button
+		Then I see the *Edit device sync schedule* page
+			And I see *Kolibri Data Portal*, the *Frequency* drop-down, the current server time and the *If scheduled sync fails, keep trying* checkbox
+		When I click on the *Frequency* drop-down
+			And I select one of the available options
+		When I click the *Save* button
+		Then I am back at the *Sync schedules* page
+			And I see a *Sync schedule added* snackbar message
+			And I see the device name and address, the specified schedule and the device status in the table
+			And I see an *Edit* button
+
   Scenario: Super admin can change the device settings
   	Given I am signed in as a super admin
 			And I am at *Device > Settings*
@@ -1233,3 +1347,14 @@ Feature: Kolibri integration testing scenarios
       And I click the *Save* button
     Then the modal closes
       And I see the *Password reset* snackbar message
+
+  Scenario: Admin can edit the details of a user
+    Given I am signed in to Kolibri as an admin
+      And I am at *Facility > Users* page
+    When I click on the *⋮* button for the user I want to edit
+      And I select the *Edit details* option
+    Then I see the *Edit user details* page
+    When I modify any of the fields
+      And I click the *Save* button
+    Then I am back at the *Facility > Users* page
+      And I see the *Changes saved* snackbar message
