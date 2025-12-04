@@ -3,19 +3,20 @@ Feature: Manage sync schedule
 
 	Background:
 		Given I am signed in as a super admin
-			And I am on *Device > Facilities*
-			And I see the list of facilities on my device
+			And I am at *Device > Facilities*
+			And I see the list with facilities on my device
 			And there are other devices on which Kolibri is installed
 			And those devices have the same <facility> as my server
 			And those devices are connected to my local network
 			And those devices are currently running Kolibri
 
 	Scenario: Create sync schedule for a device
-		When I click the *Create sync schedule* option for a facility for the first time
+		When I click on the *Options* drop-down for a facility for the first time
+			And I click the *Manage sync schedule* option
 		Then I see the *Sync schedules* page
 			And I see *Set a schedule for Kolibri to automatically sync with other Kolibri devices sharing this facility. Devices with the same sync schedule will be synced one at a time.*
 			And I see the facility's name
-			And I see the *Add device* button
+			And I see an *Add device* button
 			And I see a table with the following columns: *Device name*, *Schedule*, *Status*
 			And I see *There are no syncs scheduled*
 		When I click the *Add device* button
@@ -34,11 +35,12 @@ Feature: Manage sync schedule
 		When I select an option
 			And I click the *Save* button
 		Then I am back at the *Sync schedules* page
-			And I can see the device name and address, the specified schedule and the device status in the table
+			And I see a *Sync schedule added* snackbar message
+			And I see the device name and address, the specified schedule and the device status in the table
 			And I see an *Edit* button
 
 	Scenario: Create sync schedule to KDP
-		And I am at the *Sync schedules* page for a device
+		Given I am at the *Sync schedules* page for a device
 		When I click the *Add device* button
 		Then I see the *Select a source* modal window
 			And I see the following radio buttons: *Kolibri Data Portal (online)* which is selected by default and *Local network or internet*
@@ -55,7 +57,8 @@ Feature: Manage sync schedule
 			And I select one of the available options
 		When I click the *Save* button
 		Then I am back at the *Sync schedules* page
-			And I can see the device name and address, the specified schedule and the device status in the table
+			And I see a *Sync schedule added* snackbar message
+			And I see the device name and address, the specified schedule and the device status in the table
 			And I see an *Edit* button
 
 	Scenario: Successful sync to KDP
