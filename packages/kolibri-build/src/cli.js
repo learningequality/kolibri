@@ -215,7 +215,7 @@ function getBundleData(options) {
 // Dev command
 addBuildOptions(program.command('dev'))
   .description('Start development server with hot module reloading')
-  .option('-h, --hot', 'Use hot module reloading in the webpack devserver', true)
+  .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
   .option('--port <port>', 'Set a port number to start devserver on', Number, 3000)
   .option('--host <host>', 'Set a host to serve devserver', String, '127.0.0.1')
   .option('--write-to-disk', 'Write files to disk instead of using webpack devserver', false)
