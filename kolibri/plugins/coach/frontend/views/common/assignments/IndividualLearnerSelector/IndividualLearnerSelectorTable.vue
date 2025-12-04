@@ -54,7 +54,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { formatList } from 'kolibri/utils/i18n';
+  import { formatList, localeCompare } from 'kolibri/utils/i18n';
   import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
@@ -139,7 +139,7 @@
       },
       sortedAllLearners() {
         const allLearners = [...this.allLearners];
-        return allLearners.sort((a, b) => a.name.localeCompare(b.name));
+        return allLearners.sort((a, b) => localeCompare(a.name, b.name));
       },
       currentGroupMap() {
         return this.groupMapFromOtherClass || this.groupMap;

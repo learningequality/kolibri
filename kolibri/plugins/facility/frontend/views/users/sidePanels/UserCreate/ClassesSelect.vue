@@ -24,6 +24,7 @@
 
   import { computed, toRefs } from 'vue';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import { localeCompare } from 'kolibri/utils/i18n';
 
   import { ClassesActions } from '../../../../constants';
 
@@ -54,7 +55,7 @@
           value: classItem.id,
         }));
 
-        classesOptions.sort((a, b) => a.label.localeCompare(b.label));
+        classesOptions.sort((a, b) => localeCompare(a.label, b.label));
         classesOptions.unshift(allClassesOption.value);
         return classesOptions;
       });

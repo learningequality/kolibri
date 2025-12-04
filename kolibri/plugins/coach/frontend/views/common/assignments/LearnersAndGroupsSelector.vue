@@ -70,6 +70,7 @@
   import { computed } from 'vue';
   import uniq from 'lodash/uniq';
   import store from 'kolibri/store';
+  import { localeCompare } from 'kolibri/utils/i18n';
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { coachStrings } from '../commonCoachStrings';
@@ -132,7 +133,7 @@
 
       const sortedGroups = computed(() => {
         const groupsList = [...groups.value];
-        return groupsList.sort((a, b) => a.name.localeCompare(b.name));
+        return groupsList.sort((a, b) => localeCompare(a.name, b.name));
       });
 
       const ungroupedLearnersIds = computed(() => {
