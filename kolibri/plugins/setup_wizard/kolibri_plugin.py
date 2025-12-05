@@ -18,14 +18,14 @@ class SetupWizardPlugin(KolibriPluginBase):
         with translation.override(lang):
             return _("Setup Wizard")
 
-    @property
-    def plugin_data(self):
-        return {}
-
 
 @register_hook
 class SetupWizardAsset(webpack_hooks.WebpackBundleHook):
     bundle_id = "app"
+
+    @property
+    def plugin_data(self):
+        return {}
 
 
 @register_hook

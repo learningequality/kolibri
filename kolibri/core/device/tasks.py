@@ -11,6 +11,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import FacilitySerializer
 from kolibri.core.auth.utils.deprovision import deprovision
+from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import OSUser
 from kolibri.core.device.serializers import DeviceSerializerMixin
@@ -25,8 +26,6 @@ from kolibri.core.tasks.permissions import IsDeviceUnusable
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
 from kolibri.core.utils.token_generator import TokenGenerator
-from kolibri.plugins.app.utils import GET_OS_USER
-from kolibri.plugins.app.utils import interface
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +47,7 @@ class DeviceProvisionValidator(DeviceSerializerMixin, JobValidator):
 
     def validate(self, data):
         if (
-            GET_OS_USER in interface
+            GetOSUserHook.is_registered
             and self.context.get("request") is not None
             and valid_app_key_on_request(self.context["request"])
         ):
@@ -173,10 +172,15 @@ def provisiondevice(**data):  # noqa C901
             if auth_token:
                 # If we have an auth token, we need to create an OSUser for the superuser
                 # so that we can associate the user with the OSUser
-                os_username, _ = interface.get_os_user(auth_token)
-                OSUser.objects.update_or_create(
-                    os_username=os_username, defaults={"user": superuser}
-                )
+                try:
+                    os_username, _ = GetOSUserHook.retrieve_os_user(auth_token)
+                    OSUser.objects.update_or_create(
+                        os_username=os_username, defaults={"user": superuser}
+                    )
+                except NotImplementedError:
+                    raise ParseError(
+                        "Getting the OS user is not supported on this platform"
+                    )
 
         elif auth_token:
             superuser = FacilityUser.objects.get_or_create_os_user(
@@ -216,6 +220,11 @@ def provisiondevice(**data):  # noqa C901
             "allow_guest_access": allow_guest_access,
             "allow_learner_download_resources": allow_learner_download_resources,
         }
+
+        # When provisioning via app context (with auth_token), disable access
+        # from other browsers as this is a single-device setup
+        if auth_token:
+            provisioning_data["allow_other_browsers_to_connect"] = False
 
         if is_soud:
             provision_single_user_device(superuser, **provisioning_data)

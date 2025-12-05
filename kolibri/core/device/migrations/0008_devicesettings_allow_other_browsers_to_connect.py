@@ -2,8 +2,6 @@
 from django.db import migrations
 from django.db import models
 
-import kolibri.core.device.models
-
 
 class Migration(migrations.Migration):
 
@@ -13,8 +11,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="devicesettings",
             name="allow_other_browsers_to_connect",
-            field=models.BooleanField(
-                default=kolibri.core.device.models.app_is_enabled
-            ),
+            field=models.BooleanField(default=True),
         )
     ]

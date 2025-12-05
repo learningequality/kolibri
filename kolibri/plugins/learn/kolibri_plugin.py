@@ -16,7 +16,6 @@ from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.utils.lock import retry_on_db_lock
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
-from kolibri.plugins.app.utils import interface
 from kolibri.plugins.hooks import register_hook
 from kolibri.utils import conf
 from kolibri.utils import translation
@@ -76,8 +75,7 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
                 "allow_learner_download_resources"
             ),
             "allowLearnerUnassignedResourceAccess": allow_learner_unassigned_resource_access(),
-            "allowRemoteAccess": allow_other_browsers_to_connect()
-            or not interface.enabled,
+            "allowRemoteAccess": allow_other_browsers_to_connect(),
             "enableCustomChannelNav": conf.OPTIONS["Learn"][
                 "ENABLE_CUSTOM_CHANNEL_NAV"
             ],

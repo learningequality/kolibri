@@ -78,3 +78,15 @@ class ContentNodeDisplayHook(KolibriHook):
     @abstractmethod
     def node_url(self, content_node):
         pass
+
+
+@define_hook
+class ShareFileHook(KolibriHook):
+    @abstractmethod
+    def share_file(self, filename, message):
+        pass
+
+    @classmethod
+    def execute_file_share(cls, filename, message):
+        for hook in cls.registered_hooks:
+            hook.share_file(filename, message)

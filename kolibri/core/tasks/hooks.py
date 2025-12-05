@@ -5,7 +5,7 @@ from kolibri.plugins.hooks import KolibriHook
 
 
 @define_hook
-class StorageHook(KolibriHook):
+class JobHook(KolibriHook):
     @abstractmethod
     def schedule(self, job, orm_job):
         pass
