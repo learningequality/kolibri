@@ -1,0 +1,14 @@
+name: Post holiday message on pull request or issue comment
+on:
+  pull_request_target:
+    types: [opened]
+  issue_comment:
+    types: [created]
+jobs:
+  call-workflow:
+    name: Call shared workflow
+    uses: learningequality/.github/.github/workflows/holiday-message.yml@main
+    secrets:
+      LE_BOT_APP_ID: ${{ secrets.LE_BOT_APP_ID }}
+      LE_BOT_PRIVATE_KEY: ${{ secrets.LE_BOT_PRIVATE_KEY }}
+      SLACK_COMMUNITY_NOTIFICATIONS_WEBHOOK_URL: ${{ secrets.SLACK_COMMUNITY_NOTIFICATIONS_WEBHOOK_URL }}
