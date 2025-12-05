@@ -582,7 +582,7 @@ Feature: Kolibri integration testing scenarios
       And I see the new facility admin user in the *New users* table
       And I see the *Admin* label next to the full name of the user
 
-  Scenario: Search for and find a user using the search field
+  Scenario: Super admin searches for and finds a user using the search field
     Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Users*
     When I click or tab into the search field
@@ -592,7 +592,7 @@ Feature: Kolibri integration testing scenarios
     When I've typed enough characters for all the other users to be excluded
     Then I see only the user matching the typed full name or username
 
-  Scenario: Filter users
+  Scenario: Super admin filters users
     Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Users*
     When I click on the *Filter* link
@@ -618,7 +618,7 @@ Feature: Kolibri integration testing scenarios
       And I see the the snackbar confirmation that the class has been created
       And I see that the new class is added to the *Classes* table
 
-  Scenario: Copy a class with learners and coaches
+  Scenario: Super admin copies a class with learners and coaches
     Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Classes*
   	  And there is at least one already created class with enrolled learners and assigned coaches
@@ -681,7 +681,7 @@ Feature: Kolibri integration testing scenarios
     When I attempt to sign in to Kolibri as a deleted user
     Then I can see that this is not possible
 
-  Scenario: Recover a deleted user who was assigned to or enrolled in a class
+  Scenario: Super admin recovers a deleted user who was assigned to or enrolled in a class
     Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Users > Deleted users*
     When I look at the *Deleted users* page
@@ -738,6 +738,50 @@ Feature: Kolibri integration testing scenarios
     When I click the *All lessons* link
     Then I am back at *Coach > Lessons*
     	And I can see that the lesson is with status set to *Visible to learners*
+
+  Scenario: Coach can review the details of a lesson
+    Given I am signed in to Kolibri as a super admin or a coach
+  	  And I am at *Coach > <class> > Lessons*
+  	  And there are imported and bookmarked resources to the device
+    When I click on the title of a lesson
+    Then I see the lesson details page
+    	And I see the lesson title, the *Manage resources* button and the *...* button next to it
+    	And I see the side panel with *Visible to learners* status, *Recipients*, *Description*, *Class*, *Size*, *Date created*
+    	And I see the *Resources* tab with a table with the available lesson resources and and *Title*, *Progress* and *Average time spent* columns for each resource
+    	And I see options to rearrange the order of the resources or to remove a resource
+    	And I see the *Learners* tab
+    When I click on the *Learners* tab
+    Then I see a table with the learners
+    	And I see the following columns: *Name*, *Progress*, *Groups
+    	And I see the progress made by each learner
+
+  Scenario: Coach can copy lesson to the same class and assign it to the entire class
+    Given I am at the lesson details page
+    When I click *...* button next to *Manage resources*
+      And I select the *Copy lesson* option
+    Then I see the *Copy lesson to* modal
+      And I see that *'<class>' (current class)* is selected
+    When I click the *Continue* button
+    Then the modal content changes and asks to select recipients
+      And I see that *Entire class* is selected by default
+    When I click the *Copy* button
+    Then the modal closes
+			And the snackbar confirmation appears
+    When I click on *All Lessons*
+    Then I see the *Copy of '<lesson>'* in the list of lessons
+      And I see *Entire class* value for it under the *Recipients* heading
+      And I see that the *Visible to learners* status is set to off
+
+  Scenario: Coach can delete a lesson
+    Given I am at the lesson details page
+     When I click the *...* button
+      And I select *Delete*
+    Then I see the *Delete lesson* modal
+    When I click the *Delete* button
+    Then the modal closes
+    	And I am back at *Coach - '<class>' > Lessons* page
+      And the snackbar notification appears
+      And I no longer see the lesson in the *Lessons* table
 
   Scenario: Coach creates a new quiz for the entire class and starts it
   	Given I am signed in to Kolibri as a super admin or a coach
@@ -812,6 +856,41 @@ Feature: Kolibri integration testing scenarios
     Then I see the *Start quiz* modal
     When I click *Continue*
     Then I see the *Quiz started* snackbar message
+
+  Scenario: Coach can review the quiz details
+    Given I am at *Coach > Quizzes*
+  		And there are started quizzes with learner progress made
+    When I click on the title of a quiz
+    Then I see the quiz summary page
+    	And I see the quiz title, the *Preview* button and the *...* button next to it
+    	And I see the side panel with *Recipients*, *Average score*, *Report visibility*, *Class*, *Section order*, *Size*, *Date created*
+    	And I see the *Learners* tab with the learners table
+    	And there are the following columns: *Name*, *Progress*, *Sore* and *Groups*
+    	And I see the *Difficult questions* tab
+    When I click on the name of a learner who has completed the quiz
+    Then I see the quiz score card
+    	And I can see the *Answer history* of the learner
+    When I click the back arrow
+    Then I am back at the quiz summary page
+    When I click on the *Difficult questions* tab
+    Then I see a table with the difficult questions
+    	And I see the following columns: *Question*, *Help needed*
+    When I click the *Preview* button
+    Then I can preview the quiz
+    	And I can see the answers to all of the questions
+
+  Scenario: Coach can end a quiz
+  	Given I am at *Coach > Quizzes*
+  		And there are started quizzes with learner progress made
+  	When I click the *End quiz* button for a started quiz
+  	Then I see the *End quiz* modal with the following text: *All learners will be given a final score and a quiz report. Unfinished questions will be counted as incorrect.*
+  	When I click the *Continue* button
+  	Then I see a *Quiz ended* snackbar message
+  		And I see that the status of the quiz has changed to *Quiz ended*
+  	When I click on the title of the quiz
+  	Then I am at the quiz details page
+  		And I can see *Quiz ended* in the left side panel
+  		And I can see the time value for when the quiz was ended
 
   Scenario: Guest user can create a learner account
   	Given that the *Allow learners to create accounts* setting is activated in *Facility > Settings*
@@ -921,6 +1000,27 @@ Feature: Kolibri integration testing scenarios
 		When I click on the title of a question
 		Then I see details for the number of attempts made on this question
 
+  Scenario: Coach can review learners progress
+  	Given I am signed in to Kolibri as a coach
+      And I am at the *Coach - '<class>' > Learners* page
+      And there are learners who have interacted with and completed lessons and quizzes
+    When I look at the *Learners* page
+    Then I see the *Learners* title and class name
+    	And I see the filter by recipients, *View learner devices* link, *Print report* and *Export as CSV* icons
+    	And I see a table with all of the learners with the following columns: *Name*, *Groups*, *Average score*, *Exercises completed*, *Resources viewed*, *Last activity*
+		When I click on the name of a learner
+    Then I see the learner summary page
+    	And I see the learner's name, class, username and groups info
+    	And I see the *Print report* icon
+    	And I see the *Lessons completed*, *Average quiz score*, *Exercises completed* and *Resources viewed* cards
+    	And I see the *Lessons assigned* and *Quizzes assigned* sections with a separate *Export as CSV* icon for each
+		When I click on the title of a lesson
+    Then I see a table with all of the lesson resources and the following columns: *Title*, *Progress* and *Time spent*
+    	And in the top right corner I see a *Print report* and *Export CSV* icons
+		When I go back to the learner's details page
+      And I click on the title of a quiz
+    Then I see the quiz report page for the learner
+
   Scenario: Coach can export lesson and quiz reports
   	Given I am signed in to Kolibri as a coach
       And I am at *Coach > <class> > Lessons* page
@@ -942,6 +1042,20 @@ Feature: Kolibri integration testing scenarios
     When I go to either the *Quizzes* or *Learners* *page
     	And I click the *Print report* icon
     Then I can print a report
+
+  Scenario: Coach enrolls learners to a group
+    Given I am signed in to Kolibri as a coach
+    	And I am at *Coach > <class> > Groups* page
+    	And I have already created a group
+    	And I am at the group's details page
+    When I click the *Enroll learners* button
+    Then I see the *Enroll learners into '<group>'* page
+      And I see a list of all learners which are not enrolled in the group
+    When I select one or several learners
+    Then the *Confirm* button becomes active
+    When I click the *Confirm* button
+    Then I am back at the group details page
+      And I see the list of enrolled learners
 
   Scenario: Learner explores the *Library* while signed in
   	Given I am signed in as a learner user
