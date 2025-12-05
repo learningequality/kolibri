@@ -2,7 +2,6 @@ import base64
 import csv
 import datetime
 import hashlib
-import io
 import os
 import random
 import uuid
@@ -79,7 +78,7 @@ class BaseDeviceSetupMixin(object):
 
         # Load in the user data from the csv file to give a predictable source of user data
         data_path = os.path.join(USER_CSV_PATH)
-        with io.open(data_path, mode="r", encoding="utf-8") as f:
+        with open(data_path, mode="r", encoding="utf-8") as f:
             users = [data for data in csv.DictReader(f)]
 
         cls.facilities = user_data.get_or_create_facilities(

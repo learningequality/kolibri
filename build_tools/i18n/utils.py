@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import functools
-import io
 import json
 import logging
 import os
@@ -52,7 +51,7 @@ def available_languages():
     Returns all available languages including English and in-context language.
     Callers should filter as needed.
     """
-    with io.open(LANGUAGE_INFO_PATH, mode="r", encoding="utf-8") as f:
+    with open(LANGUAGE_INFO_PATH, mode="r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -88,7 +87,7 @@ def json_dump_formatted(data, file_path):
         os.makedirs(dir_name)
 
     # Format and write the JSON file
-    with io.open(file_path, mode="w+", encoding="utf-8") as file_object:
+    with open(file_path, mode="w+", encoding="utf-8") as file_object:
         # Manage unicode for the JSON dumping
         json.dump(
             data,

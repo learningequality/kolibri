@@ -1,5 +1,4 @@
 import functools
-import io
 import os
 import sys
 from collections import namedtuple
@@ -129,7 +128,7 @@ def memoize_when_activated(fun):
 
 
 def open_binary(fname, **kwargs):
-    return io.open(fname, "rb", **kwargs)
+    return open(fname, "rb", **kwargs)
 
 
 def open_text(fname, **kwargs):
@@ -138,4 +137,4 @@ def open_text(fname, **kwargs):
     """
     kwargs.setdefault("encoding", ENCODING)
     kwargs.setdefault("errors", ENCODING_ERRS)
-    return io.open(fname, "rt", **kwargs)
+    return open(fname, "rt", **kwargs)

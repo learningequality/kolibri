@@ -1,4 +1,3 @@
-import io
 import json
 import logging
 import os
@@ -420,7 +419,7 @@ class ContentImportTestBase(TransactionTestCase):
         metadata = load_metadata(self.schema_name)
 
         data_path = DATA_PATH_TEMPLATE.format(name=self.data_name)
-        with io.open(data_path, mode="r", encoding="utf-8") as f:
+        with open(data_path, mode="r", encoding="utf-8") as f:
             data = json.load(f)
 
         metadata.bind = self.content_engine
@@ -536,7 +535,7 @@ def alternate_existing_channel(request):
 class ContentImportDataTestBase(ContentImportTestBase):
     def set_content_fixture(self):
         data_path = DATA_PATH_TEMPLATE.format(name=self.data_name)
-        with io.open(data_path, mode="r", encoding="utf-8") as f:
+        with open(data_path, mode="r", encoding="utf-8") as f:
             data = json.load(f)
         self.content_engine = create_engine("sqlite://")
 
@@ -553,7 +552,7 @@ class ContentImportDataTestBase(ContentImportTestBase):
 class ContentImportPartialChannelDataTestBase(ContentImportTestBase):
     def set_content_fixture(self):
         data_path = DATA_PATH_TEMPLATE.format(name=self.data_name)
-        with io.open(data_path, mode="r", encoding="utf-8") as fp:
+        with open(data_path, mode="r", encoding="utf-8") as fp:
             data = json.load(fp)
         self.content_engine = create_engine("sqlite://")
 

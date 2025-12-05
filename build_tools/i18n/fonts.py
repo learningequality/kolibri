@@ -6,7 +6,6 @@ For usage instructions, see:
 import argparse
 import base64
 import functools
-import io
 import json
 import logging
 import mimetypes
@@ -354,7 +353,7 @@ def _write_inline_font(file_object, font_path, font_family, weight):
     """
     Inlines a font as base64 encoding within a CSS file
     """
-    with io.open(font_path, mode="rb") as f:
+    with open(font_path, mode="rb") as f:
         data = f.read()
     data_uri = "data:application/x-font-woff;charset=utf-8;base64,\\\n{}".format(
         "\\\n".join(_chunks(base64.b64encode(data).decode()))
@@ -417,7 +416,7 @@ def _get_lang_strings(locale_dir):
             continue
 
         file_path = os.path.join(locale_dir, file_name)
-        with io.open(file_path, mode="r", encoding="utf-8") as f:
+        with open(file_path, mode="r", encoding="utf-8") as f:
             lang_strings = json.load(f).values()
 
         for s in lang_strings:

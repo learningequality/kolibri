@@ -1,4 +1,3 @@
-import io
 import os
 import re
 
@@ -293,7 +292,7 @@ SANDBOX_FILENAME = None
 def get_sandbox_html_filename():
     global SANDBOX_FILENAME
     if SANDBOX_FILENAME is None or getattr(settings, "DEVELOPER_MODE", None):
-        with io.open(
+        with open(
             os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "../build/sandbox_filename")
             ),
