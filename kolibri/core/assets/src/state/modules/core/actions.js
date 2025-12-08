@@ -6,6 +6,7 @@ import logger from 'kolibri-logging';
 import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
 import { nextTick } from 'vue';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
+import sanitizeError from 'kolibri/utils/sanitizeError';
 
 const logging = logger.getLogger(__filename);
 
@@ -35,7 +36,7 @@ export function clearError(store) {
 export function handleApiError(store, { error, reloadOnReconnect = false } = {}) {
   let errorString = error;
   if (typeof error === 'object' && !(error instanceof Error)) {
-    errorString = JSON.stringify(error, null, 2);
+    errorString = JSON.stringify(sanitizeError(error), null, 2);
   } else if (error.response) {
     if (DisconnectionErrorCodes.includes(error.response.status)) {
       // Do not log errors for disconnections, as it disrupts the user experience
@@ -45,7 +46,7 @@ export function handleApiError(store, { error, reloadOnReconnect = false } = {})
     }
     // Reassign object properties here as Axios error objects have built in
     // pretty printing support which messes with this.
-    errorString = JSON.stringify(error.response, null, 2);
+    errorString = JSON.stringify(sanitizeError(error).response, null, 2);
   } else if (error instanceof Error) {
     errorString = error.toString();
   }
