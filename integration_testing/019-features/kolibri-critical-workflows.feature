@@ -38,9 +38,9 @@ Feature: Kolibri critical workflows
 
   Scenario: Change learning facility - default path
   	Given I’ve set up my Kolibri device with the *On my own* device setup option
-  				And I am signed in
-  				And I am at the *Profile* page
-  				And there are other Kolibri facilities in the network
+  		And I am signed in
+  		And I am at the *Profile* page
+  		And there are other Kolibri facilities in the network
   	When I click the *Change* button
   	Then I see *Select* facility
   		And I see a list with facilities
@@ -410,7 +410,7 @@ Feature: Kolibri critical workflows
       And I see the *User created* snackbar message
       And I see the new learner user in the *New users* table
 
-  Scenario: Create a new learner user account and enroll the learner in a class
+  Scenario: Super admin creates a new learner user account and enroll the learner in a class
     Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Users > Create new user* side panel
     	And I have filled in all the required fields
@@ -423,7 +423,7 @@ Feature: Kolibri critical workflows
      When I go to *Facility > Classes*
      Then I can see that the user is enrolled in the specified class(es)
 
-  Scenario: Create a new coach user account and assign the coach to a class
+  Scenario: Super admin creates a new coach user account and assign the coach to a class
     Given I am at *Facility > Users > Create new user* side panel
     	And I have selected *Coach* from the *User type* drop-down #this scenario can be executed for facility coach and admin users too
     	And I have filled in all the required fields
@@ -462,7 +462,9 @@ Feature: Kolibri critical workflows
       And I see the new facility admin user in the *New users* table
       And I see the *Admin* label next to the full name of the user
 
-  Scenario: Search for and find a user using the search field
+  Scenario: Super admin searches for and finds a user using the search field
+    Given I am signed in to Kolibri as a super admin
+  	  And I am at *Facility > Users*
     When I click or tab into the search field
       And I start typing the user's full name or username
     Then I see that the list of users below is being filtered corresponding to the typed characters
@@ -470,7 +472,9 @@ Feature: Kolibri critical workflows
     When I've typed enough characters for all the other users to be excluded
     Then I see only the user matching the typed full name or username
 
-  Scenario: Filter users
+  Scenario: Super admin filters users
+    Given I am signed in to Kolibri as a super admin
+  	  And I am at *Facility > Users*
     When I click on the *Filter* link
     Then I see the *Filter users* side panel
     	And I see sections for the following filters: User type, Class and Birth year
@@ -494,7 +498,7 @@ Feature: Kolibri critical workflows
       And I see the the snackbar confirmation that the class has been created
       And I see that the new class is added to the *Classes* table
 
-  Scenario: Copy a class with learners and coaches
+  Scenario: Super admin copies a class with learners and coaches
     Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Classes*
   	  And there is at least one already created class with enrolled learners and assigned coaches
@@ -568,8 +572,8 @@ Feature: Kolibri critical workflows
 
   Scenario: Coach creates a new lesson for the entire class and makes it visible to learners
   	Given I am signed in to Kolibri as a super admin or a coach
-  	  	And I am at *Coach > <class> > Lessons*
-  	  	And there are imported and bookmarked resources to the device
+  	  And I am at *Coach > <class> > Lessons*
+  	  And there are imported and bookmarked resources to the device
     When I click the *New lesson* button
     Then I see the *Create new lesson* modal
     When I fill in the title for the lesson

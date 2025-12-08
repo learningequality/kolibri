@@ -2,7 +2,7 @@ Feature: General navigation on *Class home* tab
 	Class coaches need to be able to review the progress in class(es) they are assigned to, but not other classes in the facility.
 
   Background:
-    Given I am signed in as a class or facility coach
+    Given I am signed in as a class coach
       And there are several classes in the facility
       And I am on *Class home* for a specific class
       And there are learners enrolled in the class
@@ -13,10 +13,10 @@ Feature: General navigation on *Class home* tab
     Then I see the *Classes* page
     	And I see a list of the classes to which I am assigned as a *Coach*
       And I cannot see any other classes in the facility
-    When I click on the class name of a class
+    When I click on a class
     Then I am at *Class home > <class>* page for the class
     	And I see the name of the class, the assigned coaches and the number of learners
-    	And I see the *View learners* link, the *Print report* and the *Export as CSV* icons #the *View learners* link is visible only when there are assigned resources to learners on learn-only devices
+    	And I see the *View learners* link #the *View learners* link is visible only when there are assigned resources to learners on learn-only devices
     	And I see the *Quizzes*, *Lessons* and *Class activity* panels
     	And I can view all of the available information for the learners' progress and activities
 

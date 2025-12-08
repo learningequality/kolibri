@@ -892,6 +892,38 @@ Feature: Kolibri integration testing scenarios
   		And I can see *Quiz ended* in the left side panel
   		And I can see the time value for when the quiz was ended
 
+  Scenario: LOD - Coach can see the *View learner devices* link and the sync statuses of every connected device
+    Given I am signed in as a coach user
+    	And there is at least one channel imported on the device
+    	And there is a class to which I am assigned as a coach
+    	And I have created a lesson and a quiz
+    	And there are learn-only devices which are connected to the classroom server
+    	And learners enrolled in my class have completed a lesson and a quiz
+    	And I am at *Class home > <class>* page for the class
+    When I look at the section with the class name
+    Then I see the name of the class, the assigned coaches and the number of learners
+    	And I see the *View learners* link
+    	And I see the *Quizzes*, *Lessons* and *Class activity* panels
+    When I click on the *View learner devices* link
+    Then I can see the *Learners in <class>* table
+    	And I can see which learner devices are connected to the central Kolibri server
+    	And I can see when did they last synced the progress activity
+			And I see the sync statuses of every connected device
+		When I click the *Information about sync statuses* hyperlink
+		Then I see the *Information about sync statuses* modal
+			And I can see information for each individual sync status such as *Synced*, *Syncing*, *Waiting to sync*, *Not recently synced or unable to sync*, *Not enough storage*, *Not connected to server*
+
+	Scenario: Coach gets notification that a learner needs help with an exercise
+    When as learner I give 4 consecutive incorrect answers to a question
+    Then within 5 seconds as a coach I see the *'<learner>' needs help with '<exercise>'* notification in the *Coach - '<class>' > Class home > Class activity* section
+    When as a coach I click on the notification
+    Then I see the exercise's detail page for the learner
+      And I see the 4 red X icons for the 4 incorrect attempts to answer the question
+    When I click on each red X icon
+    Then I see the exact incorrect answer given by the learner
+    When I check the *Show correct answer* checkbox
+    Then I see the correct answer
+
   Scenario: Guest user can create a learner account
   	Given that the *Allow learners to create accounts* setting is activated in *Facility > Settings*
       And I am at the Kolibri sign-in page
