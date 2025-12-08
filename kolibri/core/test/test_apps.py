@@ -41,7 +41,7 @@ def do_setup(**cache_opts):
 @mock.patch("kolibri.core.apps.process_cache")
 class KolibriCoreConfigTestCase(TestCase):
     def setUp(self):
-        super(KolibriCoreConfigTestCase, self).setUp()
+        super().setUp()
         self.client = mock.MagicMock(spec=Redis)
         self.helper = mock.MagicMock(spec=RedisSettingsHelper)
 

@@ -293,7 +293,7 @@ class KolibriBroadcastEvents(Bus):
 
     def __init__(self):
         # keep it simple, `extra_channels` is the list of the events we need
-        super(KolibriBroadcastEvents, self).__init__(
+        super().__init__(
             extra_channels=[
                 # these receive a `KolibriInstance`
                 EVENT_REGISTER_INSTANCE,
@@ -332,7 +332,7 @@ class KolibriInstanceListener(SimplePlugin):
         """
         :type broadcast: KolibriBroadcast
         """
-        super(KolibriInstanceListener, self).__init__(broadcast.events)
+        super().__init__(broadcast.events)
         self.broadcast = broadcast
 
 

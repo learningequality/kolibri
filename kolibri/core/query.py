@@ -10,7 +10,7 @@ try:
     class NotNullArrayAgg(ArrayAgg):
         def __init__(self, *args, **kwargs):
             self.result_field = kwargs.pop("result_field", None)
-            super(NotNullArrayAgg, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
 
         def convert_value(self, value, expression, connection):
             if not value:
@@ -45,7 +45,7 @@ class GroupConcatSubquery(Subquery):
         self.template = (
             "(SELECT STRING_AGG(%(field)s, ',') FROM (%(subquery)s) AS %(field)s__sum)"
         )
-        return super(GroupConcatSubquery, self).as_sql(compiler, connection)
+        return super().as_sql(compiler, connection)
 
 
 class GroupConcat(Aggregate):
@@ -54,7 +54,7 @@ class GroupConcat(Aggregate):
 
     def __init__(self, *args, **kwargs):
         self.result_field = kwargs.pop("result_field", None)
-        super(GroupConcat, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def convert_value(self, value, expression, connection):
         if not value:
