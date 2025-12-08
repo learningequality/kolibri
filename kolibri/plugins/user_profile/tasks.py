@@ -41,7 +41,7 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
 
     def validate(self, data):
         try:
-            job_data = super(MergeUserValidator, self).validate(data)
+            job_data = super().validate(data)
         except ValidationError as e:
             details = e.detail if isinstance(e.detail, list) else [e.detail]
             for detail in details:
@@ -51,7 +51,7 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
                     or detail.code == error_constants.INVALID_USERNAME
                 ):
                     self.create_remote_user(data)
-                    job_data = super(MergeUserValidator, self).validate(data)
+                    job_data = super().validate(data)
                     break
             else:
                 # If we didn't break out of the loop, then we need to raise the original error
