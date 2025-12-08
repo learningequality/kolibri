@@ -21,7 +21,7 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
     """
 
     def __init__(self):
-        super(CollectionSpecificRoleBasedPermissions, self).__init__(
+        super().__init__(
             target_field=".",
             can_be_created_by=None,
             can_be_read_by=(ADMIN, COACH),
@@ -39,9 +39,7 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             # permissions for creating Facilities are defined elsewhere; they can't be created by FacilityUser
             return False
         # we allow a Collection to be created if the user has permissions to update the parent Collection
-        return super(
-            CollectionSpecificRoleBasedPermissions, self
-        ).user_can_update_object(user, obj.parent)
+        return super().user_can_update_object(user, obj.parent)
 
     def user_can_delete_object(self, user, obj):
         """
@@ -51,9 +49,7 @@ class CollectionSpecificRoleBasedPermissions(RoleBasedPermissions):
             # disallow a FacilityUser from deleting a Facility
             return False
         # for non-Facility Collections, defer to the roles to determine delete permissions
-        return super(
-            CollectionSpecificRoleBasedPermissions, self
-        ).user_can_update_object(user, obj.parent)
+        return super().user_can_update_object(user, obj.parent)
 
 
 class AnyUserCanReadFacilities(DenyAll):
