@@ -1,8 +1,8 @@
 {
   "Lightbox.close": "Κλείσιμο",
-  "Lightbox.expandedImage": "",
+  "Lightbox.expandedImage": "Αναπτυγμένη εικόνα",
   "Lightbox.zoomIn": "Μεγέθυνση",
   "Lightbox.zoomOut": "Σμίκρυνση",
-  "SafeHtml5RendererIndex.articleContent": "",
-  "SafeHtmlImage.expandImage": ""
+  "SafeHtml5RendererIndex.articleContent": "Περιεχόμενο άρθρου",
+  "SafeHtmlImage.expandImage": "Ανάπτυξη εικόνας"
 }

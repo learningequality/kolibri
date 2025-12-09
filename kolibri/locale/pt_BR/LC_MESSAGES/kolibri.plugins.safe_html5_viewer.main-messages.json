@@ -1,8 +1,8 @@
 {
   "Lightbox.close": "Fechar",
-  "Lightbox.expandedImage": "",
+  "Lightbox.expandedImage": "Imagem expandida",
   "Lightbox.zoomIn": "Aumentar zoom",
   "Lightbox.zoomOut": "Diminuir zoom",
-  "SafeHtml5RendererIndex.articleContent": "",
-  "SafeHtmlImage.expandImage": ""
+  "SafeHtml5RendererIndex.articleContent": "Conteúdo do artigo",
+  "SafeHtmlImage.expandImage": "Expandir Imagem"
 }

@@ -457,7 +457,7 @@
   "SearchAndFilterStrings.searchInFolder": "Procurar na pasta '{folder}'",
   "SearchAndFilterStrings.selectResource": "Seleccionar recurso",
   "SearchAndFilterStrings.selectedIndicator": "Selecionado",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "Este questionário foi criado utilizando uma versão antiga da Kolibri e não pode ser editado directamente. Crie uma cópia para conseguir editar os recursos.",
   "SearchBox.find": "Procurar",
   "SearchFiltersPanel.categories": "Categorias",
   "SearchFiltersPanel.chooseACategory": "Escolha as suas matérias",
@@ -494,6 +494,6 @@
   "TruncatedItemsStrings.threeItems": "{item1}, {item2}, {item3}",
   "TruncatedItemsStrings.twoItems": "{item1}, {item2}",
   "UserTable.role": "Perfil",
-  "UserTable.selectAllLabel": "Selecionar todos",
-  "UserTable.selectUserBy": "Selecionar utilizador por:"
+  "UserTable.selectAllLabel": "Seleccionar todos",
+  "UserTable.selectUserBy": "Seleccionar utilizador por:"
 }

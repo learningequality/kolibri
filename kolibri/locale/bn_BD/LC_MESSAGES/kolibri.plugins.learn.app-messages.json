@@ -320,7 +320,7 @@
   "SearchAndFilterStrings.searchInFolder": "'{folder}' ফোল্ডারে অনুসন্ধান করুন",
   "SearchAndFilterStrings.selectResource": "সংস্থান নির্বাচন করুন",
   "SearchAndFilterStrings.selectedIndicator": "নির্বাচিত",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "এই কুইজটি Kolibri-এর একটি পুরোনো সংস্করণ ব্যবহার করে তৈরি করা হয়েছে এবং সরাসরি সম্পাদনা করা যাবে না। সংস্থানগুলো সম্পাদনা করার জন্য এর একটি কপি তৈরি করুন।",
   "SearchBox.find": "অনুসন্ধান করুন",
   "SearchFiltersPanel.categories": "বিভাগ",
   "SearchFiltersPanel.chooseACategory": "বিভাগ নির্বাচন করুন",

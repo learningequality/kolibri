@@ -42,7 +42,7 @@
   "ConfirmChangeFacility.changeFacilityInfoLine1": "Mwatsala pang'ono kupititsa akaunti yanu komanso zokhudza kakhonzedwe kanu ku malo ophunzirira a '{target_facility}'. Uthenga wanuwu ukhala ulipobe ndipo ukhonzanso kufikilidwa ndi oyang'anira malo ophunzirira ano.",
   "ConfirmChangeFacility.changeFacilityInfoLine2": "Mtundu wa akaunti yanu usintha kuchoka ku '{role}' kupita ku 'wophunzira' ndipo simuthanso kuyendetsa za zophunzirira pa chipangizochi. Muyenera kupeza munthu wina wokhala ndi zilolezo za woyang'anira mu '{facility}' kuti musinthe mtundu wa akaunti yanu kubwerera ku '{role}'.",
   "ConfirmChangeFacility.changeFacilityInfoLine3": "Muthanso kufufuza akaunti yophatikizana nayo mu '{target_facility}'. Mbiri ya kakhonzedwe yochokera ku ma akaunti awiriwa iphatikizana kupanga akaunti imodzi.",
-  "ConfirmMerge.confirmMergeInfoLine": "Mwatsala pang'ono kuphatikiza ma akaunti awiri ndi uthenga wawo wa momwe akugwirira ntchito. Uthengawu ndi monga kugwiritsa ntchito zophunzirira, nthawi yomwe mwatenga komanso malikisi. Izi sizingasinthidwe.",
+  "ConfirmMerge.confirmMergeInfoLine": "Mwatsala pang'ono kuphatikiza ma akaunti awiri ndi uthenga wawo wa momwe akugwirira ntchito. Uthengawu ndi monga kugwiritsa ntchito zipangizo zophunzirira, nthawi yomwe mwatenga komanso malikisi. Izi sizingasinthidwe.",
   "ConfirmMerge.consequences": "Ndikumvetsetsa zotsatira zimene zichitike ndikaphatikiza ma akaunti",
   "CreateAccount.description": "Akaunti yatsopano ya '{fullName}' m'malo ophunzirira a '{targetFacility}'",
   "CreatePassword.description": "‘{targetFacility}’ ikufunika kuti ma akaunti akhale ndi mawu a chinsinsi. Lowetsani mawu a chinsinsi omwe mukufuna kugwiritsa ntchito pa ‘{username}’ mu ‘{targetFacility}’",

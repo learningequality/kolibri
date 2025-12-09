@@ -320,7 +320,7 @@
   "SearchAndFilterStrings.searchInFolder": "'{folder}' တွင် ရှာဖွေမည်။",
   "SearchAndFilterStrings.selectResource": "ရင်းမြစ်များကို ရွေးပါ။",
   "SearchAndFilterStrings.selectedIndicator": "ရွေးချယ်ခဲ့သော",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "ဒီမေးခွန်းကို Kolibri ဗားရှင်းအဟောင်းတစ်ခု အသုံးပြု ဖန်တီးထားတာဖြစ်ပြီး တိုက်ရိုက်ပြင်ဆင်လို့ မရနိုင်ပါဘူး။ ရင်းမြစ်တွေကို ပြင်ဆင်ဖို့ ကော်ပီတစ်ခု ဖန်တီးလိုက်ပါ။",
   "SearchBox.find": "ရှာဖွေမည်",
   "SearchFiltersPanel.categories": "အမျိုးအစား",
   "SearchFiltersPanel.chooseACategory": "အမျိုးအစားရွေးချယ်ပါ",

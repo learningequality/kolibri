@@ -4,7 +4,7 @@
   "CommonDeviceStrings.newChannelLabel": "အသစ်",
   "CommonDeviceStrings.newEnabledPluginsState": "စာမျက်နှာတစ်ခုကို သင်အမှန်ခြစ်ဖြုတ်လိုက်သောအခါ၊ ၎င်းကိုဝင်ရောက်ခွင့်ရှိသော်လည်း အသုံးပြုသူများသည် မမြင်နိုင်တော့ပေ။",
   "CommonDeviceStrings.newResourceLabel": "အသစ်",
-  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "သင်၏ စက်ပစ္စည်းတွင် နေရာ အလုံအလောက်မရှိပါ။ နေရာကို လွတ်အောင်ပြုလုပ်ပါ သို့မဟုတ် ရင်းမြစ်များကို လျှော့၍ ရွေးပါ။",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "သင်၏ စက်တွင် နေရာ အလုံအလောက်မရှိပါ။ နေရာကို လွတ်အောင်ပြုလုပ်ပါ သို့မဟုတ် အရင်းမြစ်များကို လျှော့၍ ရွေးပါ။",
   "CommonDeviceStrings.permissionsLabel": "ခွင့်ပြုမိန့်",
   "CommonDeviceStrings.primaryStorageLabel": "အသစ်ဒေါင်းလုဒ်လုပ်ထားသော အရင်းအမြစ်များကို အဓိကသိုလှောင်သည့်နေရာသို့ ပေါင်းထည့်ပါမည်",
   "CommonDeviceStrings.statusCanceled": "ပယ်ဖျက်ခဲ့သည်",
@@ -12,6 +12,6 @@
   "CommonDeviceStrings.statusComplete": "ပြီးဆုံးပါပြီ",
   "CommonDeviceStrings.statusFailed": "မအောင်မြင်ပါ",
   "CommonDeviceStrings.statusInProgress": "လုပ်ဆောင်နေသည်",
-  "CommonDeviceStrings.statusInQueue": "စောင့်ဆိုင်းနေသည်",
+  "CommonDeviceStrings.statusInQueue": "စောင့်နေသည်။",
   "CommonDeviceStrings.unlistedChannelLabel": "လူတိုင်းမရရှိနိုင်သည့် ရင်းမြစ်အစုအဝေး"
 }

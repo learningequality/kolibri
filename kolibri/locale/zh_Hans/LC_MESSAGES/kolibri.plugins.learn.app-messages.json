@@ -320,7 +320,7 @@
   "SearchAndFilterStrings.searchInFolder": "在'{folder}'中搜索",
   "SearchAndFilterStrings.selectResource": "选择资源",
   "SearchAndFilterStrings.selectedIndicator": "已选",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "此测验由旧版 Kolibri 创建，无法直接编辑。请创建副本以编辑资源。",
   "SearchBox.find": "查找",
   "SearchFiltersPanel.categories": "类别",
   "SearchFiltersPanel.chooseACategory": "选择一个类别",

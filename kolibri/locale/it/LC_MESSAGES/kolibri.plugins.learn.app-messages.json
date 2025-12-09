@@ -320,7 +320,7 @@
   "SearchAndFilterStrings.searchInFolder": "Ricerca nella cartella '{folder}'",
   "SearchAndFilterStrings.selectResource": "Seleziona risorsa",
   "SearchAndFilterStrings.selectedIndicator": "Selezionato",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "Questo quiz è stato creato usando una versione precedente di Kolibri e non può essere modificato direttamente. Crea una copia per modificare le risorse.",
   "SearchBox.find": "Trova",
   "SearchFiltersPanel.categories": "Categorie",
   "SearchFiltersPanel.chooseACategory": "Seleziona una categoria",
