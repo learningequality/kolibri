@@ -141,7 +141,7 @@ class MetricsMiddleware(MiddlewareMixin):
     command_pid = 0
 
     def __init__(self, get_response=None):
-        super(MetricsMiddleware, self).__init__(get_response=get_response)
+        super().__init__(get_response=get_response)
         if not conf.OPTIONS["Server"]["PROFILE"]:
             raise MiddlewareNotUsed("Request profiling is not enabled")
 

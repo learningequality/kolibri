@@ -62,7 +62,7 @@ class SharingPool(NullPool):
 
     def __init__(self, get_connection, **kwargs):
         kwargs["reset_on_return"] = False
-        super(SharingPool, self).__init__(get_conn, **kwargs)
+        super().__init__(get_conn, **kwargs)
 
     def status(self):
         return "Sharing Pool"

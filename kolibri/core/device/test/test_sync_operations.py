@@ -16,7 +16,7 @@ from kolibri.core.device.models import LearnerDeviceStatus
 
 class LearnerDeviceStatusOperationTestCase(TestCase):
     def setUp(self):
-        super(LearnerDeviceStatusOperationTestCase, self).setUp()
+        super().setUp()
         self.facility = Facility.objects.create(name="Test")
         self.user = FacilityUser.objects.create(username="test", facility=self.facility)
         self.instance = InstanceIDModel.get_or_create_current_instance()[0]

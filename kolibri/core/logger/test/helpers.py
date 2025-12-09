@@ -38,7 +38,7 @@ class EvaluationMixin(object):
 
     @classmethod
     def setUpTestData(cls):
-        super(EvaluationMixin, cls).setUpTestData()
+        super().setUpTestData()
         cls.facility = FacilityFactory.create()
         cls.users = [
             FacilityUserFactory.create(facility=cls.facility) for _ in range(6)

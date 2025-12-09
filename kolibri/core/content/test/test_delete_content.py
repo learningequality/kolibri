@@ -28,7 +28,7 @@ class UnavailableContentDeletion(TestCase):
     databases = "__all__"
 
     def setUp(self):
-        super(UnavailableContentDeletion, self).setUp()
+        super().setUp()
 
         # create an unavailable contentnode
         self.unavailable_contentnode = ContentNode(
@@ -192,4 +192,4 @@ class DeleteContentTestCase(TransactionTestCase):
 
     def tearDown(self):
         call_command("flush", interactive=False)
-        super(DeleteContentTestCase, self).tearDown()
+        super().tearDown()

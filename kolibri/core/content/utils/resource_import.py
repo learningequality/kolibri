@@ -90,7 +90,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
         self.fail_on_error = fail_on_error
         self.content_dir = content_dir or conf.OPTIONS["Paths"]["CONTENT_DIR"]
         self.admin_imported = admin_imported
-        super(ResourceImportManagerBase, self).__init__()
+        super().__init__()
 
     @classmethod
     def from_manifest(cls, channel_id, manifest_file, **kwargs):
@@ -360,7 +360,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         admin_imported=True,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
     ):
-        super(RemoteResourceImportManagerBase, self).__init__(
+        super().__init__(
             channel_id,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
@@ -425,7 +425,7 @@ class DiskResourceImportManagerBase(ResourceImportManagerBase):
 
         self.path = path
 
-        super(DiskResourceImportManagerBase, self).__init__(
+        super().__init__(
             channel_id,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
@@ -468,7 +468,7 @@ class DiskResourceImportManagerBase(ResourceImportManagerBase):
             if os.path.exists(manifest_file_path):
                 manifest_file = manifest_file_path
         if manifest_file:
-            return super(DiskResourceImportManagerBase, cls).from_manifest(
+            return super().from_manifest(
                 channel_id, manifest_file, path=path, drive_id=drive_id, **kwargs
             )
         return cls(channel_id, path=path, drive_id=drive_id, **kwargs)
@@ -557,7 +557,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
         :param timeout: The timeout for the download request
         :type timeout: int
         """
-        super(ContentDownloadRequestResourceImportManager, self).__init__(
+        super().__init__(
             channel_id,
             peer_id=peer.id,
             baseurl=peer.base_url,
@@ -624,17 +624,15 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
                     if self.fail_on_error:
                         raise LocationError("Required files not available from remote")
 
-        return super(ContentDownloadRequestResourceImportManager, self).run()
+        return super().run()
 
     def start_progress(self, total=100):
-        super(ContentDownloadRequestResourceImportManager, self).start_progress(total)
+        super().start_progress(total)
         if self.download_request:
             self.download_request.update_progress(0, total)
 
     def update_progress(self, increment=1, message="", extra_data=None):
-        super(ContentDownloadRequestResourceImportManager, self).update_progress(
-            increment, message, extra_data
-        )
+        super().update_progress(increment, message, extra_data)
         if self.download_request:
             self.download_request.update_progress(
                 self.download_request.progress + increment,

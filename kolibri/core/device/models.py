@@ -65,7 +65,7 @@ DEVICE_SETTINGS_CACHE_KEY = "device_settings_cache_key"
 class DeviceSettingsQuerySet(QuerySet):
     def delete(self, **kwargs):
         cache.delete(DEVICE_SETTINGS_CACHE_KEY)
-        return super(DeviceSettingsQuerySet, self).delete(**kwargs)
+        return super().delete(**kwargs)
 
 
 class DeviceSettingsManager(models.Manager.from_queryset(DeviceSettingsQuerySet)):
@@ -78,7 +78,7 @@ class DeviceSettingsManager(models.Manager.from_queryset(DeviceSettingsQuerySet)
 
         # ensure cached value is of correct type, otherwise allow .get to raise if not created
         if not isinstance(model, DeviceSettings):
-            model = super(DeviceSettingsManager, self).get(**kwargs)
+            model = super().get(**kwargs)
             cache.set(DEVICE_SETTINGS_CACHE_KEY, model, 600)
         return model
 
@@ -181,12 +181,12 @@ class DeviceSettings(models.Model):
     def save(self, *args, **kwargs):
         self.pk = 1
         self.full_clean()
-        out = super(DeviceSettings, self).save(*args, **kwargs)
+        out = super().save(*args, **kwargs)
         cache.set(DEVICE_SETTINGS_CACHE_KEY, self, 600)
         return out
 
     def delete(self, *args, **kwargs):
-        out = super(DeviceSettings, self).delete(*args, **kwargs)
+        out = super().delete(*args, **kwargs)
         cache.delete(DEVICE_SETTINGS_CACHE_KEY)
         return out
 
@@ -220,13 +220,13 @@ class DeviceSettings(models.Model):
     def __getattribute__(self, name):
         if name in extra_settings_schema["properties"]:
             return self._get_extra(name)
-        return super(DeviceSettings, self).__getattribute__(name)
+        return super().__getattribute__(name)
 
     def __setattr__(self, name, value):
         if name in extra_settings_schema["properties"]:
             self.extra_settings[name] = value
         else:
-            super(DeviceSettings, self).__setattr__(name, value)
+            super().__setattr__(name, value)
 
 
 CONTENT_CACHE_KEY_CACHE_KEY = "content_cache_key"
@@ -242,7 +242,7 @@ class ContentCacheKey(models.Model):
 
     def save(self, *args, **kwargs):
         self.pk = 1
-        super(ContentCacheKey, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @classmethod
     def update_cache_key(cls):
@@ -279,7 +279,7 @@ class DeviceAppKey(models.Model):
 
     def save(self, *args, **kwargs):
         self.pk = 1
-        super(DeviceAppKey, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @classmethod
     def update_app_key(cls):
@@ -307,7 +307,7 @@ class SQLiteLock(models.Model):
 
     def save(self, *args, **kwargs):
         self.pk = 1
-        super(SQLiteLock, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class SyncQueueStatus(ChoicesEnum):
@@ -448,7 +448,7 @@ class SyncQueue(models.Model):
     # the save operation if we hit a lock.
     @retry_on_db_lock
     def save(self, *args, **kwargs):
-        return super(SyncQueue, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     class Meta:
         unique_together = ("user_id", "instance_id")

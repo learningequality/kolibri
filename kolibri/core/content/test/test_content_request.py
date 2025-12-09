@@ -15,14 +15,14 @@ from kolibri.core.content.models import ContentRequestStatus
 class ContentDownloadRequestSerializerTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        super(ContentDownloadRequestSerializerTestCase, cls).setUpTestData()
+        super().setUpTestData()
         cls.facility = Facility.objects.create(name="a")
         cls.user = FacilityUser.objects.create(
             username="learner", password="password", facility=cls.facility
         )
 
     def setUp(self):
-        super(ContentDownloadRequestSerializerTestCase, self).setUp()
+        super().setUp()
         self.data = {
             "contentnode_id": "877a1b783fd348bfb87559883e60e9bf",
             "metadata": {
@@ -109,14 +109,14 @@ class ContentDownloadRequestSerializerTestCase(TestCase):
 class ContentDownloadRequestViewsetTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        super(ContentDownloadRequestViewsetTest, cls).setUpTestData()
+        super().setUpTestData()
         cls.facility = Facility.objects.create(name="a")
         cls.user = FacilityUser.objects.create(
             username="learner", password="password", facility=cls.facility
         )
 
     def setUp(self):
-        super(ContentDownloadRequestViewsetTest, self).setUp()
+        super().setUp()
         self.client.force_authenticate(user=self.user)
         self.data = {
             "contentnode_id": "877a1b783fd348bfb87559883e60e9bf",

@@ -181,7 +181,7 @@ class UpdateNumCoachContents(TransactionTestCase):
     fixtures = ["content_test.json"]
 
     def setUp(self):
-        super(UpdateNumCoachContents, self).setUp()
+        super().setUp()
         ContentNode.objects.all().update(available=False)
 
     def test_no_content_nodes_coach_content(self):
@@ -291,4 +291,4 @@ class UpdateNumCoachContents(TransactionTestCase):
 
     def tearDown(self):
         call_command("flush", interactive=False)
-        super(UpdateNumCoachContents, self).tearDown()
+        super().tearDown()

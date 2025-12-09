@@ -73,7 +73,7 @@ class DeviceProvisionValidator(DeviceSerializerMixin, JobValidator):
                 "Please provide `preset` if `facility` is specified"
             )
 
-        return super(DeviceProvisionValidator, self).validate(data)
+        return super().validate(data)
 
 
 @register_task(

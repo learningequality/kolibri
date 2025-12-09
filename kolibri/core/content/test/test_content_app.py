@@ -1989,7 +1989,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         clean up files/folders created during the test
         """
         cache.clear()
-        super(ContentNodeAPITestCase, self).tearDown()
+        super().tearDown()
 
 
 def mock_patch_decorator(func):

@@ -11,7 +11,7 @@ from kolibri.core.device.models import DeviceStatus
 
 class KolibriContentSyncHookTestCase(BaseIncompleteDownloadsQuerysetTestCase):
     def setUp(self):
-        super(KolibriContentSyncHookTestCase, self).setUp()
+        super().setUp()
         self.operation = KolibriSyncOperations()
         self.context = mock.Mock(spec_set=SessionContext)()
 
