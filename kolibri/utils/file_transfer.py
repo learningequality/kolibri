@@ -43,11 +43,6 @@ except BaseException as e:
         raise
     SSLERROR = requests.exceptions.SSLError
 
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
-
 
 RETRY_STATUS_CODE = {502, 503, 504, 521, 522, 523, 524}
 
