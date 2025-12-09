@@ -1,8 +1,8 @@
  Feature: Windows app installation
-  A user needs to be able to install Kolibri on a supported Windows 7, 8.1 and 10 device
+  A user needs to be able to install Kolibri on a supported Windows 7, 8.1, 10 and 11 device
 
   Background:
-    Given that I have downloaded the kolibri-v0.16-windows-setup.exe file on a supported Windows device
+    Given that I have downloaded the kolibri-0.19-windows-setup.exe file on a supported Windows device
 
   Scenario: Windows app installation
     When I double-click the downloaded *.exe* file
