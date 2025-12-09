@@ -304,7 +304,7 @@ def query_params_required(**kwargs):  # noqa: C901
                 )
             # Update the kwargs on the view itself
             self.kwargs = kwargs
-            super().initial(request, *args, **kwargs)
+            super(cls, self).initial(request, *args, **kwargs)
 
         setattr(cls, "initial", initial)
 
