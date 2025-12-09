@@ -12,6 +12,7 @@
     <div
       v-else
       ref="safeHtmlWrapper"
+      data-testid="safe-html-wrapper"
       class="safe-html-wrapper"
       role="region"
       :aria-label="$tr('articleContent')"

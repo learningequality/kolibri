@@ -140,4 +140,61 @@ describe('SafeHtml5RendererIndex', () => {
       expect(emitted().stopTracking).toHaveLength(1);
     });
   });
+
+  describe('scroll-based progress tracking', () => {
+    test('emits `updateProgress` event with scroll-based progress when user scrolls', async () => {
+      jest.useFakeTimers();
+      const { emitted, container } = renderComponent();
+      await waitFor(() => {
+        expect(screen.getByLabelText('Article content')).toBeInTheDocument();
+      });
+
+      const wrapper = container.querySelector('[data-testid="safe-html-wrapper"]');
+      Object.defineProperties(wrapper, {
+        scrollTop: { value: 50, writable: true },
+        scrollHeight: { value: 200, writable: true },
+        clientHeight: { value: 100, writable: true },
+      });
+
+      wrapper.dispatchEvent(new Event('scroll'));
+      jest.advanceTimersByTime(5000);
+
+      expect(emitted().updateProgress[0]).toEqual([0.5]);
+      jest.useRealTimers();
+    });
+
+    test('emits `finished` event when progress reaches 0.99', async () => {
+      jest.useFakeTimers();
+      const { container, emitted } = renderComponent();
+      await waitFor(() => {
+        expect(screen.getByLabelText('Article content')).toBeInTheDocument();
+      });
+
+      const wrapper = container.querySelector('[data-testid="safe-html-wrapper"]');
+      Object.defineProperties(wrapper, {
+        scrollTop: { value: 99, writable: true },
+        scrollHeight: { value: 200, writable: true },
+        clientHeight: { value: 100, writable: true },
+      });
+
+      wrapper.dispatchEvent(new Event('scroll'));
+      jest.advanceTimersByTime(5000);
+
+      expect(emitted().finished).toBeTruthy();
+      jest.useRealTimers();
+    });
+
+    test('removes scroll listener on component destroy', async () => {
+      const { container, unmount } = renderComponent();
+      await waitFor(() => {
+        expect(screen.getByLabelText('Article content')).toBeInTheDocument();
+      });
+
+      const wrapper = container.querySelector('[data-testid="safe-html-wrapper"]');
+      const removeEventListenerSpy = jest.spyOn(wrapper, 'removeEventListener');
+      unmount();
+
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function));
+    });
+  });
 });
