@@ -11,6 +11,7 @@
     />
     <div
       v-else
+      ref="safeHtmlWrapper"
       class="safe-html-wrapper"
       role="region"
       :aria-label="$tr('articleContent')"
@@ -62,14 +63,12 @@
       return {
         loading: true,
         html: null,
+        scrollBasedProgress: 0,
       };
     },
     computed: {
       entry() {
         return (this.options && this.options.entry) || 'index.html';
-      },
-      scrollBasedProgress() {
-        return 0.5;
       },
       cssVars() {
         return {
@@ -87,6 +86,11 @@
       const entryHtmlFile = await zipFile.file(this.entry);
       this.html = entryHtmlFile.toString();
       this.loading = false;
+
+      // Wait for DOM update after loading completes
+      await this.$nextTick();
+      this.setupScrollListener();
+
       this.$emit('startTracking');
       this.pollProgress();
     },
@@ -100,6 +104,12 @@
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
+
+      const wrapper = this.$refs.safeHtmlWrapper;
+      if (wrapper) {
+        wrapper.removeEventListener('scroll', this.handleScroll);
+      }
+
       window.removeEventListener('resize', this.applyTabIndexes);
       this.$emit('stopTracking');
     },
@@ -120,12 +130,13 @@
         if (this.forceDurationBasedProgress) {
           progress = this.durationBasedProgress;
         } else {
-          // TODO: Handle progress tracking based on how
-          // much of the article has been scrolled through
+          // Use scroll events to track progress
           progress = this.scrollBasedProgress;
         }
         this.$emit('updateProgress', progress);
-        if (progress >= 1) {
+
+        // Use more lenient threshold to account for scroll-based progress inaccuracies
+        if (progress >= 0.99) {
           this.$emit('finished');
         }
         this.pollProgress();
@@ -134,6 +145,27 @@
         this.timeout = setTimeout(() => {
           this.recordProgress();
         }, 5000);
+      },
+      handleScroll() {
+        const element = this.$refs.safeHtmlWrapper;
+        const scrollTop = element.scrollTop;
+        const scrollHeight = element.scrollHeight;
+        const clientHeight = element.clientHeight;
+
+        // Calculate progress as a value between 0 and 1
+        const maxScroll = scrollHeight - clientHeight;
+        if (maxScroll > 0) {
+          this.scrollBasedProgress = Math.min(scrollTop / maxScroll, 1);
+        } else {
+          // Content doesn't overflow, consider it fully read
+          this.scrollBasedProgress = 1;
+        }
+      },
+      setupScrollListener() {
+        const wrapper = this.$refs.safeHtmlWrapper;
+        if (wrapper) {
+          wrapper.addEventListener('scroll', this.handleScroll);
+        }
       },
     },
     $trs: {
