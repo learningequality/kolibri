@@ -117,7 +117,6 @@ export default [
         router.replace({ name: PageNames.ROOT });
       });
     },
-    component: TopicsPage,
   },
   {
     // Handle redirect for links without the /folder appended
