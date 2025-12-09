@@ -45,46 +45,46 @@ class _registry(dict):
 
     def __getitem__(self, key):
         self.__init_check()
-        return super(_registry, self).__getitem__(key)
+        return super().__getitem__(key)
 
     def __contains__(self, key):
         self.__init_check()
-        return super(_registry, self).__contains__(key)
+        return super().__contains__(key)
 
     def __iter__(self):
         self.__init_check()
-        return super(_registry, self).__iter__()
+        return super().__iter__()
 
     def __len__(self):
         self.__init_check()
-        return super(_registry, self).__len__()
+        return super().__len__()
 
     def __repr__(self):
         self.__init_check()
-        return super(_registry, self).__repr__()
+        return super().__repr__()
 
     def copy(self):
         self.__init_check()
-        return super(_registry, self).copy()
+        return super().copy()
 
     def has_key(self, key):
         return key in self
 
     def keys(self):
         self.__init_check()
-        return super(_registry, self).keys()
+        return super().keys()
 
     def values(self):
         self.__init_check()
-        return super(_registry, self).values()
+        return super().values()
 
     def items(self):
         self.__init_check()
-        return super(_registry, self).items()
+        return super().items()
 
     def __cmp__(self, other):
         self.__init_check()
-        return super(_registry, self).__cmp__(other)
+        return super().__cmp__(other)
 
     def _initialize(self):
         logger.debug("Importing 'tasks' module from django apps")
@@ -106,7 +106,7 @@ class _registry(dict):
     def __setitem__(self, key, value):
         if not isinstance(value, RegisteredTask):
             raise TypeError("Value must be an instance of RegisteredTask")
-        return super(_registry, self).__setitem__(key, value)
+        return super().__setitem__(key, value)
 
     def update(self, other):
         # Coerce args to a dict and then set each key in that dict
