@@ -67,6 +67,29 @@ function getVariableName(node) {
 }
 
 /**
+ * Gets the object variable name and property name for a createTranslator in an object
+ * @param {Object} node - AST CallExpression node
+ * @returns {{objectName: string, propertyName: string}|null}
+ */
+function getObjectPropertyInfo(node) {
+  // Handle: const obj = { prop: createTranslator(...) }
+  if (
+    node.parent.type === 'Property' &&
+    node.parent.value === node &&
+    node.parent.key.type === 'Identifier' &&
+    node.parent.parent.type === 'ObjectExpression' &&
+    node.parent.parent.parent.type === 'VariableDeclarator' &&
+    node.parent.parent.parent.id.type === 'Identifier'
+  ) {
+    return {
+      objectName: node.parent.parent.parent.id.name,
+      propertyName: node.parent.key.name,
+    };
+  }
+  return null;
+}
+
+/**
  * Gets the variable name that a createTranslator call is exported as
  * @param {Object} node - AST CallExpression node
  * @returns {string|null} Export name or null
@@ -92,6 +115,27 @@ function getExportName(node) {
 function getSourceVariableName(node) {
   if (node.type === 'Identifier') {
     return node.name;
+  }
+  return null;
+}
+
+/**
+ * Gets member expression information for destructuring from object.property
+ * @param {Object} node - AST node (the init part of VariableDeclarator)
+ * @returns {{objectName: string, propertyName: string}|null}
+ */
+function getMemberExpressionInfo(node) {
+  // Handle: const { key$ } = obj.prop
+  if (
+    node.type === 'MemberExpression' &&
+    node.object.type === 'Identifier' &&
+    node.property.type === 'Identifier' &&
+    !node.computed
+  ) {
+    return {
+      objectName: node.object.name,
+      propertyName: node.property.name,
+    };
   }
   return null;
 }
@@ -371,6 +415,13 @@ const create = context => {
   // Map of imported translators: localName -> { keys: Set<string> }
   const importedTranslators = new Map();
 
+  // Map of objects containing translators: objectName -> Map<propertyName, { keys: Set<string> }>
+  const objectsWithTranslators = new Map();
+
+  // Map of member references: variableName -> { keys: Set<string> }
+  // Tracks variables that hold references to translator properties
+  const memberReferences = new Map();
+
   return {
     // Track createTranslator calls in this file
     CallExpression(node) {
@@ -380,6 +431,17 @@ const create = context => {
 
       const keys = extractMessageKeys(node);
       if (!keys) {
+        return;
+      }
+
+      // Check if this is inside an object property
+      const objInfo = getObjectPropertyInfo(node);
+      if (objInfo) {
+        // Track object with translator property
+        if (!objectsWithTranslators.has(objInfo.objectName)) {
+          objectsWithTranslators.set(objInfo.objectName, new Map());
+        }
+        objectsWithTranslators.get(objInfo.objectName).set(objInfo.propertyName, { keys });
         return;
       }
 
@@ -440,6 +502,41 @@ const create = context => {
         return;
       }
 
+      // Try to get member expression info (e.g., obj.prop)
+      const memberInfo = getMemberExpressionInfo(node.init);
+      if (memberInfo) {
+        // Handle: const { key$ } = obj.prop
+        if (objectsWithTranslators.has(memberInfo.objectName)) {
+          const translatorProps = objectsWithTranslators.get(memberInfo.objectName);
+          if (translatorProps.has(memberInfo.propertyName)) {
+            const translatorInfo = translatorProps.get(memberInfo.propertyName);
+            validateDestructuring(
+              node,
+              translatorInfo,
+              context,
+              `${memberInfo.objectName}.${memberInfo.propertyName}`,
+            );
+            return;
+          }
+        }
+        // If it's not tracked, might be from an object property reference
+        // e.g., const { prop } = obj; const { key$ } = prop;
+        if (memberReferences.has(memberInfo.objectName)) {
+          const refInfo = memberReferences.get(memberInfo.objectName);
+          if (refInfo.has(memberInfo.propertyName)) {
+            const translatorInfo = refInfo.get(memberInfo.propertyName);
+            validateDestructuring(
+              node,
+              translatorInfo,
+              context,
+              `${memberInfo.objectName}.${memberInfo.propertyName}`,
+            );
+            return;
+          }
+        }
+        return;
+      }
+
       const sourceName = getSourceVariableName(node.init);
       if (!sourceName) {
         return;
@@ -448,10 +545,39 @@ const create = context => {
       // Check if destructuring from a local translator
       if (localTranslators.has(sourceName)) {
         validateDestructuring(node, localTranslators.get(sourceName), context, sourceName);
+        return;
       }
+
       // Check if destructuring from an imported translator
-      else if (importedTranslators.has(sourceName)) {
+      if (importedTranslators.has(sourceName)) {
         validateDestructuring(node, importedTranslators.get(sourceName), context, sourceName);
+        return;
+      }
+
+      // Check if destructuring from a member reference
+      if (memberReferences.has(sourceName)) {
+        // This is a reference to a translator property, validate it
+        const refInfo = memberReferences.get(sourceName);
+        validateDestructuring(node, refInfo, context, sourceName);
+        return;
+      }
+
+      // Check if destructuring properties from an object with translators
+      // e.g., const { completed } = obj where obj.completed is a translator
+      if (objectsWithTranslators.has(sourceName)) {
+        // Track the extracted properties as member references
+        const translatorProps = objectsWithTranslators.get(sourceName);
+        node.id.properties.forEach(prop => {
+          if (prop.type === 'Property' && prop.key.type === 'Identifier') {
+            const propName = prop.key.name;
+            const localName = prop.value.type === 'Identifier' ? prop.value.name : prop.key.name;
+
+            if (translatorProps.has(propName)) {
+              // Store this as a member reference for future destructuring
+              memberReferences.set(localName, translatorProps.get(propName));
+            }
+          }
+        });
       }
     },
   };

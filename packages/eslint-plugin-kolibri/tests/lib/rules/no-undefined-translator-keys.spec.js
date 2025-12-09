@@ -55,7 +55,8 @@ tester.run('no-undefined-translator-keys', rule, {
       `,
     },
 
-    // 5. No destructuring (direct usage)
+    // 5. Direct method calls (not validated by this rule)
+    // This rule only validates destructuring, not $tr() method calls
     {
       code: `
         const translator = createTranslator('NS', { key: 'msg' });
@@ -255,10 +256,71 @@ tester.run('no-undefined-translator-keys', rule, {
     },
 
     // ========================================
+    // Object-of-Translators Pattern Cases
+    // ========================================
+
+    // 25. Object containing translator - direct member access
+    {
+      code: `
+        const translators = {
+          completed: createTranslator('NS', { validKey: 'msg' })
+        };
+        const { validKey$ } = translators.completed;
+      `,
+    },
+
+    // 26. Object containing translator - two-step destructuring
+    {
+      code: `
+        const translators = {
+          completed: createTranslator('NS', { validKey: 'msg' })
+        };
+        const { completed } = translators;
+        const { validKey$ } = completed;
+      `,
+    },
+
+    // 27. Object with multiple translators - direct access
+    {
+      code: `
+        const progressTranslators = {
+          completed: createTranslator('NS1', { key1: 'a' }),
+          inProgress: createTranslator('NS2', { key2: 'b' })
+        };
+        const { key1$ } = progressTranslators.completed;
+        const { key2$ } = progressTranslators.inProgress;
+      `,
+    },
+
+    // 28. Object with multiple translators - two-step
+    {
+      code: `
+        const progressTranslators = {
+          completed: createTranslator('NS1', { key1: 'a' }),
+          inProgress: createTranslator('NS2', { key2: 'b' })
+        };
+        const { completed, inProgress } = progressTranslators;
+        const { key1$ } = completed;
+        const { key2$ } = inProgress;
+      `,
+    },
+
+    // 29. Object with aliased extraction
+    {
+      code: `
+        const translators = {
+          main: createTranslator('NS', { validKey: 'msg' })
+        };
+        const { main: myTranslator } = translators;
+        const { validKey$ } = myTranslator;
+      `,
+    },
+
+    // ========================================
     // Import Resolution Failure Cases (should silently skip)
     // ========================================
 
-    // 25. Import from non-existent file - should not error
+    // 30. Import from non-existent file - should not error
     {
       filename: testFilePath,
       code: `
@@ -267,7 +329,7 @@ tester.run('no-undefined-translator-keys', rule, {
       `,
     },
 
-    // 26. Import from malformed file - should not error (parse failure)
+    // 31. Import from malformed file - should not error (parse failure)
     {
       filename: testFilePath,
       code: `
@@ -715,6 +777,82 @@ tester.run('no-undefined-translator-keys', rule, {
         {
           message:
             "Destructured property 'invalidKey$' does not exist in translator 'testStrings'. Available keys: adminLabel$, coachLabel$, goBackAction$, learnerLabel$, userLabel$",
+          type: 'Property',
+        },
+      ],
+    },
+
+    // ========================================
+    // Object-of-Translators Invalid Cases
+    // ========================================
+
+    // 27. Object containing translator - direct member access with invalid key
+    {
+      code: `
+        const translators = {
+          completed: createTranslator('NS', { validKey: 'msg' })
+        };
+        const { invalidKey$ } = translators.completed;
+      `,
+      errors: [
+        {
+          message:
+            "Destructured property 'invalidKey$' does not exist in translator 'translators.completed'. Available keys: validKey$",
+          type: 'Property',
+        },
+      ],
+    },
+
+    // 28. Object containing translator - two-step with invalid key
+    {
+      code: `
+        const translators = {
+          completed: createTranslator('NS', { validKey: 'msg' })
+        };
+        const { completed } = translators;
+        const { invalidKey$ } = completed;
+      `,
+      errors: [
+        {
+          message:
+            "Destructured property 'invalidKey$' does not exist in translator 'completed'. Available keys: validKey$",
+          type: 'Property',
+        },
+      ],
+    },
+
+    // 29. Object with multiple translators - wrong property access
+    {
+      code: `
+        const progressTranslators = {
+          completed: createTranslator('NS1', { key1: 'a' }),
+          inProgress: createTranslator('NS2', { key2: 'b' })
+        };
+        const { key2$ } = progressTranslators.completed;
+      `,
+      errors: [
+        {
+          message:
+            "Destructured property 'key2$' does not exist in translator 'progressTranslators.completed'. Available keys: key1$",
+          type: 'Property',
+        },
+      ],
+    },
+
+    // 30. Object with multiple translators - two-step wrong extraction
+    {
+      code: `
+        const progressTranslators = {
+          completed: createTranslator('NS1', { key1: 'a' }),
+          inProgress: createTranslator('NS2', { key2: 'b' })
+        };
+        const { completed } = progressTranslators;
+        const { key2$ } = completed;
+      `,
+      errors: [
+        {
+          message:
+            "Destructured property 'key2$' does not exist in translator 'completed'. Available keys: key1$",
           type: 'Property',
         },
       ],
