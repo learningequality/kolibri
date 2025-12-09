@@ -41,7 +41,7 @@ class override_option(TestContextDecorator):
         self.section = section
         self.key = key
         self.temp_value = value
-        super(override_option, self).__init__()
+        super().__init__()
 
     def enable(self):
         self.old_value = conf.OPTIONS[self.section][self.key]

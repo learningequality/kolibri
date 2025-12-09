@@ -75,7 +75,7 @@ try:
             We use a similar pattern in our own caching decorator in kolibri/core/content/api.py and saw errors
             due to the fact if the lambda returns a value, it is interpreted as a replacement for the response object.
             """
-            super(RedisCache, self).set(*args, **kwargs)
+            super().set(*args, **kwargs)
 
 
 except (ImportError, InvalidCacheBackendError):

@@ -86,9 +86,7 @@ class InfiniteLoopThread(Thread):
         self.full_thread_name = "{thread_name}-{thread_id}".format(
             thread_name=self.thread_name, thread_id=self.thread_id
         )
-        super(InfiniteLoopThread, self).__init__(
-            name=self.full_thread_name, *args, **kwargs
-        )
+        super().__init__(name=self.full_thread_name, *args, **kwargs)
         self.func = func
         self.wait = wait_between_runs
 
@@ -284,7 +282,7 @@ class JobProgressMixin(object):
     def __init__(self, *args, **kwargs):
         self.progresstracker = None
         self.job = get_current_job()
-        super(JobProgressMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def update_progress(
         self, increment=None, message="", current_progress=None, extra_data=None

@@ -95,7 +95,7 @@ class Lesson(AbstractFacilityDataModel):
         return "Lesson {} for Classroom {}".format(self.title, self.collection.name)
 
     def pre_save(self):
-        super(Lesson, self).pre_save()
+        super().pre_save()
 
         # maintain stricter enforcement on when assigned_by is allowed to be null
         if self._state.adding and self.created_by is None:
@@ -113,7 +113,7 @@ class Lesson(AbstractFacilityDataModel):
         We delete all notifications objects whose lesson is this lesson id.
         """
         LearnerProgressNotification.objects.filter(lesson_id=self.id).delete()
-        super(Lesson, self).delete(using, keep_parents)
+        super().delete(using, keep_parents)
 
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("collection")
@@ -166,7 +166,7 @@ class LessonAssignment(AbstractFacilityDataModel):
     morango_model_name = "lessonassignment"
 
     def pre_save(self):
-        super(LessonAssignment, self).pre_save()
+        super().pre_save()
 
         # this shouldn't happen
         if (

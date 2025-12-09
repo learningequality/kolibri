@@ -132,7 +132,7 @@ class KolibriCommand(click.Command):
         kwargs["params"] = base_params + (
             kwargs["params"] if "params" in kwargs else []
         )
-        super(KolibriCommand, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def invoke(self, ctx):
         # Check if the current user is the kolibri user when running kolibri from Debian installer.
@@ -145,7 +145,7 @@ class KolibriCommand(click.Command):
         set_django_settings_and_python_path(None, ctx.params.get("pythonpath"))
         for param in base_params:
             ctx.params.pop(param.name)
-        return super(KolibriCommand, self).invoke(ctx)
+        return super().invoke(ctx)
 
 
 class KolibriGroupCommand(click.Group):
@@ -162,7 +162,7 @@ class KolibriGroupCommand(click.Group):
         kwargs["params"] = base_params + (
             kwargs["params"] if "params" in kwargs else []
         )
-        super(KolibriGroupCommand, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def invoke(self, ctx):
         # Check if the current user is the kolibri user when running kolibri from Debian installer.
@@ -175,7 +175,7 @@ class KolibriGroupCommand(click.Group):
         set_django_settings_and_python_path(None, ctx.params.get("pythonpath"))
         for param in base_params:
             ctx.params.pop(param.name)
-        return super(KolibriGroupCommand, self).invoke(ctx)
+        return super().invoke(ctx)
 
 
 class KolibriDjangoCommand(click.Command):
@@ -192,7 +192,7 @@ class KolibriDjangoCommand(click.Command):
         kwargs["params"] = initialize_params + (
             kwargs["params"] if "params" in kwargs else []
         )
-        super(KolibriDjangoCommand, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def invoke(self, ctx):
         try:
@@ -203,7 +203,7 @@ class KolibriDjangoCommand(click.Command):
         # Remove parameters that are not for Django management command
         for param in initialize_params:
             ctx.params.pop(param.name)
-        return super(KolibriDjangoCommand, self).invoke(ctx)
+        return super().invoke(ctx)
 
 
 main_help = """Kolibri command-line utility

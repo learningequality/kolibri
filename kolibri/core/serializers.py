@@ -20,7 +20,7 @@ from .fields import DateTimeTzField as DjangoDateTimeTzField
 
 class DateTimeTzField(DateTimeField):
     def to_internal_value(self, data):
-        data = super(DateTimeTzField, self).to_internal_value(data)
+        data = super().to_internal_value(data)
         tz = timezone.get_current_timezone()
         if not data.tzinfo:
             data = timezone.make_aware(data, pytz.utc)
@@ -108,7 +108,7 @@ class KolibriModelSerializer(ModelSerializer):
 class HexOnlyUUIDField(UUIDFieldBase):
     def __init__(self, **kwargs):
         kwargs["format"] = "hex"
-        super(HexOnlyUUIDField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def to_internal_value(self, data):
-        return super(HexOnlyUUIDField, self).to_internal_value(data).hex
+        return super().to_internal_value(data).hex

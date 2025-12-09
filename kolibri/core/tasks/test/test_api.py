@@ -602,7 +602,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
 class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
     @classmethod
     def setUpTestData(cls):
-        super(EnqueueArgsCreateAPITestCase, cls).setUpTestData()
+        super().setUpTestData()
 
         cls.datetime_obj = datetime.datetime(year=2023, month=1, day=1, tzinfo=pytz.utc)
         cls.timedelta_obj = datetime.timedelta(days=1, hours=1)
@@ -867,7 +867,7 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
 class EnqueueArgsUpdateAPITestCase(BaseAPITestCase):
     @classmethod
     def setUpTestData(cls):
-        super(EnqueueArgsUpdateAPITestCase, cls).setUpTestData()
+        super().setUpTestData()
 
         cls.datetime_obj = datetime.datetime(year=2023, month=1, day=1, tzinfo=pytz.utc)
         cls.timedelta_obj = datetime.timedelta(days=1, hours=1)
@@ -1129,7 +1129,7 @@ class EnqueueArgsUpdateAPITestCase(BaseAPITestCase):
 class ListAPIRepeat(BaseAPITestCase):
     @classmethod
     def setUpTestData(cls):
-        super(ListAPIRepeat, cls).setUpTestData()
+        super().setUpTestData()
 
         @register_task
         def life():

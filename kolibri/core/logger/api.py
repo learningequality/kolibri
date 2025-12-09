@@ -66,10 +66,10 @@ logger = logging.getLogger(__name__)
 class HexStringUUIDField(serializers.UUIDField):
     def __init__(self, **kwargs):
         self.uuid_format = "hex"
-        super(HexStringUUIDField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def to_internal_value(self, data):
-        return super(HexStringUUIDField, self).to_internal_value(data).hex
+        return super().to_internal_value(data).hex
 
 
 class MasteryModelSerializer(serializers.Serializer):

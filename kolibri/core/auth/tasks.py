@@ -69,7 +69,7 @@ class LocaleChoiceField(serializers.ChoiceField):
     """
 
     def __init__(self, **kwargs):
-        super(LocaleChoiceField, self).__init__([], **kwargs)
+        super().__init__([], **kwargs)
         self._choices_set = False
 
     @property
@@ -86,15 +86,15 @@ class LocaleChoiceField(serializers.ChoiceField):
         if not self._choices_set:
             self._choices_set = True
             # Use the internal Choice field _set_choices setter method here
-            super(LocaleChoiceField, self)._set_choices(settings.LANGUAGES)
+            super()._set_choices(settings.LANGUAGES)
 
     def to_internal_value(self, data):
         self._set_choices()
-        return super(LocaleChoiceField, self).to_internal_value(data)
+        return super().to_internal_value(data)
 
     def to_representation(self, value):
         self._set_choices()
-        return super(LocaleChoiceField, self).to_representation(value)
+        return super().to_representation(value)
 
     @property
     def choices(self):
@@ -310,7 +310,7 @@ class PeerSyncJobValidator(SyncJobValidator):
     )
 
     def validate(self, data):
-        job_data = super(PeerSyncJobValidator, self).validate(data)
+        job_data = super().validate(data)
         if "baseurl" not in data and "device_id" not in data:
             raise serializers.ValidationError(
                 "Either baseurl or device_id must be specified"
@@ -351,7 +351,7 @@ class PeerSyncJobValidator(SyncJobValidator):
 
 class PeerFacilitySyncJobValidator(PeerSyncJobValidator):
     def validate(self, data):
-        job_data = super(PeerFacilitySyncJobValidator, self).validate(data)
+        job_data = super().validate(data)
         validate_and_create_sync_credentials(
             job_data["kwargs"]["baseurl"],
             job_data["facility_id"],
@@ -384,7 +384,7 @@ class PeerFacilityImportJobValidator(PeerFacilitySyncJobValidator):
     password = serializers.CharField(default=NOT_SPECIFIED, required=False)
 
     def validate(self, data):
-        job_data = super(PeerFacilityImportJobValidator, self).validate(data)
+        job_data = super().validate(data)
         job_data["kwargs"].update(
             dict(
                 no_push=True,
@@ -541,7 +541,7 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
         In case an admin account credentials are provided, to sync a non-admin user,
         the user_id of this non-admin user must be provided.
         """
-        job_data = super(PeerImportSingleSyncJobValidator, self).validate(data)
+        job_data = super().validate(data)
         user_id = data.get("user_id", None)
         using_admin = data.get("using_admin", False)
         force_non_learner_import = data.get("force_non_learner_import", False)

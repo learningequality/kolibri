@@ -249,12 +249,12 @@ class RemoteViewSet(ReadOnlyValuesViewset, RemoteMixin):
             raise Http404
         if self._should_proxy_request(request):
             return self._hande_proxied_request(request)
-        return super(RemoteViewSet, self).retrieve(request, pk=pk)
+        return super().retrieve(request, pk=pk)
 
     def list(self, request, *args, **kwargs):
         if self._should_proxy_request(request):
             return self._hande_proxied_request(request)
-        return super(RemoteViewSet, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
 
 class ChannelMetadataFilter(FilterSet):
@@ -847,9 +847,7 @@ class OptionalContentNodePagination(OptionalPagination):
     def paginate_queryset(self, queryset, request, view=None):
         # Record the queryset for use in returning available filters
         self.queryset = queryset
-        return super(OptionalContentNodePagination, self).paginate_queryset(
-            queryset, request, view=view
-        )
+        return super().paginate_queryset(queryset, request, view=view)
 
     def get_paginated_response(self, data):
         return Response(
@@ -907,7 +905,7 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
                 # Used in the update method for remote request retrieval
                 self.locally_admin_imported_ids = set()
             return self._hande_proxied_request(request)
-        return super(ContentNodeViewset, self).retrieve(request, pk=pk)
+        return super().retrieve(request, pk=pk)
 
     def list(self, request, *args, **kwargs):
         if self._should_proxy_request(request):
@@ -917,7 +915,7 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
                 queryset.filter(admin_imported=True).values_list("id", flat=True)
             )
             return self._hande_proxied_request(request)
-        return super(ContentNodeViewset, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
     @action(detail=False)
     def random(self, request, **kwargs):
@@ -1208,7 +1206,7 @@ class ContentNodeTreeViewset(BaseContentNodeTreeViewset, RemoteMixin):
                 # Used in the update method for remote request retrieval
                 self.locally_admin_imported_ids = set()
             return self._hande_proxied_request(request)
-        return super(ContentNodeTreeViewset, self).retrieve(request, pk=pk)
+        return super().retrieve(request, pk=pk)
 
 
 # return the result of and-ing a list of queries
@@ -1392,10 +1390,10 @@ class ContentNodeBookmarksViewset(
         queryset = models.ContentNode.objects.filter(
             id__in=queryset.values_list("contentnode_id", flat=True)
         )
-        return super(ContentNodeBookmarksViewset, self).serialize(queryset)
+        return super().serialize(queryset)
 
     def consolidate(self, items, queryset):
-        items = super(ContentNodeBookmarksViewset, self).consolidate(items, queryset)
+        items = super().consolidate(items, queryset)
         sorted_items = []
         if items:
             item_lookup = {item["id"]: item for item in items}
@@ -1511,7 +1509,7 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
         )
 
     def get_serializer_context(self):
-        context = super(ContentNodeGranularViewset, self).get_serializer_context()
+        context = super().get_serializer_context()
         if hasattr(self, "channel_stats"):
             context.update({"channel_stats": self.channel_stats})
         return context

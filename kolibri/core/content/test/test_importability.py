@@ -39,4 +39,4 @@ class ImportabilityStats(TransactionTestCase):
 
     def tearDown(self):
         call_command("flush", interactive=False)
-        super(ImportabilityStats, self).tearDown()
+        super().tearDown()

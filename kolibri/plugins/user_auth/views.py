@@ -12,4 +12,4 @@ class UserAuthView(TemplateView):
         """
         if request.user.is_authenticated:
             return RootURLRedirectView.as_view()(request)
-        return super(UserAuthView, self).get(request)
+        return super().get(request)

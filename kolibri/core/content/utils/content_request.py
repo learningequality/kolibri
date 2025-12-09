@@ -314,7 +314,7 @@ class PreferredDevicesWithClient(PreferredDevices):
         Iterate over the network locations, yielding the network location and a network client
         :rtype: Generator<(NetworkLocation, NetworkClient)>
         """
-        for peer in super(PreferredDevicesWithClient, self).__iter__():
+        for peer in super().__iter__():
             # during processing, if there's a critical failure in making requests to the peer,
             # this will capture those errors, and obviously the raising of exceptions
             # will interrupt processing

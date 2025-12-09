@@ -802,9 +802,7 @@ class FileDownload(Transfer):
 
         self.transfer_size = None
 
-        super(FileDownload, self).__init__(
-            source, dest, checksum=checksum, cancel_check=cancel_check
-        )
+        super().__init__(source, dest, checksum=checksum, cancel_check=cancel_check)
 
         self._initialize_dest_file()
 
@@ -864,7 +862,7 @@ class FileDownload(Transfer):
     def finalize(self):
         if not self.finalize_download:
             return
-        return super(FileDownload, self).finalize()
+        return super().finalize()
 
     def _catch_exception_and_retry(func):
         def inner(self, *args, **kwargs):
@@ -1069,7 +1067,7 @@ class FileDownload(Transfer):
     def close(self):
         if hasattr(self, "response"):
             self.response.close()
-        super(FileDownload, self).close()
+        super().close()
 
 
 class FileCopy(Transfer):
@@ -1098,7 +1096,7 @@ class FileCopy(Transfer):
 
     def close(self):
         self.source_file_obj.close()
-        super(FileCopy, self).close()
+        super().close()
 
 
 class RemoteFile(ChunkedFile):
@@ -1107,7 +1105,7 @@ class RemoteFile(ChunkedFile):
     """
 
     def __init__(self, filepath, remote_url):
-        super(RemoteFile, self).__init__(filepath)
+        super().__init__(filepath)
         self.remote_url = remote_url
         self._dest_file_handle = None
         self.transfer = None
@@ -1161,14 +1159,14 @@ class RemoteFile(ChunkedFile):
         )
         if needs_download:
             self._run_transfer()
-        return super(RemoteFile, self).read(size)
+        return super().read(size)
 
     def seek(self, offset, whence=0):
         dest_file_handle = self.dest_file_handle
         if dest_file_handle:
             return dest_file_handle.seek(offset, whence)
         self.get_file_size()
-        return super(RemoteFile, self).seek(offset, whence)
+        return super().seek(offset, whence)
 
     def close(self):
         if self.transfer:

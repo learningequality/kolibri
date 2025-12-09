@@ -23,7 +23,7 @@ class BulkCreateMixin(object):
         """ if an array is passed, set serializer to many """
         if isinstance(kwargs.get("data", {}), list):
             kwargs["many"] = True
-        return super(BulkCreateMixin, self).get_serializer(*args, **kwargs)
+        return super().get_serializer(*args, **kwargs)
 
 
 class BulkDeleteMixin(object):
@@ -102,7 +102,7 @@ class UUIDIn(In):
             sqls_params = ()
             return (placeholder, sqls_params)
         else:
-            return super(UUIDIn, self).process_rhs(compiler, connection)
+            return super().process_rhs(compiler, connection)
 
     def split_parameter_list_as_sql(self, compiler, connection):
         # This is a special case for databases which limit the number of

@@ -61,7 +61,7 @@ class DeviceSettingsTestCase(APITestCase):
         cls.user = FacilityUserFactory.create(facility=cls.facility)
 
     def setUp(self):
-        super(DeviceSettingsTestCase, self).setUp()
+        super().setUp()
         clear_process_cache()
         self.client.login(
             username=self.superuser.username,
@@ -288,7 +288,7 @@ class DeviceNameTestCase(APITestCase):
 
     def setUp(self):
         clear_process_cache()
-        super(DeviceNameTestCase, self).setUp()
+        super().setUp()
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,

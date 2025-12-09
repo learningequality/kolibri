@@ -32,7 +32,7 @@ class TestBulkAPIMixins(TestCase):
     lang2 = {"id": "fr-fr", "lang_code": "fr", "lang_subcode": "fr"}
 
     def setUp(self):
-        super(TestBulkAPIMixins, self).setUp()
+        super().setUp()
         self.request = RequestFactory()
 
     def test_get(self):

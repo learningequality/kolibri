@@ -408,7 +408,7 @@ class ContentImportTestBase(TransactionTestCase):
                 "No content schema and/or data for {name}".format(name=self.schema_name)
             )
 
-        super(ContentImportTestBase, self).setUp()
+        super().setUp()
 
     @patch("kolibri.core.content.utils.channel_import.get_content_database_file_path")
     def set_content_fixture(self, db_path_mock):
@@ -451,12 +451,12 @@ class ContentImportTestBase(TransactionTestCase):
 
     def tearDown(self):
         call_command("flush", interactive=False)
-        super(ContentImportTestBase, self).tearDown()
+        super().tearDown()
 
     @classmethod
     def tearDownClass(cls):
         django_connection_engine().dispose()
-        super(ContentImportTestBase, cls).tearDownClass()
+        super().tearDownClass()
 
 
 @pytest.fixture(scope="class")
@@ -886,11 +886,11 @@ class Version4ImportTestCase(NaiveImportTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(Version4ImportTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
     @classmethod
     def setUpClass(cls):
-        super(Version4ImportTestCase, cls).setUpClass()
+        super().setUpClass()
 
 
 class Version3ImportTestCase(NaiveImportTestCase):
@@ -902,11 +902,11 @@ class Version3ImportTestCase(NaiveImportTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(Version3ImportTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
     @classmethod
     def setUpClass(cls):
-        super(Version3ImportTestCase, cls).setUpClass()
+        super().setUpClass()
 
 
 class Version2ImportTestCase(NaiveImportTestCase):
@@ -918,11 +918,11 @@ class Version2ImportTestCase(NaiveImportTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(Version2ImportTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
     @classmethod
     def setUpClass(cls):
-        super(Version2ImportTestCase, cls).setUpClass()
+        super().setUpClass()
 
 
 class Version1ImportTestCase(NaiveImportTestCase):
@@ -934,11 +934,11 @@ class Version1ImportTestCase(NaiveImportTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(Version1ImportTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
     @classmethod
     def setUpClass(cls):
-        super(Version1ImportTestCase, cls).setUpClass()
+        super().setUpClass()
 
 
 class NoVersionImportTestCase(NaiveImportTestCase):
@@ -950,11 +950,11 @@ class NoVersionImportTestCase(NaiveImportTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(NoVersionImportTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
     @classmethod
     def setUpClass(cls):
-        super(NoVersionImportTestCase, cls).setUpClass()
+        super().setUpClass()
 
 
 class NoVersionv020ImportTestCase(NoVersionImportTestCase):
@@ -972,11 +972,11 @@ class NoVersionv020ImportTestCase(NoVersionImportTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(NoVersionv020ImportTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
     @classmethod
     def setUpClass(cls):
-        super(NoVersionv020ImportTestCase, cls).setUpClass()
+        super().setUpClass()
 
 
 class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
@@ -989,11 +989,11 @@ class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(NoVersionv020ImportTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
     @classmethod
     def setUpClass(cls):
-        super(NoVersionv040ImportTestCase, cls).setUpClass()
+        super().setUpClass()
 
 
 @patch("kolibri.core.content.utils.channel_import.Bridge")
@@ -1005,7 +1005,7 @@ class ChannelImportTestCase(ContentImportTestBase, TransactionTestCase):
     legacy_schema = None
 
     def setUp(self):
-        super(ChannelImportTestCase, self).setUp()
+        super().setUp()
         self.channel_id = "6199dde695db4ee4ab392222d5af1e5c"
         self.channel_version = 2
         self.current_channel = None

@@ -221,7 +221,7 @@ class SetContentNodesInvisibleTestCase(TransactionTestCase):
 
     def tearDown(self):
         call_command("flush", interactive=False)
-        super(SetContentNodesInvisibleTestCase, self).tearDown()
+        super().tearDown()
 
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
@@ -516,7 +516,7 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
 
     def tearDown(self):
         call_command("flush", interactive=False)
-        super(AnnotationFromLocalFileAvailability, self).tearDown()
+        super().tearDown()
 
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
@@ -525,7 +525,7 @@ class AnnotationTreeRecursion(TransactionTestCase):
     fixtures = ["content_test.json"]
 
     def setUp(self):
-        super(AnnotationTreeRecursion, self).setUp()
+        super().setUp()
         ContentNode.objects.all().update(available=False)
 
     def test_all_content_nodes_available(self):
@@ -747,7 +747,7 @@ class AnnotationTreeRecursion(TransactionTestCase):
 
     def tearDown(self):
         call_command("flush", interactive=False)
-        super(AnnotationTreeRecursion, self).tearDown()
+        super().tearDown()
 
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
@@ -756,7 +756,7 @@ class LocalFileAvailableByChecksum(TransactionTestCase):
     fixtures = ["content_test.json"]
 
     def setUp(self):
-        super(LocalFileAvailableByChecksum, self).setUp()
+        super().setUp()
         LocalFile.objects.all().update(available=False)
 
     def test_set_one_file(self):
@@ -775,7 +775,7 @@ class LocalFileAvailableByChecksum(TransactionTestCase):
 
     def tearDown(self):
         call_command("flush", interactive=False)
-        super(LocalFileAvailableByChecksum, self).tearDown()
+        super().tearDown()
 
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
@@ -784,7 +784,7 @@ class LocalFileUnAvailableByChecksum(TransactionTestCase):
     fixtures = ["content_test.json"]
 
     def setUp(self):
-        super(LocalFileUnAvailableByChecksum, self).setUp()
+        super().setUp()
         LocalFile.objects.all().update(available=True)
 
     def test_set_one_file(self):
@@ -803,7 +803,7 @@ class LocalFileUnAvailableByChecksum(TransactionTestCase):
 
     def tearDown(self):
         call_command("flush", interactive=False)
-        super(LocalFileUnAvailableByChecksum, self).tearDown()
+        super().tearDown()
 
 
 mock_content_file = tempfile.mkstemp()
@@ -818,7 +818,7 @@ class LocalFileByDisk(TransactionTestCase):
     file_id_2 = "e00699f859624e0f875ac6fe1e13d648"
 
     def setUp(self):
-        super(LocalFileByDisk, self).setUp()
+        super().setUp()
         LocalFile.objects.all().update(available=False)
 
     @patch(
@@ -936,7 +936,7 @@ class LocalFileByDisk(TransactionTestCase):
 
     def tearDown(self):
         call_command("flush", interactive=False)
-        super(LocalFileByDisk, self).tearDown()
+        super().tearDown()
 
 
 class SetChannelMetadataFieldsTestCase(TestCase):
