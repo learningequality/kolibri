@@ -320,7 +320,7 @@
   "SearchAndFilterStrings.searchInFolder": "Търси в папка '{folder}'",
   "SearchAndFilterStrings.selectResource": "Избери ресурс",
   "SearchAndFilterStrings.selectedIndicator": "Избрани",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "Този тест е създаден с помощта на по-стара версия на Kolibri и не може да бъде редактиран директно. Създайте копие на теста, за да редактирате ресурсите.",
   "SearchBox.find": "Намери",
   "SearchFiltersPanel.categories": "Категории",
   "SearchFiltersPanel.chooseACategory": "Избери категория",

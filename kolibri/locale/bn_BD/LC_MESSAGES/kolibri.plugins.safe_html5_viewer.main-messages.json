@@ -1,8 +1,8 @@
 {
   "Lightbox.close": "বন্ধ করুন",
-  "Lightbox.expandedImage": "",
+  "Lightbox.expandedImage": "প্রসারিত চিত্র",
   "Lightbox.zoomIn": "জুম ইন",
   "Lightbox.zoomOut": "জুম আউট",
-  "SafeHtml5RendererIndex.articleContent": "",
-  "SafeHtmlImage.expandImage": ""
+  "SafeHtml5RendererIndex.articleContent": "প্রবন্ধের বিষয়বস্তু",
+  "SafeHtmlImage.expandImage": "ছবি প্রসারিত করুন"
 }

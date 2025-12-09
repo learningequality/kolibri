@@ -320,7 +320,7 @@
   "SearchAndFilterStrings.searchInFolder": "Cari dalam folder '{folder}'",
   "SearchAndFilterStrings.selectResource": "Pilih sumber daya",
   "SearchAndFilterStrings.selectedIndicator": "Dipilih",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "Kuis ini dibuat menggunakan versi Kolibri yang lebih lama dan tidak bisa langsung diedit. Buat salinannya untuk mengedit sumber daya.",
   "SearchBox.find": "Temukan",
   "SearchFiltersPanel.categories": "Kategori",
   "SearchFiltersPanel.chooseACategory": "Pilih kategori",

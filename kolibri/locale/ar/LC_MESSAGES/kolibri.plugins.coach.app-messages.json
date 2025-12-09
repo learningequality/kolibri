@@ -457,7 +457,7 @@
   "SearchAndFilterStrings.searchInFolder": "بحث في مجلد '{folder}'",
   "SearchAndFilterStrings.selectResource": "اختيار مصدر",
   "SearchAndFilterStrings.selectedIndicator": "تم الاختيار",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "تم إنشاء هذا الاختبار القصير باستخدام إصدار قديم من كوليبري ولا يمكن تحريره مباشرة. أنشئ نسخة منه لتحرير المصادر.",
   "SearchBox.find": "بحث",
   "SearchFiltersPanel.categories": "الفئات",
   "SearchFiltersPanel.chooseACategory": "اختر فئة",

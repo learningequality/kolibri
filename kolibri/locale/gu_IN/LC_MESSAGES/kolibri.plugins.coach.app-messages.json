@@ -457,7 +457,7 @@
   "SearchAndFilterStrings.searchInFolder": "ફોલ્ડર '{folder}'માં શોધો",
   "SearchAndFilterStrings.selectResource": "સંસાધન પસંદ કરો",
   "SearchAndFilterStrings.selectedIndicator": "પસંદ કરેલી",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "આ ક્વિઝ Kolibriના જૂના સંસ્કરણનો ઉપયોગ કરીને બનાવાયું હતું અને તેને સીધું સંપાદિત કરી શકાતું નથી. સંસાધનોને સંપાદિત કરવા માટે એક કૉપિ બનાવો.",
   "SearchBox.find": "શોધો",
   "SearchFiltersPanel.categories": "શ્રેણીઓ",
   "SearchFiltersPanel.chooseACategory": "એક શ્રેણી પસંદ કરો",

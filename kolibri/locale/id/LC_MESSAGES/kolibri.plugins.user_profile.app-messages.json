@@ -42,7 +42,7 @@
   "ConfirmChangeFacility.changeFacilityInfoLine1": "Anda akan memindahkan data akun dan progres ke fasilitas belajar '{target_facility}'. Data Anda saat ini akan tetap tersedia bagi Anda dan juga akan dapat diakses oleh administrator fasilitas belajar ini.",
   "ConfirmChangeFacility.changeFacilityInfoLine2": "Tipe akun pengguna Anda akan berubah dari '{role}' menjadi 'pelajar' dan Anda tidak akan dapat mengelola sumber daya di perangkat ini. Anda akan memerlukan orang yang memiliki izin admin di '{facility}' untuk mengubah tipe akun menjadi '{role}'.",
   "ConfirmChangeFacility.changeFacilityInfoLine3": "Anda juga dapat mencari akun di '{target_facility}' untuk menggabungkannya. Data progres dari kedua akun akan digabungkan ke dalam satu akun.",
-  "ConfirmMerge.confirmMergeInfoLine": "Anda akan menggabungkan dua akun dan data progres keduanya. Data progres termasuk interaksi Anda dengan sumber daya, waktu yang dihabiskan, dan poin. Ini tidak dapat diurungkan.",
+  "ConfirmMerge.confirmMergeInfoLine": "Anda akan menggabungkan dua akun dan data progresnya. Data progres berisi interaksi Anda dengan sumber daya, waktu yang dihabiskan, dan poin. Tindakan ini tidak dapat dibatalkan.",
   "ConfirmMerge.consequences": "Saya memahami konsekuensi menggabungkan akun",
   "CreateAccount.description": "Akun baru untuk '{fullName}' di fasilitas belajar '{targetFacility}'",
   "CreatePassword.description": "‘{targetFacility}’ mewajibkan akun untuk memiliki kata sandi. Masukkan kata sandi yang Anda ingin gunakan untuk ‘{username}’ di ‘{targetFacility}’",

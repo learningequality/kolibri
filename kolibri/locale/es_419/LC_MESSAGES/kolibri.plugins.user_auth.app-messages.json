@@ -19,7 +19,7 @@
   "CommonUserPageStrings.signingInAsUserLabel": "Iniciando sesión como '{user}'",
   "CommonUserPageStrings.signingInToFacilityAsUserLabel": "Iniciando sesión en '{facility}' como '{user}'",
   "CoreBanner.openButton": "Más información",
-  "DeviceUnusableStrings.deprovisioningError": "Ocurrió un error durante la reinstalación de Kolibri. Por favor, inténtalo de nuevo.",
+  "DeviceUnusableStrings.deprovisioningError": "Ocurrió un error durante la reinstalación de Kolibri. Por favor, inténtelo de nuevo.",
   "DeviceUnusableStrings.noSuperuserCallToAction": "Por favor, reinstale Kolibri para crear una cuenta de superusuario.",
   "DeviceUnusableStrings.noSuperusersNotice": "Este dispositivo es inutilizable porque no hay cuentas de superusuario.",
   "DeviceUnusableStrings.reinstallKolibriAction": "Reinstalar Kolibri",

@@ -457,7 +457,7 @@
   "SearchAndFilterStrings.searchInFolder": "'{folder}' फोल्डरमध्ये शोधा",
   "SearchAndFilterStrings.selectResource": "संसाधन निवडा",
   "SearchAndFilterStrings.selectedIndicator": "निवडलेले",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "ही प्रश्नमंजुषा Kolibriच्या जुन्या आवृत्तीचा वापर करून तयार केली गेली आहे आणि ती थेट संपादित करता येणार नाही. संसाधने संपादित करण्यासाठी तिची कॉपी तयार करा.",
   "SearchBox.find": "शोधा",
   "SearchFiltersPanel.categories": "विषय",
   "SearchFiltersPanel.chooseACategory": "विषय निवडा",

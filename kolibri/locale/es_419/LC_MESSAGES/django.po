@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-11-21 11:18-0800\n"
-"PO-Revision-Date: 2025-11-24 13:59\n"
+"PO-Revision-Date: 2025-12-09 19:17\n"
 "Last-Translator: \n"
 "Language-Team: Spanish, Latin America\n"
 "Language: es_LA\n"
@@ -41,7 +41,7 @@ msgstr "Super administrador"
 
 #: core/auth/constants/user_kinds.py:26
 msgid "Class coach"
-msgstr "Tutor de la clase"
+msgstr "Tutor del grupo"
 
 #: core/auth/constants/user_kinds.py:27
 msgid "Facility coach"

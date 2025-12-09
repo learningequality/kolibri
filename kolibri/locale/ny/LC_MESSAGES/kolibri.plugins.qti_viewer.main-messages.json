@@ -1,7 +1,7 @@
 {
   "Lightbox.close": "Tsekani",
-  "Lightbox.expandedImage": "",
+  "Lightbox.expandedImage": "Chithunzi chachikulu",
   "Lightbox.zoomIn": "Kulitsani",
   "Lightbox.zoomOut": "Chepetsani",
-  "SafeHtmlImage.expandImage": ""
+  "SafeHtmlImage.expandImage": "Kulitsani chithunzi"
 }

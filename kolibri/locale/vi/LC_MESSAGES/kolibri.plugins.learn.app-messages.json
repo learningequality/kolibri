@@ -320,7 +320,7 @@
   "SearchAndFilterStrings.searchInFolder": "Tìm kiếm trong thư mục '{folder}'",
   "SearchAndFilterStrings.selectResource": "Chọn nguồn tài liệu",
   "SearchAndFilterStrings.selectedIndicator": "Được chọn",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "Bài kiểm tra này được tạo bằng phiên bản Kolibri cũ và không thể chỉnh sửa trực tiếp. Hãy tạo một bản sao để chỉnh sửa tài liệu này.",
   "SearchBox.find": "Tìm",
   "SearchFiltersPanel.categories": "Các thể loại",
   "SearchFiltersPanel.chooseACategory": "Lựa chọn một thể loại",

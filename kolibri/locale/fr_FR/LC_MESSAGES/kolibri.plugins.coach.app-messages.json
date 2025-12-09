@@ -457,7 +457,7 @@
   "SearchAndFilterStrings.searchInFolder": "Rechercher dans le dossier '{folder}'",
   "SearchAndFilterStrings.selectResource": "Sélectionner la ressource",
   "SearchAndFilterStrings.selectedIndicator": "Sélectionné",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "Ce quiz a été créé avec une ancienne version de Kolibri et ne peut pas être modifié directement. Créez-en une copie pour pouvoir modifier les ressources.",
   "SearchBox.find": "Rechercher",
   "SearchFiltersPanel.categories": "Catégories",
   "SearchFiltersPanel.chooseACategory": "Choisissez une catégorie",
