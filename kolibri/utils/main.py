@@ -203,7 +203,9 @@ def _upgrades_before_django_setup(updated, version):
         ]
         DATABASE_NAMES += [
             os.path.join(KOLIBRI_HOME, "{}.sqlite3".format(db))
+            # TODO: Figure out a way to handle custom db names
             for db in ADDITIONAL_SQLITE_DATABASES
+            if db != "job_storage"
         ]
         sqlite_check_foreign_keys(DATABASE_NAMES)
         # If we are using sqlite,
@@ -218,7 +220,9 @@ def _upgrades_before_django_setup(updated, version):
             # If this is an upgrade, it is possible we've added an additional
             # database, so we can attempt to copy a preseeded database here.
             for db_name in ADDITIONAL_SQLITE_DATABASES:
-                _copy_preseeded_db(db_name)
+                if db_name != "job_storage":
+                    # TODO: Figure out a way to handle custom db names
+                    _copy_preseeded_db(db_name)
 
 
 def _post_django_initialization():

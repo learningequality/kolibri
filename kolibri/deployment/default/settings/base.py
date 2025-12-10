@@ -141,11 +141,6 @@ WSGI_APPLICATION = "kolibri.deployment.default.wsgi.application"
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
-    job_storage_path = conf.OPTIONS["Tasks"]["JOB_STORAGE_FILEPATH"]
-    # if job_storage_path is relative, make it relative to KOLIBRI_HOME
-    if not os.path.isabs(job_storage_path):
-        job_storage_path = os.path.join(conf.KOLIBRI_HOME, job_storage_path)
-
     # Using custom SQLite backend that uses BEGIN IMMEDIATE transactions.
     # Once upgraded to Django 5.2+, revert to "django.db.backends.sqlite3" and use
     # the transaction_mode option instead.
@@ -157,24 +152,31 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
                 conf.OPTIONS["Database"]["DATABASE_NAME"] or "db.sqlite3",
             ),
             "OPTIONS": {"timeout": 100},
-        },
-        JOB_STORAGE: {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": job_storage_path,
-            "OPTIONS": {"timeout": 100},
-            "TEST": {
-                "NAME": os.path.join(conf.KOLIBRI_HOME, "test_job_storage.sqlite3")
-            },
-        },
+        }
     }
 
     for additional_db in ADDITIONAL_SQLITE_DATABASES:
-        # TODO ADD JOB_STORAGE to ADDITIONAL_SQLITE_DATABASES and check it here
-        DATABASES[additional_db] = {
+        db_config = {
             "ENGINE": "kolibri.deployment.default.db.backends.sqlite3",
             "NAME": os.path.join(conf.KOLIBRI_HOME, "{}.sqlite3".format(additional_db)),
             "OPTIONS": {"timeout": 100},
         }
+
+        if additional_db == JOB_STORAGE:
+            # JOB_STORAGE uses a custom file path from the config
+            job_storage_path = conf.OPTIONS["Tasks"]["JOB_STORAGE_FILEPATH"]
+            if not os.path.isabs(job_storage_path):
+                job_storage_path = os.path.join(conf.KOLIBRI_HOME, job_storage_path)
+
+            db_config["NAME"] = job_storage_path
+
+            # Override test config for job storage to use a sqlite file in KOLIBRI_HOME rather than in-memory
+            # as jobs tasks may be run in a separate thread/process
+            db_config["TEST"] = {
+                "NAME": os.path.join(conf.KOLIBRI_HOME, "test_job_storage.sqlite3")
+            }
+
+        DATABASES[additional_db] = db_config
 
     DATABASE_ROUTERS = (
         "kolibri.core.auth.models.SessionRouter",
