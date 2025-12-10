@@ -1,50 +1,7 @@
 from django.db import models
 
+from kolibri.core.utils.model_router import KolibriModelRouter
 from kolibri.deployment.default.sqlite_db_names import JOB_STORAGE
-
-
-class KolibriTasksRouter(object):
-    """
-    Determine how to route database calls for the kolibritasks app.
-    All other models will be routed to the default database.
-    """
-
-    def db_for_read(self, model, **hints):
-        """Send all read operations on kolibritasks app models to JOB_STORAGE."""
-        if model._meta.app_label == "kolibritasks":
-            return JOB_STORAGE
-        return None
-
-    def db_for_write(self, model, **hints):
-        """Send all write operations on kolibritasks app models to JOB_STORAGE."""
-        if model._meta.app_label == "kolibritasks":
-            return JOB_STORAGE
-        return None
-
-    def allow_relation(self, obj1, obj2, **hints):
-        """Determine if relationship is allowed between two objects."""
-
-        if (
-            obj1._meta.app_label == "kolibritasks"
-            and obj2._meta.app_label == "kolibritasks"
-        ):
-            return True
-        elif "kolibritasks" not in [obj1._meta.app_label, obj2._meta.app_label]:
-            return None
-
-        return False
-
-    def allow_migrate(self, db, app_label, model_name=None, **hints):
-        """Ensure that the kolibritasks app's models get created on the right database."""
-        if app_label == "kolibritasks":
-            # The kolibritasks app should be migrated only on the JOB_STORAGE database.
-            return db == JOB_STORAGE
-        elif db == JOB_STORAGE:
-            # Ensure that all other apps don't get migrated on the JOB_STORAGE database.
-            return False
-
-        # No opinion for all other scenarios
-        return None
 
 
 # The Job model has been migrated from SqlAlchemy to use django models
@@ -106,3 +63,13 @@ class Job(models.Model):
 
     def __str__(self):
         return f"Job {self.id} - {self.func} ({self.state})"
+
+
+class KolibriTasksRouter(KolibriModelRouter):
+    """
+    Determine how to route database calls for the kolibritasks app.
+    All other models will be routed to the default database.
+    """
+
+    MODEL_CLASSES = {Job}
+    DB_NAME = JOB_STORAGE
