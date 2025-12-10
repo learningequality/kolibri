@@ -20,6 +20,7 @@ from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
 from kolibri.core.utils.cache import process_cache
 from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
+from kolibri.deployment.default.sqlite_db_names import get_sqlite_database_path
 from kolibri.plugins.utils import autoremove_unavailable_plugins
 from kolibri.plugins.utils import check_plugin_config_file_location
 from kolibri.plugins.utils import enable_new_default_plugins
@@ -151,9 +152,8 @@ def _setup_django():
         raise
 
 
-def _copy_preseeded_db(db_name, target=None):
-    target = target or "{}.sqlite3".format(db_name)
-    target = os.path.join(KOLIBRI_HOME, target)
+def _copy_preseeded_db(db_name):
+    target = get_sqlite_database_path(db_name)
     if not os.path.exists(target):
         try:
             import kolibri.dist
@@ -196,17 +196,11 @@ def _upgrades_before_django_setup(updated, version):
     check_default_options_exist()
 
     if OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
-        DATABASE_NAMES = [
-            os.path.join(
-                KOLIBRI_HOME, OPTIONS["Database"]["DATABASE_NAME"] or "db.sqlite3"
-            )
-        ]
-        DATABASE_NAMES += [
-            os.path.join(KOLIBRI_HOME, "{}.sqlite3".format(db))
-            # TODO: Figure out a way to handle custom db names
-            for db in ADDITIONAL_SQLITE_DATABASES
-            if db != "job_storage"
-        ]
+        DATABASE_NAMES = [get_sqlite_database_path("default")]
+
+        for db_name in ADDITIONAL_SQLITE_DATABASES:
+            DATABASE_NAMES.append(get_sqlite_database_path(db_name))
+
         sqlite_check_foreign_keys(DATABASE_NAMES)
         # If we are using sqlite,
         # we can shortcut migrations by using the preseeded databases
@@ -214,15 +208,13 @@ def _upgrades_before_django_setup(updated, version):
         if not version:
             logger.info("Attempting to setup using pre-migrated databases")
             # Only copy the default database if this is a fresh install
-            _copy_preseeded_db("db", target=OPTIONS["Database"]["DATABASE_NAME"])
+            _copy_preseeded_db("default")
 
         if not version or updated:
             # If this is an upgrade, it is possible we've added an additional
             # database, so we can attempt to copy a preseeded database here.
             for db_name in ADDITIONAL_SQLITE_DATABASES:
-                if db_name != "job_storage":
-                    # TODO: Figure out a way to handle custom db names
-                    _copy_preseeded_db(db_name)
+                _copy_preseeded_db(db_name)
 
 
 def _post_django_initialization():

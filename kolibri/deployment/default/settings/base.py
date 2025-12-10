@@ -20,6 +20,7 @@ from tzlocal.utils import ZoneInfoNotFoundError
 import kolibri
 from kolibri.deployment.default.cache import CACHES
 from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
+from kolibri.deployment.default.sqlite_db_names import get_sqlite_database_path
 from kolibri.deployment.default.sqlite_db_names import JOB_STORAGE
 from kolibri.plugins.utils.settings import apply_settings
 from kolibri.utils import conf
@@ -147,10 +148,7 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
     DATABASES = {
         "default": {
             "ENGINE": "kolibri.deployment.default.db.backends.sqlite3",
-            "NAME": os.path.join(
-                conf.KOLIBRI_HOME,
-                conf.OPTIONS["Database"]["DATABASE_NAME"] or "db.sqlite3",
-            ),
+            "NAME": get_sqlite_database_path("default"),
             "OPTIONS": {"timeout": 100},
         }
     }
@@ -158,18 +156,11 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
     for additional_db in ADDITIONAL_SQLITE_DATABASES:
         db_config = {
             "ENGINE": "kolibri.deployment.default.db.backends.sqlite3",
-            "NAME": os.path.join(conf.KOLIBRI_HOME, "{}.sqlite3".format(additional_db)),
+            "NAME": get_sqlite_database_path(additional_db),
             "OPTIONS": {"timeout": 100},
         }
 
         if additional_db == JOB_STORAGE:
-            # JOB_STORAGE uses a custom file path from the config
-            job_storage_path = conf.OPTIONS["Tasks"]["JOB_STORAGE_FILEPATH"]
-            if not os.path.isabs(job_storage_path):
-                job_storage_path = os.path.join(conf.KOLIBRI_HOME, job_storage_path)
-
-            db_config["NAME"] = job_storage_path
-
             # Override test config for job storage to use a sqlite file in KOLIBRI_HOME rather than in-memory
             # as jobs tasks may be run in a separate thread/process
             db_config["TEST"] = {
