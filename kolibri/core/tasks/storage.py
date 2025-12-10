@@ -21,6 +21,7 @@ from kolibri.core.tasks.validation import validate_interval
 from kolibri.core.tasks.validation import validate_priority
 from kolibri.core.tasks.validation import validate_repeat
 from kolibri.core.tasks.validation import validate_timedelay
+from kolibri.deployment.default.sqlite_db_names import JOB_STORAGE
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -49,6 +50,12 @@ class Storage:
         if isinstance(item, Job):
             job_id = item.job_id
         return ORMJob.objects.filter(id=job_id).exists()
+
+    def _get_job_database_alias(self):
+        db_backend = connections[ORMJob.objects.db].vendor
+        if db_backend == "sqlite":
+            return JOB_STORAGE
+        return None  # Use default database
 
     def set_sqlite_pragmas(self):
         """
@@ -203,7 +210,7 @@ class Storage:
         of READ_COMMITTED.
         More details here: https://dba.stackexchange.com/a/69497
         """
-        with transaction.atomic():
+        with transaction.atomic(using=self._get_job_database_alias()):
             next_job = (
                 self._filter_next_query(ORMJob.objects.all(), priority)
                 .select_for_update(skip_locked=True)
@@ -371,7 +378,7 @@ class Storage:
         :type force: bool
         :param force: If True, clear the job (or jobs), even if it hasn't completed, failed or been cancelled.
         """
-        with transaction.atomic():
+        with transaction.atomic(using=self._get_job_database_alias()):
             queryset = ORMJob.objects.all()
             if queue:
                 queryset = queryset.filter(queue=queue)
@@ -456,7 +463,7 @@ class Storage:
             # nothing to do
             return
 
-        with transaction.atomic():
+        with transaction.atomic(using=self._get_job_database_alias()):
             try:
                 _, orm_job = self._get_job_and_orm_job(job_id)
                 if host is not None:
@@ -591,7 +598,7 @@ class Storage:
         return True
 
     def _update_job(self, job_id, state=None, **kwargs):
-        with transaction.atomic():
+        with transaction.atomic(using=self._get_job_database_alias()):
             try:
                 job, orm_job = self._get_job_and_orm_job(job_id)
                 if state is not None:
@@ -716,7 +723,7 @@ class Storage:
         if not isinstance(job, Job):
             raise ValueError("Job argument must be a Job object.")
 
-        with transaction.atomic():
+        with transaction.atomic(using=self._get_job_database_alias()):
             orm_job = ORMJob.objects.filter(id=job.job_id).first()
             if orm_job and orm_job.state == State.RUNNING:
                 raise JobRunning()
