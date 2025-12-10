@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: kolibri-windows-installer\n"
-"POT-Creation-Date: 2025-11-27T10:48:24.094016+02:00\n"
-"PO-Revision-Date: 2025-11-27T10:48:24.094016+02:00\n"
-"Language: de_DE\n"
+"POT-Creation-Date: 2025-12-10T11:57:24.029462+02:00\n"
+"PO-Revision-Date: 2025-12-10T11:57:24.029462+02:00\n"
+"Language: de\n"
 "Content-Type: text/plain; charset=utf-8\n"
 
 msgctxt "[Messages]SetupAppTitle"

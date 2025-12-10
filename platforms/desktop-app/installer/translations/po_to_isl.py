@@ -40,8 +40,18 @@ def convert_po_to_isl(
         lang_def = LANG_DEFINITIONS[locale_code]
         if not config.has_section("LangOptions"):
             config.add_section("LangOptions")
-        config.set("LangOptions", "LanguageName", lang_def["inno_name"])
+        ui_name = lang_def.get("display_name", lang_def["inno_name"])
+        config.set("LangOptions", "LanguageName", ui_name)
+
         config.set("LangOptions", "LanguageID", lang_def["id"])
+
+        if "font" in lang_def:
+            font_name = lang_def["font"]
+            config.set("LangOptions", "DialogFontName", font_name)
+            config.set("LangOptions", "WelcomeFontName", font_name)
+
+        if lang_def.get("rtl", False):
+            config.set("LangOptions", "RightToLeft", "yes")
 
     with open(output_isl_path, "w", encoding=encoding) as f:
         config.write(f, space_around_delimiters=False)
@@ -54,9 +64,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--template", required=True)
     parser.add_argument("-i", "--input", required=True)
     parser.add_argument("-o", "--output", required=True)
-    parser.add_argument(
-        "-l", "--lang", required=True, help="Locale code (e.g. 'es_ES')"
-    )
+    parser.add_argument("-l", "--lang", required=True)
     args = parser.parse_args()
 
     convert_po_to_isl(args.template, args.input, args.output, args.lang)
