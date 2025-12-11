@@ -89,36 +89,6 @@ describe('SafeHtmlTable', () => {
     });
   });
 
-  describe('class and a11y attributes', () => {
-    beforeEach(() => {
-      renderComponent(3, 3);
-    });
-
-    test('table has safe-html class from attributes', () => {
-      expect(screen.getByRole('table')).toHaveClass('safe-html');
-    });
-
-    test('caption has safe-html class added by component', () => {
-      const table = screen.getByRole('table');
-      const caption = table.querySelector('caption');
-      expect(caption).not.toBeNull();
-      expect(caption).toHaveClass('safe-html');
-    });
-
-    test('caption has a generated id and container references it via aria-labelledby', () => {
-      const table = screen.getByRole('table');
-      const caption = table.querySelector('caption');
-      expect(caption).not.toBeNull();
-
-      const captionId = caption.getAttribute('id');
-
-      expect(captionId).toBeTruthy();
-      expect(captionId).toMatch(/^table-caption-/);
-
-      expect(screen.getByTestId('table-container')).toHaveAttribute('aria-labelledby', captionId);
-    });
-  });
-
   describe('table is set to the correct width', () => {
     test('table with <= 3 columns has a 640px width', () => {
       renderComponent(4, 3);

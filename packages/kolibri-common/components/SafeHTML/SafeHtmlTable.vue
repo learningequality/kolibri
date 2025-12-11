@@ -2,8 +2,6 @@
 
   <div
     class="table-container"
-    role="region"
-    :aria-labelledby="captionId"
     data-testid="table-container"
   >
     <table
@@ -20,7 +18,7 @@
 <script>
 
   const { ELEMENT_NODE } =
-    typeof window !== 'undefined' && window.Node ? window.Node : { ELEMENT_NODE: 1, TEXT_NODE: 3 };
+    typeof window !== 'undefined' && window.Node ? window.Node : { ELEMENT_NODE: 1 };
 
   export default {
     name: 'SafeHtmlTable',
@@ -42,11 +40,7 @@
         required: true,
       },
     },
-    data() {
-      return {
-        captionId: `table-caption-${Math.random().toString(36).substring(2, 9)}`,
-      };
-    },
+
     computed: {
       tableStyle() {
         const firstRow = this.node.querySelector && this.node.querySelector('tr');
@@ -55,55 +49,68 @@
         if (colCount > 3) {
           tableWidth = `${colCount * 200}px`;
         }
+
         return { width: tableWidth };
       },
+
       renderTableContent() {
+        const vm = this;
         return {
           functional: true,
-          render: h => {
+          render(h) {
             const tableChildren = [];
 
-            for (let i = 0; i < this.node.childNodes.length; i++) {
-              const childNode = this.node.childNodes[i];
+            for (let i = 0; i < vm.node.childNodes.length; i++) {
+              const childNode = vm.node.childNodes[i];
 
-              if (this.isCaption(childNode)) {
-                const captionChildren = this.mapChildren(childNode.childNodes);
+              if (vm.isCaption(childNode)) {
+                const captionAttrs = vm.getCaptionAttrs(childNode);
+                const captionChildren = vm.mapChildren(childNode.childNodes);
 
                 tableChildren.push(
                   h(
                     'caption',
                     {
-                      attrs: this.getCaptionAttrs(childNode),
-                      domProps: { id: this.captionId },
-                      class: 'safe-html',
+                      attrs: captionAttrs,
+                      class: ['safe-html', captionAttrs.class].filter(Boolean),
                     },
                     captionChildren,
                   ),
                 );
-              } else if (this.isElementNode(childNode)) {
-                tableChildren.push(this.mapNode(childNode));
+              } else if (vm.isElementNode(childNode)) {
+                tableChildren.push(vm.mapNode(childNode));
               }
             }
+
             return tableChildren;
           },
         };
       },
     },
+
     methods: {
       isCaption(node) {
-        return node.nodeType === ELEMENT_NODE && node.tagName.toLowerCase() === 'caption';
+        return (
+          node &&
+          node.nodeType === ELEMENT_NODE &&
+          typeof node.tagName === 'string' &&
+          node.tagName.toLowerCase() === 'caption'
+        );
       },
+
       isElementNode(node) {
         return node && node.nodeType === ELEMENT_NODE;
       },
+
       getCaptionAttrs(node) {
         const captionAttrs = {};
+
         for (const attr of node.attributes) {
-          if (attr.name.toLowerCase() !== 'id') {
-            captionAttrs[attr.name] = attr.value;
-          }
+          const name = attr.name.toLowerCase();
+          if (name === 'id') continue;
+          captionAttrs[attr.name] = attr.value;
         }
-        captionAttrs.class = (captionAttrs.class ? `${captionAttrs.class} ` : '') + 'safe-html';
+
         return captionAttrs;
       },
     },
@@ -116,6 +123,7 @@
 
   .table-container {
     margin: 1em 0;
+    overflow-x: auto;
   }
 
   caption.safe-html {
