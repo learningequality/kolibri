@@ -1,8 +1,6 @@
 import { render, screen } from '@testing-library/vue';
-import { h } from 'vue';
-import SafeHtmlTable from '../SafeHtmlTable.js';
+import SafeHtmlTable from '../SafeHtmlTable.vue';
 
-// Create a table element with m rows and n columns
 const createSampleNode = (m, n) => {
   const table = document.createElement('table');
 
@@ -57,29 +55,12 @@ const createSampleNode = (m, n) => {
 };
 
 const sampleAttributes = { class: 'safe-html' };
-const sampleTableCounter = 6;
-const sampleWindowSizeClass = 'small-window';
-
-const mapNode = jest.fn(node => {
-  if (node.nodeType === Node.ELEMENT_NODE) {
-    return h(node.tagName.toLowerCase(), { attrs: sampleAttributes }, mapChildren(node.childNodes));
-  } else if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
-    return node.textContent;
-  }
-  return null;
-});
-
-const mapChildren = jest.fn(childNodes => Array.from(childNodes).map(mapNode).filter(Boolean));
 
 const renderComponent = (m, n) => {
   return render(SafeHtmlTable, {
     props: {
       node: createSampleNode(m, n),
       attributes: sampleAttributes,
-      tableCounter: sampleTableCounter,
-      windowSizeClass: sampleWindowSizeClass,
-      mapNode,
-      mapChildren,
     },
   });
 };
@@ -108,36 +89,23 @@ describe('SafeHtmlTable', () => {
       renderComponent(3, 3);
     });
 
-    test('table has safe-html class', () => {
+    test('table has safe-html class from attributes', () => {
       expect(screen.getByRole('table')).toHaveClass('safe-html');
     });
 
-    test('caption has safe-html and small-window classes', () => {
-      expect(screen.getByText('Sample Caption')).toHaveClass('safe-html', 'small-window');
+    test('caption has safe-html class added by component', () => {
+      const caption = screen.getByText('Sample Caption');
+      expect(caption).toHaveClass('safe-html');
     });
 
-    test('non-caption child nodes have safe-html class', () => {
-      const rowGroups = screen.getAllByRole('rowgroup'); // thead, tbody, tfoot
-      rowGroups.forEach(rowGroup => expect(rowGroup).toHaveClass('safe-html'));
+    test('caption has a generated id and container references it via aria-labelledby', () => {
+      const caption = screen.getByText('Sample Caption');
+      const captionId = caption.getAttribute('id');
 
-      const trs = screen.getAllByRole('row');
-      trs.forEach(tr => expect(tr).toHaveClass('safe-html'));
+      expect(captionId).toBeTruthy();
+      expect(captionId).toMatch(/^table-caption-/);
 
-      const ths = screen.getAllByRole('columnheader');
-      ths.forEach(th => expect(th).toHaveClass('safe-html'));
-      const tds = screen.getAllByRole('cell');
-      tds.forEach(td => expect(td).toHaveClass('safe-html'));
-    });
-
-    test('caption has correct id', () => {
-      expect(screen.getByText('Sample Caption')).toHaveAttribute('id', 'table-caption-6');
-    });
-
-    test('container div has correct aria-labelledby', () => {
-      expect(screen.getByTestId('table-container')).toHaveAttribute(
-        'aria-labelledby',
-        'table-caption-6',
-      );
+      expect(screen.getByTestId('table-container')).toHaveAttribute('aria-labelledby', captionId);
     });
   });
 
