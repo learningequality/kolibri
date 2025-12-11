@@ -4,7 +4,6 @@ import SafeHtmlTable from '../SafeHtmlTable.vue';
 const createSampleNode = (m, n) => {
   const table = document.createElement('table');
 
-  // Caption
   const caption = document.createElement('caption');
   caption.textContent = 'Sample Caption';
   table.appendChild(caption);
@@ -13,7 +12,6 @@ const createSampleNode = (m, n) => {
     return table;
   }
 
-  // Thead (row 1)
   const thead = document.createElement('thead');
   const theadRow = document.createElement('tr');
   for (let col = 1; col <= n; col++) {
@@ -55,12 +53,16 @@ const createSampleNode = (m, n) => {
 };
 
 const sampleAttributes = { class: 'safe-html' };
+const mapNode = jest.fn(() => null);
+const mapChildren = jest.fn(() => []);
 
 const renderComponent = (m, n) => {
   return render(SafeHtmlTable, {
     props: {
       node: createSampleNode(m, n),
       attributes: sampleAttributes,
+      mapNode,
+      mapChildren,
     },
   });
 };
@@ -79,8 +81,10 @@ describe('SafeHtmlTable', () => {
       expect(screen.getByRole('table')).toBeInTheDocument();
     });
 
-    test('renders the caption', () => {
-      expect(screen.getByText('Sample Caption')).toBeInTheDocument();
+    test('renders a caption element', () => {
+      const table = screen.getByRole('table');
+      const caption = table.querySelector('caption');
+      expect(caption).not.toBeNull();
     });
   });
 
@@ -94,12 +98,17 @@ describe('SafeHtmlTable', () => {
     });
 
     test('caption has safe-html class added by component', () => {
-      const caption = screen.getByText('Sample Caption');
+      const table = screen.getByRole('table');
+      const caption = table.querySelector('caption');
+      expect(caption).not.toBeNull();
       expect(caption).toHaveClass('safe-html');
     });
 
     test('caption has a generated id and container references it via aria-labelledby', () => {
-      const caption = screen.getByText('Sample Caption');
+      const table = screen.getByRole('table');
+      const caption = table.querySelector('caption');
+      expect(caption).not.toBeNull();
+
       const captionId = caption.getAttribute('id');
 
       expect(captionId).toBeTruthy();

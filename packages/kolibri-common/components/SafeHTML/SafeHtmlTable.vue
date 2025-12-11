@@ -51,7 +51,7 @@
       tableStyle() {
         const firstRow = this.node.querySelector && this.node.querySelector('tr');
         const colCount = firstRow ? firstRow.children.length : 0;
-        let tableWidth = '50%';
+        let tableWidth = '640px';
         if (colCount > 3) {
           tableWidth = `${colCount * 200}px`;
         }
