@@ -11,6 +11,7 @@
 */
 
 @import '~kolibri-design-system/lib/styles/definitions';
+@import '~kolibri-design-system/lib/styles/common';
 
 // http://www.paulirish.com/2012/box-sizing-border-box-ftw/
 *,
@@ -59,17 +60,6 @@ h6 {
 // https://davidwalsh.name/html5-boilerplate
 svg:not(:root) {
   overflow: hidden;
-}
-
-.visuallyhidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  border: 0;
 }
 
 .rtl-icon {
