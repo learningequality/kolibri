@@ -4,6 +4,7 @@ import find from 'lodash/find';
 import matches from 'lodash/matches';
 import isEqual from 'lodash/isEqual';
 import urls from 'kolibri/urls';
+import sanitizeError from './utils/sanitizeError';
 
 export const logging = logger.getLogger(__filename);
 
@@ -1033,6 +1034,7 @@ export class Resource {
     if (!err.config) {
       return;
     }
+    const sanitized = sanitizeError(err);
     /* eslint-disable no-console */
     console.groupCollapsed(
       `%cRequest error: ${err.response.statusText}, ${
@@ -1054,16 +1056,16 @@ export class Resource {
       }
       console.groupEnd();
     }
-    if (err.config?.params && Object.keys(err.config.params).length) {
+    if (sanitized.config?.params && Object.keys(sanitized.config.params).length) {
       console.group('Query parameters');
-      for (const [k, v] of Object.entries(err.config.params)) {
+      for (const [k, v] of Object.entries(sanitized.config.params)) {
         console.log(`${k}: ${v}`);
       }
       console.groupEnd();
     }
-    if (err.config.data) {
+    if (sanitized.config?.data) {
       try {
-        const data = JSON.parse(err.config.data);
+        const data = JSON.parse(sanitized.config.data);
         if (Object.keys(data).length) {
           console.group('Data');
           for (const [k, v] of Object.entries(data)) {
@@ -1073,9 +1075,9 @@ export class Resource {
         }
       } catch (e) {} // eslint-disable-line no-empty
     }
-    if (err.config?.headers && Object.keys(err.config.headers).length) {
+    if (sanitized.config?.headers && Object.keys(sanitized.config.headers).length) {
       console.group('Headers');
-      for (const [k, v] of Object.entries(err.config.headers)) {
+      for (const [k, v] of Object.entries(sanitized.config.headers)) {
         console.log(`${k}: ${v}`);
       }
       console.groupEnd();

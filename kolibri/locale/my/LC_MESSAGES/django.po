@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-11-21 11:18-0800\n"
-"PO-Revision-Date: 2025-11-24 13:58\n"
+"PO-Revision-Date: 2025-12-10 18:20\n"
 "Last-Translator: \n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
@@ -54,7 +54,7 @@ msgstr "သင်ယူသူ"
 #: core/auth/management/commands/bulkexportusers.py:45
 #: core/auth/management/commands/bulkexportusers.py:122
 msgid "Database ID ({})"
-msgstr "ဒေတာဘေ့(စ်) မှတ်ပုံတင် ({})"
+msgstr "ဒေတာဘေ့(စ်) ID ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:46
 #: core/auth/management/commands/bulkexportusers.py:123
@@ -84,12 +84,12 @@ msgstr "အသိအမှတ်ပြုသူ ({})"
 #: core/auth/management/commands/bulkexportusers.py:57
 #: core/auth/management/commands/bulkexportusers.py:134
 msgid "Birth year ({})"
-msgstr "မွေးသည့်နှစ် ({})"
+msgstr "မွေးနှစ်သက္ကရာဇ် ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:58
 #: core/auth/management/commands/bulkexportusers.py:135
 msgid "Gender ({})"
-msgstr "လိင်အမျိုးအစား ({})"
+msgstr "ကျား/မ ခံယူချက် ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:63
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
@@ -128,7 +128,7 @@ msgstr "'{}' ထဲတွင်ပါသောတန်ဖိုးက အက္
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr "ကော်လံ '{}' ရှိ value သည် မှန်ကန်မှုမရှိပါ။"
+msgstr "ကော်လံ '{}' ရှိ တန်ဖိုး သည် မှန်ကန်မှုမရှိပါ"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -184,7 +184,7 @@ msgstr "သင့်စက်ပစ္စည်းကို ကွန်ရက�
 #. either with new resources, or unwanted resources being deleted.
 #: core/content/tasks.py:60
 msgid "Updating your library"
-msgstr "သင့် Library ကိုအသစ်မွမ်းမံနေပါသည်"
+msgstr "သင့် စာကြည့်တိုက် ကိုအသစ်မွမ်းမံနေပါသည်"
 
 #. Translators: Message shown to an App user when an update to the library has been successful.
 #: core/content/tasks.py:63
@@ -198,7 +198,7 @@ msgstr "Library ကိုအသစ်မွမ်းမံမှုမအော�
 
 #: core/device/serializers.py:35
 msgid "Language is not supported by Kolibri"
-msgstr "Kolibri မှ မထောက်ပံ့ထားသော ဘာသာစကား"
+msgstr "Kolibri မှ အသုံးပြု၍မရေသာ ဘာသာစကားဖြစ်နေသည်။"
 
 #. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
 #: core/device/task_notifications.py:11

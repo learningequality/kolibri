@@ -320,7 +320,7 @@
   "SearchAndFilterStrings.searchInFolder": "Tafuta kwenye folda ya '{folder}'",
   "SearchAndFilterStrings.selectResource": "Chagua rasilimali",
   "SearchAndFilterStrings.selectedIndicator": "Vilivyochaguliwa",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "Jaribio hili liliundwa kwa kutumia toleo la zamani la Kolibri na haliwezi kuhaririwa moja kwa moja. Unda nakala yake ili kuhariri rasilimali.",
   "SearchBox.find": "Tafuta",
   "SearchFiltersPanel.categories": "Kategoria",
   "SearchFiltersPanel.chooseACategory": "Chagua kategoria",

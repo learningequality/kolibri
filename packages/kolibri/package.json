@@ -67,6 +67,7 @@
     "./utils/objectSpecs": "./utils/objectSpecs",
     "./utils/onboardingSteps": "./utils/onboardingSteps",
     "./utils/redirectBrowser": "./utils/redirectBrowser",
+    "./utils/sanitizeError": "./utils/sanitizeError",
     "./utils/scriptLoader": "./utils/scriptLoader",
     "./utils/serverClock": "./utils/serverClock",
     "./utils/validators": "./utils/validators",

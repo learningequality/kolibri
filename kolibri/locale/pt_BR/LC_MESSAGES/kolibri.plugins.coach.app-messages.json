@@ -457,7 +457,7 @@
   "SearchAndFilterStrings.searchInFolder": "Buscar na pasta '{folder}'",
   "SearchAndFilterStrings.selectResource": "Selecionar conteúdo",
   "SearchAndFilterStrings.selectedIndicator": "Selecionado",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "Este questionário foi criado usando uma versão mais antiga do Kolibri e não pode ser editado diretamente. Crie uma cópia dele para editar os recursos.",
   "SearchBox.find": "Buscar",
   "SearchFiltersPanel.categories": "Categorias",
   "SearchFiltersPanel.chooseACategory": "Escolha suas matérias",

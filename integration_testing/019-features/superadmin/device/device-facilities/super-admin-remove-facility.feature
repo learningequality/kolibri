@@ -1,27 +1,24 @@
 Feature: Remove facility
-  User can completely remove a facility and its data from a device
+  Super admin can completely remove a facility and its data from a device
 
   Background:
     Given I am signed in as a super admin
-      And I am in *Device > Facilities*
+      And I am at *Device > Facilities*
 
-  Scenario: Successfuly remove facility
+  Scenario: Successfully remove a facility
     Given there are at least two facilities on my device
-     And my super admin account is not a member of the <facility>
-    When I click *Options* for <facility>
-    When I click *Remove facility*
-    Then I see the modal to *Remove facility from this device*
-      And I see the checkbox is unchecked
-      And I see the *Remove facility* button is disabled
+     	And my super admin account is not a member of the facility
+    When I click the *Options* drop-down for a facility
+    	And I click *Remove*
+    Then I see the *Remove facility from this device* modal
+      And I see that the *I understand the consequences of removing the facility* checkbox is unchecked
+      And I see that the *Remove* button is disabled
     When I click the checkbox
-      Then I see the *Remove facility* button is enabled
-    When I click *Remove facility*
-    Then I see *Removing facility* underneath the <facility> name
-      And I see an indeterminate spinner
-      And I see a task has been added to the task manager
-    When all facility data has been removed
-    Then I don't see the facility in the list
-      And I see a snackbar that says *Removed <facility> from this device*
+      Then I the *Remove* button becomes enabled
+    When I click the *Remove* button
+    Then the facility disappears
+    	And I see a *Removed <facility name> from this device* snackbar message
+      And I see that a task has been added to the task manager
 
   Scenario: View removal task in task manager
     Given I started a task to remove a facility from the device

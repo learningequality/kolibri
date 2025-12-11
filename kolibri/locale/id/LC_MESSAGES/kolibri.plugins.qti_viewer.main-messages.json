@@ -1,7 +1,7 @@
 {
   "Lightbox.close": "Tutup",
-  "Lightbox.expandedImage": "",
+  "Lightbox.expandedImage": "Gambar diperluas",
   "Lightbox.zoomIn": "Perbesar",
   "Lightbox.zoomOut": "Perkecil",
-  "SafeHtmlImage.expandImage": ""
+  "SafeHtmlImage.expandImage": "Perluas gambar"
 }

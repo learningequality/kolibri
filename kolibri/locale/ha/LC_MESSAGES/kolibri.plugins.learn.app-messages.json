@@ -320,7 +320,7 @@
   "SearchAndFilterStrings.searchInFolder": "Nema a cikin '{folder}'",
   "SearchAndFilterStrings.selectResource": "Zaɓin abubuwa",
   "SearchAndFilterStrings.selectedIndicator": "Da aka zaba",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "An ƙirƙiri wannan kacici-kacici ta amfani da tsohon Kolibri da ba za a iya sabunta shi kai tsaye ba. A kirkiri kwafi don sabunta abubuwan da ke ciki.",
   "SearchBox.find": "Nemi",
   "SearchFiltersPanel.categories": "Rukunnai",
   "SearchFiltersPanel.chooseACategory": "Zabi rukuni",

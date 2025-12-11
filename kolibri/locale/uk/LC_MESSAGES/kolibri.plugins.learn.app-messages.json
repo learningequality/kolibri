@@ -320,7 +320,7 @@
   "SearchAndFilterStrings.searchInFolder": "Пошук у теці '{folder}'",
   "SearchAndFilterStrings.selectResource": "Вибрати матеріал",
   "SearchAndFilterStrings.selectedIndicator": "Вибрані",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "Цей тест створено у старішій версії Kolibri, тому його не можна редагувати напряму. Створіть копію тесту, щоб мати змогу редагувати матеріали.",
   "SearchBox.find": "Знайти",
   "SearchFiltersPanel.categories": "Категорії",
   "SearchFiltersPanel.chooseACategory": "Виберіть категорію",

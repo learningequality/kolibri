@@ -457,7 +457,7 @@
   "SearchAndFilterStrings.searchInFolder": "جستجو در پوشه '{folder}'",
   "SearchAndFilterStrings.selectResource": "انتخاب منبع",
   "SearchAndFilterStrings.selectedIndicator": "انتخاب شده",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "این امتحان با استفاده از نسخه قدیمی‌تر کلیبری ایجاد شده و نمی‌توانید مستقیماً آن را ویرایش کنید. برای ویرایش منابع، یک کپی از آن ایجاد کنید.",
   "SearchBox.find": "پیدا کردن",
   "SearchFiltersPanel.categories": "دسته‌‎بندی‎ها",
   "SearchFiltersPanel.chooseACategory": "انتخاب یک موضوع",

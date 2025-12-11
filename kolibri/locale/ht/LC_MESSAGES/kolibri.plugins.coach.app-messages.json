@@ -457,7 +457,7 @@
   "SearchAndFilterStrings.searchInFolder": "Chache nan dosye '{folder}'",
   "SearchAndFilterStrings.selectResource": "Seleksyone resous",
   "SearchAndFilterStrings.selectedIndicator": "Seleksyone",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "Yo te kreye kesyonè sa a pandan yo te itilize yon ansyen vèsyon Kolibri epi yo pa ka modifye li dirèkteman. Kreye yon kopi li pou modifye resous yo.",
   "SearchBox.find": "Jwenn",
   "SearchFiltersPanel.categories": "Kategori yo",
   "SearchFiltersPanel.chooseACategory": "Chwazi yon kategori",

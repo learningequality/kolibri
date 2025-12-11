@@ -457,7 +457,7 @@
   "SearchAndFilterStrings.searchInFolder": "'{folder}'에서 검색",
   "SearchAndFilterStrings.selectResource": "자료 선택",
   "SearchAndFilterStrings.selectedIndicator": "선택",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "이 퀴즈는 오래된 버전의 Kolibri를 이용해 생성되었기 때문에 바로 편집할 수 없습니다. 리소스를 편집하려면 복사본을 만드세요.",
   "SearchBox.find": "찾기",
   "SearchFiltersPanel.categories": "카테고리",
   "SearchFiltersPanel.chooseACategory": "카테고리 선택",

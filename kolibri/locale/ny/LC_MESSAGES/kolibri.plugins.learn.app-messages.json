@@ -320,7 +320,7 @@
   "SearchAndFilterStrings.searchInFolder": "Fufuza mufoda '{folder}'",
   "SearchAndFilterStrings.selectResource": "Sankha chipangizo chophunziriria",
   "SearchAndFilterStrings.selectedIndicator": "Sankhani",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "Kwizi iyi idapangidwa pogwiritsa ntchito mtundu wakale wa Kolibri ndipo simungathe kuyisintha. Koperani mtunduwu kuti musinthe zinthu.",
   "SearchBox.find": "Peza",
   "SearchFiltersPanel.categories": "Magulu",
   "SearchFiltersPanel.chooseACategory": "Sankhani gawo",

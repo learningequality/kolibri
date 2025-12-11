@@ -320,7 +320,7 @@
   "SearchAndFilterStrings.searchInFolder": "Αναζήτηση στον φάκελο '{folder}'",
   "SearchAndFilterStrings.selectResource": "Επιλογή πηγής",
   "SearchAndFilterStrings.selectedIndicator": "Επιλεγμένο",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "Αυτό το κουίζ δημιουργήθηκε χρησιμοποιώντας μια παλαιότερη έκδοση του Kolibri και δεν είναι δυνατή η άμεση επεξεργασία του. Δημιουργήστε ένα αντίγραφο για να επεξεργαστείτε τους πόρους.",
   "SearchBox.find": "Εύρεση",
   "SearchFiltersPanel.categories": "Κατηγορίες",
   "SearchFiltersPanel.chooseACategory": "Επιλέξτε κατηγορία",

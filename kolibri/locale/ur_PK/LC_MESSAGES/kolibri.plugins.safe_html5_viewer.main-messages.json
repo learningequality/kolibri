@@ -1,8 +1,8 @@
 {
   "Lightbox.close": "بند کریں",
-  "Lightbox.expandedImage": "",
+  "Lightbox.expandedImage": "پھیلائی گئی تصویر",
   "Lightbox.zoomIn": "زوم ان",
   "Lightbox.zoomOut": "زوم آؤٹ",
-  "SafeHtml5RendererIndex.articleContent": "",
-  "SafeHtmlImage.expandImage": ""
+  "SafeHtml5RendererIndex.articleContent": "مضمون کا مواد",
+  "SafeHtmlImage.expandImage": "تصویر کو پھیلائیں"
 }

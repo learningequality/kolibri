@@ -42,7 +42,7 @@
   "ConfirmChangeFacility.changeFacilityInfoLine1": "Kana kokarin tura asusunka zuwa naka da cigabana bayanai zuwa ga kayan karatu na '{target_facility}' . Amma sauran bayanka suna nan kuma kana iya shiga don tuntubar admin ko yaushe.",
   "ConfirmChangeFacility.changeFacilityInfoLine2": "Asusunka zai canza zuwa 'mai karatu' '{role}' saboda haka ba zaka iya canza kayan wannan waya ba. Zaka iya iya neman taimakon wani da iznin admin '{facility}' domon komawa zuwa naka iri '{role}'.",
   "ConfirmChangeFacility.changeFacilityInfoLine3": "Kana iya neman asusu a '{target_facility}' don hada su. Bayanai a asusun biyu zasu hadu zuwa daya tilo.",
-  "ConfirmMerge.confirmMergeInfoLine": "Za ka hada asusu biyu tare da bayanansu. Bayanai da ake kan yi sun hasa da hirarraki da kayayyaki, lokaci da maki. Wannan ba zai yiwuwu ba.",
+  "ConfirmMerge.confirmMergeInfoLine": "Za ka haɗa asusu biyu tare da bayanansu. Bayanai da ake kan yi sun haɗa da hirarraki da kayayyaki, lokaci da maki. Wannan ba zai yiwuwu ba.",
   "ConfirmMerge.consequences": "Na fahimco sakamakon hada asusu",
   "CreateAccount.description": "Sabon asusun '{fullName}' cikin kayan karatun '{targetFacility}'",
   "CreatePassword.description": "‘{targetFacility}’ na bukatar asusu mai kalmar sirri. Shigar da kalmar sirri da kake son amfani da ita don ‘{username}’ cikin ‘{targetFacility}’",

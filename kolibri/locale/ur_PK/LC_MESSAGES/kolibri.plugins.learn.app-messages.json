@@ -320,7 +320,7 @@
   "SearchAndFilterStrings.searchInFolder": "'{folder}' فولڈر میں تلاش کریں",
   "SearchAndFilterStrings.selectResource": "وسیلہ منتخب کریں",
   "SearchAndFilterStrings.selectedIndicator": "منتخب کیا",
-  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "",
+  "SearchAndFilterStrings.warningForQuizFromOldKolibri": "یہ کوئز کولیبری کے پرانے ورژن کے ذریعے تیار کیا گیا تھا اور اس میں براہِ راست ترمیم نہیں کی جا سکتی۔ وسائل میں ترمیم کرنے کے لیے اس کی ایک نقل تیار کریں۔",
   "SearchBox.find": "تلاش کریں",
   "SearchFiltersPanel.categories": "زمرے",
   "SearchFiltersPanel.chooseACategory": "ایک زمرہ منتخب کریں",
