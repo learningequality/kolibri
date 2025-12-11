@@ -1,7 +1,7 @@
 import DOMPurify from 'dompurify';
 import kebabCase from 'lodash/kebabCase';
 import './style.scss';
-import SafeHtmlTable from './SafeHtmlTable.js';
+import SafeHtmlTable from './SafeHtmlTable.vue';
 import SafeHtmlImage from './SafeHtmlImage.vue';
 
 const ALLOWED_URI_REGEXP = /^(?:(?:blob:https?|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
@@ -13,7 +13,6 @@ const ADD_TAGS = ['semantics'];
 export function createSafeHTML(customComponents = {}) {
   const validProps = Object.keys(customComponents).reduce((acc, tagName) => {
     for (const prop of Object.keys(customComponents[tagName].props || {})) {
-      // Convert camelCase to kebab case for to convert Vue props to HTML attributes
       const kebabCaseProp = kebabCase(prop);
       acc[kebabCaseProp] = true;
     }
@@ -46,7 +45,7 @@ export function createSafeHTML(customComponents = {}) {
         },
         RETURN_DOM_FRAGMENT: true,
       });
-      let tableCounter = 0;
+
       function mapNode(node) {
         if (node.nodeType === Node.ELEMENT_NODE) {
           const tagName = node.tagName.toLowerCase();
@@ -88,17 +87,11 @@ export function createSafeHTML(customComponents = {}) {
             attributes[attr.name] = attr.value;
           }
           attributes.class = attributes.class ? `${attributes.class} safe-html` : 'safe-html';
-
           if (tagName === 'table') {
-            tableCounter += 1;
             return h(SafeHtmlTable, {
               props: {
                 node,
                 attributes,
-                tableCounter,
-                windowSizeClass: context.props.styleOverrides
-                  ? context.props.styleOverrides.windowSizeClass
-                  : '',
                 mapNode,
                 mapChildren,
               },
