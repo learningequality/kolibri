@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/vue';
 import SafeHtmlTable from '../SafeHtmlTable.vue';
 
+// Create a table element with m rows and n columns
 const createSampleNode = (m, n) => {
   const table = document.createElement('table');
 
