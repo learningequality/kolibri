@@ -44,6 +44,19 @@ Similarly, to disable the plugin the following command can be used:
 
     kolibri plugin disable kolibri.plugins.example_plugin
 
+.. note::
+    **Using externally-built plugins with PEX**
+
+    When using externally-built plugins (plugins installed separately from Kolibri's core installation) with a PEX distribution of Kolibri, you must set the environment variable ``PEX_INHERIT_PATH=fallback`` to enable the PEX file to access plugins installed in the system Python path.
+
+    For example:
+
+    .. code-block:: bash
+
+        PEX_INHERIT_PATH=1 python kolibri.pex start
+
+    This allows Kolibri to discover and use plugins that were installed via ``pip install`` outside of the PEX environment.
+
 To exactly set the currently enabled plugins (disabling all other plugins, and enabling the ones specified) you can do this:
 
 .. code-block:: bash
