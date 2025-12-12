@@ -9,18 +9,16 @@ function Plugin() {}
 
 Plugin.prototype.apply = function (compiler) {
   if (compiler.hooks) {
-    compiler.hooks.compilation.tap('H5PHashWriterPlugin', function (compilation) {
+    compiler.hooks.afterEmit.tap('H5PHashWriterPlugin', function (compilation) {
       if (compilation.errors.length > 0) {
         return;
       }
-
-      HtmlWebpackPlugin.getHooks(compilation).afterEmit.tapAsync('H5PWritePlugin', (data, cb) => {
+      // Find the actual emitted HTML file from compilation assets
+      const htmlFile = Object.keys(compilation.assets).find(name => name.endsWith('.html'));
+      if (htmlFile) {
         var outputFilename = path.resolve(__dirname, './h5p_build.json');
-
-        fs.writeFileSync(outputFilename, JSON.stringify({ filename: data.outputName }));
-        // Tell webpack to move on
-        cb(null, data);
-      });
+        fs.writeFileSync(outputFilename, JSON.stringify({ filename: htmlFile }));
+      }
     });
   }
 };
