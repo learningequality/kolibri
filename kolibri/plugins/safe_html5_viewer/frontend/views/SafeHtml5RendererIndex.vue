@@ -15,10 +15,7 @@
       role="region"
       :aria-label="$tr('articleContent')"
     >
-      <SafeHTML
-        :html="html"
-        :styleOverrides="{}"
-      />
+      <SafeHTML :html="html" />
     </div>
   </div>
 
