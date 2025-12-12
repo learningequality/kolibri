@@ -31,12 +31,12 @@
     name: 'TooltipTour',
     setup() {
       const { saveTourProgress, completeTour, currentStepIndex } = useTour();
-      const { user_id } = useUser();
+      const { currentUserId } = useUser();
       return {
         saveTourProgress,
         completeTour,
         currentStepIndex,
-        userId: user_id,
+        currentUserId,
       };
     },
     props: {
@@ -164,11 +164,11 @@
       nextStep() {
         if (this.currentStepIndex < this.steps.length - 1) {
           this.currentStepIndex++;
-          this.saveTourProgress(this.userId, this.page, this.currentStepIndex, true);
+          this.saveTourProgress(this.currentUserId, this.page, this.currentStepIndex, true);
           this.showTooltip();
         } else {
           // Check if current page is the last key in onboardingSteps
-          this.saveTourProgress(this.userId, this.page, this.currentStepIndex, false);
+          this.saveTourProgress(this.currentUserId, this.page, this.currentStepIndex, false);
           const pageKeys = Object.keys(onboardingSteps);
           const isLastPage = this.page === pageKeys[pageKeys.length - 1];
           if (isLastPage) {
@@ -180,7 +180,7 @@
       prevStep() {
         if (this.currentStepIndex > 0) {
           this.currentStepIndex--;
-          this.saveTourProgress(this.userId, this.page, this.currentStepIndex, true);
+          this.saveTourProgress(this.currentUserId, this.page, this.currentStepIndex, true);
           this.showTooltip();
         }
       },
