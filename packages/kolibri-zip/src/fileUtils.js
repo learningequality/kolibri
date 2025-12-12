@@ -30,8 +30,8 @@ export class Mapper {
   }
 }
 
-// Looks for any URLs referenced inside url()
-const cssPathRegex = /url\((['"]?)(.*?)(?<!\\)(\1)\)/g;
+// Matches both url() and @import: url('path'), url(path), @import 'path'
+const cssPathRegex = /(?:url\((['"]?)(.*?)(?<!\\)\1\)|@import\s+(['"])(.*?)(?<!\\)\3)/g;
 
 const unescapePathRegex = /\\(.)/g;
 
@@ -40,30 +40,27 @@ function unescapeCssString(str) {
 }
 
 export function getCSSPaths(fileContents) {
-  return Array.from(fileContents.matchAll(cssPathRegex), ([, , p2]) =>
-    p2
-      ? // Split first before decoding, in case ? is encoded in the URL
-        decodeURIComponent(unescapeCssString(p2.split('?')[0]))
-      : '',
-  );
+  return Array.from(fileContents.matchAll(cssPathRegex), match => {
+    const path = match[2] || match[4];
+    return path ? decodeURIComponent(unescapeCssString(path.split('?')[0])) : '';
+  });
 }
 
 export function replaceCSSPaths(fileContents, packageFiles) {
-  return fileContents.replace(cssPathRegex, function (match, start, path, end) {
+  return fileContents.replace(cssPathRegex, function (match, urlQuote, urlPath, importQuote, importPath) {
     try {
-      // Split off any query parameter
-      path = unescapeCssString(path.split('?')[0]);
-      // Look to see if there is a URL in our packageFiles mapping that
-      // that has this as the source path.
-      const newUrl = packageFiles[decodeURIComponent(path)];
+      const path = urlPath || importPath;
+      const quote = urlQuote || importQuote || '';
+      const cleanPath = unescapeCssString(path.split('?')[0]);
+      const newUrl = packageFiles[decodeURIComponent(cleanPath)];
       if (newUrl) {
-        // If so, replace the instance with the new URL.
-        return `url(${start}${newUrl}${end})`;
+        return urlPath !== undefined
+          ? `url(${quote}${newUrl}${quote})`
+          : `@import ${quote}${newUrl}${quote}`;
       }
     } catch (e) {
       console.debug('Error during URL handling', e); // eslint-disable-line no-console
     }
-    // Otherwise just return the match so that it is unchanged.
     return match;
   });
 }

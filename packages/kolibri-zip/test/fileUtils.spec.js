@@ -215,6 +215,37 @@ describe('File Path replacement', () => {
       const paths = getCSSPaths(css);
       expect(paths).toEqual(['image((((1)))).jpg', 'file(()()).png']);
     });
+
+    test('finds paths in @import statements with url() (handled by url regex)', () => {
+      const css = `
+        @import url('components/buttons.css');
+        @import url("styles/main.css");
+        @import url(base.css);
+      `;
+      const paths = getCSSPaths(css);
+      // These are handled by the existing url() regex, not the @import regex
+      expect(paths).toEqual(['components/buttons.css', 'styles/main.css', 'base.css']);
+    });
+
+    test('finds paths in @import statements without url()', () => {
+      const css = `
+        @import 'components/buttons.css';
+        @import "styles/main.css";
+      `;
+      const paths = getCSSPaths(css);
+      expect(paths).toEqual(['components/buttons.css', 'styles/main.css']);
+    });
+
+    test('finds paths in mixed @import and url() usage', () => {
+      const css = `
+        @import url('reset.css');
+        @import 'theme.css';
+        .icon { background: url('../icons/play.png'); }
+        @import "utilities.css";
+      `;
+      const paths = getCSSPaths(css);
+      expect(paths).toEqual(['reset.css', 'theme.css', '../icons/play.png', 'utilities.css']);
+    });
   });
   describe('CSS path replacement', () => {
     it('should replace a simple relative path', () => {
@@ -419,6 +450,58 @@ describe('File Path replacement', () => {
         background: url('new1.png');
         background: url("new2.jpg");
         background: url('new3.gif');
+      `);
+    });
+
+    test('replaces @import url() paths (handled by url regex)', () => {
+      const css = `
+        @import url('components/buttons.css');
+        @import url("styles/main.css");
+      `;
+      const packageFiles = {
+        'components/buttons.css': 'blob:buttons',
+        'styles/main.css': 'blob:main',
+      };
+      const result = replaceCSSPaths(css, packageFiles);
+      // url() replacement handles these, preserving the @import context
+      expect(result).toBe(`
+        @import url('blob:buttons');
+        @import url("blob:main");
+      `);
+    });
+
+    test('replaces @import paths without url()', () => {
+      const css = `
+        @import 'components/buttons.css';
+        @import "styles/main.css";
+      `;
+      const packageFiles = {
+        'components/buttons.css': 'blob:buttons',
+        'styles/main.css': 'blob:main',
+      };
+      const result = replaceCSSPaths(css, packageFiles);
+      expect(result).toBe(`
+        @import 'blob:buttons';
+        @import "blob:main";
+      `);
+    });
+
+    test('replaces mixed @import and url() paths', () => {
+      const css = `
+        @import url('reset.css');
+        @import 'theme.css';
+        .icon { background: url('../icons/play.png'); }
+      `;
+      const packageFiles = {
+        'reset.css': 'blob:reset',
+        'theme.css': 'blob:theme',
+        '../icons/play.png': 'blob:icon',
+      };
+      const result = replaceCSSPaths(css, packageFiles);
+      expect(result).toBe(`
+        @import url('blob:reset');
+        @import 'blob:theme';
+        .icon { background: url('blob:icon'); }
       `);
     });
   });
