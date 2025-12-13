@@ -1621,19 +1621,25 @@ importers:
 
   packages/kolibri-zip:
     dependencies:
+      '@zip.js/zip.js':
+        specifier: ^2.8.11
+        version: 2.8.20
       core-js:
         specifier: 'catalog:'
         version: 3.47.0
-      fflate:
-        specifier: ^0.8.2
-        version: 0.8.2
+      fastestsmallesttextencoderdecoder:
+        specifier: ^1.0.22
+        version: 1.0.22
       lodash:
         specifier: 'catalog:'
         version: 4.17.21
+      web-streams-polyfill:
+        specifier: ^4.2.0
+        version: 4.2.0
     devDependencies:
-      mime-db:
-        specifier: ^1.54.0
-        version: 1.54.0
+      fflate:
+        specifier: ^0.8.2
+        version: 0.8.2
 
 packages:
 
@@ -3557,6 +3563,10 @@ packages:
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
 
+  '@zip.js/zip.js@2.8.20':
+    resolution: {integrity: sha512-oJzVhK9gnSKD++WLG37QEgeTgm5W8XUYmNv0EhOxytSr85vXn9EMpOoKNTK3yWDLa55Z0MovKW/6RNeh9OUmnA==}
+    engines: {bun: '>=0.7.0', deno: '>=1.0.0', node: '>=18.0.0'}
+
   abbrev@1.1.1:
     resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
 
@@ -5162,6 +5172,9 @@ packages:
   fastest-levenshtein@1.0.16:
     resolution: {integrity: sha512-eRnCtTTtGZFpQCwhJiUOuxPQWRXVKYDn0b2PeHfXL6/Zi53SLAzAHfVhVWK2AryC/WH05kGfxhFIPvTF0SXQzg==}
     engines: {node: '>= 4.9.1'}
+
+  fastestsmallesttextencoderdecoder@1.0.22:
+    resolution: {integrity: sha512-Pb8d48e+oIuY4MaM64Cd7OW1gt4nxCHs7/ddPPZ/Ic3sg8yVGM7O9wDvZ7us6ScaUupzM+pfBolwtYhN1IxBIw==}
 
   fastq@1.20.1:
     resolution: {integrity: sha512-GGToxJ/w1x32s/D2EKND7kTil4n8OVk/9mycTc4VDza13lOvpUZTGX3mFSCtV9ksdGBVzvsyAVLM6mHFThxXxw==}
@@ -11441,6 +11454,8 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
+  '@zip.js/zip.js@2.8.20': {}
+
   abbrev@1.1.1: {}
 
   abbrev@2.0.0: {}
@@ -13192,6 +13207,8 @@ snapshots:
   fast-uri@3.1.0: {}
 
   fastest-levenshtein@1.0.16: {}
+
+  fastestsmallesttextencoderdecoder@1.0.22: {}
 
   fastq@1.20.1:
     dependencies:
