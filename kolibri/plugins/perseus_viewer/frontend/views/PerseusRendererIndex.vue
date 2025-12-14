@@ -38,6 +38,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { defer } from 'underscore';
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import urls from 'kolibri/urls';
   import { createElement as e } from 'react';
   import { createPortal, render, unmountComponentAtNode } from 'react-dom';
   import * as perseus from '@khanacademy/perseus';
@@ -94,7 +95,8 @@
    */
   const globalPerseusFileRegistry = {};
 
-  function setUpPerseusFile(perseusFileUrl) {
+  function setUpPerseusFile(defaultFile) {
+    const perseusFileUrl = defaultFile.storage_url;
     if (globalPerseusFileRegistry[perseusFileUrl]) {
       globalPerseusFileRegistry[perseusFileUrl].usageCounter += 1;
     } else {
@@ -118,6 +120,7 @@
       };
       globalPerseusFileRegistry[perseusFileUrl].zipFile = new ZipFile(perseusFileUrl, {
         filePathMappers,
+        largeFileUrlGenerator: filepath => urls.zipContentUrl(defaultFile, filepath),
       });
     }
   }
@@ -659,7 +662,7 @@
           this.loading = true;
           if (this.perseusFileUrl !== this.defaultFile.storage_url) {
             cleanUpPerseusFile(this.perseusFileUrl);
-            setUpPerseusFile(this.defaultFile.storage_url);
+            setUpPerseusFile(this.defaultFile);
             this.perseusFileUrl = this.defaultFile.storage_url;
           }
           globalPerseusFileRegistry[this.perseusFileUrl].zipFile

@@ -488,3 +488,6 @@ else:
 # Always allow 'self' and 'data' sources to allow for the kind of
 # iframe manipulation needed for epub.js.
 CSP_FRAME_SRC = CSP_DEFAULT_SRC + frame_src
+
+# Allow media from our zipcontent origin as well
+CSP_MEDIA_SRC = CSP_DEFAULT_SRC + frame_src

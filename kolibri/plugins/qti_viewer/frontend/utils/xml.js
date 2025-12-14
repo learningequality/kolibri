@@ -1,4 +1,5 @@
 import ZipFile from 'kolibri-zip';
+import urls from 'kolibri/urls';
 
 const domParser = new DOMParser();
 
@@ -12,8 +13,10 @@ export function parseXML(xmlString) {
   return xmlDoc;
 }
 
-export async function loadQTIPackage(url) {
-  const qtiZip = new ZipFile(url);
+export async function loadQTIPackage(file) {
+  const qtiZip = new ZipFile(file.storage_url, {
+    largeFileUrlGenerator: filepath => urls.zipContentUrl(file, filepath),
+  });
   const manifestFile = await qtiZip.file('imsmanifest.xml');
   const manifestDoc = parseXML(manifestFile.toString());
 

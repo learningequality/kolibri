@@ -182,13 +182,17 @@ class UrlResolver {
     }
     return generateUrl(this.__mediaUrl, { url });
   }
-  zipContentUrl(fileId, extension, embeddedFilePath = '', baseurl) {
-    const filename = `${fileId}.${extension}`;
+  zipContentUrl({ checksum, extension, storage_url }, embeddedFilePath = '') {
     if (!this.__zipContentUrl) {
       throw new ReferenceError('Zipcontent Url is not defined');
     }
+    const filename = `${checksum}.${extension}`;
+    // In the case that this is being routed via a remote URL
+    // ensure we preserve that for the zip endpoint.
+    const url = new URL(storage_url, window.location.href);
+    const baseurl = url.searchParams.get('baseurl');
     return generateUrl(this.__zipContentUrl, {
-      url: `${baseurl ? baseurl + '/' : ''}${filename}/${embeddedFilePath}`,
+      url: `${baseurl ? encodeURIComponent(baseurl) + '/' : ''}${filename}/${embeddedFilePath}`,
       origin: this.__zipContentOrigin,
       port: this.__zipContentPort,
     });

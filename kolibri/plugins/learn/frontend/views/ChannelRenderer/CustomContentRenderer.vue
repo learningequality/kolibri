@@ -126,12 +126,7 @@
       this.sandbox.on(events.RANDOMCOLLECTIONREQUESTED, message => {
         this.sendRandomCollection.call(this, message);
       });
-      this.sandbox.initialize(
-        {},
-        {},
-        urls.zipContentUrl(zipFile.checksum, zipFile.extension, 'index.html'),
-        zipFile.checksum,
-      );
+      this.sandbox.initialize({}, {}, urls.zipContentUrl(zipFile, 'index.html'), zipFile.checksum);
     },
     methods: {
       // helper functions for fetching data from kolibri
