@@ -3,7 +3,7 @@ import { UserKinds } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import NotificationsRoot from '../NotificationsRoot';
 import { coreStoreFactory as makeStore } from '../../../store';
-import coreModule from '../../../../../kolibri/core/assets/src/state/modules/core';
+import coreModule from '../../../../../kolibri/core/frontend/state/modules/core';
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('../NotificationsRoot/internal/PingbackNotificationResource');

@@ -1,0 +1,8 @@
+# Exclude test files and fixtures from package
+**/__tests__/
+**/__fixtures__/
+*.spec.js
+*.test.js
+
+# Exclude development files
+.gitignore

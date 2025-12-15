@@ -24,13 +24,13 @@ There are two distinct entities that control this behaviour - a Kolibri Hook on 
     {
       bundle_id: 'app',
       webpack_config: {
-        entry: './assets/src/app.js',
+        entry: './frontend/app.js',
       },
     },
     {
       bundle_id: 'side_nav',
       webpack_config: {
-        entry: './assets/src/views/LearnSideNavEntry.vue',
+        entry: './frontend/views/LearnSideNavEntry.vue',
       },
     },
   ];

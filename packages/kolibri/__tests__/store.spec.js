@@ -3,7 +3,7 @@ import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import client from 'kolibri/client';
 import * as constants from 'kolibri/constants';
 import { coreStoreFactory as makeStore } from '../store';
-import coreModule from '../../../kolibri/core/assets/src/state/modules/core';
+import coreModule from '../../../kolibri/core/frontend/state/modules/core';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 import * as useUserModule from '../composables/useUser';
 
