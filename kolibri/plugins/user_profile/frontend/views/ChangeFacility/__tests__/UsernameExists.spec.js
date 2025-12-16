@@ -1,5 +1,5 @@
 import { mount, createLocalVue } from '@vue/test-utils';
-import UsernameExists from '../../../src/views/ChangeFacility/UsernameExists';
+import UsernameExists from '../UsernameExists';
 
 const localVue = createLocalVue();
 const sendMachineEvent = jest.fn();

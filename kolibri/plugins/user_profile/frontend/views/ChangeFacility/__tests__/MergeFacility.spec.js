@@ -3,7 +3,7 @@ import TaskResource from 'kolibri/apiResources/TaskResource';
 import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import client from 'kolibri/client';
-import MergeFacility from '../../../src/views/ChangeFacility/MergeFacility';
+import MergeFacility from '../MergeFacility';
 
 const localVue = createLocalVue();
 const sendMachineEvent = jest.fn();

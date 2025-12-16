@@ -1,5 +1,5 @@
 import { mount, createLocalVue } from '@vue/test-utils';
-import ConfirmMerge from '../../../src/views/ChangeFacility/ConfirmMerge';
+import ConfirmMerge from '../ConfirmMerge';
 
 const localVue = createLocalVue();
 const sendMachineEvent = jest.fn();
