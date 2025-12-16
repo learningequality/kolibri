@@ -3,7 +3,7 @@ import { Store } from 'vuex';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
-import FacilityAppBarPage from '../../src/views/FacilityAppBarPage';
+import FacilityAppBarPage from '../FacilityAppBarPage';
 
 function makeWrapper({ propsData = {}, getters = {} }) {
   const store = new Store(getters);

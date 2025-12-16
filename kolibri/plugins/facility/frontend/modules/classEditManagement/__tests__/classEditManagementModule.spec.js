@@ -1,4 +1,4 @@
-import makeStore from '../../../../test/makeStore';
+import makeStore from '../../../__tests__/utils/makeStore';
 
 describe('classEditManagement module', () => {
   it('UPDATE_CLASS mutation updates both the class list and the current class', () => {
