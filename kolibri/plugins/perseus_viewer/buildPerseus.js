@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const extractPerseusMessages = require('./extractPerseusMessages');
 
-const target = path.resolve(__dirname, './assets/dist');
+const target = path.resolve(__dirname, './frontend/dist');
 // A regex for detecting paths inside `url` in CSS, paths can either be quoted or unquoted.
 const cssPathRegex = /(url\(['"]?)([^"')]+)?(['"]?\),? ?)/g;
 const cssNonWoffRegex = /, (url\(['"]?)([^"')]+)?(['"]?\),? ?) format\((?!['"]woff['"])['"][a-z0-9]+['"]\)/g;

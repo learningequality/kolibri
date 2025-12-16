@@ -7,7 +7,7 @@ var webpack = require('webpack');
 module.exports = {
   bundle_id: 'main',
   webpack_config: {
-    entry: 'assets/src/module.js',
+    entry: 'frontend/module.js',
     plugins: [
       new webpack.NormalModuleReplacementPlugin(
         /react\/jsx-runtime/,

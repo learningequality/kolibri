@@ -14,7 +14,7 @@ const typescript = require('typescript');
 
 const { writeSourceToFile } = require('kolibri-format');
 
-const { replacePiText } = require('./assets/src/translationUtils');
+const { replacePiText } = require('./frontend/translationUtils');
 const packageJson = require('./package.json');
 
 const perseusVersion = packageJson.dependencies['@khanacademy/perseus'];
@@ -132,5 +132,5 @@ module.exports = async function() {
 
   // Write out the module to src files
 
-  writeSourceToFile('./assets/src/translator.js', outputCode);
+  writeSourceToFile('./frontend/translator.js', outputCode);
 }

@@ -1,7 +1,7 @@
 module.exports = {
   bundle_id: 'main',
   webpack_config: {
-    entry: './assets/src/module.js',
+    entry: './frontend/module.js',
     resolve: {
       fallback: {
         "zlib": require.resolve("browserify-zlib"),
