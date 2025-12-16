@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
-import SignInPage from '../../src/views/SignInPage';
-import makeStore from '../makeStore';
+import SignInPage from '../SignInPage';
+import makeStore from '../../__tests__/utils/makeStore';
 
 jest.mock('kolibri/urls');
 jest.mock('kolibri-common/composables/useFacilities');

@@ -1,8 +1,8 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
-import UserAuthIndex from '../../src/views/UserAuthIndex';
-import makeStore from '../makeStore';
+import UserAuthIndex from '../UserAuthIndex';
+import makeStore from '../../__tests__/utils/makeStore';
 
 const localVue = createLocalVue();
 

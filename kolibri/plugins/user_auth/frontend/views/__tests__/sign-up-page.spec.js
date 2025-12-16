@@ -2,8 +2,8 @@ import VueRouter from 'vue-router';
 import { mount, createLocalVue } from '@vue/test-utils';
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
 import { ref, nextTick } from 'vue';
-import SignUpPage from '../../src/views/SignUpPage';
-import makeStore from '../makeStore';
+import SignUpPage from '../SignUpPage';
+import makeStore from '../../__tests__/utils/makeStore';
 
 jest.mock('kolibri-common/composables/useFacilities');
 

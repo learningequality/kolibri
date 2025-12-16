@@ -1,7 +1,7 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import AuthSelect from '../../src/views/AuthSelect';
-import makeStore from '../makeStore';
+import AuthSelect from '../AuthSelect';
+import makeStore from '../../__tests__/utils/makeStore';
 
 jest.mock('kolibri/urls');
 const localVue = createLocalVue();

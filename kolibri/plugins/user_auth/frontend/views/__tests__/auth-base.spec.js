@@ -1,7 +1,7 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import AuthBase from '../../src/views/AuthBase';
-import makeStore from '../makeStore';
+import AuthBase from '../AuthBase';
+import makeStore from '../../__tests__/utils/makeStore';
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
 
 jest.mock('kolibri-common/composables/useFacilities');
