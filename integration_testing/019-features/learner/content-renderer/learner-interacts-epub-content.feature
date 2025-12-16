@@ -13,7 +13,7 @@ Feature: Learner interacts with EPUB content
       When I click on a folder with EPUBs
       Then I see the *'<channel>' > '<folder>'* breadcrumb
         And I see all the the subfolders and resources of the folder
-        When I click on a EPUB resource card
+        When I click on an EPUB resource card
         Then I see the EPUB file reader
         	And I see the icons for table of contents, settings, search and full screen
         	And I see a slider in percents
