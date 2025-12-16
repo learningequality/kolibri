@@ -6,7 +6,7 @@ import { coreStoreFactory } from 'kolibri/store';
 import { AllCategories, ContentNodeKinds, NoCategories } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useBaseSearch from '../useBaseSearch';
-import coreModule from '../../../../kolibri/core/assets/src/state/modules/core';
+import coreModule from '../../../../kolibri/core/frontend/state/modules/core';
 
 Vue.use(VueRouter);
 

@@ -5,7 +5,7 @@ module.exports = [
   {
     bundle_id: 'default_frontend',
     webpack_config: {
-      entry: './assets/src/index.js',
+      entry: './frontend/index.js',
       output: {
         library: kolibriName,
         libraryExport: 'default',

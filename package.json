@@ -29,11 +29,11 @@
     "devserver-with-kds": "concurrently --passthrough-arguments --kill-others \"yarn:watch --watchonly={2} --require-kds-path --kds-path={1}\" yarn:python-devserver yarn:sandbox-dev --",
     "bundle-stats": "kolibri-build prod --file ./build_tools/build_plugins.txt --transpile --json",
     "clean": "rm -fr kolibri/core/content/static/sandbox/ && kolibri-build clean --file ./build_tools/build_plugins.txt",
-    "lint-frontend": "kolibri-format --pattern '{kolibri*/**/assets,packages,build_tools}/**/*.{js,vue,scss,less,css}' --ignore '**/dist/**' '**/node_modules/**' '**/static/**'",
+    "lint-frontend": "kolibri-format --pattern '{kolibri*/**/frontend,packages,build_tools}/**/*.{js,vue,scss,less,css}' --ignore '**/dist/**' '**/node_modules/**' '**/static/**'",
     "lint-frontend:format": "yarn run lint-frontend --write",
     "lint-frontend:watch": "yarn run lint-frontend --monitor",
     "lint-frontend:watch:format": "yarn run lint-frontend --monitor --write",
-    "migrate-core-api": "kolibri-tools migrate  '{kolibri*/**/assets,packages}/**/*.{js,vue}' --ignore '**/dist/**,**/node_modules/**,**/static/**'",
+    "migrate-core-api": "kolibri-tools migrate  '{kolibri*/**/frontend,packages}/**/*.{js,vue}' --ignore '**/dist/**,**/node_modules/**,**/static/**'",
     "sandbox-dev": "yarn workspace kolibri-sandbox run dev",
     "sandbox-build": "yarn workspace kolibri-sandbox run build",
     "compress": "kolibri-build compress 'kolibri/*/**/static/**/*.{html,js,css,svg,map,eot,ttf}'"

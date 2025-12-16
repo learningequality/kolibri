@@ -2,13 +2,13 @@ module.exports = [
   {
     bundle_id: 'app',
     webpack_config: {
-      entry: './assets/src/app.js',
+      entry: './frontend/app.js',
     },
   },
   {
     bundle_id: 'login_side_nav',
     webpack_config: {
-      entry: './assets/src/views/LoginSideNavEntry.js',
+      entry: './frontend/views/LoginSideNavEntry.js',
     },
   },
 ];
