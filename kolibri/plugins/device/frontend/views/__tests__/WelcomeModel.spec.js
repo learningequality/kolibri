@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import WelcomeModal from '../../src/views/WelcomeModal';
+import WelcomeModal from '../WelcomeModal';
 
 function makeWrapper(options) {
   const wrapper = mount(WelcomeModal, {

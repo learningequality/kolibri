@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
-import SelectContentPage from '../../src/views/SelectContentPage';
-import ChannelContentsSummary from '../../src/views/SelectContentPage/ChannelContentsSummary';
-import { makeSelectContentPageStore } from '../utils/makeStore';
+import SelectContentPage from '../SelectContentPage';
+import ChannelContentsSummary from '../SelectContentPage/ChannelContentsSummary';
+import { makeSelectContentPageStore } from '../../__tests__/utils/makeStore';
 import router from './testRouter';
 
 SelectContentPage.methods.getAvailableSpaceOnDrive = () => {};

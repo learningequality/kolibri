@@ -122,7 +122,7 @@
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
 
-  import commonProfileStrings from '../../../../../../user_profile/assets/src/views/commonProfileStrings';
+  import commonProfileStrings from '../../../../../user_profile/frontend/views/commonProfileStrings';
   import { injectLodDeviceUsers } from '../composables/useLodDeviceUsers';
 
   export default {

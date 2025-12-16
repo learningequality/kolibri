@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
-import AvailableChannelsPage from '../../src/views/AvailableChannelsPage';
-import { makeAvailableChannelsPageStore } from '../utils/makeStore';
+import AvailableChannelsPage from '../AvailableChannelsPage';
+import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
 import router from './testRouter';
 
 jest.mock('kolibri/urls');

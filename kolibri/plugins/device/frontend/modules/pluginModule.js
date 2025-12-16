@@ -1,5 +1,5 @@
 import { pageNameToModuleMap, PageNames, ContentWizardPages } from '../constants';
-import facilityConfig from '../../../../facility/assets/src/modules/facilityConfig';
+import facilityConfig from '../../../facility/frontend/modules/facilityConfig';
 import deviceInfo from './deviceInfo';
 import manageContent from './manageContent';
 import managePermissions from './managePermissions';

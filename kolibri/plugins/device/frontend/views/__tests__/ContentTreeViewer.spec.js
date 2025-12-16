@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
 import omit from 'lodash/fp/omit';
-import ContentTreeViewer from '../../src/views/SelectContentPage/ContentTreeViewer';
-import { makeNode } from '../utils/data';
-import { makeSelectContentPageStore } from '../utils/makeStore';
+import ContentTreeViewer from '../SelectContentPage/ContentTreeViewer';
+import { makeNode } from '../../__tests__/utils/data';
+import { makeSelectContentPageStore } from '../../__tests__/utils/makeStore';
 import router from './testRouter';
 
 function simplePath(ids) {

@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
 import KModal from 'kolibri-design-system/lib/KModal';
 import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-import SelectDriveModal from '../../src/views/ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
-import { makeAvailableChannelsPageStore } from '../utils/makeStore';
+import SelectDriveModal from '../ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
+import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
 
 SelectDriveModal.methods.refreshDriveList = () => Promise.resolve();
 

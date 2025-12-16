@@ -1,7 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
-import makeStore from '../../../test/utils/makeStore';
+import makeStore from '../../__tests__/utils/makeStore';
 import RearrangeChannelsPage from '../RearrangeChannelsPage';
 
 jest.mock('../../composables/useContentTasks');

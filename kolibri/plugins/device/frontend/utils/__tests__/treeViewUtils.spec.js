@@ -1,6 +1,6 @@
 import pick from 'lodash/pick';
-import { annotateNode } from '../src/views/SelectContentPage/treeViewUtils';
-import { makeNode } from './utils/data';
+import { annotateNode } from '../../views/SelectContentPage/treeViewUtils';
+import { makeNode } from '../../__tests__/utils/data';
 
 function simplePath(ids) {
   return ids.map(makeNode);

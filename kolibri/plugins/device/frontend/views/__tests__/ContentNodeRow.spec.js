@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
-import ContentNodeRow from '../../src/views/SelectContentPage/ContentNodeRow';
-import { makeNode } from '../utils/data';
+import ContentNodeRow from '../SelectContentPage/ContentNodeRow';
+import { makeNode } from '../../__tests__/utils/data';
 import router from './testRouter';
 
 //

@@ -1,9 +1,9 @@
 import omit from 'lodash/fp/omit';
 import ContentNodeGranularResource from 'kolibri-common/apiResources/ContentNodeGranularResource';
 import client from 'kolibri/client';
-import { makeNode, contentNodeGranularPayload } from '../utils/data';
-import { updateTreeViewTopic } from '../../src/modules/wizard/handlers';
-import { makeSelectContentPageStore } from '../utils/makeStore';
+import { makeNode, contentNodeGranularPayload } from '../../../../__tests__/utils/data';
+import { updateTreeViewTopic } from '../../handlers';
+import { makeSelectContentPageStore } from '../../../../__tests__/utils/makeStore';
 
 const simplePath = (...ids) => ids.map(id => ({ id, title: `node_${id}` }));
 
