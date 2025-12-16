@@ -1,4 +1,4 @@
-import permissionPresets from '../../../../core/auth/constants/facility_configuration_presets.json';
+import permissionPresets from '../../../core/auth/constants/facility_configuration_presets.json';
 
 /**
  * enum identifying whether the user has gone to the on my own flow or not

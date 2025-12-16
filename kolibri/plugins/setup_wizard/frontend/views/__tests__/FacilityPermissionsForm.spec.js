@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
-import makeStore from '../makeStore';
-import FacilityPermissionsForm from '../../src/views/onboarding-forms/FacilityPermissionsForm';
+import makeStore from '../../__tests__/utils/makeStore';
+import FacilityPermissionsForm from '../onboarding-forms/FacilityPermissionsForm';
 
 function makeWrapper() {
   const node = document.createElement('app');

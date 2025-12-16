@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import PersonalDataConsentForm from '../../src/views/onboarding-forms/PersonalDataConsentForm';
+import PersonalDataConsentForm from '../onboarding-forms/PersonalDataConsentForm';
 
 function makeWrapper() {
   const wrapper = mount(PersonalDataConsentForm);

@@ -118,7 +118,7 @@
   import CatchErrors from 'kolibri/utils/CatchErrors';
 
   import { FooterMessageTypes } from '../constants';
-  import commonProfileStrings from '../../../../user_profile/assets/src/views/commonProfileStrings';
+  import commonProfileStrings from '../../../user_profile/frontend/views/commonProfileStrings';
   import OnboardingStepBase from './OnboardingStepBase';
 
   export default {

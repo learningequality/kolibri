@@ -68,7 +68,7 @@
   import RadioButtonGroup from 'kolibri-common/components/syncComponentSet/RadioButtonGroup';
   import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
 
-  import SelectFacility from '../../../../user_profile/assets/src/views/ChangeFacility/SelectFacility';
+  import SelectFacility from '../../../user_profile/frontend/views/ChangeFacility/SelectFacility';
   import { FooterMessageTypes } from '../constants';
 
   import OnboardingStepBase from './OnboardingStepBase';

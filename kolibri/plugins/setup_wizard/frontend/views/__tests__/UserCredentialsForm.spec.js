@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
-import makeStore from '../makeStore';
-import UserCredentialsForm from '../../src/views/onboarding-forms/UserCredentialsForm';
+import makeStore from '../../__tests__/utils/makeStore';
+import UserCredentialsForm from '../onboarding-forms/UserCredentialsForm';
 
 function makeWrapper() {
   const store = makeStore();

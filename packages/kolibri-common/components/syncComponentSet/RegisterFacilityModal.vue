@@ -45,7 +45,7 @@
   import { ERROR_CONSTANTS } from 'kolibri/constants';
   import PortalResource from 'kolibri-common/apiResources/PortalResource';
   import { crossComponentTranslator } from 'kolibri/utils/i18n';
-  import GettingStartedFormAlt from '../../../../kolibri/plugins/setup_wizard/assets/src/views/onboarding-forms/GettingStartedFormAlt';
+  import GettingStartedFormAlt from '../../../../kolibri/plugins/setup_wizard/frontend/views/onboarding-forms/GettingStartedFormAlt';
   import ConfirmationRegisterModal from './ConfirmationRegisterModal';
 
   export default {
