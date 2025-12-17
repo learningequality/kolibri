@@ -79,7 +79,29 @@ Bootstrapped data
 
 The ``kolibriCoreAppGlobal`` object is also used to bootstrap data into the JS app, rather than making unnecessary API requests.
 
-For example, we currently embellish the ``kolibriCoreAppGlobal`` object with a ``urls`` object. This is defined by `Django JS Reverse <https://github.com/ierror/django-js-reverse>`__ and exposes Django URLs on the client side. This will primarily be used for accessing API Urls for synchronizing with the REST API. See the Django JS Reverse documentation for details on invoking the Url.
+For example, we currently embellish the ``kolibriCoreAppGlobal`` object with a ``urls`` object. This is defined by `Django JS Reverse <https://github.com/ierror/django-js-reverse>`__ and exposes Django URLs on the client side. This will primarily be used for accessing API Urls for synchronizing with the REST API.
+
+URLs and API Endpoints
+~~~~~~~~~~~~~~~~~~~~~~
+
+Kolibri uses a consistent URL namespacing pattern (e.g., ``kolibri:core:session_list``) that bridges Django's backend URL system with JavaScript frontend code. URLs can be accessed in JavaScript via the ``urls`` object:
+
+.. code-block:: javascript
+
+  import urls from 'kolibri/urls';
+  import client from 'kolibri/client';
+
+  // Call a list endpoint
+  const response = await client({
+    url: urls['kolibri:core:session_list'](),
+  });
+
+  // Call a detail endpoint with a parameter
+  const response = await client({
+    url: urls['kolibri:core:session_detail'](sessionId),
+  });
+
+For comprehensive information about URL namespacing, including how to define URLs in Django and use them in JavaScript, see the :doc:`/howtos/working_with_urls_and_api_endpoints` guide.
 
 Additional functionality
 ------------------------
