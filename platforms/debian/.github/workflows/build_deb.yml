@@ -44,7 +44,7 @@ jobs:
       with:
         repository: learningequality/kolibri-installer-debian
         ref: ${{ inputs.ref }}
-    - uses: actions/cache@v4
+    - uses: actions/cache@v5
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'build_requires.txt') }}
