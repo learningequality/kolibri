@@ -20,7 +20,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-exports": "^1.0.0-beta.5",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-jest": "^29.2.1",
+    "eslint-plugin-jest": "^29.5.0",
     "eslint-plugin-jest-dom": "^5.5.0",
     "eslint-plugin-kolibri": "^0.18.0",
     "eslint-plugin-vue": "^9.33.0",
