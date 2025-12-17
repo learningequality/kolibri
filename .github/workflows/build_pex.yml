@@ -21,7 +21,7 @@ jobs:
       pex-file-name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
     steps:
     - uses: actions/checkout@v6
-    - uses: actions/cache@v4
+    - uses: actions/cache@v5
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements/*.txt') }}
@@ -29,7 +29,7 @@ jobs:
           ${{ runner.os }}-pip-
     - name: Install Python build dependencies
       run: pip install -r requirements/build.txt
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with:
         name: ${{ inputs.whl-file-name }}
         path: dist
@@ -38,7 +38,7 @@ jobs:
     - name: Get PEX filename
       id: get-pex-filename
       run: echo "pex-file-name=$(ls dist | grep .pex | cat)" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
         path: dist/${{ steps.get-pex-filename.outputs.pex-file-name }}
