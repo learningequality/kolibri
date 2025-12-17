@@ -9,17 +9,21 @@ updates:
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "wednesday"
+      interval: "monthly"
       time: "00:00"
+    # Wait 7 days before considering new versions to avoid freshly released packages
+    cooldown:
+      default-days: 7
 
   # Maintain dependencies for Github Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "wednesday"
+      interval: "monthly"
       time: "00:00"
+    # Wait 7 days before considering new versions to avoid freshly released packages
+    cooldown:
+      default-days: 7
     groups:
       github:
         patterns:
