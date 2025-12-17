@@ -92,7 +92,7 @@
     "path-to-regexp": "1.9.0",
     "ua-parser-js": "^1.0.41",
     "vue": "2.7.16",
-    "vue-intl": "3.1.0",
+    "vue-intl": "7.0.1",
     "vue-meta": "^2.4.0",
     "vue-router": "^3.6.5",
     "vuex": "^3.6.2"
