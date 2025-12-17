@@ -7,10 +7,11 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "wednesday"
+      interval: "monthly"
       time: "00:00"
     open-pull-requests-limit: 10
+    cooldown:
+      default-days: 7
     groups:
       babel:
         patterns:
@@ -23,9 +24,10 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "wednesday"
+      interval: "monthly"
       time: "00:00"
+    cooldown:
+      default-days: 7
     groups:
       github:
         patterns:
