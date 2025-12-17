@@ -45,8 +45,8 @@ Feature: Change facility after device setup
 		Given I am at the *Select facility* page
 		When I click *Add new address*
 		Then I see the *Select network address* modal
-					And I can input a valid network address
-					And I can proceed with the facility change by following the onscreen instructions
+			And I can input a valid network address
+			And I can proceed with the facility change by following the onscreen instructions
 
 	Scenario: Change learning facility by creating a new account
 		Given I am at *Confirm account username*
