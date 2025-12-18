@@ -9,9 +9,11 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "friday"
+      interval: "monthly"
       time: "00:00"
+    # Wait 7 days before proposing updates to newly released versions
+    cooldown:
+      default-days: 7
     groups:
       github:
         patterns:
