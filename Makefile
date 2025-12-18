@@ -234,7 +234,16 @@ i18n-pretranslate-approve-all:
 	yarn exec crowdin pre-translate -- --branch ${CROWDIN_BRANCH} --translate-untranslated-only --method=tm --auto-approve-option=all
 
 i18n-download-translations: i18n-extract-frontend
+	touch kolibri/locale/.crowdin-download-marker
 	yarn exec crowdin download -- --branch ${CROWDIN_BRANCH}
+	@if [ -z "$$(find kolibri/locale/*/LC_MESSAGES -type f \( -name '*.po' -o -name '*.csv' \) -newer kolibri/locale/.crowdin-download-marker 2>/dev/null)" ]; then \
+		echo "❌ ERROR: No translation files were downloaded - Crowdin download may have failed silently"; \
+		echo "Check the output above for errors during the download process"; \
+		rm -f kolibri/locale/.crowdin-download-marker; \
+		exit 1; \
+	fi
+	@echo "✅ Translation files downloaded successfully"
+	rm -f kolibri/locale/.crowdin-download-marker
 	python build_tools/i18n/cleanup_unsupported_languages.py
 	yarn exec kolibri-i18n code-gen -- --output-dir ./packages/kolibri/utils/internal
 	$(MAKE) i18n-django-compilemessages
