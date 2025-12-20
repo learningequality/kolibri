@@ -1,10 +1,12 @@
-import {
-  getAbsoluteFilePath,
-  getCSSPaths,
-  replaceCSSPaths,
-  getDOMPaths,
-  replaceDOMPaths,
-} from '../src/fileUtils';
+import { getAbsoluteFilePath, getDOMPaths, replaceDOMPaths, _internal } from '../src/fileUtils';
+
+const {
+  getCSSPathsModern,
+  getCSSPathsLegacy,
+  replaceCSSPathsModern,
+  replaceCSSPathsLegacy,
+  supportsLookbehind,
+} = _internal;
 
 describe('File Path replacement', () => {
   describe('Absolute path resolution', () => {
@@ -29,62 +31,71 @@ describe('File Path replacement', () => {
       expect(getAbsoluteFilePath('test.htm', 'file%2Bname.css')).toEqual('file+name.css');
     });
   });
-  describe('CSS path finding', () => {
+  describe('supportsLookbehind detection', () => {
+    it('should be a boolean', () => {
+      expect(typeof supportsLookbehind).toBe('boolean');
+    });
+  });
+
+  describe.each([
+    ['Modern', getCSSPathsModern],
+    ['Legacy', getCSSPathsLegacy],
+  ])('CSS path finding (%s)', (name, getCSSPathsFn) => {
     it('should find a simple relative path', () => {
       const packageFiles = ['./test.woff'];
-      expect(getCSSPaths('url("./test.woff")')).toEqual(packageFiles);
+      expect(getCSSPathsFn('url("./test.woff")')).toEqual(packageFiles);
     });
     it('should find a more complex relative path', () => {
       const packageFiles = ['../fonts/test.woff'];
-      expect(getCSSPaths('url("../fonts/test.woff")')).toEqual(packageFiles);
+      expect(getCSSPathsFn('url("../fonts/test.woff")')).toEqual(packageFiles);
     });
     it('should find a more complex relative path with query parameters', () => {
       const packageFiles = ['../fonts/test.woff'];
-      expect(getCSSPaths('url("../fonts/test.woff?iefix")')).toEqual(packageFiles);
+      expect(getCSSPathsFn('url("../fonts/test.woff?iefix")')).toEqual(packageFiles);
     });
     it('should find a path with a space', () => {
       const packageFiles = ['../fonts/test this.woff'];
-      expect(getCSSPaths('url("../fonts/test this.woff?iefix")')).toEqual(packageFiles);
+      expect(getCSSPathsFn('url("../fonts/test this.woff?iefix")')).toEqual(packageFiles);
     });
     it('should find a path with an encoded space', () => {
       const packageFiles = ['../fonts/test this.woff'];
-      expect(getCSSPaths('url("../fonts/test%20this.woff?iefix")')).toEqual(packageFiles);
+      expect(getCSSPathsFn('url("../fonts/test%20this.woff?iefix")')).toEqual(packageFiles);
     });
     it('should find paths that use single quotes', () => {
       const packageFiles = ['../fonts/test.woff'];
-      expect(getCSSPaths("url('../fonts/test.woff')")).toEqual(packageFiles);
+      expect(getCSSPathsFn("url('../fonts/test.woff')")).toEqual(packageFiles);
     });
     it('should find paths that use single quotes with query parameters', () => {
       const packageFiles = ['../fonts/test.woff'];
-      expect(getCSSPaths("url('../fonts/test.woff?iefix')")).toEqual(packageFiles);
+      expect(getCSSPathsFn("url('../fonts/test.woff?iefix')")).toEqual(packageFiles);
     });
     it('should find paths that use no quotes', () => {
       const packageFiles = ['../fonts/test.woff'];
-      expect(getCSSPaths('url(../fonts/test.woff)')).toEqual(packageFiles);
+      expect(getCSSPathsFn('url(../fonts/test.woff)')).toEqual(packageFiles);
     });
     it('should find paths with no quotes with query parameters', () => {
       const packageFiles = ['../fonts/test.woff'];
-      expect(getCSSPaths('url(../fonts/test.woff?iefix)')).toEqual(packageFiles);
+      expect(getCSSPathsFn('url(../fonts/test.woff?iefix)')).toEqual(packageFiles);
     });
     it('should find paths with special characters in CSS url()', () => {
-      expect(getCSSPaths('url("./test%23%26%3F.woff")')).toEqual(['./test#&?.woff']);
+      expect(getCSSPathsFn('url("./test%23%26%3F.woff")')).toEqual(['./test#&?.woff']);
     });
     it('should handle plus signs in CSS urls', () => {
-      expect(getCSSPaths('url("./my%2Bfile.woff")')).toEqual(['./my+file.woff']);
+      expect(getCSSPathsFn('url("./my%2Bfile.woff")')).toEqual(['./my+file.woff']);
     });
     test('handles URLs with parentheses in filename when quoted', () => {
       const css = `
         background: url('image(1).png');
         background-image: url("file(with)brackets.jpg");
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['image(1).png', 'file(with)brackets.jpg']);
     });
     test('does not handle URLs with parentheses in filename when not quoted', () => {
       const css = `
         border-image: url(filename(final).gif);
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['filename(final']);
     });
 
@@ -93,7 +104,7 @@ describe('File Path replacement', () => {
         background: url('image(1).png?v=123');
         background-image: url("file(with)brackets.jpg?version=2");
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['image(1).png', 'file(with)brackets.jpg']);
     });
 
@@ -102,7 +113,7 @@ describe('File Path replacement', () => {
         background: url('path/to/image(1)(2).png');
         background-image: url("file(with)(more)brackets.jpg");
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['path/to/image(1)(2).png', 'file(with)(more)brackets.jpg']);
     });
     test('handles multiple filenames with no quotation marks', () => {
@@ -118,7 +129,7 @@ describe('File Path replacement', () => {
         transform: translateY(100%);
       }
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['../images/plus-one.svg', '../images/minus-one.svg']);
     });
     test('handles mixed quotes and no quotes correctly', () => {
@@ -127,7 +138,7 @@ describe('File Path replacement', () => {
         background-image: url('single.jpg');
         border-image: url("double.gif");
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['plain.png', 'single.jpg', 'double.gif']);
     });
     test('handles empty url() values', () => {
@@ -136,7 +147,7 @@ describe('File Path replacement', () => {
         background: url('');
         background: url("");
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['', '', '']);
     });
 
@@ -147,7 +158,7 @@ describe('File Path replacement', () => {
         background: url("file\\").png");
         background: url('file\\').png');
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(["file's.png", 'file".png', 'file").png', "file').png"]);
     });
 
@@ -157,7 +168,7 @@ describe('File Path replacement', () => {
         background: url("path\\ to\\ file.jpg");
         background: url('multiple\\  spaces.png');
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['file with spaces.png', 'path to file.jpg', 'multiple  spaces.png']);
     });
 
@@ -167,7 +178,7 @@ describe('File Path replacement', () => {
         background: url("file\\\\\\\\.jpg");
         background: url('test\\\\\\\\\\\\.gif');
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['path\\.png', 'file\\\\.jpg', 'test\\\\\\.gif']);
     });
 
@@ -175,7 +186,7 @@ describe('File Path replacement', () => {
       const css = `
         background: url('img(v1)(final).png?v=(1)&x=(2)');
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['img(v1)(final).png']);
     });
 
@@ -184,7 +195,7 @@ describe('File Path replacement', () => {
         background: url('my image (1).png');
         background: url("path/to/image (v2).jpg");
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['my image (1).png', 'path/to/image (v2).jpg']);
     });
 
@@ -193,7 +204,7 @@ describe('File Path replacement', () => {
         background: url('broken(but(fixable.png');
         background: url("missing(paren.jpg?v=1");
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['broken(but(fixable.png', 'missing(paren.jpg']);
     });
 
@@ -203,7 +214,7 @@ describe('File Path replacement', () => {
         background: url("image.png?base64=abc()123");
         background: url(image.gif?key=test(1)&key2=test(2));
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['image.jpg', 'image.png', 'image.gif']);
     });
 
@@ -212,18 +223,17 @@ describe('File Path replacement', () => {
         background: url('image((((1)))).jpg');
         background: url("file(()()).png");
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['image((((1)))).jpg', 'file(()()).png']);
     });
 
-    test('finds paths in @import statements with url() (handled by url regex)', () => {
+    test('finds paths in @import statements with url()', () => {
       const css = `
         @import url('components/buttons.css');
         @import url("styles/main.css");
         @import url(base.css);
       `;
-      const paths = getCSSPaths(css);
-      // These are handled by the existing url() regex, not the @import regex
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['components/buttons.css', 'styles/main.css', 'base.css']);
     });
 
@@ -232,7 +242,7 @@ describe('File Path replacement', () => {
         @import 'components/buttons.css';
         @import "styles/main.css";
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['components/buttons.css', 'styles/main.css']);
     });
 
@@ -243,22 +253,43 @@ describe('File Path replacement', () => {
         .icon { background: url('../icons/play.png'); }
         @import "utilities.css";
       `;
-      const paths = getCSSPaths(css);
+      const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['reset.css', 'theme.css', '../icons/play.png', 'utilities.css']);
     });
+
+    test('finds paths in @import with query parameters', () => {
+      const css = `
+        @import 'styles.css?v=123';
+        @import "theme.css?version=2";
+      `;
+      const paths = getCSSPathsFn(css);
+      expect(paths).toEqual(['styles.css', 'theme.css']);
+    });
+
+    test('finds paths in @import with escaped quotes', () => {
+      const css = `
+        @import 'file\\'s.css';
+        @import "path\\".css";
+      `;
+      const paths = getCSSPathsFn(css);
+      expect(paths).toEqual(["file's.css", 'path".css']);
+    });
   });
-  describe('CSS path replacement', () => {
+  describe.each([
+    ['Modern', replaceCSSPathsModern],
+    ['Legacy', replaceCSSPathsLegacy],
+  ])('CSS path replacement (%s)', (name, replaceCSSPathsFn) => {
     it('should replace a simple relative path', () => {
       const packageFiles = {
         './test.woff': 'different',
       };
-      expect(replaceCSSPaths('url("./test.woff")', packageFiles)).toEqual('url("different")');
+      expect(replaceCSSPathsFn('url("./test.woff")', packageFiles)).toEqual('url("different")');
     });
     it('should replace a more complex relative path', () => {
       const packageFiles = {
         '../fonts/test.woff': 'different',
       };
-      expect(replaceCSSPaths('url("../fonts/test.woff")', packageFiles)).toEqual(
+      expect(replaceCSSPathsFn('url("../fonts/test.woff")', packageFiles)).toEqual(
         'url("different")',
       );
     });
@@ -266,7 +297,7 @@ describe('File Path replacement', () => {
       const packageFiles = {
         '../fonts/test this.woff': 'different',
       };
-      expect(replaceCSSPaths('url("../fonts/test this.woff")', packageFiles)).toEqual(
+      expect(replaceCSSPathsFn('url("../fonts/test this.woff")', packageFiles)).toEqual(
         'url("different")',
       );
     });
@@ -274,7 +305,7 @@ describe('File Path replacement', () => {
       const packageFiles = {
         '../fonts/test this.woff': 'different',
       };
-      expect(replaceCSSPaths('url("../fonts/test%20this.woff")', packageFiles)).toEqual(
+      expect(replaceCSSPathsFn('url("../fonts/test%20this.woff")', packageFiles)).toEqual(
         'url("different")',
       );
     });
@@ -282,7 +313,7 @@ describe('File Path replacement', () => {
       const packageFiles = {
         '../fonts/test.woff': 'different',
       };
-      expect(replaceCSSPaths("url('../fonts/test.woff')", packageFiles)).toEqual(
+      expect(replaceCSSPathsFn("url('../fonts/test.woff')", packageFiles)).toEqual(
         "url('different')",
       );
     });
@@ -290,13 +321,13 @@ describe('File Path replacement', () => {
       const packageFiles = {
         '../fonts/test.woff': 'different',
       };
-      expect(replaceCSSPaths('url(../fonts/test.woff)', packageFiles)).toEqual('url(different)');
+      expect(replaceCSSPathsFn('url(../fonts/test.woff)', packageFiles)).toEqual('url(different)');
     });
     it('should replace paths that use query parameters', () => {
       const packageFiles = {
         '../fonts/test.woff': 'different',
       };
-      expect(replaceCSSPaths('url(../fonts/test.woff?iefix)', packageFiles)).toEqual(
+      expect(replaceCSSPathsFn('url(../fonts/test.woff?iefix)', packageFiles)).toEqual(
         'url(different)',
       );
     });
@@ -304,7 +335,7 @@ describe('File Path replacement', () => {
       const packageFiles = {
         '../../../../audio/test.mp3': 'different',
       };
-      expect(replaceCSSPaths('url(../../../../fonts/test.woff)', packageFiles)).toEqual(
+      expect(replaceCSSPathsFn('url(../../../../fonts/test.woff)', packageFiles)).toEqual(
         'url(../../../../fonts/test.woff)',
       );
     });
@@ -313,7 +344,7 @@ describe('File Path replacement', () => {
       const packageFiles = {
         'package/audio/test.mp3': 'different',
       };
-      expect(replaceCSSPaths('url(flob a dob dib dob)', packageFiles)).toEqual(
+      expect(replaceCSSPathsFn('url(flob a dob dib dob)', packageFiles)).toEqual(
         'url(flob a dob dib dob)',
       );
     });
@@ -321,7 +352,7 @@ describe('File Path replacement', () => {
       const packageFiles = {
         './test#&?.woff': 'new-file.woff',
       };
-      expect(replaceCSSPaths('url("./test%23%26%3F.woff")', packageFiles)).toEqual(
+      expect(replaceCSSPathsFn('url("./test%23%26%3F.woff")', packageFiles)).toEqual(
         'url("new-file.woff")',
       );
     });
@@ -342,7 +373,7 @@ describe('File Path replacement', () => {
         '../images/plus-one.svg': 'assets/plus.svg',
         '../images/minus-one.svg': 'assets/minus.svg',
       };
-      const result = replaceCSSPaths(css, packageFiles);
+      const result = replaceCSSPathsFn(css, packageFiles);
       expect(result).toBe(`
       .h5p-question-plus-one {
         background-image: url(assets/plus.svg);
@@ -366,7 +397,7 @@ describe('File Path replacement', () => {
         'file(with)brackets.jpg': 'new/path/file(with)brackets.jpg',
       };
 
-      const result = replaceCSSPaths(css, packageFiles);
+      const result = replaceCSSPathsFn(css, packageFiles);
       expect(result).toBe(`
         background: url('new/path/image(1).png');
         background-image: url("new/path/file(with)brackets.jpg");
@@ -384,7 +415,7 @@ describe('File Path replacement', () => {
         'double.gif': 'new/double.gif',
       };
 
-      const result = replaceCSSPaths(css, packageFiles);
+      const result = replaceCSSPathsFn(css, packageFiles);
       expect(result).toBe(`
         background: url(new/plain.png);
         background-image: url('new/single.jpg');
@@ -405,7 +436,7 @@ describe('File Path replacement', () => {
         'file").png': 'new").png',
         "file').png": "new').png",
       };
-      const result = replaceCSSPaths(css, packageFiles);
+      const result = replaceCSSPathsFn(css, packageFiles);
       /* eslint-disable no-useless-escape */
       expect(result).toBe(`
         background: url('new's.png');
@@ -426,7 +457,7 @@ describe('File Path replacement', () => {
         'path to file.jpg': 'new-path.jpg',
         'multiple  spaces.png': 'new-multiple.png',
       };
-      const result = replaceCSSPaths(css, packageFiles);
+      const result = replaceCSSPathsFn(css, packageFiles);
       expect(result).toBe(`
         background: url('new-spaces.png');
         background: url("new-path.jpg");
@@ -445,7 +476,7 @@ describe('File Path replacement', () => {
         'file\\\\.jpg': 'new2.jpg',
         'test\\\\\\.gif': 'new3.gif',
       };
-      const result = replaceCSSPaths(css, packageFiles);
+      const result = replaceCSSPathsFn(css, packageFiles);
       expect(result).toBe(`
         background: url('new1.png');
         background: url("new2.jpg");
@@ -453,7 +484,7 @@ describe('File Path replacement', () => {
       `);
     });
 
-    test('replaces @import url() paths (handled by url regex)', () => {
+    test('replaces @import url() paths', () => {
       const css = `
         @import url('components/buttons.css');
         @import url("styles/main.css");
@@ -462,8 +493,7 @@ describe('File Path replacement', () => {
         'components/buttons.css': 'blob:buttons',
         'styles/main.css': 'blob:main',
       };
-      const result = replaceCSSPaths(css, packageFiles);
-      // url() replacement handles these, preserving the @import context
+      const result = replaceCSSPathsFn(css, packageFiles);
       expect(result).toBe(`
         @import url('blob:buttons');
         @import url("blob:main");
@@ -479,7 +509,7 @@ describe('File Path replacement', () => {
         'components/buttons.css': 'blob:buttons',
         'styles/main.css': 'blob:main',
       };
-      const result = replaceCSSPaths(css, packageFiles);
+      const result = replaceCSSPathsFn(css, packageFiles);
       expect(result).toBe(`
         @import 'blob:buttons';
         @import "blob:main";
@@ -497,11 +527,58 @@ describe('File Path replacement', () => {
         'theme.css': 'blob:theme',
         '../icons/play.png': 'blob:icon',
       };
-      const result = replaceCSSPaths(css, packageFiles);
+      const result = replaceCSSPathsFn(css, packageFiles);
       expect(result).toBe(`
         @import url('blob:reset');
         @import 'blob:theme';
         .icon { background: url('blob:icon'); }
+      `);
+    });
+
+    test('replaces @import paths with query parameters', () => {
+      const css = `
+        @import 'styles.css?v=123';
+        @import "theme.css?version=2";
+      `;
+      const packageFiles = {
+        'styles.css': 'blob:styles',
+        'theme.css': 'blob:theme',
+      };
+      const result = replaceCSSPathsFn(css, packageFiles);
+      expect(result).toBe(`
+        @import 'blob:styles';
+        @import "blob:theme";
+      `);
+    });
+
+    test('replaces @import paths with escaped quotes', () => {
+      const css = `
+        @import 'file\\'s.css';
+        @import "path\\".css";
+      `;
+      const packageFiles = {
+        "file's.css": 'blob:file',
+        'path".css': 'blob:path',
+      };
+      const result = replaceCSSPathsFn(css, packageFiles);
+      expect(result).toBe(`
+        @import 'blob:file';
+        @import "blob:path";
+      `);
+    });
+
+    test('does not replace unregistered @import paths', () => {
+      const css = `
+        @import 'registered.css';
+        @import 'unregistered.css';
+      `;
+      const packageFiles = {
+        'registered.css': 'blob:registered',
+      };
+      const result = replaceCSSPathsFn(css, packageFiles);
+      expect(result).toBe(`
+        @import 'blob:registered';
+        @import 'unregistered.css';
       `);
     });
   });

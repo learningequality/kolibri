@@ -1,5 +1,14 @@
 import flatten from 'lodash/flatten';
 
+// Feature detection for lookbehind support
+let supportsLookbehind;
+try {
+  new RegExp('(?<!a)b');
+  supportsLookbehind = true;
+} catch (e) {
+  supportsLookbehind = false;
+}
+
 export function getAbsoluteFilePath(baseFilePath, relativeFilePath) {
   // Construct a URL with a dummy base so that we can concatenate the
   // dependency URL with the URL relative to the dependency
@@ -31,7 +40,14 @@ export class Mapper {
 }
 
 // Matches both url() and @import: url('path'), url(path), @import 'path'
-const cssPathRegex = /(?:url\((['"]?)(.*?)(?<!\\)\1\)|@import\s+(['"])(.*?)(?<!\\)\3)/g;
+// Modern version with lookbehind (Safari 16.4+, Chrome 62+, Firefox 78+)
+const cssPathRegexModern = /(?:url\((['"]?)(.*?)(?<!\\)\1\)|@import\s+(['"])(.*?)(?<!\\)\3)/g;
+
+// Legacy version without lookbehind for older browsers
+// Handles: url('...'), url("..."), url(...), @import '...', @import "..."
+// Groups: 1=url quote, 2=url quoted path, 3=url unquoted path, 4=import quote, 5=import path
+const cssPathRegexLegacy =
+  /url\((['"])((?:\\.|[^\\])*?)\1\)|url\(([^'"\s)]*)\)|@import\s+(['"])((?:\\.|[^\\])*?)\4/g;
 
 const unescapePathRegex = /\\(.)/g;
 
@@ -39,31 +55,91 @@ function unescapeCssString(str) {
   return str.replace(unescapePathRegex, '$1');
 }
 
-export function getCSSPaths(fileContents) {
-  return Array.from(fileContents.matchAll(cssPathRegex), match => {
+function getCSSPathsModern(fileContents) {
+  return Array.from(fileContents.matchAll(cssPathRegexModern), match => {
+    // match[2] is url() path, match[4] is @import path
     const path = match[2] || match[4];
     return path ? decodeURIComponent(unescapeCssString(path.split('?')[0])) : '';
   });
 }
 
-export function replaceCSSPaths(fileContents, packageFiles) {
-  return fileContents.replace(cssPathRegex, function (match, urlQuote, urlPath, importQuote, importPath) {
-    try {
-      const path = urlPath || importPath;
-      const quote = urlQuote || importQuote || '';
-      const cleanPath = unescapeCssString(path.split('?')[0]);
-      const newUrl = packageFiles[decodeURIComponent(cleanPath)];
-      if (newUrl) {
-        return urlPath !== undefined
-          ? `url(${quote}${newUrl}${quote})`
-          : `@import ${quote}${newUrl}${quote}`;
-      }
-    } catch (e) {
-      console.debug('Error during URL handling', e); // eslint-disable-line no-console
-    }
-    return match;
-  });
+function getCSSPathsLegacy(fileContents) {
+  return Array.from(fileContents.matchAll(cssPathRegexLegacy)).map(
+    ([, urlQuote, urlQuotedPath, urlUnquotedPath, importQuote, importPath]) => {
+      // Determine which capture group matched:
+      // - urlQuote set: quoted url() → use urlQuotedPath
+      // - importQuote set: @import → use importPath
+      // - neither: unquoted url() → use urlUnquotedPath
+      const path = urlQuote ? urlQuotedPath : importQuote ? importPath : urlUnquotedPath;
+      return path ? decodeURIComponent(unescapeCssString(path.split('?')[0])) : '';
+    },
+  );
 }
+
+function replaceCSSPathsModern(fileContents, packageFiles) {
+  return fileContents.replace(
+    cssPathRegexModern,
+    function (match, urlQuote, urlPath, importQuote, importPath) {
+      try {
+        const path = urlPath || importPath;
+        const quote = urlQuote || importQuote || '';
+        const cleanPath = unescapeCssString(path.split('?')[0]);
+        const newUrl = packageFiles[decodeURIComponent(cleanPath)];
+        if (newUrl) {
+          return urlPath !== undefined
+            ? `url(${quote}${newUrl}${quote})`
+            : `@import ${quote}${newUrl}${quote}`;
+        }
+      } catch (e) {
+        console.debug('Error during URL handling', e); // eslint-disable-line no-console
+      }
+      return match;
+    },
+  );
+}
+
+function replaceCSSPathsLegacy(fileContents, packageFiles) {
+  return fileContents.replace(
+    cssPathRegexLegacy,
+    function (match, urlQuote, urlQuotedPath, urlUnquotedPath, importQuote, importPath) {
+      try {
+        let path, quoteChar, isImport;
+
+        if (importQuote !== undefined) {
+          // @import match
+          path = importPath;
+          quoteChar = importQuote;
+          isImport = true;
+        } else if (urlQuote !== undefined) {
+          // url() with quotes
+          path = urlQuotedPath;
+          quoteChar = urlQuote;
+          isImport = false;
+        } else {
+          // url() without quotes
+          path = urlUnquotedPath;
+          quoteChar = '';
+          isImport = false;
+        }
+
+        const cleanPath = unescapeCssString(path.split('?')[0]);
+        const newUrl = packageFiles[decodeURIComponent(cleanPath)];
+        if (newUrl) {
+          return isImport
+            ? `@import ${quoteChar}${newUrl}${quoteChar}`
+            : `url(${quoteChar}${newUrl}${quoteChar})`;
+        }
+      } catch (e) {
+        console.debug('Error during URL handling', e); // eslint-disable-line no-console
+      }
+      return match;
+    },
+  );
+}
+
+// Conditional exports based on lookbehind support
+export const getCSSPaths = supportsLookbehind ? getCSSPathsModern : getCSSPathsLegacy;
+export const replaceCSSPaths = supportsLookbehind ? replaceCSSPathsModern : replaceCSSPathsLegacy;
 
 class CSSMapper extends Mapper {
   getPaths() {
@@ -207,4 +283,13 @@ export const defaultFilePathMappers = {
   htm: DOMMapper,
   xhtml: DOMMapper,
   xml: DOMMapper,
+};
+
+// Internal exports for testing both implementations
+export const _internal = {
+  getCSSPathsModern,
+  getCSSPathsLegacy,
+  replaceCSSPathsModern,
+  replaceCSSPathsLegacy,
+  supportsLookbehind,
 };
