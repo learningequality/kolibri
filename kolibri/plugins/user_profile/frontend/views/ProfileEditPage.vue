@@ -19,7 +19,7 @@
 
         <FullNameTextbox
           ref="fullNameTextbox"
-          :autofocus="true"
+          
           :disabled="!canEditName || formDisabled"
           :value.sync="fullName"
           :isValid.sync="fullNameValid"
