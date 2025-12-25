@@ -112,14 +112,15 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .error-log {
-    width: 100%;
-    padding: 8px;
-    font-family: monospace;
-    line-height: 18px;
-    white-space: pre;
-    resize: none;
-    border-radius: $radius;
-  }
+ .error-log {
+  width: 100%;
+  padding: 8px;
+  font-family: monospace;
+  line-height: 18px;
+  white-space: pre;
+  resize: none;
+  border-radius: $radius;
+  overflow-y: auto;
+}
 
 </style>
