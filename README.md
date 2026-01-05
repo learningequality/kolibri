@@ -34,3 +34,14 @@ If you have found a bug and are comfortable using Github and Markdown, you can c
 We welcome contributors!
 
 To find out how to contribute, visit [Contributing to our open code base](https://learningequality.org/contributing-to-our-open-code-base).
+
+## Beginner Setup Notes
+
+If you are setting up Kolibri for the first time, here are a few tips that may help:
+
+- Make sure you are using a supported Python version before installing dependencies.
+- If you encounter issues during installation, try using a virtual environment to avoid conflicts.
+- The first startup may take a little longer than expected while initial data is prepared.
+- If a command fails, checking the error message carefully often points to the missing dependency or step.
+
+These notes are based on common issues faced by first-time contributors.
