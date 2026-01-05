@@ -267,7 +267,7 @@ class RegisteredTask:
         if not isinstance(retry_on, list):
             raise TypeError("retry_on must be a list of exceptions")
         for item in retry_on:
-            if not issubclass(item, Exception):
+            if not issubclass(item, BaseException):
                 raise TypeError("Each item in retry_on must be an Exception subclass")
         return retry_on
 

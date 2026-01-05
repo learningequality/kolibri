@@ -587,7 +587,10 @@ class Storage:
             return False
 
         current_retries = orm_job.retries if orm_job.retries is not None else 0
-        if orm_job.max_retries is not None and current_retries >= orm_job.max_retries:
+        # Set a default max_retries to prevent infinite retries
+        max_retries = orm_job.max_retries if orm_job.max_retries is not None else 3
+
+        if current_retries >= max_retries:
             return False
 
         job = self._orm_to_job(orm_job)

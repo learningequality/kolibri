@@ -4,7 +4,6 @@ from concurrent.futures import CancelledError
 from django.db import connection as django_connection
 
 from kolibri.core.tasks.constants import Priority
-from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.utils import InfiniteLoopThread
 from kolibri.utils.multiprocessing_compat import PoolExecutor
 
@@ -23,10 +22,9 @@ def execute_job(
     Call the function stored in the job.func.
     :return: None
     """
+    from kolibri.core.tasks.main import job_storage
 
-    storage = Storage()
-
-    job = storage.get_job(job_id)
+    job = job_storage.get_job(job_id)
 
     job.update_worker_info(worker_host, worker_process, worker_thread, worker_extra)
 
@@ -67,7 +65,9 @@ class Worker:
         # Key: job_id, Value: future object
         self.future_job_mapping = {}
 
-        self.storage = Storage()
+        from kolibri.core.tasks.main import job_storage
+
+        self.storage = job_storage
 
         self.requeue_stalled_jobs()
 
