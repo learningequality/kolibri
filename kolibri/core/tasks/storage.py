@@ -5,7 +5,6 @@ from datetime import timedelta
 from django.db import connections
 from django.db import transaction
 from django.db.models import Q
-from django.db.utils import OperationalError
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.constants import Priority
@@ -32,7 +31,6 @@ NO_VALUE = object()
 
 class Storage:
     def __init__(self):
-        self.set_sqlite_pragmas()
         self._hooks = list(StorageHook.registered_hooks)
 
     def __len__(self):
@@ -56,26 +54,6 @@ class Storage:
         if db_backend == "sqlite":
             return JOB_STORAGE
         return None  # Use default database
-
-    def set_sqlite_pragmas(self):
-        """
-        Sets the connection PRAGMAs for the sqlite database.
-
-        It currently sets:
-        - journal_mode to WAL
-
-        :return: None
-        """
-        from django.db import connections
-
-        connection = connections[ORMJob.objects.db]
-        if connection.vendor == "sqlite":
-            try:
-                cursor = connection.cursor()
-                cursor.execute("PRAGMA journal_mode=WAL;")
-                cursor.close()
-            except OperationalError:
-                pass
 
     def _orm_to_job(self, orm_job):
         """
