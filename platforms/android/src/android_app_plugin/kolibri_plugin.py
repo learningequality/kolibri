@@ -1,6 +1,6 @@
 import logging
-from datetime import datetime
 
+from django.utils import timezone
 from jnius import autoclass
 from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Priority
@@ -30,7 +30,7 @@ class StorageHook(StorageHook):
         if orm_job.id:
 
             delay = (
-                max(0, (orm_job.scheduled_time - datetime.now()).total_seconds())
+                max(0, (orm_job.scheduled_time - timezone.now()).total_seconds())
                 if orm_job.scheduled_time
                 else 0
             )
