@@ -40,6 +40,7 @@ from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import set_channel_ancestors
 from kolibri.core.content.utils.search import annotate_label_bitmasks
+from kolibri.core.content.utils.search import annotate_modality
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.utils.time_utils import local_now
 
@@ -1007,9 +1008,11 @@ class ChannelImport(object):
                     channel_id=self.channel_id,
                 )
 
-            annotate_label_bitmasks(
-                ContentNode.objects.filter(channel_id=self.channel_id)
+            channel_contentnodes = ContentNode.objects.filter(
+                channel_id=self.channel_id
             )
+            annotate_label_bitmasks(channel_contentnodes)
+            annotate_modality(channel_contentnodes)
             set_channel_ancestors(self.channel_id)
 
             channel.save()

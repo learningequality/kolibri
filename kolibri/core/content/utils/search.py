@@ -16,6 +16,7 @@ from django.db.models import Case
 from django.db.models import Value
 from django.db.models import When
 from django.db.models.fields import IntegerField
+from le_utils.constants import modalities
 from le_utils.constants.labels.accessibility_categories import (
     ACCESSIBILITYCATEGORIESLIST,
 )
@@ -23,7 +24,6 @@ from le_utils.constants.labels.learning_activities import LEARNINGACTIVITIESLIST
 from le_utils.constants.labels.levels import LEVELSLIST
 from le_utils.constants.labels.needs import NEEDSLIST
 from le_utils.constants.labels.subjects import SUBJECTSLIST
-
 from kolibri.core.utils.cache import process_cache as cache
 
 
@@ -166,3 +166,23 @@ def annotate_label_bitmasks(queryset):
             for info in label_info
         )
     queryset.update(**update_statements)
+
+
+def annotate_modality(queryset):
+    """ Update queryset to annotate `modality` field based on `options.modality` """
+    queryset = queryset.filter(options__contains='"modality":')
+
+    when_statements = [
+        When(
+            options__contains=f'"modality": "{modality_value}"',
+            then=Value(modality_value),
+        )
+        for modality_value, _ in modalities.choices
+    ]
+
+    queryset.update(
+        modality=Case(
+            *when_statements,
+            default=Value(None),
+        )
+    )

@@ -84,7 +84,7 @@
     "fontfaceobserver": "^2.3.0",
     "frame-throttle": "^3.0.0",
     "intl": "^1.2.4",
-    "kolibri-constants": "0.2.12",
+    "kolibri-constants": "0.2.13",
     "kolibri-design-system": "5.5.0",
     "kolibri-logging": "^1.0.0",
     "lockr": "0.8.5",
