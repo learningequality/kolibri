@@ -17,9 +17,6 @@
 
 <script>
 
-  const { ELEMENT_NODE } =
-    typeof window !== 'undefined' && window.Node ? window.Node : { ELEMENT_NODE: 1 };
-
   export default {
     name: 'SafeHtmlTable',
     props: {
@@ -29,10 +26,6 @@
       },
       attributes: {
         type: Object,
-        required: true,
-      },
-      mapNode: {
-        type: Function,
         required: true,
       },
       mapChildren: {
@@ -57,61 +50,10 @@
         const vm = this;
         return {
           functional: true,
-          render(h) {
-            const tableChildren = [];
-
-            for (let i = 0; i < vm.node.childNodes.length; i++) {
-              const childNode = vm.node.childNodes[i];
-
-              if (vm.isCaption(childNode)) {
-                const captionAttrs = vm.getCaptionAttrs(childNode);
-                const captionChildren = vm.mapChildren(childNode.childNodes);
-
-                tableChildren.push(
-                  h(
-                    'caption',
-                    {
-                      attrs: captionAttrs,
-                      class: ['safe-html', captionAttrs.class].filter(Boolean),
-                    },
-                    captionChildren,
-                  ),
-                );
-              } else if (vm.isElementNode(childNode)) {
-                tableChildren.push(vm.mapNode(childNode));
-              }
-            }
-
-            return tableChildren;
+          render() {
+            return vm.mapChildren(vm.node.childNodes);
           },
         };
-      },
-    },
-
-    methods: {
-      isCaption(node) {
-        return (
-          node &&
-          node.nodeType === ELEMENT_NODE &&
-          typeof node.tagName === 'string' &&
-          node.tagName.toLowerCase() === 'caption'
-        );
-      },
-
-      isElementNode(node) {
-        return node && node.nodeType === ELEMENT_NODE;
-      },
-
-      getCaptionAttrs(node) {
-        const captionAttrs = {};
-
-        for (const attr of node.attributes) {
-          const name = attr.name.toLowerCase();
-          if (name === 'id') continue;
-          captionAttrs[attr.name] = attr.value;
-        }
-
-        return captionAttrs;
       },
     },
   };
