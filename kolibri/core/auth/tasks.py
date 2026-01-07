@@ -9,6 +9,7 @@ from django.core.management.base import CommandError
 from django.db.utils import OperationalError
 from django.utils import timezone
 from morango.errors import MorangoError
+from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
@@ -30,6 +31,7 @@ from kolibri.core.device.translation import get_device_language
 from kolibri.core.device.translation import get_settings_language
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.error_constants import DEVICE_LIMITATIONS
@@ -46,6 +48,7 @@ from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import NotProvisioned
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
+from kolibri.core.utils.retry import retry
 from kolibri.utils.translation import gettext as _
 
 
@@ -311,6 +314,10 @@ class PeerSyncJobValidator(SyncJobValidator):
         queryset=NetworkLocation.objects.all(), required=False
     )
 
+    @retry(NetworkLocationNotFound)
+    def _get_base_url(self, baseurl):
+        return NetworkClient.build_for_address(baseurl).base_url
+
     def validate(self, data):
         job_data = super().validate(data)
         if "baseurl" not in data and "device_id" not in data:
@@ -329,7 +336,7 @@ class PeerSyncJobValidator(SyncJobValidator):
             except NetworkLocation.DoesNotExist:
                 pass
         try:
-            baseurl = NetworkClient.build_for_address(data["baseurl"]).base_url
+            baseurl = self._get_base_url(data["baseurl"])
         except NetworkLocationNotFound:
             raise ResourceGoneError()
 
@@ -538,6 +545,10 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     using_admin = serializers.BooleanField(default=False, required=False)
     force_non_learner_import = serializers.BooleanField(default=False, required=False)
 
+    @retry(NetworkLocationNotFound)
+    def _get_facility_info(self, baseurl, facility_id, username, password):
+        return get_remote_users_info(baseurl, facility_id, username, password)
+
     def validate(self, data):
         """
         In case an admin account credentials are provided, to sync a non-admin user,
@@ -553,11 +564,14 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
         username = data["username"]
         password = data["password"]
         try:
-            facility_info = get_remote_users_info(
+            facility_info = self._get_facility_info(
                 baseurl, facility_id, username, password
             )
         except AuthenticationFailed as e:
             raise ValidationError(detail=str(e.detail), code=e.detail.code)
+        except (NetworkLocationNotFound, ConnectionError):
+            raise ResourceGoneError()
+
         user_info = facility_info["user"]
 
         # syncing using an admin account (username & password belong to the admin):
@@ -583,9 +597,13 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
 
         user_id = user_info["id"]
 
-        validate_and_create_sync_credentials(
-            baseurl, facility_id, username, password, user_id=user_id
-        )
+        try:
+            validate_and_create_sync_credentials(
+                baseurl, facility_id, username, password, user_id=user_id
+            )
+        except (NetworkLocationNotFound, ConnectionError):
+            raise ResourceGoneError()
+
         job_data["extra_metadata"]["user_id"] = user_id
         job_data["extra_metadata"]["username"] = user_info["username"]
         job_data["extra_metadata"]["user_full_name"] = full_name
@@ -606,13 +624,25 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     cancellable=False,
     track_progress=True,
     queue=soud_sync_queue,
+    priority=Priority.HIGH,
     permission_classes=[IsSuperAdmin() | NotProvisioned()],
     status_fn=status_fn,
     long_running=True,
-    retry_on=[OperationalError, MorangoError, HTTPError],
+    retry_on=[
+        OperationalError,
+        MorangoError,
+        HTTPError,
+        NetworkLocationNotFound,
+        NetworkLocationConnectionFailure,
+    ],
 )
 def peeruserimport(command, **kwargs):
-    call_command(command, **kwargs)
+    try:
+        call_command(command, **kwargs)
+    except CommandError as e:
+        if "Unable to connect" in str(e):
+            raise NetworkLocationNotFound()
+        raise
 
 
 @register_task(

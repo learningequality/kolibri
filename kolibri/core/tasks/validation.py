@@ -50,6 +50,7 @@ class EnqueueArgsSerializer(serializers.Serializer):
     retry_interval = serializers.IntegerField(
         required=False, allow_null=True, min_value=0
     )
+    max_retries = serializers.IntegerField(required=False, allow_null=True, min_value=0)
     priority = serializers.ChoiceField(choices=Priority.Priorities, required=False)
 
     def validate(self, data):

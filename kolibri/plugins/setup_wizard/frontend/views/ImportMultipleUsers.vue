@@ -37,6 +37,7 @@
             />
             <KCircularLoader
               v-else-if="isImporting(userRow.user)"
+              disableDefaultTransition
               :size="24"
               style="margin: 4px auto 0"
             />
@@ -235,7 +236,7 @@
           using_admin: true,
           enqueue_args: {
             retry_interval: 5,
-            max_retries: 3,
+            max_retries: 5,
           },
         };
         if (!this.wizardService.state.context.firstImportedLodUser) {

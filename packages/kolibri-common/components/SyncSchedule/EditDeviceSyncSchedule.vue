@@ -414,6 +414,7 @@
           repeat_interval: this.selectedItem.value,
           repeat: null,
           retry_interval: this.retryFlag ? 60 * 5 : null,
+          max_retries: this.retryFlag ? 5 : null,
         };
         let promise;
         if (this.currentTask) {

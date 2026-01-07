@@ -67,6 +67,7 @@ class dummy_orm_job_data:
     repeat = 5
     interval = 8600
     retry_interval = 5
+    max_retries = 3
 
 
 @patch("kolibri.core.tasks.api.job_storage")

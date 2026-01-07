@@ -55,6 +55,7 @@ class dummy_orm_job_data:
     repeat = 5
     interval = 8600
     retry_interval = 5
+    max_retries = 3
 
 
 class BaseAPITestCase(APITestCase):
@@ -283,6 +284,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             "repeat": dummy_orm_job_data.repeat,
             "repeat_interval": dummy_orm_job_data.interval,
             "retry_interval": dummy_orm_job_data.retry_interval,
+            "max_retries": dummy_orm_job_data.max_retries,
         }
 
         # Did API return the right stuff?
@@ -342,6 +344,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
             {
                 "id": "test",
@@ -360,6 +363,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
         ]
 
@@ -444,6 +448,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             "repeat": dummy_orm_job_data.repeat,
             "repeat_interval": dummy_orm_job_data.interval,
             "retry_interval": dummy_orm_job_data.retry_interval,
+            "max_retries": dummy_orm_job_data.max_retries,
         }
 
         # Did API return the right stuff?
@@ -536,6 +541,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
             {
                 "id": "test",
@@ -556,6 +562,7 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
         ]
 
@@ -1220,6 +1227,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
             {
                 "status": State.QUEUED,
@@ -1238,6 +1246,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
             {
                 "status": State.QUEUED,
@@ -1256,6 +1265,7 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
         ]
 

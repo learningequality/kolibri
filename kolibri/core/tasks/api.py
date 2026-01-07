@@ -102,6 +102,7 @@ class TasksViewSet(viewsets.GenericViewSet):
             "repeat": orm_job.repeat,
             "repeat_interval": orm_job.interval,
             "retry_interval": orm_job.retry_interval,
+            "max_retries": orm_job.max_retries,
         }
         return output
 
