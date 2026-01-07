@@ -82,7 +82,7 @@ def first_log_date(request, facility_id):
         .order_by("start_timestamp")
         .first()
     )
-    first_log_date = first_log.start_timestamp if first_log is not None else dt.utcnow()
+    first_log_date = first_log.start_timestamp if first_log is not None else dt.now(tz=dt.timezone.utc)
     response = {
         "first_log_date": first_log_date.isoformat(),
     }

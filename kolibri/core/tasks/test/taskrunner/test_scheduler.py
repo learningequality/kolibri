@@ -92,7 +92,7 @@ class TestScheduler(object):
     def test_schedule_a_function_gives_value_error_not_timezone_aware_datetime(
         self, job_storage, job
     ):
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
         with pytest.raises(ValueError) as error:
             job_storage.schedule(now, job)
             assert "timezone aware datetime object" in str(error.value)

@@ -2,6 +2,7 @@ import logging
 from contextlib import contextmanager
 from datetime import datetime
 from datetime import timedelta
+from datetime import timezone
 
 import pytz
 from sqlalchemy import Column
@@ -205,7 +206,7 @@ class Storage(object):
     def enqueue_lifo(
         self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
     ):
-        naive_utc_now = datetime.utcnow()
+        naive_utc_now = datetime.now(tz=timezone.utc).replace(tzinfo=None)
         with self.session_scope() as session:
             soonest_job = (
                 session.query(ORMJob)
@@ -273,7 +274,7 @@ class Storage(object):
         self._update_job(job_id, State.CANCELING)
 
     def _filter_next_query(self, query, priority):
-        naive_utc_now = datetime.utcnow()
+        naive_utc_now = datetime.now(tz=timezone.utc).replace(tzinfo=None)
         return (
             query.filter(ORMJob.state == State.QUEUED)
             .filter(ORMJob.scheduled_time <= naive_utc_now)
