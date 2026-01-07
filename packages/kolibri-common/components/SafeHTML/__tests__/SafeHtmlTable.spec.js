@@ -54,7 +54,6 @@ const createSampleNode = (m, n) => {
 };
 
 const sampleAttributes = { class: 'safe-html' };
-const mapNode = jest.fn(() => null);
 const mapChildren = jest.fn(() => []);
 
 const renderComponent = (m, n) => {
@@ -62,13 +61,16 @@ const renderComponent = (m, n) => {
     props: {
       node: createSampleNode(m, n),
       attributes: sampleAttributes,
-      mapNode,
       mapChildren,
     },
   });
 };
 
 describe('SafeHtmlTable', () => {
+  beforeEach(() => {
+    mapChildren.mockClear();
+  });
+
   describe('first render', () => {
     beforeEach(() => {
       renderComponent(0, 0);
@@ -82,10 +84,14 @@ describe('SafeHtmlTable', () => {
       expect(screen.getByRole('table')).toBeInTheDocument();
     });
 
-    test('renders a caption element', () => {
-      const table = screen.getByRole('table');
-      const caption = table.querySelector('caption');
-      expect(caption).not.toBeNull();
+    test('passes caption element to mapChildren', () => {
+      expect(mapChildren).toHaveBeenCalled();
+      const childNodes = mapChildren.mock.calls[0][0];
+      const captionNode = Array.from(childNodes).find(
+        node => node.tagName && node.tagName.toLowerCase() === 'caption',
+      );
+      expect(captionNode).toBeDefined();
+      expect(captionNode).toHaveTextContent('Sample Caption');
     });
   });
 
