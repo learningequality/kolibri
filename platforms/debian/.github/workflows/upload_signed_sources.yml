@@ -46,7 +46,7 @@ jobs:
       run: make get-tar tar=${{ github.event.inputs.tar-url }}
     - name: Download the tarfile from artifacts
       if: ${{ inputs.tar-file-name }}
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: ${{ inputs.tar-file-name }}
         path: build_src
