@@ -15,6 +15,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
+from le_utils.constants import modalities
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -333,24 +334,30 @@ class ContentNodeAPIBase(object):
                 "content_id": expected.content_id,
                 "description": expected.description,
                 "duration": expected.duration,
-                "learning_activities": expected.learning_activities.split(",")
-                if expected.learning_activities
-                else [],
-                "learner_needs": expected.learner_needs.split(",")
-                if expected.learner_needs
-                else [],
-                "grade_levels": expected.grade_levels.split(",")
-                if expected.grade_levels
-                else [],
-                "resource_types": expected.resource_types.split(",")
-                if expected.resource_types
-                else [],
-                "accessibility_labels": expected.accessibility_labels.split(",")
-                if expected.accessibility_labels
-                else [],
-                "categories": expected.categories.split(",")
-                if expected.categories
-                else [],
+                "learning_activities": (
+                    expected.learning_activities.split(",")
+                    if expected.learning_activities
+                    else []
+                ),
+                "learner_needs": (
+                    expected.learner_needs.split(",") if expected.learner_needs else []
+                ),
+                "grade_levels": (
+                    expected.grade_levels.split(",") if expected.grade_levels else []
+                ),
+                "resource_types": (
+                    expected.resource_types.split(",")
+                    if expected.resource_types
+                    else []
+                ),
+                "accessibility_labels": (
+                    expected.accessibility_labels.split(",")
+                    if expected.accessibility_labels
+                    else []
+                ),
+                "categories": (
+                    expected.categories.split(",") if expected.categories else []
+                ),
                 "kind": expected.kind,
                 "lang": self.map_language(expected.lang),
                 "license_description": expected.license_description,
@@ -1261,6 +1268,180 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertEqual(len(with_filter_response.data), 1)
         self.assertEqual(with_filter_response.data[0]["name"], "testing")
 
+    def test_channelmetadata_contains_quiz_filter(self):
+        no_quiz_channel = content.ContentNode.objects.create(
+            pk="7b406ac66b224106aa2e93f73a94344d",
+            channel_id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            kind="topic",
+            title="no quiz channel",
+        )
+        no_quiz_metadata_id = no_quiz_channel.channel_id
+        content.ChannelMetadata.objects.create(
+            id=no_quiz_metadata_id,
+            name="no quiz channel metadata",
+            root=no_quiz_channel,
+        )
+        content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=no_quiz_channel.channel_id,
+            content_id=uuid.uuid4().hex,
+            kind=content_kinds.EXERCISE,
+            title="exercise but not quiz",
+            parent=no_quiz_channel,
+            available=True,
+            modality=modalities.SURVEY,
+        )
+
+        quiz_channel_id = uuid.uuid4().hex
+        quiz_root = content.ContentNode.objects.create(
+            pk=uuid.uuid4().hex,
+            channel_id=quiz_channel_id,
+            content_id=uuid.uuid4().hex,
+            kind="topic",
+            title="quiz root",
+        )
+        content.ChannelMetadata.objects.create(
+            id=quiz_channel_id,
+            name="quiz channel metadata",
+            root=quiz_root,
+        )
+        content.ContentNode.objects.create(
+            content_id=uuid.uuid4().hex,
+            channel_id=quiz_channel_id,
+            description="Quiz content",
+            id=uuid.uuid4().hex,
+            license_name="GNU",
+            license_owner="",
+            license_description=None,
+            lang_id=None,
+            author="",
+            title="quiz node",
+            parent_id=quiz_root.id,
+            kind=content_kinds.EXERCISE,
+            coach_content=False,
+            available=True,
+            modality=modalities.QUIZ,
+        )
+
+        no_filter_response = self.client.get(reverse("kolibri:core:channel-list"))
+        self.assertGreaterEqual(len(no_filter_response.data), 3)
+
+        with_filter_response = self.client.get(
+            reverse("kolibri:core:channel-list"), {"contains_quiz": True}
+        )
+        self.assertEqual(len(with_filter_response.data), 1)
+        returned_ids = {ch["id"] for ch in with_filter_response.data}
+        self.assertIn(quiz_channel_id, returned_ids)
+
+    def test_contentnode_contains_quiz_filter(self):
+        quiz_channel_id = uuid.uuid4().hex
+        quiz_root = content.ContentNode.objects.create(
+            pk=uuid.uuid4().hex,
+            channel_id=quiz_channel_id,
+            content_id=uuid.uuid4().hex,
+            kind="topic",
+            title="quiz root",
+            available=True,
+        )
+        content.ChannelMetadata.objects.create(
+            id=uuid.uuid4().hex,
+            name="quiz channel metadata",
+            root=quiz_root,
+        )
+
+        quiz_node = content.ContentNode.objects.create(
+            content_id=uuid.uuid4().hex,
+            channel_id=quiz_channel_id,
+            description="Blah",
+            id=uuid.uuid4().hex,
+            license_name="GNU",
+            license_owner="",
+            license_description=None,
+            lang_id=None,
+            author="",
+            title="quiz node",
+            parent_id=quiz_root.id,
+            kind=content_kinds.EXERCISE,
+            coach_content=False,
+            available=True,
+            modality=modalities.QUIZ,
+        )
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"contains_quiz": True, "channels": quiz_channel_id},
+        )
+        returned_ids = {n["id"] for n in response.data}
+        self.assertIn(quiz_node.id, returned_ids)
+
+    def test_channelmetadata_contains_quiz_filter_false(self):
+        quiz_channel_id = uuid.uuid4().hex
+        quiz_root = content.ContentNode.objects.create(
+            pk=uuid.uuid4().hex,
+            channel_id=quiz_channel_id,
+            content_id=uuid.uuid4().hex,
+            kind=content_kinds.TOPIC,
+            title="quiz channel root",
+            available=True,
+        )
+        content.ChannelMetadata.objects.create(
+            id=quiz_channel_id, name="quiz channel", root=quiz_root
+        )
+        content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=quiz_channel_id,
+            kind=content_kinds.EXERCISE,
+            title="quiz node",
+            parent=quiz_root,
+            available=True,
+            modality=modalities.QUIZ,
+            license_name="GNU",
+            license_owner="",
+        )
+
+        no_quiz_channel_id = uuid.uuid4().hex
+        no_quiz_root = content.ContentNode.objects.create(
+            pk=uuid.uuid4().hex,
+            channel_id=no_quiz_channel_id,
+            content_id=uuid.uuid4().hex,
+            kind=content_kinds.TOPIC,
+            title="no quiz channel root",
+            available=True,
+        )
+        content.ChannelMetadata.objects.create(
+            id=no_quiz_channel_id, name="no quiz channel", root=no_quiz_root
+        )
+        content.ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=no_quiz_channel_id,
+            kind=content_kinds.VIDEO,
+            title="non quiz node",
+            parent=no_quiz_root,
+            available=True,
+            license_name="GNU",
+            license_owner="",
+        )
+
+        baseline = self.client.get(reverse("kolibri:core:channel-list"))
+        self.assertEqual(baseline.status_code, 200)
+        baseline_ids = {c["id"] for c in baseline.data}
+
+        # contains_quiz=false should behave like baseline (no filtering)
+        false_response = self.client.get(
+            reverse("kolibri:core:channel-list"), {"contains_quiz": "false"}
+        )
+        self.assertEqual(false_response.status_code, 200)
+        false_ids = {c["id"] for c in false_response.data}
+
+        self.assertEqual(baseline_ids, false_ids)
+
+        # Check that both channels are in the unfiltered response
+        self.assertIn(quiz_channel_id, baseline_ids)
+        self.assertIn(no_quiz_channel_id, baseline_ids)
+
     def test_file_list(self):
         response = self.client.get(reverse("kolibri:core:file-list"))
         self.assertEqual(len(response.data), 10)
@@ -1933,21 +2114,27 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                 "content_id": expected.content_id,
                 "description": expected.description,
                 "duration": expected.duration,
-                "learning_activities": expected.learning_activities.split(",")
-                if expected.learning_activities
-                else [],
-                "grade_levels": expected.grade_levels.split(",")
-                if expected.grade_levels
-                else [],
-                "resource_types": expected.resource_types.split(",")
-                if expected.resource_types
-                else [],
-                "accessibility_labels": expected.accessibility_labels.split(",")
-                if expected.accessibility_labels
-                else [],
-                "categories": expected.categories.split(",")
-                if expected.categories
-                else [],
+                "learning_activities": (
+                    expected.learning_activities.split(",")
+                    if expected.learning_activities
+                    else []
+                ),
+                "grade_levels": (
+                    expected.grade_levels.split(",") if expected.grade_levels else []
+                ),
+                "resource_types": (
+                    expected.resource_types.split(",")
+                    if expected.resource_types
+                    else []
+                ),
+                "accessibility_labels": (
+                    expected.accessibility_labels.split(",")
+                    if expected.accessibility_labels
+                    else []
+                ),
+                "categories": (
+                    expected.categories.split(",") if expected.categories else []
+                ),
                 "kind": expected.kind,
                 "lang": self.map_language(expected.lang),
                 "license_description": expected.license_description,
