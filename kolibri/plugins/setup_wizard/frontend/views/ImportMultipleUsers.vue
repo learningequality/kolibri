@@ -33,7 +33,7 @@
               v-if="!isImported(userRow.user) && !isImporting(userRow.user)"
               :text="coreString('importAction')"
               appearance="flat-button"
-              @click="startImport(userRow.user)"
+              @click="onImportClick(userRow.user)"
             />
             <KCircularLoader
               v-else-if="isImporting(userRow.user)"
@@ -62,8 +62,9 @@
 
 <script>
 
+  import { onMounted, onUnmounted } from 'vue';
   import TaskResource from 'kolibri/apiResources/TaskResource';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
   import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
@@ -73,6 +74,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
   import { FooterMessageTypes, SoudQueue } from '../constants';
+  import { useSemaphore } from '../composables/useSemaphore';
   import OnboardingStepBase from './OnboardingStepBase';
 
   /** Workflow
@@ -96,10 +98,26 @@
     setup() {
       const { selectAUser$, importedLabel$, importUserError$ } = lodUsersManagementStrings;
       const { createSnackbar } = useSnackbar();
+      const { closeConfirmationTitle$ } = coreStrings;
+      const { enqueue, pendingCount } = useSemaphore();
+
+      const beforeUnload = event => {
+        if (pendingCount.value > 0) {
+          if (!window.confirm(closeConfirmationTitle$())) {
+            event.preventDefault();
+          }
+        }
+      };
+      onMounted(() => {
+        window.addEventListener('beforeunload', beforeUnload);
+      });
+      onUnmounted(() => {
+        window.removeEventListener('beforeunload', beforeUnload);
+      });
 
       return {
+        enqueue,
         createSnackbar,
-
         selectAUser$,
         importedLabel$,
         importUserError$,
@@ -221,10 +239,12 @@
           }, 2000);
         }
       },
-      async startImport(learner) {
-        // Push the learner into being imported, we'll remove it if we get an error later on
+      onImportClick(learner) {
         this.learnersBeingImported.push(learner.id);
-
+        // Do not do the start import request directly, enqueue it to limit concurrency
+        this.enqueue(() => this.startImport(learner));
+      },
+      async startImport(learner) {
         const task_name = TaskTypes.IMPORTLODUSER;
         const params = {
           type: task_name,
