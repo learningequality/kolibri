@@ -13,8 +13,7 @@ const ADD_TAGS = ['semantics'];
 export function createSafeHTML(customComponents = {}) {
   const validProps = Object.keys(customComponents).reduce((acc, tagName) => {
     for (const prop of Object.keys(customComponents[tagName].props || {})) {
-      const kebabCaseProp = kebabCase(prop);
-      acc[kebabCaseProp] = true;
+      acc[kebabCase(prop)] = true;
     }
     return acc;
   }, {});
@@ -24,7 +23,6 @@ export function createSafeHTML(customComponents = {}) {
     props: {
       html: {
         required: true,
-        type: String,
       },
       styleOverrides: {
         type: Object,
@@ -55,62 +53,58 @@ export function createSafeHTML(customComponents = {}) {
 
           if (CustomComponent) {
             // Extract attributes and convert to props
-            const attributes = {};
+            const attrs = {};
             const props = {};
 
             for (const attr of node.attributes) {
-              // Keep original attribute names for attrs
-              attributes[attr.name] = attr.value;
-
-              // Convert kebab-case to camelCase for props
+              attrs[attr.name] = attr.value;
               const propName = attr.name.replace(/-([a-z])/g, g => g[1].toUpperCase());
               props[propName] = attr.value;
             }
-
-            const children = mapChildren(node.childNodes);
 
             return h(
               CustomComponent,
               {
                 props,
-                attrs: attributes,
-                // Forward any listeners from the context
+                attrs,
                 on: context.listeners,
               },
-              children,
+              mapChildren(node.childNodes),
             );
           }
-
           // Handle regular HTML elements
-          const attributes = {};
+          const attrs = {};
           for (const attr of node.attributes) {
-            attributes[attr.name] = attr.value;
+            attrs[attr.name] = attr.value;
           }
-          attributes.class = attributes.class ? `${attributes.class} safe-html` : 'safe-html';
+
+          attrs.class = attrs.class ? `${attrs.class} safe-html` : 'safe-html';
           if (tagName === 'table') {
-            return h(SafeHtmlTable, {
-              props: {
-                node,
-                attributes,
-                mapNode,
-                mapChildren,
+            return h(
+              SafeHtmlTable,
+              {
+                props: { node },
+                attrs,
               },
-            });
+              mapChildren(node.childNodes),
+            );
           }
 
           if (tagName === 'img') {
             return h(SafeHtmlImage, {
-              attrs: attributes,
+              attrs,
               props: {
-                src: attributes.src,
-                alt: attributes.alt,
+                src: attrs.src,
+                alt: attrs.alt,
                 styleOverrides: context.props.styleOverrides,
               },
             });
           }
 
-          return h(tagName, { attrs: attributes }, mapChildren(node.childNodes));
-        } else if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
+          return h(tagName, { attrs }, mapChildren(node.childNodes));
+        }
+
+        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
           return node.textContent;
         }
         return null;
