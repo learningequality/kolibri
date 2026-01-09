@@ -17,7 +17,7 @@ import classesRoutes from './classesRoutes';
 let qtiSandboxRoutes = [];
 if (process.env.NODE_ENV !== 'production') {
   try {
-    const { sandboxRoutes } = require('../../../../qti_viewer/frontend/sandbox');
+    const { sandboxRoutes } = require('../../../qti_viewer/frontend/sandbox');
     qtiSandboxRoutes = sandboxRoutes;
   } catch (e) {
     // QTI viewer plugin may not be available
