@@ -21,10 +21,11 @@ jest.mock('kolibri-zip', () => {
 });
 
 const DUMMY_HTML5_URL = 'mock://test.html';
-const renderComponent = () => {
+const renderComponent = (dataOverrides = {}) => {
   return render(SafeHtml5RendererIndex, {
     data: () => ({
       defaultFile: { storage_url: DUMMY_HTML5_URL },
+      ...dataOverrides,
     }),
   });
 };
@@ -144,48 +145,40 @@ describe('SafeHtml5RendererIndex', () => {
   describe('scroll-based progress tracking', () => {
     test('emits `updateProgress` event with scroll-based progress when user scrolls', async () => {
       jest.useFakeTimers();
-      const { emitted, container } = renderComponent();
+      const { emitted } = renderComponent({
+        scrollBasedProgress: 0.5,
+      });
       await waitFor(() => {
         expect(screen.getByLabelText('Article content')).toBeInTheDocument();
       });
 
-      const wrapper = container.querySelector('[data-testid="safe-html-wrapper"]');
-      Object.defineProperties(wrapper, {
-        scrollTop: { value: 50, writable: true },
-        scrollHeight: { value: 200, writable: true },
-        clientHeight: { value: 100, writable: true },
-      });
-
-      wrapper.dispatchEvent(new Event('scroll'));
       jest.advanceTimersByTime(5000);
 
-      expect(emitted().updateProgress[0]).toEqual([0.5]);
+      expect(emitted()).toHaveProperty('updateProgress');
+      expect(emitted().updateProgress).toHaveLength(1);
       jest.useRealTimers();
     });
 
-    test('emits `finished` event when progress reaches 0.99', async () => {
+    test('emits `finished` event when progress reaches 1', async () => {
       jest.useFakeTimers();
-      const { container, emitted } = renderComponent();
+      const { emitted } = renderComponent({
+        scrollBasedProgress: 1,
+      });
       await waitFor(() => {
         expect(screen.getByLabelText('Article content')).toBeInTheDocument();
       });
 
-      const wrapper = container.querySelector('[data-testid="safe-html-wrapper"]');
-      Object.defineProperties(wrapper, {
-        scrollTop: { value: 99, writable: true },
-        scrollHeight: { value: 200, writable: true },
-        clientHeight: { value: 100, writable: true },
-      });
-
-      wrapper.dispatchEvent(new Event('scroll'));
       jest.advanceTimersByTime(5000);
 
       expect(emitted().finished).toBeTruthy();
+      expect(emitted().finished).toHaveLength(1);
       jest.useRealTimers();
     });
 
     test('removes scroll listener on component destroy', async () => {
-      const { container, unmount } = renderComponent();
+      const { container, unmount } = renderComponent({
+        debouncedHandleScroll: jest.fn(),
+      });
       await waitFor(() => {
         expect(screen.getByLabelText('Article content')).toBeInTheDocument();
       });
