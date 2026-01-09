@@ -1,5 +1,7 @@
 import logging
 
+from le_utils.constants import modalities
+
 from kolibri.core.auth.constants.user_kinds import COACH
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
@@ -48,7 +50,7 @@ class CoachAsset(webpack_hooks.WebpackBundleHook):
         from kolibri.core.content.models import ContentNode
 
         practice_quizzes_exist = ContentNode.objects.filter(
-            available=True, options__contains='"modality": "QUIZ"'
+            available=True, modality=modalities.QUIZ
         ).exists()
         return {
             "practice_quizzes_exist": practice_quizzes_exist,

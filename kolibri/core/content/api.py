@@ -35,6 +35,7 @@ from django_filters.rest_framework import NumberFilter
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
+from le_utils.constants import modalities
 from rest_framework import filters
 from rest_framework import mixins
 from rest_framework import status
@@ -285,7 +286,7 @@ class ChannelMetadataFilter(FilterSet):
         queryset = queryset.annotate(
             contains_quiz=Exists(
                 models.ContentNode.objects.filter(
-                    options__contains='"modality": "QUIZ"',
+                    modality=modalities.QUIZ,
                     available=True,
                     channel_id=OuterRef("id"),
                 )
@@ -568,7 +569,7 @@ class ContentNodeFilter(FilterSet):
     def filter_contains_quiz(self, queryset, name, value):
         if value:
             quizzes = models.ContentNode.objects.filter(
-                options__contains='"modality": "QUIZ"'
+                modality=modalities.QUIZ
             ).get_ancestors(include_self=True)
             return queryset.filter(pk__in=quizzes.values_list("pk", flat=True))
         return queryset
