@@ -12,24 +12,27 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
+  import { injectMediaPlayer } from '../../composables/useMediaPlayer';
 
   export default {
     name: 'MediaPlayerFullscreen',
     components: { CoreFullscreen },
+    setup() {
+      const { player } = injectMediaPlayer();
+
+      return {
+        player,
+      };
+    },
     data: () => ({
       registered: false,
     }),
-    computed: {
-      ...mapState('mediaPlayer', ['player']),
-    },
     watch: {
       player(player) {
         if (!player || this.registered) {
           return;
         }
-
         const toggle = player.getChild('ControlBar').getChild('MimicFullscreenToggle');
 
         if (!toggle) {

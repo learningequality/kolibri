@@ -25,3 +25,14 @@ export class ForwardButton extends videojsButton {
 }
 
 ForwardButton.prototype.controlText_ = 'Forward';
+
+const PlayToggle = videojs.getComponent('PlayToggle');
+
+// Centered overlay play/pause toggle — extends PlayToggle so it inherits the
+// play/pause icon switching tied to player state, but adds a distinct class
+// so it can be styled separately from the small toggle in the control bar.
+export class BigPlayToggle extends PlayToggle {
+  buildCSSClass() {
+    return `vjs-big-play-toggle ${super.buildCSSClass()}`;
+  }
+}

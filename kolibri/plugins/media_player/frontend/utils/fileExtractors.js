@@ -21,6 +21,12 @@ function _generateFileData(url, preset, options = {}) {
   };
 }
 
+const mimeTypeToExtensionMap = {
+  'video/mp4': 'mp4',
+  'video/webm': 'webm',
+  'audio/mpeg': 'mp3',
+};
+
 /**
  * Extract files from media elements (video/audio)
  * @param {HTMLMediaElement} element - Source for file extraction
@@ -31,9 +37,12 @@ function extractMediaFiles(element) {
   const preset = element.tagName.toLowerCase() === 'video' ? 'high_res_video' : 'audio';
   let sourceCount = 0;
 
-  // Direct src attribute
-  if (element.src) {
-    files.push(_generateFileData(element.src, preset, { priority: 1 }));
+  // Use getAttribute to read raw attribute values, since .src resolves
+  // against the document base URL which is unavailable on detached nodes.
+  const src = element.getAttribute('src');
+  if (src) {
+    const extension = element.tagName.toLowerCase() === 'video' ? 'mp4' : 'mp3';
+    files.push(_generateFileData(src, preset, { extension, priority: 1 }));
     sourceCount++;
   }
 
@@ -42,8 +51,9 @@ function extractMediaFiles(element) {
     const childTag = child.tagName?.toLowerCase();
     const childSrc = child.getAttribute('src');
 
-    if (childTag === 'source' && child.src) {
-      files.push(_generateFileData(child.src, preset, { priority: sourceCount + 1 }));
+    if (childTag === 'source' && childSrc) {
+      const extension = child.type ? mimeTypeToExtensionMap[child.type] : null;
+      files.push(_generateFileData(childSrc, preset, { extension, priority: sourceCount + 1 }));
       sourceCount++;
     } else if (childTag === 'track' && childSrc && !['metadata', 'chapters'].includes(child.kind)) {
       files.push(

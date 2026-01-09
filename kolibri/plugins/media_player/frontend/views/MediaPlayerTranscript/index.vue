@@ -51,16 +51,33 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { computed } from 'vue';
   import { throttle } from 'frame-throttle';
   import { getLangDir } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { injectMediaPlayer } from '../../composables/useMediaPlayer';
   import TranscriptCue from './TranscriptCue';
 
   export default {
     name: 'MediaPlayerTranscript',
     components: { TranscriptCue },
     mixins: [commonCoreStrings],
+    setup() {
+      const { player, transcript, language, cues, activeCueIds } = injectMediaPlayer();
+
+      const showing = computed(() => player.value && transcript.value);
+      const mediaDuration = computed(() => (player.value ? player.value.duration() : 0));
+      const languageDir = computed(() => getLangDir(language.value));
+
+      return {
+        player,
+        cues,
+        activeCueIds,
+        showing,
+        mediaDuration,
+        languageDir,
+      };
+    },
     data() {
       return {
         // TODO figure if this is supposed to be used
@@ -71,19 +88,8 @@
       };
     },
     computed: {
-      ...mapState('mediaPlayer', ['player']),
-      ...mapState('mediaPlayer/captions', ['transcript', 'language', 'cues', 'activeCueIds']),
-      showing() {
-        return this.player && this.transcript;
-      },
-      mediaDuration() {
-        return this.player ? this.player.duration() : 0;
-      },
       capStyle() {
         return { color: this.$themeTokens.annotation };
-      },
-      languageDir() {
-        return getLangDir(this.language);
       },
     },
     watch: {
