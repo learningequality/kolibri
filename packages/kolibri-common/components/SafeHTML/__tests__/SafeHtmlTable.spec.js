@@ -9,10 +9,9 @@ const createSampleNode = (m, n) => {
   caption.textContent = 'Sample Caption';
   table.appendChild(caption);
 
-  if (m < 1 || n < 1) {
-    return table;
-  }
+  if (m < 1 || n < 1) return table;
 
+  // Thead (row 1)
   const thead = document.createElement('thead');
   const theadRow = document.createElement('tr');
   for (let col = 1; col <= n; col++) {
@@ -23,14 +22,14 @@ const createSampleNode = (m, n) => {
   thead.appendChild(theadRow);
   table.appendChild(thead);
 
-  // Tbody (row 2 to row m-1 if m >= 3)
+  // Tbody (rows 2 to m-1)
   if (m >= 3) {
     const tbody = document.createElement('tbody');
     for (let row = 2; row < m; row++) {
       const tr = document.createElement('tr');
       for (let col = 1; col <= n; col++) {
         const td = document.createElement('td');
-        td.textContent = `${row}, ${col}`;
+        td.textContent = `${row},${col}`;
         tr.appendChild(td);
       }
       tbody.appendChild(tr);
@@ -41,12 +40,12 @@ const createSampleNode = (m, n) => {
   // Tfoot (row m if m >= 2)
   if (m >= 2) {
     const tfoot = document.createElement('tfoot');
-    const tfootRow = document.createElement('tr');
-    const tfootCell = document.createElement('td');
-    tfootCell.colSpan = n;
-    tfootCell.textContent = `${m}, 1-${n}`;
-    tfootRow.appendChild(tfootCell);
-    tfoot.appendChild(tfootRow);
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = n;
+    td.textContent = `${m},1-${n}`;
+    tr.appendChild(td);
+    tfoot.appendChild(tr);
     table.appendChild(tfoot);
   }
 
@@ -54,26 +53,20 @@ const createSampleNode = (m, n) => {
 };
 
 const sampleAttributes = { class: 'safe-html' };
-const mapChildren = jest.fn(() => []);
 
 const renderComponent = (m, n) => {
+  const node = createSampleNode(m, n);
   return render(SafeHtmlTable, {
-    props: {
-      node: createSampleNode(m, n),
-      attributes: sampleAttributes,
-      mapChildren,
-    },
+    props: { node },
+    attrs: sampleAttributes,
+    slots: { default: node.innerHTML },
   });
 };
 
 describe('SafeHtmlTable', () => {
-  beforeEach(() => {
-    mapChildren.mockClear();
-  });
-
   describe('first render', () => {
     beforeEach(() => {
-      renderComponent(0, 0);
+      renderComponent(3, 3);
     });
 
     test('smoke test', () => {
@@ -84,14 +77,28 @@ describe('SafeHtmlTable', () => {
       expect(screen.getByRole('table')).toBeInTheDocument();
     });
 
-    test('passes caption element to mapChildren', () => {
-      expect(mapChildren).toHaveBeenCalled();
-      const childNodes = mapChildren.mock.calls[0][0];
-      const captionNode = Array.from(childNodes).find(
-        node => node.tagName && node.tagName.toLowerCase() === 'caption',
-      );
-      expect(captionNode).toBeDefined();
-      expect(captionNode).toHaveTextContent('Sample Caption');
+    test('renders caption element', () => {
+      const table = screen.getByRole('table');
+      const caption = table.querySelector('caption');
+      expect(caption).toBeDefined();
+      expect(caption).toHaveTextContent('Sample Caption');
+    });
+
+    test('renders thead, tbody, tfoot', () => {
+      const table = screen.getByRole('table');
+      expect(table.querySelector('thead')).toBeInTheDocument();
+      expect(table.querySelector('tbody')).toBeInTheDocument();
+      expect(table.querySelector('tfoot')).toBeInTheDocument();
+    });
+
+    test('tbody and tfoot have correct content', () => {
+      const table = screen.getByRole('table');
+      const tbodyCells = table.querySelectorAll('tbody tr td');
+      if (tbodyCells.length > 0) {
+        expect(tbodyCells[0]).toHaveTextContent('2,1'); // first cell in tbody
+      }
+      const tfootCell = table.querySelector('tfoot tr td');
+      expect(tfootCell).toHaveTextContent('3,1-3');
     });
   });
 

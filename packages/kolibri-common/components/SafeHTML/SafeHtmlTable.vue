@@ -1,6 +1,9 @@
 <template>
 
-  <div class="table-container">
+  <div
+    class="table-container"
+    data-testid="table-container"
+  >
     <table
       v-bind="$attrs"
       :style="tableStyle"

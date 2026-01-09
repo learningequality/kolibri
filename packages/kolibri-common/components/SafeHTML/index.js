@@ -24,10 +24,6 @@ export function createSafeHTML(customComponents = {}) {
       html: {
         required: true,
       },
-      styleOverrides: {
-        type: Object,
-        default: () => ({}),
-      },
     },
     render(h, context) {
       const docFragment = DOMPurify.sanitize(context.props.html, {
@@ -96,7 +92,6 @@ export function createSafeHTML(customComponents = {}) {
               props: {
                 src: attrs.src,
                 alt: attrs.alt,
-                styleOverrides: context.props.styleOverrides,
               },
             });
           }
