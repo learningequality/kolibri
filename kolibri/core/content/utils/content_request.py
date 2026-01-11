@@ -880,6 +880,10 @@ def process_user_downloads_for_removal():
     # off the user's interaction with the resource, e.g. complete status
     largest_user_download = user_downloads.order_by("-total_size").first()
 
+    # All user downloads may have been excluded due to has_other_download
+    if largest_user_download is None:
+        return
+
     # adding this opposite of the user download request allows us to detect this situation
     # this removal request will be processed on the next loop
     ContentRemovalRequest.objects.update_or_create(
