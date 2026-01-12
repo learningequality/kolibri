@@ -19,7 +19,7 @@
   const MIMIC_FULLSCREEN_CLASS = 'mimic-fullscreen';
 
   export default {
-    name: 'CoreFullscreen',
+    name: 'Fullscreen',
     data() {
       return {
         isInFullscreen: false,
@@ -51,7 +51,7 @@
     },
     methods: {
       /**
-       * Toggle fullscreen mode; called by viewer components via $refs.
+       * Toggle the wrapped content in and out of fullscreen.
        * @public
        */
       toggleFullscreen() {

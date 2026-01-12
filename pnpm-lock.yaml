@@ -1149,6 +1149,9 @@ importers:
       qs:
         specifier: ^6.16.0
         version: 6.16.0
+      screenfull:
+        specifier: ^5.2.0
+        version: 5.2.0
       tippy.js:
         specifier: ^6.3.7
         version: 6.3.7
@@ -1345,9 +1348,6 @@ importers:
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
-      screenfull:
-        specifier: ^5.2.0
-        version: 5.2.0
       sortablejs:
         specifier: 1.15.7
         version: 1.15.7

@@ -17,7 +17,7 @@ Before creating new components, check for existing ones in this order:
 
 1. **Kolibri Design System** (``kolibri-design-system``) — Always prefer KDS components first. Browse the catalog at https://design-system.learningequality.org/
 2. **Kolibri package** (``packages/kolibri/components/``) — Core application components such as ``AuthMessage``, ``CoreTable``, ``BottomAppBar``, and ``DownloadButton``
-3. **Kolibri-Common package** (``packages/kolibri-common/components/``) — Shared components used across plugins, such as ``AccordionContainer``, ``BaseToolbar``, and ``MetadataChips``
+3. **Kolibri-Common package** (``packages/kolibri-common/components/``) — Shared components used across plugins, such as ``AccordionContainer``, ``EmbeddedReadCard``, and ``MetadataChips``
 
 Only create a new component if none of the above provide what you need.
 

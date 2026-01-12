@@ -1,6 +1,6 @@
 <template>
 
-  <CoreFullscreen
+  <Fullscreen
     ref="bloompubViewer"
     class="bloompub-viewer"
     :style="{ width: iframeWidth }"
@@ -31,7 +31,7 @@
         class="loader"
       />
     </div>
-  </CoreFullscreen>
+  </Fullscreen>
 
 </template>
 
@@ -40,7 +40,7 @@
 
   import urls from 'kolibri/urls';
   import { now } from 'kolibri/utils/serverClock';
-  import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
+  import Fullscreen from 'kolibri/components/Fullscreen';
   import ViewerToolbar from 'kolibri-common/components/ViewerToolbar';
   import Sandbox from 'kolibri-sandbox';
   import useContentViewer from 'kolibri/composables/useContentViewer';
@@ -50,7 +50,7 @@
   export default {
     name: 'BloomPubRendererIndex',
     components: {
-      CoreFullscreen,
+      Fullscreen,
       ViewerToolbar,
     },
     setup(props, context) {
