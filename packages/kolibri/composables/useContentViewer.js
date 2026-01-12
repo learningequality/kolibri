@@ -13,6 +13,7 @@ import { CONTENT_VIEWER_CONTEXT_KEY } from '../components/internal/ContentViewer
  * @typedef {object} ContentViewerApi
  * @property {Ref<Array>} files - All available files for this content
  * @property {Ref<object|null>} defaultFile - Primary file selected for viewing
+ * @property {Ref<string|null>} defaultItemPreset - Preset of the default file
  * @property {Ref<Array>} supplementaryFiles - Subtitle and transcript files
  * @property {Ref<Array>} thumbnailFiles - Thumbnail and poster image files
  * @property {Ref<object>} options - Content-specific rendering configuration
@@ -139,6 +140,7 @@ export default function useContentViewer(
 
   const {
     files,
+    defaultItemPreset,
     itemData,
     itemId,
     answerState,
@@ -215,6 +217,7 @@ export default function useContentViewer(
     thumbnailFiles,
     contentDirection,
     contentIsRtl,
+    defaultItemPreset,
     registerAssessmentApi,
     reportLoadingError,
     reportError,

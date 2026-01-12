@@ -12,10 +12,17 @@ from kolibri.utils.plugin_scaffold.render import FileSpec
 # Surfaces.
 BACKEND_ONLY = "backend-only"
 CONTENT_VIEWER = "content-viewer"
+SANDBOXED_CONTENT_VIEWER = "sandboxed-content-viewer"
 SINGLE_PAGE_APP = "single-page-app"
 GLOBAL_INJECTOR = "global-injector"
 
-SURFACE_CHOICES = (BACKEND_ONLY, CONTENT_VIEWER, SINGLE_PAGE_APP, GLOBAL_INJECTOR)
+SURFACE_CHOICES = (
+    BACKEND_ONLY,
+    CONTENT_VIEWER,
+    SANDBOXED_CONTENT_VIEWER,
+    SINGLE_PAGE_APP,
+    GLOBAL_INJECTOR,
+)
 
 # Modes.
 MODE_PACKAGE = "package"
@@ -35,6 +42,23 @@ SURFACES = {
         FileSpec(
             "content_viewer/frontend/views/Index.vue.tmpl",
             "frontend/views/{{ pascal }}Index.vue",
+        ),
+    ],
+    SANDBOXED_CONTENT_VIEWER: [
+        FileSpec(
+            "kolibri_plugin/sandboxed_content_viewer.py.tmpl", "kolibri_plugin.py"
+        ),
+        FileSpec("sandboxed_content_viewer/buildConfig.js.tmpl", "buildConfig.js"),
+        FileSpec(
+            "sandboxed_content_viewer/frontend/module.js.tmpl", "frontend/module.js"
+        ),
+        FileSpec(
+            "sandboxed_content_viewer/frontend/sandbox_handler/index.js.tmpl",
+            "frontend/sandbox_handler/index.js",
+        ),
+        FileSpec(
+            "sandboxed_content_viewer/frontend/sandbox_handler/Handler.js.tmpl",
+            "frontend/sandbox_handler/{{ pascal }}Handler.js",
         ),
     ],
     SINGLE_PAGE_APP: [
@@ -85,6 +109,12 @@ FRONTEND_DEPENDENCIES = {
         "kolibri-design-system": "^5.9.0",
         "kolibri-viewer": "^1.0.0",
         "vue": "^2.7.16",
+    },
+    SANDBOXED_CONTENT_VIEWER: {
+        "core-js": "^3.49.0",
+        "kolibri": "^0.18.0",
+        "kolibri-sandbox": "^0.1.0",
+        "kolibri-viewer": "^1.0.0",
     },
     SINGLE_PAGE_APP: {
         "kolibri": "^0.18.0",

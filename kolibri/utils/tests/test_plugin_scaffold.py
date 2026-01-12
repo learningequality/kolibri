@@ -19,10 +19,12 @@ import tempfile
 import pytest
 
 from kolibri.core.content.hooks import ContentViewerHook
+from kolibri.core.content.hooks import SandboxedContentViewerHook
 from kolibri.core.hooks import FrontEndBaseSyncHook
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import KolibriHook
 from kolibri.plugins.utils import disable_plugins
 from kolibri.plugins.utils import enable_plugins
 from kolibri.plugins.utils import initialize_kolibri_plugin
@@ -31,10 +33,16 @@ from kolibri.utils.plugin_scaffold import CONTENT_VIEWER
 from kolibri.utils.plugin_scaffold import GLOBAL_INJECTOR
 from kolibri.utils.plugin_scaffold import MODE_MODULE
 from kolibri.utils.plugin_scaffold import MODE_PACKAGE
+from kolibri.utils.plugin_scaffold import SANDBOXED_CONTENT_VIEWER
 from kolibri.utils.plugin_scaffold import scaffold_plugin
 from kolibri.utils.plugin_scaffold import SINGLE_PAGE_APP
 
-FRONTEND_SURFACES = [CONTENT_VIEWER, SINGLE_PAGE_APP, GLOBAL_INJECTOR]
+FRONTEND_SURFACES = [
+    CONTENT_VIEWER,
+    SANDBOXED_CONTENT_VIEWER,
+    SINGLE_PAGE_APP,
+    GLOBAL_INJECTOR,
+]
 ALL_SURFACES = [BACKEND_ONLY, *FRONTEND_SURFACES]
 
 
@@ -76,6 +84,13 @@ def _assert_surface_plugin(module, surface):
         hooks = _hook_subclasses(module, ContentViewerHook)
         assert len(hooks) == 1
         assert hooks[0].bundle_id == "main"
+        assert hooks[0].presets == ()
+        assert not issubclass(hooks[0], SandboxedContentViewerHook)
+    elif surface == SANDBOXED_CONTENT_VIEWER:
+        hooks = _hook_subclasses(module, SandboxedContentViewerHook)
+        assert len(hooks) == 1
+        assert hooks[0].bundle_id == "main"
+        assert hooks[0].sandbox_handler_id == "sandbox_handler"
         assert hooks[0].presets == ()
     elif surface == SINGLE_PAGE_APP:
         assert any(
@@ -179,6 +194,10 @@ def test_module_mode_plugin_discoverable_and_enableable(tmp_path, plugins, surfa
     finally:
         # Unregister the plugin's hooks before dropping it from the import
         # system, to avoid cross-test pollution.
+        module = sys.modules.get(import_path + ".kolibri_plugin")
+        if module is not None:
+            for hook in _hook_subclasses(module, KolibriHook):
+                hook.remove_hook_from_registries()
         try:
             disable_plugins([import_path])
         except Exception:
@@ -247,6 +266,31 @@ def test_single_page_app_frontend_and_api_files(tmp_path):
     assert 'name="my_thing"' not in (pkg / "api_urls.py").read_text()
     side_nav = (pkg / "frontend" / "views" / "MyThingSideNavEntry.js").read_text()
     assert "urls['kolibri:kolibri_my_thing_plugin:my_thing']" in side_nav
+
+
+def test_sandboxed_content_viewer_builds_and_registers_its_handler(tmp_path):
+    _scaffold(tmp_path, MODE_PACKAGE, SANDBOXED_CONTENT_VIEWER)
+    outer = tmp_path / "kolibri-my-thing-plugin"
+    pkg = outer / "kolibri_my_thing_plugin"
+
+    build = (pkg / "buildConfig.js").read_text()
+    assert "bundle_id: 'main'" in build
+    assert "bundle_id: 'sandbox_handler'" in build
+    assert "sandbox_handler: true" in build
+    assert "./frontend/sandbox_handler/index.js" in build
+
+    assert (
+        "createSandboxedContentViewer" in (pkg / "frontend" / "module.js").read_text()
+    )
+    handler = (pkg / "frontend" / "sandbox_handler" / "MyThingHandler.js").read_text()
+    assert "class MyThingHandler extends SandboxHandler" in handler
+    entry = (pkg / "frontend" / "sandbox_handler" / "index.js").read_text()
+    assert "MyThingHandler.register();" in entry
+
+    # The build injects core-js polyfills into sandbox handler bundles.
+    deps = json.loads((outer / "package.json").read_text())["dependencies"]
+    assert "core-js" in deps
+    assert "kolibri-sandbox" in deps
 
 
 # ---------------------------------------------------------------------------

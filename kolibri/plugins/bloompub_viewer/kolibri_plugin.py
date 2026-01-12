@@ -10,6 +10,6 @@ class BloomPubRenderPlugin(KolibriPluginBase):
 
 
 @register_hook
-class BloomPubRenderAsset(content_hooks.ContentRendererHook):
+class BloomPubRenderAsset(content_hooks.SandboxedContentViewerHook):
     bundle_id = "main"
     presets = (format_presets.BLOOMPUB,)

@@ -1,0 +1,12 @@
+import ContentViewerModule from 'kolibri-viewer';
+import { createSandboxedContentViewer } from 'kolibri/components/SandboxedContentViewer';
+
+const {{ pascal }}Viewer = createSandboxedContentViewer();
+
+class {{ pascal }}Module extends ContentViewerModule {
+  get viewerComponent() {
+    return {{ pascal }}Viewer;
+  }
+}
+
+export default new {{ pascal }}Module();

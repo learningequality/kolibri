@@ -1,8 +1,12 @@
 {
   "name": "kolibri-sandbox",
-  "private": true,
   "version": "0.1.0",
   "description": "A library for providing a secure sandbox environment for Kolibri.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/learningequality/kolibri.git",
+    "directory": "packages/kolibri-sandbox"
+  },
   "main": "src/mainClient.js",
   "exports": {
     ".": "./src/mainClient.js",
@@ -24,7 +28,7 @@
     "@babel/preset-env": "^8.0.0",
     "babel-loader": "^10.1.1",
     "babel-plugin-polyfill-corejs3": "^1.0.0",
-    "css-loader": "7.1.2",
+    "browserslist-config-kolibri": "workspace:*",
     "css-minimizer-webpack-plugin": "8.0.0",
     "eslint-plugin-compat": "^6.0.2",
     "html-webpack-plugin": "5.6.5",

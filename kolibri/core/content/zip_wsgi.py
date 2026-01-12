@@ -139,7 +139,8 @@ def django_response_to_wsgi(response, environ, start_response):
 
 allowed_methods = {"GET", "OPTIONS"}
 
-# This is also included in packages/sandbox/src/h5p.html
+# This is also included in kolibri/plugins/h5p_viewer/h5p_build/h5p.html
+# and kolibri/plugins/bloompub_viewer/static/bloom/bloomplayer.htm
 # ideally, we should never ever update this code
 # but if we do we should update it there.
 INITIALIZE_SANDBOX_FROM_IFRAME = "if (window.parent && window.parent.sandbox) {try {window.parent.sandbox.initializeIframe(window);} catch (e) {}}"

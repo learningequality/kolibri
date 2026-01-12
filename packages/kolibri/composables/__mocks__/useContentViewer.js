@@ -40,6 +40,7 @@ const MOCK_DEFAULTS = {
   forceDurationBasedProgress: false,
   durationBasedProgress: null,
   defaultFile: null,
+  defaultItemPreset: null,
   supplementaryFiles: [],
   thumbnailFiles: [],
   contentDirection: 'ltr',

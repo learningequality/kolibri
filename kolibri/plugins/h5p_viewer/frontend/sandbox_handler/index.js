@@ -1,0 +1,9 @@
+/**
+ * Entry point for H5P sandbox handler.
+ *
+ * This module is loaded inside the sandboxed iframe and registers
+ * the H5PHandler with the SandboxEnvironment.
+ */
+import H5PHandler from './H5PHandler';
+
+H5PHandler.register();

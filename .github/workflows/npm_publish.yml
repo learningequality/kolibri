@@ -16,6 +16,7 @@ on:
       - 'packages/kolibri-logging/package.json'
       - 'packages/kolibri-module/package.json'
       - 'packages/kolibri-plugin-data/package.json'
+      - 'packages/kolibri-sandbox/package.json'
       - 'packages/kolibri-viewer/package.json'
   workflow_dispatch:
     inputs:
@@ -38,6 +39,7 @@ on:
           - 'kolibri-logging'
           - 'kolibri-module'
           - 'kolibri-plugin-data'
+          - 'kolibri-sandbox'
           - 'kolibri-viewer'
 permissions:
   contents: read
