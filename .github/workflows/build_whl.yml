@@ -8,6 +8,9 @@ on:
       tar-file-name:
         description: "TAR file name"
         value: ${{ jobs.build_whl.outputs.tar-file-name }}
+      sandbox-static-artifact:
+        description: "Artifact name for the collected sandbox static files"
+        value: sandbox-static
 permissions:
   contents: read
 env:
@@ -67,6 +70,15 @@ jobs:
           key: cext-${{ hashFiles('requirements/cext.txt', 'requirements/cext_noarch.txt') }}
       - name: Build Kolibri
         run: make dist
+      # Collected here rather than from the installed whl at release time: the built
+      # static tree is already on disk, and running it on every build means a breakage
+      # surfaces in PR CI rather than mid-release.
+      - name: Collect sandbox static files
+        run: pnpm run collect-sandbox-static dist/static --clear
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sandbox-static
+          path: dist/static
       - name: Get WHL filename
         id: get-whl-filename
         run: echo "whl-file-name=$(basename dist/*.whl)" >> "$GITHUB_OUTPUT"

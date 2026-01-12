@@ -28,7 +28,8 @@
     "lint-frontend:watch:format": "pnpm run lint-frontend --monitor --write",
     "sandbox-dev": "pnpm --filter kolibri-sandbox run dev",
     "sandbox-build": "pnpm --filter kolibri-sandbox run build",
-    "compress": "kolibri-build compress 'kolibri/*/**/static/**/*.{html,js,css,svg,map,eot,ttf}'"
+    "compress": "kolibri-build compress 'kolibri/*/**/static/**/*.{html,js,css,svg,map,eot,ttf}'",
+    "collect-sandbox-static": "kolibri-build collect-sandbox-static --file ./build_tools/build_plugins.txt"
   },
   "repository": {
     "type": "git",
