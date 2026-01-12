@@ -139,6 +139,7 @@ export default function useContentViewer(
 
   const {
     files,
+    defaultItemPreset,
     itemData,
     itemId,
     answerState,
@@ -215,6 +216,7 @@ export default function useContentViewer(
     thumbnailFiles,
     contentDirection,
     contentIsRtl,
+    defaultItemPreset,
     registerAssessmentApi,
     reportLoadingError,
     reportError,

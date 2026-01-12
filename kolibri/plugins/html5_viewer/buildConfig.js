@@ -1,6 +1,15 @@
-module.exports = {
-  bundle_id: 'main',
-  webpack_config: {
-    entry: './frontend/module.js',
+module.exports = [
+  {
+    bundle_id: 'main',
+    webpack_config: {
+      entry: './frontend/module.js',
+    },
   },
-};
+  {
+    bundle_id: 'sandbox_handler',
+    sandbox_handler: true,
+    webpack_config: {
+      entry: './frontend/sandbox_handler/index.js',
+    },
+  },
+];
