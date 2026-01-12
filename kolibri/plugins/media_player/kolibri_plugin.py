@@ -10,7 +10,7 @@ class MediaPlayerPlugin(KolibriPluginBase):
 
 
 @register_hook
-class MediaPlayerAsset(content_hooks.ContentRendererHook):
+class MediaPlayerAsset(content_hooks.ContentViewerHook):
     bundle_id = "main"
     presets = (
         format_presets.AUDIO,

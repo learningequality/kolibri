@@ -3,7 +3,7 @@ from django.db.models import Q
 from le_utils.constants import content_kinds
 from le_utils.constants.format_presets import RENDERABLE_PRESETS_ORDER
 
-from kolibri.core.content.hooks import ContentRendererHook
+from kolibri.core.content.hooks import ContentViewerHook
 from kolibri.core.content.models import File
 
 # Every renderable preset's bit, keyed by preset. Used by the pre-V6 backfills.
@@ -16,7 +16,7 @@ renderable_files_presets = set()
 available_presets_bitmask = 0
 
 # loop through all the registered content renderer hooks
-for hook in ContentRendererHook.registered_hooks:
+for hook in ContentViewerHook.registered_hooks:
     for preset in hook.presets:
         # iterate through each of the content presets that each hook can handle
         renderable_files_presets.add(preset)

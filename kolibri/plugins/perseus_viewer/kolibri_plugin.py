@@ -10,7 +10,7 @@ class ExercisePerseusRenderPlugin(KolibriPluginBase):
 
 
 @register_hook
-class ExercisePerseusRenderAsset(content_hooks.ContentRendererHook):
+class ExercisePerseusRenderAsset(content_hooks.ContentViewerHook):
     bundle_id = "main"
     presets = (format_presets.EXERCISE,)
     allow_object_tag = True
