@@ -10,7 +10,7 @@ The code inside the iframe mocks the localStorage, sessionStorage, and document.
 
 Once this has been setup, it sends a ready event to the external code that may be listening that it is ready. Once it receives a return ready event, it loads up the actual HTML for the page and writes that into the document.
 
-This inner code then communicates with an object external to the iframe that is setup by the HTML5AppRenderer, that then communicates changes in persistent state to be saved into the extraFields object on the ContentSummaryLog.
+This inner code then communicates with an object external to the iframe that is setup by the SandboxedContentViewer, that then communicates changes in persistent state to be saved into the extraFields object on the ContentSummaryLog.
 
 Getting Started
 ----------------
@@ -43,9 +43,9 @@ Consider an app that is requesting data from a particular content node with
 
 ```
 getContentById(id) {
-        return self.mediator.sendMessageAwaitReply({
-          event: events.DATAREQUESTED,
-          data: { id, dataType: DataTypes.MODEL },
+        return self.__mediator.sendMessageAwaitReply({
+          event: events.MODELREQUESTED,
+          data: { id },
           nameSpace,
         });
       }
@@ -57,7 +57,7 @@ The messages are managed through the function `sendMessageAwaitReply()` that is 
   sendMessageAwaitReply({ event, data, nameSpace }) {
     return new Promise((resolve, reject) => {
       const msgId = uuidv4();
-      let self = this;
+      const self = this;
       function handler(message) {
         if (message.message_id === msgId && message.type === 'response') {
           if (message.status == MessageStatuses.SUCCESS) {
@@ -93,33 +93,6 @@ The messages are managed through the function `sendMessageAwaitReply()` that is 
 
 `sendMessageAwaitReply()` calls another function that is defined in the mediator, `sendMessage()` which sends a message to the parent window.
 
-
-
-In `mainClient.js`, there are listeners registered for all of the core event types for the kolibri HTML5 API: data requested, navigate to, content, and data returned. On the event, the mediator then sends another message, that also contains the namespace, event, and message.
-
-```
-    this.on(this.events.DATAREQUESTED, message => {
-      let event;
-      if (message.dataType === DataTypes.COLLECTION) {
-        event = events.COLLECTIONREQUESTED;
-      } else if (message.dataType === DataTypes.MODEL) {
-        event = events.MODELREQUESTED;
-      } else if (message.dataType === DataTypes.SEARCHRESULT) {
-        event = events.SEARCHRESULTREQUESTED;
-      } else if (message.dataType === DataTypes.KOLIBRIVERSION) {
-        event = events.KOLIBRIVERSIONREQUESTED;
-      }
-
-      if (event) {
-        this.mediator.sendLocalMessage({
-          nameSpace,
-          event,
-          data: message,
-        });
-      }
-    });
-```
-
 The listeners for "outgoing" messages are all in `CustomContentRenderer.vue`, the Vue component that renders the full screen view of the HTML5 App and manages requests to the kolibri backend.
 
 ```
@@ -145,7 +118,7 @@ Here, when the event is omitted, the component uses existing kolibri helper func
     },
 ```
 
-Once there is a response, a return message is created, either with data or with an error, using the `createReturnMsg()` helper function.
+Once there is a response, a return message is created, either with data or with an error, using the `createReturnMsg()` helper function defined in `CustomContentRenderer.vue`.
 
 ```
 function createReturnMsg({ message, data, err }) {
@@ -165,19 +138,4 @@ function createReturnMsg({ message, data, err }) {
   }
 ```
 
-Finally, the same process of postMessages then happens in reverse, with `CustomContentRenderer.vue` sending a message to `mainClient.js`, which in turn sends a message to `mediator.js` which then resolves or rejects the promise that has been pending with `kolibri.getContentById()`.
-
-H5P Static Files
-----------------
-
-This code is currently generated from https://github.com/h5p/h5p-php-library
-
-To update, update the `h5pCommit` variable in `downloadH5PVendor.js` to the desired tag and then run `pnpm run build-h5p`.
-
-
-Bloom Reader Static Files
--------------------------
-
-This code is currently generated from https://github.com/learningequality/bloom-player (specifically the 'patched' default branch).
-
-To regenerate, the repository should be cloned, and `pnpm run build` run within the context of that repository to regenerate the new assets. All the files put into `dist` should then be copied into `kolibri/core/content/static/bloom` in the Kolibri repository. Any previously existing hash named files can be deleted and replaced by the new hash named files.
+Finally, `CustomContentRenderer.vue` posts that return message back over the IFrame boundary with `this.sandbox.mediator.sendMessage()`, and the `mediator.js` inside the sandbox resolves or rejects the promise that has been pending with `kolibri.getContentById()`.
