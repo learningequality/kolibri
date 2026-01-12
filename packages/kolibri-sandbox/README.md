@@ -10,7 +10,7 @@ The code inside the iframe mocks the localStorage, sessionStorage, and document.
 
 Once this has been setup, it sends a ready event to the external code that may be listening that it is ready. Once it receives a return ready event, it loads up the actual HTML for the page and writes that into the document.
 
-This inner code then communicates with an object external to the iframe that is setup by the HTML5AppRenderer, that then communicates changes in persistent state to be saved into the extraFields object on the ContentSummaryLog.
+This inner code then communicates with an object external to the iframe that is setup by the SandboxedContentViewer, that then communicates changes in persistent state to be saved into the extraFields object on the ContentSummaryLog.
 
 Getting Started
 ----------------
@@ -166,18 +166,3 @@ function createReturnMsg({ message, data, err }) {
 ```
 
 Finally, the same process of postMessages then happens in reverse, with `CustomContentRenderer.vue` sending a message to `mainClient.js`, which in turn sends a message to `mediator.js` which then resolves or rejects the promise that has been pending with `kolibri.getContentById()`.
-
-H5P Static Files
-----------------
-
-This code is currently generated from https://github.com/h5p/h5p-php-library
-
-To update, update the `h5pCommit` variable in `downloadH5PVendor.js` to the desired tag and then run `pnpm run build-h5p`.
-
-
-Bloom Reader Static Files
--------------------------
-
-This code is currently generated from https://github.com/learningequality/bloom-player (specifically the 'patched' default branch).
-
-To regenerate, the repository should be cloned, and `pnpm run build` run within the context of that repository to regenerate the new assets. All the files put into `dist` should then be copied into `kolibri/core/content/static/bloom` in the Kolibri repository. Any previously existing hash named files can be deleted and replaced by the new hash named files.
