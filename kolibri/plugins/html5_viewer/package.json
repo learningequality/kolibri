@@ -4,6 +4,7 @@
     "private": true,
     "version": "0.0.1",
     "dependencies": {
+        "core-js": "catalog:",
         "kolibri": "workspace:*",
         "kolibri-common": "workspace:*",
         "kolibri-design-system": "catalog:",

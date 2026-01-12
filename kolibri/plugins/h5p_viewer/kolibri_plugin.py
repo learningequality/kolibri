@@ -5,15 +5,12 @@ from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 
 
-class HTML5AppPlugin(KolibriPluginBase):
+class H5PViewerPlugin(KolibriPluginBase):
     pass
 
 
 @register_hook
-class HTML5AppAsset(content_hooks.SandboxedContentViewerHook):
+class H5PViewerAsset(content_hooks.SandboxedContentViewerHook):
     bundle_id = "main"
     sandbox_handler_id = "sandbox_handler"
-    presets = (
-        format_presets.HTML5_ZIP,
-        format_presets.IMSCP_ZIP,
-    )
+    presets = (format_presets.H5P_ZIP,)

@@ -1,12 +1,12 @@
 import ContentViewerModule from 'kolibri-viewer';
 import SandboxedContentViewer from 'kolibri/components/SandboxedContentViewer';
 
-class BloomPubModule extends ContentViewerModule {
+class H5PViewerModule extends ContentViewerModule {
   get viewerComponent() {
     return SandboxedContentViewer;
   }
 }
 
-const bloomPubModule = new BloomPubModule();
+const h5pViewerModule = new H5PViewerModule();
 
-export { bloomPubModule as default };
+export { h5pViewerModule as default };
