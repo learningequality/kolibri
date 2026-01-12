@@ -86,7 +86,9 @@ This will create a navigation component which will be registered to appear in th
 Content viewers
 ---------------
 
-A special kind of Kolibri Module is dedicated to rendering particular content types. All content renderers should extend the ``ContentViewer`` class found in the `kolibri-viewer` package as the default export. In addition, rather than subclassing the ``WebpackBundleHook`` class, content renderers should be defined in the Python code using the ``ContentRendererHook`` class defined in ``kolibri.content.hooks``. In addition to the standard options for the ``WebpackBundleHook``, the ``ContentRendererHook`` also requires a ``presets`` tuple listing the format presets that it will render.
+A special kind of Kolibri Module is dedicated to viewing particular content types. All content viewers should extend the ``ContentViewer`` class found in the `kolibri-viewer` package as the default export. In addition, rather than subclassing the ``WebpackBundleHook`` class, content viewers should be defined in the Python code using the ``ContentViewerHook`` class defined in ``kolibri.core.content.hooks``. In addition to the standard options for the ``WebpackBundleHook``, the ``ContentViewerHook`` also requires a ``presets`` tuple listing the format presets that it will handle.
+
+For content that requires sandboxed execution (HTML5 apps, H5P, Bloom, etc.), use ``SandboxedContentViewerHook`` instead. This hook requires an additional ``sandbox_handler_id`` property and a corresponding sandbox handler bundle in ``buildConfig.js`` with ``sandbox_handler: true``.
 
 .. automodule:: kolibri.core.content.hooks
     :members:
