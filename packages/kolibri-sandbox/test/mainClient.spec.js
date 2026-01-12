@@ -1,6 +1,15 @@
 import Sandbox from '../src/mainClient';
 import { events, nameSpace } from '../src/base';
 
+// The client only hears its own iframe, and jsdom's postMessage leaves source null.
+function fromIframe(data) {
+  window.dispatchEvent(new MessageEvent('message', { data, source: window }));
+}
+
+function shimStateFromIframe(data) {
+  fromIframe({ nameSpace, event: events.SHIMSTATEUPDATE, data });
+}
+
 describe('Sandbox mainClient', () => {
   let sandbox;
   let iframe;
@@ -18,15 +27,24 @@ describe('Sandbox mainClient', () => {
         return obj[prop];
       },
     });
-    sandbox = new Sandbox({ iframe: iframeProxy });
+    sandbox = new Sandbox({ iframe: iframeProxy, now: () => 1234 });
+  });
+  afterEach(() => {
+    // Every client listens on the shared jsdom window, so a client left alive
+    // keeps relaying later tests' messages.
+    sandbox.destroy();
+  });
+  describe('constructor', () => {
+    it('should throw when no now function is passed', () => {
+      expect(() => new Sandbox({ iframe })).toThrow(TypeError);
+    });
   });
   describe('initialize method', () => {
-    it('should call __setData immediately', () => {
-      const data = {};
+    it('should store contentState', () => {
+      const data = { myShim: { key: 'value' } };
       const userData = {};
-      sandbox.__setData = jest.fn();
       sandbox.initialize(data, userData);
-      expect(sandbox.__setData).toHaveBeenCalledWith(data, userData);
+      expect(sandbox.data).toEqual({ myShim: { key: 'value' } });
     });
     it('should fire a ready check', () => {
       sandbox.mediator.sendMessage = jest.fn();
@@ -37,54 +55,53 @@ describe('Sandbox mainClient', () => {
         data: true,
       });
     });
-    it('should call __setData once the iframe ready event is fired', () => {
-      const data = {};
-      const userData = {};
+    it('should send MAINREADY with data when iframe ready event is fired', () => {
+      const contentState = { myShim: { key: 'value' } };
+      const userData = { userId: 'test' };
       return new Promise(resolve => {
         sandbox.mediator.sendMessage = jest.fn();
-        sandbox.initialize(data, userData);
+        sandbox.initialize(contentState, userData, 'http://start.url', 'testns');
         sandbox.on(events.IFRAMEREADY, () => {
           resolve();
         });
-        sandbox.__setData = jest.fn();
-        sandbox.mediator.sendLocalMessage({ nameSpace, event: events.IFRAMEREADY, data: true });
+        fromIframe({ nameSpace, event: events.IFRAMEREADY, data: true });
       }).then(() => {
-        expect(sandbox.__setData).toHaveBeenCalledWith(sandbox.data, userData);
-      });
-    });
-    it('should call __setData once a second iframe ready event is fired', () => {
-      const data = {};
-      const userData = {};
-      sandbox.mediator.sendMessage = jest.fn();
-      sandbox.initialize(data, userData);
-      return new Promise(resolve => {
-        sandbox.__setData = jest.fn();
-        sandbox.on(events.IFRAMEREADY, () => {
-          resolve();
+        expect(sandbox.mediator.sendMessage).toHaveBeenCalledWith({
+          nameSpace,
+          event: events.MAINREADY,
+          data: {
+            contentNamespace: 'testns',
+            startUrl: 'http://start.url',
+            handlerUrl: null,
+            contentState: { myShim: { key: 'value' } },
+            userData: { userId: 'test' },
+            now: 1234,
+          },
         });
-        sandbox.mediator.sendLocalMessage({ nameSpace, event: events.IFRAMEREADY, data: true });
-      }).then(() => {
-        expect(sandbox.__setData).toHaveBeenCalledWith(sandbox.data, userData);
       });
     });
-    it('should call __setData once a second iframe ready event is fired with any updated data', () => {
+    it('should send the current state and user data when iframe ready fires again', () => {
       const data = {};
       const userData = {};
       const updatedUserData = { userId: 'test' };
       sandbox.mediator.sendMessage = jest.fn();
-      sandbox.initialize(data, userData);
+      sandbox.initialize(data, userData, 'http://start.url', 'testns');
       return new Promise(resolve => {
-        sandbox.__setData = jest.fn();
-        sandbox.updateData({
-          contentState: { localStorage: { test: 'this' } },
-          userData: updatedUserData,
-        });
+        shimStateFromIframe({ shim: 'localStorage', state: { test: 'this' } });
+        sandbox.updateData({ userData: updatedUserData });
         sandbox.on(events.IFRAMEREADY, () => {
           resolve();
         });
-        sandbox.mediator.sendLocalMessage({ nameSpace, event: events.IFRAMEREADY, data: true });
+        fromIframe({ nameSpace, event: events.IFRAMEREADY, data: true });
       }).then(() => {
-        expect(sandbox.__setData).toHaveBeenCalledWith(sandbox.data, updatedUserData);
+        expect(sandbox.mediator.sendMessage).toHaveBeenCalledWith({
+          nameSpace,
+          event: events.MAINREADY,
+          data: expect.objectContaining({
+            contentState: { localStorage: { test: 'this' } },
+            userData: updatedUserData,
+          }),
+        });
       });
     });
     it('should call mediator sendMessage with the readycheck event', () => {
@@ -99,107 +116,46 @@ describe('Sandbox mainClient', () => {
       });
     });
   });
-  describe('__setData method', () => {
-    it('should call setData on each storage object', () => {
+  describe('updateData method', () => {
+    it('should send new user data to the sandbox', () => {
+      sandbox.initialize({}, {}, 'http://test.com', 'testns');
       sandbox.mediator.sendMessage = jest.fn();
-      const data = {};
-      Object.keys(sandbox.storage).forEach(key => {
-        const storage = sandbox.storage[key];
-        data[storage.nameSpace] = {
-          test: storage.nameSpace,
-        };
-        storage.setData = jest.fn();
-      });
-      sandbox.__setData(data);
-      Object.keys(sandbox.storage).forEach(key => {
-        const storage = sandbox.storage[key];
-        expect(storage.setData).toHaveBeenCalledWith(data[storage.nameSpace]);
+
+      sandbox.updateData({ userData: { userId: 'newUser' } });
+
+      expect(sandbox.mediator.sendMessage).toHaveBeenCalledWith({
+        nameSpace,
+        event: events.USERDATAUPDATE,
+        data: { userId: 'newUser' },
       });
     });
-    it('should call setNow on the cookie storage if now is defined', () => {
+    it('should resend the latest user data, and no state, once the handler registers', async () => {
+      // MAINREADY has already carried its snapshot by then, so an update in the
+      // window between the two is only ever sent here.
+      sandbox.initialize({ shimOne: { saved: true } }, {}, 'http://test.com', 'testns');
+      sandbox.updateData({ userData: { userId: 'newUser' } });
       sandbox.mediator.sendMessage = jest.fn();
-      const data = {};
-      sandbox.storage.cookie.setNow = jest.fn();
-      sandbox.now = jest.fn(() => 'test');
-      sandbox.__setData(data);
-      expect(sandbox.storage.cookie.setNow).toHaveBeenCalledWith('test');
-    });
-    it('should not call setNow on the cookie storage if now is undefined', () => {
-      sandbox.mediator.sendMessage = jest.fn();
-      const data = {};
-      sandbox.storage.cookie.setNow = jest.fn();
-      sandbox.__setData(data);
-      expect(sandbox.storage.cookie.setNow).not.toHaveBeenCalled();
-    });
-    it('should set the userData if it is defined', () => {
-      sandbox.mediator.sendMessage = jest.fn();
-      const data = {};
-      const userData = {};
-      sandbox.__setData(data, userData);
-      expect(sandbox.userData).toEqual(userData);
-    });
-  });
-  describe('__setListeners method', () => {
-    it('should call on with the stateupdate event', () => {
-      sandbox.mediator.sendMessage = jest.fn();
-      Object.keys(sandbox.storage).forEach(key => {
-        const storage = sandbox.storage[key];
-        storage.on = jest.fn();
+
+      fromIframe({ nameSpace, event: events.HANDLER_REGISTRATION, data: { progress: null } });
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(sandbox.mediator.sendMessage).toHaveBeenCalledWith({
+        nameSpace,
+        event: events.USERDATAUPDATE,
+        data: { userId: 'newUser' },
       });
-      sandbox.__setListeners();
-      Object.keys(sandbox.storage).forEach(key => {
-        const storage = sandbox.storage[key];
-        expect(storage.on.mock.calls[0][0]).toEqual(events.STATEUPDATE);
-      });
+      expect(sandbox.mediator.sendMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ event: events.STATEUPDATE }),
+      );
     });
   });
   describe('data getter', () => {
-    it('should return the data from each of the storage objects in a namespaced object', () => {
-      sandbox.mediator.sendMessage = jest.fn();
-      const data = {};
-      const cookie = sandbox.storage.cookie;
-      const cookieData = {
-        rootCookies: {
-          test: {
-            value: 'test',
-            expires: String(new Date(Date.now() + 1000000)),
-          },
-        },
-        byPath: {},
-      };
-      data[cookie.nameSpace] = cookieData;
-      cookie.setData(cookieData);
-      const localStorage = sandbox.storage.localStorage;
-      const localStorageData = {
-        test: localStorage.nameSpace,
-      };
-      data[localStorage.nameSpace] = localStorageData;
-      localStorage.setData(localStorageData);
-      const SCORM = sandbox.storage.SCORM;
-      const SCORMData = {
-        cmi: {
-          core: {
-            lesson_status: 'passed',
-          },
-        },
-      };
-      data[SCORM.nameSpace] = SCORMData;
-      SCORM.setData(SCORMData);
-      const xAPI = sandbox.storage.xAPI;
-      const xAPIData = {
-        statements: [],
-      };
-      data[xAPI.nameSpace] = xAPIData;
-      xAPI.setData(xAPIData);
-      const H5P = sandbox.storage.H5P;
-      const H5PData = {
-        random: {
-          data: 123,
-        },
-      };
-      data[H5P.nameSpace] = H5PData;
-      H5P.setData(H5PData);
-      expect(sandbox.data).toEqual(data);
+    it('should return a deep copy (not the same reference)', () => {
+      sandbox.initialize({ myShim: { key: 'value' } }, {});
+      const data1 = sandbox.data;
+      const data2 = sandbox.data;
+      expect(data1).not.toBe(data2);
+      expect(data1.myShim).not.toBe(data2.myShim);
     });
   });
   describe('on method', () => {
@@ -223,6 +179,184 @@ describe('Sandbox mainClient', () => {
       const callback = jest.fn();
       sandbox.onStateUpdate(callback);
       expect(sandbox.on).toHaveBeenCalledWith(events.STATEUPDATE, callback);
+    });
+  });
+  describe('registration handling', () => {
+    it('should relay a shim state update once however often the handler registers', async () => {
+      sandbox.initialize({}, {}, 'http://test.com', 'testns');
+      const onStateUpdate = jest.fn();
+      sandbox.onStateUpdate(onStateUpdate);
+
+      for (let i = 0; i < 2; i++) {
+        fromIframe({ nameSpace, event: events.HANDLER_REGISTRATION, data: { progress: null } });
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+
+      shimStateFromIframe({ shim: 'myShim', state: { key: 'value' } });
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(onStateUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    it('should keep the saved contentState once the handler registers', () => {
+      const existingState = {
+        myShim: { savedKey: 'savedValue' },
+      };
+
+      return new Promise(resolve => {
+        sandbox.mediator.sendMessage = jest.fn();
+        sandbox.initialize(existingState, {}, 'http://test.com', 'testns');
+
+        sandbox.on(events.HANDLER_REGISTRATION, () => {
+          resolve();
+        });
+
+        fromIframe({
+          nameSpace,
+          event: events.HANDLER_REGISTRATION,
+          data: { progress: null },
+        });
+      }).then(() => {
+        expect(sandbox.data.myShim).toEqual({ savedKey: 'savedValue' });
+      });
+    });
+  });
+
+  describe('progress from registration', () => {
+    it('should report the progress restored with the handler registration', async () => {
+      // Before the content first reports, this is the only progress main has.
+      sandbox.initialize({}, {}, 'http://test.com', 'testns');
+      fromIframe({
+        nameSpace,
+        event: events.HANDLER_REGISTRATION,
+        data: { progress: 0.5 },
+      });
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(sandbox.getProgress()).toBe(0.5);
+    });
+
+    it('should leave progress unknown when the registration restores none', async () => {
+      sandbox.initialize({}, {}, 'http://test.com', 'testns');
+      fromIframe({
+        nameSpace,
+        event: events.HANDLER_REGISTRATION,
+        data: { progress: null },
+      });
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(sandbox.getProgress()).toBeNull();
+    });
+
+    it('should ignore a restored progress that is not a finite number', async () => {
+      sandbox.initialize({}, {}, 'http://test.com', 'testns');
+      fromIframe({
+        nameSpace,
+        event: events.HANDLER_REGISTRATION,
+        data: { progress: NaN },
+      });
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(sandbox.getProgress()).toBeNull();
+    });
+
+    it('should keep the progress already reported when a registration restores none', async () => {
+      sandbox.initialize({}, {}, 'http://test.com', 'testns');
+      fromIframe({
+        nameSpace,
+        event: events.HANDLER_REGISTRATION,
+        data: { progress: null },
+      });
+      await new Promise(resolve => setTimeout(resolve, 0));
+      shimStateFromIframe({ shim: 'SCORM', state: {}, progress: 0.4 });
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      fromIframe({
+        nameSpace,
+        event: events.HANDLER_REGISTRATION,
+        data: { progress: null },
+      });
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(sandbox.getProgress()).toBe(0.4);
+    });
+  });
+
+  describe('state updates from shims', () => {
+    beforeEach(() => {
+      sandbox.initialize({ savedShim: { saved: true } }, {}, 'http://test.com', 'testns');
+    });
+
+    it('should record each shim state under its name and notify state update listeners', () => {
+      const onStateUpdate = jest.fn();
+      sandbox.onStateUpdate(onStateUpdate);
+
+      shimStateFromIframe({ shim: 'myShim', state: { key: 'value' } });
+
+      const expected = { savedShim: { saved: true }, myShim: { key: 'value' } };
+      expect(sandbox.data).toEqual(expected);
+      expect(onStateUpdate).toHaveBeenCalledWith(expected);
+    });
+
+    it('should report the progress a state update carries', () => {
+      expect(sandbox.getProgress()).toBeNull();
+
+      shimStateFromIframe({ shim: 'progressShim', state: { someData: true }, progress: 0.65 });
+
+      expect(sandbox.getProgress()).toBe(0.65);
+    });
+
+    it('should store state data separately from progress', () => {
+      shimStateFromIframe({ shim: 'progressShim', state: { myKey: 'myValue' }, progress: 0.5 });
+
+      expect(sandbox.data.progressShim).toEqual({ myKey: 'myValue' });
+    });
+
+    it('should handle a state update without progress', () => {
+      shimStateFromIframe({ shim: 'noProgressShim', state: { rawData: 'value' } });
+
+      expect(sandbox.getProgress()).toBeNull();
+      expect(sandbox.data.noProgressShim).toEqual({ rawData: 'value' });
+    });
+  });
+
+  describe('with another client on the same window', () => {
+    it('should not hand its state updates to the other client', async () => {
+      // A custom channel and the content overlay opened from it each hold a client.
+      const otherIframe = document.createElement('iframe');
+      document.body.appendChild(otherIframe);
+      const other = new Sandbox({ iframe: otherIframe, now: () => 1234 });
+      try {
+        other.initialize({}, {}, 'http://other.com', 'otherns');
+        const otherStateUpdate = jest.fn();
+        other.onStateUpdate(otherStateUpdate);
+        const ownStateUpdate = jest.fn();
+        sandbox.onStateUpdate(ownStateUpdate);
+        sandbox.initialize({}, {}, 'http://test.com', 'testns');
+
+        shimStateFromIframe({ shim: 'myShim', state: { key: 'value' } });
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        expect(ownStateUpdate).toHaveBeenCalledWith({ myShim: { key: 'value' } });
+        expect(otherStateUpdate).not.toHaveBeenCalled();
+        expect(other.data).toEqual({});
+      } finally {
+        other.destroy();
+        otherIframe.remove();
+      }
+    });
+  });
+
+  describe('destroy method', () => {
+    it('should stop handling messages so the client can be collected', async () => {
+      sandbox.initialize({}, {}, 'http://test.com', 'testns');
+
+      sandbox.destroy();
+
+      shimStateFromIframe({ shim: 'progressShim', state: {}, progress: 0.9 });
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(sandbox.getProgress()).toBeNull();
     });
   });
 });

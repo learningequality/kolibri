@@ -9,13 +9,8 @@
 import BaseStorage from './baseStorage';
 
 export default class SessionStorage extends BaseStorage {
-  constructor(mediator) {
-    super(mediator);
-    this.nameSpace = 'sessionStorage';
-  }
-  // Override the default implementation of stateUpdated to prevent unnecessarily messages
-  // However, as nothing is listening for this in the main client, it wouldn't actually
-  // hurt if this was still transmitting.
+  static shimName = 'sessionStorage';
+
   stateUpdated() {
     return;
   }

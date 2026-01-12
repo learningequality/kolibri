@@ -23,6 +23,23 @@ Step 2: Build Kolibri and kolibri-sandbox
 
 `pnpm run build`
 
+Writing a Content Handler
+-------------------------
+
+Each sandboxed content type ships a handler bundle, declared with `sandbox_handler: true` in its plugin's `buildConfig.js`. The sandbox loads that bundle by URL inside the iframe and waits for it to register.
+
+**A handler must register during script evaluation.** Subclass `SandboxHandler` and register it at module scope:
+
+```
+import H5PHandler from './H5PHandler';
+
+H5PHandler.register();
+```
+
+The sandbox checks for a registration when the script's `load` event fires, so a handler registered later — from a promise callback, a `setTimeout`, or a dynamic `import()` — fails with `Handler script loaded but did not register`. A script that throws while evaluating still fires `load`, so "loaded, nothing registered" is the only failure signal the loader gets.
+
+Shim names must be unique across the handler's own `shims` and the inherited `SandboxHandler.baseShims`. A collision throws at construction rather than silently dropping the earlier shim, which would otherwise stay subscribed to the mediator after the handler is torn down.
+
 Custom Navigation: Kolibri Namespace Data Flow
 -----------------------------------------------
 

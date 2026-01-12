@@ -46,6 +46,7 @@ function createWebpackCompiler(bundleData, options) {
     setDevServerPublicPath: !options.writeToDisk,
   };
 
+  // Generate webpack config for each bundle (sandbox_handler flag is handled internally)
   const webpackArray = bundleData.map(bundle => webpackConfig(bundle, buildOptions));
 
   if (options.parallel) {

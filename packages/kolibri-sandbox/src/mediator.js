@@ -12,21 +12,45 @@ function isUndefined(x) {
  */
 
 class Mediator {
-  constructor(remote) {
+  /**
+   * Listen for messages on this window, and send them to the remote.
+   * @param {Window} remote - The window messages are sent to
+   * @param {object} [options] - Which messages to accept
+   * @param {Window} [options.source] - The only window whose messages are handled.
+   * Not for the sandbox side, which also hears the content frame it hosts.
+   */
+  constructor(remote, { source = null } = {}) {
     this.local = window;
     this.remote = remote;
-    this.local.addEventListener('message', this.handleMessage.bind(this));
+    this.source = source;
+    this.__boundHandleMessage = this.handleMessage.bind(this);
+    this.local.addEventListener('message', this.__boundHandleMessage);
+    this.__messageHandlers = {};
+  }
+
+  // Remove the window message listener and drop all registered handlers.
+  destroy() {
+    this.local.removeEventListener('message', this.__boundHandleMessage);
     this.__messageHandlers = {};
   }
 
   handleMessage(message) {
+    if (this.source && message.source !== this.source) {
+      return;
+    }
     const { nameSpace, event, data } = message.data;
     // nameSpace and event should be defined, otherwise, it's not our message!
     if (isUndefined(nameSpace) || isUndefined(event)) {
       return;
     }
-    if (this.__messageHandlers[nameSpace] && this.__messageHandlers[nameSpace][event]) {
-      this.__messageHandlers[nameSpace][event].forEach(callback => {
+    this.dispatch({ nameSpace, event, data });
+  }
+
+  // Run this mediator's own handlers for a message, without posting it to a window.
+  dispatch({ nameSpace, event, data }) {
+    const handlers = this.__messageHandlers[nameSpace]?.[event];
+    if (handlers) {
+      handlers.forEach(callback => {
         try {
           callback(data);
         } catch (e) {
@@ -47,8 +71,7 @@ class Mediator {
     this.remote.postMessage({ event, data, nameSpace }, '*');
   }
 
-  // a function to manage messages for kolibri.js,
-  // when most messages require a response, to minimize redundancy
+  // Send a request and resolve with the DATARETURNED reply carrying its message_id.
   sendMessageAwaitReply({ event, data, nameSpace }) {
     return new Promise((resolve, reject) => {
       const msgId = uuidv4();

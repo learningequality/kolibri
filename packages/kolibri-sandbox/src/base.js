@@ -3,14 +3,17 @@ export const events = {
   MAINREADY: 'mainready',
   IFRAMEREADY: 'iframeready',
   STATEUPDATE: 'stateupdate',
+  SHIMSTATEUPDATE: 'shimstateupdate',
   USERDATAUPDATE: 'userdataupdate',
-  DATAREQUESTED: 'datarequested',
+  // The request/reply vocabulary of the window.kolibri custom-channel API. Its iframe
+  // end is html5_viewer's KolibriShim, but its main end is learn's
+  // CustomContentRenderer, and this package is the only one both can import - handler
+  // bundles build without Kolibri externals - so it stays here rather than in either.
   COLLECTIONREQUESTED: 'collectionrequested',
   COLLECTIONPAGEREQUESTED: 'collectionpagerequested',
   MODELREQUESTED: 'modelrequested',
   SEARCHRESULTREQUESTED: 'searchresultrequested',
   DATARETURNED: 'datareturned',
-  KOLIBRIDATARETURNED: 'kolibridatareturned',
   NAVIGATETO: 'navigateTo',
   CONTEXT: 'context',
   THEMECHANGED: 'themechanged',
@@ -18,22 +21,9 @@ export const events = {
   CHANNELMETADATAREQUESTED: 'channelmetadatarequested',
   CHANNELFILTEROPTIONSREQUESTED: 'channelfilteroptionsrequested',
   RANDOMCOLLECTIONREQUESTED: 'randomcollectionrequested',
-  NOW: 'now',
-  RESIZE: 'resize',
   LOADING: 'loading',
   ERROR: 'error',
-  BLOOMPAGESREAD: 'Pages Read',
-};
-
-export const DataTypes = {
-  MODEL: 'Model',
-  SEARCHRESULT: 'SearchResult',
-  COLLECTION: 'Collection',
-  COLLECTIONPAGE: 'CollectionPage',
-  KOLIBRIVERSION: 'KolibriVersion',
-  CHANNELMETADATA: 'ChannelMetadata',
-  CHANNELFILTEROPTIONS: 'ChannelFilterOptions',
-  RANDOMCOLLECTION: 'RandomCollection',
+  HANDLER_REGISTRATION: 'handlerregistration',
 };
 
 export const MessageStatuses = {
