@@ -29,7 +29,7 @@
 <script>
 
   import { createTranslator } from 'kolibri/utils/i18n';
-  import BaseToolbar from 'kolibri-common/components/BaseToolbar';
+  import BaseToolbar from 'kolibri/components/BaseToolbar';
 
   export const viewerToolbarStrings = createTranslator('ViewerToolbar', {
     exitFullscreen: {

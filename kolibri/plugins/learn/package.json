@@ -6,7 +6,6 @@
   "dependencies": {
     "@vueuse/core": "catalog:",
     "deep-object-diff": "^1.1.9",
-    "frame-throttle": "^3.0.0",
     "kolibri": "workspace:*",
     "kolibri-app": "workspace:*",
     "kolibri-common": "workspace:*",
@@ -15,7 +14,6 @@
     "kolibri-logging": "workspace:*",
     "kolibri-plugin-data": "workspace:*",
     "kolibri-sandbox": "workspace:*",
-    "kolibri-viewer": "workspace:*",
     "lodash": "catalog:",
     "tinycolor2": "^1.6.0",
     "vue": "catalog:",

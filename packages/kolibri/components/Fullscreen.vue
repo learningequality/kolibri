@@ -19,7 +19,7 @@
   const MIMIC_FULLSCREEN_CLASS = 'mimic-fullscreen';
 
   export default {
-    name: 'CoreFullscreen',
+    name: 'Fullscreen',
     data() {
       return {
         isInFullscreen: false,
@@ -44,14 +44,20 @@
     mounted() {
       // Catch the use of the esc key to exit fullscreen
       if (ScreenFull.isEnabled) {
-        ScreenFull.onchange(() => {
+        this.syncFullscreen = () => {
           this.isInFullscreen = ScreenFull.isFullscreen;
-        });
+        };
+        ScreenFull.on('change', this.syncFullscreen);
+      }
+    },
+    beforeDestroy() {
+      if (this.syncFullscreen) {
+        ScreenFull.off('change', this.syncFullscreen);
       }
     },
     methods: {
       /**
-       * Toggle fullscreen mode; called by viewer components via $refs.
+       * Toggle the wrapped content in and out of fullscreen.
        * @public
        */
       toggleFullscreen() {
@@ -63,12 +69,16 @@
           } else {
             fullScreenPromise = Promise.resolve();
           }
-          fullScreenPromise.then(() => {
-            this.isInFullscreen = ScreenFull.isEnabled
-              ? ScreenFull.isFullscreen
-              : !this.isInFullscreen;
-            this.toggling = false;
-          });
+          fullScreenPromise
+            .then(() => {
+              this.isInFullscreen = ScreenFull.isEnabled
+                ? ScreenFull.isFullscreen
+                : !this.isInFullscreen;
+            })
+            .catch(() => {})
+            .finally(() => {
+              this.toggling = false;
+            });
         }
       },
     },

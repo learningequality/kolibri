@@ -380,9 +380,6 @@ importers:
       '@testing-library/vue':
         specifier: 'catalog:'
         version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
-      '@vue/test-utils':
-        specifier: 'catalog:'
-        version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
 
   kolibri/plugins/facility:
     dependencies:
@@ -468,9 +465,6 @@ importers:
       deep-object-diff:
         specifier: ^1.1.9
         version: 1.1.9
-      frame-throttle:
-        specifier: ^3.0.0
-        version: 3.0.0
       kolibri:
         specifier: workspace:*
         version: link:../../../packages/kolibri
@@ -495,9 +489,6 @@ importers:
       kolibri-sandbox:
         specifier: workspace:*
         version: link:../../../packages/kolibri-sandbox
-      kolibri-viewer:
-        specifier: workspace:*
-        version: link:../../../packages/kolibri-viewer
       lodash:
         specifier: 'catalog:'
         version: 4.17.23
@@ -617,9 +608,6 @@ importers:
       vue-resize:
         specifier: ^0.4.5
         version: 0.4.5(vue@2.7.16)
-      vue-virtual-scroller:
-        specifier: 1.1.2
-        version: 1.1.2(vue@2.7.16)
       web-streams-polyfill:
         specifier: 'catalog:'
         version: 4.2.0
@@ -970,9 +958,6 @@ importers:
       kolibri:
         specifier: workspace:*
         version: link:../../../packages/kolibri
-      kolibri-common:
-        specifier: workspace:*
-        version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
         version: 5.9.0
@@ -985,9 +970,6 @@ importers:
       object-fit-images:
         specifier: ^3.2.4
         version: 3.2.4
-      vue:
-        specifier: 'catalog:'
-        version: 2.7.16
 
   kolibri/plugins/user_auth:
     dependencies:
@@ -1149,6 +1131,9 @@ importers:
       qs:
         specifier: ^6.16.0
         version: 6.16.0
+      screenfull:
+        specifier: ^5.2.0
+        version: 5.2.0
       tippy.js:
         specifier: ^6.3.7
         version: 6.3.7
@@ -1306,9 +1291,6 @@ importers:
       '@vueuse/core':
         specifier: 'catalog:'
         version: 11.3.0(vue@2.7.16)
-      clipboard:
-        specifier: ^2.0.11
-        version: 2.0.11
       date-fns:
         specifier: ^1.28.2
         version: 1.30.1
@@ -1345,9 +1327,6 @@ importers:
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
-      screenfull:
-        specifier: ^5.2.0
-        version: 5.2.0
       sortablejs:
         specifier: 1.15.7
         version: 1.15.7
@@ -7087,11 +7066,11 @@ packages:
 
   jquery@1.12.4:
     resolution: {integrity: sha512-UEVp7PPK9xXYSk8xqXCJrkXnKZtlgWkd2GsAQbMRFK6S/ePU2JN5G2Zum8hIVjzR3CpdfSqdqAzId/xd4TJHeg==}
-    deprecated: This version is deprecated. Please upgrade to the latest version or find support at https://www.herodevs.com/support/jquery-nes.
+    deprecated: This version is deprecated. Please upgrade to the latest version or find support at https://www.herodevs.com/support/jquery-nes or https://tuxcare.com/lp/click-jquery-support/.
 
   jquery@2.2.4:
     resolution: {integrity: sha512-lBHj60ezci2u1v2FqnZIraShGgEXq35qCzMv4lITyHGppTnA13rwR0MgwyNJh9TnDs3aXUvd1xjAotfraMHX/Q==}
-    deprecated: This version is deprecated. Please upgrade to the latest version or find support at https://www.herodevs.com/support/jquery-nes.
+    deprecated: This version is deprecated. Please upgrade to the latest version or find support at https://www.herodevs.com/support/jquery-nes or https://tuxcare.com/lp/click-jquery-support/.
 
   jquery@3.5.1:
     resolution: {integrity: sha512-XwIBPqcMn57FxfT+Go5pzySnm4KWkT1Tv7gjrpT1srtf8Weynl6R273VJ5GjkRb51IzMp5nbaPjJXMWeju2MKg==}
@@ -9636,9 +9615,6 @@ packages:
   vue-meta@2.4.0:
     resolution: {integrity: sha512-XEeZUmlVeODclAjCNpWDnjgw+t3WA6gdzs6ENoIAgwO1J1d5p1tezDhtteLUFwcaQaTtayRrsx7GL6oXp/m2Jw==}
 
-  vue-observe-visibility@0.4.6:
-    resolution: {integrity: sha512-xo0CEVdkjSjhJoDdLSvoZoQrw/H2BlzB5jrCBKGZNXN2zdZgMuZ9BKrxXDjNP2AxlcCoKc8OahI3F3r3JGLv2Q==}
-
   vue-observe-visibility@1.0.0:
     resolution: {integrity: sha512-s5TFh3s3h3Mhd3jaz3zGzkVHKHnc/0C/gNr30olO99+yw2hl3WBhK3ng3/f9OF+qkW4+l7GkmwfAzDAcY3lCFg==}
 
@@ -9663,11 +9639,6 @@ packages:
 
   vue-template-es2015-compiler@1.9.1:
     resolution: {integrity: sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==}
-
-  vue-virtual-scroller@1.1.2:
-    resolution: {integrity: sha512-SkUyc7QHCJFB5h1Fya7LxVizlVzOZZuFVipBGHYoTK8dwLs08bIz/tclvRApYhksaJIm/nn51inzO2UjpGJPMQ==}
-    peerDependencies:
-      vue: ^2.6.11
 
   vue2-teleport@1.1.4:
     resolution: {integrity: sha512-mGTszyQP6k3sSSk7MBq+PZdVojHYLwg5772hl3UVpu5uaLBqWIZ5eNP6/TjkDrf1XUTTxybvpXC6inpjwO+i/Q==}
@@ -13312,9 +13283,9 @@ snapshots:
     optionalDependencies:
       ajv: 8.20.0
 
-  ajv-keywords@3.5.2(ajv@6.12.6):
+  ajv-keywords@3.5.2(ajv@6.14.0):
     dependencies:
-      ajv: 6.12.6
+      ajv: 6.14.0
 
   ajv-keywords@5.1.0(ajv@8.20.0):
     dependencies:
@@ -18448,8 +18419,8 @@ snapshots:
   schema-utils@3.3.0:
     dependencies:
       '@types/json-schema': 7.0.15
-      ajv: 6.12.6
-      ajv-keywords: 3.5.2(ajv@6.12.6)
+      ajv: 6.14.0
+      ajv-keywords: 3.5.2(ajv@6.14.0)
 
   schema-utils@4.3.3:
     dependencies:
@@ -19565,8 +19536,6 @@ snapshots:
     dependencies:
       deepmerge: 4.3.1
 
-  vue-observe-visibility@0.4.6: {}
-
   vue-observe-visibility@1.0.0: {}
 
   vue-resize@0.4.5(vue@2.7.16):
@@ -19592,13 +19561,6 @@ snapshots:
       he: 1.2.0
 
   vue-template-es2015-compiler@1.9.1: {}
-
-  vue-virtual-scroller@1.1.2(vue@2.7.16):
-    dependencies:
-      scrollparent: 2.1.0
-      vue: 2.7.16
-      vue-observe-visibility: 0.4.6
-      vue-resize: 0.4.5(vue@2.7.16)
 
   vue2-teleport@1.1.4: {}
 
