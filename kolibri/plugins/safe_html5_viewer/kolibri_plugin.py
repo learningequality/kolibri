@@ -10,6 +10,6 @@ class SafeHTML5AppPlugin(KolibriPluginBase):
 
 
 @register_hook
-class SafeHTML5AppAsset(content_hooks.ContentRendererHook):
+class SafeHTML5AppAsset(content_hooks.ContentViewerHook):
     bundle_id = "main"
     presets = (format_presets.KPUB_ZIP,)

@@ -10,7 +10,7 @@ class QTIViewerPlugin(KolibriPluginBase):
 
 
 @register_hook
-class QTIViewerAsset(content_hooks.ContentRendererHook):
+class QTIViewerAsset(content_hooks.ContentViewerHook):
     bundle_id = "main"
     presets = (format_presets.QTI_ZIP,)
     allow_object_tag = True

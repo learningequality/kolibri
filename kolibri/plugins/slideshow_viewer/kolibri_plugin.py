@@ -10,6 +10,6 @@ class SlideshowRenderPlugin(KolibriPluginBase):
 
 
 @register_hook
-class SlideshowRenderAsset(content_hooks.ContentRendererHook):
+class SlideshowRenderAsset(content_hooks.ContentViewerHook):
     bundle_id = "main"
     presets = (format_presets.SLIDESHOW_MANIFEST,)

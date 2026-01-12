@@ -10,7 +10,7 @@ class DocumentPDFRenderPlugin(KolibriPluginBase):
 
 
 @register_hook
-class DocumentPDFRenderAsset(content_hooks.ContentRendererHook):
+class DocumentPDFRenderAsset(content_hooks.ContentViewerHook):
     bundle_id = "main"
     presets = (format_presets.DOCUMENT,)
     allow_object_tag = True
