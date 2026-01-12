@@ -36,7 +36,7 @@
 
 <script>
 
-  import ViewerToolbar from 'kolibri-common/components/ViewerToolbar';
+  import ViewerToolbar from 'kolibri/components/ViewerToolbar';
   import TocButton from './TocButton';
   import SettingsButton from './SettingsButton';
   import SearchButton from './SearchButton';

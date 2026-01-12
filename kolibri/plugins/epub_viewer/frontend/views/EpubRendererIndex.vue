@@ -4,7 +4,7 @@
     :active="mobileEmbedded"
     @read="$refs.epubViewer.toggleFullscreen()"
   >
-    <CoreFullscreen
+    <Fullscreen
       ref="epubViewer"
       class="epub-viewer"
       :class="{ small: windowIsSmall, scrolled: scrolled, 'no-bottom-bar': mobileEmbedded }"
@@ -150,7 +150,7 @@
           @sliderChanged="handleSliderChanged"
         />
       </div>
-    </CoreFullscreen>
+    </Fullscreen>
   </EmbeddedReadCard>
 
 </template>
@@ -165,7 +165,7 @@
   import clamp from 'lodash/clamp';
   import Lockr from 'lockr';
   import FocusLock from 'vue-focus-lock';
-  import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
+  import Fullscreen from 'kolibri/components/Fullscreen';
   import EmbeddedReadCard from 'kolibri-common/components/EmbeddedReadCard';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useContentViewer from 'kolibri/composables/useContentViewer';
@@ -200,7 +200,7 @@
   export default {
     name: 'EpubRendererIndex',
     components: {
-      CoreFullscreen,
+      Fullscreen,
       EmbeddedReadCard,
       TopBar,
       TableOfContentsSideBar,
