@@ -1,6 +1,6 @@
 <template>
 
-  <CoreFullscreen
+  <Fullscreen
     ref="slideshowViewer"
     class="slideshow-viewer"
     :style="{ height: contentHeight }"
@@ -69,7 +69,7 @@
       />
       <!-- eslint-enable -->
     </Hooper>
-  </CoreFullscreen>
+  </Fullscreen>
 
 </template>
 
@@ -82,7 +82,7 @@
   import client from 'kolibri/client';
 
   import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
-  import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
+  import Fullscreen from 'kolibri/components/Fullscreen';
   import {
     Hooper,
     Slide,
@@ -96,7 +96,7 @@
     name: 'SlideshowRendererComponent',
     components: {
       UiIconButton,
-      CoreFullscreen,
+      Fullscreen,
       Hooper,
       Slide,
       HooperPagination,

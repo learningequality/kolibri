@@ -1149,6 +1149,9 @@ importers:
       qs:
         specifier: ^6.15.2
         version: 6.15.2
+      screenfull:
+        specifier: ^5.2.0
+        version: 5.2.0
       tippy.js:
         specifier: ^6.3.7
         version: 6.3.7

@@ -1,23 +1,23 @@
 <template>
 
-  <CoreFullscreen
+  <Fullscreen
     ref="core"
     @changeFullscreen="handleChangeFullscreen"
   >
     <slot></slot>
-  </CoreFullscreen>
+  </Fullscreen>
 
 </template>
 
 
 <script>
 
-  import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
+  import Fullscreen from 'kolibri/components/Fullscreen';
   import { injectMediaPlayer } from '../../composables/useMediaPlayer';
 
   export default {
     name: 'MediaPlayerFullscreen',
-    components: { CoreFullscreen },
+    components: { Fullscreen },
     setup() {
       const { player } = injectMediaPlayer();
 
