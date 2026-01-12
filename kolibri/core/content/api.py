@@ -2,6 +2,7 @@ import hashlib
 import logging
 import re
 from base64 import urlsafe_b64decode
+from collections import defaultdict
 from collections import OrderedDict
 from functools import reduce
 from random import sample
@@ -1011,7 +1012,7 @@ class TreeQueryMixin(object):
 
     def _get_gc_by_parent(self, qs, child_ids):
         # Use this to keep track of how many grand children we have accumulated per child of the parent node
-        gc_by_parent = {}
+        gc_by_parent = defaultdict(list)
         # Iterate through the grand children of the parent node in lft order so we follow the tree traversal order
         for gc in (
             qs.filter(parent_id__in=child_ids).values("id", "parent_id").order_by("lft")
