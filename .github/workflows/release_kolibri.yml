@@ -193,14 +193,11 @@ jobs:
           destination: '${{ secrets.BCK_PRERELEASE_BUILD_ARTIFACT_GCS_BUCKET }}'
           parent: false
           process_gcloudignore: false
-      - name: Unzip content static files from whl file
-        run: |
-          unzip dist/${{ needs.whl.outputs.whl-file-name }} 'kolibri/core/content/static/*' -d static
-          mv static/kolibri/core/content/static/** static
-          rm -rf static/kolibri
-          rm static/**/*.file_size
-          # Ungzip all .gz files in the static folder
-          for f in static/**/*.gz; do gunzip -f "$f"; done
+      - name: Download sandbox static artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.whl.outputs.sandbox-static-artifact }}
+          path: static
       - name: Upload content static files to BCK bucket
         uses: 'google-github-actions/upload-cloud-storage@v3'
         with:
