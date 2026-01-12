@@ -20,15 +20,15 @@ TEST_STATS_FILE_DATA = {
 class HookMixin:
     """
     This hook will mock stats file JSON (normally created by npm)
-    and populate it with test data according to the unique_id of the hook
-    that it's mixed into.
+    and populate it with test data according to the unique_id requested,
+    defaulting to that of the hook it's mixed into.
     """
 
-    def get_stats(self):
+    def get_stats(self, unique_id=None):
         self.TEST_STATS_FILE_DATA = copy.deepcopy(TEST_STATS_FILE_DATA)
-        self.TEST_STATS_FILE_DATA["chunks"][self.unique_id] = self.TEST_STATS_FILE_DATA[
-            "chunks"
-        ].pop("untitled")
+        self.TEST_STATS_FILE_DATA["chunks"][unique_id or self.unique_id] = (
+            self.TEST_STATS_FILE_DATA["chunks"].pop("untitled")
+        )
         return self.TEST_STATS_FILE_DATA
 
 

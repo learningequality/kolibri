@@ -18,7 +18,7 @@ import tempfile
 
 import pytest
 
-from kolibri.core.content.hooks import ContentRendererHook
+from kolibri.core.content.hooks import ContentViewerHook
 from kolibri.core.hooks import FrontEndBaseSyncHook
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.webpack.hooks import WebpackBundleHook
@@ -73,7 +73,7 @@ def _assert_surface_plugin(module, surface):
     if surface == BACKEND_ONLY:
         return
     if surface == CONTENT_VIEWER:
-        hooks = _hook_subclasses(module, ContentRendererHook)
+        hooks = _hook_subclasses(module, ContentViewerHook)
         assert len(hooks) == 1
         assert hooks[0].bundle_id == "main"
         assert hooks[0].presets == ()
