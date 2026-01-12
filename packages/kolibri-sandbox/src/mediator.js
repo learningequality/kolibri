@@ -15,7 +15,14 @@ class Mediator {
   constructor(remote) {
     this.local = window;
     this.remote = remote;
-    this.local.addEventListener('message', this.handleMessage.bind(this));
+    this.__boundHandleMessage = this.handleMessage.bind(this);
+    this.local.addEventListener('message', this.__boundHandleMessage);
+    this.__messageHandlers = {};
+  }
+
+  // Remove the window message listener and drop all registered handlers.
+  destroy() {
+    this.local.removeEventListener('message', this.__boundHandleMessage);
     this.__messageHandlers = {};
   }
 
@@ -25,8 +32,9 @@ class Mediator {
     if (isUndefined(nameSpace) || isUndefined(event)) {
       return;
     }
-    if (this.__messageHandlers[nameSpace] && this.__messageHandlers[nameSpace][event]) {
-      this.__messageHandlers[nameSpace][event].forEach(callback => {
+    const handlers = this.__messageHandlers[nameSpace]?.[event];
+    if (handlers) {
+      handlers.forEach(callback => {
         try {
           callback(data);
         } catch (e) {
@@ -43,7 +51,12 @@ class Mediator {
     this.local.postMessage({ event, data, nameSpace }, '*');
   }
 
+  // The remote may be transiently null mid-navigation (an iframe's contentWindow is
+  // null while it swaps documents). Drop the message; the handshake retries.
   sendMessage({ event, data, nameSpace }) {
+    if (!this.remote) {
+      return;
+    }
     this.remote.postMessage({ event, data, nameSpace }, '*');
   }
 

@@ -1,29 +1,36 @@
 import Mediator from '../src/mediator';
 import BaseStorage from '../src/baseStorage';
 
+// Test subclass that provides required shimName
+class TestStorage extends BaseStorage {
+  static get shimName() {
+    return 'testStorage';
+  }
+}
+
 describe('BaseStorage shim', () => {
   let baseStorage;
   let mediator;
   beforeEach(() => {
     mediator = new Mediator(window);
-    baseStorage = new BaseStorage(mediator);
+    baseStorage = new TestStorage(mediator);
   });
-  describe('__setData', () => {
+  describe('setData', () => {
     it('should set data to the passed in data', () => {
       const testData = {
         test: 'test',
       };
-      baseStorage.__setData(testData);
+      baseStorage.setData(testData);
       expect(baseStorage.data).toEqual(testData);
     });
     it('should set data to an empty state if no data passed in', () => {
-      baseStorage.__setData();
+      baseStorage.setData();
       expect(baseStorage.data).toEqual({});
     });
-    it('should call setDataToShim', () => {
-      baseStorage.setDataToShim = jest.fn();
-      baseStorage.__setData();
-      expect(baseStorage.setDataToShim).toHaveBeenCalled();
+    it('should push restored data onto the object the content holds', () => {
+      const shim = baseStorage.__setShimInterface();
+      baseStorage.setData({ test: 'test' });
+      expect(shim['test']).toEqual('test');
     });
   });
   describe('shim management and instance methods', () => {
@@ -79,22 +86,22 @@ describe('BaseStorage shim', () => {
         expect(shim.length).toEqual(1);
       });
       it('should have length 2 when 2 items are present', () => {
-        baseStorage.__setData({
+        baseStorage.setData({
           test: 'test',
           test1: 'test',
         });
         expect(shim.length).toEqual(2);
       });
       it('should have length 1 when 2 items are set but one deleted', () => {
-        baseStorage.__setData({
+        baseStorage.setData({
           test: 'test',
           test1: 'test',
         });
         delete shim['test1'];
         expect(shim.length).toEqual(1);
       });
-      it('should have length 3 when 2 items are set with __setData and another set on the shim', () => {
-        baseStorage.__setData({
+      it('should have length 3 when 2 items are set with setData and another set on the shim', () => {
+        baseStorage.setData({
           test: 'test',
           test1: 'test',
         });
@@ -104,21 +111,21 @@ describe('BaseStorage shim', () => {
     });
     describe('key method', () => {
       it('should return the key of the passed in index', () => {
-        baseStorage.__setData({
+        baseStorage.setData({
           test: 'test',
           test1: 'test',
         });
         expect(shim.key(1)).toEqual('test1');
       });
       it('should return null if an invalid index is passed in', () => {
-        baseStorage.__setData({
+        baseStorage.setData({
           test: 'test',
           test1: 'test',
         });
         expect(shim.key(100)).toEqual(null);
       });
       it('should return null if an index that has been deleted is passed in', () => {
-        baseStorage.__setData({
+        baseStorage.setData({
           test: 'test',
           test1: 'test',
         });
@@ -127,7 +134,7 @@ describe('BaseStorage shim', () => {
         expect(shim.key(1)).toEqual(null);
       });
       it('should return the key if an index for a key just added on the shim is passed in', () => {
-        baseStorage.__setData({
+        baseStorage.setData({
           test: 'test',
           test1: 'test',
         });
@@ -138,7 +145,7 @@ describe('BaseStorage shim', () => {
     });
     describe('getItem method', () => {
       it('should return the value of the passed in key', () => {
-        baseStorage.__setData({
+        baseStorage.setData({
           test: 'test1',
           test1: 'test',
         });
@@ -173,7 +180,7 @@ describe('BaseStorage shim', () => {
     });
     describe('removeItem method', () => {
       it('should remove the item corresponding to that key from data', () => {
-        baseStorage.__setData({
+        baseStorage.setData({
           test: 'test1',
           test1: 'test',
         });
@@ -182,7 +189,7 @@ describe('BaseStorage shim', () => {
         expect(baseStorage.data['test']).toBeUndefined();
       });
       it('should remove the item corresponding to that key from the shim', () => {
-        baseStorage.__setData({
+        baseStorage.setData({
           test: 'test1',
           test1: 'test',
         });
@@ -190,7 +197,7 @@ describe('BaseStorage shim', () => {
         expect(shim['test']).toBeUndefined();
       });
       it('should not remove the item corresponding to that key from the shim if it is a shim method', () => {
-        baseStorage.__setData({
+        baseStorage.setData({
           getItem: 'test',
         });
         shim.removeItem('getItem');
@@ -205,12 +212,20 @@ describe('BaseStorage shim', () => {
     });
     describe('clear method', () => {
       it('should empty the data property of baseStorage', () => {
-        baseStorage.__setData({
+        baseStorage.setData({
           test: 'test1',
           test1: 'test',
         });
         expect(baseStorage.data['test1']).toEqual('test');
         shim.clear();
+        expect(baseStorage.data).toEqual({});
+      });
+      it('should stay cleared when the data is next read back', () => {
+        // Clearing has to reach the object the content holds, or the next read
+        // reconciles every key straight back out of it.
+        shim.setItem('test', 'test1');
+        shim.clear();
+        expect(shim.getItem('test')).toBeNull();
         expect(baseStorage.data).toEqual({});
       });
       it('should call stateUpdated', () => {

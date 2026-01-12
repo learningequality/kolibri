@@ -34,6 +34,7 @@ function createWebpackCompiler(bundleData, options) {
   const buildOptions = {
     hot: options.hot,
     port: options.port,
+    address: options.host,
     mode: options.development ? 'development' : 'production',
     cache: options.cache,
     transpile: options.transpile,
@@ -43,7 +44,10 @@ function createWebpackCompiler(bundleData, options) {
     setDevServerPublicPath: !options.writeToDisk,
   };
 
-  const webpackArray = bundleData.map(bundle => webpackConfig(bundle, buildOptions));
+  // Generate webpack config for each bundle (sandbox_handler flag is handled internally)
+  const webpackArray = bundleData
+    .map(bundle => webpackConfig(bundle, buildOptions))
+    .filter(Boolean);
 
   if (options.parallel) {
     webpackArray.parallelism = options.parallel;
@@ -217,7 +221,7 @@ addBuildOptions(program.command('dev'))
   .description('Start development server with hot module reloading')
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
   .option('--port <port>', 'Set a port number to start devserver on', Number, 3000)
-  .option('--host <host>', 'Set a host to serve devserver', String, '127.0.0.1')
+  .option('--host <host>', 'Set a host to serve devserver', String, 'localhost')
   .option('--write-to-disk', 'Write files to disk instead of using webpack devserver', false)
   .option(
     '--watchonly [plugins...]',

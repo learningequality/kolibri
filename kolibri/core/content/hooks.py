@@ -71,16 +71,28 @@ class ContentViewerHook(WebpackBundleHook, WebpackInclusionMixin):
             tags.append(hook.template_html())
         return mark_safe("\n".join(tags))
 
+    @property
+    def viewer_data(self):
+        """
+        Data registering this content viewer with the frontend.
+
+        :returns: dict serialized into this viewer's template tag.
+        """
+        # Note, while most plugins use sorted chunks to filter by text direction
+        # content viewers do not, as they may need to have styling for a different
+        # text direction than the interface due to the text direction of content
+        return {
+            "urls": [chunk["url"] for chunk in self.bundle],
+            "presets": self.presets,
+            "css_selectors": self.all_css_selectors(),
+        }
+
     def template_html(self):
         """
         Generates template tags containing data to register a content viewer.
 
         :returns: HTML of a template tags to insert into a page.
         """
-        # Note, while most plugins use sorted chunks to filter by text direction
-        # content viewers do not, as they may need to have styling for a different
-        # text direction than the interface due to the text direction of content
-        urls = [chunk["url"] for chunk in self.bundle]
         tags = (
             self.frontend_message_tag()
             + self.plugin_data_tag()
@@ -88,11 +100,7 @@ class ContentViewerHook(WebpackBundleHook, WebpackInclusionMixin):
                 '<template data-viewer="{bundle}">{data}</template>'.format(
                     bundle=self.unique_id,
                     data=json.dumps(
-                        {
-                            "urls": urls,
-                            "presets": self.presets,
-                            "css_selectors": self.all_css_selectors(),
-                        },
+                        self.viewer_data,
                         separators=(",", ":"),
                         ensure_ascii=False,
                         cls=DjangoJSONEncoder,

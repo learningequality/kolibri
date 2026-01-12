@@ -28,14 +28,14 @@ describe('the kolibri shim', () => {
   describe('getContentById method', () => {
     id = 'abc123';
     mockMessage = {
-      data: { dataType: 'Model', id: 'abc123' },
-      event: 'datarequested',
+      data: { id: 'abc123' },
+      event: 'modelrequested',
       nameSpace,
     };
     response = { node: { id: 'abc123' } };
     beforeEach(function () {
       mockMediatorPromise = jest
-        .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
+        .spyOn(mediator, 'sendMessageAwaitReply')
         .mockResolvedValue(response);
     });
     it('should be called once', () => {
@@ -58,12 +58,12 @@ describe('the kolibri shim', () => {
     response = { page: 1, pageSize: 50, results: [{ id: 'abc123' }, { id: 'def456' }] };
     beforeEach(function () {
       mockMessage = {
-        data: { dataType: 'Collection', options: options },
-        event: 'datarequested',
+        data: { options: options },
+        event: 'collectionrequested',
         nameSpace,
       };
       mockMediatorPromise = jest
-        .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
+        .spyOn(mediator, 'sendMessageAwaitReply')
         .mockResolvedValue(response);
     });
     it('should be called once', () => {
@@ -102,7 +102,7 @@ describe('the kolibri shim', () => {
         nameSpace,
       };
       mockMediatorPromise = jest
-        .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
+        .spyOn(mediator, 'sendMessageAwaitReply')
         .mockResolvedValue(response);
     });
     it('should be called once', () => {
@@ -130,7 +130,7 @@ describe('the kolibri shim', () => {
   describe('themeRenderer method', () => {
     it('sets the shim.theme object within the Shim class', async () => {
       const sendMessageAwaitReplySpy = jest
-        .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
+        .spyOn(mediator, 'sendMessageAwaitReply')
         .mockResolvedValue();
       await kolibri.shim.themeRenderer({
         appBarColor: 'pink',
@@ -155,7 +155,7 @@ describe('the kolibri shim', () => {
         nameSpace,
       };
       mockMediatorPromise = jest
-        .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
+        .spyOn(mediator, 'sendMessageAwaitReply')
         .mockResolvedValue(response);
     });
 
@@ -172,11 +172,8 @@ describe('the kolibri shim', () => {
       };
       await kolibri.shim.searchContent(options);
       expect(mockMediatorPromise).toHaveBeenCalledWith({
-        event: 'datarequested',
-        data: {
-          options,
-          dataType: 'SearchResult',
-        },
+        event: 'searchresultrequested',
+        data: { options },
         nameSpace,
       });
     });
