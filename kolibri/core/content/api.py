@@ -433,6 +433,7 @@ class CharInFilter(BaseInFilter, CharFilter):
 contentnode_filter_fields = [
     "parent",
     "parent__isnull",
+    "modality",
     "prerequisite_for",
     "has_prerequisite",
     "related",
