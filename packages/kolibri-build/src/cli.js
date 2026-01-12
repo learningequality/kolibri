@@ -46,7 +46,10 @@ function createWebpackCompiler(bundleData, options) {
     setDevServerPublicPath: !options.writeToDisk,
   };
 
-  const webpackArray = bundleData.map(bundle => webpackConfig(bundle, buildOptions));
+  // Generate webpack config for each bundle (sandbox_handler flag is handled internally)
+  const webpackArray = bundleData
+    .map(bundle => webpackConfig(bundle, buildOptions))
+    .filter(Boolean);
 
   if (options.parallel) {
     webpackArray.parallelism = options.parallel;
