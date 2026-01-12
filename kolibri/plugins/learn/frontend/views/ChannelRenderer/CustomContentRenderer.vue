@@ -11,6 +11,14 @@
       :title="$tr('contentFrameTitle')"
     >
     </iframe>
+    <UiAlert
+      v-if="errorMessage"
+      class="error"
+      type="error"
+      :dismissible="false"
+    >
+      {{ errorMessage }}
+    </UiAlert>
     <ContentModal
       v-if="overlayIsOpen"
       :key="currentContent.id"
@@ -26,6 +34,8 @@
 <script>
 
   import { get } from '@vueuse/core';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
+  import coreApp from 'kolibri';
   import urls from 'kolibri/urls';
   import Sandbox from 'kolibri-sandbox';
   import { now } from 'kolibri/utils/serverClock';
@@ -33,7 +43,7 @@
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import router from 'kolibri/router';
   import { ContentNodeKinds } from 'kolibri/constants';
-  import { events, nameSpace, MessageStatuses } from 'kolibri-sandbox/src/base';
+  import { events, nameSpace, MessageStatuses } from 'kolibri-sandbox/base';
   import useChannels from 'kolibri-common/composables/useChannels';
   import { validateChannelTheme } from '../../utils/validateChannelTheme';
   import useContentLink from '../../composables/useContentLink';
@@ -61,6 +71,7 @@
     name: 'CustomContentRenderer',
     components: {
       ContentModal,
+      UiAlert,
     },
     setup() {
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
@@ -76,6 +87,7 @@
       return {
         overlayIsOpen: false,
         channelTheme: null,
+        errorMessage: null,
       };
     },
     computed: {
@@ -89,10 +101,22 @@
       currentChannel() {
         return get(channelsMap)[this.topic.channel_id];
       },
+      zipFile() {
+        return this.topic.files.find(f => f.extension === 'zip');
+      },
+      handlerUrl() {
+        return this.zipFile ? coreApp.getSandboxHandlerUrl(this.zipFile.preset) : null;
+      },
     },
     mounted() {
+      if (!this.handlerUrl) {
+        this.errorMessage = this.$tr('viewerNotAvailable');
+        return;
+      }
       this.sandbox = new Sandbox({ iframe: this.$refs.iframe, now });
-      const zipFile = this.topic.files.find(f => f.extension === 'zip');
+      this.sandbox.on(events.ERROR, () => {
+        this.errorMessage = this.$tr('channelLoadError');
+      });
       this.sandbox.on(events.COLLECTIONREQUESTED, message => {
         this.fetchContentCollection(message);
       });
@@ -126,7 +150,15 @@
       this.sandbox.on(events.RANDOMCOLLECTIONREQUESTED, message => {
         this.sendRandomCollection.call(this, message);
       });
-      this.sandbox.initialize({}, {}, urls.zipContentUrl(zipFile, 'index.html'), zipFile.checksum);
+      // A custom channel is an HTML5 zip, so it renders through the handler registered
+      // for its preset; the base shims that handler brings are what supply window.kolibri.
+      this.sandbox.initialize(
+        {},
+        {},
+        urls.zipContentUrl(this.zipFile, 'index.html'),
+        this.zipFile.checksum,
+        { handlerUrl: this.handlerUrl },
+      );
     },
     methods: {
       // helper functions for fetching data from kolibri
@@ -282,7 +314,7 @@
             return createReturnMsg({ message, err });
           })
           .then(newMsg => {
-            this.sandbox.mediator.sendLocalMessage(newMsg);
+            this.sandbox.mediator.sendMessage(newMsg);
           });
       },
       getOrUpdateContext(message) {
@@ -299,7 +331,7 @@
         }
 
         const newMsg = createReturnMsg({ message, data: {} });
-        this.sandbox.mediator.sendLocalMessage(newMsg);
+        this.sandbox.mediator.sendMessage(newMsg);
       },
       updateTheme(message) {
         const themeCopy = { ...message };
@@ -373,6 +405,15 @@
         message: 'Content viewer',
         context: 'Accessible title for the iframe that displays the content',
       },
+      viewerNotAvailable: {
+        message: 'Kolibri cannot display this channel because no viewer is available for it',
+        context:
+          'Error shown when the plugin that renders a custom channel is missing or disabled.',
+      },
+      channelLoadError: {
+        message: 'Kolibri is unable to load this channel',
+        context: 'Error shown when a custom channel fails to load in the content viewer.',
+      },
     },
   };
 
@@ -402,6 +443,14 @@
     width: 100%;
     height: calc(100% - 64px);
     overflow: visible;
+  }
+
+  .error {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: calc(100% - 16px);
+    text-align: left;
   }
 
 </style>

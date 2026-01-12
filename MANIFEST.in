@@ -37,6 +37,7 @@ recursive-exclude kolibri/* *pyo
 prune kolibri/core/frontend
 prune kolibri/core/node_modules
 prune kolibri/plugins/*/frontend
+prune kolibri/plugins/*/h5p_build
 prune kolibri/plugins/*/node_modules
 exclude kolibri/*/buildConfig.js
 exclude kolibri/plugins/*/buildConfig.js

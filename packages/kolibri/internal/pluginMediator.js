@@ -25,6 +25,7 @@ const publicMethods = [
   'registerLanguageAssets',
   'registerContentViewer',
   'loadDirectionalCSS',
+  'getSandboxHandlerUrl',
   'ready',
   'presetViewerComponent',
   'elementViewerComponent',
@@ -87,6 +88,10 @@ export default function pluginMediatorFactory(facade) {
      * Keep track of urls for content viewers.
      */
     _contentViewerUrls: {},
+    /**
+     * Keep track of sandbox handler URLs, keyed by content preset.
+     */
+    _sandboxHandlerUrls: {},
     /**
      * Public ready method - called when plugins can start operating
      */
@@ -198,12 +203,34 @@ export default function pluginMediatorFactory(facade) {
      * files that constitute the kolibriModule
      * @param {string[]} contentPresets - the names of presets this content viewer can render
      * @param {string[]} domTags - DOM tags handled
+     * @param {string|null} sandboxHandlerUrl - URL of the sandbox handler, for sandboxed viewers
      */
-    registerContentViewer(kolibriModuleName, kolibriModuleUrls, contentPresets = [], domTags = []) {
+    registerContentViewer(
+      kolibriModuleName,
+      kolibriModuleUrls,
+      contentPresets = [],
+      domTags = [],
+      sandboxHandlerUrl = null,
+    ) {
       this._contentViewerUrls[kolibriModuleName] = kolibriModuleUrls;
 
       this._registerViewerType(kolibriModuleName, contentPresets, VIEWER_SUFFIX);
       this._registerViewerType(kolibriModuleName, domTags, DOM_VIEWER_SUFFIX);
+
+      if (sandboxHandlerUrl) {
+        for (const preset of contentPresets) {
+          this._sandboxHandlerUrls[preset] = sandboxHandlerUrl;
+        }
+      }
+    },
+
+    /**
+     * Get the sandbox handler URL for a given content preset.
+     * @param {string} preset - The content preset
+     * @returns {string|null} The sandbox handler URL, or null if none is registered
+     */
+    getSandboxHandlerUrl(preset) {
+      return this._sandboxHandlerUrls[preset] || null;
     },
 
     /**
@@ -218,7 +245,13 @@ export default function pluginMediatorFactory(facade) {
         const moduleName = element.getAttribute('data-viewer');
         try {
           const data = JSON.parse(decodeMarkedSafeText(element.innerHTML.trim()));
-          this.registerContentViewer(moduleName, data.urls, data.presets, data.css_selectors);
+          this.registerContentViewer(
+            moduleName,
+            data.urls,
+            data.presets,
+            data.css_selectors,
+            data.sandboxHandlerUrl,
+          );
         } catch (e) {
           logger.error(`Error parsing content viewer for ${moduleName}`);
         }

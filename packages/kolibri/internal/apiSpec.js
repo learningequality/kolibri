@@ -22,6 +22,7 @@ export default {
   'kolibri/components/Fullscreen': require('kolibri/components/Fullscreen'),
   'kolibri/components/GlobalSnackbar': require('kolibri/components/GlobalSnackbar'),
   'kolibri/components/PrivacyInfoModal': require('kolibri/components/PrivacyInfoModal'),
+  'kolibri/components/SandboxedContentViewer': require('kolibri/components/SandboxedContentViewer'),
   'kolibri/components/SkipNavigationLink': require('kolibri/components/SkipNavigationLink'),
   'kolibri/components/SyncStatusDisplay': require('kolibri/components/SyncStatusDisplay'),
   'kolibri/components/ViewerToolbar': require('kolibri/components/ViewerToolbar'),
