@@ -10,10 +10,15 @@ describe('LocalStorage shim', () => {
     localStorage = new LocalStorage(mediator);
   });
   describe('constructor method', () => {
-    it('should set an event handler for the STATEUPDATE event', () => {
-      expect(mediator.__messageHandlers[localStorage.nameSpace][events.STATEUPDATE]).toEqual([
-        localStorage.__setData,
-      ]);
+    it('should store state pushed to it on the STATEUPDATE event', () => {
+      mediator.handleMessage({
+        data: {
+          nameSpace: localStorage.nameSpace,
+          event: events.STATEUPDATE,
+          data: { test: 'test' },
+        },
+      });
+      expect(localStorage.data).toEqual({ test: 'test' });
     });
     it('should set nameSpace to localStorage', () => {
       expect(localStorage.nameSpace).toEqual('localStorage');
