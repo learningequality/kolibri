@@ -15,6 +15,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
+from le_utils.constants import modalities
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -1273,6 +1274,43 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             )
         )
         self.assertEqual(response.data["preset"], "high_res_video")
+
+    def test_modality_filter(self):
+        # Create a node with a specific modality
+        lesson_topic = content.ContentNode.objects.filter(
+            kind=content_kinds.TOPIC
+        ).first()
+        course_topic = content.ContentNode.objects.filter(
+            kind=content_kinds.TOPIC
+        ).last()
+
+        # Just making sure our fixtures are different so our future assertions are strong
+        self.assertNotEqual(lesson_topic.id, course_topic.id)
+        self.assertGreater(content.ContentNode.objects.count(), 2)
+
+        lesson_topic.modality = modalities.LESSON
+        course_topic.modality = modalities.COURSE
+
+        # Filters will only return available nodes so just to be sure
+        lesson_topic.available = True
+        course_topic.available = True
+
+        lesson_topic.save()
+        course_topic.save()
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"modality": modalities.LESSON},
+        )
+
+        self.assertEqual(response.data[0]["id"], str(lesson_topic.id))
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"modality": modalities.COURSE},
+        )
+
+        self.assertEqual(response.data[0]["id"], str(course_topic.id))
 
     def _setup_contentnode_progress(self):
         # set up data for testing progress_fraction field on content node endpoint
