@@ -8,8 +8,8 @@ To use
 
     {% load webpack_tags %}
 
-    <!-- Render on-demand async inclusion tag for content renderers -->
-    {% content_renderer_assets %}
+    <!-- Render on-demand async inclusion tag for content viewers -->
+    {% content_viewer_assets %}
 
 """
 
@@ -21,13 +21,12 @@ register = template.Library()
 
 
 @register.simple_tag()
-def content_renderer_assets():
+def content_viewer_assets():
     """
-    This is a script tag for all ``ContentRendererInclusionHook`` hooks that implement a
-    render_to_html() method - this is used in in any template to
-    register any content renderers with the frontend so that they can be dynamically loaded
-    on demand.
+    Generates script tags for all ``ContentViewerHook`` hooks.
+    Used in templates to register content viewers with the frontend
+    so they can be dynamically loaded on demand.
 
     :return: HTML of script tags to insert into template
     """
-    return hooks.ContentRendererHook.html()
+    return hooks.ContentViewerHook.html()

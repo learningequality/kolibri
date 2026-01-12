@@ -24,7 +24,7 @@ class HookMixin:
     that it's mixed into.
     """
 
-    def get_stats(self):
+    def get_stats(self, unique_id=None):
         self.TEST_STATS_FILE_DATA = copy.deepcopy(TEST_STATS_FILE_DATA)
         self.TEST_STATS_FILE_DATA["chunks"][self.unique_id] = self.TEST_STATS_FILE_DATA[
             "chunks"

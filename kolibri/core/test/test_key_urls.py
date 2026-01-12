@@ -76,6 +76,10 @@ class BeforeDeviceProvisionTests(APITestCase):
 
     @patch("kolibri.core.webpack.hooks.WebpackBundleHook.get_by_unique_id")
     @patch("kolibri.core.webpack.hooks.WebpackBundleHook.bundle", return_value=[])
+    @patch(
+        "kolibri.core.content.hooks.SandboxedContentViewerHook.sandbox_handler_url",
+        None,
+    )
     def test_setup_wizard_not_redirected(self, *mocks):
         response = self.client.get(
             reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard")
@@ -237,6 +241,9 @@ class AllUrlsTest(APITestCase):
             "kolibri.core.webpack.hooks.WebpackBundleHook.bundle", return_value=[]
         ), patch(
             "kolibri.core.webpack.hooks.WebpackBundleHook.get_by_unique_id"
+        ), patch(
+            "kolibri.core.content.hooks.SandboxedContentViewerHook.sandbox_handler_url",
+            None,
         ), patch.object(requests.Session, "request", mock_external_request):
             from kolibri.deployment.default.urls import urlpatterns
 
