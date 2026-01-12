@@ -11,18 +11,17 @@ from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import ContentRequestType
 from kolibri.core.content.utils.channel_import import import_channel_from_data
-from kolibri.core.content.utils.channel_transfer import export_channel
 from kolibri.core.content.utils.channel_transfer import transfer_channel
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.content_delete import delete_content
-from kolibri.core.content.utils.content_export import export_content
 from kolibri.core.content.utils.content_request import incomplete_removals_queryset
 from kolibri.core.content.utils.content_request import process_content_removal_requests
 from kolibri.core.content.utils.content_request import process_content_requests
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
+from kolibri.core.content.utils.resource_export import DiskChannelResourceExportManager
 from kolibri.core.content.utils.resource_import import DiskChannelResourceImportManager
 from kolibri.core.content.utils.resource_import import DiskChannelUpdateManager
 from kolibri.core.content.utils.resource_import import (
@@ -461,18 +460,15 @@ def diskexport(
     """
     Export a channel to a local drive, and copy content to the drive.
     """
-    from kolibri.core.content.utils.channels import get_mounted_drive_by_id
-
     drive = get_mounted_drive_by_id(drive_id)
 
-    export_channel(channel_id, drive.datafolder)
-
-    export_content(
+    manager = DiskChannelResourceExportManager(
         channel_id,
         drive.datafolder,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
     )
+    manager.run()
 
 
 class DeleteChannelValidator(ChannelResourcesValidator):
@@ -528,12 +524,6 @@ def remoteimport(
     fail_on_error=False,
     all_thumbnails=False,
 ):
-
-    transfer_channel(channel_id, DOWNLOAD_METHOD, baseurl=baseurl)
-    if update:
-        current_job = get_current_job()
-        current_job.update_metadata(database_ready=True)
-
     manager_class = (
         RemoteChannelUpdateManager if update else RemoteChannelResourceImportManager
     )
@@ -546,6 +536,7 @@ def remoteimport(
         renderable_only=renderable_only,
         fail_on_error=fail_on_error,
         all_thumbnails=all_thumbnails,
+        import_channel_database=True,
     )
     manager.run()
 
@@ -570,13 +561,6 @@ def diskimport(
     all_thumbnails=False,
 ):
     drive = get_mounted_drive_by_id(drive_id)
-    directory = drive.datafolder
-
-    transfer_channel(channel_id, COPY_METHOD, source_path=directory)
-
-    if update:
-        current_job = get_current_job()
-        current_job.update_metadata(database_ready=True)
 
     manager_class = (
         DiskChannelUpdateManager if update else DiskChannelResourceImportManager
@@ -590,6 +574,7 @@ def diskimport(
         exclude_node_ids=exclude_node_ids,
         fail_on_error=fail_on_error,
         all_thumbnails=all_thumbnails,
+        import_channel_database=True,
     )
     manager.run()
 
