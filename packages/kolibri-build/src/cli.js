@@ -15,6 +15,7 @@ const readWebpackJson = require('./read_webpack_json');
 const webpackConfig = require('./webpack.config.plugin');
 const clean = require('./clean');
 const compressFile = require('./compress');
+const collectSandboxStatic = require('./collect_sandbox_static');
 
 const cliLogging = logger.getLogger('Kolibri Build CLI');
 const buildLogging = logger.getLogger('Kolibri Build');
@@ -313,6 +314,21 @@ addBuildOptions(program.command('clean'))
     validateKdsOptions(options);
     const bundleData = getBundleData(options);
     clean(bundleData);
+  });
+
+// Collect sandbox static command
+addBuildOptions(program.command('collect-sandbox-static'))
+  .arguments('<destination>')
+  .description('Collect the static files the sandbox server serves into one directory')
+  .option('--clear', 'Clear the destination directory before collecting', false)
+  .action(function (destination, options) {
+    const bundleData = getBundleData(options);
+    try {
+      collectSandboxStatic(bundleData, destination, { clear: options.clear });
+    } catch (e) {
+      cliLogging.error(e.message);
+      process.exit(1);
+    }
   });
 
 // Compress
