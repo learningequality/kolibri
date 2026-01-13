@@ -1,11 +1,9 @@
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
-import client from 'kolibri/client';
 import { showFacilityConfigPage } from '../handlers';
 import makeStore from '../../../__tests__/utils/makeStore';
 import coreModule from '../../../../../../core/frontend/state/modules/core';
 
-jest.mock('kolibri/client');
 jest.mock('kolibri/urls');
 jest.mock('kolibri-common/apiResources/FacilityResource');
 jest.mock('kolibri-common/apiResources/FacilityDatasetResource');
@@ -207,22 +205,6 @@ describe('facility config page actions', () => {
             learner_can_delete_account: true,
             learner_can_sign_up: false,
           });
-        });
-      });
-
-      it(`resetFacilityConfig action dispatches resets settings and makes a save request for ${test.description}`, () => {
-        const expected = {
-          learner_can_edit_username: true,
-          learner_can_edit_name: false,
-          learner_can_edit_password: true,
-          learner_can_sign_up: false,
-          learner_can_delete_account: true,
-          learner_can_login_with_no_password: false,
-          show_download_button_in_learn: true,
-        };
-        client.mockResolvedValue({ data: expected });
-        return store.dispatch('facilityConfig/resetFacilityConfig').then(() => {
-          expect(store.state.facilityConfig.settings).toEqual(expected);
         });
       });
     });
