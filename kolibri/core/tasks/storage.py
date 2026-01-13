@@ -139,6 +139,22 @@ class Storage:
             )
             return job.job_id
 
+    def _enqueue_job_if_not_status(
+        self,
+        job,
+        queue=DEFAULT_QUEUE,
+        priority=Priority.REGULAR,
+        state=State.QUEUED,
+        retry_interval=None,
+    ):
+        queued_jobs = self.filter_jobs(func=job.func, queue=queue, state=state)
+        if queued_jobs:
+            return queued_jobs[0].job_id
+
+        return self.enqueue_job(
+            job, queue=queue, priority=priority, retry_interval=retry_interval
+        )
+
     def enqueue_job_if_not_enqueued(
         self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
     ):
@@ -150,12 +166,32 @@ class Storage:
         :return: enqueued job's id.
         """
 
-        queued_jobs = self.filter_jobs(func=job.func, queue=queue, state=State.QUEUED)
-        if queued_jobs:
-            return queued_jobs[0].job_id
+        return self._enqueue_job_if_not_status(
+            job,
+            queue=queue,
+            priority=priority,
+            state=State.QUEUED,
+            retry_interval=retry_interval,
+        )
 
-        return self.enqueue_job(
-            job, queue=queue, priority=priority, retry_interval=retry_interval
+    def enqueue_job_if_not_active(
+        self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
+    ):
+        """
+        Enqueue the function with arguments passed to this method if there is no job running or
+        next to it.
+
+        N.B. This method does not curently match by job arguments (args and kwargs) but only by the function name.
+
+        :return: enqueued job's id.
+        """
+
+        return self._enqueue_job_if_not_status(
+            job,
+            queue=queue,
+            priority=priority,
+            state=[State.PENDING, State.SCHEDULED, State.QUEUED, State.RUNNING],
+            retry_interval=retry_interval,
         )
 
     def mark_job_as_canceled(self, job_id):
@@ -242,7 +278,10 @@ class Storage:
             queryset = queryset.filter(queue__in=queues)
 
         if state:
-            queryset = queryset.filter(state=state)
+            if isinstance(state, list):
+                queryset = queryset.filter(state__in=state)
+            else:
+                queryset = queryset.filter(state=state)
 
         if repeating is True:
             queryset = queryset.filter(Q(repeat__gt=0) | Q(repeat__isnull=True))

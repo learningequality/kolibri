@@ -340,6 +340,22 @@ class RegisteredTask:
             retry_interval=retry_interval,
         )
 
+    def enqueue_if_not_active(
+        self, job=None, retry_interval=None, priority=None, **job_kwargs
+    ):
+        """
+        Enqueue the function with arguments passed to this method if there is no job running or
+        next to it.
+
+        :return: enqueued job's id.
+        """
+        return job_storage.enqueue_job_if_not_active(
+            job or self._ready_job(**job_kwargs),
+            queue=self.queue,
+            priority=priority or self.priority,
+            retry_interval=retry_interval,
+        )
+
     def enqueue_in(
         self,
         delta_time,

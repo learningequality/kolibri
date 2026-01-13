@@ -306,5 +306,5 @@ class ContentDownloadRequestSerializer(serializers.ModelSerializer):
         content_request.source_instance_id = validated_data.get("source_instance_id")
 
         content_request.save()
-        automatic_resource_import.enqueue_if_not()
+        automatic_resource_import.enqueue_if_not_active()
         return content_request
