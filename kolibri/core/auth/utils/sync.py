@@ -28,7 +28,7 @@ from kolibri.core.auth.management.utils import get_facility_dataset_id
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import Membership
 from kolibri.core.auth.models import Role
-from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
+from kolibri.core.discovery.utils.network.errors import NetworkClientError
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.utils.retry import retry
 
@@ -80,7 +80,7 @@ def find_soud_sync_session_for_resume(user, base_url, using=None):
     return None
 
 
-@retry(NetworkLocationNotFound)
+@retry(NetworkClientError)
 def validate_and_create_sync_credentials(
     baseurl, facility_id, username, password, user_id=None
 ):

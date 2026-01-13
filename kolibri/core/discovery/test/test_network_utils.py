@@ -164,6 +164,8 @@ class TestURLParsing(TestCase):
 
 
 class NetworkClientTestCase(TestCase):
+    databases = "__all__"
+
     @mock.patch.object(
         requests.Session, "request", mock_happy_request("https://happyurl.qqq/")
     )
