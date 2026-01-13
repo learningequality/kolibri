@@ -20,7 +20,7 @@ Generate the Windows installer
 
 ## dev.dockerfile
 
-Gull development setup with running devserver
+Full development setup with running devserver
 
 ## demoserver.dockerfile
 
