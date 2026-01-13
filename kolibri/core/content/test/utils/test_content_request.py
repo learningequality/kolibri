@@ -29,6 +29,7 @@ from kolibri.core.content.utils.content_request import PreferredDevicesWithClien
 from kolibri.core.content.utils.content_request import process_content_removal_requests
 from kolibri.core.content.utils.content_request import process_download_request
 from kolibri.core.content.utils.content_request import process_metadata_import
+from kolibri.core.content.utils.content_request import process_user_downloads_for_removal
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.discovery.models import ConnectionStatus
@@ -1137,3 +1138,64 @@ class ProcessDownloadRequestTestCase(BaseQuerysetTestCase):
         )
         mock_import_manager.return_value.run.assert_called_once()
         self.assertTrue(result)
+
+
+class ProcessUserDownloadsForRemovalTestCase(BaseQuerysetTestCase):
+    """
+    Tests for process_user_downloads_for_removal function
+    """
+
+    def setUp(self):
+        super().setUp()
+        # Create a completed user-initiated download
+        self.user_download = ContentDownloadRequest.build_for_user(self.learner)
+        self.user_download.contentnode_id = uuid.uuid4().hex
+        self.user_download.reason = ContentRequestReason.UserInitiated
+        self.user_download.status = ContentRequestStatus.Completed
+        self.user_download.save()
+
+    def test_all_downloads_excluded_due_to_has_other_download__no_crash(self):
+        """
+        Regression test for AttributeError when all user downloads have has_other_download=True.
+
+        Previously, when all completed user-initiated downloads were excluded because
+        each had another download request for the same contentnode, the queryset would
+        be empty and .first() returned None. The code then accessed
+        largest_user_download.source_model, causing an AttributeError.
+
+        This test ensures the function returns gracefully without crashing and
+        without creating any ContentRemovalRequest.
+        """
+        # Create another download for the same contentnode with different source
+        # This causes has_other_download=True, excluding our user download
+        other_download = ContentDownloadRequest(
+            contentnode_id=self.user_download.contentnode_id,
+            reason=ContentRequestReason.SyncInitiated,
+            status=ContentRequestStatus.Completed,
+            source_model="different_model",
+            source_id=uuid.uuid4().hex,
+            facility=self.facility,
+        )
+        other_download.save()
+
+        # Verify the setup: we have one user-initiated completed download,
+        # but it should be excluded due to has_other_download=True
+        self.assertEqual(
+            ContentDownloadRequest.objects.filter(
+                reason=ContentRequestReason.UserInitiated,
+                status=ContentRequestStatus.Completed,
+            ).count(),
+            1,
+        )
+
+        # Count removal requests before
+        removal_count_before = ContentRemovalRequest.objects.count()
+
+        # This should NOT raise an AttributeError
+        process_user_downloads_for_removal()
+
+        # No ContentRemovalRequest should have been created
+        self.assertEqual(
+            ContentRemovalRequest.objects.count(),
+            removal_count_before,
+        )
