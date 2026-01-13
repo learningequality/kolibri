@@ -170,17 +170,16 @@
     </KPageContainer>
 
     <BottomAppBar data-test="bottom-bar">
-      <KGrid v-if="!isAppContext">
-        <KButton
-          :primary="true"
-          class="save-button"
-          appearance="raised-button"
-          :text="coreString('saveChangesAction')"
-          name="save-settings"
-          :disabled="!settingsHaveChanged"
-          @click="saveConfig()"
-        />
-      </KGrid>
+      <KButton
+        v-if="!isAppContext"
+        :primary="true"
+        class="save-button"
+        appearance="raised-button"
+        :text="coreString('saveChangesAction')"
+        name="save-settings"
+        :disabled="!settingsHaveChanged"
+        @click="saveConfig()"
+      />
     </BottomAppBar>
   </FacilityAppBarPage>
 
