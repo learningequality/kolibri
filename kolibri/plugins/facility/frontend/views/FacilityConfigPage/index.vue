@@ -134,23 +134,10 @@
               :disabled="!settingsHaveChanged"
               @click="saveConfig()"
             />
-            <KButton
-              :primary="false"
-              appearance="flat-button"
-              :text="$tr('resetToDefaultSettings')"
-              name="reset-settings"
-              @click="showModal = true"
-            />
           </KButtonGroup>
         </div>
       </template>
 
-      <ConfirmResetModal
-        v-if="showModal"
-        id="confirm-reset"
-        @submit="resetToDefaultSettings"
-        @cancel="showModal = false"
-      />
       <EditFacilityNameModal
         v-if="showEditFacilityModal"
         id="edit-facility"
@@ -193,15 +180,7 @@
             :layout12="{ span: 6 }"
             :layout8="{ span: 4 }"
             :layout4="{ span: 2 }"
-          >
-            <KButton
-              :primary="false"
-              appearance="flat-button"
-              :text="$tr('resetToDefaultSettings')"
-              name="reset-settings"
-              @click="showModal = true"
-            />
-          </KGridItem>
+          />
           <KGridItem
             :layout12="{ span: 6 }"
             :layout8="{ span: 4 }"
@@ -240,7 +219,6 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import FacilityAppBarPage from '../FacilityAppBarPage';
-  import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
   import CreateManagementPinModal from './CreateManagementPinModal';
   import ViewPinModal from './ViewPinModal';
@@ -283,7 +261,6 @@
     },
     components: {
       FacilityAppBarPage,
-      ConfirmResetModal,
       EditFacilityNameModal,
       BottomAppBar,
       CreateManagementPinModal,
@@ -307,7 +284,6 @@
     },
     data() {
       return {
-        showModal: false,
         showEditFacilityModal: false,
         settingsCopy: {},
         createPinShow: false,
@@ -425,10 +401,6 @@
             this.$store.commit('facilityConfig/CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
           });
       },
-      resetToDefaultSettings() {
-        this.showModal = false;
-        this.updateSettings('facilityConfig/resetFacilityConfig');
-      },
       sendFacilityName(name) {
         this.showEditFacilityModal = false;
         if (name != this.facilityName) this.saveFacilityName({ name: name, id: this.facilityId });
@@ -500,10 +472,6 @@
       pageHeader: {
         message: 'Facility settings',
         context: 'Title of the Facility > Settings page.',
-      },
-      resetToDefaultSettings: {
-        message: 'Reset to defaults',
-        context: 'Button that resets the facility to its default settings.',
       },
       documentTitle: {
         message: 'Facility Settings',
