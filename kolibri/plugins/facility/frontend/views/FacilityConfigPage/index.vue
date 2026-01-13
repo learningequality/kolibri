@@ -125,16 +125,15 @@
             borderTopColor: $themeTokens.fineLine,
           }"
         >
-          <KButtonGroup :style="{ marginTop: '24px', marginLeft: '-8px' }">
-            <KButton
-              :primary="true"
-              appearance="raised-button"
-              :text="coreString('saveChangesAction')"
-              name="save-settings"
-              :disabled="!settingsHaveChanged"
-              @click="saveConfig()"
-            />
-          </KButtonGroup>
+          <KButton
+            :primary="true"
+            appearance="raised-button"
+            :style="{ marginTop: '24px', marginLeft: '-8px' }"
+            :text="coreString('saveChangesAction')"
+            name="save-settings"
+            :disabled="!settingsHaveChanged"
+            @click="saveConfig()"
+          />
         </div>
       </template>
 
@@ -171,33 +170,17 @@
     </KPageContainer>
 
     <BottomAppBar data-test="bottom-bar">
-      <KButtonGroup
-        v-if="!isAppContext"
-        style="margin-top: 8px"
-      >
-        <KGrid>
-          <KGridItem
-            :layout12="{ span: 6 }"
-            :layout8="{ span: 4 }"
-            :layout4="{ span: 2 }"
-          />
-          <KGridItem
-            :layout12="{ span: 6 }"
-            :layout8="{ span: 4 }"
-            :layout4="{ span: 2 }"
-          >
-            <KButton
-              :primary="true"
-              :class="windowIsSmall ? 'mobile-button' : ''"
-              appearance="raised-button"
-              :text="coreString('saveChangesAction')"
-              name="save-settings"
-              :disabled="!settingsHaveChanged"
-              @click="saveConfig()"
-            />
-          </KGridItem>
-        </KGrid>
-      </KButtonGroup>
+      <KGrid v-if="!isAppContext">
+        <KButton
+          :primary="true"
+          class="save-button"
+          appearance="raised-button"
+          :text="coreString('saveChangesAction')"
+          name="save-settings"
+          :disabled="!settingsHaveChanged"
+          @click="saveConfig()"
+        />
+      </KGrid>
     </BottomAppBar>
   </FacilityAppBarPage>
 
@@ -207,7 +190,6 @@
 <script>
 
   import { mapActions, mapGetters, mapState } from 'vuex';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { createTranslator } from 'kolibri/utils/i18n';
 
   import camelCase from 'lodash/camelCase';
@@ -271,12 +253,10 @@
     mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
-      const { windowIsSmall } = useKResponsiveWindow();
       const { isAppContext, isSuperuser } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       return {
         createSnackbar,
-        windowIsSmall,
         isAppContext,
         isSuperuser,
         userIsMultiFacilityAdmin,
@@ -518,8 +498,9 @@
     margin-left: 24px;
   }
 
-  .mobile-button {
-    margin-top: 0;
+  .save-button {
+    position: absolute;
+    right: 25px;
   }
 
   .facility-loader {
