@@ -11,6 +11,8 @@
     />
     <div
       v-else
+      ref="safeHtmlWrapper"
+      data-testid="safe-html-wrapper"
       class="safe-html-wrapper"
       role="region"
       :aria-label="$tr('articleContent')"
@@ -26,6 +28,7 @@
 
   import ZipFile from 'kolibri-zip';
   import SafeHTML from 'kolibri-common/components/SafeHTML';
+  import debounce from 'lodash/debounce';
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
 
   export default {
@@ -50,14 +53,13 @@
       return {
         loading: true,
         html: null,
+        scrollBasedProgress: 0,
+        debouncedHandleScroll: null,
       };
     },
     computed: {
       entry() {
         return (this.options && this.options.entry) || 'index.html';
-      },
-      scrollBasedProgress() {
-        return 0.5;
       },
       cssVars() {
         return {
@@ -75,19 +77,24 @@
       const entryHtmlFile = await zipFile.file(this.entry);
       this.html = entryHtmlFile.toString();
       this.loading = false;
+
       this.$emit('startTracking');
       this.pollProgress();
     },
     mounted() {
-      this.$nextTick(() => {
-        this.applyTabIndexes();
-        window.addEventListener('resize', this.applyTabIndexes);
-      });
+      this.safeHtmlDomReadyHandler();
+      this.$watch('loading', this.safeHtmlDomReadyHandler);
     },
     beforeDestroy() {
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
+
+      const wrapper = this.$refs.safeHtmlWrapper;
+      if (wrapper && this.debouncedHandleScroll) {
+        wrapper.removeEventListener('scroll', this.debouncedHandleScroll);
+      }
+
       window.removeEventListener('resize', this.applyTabIndexes);
       this.$emit('stopTracking');
     },
@@ -108,11 +115,11 @@
         if (this.forceDurationBasedProgress) {
           progress = this.durationBasedProgress;
         } else {
-          // TODO: Handle progress tracking based on how
-          // much of the article has been scrolled through
+          // Use scroll events to track progress
           progress = this.scrollBasedProgress;
         }
         this.$emit('updateProgress', progress);
+
         if (progress >= 1) {
           this.$emit('finished');
         }
@@ -122,6 +129,44 @@
         this.timeout = setTimeout(() => {
           this.recordProgress();
         }, 5000);
+      },
+      handleScroll() {
+        const element = this.$refs.safeHtmlWrapper;
+        const scrollTop = element.scrollTop;
+        const scrollHeight = element.scrollHeight;
+        const clientHeight = element.clientHeight;
+
+        // Calculate progress as a value between 0 and 1
+        const maxScroll = scrollHeight - clientHeight;
+        if (maxScroll > 0) {
+          // Adds correction threshold to account for scroll-based progress inaccuracies
+          const effectiveScrollTop = scrollTop + 1 >= maxScroll ? maxScroll : scrollTop;
+          this.scrollBasedProgress = Math.min(effectiveScrollTop / maxScroll, 1);
+        } else {
+          // Content doesn't overflow, consider it fully read
+          this.scrollBasedProgress = 1;
+        }
+
+        // Immediately record progress after updating scroll position
+        this.recordProgress();
+      },
+      setupScrollListener() {
+        // Only set up scroll listener if we're using scroll-based progress
+        if (!this.forceDurationBasedProgress) {
+          const wrapper = this.$refs.safeHtmlWrapper;
+          if (wrapper) {
+            this.debouncedHandleScroll = debounce(this.handleScroll, 150);
+            wrapper.addEventListener('scroll', this.debouncedHandleScroll);
+          }
+        }
+      },
+      async safeHtmlDomReadyHandler() {
+        if (!this.loading) {
+          await this.$nextTick();
+          this.applyTabIndexes();
+          window.addEventListener('resize', this.applyTabIndexes);
+          this.setupScrollListener();
+        }
       },
     },
     $trs: {
