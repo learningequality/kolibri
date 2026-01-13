@@ -92,34 +92,6 @@ describe('SafeHtml5RendererIndex', () => {
     });
   });
 
-  describe('windowSizeClass pass-through', () => {
-    test("the 'small-window' class is applied to table caption when innerWidth <= 600", async () => {
-      Object.defineProperty(window, 'innerWidth', {
-        writable: true,
-        configurable: true,
-        value: 500,
-      });
-      renderComponent();
-      await waitFor(() => {
-        const caption = screen.getByText('Mocked 3-column Table');
-        expect(caption).toHaveClass('small-window');
-      });
-    });
-
-    test("the 'small-window' class is not applied to table caption when innerWidth > 600", async () => {
-      Object.defineProperty(window, 'innerWidth', {
-        writable: true,
-        configurable: true,
-        value: 800,
-      });
-      renderComponent();
-      await waitFor(() => {
-        const caption = screen.getByText('Mocked 3-column Table');
-        expect(caption).not.toHaveClass('small-window');
-      });
-    });
-  });
-
   describe('progress tracking', () => {
     test('emits startTracking on created', async () => {
       const { emitted } = renderComponent();

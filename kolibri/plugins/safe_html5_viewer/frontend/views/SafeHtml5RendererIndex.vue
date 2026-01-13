@@ -15,12 +15,7 @@
       role="region"
       :aria-label="$tr('articleContent')"
     >
-      <SafeHTML
-        :html="html"
-        :styleOverrides="{
-          windowSizeClass: windowSizeClass,
-        }"
-      />
+      <SafeHTML :html="html" />
     </div>
   </div>
 
@@ -32,8 +27,6 @@
   import ZipFile from 'kolibri-zip';
   import SafeHTML from 'kolibri-common/components/SafeHTML';
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { computed } from 'vue';
 
   export default {
     name: 'SafeHtml5RendererIndex',
@@ -41,17 +34,12 @@
       SafeHTML,
     },
     setup(props, context) {
-      const { windowIsSmall } = useKResponsiveWindow();
-      const windowSizeClass = computed(() => {
-        return windowIsSmall.value ? 'small-window' : '';
-      });
       const { defaultFile, forceDurationBasedProgress, durationBasedProgress } = useContentViewer(
         props,
         context,
         { defaultDuration: 300 },
       );
       return {
-        windowSizeClass,
         defaultFile,
         forceDurationBasedProgress,
         durationBasedProgress,
