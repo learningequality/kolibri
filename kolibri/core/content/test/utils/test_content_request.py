@@ -29,7 +29,9 @@ from kolibri.core.content.utils.content_request import PreferredDevicesWithClien
 from kolibri.core.content.utils.content_request import process_content_removal_requests
 from kolibri.core.content.utils.content_request import process_download_request
 from kolibri.core.content.utils.content_request import process_metadata_import
-from kolibri.core.content.utils.content_request import process_user_downloads_for_removal
+from kolibri.core.content.utils.content_request import (
+    process_user_downloads_for_removal,
+)
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.discovery.models import ConnectionStatus
