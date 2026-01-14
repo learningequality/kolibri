@@ -1,14 +1,20 @@
 import json
+import uuid
+from contextlib import contextmanager
 
 import mock
 from django.test import SimpleTestCase
 from morango.constants import transfer_statuses
 from morango.errors import MorangoSkipOperation
+from morango.models import Filter
 from morango.sync.context import LocalSessionContext
+from morango.sync.context import NetworkSessionContext
 from morango.sync.context import SessionContext
 from morango.sync.operations import BaseOperation
 
 from kolibri.core.auth.hooks import FacilityDataSyncHook
+from kolibri.core.auth.sync_operations import KolibriLocalInitializeOperation
+from kolibri.core.auth.sync_operations import KolibriNetworkInitializeOperation
 from kolibri.core.auth.sync_operations import KolibriSingleUserSyncOperation
 from kolibri.core.auth.sync_operations import KolibriSyncOperationMixin
 from kolibri.core.auth.sync_operations import KolibriSyncOperations
@@ -355,3 +361,242 @@ class KolibriSingleUserSyncOperationTestCase(SimpleTestCase):
 
         self.handle_remote_user.assert_called_once_with(self.context, "abc123")
         self.handle_local_user.assert_not_called()
+
+
+@mock.patch("kolibri.core.auth.sync_operations.InitializeOperation.handle")
+@mock.patch("kolibri.core.auth.sync_operations.other_side_using_single_user_cert")
+@mock.patch("kolibri.core.auth.sync_operations.this_side_using_single_user_cert")
+class KolibriLocalInitializeOperationTestCase(SimpleTestCase):
+    def setUp(self):
+        super().setUp()
+        self.operation = KolibriLocalInitializeOperation()
+        self.context = mock.Mock(spec_set=LocalSessionContext)()
+        self.context.is_server = False
+        self.context.is_push = False
+        self.context.filter = Filter("base_filter")
+
+    def test_not_server(self, mock_is_local, mock_is_remote, mock_handle):
+        result = self.operation.handle(self.context)
+        mock_is_local.assert_not_called()
+        mock_is_remote.assert_not_called()
+        mock_handle.assert_called_once_with(self.context)
+        self.assertEqual(result, mock_handle.return_value)
+
+    def test_server__no_soud(self, mock_is_local, mock_is_remote, mock_handle):
+        self.context.is_server = True
+        mock_is_local.return_value = False
+        mock_is_remote.return_value = False
+        result = self.operation.handle(self.context)
+        mock_is_local.assert_called_once()
+        mock_is_remote.assert_called_once()
+        mock_handle.assert_called_once_with(self.context)
+        self.assertEqual(result, mock_handle.return_value)
+
+    def test_server__is_soud(self, mock_is_local, mock_is_remote, mock_handle):
+        self.context.is_server = True
+        mock_is_local.return_value = True
+        mock_is_remote.return_value = False
+        result = self.operation.handle(self.context)
+        mock_is_local.assert_called_once()
+        mock_is_remote.assert_called_once()
+        mock_handle.assert_called_once_with(self.context)
+        self.assertEqual(result, mock_handle.return_value)
+
+    def test_server__both_soud(self, mock_is_local, mock_is_remote, mock_handle):
+        self.context.is_server = True
+        mock_is_local.return_value = True
+        mock_is_remote.return_value = True
+        result = self.operation.handle(self.context)
+        mock_is_local.assert_called_once()
+        mock_is_remote.assert_called_once()
+        mock_handle.assert_called_once_with(self.context)
+        self.assertEqual(result, mock_handle.return_value)
+
+    @contextmanager
+    def _patch(self, dataset_id, user_id):
+        with mock.patch(
+            "kolibri.core.auth.sync_operations.get_dataset_id", return_value=dataset_id
+        ) as mock_get_dataset_id, mock.patch(
+            "kolibri.core.auth.sync_operations.get_user_id_for_single_user_sync",
+            return_value=user_id,
+        ) as mock_get_user, mock.patch(
+            "kolibri.core.auth.sync_operations.ClassroomPartitionFilterFactory"
+        ) as mock_factory:
+            yield mock_get_dataset_id, mock_get_user, mock_factory
+
+    def test_server__not_the_soud__pull(
+        self, mock_is_local, mock_is_remote, mock_handle
+    ):
+        self.context.is_server = True
+        mock_is_local.return_value = False
+        mock_is_remote.return_value = True
+        dataset_id = uuid.uuid4().hex
+        user_id = uuid.uuid4().hex
+
+        with self._patch(dataset_id, user_id) as (
+            mock_get_dataset_id,
+            mock_get_user,
+            mock_factory,
+        ):
+            factory = mock_factory.return_value
+            factory.set_writeable.return_value.build_for_user.return_value = Filter(
+                "second_filter"
+            )
+            result = self.operation.handle(self.context)
+            mock_get_dataset_id.assert_called_once_with(self.context)
+            mock_factory.assert_called_once_with(dataset_id)
+            mock_get_user.assert_called_once_with(self.context)
+            factory.set_writeable.assert_called_once_with(writeable=False)
+            factory.set_writeable.return_value.build_for_user.assert_called_once_with(
+                user_id
+            )
+
+        self.assertTrue(self.context.filter.contains_partition("base_filter"))
+        self.assertTrue(self.context.filter.contains_partition("second_filter"))
+
+        mock_is_local.assert_called_once()
+        mock_is_remote.assert_called_once()
+        mock_handle.assert_called_once_with(self.context)
+        self.assertEqual(result, mock_handle.return_value)
+
+    def test_server__not_the_soud__push(
+        self, mock_is_local, mock_is_remote, mock_handle
+    ):
+        self.context.is_server = True
+        self.context.is_push = True
+        mock_is_local.return_value = False
+        mock_is_remote.return_value = True
+        dataset_id = uuid.uuid4().hex
+        user_id = uuid.uuid4().hex
+
+        with self._patch(dataset_id, user_id) as (
+            mock_get_dataset_id,
+            mock_get_user,
+            mock_factory,
+        ):
+            factory = mock_factory.return_value
+            factory.set_writeable.return_value.build_for_user.return_value = Filter(
+                "second_filter"
+            )
+            result = self.operation.handle(self.context)
+            mock_get_dataset_id.assert_called_once_with(self.context)
+            mock_factory.assert_called_once_with(dataset_id)
+            mock_get_user.assert_called_once_with(self.context)
+            factory.set_writeable.assert_called_once_with(writeable=True)
+            factory.set_writeable.return_value.build_for_user.assert_called_once_with(
+                user_id
+            )
+
+        self.assertTrue(self.context.filter.contains_partition("base_filter"))
+        self.assertTrue(self.context.filter.contains_partition("second_filter"))
+
+        mock_is_local.assert_called_once()
+        mock_is_remote.assert_called_once()
+        mock_handle.assert_called_once_with(self.context)
+        self.assertEqual(result, mock_handle.return_value)
+
+    def test_server__not_the_soud__no_filter(
+        self, mock_is_local, mock_is_remote, mock_handle
+    ):
+        self.context.is_server = True
+        self.context.is_push = True
+        mock_is_local.return_value = False
+        mock_is_remote.return_value = True
+        dataset_id = uuid.uuid4().hex
+        user_id = uuid.uuid4().hex
+
+        with self._patch(dataset_id, user_id) as (
+            mock_get_dataset_id,
+            mock_get_user,
+            mock_factory,
+        ):
+            factory = mock_factory.return_value
+            factory.set_writeable.return_value.build_for_user.return_value = None
+            result = self.operation.handle(self.context)
+            mock_get_dataset_id.assert_called_once_with(self.context)
+            mock_factory.assert_called_once_with(dataset_id)
+            mock_get_user.assert_called_once_with(self.context)
+            factory.set_writeable.assert_called_once_with(writeable=True)
+            factory.set_writeable.return_value.build_for_user.assert_called_once_with(
+                user_id
+            )
+
+        self.assertTrue(self.context.filter.contains_partition("base_filter"))
+
+        mock_is_local.assert_called_once()
+        mock_is_remote.assert_called_once()
+        mock_handle.assert_called_once_with(self.context)
+        self.assertEqual(result, mock_handle.return_value)
+
+
+@mock.patch(
+    "kolibri.core.auth.sync_operations.NetworkInitializeOperation.create_transfer_session"
+)
+@mock.patch("kolibri.core.auth.sync_operations.other_side_using_single_user_cert")
+@mock.patch("kolibri.core.auth.sync_operations.this_side_using_single_user_cert")
+class KolibriNetworkInitializeOperationTestCase(SimpleTestCase):
+    def setUp(self):
+        super().setUp()
+        self.operation = KolibriNetworkInitializeOperation()
+        self.context = mock.Mock(spec_set=NetworkSessionContext)()
+        self.context.is_server = False
+        self.context.is_push = False
+        self.context.transfer_session = mock.Mock()
+        self.context.filter = Filter("base_filter")
+
+    def test_no_soud(self, mock_is_local, mock_is_remote, mock_create):
+        mock_is_local.return_value = False
+        mock_is_remote.return_value = False
+        mock_create.return_value = {"filter": None}
+        result = self.operation.create_transfer_session(self.context)
+        mock_create.assert_called_once_with(self.context)
+        mock_is_local.assert_called_once()
+        mock_is_remote.assert_called_once()
+        self.context.transfer_session.save.assert_not_called()
+        self.assertEqual(result, mock_create.return_value)
+
+    def test_no_filter(self, mock_is_local, mock_is_remote, mock_create):
+        mock_is_local.return_value = False
+        mock_is_remote.return_value = False
+        mock_create.return_value = {}
+        result = self.operation.create_transfer_session(self.context)
+        mock_create.assert_called_once_with(self.context)
+        mock_is_local.assert_called_once()
+        mock_is_remote.assert_called_once()
+        self.context.transfer_session.save.assert_not_called()
+        self.assertEqual(result, mock_create.return_value)
+
+    def test_remote_soud(self, mock_is_local, mock_is_remote, mock_create):
+        mock_is_local.return_value = False
+        mock_is_remote.return_value = True
+        mock_create.return_value = {"filter": None}
+        result = self.operation.create_transfer_session(self.context)
+        mock_create.assert_called_once_with(self.context)
+        mock_is_local.assert_called_once()
+        mock_is_remote.assert_called_once()
+        self.context.transfer_session.save.assert_not_called()
+        self.assertEqual(result, mock_create.return_value)
+
+    def test_both_soud(self, mock_is_local, mock_is_remote, mock_create):
+        mock_is_local.return_value = True
+        mock_is_remote.return_value = True
+        mock_create.return_value = {"filter": None}
+        result = self.operation.create_transfer_session(self.context)
+        mock_create.assert_called_once_with(self.context)
+        mock_is_local.assert_called_once()
+        mock_is_remote.assert_called_once()
+        self.context.transfer_session.save.assert_not_called()
+        self.assertEqual(result, mock_create.return_value)
+
+    def test_soud(self, mock_is_local, mock_is_remote, mock_create):
+        mock_is_local.return_value = True
+        mock_is_remote.return_value = False
+        mock_create.return_value = {"filter": "return_filter"}
+        result = self.operation.create_transfer_session(self.context)
+        mock_create.assert_called_once_with(self.context)
+        mock_is_local.assert_called_once()
+        mock_is_remote.assert_called_once()
+        self.context.transfer_session.save.assert_called_once()
+        self.assertEqual(self.context.transfer_session.filter, "return_filter")
+        self.assertEqual(str(self.context.filter), "return_filter")
+        self.assertEqual(result, mock_create.return_value)

@@ -6,19 +6,28 @@ from django.db import connection
 from django.db.models import IntegerField
 from django.db.models.expressions import Case
 from django.db.models.expressions import When
+from morango.models import Filter
 from morango.models import ScopeDefinition
 from morango.models import SyncSession
 from morango.sync.controller import MorangoProfileController
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import PermissionDenied
 
+from kolibri.core.auth.constants import collection_kinds
+from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.auth.constants.collection_kinds import CLASSROOM
 from kolibri.core.auth.constants.collection_kinds import LEARNERGROUP
+from kolibri.core.auth.constants.morango_sync import PARTITION_CLASSROOM
+from kolibri.core.auth.constants.morango_sync import PARTITION_SUFFIX_COACH_RW
+from kolibri.core.auth.constants.morango_sync import PARTITION_SUFFIX_LEARNER_RW
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.auth.management.utils import get_facility_dataset_id
+from kolibri.core.auth.models import Collection
+from kolibri.core.auth.models import Membership
+from kolibri.core.auth.models import Role
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 
 
@@ -157,3 +166,170 @@ def learner_canonicalized_assignments(resource_name, assignments):
             ).distinct()
         ]
     )
+
+
+class ClassroomPartitionFactory(object):
+    """
+    A factory class to create partitions for syncable models related to the classroom partition
+    structure.
+    """
+
+    def __init__(self, dataset_id):
+        """
+        :param dataset_id: The facility dataset id.
+        :type dataset_id: str
+        """
+        self.dataset_id = dataset_id
+        self.filter_template = PARTITION_CLASSROOM
+        self.filter_suffix = None
+
+    def set_suffix(self, suffix):
+        """
+        Sets the partition suffix.
+        :rtype: ClassroomPartitionFactory
+        """
+        self.filter_suffix = suffix
+        return self
+
+    def set_coach_writeable(self):
+        """
+        Sets the writeable permission for the coach role.
+        :rtype: ClassroomPartitionFactory
+        """
+        return self.set_suffix(PARTITION_SUFFIX_COACH_RW)
+
+    def set_learner_writeable(self):
+        """
+        Sets the writeable permission for the learner role.
+        :rtype: ClassroomPartitionFactory
+        """
+        return self.set_suffix(PARTITION_SUFFIX_LEARNER_RW)
+
+    def build(self, collection_id, filter_suffix=None):
+        """
+        Builds the partition and returns it as a Filter instance.
+        :param collection_id: The classroom's collection ID.
+        :param filter_suffix: An optional filter suffix that overrides the factory's.
+        :return: Filter instance
+        :rtype: Filter
+        """
+        filter_template = self.filter_template
+        filter_suffix = filter_suffix or self.filter_suffix
+
+        if filter_suffix:
+            filter_template += filter_suffix
+
+        return Filter(
+            filter_template,
+            params={
+                "dataset_id": self.dataset_id,
+                "collection_id": collection_id,
+            },
+        )
+
+    @classmethod
+    def get_classroom_collection(cls, collection_id=None, collection=None):
+        """
+        Determines the classroom collection of a collection tree.
+        :param collection_id: The ID of a collection.
+        :param collection: A Collection instance.
+        :return: A Collection instance that represents the classroom collection.
+        :rtype: kolibri.core.auth.models.Collection
+        """
+        if collection is None and collection_id is None:
+            raise ValueError("Either a Collection or collection_id is required.")
+
+        if collection is None:
+            collection = Collection.objects.get(pk=collection_id)
+
+        while collection.kind != collection_kinds.CLASSROOM:
+            if not collection.parent:
+                raise ValueError("No classroom was found for the given collection.")
+            collection = collection.parent
+
+        return collection
+
+
+class ClassroomPartitionFilterFactory(ClassroomPartitionFactory):
+    """
+    A factory class to create partition filters for syncing models related to the classroom
+    partition structure.
+    """
+
+    def __init__(self, dataset_id):
+        super().__init__(dataset_id)
+        self.filter_writeable = False
+
+    def set_writeable(self, writeable=True):
+        """
+        Sets the partition with writeable permission.
+        :return: ClassroomPartitionFilterFactory
+        """
+        self.filter_writeable = writeable
+        return self
+
+    def build(self, collection_id, filter_suffix=None):
+        """
+        Builds the partition filter and returns it as a Filter instance, or None if the user
+        is not associated with this classroom.
+
+        :param collection_id: The classroom's collection ID.
+        :param filter_suffix: An optional filter suffix that overrides the factory's.
+        :return: Filter instance
+        :rtype: Filter
+        """
+        filter_suffix = filter_suffix or self.filter_suffix
+
+        if not filter_suffix and self.filter_writeable:
+            raise ValueError(
+                "A filter suffix must be specified for writeable permission"
+            )
+
+        return super().build(
+            collection_id,
+            filter_suffix=filter_suffix,
+        )
+
+    def build_for_user(self, user_id):
+        """
+        Generates a combined syncing partition filter for a user and all their memberships or roles
+        with classroom collections
+
+        :param user_id: The user ID to constrain the permittable partition filter
+        :return: Filter or None
+        :rtype: Filter|None
+        """
+        collection_groups = {
+            PARTITION_SUFFIX_LEARNER_RW: (
+                Membership.objects.filter(
+                    dataset_id=self.dataset_id,
+                    user_id=user_id,
+                    collection__kind=collection_kinds.CLASSROOM,
+                )
+                .values_list("collection_id", flat=True)
+                .distinct()
+            ),
+            PARTITION_SUFFIX_COACH_RW: (
+                Role.objects.filter(
+                    dataset_id=self.dataset_id,
+                    user_id=user_id,
+                    kind__in=[
+                        role_kinds.COACH,
+                        role_kinds.ADMIN,
+                    ],
+                )
+                .values_list("collection_id", flat=True)
+                .distinct()
+            ),
+        }
+        combo_filter = None
+
+        for suffix, collection_ids in collection_groups.items():
+            for collection_id in collection_ids:
+                collection_filter = self.build(
+                    collection_id,
+                    filter_suffix=suffix if self.filter_writeable else None,
+                )
+                combo_filter = Filter.add(combo_filter, collection_filter)
+
+        return combo_filter
