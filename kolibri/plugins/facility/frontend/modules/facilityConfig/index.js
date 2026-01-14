@@ -1,11 +1,4 @@
-import {
-  saveFacilityConfig,
-  resetFacilityConfig,
-  saveFacilityName,
-  setPin,
-  unsetPin,
-  isPinValid,
-} from './actions';
+import { saveFacilityConfig, saveFacilityName, setPin, unsetPin, isPinValid } from './actions';
 
 function defaultState() {
   return {
@@ -80,7 +73,6 @@ export default {
   },
   actions: {
     saveFacilityConfig,
-    resetFacilityConfig,
     saveFacilityName,
     setPin,
     unsetPin,
