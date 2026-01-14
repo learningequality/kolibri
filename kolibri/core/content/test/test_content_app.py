@@ -1114,6 +1114,58 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             sibling_assessment_metadata.number_of_assessments,
         )
 
+    def test_contentnode_descendants_assessments_surveys_not_included(self):
+        c1 = content.ContentNode.objects.filter(kind=content_kinds.EXERCISE).first()
+        parent = c1.parent
+        parent_id = parent.id
+        sibling_survey = content.ContentNode.objects.create(
+            pk="6a406ac66b224106aa2e93f73a94333d",
+            channel_id=c1.channel_id,
+            content_id="ded4a083e75f4689b386fd2b706e792a",
+            kind=content_kinds.EXERCISE,
+            parent=parent,
+            title="sibling survey",
+            available=True,
+            modality=modalities.SURVEY,
+        )
+        content.AssessmentMetaData.objects.create(
+            id="6a406ac66b224106aa2e93f73a94333d",
+            contentnode=sibling_survey,
+            # These should not be counted
+            number_of_assessments=5,
+        )
+        sibling_non_survey = content.ContentNode.objects.create(
+            pk="6a406ac66b224106aa2e93f73a94333e",
+            channel_id=c1.channel_id,
+            content_id="ded4a083e75f4689b386fd2b706e792b",
+            kind=content_kinds.EXERCISE,
+            parent=parent,
+            title="sibling exercise",
+            available=True,
+        )
+        sibling_non_survey_assessment_metadata = (
+            content.AssessmentMetaData.objects.create(
+                id="6a406ac66b224106aa2e93f73a94333e",
+                contentnode=sibling_non_survey,
+                number_of_assessments=3,
+            )
+        )
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-descendants-assessments"),
+            data={"ids": parent_id},
+        )
+        self.assertEqual(
+            next(
+                item["num_assessments"]
+                for item in response.data
+                if item["id"] == parent_id
+            ),
+            # Number of assesments for survey sibling should not be taken into account
+            c1.assessmentmetadata.first().number_of_assessments
+            + sibling_non_survey_assessment_metadata.number_of_assessments,
+        )
+
     def test_contentnode_recommendations(self):
         node_id = content.ContentNode.objects.get(title="c2c2").id
         response = self.client.get(
@@ -1491,6 +1543,68 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
 
         self.assertEqual(response.data[0]["id"], str(course_topic.id))
+
+    def test_exclude_modalities_filter(self):
+        # Create a node with a specific modality
+        lesson_topic = content.ContentNode.objects.filter(
+            kind=content_kinds.TOPIC
+        ).first()
+        course_topic = content.ContentNode.objects.filter(
+            kind=content_kinds.TOPIC
+        ).last()
+
+        # Just making sure our fixtures are different so our future assertions are strong
+        self.assertNotEqual(lesson_topic.id, course_topic.id)
+        self.assertGreater(content.ContentNode.objects.count(), 2)
+
+        lesson_topic.modality = modalities.LESSON
+        course_topic.modality = modalities.COURSE
+
+        # Filters will only return available nodes so just to be sure
+        lesson_topic.available = True
+        course_topic.available = True
+
+        lesson_topic.save()
+        course_topic.save()
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"exclude_modalities": f"{modalities.LESSON}"},
+        )
+
+        self.assertNotIn(str(lesson_topic.id), [node["id"] for node in response.data])
+        self.assertIn(str(course_topic.id), [node["id"] for node in response.data])
+
+    def test_exclude_modalities_filter_multiple(self):
+        # Create a node with a specific modality
+        lesson_topic = content.ContentNode.objects.filter(
+            kind=content_kinds.TOPIC
+        ).first()
+        course_topic = content.ContentNode.objects.filter(
+            kind=content_kinds.TOPIC
+        ).last()
+
+        # Just making sure our fixtures are different so our future assertions are strong
+        self.assertNotEqual(lesson_topic.id, course_topic.id)
+        self.assertGreater(content.ContentNode.objects.count(), 2)
+
+        lesson_topic.modality = modalities.LESSON
+        course_topic.modality = modalities.COURSE
+
+        # Filters will only return available nodes so just to be sure
+        lesson_topic.available = True
+        course_topic.available = True
+
+        lesson_topic.save()
+        course_topic.save()
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"exclude_modalities": f"{modalities.LESSON},{modalities.COURSE}"},
+        )
+
+        self.assertNotIn(str(lesson_topic.id), [node["id"] for node in response.data])
+        self.assertNotIn(str(course_topic.id), [node["id"] for node in response.data])
 
     def _setup_contentnode_progress(self):
         # set up data for testing progress_fraction field on content node endpoint
