@@ -52,6 +52,12 @@ class CoachAsset(webpack_hooks.WebpackBundleHook):
         practice_quizzes_exist = ContentNode.objects.filter(
             available=True, modality=modalities.QUIZ
         ).exists()
+
+        courses_exist = ContentNode.objects.filter(
+            available=True, modality=modalities.COURSE
+        ).exists()
+
         return {
             "practice_quizzes_exist": practice_quizzes_exist,
+            "courses_exist": courses_exist,
         }
