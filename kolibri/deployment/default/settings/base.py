@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "kolibri.core.deviceadmin",
     "kolibri.core.webpack",
     "kolibri.core.exams",
+    "kolibri.core.courses",
     "kolibri.core.device",
     "kolibri.core.discovery",
     "kolibri.core.lessons",
