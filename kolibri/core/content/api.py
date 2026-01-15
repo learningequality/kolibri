@@ -433,6 +433,10 @@ class CharInFilter(BaseInFilter, CharFilter):
     pass
 
 
+class ChoiceInFilter(BaseInFilter, ChoiceFilter):
+    pass
+
+
 contentnode_filter_fields = [
     "parent",
     "parent__isnull",
@@ -490,6 +494,9 @@ class ContentNodeFilter(FilterSet):
     authors = CharFilter(method="filter_by_authors")
     tags = CharFilter(method="filter_by_tags")
     descendant_of = UUIDFilter(method="filter_descendant_of")
+    exclude_modalities = ChoiceInFilter(
+        field_name="modality", choices=modalities.choices, exclude=True
+    )
 
     class Meta:
         model = models.ContentNode
@@ -950,7 +957,9 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
                         lft__lt=OuterRef("rght"),
                         kind=content_kinds.EXERCISE,
                         available=True,
-                    ).values_list(
+                    )
+                    .exclude(modality=modalities.SURVEY)
+                    .values_list(
                         "assessmentmetadata__number_of_assessments", flat=True
                     ),
                     field="number_of_assessments",
