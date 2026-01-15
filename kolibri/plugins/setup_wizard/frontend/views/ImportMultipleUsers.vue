@@ -77,6 +77,10 @@
   import { useSemaphore } from '../composables/useSemaphore';
   import OnboardingStepBase from './OnboardingStepBase';
 
+  // Grace period to consider between when a task has finished being created and
+  // when it is finally in QUEUED status in the task poll.
+  const TASK_ENQUEUE_TIMEOUT = 5000;
+
   /** Workflow
   - wizardService holds successfully imported learners and a list of all possible learners
   - This component will maintain a list of users currently being imported by polling the
@@ -130,6 +134,8 @@
         isPolling: false,
         // array of user/learner ids
         learnersBeingImported: [],
+        // Array of learner ids whose import tasks are being created
+        learnersTaskCreationLoading: [],
       };
     },
     inject: ['wizardService'],
@@ -187,8 +193,33 @@
       importedLearners() {
         return this.wizardService.state.context.importedUsers;
       },
+      removeUsersBeingImportedMissingOnTasks(tasks) {
+        // If for some reason tasks were cleared from the queue and we didn't notice,
+        // we need to make sure we clear out the 'being imported' list to avoid
+        // blocking the UI indefinitely.
+        // In the worst case scenario, an already imported user will show up as not imported,
+        // but the admin can just re-import them again without harm.
+        const taskUserIds = tasks.map(task => task.extra_metadata.user_id);
+        const missingLearners = [];
+        this.learnersBeingImported.forEach(id => {
+          if (!taskUserIds.includes(id) && !this.learnersTaskCreationLoading.includes(id)) {
+            this.wizardService.send({
+              type: 'REMOVE_USER_BEING_IMPORTED',
+              value: id,
+            });
+            missingLearners.push(id);
+          }
+        });
+        if (missingLearners.length) {
+          this.learnersBeingImported = this.learnersBeingImported.filter(
+            id => !missingLearners.includes(id),
+          );
+          this.createSnackbar(this.importUserError$());
+        }
+      },
       pollImportTask() {
         TaskResource.list({ queue: SoudQueue }).then(tasks => {
+          this.removeUsersBeingImportedMissingOnTasks(tasks);
           if (tasks.length) {
             let isFailingTasks = false;
             tasks.forEach(task => {
@@ -239,10 +270,19 @@
           }, 2000);
         }
       },
-      onImportClick(learner) {
+      async onImportClick(learner) {
         this.learnersBeingImported.push(learner.id);
         // Do not do the start import request directly, enqueue it to limit concurrency
-        this.enqueue(() => this.startImport(learner));
+        this.learnersTaskCreationLoading.push(learner.id);
+        await this.enqueue(() => this.startImport(learner));
+
+        setTimeout(() => {
+          // When the import task creation is done, remove from loading state
+          const index = this.learnersTaskCreationLoading.indexOf(learner.id);
+          if (index > -1) {
+            this.learnersTaskCreationLoading.splice(index, 1);
+          }
+        }, TASK_ENQUEUE_TIMEOUT);
       },
       async startImport(learner) {
         const task_name = TaskTypes.IMPORTLODUSER;
