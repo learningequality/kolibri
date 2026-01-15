@@ -8,6 +8,7 @@ from django.utils import translation
 
 from .translation import get_language_from_request_and_is_from_path
 from kolibri.core.device.hooks import SetupHook
+from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.utils.conf import OPTIONS
 
@@ -87,20 +88,74 @@ class KolibriLocaleMiddleware(object):
 
 
 class ProvisioningErrorHandler(object):
+    """
+    Middleware to enforce device provisioning.
+
+    Redirects all user-facing requests to the setup wizard when the device
+    is not yet provisioned. API endpoints and static assets are excluded
+    to allow the setup process to function.
+    """
+
+    # Path prefixes that should be accessible even when device is not provisioned.
+    # These are needed for the setup wizard to function properly.
+    EXEMPT_PATH_PREFIXES = (
+        "/api/",  # API endpoints needed during setup
+        "/static/",  # Static assets (JS, CSS, images)
+        "/downloadcontent/",  # Content download endpoints
+        "/zipcontent/",  # Zipped content serving
+        "/hashi/",  # Sandboxed content execution
+        "/content/",  # Content files
+        "/__open-in-editor/",  # Development tooling
+    )
+
     def __init__(self, get_response):
         self.get_response = get_response
 
-    def process_exception(self, request, exception):
-        if (
-            isinstance(exception, DeviceNotProvisioned)
-            and SetupHook.provision_url()
-            and not request.path.startswith(SetupHook.provision_url())
-        ):
-            return redirect(SetupHook.provision_url())
-        return None
+    def _get_provision_url(self):
+        """
+        Safely get the provision URL, returning None if no setup hook is registered.
+        """
+        try:
+            return SetupHook.provision_url()
+        except StopIteration:
+            return None
+
+    def _is_exempt_path(self, path, provision_url):
+        """
+        Check if the request path should be exempt from provisioning enforcement.
+        """
+        # Allow access to the setup wizard itself
+        if provision_url and path.startswith(provision_url):
+            return True
+
+        # Allow access to API and static assets
+        for prefix in self.EXEMPT_PATH_PREFIXES:
+            if path.startswith(prefix):
+                return True
+
+        return False
 
     def __call__(self, request):
+        # Check if device is provisioned
+        if not device_provisioned():
+            provision_url = self._get_provision_url()
+            if provision_url and not self._is_exempt_path(request.path, provision_url):
+                return redirect(provision_url)
+
         return self.get_response(request)
+
+    def process_exception(self, request, exception):
+        """
+        Fallback exception handler for DeviceNotProvisioned errors.
+
+        This catches any DeviceNotProvisioned exceptions raised during request
+        processing and redirects to the setup wizard.
+        """
+        if isinstance(exception, DeviceNotProvisioned):
+            provision_url = self._get_provision_url()
+            if provision_url and not request.path.startswith(provision_url):
+                return redirect(provision_url)
+        return None
 
 
 class DatabaseBusyErrorHandler(object):
