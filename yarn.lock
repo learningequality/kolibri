@@ -8245,10 +8245,10 @@ kolibri-constants@0.2.13:
   resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.2.13.tgz#bd41953d5ac59e4eb22468f0a112e0f7c1015634"
   integrity sha512-9phJBvqHgZI+SsqXju5wo7024aOhP6+ZnKP//MK8EZLl2g4Ns/cob3WtSK0GA2UgQrHN5cbkm+egppzzUOdVVA==
 
-kolibri-design-system@5.5.0:
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-5.5.0.tgz#ef62adee8a335fac1332d02849c47ed23a401627"
-  integrity sha512-ykLARvIFy6FHoIPfRXk3XHUzmvn2RstDaT2ck8vc7XEawXcZkzt2w9JUVtpnNKdCEnvgg7ufL4cqr0B4Yej0mA==
+kolibri-design-system@5.5.1:
+  version "5.5.1"
+  resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-5.5.1.tgz#58f74120a61daf97e0584457a359e82b2d53b1ae"
+  integrity sha512-dCDuF2BJGWafWUP24olKlxVDce4R9tYay77Flogw8PUSPb4/LlolQptuvr5N2sjDD1MYF/ot9IJ6LCg8iMETtA==
   dependencies:
     aphrodite "https://github.com/learningequality/aphrodite/"
     autosize "3.0.21"
