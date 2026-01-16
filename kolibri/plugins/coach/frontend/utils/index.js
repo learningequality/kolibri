@@ -26,6 +26,24 @@ export const getDifficultQuestions = questions => {
     });
 };
 
+/**
+ * Override the route with a new one, preserving the params and query
+ */
+export function overrideRoute(route, newRoute) {
+  const { params, query } = route;
+  return {
+    ...newRoute,
+    params: {
+      ...params,
+      ...newRoute.params,
+    },
+    query: {
+      ...query,
+      ...newRoute.query,
+    },
+  };
+}
+
 /*
  * Checks if the element is focusable.
  * @param {HTMLElement} el - The element to check.

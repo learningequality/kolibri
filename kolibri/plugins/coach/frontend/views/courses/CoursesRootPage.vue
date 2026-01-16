@@ -13,6 +13,12 @@
         </template>
       </CoachHeader>
     </KPageContainer>
+    <!--
+      Router view for side panels implemented in courses/sidePanels/...
+      whose routes are defined in coach/frontend/routes/coursesRoutes.js
+      Side panels will only be rendered when their route is active.
+    -->
+    <router-view />
   </CoachAppBarPage>
 
 </template>
@@ -20,10 +26,14 @@
 
 <script>
 
+  import store from 'kolibri/store';
+  import { useRoute } from 'vue-router/composables';
+  import { computed } from 'vue';
   import { PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage.vue';
   import CoachHeader from '../common/CoachHeader.vue';
   import { coachStrings } from '../common/commonCoachStrings';
+  import { overrideRoute } from '../../utils';
 
   export default {
     name: 'CoursesRootPage',
@@ -32,11 +42,18 @@
       CoachAppBarPage,
     },
     setup() {
+      const route = useRoute();
       const { coursesLabel$, assignCourseAction$ } = coachStrings;
 
-      const assignCourseRoute = {
-        name: PageNames.COURSES_ROOT,
-      };
+      // Temporarily adding it here, it should be moved to a place after
+      // data is loaded.
+      store.dispatch('notLoading');
+
+      const assignCourseRoute = computed(() =>
+        overrideRoute(route, {
+          name: PageNames.COURSES_ASSIGN,
+        }),
+      );
       return {
         assignCourseRoute,
 
