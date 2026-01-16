@@ -216,7 +216,7 @@ class ContentNode(base_models.ContentNode):
     admin_imported = models.BooleanField(null=True)
 
     modality = models.CharField(
-        max_length=50, blank=True, null=True, db_index=True, choices=modalities.choices
+        max_length=50, blank=True, null=True, choices=modalities.choices
     )
 
     objects = ContentNodeManager()
@@ -226,6 +226,9 @@ class ContentNode(base_models.ContentNode):
         index_together = [
             ["level", "channel_id", "kind"],
             ["level", "channel_id", "available"],
+        ]
+        indexes = [
+            models.Index(fields=["modality"]),
         ]
 
     def __str__(self):
