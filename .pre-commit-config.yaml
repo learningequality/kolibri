@@ -5,7 +5,9 @@ repos:
     hooks:
     -   id: trailing-whitespace
     -   id: check-yaml
+        exclude: '^pnpm-lock\.yaml$'
     -   id: check-added-large-files
+        exclude: '^pnpm-lock\.yaml$'
     -   id: debug-statements
     -   id: end-of-file-fixer
         exclude: '^.+?(\.json|\.po)$'
@@ -26,7 +28,7 @@ repos:
     -   id: lint-frontend
         name: Linting of JS, Vue, SCSS and CSS files
         description: This hook handles all frontend linting for Kolibri
-        entry: yarn run lint-frontend:format
+        entry: pnpm run lint-frontend:format
         language: system
         files: \.(js|vue|scss|css)$
         exclude: (?x)^(kolibri/plugins/qti_viewer/frontend/components/__fixtures__/items\.js|packages/eslint-plugin-kolibri/tests/lib/rules/fixtures/malformed\.js)
@@ -35,9 +37,10 @@ repos:
     -   id: core-js-api
         name: Rebuild kolibri package
         description: Rebuilds kolibri package on changes to core js api
-        entry: node ./packages/build_kolibri_package.js
+        entry: pnpm exec node ./packages/build_kolibri_package.js
         language: system
         files: ^packages/kolibri/.*\.(js|vue)$
+        require_serial: true
 - repo: local
   hooks:
   - id: no-auto-migrations
