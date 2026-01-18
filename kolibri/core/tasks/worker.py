@@ -4,6 +4,7 @@ from concurrent.futures import CancelledError
 from django.db import connection as django_connection
 
 from kolibri.core.tasks.constants import Priority
+from kolibri.core.tasks.job import State
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.utils import db_connection
 from kolibri.core.tasks.utils import InfiniteLoopThread
@@ -91,6 +92,13 @@ class Worker(object):
         for job in self.storage.get_running_jobs():
             logger.info("Requeuing job id {}.".format(job.job_id))
             self.storage.mark_job_as_queued(job.job_id)
+        # Also requeue jobs stuck in SELECTED state - these are jobs that were
+        # picked up by a worker but crashed/failed before transitioning to RUNNING.
+        # This can happen due to database connection failures, server crashes, or
+        # exceptions in execute_job before job.execute() is called.
+        for job in self.storage.get_jobs_by_state(state=State.SELECTED):
+            logger.info("Requeuing selected job id {}.".format(job.job_id))
+            self.storage.mark_job_as_queued(job.job_id)
 
     def shutdown_workers(self, wait=True):
         # First cancel all running jobs
@@ -120,6 +128,25 @@ class Worker(object):
                 future.result()
             except CancelledError:
                 self.storage.mark_job_as_canceled(job.job_id)
+            except Exception as e:
+                # Handle exceptions that occurred in execute_job before job.execute()
+                # was called (e.g., database connection failures, JobNotFound).
+                # Without this, jobs would remain stuck in SELECTED state forever.
+                logger.error(
+                    "Job {} failed during worker execution: {}".format(job.job_id, e)
+                )
+                try:
+                    self.storage.mark_job_as_failed(
+                        job.job_id, e, "Failed during worker execution: {}".format(e)
+                    )
+                except Exception:
+                    # If we can't mark the job as failed (e.g., database unavailable),
+                    # it will be recovered by requeue_stalled_jobs on next restart.
+                    logger.error(
+                        "Could not update job {} state after failure".format(
+                            job.job_id
+                        )
+                    )
         except KeyError:
             pass
 
