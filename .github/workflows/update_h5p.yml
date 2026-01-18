@@ -56,21 +56,15 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - name: Cache Node.js modules
-        uses: actions/cache@v5
+          node-version-file: 'package.json'
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          cache: true
       - name: Install dependencies
         run: |
-          yarn --frozen-lockfile
-          npm rebuild node-sass
+          pnpm install --frozen-lockfile
+          pnpm rebuild node-sass
 
       - name: Update commit file and run script
         if: steps.check-commit.outputs.changed == 'true'
@@ -79,7 +73,7 @@ jobs:
           echo "${{ steps.check-commit.outputs.latest_commit }}" > packages/kolibri-sandbox/.h5p-commit-sha
 
           # Run your script here
-          yarn workspace kolibri-sandbox run build-h5p
+          pnpm --filter kolibri-sandbox run build-h5p
 
       - name: Check for actual build changes
         if: steps.check-commit.outputs.changed == 'true'
