@@ -21,7 +21,7 @@
 <script>
 
   import Vue from 'vue';
-  import tippy from 'tippy.js/umd';
+  import tippy from 'tippy.js';
   import { onboardingSteps } from 'kolibri/utils/onboardingSteps';
   import useTour from 'kolibri/composables/useTour';
   import useUser from '../../../kolibri/composables/useUser';
