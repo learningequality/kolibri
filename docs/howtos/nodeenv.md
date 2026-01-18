@@ -36,5 +36,5 @@ You'll notice in the output above, the installation modifies the virtual environ
 ```bash
 $ pyenv deactivate
 $ pyenv activate kolibri-py3.9
-$ npm install -g yarn # success
+$ npm install -g pnpm # success
 ```
