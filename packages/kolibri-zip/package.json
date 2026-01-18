@@ -9,7 +9,9 @@
   "author": "Learning Equality",
   "license": "MIT",
   "dependencies": {
-    "fflate": "^0.8.2"
+    "core-js": "catalog:",
+    "fflate": "^0.8.2",
+    "lodash": "catalog:"
   },
   "devDependencies": {
     "mime-db": "^1.54.0"

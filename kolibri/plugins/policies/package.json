@@ -1,6 +1,6 @@
 {
-    "name": "kolibri-setup-wizard-plugin",
-    "description": "Setup Wizard Plugin for Kolibri",
+    "name": "kolibri-policies-plugin",
+    "description": "Policies Plugin for Kolibri",
     "private": true,
     "version": "0.0.1",
     "dependencies": {
@@ -9,10 +9,9 @@
         "kolibri-app": "workspace:*",
         "kolibri-common": "workspace:*",
         "kolibri-design-system": "catalog:",
-        "lockr": "0.8.5",
+        "kolibri-plugin-data": "workspace:*",
         "lodash": "catalog:",
         "vue": "catalog:",
-        "vuex": "catalog:",
-        "xstate": "catalog:"
+        "vuex": "catalog:"
     }
 }

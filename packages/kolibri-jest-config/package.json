@@ -13,7 +13,17 @@
   "main": "jest.conf/index.js",
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.28.5",
-    "kolibri-build": "^1.0.0"
+    "aphrodite": "^2.4.0",
+    "intl": "^1.2.4",
+    "kolibri": "workspace:*",
+    "kolibri-build": "workspace:*",
+    "kolibri-design-system": "catalog:",
+    "kolibri-logging": "workspace:*",
+    "regenerator-runtime": "^0.14.1",
+    "vue": "catalog:",
+    "vue-meta": "catalog:",
+    "vue-router": "catalog:",
+    "vuex": "catalog:"
   },
   "peerDependencies": {
     "@testing-library/jest-dom": "^6.6.4",
