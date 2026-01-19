@@ -3,6 +3,92 @@
 List of the most important changes for each release.
 
 
+## 0.19.1
+
+### High level overview
+
+This release includes HTML5 Article Renderer improvements, performance optimizations including a ~25% reduction in JS bundle size, and foundational work for upcoming features. We also addressed some tech debt and continued cleaning up Python 2.7 compatibility code with great help from the community.
+
+### Added
+
+####  Content & Rendering
+  - Adds polyfill for <dialog> to ensure browser compatibility in HTML5 Article Renderer by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13951
+  - [HTML5 Article Renderer] Refactor Table Implementation by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14002
+  - Implements simple scroll progress tracking for safe html5 renderer by @akolson in https://github.com/learningequality/kolibri/pull/13983
+  - Add modality field to ContentNode by @AlexVelezLl in  https://github.com/learningequality/kolibri/pull/14042
+  - Add modality filter query param in Content API by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14058
+
+####  Courses Feature (Foundational)
+  - Add initial core courses Django app files by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/14066
+  - Add courses_exist to the coach's plugin_data by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14068
+
+####  Developer Tooling
+  - Add ESLint rule to validate translator key destructuring by @rtibbles in https://github.com/learningequality/kolibri/pull/13932
+  - LFS File pre-commit check by @rtibbles in https://github.com/learningequality/kolibri/pull/13947
+  - Add comprehensive documentation for URL namespacing by @rtibbles in https://github.com/learningequality/kolibri/pull/13863
+  - Add documentation about plugin enabling on pex by @rtibbles in https://github.com/learningequality/kolibri/pull/13948
+
+###  Developer-facing improvements
+
+####  Performance & Build
+  - Reduce JS production build size by ~25% by @rtibbles in https://github.com/learningequality/kolibri/pull/13912
+  - Update KDS to 5.5.0 by @MisRob in https://github.com/learningequality/kolibri/pull/13999
+  - Update H5P JavaScript library by @learning-equality-bot[bot] in https://github.com/learningequality/kolibri/pull/13993
+  - remove varchar_pattern_ops index by @ozer550 in https://github.com/learningequality/kolibri/pull/14076
+
+####  Tech debt / refactors
+  - Removes the paginatedListContainerWithBackend by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13871
+  - Migrate from assets/src to frontend by @rtibbles in https://github.com/learningequality/kolibri/pull/14009
+  - Update .git-blame-ignore-revs for frontend migration changes by @rtibbles in https://github.com/learningequality/kolibri/pull/14011
+
+####  Python 2.7 Cleanup
+  - Remove Python 2.7 legacy: hasattr(output, 'decode') runtime checks by @AadarshM07 in https://github.com/learningequality/kolibri/pull/13915
+  - Remove Python 2.7: Replace mkdirp() with os.makedirs() by @AadarshM07 in https://github.com/learningequality/kolibri/pull/13927
+  - Remove Python 2.7 legacy: Simplify OSError/IOError exception by @AadarshM07 in https://github.com/learningequality/kolibri/pull/13943
+  - Refactor replace replace() with os.replace() by @AadarshM07 in https://github.com/learningequality/kolibri/pull/13949
+  - Remove Python 2.7 legacy: Remove lru_cache backport by @Prashant-thakur77 in https://github.com/learningequality/kolibri/pull/13952
+  - Remove Python 2.7 legacy: Update JSONDecodeError exception handling by @Prashant-thakur77 in https://github.com/learningequality/kolibri/pull/13950
+  - Remove Python 2.7: Simple syntax and import cleanups by @AadarshM07 in https://github.com/learningequality/kolibri/pull/13955
+  - Update super calls python3 by @Prashant-thakur77 in https://github.com/learningequality/kolibri/pull/13984
+  - Remove Python 2.7 FileNotFoundError compatibility shims by @rtibbles in https://github.com/learningequality/kolibri/pull/13985
+
+### Dependencies
+* Bump the babel group with 3 updates by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13899
+* Bump launch-editor-middleware from 2.11.1 to 2.12.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13903
+* Bump peter-evans/create-pull-request from 6 to 7 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13901
+* Bump sass-loader from 16.0.5 to 16.0.6 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13902
+* Bump axios from 1.12.2 to 1.13.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13905
+* Bump dayjs from 1.11.18 to 1.11.19 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13906
+* Bump core-js from 3.46.0 to 3.47.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13918
+* Bump eslint-plugin-jest from 29.0.1 to 29.1.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13920
+* Bump @rushstack/eslint-patch from 1.14.1 to 1.15.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13921
+* Bump ini from 5.0.0 to 6.0.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13922
+* Bump autoprefixer from 10.4.21 to 10.4.22 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13923
+* Bump js-yaml from 3.14.0 to 3.14.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13916
+* Bump webpack from 5.102.1 to 5.103.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13937
+* Bump actions/checkout from 5 to 6 in the github group by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13938
+* Bump eslint-plugin-jest from 29.1.0 to 29.2.1 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13939
+* Bump html-webpack-plugin from 5.6.4 to 5.6.5 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13940
+* Bump commander from 14.0.1 to 14.0.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13941
+* Bump node-forge from 1.3.1 to 1.3.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13946
+* Bump kolibri-design-system from 5.4.0 to 5.4.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13919
+* Bump @crowdin/cli from 4.11.0 to 4.12.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13961
+* Bump prettier from 3.6.2 to 3.7.3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13962
+* Bump peter-evans/create-pull-request from 7 to 8 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13989
+* Bump prettier from 3.7.3 to 3.7.4 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13988
+* Bump katex from 0.16.25 to 0.16.27 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13987
+* Bump dompurify from 3.3.0 to 3.3.1 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13990
+* Bump css-minimizer-webpack-plugin from 7.0.2 to 7.0.3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13991
+* Bump terser-webpack-plugin from 5.3.14 to 5.3.15 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13992
+* Bump css-minimizer-webpack-plugin from 7.0.3 to 7.0.4 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/14019
+* Bump eslint-plugin-jest from 29.2.1 to 29.5.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/14018
+* Bump the github group with 3 updates by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/14014
+* Bump terser-webpack-plugin from 5.3.15 to 5.3.16 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/14012
+* Bump autoprefixer from 10.4.22 to 10.4.23 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/14015
+* Bump webpack from 5.103.0 to 5.104.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/14016
+
+
+
 ## 0.19.0
 
 ### High level overview
