@@ -26,10 +26,6 @@
         required: true,
         validator: node => node && typeof node.querySelector === 'function',
       },
-      themeColors: {
-        type: Object,
-        default: () => ({}),
-      },
     },
 
     computed: {
@@ -38,7 +34,7 @@
         const colCount = firstRow ? firstRow.children.length : 0;
 
         const styles = {
-          border: `1px solid ${this.themeColors.grey300}`,
+          border: `1px solid ${this.$themePalette.grey.v_300}`,
         };
 
         if (colCount <= 3) {
@@ -68,22 +64,22 @@
 
         const captions = table.querySelectorAll('caption.safe-html');
         captions.forEach(caption => {
-          caption.style.color = this.themeColors.primary500;
+          caption.style.color = this.$themeBrand.primary.v_500;
         });
 
         const theads = table.querySelectorAll('thead.safe-html');
         theads.forEach(thead => {
-          thead.style.backgroundColor = this.themeColors.primary100;
+          thead.style.backgroundColor = this.$themeBrand.primary.v_100;
         });
 
         const tfoots = table.querySelectorAll('tfoot.safe-html');
         tfoots.forEach(tfoot => {
-          tfoot.style.backgroundColor = this.themeColors.grey100;
+          tfoot.style.backgroundColor = this.$themePalette.grey.v_100;
         });
 
         const cells = table.querySelectorAll('th.safe-html, td.safe-html');
         cells.forEach(cell => {
-          cell.style.border = `1px solid ${this.themeColors.grey300}`;
+          cell.style.border = `1px solid ${this.$themePalette.grey.v_300}`;
         });
       },
     },

@@ -14,10 +14,7 @@
       role="region"
       :aria-label="$tr('articleContent')"
     >
-      <SafeHTML
-        :html="html"
-        :themeColors="themeColors"
-      />
+      <SafeHTML :html="html" />
     </div>
   </div>
 
@@ -63,15 +60,6 @@
       },
       scrollBasedProgress() {
         return 0.5;
-      },
-      themeColors() {
-        return {
-          primary500: this.$themeBrand.primary.v_500,
-          primary100: this.$themeBrand.primary.v_100,
-          grey300: this.$themePalette.grey.v_300,
-          grey100: this.$themePalette.grey.v_100,
-          fineLine: this.$themeTokens.fineLine,
-        };
       },
     },
     async created() {

@@ -24,10 +24,6 @@ export function createSafeHTML(customComponents = {}) {
       html: {
         required: true,
       },
-      themeColors: {
-        type: Object,
-        default: () => ({}),
-      },
     },
     render(h, context) {
       const docFragment = DOMPurify.sanitize(context.props.html, {
@@ -83,10 +79,7 @@ export function createSafeHTML(customComponents = {}) {
             return h(
               SafeHtmlTable,
               {
-                props: {
-                  node,
-                  themeColors: context.props.themeColors,
-                },
+                props: { node },
                 attrs,
               },
               mapChildren(node.childNodes),
@@ -99,7 +92,6 @@ export function createSafeHTML(customComponents = {}) {
               props: {
                 src: attrs.src,
                 alt: attrs.alt,
-                themeColors: context.props.themeColors,
               },
             });
           }

@@ -51,10 +51,6 @@
         type: Object,
         default: () => ({}),
       },
-      themeColors: {
-        type: Object,
-        default: () => ({}),
-      },
     },
     data() {
       return {
@@ -64,7 +60,7 @@
     computed: {
       imageStyle() {
         return {
-          border: `1px solid ${this.themeColors.fineLine}`,
+          border: `1px solid ${this.$themeTokens.fineLine}`,
         };
       },
     },
