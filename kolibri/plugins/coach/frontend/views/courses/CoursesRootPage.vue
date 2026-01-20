@@ -47,7 +47,9 @@
 
       // Temporarily adding it here, it should be moved to a place after
       // data is loaded.
-      store.dispatch('notLoading');
+      store.dispatch('initClassInfo', route.params.classId).then(() => {
+        store.dispatch('notLoading');
+      });
 
       const assignCourseRoute = computed(() =>
         overrideRoute(route, {
