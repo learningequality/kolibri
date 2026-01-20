@@ -58,9 +58,6 @@
       entry() {
         return (this.options && this.options.entry) || 'index.html';
       },
-      scrollBasedProgress() {
-        return 0.5;
-      },
     },
     async created() {
       const storageUrl = this.defaultFile.storage_url;
