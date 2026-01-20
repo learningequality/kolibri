@@ -8,6 +8,7 @@
       <img
         :src="src"
         :alt="alt"
+        :style="imageStyle"
         v-bind="$attrs"
         @click="openLightbox"
       >
@@ -50,11 +51,22 @@
         type: Object,
         default: () => ({}),
       },
+      themeColors: {
+        type: Object,
+        default: () => ({}),
+      },
     },
     data() {
       return {
         lightboxOpen: false,
       };
+    },
+    computed: {
+      imageStyle() {
+        return {
+          border: `1px solid ${this.themeColors.fineLine}`,
+        };
+      },
     },
     methods: {
       openLightbox() {
