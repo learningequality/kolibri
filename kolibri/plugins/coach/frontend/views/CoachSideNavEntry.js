@@ -3,6 +3,7 @@ import urls from 'kolibri/urls';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { UserKinds } from 'kolibri/constants';
 import plugin_data from 'kolibri-plugin-data';
+import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import baseRoutes from '../routes/baseRoutes';
 import { coachStrings } from './common/commonCoachStrings';
 
@@ -47,7 +48,7 @@ registerNavItem({
     if (plugin_data.courses_exist) {
       // Insert 'Courses' nav item just after 'Class Home'
       _routes.splice(1, 0, {
-        label: coachStrings.$tr('coursesLabel'),
+        label: coursesStrings.$tr('coursesLabel'),
         route: baseRoutes.courses.path,
         icon: 'lesson',
         name: baseRoutes.courses.name,

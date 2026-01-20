@@ -687,30 +687,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       'Label for the radio button that allows the coach to select groups or individual learners to assign a quiz to.',
   },
-  coursesLabel: {
-    message: 'Courses',
-    context: 'Label for courses that contain units and lessons.',
-  },
-  assignCourseAction: {
-    message: 'Assign course',
-    context: 'Action label for assigning a course to learners.',
-  },
-  selectCourseLabel: {
-    message: 'Select course to assign',
-    context: 'Label for selecting a course to assign to learners.',
-  },
-  selectRecipientsLabel: {
-    message: 'Select recipients',
-    context: 'Action label for selecting recipients when assigning a course.',
-  },
-  courseNameLabel: {
-    message: 'Course: {name}',
-    context: 'Label for the name of a course.',
-  },
-  selectedLearnersLabel: {
-    message: 'Selected learners',
-    context: 'Label for the list of selected learners when assigning a course.',
-  },
 });
 
 // Strings for the Missing Content modals, tooltips, alerts, etc.

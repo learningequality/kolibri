@@ -33,7 +33,7 @@
 
   import { useRoute, useRouter } from 'vue-router/composables';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import { coachStrings } from '../../../../common/commonCoachStrings';
+  import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import SidePanelLayout from '../../../../common/sidePanel/SidePanelLayout.vue';
   import { overrideRoute } from '../../../../../utils';
   import { PageNames } from '../../../../../constants';
@@ -48,7 +48,7 @@
       const router = useRouter();
 
       const { backAction$ } = coreStrings;
-      const { courseNameLabel$, assignCourseAction$, selectRecipientsLabel$ } = coachStrings;
+      const { courseNameLabel$, assignCourseAction$, selectRecipientsLabel$ } = coursesStrings;
 
       const goBack = () => {
         router.push(

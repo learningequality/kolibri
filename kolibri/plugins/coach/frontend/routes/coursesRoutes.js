@@ -21,7 +21,7 @@ export default [
       }
     },
     meta: {
-      titleParts: ['coursesLabel', 'CLASS_NAME'],
+      titleParts: ['COURSES_LABEL', 'CLASS_NAME'],
     },
     children: [
       {

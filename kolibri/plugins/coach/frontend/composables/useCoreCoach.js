@@ -5,6 +5,7 @@ import { computed, getCurrentInstance } from 'vue';
 import { currentLanguage, isRtl } from 'kolibri/utils/i18n';
 import useUser from 'kolibri/composables/useUser';
 import useFacilities from 'kolibri-common/composables/useFacilities';
+import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { coachStrings } from '../views/common/commonCoachStrings';
 
 const logging = logger.getLogger(__filename);
@@ -63,6 +64,8 @@ export default function useCoreCoach(store) {
             return classSummary.contentMap[params.exerciseId].title;
           case 'RESOURCE_NAME':
             return classSummary.contentMap[params.resourceId].title;
+          case 'COURSES_LABEL':
+            return coursesStrings.$tr('coursesLabel');
           default:
             return coachStrings.$tr(part);
         }

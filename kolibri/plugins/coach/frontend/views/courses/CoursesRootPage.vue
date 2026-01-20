@@ -29,10 +29,10 @@
   import store from 'kolibri/store';
   import { useRoute } from 'vue-router/composables';
   import { computed } from 'vue';
+  import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage.vue';
   import CoachHeader from '../common/CoachHeader.vue';
-  import { coachStrings } from '../common/commonCoachStrings';
   import { overrideRoute } from '../../utils';
 
   export default {
@@ -43,7 +43,7 @@
     },
     setup() {
       const route = useRoute();
-      const { coursesLabel$, assignCourseAction$ } = coachStrings;
+      const { coursesLabel$, assignCourseAction$ } = coursesStrings;
 
       // Temporarily adding it here, it should be moved to a place after
       // data is loaded.
