@@ -67,7 +67,9 @@ class KolibriLocalInitializeOperation(InitializeOperation):
                 ).build_for_user(single_user_id)
 
                 if dynamic_filter:
-                    context.filter += dynamic_filter
+                    context.update(
+                        sync_filter=Filter.add(context.filter, dynamic_filter)
+                    )
 
         return super().handle(context)
 
@@ -108,7 +110,7 @@ class KolibriNetworkInitializeOperation(NetworkInitializeOperation):
         ):
             # receive the modified, dynamic, filter(s) from the server and update the transfer
             # session and context objects to reflect the change
-            context.filter = response_filter
+            context.update(sync_filter=response_filter)
             context.transfer_session.filter = str(response_filter)
             context.transfer_session.save()
 

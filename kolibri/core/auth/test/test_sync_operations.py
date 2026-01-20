@@ -375,6 +375,14 @@ class KolibriLocalInitializeOperationTestCase(SimpleTestCase):
         self.context.is_push = False
         self.context.filter = Filter("base_filter")
 
+    def assertContextUpdate(self, **kwargs):
+        call_args = self.context.update.call_args[1]
+        for key, value in kwargs.items():
+            self.assertIn(
+                key, call_args, msg=f"Expected argument '{key}' in context update"
+            )
+            self.assertEqual(call_args[key], value)
+
     def test_not_server(self, mock_is_local, mock_is_remote, mock_handle):
         result = self.operation.handle(self.context)
         mock_is_local.assert_not_called()
@@ -451,8 +459,7 @@ class KolibriLocalInitializeOperationTestCase(SimpleTestCase):
                 user_id
             )
 
-        self.assertTrue(self.context.filter.contains_partition("base_filter"))
-        self.assertTrue(self.context.filter.contains_partition("second_filter"))
+        self.assertContextUpdate(sync_filter=Filter("base_filter\nsecond_filter"))
 
         mock_is_local.assert_called_once()
         mock_is_remote.assert_called_once()
@@ -487,8 +494,7 @@ class KolibriLocalInitializeOperationTestCase(SimpleTestCase):
                 user_id
             )
 
-        self.assertTrue(self.context.filter.contains_partition("base_filter"))
-        self.assertTrue(self.context.filter.contains_partition("second_filter"))
+        self.assertContextUpdate(sync_filter=Filter("base_filter\nsecond_filter"))
 
         mock_is_local.assert_called_once()
         mock_is_remote.assert_called_once()
@@ -521,7 +527,7 @@ class KolibriLocalInitializeOperationTestCase(SimpleTestCase):
                 user_id
             )
 
-        self.assertTrue(self.context.filter.contains_partition("base_filter"))
+        self.context.update.assert_not_called()
 
         mock_is_local.assert_called_once()
         mock_is_remote.assert_called_once()
@@ -598,5 +604,5 @@ class KolibriNetworkInitializeOperationTestCase(SimpleTestCase):
         mock_is_remote.assert_called_once()
         self.context.transfer_session.save.assert_called_once()
         self.assertEqual(self.context.transfer_session.filter, "return_filter")
-        self.assertEqual(str(self.context.filter), "return_filter")
+        self.context.update.assert_called_once_with(sync_filter=Filter("return_filter"))
         self.assertEqual(result, mock_create.return_value)

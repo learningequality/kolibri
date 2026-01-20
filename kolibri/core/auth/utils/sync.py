@@ -219,7 +219,7 @@ class ClassroomPartitionFactory(object):
         if filter_suffix:
             filter_template += filter_suffix
 
-        return Filter(
+        return Filter.from_template(
             filter_template,
             params={
                 "dataset_id": self.dataset_id,
