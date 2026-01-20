@@ -1,3 +1,9 @@
+kolibri-source (0.19.1-0ubuntu1) noble; urgency=medium
+
+  * New upstream release
+
+ -- Learning Equality \(Learning Equality\'s public signing key\) <accounts@learningequality.org>>  Tue, 20 Jan 2026 13:55:06 -0800
+
 kolibri-source (0.19.0-0ubuntu1) noble; urgency=medium
 
   * New upstream release
