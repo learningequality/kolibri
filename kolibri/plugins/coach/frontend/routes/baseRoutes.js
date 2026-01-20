@@ -5,6 +5,10 @@ export default {
     name: PageNames.HOME_PAGE,
     path: '/:classId?/home',
   },
+  courses: {
+    name: PageNames.COURSES_ROOT,
+    path: '/:classId?/courses',
+  },
   lessons: {
     name: PageNames.LESSONS_ROOT,
     path: '/:classId?/lessons',

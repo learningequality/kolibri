@@ -40,6 +40,18 @@ class CoachRedirect(RoleBasedRedirectHook):
 class CoachNavItem(NavigationHook):
     bundle_id = "side_nav"
 
+    @property
+    def plugin_data(self):
+        from kolibri.core.content.models import ContentNode
+
+        courses_exist = ContentNode.objects.filter(
+            available=True, modality=modalities.COURSE
+        ).exists()
+
+        return {
+            "courses_exist": courses_exist,
+        }
+
 
 @register_hook
 class CoachAsset(webpack_hooks.WebpackBundleHook):
