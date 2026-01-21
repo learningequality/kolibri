@@ -1,5 +1,5 @@
 import has from 'lodash/has';
-import Vue from 'vue';
+import Vue, { ref } from 'vue';
 import logger from 'kolibri-logging';
 import plugin_data from 'kolibri-plugin-data';
 import importIntlLocale from './internal/intl-locale-data';
@@ -50,10 +50,10 @@ const logging = logger.getLogger(__filename);
 
 const languageGlobals = plugin_data['languageGlobals'] || {};
 
-let _i18nReady = false;
+export const i18nReady = ref(false);
 
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
-  if (!_i18nReady) {
+  if (!i18nReady.value) {
     throw 'Translator used before i18n is ready';
   }
   if (args) {
@@ -208,7 +208,7 @@ export function crossComponentTranslator(Component) {
   return new Translator(Component.name, Component.$trs);
 }
 
-function _setUpVueIntl() {
+async function _setUpVueIntl() {
   /**
    * Use the vue-intl plugin.
    *
@@ -228,12 +228,18 @@ function _setUpVueIntl() {
   if (languageGlobals.coreLanguageMessages) {
     Vue.registerMessages(currentLanguage, languageGlobals.coreLanguageMessages);
   }
-  importVueIntlLocaleData().forEach(localeData => VueIntl.addLocaleData(localeData));
 
-  _i18nReady = true;
+  // Load vue-intl locale data asynchronously for current language
+  // Extract just the language code (e.g., 'en' from 'en-us') for vue-intl
+  const vueIntlLanguageCode = currentLanguage.split('-')[0];
+  const module = await importVueIntlLocaleData(vueIntlLanguageCode);
+  // import() returns the module directly
+  const localeData = module.default || module;
+  VueIntl.addLocaleData(localeData);
+  i18nReady.value = true;
 }
 
-export function i18nSetup(skipPolyfill = false) {
+export async function i18nSetup(skipPolyfill = false) {
   /**
    * Load fonts, app strings, and Intl polyfills
    **/
@@ -244,38 +250,19 @@ export function i18nSetup(skipPolyfill = false) {
 
   // If the browser doesn't support the Intl polyfill, we retrieve that and
   // the modules need to wait until that happens.
-  return new Promise((resolve, reject) => {
-    if (Object.prototype.hasOwnProperty.call(global, 'Intl') || skipPolyfill) {
-      _setUpVueIntl();
-      resolve();
-    } else {
-      Promise.all([
-        new Promise(res => {
-          require.ensure(
-            ['intl'],
-            require => {
-              res(() => require('intl'));
-            },
-            'intl',
-          );
-        }),
-        importIntlLocale(currentLanguage),
-      ]).then(
-        // eslint-disable-line
-        ([requireIntl, requireIntlLocaleData]) => {
-          requireIntl(); // requireIntl must run before requireIntlLocaleData
-          requireIntlLocaleData();
-          _setUpVueIntl();
-          resolve();
-        },
-        error => {
-          logging.error(error);
-          logging.error('An error occurred trying to setup Internationalization', error);
-          reject();
-        },
-      );
+  if (Object.prototype.hasOwnProperty.call(global, 'Intl') || skipPolyfill) {
+    await _setUpVueIntl();
+  } else {
+    try {
+      await Promise.all([import('intl'), importIntlLocale(currentLanguage)]);
+
+      await _setUpVueIntl();
+    } catch (error) {
+      logging.error(error);
+      logging.error('An error occurred trying to setup Internationalization', error);
+      throw error;
     }
-  });
+  }
 }
 
 export function localeCompare(str1, str2) {

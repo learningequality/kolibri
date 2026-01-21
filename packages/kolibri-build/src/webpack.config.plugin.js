@@ -14,7 +14,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const logging = require('kolibri-logging');
 const BundleTracker = require('./webpackBundleTracker');
 const baseConfig = require('./webpack.config.base');
-const { coreExternals } = require('./apiSpecExportTools');
+const { getCoreExternals } = require('./apiSpecExportTools');
 const WebpackRTLPlugin = require('./webpackRtlPlugin');
 const { kolibriName } = require('./kolibriName');
 const WebpackMessages = require('./webpackMessages');
@@ -96,7 +96,7 @@ module.exports = (
   const isCoreBundle = webpackConfig.output && webpackConfig.output.library === kolibriName;
 
   // If this is not the core bundle, then we need to add the external library mappings.
-  const externals = isCoreBundle ? {} : coreExternals;
+  const externals = isCoreBundle ? {} : getCoreExternals();
 
   const alias = {};
   if (kdsPath) {

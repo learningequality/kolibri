@@ -34,14 +34,19 @@
     setup() {
       const { isLearnerOnlyImport, isLearner } = useUser();
       const { facilities } = useFacilities();
-      const { onMyOwnWelcomeMessage$, HomePageWelcomeMessage$ } = kolibriOnboardingGuideStrings;
+      const {
+        // TODO Uncomment references to this message obj in 0.20 it
+        // was untranslated by mistake in 0.19, so we used a fallback
+        //onMyOwnWelcomeMessage$,
+        HomePageWelcomeMessage$,
+      } = kolibriOnboardingGuideStrings;
 
       return {
         isLearnerOnlyImport,
         facilities,
         isLearner,
-        onMyOwnWelcomeMessage$,
         HomePageWelcomeMessage$,
+        //onMyOwnWelcomeMessage$,
       };
     },
     props: {
@@ -70,7 +75,8 @@
           return [this.HomePageWelcomeMessage$({ facilityName: '' })];
         }
         if (this.isOnMyOwnUser) {
-          return [this.onMyOwnWelcomeMessage$()];
+          // TODO In 0.20, this should return an array w/ onMyOwnWelcomeMessage$ instead
+          return [this.$tr('learnOnlyDeviceWelcomeMessage1')];
         }
         if (this.importedFacility) {
           return [

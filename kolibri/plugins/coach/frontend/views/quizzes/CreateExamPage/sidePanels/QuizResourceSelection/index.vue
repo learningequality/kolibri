@@ -164,6 +164,7 @@
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
   import { useMemoize } from '@vueuse/core';
+  import Modalities from 'kolibri-constants/Modalities';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import {
     displaySectionTitle,
@@ -393,8 +394,19 @@
         { getKey: content => content.id },
       );
 
+      /**
+       * Practice quizzes should only be included if the resource selection side panel
+       * is in `selectPracticeQuiz` mode.
+       */
       const isPracticeQuiz = item =>
-        !selectPracticeQuiz || get(item, ['options', 'modality'], false) === 'QUIZ';
+        !selectPracticeQuiz || get(item, ['options', 'modality'], false) === Modalities.QUIZ;
+
+      /**
+       * Because survey questions have no 'correct' answer, and in some cases have a
+       * 'correct answer'chosen at random for the sake of having one,
+       * we should not allow them to be included in quizzes.
+       */
+      const isNotSurvey = item => get(item, ['options', 'modality'], false) !== Modalities.SURVEY;
 
       const {
         topic,
@@ -411,7 +423,7 @@
         searchResultsRouteName: PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
         bookmarks: {
           filters: { kind: ContentNodeKinds.EXERCISE },
-          annotator: results => results.filter(isPracticeQuiz),
+          annotator: results => results.filter(isNotSurvey).filter(isPracticeQuiz),
         },
 
         channels: {
@@ -443,6 +455,7 @@
           filters: {
             kind: ContentNodeKinds.EXERCISE,
             contains_quiz: selectPracticeQuiz ? true : null,
+            exclude_modalities: Modalities.SURVEY,
           },
         },
       });

@@ -40,24 +40,6 @@ export function saveFacilityConfig(store) {
   });
 }
 
-export function resetFacilityConfig(store) {
-  const { facilityDatasetId } = store.state;
-  return client({
-    url: urls['kolibri:core:facilitydataset_resetsettings'](facilityDatasetId),
-    method: 'POST',
-  }).then(({ data }) => {
-    store.commit('CONFIG_PAGE_MODIFY_ALL_SETTINGS', {
-      learner_can_edit_username: data.learner_can_edit_username,
-      learner_can_edit_name: data.learner_can_edit_name,
-      learner_can_edit_password: data.learner_can_edit_password,
-      learner_can_sign_up: data.learner_can_sign_up,
-      learner_can_delete_account: data.learner_can_delete_account,
-      learner_can_login_with_no_password: data.learner_can_login_with_no_password,
-      show_download_button_in_learn: data.show_download_button_in_learn,
-    });
-  });
-}
-
 export function setPin(store, payload) {
   const { facilityDatasetId } = store.state;
   return client({

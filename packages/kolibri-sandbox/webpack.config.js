@@ -1,5 +1,7 @@
 const path = require('path');
 const fs = require('fs');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 function Plugin() {}
@@ -30,16 +32,25 @@ module.exports = {
   entry: path.resolve(__dirname, './src/iframe.js'),
   output: {
     filename: 'sandbox-[contenthash].js',
-    chunkFilename: '[name]-[contenthash].bundle.js',
+    chunkFilename: 'sandbox-[name]-[contenthash].bundle.js',
     path: path.resolve(__dirname, '../../kolibri/core/content/static/sandbox'),
   },
-  mode: 'none',
+  mode: 'production',
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(js|mjs)$/,
         loader: 'babel-loader',
-        exclude: { and: [/(uuid|core-js)/, { not: [/\.(esm\.js|mjs)$/] }] },
+        exclude: [
+          // From: https://webpack.js.org/loaders/babel-loader/#exclude-libraries-that-should-not-be-transpiled
+          // \\ for Windows, / for macOS and Linux
+          /node_modules[\\/]core-js/,
+          /node_modules[\\/]webpack[\\/]buildin/,
+        ],
+        options: {
+          // Let babel auto-detect ES vs CommonJS
+          sourceType: 'unambiguous',
+        },
       },
     ],
   },
@@ -47,6 +58,25 @@ module.exports = {
     splitChunks: {
       minChunks: 2,
     },
+    minimizer: [
+      new TerserPlugin({
+        parallel: true,
+        terserOptions: {
+          mangle: {
+            safari10: true,
+          },
+          safari10: true,
+          output: {
+            comments: false,
+          },
+        },
+      }),
+      new CssMinimizerPlugin({
+        minimizerOptions: {
+          preset: ['default', { reduceIdents: false, zindex: false }],
+        },
+      }),
+    ],
   },
   plugins: [
     new Plugin(),

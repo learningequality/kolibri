@@ -125,32 +125,18 @@
             borderTopColor: $themeTokens.fineLine,
           }"
         >
-          <KButtonGroup :style="{ marginTop: '24px', marginLeft: '-8px' }">
-            <KButton
-              :primary="true"
-              appearance="raised-button"
-              :text="coreString('saveChangesAction')"
-              name="save-settings"
-              :disabled="!settingsHaveChanged"
-              @click="saveConfig()"
-            />
-            <KButton
-              :primary="false"
-              appearance="flat-button"
-              :text="$tr('resetToDefaultSettings')"
-              name="reset-settings"
-              @click="showModal = true"
-            />
-          </KButtonGroup>
+          <KButton
+            :primary="true"
+            appearance="raised-button"
+            :style="{ marginTop: '24px', marginLeft: '-8px' }"
+            :text="coreString('saveChangesAction')"
+            name="save-settings"
+            :disabled="!settingsHaveChanged"
+            @click="saveConfig()"
+          />
         </div>
       </template>
 
-      <ConfirmResetModal
-        v-if="showModal"
-        id="confirm-reset"
-        @submit="resetToDefaultSettings"
-        @cancel="showModal = false"
-      />
       <EditFacilityNameModal
         v-if="showEditFacilityModal"
         id="edit-facility"
@@ -184,41 +170,16 @@
     </KPageContainer>
 
     <BottomAppBar data-test="bottom-bar">
-      <KButtonGroup
+      <KButton
         v-if="!isAppContext"
-        style="margin-top: 8px"
-      >
-        <KGrid>
-          <KGridItem
-            :layout12="{ span: 6 }"
-            :layout8="{ span: 4 }"
-            :layout4="{ span: 2 }"
-          >
-            <KButton
-              :primary="false"
-              appearance="flat-button"
-              :text="$tr('resetToDefaultSettings')"
-              name="reset-settings"
-              @click="showModal = true"
-            />
-          </KGridItem>
-          <KGridItem
-            :layout12="{ span: 6 }"
-            :layout8="{ span: 4 }"
-            :layout4="{ span: 2 }"
-          >
-            <KButton
-              :primary="true"
-              :class="windowIsSmall ? 'mobile-button' : ''"
-              appearance="raised-button"
-              :text="coreString('saveChangesAction')"
-              name="save-settings"
-              :disabled="!settingsHaveChanged"
-              @click="saveConfig()"
-            />
-          </KGridItem>
-        </KGrid>
-      </KButtonGroup>
+        :primary="true"
+        class="save-button"
+        appearance="raised-button"
+        :text="coreString('saveChangesAction')"
+        name="save-settings"
+        :disabled="!settingsHaveChanged"
+        @click="saveConfig()"
+      />
     </BottomAppBar>
   </FacilityAppBarPage>
 
@@ -228,7 +189,6 @@
 <script>
 
   import { mapActions, mapGetters, mapState } from 'vuex';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { createTranslator } from 'kolibri/utils/i18n';
 
   import camelCase from 'lodash/camelCase';
@@ -240,7 +200,6 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import FacilityAppBarPage from '../FacilityAppBarPage';
-  import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
   import CreateManagementPinModal from './CreateManagementPinModal';
   import ViewPinModal from './ViewPinModal';
@@ -283,7 +242,6 @@
     },
     components: {
       FacilityAppBarPage,
-      ConfirmResetModal,
       EditFacilityNameModal,
       BottomAppBar,
       CreateManagementPinModal,
@@ -294,12 +252,10 @@
     mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
-      const { windowIsSmall } = useKResponsiveWindow();
       const { isAppContext, isSuperuser } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       return {
         createSnackbar,
-        windowIsSmall,
         isAppContext,
         isSuperuser,
         userIsMultiFacilityAdmin,
@@ -307,7 +263,6 @@
     },
     data() {
       return {
-        showModal: false,
         showEditFacilityModal: false,
         settingsCopy: {},
         createPinShow: false,
@@ -425,10 +380,6 @@
             this.$store.commit('facilityConfig/CONFIG_PAGE_UNDO_SETTINGS_CHANGE');
           });
       },
-      resetToDefaultSettings() {
-        this.showModal = false;
-        this.updateSettings('facilityConfig/resetFacilityConfig');
-      },
       sendFacilityName(name) {
         this.showEditFacilityModal = false;
         if (name != this.facilityName) this.saveFacilityName({ name: name, id: this.facilityId });
@@ -501,10 +452,6 @@
         message: 'Facility settings',
         context: 'Title of the Facility > Settings page.',
       },
-      resetToDefaultSettings: {
-        message: 'Reset to defaults',
-        context: 'Button that resets the facility to its default settings.',
-      },
       documentTitle: {
         message: 'Facility Settings',
         context: 'Title of page where user can configure facility settings.',
@@ -550,8 +497,9 @@
     margin-left: 24px;
   }
 
-  .mobile-button {
-    margin-top: 0;
+  .save-button {
+    position: absolute;
+    right: 25px;
   }
 
   .facility-loader {

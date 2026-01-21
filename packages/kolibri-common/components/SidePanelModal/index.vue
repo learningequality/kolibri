@@ -79,7 +79,7 @@
 
 <script>
 
-  import { computed, ref } from 'vue';
+  import { ref } from 'vue';
   import { get } from '@vueuse/core';
   import throttle from 'lodash/throttle';
   import Backdrop from 'kolibri/components/Backdrop';
@@ -101,7 +101,7 @@
         isScrolled.value = event.target.scrollTop > 0;
       };
 
-      const handleScroll = computed(() => throttle(_handleScroll, 100));
+      const handleScroll = throttle(_handleScroll, 100);
 
       return {
         /* Will be calculated in mounted() as it will get the height of the fixedHeader then */

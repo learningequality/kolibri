@@ -45,11 +45,6 @@ from kolibri.utils.android import on_android
 from kolibri.utils.logger import cleanup_queue_logging
 from kolibri.utils.logger import setup_queue_logging
 
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
-
 logger = logging.getLogger(__name__)
 
 # Status codes for kolibri
@@ -1081,7 +1076,7 @@ def get_status():  # noqa: max-complexity=16
             response = requests.get(check_url, timeout=3)
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
             raise NotRunning(STATUS_NOT_RESPONDING)
-        except (requests.exceptions.RequestException):
+        except requests.exceptions.RequestException:
             raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)
 
         if response.status_code == 404:
@@ -1099,7 +1094,7 @@ def get_status():  # noqa: max-complexity=16
             requests.get(check_url, timeout=3)
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
             raise NotRunning(STATUS_NOT_RESPONDING)
-        except (requests.exceptions.RequestException):
+        except requests.exceptions.RequestException:
             return pid, "", ""
 
     return (

@@ -86,7 +86,15 @@ class CoachToolsModule extends KolibriApp {
         PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
         PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
         PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
+        PageNames.COURSES_ROOT,
+        PageNames.COURSES_ASSIGN,
+        PageNames.COURSES_ASSIGN_INDEX,
+        PageNames.COURSES_ASSIGN_COURSE_DETAILS,
+        PageNames.COURSES_ASSIGN_SELECT_RECIPIENTS,
+        PageNames.COURSES_ASSIGN_PREVIEW_LEARNERS,
+        HomeActivityPage.name,
       ];
+
       // If we're navigating to the same page for a quiz summary page, don't set loading
       if (
         !skipLoading.includes(to.name) &&
@@ -146,6 +154,12 @@ class CoachToolsModule extends KolibriApp {
           PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
           PageNames.QUIZ_PREVIEW_RESOURCE,
           PageNames.QUIZ_SELECT_RESOURCES_LANDING_SETTINGS,
+          PageNames.COURSES_ROOT,
+          PageNames.COURSES_ASSIGN,
+          PageNames.COURSES_ASSIGN_INDEX,
+          PageNames.COURSES_ASSIGN_COURSE_DETAILS,
+          PageNames.COURSES_ASSIGN_SELECT_RECIPIENTS,
+          PageNames.COURSES_ASSIGN_PREVIEW_LEARNERS,
           HomeActivityPage.name,
         ].includes(to.name)
       ) {
