@@ -101,7 +101,7 @@ test-all:
 
 %-with-postgres:
 	@echo -e "\e[33mWARNING: for testing purposes only; postgresql database backend is ephemeral\e[0m"
-	@echo -e "\e[36mINFO: run 'docker-compose -v' to remove the database volume\e[0m"
+	@echo -e "\e[36mINFO: run 'docker compose -v' to remove the database volume\e[0m"
 	export KOLIBRI_DATABASE_ENGINE=postgres; \
 	export KOLIBRI_DATABASE_NAME=default; \
 	export KOLIBRI_DATABASE_USER=postgres; \
@@ -109,15 +109,15 @@ test-all:
 	export KOLIBRI_DATABASE_HOST=127.0.0.1; \
 	export KOLIBRI_DATABASE_PORT=15432; \
 	set -ex; \
-	function _on_interrupt() { docker-compose down; }; \
+	function _on_interrupt() { docker compose down; }; \
 	trap _on_interrupt SIGINT SIGTERM SIGKILL ERR; \
-	docker-compose up --detach; \
-	until docker-compose logs --tail=1 postgres | grep -q "database system is ready to accept connections"; do \
+	docker compose up --detach; \
+	until docker compose logs --tail=1 postgres | grep -q "database system is ready to accept connections"; do \
 		echo "$(date) - waiting for postgres..."; \
 		sleep 1; \
 	done; \
 	$(MAKE) -e $(subst -with-postgres,,$@); \
-	docker-compose down -v
+	docker compose down -v
 
 start-foreground:
 	kolibri start --foreground

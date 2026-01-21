@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM python:3.6
 
 ENV NODE_VERSION=20.19.3
 
@@ -10,10 +10,10 @@ RUN apt-get update && \
     gettext \
     git \
     git-lfs \
-    python3.6 \
-    python-pip \
-    python-sphinx
+    sqlite3 \
+    python3-sphinx
 
+RUN ln -s /usr/bin/python3.6 /usr/bin/python
 # Upgrade pip. Otherwise pip cannot install c extension packages that are not
 # for current platform
 RUN pip install -U pip

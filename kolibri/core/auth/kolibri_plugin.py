@@ -5,6 +5,8 @@ from morango.sync.operations import LocalOperation
 from kolibri.core.auth.hooks import FacilityDataSyncHook
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Session
+from kolibri.core.auth.sync_operations import KolibriLocalInitializeOperation
+from kolibri.core.auth.sync_operations import KolibriNetworkInitializeOperation
 from kolibri.core.auth.sync_operations import KolibriSingleUserSyncOperation
 from kolibri.core.auth.sync_operations import KolibriSyncOperationMixin
 from kolibri.core.auth.tasks import cleanupsync
@@ -81,6 +83,10 @@ class CleanUpTaskOperation(KolibriSyncOperationMixin, LocalOperation):
 
 @register_hook
 class AuthSyncHook(FacilityDataSyncHook):
+    initializing_operations = [
+        KolibriLocalInitializeOperation(),
+        KolibriNetworkInitializeOperation(),
+    ]
     serializing_operations = [SingleFacilityUserChangeClearingOperation()]
     cleanup_operations = [CleanUpTaskOperation()]
 
