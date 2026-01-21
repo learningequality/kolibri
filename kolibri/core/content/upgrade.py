@@ -32,6 +32,7 @@ from kolibri.core.content.utils.channels import get_channel_ids_for_content_dirs
 from kolibri.core.content.utils.paths import get_all_content_dir_paths
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.search import annotate_label_bitmasks
+from kolibri.core.content.utils.search import annotate_modality
 from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
 from kolibri.core.content.utils.sqlalchemybridge import Bridge
 from kolibri.core.content.utils.tree import get_channel_node_depth
@@ -359,3 +360,11 @@ def ordered_metadata_in_channels():
         calculate_ordered_grade_levels(channel)
         calculate_included_languages(channel)
     ContentCacheKey.update_cache_key()
+
+
+@version_upgrade(old_version="<0.19.1")
+def contentnode_modality_annotation_update():
+    """
+    annotate modality for all ContentNodes based on options.modality
+    """
+    annotate_modality(ContentNode.objects.all())

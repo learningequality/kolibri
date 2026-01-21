@@ -3,15 +3,6 @@ Feature: Device setup
   Background:
     Given that the Kolibri installation was successful
 
-	Scenario: Load the Kolibri app for the first time during device setup #NOT IMPLEMENTED
-		When I open the app for the first time
-		Then I see a static image of the Kolibri logo
-			And I see messages under the logo
-		When I click an arrow
-		Then I can cycle through the messages
-		When the loading completes
-		Then I see a *Get started* button
-
 	Scenario: *On my own* setup
 		Given I am using a desktop browser
 			And Kolibri has finished loading after opening it for the first time

@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const { writeSourceToFile } = require('kolibri-format');
 const logger = require('kolibri-logging');
+const uniqBy = require('lodash/uniqBy');
 
 const logging = logger.getLogger('Kolibri Intl Data');
 
@@ -49,13 +50,15 @@ module.exports = function (outputDir, languageInfoPath) {
   * Polyfill files are copied to ./polyfills/ directory to avoid external dependencies.
   */
   `;
-  const vueIntlHeader = `module.exports = function () {
-    const data = [];`;
+  const vueIntlHeader = `module.exports = function (locale) {
+    switch (locale) {`;
 
   function generateVueIntlItems(language) {
     /*
-     * Generate entries of this form:
-     *   data.push(require('vue-intl/locale-data/ar.js'));
+     * Generate entries of this form with lazy loading:
+     *
+     * case 'ar':
+     *   return import('vue-intl/locale-data/ar.js');
      *
      * Some Intl codes look like 'ar' and others look like 'bn-bd', so for Vue Intl
      * we strip off the territory code if it's there.
@@ -88,17 +91,26 @@ module.exports = function (outputDir, languageInfoPath) {
         }
       }
 
-      return `data.push(require('${module_path}'));`;
+      return `
+      case '${vue_intl_code}':
+        return import('${module_path}');`;
     }
   }
 
   const vueIntlFooter = `
-    return data;
+      default:
+        return import('vue-intl/locale-data/en.js');
+    }
   };
   `;
 
   const vueIntlModule =
-    commonHeader + vueIntlHeader + languageInfo.map(generateVueIntlItems).join('') + vueIntlFooter;
+    commonHeader +
+    vueIntlHeader +
+    uniqBy(languageInfo, l => l.intl_code.split('-')[0])
+      .map(generateVueIntlItems)
+      .join('') +
+    vueIntlFooter;
 
   const vueIntlModulePath = path.resolve(outputDir, 'vue-intl-locale-data.js');
   const intlHeader = `module.exports = function(locale) {
@@ -109,14 +121,7 @@ module.exports = function (outputDir, languageInfoPath) {
      * Generate entries of the form:
      *
      * case 'sw-tz':
-     *   return new Promise(function(resolve) {
-     *     require.ensure(
-     *       ['intl/locale-data/jsonp/sw-TZ.js'],
-     *       function(require) {
-     *         resolve(() => require('intl/locale-data/jsonp/sw-TZ.js'));
-     *       }
-     *     );
-     *   });
+     *   return import('intl/locale-data/jsonp/sw-TZ.js');
      *
      * Note that not all codes have two parts, e.g. 'en' vs 'es-mx'.
      */
@@ -174,27 +179,13 @@ module.exports = function (outputDir, languageInfoPath) {
 
       return `
       case '${language.intl_code}':
-        return new Promise(function(resolve) {
-          require.ensure(
-            ['${module_path}'],
-            function(require) {
-              resolve(() => require('${module_path}'));
-            }
-          );
-        });`;
+        return import('${module_path}');`;
     }
   }
 
   const intlFooter = `
       default:
-        return new Promise(function(resolve) {
-          require.ensure(
-            ['intl/locale-data/jsonp/en.js'],
-            function(require) {
-              resolve(() => require('intl/locale-data/jsonp/en.js'));
-            }
-          );
-        });
+        return import('intl/locale-data/jsonp/en.js');
     }
   };
   `;

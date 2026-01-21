@@ -1,10 +1,5 @@
 import os
 
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
-
 
 def get_path_permission(path):
     """

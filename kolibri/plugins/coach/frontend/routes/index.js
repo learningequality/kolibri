@@ -3,6 +3,7 @@ import router from 'kolibri/router';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
+import plugin_data from 'kolibri-plugin-data';
 import AllFacilitiesPage from '../views/AllFacilitiesPage';
 import CoachClassListPage from '../views/CoachClassListPage';
 import ClassLearnersListPage from '../views/ClassLearnersListPage';
@@ -17,6 +18,7 @@ import examRoutes from './examRoutes';
 import lessonsRoutes from './lessonsRoutes';
 import learnersRoutes from './learnersRoutes';
 import groupsRoutes from './groupsRoutes';
+import coursesRoutes from './coursesRoutes';
 
 function showHomePage(toRoute) {
   const initClassInfoPromise = store.dispatch('initClassInfo', toRoute.params.classId);
@@ -36,6 +38,7 @@ export default [
   ...lessonsRoutes,
   ...learnersRoutes,
   ...groupsRoutes,
+  ...(plugin_data.courses_exist ? coursesRoutes : []),
   {
     name: 'AllFacilitiesPage',
     path: '/facilities/:subtopicName?',

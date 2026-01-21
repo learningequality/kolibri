@@ -32,6 +32,7 @@ from django.db.models import OuterRef
 from django.db.models import QuerySet
 from le_utils.constants import content_kinds
 from le_utils.constants import format_presets
+from le_utils.constants import modalities
 from morango.models.fields import UUIDField
 from mptt.managers import TreeManager
 from mptt.querysets import TreeQuerySet
@@ -214,6 +215,10 @@ class ContentNode(base_models.ContentNode):
     # needs a subsequent Kolibri upgrade step to backfill these values.
     admin_imported = models.BooleanField(null=True)
 
+    modality = models.CharField(
+        max_length=50, blank=True, null=True, choices=modalities.choices
+    )
+
     objects = ContentNodeManager()
 
     class Meta:
@@ -221,6 +226,9 @@ class ContentNode(base_models.ContentNode):
         index_together = [
             ["level", "channel_id", "kind"],
             ["level", "channel_id", "available"],
+        ]
+        indexes = [
+            models.Index(fields=["modality"]),
         ]
 
     def __str__(self):

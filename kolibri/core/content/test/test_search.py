@@ -2,11 +2,13 @@ from uuid import uuid4
 
 from django.test import TestCase
 from le_utils.constants import content_kinds
+from le_utils.constants import modalities
 from parameterized import parameterized
 
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.search import annotate_label_bitmasks
+from kolibri.core.content.utils.search import annotate_modality
 from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.search import metadata_lookup
 
@@ -186,3 +188,56 @@ class ConstrainedMetadataLabelsTestCase(TestCase):
         except Exception as e:
             self.fail("get_available_metadata_labels raised {}".format(e))
         self.assertEqual(labels[field], [])
+
+
+class AnnotateModalityTestCase(TestCase):
+    """
+    Test case for annotate_modality function
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        builder = ChannelBuilder(levels=4)
+        builder.insert_into_default_db()
+        cls.course_folder = ContentNode.objects.filter(kind=content_kinds.TOPIC).first()
+        cls.course_folder.options = {"modality": modalities.COURSE}
+        cls.course_folder.save()
+        cls.unit_folder = (
+            cls.course_folder.get_children().filter(kind=content_kinds.TOPIC).first()
+        )
+        cls.unit_folder.options = {"modality": modalities.UNIT}
+        cls.unit_folder.save()
+        cls.lesson_folder = (
+            cls.unit_folder.get_children().filter(kind=content_kinds.TOPIC).first()
+        )
+        cls.lesson_folder.options = {"modality": modalities.LESSON}
+        cls.lesson_folder.save()
+
+    def test_annotate_modality_updates_field(self):
+        """Test that annotate_modality correctly updates the modality field"""
+        annotate_modality(ContentNode.objects.all())
+
+        self.course_folder.refresh_from_db()
+        self.unit_folder.refresh_from_db()
+        self.lesson_folder.refresh_from_db()
+
+        self.assertEqual(self.course_folder.modality, modalities.COURSE)
+        self.assertEqual(self.unit_folder.modality, modalities.UNIT)
+        self.assertEqual(self.lesson_folder.modality, modalities.LESSON)
+
+    def test_annotate_modality_with_no_options(self):
+        node = ContentNode.objects.exclude(kind=content_kinds.TOPIC).first()
+        node.options = {}
+        node.save()
+
+        annotate_modality(ContentNode.objects.filter(id=node.id))
+
+        node.refresh_from_db()
+        self.assertIsNone(node.modality)
+
+    def test_annotate_modality_with_empty_queryset(self):
+        """Test annotate_modality with empty queryset"""
+        empty_queryset = ContentNode.objects.none()
+
+        # This should not raise an error
+        annotate_modality(empty_queryset)

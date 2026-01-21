@@ -8,7 +8,7 @@ import Lockr from 'lockr';
 import urls from 'kolibri/urls';
 import store from 'kolibri/store';
 import { LoginErrors, ERROR_CONSTANTS, UPDATE_MODAL_DISMISSED, UserKinds } from 'kolibri/constants';
-import { pick } from 'lodash';
+import pick from 'lodash/pick';
 
 // Base session state (migrated from session module)
 const baseSessionState = {

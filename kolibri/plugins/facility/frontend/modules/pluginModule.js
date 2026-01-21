@@ -67,6 +67,18 @@ export default {
           name: PageNames.USER_MGMT_PAGE,
           params,
         },
+        UsersRootPage: {
+          name: PageNames.USER_MGMT_PAGE,
+          params,
+        },
+        NewUsersPage: {
+          name: PageNames.NEW_USERS_PAGE,
+          params,
+        },
+        UsersTrashPage: {
+          name: PageNames.USERS_TRASH_PAGE,
+          params,
+        },
         ClassEditPage: classId => {
           return {
             name: PageNames.CLASS_EDIT_MGMT_PAGE,

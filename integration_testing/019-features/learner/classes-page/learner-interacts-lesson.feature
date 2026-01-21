@@ -23,7 +23,7 @@ Feature: Learner interacts with an assigned lesson
 			And I see a green checkmark icon displayed next to the *Next* button
 		When I click the *Go back* arrow
 		Then I am at *Learn > Home > Classes > '<class>' > '<lesson>'* page
-			And I see a green progress bar displayed at the bottom of the exercise's card
+			And I see a progress bar displayed at the bottom of the exercise's card
 		When I click on the exercise content card with the progress bar
 		Then I am at the exercise page
 		When I consecutively answer correctly the required number of questions for the successful completion of the exercise

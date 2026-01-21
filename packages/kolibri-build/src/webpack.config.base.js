@@ -110,8 +110,7 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
         new TerserPlugin({
           parallel: true,
           terserOptions: {
-            mangle: false,
-            safari10: true,
+            // Don't specify mangle, as it is true by default.
             output: {
               comments: false,
             },
