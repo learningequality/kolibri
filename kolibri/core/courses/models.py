@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.utils import IntegrityError
-from le_utils.constants import content_kinds
 from morango.models import UUIDField
 
 from kolibri.core.auth.constants import role_kinds
@@ -8,21 +7,8 @@ from kolibri.core.auth.models import AbstractFacilityDataModel
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
-from kolibri.core.content.models import ContentNode
-from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.time_utils import local_now
-
-
-def courses_resources_lookup(course):
-    """
-    Lookup function for the ContentAssignmentManager
-    :param course: a course ContentNode ID
-    :return: a tuple of contentnode_id and metadata
-    """
-    course_node = ContentNode.objects.get(id=course)
-    for resource in course_node.get_descendants().exclude(kind=content_kinds.TOPIC):
-        yield (resource.id, dict(channel_id=resource.channel_id))
 
 
 class CourseSession(AbstractFacilityDataModel):
@@ -63,12 +49,6 @@ class CourseSession(AbstractFacilityDataModel):
         on_delete=models.CASCADE,
     )
     date_created = DateTimeTzField(default=local_now, editable=False)
-
-    content_assignments = ContentAssignmentManager(
-        one_to_many=True,
-        lookup_field="course",
-        lookup_func=courses_resources_lookup,
-    )
 
     morango_model_name = "coursesession"
 
