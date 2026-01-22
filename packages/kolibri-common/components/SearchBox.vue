@@ -48,7 +48,7 @@
           <template #icon>
             <KIcon
               :icon="icon"
-              :style="{ width: '24px', height: '24px', top: '7px' }"
+              :style="{ width: '24px', height: '24px' }"
               :color="$themeTokens.textInverted"
             />
           </template>
@@ -98,6 +98,10 @@
         type: Boolean,
         default: false,
       },
+      maxWidth: {
+        type: String,
+        default: '450px',
+      },
     },
     data() {
       return {
@@ -126,6 +130,7 @@
             color: this.$themeTokens.annotation,
           },
           color: this.$themeTokens.text,
+          backgroundColor: 'transparent',
           textAlign: this.isRtl ? 'right' : '',
         };
       },
@@ -193,7 +198,8 @@
   .search-box-row {
     display: table;
     width: 100%;
-    max-width: 450px;
+    /* stylelint-disable-next-line */
+    max-width: v-bind('maxWidth');
     border: solid 1px;
     border-radius: $radius;
   }

@@ -58,13 +58,22 @@
         default: false,
       },
       /**
-       * Boolean that determines if the select checkboxes should be rendered.
+       * Boolean that determines if the select checkboxes should be rendered for resources.
        * This is different from `selectionRules` as `selectionRules` just determines
        * whether the checkbox is enabled or not.
        */
       isSelectable: {
         type: Boolean,
         default: true,
+      },
+      /**
+       * Boolean that determines if the select checkboxes should be rendered for topics.
+       * This is different from `selectionRules` as `selectionRules` just determines
+       * whether the checkbox is enabled or not.
+       */
+      isTopicSelectable: {
+        type: Boolean,
+        default: false,
       },
       multi: {
         type: Boolean,
@@ -188,7 +197,8 @@
        */
       getResourceLink: {
         type: Function,
-        required: true,
+        required: false,
+        default: () => {},
       },
       hideBreadcrumbs: {
         type: Boolean,
@@ -292,6 +302,9 @@
         }
       },
       showCheckbox(node) {
+        if (node.kind === ContentNodeKinds.TOPIC) {
+          return this.isTopicSelectable;
+        }
         return this.isSelectable && node.kind !== ContentNodeKinds.TOPIC;
       },
     },

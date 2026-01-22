@@ -17,6 +17,7 @@
   import SidePanelModal from '../../../common/sidePanel/SidePanelModal.vue';
   import { PageNames } from '../../../../constants';
   import { overrideRoute } from '../../../../utils';
+  import useAssignCourse from '../../composables/useAssignCourse';
 
   /**
    * This component will serve as the root component for the
@@ -40,6 +41,7 @@
       SidePanelModal,
     },
     setup() {
+      useAssignCourse();
       const route = useRoute();
       const router = useRouter();
       const closeSidePanel = () => {

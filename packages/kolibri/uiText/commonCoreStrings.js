@@ -485,6 +485,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Search',
     context: 'Test used to indicate the Kolibri search field.',
   },
+  searchByKeyword: {
+    message: 'Search by keyword',
+    context: 'Text which appears in the search field used to search for resources by keyword.',
+  },
   searchForUser: {
     message: 'Search for a user...',
     context:
