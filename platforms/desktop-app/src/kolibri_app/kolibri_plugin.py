@@ -1,5 +1,5 @@
 from kolibri.plugins import KolibriPluginBase
-from kolibri.core.devices.hooks import GetOSUserHook
+from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.plugins.hooks import register_hook
 import getpass
 

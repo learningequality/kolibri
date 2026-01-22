@@ -37,7 +37,7 @@ if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
     sys.path.insert(0, os.path.join(sys._MEIPASS, "kolibrisrc", "kolibri", "dist"))
 
 from kolibri.main import initialize
-from kolibri.plugins.app.utils import app_intialize_url
+from kolibri.core.device.utils import app_initialize_url
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import KolibriProcessBus
 from kolibri_app.logger import logging
@@ -87,7 +87,7 @@ class WindowsIpcPlugin(SimplePlugin):
         Construct the server URLs based on the port.
         """
         kolibri_origin = f"http://localhost:{port}"
-        root_url = kolibri_origin + app_intialize_url() 
+        root_url = kolibri_origin + app_initialize_url() 
         return kolibri_origin, root_url
 
     def on_server_start(self, port):
