@@ -20,7 +20,7 @@ function rebuildApiSpec() {
   const kolibriFolder = path.resolve(__dirname, './kolibri');
   const kolibriFiles = glob
     .sync(`${kolibriFolder}/**/*.{js,vue}`, {
-      ignore: ['**/internal/**', '**/__tests__/**', '**/__mocks__/**'],
+      ignore: ['**/internal/**', '**/__tests__/**', '**/__mocks__/**', '**/node_modules/**'],
     })
     .map(f => {
       const { dir, name } = path.parse(f);

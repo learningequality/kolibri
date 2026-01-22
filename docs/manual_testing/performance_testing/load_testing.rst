@@ -26,7 +26,7 @@ Before running load tests:
    - **New KOLIBRI_HOME/unprovisioned** - the tool will provision it for you
    - **Existing KOLIBRI_HOME** - the tool will use existing setup
 
-   **Important**: Do NOT use ``yarn run devserver`` - load tests must run against a
+   **Important**: Do NOT use ``pnpm run devserver`` - load tests must run against a
    production-like server to get accurate performance measurements. The development
    server has additional overhead that will skew results.
 

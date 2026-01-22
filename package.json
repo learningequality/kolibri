@@ -2,40 +2,35 @@
   "name": "kolibri-root",
   "version": "0.12.0-dev.1",
   "description": "Development utilities for Kolibri",
-  "workspaces": [
-    "packages/*",
-    "kolibri/core",
-    "kolibri/plugins/*"
-  ],
   "scripts": {
-    "test": "yarn run test-jest --watch",
+    "test": "pnpm run test-jest --watch",
     "test-jest": "jest --config ./jest.conf.js",
-    "test-jest-cov": "yarn run test-jest --coverage",
-    "coverage": "yarn run test-jest-cov",
-    "build": "yarn run sandbox-build && kolibri-build prod --file ./build_tools/build_plugins.txt --transpile",
+    "test-jest-cov": "pnpm run test-jest --coverage",
+    "coverage": "pnpm run test-jest-cov",
+    "build": "pnpm run sandbox-build && kolibri-build prod --file ./build_tools/build_plugins.txt --transpile",
     "makemessages": "kolibri-i18n extract-messages --pluginFile ./build_tools/build_plugins.txt --namespace kolibri-common --searchPath ./packages/kolibri-common --namespace kolibri-core --searchPath ./packages/kolibri",
     "createprofiles": "kolibri-i18n profile --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/strings.csv --namespace kolibri-common --searchPath ./packages/kolibri-common --namespace kolibri-core --searchPath ./packages/kolibri",
     "auditdittostrings": "kolibri-i18n audit --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/ditto.csv --namespace kolibri-common --searchPath ./packages/kolibri-common --namespace kolibri-core --searchPath ./packages/kolibri",
     "transfercontext": "kolibri-i18n transfer-context --pluginFile ./build_tools/build_plugins.txt --namespace kolibri-common --searchPath ./packages/kolibri-common --namespace kolibri-core --searchPath ./packages/kolibri",
     "watch": "kolibri-build dev --file ./build_tools/build_plugins.txt --cache",
-    "watch-hot": "yarn run watch --hot",
+    "watch-hot": "pnpm run watch --hot",
     "app-python-devserver": "DJANGO_SETTINGS_MODULE=kolibri.deployment.default.settings.dev python ./integration_testing/scripts/run_kolibri_app_mode.py",
     "python-devserver": "kolibri start --debug --foreground --port=8000 --settings=kolibri.deployment.default.settings.dev",
     "python-devserver-no-update": "kolibri start --debug --skip-update --foreground --port=8000 --settings=kolibri.deployment.default.settings.dev",
-    "frontend-devserver": "concurrently --passthrough-arguments --kill-others \"yarn:watch --watchonly {1}\" yarn:sandbox-dev --",
-    "app-devserver": "concurrently --passthrough-arguments --kill-others \"yarn:watch --watchonly {1}\" yarn:app-python-devserver yarn:sandbox-dev --",
-    "devserver": "concurrently --passthrough-arguments --kill-others \"yarn:watch --watchonly {1}\" yarn:python-devserver yarn:sandbox-dev --",
-    "devserver-hot": "concurrently --passthrough-arguments --kill-others \"yarn:watch-hot --watchonly {1}\" yarn:python-devserver yarn:sandbox-dev --",
-    "devserver-with-kds": "concurrently --passthrough-arguments --kill-others \"yarn:watch --watchonly={2} --require-kds-path --kds-path={1}\" yarn:python-devserver yarn:sandbox-dev --",
+    "frontend-devserver": "concurrently --passthrough-arguments --kill-others \"pnpm run watch --watchonly {1}\" \"pnpm run sandbox-dev\" --",
+    "app-devserver": "concurrently --passthrough-arguments --kill-others \"pnpm run watch --watchonly {1}\" \"pnpm run app-python-devserver\" \"pnpm run sandbox-dev\" --",
+    "devserver": "concurrently --passthrough-arguments --kill-others \"pnpm run watch --watchonly {1}\" \"pnpm run python-devserver\" \"pnpm run sandbox-dev\" --",
+    "devserver-hot": "concurrently --passthrough-arguments --kill-others \"pnpm run watch-hot --watchonly {1}\" \"pnpm run python-devserver\" \"pnpm run sandbox-dev\" --",
+    "devserver-with-kds": "concurrently --passthrough-arguments --kill-others \"pnpm run watch --watchonly={2} --require-kds-path --kds-path={1}\" \"pnpm run python-devserver\" \"pnpm run sandbox-dev\" --",
     "bundle-stats": "kolibri-build prod --file ./build_tools/build_plugins.txt --transpile --json",
     "clean": "rm -fr kolibri/core/content/static/sandbox/ && kolibri-build clean --file ./build_tools/build_plugins.txt",
-    "lint-frontend": "kolibri-format --pattern '{kolibri*/**/frontend,packages,build_tools}/**/*.{js,vue,scss,less,css}' --ignore '**/dist/**' '**/node_modules/**' '**/static/**'",
-    "lint-frontend:format": "yarn run lint-frontend --write",
-    "lint-frontend:watch": "yarn run lint-frontend --monitor",
-    "lint-frontend:watch:format": "yarn run lint-frontend --monitor --write",
-    "migrate-core-api": "kolibri-tools migrate  '{kolibri*/**/frontend,packages}/**/*.{js,vue}' --ignore '**/dist/**,**/node_modules/**,**/static/**'",
-    "sandbox-dev": "yarn workspace kolibri-sandbox run dev",
-    "sandbox-build": "yarn workspace kolibri-sandbox run build",
+    "lint-frontend": "kolibri-format --pattern '{kolibri*/**/assets,packages,build_tools}/**/*.{js,vue,scss,less,css}' --ignore '**/dist/**' '**/node_modules/**' '**/static/**'",
+    "lint-frontend:format": "pnpm run lint-frontend --write",
+    "lint-frontend:watch": "pnpm run lint-frontend --monitor",
+    "lint-frontend:watch:format": "pnpm run lint-frontend --monitor --write",
+    "migrate-core-api": "kolibri-tools migrate  '{kolibri*/**/assets,packages}/**/*.{js,vue}' --ignore '**/dist/**,**/node_modules/**,**/static/**'",
+    "sandbox-dev": "pnpm --filter kolibri-sandbox run dev",
+    "sandbox-build": "pnpm --filter kolibri-sandbox run build",
     "compress": "kolibri-build compress 'kolibri/*/**/static/**/*.{html,js,css,svg,map,eot,ttf}'"
   },
   "repository": {
@@ -49,41 +44,73 @@
   },
   "private": true,
   "devDependencies": {
-    "@types/jest": "^30.0.0",
-    "xhr-mock": "^2.5.1",
-    "concurrently": "^8.0.1",
     "@crowdin/cli": "^4.12.0",
     "@rushstack/eslint-patch": "^1.15.0",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/user-event": "^14.6.1",
     "@testing-library/vue": "^5",
+    "@types/jest": "^30.0.0",
     "@vue/test-utils": "^1.3.6",
+    "@vueuse/shared": "^11.3.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-jest": "^30.2.0",
+    "browserslist-config-kolibri": "workspace:*",
+    "concurrently": "^8.0.1",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
     "jest-serializer-vue": "^3.1.0",
+    "kolibri-build": "workspace:*",
+    "kolibri-i18n": "workspace:*",
+    "kolibri-tools": "workspace:*",
+    "kolibri-format": "workspace:*",
+    "kolibri-glob": "workspace:*",
+    "kolibri": "workspace:*",
+    "kolibri-common": "workspace:*",
+    "kolibri-logging": "workspace:*",
+    "kolibri-plugin-data": "workspace:*",
     "rewire": "^6.0.0",
     "vue-jest": "^3.0.0",
     "vue-template-compiler": "2.7.16",
-    "webpack": "^5.104.0"
+    "webpack": "^5.104.0",
+    "xhr-mock": "^2.5.1"
   },
   "optionalDependencies": {
     "fsevents": "*"
   },
   "engineStrict": true,
   "engines": {
-    "node": ">= 20.19.0",
-    "yarn": ">= 1.12.3"
+    "node": "^20.19.0"
   },
   "browserslist": [
     "extends browserslist-config-kolibri"
   ],
+  "packageManager": "pnpm@10.4.1",
   "volta": {
     "node": "20.19.3",
-    "yarn": "1.22.22"
+    "pnpm": "10.4.1"
   },
   "dependencies": {
     "dialog-polyfill": "^0.5.6"
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "core-js",
+      "deasync",
+      "es5-ext",
+      "node-sass",
+      "unrs-resolver",
+      "vue-demi"
+    ],
+    "onlyBuiltDependencies": [
+      "core-js",
+      "deasync",
+      "es5-ext",
+      "node-sass",
+      "unrs-resolver",
+      "vue-demi"
+    ],
+    "overrides": {
+      "@khanacademy/math-input>mathquill": "github:Khan/mathquill#v1.0.0"
+    }
   }
 }

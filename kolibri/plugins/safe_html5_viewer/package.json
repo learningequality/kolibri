@@ -1,0 +1,15 @@
+{
+    "name": "kolibri-safe-html5-viewer-plugin",
+    "description": "Safe HTML5 Viewer Plugin for Kolibri",
+    "private": true,
+    "version": "0.0.1",
+    "dependencies": {
+        "kolibri": "workspace:*",
+        "kolibri-common": "workspace:*",
+        "kolibri-design-system": "catalog:",
+        "kolibri-viewer": "workspace:*",
+        "kolibri-zip": "workspace:*",
+        "lodash": "catalog:",
+        "vue": "catalog:"
+    }
+}

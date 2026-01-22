@@ -40,6 +40,8 @@ logging.setLevel(2);
 const esLinter = new ESLint({
   baseConfig: esLintConfig,
   fix: true,
+  // Resolve plugins from kolibri-format's directory, not the cwd
+  resolvePluginsRelativeTo: __dirname,
 });
 
 let esLintFormatter;

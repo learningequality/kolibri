@@ -22,7 +22,7 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           github_token: ${{ github.token }}
-          paths: '["requirements/*.txt", "package.json", "**/package.json", "yarn.lock", "test/conditional/test_licenses.sh", ".github/workflows/check_licenses.yml"]'
+          paths: '["requirements/*.txt", "package.json", "**/package.json", "pnpm-lock.yaml", "test/conditional/test_licenses.sh", ".github/workflows/check_licenses.yml"]'
   licenses:
     name: Licenses check
     needs: pre_job
@@ -33,14 +33,11 @@ jobs:
     - name: Use Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '20.x'
-    - name: Cache Node.js modules
-      uses: actions/cache@v5
+        node-version-file: 'package.json'
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
       with:
-        path: '**/node_modules'
-        key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
-          ${{ runner.OS }}-node-
+        cache: true
     - uses: actions/setup-python@v6
       with:
         python-version: '3.11'
@@ -54,7 +51,7 @@ jobs:
         python -m pip install --upgrade pip
         # Actually install all our requirements before doing a license check
         pip install -r requirements.txt
-        yarn --frozen-lockfile
-        npm rebuild node-sass
+        pnpm install --frozen-lockfile
+        pnpm rebuild node-sass
     - name: Check Licenses
       run: ./test/conditional/test_licenses.sh

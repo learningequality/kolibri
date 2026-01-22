@@ -4,6 +4,12 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
-    "core-js": "^3.47"
+    "@vueuse/core": "catalog:",
+    "core-js": "catalog:",
+    "kolibri": "workspace:*",
+    "kolibri-common": "workspace:*",
+    "kolibri-logging": "workspace:*",
+    "kolibri-plugin-data": "workspace:*",
+    "vue": "catalog:"
   }
 }

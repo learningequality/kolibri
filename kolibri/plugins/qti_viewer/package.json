@@ -3,5 +3,15 @@
   "name": "kolibri-qti-viewer",
   "description": "A plugin for rendering QTI questions",
   "private": true,
-  "dependencies": {}
+  "dependencies": {
+    "@vueuse/core": "catalog:",
+    "kolibri": "workspace:*",
+    "kolibri-common": "workspace:*",
+    "kolibri-design-system": "catalog:",
+    "kolibri-logging": "workspace:*",
+    "kolibri-viewer": "workspace:*",
+    "kolibri-zip": "workspace:*",
+    "lodash": "catalog:",
+    "vue": "catalog:"
+  }
 }

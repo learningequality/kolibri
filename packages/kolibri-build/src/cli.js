@@ -182,7 +182,7 @@ function addBuildOptions(command) {
     .option('--transpile', 'Transpile code using Babel', false)
     .option(
       '--require-kds-path',
-      'Flag to check if yarn command is run using devserver-with-kds',
+      'Flag to check if pnpm command is run using devserver-with-kds',
       false,
     )
     .option('--kds-path <kdsPath>', 'Full path to local kds directory', String, '');

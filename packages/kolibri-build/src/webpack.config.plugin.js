@@ -124,19 +124,13 @@ module.exports = (
       publicPath: 'auto',
     },
     resolve: {
+      // Add the plugin's node_modules first so pnpm can resolve plugin-specific dependencies
+      modules: [path.join(data.plugin_path, 'node_modules')],
       alias,
-      modules: [
-        // Add local resolution paths
-        path.join(data.plugin_path, 'node_modules'),
-        path.join(process.cwd(), 'node_modules'),
-      ],
     },
     resolveLoader: {
-      modules: [
-        // Add local resolution paths for loaders
-        path.join(data.plugin_path, 'node_modules'),
-        path.join(process.cwd(), 'node_modules'),
-      ],
+      // Add the plugin's node_modules for loader resolution
+      modules: [path.join(data.plugin_path, 'node_modules')],
     },
     plugins: [
       new MiniCssExtractPlugin({
