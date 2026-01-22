@@ -232,6 +232,9 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
+      vue-router:
+        specifier: 'catalog:'
+        version: 3.6.5(vue@2.7.16)
       vuex:
         specifier: 'catalog:'
         version: 3.6.2(vue@2.7.16)
