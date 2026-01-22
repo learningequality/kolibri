@@ -1,21 +1,27 @@
 import Modalities from 'kolibri-constants/Modalities';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import { ref, computed, provide, inject, watch } from 'vue';
 import useFetch from '../../../composables/useFetch';
 
 /**
  * Composable for managing the logic for the Assign Course side panel.
- * This composable will be live during the lifetime of the Assign Course side panel, and
+ * This composable will live during the lifetime of the Assign Course side panel, and
  * will be used to encapsulate all the logic related to assigning a course to learners.
  *
- * This should be instantiated in the parent component of the Assign Course side panel
+ * This is instantiated in the root component of the Assign Course side panel
  * and its state and methods will be passed down to child components through provide/inject.
  *
- * @returns {void}
+ * @param {Object} options **Required** Configuration options for the composable.
+ * @param {import('vue').Ref<string>} options.classId **Required** The id of the class to which
+ *                                                    the course will be assigned.
  */
-export default function useAssignCourse() {
+export default function useAssignCourse({ classId }) {
   const searchKeywords = ref('');
   const selectedCourse = ref(null);
+
+  const selectedGroupIds = ref([]);
+  const selectedLearnerIds = ref([]);
 
   const coursesFetch = useFetch({
     fetchMethod: () => {
@@ -37,30 +43,69 @@ export default function useAssignCourse() {
 
   const isLoading = computed(() => coursesFetch.loading.value);
 
-  // Initial fetch of courses
-  coursesFetch.fetchData();
-
   const selectCourse = course => {
     selectedCourse.value = course;
   };
+
+  const assignCourse = () => {
+    return CourseSessionResource.saveModel({
+      data: {
+        active: false,
+        collection: classId.value,
+        course: selectedCourse.value.id,
+        assignments: selectedGroupIds.value,
+        learner_ids: selectedLearnerIds.value,
+      },
+    });
+  };
+
+  // Initial fetch of courses
+  coursesFetch.fetchData();
 
   watch(searchKeywords, () => {
     coursesFetch.fetchData();
   });
 
+  provide('assignCourseClassId', classId);
   provide('assignCourseIsLoading', isLoading);
   provide('assignCourseSearchKeywords', searchKeywords);
   provide('assignCourseCoursesFetch', coursesFetch);
   provide('assignCourseSelectedCourse', selectedCourse);
+  provide('assignCourseSelectedGroupIds', selectedGroupIds);
+  provide('assignCourseSelectedLearnerIds', selectedLearnerIds);
   provide('assignCourseSelectCourse', selectCourse);
+  provide('assignCourseAssignCourse', assignCourse);
 }
 
+/**
+ * @typedef {import('../../../composables/useFetch').FetchObject} FetchObject
+ *
+ * @typedef {Object} AssignCourseInjectObject
+ * @property {import('vue').Ref<string>} classId The id of the class to which the course will
+ *                                               be assigned.
+ * @property {import('vue').Ref<string>} searchKeywords The keywords used to search for courses.
+ * @property {FetchObject} coursesFetch The useFetch object for fetching courses.
+ * @property {import('vue').Ref<Object|null>} selectedCourse The currently selected course.
+ * @property {import('vue').Ref<Array<string>>} selectedGroupIds The ids of the selected groups
+ *                                                               to assign the course to.
+ * @property {import('vue').Ref<Array<string>>} selectedLearnerIds The ids of the selected learners
+ *                                                                 to assign the course to.
+ * @property {(course: Object) => void} selectCourse Method to set the `selectedCourse` ref.
+ * @property {() => Promise<Object>} assignCourse Method to assign the selected course to the
+ *                                                selected learners and groups.
+ *
+ * @returns {AssignCourseInjectObject} An object with properties and methods for managing
+ *                                     the fetch process.
+ */
 export function injectAssignCourse() {
   return {
-    isLoading: inject('assignCourseIsLoading'),
+    classId: inject('assignCourseClassId'),
     searchKeywords: inject('assignCourseSearchKeywords'),
     coursesFetch: inject('assignCourseCoursesFetch'),
     selectedCourse: inject('assignCourseSelectedCourse'),
+    selectedGroupIds: inject('assignCourseSelectedGroupIds'),
+    selectedLearnerIds: inject('assignCourseSelectedLearnerIds'),
     selectCourse: inject('assignCourseSelectCourse'),
+    assignCourse: inject('assignCourseAssignCourse'),
   };
 }

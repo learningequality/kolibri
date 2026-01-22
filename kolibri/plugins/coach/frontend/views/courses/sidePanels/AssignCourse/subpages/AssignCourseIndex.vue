@@ -77,12 +77,12 @@
     setup(props, { emit }) {
       const route = useRoute();
       const router = useRouter();
+
       const closePanel = () => {
         emit('closePanel');
       };
 
-      const { isLoading, searchKeywords, coursesFetch, selectedCourse, selectCourse } =
-        injectAssignCourse();
+      const { searchKeywords, coursesFetch, selectedCourse, selectCourse } = injectAssignCourse();
 
       const { cancelAction$, searchByKeyword$ } = coreStrings;
       const { selectCourseLabel$, selectRecipientsLabel$ } = coursesStrings;
@@ -95,7 +95,7 @@
         );
       };
 
-      const { data, hasMore, fetchMore, loadingMore } = coursesFetch;
+      const { data, hasMore, fetchMore, loading, loadingMore } = coursesFetch;
       const selectedResources = computed(() => {
         return selectedCourse.value ? [selectedCourse.value] : [];
       });
@@ -113,7 +113,7 @@
       };
 
       return {
-        isLoading,
+        isLoading: loading,
         searchKeywords,
         contentList: data,
         hasMore,

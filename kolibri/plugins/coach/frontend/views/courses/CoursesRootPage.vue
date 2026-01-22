@@ -18,7 +18,11 @@
       whose routes are defined in coach/frontend/routes/coursesRoutes.js
       Side panels will only be rendered when their route is active.
     -->
-    <router-view />
+    <router-view @showModal="modelOpen = $event" />
+    <AssignCourseSuccessModal
+      v-if="modelOpen === CoursesModals.ASSIGN_COURSE_SUCCESS"
+      @close="modelOpen = null"
+    />
   </CoachAppBarPage>
 
 </template>
@@ -28,21 +32,24 @@
 
   import store from 'kolibri/store';
   import { useRoute } from 'vue-router/composables';
-  import { computed } from 'vue';
+  import { computed, ref } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
-  import { PageNames } from '../../constants';
+  import { CoursesModals, PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage.vue';
   import CoachHeader from '../common/CoachHeader.vue';
   import { overrideRoute } from '../../utils';
+  import AssignCourseSuccessModal from './modals/AssignCourseSuccess.vue';
 
   export default {
     name: 'CoursesRootPage',
     components: {
       CoachHeader,
       CoachAppBarPage,
+      AssignCourseSuccessModal,
     },
     setup() {
       const route = useRoute();
+      const modelOpen = ref(null);
       const { coursesLabel$, assignCourseAction$ } = coursesStrings;
 
       // Temporarily adding it here, it should be moved to a place after
@@ -57,6 +64,8 @@
         }),
       );
       return {
+        CoursesModals,
+        modelOpen,
         assignCourseRoute,
 
         coursesLabel$,

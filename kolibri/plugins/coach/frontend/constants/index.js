@@ -86,6 +86,10 @@ export const GroupModals = {
   DELETE_GROUP: 'DELETE_GROUP',
 };
 
+export const CoursesModals = {
+  ASSIGN_COURSE_SUCCESS: 'ASSIGN_COURSE_SUCCESS',
+};
+
 export const ViewMoreButtonStates = {
   LOADING: 'LOADING',
   HAS_MORE: 'HAS_MORE',

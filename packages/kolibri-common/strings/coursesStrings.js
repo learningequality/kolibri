@@ -25,4 +25,13 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Selected learners',
     context: 'Label for the list of selected learners when assigning a course.',
   },
+  courseIsAssignedTitle: {
+    message: 'Course is assigned!',
+    context: 'Title for the modal that confirms a course has been assigned.',
+  },
+  courseIsAssignedMessage: {
+    message:
+      'Learners in the assigned group will take a pre-test before starting this course. You can adjust assessment availability in the course settings.',
+    context: 'Message for the modal that confirms a course has been assigned.',
+  },
 });

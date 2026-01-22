@@ -1168,6 +1168,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "Error message a user sees if they've used the wrong username or password when they sign in to Kolibri.",
   },
+  defaultErrorMessage: {
+    message: 'Sorry! Something went wrong, please try again.',
+    context: 'Default error message for API errors.',
+  },
 
   // Formatting
   nameWithIdInParens: {

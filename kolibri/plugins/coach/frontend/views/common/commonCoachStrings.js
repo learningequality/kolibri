@@ -687,7 +687,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       'Label for the radio button that allows the coach to select groups or individual learners to assign a quiz to.',
   },
-  allUngroupedLearnersLabel: {
+  allUngroupedLearnres: {
     message: 'All ungrouped learners',
     context: 'Option to select all learners that are not in a group',
   },
