@@ -4,7 +4,6 @@ import os
 import webbrowser
 
 import wx
-from kolibri.main import enable_plugin
 from kolibri.utils.conf import KOLIBRI_HOME
 
 from kolibri_app.constants import APP_NAME
@@ -21,7 +20,7 @@ if WINDOWS:
     import ctypes
 else:
     from kolibri_app.server_manager_posix import PosixServerManager as ServerManager
-    from kolibri.plugins.app.utils import interface
+    from kolibri.core.device.utils import app_initialize_url
 
 STATE_FILE = "app_state.json"
 
@@ -73,8 +72,6 @@ class KolibriApp(wx.App):
             # Create a hidden window to receive messages
             self.create_hidden_window()
 
-        enable_plugin("kolibri.plugins.app")
-        enable_plugin("kolibri_app")
 
         self.windows = []
         self.kolibri_origin = None
@@ -262,7 +259,7 @@ class KolibriApp(wx.App):
             final_url = f"{root_url}?next={next_url}" if next_url else root_url
         else:
             # On other platforms, we construct the URL ourselves
-            final_url = self.kolibri_origin + interface.get_initialize_url(
+            final_url = self.kolibri_origin + app_initialize_url(
                 next_url=next_url
             )
         self.kolibri_url = final_url
