@@ -297,6 +297,11 @@ addBuildOptions(program.command('prod'))
   .option('--json', 'Output webpack stats in JSON format', false)
   .action(function (options) {
     validateKdsOptions(options);
+    if (options.plugins.length && options.file) {
+      cliLogging.warn(
+        'Both --plugins and --file were specified. These options are mutually exclusive; --plugins will be ignored. Try `pnpm run build-base` with your --plugins flag',
+      );
+    }
     const bundleData = getBundleData(options);
     const compiler = createWebpackCompiler(bundleData, options);
     runProductionBuild(compiler, options);
