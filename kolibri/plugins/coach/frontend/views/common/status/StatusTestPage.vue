@@ -36,7 +36,8 @@
         <tr>
           <th
             rowspan="2"
-            :style="[{ maxWidth: '100px', textAlign: 'left' }, thinBorderStyle]"
+            class="scenario-header"
+            :style="thinBorderStyle"
           >
             {{ tally.name }}
           </th>
@@ -292,6 +293,11 @@
     width: 150px;
     height: 16px;
     margin: auto;
+  }
+
+  .scenario-header {
+    max-width: 100px;
+    text-align: left;
   }
 
   td,

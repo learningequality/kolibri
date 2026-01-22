@@ -11,15 +11,10 @@
     <router-link
       v-if="topics.length && windowIsLarge"
       :to="foldersLink"
-      class="header-tab"
+      :class="['header-tab', defaultTabStyles, { 'header-tab-spaced': width > 234 }]"
       :activeClass="activeTabClasses"
-      :style="{
-        color: $themeTokens.annotation,
-        marginLeft: width > 234 ? '12px' : '0',
-        marginRight: width > 234 ? '12px' : '0',
-      }"
+      :style="{ color: $themeTokens.annotation }"
       :replace="true"
-      :class="defaultTabStyles"
     >
       <div
         class="inner"
@@ -33,15 +28,10 @@
     <router-link
       v-if="windowIsLarge"
       :to="topics.length ? searchTabLink : {}"
-      class="header-tab"
+      :class="['header-tab', defaultTabStyles, { 'header-tab-spaced': width > 234 }]"
       :activeClass="activeTabClasses"
-      :style="{
-        color: $themeTokens.annotation,
-        marginLeft: width > 234 ? '12px' : '0',
-        marginRight: width > 234 ? '12px' : '0',
-      }"
+      :style="{ color: $themeTokens.annotation }"
       :replace="true"
-      :class="defaultTabStyles"
     >
       <div
         class="inner"
@@ -227,6 +217,11 @@
       padding: 0;
       border-bottom-width: 0;
     }
+  }
+
+  .header-tab-spaced {
+    margin-right: 12px;
+    margin-left: 12px;
   }
 
 </style>

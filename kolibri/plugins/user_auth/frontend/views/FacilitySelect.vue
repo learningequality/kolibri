@@ -25,7 +25,7 @@
             <template #icon>
               <KIcon
                 icon="facility"
-                style="margin-right: 16px"
+                class="facility-icon"
               />
             </template>
             {{ facility.name }}
@@ -52,7 +52,7 @@
             <template #icon>
               <KIcon
                 icon="facility"
-                style="margin-right: 16px"
+                class="facility-icon"
               />
             </template>
             {{ facility.name }}
@@ -67,8 +67,8 @@
 
 <script>
 
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import partition from 'lodash/partition';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';
@@ -181,6 +181,10 @@
 
   .backlink {
     margin: 24px 0 16px;
+  }
+
+  .facility-icon {
+    margin-right: 16px;
   }
 
 </style>

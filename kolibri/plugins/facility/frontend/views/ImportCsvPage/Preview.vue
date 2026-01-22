@@ -168,7 +168,7 @@
         <KButton
           :text="$tr('back')"
           appearance="raised-button"
-          style="margin-left: 0"
+          class="back-button"
           @click="reset"
         />
         <KButton
@@ -339,6 +339,10 @@
 
   .indent {
     margin-left: 16px;
+  }
+
+  .back-button {
+    margin-left: 0;
   }
 
 </style>

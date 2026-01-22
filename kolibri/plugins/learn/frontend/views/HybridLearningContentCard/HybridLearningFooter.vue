@@ -31,7 +31,10 @@
       <CoachContentLabel
         v-if="isUserLoggedIn && !isLearner && contentNode.num_coach_contents"
         :style="coachContentLabelStyles"
-        class="coach-content-label"
+        :class="[
+          'coach-content-label',
+          { 'coach-content-label-topic': isTopic && contentNode.num_coach_contents < 2 },
+        ]"
         :value="contentNode.num_coach_contents"
         :isTopic="isTopic"
       />
@@ -57,12 +60,6 @@
         v-show="isMenuOpen"
         ref="menu"
         class="menu"
-        :style="{
-          left: isRtl ? '16px' : 'auto',
-          right: isRtl ? 'auto' : '16px',
-          position: 'absolute',
-          zIndex: 7,
-        }"
         :raised="true"
         :isOpen="isMenuOpen"
         :containFocus="true"
@@ -191,7 +188,7 @@
         if (this.contentNode.num_coach_contents < 2 && !this.isTopic) {
           return { maxWidth: '24px', marginTop: '4px' };
         } else if (this.contentNode.num_coach_contents < 2 && this.isTopic) {
-          return { maxWidth: '24px', marginTop: '4px', marginRight: '16px' };
+          return { maxWidth: '24px', marginTop: '4px' };
         } else {
           return {};
         }
@@ -286,6 +283,17 @@
 
   .coach-content-label {
     vertical-align: top;
+  }
+
+  .coach-content-label-topic {
+    margin-right: 16px;
+  }
+
+  .menu {
+    position: absolute;
+    right: 16px;
+    left: auto;
+    z-index: 7;
   }
 
 </style>

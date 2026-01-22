@@ -62,7 +62,7 @@
               <tr :key="idx + facilities.length">
                 <td style="padding: 0 0 16px">
                   <!-- Gives most space possible to buttons and aligns them with text -->
-                  <KButtonGroup style="max-width: 100%; margin-right: -16px; margin-left: -16px">
+                  <KButtonGroup class="mobile-button-group">
                     <KButton
                       :text="coreString('syncAction')"
                       :disabled="facilityIsSyncing(facility)"
@@ -496,6 +496,12 @@
     .sync {
       margin-right: 0;
     }
+  }
+
+  .mobile-button-group {
+    max-width: 100%;
+    margin-right: -16px;
+    margin-left: -16px;
   }
 
 </style>
