@@ -383,6 +383,7 @@ class ContentNodeAPIBase(object):
                 "is_leaf": expected.kind != "topic",
                 "files": files,
                 "admin_imported": bool(expected.admin_imported),
+                "modality": expected.modality,
             },
         )
 

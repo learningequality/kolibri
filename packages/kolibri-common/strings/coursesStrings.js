@@ -1,6 +1,10 @@
 import { createTranslator } from 'kolibri/utils/i18n';
 
 export const coursesStrings = createTranslator('CoursesStrings', {
+  courseLabel: {
+    message: 'Course',
+    context: 'Label for a single course that contains units and lessons.',
+  },
   coursesLabel: {
     message: 'Courses',
     context: 'Label for courses that contain units and lessons.',

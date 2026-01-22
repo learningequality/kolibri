@@ -686,6 +686,7 @@ class BaseContentNodeMixin(object):
         "categories",
         "duration",
         "ancestors",
+        "modality",
     )
 
     field_map = {
