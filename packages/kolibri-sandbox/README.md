@@ -17,11 +17,11 @@ Getting Started
 
 Step 1: Install package deps (run from Kolibri root)
 
-`yarn`
+`pnpm install`
 
 Step 2: Build Kolibri and kolibri-sandbox
 
-`yarn run build`
+`pnpm run build`
 
 Custom Navigation: Kolibri Namespace Data Flow
 -----------------------------------------------
@@ -172,7 +172,7 @@ H5P Static Files
 
 This code is currently generated from https://github.com/h5p/h5p-php-library
 
-To update, update the `h5pCommit` variable in `downloadH5PVendor.js` to the desired tag and then run `yarn run build-h5p`.
+To update, update the `h5pCommit` variable in `downloadH5PVendor.js` to the desired tag and then run `pnpm run build-h5p`.
 
 
 Bloom Reader Static Files
@@ -180,4 +180,4 @@ Bloom Reader Static Files
 
 This code is currently generated from https://github.com/learningequality/bloom-player (specifically the 'patched' default branch).
 
-To regenerate, the repository should be cloned, and `yarn run build` run within the context of that repository to regenerate the new assets. All the files put into `dist` should then be copied into `kolibri/core/content/static/bloom` in the Kolibri repository. Any previously existing hash named files can be deleted and replaced by the new hash named files.
+To regenerate, the repository should be cloned, and `pnpm run build` run within the context of that repository to regenerate the new assets. All the files put into `dist` should then be copied into `kolibri/core/content/static/bloom` in the Kolibri repository. Any previously existing hash named files can be deleted and replaced by the new hash named files.

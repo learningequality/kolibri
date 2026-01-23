@@ -4,8 +4,21 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
+    "@vueuse/core": "catalog:",
     "deep-object-diff": "^1.1.9",
-    "tinycolor2": "^1.6.0"
+    "frame-throttle": "^3.0.0",
+    "kolibri": "workspace:*",
+    "kolibri-app": "workspace:*",
+    "kolibri-common": "workspace:*",
+    "kolibri-constants": "catalog:",
+    "kolibri-design-system": "catalog:",
+    "kolibri-plugin-data": "workspace:*",
+    "kolibri-sandbox": "workspace:*",
+    "kolibri-viewer": "workspace:*",
+    "lodash": "catalog:",
+    "tinycolor2": "^1.6.0",
+    "vue": "catalog:",
+    "vuex": "catalog:"
   },
   "devDependencies": {
     "flush-promises": "^1.0.2"

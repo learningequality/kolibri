@@ -7,6 +7,9 @@ DATA_PORTAL_SYNCING_BASE_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_UR
 CUSTOM_INSTANCE_INFO = {
     "kolibri": __version__,
 }
+PARTITION_CLASSROOM = "${dataset_id}:classroom:${collection_id}"
+PARTITION_SUFFIX_LEARNER_RW = ":learner-rw"
+PARTITION_SUFFIX_COACH_RW = ":coach-rw"
 
 
 class ScopeDefinitions(object):

@@ -1,6 +1,11 @@
 var OFF = 0;
 var ERROR = 2;
 
+// Resolve config paths relative to this package so they work when run from any directory
+function resolveConfig(name) {
+  return require.resolve(name);
+}
+
 module.exports = {
   env: {
     es6: true,
@@ -64,7 +69,7 @@ module.exports = {
     'plugin:import/errors',
     'plugin:import/warnings',
     'plugin:jest-dom/recommended',
-    'prettier',
+    resolveConfig('eslint-config-prettier'),
   ],
   plugins: ['import', 'vue', 'kolibri', 'jest-dom', 'jest'],
   settings: {

@@ -1806,7 +1806,7 @@ class LearnerGroup(Collection):
 class AdHocGroup(Collection):
     """
     An ``AdHocGroup`` is a collection kind that can be used in an assignment
-    to create a group that is specific to a single ``Lesson`` or ``Exam``.
+    to create a group that is specific to a single ``Lesson``, ``Exam`` or ``CourseSession``.
     """
 
     morango_model_name = "adhoclearnersgroup"
