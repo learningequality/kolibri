@@ -1,9 +1,6 @@
 <template>
 
-  <div
-    data-testid="safe-html-renderer-container"
-    :style="cssVars"
-  >
+  <div data-testid="safe-html-renderer-container">
     <KCircularLoader
       v-if="loading || !html"
       :delay="false"
@@ -60,15 +57,6 @@
     computed: {
       entry() {
         return (this.options && this.options.entry) || 'index.html';
-      },
-      cssVars() {
-        return {
-          '--color-primary-500': this.$themeBrand.primary.v_500,
-          '--color-primary-100': this.$themeBrand.primary.v_100,
-          '--color-grey-300': this.$themePalette.grey.v_300,
-          '--color-grey-100': this.$themePalette.grey.v_100,
-          '--color-fineline': this.$themeTokens.fineLine,
-        };
       },
     },
     async created() {

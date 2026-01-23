@@ -8,6 +8,7 @@
       <img
         :src="src"
         :alt="alt"
+        :style="imageStyle"
         v-bind="$attrs"
         @click="openLightbox"
       >
@@ -55,6 +56,13 @@
       return {
         lightboxOpen: false,
       };
+    },
+    computed: {
+      imageStyle() {
+        return {
+          border: `1px solid ${this.$themeTokens.fineLine}`,
+        };
+      },
     },
     methods: {
       openLightbox() {
