@@ -1,18 +1,21 @@
 {
-    "name": "kolibri-setup-wizard-plugin",
-    "description": "Setup Wizard Plugin for Kolibri",
+    "name": "kolibri-facility-plugin",
+    "description": "Facility Plugin for Kolibri",
     "private": true,
     "version": "0.0.1",
     "dependencies": {
         "@vueuse/core": "catalog:",
+        "date-fns": "^1.28.2",
+        "fuse.js": "^7.1.0",
         "kolibri": "workspace:*",
         "kolibri-app": "workspace:*",
         "kolibri-common": "workspace:*",
         "kolibri-design-system": "catalog:",
-        "lockr": "0.8.5",
+        "kolibri-logging": "workspace:*",
+        "kolibri-plugin-data": "workspace:*",
         "lodash": "catalog:",
         "vue": "catalog:",
-        "vuex": "catalog:",
-        "xstate": "catalog:"
+        "vue-router": "catalog:",
+        "vuex": "catalog:"
     }
 }

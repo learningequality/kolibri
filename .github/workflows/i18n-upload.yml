@@ -21,8 +21,12 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
-          cache: 'yarn'
+          node-version-file: 'package.json'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          cache: true
 
       - name: Setup Java for crowdin-cli
         uses: actions/setup-java@v5
@@ -37,7 +41,7 @@ jobs:
         run: pip install -r requirements/base.txt
 
       - name: Install JavaScript dependencies
-        run: yarn --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Extract and upload strings to Crowdin
         env:

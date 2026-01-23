@@ -11,6 +11,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "kolibri-module": "^1.0.0"
+    "kolibri-module": "workspace:*"
   }
 }

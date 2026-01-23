@@ -44,7 +44,7 @@ do
     fi
 done
 
-if yarn licenses list | grep -iP '(?<!OR )(?<!L)GPL(?! OR)'
+if pnpm licenses list | grep -iP '(?<!OR )(?<!L)GPL(?! OR)'
 # If any output from the above, then we have found something, use && true to coerce to boolean
 then
     echo "Problem! Incompatible license found in Javascript dependencies"

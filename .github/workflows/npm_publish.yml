@@ -34,8 +34,12 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version-file: 'package.json'
           registry-url: 'https://registry.npmjs.org'
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Create tag
         uses: actions/github-script@v8
         with:
@@ -49,10 +53,10 @@ jobs:
               ref: `refs/tags/${tagname}`,
               sha: context.sha
             })
-      - run: |
-          cd packages/${{ github.event.inputs.npm_package }}
-          npm build | true
-          npm publish --provenance --access public
+      - name: Build package
+        run: pnpm --filter ${{ github.event.inputs.npm_package }} run build || true
+      - name: Publish to npm
+        run: pnpm --filter ${{ github.event.inputs.npm_package }} publish --provenance --access public --no-git-checks
         env:
           # NPM_API_TOKEN is an organization-level secret
           NODE_AUTH_TOKEN: ${{ secrets.NPM_API_TOKEN }}

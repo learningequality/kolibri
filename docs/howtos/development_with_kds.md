@@ -7,7 +7,7 @@ It is sometimes useful to run Kolibri development server linked to local KDS rep
 For this purpose, Kolibri provides `devserver-with-kds` command that will run the development server with Kolibri using local KDS:
 
 ```bash
-yarn run devserver-with-kds <kds-path>
+pnpm run devserver-with-kds <kds-path>
 ```
 
 where `<kds-path>` is the path of the local `kolibri-design-system` repository.

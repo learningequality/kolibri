@@ -4,9 +4,20 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
+    "dommatrix": "^1.0.3",
     "hammerjs": "^2.0.8",
     "intersection-observer": "0.12.2",
+    "kolibri": "workspace:*",
+    "kolibri-common": "workspace:*",
+    "kolibri-design-system": "catalog:",
+    "kolibri-logging": "workspace:*",
+    "kolibri-viewer": "workspace:*",
+    "lodash": "catalog:",
     "pdfjs-dist": "^2.16.105",
+    "scrollparent": "^2.1.0",
+    "vue": "catalog:",
+    "vue-observe-visibility": "^1.0.0",
+    "vue-resize": "^0.4.5",
     "vue-virtual-scroller": "1.1.2",
     "web-streams-polyfill": "^4.2.0"
   }

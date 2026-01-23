@@ -79,22 +79,25 @@
     "vuex"
   ],
   "dependencies": {
-    "@vueuse/core": "^11.3.0",
+    "@vueuse/core": "catalog:",
     "axios": "^1.13.2",
+    "clipboard": "^2.0.11",
     "fontfaceobserver": "^2.3.0",
     "frame-throttle": "^3.0.0",
     "intl": "^1.2.4",
-    "kolibri-constants": "0.2.13",
-    "kolibri-design-system": "5.5.1",
+    "kolibri-constants": "catalog:",
+    "kolibri-design-system": "catalog:",
     "kolibri-logging": "^1.0.0",
     "lockr": "0.8.5",
-    "lodash": "^4.17.21",
+    "lodash": "catalog:",
     "path-to-regexp": "1.9.0",
+    "qs": "^6.14.0",
+    "tippy.js": "^6.3.7",
     "ua-parser-js": "^1.0.41",
-    "vue": "2.7.16",
+    "vue": "catalog:",
     "vue-intl": "3.1.0",
-    "vue-meta": "^2.4.0",
-    "vue-router": "^3.6.5",
-    "vuex": "^3.6.2"
+    "vue-meta": "catalog:",
+    "vue-router": "catalog:",
+    "vuex": "catalog:"
   }
 }

@@ -1,0 +1,24 @@
+packages:
+  - packages/*
+  - kolibri/core
+  - kolibri/plugins/*
+
+catalog:
+  "@vueuse/core": ^11.3.0
+  core-js: ^3.47.0
+  kolibri-constants: 0.2.13
+  kolibri-design-system: 5.5.1
+  lodash: ^4.17.21
+  vue: 2.7.16
+  vue-meta: ^2.4.0
+  vue-router: ^3.6.5
+  vuex: ^3.6.2
+  xstate: ^4.38.3
+
+onlyBuiltDependencies:
+  - core-js
+  - deasync
+  - es5-ext
+  - node-sass
+  - unrs-resolver
+  - vue-demi

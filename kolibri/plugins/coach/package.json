@@ -3,12 +3,22 @@
   "description": "Coach Plugin for Kolibri",
   "private": true,
   "version": "0.0.1",
-  "workspaces": {
-    "nohoist": ["markdown-it", "markdown-it/**"]
-  },
   "dependencies": {
+    "@vueuse/core": "catalog:",
     "csv-generator-client": "^2.1.1",
+    "kolibri": "workspace:*",
+    "kolibri-app": "workspace:*",
+    "kolibri-common": "workspace:*",
+    "kolibri-constants": "catalog:",
+    "kolibri-design-system": "catalog:",
+    "kolibri-logging": "workspace:*",
+    "kolibri-plugin-data": "workspace:*",
+    "lockr": "0.8.5",
+    "lodash": "catalog:",
     "markdown-it": "14.1.0",
-    "truncate-utf8-bytes": "^1.0.2"
+    "truncate-utf8-bytes": "^1.0.2",
+    "vue": "catalog:",
+    "vue-router": "catalog:",
+    "vuex": "catalog:"
   }
 }
