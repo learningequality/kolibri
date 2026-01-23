@@ -643,6 +643,7 @@ def map_file(file):
 contentnode_previously_omitted_fields = {
     "learner_needs": [],
     "on_device_resources": None,
+    "modality": lambda resource: (resource.get("options", {}).get("modality", None)),
 }
 
 
@@ -827,12 +828,7 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
                 response_data["admin_imported"] = (
                     response_data["id"] in self.locally_admin_imported_ids
                 )
-                # As we evolve the contentnode public API, we use this to backfill
-                # values so that remote responses have consistent structure
-                # regardless of the version of Kolibri exposing the endpoint.
-                for key, default_value in contentnode_previously_omitted_fields.items():
-                    if key not in response_data:
-                        response_data[key] = default_value
+                self._fill_content_previously_omitted_fields(response_data)
                 if "children" in response_data:
                     response_data["children"] = self.update_data(
                         response_data["children"], baseurl
@@ -843,6 +839,17 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
                 data.append(self.update_data(node, baseurl))
             response_data = data
         return response_data
+
+    def _fill_content_previously_omitted_fields(self, response_data):
+        # As we evolve the contentnode public API, we use this to backfill
+        # values so that remote responses have consistent structure
+        # regardless of the version of Kolibri exposing the endpoint.
+        for key, default_value in contentnode_previously_omitted_fields.items():
+            if key not in response_data:
+                if callable(default_value):
+                    response_data[key] = default_value(response_data)
+                else:
+                    response_data[key] = default_value
 
     def add_base_url_to_node(self, node, baseurl):
         baseurl_querystring = "?{}={}".format(REMOTE_URL_PARAM, baseurl)
