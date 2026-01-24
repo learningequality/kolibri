@@ -44,7 +44,7 @@
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { computed, onMounted, ref } from 'vue';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import SidePanelLayout from '../../../../common/sidePanel/SidePanelLayout.vue';
+  import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
   import { overrideRoute } from '../../../../../utils';
   import { PageNames } from '../../../../../constants';
   import { injectAssignCourse } from '../../../composables/useAssignCourse';

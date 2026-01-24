@@ -60,7 +60,7 @@
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import SearchBox from 'kolibri-common/components/SearchBox';
   import { computed } from 'vue';
-  import SidePanelLayout from '../../../../common/sidePanel/SidePanelLayout.vue';
+  import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
   import { overrideRoute } from '../../../../../utils';
   import { PageNames } from '../../../../../constants';
 
