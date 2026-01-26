@@ -127,7 +127,7 @@
           ref="searchBox"
           style="margin-bottom: 1em"
           :disabled="searchLoading"
-          :placeholder="$tr('searchByKeyword')"
+          :placeholder="coreString('searchByKeyword')"
           :value="value.keywords || ''"
           @change="val => $emit('input', { ...value, keywords: val })"
         />
@@ -427,10 +427,6 @@
       keywords: {
         message: 'Keywords',
         context: 'Section header label in the Library page sidebar.',
-      },
-      searchByKeyword: {
-        message: 'Search by keyword',
-        context: 'Placeholder text in the search box, which is otherwise not labelled',
       },
       categories: {
         message: 'Categories',
