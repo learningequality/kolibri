@@ -469,4 +469,5 @@
   .action-bar {
     user-select: none;
   }
+
 </style>
