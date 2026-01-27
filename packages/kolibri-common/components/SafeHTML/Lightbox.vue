@@ -60,7 +60,7 @@
         :alt="alt"
         tabindex="-1"
         class="expanded-image"
-        :class="styleOverrides.windowSizeClass"
+        :class="windowSizeClass"
         :style="imgStyle"
         @load="calculateSize"
         @mousedown="onMouseDown"
@@ -114,10 +114,6 @@
         type: String,
         default: '',
       },
-      styleOverrides: {
-        type: Object,
-        default: () => ({}),
-      },
     },
     data() {
       return {
@@ -142,6 +138,9 @@
           transform: `translate(${this.delta.x}px, ${this.delta.y}px)`,
           cursor: this.scale > 1 ? (this.isDragging ? 'grabbing' : 'grab') : 'auto',
         };
+      },
+      windowSizeClass() {
+        return this.windowIsSmall ? 'small-window' : '';
       },
       btnHoverStyle() {
         return {
