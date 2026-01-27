@@ -77,6 +77,7 @@
 
   import dialogPolyfill from 'dialog-polyfill';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   function supportsDialogClosedBy() {
     if (typeof document === 'undefined') {
@@ -93,6 +94,13 @@
   export default {
     name: 'Lightbox',
     mixins: [commonCoreStrings],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+
+      return {
+        windowIsSmall,
+      };
+    },
     props: {
       open: {
         type: Boolean,
@@ -224,9 +232,8 @@
         this.backdropSize.width = window.innerWidth;
         this.backdropSize.height = window.innerHeight - 40; // action bar height
 
-        const isSmallWindow = this.styleOverrides.windowSizeClass?.includes('small-window');
-        const maxW = this.backdropSize.width - (isSmallWindow ? 32 : 64);
-        const maxH = this.backdropSize.height - (isSmallWindow ? 32 : 64);
+        const maxW = this.backdropSize.width - (this.windowIsSmall ? 32 : 64);
+        const maxH = this.backdropSize.height - (this.windowIsSmall ? 32 : 64);
 
         const img = this.$refs.imageRef;
         if (!img) return;
