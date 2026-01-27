@@ -60,7 +60,6 @@
         :alt="alt"
         tabindex="-1"
         class="expanded-image"
-        :class="windowSizeClass"
         :style="imgStyle"
         @load="calculateSize"
         @mousedown="onMouseDown"
@@ -138,9 +137,6 @@
           transform: `translate(${this.delta.x}px, ${this.delta.y}px)`,
           cursor: this.scale > 1 ? (this.isDragging ? 'grabbing' : 'grab') : 'auto',
         };
-      },
-      windowSizeClass() {
-        return this.windowIsSmall ? 'small-window' : '';
       },
       btnHoverStyle() {
         return {
@@ -473,5 +469,4 @@
   .action-bar {
     user-select: none;
   }
-
 </style>
