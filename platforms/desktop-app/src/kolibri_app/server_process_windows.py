@@ -42,8 +42,6 @@ from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import KolibriProcessBus
 from kolibri_app.logger import logging
 
-
-
 # Named pipe for IPC between UI process and server subprocess
 # Uses Windows named pipe format: \\.<hostname>\pipe\<pipename>
 PIPE_NAME = r"\\.\pipe\KolibriAppServerIPC"
@@ -87,7 +85,7 @@ class WindowsIpcPlugin(SimplePlugin):
         Construct the server URLs based on the port.
         """
         kolibri_origin = f"http://localhost:{port}"
-        root_url = kolibri_origin + app_initialize_url() 
+        root_url = kolibri_origin + app_initialize_url()
         return kolibri_origin, root_url
 
     def on_server_start(self, port):
