@@ -99,6 +99,7 @@ export const ViewMoreButtonStates = {
 
 export const pageNameToModuleMap = {
   [PageNames.LESSONS_ROOT]: 'lessonsRoot',
+  [PageNames.COURSES_ROOT]: 'coursesRoot',
   // Omitting modules for resource selection, exam creation, and preview to prevent
   // default module state resetting behavior.
 };

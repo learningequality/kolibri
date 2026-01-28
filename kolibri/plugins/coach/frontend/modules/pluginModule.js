@@ -8,6 +8,7 @@ import exerciseDetail from './exerciseDetail';
 import groups from './groups';
 import lessonSummary from './lessonSummary';
 import lessonsRoot from './lessonsRoot';
+import coursesRoot from './coursesRoot';
 import classSummary from './classSummary';
 import coachNotifications from './coachNotifications';
 import questionDetail from './questionDetail';
@@ -152,6 +153,7 @@ export default {
   modules: {
     classSummary,
     coachNotifications,
+    coursesRoot,
     examReportDetail,
     exerciseDetail,
     groups,
