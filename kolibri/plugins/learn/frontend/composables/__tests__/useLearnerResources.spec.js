@@ -71,7 +71,6 @@ const TEST_CLASSES = [
   {
     id: 'class-1',
     name: 'Class 1',
-    assignments: {
       exams: [
         {
           id: 'class-1-active-quiz-in-progress',
@@ -153,11 +152,9 @@ const TEST_CLASSES = [
         },
       ],
     },
-  },
   {
     id: 'class-2',
     name: 'Class 2',
-    assignments: {
       exams: [
         {
           id: 'class-2-active-quiz-in-progress',
@@ -205,7 +202,6 @@ const TEST_CLASSES = [
           },
         },
       ],
-    },
   },
 ];
 
@@ -215,10 +211,10 @@ const TEST_CLASSES = [
 function finishClasses(classes) {
   const finishedClasses = cloneDeep(classes);
   return finishedClasses.map(c => {
-    c.assignments.exams.forEach(quiz => {
+    c.exams.forEach(quiz => {
       quiz.progress.closed = true;
     });
-    c.assignments.lessons.forEach(lesson => {
+    c.lessons.forEach(lesson => {
       lesson.progress.resource_progress = lesson.progress.total_resources;
     });
     return c;
