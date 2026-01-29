@@ -62,8 +62,38 @@
         showRatioInTooltip
         debug="ratio; has some completed"
       />
+      <!-- Pre-test running (for courses with units) -->
       <component
         :is="!verbose || completed ? LearnerProgressCount : LearnerProgressRatio"
+        v-if="showItem(preTestRunning)"
+        class="item"
+        :verb="VERBS.preTestRunning"
+        :icon="ICONS.clock"
+        :count="preTestRunning"
+        :verbosity="verbosity"
+        :progress="progress"
+        showRatioInTooltip
+        debug="ratio; has some running pre-test"
+      />
+      <!-- Post-test running (for courses with units) -->
+      <component
+        :is="!verbose || completed || preTestRunning ? LearnerProgressCount : LearnerProgressRatio"
+        v-if="showItem(postTestRunning)"
+        class="item"
+        :verb="VERBS.postTestRunning"
+        :icon="ICONS.clock"
+        :count="postTestRunning"
+        :verbosity="verbosity"
+        :progress="progress"
+        showRatioInTooltip
+        debug="ratio; has some running post-test"
+      />
+      <!-- Regular started (for non-course content or general progress) -->
+      <component
+        :is=" !verbose || completed || preTestRunning || postTestRunning
+          ? LearnerProgressCount
+          : LearnerProgressRatio
+        "
         v-if="showItem(started)"
         class="item"
         :verb="VERBS.started"
@@ -75,7 +105,11 @@
         debug="ratio; has some started"
       />
       <component
-        :is="!verbose || started || completed ? LearnerProgressCount : LearnerProgressRatio"
+        :is="
+          !verbose || started || completed || preTestRunning || postTestRunning
+            ? LearnerProgressCount
+            : LearnerProgressRatio
+        "
         v-if="showItem(helpNeeded) && showNeedsHelp"
         class="item"
         :verb="VERBS.needHelp"

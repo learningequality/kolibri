@@ -62,6 +62,7 @@ describe('useCourses', () => {
     store.dispatch = mockStore.dispatch;
 
     jest.clearAllMocks();
+    useCourses().coursesAreLoading.value = false;
   });
 
   describe('returned properties', () => {
@@ -143,19 +144,31 @@ describe('useCourses', () => {
     });
   });
 
-  describe('coursesAreLoading computed', () => {
-    it('should return loading state from store', () => {
-      store.state.loading = true;
+  describe('coursesAreLoading flag', () => {
+    const classId = 'class-123';
 
+    it('should default to false', () => {
       const { coursesAreLoading } = useCourses();
 
-      expect(coursesAreLoading.value).toBe(true);
+      expect(coursesAreLoading.value).toBe(false);
     });
 
-    it('should return false when not loading', () => {
-      store.state.loading = false;
+    it('should toggle during refreshClassCourses', async () => {
+      let resolveCollection;
+      CourseSessionResource.fetchCollection.mockReturnValue(
+        new Promise(resolve => {
+          resolveCollection = resolve;
+        })
+      );
+      ContentNodeResource.fetchModel.mockResolvedValue({ id: 'content-1' });
 
-      const { coursesAreLoading } = useCourses();
+      const { refreshClassCourses, coursesAreLoading } = useCourses();
+      const refreshPromise = refreshClassCourses(mockStore, classId);
+
+      expect(coursesAreLoading.value).toBe(true);
+
+      resolveCollection([{ id: 'session-1', course: 'content-1' }]);
+      await refreshPromise;
 
       expect(coursesAreLoading.value).toBe(false);
     });
@@ -164,8 +177,8 @@ describe('useCourses', () => {
   describe('refreshClassCourses', () => {
     const classId = 'class-123';
     const mockCourseSessions = [
-      { id: 'session-1', content_id: 'content-1' },
-      { id: 'session-2', content_id: 'content-2' },
+      { id: 'session-1', course: 'content-1' },
+      { id: 'session-2', course: 'content-2' },
     ];
     const mockContentNodes = [
       { id: 'content-1', title: 'Content 1' },
@@ -198,7 +211,10 @@ describe('useCourses', () => {
     });
 
     it('should combine course sessions with content nodes', async () => {
-      CourseSessionResource.fetchCollection.mockResolvedValue(mockCourseSessions);
+      CourseSessionResource.fetchCollection.mockResolvedValue([
+        { ...mockCourseSessions[0], active: true },
+        mockCourseSessions[1],
+      ]);
       ContentNodeResource.fetchModel
         .mockResolvedValueOnce(mockContentNodes[0])
         .mockResolvedValueOnce(mockContentNodes[1]);
@@ -207,8 +223,20 @@ describe('useCourses', () => {
       await refreshClassCourses(mockStore, classId);
 
       expect(mockStore.commit).toHaveBeenCalledWith('coursesRoot/SET_CLASS_COURSES', [
-        { id: 'session-1', content_id: 'content-1', contentNode: mockContentNodes[0] },
-        { id: 'session-2', content_id: 'content-2', contentNode: mockContentNodes[1] },
+        {
+          id: 'session-1',
+          course: 'content-1',
+          contentNode: mockContentNodes[0],
+          is_active: true,
+          active: true,
+        },
+        {
+          id: 'session-2',
+          course: 'content-2',
+          contentNode: mockContentNodes[1],
+          is_active: false,
+          active: false,
+        },
       ]);
     });
 
@@ -222,7 +250,7 @@ describe('useCourses', () => {
       expect(mockStore.commit).toHaveBeenCalledWith('coursesRoot/SET_CLASS_COURSES', [
         {
           id: 'session-1',
-          content_id: 'content-1',
+          course: 'content-1',
           contentNode: null,
           contentMissing: true,
         },
@@ -271,7 +299,13 @@ describe('useCourses', () => {
 
     it('should return course sessions on success', async () => {
       const expectedSessions = [
-        { id: 'session-1', content_id: 'content-1', contentNode: mockContentNodes[0] },
+        {
+          id: 'session-1',
+          course: 'content-1',
+          contentNode: mockContentNodes[0],
+          is_active: false,
+          active: false,
+        },
       ];
       CourseSessionResource.fetchCollection.mockResolvedValue([mockCourseSessions[0]]);
       ContentNodeResource.fetchModel.mockResolvedValue(mockContentNodes[0]);
@@ -286,7 +320,7 @@ describe('useCourses', () => {
   describe('showCoursesRootPage', () => {
     const classId = 'class-456';
     const mockLearnerGroups = [{ id: 'group-1', name: 'Group 1' }];
-    const mockCourseSessions = [{ id: 'session-1', content_id: 'content-1' }];
+    const mockCourseSessions = [{ id: 'session-1', course: 'content-1' }];
 
     beforeEach(() => {
       mockStore.dispatch.mockResolvedValue();

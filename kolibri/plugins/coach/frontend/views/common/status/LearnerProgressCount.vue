@@ -49,15 +49,35 @@
         type: Boolean,
         default: false,
       },
+      progress: {
+        type: Object,
+        default: null,
+      },
     },
     computed: {
       strings() {
         return this.learnerProgressTranslators[this.verb];
       },
+      hasUnitName() {
+        return this.progress && this.progress.unitName;
+      },
+      // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
       text() {
         if (!this.verbosityNumber) {
           return this.$formatNumber(this.count);
         }
+
+        // For pre-test and post-test, use the simple label format without counts
+        if (this.isTestVerb) {
+          if (this.hasUnitName) {
+            return this.strings.$tr('labelWithUnit', {
+              unitName: this.progress.unitName,
+            });
+          }
+          // Show just "Pre-test running" or "Post-test running" without counts
+          return this.strings.$tr('labelShort');
+        }
+
         return this.strings.$tr(this.shorten('count', this.verbosityNumber), { count: this.count });
       },
       tooltip() {

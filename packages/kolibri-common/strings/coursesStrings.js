@@ -78,6 +78,22 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'There was an error updating the course',
     context: 'Error message when course update fails',
   },
+  courseDeleteError: {
+    message: 'There was an error deleting the course assignment',
+    context: 'Error message shown when a course assignment could not be removed',
+  },
+  courseDeleted: {
+    message: 'Course assignment deleted',
+    context: 'Snackbar message when a course has been deleted',
+  },
+  deleteCourseConfirmation: {
+    message: 'Delete course assignment "{title}"?',
+    context: 'Confirmation prompt for deleting a course assignment from a class',
+  },
+  deleteCourseTitle: {
+    message: 'Delete course assignment',
+    context: 'Title for the modal that confirms course assignment deletion',
+  },
   filterCourseStatus: {
     message: 'status',
     context: 'Label for filter dropdown to filter courses by visibility status',

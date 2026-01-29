@@ -67,24 +67,36 @@
                 :key="course.id"
               >
                 <td>
-                  <KRouterLink
-                    v-if="course.contentNode"
-                    :to="courseSummaryLink(course)"
-                    :text="course.contentNode.title"
-                  />
-                  <!--  TODO lets add a course icon once its available -->
-                  <KLabeledIcon
-                    v-else
-                    icon="course"
+                  <div class="course-title">
+                    <KRouterLink
+                      v-if="course.contentNode"
+                      :to="courseSummaryLink(course)"
+                      :text="course.contentNode.title || course.title"
+                      icon="course"
+                    />
+                    <div
+                      v-else
+                      class="missing-course"
+                    >
+                      <KLabeledIcon icon="warning">
+                        {{ contentNotAvailable$() }}
+                      </KLabeledIcon>
+                      <span class="course-title-text">
+                        {{ course.title || courseNotAvailable$() }}
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    v-if="courseDescription(course)"
+                    class="course-description"
                   >
-                    {{ courseNotAvailable$() }}
-                  </KLabeledIcon>
+                    {{ courseDescription(course) }}
+                  </div>
                 </td>
                 <td>
-                  <StatusSummary
-                    v-if="!course.contentMissing && course.learnerProgress"
-                    :progress="course.learnerProgress"
-                  />
+                  <span v-if="!course.contentMissing && course.learnerProgress">
+                    —
+                  </span>
                   <KLabeledIcon
                     v-else-if="course.contentMissing"
                     icon="warning"
@@ -106,7 +118,7 @@
                 </td>
                 <td>
                   <div class="visibility-toggle-container">
-                    <KTransition>
+                    <KTransition kind="fade">
                       <KCircularLoader
                         v-if="show(course.id, isUpdatingActive(course.id))"
                         :key="`loader-${course.id}`"
@@ -123,6 +135,18 @@
                       />
                     </KTransition>
                   </div>
+                </td>
+                <td>
+                  <KIconButton
+                    icon="optionsVertical"
+                  >
+                    <template #menu>
+                      <KDropdownMenu
+                        :options="courseMenuOptions"
+                        @select="selection => handleCourseMenuSelect(selection, course)"
+                      />
+                    </template>
+                  </KIconButton>
                 </td>
               </tr>
             </transition-group>
@@ -166,12 +190,23 @@
       v-if="modelOpen === CoursesModals.ASSIGN_COURSE_SUCCESS"
       @close="modelOpen = null"
     />
+    <DeleteCourseConfirmationModal
+      v-if="modelOpen === CoursesModals.DELETE_COURSE_CONFIRMATION"
+      :courseTitle="
+        courseToDelete
+          ? courseToDelete.contentNode?.title || courseToDelete.title || courseNotAvailable$()
+          : ''
+      "
+      @confirm="confirmDeleteCourse"
+      @cancel="cancelDeleteCourse"
+    />
   </CoachAppBarPage>
 
 </template>
 
 
 <script>
+
   import { mapState } from 'vuex';
   import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
   import CoreTable from 'kolibri/components/CoreTable';
@@ -180,18 +215,18 @@
   import useKShow from 'kolibri-design-system/lib/composables/useKShow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { useRoute } from 'vue-router/composables';
-  import {  computed, ref } from 'vue';
+  import { computed, getCurrentInstance, ref } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { CoursesModals, PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage.vue';
   import CoachHeader from '../common/CoachHeader.vue';
-  import StatusSummary from '../common/status/StatusSummary';
   import { overrideRoute } from '../../utils';
   import { useCourses } from '../../composables/useCourses';
   import commonCoach from '../common';
   import { coachStrings } from '../common/commonCoachStrings';
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
   import AssignCourseSuccessModal from './modals/AssignCourseSuccess.vue';
+  import DeleteCourseConfirmationModal from './modals/DeleteCourseConfirmation.vue';
 
   export default {
     name: 'CoursesRootPage',
@@ -199,14 +234,17 @@
       CoachHeader,
       CoachAppBarPage,
       AssignCourseSuccessModal,
+      DeleteCourseConfirmationModal,
       CoreTable,
       FilterTextbox,
-      StatusSummary,
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const route = useRoute();
+      const instance = getCurrentInstance();
+      const store = instance.proxy.$store;
       const modelOpen = ref(null);
+      const courseToDelete = ref(null);
       const {
         coursesLabel$,
         assignCourseAction$,
@@ -224,24 +262,132 @@
         filterCourseVisible$,
         filterCourseNotVisible$,
         clearAllFilters$,
+        deleteCourseConfirmation$,
+        courseDeleted$,
+        courseDeleteError$,
       } = coursesStrings;
-      const { entireClassLabel$ } = coachStrings;
+      const { entireClassLabel$, previewAction$ } = coachStrings;
       const { show } = useKShow();
-      const { courses: storeCourses, coursesAreLoading } = useCourses();
+      const {
+        courses: storeCourses,
+        learnerGroups: storeLearnerGroups,
+        coursesAreLoading,
+      } = useCourses();
       const { createSnackbar } = useSnackbar();
 
-
+      // Track which courses are currently being updated
+      const updatingCourseIds = ref(new Set());
 
       const assignCourseRoute = computed(() =>
         overrideRoute(route, {
           name: PageNames.COURSES_ASSIGN,
         }),
       );
+      const isUpdatingActive = (courseId) => {
+        return updatingCourseIds.value.has(courseId);
+      };
+      const toggleCourseActive = async (course) => {
+        const newActiveState = !course.is_active;
+        const snackbarMessage = newActiveState
+          ? courseVisibleToLearnersMessage$()
+          : courseNotVisibleToLearnersMessage$();
+
+        updatingCourseIds.value.add(course.id);
+
+        const previousCourses = [...store.state.coursesRoot.courses];
+        const optimisticallyUpdatedCourses = previousCourses.map(c => {
+          if (c.id !== course.id) {
+            return c;
+          }
+          return { ...c, is_active: newActiveState };
+        });
+        store.commit('coursesRoot/SET_CLASS_COURSES', optimisticallyUpdatedCourses);
+
+        try {
+          await CourseSessionResource.saveModel({
+            id: course.id,
+            data: {
+              active: newActiveState,
+            },
+            exists: true,
+          });
+
+          await store.dispatch('coursesRoot/refreshClassCourses', route.params.classId);
+
+          createSnackbar(snackbarMessage);
+        } catch (error) {
+          store.commit('coursesRoot/SET_CLASS_COURSES', previousCourses);
+          createSnackbar(courseUpdateError$());
+        } finally {
+          updatingCourseIds.value.delete(course.id);
+        }
+      };
+
+      const courseSummaryLink = course => {
+        return {
+          name: PageNames.COURSE_SUMMARY,
+          params: {
+            classId: route.params.classId,
+            courseId: course.id,
+          },
+        };
+      };
+
+      const deleteCourse = course => {
+        courseToDelete.value = course;
+        modelOpen.value = CoursesModals.DELETE_COURSE_CONFIRMATION;
+      };
+
+      const confirmDeleteCourse = async () => {
+        const course = courseToDelete.value;
+        if (!course) return;
+
+        modelOpen.value = null;
+
+        updatingCourseIds.value.add(course.id);
+
+        const previousCourses = [...store.state.coursesRoot.courses];
+        const remainingCourses = previousCourses.filter(({ id }) => id !== course.id);
+        store.commit('coursesRoot/SET_CLASS_COURSES', remainingCourses);
+
+        try {
+          await CourseSessionResource.deleteModel({ id: course.id });
+          await store.dispatch('coursesRoot/refreshClassCourses', route.params.classId);
+          createSnackbar(courseDeleted$());
+        } catch (error) {
+          store.commit('coursesRoot/SET_CLASS_COURSES', previousCourses);
+          createSnackbar(courseDeleteError$());
+        } finally {
+          updatingCourseIds.value.delete(course.id);
+          courseToDelete.value = null;
+        }
+      };
+
+      const cancelDeleteCourse = () => {
+        modelOpen.value = null;
+        courseToDelete.value = null;
+      };
+
+      const handleCourseMenuSelect = (selection, course) => {
+        const previewLabel = previewAction$();
+        const editLabel = instance.proxy.coreString('editAction');
+        const deleteLabel = instance.proxy.coreString('deleteAction');
+
+        if (selection === previewLabel) {
+          instance.proxy.$router.push(courseSummaryLink(course));
+        } else if (selection === editLabel) {
+          instance.proxy.$router.push(assignCourseRoute.value);
+        } else if (selection === deleteLabel) {
+          deleteCourse(course);
+        }
+      };
 
       return {
         CoursesModals,
         modelOpen,
+        courseToDelete,
         assignCourseRoute,
+        courseSummaryLink,
         coursesLabel$,
         assignCourseAction$,
         noCoursesAssigned$,
@@ -250,9 +396,6 @@
         visibleLabel$,
         courseNotAvailable$,
         contentNotAvailable$,
-        courseVisibleToLearnersMessage$,
-        courseNotVisibleToLearnersMessage$,
-        courseUpdateError$,
         filterCourseStatus$,
         filterCourseAll$,
         filterCourseVisible$,
@@ -261,14 +404,23 @@
         entireClassLabel$,
         show,
         storeCourses,
+        storeLearnerGroups,
         coursesAreLoading,
-        createSnackbar,
         emptyPlusCloudSvg,
+        isUpdatingActive,
+        toggleCourseActive,
+        deleteCourse,
+        confirmDeleteCourse,
+        cancelDeleteCourse,
+        handleCourseMenuSelect,
+        deleteCourseConfirmation$,
+        courseDeleted$,
+        courseDeleteError$,
+        previewAction$,
       };
     },
     data() {
       return {
-        updatingActiveCourses: {},
         searchFilter: '',
         filterSelection: {},
         filterRecipients: {},
@@ -276,8 +428,24 @@
     },
     computed: {
       ...mapState('classSummary', { classId: 'id' }),
+      learnerGroups() {
+        return this.storeLearnerGroups || [];
+      },
       courses() {
-        return this.storeCourses;
+        const baseCourses = this.storeCourses || [];
+        const groupNamesById = (this.learnerGroups || []).reduce((acc, group) => {
+          acc[group.id] = group.name;
+          return acc;
+        }, {});
+
+        return baseCourses.map(course => {
+          const assignments = course.assignments || [];
+          return {
+            ...course,
+            assignments,
+            groupNames: assignments.map(groupId => groupNamesById[groupId]).filter(Boolean),
+          };
+        });
       },
       filterOptions() {
         return [
@@ -286,8 +454,15 @@
           { label: this.filterCourseNotVisible$(), value: 'filterCourseNotVisible' },
         ];
       },
+      courseMenuOptions() {
+        return [
+          this.previewAction$(),
+          this.coreString('editAction'),
+          this.coreString('deleteAction'),
+        ];
+      },
       recipientOptions() {
-        const groupOptions = (this.groups || []).map(group => ({
+        const groupOptions = (this.learnerGroups || []).map(group => ({
           label: group.name,
           value: group.id,
         }));
@@ -328,8 +503,8 @@
         if (this.searchFilter) {
           const searchTerm = this.searchFilter.toLowerCase();
           filteredCourses = filteredCourses.filter(course => {
-            if (!course.contentNode) return false;
-            return course.contentNode.title.toLowerCase().includes(searchTerm);
+            const courseTitle = course.contentNode?.title || course.title || '';
+            return courseTitle.toLowerCase().includes(searchTerm);
           });
         }
 
@@ -375,71 +550,12 @@
         this.filterSelection = this.filterOptions[0];
         this.filterRecipients = this.recipientOptions[0];
       },
-      /**
-       * Check if a course visibility toggle is currently being updated
-       * @param {string} courseId
-       * @returns {boolean} True if the course is being updated
-       */
-      isUpdatingActive(courseId) {
-        return Object.keys(this.updatingActiveCourses).includes(courseId);
+      courseDescription(course) {
+        return course.contentNode?.description || course.description || '';
       },
-      /**
-       * Generate route link to course summary page
-       * @param {Object} course - The course object
-       * @returns {Object} Route configuration object
-       */
-      courseSummaryLink(course) {
-        return {
-          name: PageNames.COURSE_SUMMARY,
-          params: {
-            classId: this.$route.params.classId,
-            courseId: course.id,
-          },
-        };
-      },
-      /**
-       * Format mastery value as percentage string
-       * Currently returns placeholder until mastery calculation is available
-       * @param {number|null} mastery - Mastery value between 0 and 1, or null
-       * @returns {string} Formatted mastery percentage or em dash
-       */
       formatMastery() {
         // TODO: Implement mastery formatting once we figured out mastery calculation
         return '—';
-      },
-      /**
-       * Toggle the active/visibility state of a course
-       * Updates the course in the API and refreshes the course list
-       * @param {Object} course - The course object to toggle
-       */
-      toggleCourseActive(course) {
-        const newActiveState = !course.is_active;
-        const snackbarMessage = newActiveState
-          ? this.courseVisibleToLearnersMessage$()
-          : this.courseNotVisibleToLearnersMessage$();
-
-        Vue.set(this.updatingActiveCourses, course.id, course.id);
-        return CourseSessionResource.saveModel({
-          id: course.id,
-          data: {
-            is_active: newActiveState,
-          },
-          exists: true,
-        })
-          .then(() => {
-            return this.$store.dispatch(
-              'coursesRoot/refreshClassCourses',
-              this.$route.params.classId,
-            );
-          })
-          .then(() => {
-            Vue.delete(this.updatingActiveCourses, course.id);
-            this.createSnackbar(snackbarMessage);
-          })
-          .catch(() => {
-            Vue.delete(this.updatingActiveCourses, course.id);
-            this.createSnackbar(this.courseUpdateError$());
-          });
       },
     },
   };
@@ -454,29 +570,42 @@
     align-items: center;
     gap: 16px;
     margin-bottom: 16px;
+    border-radius: 4px;
+
+    @media (max-width: 600px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
   }
 
   .filter-select {
-    width: 264px;
+    flex: 0 0 auto;
+    max-height: 60px;
+    max-width: 4000;
+    margin: 54px 0;
 
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+
+
+    @media (max-width: 600px) {
+      width: 100%;
     }
   }
 
   .filter-search {
-    width: 269px;
-    height: 50px;
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+    max-height: 600px;
+    max-width: 4000;
+    margin: 54px 0;
   }
 
   .clear-filters-button {
-    margin-left: 2px;
+    flex: 0 0 auto;
+    margin-left: auto;
+    font-weight: 600;
+
+    @media (max-width: 600px) {
+      width: 100%;
+      margin-left: 0;
+    }
   }
 
   .visibility-toggle-container {
@@ -486,6 +615,29 @@
   .visibility-loader {
     display: inline-block;
     margin-left: 6px;
+  }
+
+  .course-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .course-description {
+    margin-top: 4px;
+    color: #606060;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .missing-course {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .course-title-text {
+    font-weight: 600;
   }
 
   .empty-courses {

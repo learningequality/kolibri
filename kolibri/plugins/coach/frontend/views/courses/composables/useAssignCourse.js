@@ -2,6 +2,8 @@ import Modalities from 'kolibri-constants/Modalities';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import { ref, computed, provide, inject, watch } from 'vue';
+import { useRoute } from 'vue-router/composables';
+import store from 'kolibri/store';
 import useFetch from '../../../composables/useFetch';
 
 /**
@@ -19,6 +21,8 @@ import useFetch from '../../../composables/useFetch';
 export default function useAssignCourse({ classId }) {
   const searchKeywords = ref('');
   const selectedCourse = ref(null);
+  const route = useRoute();
+  const courseId = ref(route.query.courseId || null);
 
   const selectedGroupIds = ref([]);
   const selectedLearnerIds = ref([]);
@@ -36,7 +40,10 @@ export default function useAssignCourse({ classId }) {
     },
     fetchMoreMethod: moreParams => {
       return ContentNodeResource.fetchCollection({
-        getParams: moreParams,
+        getParams: {
+          ...moreParams,
+          parent: courseId.value || undefined,
+        },
       });
     },
   });
@@ -56,6 +63,11 @@ export default function useAssignCourse({ classId }) {
         assignments: selectedGroupIds.value,
         learner_ids: selectedLearnerIds.value,
       },
+    }).then(response => {
+      // Refresh local course list and class summary so the new course shows immediately
+      store.dispatch('coursesRoot/refreshClassCourses', classId.value);
+      store.dispatch('classSummary/refreshClassSummary', null, { root: true });
+      return response;
     });
   };
 
@@ -66,10 +78,19 @@ export default function useAssignCourse({ classId }) {
     coursesFetch.fetchData();
   });
 
+  watch(
+    () => route.query.topicId,
+    newTopicId => {
+      courseId.value = newTopicId || null;
+      coursesFetch.fetchData();
+    },
+  );
+
   provide('assignCourseClassId', classId);
   provide('assignCourseIsLoading', isLoading);
   provide('assignCourseSearchKeywords', searchKeywords);
   provide('assignCourseCoursesFetch', coursesFetch);
+  provide('assignCourseCourseId', courseId);
   provide('assignCourseSelectedCourse', selectedCourse);
   provide('assignCourseSelectedGroupIds', selectedGroupIds);
   provide('assignCourseSelectedLearnerIds', selectedLearnerIds);
@@ -102,6 +123,7 @@ export function injectAssignCourse() {
     classId: inject('assignCourseClassId'),
     searchKeywords: inject('assignCourseSearchKeywords'),
     coursesFetch: inject('assignCourseCoursesFetch'),
+    courseId: inject('assignCourseTopicId'),
     selectedCourse: inject('assignCourseSelectedCourse'),
     selectedGroupIds: inject('assignCourseSelectedGroupIds'),
     selectedLearnerIds: inject('assignCourseSelectedLearnerIds'),

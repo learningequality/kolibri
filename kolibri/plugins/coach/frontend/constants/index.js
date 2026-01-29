@@ -89,6 +89,7 @@ export const GroupModals = {
 
 export const CoursesModals = {
   ASSIGN_COURSE_SUCCESS: 'ASSIGN_COURSE_SUCCESS',
+  DELETE_COURSE_CONFIRMATION: 'DELETE_COURSE_CONFIRMATION',
 };
 
 export const ViewMoreButtonStates = {

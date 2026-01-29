@@ -183,6 +183,28 @@ export const learnerProgressTranslators = {
         "Indicates a specified number of questions out of a total number of questions have been answered. For example:\n\n'7 of 10 (questions) answered' (short version)",
     },
   }),
+  preTestRunning: createTranslator('LearnersRunningPreTest', {
+    labelShort: {
+      message: 'Pre-test running',
+      context: 'Indicates learners taking a pre-test.',
+    },
+    labelWithUnit: {
+      message: 'Pre-test running - {unitName}',
+      context:
+        "Indicates that learners are taking a specific unit's pre-test. For example:\n\n'Pre-test running - Unit 1'",
+    },
+  }),
+  postTestRunning: createTranslator('LearnersRunningPostTest', {
+    labelShort: {
+      message: 'Post-test running',
+      context: 'Indicates learners taking a post-test.',
+    },
+    labelWithUnit: {
+      message: 'Post-test running - {unitName}',
+      context:
+        "Indicates that learners are taking a specific unit's post-test. For example:\n\n'Post-test running - Unit 1'",
+    },
+  }),
 };
 
 export function isValidVerb(value) {
