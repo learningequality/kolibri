@@ -27,6 +27,8 @@ from kolibri.core.auth.test.test_api import DUMMY_PASSWORD
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ContentNode
+from kolibri.core.courses.models import CourseSession
+from kolibri.core.courses.models import CourseSessionAssignment
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -64,6 +66,42 @@ def create_assigned_lesson_for_user(user):
         lesson=lesson, collection=classroom, assigned_by=coach
     )
     return lesson
+
+
+def create_assigned_course_for_user(user, channel_id, content_id):
+    coach = FacilityUserFactory.create(facility=user.facility)
+    classroom = Classroom.objects.create(name="classroom", parent=user.facility)
+    classroom.add_coach(coach)
+    classroom.add_member(user)
+    course = CourseSession.objects.create(
+        course=uuid.uuid4().hex,
+        title="course",
+        collection=classroom,
+        created_by=coach,
+    )
+    course = ContentNode.objects.create(
+        id=uuid.uuid4().hex,
+        channel_id=channel_id,
+        content_id=content_id,
+        available=True,
+        modality=modalities.COURSE,
+        title="Course 1",
+        description="A course",
+    )
+    course_session = CourseSession.objects.create(
+        is_active=True,
+        collection=classroom,
+        created_by=coach,
+        course=course.id,
+        title=course.title,
+        description=course.description,
+    )
+    CourseSessionAssignment.objects.create(
+        course_session=course_session,
+        collection=classroom,
+        assigned_by=coach,
+    )
+    return course_session
 
 
 class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
@@ -436,6 +474,73 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
             facility=self.facility,
         )
         response = self._make_request({}, delete_keys=["content_id"])
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_node_id_course_session_id_and_lesson_id_fails(self):
+        course_session = create_assigned_course_for_user(
+            self.user, channel_id=self.channel_id, content_id=self.content_id
+        )
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request(
+            {
+                "course_session_id": course_session.id,
+                "lesson_id": uuid.uuid4().hex,
+            }
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_node_id_course_session_id_succeeds(self):
+        course_session = create_assigned_course_for_user(
+            self.user, channel_id=self.channel_id, content_id=self.content_id
+        )
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request(
+            {
+                "course_session_id": course_session.id,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_start_session_node_id_course_session_id_not_assigned_fails(self):
+        _ = create_assigned_course_for_user(
+            self.user, channel_id=self.channel_id, content_id=self.content_id
+        )
+        other_classroom = Classroom.objects.create(
+            name="other_classroom", parent=self.facility
+        )
+        other_coach = FacilityUserFactory.create(facility=self.facility)
+        wrong_course_session = CourseSession.objects.create(
+            course=uuid.uuid4().hex,
+            title="course",
+            collection=other_classroom,
+            created_by=other_coach,
+        )
+        CourseSessionAssignment.objects.create(
+            course_session=wrong_course_session,
+            collection=other_classroom,
+            assigned_by=other_coach,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request(
+            {
+                "course_session_id": wrong_course_session.id,
+            }
+        )
 
         self.assertEqual(response.status_code, 400)
 
