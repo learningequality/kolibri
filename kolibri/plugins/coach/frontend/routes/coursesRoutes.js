@@ -46,7 +46,7 @@ export default [
           },
           {
             name: PageNames.COURSES_ASSIGN_COURSE_DETAILS,
-            path: 'course-details',
+            path: ':courseId/course-details',
             component: CourseDetailsSubpage,
           },
           {
