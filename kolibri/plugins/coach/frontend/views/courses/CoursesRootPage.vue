@@ -272,6 +272,8 @@
         courses: storeCourses,
         learnerGroups: storeLearnerGroups,
         coursesAreLoading,
+        setCourses,
+        refreshClassCourses,
       } = useCourses();
       const { createSnackbar } = useSnackbar();
 
@@ -294,14 +296,14 @@
 
         updatingCourseIds.value.add(course.id);
 
-        const previousCourses = [...store.state.coursesRoot.courses];
+        const previousCourses = [...storeCourses.value];
         const optimisticallyUpdatedCourses = previousCourses.map(c => {
           if (c.id !== course.id) {
             return c;
           }
           return { ...c, is_active: newActiveState };
         });
-        store.commit('coursesRoot/SET_CLASS_COURSES', optimisticallyUpdatedCourses);
+        setCourses(optimisticallyUpdatedCourses);
 
         try {
           await CourseSessionResource.saveModel({
@@ -312,11 +314,11 @@
             exists: true,
           });
 
-          await store.dispatch('coursesRoot/refreshClassCourses', route.params.classId);
+          await refreshClassCourses(store, route.params.classId);
 
           createSnackbar(snackbarMessage);
         } catch (error) {
-          store.commit('coursesRoot/SET_CLASS_COURSES', previousCourses);
+          setCourses(previousCourses);
           createSnackbar(courseUpdateError$());
         } finally {
           updatingCourseIds.value.delete(course.id);
@@ -346,16 +348,16 @@
 
         updatingCourseIds.value.add(course.id);
 
-        const previousCourses = [...store.state.coursesRoot.courses];
+        const previousCourses = [...storeCourses.value];
         const remainingCourses = previousCourses.filter(({ id }) => id !== course.id);
-        store.commit('coursesRoot/SET_CLASS_COURSES', remainingCourses);
+        setCourses(remainingCourses);
 
         try {
           await CourseSessionResource.deleteModel({ id: course.id });
-          await store.dispatch('coursesRoot/refreshClassCourses', route.params.classId);
+          await refreshClassCourses(store, route.params.classId);
           createSnackbar(courseDeleted$());
         } catch (error) {
-          store.commit('coursesRoot/SET_CLASS_COURSES', previousCourses);
+          setCourses(previousCourses);
           createSnackbar(courseDeleteError$());
         } finally {
           updatingCourseIds.value.delete(course.id);

@@ -4,6 +4,9 @@ import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import useUser from 'kolibri/composables/useUser';
 import useFacilities from 'kolibri-common/composables/useFacilities';
+import useSnackbar from 'kolibri/composables/useSnackbar';
+import router from 'kolibri/router';
+import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { PageNames } from '../constants';
 
 const _courses = ref([]);
@@ -67,6 +70,35 @@ export function useCourses() {
     }
   }
 
+  async function assignCourse(storeInstance, { classId, payload }) {
+    return new Promise((resolve, reject) => {
+      const data = {
+        ...payload,
+        collection: classId,
+      };
+      return CourseSessionResource.saveModel({
+        data,
+      })
+        .then(() => {
+          const { createSnackbar } = useSnackbar();
+          createSnackbar(coursesStrings.$tr('courseIsAssignedTitle'));
+          // Update the class summary now that we have a new course assigned!
+          storeInstance.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
+            router.push({
+              name: PageNames.COURSES_ASSIGN_COURSE_DETAILS,
+              params: {
+                classId,
+              },
+            });
+            resolve();
+          });
+        })
+        .catch(error => {
+          reject(error);
+        });
+    });
+  }
+
   async function showCoursesRootPage(storeInstance, classId) {
     const initClassInfoPromise = storeInstance.dispatch('initClassInfo', classId);
     const getFacilitiesPromise =
@@ -115,6 +147,7 @@ export function useCourses() {
     coursesAreLoading,
     setCourses,
     setLearnerGroups,
+    assignCourse,
     refreshClassCourses,
     showCoursesRootPage,
   };

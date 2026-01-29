@@ -5,6 +5,7 @@ import { ref, computed, provide, inject, watch } from 'vue';
 import { useRoute } from 'vue-router/composables';
 import store from 'kolibri/store';
 import useFetch from '../../../composables/useFetch';
+import { useCourses } from '../../../composables/useCourses';
 
 /**
  * Composable for managing the logic for the Assign Course side panel.
@@ -50,6 +51,8 @@ export default function useAssignCourse({ classId }) {
 
   const isLoading = computed(() => coursesFetch.loading.value);
 
+  const { refreshClassCourses } = useCourses();
+
   const selectCourse = course => {
     selectedCourse.value = course;
   };
@@ -65,7 +68,7 @@ export default function useAssignCourse({ classId }) {
       },
     }).then(response => {
       // Refresh local course list and class summary so the new course shows immediately
-      store.dispatch('coursesRoot/refreshClassCourses', classId.value);
+      refreshClassCourses(store, classId.value);
       store.dispatch('classSummary/refreshClassSummary', null, { root: true });
       return response;
     });
