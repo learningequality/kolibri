@@ -4,18 +4,27 @@ import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import useUser from 'kolibri/composables/useUser';
 import useFacilities from 'kolibri-common/composables/useFacilities';
-import store from 'kolibri/store';
 import { PageNames } from '../constants';
 
+const _courses = ref([]);
+const _learnerGroups = ref([]);
 const coursesAreLoading = ref(false);
 const { getFacilities, facilities } = useFacilities();
 
 export function useCourses() {
-  const courses = computed(() => store.state.coursesRoot?.courses || []);
-  const learnerGroups = computed(() => store.state.coursesRoot?.learnerGroups || []);
+  const courses = computed(() => _courses.value);
+  const learnerGroups = computed(() => _learnerGroups.value);
 
   function setCoursesAreLoading(isLoading) {
     coursesAreLoading.value = isLoading;
+  }
+
+  function setCourses(courses) {
+    _courses.value = courses;
+  }
+
+  function setLearnerGroups(groups) {
+    _learnerGroups.value = groups;
   }
 
   async function refreshClassCourses(storeInstance, classId) {
@@ -27,7 +36,7 @@ export function useCourses() {
       });
 
       if (!courseSessions.length) {
-        storeInstance.commit('coursesRoot/SET_CLASS_COURSES', courseSessions);
+        setCourses(courseSessions);
         return courseSessions;
       }
 
@@ -49,7 +58,7 @@ export function useCourses() {
       });
 
       const hydratedSessions = await Promise.all(courseSessionPromises);
-      storeInstance.commit('coursesRoot/SET_CLASS_COURSES', hydratedSessions);
+      setCourses(hydratedSessions);
       return hydratedSessions;
     } catch (error) {
       return storeInstance.dispatch('handleApiError', { error }, { root: true });
@@ -69,12 +78,13 @@ export function useCourses() {
     storeInstance.dispatch('notLoading');
 
     // Only clear and reload courses if they haven't been loaded yet or data is stale
-    const currentCourses = storeInstance.state.coursesRoot?.courses || [];
+    const currentCourses = _courses.value;
     const shouldReload = currentCourses.length === 0;
 
     if (shouldReload) {
       setCoursesAreLoading(true);
-      storeInstance.commit('coursesRoot/SET_STATE', { courses: [], learnerGroups: [] });
+      setCourses([]);
+      setLearnerGroups([]);
 
       const loadRequirements = [
         LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
@@ -83,7 +93,7 @@ export function useCourses() {
 
       return Promise.all(loadRequirements).then(
         ([fetchedLearnerGroups]) => {
-          storeInstance.commit('coursesRoot/SET_LEARNER_GROUPS', fetchedLearnerGroups);
+          setLearnerGroups(fetchedLearnerGroups);
           storeInstance.commit('SET_PAGE_NAME', PageNames.COURSES_ROOT);
           setCoursesAreLoading(false);
         },
@@ -103,6 +113,8 @@ export function useCourses() {
     courses,
     learnerGroups,
     coursesAreLoading,
+    setCourses,
+    setLearnerGroups,
     refreshClassCourses,
     showCoursesRootPage,
   };
