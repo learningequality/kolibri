@@ -42,6 +42,10 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'You do not have any courses assigned',
     context: 'Text displayed when there are no courses assigned to the classroom',
   },
+  emptyCoursesDescription: {
+    message: 'Get started by assigning a course to your learners',
+    context: 'Description shown when no courses have been assigned to the class',
+  },
   statusLabel: {
     message: 'Status',
     context: 'Column header for learner progress status',

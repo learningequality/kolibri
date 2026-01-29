@@ -12,48 +12,40 @@
           />
         </template>
       </CoachHeader>
-      <div :style="{ display: 'flex', alignItems: 'center', gap: '16px' }">
+      <div class="filters-container">
         <KSelect
           v-model="filterSelection"
           :label="filterCourseStatus$()"
           :options="filterOptions"
           :inline="true"
-          :style="{
-            width: '264px',
-
-          }"
+          :disabled="!hasCourses"
+          class="filter-select"
         />
         <KSelect
           v-model="filterRecipients"
           :label="coachString('recipientsLabel')"
           :options="recipientOptions"
           :inline="true"
-          :style="{
-            width: '264px',
-          }"
+          :disabled="!hasCourses"
+          class="filter-select"
         />
         <FilterTextbox
           v-model="searchFilter"
           :placeholder="coreString('searchLabel')"
           :aria-label="coreString('searchLabel')"
-          :style="{
-            width: '269px',
-            height: '50px',
-          }"
+          :disabled="!hasCourses"
+          class="filter-search"
         />
         <KButton
           v-if="hasActiveFilters"
           primary
           appearance="flat-button"
           :text="clearAllFilters$()"
-          :style="{
-            marginLeft: '2px',
-
-          }"
+          class="clear-filters-button"
           @click="clearAllFilters"
         />
       </div>
-      <div>
+      <div v-if="showCoursesTable">
         <CoreTable
           :dataLoading="coursesAreLoading"
           :emptyMessage="hasActiveFilters ? coreString('noResultsLabel') : noCoursesAssigned$()"
@@ -80,6 +72,7 @@
                     :to="courseSummaryLink(course)"
                     :text="course.contentNode.title"
                   />
+                  <!--  TODO lets add a course icon once its available -->
                   <KLabeledIcon
                     v-else
                     icon="course"
@@ -90,7 +83,7 @@
                 <td>
                   <StatusSummary
                     v-if="!course.contentMissing && course.learnerProgress"
-                    :tally="course.learnerProgress"
+                    :progress="course.learnerProgress"
                   />
                   <KLabeledIcon
                     v-else-if="course.contentMissing"
@@ -112,14 +105,12 @@
                   </span>
                 </td>
                 <td>
-                  <div :style="{ height: '28px' }">
-                    <KTransition kind="component-fade-out-in">
+                  <div class="visibility-toggle-container">
+                    <KTransition>
                       <KCircularLoader
-                        v-if="show(course.id, isUpdatingActive(course.id), 2000)"
+                        v-if="show(course.id, isUpdatingActive(course.id))"
                         :key="`loader-${course.id}`"
                         disableDefaultTransition
-                        :style="{ display: 'inline-block', marginLeft: '6px' }"
-                        :size="26"
                       />
                       <KSwitch
                         v-else
@@ -138,6 +129,32 @@
           </template>
         </CoreTable>
       </div>
+      <div
+        v-else
+        class="empty-courses"
+      >
+        <div class="empty-courses-content">
+          <KImg
+            isDecorative
+            :src="emptyPlusCloudSvg"
+            backgroundColor="transparent"
+          />
+          <strong>{{ noCoursesAssigned$() }}</strong>
+          <p
+            :style="{
+              color: $themePalette.grey.v_700,
+            }"
+          >
+            {{ emptyCoursesDescription$() }}
+          </p>
+        </div>
+        <KRouterLink
+          primary
+          appearance="raised-button"
+          :text="assignCourseAction$()"
+          :to="assignCourseRoute"
+        />
+      </div>
     </KPageContainer>
     <!--
       Router view for side panels implemented in courses/sidePanels/...
@@ -155,7 +172,6 @@
 
 
 <script>
-
   import { mapState } from 'vuex';
   import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
   import CoreTable from 'kolibri/components/CoreTable';
@@ -164,7 +180,7 @@
   import useKShow from 'kolibri-design-system/lib/composables/useKShow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { useRoute } from 'vue-router/composables';
-  import { computed, ref, set  } from 'vue';
+  import {  computed, ref } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { CoursesModals, PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage.vue';
@@ -174,6 +190,7 @@
   import { useCourses } from '../../composables/useCourses';
   import commonCoach from '../common';
   import { coachStrings } from '../common/commonCoachStrings';
+  import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
   import AssignCourseSuccessModal from './modals/AssignCourseSuccess.vue';
 
   export default {
@@ -194,6 +211,7 @@
         coursesLabel$,
         assignCourseAction$,
         noCoursesAssigned$,
+        emptyCoursesDescription$,
         masteryLabel$,
         visibleLabel$,
         courseNotAvailable$,
@@ -209,8 +227,10 @@
       } = coursesStrings;
       const { entireClassLabel$ } = coachStrings;
       const { show } = useKShow();
-      const { courses, coursesAreLoading } = useCourses();
+      const { courses: storeCourses, coursesAreLoading } = useCourses();
       const { createSnackbar } = useSnackbar();
+
+
 
       const assignCourseRoute = computed(() =>
         overrideRoute(route, {
@@ -225,6 +245,7 @@
         coursesLabel$,
         assignCourseAction$,
         noCoursesAssigned$,
+        emptyCoursesDescription$,
         masteryLabel$,
         visibleLabel$,
         courseNotAvailable$,
@@ -239,17 +260,15 @@
         clearAllFilters$,
         entireClassLabel$,
         show,
-        courses,
+        storeCourses,
         coursesAreLoading,
         createSnackbar,
+        emptyPlusCloudSvg,
       };
     },
     data() {
       return {
         updatingActiveCourses: {},
-        // DEVELOPMENT MODE: Set to true to use dummy data for testing the UI
-        // Set to false to use real data from the API
-        useDummyData: true,
         searchFilter: '',
         filterSelection: {},
         filterRecipients: {},
@@ -257,6 +276,9 @@
     },
     computed: {
       ...mapState('classSummary', { classId: 'id' }),
+      courses() {
+        return this.storeCourses;
+      },
       filterOptions() {
         return [
           { label: this.filterCourseAll$(), value: 'filterCourseAll' },
@@ -265,7 +287,7 @@
         ];
       },
       recipientOptions() {
-        const groupOptions = this.groups.map(group => ({
+        const groupOptions = (this.groups || []).map(group => ({
           label: group.name,
           value: group.id,
         }));
@@ -282,95 +304,8 @@
           ...groupOptions,
         ];
       },
-      dummyCourses() {
-        return [
-          {
-            id: 'dummy-1',
-            content_id: 'content-1',
-            is_active: true,
-            date_created: new Date('2024-01-15'),
-            assignments: [this.classId],
-            learnerProgress: {
-              completed: 8,
-              started: 5,
-              notStarted: 2,
-              helpNeeded: 0,
-            },
-            averageMastery: 0.75,
-            totalLearners: 15,
-            groupNames: [],
-            recipientNames: [],
-            contentNode: {
-              id: 'content-1',
-              title: 'Introduction to Mathematics',
-              description: 'A comprehensive course covering basic algebra and geometry',
-              channel_id: 'channel-1',
-              available: true,
-            },
-          },
-          {
-            id: 'dummy-2',
-            content_id: 'content-2',
-            is_active: false,
-            date_created: new Date('2024-01-10'),
-            assignments: ['group-1', 'group-2'],
-            learnerProgress: {
-              completed: 3,
-              started: 7,
-              notStarted: 4,
-              helpNeeded: 0,
-            },
-            averageMastery: 0.42,
-            totalLearners: 14,
-            groupNames: ['Group A', 'Group B'],
-            recipientNames: ['Group A', 'Group B'],
-            contentNode: {
-              id: 'content-2',
-              title: 'World History 101',
-              description: 'Explore major historical events from ancient to modern times',
-              channel_id: 'channel-2',
-              available: true,
-            },
-          },
-          {
-            id: 'dummy-3',
-            content_id: 'content-3',
-            is_active: true,
-            date_created: new Date('2024-01-05'),
-            contentMissing: true,
-            contentNode: null,
-            assignments: [],
-            learnerProgress: null,
-            averageMastery: null,
-            totalLearners: null,
-            groupNames: [],
-            recipientNames: [],
-          },
-          {
-            id: 'dummy-4',
-            content_id: 'content-4',
-            is_active: false,
-            date_created: new Date('2024-01-01'),
-            assignments: [this.classId],
-            learnerProgress: {
-              completed: 12,
-              started: 3,
-              notStarted: 0,
-              helpNeeded: 0,
-            },
-            averageMastery: 0.88,
-            totalLearners: 15,
-            groupNames: [],
-            recipientNames: [],
-            contentNode: {
-              id: 'content-4',
-              title: 'Science Fundamentals',
-              description: 'Physics, chemistry, and biology basics for beginners',
-              channel_id: 'channel-1',
-              available: true,
-            },
-          },
-        ];
+      hasCourses() {
+        return this.courses && this.courses.length > 0;
       },
       hasActiveFilters() {
         const hasSearchFilter = this.searchFilter !== '';
@@ -378,10 +313,18 @@
         const hasRecipientsFilter = this.filterRecipients && this.filterRecipients.label && this.filterRecipients.label !== this.coreString('allLabel');
         return hasSearchFilter || hasStatusFilter || hasRecipientsFilter;
       },
+      showCoursesTable() {
+        return (
+          this.hasCourses ||
+          this.searchFilter ||
+          this.hasActiveFilters ||
+          this.coursesAreLoading
+        );
+      },
       sortedCourses() {
-        const coursesToUse = this.useDummyData ? this.dummyCourses : this.courses || [];
-        let filteredCourses = [...coursesToUse];
+        let filteredCourses = [...(this.courses || [])];
 
+        // Apply search filter
         if (this.searchFilter) {
           const searchTerm = this.searchFilter.toLowerCase();
           filteredCourses = filteredCourses.filter(course => {
@@ -390,6 +333,7 @@
           });
         }
 
+        // Apply visibility filter
         if (this.filterSelection && this.filterSelection.value) {
           if (this.filterSelection.value === 'filterCourseVisible') {
             filteredCourses = filteredCourses.filter(course => course.is_active);
@@ -398,27 +342,27 @@
           }
         }
 
+        // Apply recipients filter
         if (
           this.filterRecipients &&
           this.filterRecipients.label &&
           this.filterRecipients.label !== this.coreString('allLabel')
         ) {
-          if (this.filterRecipients.label !== this.entireClassLabel$()) {
+          if (this.filterRecipients.label === this.entireClassLabel$()) {
+            // Show courses assigned to entire class (assignments contains only classId)
             filteredCourses = filteredCourses.filter(course => {
-              return course.recipientNames &&
-                course.recipientNames.includes(this.filterRecipients.label);
+              const assignments = course.assignments || [];
+              return assignments.length === 1 && assignments[0] === this.classId;
             });
           } else {
+            // Show courses assigned to specific group
             filteredCourses = filteredCourses.filter(course => {
-              return (
-                (!course.recipientNames || course.recipientNames.length === 0) &&
-                (!course.groupNames || course.groupNames.length === 0)
-              );
+              const groupNames = course.groupNames || [];
+              return groupNames.includes(this.filterRecipients.label);
             });
           }
         }
-
-        return this._.orderBy(filteredCourses,);
+        return (filteredCourses);
       },
     },
     beforeMount() {
@@ -431,24 +375,50 @@
         this.filterSelection = this.filterOptions[0];
         this.filterRecipients = this.recipientOptions[0];
       },
+      /**
+       * Check if a course visibility toggle is currently being updated
+       * @param {string} courseId
+       * @returns {boolean} True if the course is being updated
+       */
       isUpdatingActive(courseId) {
         return Object.keys(this.updatingActiveCourses).includes(courseId);
       },
+      /**
+       * Generate route link to course summary page
+       * @param {Object} course - The course object
+       * @returns {Object} Route configuration object
+       */
       courseSummaryLink(course) {
-        // TODO: Navigate to course summary page when implemented
-        return { name: PageNames.COURSES_ROOT, params: { courseId: course.id } };
+        return {
+          name: PageNames.COURSE_SUMMARY,
+          params: {
+            classId: this.$route.params.classId,
+            courseId: course.id,
+          },
+        };
       },
-      formatMastery(mastery) {
+      /**
+       * Format mastery value as percentage string
+       * Currently returns placeholder until mastery calculation is available
+       * @param {number|null} mastery - Mastery value between 0 and 1, or null
+       * @returns {string} Formatted mastery percentage or em dash
+       */
+      formatMastery() {
+        // TODO: Implement mastery formatting once we figured out mastery calculation
         return '—';
-
       },
+      /**
+       * Toggle the active/visibility state of a course
+       * Updates the course in the API and refreshes the course list
+       * @param {Object} course - The course object to toggle
+       */
       toggleCourseActive(course) {
         const newActiveState = !course.is_active;
         const snackbarMessage = newActiveState
           ? this.courseVisibleToLearnersMessage$()
           : this.courseNotVisibleToLearnersMessage$();
 
-        set(this.updatingActiveCourses, course.id, course.id);
+        Vue.set(this.updatingActiveCourses, course.id, course.id);
         return CourseSessionResource.saveModel({
           id: course.id,
           data: {
@@ -464,9 +434,7 @@
           })
           .then(() => {
             Vue.delete(this.updatingActiveCourses, course.id);
-            setTimeout(() => {
-              this.createSnackbar(snackbarMessage);
-            }, 1000);
+            this.createSnackbar(snackbarMessage);
           })
           .catch(() => {
             Vue.delete(this.updatingActiveCourses, course.id);
@@ -479,4 +447,74 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .filters-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .filter-select {
+    width: 264px;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .filter-search {
+    width: 269px;
+    height: 50px;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .clear-filters-button {
+    margin-left: 2px;
+  }
+
+  .visibility-toggle-container {
+    height: 28px;
+  }
+
+  .visibility-loader {
+    display: inline-block;
+    margin-left: 6px;
+  }
+
+  .empty-courses {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 400px;
+    padding: 48px 24px;
+    text-align: center;
+
+    .empty-courses-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+
+      strong {
+        margin-top: 24px;
+        font-size: 18px;
+      }
+
+      p {
+        margin: 12px 0 0;
+        font-size: 14px;
+      }
+    }
+  }
+
+</style>

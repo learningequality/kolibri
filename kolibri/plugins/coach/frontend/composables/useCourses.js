@@ -1,24 +1,22 @@
-import { ref } from 'vue';
+import { computed } from 'vue';
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import useUser from 'kolibri/composables/useUser';
 import useFacilities from 'kolibri-common/composables/useFacilities';
+import store from 'kolibri/store';
 import { PageNames } from '../constants';
 
-// Place outside the function to keep the state
-const coursesAreLoading = ref(false);
-const courses = ref([]);
-const learnerGroups = ref([]);
-const { getFacilities, facilities } = useFacilities();
-
 export function useCourses() {
-  function setCoursesLoading(loading) {
-    coursesAreLoading.value = loading;
-  }
+  const { getFacilities, facilities } = useFacilities();
 
-  // Refresh courses for a given class
-  function refreshClassCourses(store, classId) {
+
+  const courses = computed(() => store.state.coursesRoot?.courses || []);
+  const learnerGroups = computed(() => store.state.coursesRoot?.learnerGroups || []);
+  const coursesAreLoading = computed(() => store.state.loading);
+
+
+  function refreshClassCourses(storeInstance, classId) {
     return CourseSessionResource.fetchCollection({
       getParams: { collection: classId },
       force: true,
@@ -32,8 +30,6 @@ export function useCourses() {
                 return { ...session, contentNode };
               })
               .catch(() => {
-                // If ContentNode is not available, still return the session
-                // but mark that content is missing
                 return { ...session, contentNode: null, contentMissing: true };
               });
           });
@@ -44,50 +40,40 @@ export function useCourses() {
         }
       })
       .then(courseSessions => {
-        courses.value = courseSessions;
-        store.commit('coursesRoot/SET_CLASS_COURSES', courseSessions);
+        storeInstance.commit('coursesRoot/SET_CLASS_COURSES', courseSessions);
         return courseSessions;
       })
       .catch(error => {
-        return store.dispatch('handleApiError', { error }, { root: true });
+        return storeInstance.dispatch('handleApiError', { error }, { root: true });
       });
   }
 
-  // Show the Courses Root Page, where all the Courses are listed for a given Classroom
-  async function showCoursesRootPage(store, classId) {
-    const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+  async function showCoursesRootPage(storeInstance, classId) {
+    const initClassInfoPromise = storeInstance.dispatch('initClassInfo', classId);
     const getFacilitiesPromise =
       useUser().isSuperuser.value && facilities.value.length === 0
         ? getFacilities().catch(() => {})
         : Promise.resolve();
 
     await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
-    // on this page, don't handle loading state globally so we can do it locally
-    store.dispatch('notLoading');
-
-    setCoursesLoading(true);
-    courses.value = [];
-    learnerGroups.value = [];
-    store.commit('coursesRoot/SET_STATE', {
+    storeInstance.dispatch('notLoading');
+    storeInstance.commit('coursesRoot/SET_STATE', {
       courses: [],
       learnerGroups: [],
     });
+
     const loadRequirements = [
-      // Fetch learner groups for course assignment
       LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
-      refreshClassCourses(store, classId),
+      refreshClassCourses(storeInstance, classId),
     ];
 
     return Promise.all(loadRequirements).then(
       ([fetchedLearnerGroups]) => {
-        learnerGroups.value = fetchedLearnerGroups;
-        store.commit('coursesRoot/SET_LEARNER_GROUPS', fetchedLearnerGroups);
-        store.commit('SET_PAGE_NAME', PageNames.COURSES_ROOT);
-        setCoursesLoading(false);
+        storeInstance.commit('coursesRoot/SET_LEARNER_GROUPS', fetchedLearnerGroups);
+        storeInstance.commit('SET_PAGE_NAME', PageNames.COURSES_ROOT);
       },
       error => {
-        store.dispatch('handleApiError', { error, reloadOnReconnect: true });
-        setCoursesLoading(false);
+        storeInstance.dispatch('handleApiError', { error, reloadOnReconnect: true });
       },
     );
   }
