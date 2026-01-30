@@ -1,6 +1,5 @@
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router/composables';
-import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import useUser from 'kolibri/composables/useUser';
@@ -11,7 +10,6 @@ import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { PageNames } from '../constants';
 
 const _courses = ref([]);
-const _learnerGroups = ref([]);
 const coursesAreLoading = ref(false);
 const { getFacilities, facilities } = useFacilities();
 
@@ -19,7 +17,6 @@ export function useCourses() {
   const route = useRoute();
   const classId = computed(() => route.params.classId);
   const courses = computed(() => _courses.value);
-  const learnerGroups = computed(() => _learnerGroups.value);
 
   function setCoursesAreLoading(isLoading) {
     coursesAreLoading.value = isLoading;
@@ -27,10 +24,6 @@ export function useCourses() {
 
   function setCourses(courses) {
     _courses.value = courses;
-  }
-
-  function setLearnerGroups(groups) {
-    _learnerGroups.value = groups;
   }
 
   async function refreshClassCourses() {
@@ -100,24 +93,16 @@ export function useCourses() {
     if (shouldReload) {
       setCoursesAreLoading(true);
       setCourses([]);
-      setLearnerGroups([]);
 
-      const loadRequirements = [
-        LearnerGroupResource.fetchCollection({ getParams: { parent: classId.value } }),
-        refreshClassCourses(),
-      ];
-
-      return Promise.all(loadRequirements).then(
-        ([fetchedLearnerGroups]) => {
-          setLearnerGroups(fetchedLearnerGroups);
+      return refreshClassCourses()
+        .then(() => {
           store.commit('SET_PAGE_NAME', PageNames.COURSES_ROOT);
           setCoursesAreLoading(false);
-        },
-        error => {
+        })
+        .catch(error => {
           store.dispatch('handleApiError', { error, reloadOnReconnect: true });
           setCoursesAreLoading(false);
-        },
-      );
+        });
     } else {
       // Courses already loaded, just set the page name
       store.commit('SET_PAGE_NAME', PageNames.COURSES_ROOT);
@@ -128,10 +113,8 @@ export function useCourses() {
   return {
     classId,
     courses,
-    learnerGroups,
     coursesAreLoading,
     setCourses,
-    setLearnerGroups,
     assignCourse,
     refreshClassCourses,
     showCoursesRootPage,

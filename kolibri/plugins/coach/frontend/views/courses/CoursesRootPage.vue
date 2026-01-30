@@ -270,7 +270,6 @@
       const { show } = useKShow();
       const {
         courses: storeCourses,
-        learnerGroups: storeLearnerGroups,
         coursesAreLoading,
         setCourses,
         refreshClassCourses,
@@ -406,7 +405,6 @@
         entireClassLabel$,
         show,
         storeCourses,
-        storeLearnerGroups,
         coursesAreLoading,
         emptyPlusCloudSvg,
         isUpdatingActive,
@@ -429,10 +427,7 @@
       };
     },
     computed: {
-      ...mapState('classSummary', { classId: 'id' }),
-      learnerGroups() {
-        return this.storeLearnerGroups || [];
-      },
+      ...mapState('classSummary', { classId: 'id', learnerGroups: 'groups' }),
       courses() {
         const baseCourses = this.storeCourses || [];
         const groupNamesById = (this.learnerGroups || []).reduce((acc, group) => {
