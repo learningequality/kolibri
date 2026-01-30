@@ -12,7 +12,10 @@
           />
         </template>
       </CoachHeader>
-      <div class="filters-container">
+      <div
+        class="filters-container"
+        :class="{ 'filters-container-small': windowIsSmall }"
+      >
         <KSelect
           v-model="filterSelection"
           :label="filterCourseStatus$()"
@@ -20,6 +23,7 @@
           :inline="true"
           :disabled="!hasCourses"
           class="filter-select"
+          :class="{ 'filter-select-small': windowIsSmall }"
         />
         <KSelect
           v-model="filterRecipients"
@@ -28,6 +32,7 @@
           :inline="true"
           :disabled="!hasCourses"
           class="filter-select"
+          :class="{ 'filter-select-small': windowIsSmall }"
         />
         <FilterTextbox
           v-model="searchFilter"
@@ -42,6 +47,7 @@
           appearance="flat-button"
           :text="clearAllFilters$()"
           class="clear-filters-button"
+          :class="{ 'clear-filters-button-small': windowIsSmall }"
           @click="clearAllFilters"
         />
       </div>
@@ -179,12 +185,8 @@
       @close="modelOpen = null"
     />
     <DeleteCourseConfirmationModal
-      v-if="modelOpen === CoursesModals.DELETE_COURSE_CONFIRMATION"
-      :courseTitle="
-        courseToDelete
-          ? courseToDelete.title || courseNotAvailable$()
-          : ''
-      "
+      v-if="courseToDelete"
+      :courseTitle="courseToDelete.title || courseNotAvailable$()"
       @confirm="confirmDeleteCourse"
       @cancel="cancelDeleteCourse"
     />
@@ -195,12 +197,12 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
   import CoreTable from 'kolibri/components/CoreTable';
   import FilterTextbox from 'kolibri/components/FilterTextbox';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { coreString as translateCoreString } from 'kolibri/uiText/commonCoreStrings';
   import useKShow from 'kolibri-design-system/lib/composables/useKShow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { useRoute } from 'vue-router/composables';
   import { computed, getCurrentInstance, ref } from 'vue';
@@ -210,7 +212,6 @@
   import CoachHeader from '../common/CoachHeader.vue';
   import { overrideRoute } from '../../utils';
   import { useCourses } from '../../composables/useCourses';
-  import commonCoach from '../common';
   import { coachStrings } from '../common/commonCoachStrings';
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
   import AssignCourseSuccessModal from './modals/AssignCourseSuccess.vue';
@@ -226,7 +227,6 @@
       CoreTable,
       FilterTextbox,
     },
-    mixins: [commonCoach, commonCoreStrings],
     setup() {
       const route = useRoute();
       const instance = getCurrentInstance();
@@ -256,10 +256,10 @@
       } = coursesStrings;
       const { entireClassLabel$, previewAction$ } = coachStrings;
       const { show } = useKShow();
+      const { windowIsSmall } = useKResponsiveWindow();
       const {
-        courses: storeCourses,
+        courses: classCourses,
         coursesAreLoading,
-        setCourses,
         refreshClassCourses,
       } = useCourses();
       const { createSnackbar } = useSnackbar();
@@ -314,43 +314,35 @@
 
       const deleteCourse = course => {
         courseToDelete.value = course;
-        modelOpen.value = CoursesModals.DELETE_COURSE_CONFIRMATION;
       };
 
       const confirmDeleteCourse = async () => {
         const course = courseToDelete.value;
         if (!course) return;
 
-        modelOpen.value = null;
+        courseToDelete.value = null;
 
         updatingCourseIds.value.add(course.id);
-
-        const previousCourses = [...storeCourses.value];
-        const remainingCourses = previousCourses.filter(({ id }) => id !== course.id);
-        setCourses(remainingCourses);
 
         try {
           await CourseSessionResource.deleteModel({ id: course.id });
           await refreshClassCourses(store, route.params.classId);
           createSnackbar(courseDeleted$());
         } catch (error) {
-          setCourses(previousCourses);
           createSnackbar(courseDeleteError$());
         } finally {
           updatingCourseIds.value.delete(course.id);
-          courseToDelete.value = null;
         }
       };
 
       const cancelDeleteCourse = () => {
-        modelOpen.value = null;
         courseToDelete.value = null;
       };
 
       const handleCourseMenuSelect = (selection, course) => {
         const previewLabel = previewAction$();
-        const editLabel = instance.proxy.coreString('editAction');
-        const deleteLabel = instance.proxy.coreString('deleteAction');
+        const editLabel = translateCoreString('editAction');
+        const deleteLabel = translateCoreString('deleteAction');
 
         if (selection === previewLabel) {
           instance.proxy.$router.push(courseSummaryLink(course));
@@ -360,6 +352,9 @@
           deleteCourse(course);
         }
       };
+
+      const coreString = (key, args) => translateCoreString(key, args);
+      const coachString = (key, args) => coachStrings.$tr(key, args);
 
       return {
         CoursesModals,
@@ -382,7 +377,7 @@
         clearAllFilters$,
         entireClassLabel$,
         show,
-        storeCourses,
+        classCourses,
         coursesAreLoading,
         emptyPlusCloudSvg,
         isUpdatingActive,
@@ -395,6 +390,9 @@
         courseDeleted$,
         courseDeleteError$,
         previewAction$,
+        coreString,
+        coachString,
+        windowIsSmall,
       };
     },
     data() {
@@ -405,9 +403,14 @@
       };
     },
     computed: {
-      ...mapState('classSummary', { classId: 'id', learnerGroups: 'groups' }),
+      learnerGroups() {
+        return this.$store.state.classSummary.groups || [];
+      },
+      classId() {
+        return this.$store.state.classSummary.id;
+      },
       courses() {
-        const baseCourses = this.storeCourses || [];
+        const baseCourses = this.classCourses || [];
         const groupNamesById = (this.learnerGroups || []).reduce((acc, group) => {
           acc[group.id] = group.name;
           return acc;
@@ -539,11 +542,11 @@
     gap: 16px;
     margin-bottom: 16px;
     border-radius: 4px;
+  }
 
-    @media (max-width: 600px) {
-      flex-direction: column;
-      align-items: stretch;
-    }
+  .filters-container-small {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .filter-select {
@@ -551,12 +554,10 @@
     max-height: 60px;
     max-width: 4000;
     margin: 54px 0;
+  }
 
-
-
-    @media (max-width: 600px) {
-      width: 100%;
-    }
+  .filter-select-small {
+    width: 100%;
   }
 
   .filter-search {
@@ -569,11 +570,11 @@
     flex: 0 0 auto;
     margin-left: auto;
     font-weight: 600;
+  }
 
-    @media (max-width: 600px) {
-      width: 100%;
-      margin-left: 0;
-    }
+  .clear-filters-button-small {
+    width: 100%;
+    margin-left: 0;
   }
 
   .visibility-toggle-container {
