@@ -5,6 +5,8 @@ from django.test import TestCase
 from le_utils.constants import modalities
 
 from .. import models
+from ..models import TestStatus
+from ..models import TestType
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -420,3 +422,146 @@ class UnitTestAssignmentModelTestCase(TestCase):
         assignment.refresh_from_db()
         self.assertFalse(assignment.is_active)
         self.assertEqual(assignment.status, "ended")
+
+    def test_collection_hierarchy_same_collection(self):
+        """Test that assignment to the same collection as course_session works"""
+        # Course session is for the classroom, assignment is to the same classroom
+        assignment = models.UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_id,
+            collection=self.classroom,  # Same as course_session.collection
+            test_type="pre",
+            is_active=False,
+            status="not_started",
+        )
+
+        self.assertIsNotNone(assignment.id)
+        self.assertEqual(assignment.collection, self.classroom)
+
+    def test_collection_hierarchy_child_collection(self):
+        """Test that assignment to a child collection (LearnerGroup) works"""
+        # Course session is for the classroom, assignment is to a learner group within that classroom
+        assignment = models.UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_id,
+            collection=self.learner_group,  # Child of course_session.collection
+            test_type="pre",
+            is_active=False,
+            status="not_started",
+        )
+
+        self.assertIsNotNone(assignment.id)
+        self.assertEqual(assignment.collection, self.learner_group)
+        self.assertEqual(assignment.collection.parent, self.classroom)
+
+    def test_collection_hierarchy_unrelated_classroom_fails(self):
+        """Test that assignment to an unrelated classroom fails"""
+        # Create a different classroom in the same facility
+        other_classroom = Classroom.objects.create(
+            name="OtherClassroom", parent=self.facility
+        )
+
+        # Try to create assignment with course_session for one classroom
+        # but collection pointing to a different classroom - should fail
+        with self.assertRaises(IntegrityError) as context:
+            models.UnitTestAssignment.objects.create(
+                course_session=self.course_session,  # For self.classroom
+                unit_contentnode_id=self.unit_id,
+                collection=other_classroom,  # Different classroom, not a child
+                test_type="pre",
+                is_active=False,
+                status="not_started",
+            )
+
+        self.assertIn(
+            "collection must be the same as or a child of", str(context.exception)
+        )
+
+    def test_collection_hierarchy_unrelated_learner_group_fails(self):
+        """Test that assignment to a learner group from a different classroom fails"""
+        # Create a different classroom and learner group
+        other_classroom = Classroom.objects.create(
+            name="OtherClassroom", parent=self.facility
+        )
+        other_learner_group = LearnerGroup.objects.create(
+            name="OtherLearnerGroup", parent=other_classroom
+        )
+
+        # Try to create assignment with course_session for one classroom
+        # but collection pointing to a learner group from a different classroom - should fail
+        with self.assertRaises(IntegrityError) as context:
+            models.UnitTestAssignment.objects.create(
+                course_session=self.course_session,  # For self.classroom
+                unit_contentnode_id=self.unit_id,
+                collection=other_learner_group,  # Child of other_classroom, not self.classroom
+                test_type="pre",
+                is_active=False,
+                status="not_started",
+            )
+
+        self.assertIn(
+            "collection must be the same as or a child of", str(context.exception)
+        )
+
+    def test_collection_hierarchy_facility_fails(self):
+        """Test that assignment directly to a facility fails"""
+        # Try to create assignment with collection pointing to the facility itself
+        with self.assertRaises(IntegrityError) as context:
+            models.UnitTestAssignment.objects.create(
+                course_session=self.course_session,  # For self.classroom
+                unit_contentnode_id=self.unit_id,
+                collection=self.facility,  # Parent of classroom, not same or child
+                test_type="pre",
+                is_active=False,
+                status="not_started",
+            )
+
+        self.assertIn(
+            "collection must be the same as or a child of", str(context.exception)
+        )
+
+
+class TestTypeEnumTestCase(TestCase):
+    """Test suite for TestType enum"""
+
+    def test_test_type_enum_values(self):
+        """Test that TestType enum has correct values"""
+        self.assertEqual(TestType.Pre, "pre")
+        self.assertEqual(TestType.Post, "post")
+
+    def test_test_type_enum_choices(self):
+        """Test that TestType.choices() returns correct format"""
+        choices = TestType.choices()
+        self.assertIsInstance(choices, tuple)
+        # Should contain tuples of (value, label)
+        self.assertIn(("post", "Post"), choices)
+        self.assertIn(("pre", "Pre"), choices)
+
+    def test_test_type_enum_max_length(self):
+        """Test that TestType.max_length() returns correct value"""
+        max_len = TestType.max_length()
+        self.assertGreaterEqual(max_len, 4)  # "post" has 4 characters
+
+
+class TestStatusEnumTestCase(TestCase):
+    """Test suite for TestStatus enum"""
+
+    def test_test_status_enum_values(self):
+        """Test that TestStatus enum has correct values"""
+        self.assertEqual(TestStatus.NotStarted, "not_started")
+        self.assertEqual(TestStatus.Active, "active")
+        self.assertEqual(TestStatus.Ended, "ended")
+
+    def test_test_status_enum_choices(self):
+        """Test that TestStatus.choices() returns correct format"""
+        choices = TestStatus.choices()
+        self.assertIsInstance(choices, tuple)
+        # Should contain tuples of (value, label)
+        self.assertIn(("active", "Active"), choices)
+        self.assertIn(("ended", "Ended"), choices)
+        self.assertIn(("not_started", "NotStarted"), choices)
+
+    def test_test_status_enum_max_length(self):
+        """Test that TestStatus.max_length() returns correct value"""
+        max_len = TestStatus.max_length()
+        self.assertGreaterEqual(max_len, 11)  # "not_started" has 11 characters

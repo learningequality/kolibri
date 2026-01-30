@@ -11,7 +11,19 @@ from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.utils.sync import ClassroomPartitionFactory
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.fields import DateTimeTzField
+from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
+
+
+class TestType(ChoicesEnum):
+    Pre = "pre"
+    Post = "post"
+
+
+class TestStatus(ChoicesEnum):
+    NotStarted = "not_started"
+    Active = "active"
+    Ended = "ended"
 
 
 class CourseSession(AbstractFacilityDataModel):
@@ -240,10 +252,7 @@ class UnitTestAssignment(AbstractFacilityDataModel):
     # Type of test: 'pre' or 'post'
     test_type = models.CharField(
         max_length=10,
-        choices=[
-            ("pre", "Pre-test"),
-            ("post", "Post-test"),
-        ],
+        choices=TestType.choices(),
         blank=False,
         null=False,
     )
@@ -264,11 +273,7 @@ class UnitTestAssignment(AbstractFacilityDataModel):
     # Current status of the test
     status = models.CharField(
         max_length=20,
-        choices=[
-            ("not_started", "Not Started"),
-            ("active", "Active"),
-            ("ended", "Ended"),
-        ],
+        choices=TestStatus.choices(),
         default="not_started",
         blank=False,
         null=False,
@@ -338,6 +343,19 @@ class UnitTestAssignment(AbstractFacilityDataModel):
             raise IntegrityError(
                 "UnitTestAssignment foreign models must be in same dataset"
             )
+
+        # Ensure assignment collection is the same as or a child of the course_session's collection
+        if self.course_session and self.collection:
+            # Collection must be the same as course_session's collection
+            if self.collection_id == self.course_session.collection_id:
+                pass  # Valid: same collection
+            # Or collection must be a child (LearnerGroup/AdHocGroup) of the course_session's collection (Classroom)
+            elif self.collection.parent_id == self.course_session.collection_id:
+                pass  # Valid: child collection
+            else:
+                raise IntegrityError(
+                    "UnitTestAssignment collection must be the same as or a child of the CourseSession's collection"
+                )
 
         # If activated_by is set, validate it's in the same dataset
         if self.activated_by and self.activated_by.dataset_id != self.dataset_id:
