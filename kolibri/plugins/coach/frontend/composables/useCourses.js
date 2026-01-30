@@ -2,8 +2,6 @@ import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router/composables';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
-import useUser from 'kolibri/composables/useUser';
-import useFacilities from 'kolibri-common/composables/useFacilities';
 import useSnackbar from 'kolibri/composables/useSnackbar';
 import store from 'kolibri/store';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
@@ -11,7 +9,6 @@ import { PageNames } from '../constants';
 
 const _courses = ref([]);
 const coursesAreLoading = ref(false);
-const { getFacilities, facilities } = useFacilities();
 
 export function useCourses() {
   const route = useRoute();
@@ -77,13 +74,7 @@ export function useCourses() {
   }
 
   async function showCoursesRootPage() {
-    const initClassInfoPromise = store.dispatch('initClassInfo', classId.value);
-    const getFacilitiesPromise =
-      useUser().isSuperuser.value && facilities.value.length === 0
-        ? getFacilities().catch(() => {})
-        : Promise.resolve();
-
-    await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
+    await store.dispatch('initClassInfo', classId.value);
     store.dispatch('notLoading');
 
     // Only clear and reload courses if they haven't been loaded yet or data is stale
