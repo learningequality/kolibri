@@ -283,15 +283,6 @@
 
         updatingCourseIds.value.add(course.id);
 
-        const previousCourses = [...storeCourses.value];
-        const optimisticallyUpdatedCourses = previousCourses.map(c => {
-          if (c.id !== course.id) {
-            return c;
-          }
-          return { ...c, is_active: newActiveState };
-        });
-        setCourses(optimisticallyUpdatedCourses);
-
         try {
           await CourseSessionResource.saveModel({
             id: course.id,
@@ -305,7 +296,6 @@
 
           createSnackbar(snackbarMessage);
         } catch (error) {
-          setCourses(previousCourses);
           createSnackbar(courseUpdateError$());
         } finally {
           updatingCourseIds.value.delete(course.id);
