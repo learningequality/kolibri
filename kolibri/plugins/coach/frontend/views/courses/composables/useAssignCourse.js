@@ -67,9 +67,8 @@ export default function useAssignCourse({ classId }) {
         learner_ids: selectedLearnerIds.value,
       },
     }).then(response => {
-      // Refresh local course list and class summary so the new course shows immediately
+      // Refresh local course list so the new course shows immediately
       refreshClassCourses(store, classId.value);
-      store.dispatch('classSummary/refreshClassSummary', null, { root: true });
       return response;
     });
   };
