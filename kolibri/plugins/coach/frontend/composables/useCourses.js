@@ -5,7 +5,6 @@ import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionReso
 import useUser from 'kolibri/composables/useUser';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import useSnackbar from 'kolibri/composables/useSnackbar';
-import router from 'kolibri/router';
 import store from 'kolibri/store';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { PageNames } from '../constants';
@@ -79,12 +78,6 @@ export function useCourses() {
     await CourseSessionResource.saveModel({ data });
     const { createSnackbar } = useSnackbar();
     createSnackbar(coursesStrings.$tr('courseIsAssignedTitle'));
-    router.push({
-      name: PageNames.COURSES_ASSIGN_COURSE_DETAILS,
-      params: {
-        classId,
-      },
-    });
   }
 
   async function showCoursesRootPage(classId) {
