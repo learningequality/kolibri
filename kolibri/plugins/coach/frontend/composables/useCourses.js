@@ -72,31 +72,20 @@ export function useCourses() {
   }
 
   async function assignCourse({ classId, payload }) {
-    return new Promise((resolve, reject) => {
-      const data = {
-        ...payload,
-        collection: classId,
-      };
-      return CourseSessionResource.saveModel({
-        data,
-      })
-        .then(() => {
-          const { createSnackbar } = useSnackbar();
-          createSnackbar(coursesStrings.$tr('courseIsAssignedTitle'));
-          // Update the class summary now that we have a new course assigned!
-          store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
-            router.push({
-              name: PageNames.COURSES_ASSIGN_COURSE_DETAILS,
-              params: {
-                classId,
-              },
-            });
-            resolve();
-          });
-        })
-        .catch(error => {
-          reject(error);
-        });
+    const data = {
+      ...payload,
+      collection: classId,
+    };
+    await CourseSessionResource.saveModel({ data });
+    const { createSnackbar } = useSnackbar();
+    createSnackbar(coursesStrings.$tr('courseIsAssignedTitle'));
+    // Update the class summary now that we have a new course assigned!
+    await store.dispatch('classSummary/refreshClassSummary', null, { root: true });
+    router.push({
+      name: PageNames.COURSES_ASSIGN_COURSE_DETAILS,
+      params: {
+        classId,
+      },
     });
   }
 
