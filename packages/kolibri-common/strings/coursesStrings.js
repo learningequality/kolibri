@@ -121,5 +121,29 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   nextLabel: {
     message: 'Next',
     context: 'Button label for navigating to the next item in a sequence.',
+  numLessons: {
+    message: '{num, number} {num, plural, one {lesson} other {lessons}}',
+    context: 'Part of course details on the heading for each unit showing how much is inside',
+  },
+  numUnits: {
+    message: '{num, number} {num, plural, one {unit} other {units}}',
+    context: 'Part of subtitle shown under the course title',
+  },
+  numResources: {
+    message: '{num, number} {num, plural, one {resource} other {resources}}',
+    context: 'Part of subtitle shown under the course title',
+  },
+  timeTotalLength: {
+    message: 'total length',
+    context:
+      'Appended to a message showing a total duration of a group of resources - ends up looking like "10h 15m total length"',
+  },
+  expandAllUnits: {
+    message: 'Expand all units',
+    context: 'Button label that will open the accordion items to show unit details',
+  },
+  courseContentLabel: {
+    message: 'Course content',
+    context: 'Label above list of units in course contents listing',
   },
 });

@@ -20,6 +20,13 @@
       >
         <div class="header-content">
           <div class="title-actions-wrapper">
+            <KIconButton
+              v-if="!foldingIconTrailing"
+              tabindex="-1"
+              :icon="isExpanded ? 'chevronDown' : 'chevronRight'"
+              style="margin-right: 0.5em"
+              @click.stop="toggle"
+            />
             <div
               v-if="$slots['leading-actions']"
               class="leading-actions"
@@ -37,6 +44,7 @@
           <div class="trailing-actions">
             <slot name="trailing-actions"></slot>
             <KIconButton
+              v-if="foldingIconTrailing"
               tabindex="-1"
               :icon="isExpanded ? 'chevronDown' : 'chevronRight'"
               @click.stop="toggle"
@@ -85,6 +93,10 @@
       disabledTitle: {
         type: Boolean,
         default: false,
+      },
+      foldingIconTrailing: {
+        type: Boolean,
+        default: true,
       },
       headerAppearanceOverrides: {
         type: [Object, String],
