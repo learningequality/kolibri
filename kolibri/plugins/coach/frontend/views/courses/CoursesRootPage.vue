@@ -12,10 +12,7 @@
           />
         </template>
       </CoachHeader>
-      <div
-        class="filters-container"
-        :class="{ 'filters-container-small': windowIsSmall }"
-      >
+      <div class="filters-container">
         <KSelect
           v-model="filterSelection"
           :label="filterCourseStatus$()"
@@ -23,7 +20,6 @@
           :inline="true"
           :disabled="!hasCourses"
           class="filter-select"
-          :class="{ 'filter-select-small': windowIsSmall }"
         />
         <KSelect
           v-model="filterRecipients"
@@ -32,7 +28,6 @@
           :inline="true"
           :disabled="!hasCourses"
           class="filter-select"
-          :class="{ 'filter-select-small': windowIsSmall }"
         />
         <FilterTextbox
           v-model="searchFilter"
@@ -47,7 +42,6 @@
           appearance="flat-button"
           :text="clearAllFilters$()"
           class="clear-filters-button"
-          :class="{ 'clear-filters-button-small': windowIsSmall }"
           @click="clearAllFilters"
         />
       </div>
@@ -84,16 +78,12 @@
                       v-else
                       class="missing-course"
                     >
-                      <KLabeledIcon icon="warning">
-                        {{ contentNotAvailable$() }}
-                      </KLabeledIcon>
                       <span class="course-title-text">
-                        {{ course.title || courseNotAvailable$() }}
+                        {{ course.title }}
                       </span>
                     </div>
                   </div>
                   <div
-                    v-if="course.description"
                     class="course-description"
                   >
                     {{ course.description }}
@@ -202,7 +192,6 @@
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import { coreString as translateCoreString } from 'kolibri/uiText/commonCoreStrings';
   import useKShow from 'kolibri-design-system/lib/composables/useKShow';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { useRoute } from 'vue-router/composables';
   import { computed, getCurrentInstance, onMounted, ref } from 'vue';
@@ -254,7 +243,6 @@
       } = coursesStrings;
       const { entireClassLabel$, previewAction$ } = coachStrings;
       const { show } = useKShow();
-      const { windowIsSmall } = useKResponsiveWindow();
       const {
         courses: classCourses,
         coursesAreLoading,
@@ -405,7 +393,6 @@
         previewAction$,
         coreString,
         coachString,
-        windowIsSmall,
       };
     },
     data() {
@@ -555,37 +542,38 @@
     gap: 16px;
     margin-bottom: 16px;
     border-radius: 4px;
-  }
 
-  .filters-container-small {
-    flex-direction: column;
-    align-items: stretch;
+    @media (max-width: 600px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
   }
 
   .filter-select {
     flex: 0 0 auto;
     max-height: 60px;
     margin: 54px 0;
-  }
 
-  .filter-select-small {
-    width: 100%;
+    @media (max-width: 600px) {
+      width: 100%;
+    }
   }
 
   .filter-search {
     max-height: 60px;
-    max-width: 269;
+    max-width: 269px;
     margin: 54px 0;
   }
 
   .clear-filters-button {
     flex: 0 0 auto;
     margin-left: auto;
-  }
+    font-weight: 600;
 
-  .clear-filters-button-small {
-    width: 100%;
-    margin-left: 0;
+    @media (max-width: 600px) {
+      width: 100%;
+      margin-left: 0;
+    }
   }
 
   .visibility-toggle-container {
@@ -609,11 +597,6 @@
     line-height: 1.4;
   }
 
-  .missing-course {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
 
   .course-title-text {
     font-weight: 600;
