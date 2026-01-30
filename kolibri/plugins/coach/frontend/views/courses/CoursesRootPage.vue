@@ -94,22 +94,10 @@
                   </div>
                 </td>
                 <td>
-                  <span v-if="!course.contentMissing && course.learnerProgress">
-                    —
-                  </span>
-                  <KLabeledIcon
-                    v-else-if="course.contentMissing"
-                    icon="warning"
-                  >
-                    {{ contentNotAvailable$() }}
-                  </KLabeledIcon>
-                  <span v-else>—</span>
+                  <span>—</span>
                 </td>
                 <td>
-                  <span v-if="course.totalLearners !== null && course.totalLearners !== undefined">
-                    {{ course.totalLearners }}
-                  </span>
-                  <span v-else>—</span>
+                  <span>—</span>
                 </td>
                 <td>
                   <span >
