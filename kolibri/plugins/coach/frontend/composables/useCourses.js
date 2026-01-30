@@ -79,8 +79,6 @@ export function useCourses() {
     await CourseSessionResource.saveModel({ data });
     const { createSnackbar } = useSnackbar();
     createSnackbar(coursesStrings.$tr('courseIsAssignedTitle'));
-    // Update the class summary now that we have a new course assigned!
-    await store.dispatch('classSummary/refreshClassSummary', null, { root: true });
     router.push({
       name: PageNames.COURSES_ASSIGN_COURSE_DETAILS,
       params: {
