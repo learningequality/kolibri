@@ -3,7 +3,6 @@ import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import { ref, computed, provide, inject, watch } from 'vue';
 import { useRoute } from 'vue-router/composables';
-import store from 'kolibri/store';
 import useFetch from '../../../composables/useFetch';
 import { useCourses } from '../../../composables/useCourses';
 
@@ -68,7 +67,7 @@ export default function useAssignCourse({ classId }) {
       },
     }).then(response => {
       // Refresh local course list so the new course shows immediately
-      refreshClassCourses(store, classId.value);
+      refreshClassCourses();
       return response;
     });
   };
@@ -80,19 +79,10 @@ export default function useAssignCourse({ classId }) {
     coursesFetch.fetchData();
   });
 
-  watch(
-    () => route.query.topicId,
-    newTopicId => {
-      courseId.value = newTopicId || null;
-      coursesFetch.fetchData();
-    },
-  );
-
   provide('assignCourseClassId', classId);
   provide('assignCourseIsLoading', isLoading);
   provide('assignCourseSearchKeywords', searchKeywords);
   provide('assignCourseCoursesFetch', coursesFetch);
-  provide('assignCourseCourseId', courseId);
   provide('assignCourseSelectedCourse', selectedCourse);
   provide('assignCourseSelectedGroupIds', selectedGroupIds);
   provide('assignCourseSelectedLearnerIds', selectedLearnerIds);
@@ -125,7 +115,6 @@ export function injectAssignCourse() {
     classId: inject('assignCourseClassId'),
     searchKeywords: inject('assignCourseSearchKeywords'),
     coursesFetch: inject('assignCourseCoursesFetch'),
-    courseId: inject('assignCourseTopicId'),
     selectedCourse: inject('assignCourseSelectedCourse'),
     selectedGroupIds: inject('assignCourseSelectedGroupIds'),
     selectedLearnerIds: inject('assignCourseSelectedLearnerIds'),

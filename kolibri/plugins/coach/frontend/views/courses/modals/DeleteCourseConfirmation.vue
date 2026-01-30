@@ -18,16 +18,16 @@
 <script>
 
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { coreString } from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'DeleteCourseConfirmationModal',
-    mixins: [commonCoreStrings],
     setup() {
       const { deleteCourseConfirmation$, deleteCourseTitle$ } = coursesStrings;
       return {
         deleteCourseConfirmation$,
         deleteCourseTitle$,
+        coreString,
       };
     },
     props: {

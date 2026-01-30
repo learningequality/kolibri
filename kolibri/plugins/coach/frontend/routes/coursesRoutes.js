@@ -1,6 +1,4 @@
-import store from 'kolibri/store';
 import { PageNames } from '../constants';
-import { useCourses } from '../composables/useCourses';
 import CoursesRootPage from '../views/courses/CoursesRootPage.vue';
 import CourseSummaryPage from '../views/courses/CourseSummaryPage.vue';
 import AssignCourseSidePanel from '../views/courses/sidePanels/AssignCourse/index.vue';
@@ -11,7 +9,6 @@ import AssignCourseIndexSubpage from '../views/courses/sidePanels/AssignCourse/s
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
 const { OPTIONAL_CLASS, ALL_COURSES, CLASS, COURSE } = RouteSegments;
-const { showCoursesRootPage } = useCourses();
 
 export default [
 
@@ -31,7 +28,6 @@ export default [
       if (classIdParamRequiredGuard(toRoute, PageNames.COURSES_ROOT, next)) {
         return;
       }
-      showCoursesRootPage(store, toRoute.params.classId);
     },
     meta: {
       titleParts: ['COURSES_LABEL', 'CLASS_NAME'],

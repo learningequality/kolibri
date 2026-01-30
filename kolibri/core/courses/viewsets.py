@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+from django.db.models import Exists
+from django.db.models import OuterRef
 from django_filters.rest_framework import DjangoFilterBackend
 from le_utils.constants import modalities
 from rest_framework.serializers import BooleanField
@@ -250,6 +252,7 @@ class CourseSessionViewset(ValuesViewset):
         "created_by",
         "date_created",
         "course_session_assignment_collections",
+        "missing_resource",
     )
 
     field_map = {
@@ -291,6 +294,15 @@ class CourseSessionViewset(ValuesViewset):
         return items
 
     def annotate_queryset(self, queryset):
-        return annotate_array_aggregate(
+        queryset = annotate_array_aggregate(
             queryset, course_session_assignment_collections="assignments__collection"
+        )
+
+        return queryset.annotate(
+            missing_resource=~Exists(
+                ContentNode.objects.filter(
+                    id=OuterRef("course"),
+                    available=True,
+                )
+            )
         )

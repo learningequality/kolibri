@@ -1,11 +1,8 @@
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router/composables';
-import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import useSnackbar from 'kolibri/composables/useSnackbar';
-import store from 'kolibri/store';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
-import { PageNames } from '../constants';
 
 const _courses = ref([]);
 const coursesAreLoading = ref(false);
@@ -23,6 +20,16 @@ export function useCourses() {
     _courses.value = courses;
   }
 
+  function updateCourse(courseId, updates) {
+    _courses.value = _courses.value.map(course =>
+      course.id === courseId ? { ...course, ...updates } : course
+    );
+  }
+
+  function removeCourse(courseId) {
+    _courses.value = _courses.value.filter(course => course.id !== courseId);
+  }
+
   async function refreshClassCourses() {
     setCoursesAreLoading(true);
     try {
@@ -31,33 +38,19 @@ export function useCourses() {
         force: true,
       });
 
-      if (!courseSessions.length) {
-        setCourses(courseSessions);
-        return courseSessions;
-      }
-
-      const courseSessionPromises = courseSessions.map(session => {
+      // Map backend fields for compatibility
+      const mappedSessions = courseSessions.map(session => {
         const isActive = session.is_active ?? session.active ?? false;
-        return ContentNodeResource.fetchModel({ id: session.course })
-          .then(contentNode => {
-            return { ...session, is_active: isActive, active: isActive, contentNode };
-          })
-          .catch(() => {
-            return {
-              ...session,
-              is_active: isActive,
-              active: isActive,
-              contentNode: null,
-              contentMissing: true,
-            };
-          });
+        return {
+          ...session,
+          is_active: isActive,
+          active: isActive,
+          contentMissing: session.missing_resource,
+        };
       });
 
-      const hydratedSessions = await Promise.all(courseSessionPromises);
-      setCourses(hydratedSessions);
-      return hydratedSessions;
-    } catch (error) {
-      return store.dispatch('handleApiError', { error }, { root: true });
+      setCourses(mappedSessions);
+      return mappedSessions;
     } finally {
       setCoursesAreLoading(false);
     }
@@ -73,41 +66,14 @@ export function useCourses() {
     createSnackbar(coursesStrings.$tr('courseIsAssignedTitle'));
   }
 
-  async function showCoursesRootPage() {
-    await store.dispatch('initClassInfo', classId.value);
-    store.dispatch('notLoading');
-
-    // Only clear and reload courses if they haven't been loaded yet or data is stale
-    const currentCourses = _courses.value;
-    const shouldReload = currentCourses.length === 0;
-
-    if (shouldReload) {
-      setCoursesAreLoading(true);
-      setCourses([]);
-
-      return refreshClassCourses()
-        .then(() => {
-          store.commit('SET_PAGE_NAME', PageNames.COURSES_ROOT);
-          setCoursesAreLoading(false);
-        })
-        .catch(error => {
-          store.dispatch('handleApiError', { error, reloadOnReconnect: true });
-          setCoursesAreLoading(false);
-        });
-    } else {
-      // Courses already loaded, just set the page name
-      store.commit('SET_PAGE_NAME', PageNames.COURSES_ROOT);
-      return Promise.resolve();
-    }
-  }
-
   return {
     classId,
     courses,
     coursesAreLoading,
     setCourses,
+    updateCourse,
+    removeCourse,
     assignCourse,
     refreshClassCourses,
-    showCoursesRootPage,
   };
 }

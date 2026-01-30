@@ -30,7 +30,6 @@
         :fetchMore="fetchMore"
         :loadingMore="loadingMore"
         :selectedResources="selectedResources"
-        :getTopicLink="getTopicLink"
         :getResourceLink="getCourseLink"
         @setSelectedResources="setSelectedResourcesHandler"
       />
@@ -101,15 +100,6 @@
         return selectedCourse.value ? [selectedCourse.value] : [];
       });
 
-      // const getTopicLink = topicId => {
-      //   return overrideRoute(route, {
-      //     name: PageNames.COURSES_ASSIGN_INDEX,
-      //     query: {
-      //       ...route.query,
-      //       topicId,
-      //     },
-      //   });
-      // };
 
       const getCourseLink = course => {
         return overrideRoute(route, {
@@ -135,7 +125,6 @@
 
         fetchMore,
         closePanel,
-        // getTopicLink,
         getCourseLink,
         selectRecipients,
 

@@ -46,10 +46,6 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Get started by assigning a course to your learners',
     context: 'Description shown when no courses have been assigned to the class',
   },
-  statusLabel: {
-    message: 'Status',
-    context: 'Column header for learner progress status',
-  },
   masteryLabel: {
     message: 'Mastery',
     context: 'Column header for average mastery percentage',
@@ -98,10 +94,6 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'status',
     context: 'Label for filter dropdown to filter courses by visibility status',
   },
-  filterCourseAll: {
-    message: 'All',
-    context: 'Filter option to show all courses',
-  },
   filterCourseVisible: {
     message: 'Visible courses',
     context: 'Filter option to show only visible courses',
@@ -110,12 +102,8 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Not visible courses',
     context: 'Filter option to show only hidden courses',
   },
-  searchLabel: {
-    message: 'Search',
-    context: 'Label for search input field to filter courses by title',
-  },
   clearAllFilters: {
-    message: 'Clear All',
+    message: 'Clear all',
     context: 'Button text to clear all filter selections',
   },
 });

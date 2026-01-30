@@ -112,7 +112,7 @@
                 </td>
                 <td>
                   <div class="visibility-toggle-container">
-                    <KTransition kind="fade">
+                    <KTransition kind="component-fade-out-in">
                       <KCircularLoader
                         v-if="show(course.id, isUpdatingActive(course.id))"
                         :key="`loader-${course.id}`"
@@ -205,7 +205,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { useRoute } from 'vue-router/composables';
-  import { computed, getCurrentInstance, ref } from 'vue';
+  import { computed, getCurrentInstance, onMounted, ref } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { CoursesModals, PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage.vue';
@@ -246,7 +246,6 @@
         courseNotVisibleToLearnersMessage$,
         courseUpdateError$,
         filterCourseStatus$,
-        filterCourseAll$,
         filterCourseVisible$,
         filterCourseNotVisible$,
         clearAllFilters$,
@@ -260,6 +259,8 @@
       const {
         courses: classCourses,
         coursesAreLoading,
+        updateCourse,
+        removeCourse,
         refreshClassCourses,
       } = useCourses();
       const { createSnackbar } = useSnackbar();
@@ -292,7 +293,8 @@
             exists: true,
           });
 
-          await refreshClassCourses(store, route.params.classId);
+          // Update local state instead of refetching all courses
+          updateCourse(course.id, { is_active: newActiveState, active: newActiveState });
 
           createSnackbar(snackbarMessage);
         } catch (error) {
@@ -326,7 +328,8 @@
 
         try {
           await CourseSessionResource.deleteModel({ id: course.id });
-          await refreshClassCourses(store, route.params.classId);
+          // Remove course from local state instead of refetching all courses
+          removeCourse(course.id);
           createSnackbar(courseDeleted$());
         } catch (error) {
           createSnackbar(courseDeleteError$());
@@ -356,6 +359,22 @@
       const coreString = (key, args) => translateCoreString(key, args);
       const coachString = (key, args) => coachStrings.$tr(key, args);
 
+      // Initialize page when component mounts
+      onMounted(async () => {
+        await store.dispatch('initClassInfo', route.params.classId);
+        store.dispatch('notLoading');
+        store.commit('SET_PAGE_NAME', PageNames.COURSES_ROOT);
+
+        // Load courses if not already loaded
+        if (!classCourses.value || classCourses.value.length === 0) {
+          try {
+            await refreshClassCourses();
+          } catch (error) {
+            store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+          }
+        }
+      });
+
       return {
         CoursesModals,
         modelOpen,
@@ -371,7 +390,6 @@
         courseNotAvailable$,
         contentNotAvailable$,
         filterCourseStatus$,
-        filterCourseAll$,
         filterCourseVisible$,
         filterCourseNotVisible$,
         clearAllFilters$,
@@ -427,7 +445,7 @@
       },
       filterOptions() {
         return [
-          { label: this.filterCourseAll$(), value: 'filterCourseAll' },
+          { label: this.coreString('allLabel'), value: 'filterCourseAll' },
           { label: this.filterCourseVisible$(), value: 'filterCourseVisible' },
           { label: this.filterCourseNotVisible$(), value: 'filterCourseNotVisible' },
         ];
@@ -552,7 +570,6 @@
   .filter-select {
     flex: 0 0 auto;
     max-height: 60px;
-    max-width: 4000;
     margin: 54px 0;
   }
 
@@ -561,15 +578,14 @@
   }
 
   .filter-search {
-    max-height: 600px;
-    max-width: 4000;
+    max-height: 60px;
+    max-width: 269;
     margin: 54px 0;
   }
 
   .clear-filters-button {
     flex: 0 0 auto;
     margin-left: auto;
-    font-weight: 600;
   }
 
   .clear-filters-button-small {
@@ -594,7 +610,6 @@
 
   .course-description {
     margin-top: 4px;
-    color: #606060;
     font-size: 13px;
     line-height: 1.4;
   }
