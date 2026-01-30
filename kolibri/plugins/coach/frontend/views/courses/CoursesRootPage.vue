@@ -467,11 +467,11 @@
         return [
           {
             label: this.coreString('allLabel'),
-            value: this.coreString('allLabel'),
+            value: '__all__',
           },
           {
             label: this.entireClassLabel$(),
-            value: this.entireClassLabel$(),
+            value: '__entire_class__',
           },
           ...groupOptions,
         ];
@@ -482,7 +482,7 @@
       hasActiveFilters() {
         const hasSearchFilter = this.searchFilter !== '';
         const hasStatusFilter = this.filterSelection && this.filterSelection.value !== 'filterCourseAll';
-        const hasRecipientsFilter = this.filterRecipients && this.filterRecipients.label && this.filterRecipients.label !== this.coreString('allLabel');
+        const hasRecipientsFilter = this.filterRecipients && this.filterRecipients.value !== '__all__';
         return hasSearchFilter || hasStatusFilter || hasRecipientsFilter;
       },
       showCoursesTable() {
@@ -515,22 +515,18 @@
         }
 
         // Apply recipients filter
-        if (
-          this.filterRecipients &&
-          this.filterRecipients.label &&
-          this.filterRecipients.label !== this.coreString('allLabel')
-        ) {
-          if (this.filterRecipients.label === this.entireClassLabel$()) {
+        if (this.filterRecipients && this.filterRecipients.value !== '__all__') {
+          if (this.filterRecipients.value === '__entire_class__') {
             // Show courses assigned to entire class (assignments contains only classId)
             filteredCourses = filteredCourses.filter(course => {
               const assignments = course.assignments || [];
               return assignments.length === 1 && assignments[0] === this.classId;
             });
           } else {
-            // Show courses assigned to specific group
+            // Show courses assigned to specific group (value is group.id)
             filteredCourses = filteredCourses.filter(course => {
-              const groupNames = course.groupNames || [];
-              return groupNames.includes(this.filterRecipients.label);
+              const assignments = course.assignments || [];
+              return assignments.includes(this.filterRecipients.value);
             });
           }
         }
