@@ -87,10 +87,10 @@
                     </div>
                   </div>
                   <div
-                    v-if="courseDescription(course)"
+                    v-if="course.description"
                     class="course-description"
                   >
-                    {{ courseDescription(course) }}
+                    {{ course.description }}
                   </div>
                 </td>
                 <td>
@@ -542,9 +542,6 @@
         this.searchFilter = '';
         this.filterSelection = this.filterOptions[0];
         this.filterRecipients = this.recipientOptions[0];
-      },
-      courseDescription(course) {
-        return course.description || '';
       },
       formatMastery() {
         // TODO: Implement mastery formatting once we figured out mastery calculation
