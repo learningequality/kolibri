@@ -477,6 +477,28 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
 
         self.assertEqual(response.status_code, 400)
 
+    def test_start_session_node_id_course_session_id_anonymous_fails(self):
+        course_session = create_assigned_course_for_user(
+            self.user, channel_id=self.channel_id, content_id=self.content_id
+        )
+        response = self._make_request({"course_session_id": course_session.id})
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_start_session_node_id_course_session_id_non_existent_fails(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request(
+            {
+                "course_session_id": uuid.uuid4().hex,
+            }
+        )
+
+        self.assertEqual(response.status_code, 400)
+
     def test_start_session_node_id_course_session_id_and_lesson_id_fails(self):
         course_session = create_assigned_course_for_user(
             self.user, channel_id=self.channel_id, content_id=self.content_id

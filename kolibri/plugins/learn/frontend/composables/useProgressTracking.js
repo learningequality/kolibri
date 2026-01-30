@@ -190,9 +190,23 @@ export default function useProgressTracking(store) {
     }
     let sessionStarted = false;
 
+    // Helper to check and set session context
+    function setSessionContext(sessionType, value, isFirst = false) {
+      if (!value) return;
+
+      const contextKey = `${sessionType}_id`;
+      const matches = get(context) && get(context)[contextKey] === value;
+      data[contextKey] = value;
+
+      if (isFirst) {
+        sessionStarted = matches;
+      } else {
+        sessionStarted = sessionStarted && matches;
+      }
+    }
+
     if (quizId) {
-      sessionStarted = get(context) && get(context).quiz_id === quizId;
-      data.quiz_id = quizId;
+      setSessionContext('quiz', quizId, true);
     }
 
     if (node) {
@@ -208,18 +222,15 @@ export default function useProgressTracking(store) {
       if (!node.kind) {
         throw TypeError('node must have kind property');
       }
-      sessionStarted = get(context) && get(context).node_id === node.id;
-      data.node_id = node.id;
+      setSessionContext('node', node.id, !quizId);
       data.content_id = node.content_id;
       data.channel_id = node.channel_id;
       data.kind = node.kind;
       if (courseSessionId) {
-        sessionStarted = sessionStarted && get(context) && get(context).course_session_id === courseSessionId;
-        data.course_session_id = courseSessionId;
+        setSessionContext('course_session', courseSessionId);
       }
       if (lessonId) {
-        sessionStarted = sessionStarted && get(context) && get(context).lesson_id === lessonId;
-        data.lesson_id = lessonId;
+        setSessionContext('lesson', lessonId);
       }
       if (node.kind === 'exercise') {
         if (!node.assessmentmetadata) {
