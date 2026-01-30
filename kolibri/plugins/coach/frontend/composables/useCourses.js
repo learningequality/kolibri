@@ -6,6 +6,7 @@ import useUser from 'kolibri/composables/useUser';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import useSnackbar from 'kolibri/composables/useSnackbar';
 import router from 'kolibri/router';
+import store from 'kolibri/store';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { PageNames } from '../constants';
 
@@ -30,7 +31,7 @@ export function useCourses() {
     _learnerGroups.value = groups;
   }
 
-  async function refreshClassCourses(storeInstance, classId) {
+  async function refreshClassCourses(classId) {
     setCoursesAreLoading(true);
     try {
       const courseSessions = await CourseSessionResource.fetchCollection({
@@ -64,13 +65,13 @@ export function useCourses() {
       setCourses(hydratedSessions);
       return hydratedSessions;
     } catch (error) {
-      return storeInstance.dispatch('handleApiError', { error }, { root: true });
+      return store.dispatch('handleApiError', { error }, { root: true });
     } finally {
       setCoursesAreLoading(false);
     }
   }
 
-  async function assignCourse(storeInstance, { classId, payload }) {
+  async function assignCourse({ classId, payload }) {
     return new Promise((resolve, reject) => {
       const data = {
         ...payload,
@@ -83,7 +84,7 @@ export function useCourses() {
           const { createSnackbar } = useSnackbar();
           createSnackbar(coursesStrings.$tr('courseIsAssignedTitle'));
           // Update the class summary now that we have a new course assigned!
-          storeInstance.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
+          store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
             router.push({
               name: PageNames.COURSES_ASSIGN_COURSE_DETAILS,
               params: {
@@ -99,15 +100,15 @@ export function useCourses() {
     });
   }
 
-  async function showCoursesRootPage(storeInstance, classId) {
-    const initClassInfoPromise = storeInstance.dispatch('initClassInfo', classId);
+  async function showCoursesRootPage(classId) {
+    const initClassInfoPromise = store.dispatch('initClassInfo', classId);
     const getFacilitiesPromise =
       useUser().isSuperuser.value && facilities.value.length === 0
         ? getFacilities().catch(() => {})
         : Promise.resolve();
 
     await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
-    storeInstance.dispatch('notLoading');
+    store.dispatch('notLoading');
 
     // Only clear and reload courses if they haven't been loaded yet or data is stale
     const currentCourses = _courses.value;
@@ -120,23 +121,23 @@ export function useCourses() {
 
       const loadRequirements = [
         LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
-        refreshClassCourses(storeInstance, classId),
+        refreshClassCourses(classId),
       ];
 
       return Promise.all(loadRequirements).then(
         ([fetchedLearnerGroups]) => {
           setLearnerGroups(fetchedLearnerGroups);
-          storeInstance.commit('SET_PAGE_NAME', PageNames.COURSES_ROOT);
+          store.commit('SET_PAGE_NAME', PageNames.COURSES_ROOT);
           setCoursesAreLoading(false);
         },
         error => {
-          storeInstance.dispatch('handleApiError', { error, reloadOnReconnect: true });
+          store.dispatch('handleApiError', { error, reloadOnReconnect: true });
           setCoursesAreLoading(false);
         },
       );
     } else {
       // Courses already loaded, just set the page name
-      storeInstance.commit('SET_PAGE_NAME', PageNames.COURSES_ROOT);
+      store.commit('SET_PAGE_NAME', PageNames.COURSES_ROOT);
       return Promise.resolve();
     }
   }
