@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue';
+import { useRoute } from 'vue-router/composables';
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
@@ -15,6 +16,8 @@ const coursesAreLoading = ref(false);
 const { getFacilities, facilities } = useFacilities();
 
 export function useCourses() {
+  const route = useRoute();
+  const classId = computed(() => route.params.classId);
   const courses = computed(() => _courses.value);
   const learnerGroups = computed(() => _learnerGroups.value);
 
@@ -30,11 +33,11 @@ export function useCourses() {
     _learnerGroups.value = groups;
   }
 
-  async function refreshClassCourses(classId) {
+  async function refreshClassCourses() {
     setCoursesAreLoading(true);
     try {
       const courseSessions = await CourseSessionResource.fetchCollection({
-        getParams: { collection: classId },
+        getParams: { collection: classId.value },
         force: true,
       });
 
@@ -70,18 +73,18 @@ export function useCourses() {
     }
   }
 
-  async function assignCourse({ classId, payload }) {
+  async function assignCourse(payload) {
     const data = {
       ...payload,
-      collection: classId,
+      collection: classId.value,
     };
     await CourseSessionResource.saveModel({ data });
     const { createSnackbar } = useSnackbar();
     createSnackbar(coursesStrings.$tr('courseIsAssignedTitle'));
   }
 
-  async function showCoursesRootPage(classId) {
-    const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+  async function showCoursesRootPage() {
+    const initClassInfoPromise = store.dispatch('initClassInfo', classId.value);
     const getFacilitiesPromise =
       useUser().isSuperuser.value && facilities.value.length === 0
         ? getFacilities().catch(() => {})
@@ -100,8 +103,8 @@ export function useCourses() {
       setLearnerGroups([]);
 
       const loadRequirements = [
-        LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
-        refreshClassCourses(classId),
+        LearnerGroupResource.fetchCollection({ getParams: { parent: classId.value } }),
+        refreshClassCourses(),
       ];
 
       return Promise.all(loadRequirements).then(
@@ -123,6 +126,7 @@ export function useCourses() {
   }
 
   return {
+    classId,
     courses,
     learnerGroups,
     coursesAreLoading,
