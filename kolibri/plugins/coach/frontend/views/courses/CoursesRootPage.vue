@@ -71,7 +71,7 @@
                     <KRouterLink
                       v-if="course.contentNode"
                       :to="courseSummaryLink(course)"
-                      :text="course.contentNode.title || course.title"
+                      :text="course.title"
                       icon="course"
                     />
                     <div
@@ -194,7 +194,7 @@
       v-if="modelOpen === CoursesModals.DELETE_COURSE_CONFIRMATION"
       :courseTitle="
         courseToDelete
-          ? courseToDelete.contentNode?.title || courseToDelete.title || courseNotAvailable$()
+          ? courseToDelete.title || courseNotAvailable$()
           : ''
       "
       @confirm="confirmDeleteCourse"
@@ -500,7 +500,7 @@
         if (this.searchFilter) {
           const searchTerm = this.searchFilter.toLowerCase();
           filteredCourses = filteredCourses.filter(course => {
-            const courseTitle = course.contentNode?.title || course.title || '';
+            const courseTitle = course.title || '';
             return courseTitle.toLowerCase().includes(searchTerm);
           });
         }
@@ -544,7 +544,7 @@
         this.filterRecipients = this.recipientOptions[0];
       },
       courseDescription(course) {
-        return course.contentNode?.description || course.description || '';
+        return course.description || '';
       },
       formatMastery() {
         // TODO: Implement mastery formatting once we figured out mastery calculation
