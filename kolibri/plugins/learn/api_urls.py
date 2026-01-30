@@ -3,6 +3,7 @@ from django.urls import re_path
 from rest_framework import routers
 
 from .viewsets import LearnerClassroomViewset
+from .viewsets import LearnerCourseViewset
 from .viewsets import LearnerLessonViewset
 from .viewsets import LearnHomePageHydrationView
 from .viewsets import LearnStateView
@@ -12,6 +13,7 @@ router.register(
     r"learnerclassroom", LearnerClassroomViewset, basename="learnerclassroom"
 )
 router.register(r"learnerlesson", LearnerLessonViewset, basename="learnerlesson")
+router.register(r"learnercourse", LearnerCourseViewset, basename="learnercourse")
 
 
 urlpatterns = [

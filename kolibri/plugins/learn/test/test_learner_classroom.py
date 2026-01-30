@@ -1,6 +1,9 @@
+import uuid
+
 from django.urls import reverse
 from django.utils.timezone import now
 from le_utils.constants import content_kinds
+from le_utils.constants import modalities
 from rest_framework.test import APITestCase
 
 from kolibri.core.auth.models import Classroom
@@ -9,6 +12,9 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.content.models import ContentNode
+from kolibri.core.courses.models import CourseSession
+from kolibri.core.courses.models import CourseSessionAssignment
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -81,7 +87,7 @@ class LearnerClassroomTestCase(APITestCase):
         get_response = self.client.get(
             reverse(self.basename + "-detail", kwargs={"pk": self.own_classroom.id})
         )
-        self.assertEqual(len(get_response.data["assignments"]["exams"]), 1)
+        self.assertEqual(len(get_response.data["exams"]), 1)
 
     def test_correct_number_of_attempted_exams(self):
         # One active exam and two inactive exams, but one attempted
@@ -137,7 +143,7 @@ class LearnerClassroomTestCase(APITestCase):
         get_response = self.client.get(
             reverse(self.basename + "-detail", kwargs={"pk": self.own_classroom.id})
         )
-        self.assertEqual(len(get_response.data["assignments"]["exams"]), 2)
+        self.assertEqual(len(get_response.data["exams"]), 2)
 
     def test_correct_number_of_lessons(self):
         # One active and inactive lesson
@@ -167,7 +173,7 @@ class LearnerClassroomTestCase(APITestCase):
         get_response = self.client.get(
             reverse(self.basename + "-detail", kwargs={"pk": self.own_classroom.id})
         )
-        self.assertEqual(len(get_response.data["assignments"]["lessons"]), 1)
+        self.assertEqual(len(get_response.data["lessons"]), 1)
 
     def test_learner_only_sees_lessons_for_enrolled_classroom(self):
         classroom = Classroom.objects.create(
@@ -184,7 +190,7 @@ class LearnerClassroomTestCase(APITestCase):
         )
         self.client.login(username="learner", password="password")
         get_response = self.client.get(reverse(self.basename + "-list"))
-        self.assertEqual(len(get_response.data[0]["assignments"]["lessons"]), 0)
+        self.assertEqual(len(get_response.data[0]["lessons"]), 0)
 
     def test_learner_only_sees_lessons_for_single_classroom_when_enrolled_in_multiple(
         self,
@@ -204,7 +210,73 @@ class LearnerClassroomTestCase(APITestCase):
         )
         self.client.login(username="learner", password="password")
         get_response = self.client.get(reverse(self.basename + "-list"))
-        total_lessons = len(get_response.data[0]["assignments"]["lessons"]) + len(
-            get_response.data[1]["assignments"]["lessons"]
+        total_lessons = len(get_response.data[0]["lessons"]) + len(
+            get_response.data[1]["lessons"]
         )
         self.assertEqual(total_lessons, Lesson.objects.count())
+
+    def test_learner_only_sees_courses_for_enrolled_classroom(self):
+        channel_id = uuid.uuid4().hex
+        course = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            modality=modalities.COURSE,
+            title="Course Title 1",
+            description="Course description 1",
+        )
+        active_own_course = CourseSession.objects.create(
+            collection=self.own_classroom,
+            is_active=True,
+            created_by=self.coach_user,
+            course=course.id,
+            title=course.title,
+            description=course.description,
+        )
+        CourseSessionAssignment.objects.create(
+            course_session=active_own_course,
+            assigned_by=self.coach_user,
+            collection=self.own_classroom,
+        )
+        self.client.login(username="learner", password="password")
+        get_request = self.client.get(
+            reverse(self.basename + "-detail", kwargs={"pk": self.own_classroom.id})
+        )
+        self.assertEqual(len(get_request.data["courses"]), 1)
+
+    def test_learner_assigned_same_course_multiple_times_only_sees_single_course(self):
+        channel_id = uuid.uuid4().hex
+        course = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            modality=modalities.COURSE,
+            title="Course Title 1",
+            description="Course description 1",
+        )
+        active_own_course = CourseSession.objects.create(
+            collection=self.own_classroom,
+            is_active=True,
+            created_by=self.coach_user,
+            course=course.id,
+            title=course.title,
+            description=course.description,
+        )
+        CourseSessionAssignment.objects.create(
+            course_session=active_own_course,
+            assigned_by=self.coach_user,
+            collection=self.own_classroom,
+        )
+        group = LearnerGroup.objects.create(name="Own Group", parent=self.own_classroom)
+        group.add_member(self.learner_user)
+        CourseSessionAssignment.objects.create(
+            course_session=active_own_course,
+            assigned_by=self.coach_user,
+            collection=group,
+        )
+        self.client.login(username="learner", password="password")
+        list_request = self.client.get(reverse(self.basename + "-list"))
+        self.assertEqual(len(list_request.data), 1)
+        self.assertEqual(len(list_request.data[0]["courses"]), 1)
