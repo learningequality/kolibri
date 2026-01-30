@@ -1,3 +1,5 @@
+import hashlib
+
 from django.db import models
 from django.db.models import Q
 from django.db.utils import IntegrityError
@@ -305,13 +307,20 @@ class UnitTestAssignment(AbstractFacilityDataModel):
         """
         Generate a unique source ID to prevent duplicate combinations.
         Uses course_session, unit_contentnode_id, collection_id, and test_type.
+
+        Format: {course_session_id}:{md5_hash}
+        The MD5 hash is computed from the combination of morango_model_name,
+        unit_contentnode_id, collection_id, and test_type to ensure uniqueness
+        while staying within the 96-character limit for _morango_source_id.
         """
-        return "{course_session_id}:{unit_contentnode_id}:{collection_id}:{test_type}".format(
-            course_session_id=self.course_session_id,
-            unit_contentnode_id=self.unit_contentnode_id,
-            collection_id=self.collection_id,
-            test_type=self.test_type,
+        key = "{}:{}:{}:{}".format(
+            self.morango_model_name,
+            self.unit_contentnode_id,
+            self.collection_id,
+            self.test_type,
         )
+        hash_digest = hashlib.md5(key.encode("utf-8")).hexdigest()
+        return "{}:{}".format(self.course_session_id, hash_digest)
 
     def infer_dataset(self, *args, **kwargs):
         """
