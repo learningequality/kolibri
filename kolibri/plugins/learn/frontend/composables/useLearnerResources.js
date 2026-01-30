@@ -47,7 +47,7 @@ function _cacheLessonResources(lesson) {
 }
 
 function setClassData(classroom) {
-  for (const lesson of classroom.assignments.lessons) {
+  for (const lesson of classroom.lessons) {
     _cacheLessonResources(lesson);
   }
 }
@@ -65,7 +65,7 @@ export default function useLearnerResources() {
    * @private
    */
   const _classesQuizzes = computed(() => {
-    return flatMap(get(classes), c => c.assignments.exams);
+    return flatMap(get(classes), c => c.exams);
   });
 
   /**
@@ -74,7 +74,7 @@ export default function useLearnerResources() {
    * @public
    */
   const activeClassesLessons = computed(() => {
-    return flatMap(get(classes), c => c.assignments.lessons);
+    return flatMap(get(classes), c => c.lessons);
   });
 
   /**
@@ -86,7 +86,7 @@ export default function useLearnerResources() {
     return flatMapDepth(
       get(classes),
       c =>
-        c.assignments.lessons.map(l =>
+        c.lessons.map(l =>
           l.resources.map(r => ({
             contentNodeId: r.contentnode_id,
             progress: r.progress,
@@ -158,10 +158,10 @@ export default function useLearnerResources() {
    */
   function getClassActiveLessons(classId) {
     const classroom = getClass(classId);
-    if (!classroom || !classroom.assignments || !classroom.assignments.lessons) {
+    if (!classroom || !classroom.lessons) {
       return [];
     }
-    return classroom.assignments.lessons.filter(lesson => lesson.active);
+    return classroom.lessons.filter(lesson => lesson.active);
   }
 
   /**
@@ -171,10 +171,10 @@ export default function useLearnerResources() {
    */
   function getClassActiveQuizzes(classId) {
     const classroom = getClass(classId);
-    if (!classroom || !classroom.assignments || !classroom.assignments.exams) {
+    if (!classroom || !classroom.exams) {
       return [];
     }
-    return classroom.assignments.exams.filter(exam => exam.active);
+    return classroom.exams.filter(exam => exam.active);
   }
 
   /**

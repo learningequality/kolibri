@@ -1,6 +1,8 @@
 import uuid
 
 from django.urls import reverse
+from django.utils.timezone import now
+from le_utils.constants import content_kinds
 from le_utils.constants import modalities
 from rest_framework.test import APITestCase
 
@@ -13,6 +15,8 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
+from kolibri.core.logger.models import ContentSummaryLog
+
 
 DUMMY_PASSWORD = "password"
 
@@ -190,3 +194,127 @@ class LearnerCourseTestCase(APITestCase):
         self.assertEqual(get_request.status_code, 200)
         list_request = self.client.get(reverse(self.basename + "-list"))
         self.assertEqual(len(list_request.data), 1)
+
+    def test_learner_course_progress_calculated_correctly(self):
+        channel_id = uuid.uuid4().hex
+        # Create a course with 1 unit, 2 lessons, and 2 exercises
+        course = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            modality=modalities.COURSE,
+            title="Course With Units",
+            description="",
+        )
+
+        unit1 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=course,
+            available=True,
+            kind=content_kinds.TOPIC,
+            modality=modalities.UNIT,
+            title="Unit 1",
+            description="",
+        )
+
+        lesson1 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=unit1,
+            available=True,
+            kind=content_kinds.TOPIC,
+            modality=modalities.LESSON,
+            title="Lesson 1",
+            description="",
+        )
+
+        ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=lesson1,
+            available=True,
+            kind=content_kinds.EXERCISE,
+            title="Exercise 1",
+            description="",
+        )
+
+        lesson2 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=unit1,
+            available=True,
+            kind=content_kinds.TOPIC,
+            modality=modalities.LESSON,
+            title="Lesson 2",
+            description="",
+        )
+
+        ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=lesson2,
+            available=True,
+            kind=content_kinds.EXERCISE,
+            title="Exercise 2",
+            description="",
+        )
+
+        # Create and assign the course session
+        active_own_course = CourseSession.objects.create(
+            collection=self.classroom,
+            is_active=True,
+            created_by=self.coach,
+            course=course.id,
+            title=course.title,
+            description=course.description,
+        )
+        CourseSessionAssignment.objects.create(
+            course_session=active_own_course,
+            assigned_by=self.coach,
+            collection=self.classroom,
+        )
+
+        # Ensure the course has two non-topic descendants (the exercises)
+        content_qs = list(
+            course.get_descendants()
+            .exclude(kind=content_kinds.TOPIC)
+            .values_list("content_id", flat=True)
+        )
+        self.assertEqual(len(content_qs), 2)
+
+        # Mark 1 resource as completed (progress == 1.0) and one as in-progress
+        ContentSummaryLog.objects.create(
+            user=self.learner,
+            content_id=content_qs[0],
+            kind=content_kinds.EXERCISE,
+            progress=1.0,
+            start_timestamp=now(),
+            completion_timestamp=now(),
+        )
+        ContentSummaryLog.objects.create(
+            user=self.learner,
+            content_id=content_qs[1],
+            kind=content_kinds.EXERCISE,
+            progress=0.5,
+            start_timestamp=now(),
+            completion_timestamp=now(),
+        )
+
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        get_request = self.client.get(
+            reverse(self.basename + "-detail", kwargs={"pk": active_own_course.id})
+        )
+        self.assertEqual(get_request.data["id"], active_own_course.id)
+        self.assertEqual(get_request.status_code, 200)
+        # progress should be completed(1) / total(2) == 0.5
+        self.assertEqual(get_request.data["progress"], 0.5)
+        # Ensure unit and lesson counts are annotated correctly
+        self.assertEqual(get_request.data.get("unit_count"), 1)
+        self.assertEqual(get_request.data.get("lesson_count"), 2)
