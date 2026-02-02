@@ -112,8 +112,8 @@
                         v-else
                         :key="`switch-${course.id}`"
                         name="toggle-course-visibility"
-                        :checked="course.is_active"
-                        :value="course.is_active"
+                        :checked="course.active"
+                        :value="course.active"
                         :disabled="course.contentMissing"
                         @change="toggleCourseActive(course)"
                       />
@@ -176,7 +176,7 @@
     />
     <DeleteCourseConfirmationModal
       v-if="courseToDelete"
-      :courseTitle="courseToDelete.title || courseNotAvailable$()"
+      :courseTitle="courseToDelete.title"
       @confirm="confirmDeleteCourse"
       @cancel="cancelDeleteCourse"
     />
@@ -229,7 +229,6 @@
         emptyCoursesDescription$,
         masteryLabel$,
         visibleLabel$,
-        courseNotAvailable$,
         contentNotAvailable$,
         courseVisibleToLearnersMessage$,
         courseNotVisibleToLearnersMessage$,
@@ -264,7 +263,7 @@
         return updatingCourseIds.value.has(courseId);
       };
       const toggleCourseActive = async (course) => {
-        const newActiveState = !course.is_active;
+        const newActiveState = !course.active;
         const snackbarMessage = newActiveState
           ? courseVisibleToLearnersMessage$()
           : courseNotVisibleToLearnersMessage$();
@@ -281,7 +280,7 @@
           });
 
           // Update local state instead of refetching all courses
-          updateCourse(course.id, { is_active: newActiveState, active: newActiveState });
+          updateCourse(course.id, { active: newActiveState });
 
           createSnackbar(snackbarMessage);
         } catch (error) {
@@ -350,7 +349,6 @@
       onMounted(async () => {
         await store.dispatch('initClassInfo', route.params.classId);
         store.dispatch('notLoading');
-        store.commit('SET_PAGE_NAME', PageNames.COURSES_ROOT);
 
         // Load courses if not already loaded
         if (!classCourses.value || classCourses.value.length === 0) {
@@ -374,8 +372,6 @@
         emptyCoursesDescription$,
         masteryLabel$,
         visibleLabel$,
-        courseNotAvailable$,
-        contentNotAvailable$,
         filterCourseStatus$,
         filterCourseVisible$,
         filterCourseNotVisible$,
@@ -404,7 +400,7 @@
     },
     computed: {
       learnerGroups() {
-        return this.$store.state.classSummary.groups || [];
+        return this.$store.getters.groups || [];
       },
       classId() {
         return this.$store.state.classSummary.id;
@@ -489,9 +485,9 @@
         // Apply visibility filter
         if (this.filterSelection && this.filterSelection.value) {
           if (this.filterSelection.value === 'filterCourseVisible') {
-            filteredCourses = filteredCourses.filter(course => course.is_active);
+            filteredCourses = filteredCourses.filter(course => course.active);
           } else if (this.filterSelection.value === 'filterCourseNotVisible') {
-            filteredCourses = filteredCourses.filter(course => !course.is_active);
+            filteredCourses = filteredCourses.filter(course => !course.active);
           }
         }
 

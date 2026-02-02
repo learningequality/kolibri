@@ -7,6 +7,7 @@ import useFacilities from 'kolibri-common/composables/useFacilities';
 import store from 'kolibri/store';
 import { PageNames } from '../../constants';
 import { useCourses } from '../useCourses';
+import * as vueRouterComposables from 'vue-router/composables';
 
 jest.mock('kolibri-common/apiResources/LearnerGroupResource');
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
@@ -62,6 +63,12 @@ describe('useCourses', () => {
     store.dispatch = mockStore.dispatch;
 
     jest.clearAllMocks();
+
+    // Mock useRoute AFTER clearAllMocks to prevent it from being cleared
+    jest.spyOn(vueRouterComposables, 'useRoute').mockReturnValue({
+      params: { classId: 'class-123' },
+    });
+
     useCourses().coursesAreLoading.value = false;
   });
 
@@ -227,15 +234,14 @@ describe('useCourses', () => {
           id: 'session-1',
           course: 'content-1',
           contentNode: mockContentNodes[0],
-          is_active: true,
           active: true,
+          contentMissing: undefined,
         },
         {
           id: 'session-2',
           course: 'content-2',
           contentNode: mockContentNodes[1],
-          is_active: false,
-          active: false,
+          contentMissing: undefined,
         },
       ]);
     });
@@ -303,8 +309,7 @@ describe('useCourses', () => {
           id: 'session-1',
           course: 'content-1',
           contentNode: mockContentNodes[0],
-          is_active: false,
-          active: false,
+          contentMissing: undefined,
         },
       ];
       CourseSessionResource.fetchCollection.mockResolvedValue([mockCourseSessions[0]]);

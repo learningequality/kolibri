@@ -2,7 +2,6 @@ import Modalities from 'kolibri-constants/Modalities';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import { ref, computed, provide, inject, watch } from 'vue';
-import { useRoute } from 'vue-router/composables';
 import useFetch from '../../../composables/useFetch';
 import { useCourses } from '../../../composables/useCourses';
 
@@ -21,8 +20,6 @@ import { useCourses } from '../../../composables/useCourses';
 export default function useAssignCourse({ classId }) {
   const searchKeywords = ref('');
   const selectedCourse = ref(null);
-  const route = useRoute();
-  const courseId = ref(route.query.courseId || null);
 
   const selectedGroupIds = ref([]);
   const selectedLearnerIds = ref([]);
@@ -40,10 +37,7 @@ export default function useAssignCourse({ classId }) {
     },
     fetchMoreMethod: moreParams => {
       return ContentNodeResource.fetchCollection({
-        getParams: {
-          ...moreParams,
-          parent: courseId.value || undefined,
-        },
+        getParams: moreParams,
       });
     },
   });
