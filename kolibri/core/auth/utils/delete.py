@@ -29,6 +29,7 @@ from kolibri.core.auth.models import Role
 from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
+from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.device.models import SyncQueue
@@ -234,6 +235,7 @@ def _get_class_models(dataset_id):
             LessonAssignment.objects.filter(dataset_id_filter),
             Lesson.objects.filter(dataset_id_filter),
             CourseSessionAssignment.objects.filter(dataset_id_filter),
+            UnitTestAssignment.objects.filter(dataset_id_filter),
             CourseSession.objects.filter(dataset_id_filter),
             IndividualSyncableLesson.objects.filter(dataset_id_filter),
             AdHocGroup.objects.filter(dataset_id_filter),
@@ -421,6 +423,7 @@ def _get_user_class_models(user):
             LessonAssignment.objects.filter(assigned_by_id=user.id),
             Lesson.objects.filter(created_by_id=user.id),
             CourseSessionAssignment.objects.filter(assigned_by_id=user.id),
+            UnitTestAssignment.objects.filter(activated_by_id=user.id),
             CourseSession.objects.filter(created_by_id=user.id),
             IndividualSyncableLesson.objects.filter(user_id_filter),
         ],
