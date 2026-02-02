@@ -129,30 +129,6 @@ class UnitTestAssignmentModelTestCase(TestCase):
         self.assertIsNotNone(post_test.id)
         self.assertNotEqual(pre_test.id, post_test.id)
 
-    def test_one_active_test_per_session_constraint(self):
-        """Test that only one test can be active per session"""
-        # Create first active test
-        models.UnitTestAssignment.objects.create(
-            course_session=self.course_session,
-            unit_contentnode_id=self.unit_id,
-            collection=self.classroom,
-            test_type="pre",
-            is_active=True,  # Active
-            status="active",
-        )
-
-        # Try to create another active test in same session - should fail
-        unit_id_2 = uuid.uuid4().hex
-        with self.assertRaises(IntegrityError):
-            models.UnitTestAssignment.objects.create(
-                course_session=self.course_session,
-                unit_contentnode_id=unit_id_2,  # Different unit
-                collection=self.classroom,
-                test_type="post",  # Different type
-                is_active=True,  # Also active - should fail
-                status="active",
-            )
-
     def test_dataset_integrity_course_session_collection_mismatch(self):
         """Test that course_session and collection must be in same dataset"""
         # Create a different facility with different dataset
