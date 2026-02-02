@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                 (
                     "test_type",
                     models.CharField(
-                        choices=[("pre", "Pre"), ("post", "Post")],
+                        choices=[("post", "Post"), ("pre", "Pre")],
                         max_length=10,
                     ),
                 ),
@@ -44,9 +44,9 @@ class Migration(migrations.Migration):
                     "status",
                     models.CharField(
                         choices=[
-                            ("not_started", "NotStarted"),
                             ("active", "Active"),
                             ("ended", "Ended"),
+                            ("not_started", "NotStarted"),
                         ],
                         default="not_started",
                         max_length=20,
