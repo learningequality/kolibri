@@ -12,7 +12,10 @@
           />
         </template>
       </CoachHeader>
-      <div class="filters-container">
+      <div
+        class="filters-container"
+        :class="{ 'filters-container-small': windowIsSmall }"
+      >
         <KSelect
           v-model="filterSelection"
           :label="filterCourseStatus$()"
@@ -74,20 +77,19 @@
                       :text="course.title"
                       icon="course"
                     />
-                    <div
+                    <KTextTruncator
                       v-else
-                      class="missing-course"
-                    >
-                      <span class="course-title-text">
-                        {{ course.title }}
-                      </span>
-                    </div>
+                      :text="course.title"
+                      :maxLines="1"
+                      class="course-title-text"
+                    />
                   </div>
-                  <div
+                  <KTextTruncator
+                    v-if="course.description"
+                    :text="course.description"
+                    :maxLines="1"
                     class="course-description"
-                  >
-                    {{ course.description }}
-                  </div>
+                  />
                 </td>
                 <td>
                   <span>—</span>
@@ -192,6 +194,7 @@
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import { coreString as translateCoreString } from 'kolibri/uiText/commonCoreStrings';
   import useKShow from 'kolibri-design-system/lib/composables/useKShow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { useRoute } from 'vue-router/composables';
   import { computed, getCurrentInstance, onMounted, ref } from 'vue';
@@ -229,7 +232,6 @@
         emptyCoursesDescription$,
         masteryLabel$,
         visibleLabel$,
-        contentNotAvailable$,
         courseVisibleToLearnersMessage$,
         courseNotVisibleToLearnersMessage$,
         courseUpdateError$,
@@ -242,6 +244,7 @@
       } = coursesStrings;
       const { entireClassLabel$, previewAction$ } = coachStrings;
       const { show } = useKShow();
+      const { windowIsSmall } = useKResponsiveWindow();
       const {
         courses: classCourses,
         coursesAreLoading,
@@ -378,6 +381,7 @@
         clearAllFilters$,
         entireClassLabel$,
         show,
+        windowIsSmall,
         classCourses,
         coursesAreLoading,
         emptyPlusCloudSvg,
@@ -537,48 +541,39 @@
     align-items: center;
     gap: 16px;
     margin-bottom: 16px;
-    border-radius: 4px;
+  }
 
-    @media (max-width: 600px) {
-      flex-direction: column;
-      align-items: stretch;
+  .filters-container-small {
+    flex-direction: column;
+    align-items: stretch;
+
+    .filter-select,
+    .filter-search,
+    .clear-filters-button {
+      width: 100%;
+    }
+
+    .filter-search {
+      max-width: none;
+    }
+
+    .clear-filters-button {
+      margin-left: 0;
     }
   }
 
   .filter-select {
     flex: 0 0 auto;
-    max-height: 60px;
-    margin: 54px 0;
-
-    @media (max-width: 600px) {
-      width: 100%;
-    }
   }
 
   .filter-search {
-    max-height: 60px;
-    max-width: 269px;
-    margin: 54px 0;
+    max-width: 300px;
   }
 
   .clear-filters-button {
     flex: 0 0 auto;
     margin-left: auto;
     font-weight: 600;
-
-    @media (max-width: 600px) {
-      width: 100%;
-      margin-left: 0;
-    }
-  }
-
-  .visibility-toggle-container {
-    height: 28px;
-  }
-
-  .visibility-loader {
-    display: inline-block;
-    margin-left: 6px;
   }
 
   .course-title {
@@ -592,7 +587,6 @@
     font-size: 13px;
     line-height: 1.4;
   }
-
 
   .course-title-text {
     font-weight: 600;

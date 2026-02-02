@@ -30,7 +30,7 @@
         :fetchMore="fetchMore"
         :loadingMore="loadingMore"
         :selectedResources="selectedResources"
-        :getResourceLink="getCourseLink"
+        :getTopicLink="getCourseLink"
         @setSelectedResources="setSelectedResourcesHandler"
       />
     </template>
