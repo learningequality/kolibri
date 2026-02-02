@@ -1,7 +1,6 @@
 import hashlib
 
 from django.db import models
-from django.db.models import Q
 from django.db.utils import IntegrityError
 from morango.models import UUIDField
 
@@ -355,13 +354,10 @@ class UnitTestAssignment(AbstractFacilityDataModel):
 
         # Ensure assignment collection is the same as or a child of the course_session's collection
         if self.course_session and self.collection:
-            # Collection must be the same as course_session's collection
-            if self.collection_id == self.course_session.collection_id:
-                pass  # Valid: same collection
-            # Or collection must be a child (LearnerGroup/AdHocGroup) of the course_session's collection (Classroom)
-            elif self.collection.parent_id == self.course_session.collection_id:
-                pass  # Valid: child collection
-            else:
+            if (
+                self.collection_id != self.course_session.collection_id
+                and self.collection.parent_id != self.course_session.collection_id
+            ):
                 raise IntegrityError(
                     "UnitTestAssignment collection must be the same as or a child of the CourseSession's collection"
                 )
@@ -374,18 +370,6 @@ class UnitTestAssignment(AbstractFacilityDataModel):
                     "UnitTestAssignment activated_by must be in the same dataset"
                 )
             self.activated_by = None
-
-    class Meta:
-        unique_together = (
-            ("course_session", "unit_contentnode_id", "collection", "test_type"),
-        )
-        constraints = [
-            models.UniqueConstraint(
-                fields=["course_session"],
-                condition=Q(is_active=True),
-                name="unittestassignment_one_active_per_session",
-            )
-        ]
 
     @classmethod
     def deserialize(cls, dict_model):
