@@ -106,7 +106,7 @@
                   <div class="visibility-toggle-container">
                     <KTransition kind="component-fade-out-in">
                       <KCircularLoader
-                        v-if="show(course.id, isUpdatingActive(course.id))"
+                        v-if="show(course.id, isUpdatingActive(course.id), 0)"
                         :key="`loader-${course.id}`"
                         disableDefaultTransition
                       />
@@ -197,7 +197,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { useRoute } from 'vue-router/composables';
-  import { computed, getCurrentInstance, onMounted, ref } from 'vue';
+  import { computed, getCurrentInstance, onMounted, ref, watch } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { CoursesModals, PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage.vue';
@@ -311,8 +311,6 @@
         const course = courseToDelete.value;
         if (!course) return;
 
-        courseToDelete.value = null;
-
         updatingCourseIds.value.add(course.id);
 
         try {
@@ -320,6 +318,7 @@
           // Remove course from local state instead of refetching all courses
           removeCourse(course.id);
           createSnackbar(courseDeleted$());
+          courseToDelete.value = null;
         } catch (error) {
           createSnackbar(courseDeleteError$());
         } finally {
@@ -347,19 +346,23 @@
 
       const coreString = (key, args) => translateCoreString(key, args);
       const coachString = (key, args) => coachStrings.$tr(key, args);
-
-      // Initialize page when component mounts
-      onMounted(async () => {
-        await store.dispatch('initClassInfo', route.params.classId);
+      const loadClassData = async (classId) => {
+        await store.dispatch('initClassInfo', classId);
         store.dispatch('notLoading');
 
-        // Load courses if not already loaded
-        if (!classCourses.value || classCourses.value.length === 0) {
-          try {
-            await refreshClassCourses();
-          } catch (error) {
-            store.dispatch('handleApiError', { error, reloadOnReconnect: true });
-          }
+        try {
+          await refreshClassCourses();
+        } catch (error) {
+          store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+        }
+      };
+
+      onMounted(() => {
+        loadClassData(route.params.classId);
+      });
+      watch(() => route.params.classId, (newClassId, oldClassId) => {
+        if (newClassId && newClassId !== oldClassId) {
+          loadClassData(newClassId);
         }
       });
 
