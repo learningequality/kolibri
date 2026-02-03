@@ -13,16 +13,27 @@
         </template>
       </CoachHeader>
     </KPageContainer>
+
+
+
+
+
+<!-- Why is it allowing me adding so many lines? -->
+
+
     <!--
       Router view for side panels implemented in courses/sidePanels/...
       whose routes are defined in coach/frontend/routes/coursesRoutes.js
       Side panels will only be rendered when their route is active.
     -->
     <router-view @showModal="modelOpen = $event" />
-    <AssignCourseSuccessModal
-      v-if="modelOpen === CoursesModals.ASSIGN_COURSE_SUCCESS"
-      @close="modelOpen = null"
-    />
+
+
+
+    <!-- Why isnt it throwing errors here? -->
+    <div>
+      Random text
+      </div>
   </CoachAppBarPage>
 
 </template>
@@ -34,7 +45,8 @@
   import { useRoute } from 'vue-router/composables';
   import { computed, ref } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
-  import { CoursesModals, PageNames } from '../../constants';
+  // an unresolved import
+  import { CoursesModals, PageNames } from '../../constantsssadfasfas';
   import CoachAppBarPage from '../CoachAppBarPage.vue';
   import CoachHeader from '../common/CoachHeader.vue';
   import { overrideRoute } from '../../utils';
@@ -60,6 +72,12 @@
 
       const assignCourseRoute = computed(() =>
         overrideRoute(route, {
+
+
+
+
+
+
           name: PageNames.COURSES_ASSIGN,
         }),
       );
