@@ -222,11 +222,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Label for a button used to zoom out the document view (make it smaller)',
   },
 
-  expandedImage: {
-    message: 'Expanded image',
-    context: 'Label for an image that is shown in an expanded view',
-  },
-
   // labels, phrases, titles, headers...
   adminLabel: {
     message: 'Admin',
