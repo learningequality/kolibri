@@ -71,7 +71,7 @@ module.exports = {
     'plugin:jest-dom/recommended',
     resolveConfig('eslint-config-prettier'),
   ],
-  plugins: ['import', 'vue', 'kolibri', 'jest-dom', 'jest'],
+  plugins: ['import', 'vue', 'kolibri', 'jest-dom', 'jest', 'small-import'],
   settings: {
     "import/resolver": {
       node: {
@@ -250,6 +250,8 @@ module.exports = {
     'import/no-duplicates': ERROR,
     'import/newline-after-import': ERROR,
     'import/order': ERROR,
+
+    'small-import/no-full-import': ERROR,
 
     // Custom vue rules
     'kolibri/vue-no-unused-vuex-properties': ERROR,
