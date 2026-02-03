@@ -106,7 +106,7 @@
                   <div class="visibility-toggle-container">
                     <KTransition kind="component-fade-out-in">
                       <KCircularLoader
-                        v-if="show(course.id, isUpdatingActive(course.id), 0)"
+                        v-if="show(course.id, isUpdatingActive(course.id), 500)"
                         :key="`loader-${course.id}`"
                         disableDefaultTransition
                       />
@@ -116,7 +116,7 @@
                         name="toggle-course-visibility"
                         :checked="course.active"
                         :value="course.active"
-                        :disabled="course.contentMissing"
+                        :disabled="course.contentMissing || isUpdatingActive(course.id)"
                         @change="toggleCourseActive(course)"
                       />
                     </KTransition>
@@ -253,9 +253,17 @@
         refreshClassCourses,
       } = useCourses();
       const { createSnackbar } = useSnackbar();
-
-      // Track which courses are currently being updated
       const updatingCourseIds = ref(new Set());
+
+      const addUpdatingCourseId = courseId => {
+        updatingCourseIds.value = new Set([...updatingCourseIds.value, courseId]);
+      };
+
+      const removeUpdatingCourseId = courseId => {
+        const updated = new Set(updatingCourseIds.value);
+        updated.delete(courseId);
+        updatingCourseIds.value = updated;
+      };
 
       const assignCourseRoute = computed(() =>
         overrideRoute(route, {
@@ -271,7 +279,7 @@
           ? courseVisibleToLearnersMessage$()
           : courseNotVisibleToLearnersMessage$();
 
-        updatingCourseIds.value.add(course.id);
+        addUpdatingCourseId(course.id);
 
         try {
           await CourseSessionResource.saveModel({
@@ -289,7 +297,7 @@
         } catch (error) {
           createSnackbar(courseUpdateError$());
         } finally {
-          updatingCourseIds.value.delete(course.id);
+          removeUpdatingCourseId(course.id);
         }
       };
 
@@ -311,7 +319,7 @@
         const course = courseToDelete.value;
         if (!course) return;
 
-        updatingCourseIds.value.add(course.id);
+        addUpdatingCourseId(course.id);
 
         try {
           await CourseSessionResource.deleteModel({ id: course.id });
@@ -322,7 +330,7 @@
         } catch (error) {
           createSnackbar(courseDeleteError$());
         } finally {
-          updatingCourseIds.value.delete(course.id);
+          removeUpdatingCourseId(course.id);
         }
       };
 
