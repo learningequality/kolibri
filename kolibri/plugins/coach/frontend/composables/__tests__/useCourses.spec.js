@@ -1,6 +1,6 @@
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
-import { useCourses } from '../useCourses';
 import * as vueRouterComposables from 'vue-router/composables';
+import { useCourses } from '../useCourses';
 
 jest.mock('kolibri-common/apiResources/CourseSessionResource');
 
@@ -66,7 +66,7 @@ describe('useCourses', () => {
       CourseSessionResource.fetchCollection.mockReturnValue(
         new Promise(resolve => {
           resolveCollection = resolve;
-        })
+        }),
       );
 
       const { refreshClassCourses, coursesAreLoading } = useCourses();
@@ -141,5 +141,4 @@ describe('useCourses', () => {
       expect(result[0].contentMissing).toBe(false);
     });
   });
-
 });

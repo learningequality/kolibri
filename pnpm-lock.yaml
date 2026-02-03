@@ -160,6 +160,9 @@ importers:
       kolibri-plugin-data:
         specifier: workspace:*
         version: link:../../packages/kolibri-plugin-data
+      lodash:
+        specifier: 'catalog:'
+        version: 4.17.21
       vue:
         specifier: 'catalog:'
         version: 2.7.16
@@ -460,6 +463,9 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
+      vue-router:
+        specifier: 'catalog:'
+        version: 3.6.5(vue@2.7.16)
       vuex:
         specifier: 'catalog:'
         version: 3.6.2(vue@2.7.16)
@@ -906,6 +912,12 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
+      vue-router:
+        specifier: 'catalog:'
+        version: 3.6.5(vue@2.7.16)
+      vuex:
+        specifier: 'catalog:'
+        version: 3.6.2(vue@2.7.16)
 
   kolibri/plugins/user_profile:
     dependencies:
@@ -930,6 +942,9 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
+      vue-router:
+        specifier: 'catalog:'
+        version: 3.6.5(vue@2.7.16)
       vuex:
         specifier: 'catalog:'
         version: 3.6.2(vue@2.7.16)

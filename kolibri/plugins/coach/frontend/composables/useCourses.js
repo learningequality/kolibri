@@ -20,7 +20,7 @@ export function useCourses() {
 
   function updateCourse(courseId, updates) {
     _courses.value = _courses.value.map(course =>
-      course.id === courseId ? { ...course, ...updates } : course
+      course.id === courseId ? { ...course, ...updates } : course,
     );
   }
 

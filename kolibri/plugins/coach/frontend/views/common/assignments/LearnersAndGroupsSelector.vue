@@ -71,8 +71,8 @@
   import uniq from 'lodash/uniq';
   import store from 'kolibri/store';
 
-  import { coachStrings } from '../commonCoachStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { coachStrings } from '../commonCoachStrings';
   import IndividualLearnerSelectorTable from './IndividualLearnerSelector/IndividualLearnerSelectorTable.vue';
 
   const SELECT_CLASS_OPTION = 'select_class_option';

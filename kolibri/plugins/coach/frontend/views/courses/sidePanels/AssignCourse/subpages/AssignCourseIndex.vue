@@ -100,7 +100,6 @@
         return selectedCourse.value ? [selectedCourse.value] : [];
       });
 
-
       const getCourseLink = course => {
         return overrideRoute(route, {
           name: PageNames.COURSES_ASSIGN_COURSE_DETAILS,
