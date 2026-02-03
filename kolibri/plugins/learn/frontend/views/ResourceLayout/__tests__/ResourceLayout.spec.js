@@ -1317,4 +1317,530 @@ describe('ResourceLayout', () => {
       });
     });
   });
+
+  describe('depth-based resolution (deepest wins)', () => {
+    it('grandchild side panel wins over shallower uncle', async () => {
+      const Component = Vue.extend({
+        components: { ResourceLayout },
+        template: `
+          <ResourceLayout>
+            <template #sidePanel>
+              <div data-testid="root-side-panel">Root Side</div>
+            </template>
+            <template #default>
+              <ResourceLayout>
+                <template #default>
+                  <ResourceLayout>
+                    <template #sidePanel>
+                      <div data-testid="grandchild-side-panel">Grandchild Side</div>
+                    </template>
+                    <template #default>
+                      <button data-testid="grandchild-btn">GC</button>
+                    </template>
+                  </ResourceLayout>
+                </template>
+              </ResourceLayout>
+              <ResourceLayout>
+                <template #sidePanel>
+                  <div data-testid="uncle-side-panel">Uncle Side</div>
+                </template>
+                <template #default>
+                  <button data-testid="uncle-btn">Uncle</button>
+                </template>
+              </ResourceLayout>
+            </template>
+          </ResourceLayout>
+        `,
+      });
+
+      render(Component);
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      // Grandchild is deeper (depth 2) vs uncle (depth 1), grandchild wins
+      expect(screen.getByTestId('grandchild-side-panel')).toBeInTheDocument();
+      expect(screen.queryByTestId('uncle-side-panel')).not.toBeInTheDocument();
+    });
+
+    it('grandchild bottom bar wins over shallower uncle', async () => {
+      const Component = Vue.extend({
+        components: { ResourceLayout },
+        template: `
+          <ResourceLayout>
+            <template #bottomBar>
+              <div data-testid="root-bottom-bar">Root Bottom</div>
+            </template>
+            <template #default>
+              <ResourceLayout>
+                <template #default>
+                  <ResourceLayout>
+                    <template #bottomBar>
+                      <div data-testid="grandchild-bottom-bar">Grandchild Bottom</div>
+                    </template>
+                    <template #default>
+                      <div>Grandchild Main</div>
+                    </template>
+                  </ResourceLayout>
+                </template>
+              </ResourceLayout>
+              <ResourceLayout>
+                <template #bottomBar>
+                  <div data-testid="uncle-bottom-bar">Uncle Bottom</div>
+                </template>
+                <template #default>
+                  <div>Uncle Main</div>
+                </template>
+              </ResourceLayout>
+            </template>
+          </ResourceLayout>
+        `,
+      });
+
+      render(Component);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('grandchild-bottom-bar')).toBeInTheDocument();
+      });
+      expect(screen.queryByTestId('uncle-bottom-bar')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('implicit default slot (wrapper component pattern)', () => {
+    it('does not infinite re-render when wrapper exposes implicit default slot', async () => {
+      // A wrapper component that uses ResourceLayout internally and exposes
+      // its own <slot> (implicit default) to parent consumers.
+      // When the parent passes content without <template #default>,
+      // Vue 2 recreates VNodes each render, which previously caused
+      // syncRegistration to trigger infinite reactive updates.
+      const ResourceLayoutWrapper = Vue.extend({
+        components: { ResourceLayout },
+        template: `
+          <ResourceLayout>
+            <template #sidePanel>
+              <div data-testid="wrapper-side-panel">Wrapper Side</div>
+            </template>
+            <template #default>
+              <slot />
+            </template>
+          </ResourceLayout>
+        `,
+      });
+
+      const Parent = Vue.extend({
+        components: { ResourceLayout, ResourceLayoutWrapper },
+        template: `
+          <ResourceLayout>
+            <template #default>
+              <ResourceLayoutWrapper>
+                <div data-testid="implicit-content">Implicit default content</div>
+              </ResourceLayoutWrapper>
+            </template>
+          </ResourceLayout>
+        `,
+      });
+
+      // If the bug is present, this render will hang/timeout due to
+      // infinite re-render cycle
+      render(Parent);
+
+      expect(screen.getByTestId('implicit-content')).toBeInTheDocument();
+    });
+  });
+
+  describe('focus-based switching between subtrees', () => {
+    it('focus on uncle content switches side panel to uncle', async () => {
+      const Component = Vue.extend({
+        components: { ResourceLayout },
+        template: `
+          <ResourceLayout>
+            <template #sidePanel>
+              <div data-testid="root-side-panel">Root Side</div>
+            </template>
+            <template #default>
+              <ResourceLayout>
+                <template #default>
+                  <ResourceLayout>
+                    <template #sidePanel>
+                      <div data-testid="grandchild-side-panel">Grandchild Side</div>
+                    </template>
+                    <template #default>
+                      <button data-testid="grandchild-btn">GC</button>
+                    </template>
+                  </ResourceLayout>
+                </template>
+              </ResourceLayout>
+              <ResourceLayout>
+                <template #sidePanel>
+                  <div data-testid="uncle-side-panel">Uncle Side</div>
+                </template>
+                <template #default>
+                  <button data-testid="uncle-btn">Uncle</button>
+                </template>
+              </ResourceLayout>
+            </template>
+          </ResourceLayout>
+        `,
+      });
+
+      render(Component);
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      // Grandchild wins by default (deepest)
+      expect(screen.getByTestId('grandchild-side-panel')).toBeInTheDocument();
+
+      // Focus on uncle's content
+      await fireEvent.focusIn(screen.getByTestId('uncle-btn'));
+
+      // Uncle should now own the side panel
+      await waitFor(() => {
+        expect(screen.getByTestId('uncle-side-panel')).toBeInTheDocument();
+      });
+      expect(screen.queryByTestId('grandchild-side-panel')).not.toBeInTheDocument();
+    });
+
+    it('focus back on grandchild content restores grandchild side panel', async () => {
+      const Component = Vue.extend({
+        components: { ResourceLayout },
+        template: `
+          <ResourceLayout>
+            <template #sidePanel>
+              <div data-testid="root-side-panel">Root Side</div>
+            </template>
+            <template #default>
+              <ResourceLayout>
+                <template #default>
+                  <ResourceLayout>
+                    <template #sidePanel>
+                      <div data-testid="grandchild-side-panel">Grandchild Side</div>
+                    </template>
+                    <template #default>
+                      <button data-testid="grandchild-btn">GC</button>
+                    </template>
+                  </ResourceLayout>
+                </template>
+              </ResourceLayout>
+              <ResourceLayout>
+                <template #sidePanel>
+                  <div data-testid="uncle-side-panel">Uncle Side</div>
+                </template>
+                <template #default>
+                  <button data-testid="uncle-btn">Uncle</button>
+                </template>
+              </ResourceLayout>
+            </template>
+          </ResourceLayout>
+        `,
+      });
+
+      render(Component);
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      // Switch to uncle via focus
+      await fireEvent.focusIn(screen.getByTestId('uncle-btn'));
+      await waitFor(() => {
+        expect(screen.getByTestId('uncle-side-panel')).toBeInTheDocument();
+      });
+
+      // Focus back on grandchild
+      await fireEvent.focusIn(screen.getByTestId('grandchild-btn'));
+
+      // Grandchild should reclaim the side panel
+      await waitFor(() => {
+        expect(screen.getByTestId('grandchild-side-panel')).toBeInTheDocument();
+      });
+      expect(screen.queryByTestId('uncle-side-panel')).not.toBeInTheDocument();
+    });
+
+    it('focus switching works between equal-depth cousins', async () => {
+      const Component = Vue.extend({
+        components: { ResourceLayout },
+        template: `
+          <ResourceLayout>
+            <template #sidePanel>
+              <div data-testid="root-side-panel">Root Side</div>
+            </template>
+            <template #default>
+              <ResourceLayout>
+                <template #default>
+                  <ResourceLayout>
+                    <template #sidePanel>
+                      <div data-testid="cousin1-side-panel">Cousin 1 Side</div>
+                    </template>
+                    <template #default>
+                      <button data-testid="cousin1-btn">Cousin 1</button>
+                    </template>
+                  </ResourceLayout>
+                </template>
+              </ResourceLayout>
+              <ResourceLayout>
+                <template #default>
+                  <ResourceLayout>
+                    <template #sidePanel>
+                      <div data-testid="cousin2-side-panel">Cousin 2 Side</div>
+                    </template>
+                    <template #default>
+                      <button data-testid="cousin2-btn">Cousin 2</button>
+                    </template>
+                  </ResourceLayout>
+                </template>
+              </ResourceLayout>
+            </template>
+          </ResourceLayout>
+        `,
+      });
+
+      render(Component);
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      // Both cousins at equal depth — last registered wins by default
+      expect(screen.getByTestId('cousin2-side-panel')).toBeInTheDocument();
+
+      // Focus on cousin1
+      await fireEvent.focusIn(screen.getByTestId('cousin1-btn'));
+
+      // Cousin1 should now win
+      await waitFor(() => {
+        expect(screen.getByTestId('cousin1-side-panel')).toBeInTheDocument();
+      });
+      expect(screen.queryByTestId('cousin2-side-panel')).not.toBeInTheDocument();
+    });
+
+    it('focused cousin unmounts and remaining cousin takes over', async () => {
+      const Component = Vue.extend({
+        components: { ResourceLayout },
+        data() {
+          return { showCousin1: true };
+        },
+        template: `
+          <div>
+            <ResourceLayout>
+              <template #sidePanel>
+                <div data-testid="root-side-panel">Root Side</div>
+              </template>
+              <template #default>
+                <ResourceLayout v-if="showCousin1">
+                  <template #default>
+                    <ResourceLayout>
+                      <template #sidePanel>
+                        <div data-testid="cousin1-side-panel">Cousin 1 Side</div>
+                      </template>
+                      <template #default>
+                        <button data-testid="cousin1-btn">Cousin 1</button>
+                      </template>
+                    </ResourceLayout>
+                  </template>
+                </ResourceLayout>
+                <ResourceLayout>
+                  <template #default>
+                    <ResourceLayout>
+                      <template #sidePanel>
+                        <div data-testid="cousin2-side-panel">Cousin 2 Side</div>
+                      </template>
+                      <template #default>
+                        <button data-testid="cousin2-btn">Cousin 2</button>
+                      </template>
+                    </ResourceLayout>
+                  </template>
+                </ResourceLayout>
+              </template>
+            </ResourceLayout>
+            <button data-testid="toggle-cousin1" @click="showCousin1 = !showCousin1">Toggle</button>
+          </div>
+        `,
+      });
+
+      render(Component);
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      // Focus on cousin1 so it becomes the active claimant
+      await fireEvent.focusIn(screen.getByTestId('cousin1-btn'));
+      await waitFor(() => {
+        expect(screen.getByTestId('cousin1-side-panel')).toBeInTheDocument();
+      });
+
+      // Unmount cousin1's subtree — cousin2 should take over
+      await fireEvent.click(screen.getByTestId('toggle-cousin1'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('cousin2-side-panel')).toBeInTheDocument();
+      });
+      expect(screen.queryByTestId('cousin1-side-panel')).not.toBeInTheDocument();
+    });
+
+    it('non-active deeper component unmounts while shallower is focused', async () => {
+      const Component = Vue.extend({
+        components: { ResourceLayout },
+        data() {
+          return { showGrandchild: true };
+        },
+        template: `
+          <div>
+            <ResourceLayout>
+              <template #sidePanel>
+                <div data-testid="root-side-panel">Root Side</div>
+              </template>
+              <template #default>
+                <ResourceLayout v-if="showGrandchild">
+                  <template #default>
+                    <ResourceLayout>
+                      <template #sidePanel>
+                        <div data-testid="grandchild-side-panel">Grandchild Side</div>
+                      </template>
+                      <template #default>
+                        <button data-testid="grandchild-btn">GC</button>
+                      </template>
+                    </ResourceLayout>
+                  </template>
+                </ResourceLayout>
+                <ResourceLayout>
+                  <template #sidePanel>
+                    <div data-testid="uncle-side-panel">Uncle Side</div>
+                  </template>
+                  <template #default>
+                    <button data-testid="uncle-btn">Uncle</button>
+                  </template>
+                </ResourceLayout>
+              </template>
+            </ResourceLayout>
+            <button data-testid="toggle-grandchild" @click="showGrandchild = !showGrandchild">Toggle</button>
+          </div>
+        `,
+      });
+
+      render(Component);
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      // Focus on uncle so it becomes the active claimant (overriding deeper grandchild)
+      await fireEvent.focusIn(screen.getByTestId('uncle-btn'));
+      await waitFor(() => {
+        expect(screen.getByTestId('uncle-side-panel')).toBeInTheDocument();
+      });
+
+      // Unmount grandchild — uncle should stay because it's focused
+      await fireEvent.click(screen.getByTestId('toggle-grandchild'));
+
+      expect(screen.getByTestId('uncle-side-panel')).toBeInTheDocument();
+    });
+
+    it('new deeper component mounting does not override focused shallower one', async () => {
+      const Component = Vue.extend({
+        components: { ResourceLayout },
+        data() {
+          return { showGrandchild: false };
+        },
+        template: `
+          <div>
+            <ResourceLayout>
+              <template #sidePanel>
+                <div data-testid="root-side-panel">Root Side</div>
+              </template>
+              <template #default>
+                <ResourceLayout v-if="showGrandchild">
+                  <template #default>
+                    <ResourceLayout>
+                      <template #sidePanel>
+                        <div data-testid="grandchild-side-panel">Grandchild Side</div>
+                      </template>
+                      <template #default>
+                        <button data-testid="grandchild-btn">GC</button>
+                      </template>
+                    </ResourceLayout>
+                  </template>
+                </ResourceLayout>
+                <ResourceLayout>
+                  <template #sidePanel>
+                    <div data-testid="uncle-side-panel">Uncle Side</div>
+                  </template>
+                  <template #default>
+                    <button data-testid="uncle-btn">Uncle</button>
+                  </template>
+                </ResourceLayout>
+              </template>
+            </ResourceLayout>
+            <button data-testid="toggle-grandchild" @click="showGrandchild = !showGrandchild">Toggle</button>
+          </div>
+        `,
+      });
+
+      render(Component);
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      // Only uncle exists, focus on it
+      await fireEvent.focusIn(screen.getByTestId('uncle-btn'));
+      await waitFor(() => {
+        expect(screen.getByTestId('uncle-side-panel')).toBeInTheDocument();
+      });
+
+      // Mount grandchild — uncle should stay because it's focused
+      await fireEvent.click(screen.getByTestId('toggle-grandchild'));
+
+      expect(screen.getByTestId('uncle-side-panel')).toBeInTheDocument();
+      expect(screen.queryByTestId('grandchild-side-panel')).not.toBeInTheDocument();
+    });
+
+    it('focused component slot conditionally disappears, falls back to deepest remaining', async () => {
+      const ChildWithConditionalSlot = Vue.extend({
+        components: { ResourceLayout },
+        props: ['showSlot'],
+        template: `
+          <ResourceLayout>
+            <template #sidePanel v-if="showSlot">
+              <div data-testid="uncle-side-panel">Uncle Side</div>
+            </template>
+            <template #default>
+              <button data-testid="uncle-btn">Uncle</button>
+            </template>
+          </ResourceLayout>
+        `,
+      });
+
+      const Component = Vue.extend({
+        components: { ResourceLayout, ChildWithConditionalSlot },
+        data() {
+          return { uncleHasSlot: true };
+        },
+        template: `
+          <div>
+            <ResourceLayout>
+              <template #sidePanel>
+                <div data-testid="root-side-panel">Root Side</div>
+              </template>
+              <template #default>
+                <ResourceLayout>
+                  <template #default>
+                    <ResourceLayout>
+                      <template #sidePanel>
+                        <div data-testid="grandchild-side-panel">Grandchild Side</div>
+                      </template>
+                      <template #default>
+                        <button data-testid="grandchild-btn">GC</button>
+                      </template>
+                    </ResourceLayout>
+                  </template>
+                </ResourceLayout>
+                <ChildWithConditionalSlot :showSlot="uncleHasSlot" />
+              </template>
+            </ResourceLayout>
+            <button data-testid="toggle-uncle-slot" @click="uncleHasSlot = !uncleHasSlot">Toggle</button>
+          </div>
+        `,
+      });
+
+      render(Component);
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      // Focus on uncle so it becomes active
+      await fireEvent.focusIn(screen.getByTestId('uncle-btn'));
+      await waitFor(() => {
+        expect(screen.getByTestId('uncle-side-panel')).toBeInTheDocument();
+      });
+
+      // Remove uncle's slot (component stays mounted) — grandchild should take over
+      await fireEvent.click(screen.getByTestId('toggle-uncle-slot'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('grandchild-side-panel')).toBeInTheDocument();
+      });
+      expect(screen.queryByTestId('uncle-side-panel')).not.toBeInTheDocument();
+    });
+  });
 });

@@ -154,13 +154,40 @@
         );
       };
 
+      // Focus handler for nested instances: activates this component's
+      // slot registrations when focus enters its subtree.
+      // Uses closest('[data-resource-layout-claim]') so only the innermost
+      // registered wrapper activates, preventing shallower ancestors from
+      // overriding deeper descendants during focusin bubble.
+      function handleNestedFocusin(event) {
+        const nearest = event.target.closest('[data-resource-layout-claim]');
+        if (nearest === event.currentTarget) {
+          sidePanel.activate();
+          bottomBar.activate();
+          sidePanelFooter.activate();
+        }
+      }
+
       return () => {
         // Nested ResourceLayouts: register slots with parent and render only default content
         if (isNested) {
-          sidePanel.syncRegistration(slots.sidePanel);
-          bottomBar.syncRegistration(slots.bottomBar);
-          sidePanelFooter.syncRegistration(slots.sidePanelFooter);
-          return slots.default ? h('div', {}, slots.default()) : null;
+          sidePanel.syncRegistration();
+          bottomBar.syncRegistration();
+          sidePanelFooter.syncRegistration();
+
+          if (!slots.default) return null;
+
+          const hasClaim =
+            sidePanel.isRegistered() || bottomBar.isRegistered() || sidePanelFooter.isRegistered();
+
+          return h(
+            'div',
+            {
+              attrs: hasClaim ? { 'data-resource-layout-claim': '' } : {},
+              on: { focusin: handleNestedFocusin },
+            },
+            slots.default(),
+          );
         }
 
         // === TOP-LEVEL RENDERING ===
