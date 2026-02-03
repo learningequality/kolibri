@@ -1,9 +1,9 @@
-import uuid
 from collections import OrderedDict
 
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django_filters.rest_framework import DjangoFilterBackend
+from le_utils.constants import modalities
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import BooleanField
@@ -12,7 +12,6 @@ from rest_framework.serializers import ListField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer
-from rest_framework.serializers import UUIDField
 from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_200_OK
 from rest_framework.status import HTTP_404_NOT_FOUND
@@ -41,7 +40,9 @@ class UnitTestValidationSerializer(Serializer):
     for activate_test and close_test actions
     """
 
-    unit_contentnode_id = UUIDField(required=True)
+    unit_contentnode_id = PrimaryKeyRelatedField(
+        queryset=ContentNode.objects.filter(modality=modalities.UNIT), required=True
+    )
     test_type = CharField(required=True)
 
     def validate_test_type(self, value):
@@ -57,66 +58,25 @@ class UnitTestValidationSerializer(Serializer):
 
     def validate(self, attrs):
         """
-        Validate that the unit exists and belongs to the course
+        Validate that the unit belongs to the course
         """
-        course_session = self._get_course_session()
-        unit = self._get_unit(attrs.get("unit_contentnode_id"))
-        self._ensure_unit_belongs_to_course(unit, course_session)
-        return attrs
-
-    def _get_course_session(self):
         course_session = self.context.get("course_session")
         if not course_session:
             raise ValidationError(
                 "Course session not found in context", code=error_constants.INVALID
             )
-        return course_session
 
-    def _get_unit(self, unit_contentnode_id):
-        try:
-            return ContentNode.objects.get(id=unit_contentnode_id)
-        except ContentNode.DoesNotExist:
+        if attrs["unit_contentnode_id"].parent_id != course_session.course:
             raise ValidationError(
-                "Unit with the specified unit_contentnode_id does not exist",
+                "Unit does not belong to this course",
                 code=error_constants.INVALID,
             )
-
-    def _ensure_unit_belongs_to_course(self, unit, course_session):
-        try:
-            course = ContentNode.objects.get(id=course_session.course)
-        except ContentNode.DoesNotExist:
-            raise ValidationError("Course not found", code=error_constants.INVALID)
-
-        if unit.channel_id != course.channel_id:
-            raise ValidationError(
-                "Unit does not belong to the same channel as the course",
-                code=error_constants.INVALID,
-            )
-
-        if unit.parent_id == course.id:
-            return
-
-        max_depth = 50
-        current_id = unit.parent_id
-        depth = 0
-        while current_id and depth < max_depth:
-            if str(current_id) == str(course.id):
-                return
-            try:
-                parent = ContentNode.objects.get(id=current_id)
-                current_id = parent.parent_id
-                depth += 1
-            except ContentNode.DoesNotExist:
-                break
-
-        raise ValidationError(
-            "Unit does not belong to this course", code=error_constants.INVALID
-        )
+        return attrs
 
 
 class CourseSessionSerializer(ModelSerializer):
     course = PrimaryKeyRelatedField(
-        queryset=ContentNode.objects.all(),
+        queryset=ContentNode.objects.filter(modality=modalities.COURSE),
         required=True,
     )
     assignments = ListField(
@@ -296,14 +256,6 @@ def _ensure_raw_dict(d):
     return dict(d)
 
 
-def _uuid_to_hex(value):
-
-    try:
-        return uuid.UUID(str(value)).hex
-    except (TypeError, ValueError, AttributeError):
-        return str(value)
-
-
 class CourseSessionPermissions(KolibriAuthPermissions):
     # Overrides the default validator to sanitize the CourseSession POST Payload
     # before user.can_create validation. This is needed because can_create
@@ -440,7 +392,8 @@ class CourseSessionViewset(ValuesViewset):
         )
         serializer.is_valid(raise_exception=True)
 
-        unit_contentnode_id = serializer.validated_data["unit_contentnode_id"]
+        unit = serializer.validated_data["unit_contentnode_id"]
+        unit_contentnode_id = unit.id
         test_type = serializer.validated_data["test_type"]
 
         # Get or create the UnitTestAssignment
@@ -460,7 +413,7 @@ class CourseSessionViewset(ValuesViewset):
         return Response(
             {
                 "id": unit_test_assignment.id,
-                "unit_contentnode_id": _uuid_to_hex(unit_contentnode_id),
+                "unit_contentnode_id": str(unit_contentnode_id),
                 "test_type": test_type,
                 "status": unit_test_assignment.status,
             },
@@ -475,6 +428,16 @@ class CourseSessionViewset(ValuesViewset):
         """
         course_session = self.get_object()
 
+        # Validate request parameters (both are required)
+        serializer = UnitTestValidationSerializer(
+            data=request.data, context={"course_session": course_session}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        unit = serializer.validated_data["unit_contentnode_id"]
+        unit_contentnode_id = unit.id
+        test_type = serializer.validated_data["test_type"]
+
         # Find the currently active test
         try:
             active_test = UnitTestAssignment.objects.get(
@@ -486,30 +449,18 @@ class CourseSessionViewset(ValuesViewset):
                 status=HTTP_404_NOT_FOUND,
             )
 
-        # If request includes validation parameters,  we can validate them
-        if "unit_contentnode_id" in request.data or "test_type" in request.data:
-            serializer = UnitTestValidationSerializer(
-                data=request.data, context={"course_session": course_session}
+        # Validate that the provided parameters match the active test
+        if str(active_test.unit_contentnode_id) != str(unit_contentnode_id):
+            raise ValidationError(
+                "The provided unit_contentnode_id does not match the active test",
+                code=error_constants.INVALID,
             )
-            serializer.is_valid(raise_exception=True)
 
-            unit_contentnode_id = serializer.validated_data.get("unit_contentnode_id")
-            test_type = serializer.validated_data.get("test_type")
-
-            # And then we can validate that the provided parameters match the active test
-            if unit_contentnode_id and _uuid_to_hex(
-                active_test.unit_contentnode_id
-            ) != _uuid_to_hex(unit_contentnode_id):
-                raise ValidationError(
-                    "The provided unit_contentnode_id does not match the active test",
-                    code=error_constants.INVALID,
-                )
-
-            if test_type and active_test.test_type != test_type:
-                raise ValidationError(
-                    "The provided test_type does not match the active test",
-                    code=error_constants.INVALID,
-                )
+        if active_test.test_type != test_type:
+            raise ValidationError(
+                "The provided test_type does not match the active test",
+                code=error_constants.INVALID,
+            )
 
         # Close the active test
         active_test.is_active = False
@@ -519,7 +470,7 @@ class CourseSessionViewset(ValuesViewset):
         return Response(
             {
                 "id": active_test.id,
-                "unit_contentnode_id": _uuid_to_hex(active_test.unit_contentnode_id),
+                "unit_contentnode_id": str(active_test.unit_contentnode_id),
                 "test_type": active_test.test_type,
                 "status": active_test.status,
             },
@@ -542,7 +493,7 @@ class CourseSessionViewset(ValuesViewset):
         except UnitTestAssignment.DoesNotExist:
             return Response({"active_test": None}, status=HTTP_200_OK)
 
-        #  then tetch the unit's ContentNode
+        #  then fetch the unit's ContentNode
         try:
             unit = ContentNode.objects.get(id=active_test.unit_contentnode_id)
             unit_title = unit.title
@@ -561,7 +512,7 @@ class CourseSessionViewset(ValuesViewset):
         return Response(
             {
                 "id": active_test.id,
-                "unit_contentnode_id": _uuid_to_hex(active_test.unit_contentnode_id),
+                "unit_contentnode_id": str(active_test.unit_contentnode_id),
                 "unit_title": unit_title,
                 "test_type": active_test.test_type,
                 "status": active_test.status,

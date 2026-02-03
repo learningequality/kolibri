@@ -674,6 +674,7 @@ class UnitTestActivationAPITestCase(APITestCase):
             channel_id=channel_id,
             content_id=uuid.uuid4().hex,
             available=True,
+            modality=modalities.COURSE,
             title="Test Course",
             description="A test course",
         )
@@ -685,6 +686,7 @@ class UnitTestActivationAPITestCase(APITestCase):
             content_id=uuid.uuid4().hex,
             parent_id=cls.course.id,
             available=True,
+            modality=modalities.UNIT,
             title="Test Unit",
             description="A test unit",
         )
@@ -696,6 +698,7 @@ class UnitTestActivationAPITestCase(APITestCase):
             content_id=uuid.uuid4().hex,
             parent_id=cls.course.id,
             available=True,
+            modality=modalities.UNIT,
             title="Test Unit 2",
             description="Another test unit",
         )
@@ -876,6 +879,7 @@ class UnitTestActivationAPITestCase(APITestCase):
             channel_id=uuid.uuid4().hex,
             content_id=uuid.uuid4().hex,
             available=True,
+            modality=modalities.UNIT,
             title="Other Unit",
         )
 
@@ -916,6 +920,10 @@ class UnitTestActivationAPITestCase(APITestCase):
                 "kolibri:core:coursesession-close-test",
                 kwargs={"pk": self.courseSession.id},
             ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
             format="json",
         )
 
@@ -1038,6 +1046,10 @@ class UnitTestActivationAPITestCase(APITestCase):
                 "kolibri:core:coursesession-close-test",
                 kwargs={"pk": self.courseSession.id},
             ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
             format="json",
         )
 
@@ -1066,6 +1078,10 @@ class UnitTestActivationAPITestCase(APITestCase):
                 "kolibri:core:coursesession-close-test",
                 kwargs={"pk": self.courseSession.id},
             ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
             format="json",
         )
 
@@ -1155,6 +1171,10 @@ class UnitTestActivationAPITestCase(APITestCase):
                 "kolibri:core:coursesession-close-test",
                 kwargs={"pk": self.courseSession.id},
             ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
             format="json",
         )
 
@@ -1208,6 +1228,10 @@ class UnitTestActivationAPITestCase(APITestCase):
                 "kolibri:core:coursesession-close-test",
                 kwargs={"pk": self.courseSession.id},
             ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
             format="json",
         )
 
