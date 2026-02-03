@@ -3,6 +3,7 @@ import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import { ref, computed, provide, inject, watch } from 'vue';
 import useFetch from '../../../composables/useFetch';
+import { useCourses } from '../../../composables/useCourses';
 
 /**
  * Composable for managing the logic for the Assign Course side panel.
@@ -43,6 +44,8 @@ export default function useAssignCourse({ classId }) {
 
   const isLoading = computed(() => coursesFetch.loading.value);
 
+  const { refreshClassCourses } = useCourses();
+
   const selectCourse = course => {
     selectedCourse.value = course;
   };
@@ -56,6 +59,10 @@ export default function useAssignCourse({ classId }) {
         assignments: selectedGroupIds.value,
         learner_ids: selectedLearnerIds.value,
       },
+    }).then(response => {
+      // Refresh local course list so the new course shows immediately
+      refreshClassCourses();
+      return response;
     });
   };
 
