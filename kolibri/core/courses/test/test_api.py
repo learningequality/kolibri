@@ -1,8 +1,3 @@
-"""
-
-- "Add edge case tests for invalid inputs, non-existent resources, and authentication failures"
-- "Write tests for assignment management including learner groups and adhoc groups"
-"""
 import uuid
 
 from django.urls import reverse
