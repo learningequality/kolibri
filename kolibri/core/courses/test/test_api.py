@@ -1,3 +1,8 @@
+"""
+
+- "Add edge case tests for invalid inputs, non-existent resources, and authentication failures"
+- "Write tests for assignment management including learner groups and adhoc groups"
+"""
 import uuid
 
 from django.urls import reverse
@@ -628,4 +633,599 @@ class CourseSessionAPITestCase(APITestCase):
                 kwargs={"pk": self.courseSession.id},
             )
         )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+""""
+DISCLAIMER:  Some parts of these tests were written with an AI assistance.
+ I have reviewed and validated the generated tests
+Example of prompts I used:
+- "Look at my tests and suggest improvements and why I am getting AssertionError: 403 != 400" in
+kolibri/core/courses/test/test_api.py:805:"
+- "Create tests for UnitTestAssignment activation and closing"
+- "Create tests for UnitTestAssignment validation"
+"""
+
+
+class UnitTestActivationAPITestCase(APITestCase):
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = Facility.objects.create(name="TestFacility")
+        cls.admin = FacilityUser.objects.create(username="admin", facility=cls.facility)
+        cls.admin.set_password(DUMMY_PASSWORD)
+        cls.admin.save()
+        cls.facility.add_admin(cls.admin)
+
+        cls.classroom = Classroom.objects.create(name="Classroom", parent=cls.facility)
+        cls.coach = FacilityUser.objects.create(username="coach", facility=cls.facility)
+        cls.coach.set_password(DUMMY_PASSWORD)
+        cls.coach.save()
+        cls.classroom.add_coach(cls.coach)
+
+        cls.learner = FacilityUser.objects.create(
+            username="learner", facility=cls.facility
+        )
+        cls.learner.set_password(DUMMY_PASSWORD)
+        cls.learner.save()
+        cls.classroom.add_member(cls.learner)
+
+        # Create a course ContentNode
+        channel_id = uuid.uuid4().hex
+        cls.course = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            title="Test Course",
+            description="A test course",
+        )
+
+        # Create a unit ContentNode (child of course)
+        cls.unit = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent_id=cls.course.id,
+            available=True,
+            title="Test Unit",
+            description="A test unit",
+        )
+
+        # Create another unit for additional tests
+        cls.unit2 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent_id=cls.course.id,
+            available=True,
+            title="Test Unit 2",
+            description="Another test unit",
+        )
+
+        cls.courseSession = models.CourseSession.objects.create(
+            is_active=True,
+            collection=cls.classroom,
+            created_by=cls.admin,
+            course=cls.course.id,
+            title=cls.course.title,
+            description=cls.course.description,
+        )
+
+    def test_coach_can_activate_pre_test(self):
+        """Test that a coach can activate a pre-test"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], self.unit.id)
+        self.assertEqual(response.data["test_type"], "pre")
+        self.assertEqual(response.data["status"], "active")
+
+        # Verify UnitTestAssignment was created
+        assignment = models.UnitTestAssignment.objects.get(
+            course_session=self.courseSession,
+            unit_contentnode_id=self.unit.id,
+            test_type="pre",
+        )
+        self.assertTrue(assignment.is_active)
+        self.assertEqual(assignment.status, "active")
+        self.assertEqual(assignment.activated_by, self.coach)
+
+    def test_coach_can_activate_post_test(self):
+        """Test that a coach can activate a post-test"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "post",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["test_type"], "post")
+        self.assertEqual(response.data["status"], "active")
+
+    def test_admin_can_activate_test(self):
+        """Test that an admin can activate a test"""
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_non_coach_cannot_activate_test(self):
+        """Test that a non-coach cannot activate a test"""
+        self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_activate_test_invalid_test_type(self):
+        """Test that activating a test with invalid test_type fails"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "invalid",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_activate_test_missing_unit_contentnode_id(self):
+        """Test that activating a test without unit_contentnode_id fails"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_activate_test_missing_test_type(self):
+        """Test that activating a test without test_type fails"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_activate_test_nonexistent_unit(self):
+        """Test that activating a test with non-existent unit fails"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": uuid.uuid4().hex,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_activate_test_unit_not_in_course(self):
+        """Test that activating a test for a unit not in the course fails"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        # Create a unit that's not part of this course
+        other_unit = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            title="Other Unit",
+        )
+
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": other_unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_coach_can_close_active_test(self):
+        """Test that a coach can close an active test"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        # First activate a test
+        self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        # Now close it
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-close-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], self.unit.id)
+        self.assertEqual(response.data["test_type"], "pre")
+        self.assertEqual(response.data["status"], "ended")
+
+        # Verify the test is no longer active
+        assignment = models.UnitTestAssignment.objects.get(
+            course_session=self.courseSession,
+            unit_contentnode_id=self.unit.id,
+            test_type="pre",
+        )
+        self.assertFalse(assignment.is_active)
+        self.assertEqual(assignment.status, "ended")
+
+    def test_close_test_with_validation_parameters(self):
+        """Test closing a test with validation parameters"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        # Activate a test
+        self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        # Close it with validation parameters
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-close-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_close_test_validation_mismatch_unit(self):
+        """Test that closing a test with mismatched unit_contentnode_id fails"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        # Activate a test
+        self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        # Try to close with different unit_contentnode_id
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-close-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit2.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_close_test_validation_mismatch_type(self):
+        """Test that closing a test with mismatched test_type fails"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        # Activate a pre-test
+        self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        # Try to close as post-test
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-close-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "post",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_close_test_when_no_active_test_returns_404(self):
+        """Test that closing when no test is active returns 404"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-close-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_non_coach_cannot_close_test(self):
+        """Test that a non-coach cannot close a test"""
+        # First, coach activates a test
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        # learner can not close it
+        self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-close-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_active_test_returns_test_details(self):
+        """Test that active_test endpoint returns full test details"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        response = self.client.get(
+            reverse(
+                "kolibri:core:coursesession-active-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("id", response.data)
+        self.assertEqual(response.data["unit_contentnode_id"], self.unit.id)
+        self.assertEqual(response.data["unit_title"], "Test Unit")
+        self.assertEqual(response.data["test_type"], "pre")
+        self.assertEqual(response.data["status"], "active")
+        self.assertIsNotNone(response.data["activated_by"])
+        self.assertEqual(response.data["activated_by"]["username"], "coach")
+        self.assertEqual(response.data["activated_by"]["id"], self.coach.id)
+
+    def test_get_active_test_returns_null_when_no_active_test(self):
+        """Test that active_test returns null when no test is active"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        response = self.client.get(
+            reverse(
+                "kolibri:core:coursesession-active-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data["active_test"])
+
+    def test_non_coach_cannot_get_active_test(self):
+        """Test that a non-coach cannot get active test details"""
+        self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
+
+        response = self.client.get(
+            reverse(
+                "kolibri:core:coursesession-active-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_activate_test_updates_existing_assignment(self):
+        """Test that activating a test updates an existing assignment"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        # Activate a test
+        response1 = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+        assignment_id_1 = response1.data["id"]
+
+        # Close it
+        self.client.post(
+            reverse(
+                "kolibri:core:coursesession-close-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            format="json",
+        )
+
+        # Activate it again
+        response2 = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+        assignment_id_2 = response2.data["id"]
+
+        # Should be the same assignment updated
+        self.assertEqual(assignment_id_1, assignment_id_2)
+
+        # Verify only one assignment exists
+        self.assertEqual(
+            models.UnitTestAssignment.objects.filter(
+                course_session=self.courseSession,
+                unit_contentnode_id=self.unit.id,
+                test_type="pre",
+            ).count(),
+            1,
+        )
+
+    def test_unauthenticated_user_cannot_activate_test(self):
+        """Test that unauthenticated users cannot activate tests"""
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_unauthenticated_user_cannot_close_test(self):
+        """Test that unauthenticated users cannot close tests"""
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-close-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_unauthenticated_user_cannot_get_active_test(self):
+        """Test that unauthenticated users cannot get active test"""
+        response = self.client.get(
+            reverse(
+                "kolibri:core:coursesession-active-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+        )
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
