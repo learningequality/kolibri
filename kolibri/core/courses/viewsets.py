@@ -7,7 +7,7 @@ from le_utils.constants import modalities
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import BooleanField
-from rest_framework.serializers import CharField
+from rest_framework.serializers import ChoiceField
 from rest_framework.serializers import ListField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
@@ -43,18 +43,7 @@ class UnitTestValidationSerializer(Serializer):
     unit_contentnode_id = PrimaryKeyRelatedField(
         queryset=ContentNode.objects.filter(modality=modalities.UNIT), required=True
     )
-    test_type = CharField(required=True)
-
-    def validate_test_type(self, value):
-        """
-        Validate that test_type is either 'pre' or 'post'
-        """
-        if value not in [TestType.Pre, TestType.Post]:
-            raise ValidationError(
-                "test_type must be either 'pre' or 'post'",
-                code=error_constants.INVALID,
-            )
-        return value
+    test_type = ChoiceField(choices=[TestType.Pre, TestType.Post], required=True)
 
     def validate(self, attrs):
         """
