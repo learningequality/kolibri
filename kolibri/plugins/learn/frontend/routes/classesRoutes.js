@@ -8,7 +8,8 @@ import { showAllClassesPage } from '../modules/classes/handlers';
 import { showExam } from '../modules/examViewer/handlers';
 import { showExamReport } from '../modules/examReportViewer/handlers';
 import { inClasses } from '../composables/useCoreLearn';
-import ExamPage from '../views/ExamPage';
+import ExamPage from '../views/ExamPage/index.vue';
+import CourseUnitView from '../views/CourseUnitView/index.vue';
 import ExamReportViewer from '../views/LearnExamReportViewer';
 import AllClassesPage from '../views/classes/AllClassesPage';
 import ClassAssignmentsPage from '../views/classes/ClassAssignmentsPage';
@@ -82,5 +83,11 @@ export default [
       showExamReport(store, toRoute.params);
     },
     component: ExamReportViewer,
+  },
+  {
+    name: PageNames.COURSE_CONTENT,
+    path: '/course/:courseId/u/:unitId?/l/:lessonId?/r/:resourceId?',
+    component: CourseUnitView,
+    props: true,
   },
 ];

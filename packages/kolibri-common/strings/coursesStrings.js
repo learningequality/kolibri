@@ -146,4 +146,10 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Post-test',
     context: "Label shown as name of the post-test in a unit's resource listing",
   },
+  resourcesProgressLabel: {
+    message:
+      '{current, number} of {total, number} { total, plural, one {resource} other {resources} }',
+    context:
+      'Label showing the number of the current resource out of the total number of resources available.',
+  },
 });

@@ -20,3 +20,8 @@ export const LearnerLessonResource = new Resource({
   name: 'learnerlesson',
   namespace: 'kolibri.plugins.learn',
 });
+
+export const LearnerCourseResource = new Resource({
+  name: 'learnercourse',
+  namespace: 'kolibri.plugins.learn',
+});
