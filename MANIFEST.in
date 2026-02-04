@@ -6,7 +6,7 @@ include README.md
 include kolibri/VERSION
 recursive-include kolibri/locale *.mo
 recursive-include kolibri/locale *.json
-recursive-include kolibri/core *
+graft kolibri/core
 recursive-include kolibri/deployment *
 recursive-include kolibri/dist *
 
@@ -25,7 +25,7 @@ recursive-exclude kolibri/dist/django/contrib/flatpages/locale *
 recursive-exclude kolibri/dist/django/contrib/sessions/locale *
 recursive-exclude kolibri/dist/django/contrib/admin/locale *
 
-recursive-include kolibri/plugins *
+graft kolibri/plugins
 recursive-include kolibri/utils *
 recursive-include kolibri/*/static *.*
 recursive-include kolibri/*/build/ *.json
