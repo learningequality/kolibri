@@ -18,7 +18,7 @@
 
   import { useRoute, useRouter } from 'vue-router/composables';
   import { computed } from 'vue';
-  import SidePanelModal from '../../../common/sidePanel/SidePanelModal.vue';
+  import SidePanelModal from 'kolibri-common/components/courses/sidePanel/SidePanelModal';
   import { CoursesModals, PageNames } from '../../../../constants';
   import { overrideRoute } from '../../../../utils';
   import useAssignCourse from '../../composables/useAssignCourse';

@@ -106,4 +106,20 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Clear all',
     context: 'Button text to clear all filter selections',
   },
+  openSidePanelLabel: {
+    message: 'Open side panel',
+    context: 'Aria label for button that opens the side panel in course content view.',
+  },
+  closeSidePanelLabel: {
+    message: 'Close side panel',
+    context: 'Aria label for button that closes the side panel in course content view.',
+  },
+  previousLabel: {
+    message: 'Previous',
+    context: 'Button label for navigating to the previous item in a sequence.',
+  },
+  nextLabel: {
+    message: 'Next',
+    context: 'Button label for navigating to the next item in a sequence.',
+  },
 });
