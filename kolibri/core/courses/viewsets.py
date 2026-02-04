@@ -310,19 +310,6 @@ class CourseSessionViewset(ValuesViewset):
         "assignments": "course_session_assignment_collections",
     }
 
-    def filter_queryset(self, queryset):
-        if getattr(self, "action", None) == "active_test":
-            # we can skip the permissions filter so unauthorized users get a 403 via object permissions instead of a 404
-            backends = [
-                backend
-                for backend in self.filter_backends
-                if backend is not KolibriAuthPermissionsFilter
-            ]
-            for backend in backends:
-                queryset = backend().filter_queryset(self.request, queryset, self)
-            return queryset
-        return super().filter_queryset(queryset)
-
     def consolidate(self, items, queryset):
         if items:
             course_session_ids = [l["id"] for l in items]

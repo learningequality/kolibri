@@ -1,4 +1,5 @@
 import uuid
+
 from django.urls import reverse
 from le_utils.constants import modalities
 from rest_framework import status
@@ -1145,7 +1146,7 @@ class UnitTestActivationAPITestCase(APITestCase):
             ),
         )
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_activate_test_updates_existing_assignment(self):
         """Test that activating a test updates an existing assignment"""
@@ -1246,4 +1247,4 @@ class UnitTestActivationAPITestCase(APITestCase):
             ),
         )
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
