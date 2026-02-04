@@ -98,7 +98,7 @@
                   <span>—</span>
                 </td>
                 <td>
-                  <span >
+                  <span>
                     {{ formatMastery(course.averageMastery) }}
                   </span>
                 </td>
@@ -123,9 +123,7 @@
                   </div>
                 </td>
                 <td>
-                  <KIconButton
-                    icon="optionsVertical"
-                  >
+                  <KIconButton icon="optionsVertical">
                     <template #menu>
                       <KDropdownMenu
                         :options="courseMenuOptions"
@@ -270,10 +268,10 @@
           name: PageNames.COURSES_ASSIGN,
         }),
       );
-      const isUpdatingActive = (courseId) => {
+      const isUpdatingActive = courseId => {
         return updatingCourseIds.value.has(courseId);
       };
-      const toggleCourseActive = async (course) => {
+      const toggleCourseActive = async course => {
         const newActiveState = !course.active;
         const snackbarMessage = newActiveState
           ? courseVisibleToLearnersMessage$()
@@ -354,7 +352,7 @@
 
       const coreString = (key, args) => translateCoreString(key, args);
       const coachString = (key, args) => coachStrings.$tr(key, args);
-      const loadClassData = async (classId) => {
+      const loadClassData = async classId => {
         await store.dispatch('initClassInfo', classId);
         store.dispatch('notLoading');
 
@@ -368,11 +366,14 @@
       onMounted(() => {
         loadClassData(route.params.classId);
       });
-      watch(() => route.params.classId, (newClassId, oldClassId) => {
-        if (newClassId && newClassId !== oldClassId) {
-          loadClassData(newClassId);
-        }
-      });
+      watch(
+        () => route.params.classId,
+        (newClassId, oldClassId) => {
+          if (newClassId && newClassId !== oldClassId) {
+            loadClassData(newClassId);
+          }
+        },
+      );
 
       return {
         CoursesModals,
@@ -473,16 +474,15 @@
       },
       hasActiveFilters() {
         const hasSearchFilter = this.searchFilter !== '';
-        const hasStatusFilter = this.filterSelection && this.filterSelection.value !== 'filterCourseAll';
-        const hasRecipientsFilter = this.filterRecipients && this.filterRecipients.value !== '__all__';
+        const hasStatusFilter =
+          this.filterSelection && this.filterSelection.value !== 'filterCourseAll';
+        const hasRecipientsFilter =
+          this.filterRecipients && this.filterRecipients.value !== '__all__';
         return hasSearchFilter || hasStatusFilter || hasRecipientsFilter;
       },
       showCoursesTable() {
         return (
-          this.hasCourses ||
-          this.searchFilter ||
-          this.hasActiveFilters ||
-          this.coursesAreLoading
+          this.hasCourses || this.searchFilter || this.hasActiveFilters || this.coursesAreLoading
         );
       },
       sortedCourses() {
@@ -522,7 +522,7 @@
             });
           }
         }
-        return (filteredCourses);
+        return filteredCourses;
       },
     },
     beforeMount() {
@@ -549,8 +549,8 @@
 
   .filters-container {
     display: flex;
-    align-items: center;
     gap: 16px;
+    align-items: center;
     margin-bottom: 16px;
   }
 
@@ -589,8 +589,8 @@
 
   .course-title {
     display: flex;
-    align-items: center;
     gap: 8px;
+    align-items: center;
   }
 
   .course-description {

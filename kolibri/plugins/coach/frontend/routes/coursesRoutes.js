@@ -11,8 +11,7 @@ import { classIdParamRequiredGuard, RouteSegments } from './utils';
 const { OPTIONAL_CLASS, ALL_COURSES, CLASS, COURSE } = RouteSegments;
 
 export default [
-
-   {
+  {
     name: PageNames.COURSE_SUMMARY,
     path: CLASS + COURSE,
     component: CourseSummaryPage,

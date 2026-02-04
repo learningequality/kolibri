@@ -12,6 +12,8 @@
         "kolibri-plugin-data": "workspace:*",
         "lockr": "0.8.5",
         "lodash": "catalog:",
-        "vue": "catalog:"
+        "vue": "catalog:",
+        "vue-router": "catalog:",
+        "vuex": "catalog:"
     }
 }
