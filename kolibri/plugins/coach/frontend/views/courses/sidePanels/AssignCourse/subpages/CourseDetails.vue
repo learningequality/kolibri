@@ -10,17 +10,18 @@
         v-if="!loading"
         class="course-info"
       >
-        <KImg
-          v-if="course.thumbnail"
-          class="course-thumbnail"
-          :src="course.thumbnail"
-        />
+        <div class="course-thumbnail">
+          <KImg
+            v-if="course.thumbnail"
+            :src="course.thumbnail"
+          />
+        </div>
         <div
           ref="courseDescriptionRef"
           class="course-description"
           :style="{
             paddingLeft: course.thumbnail ? '16px' : '0',
-            maxHeight: descExpanded ? 'unset' : '160px',
+            maxHeight: descExpanded ? 'unset' : '128px',
           }"
         >
           {{ course.description }}
@@ -290,7 +291,10 @@
   }
 
   .course-thumbnail {
-    max-width: 33%;
+    display: flex;
+    min-width: 128px;
+    min-height: 128px;
+    max-height: 128px;
   }
 
   .course-description {
