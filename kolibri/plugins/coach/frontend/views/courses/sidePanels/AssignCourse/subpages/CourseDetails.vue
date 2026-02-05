@@ -16,12 +16,24 @@
           :src="course.thumbnail"
         />
         <div
+          ref="courseDescriptionRef"
           class="course-description"
-          :style="{ paddingLeft: course.thumbnail ? '16px' : '0' }"
+          :style="{
+            paddingLeft: course.thumbnail ? '16px' : '0',
+            maxHeight: descExpanded ? 'unset' : '160px',
+          }"
         >
           {{ course.description }}
         </div>
       </section>
+      <KButton
+        v-if="descOverflowing"
+        style="display: block; margin-bottom: 32px; text-align: right"
+        appearance="basic-link"
+        primary
+        :text="descExpanded ? viewLessAction$() : viewMoreAction$()"
+        @click="descExpanded = !descExpanded"
+      />
 
       <KCircularLoader v-if="loading" />
       <AccordionContainer
@@ -136,6 +148,7 @@
 
   import get from 'lodash/get';
   import { computed, ref } from 'vue';
+  import { templateRef } from '@vueuse/core';
   import { useRoute, useRouter } from 'vue-router/composables';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds } from 'kolibri/constants';
@@ -161,7 +174,7 @@
       const route = useRoute();
       const router = useRouter();
 
-      const { backAction$ } = coreStrings;
+      const { backAction$, viewMoreAction$, viewLessAction$ } = coreStrings;
       const {
         courseContentLabel$,
         courseNameLabel$,
@@ -218,7 +231,16 @@
         return message;
       });
 
+      // Description expansion
+      const descExpanded = ref(false);
+      const courseDescriptionRef = templateRef('courseDescriptionRef');
+      const descOverflowing = computed(() => {
+        return courseDescriptionRef.value?.scrollHeight > 160;
+      });
+
       return {
+        descExpanded,
+        descOverflowing,
         loading,
         goBack,
         selectRecipients,
@@ -235,6 +257,8 @@
         selectRecipientsLabel$,
         numLessons$,
         numberOfResources$,
+        viewMoreAction$,
+        viewLessAction$,
         ContentNodeKinds,
 
         course,
@@ -259,8 +283,7 @@
   .course-info {
     display: flex;
     width: 100%;
-    max-height: 160px;
-    margin: 16px 0 32px;
+    margin: 8px 0;
   }
 
   .course-thumbnail {
@@ -268,7 +291,7 @@
   }
 
   .course-description {
-    padding-left: 16px;
+    overflow: hidden;
   }
 
   .resource-list {
