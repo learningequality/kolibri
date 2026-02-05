@@ -25,7 +25,6 @@
               tabindex="-1"
               :icon="isExpanded ? 'chevronDown' : 'chevronRight'"
               style="margin-right: 0.5em"
-              @click.stop="toggle"
             />
             <div
               v-if="$slots['leading-actions']"
