@@ -88,9 +88,7 @@
                   />
                   {{ resource.title }}
                 </span>
-                <span>{{
-                  coachStrings.numberOfResources$({ value: resource?.on_device_resources || 0 })
-                }}</span>
+                <span>{{ numberOfResources$({ value: resource?.on_device_resources || 0 }) }}</span>
               </li>
               <li class="resource-item">
                 <span>
@@ -176,6 +174,8 @@
         postTestLabel$,
       } = coursesStrings;
 
+      const { numberOfResources$ } = coachStrings;
+
       const course = ref(null);
       const units = computed(() => course.value?.children?.results);
       const numTestQuestions = computed(() => {
@@ -214,9 +214,7 @@
         }
         const part1 = numUnits$({ num: units.value?.length });
         const message =
-          part1 +
-          ' · ' +
-          coachStrings.numberOfResources$({ value: course.value?.on_device_resources });
+          part1 + ' · ' + numberOfResources$({ value: course.value?.on_device_resources });
         return message;
       });
 
@@ -236,7 +234,7 @@
         numQuestions$,
         selectRecipientsLabel$,
         numLessons$,
-        coachStrings,
+        numberOfResources$,
         ContentNodeKinds,
 
         course,
