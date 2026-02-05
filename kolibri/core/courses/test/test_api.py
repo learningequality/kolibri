@@ -942,38 +942,6 @@ class UnitTestActivationAPITestCase(APITestCase):
         self.assertFalse(assignment.is_active)
         self.assertEqual(assignment.status, "ended")
 
-    def test_close_test_with_validation_parameters(self):
-        """Test closing a test with validation parameters"""
-        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
-
-        # Activate a test
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
-
-        # Close it with validation parameters
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
     def test_close_test_validation_mismatch_unit(self):
         """Test that closing a test with mismatched unit_contentnode_id fails"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)

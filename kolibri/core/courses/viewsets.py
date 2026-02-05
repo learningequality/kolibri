@@ -1,5 +1,7 @@
+import logging
 from collections import OrderedDict
 
+from django.db import transaction
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django_filters.rest_framework import DjangoFilterBackend
@@ -32,6 +34,8 @@ from kolibri.core.auth.models import Membership
 from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
 from kolibri.core.content.models import ContentNode
 from kolibri.core.query import annotate_array_aggregate
+
+logger = logging.getLogger(__name__)
 
 
 class UnitTestValidationSerializer(Serializer):
@@ -254,7 +258,6 @@ class CourseSessionPermissions(KolibriAuthPermissions):
     # we would lose the assigments and learner_ids fields
     def has_object_permission(self, request, view, obj):
         if view.action in ["activate_test", "close_test", "active_test"]:
-            # Custom actions should be allowed for users who can update the course session
             return request.user.can_update(obj)
         return super().has_object_permission(request, view, obj)
 
@@ -372,19 +375,27 @@ class CourseSessionViewset(ValuesViewset):
         unit_contentnode_id = unit.id
         test_type = serializer.validated_data["test_type"]
 
-        # Get or create the UnitTestAssignment
-        unit_test_assignment, created = UnitTestAssignment.objects.get_or_create(
-            course_session=course_session,
-            unit_contentnode_id=unit_contentnode_id,
-            test_type=test_type,
-            collection=course_session.collection,
-        )
+        with transaction.atomic():
+            UnitTestAssignment.objects.filter(
+                course_session=course_session, is_active=True
+            ).exclude(
+                unit_contentnode_id=unit_contentnode_id, test_type=test_type
+            ).update(
+                is_active=False, status=TestStatus.Ended
+            )
 
-        # Set as active
-        unit_test_assignment.is_active = True
-        unit_test_assignment.status = TestStatus.Active
-        unit_test_assignment.activated_by = request.user
-        unit_test_assignment.save()
+            unit_test_assignment, created = UnitTestAssignment.objects.get_or_create(
+                course_session=course_session,
+                unit_contentnode_id=unit_contentnode_id,
+                test_type=test_type,
+                collection=course_session.collection,
+            )
+
+            # Set as active
+            unit_test_assignment.is_active = True
+            unit_test_assignment.status = TestStatus.Active
+            unit_test_assignment.activated_by = request.user
+            unit_test_assignment.save()
 
         return Response(
             {
@@ -474,6 +485,11 @@ class CourseSessionViewset(ValuesViewset):
             unit = ContentNode.objects.get(id=active_test.unit_contentnode_id)
             unit_title = unit.title
         except ContentNode.DoesNotExist:
+            logger.error(
+                "UnitTestAssignment {} references non-existent ContentNode {}. This is orphaned data.".format(
+                    active_test.id, active_test.unit_contentnode_id
+                )
+            )
             unit_title = None
 
         # then get the details about the user who activated the test
