@@ -14,6 +14,7 @@
           <KImg
             v-if="course.thumbnail"
             :src="course.thumbnail"
+            isDecorative
           />
         </div>
         <div
