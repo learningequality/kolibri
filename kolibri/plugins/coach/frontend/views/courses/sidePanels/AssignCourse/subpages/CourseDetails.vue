@@ -89,7 +89,7 @@
                 <span>{{ numQuestions$({ num: numTestQuestions(unit) }) }}</span>
               </li>
               <li
-                v-for="resource in unit.children.results"
+                v-for="resource in unit?.children?.results"
                 :key="resource.id"
                 class="resource-item"
               >
@@ -120,7 +120,7 @@
                 color: $themePalette.grey.v_400,
               }"
             >
-              {{ numLessons$({ num: unit.children.results.length }) }}
+              {{ numLessons$({ num: unit?.children?.results?.length }) }}
             </span>
           </template>
         </AccordionItem>
@@ -216,13 +216,17 @@
       };
 
       const loading = ref(true);
-      ContentNodeResource.fetchTree({ id: route.params.courseId }).then(results => {
-        course.value = results;
-        loading.value = false;
-      });
+      ContentNodeResource.fetchTree({ id: route.params.courseId })
+        .then(results => {
+          course.value = results;
+          loading.value = false;
+        })
+        .catch(() => {
+          loading.value = false;
+        });
 
       const courseSubtitle = computed(() => {
-        if (loading.value == true) {
+        if (loading.value) {
           return '';
         }
         const part1 = numUnits$({ num: units.value?.length });
@@ -265,7 +269,6 @@
         units,
       };
     },
-    created() {},
   };
 
 </script>
@@ -287,7 +290,7 @@
   }
 
   .course-thumbnail {
-    width: 33%;
+    max-width: 33%;
   }
 
   .course-description {

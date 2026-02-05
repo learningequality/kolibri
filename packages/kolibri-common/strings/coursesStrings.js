@@ -134,10 +134,6 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: '{num, number} {num, plural, one {unit} other {units}}',
     context: 'Part of subtitle shown under the course title',
   },
-  numResources: {
-    message: '{num, number} {num, plural, one {resource} other {resources}}',
-    context: 'Part of subtitle shown under the course title',
-  },
   expandAllUnits: {
     message: 'Expand all units',
     context: 'Button label that will open the accordion items to show unit details',
