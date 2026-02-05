@@ -22,7 +22,7 @@
           class="course-description"
           :style="{
             paddingLeft: course.thumbnail ? '16px' : '0',
-            maxHeight: descExpanded ? 'unset' : '128px',
+            maxHeight: descExpanded ? 'none' : '136px',
           }"
         >
           {{ course.description }}
@@ -241,7 +241,7 @@
       const descExpanded = ref(false);
       const courseDescriptionRef = templateRef('courseDescriptionRef');
       const descOverflowing = computed(() => {
-        return courseDescriptionRef.value?.scrollHeight > 160;
+        return courseDescriptionRef.value?.scrollHeight > 136;
       });
 
       return {
@@ -288,7 +288,7 @@
   .course-info {
     display: flex;
     width: 100%;
-    margin: 8px 0;
+    margin: 8px 0 16px;
   }
 
   .course-thumbnail {
@@ -299,7 +299,9 @@
   }
 
   .course-description {
+    position: relative;
     overflow: hidden;
+    line-height: 140%;
   }
 
   .resource-list {
