@@ -122,6 +122,10 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Next',
     context: 'Button label for navigating to the next item in a sequence.',
   },
+  numQuestions: {
+    message: '{num, number} {num, plural, one {question} other {questions}}',
+    context: 'Part of course details on the heading for each unit showing how much is inside',
+  },
   numLessons: {
     message: '{num, number} {num, plural, one {lesson} other {lessons}}',
     context: 'Part of course details on the heading for each unit showing how much is inside',
@@ -141,5 +145,13 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   courseContentLabel: {
     message: 'Course content',
     context: 'Label above list of units in course contents listing',
+  },
+  preTestLabel: {
+    message: 'Pre-test',
+    context: "Label shown as name of the pre-test in a unit's resource listing",
+  },
+  postTestLabel: {
+    message: 'Post-test',
+    context: "Label shown as name of the post-test in a unit's resource listing",
   },
 });
