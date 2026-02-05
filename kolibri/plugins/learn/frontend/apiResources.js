@@ -24,4 +24,8 @@ export const LearnerLessonResource = new Resource({
 export const LearnerCourseResource = new Resource({
   name: 'learnercourse',
   namespace: 'kolibri.plugins.learn',
+  async getResumeData(id) {
+    const response = await this.accessDetailEndpoint('get', 'resume', id);
+    return response.data;
+  },
 });

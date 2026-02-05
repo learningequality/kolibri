@@ -47,12 +47,20 @@
 <script>
 
   import store from 'kolibri/store';
+  import { useRouter } from 'vue-router/composables';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { computed, ref, watch } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
+  import Modalities from 'kolibri-constants/Modalities';
   import { LearnerCourseResource } from '../../apiResources';
   import ResourceLayout from '../ResourceLayout/index.vue';
   import PrevNextBar from '../PrevNextBar/index.vue';
+  import { PageNames } from '../../constants.js';
+
+  const TestType = {
+    PRE: 'pre',
+    POST: 'post',
+  };
 
   export default {
     name: 'CourseUnitView',
@@ -62,59 +70,103 @@
     },
     setup(props) {
       const course = ref(null);
-      const courseTree = ref(null);
+      const unitTree = ref(null);
       const loading = ref(true);
+      const router = useRouter();
+
+      const isPrePostTest = computed(
+        () => props.unitId && [TestType.PRE, TestType.POST].includes(props.resourceId),
+      );
 
       const currentResourceNumber = ref(5);
       const totalResources = ref(10);
 
-      const units = computed(() => {
-        return courseTree.value?.children.results || [];
-      });
-
-      const currentUnit = computed(() => {
-        if (props.unitId) {
-          return units.value?.find(unit => unit.id === props.unitId);
-        }
-        return units.value?.[0];
-      });
-
       const currentLessons = computed(() => {
-        return currentUnit.value?.children.results || [];
+        return unitTree.value?.children.results.filter(
+          child => child.modality === Modalities.LESSON,
+        );
       });
 
       const currentLesson = computed(() => {
-        if (props.lessonId) {
-          return currentLessons.value?.find(lesson => lesson.id === props.lessonId);
-        }
-        return currentLessons.value?.[0];
+        return currentLessons.value?.find(lesson => lesson.id === props.lessonId);
       });
 
       const currentResource = computed(() => {
-        if (props.resourceId) {
-          return currentLesson.value?.children?.results.find(
-            resource => resource.id === props.resourceId,
-          );
+        if (isPrePostTest.value) {
+          // Pre/Post test content is handled differently
+          return null;
         }
-        return currentLesson.value?.children?.results[0];
+        return currentLesson.value?.children?.results.find(
+          resource => resource.id === props.resourceId,
+        );
       });
 
-      watch([currentUnit, currentLesson, currentResource], ([newUnit, newLesson, newResource]) => {
+      watch([unitTree, currentLesson, currentResource], ([newUnit, newLesson, newResource]) => {
         // eslint-disable-next-line
         console.log('Watching changes:', newUnit, newLesson, newResource);
         // Additional logic can be added here if needed when unit or lesson changes
       });
 
+      const checkRedirect = async () => {
+        const missingParams = !props.unitId || !props.lessonId || !props.resourceId;
+        if (isPrePostTest.value || !missingParams) {
+          // no need to redirect
+          return false;
+        }
+        const resumeData = await LearnerCourseResource.getResumeData(props.courseId);
+        if (!resumeData.started) {
+          router.replace({
+            name: PageNames.HOME,
+          });
+          return true;
+        }
+
+        if (resumeData.active_test) {
+          router.replace({
+            name: PageNames.COURSE_CONTENT,
+            params: {
+              courseId: props.courseId,
+              unitId: resumeData.active_test.unit_id,
+              lessonId: null,
+              resourceId: resumeData.active_test.test_type,
+            },
+          });
+          return true;
+        }
+
+        if (resumeData.resume_position) {
+          router.replace({
+            name: PageNames.COURSE_CONTENT,
+            params: {
+              courseId: props.courseId,
+              unitId: resumeData.resume_position.unit_id,
+              lessonId: resumeData.resume_position.lesson_id,
+              resourceId: resumeData.resume_position.resource_id,
+            },
+          });
+
+          return true;
+        }
+
+        // What to do for completed courses?
+        return false;
+      };
+
       const loadData = async () => {
         try {
           loading.value = true;
+
+          const redirected = await checkRedirect();
+          if (redirected) {
+            return;
+          }
+
           course.value = await LearnerCourseResource.fetchModel({
             id: props.courseId,
           });
 
-          const courseContentNode = course.value.course_id;
-          courseTree.value = await ContentNodeResource.fetchTree({
-            id: courseContentNode,
+          unitTree.value = await ContentNodeResource.fetchTree({
+            id: props.unitId,
           });
         } catch (error) {
           store.dispatch('handleApiError', error);
