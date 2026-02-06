@@ -5,6 +5,10 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Course',
     context: 'Label for a single course that contains units and lessons.',
   },
+  courseLessonCount: {
+    message: '{count, number} {count, plural, one {lesson} other {lessons}}',
+    context: 'Displays the number of lessons in a course, shown on course cards.',
+  },
   coursesLabel: {
     message: 'Courses',
     context: 'Label for courses that contain units and lessons.',
