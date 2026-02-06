@@ -22,9 +22,9 @@
           <div class="title-actions-wrapper">
             <KIconButton
               v-if="!foldingIconTrailing"
+              class="chevron"
               tabindex="-1"
               :icon="isExpanded ? 'chevronDown' : 'chevronRight'"
-              style="margin-right: 0.5em"
             />
             <div
               v-if="$slots['leading-actions']"
@@ -174,6 +174,10 @@
 
   .content {
     padding: 10px;
+  }
+
+  .chevron {
+    margin-right: 8px;
   }
 
 </style>
