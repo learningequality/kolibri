@@ -42,6 +42,16 @@ export const coursesStrings = createTranslator('CoursesStrings', {
       'Learners in the assigned group will take a pre-test before starting this course. You can adjust assessment availability in the course settings.',
     context: 'Message for the modal that confirms a course has been assigned.',
   },
+  recentCoursesHeader: {
+    message: 'Recent courses',
+    context:
+      "Section header on the learner's Home page, displaying the most recent courses that the coaches assigned to them.",
+  },
+  yourCoursesHeader: {
+    message: 'Your courses',
+    context:
+      "Heading on the 'Learn > Home' page for a section where a learner can see which courses have been assigned to them.",
+  },
   noCoursesAssigned: {
     message: 'You do not have any courses assigned',
     context: 'Text displayed when there are no courses assigned to the classroom',

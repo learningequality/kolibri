@@ -91,6 +91,14 @@ export default function useLearnerResources() {
   });
 
   /**
+   * @returns {Array} - All courses assigned to a learner in all their classes
+   * @public
+   */
+  const activeClassesCourses = computed(() => {
+    return flatMap(get(classes), c => c.courses || []);
+  });
+
+  /**
    * @returns {Array} - An array of { contentNodeId, lessonId, classId, active } objects
    *                    of all resources from all learner's classes
    * @private
@@ -191,6 +199,19 @@ export default function useLearnerResources() {
   }
 
   /**
+   * @param {String} classId
+   * @returns {Array} All courses of a class
+   * @public
+   */
+  function getClassActiveCourses(classId) {
+    const classroom = getClass(classId);
+    if (!classroom || !classroom.courses) {
+      return [];
+    }
+    return classroom.courses;
+  }
+
+  /**
    * @param {Object} lesson
    * @returns {Object} vue-router link to a lesson page
    * @public
@@ -236,6 +257,24 @@ export default function useLearnerResources() {
         classId: quiz.collection,
         examId: quiz.id,
         questionNumber: 0,
+      },
+    };
+  }
+
+  /**
+   * @param {Object} course
+   * @returns {Object} vue-router link to a course page (placeholder)
+   * @public
+   */
+  function getClassCourseLink(course) {
+    if (!course) {
+      return undefined;
+    }
+    // Placeholder route - course content pages don't exist yet
+    return {
+      name: ClassesPageNames.CLASS_ASSIGNMENTS,
+      params: {
+        classId: course.collection,
       },
     };
   }
@@ -495,14 +534,17 @@ export default function useLearnerResources() {
   return {
     classes,
     activeClassesLessons,
+    activeClassesCourses,
     activeClassesQuizzes,
     resumableClassesQuizzes,
     resumableClassesResources,
     learnerFinishedAllClasses,
     getClass,
     getClassActiveLessons,
+    getClassActiveCourses,
     getClassActiveQuizzes,
     getClassLessonLink,
+    getClassCourseLink,
     getClassQuizLink,
     fetchClass,
     fetchClasses,
