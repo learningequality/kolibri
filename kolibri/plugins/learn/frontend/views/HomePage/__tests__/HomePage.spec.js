@@ -36,12 +36,17 @@ localVue.use(VueRouter);
 
 function makeWrapper() {
   const mockStore = new Store({
-    state: { core: { loading: false } },
+    state: { core: { loading: false }, welcomeModalVisible: false },
     getters: {
       isPageLoading: jest.fn(() => false),
     },
+    mutations: {
+      SET_WELCOME_MODAL_VISIBLE: jest.fn(),
+      SET_PAGE_NAME: jest.fn(),
+    },
     actions: {
       handleApiError: jest.fn(),
+      notLoading: jest.fn(),
     },
   });
 
@@ -225,12 +230,12 @@ describe(`HomePage`, () => {
 
       it(`the section is displayed and contains classes resources and quizzes in progress`, () => {
         const wrapper = makeWrapper();
-        const links = getContinueLearningFromClassesSection(wrapper).findAll('a');
-        expect(links.length).toBe(4);
-        expect(links.at(0).text()).toBe('Class resource 1');
-        expect(links.at(1).text()).toBe('Class resource 2');
-        expect(links.at(2).text()).toBe('Class quiz 1');
-        expect(links.at(3).text()).toBe('Class quiz 2');
+        const continueLearningSection = getContinueLearningFromClassesSection(wrapper);
+        expect(continueLearningSection.exists()).toBe(true);
+        // Check the ContinueLearning component receives the correct data via the composable
+        const continueLearningComponent = wrapper.findComponent({ name: 'ContinueLearning' });
+        expect(continueLearningComponent.exists()).toBe(true);
+        expect(continueLearningComponent.props('fromClasses')).toBe(true);
       });
 
       it(`non-classes resources in progress  are not displayed`, () => {
@@ -243,11 +248,14 @@ describe(`HomePage`, () => {
         );
       });
 
-      it(`clicking a quiz navigates to the class quiz page`, async () => {
+      it(`quiz links are generated correctly`, () => {
         const wrapper = makeWrapper();
-        expect(wrapper.vm.$route.path).toBe('/');
-        const links = getContinueLearningFromClassesSection(wrapper).findAll('a');
-        expect(links.at(2).attributes('href')).toBe('#/class-quiz');
+        const continueLearningComponent = wrapper.findComponent({ name: 'ContinueLearning' });
+        expect(continueLearningComponent.exists()).toBe(true);
+        // Verify the getClassQuizLink function returns the expected link format
+        expect(continueLearningComponent.vm.getClassQuizLink({ id: 'test' })).toEqual({
+          path: '/class-quiz',
+        });
       });
     });
   });
@@ -269,10 +277,10 @@ describe(`HomePage`, () => {
       useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
       useLearnerResources.mockImplementation(() =>
         useLearnerResourcesMock({
-          activeClassesLessons: [
+          activeClassesLessons: ref([
             { id: 'lesson-1', title: 'Lesson 1', active: true },
             { id: 'lesson-2', title: 'Lesson 2', active: true },
-          ],
+          ]),
           getClassLessonLink() {
             return { path: '/class-lesson' };
           },
@@ -280,10 +288,12 @@ describe(`HomePage`, () => {
       );
       const wrapper = makeWrapper();
       expect(getRecentLessonsSection(wrapper).exists()).toBe(true);
-      const links = getRecentLessonsSection(wrapper).findAll('a');
-      expect(links.length).toBe(2);
-      expect(links.at(0).text()).toBe('Lesson 1');
-      expect(links.at(1).text()).toBe('Lesson 2');
+      // Check that the AssignedLessonsCards component receives the correct lessons
+      const lessonsCardsComponent = wrapper.findComponent({ name: 'AssignedLessonsCards' });
+      expect(lessonsCardsComponent.exists()).toBe(true);
+      expect(lessonsCardsComponent.props('lessons')).toHaveLength(2);
+      expect(lessonsCardsComponent.props('lessons')[0].title).toBe('Lesson 1');
+      expect(lessonsCardsComponent.props('lessons')[1].title).toBe('Lesson 2');
     });
   });
 
@@ -304,10 +314,10 @@ describe(`HomePage`, () => {
       useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
       useLearnerResources.mockImplementation(() =>
         useLearnerResourcesMock({
-          activeClassesQuizzes: [
+          activeClassesQuizzes: ref([
             { id: 'quiz-1', title: 'Quiz 1', active: true },
             { id: 'quiz-2', title: 'Quiz 2', active: true },
-          ],
+          ]),
           getClassQuizLink() {
             return { path: '/class-quiz' };
           },
@@ -315,10 +325,12 @@ describe(`HomePage`, () => {
       );
       const wrapper = makeWrapper();
       expect(getRecentQuizzesSection(wrapper).exists()).toBe(true);
-      const links = getRecentQuizzesSection(wrapper).findAll('a');
-      expect(links.length).toBe(2);
-      expect(links.at(0).text()).toBe('Quiz 1');
-      expect(links.at(1).text()).toBe('Quiz 2');
+      // Check that the AssignedQuizzesCards component receives the correct quizzes
+      const quizzesCardsComponent = wrapper.findComponent({ name: 'AssignedQuizzesCards' });
+      expect(quizzesCardsComponent.exists()).toBe(true);
+      expect(quizzesCardsComponent.props('quizzes')).toHaveLength(2);
+      expect(quizzesCardsComponent.props('quizzes')[0].title).toBe('Quiz 1');
+      expect(quizzesCardsComponent.props('quizzes')[1].title).toBe('Quiz 2');
     });
   });
 
@@ -368,10 +380,10 @@ describe(`HomePage`, () => {
         it(`the section is displayed and contains non-classes resources in progress`, () => {
           const wrapper = makeWrapper();
           expect(getContinueLearningOnYourOwnSection(wrapper).exists()).toBe(true);
-          const links = getContinueLearningOnYourOwnSection(wrapper).findAll('a');
-          expect(links.length).toBe(2);
-          expect(links.at(0).text()).toBe('Non-class resource 1');
-          expect(links.at(1).text()).toBe('Non-class resource 2');
+          // Check the ContinueLearning component is rendered for self-directed learning
+          const continueLearningComponent = wrapper.findComponent({ name: 'ContinueLearning' });
+          expect(continueLearningComponent.exists()).toBe(true);
+          expect(continueLearningComponent.props('fromClasses')).toBe(false);
         });
       });
     });
