@@ -4,14 +4,12 @@ import SafeHtmlImage from '../SafeHtmlImage.vue';
 
 const sampleSrc = 'test_img.jpg';
 const sampleAlt = 'Test img alt text';
-const sampleStyleOverrides = { windowSizeClass: '' };
 
 const renderComponent = () => {
   return render(SafeHtmlImage, {
     props: {
       src: sampleSrc,
       alt: sampleAlt,
-      styleOverrides: sampleStyleOverrides,
     },
   });
 };

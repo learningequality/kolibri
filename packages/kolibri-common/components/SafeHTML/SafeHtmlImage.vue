@@ -26,7 +26,6 @@
       :open="lightboxOpen"
       :src="src"
       :alt="alt"
-      :styleOverrides="styleOverrides"
       @closeLightbox="closeLightbox"
     />
   </div>
@@ -47,10 +46,6 @@
     props: {
       src: { type: String, required: true },
       alt: { type: String, default: '' },
-      styleOverrides: {
-        type: Object,
-        default: () => ({}),
-      },
     },
     data() {
       return {
