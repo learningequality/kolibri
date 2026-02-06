@@ -57,15 +57,15 @@
             <span>
               <KIconButton
                 icon="expandAll"
-                :tooltip="expandAllUnits$()"
-                :ariaLabel="expandAllUnits$()"
+                :tooltip="expandAll$()"
+                :ariaLabel="expandAll$()"
                 :disabled="!canExpandAll"
                 @click="expandAll"
               />
               <KIconButton
                 icon="collapseAll"
-                :tooltip="collapseAllUnits$()"
-                :ariaLabel="collapseAllUnits$()"
+                :tooltip="collapseAll$()"
+                :ariaLabel="collapseAll$()"
                 :disabled="!canCollapseAll"
                 @click="collapseAll"
               />
@@ -170,6 +170,7 @@
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
   import { overrideRoute } from '../../../../../utils';
   import { PageNames } from '../../../../../constants';
@@ -191,8 +192,6 @@
       const {
         courseContentLabel$,
         courseNameLabel$,
-        expandAllUnits$,
-        collapseAllUnits$,
         numLessons$,
         numQuestions$,
         numUnits$,
@@ -200,6 +199,8 @@
         preTestLabel$,
         postTestLabel$,
       } = coursesStrings;
+
+      const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
 
       const { numberOfResources$ } = coachStrings;
 
@@ -270,8 +271,8 @@
         postTestLabel$,
         courseContentLabel$,
         courseNameLabel$,
-        expandAllUnits$,
-        collapseAllUnits$,
+        expandAll$,
+        collapseAll$,
         numQuestions$,
         selectRecipientsLabel$,
         numLessons$,
