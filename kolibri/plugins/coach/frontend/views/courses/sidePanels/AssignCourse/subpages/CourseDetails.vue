@@ -21,7 +21,7 @@
           ref="courseDescriptionRef"
           class="course-description"
           :style="{
-            paddingLeft: course.thumbnail ? '16px' : '0',
+            ['padding' + (isRtl ? 'Right' : 'Left')]: course.thumbnail ? '16px' : '0',
             maxHeight: descExpanded ? 'none' : '136px',
           }"
         >
