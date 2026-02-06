@@ -30,7 +30,7 @@
       </section>
       <KButton
         v-if="descOverflowing"
-        style="display: block; margin-bottom: 32px; text-align: right"
+        class="view-more"
         appearance="basic-link"
         primary
         :text="descExpanded ? viewLessAction$() : viewMoreAction$()"
@@ -331,6 +331,12 @@
     padding-left: 0;
     font-weight: normal;
     border: 0 none !important;
+  }
+
+  .view-more {
+    display: block;
+    margin-bottom: 32px;
+    text-align: right;
   }
 
 </style>
