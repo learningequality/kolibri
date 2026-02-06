@@ -304,7 +304,7 @@
           name: PageNames.COURSE_SUMMARY,
           params: {
             classId: route.params.classId,
-            courseId: course.id,
+            courseId: course.course,
           },
         };
       };

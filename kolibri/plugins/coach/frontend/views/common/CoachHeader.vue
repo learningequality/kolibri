@@ -7,7 +7,10 @@
         <slot name="actions"></slot>
       </div>
     </div>
-    <div class="class-name-label">
+    <div
+      v-if="!hideClassName"
+      class="class-name-label"
+    >
       <KIcon
         icon="classes"
         class="class-name-icon"
@@ -29,6 +32,10 @@
       title: {
         type: String,
         required: true,
+      },
+      hideClassName: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {
