@@ -51,14 +51,25 @@
           border: '0px none',
         }"
       >
-        <template #header="{ expandAll }">
+        <template #header="{ expandAll, canExpandAll, collapseAll, canCollapseAll }">
           <div class="course-content-label">
             <span>{{ courseContentLabel$() }}</span>
-            <KButton
-              appearance="basic-link"
-              :text="expandAllUnits$()"
-              @click="expandAll"
-            />
+            <span>
+              <KIconButton
+                icon="expandAll"
+                :tooltip="expandAllUnits$()"
+                :ariaLabel="expandAllUnits$()"
+                :disabled="!canExpandAll"
+                @click="expandAll"
+              />
+              <KIconButton
+                icon="collapseAll"
+                :tooltip="collapseAllUnits$()"
+                :ariaLabel="collapseAllUnits$()"
+                :disabled="!canCollapseAll"
+                @click="collapseAll"
+              />
+            </span>
           </div>
         </template>
         <AccordionItem
@@ -181,6 +192,7 @@
         courseContentLabel$,
         courseNameLabel$,
         expandAllUnits$,
+        collapseAllUnits$,
         numLessons$,
         numQuestions$,
         numUnits$,
@@ -259,6 +271,7 @@
         courseContentLabel$,
         courseNameLabel$,
         expandAllUnits$,
+        collapseAllUnits$,
         numQuestions$,
         selectRecipientsLabel$,
         numLessons$,
@@ -318,6 +331,7 @@
 
   .course-content-label {
     display: flex;
+    align-items: center;
     justify-content: space-between;
     font-weight: bold;
   }
