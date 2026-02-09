@@ -1648,6 +1648,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Label for the state of a checkbox when no options are selected. Not visible in the UI.',
   },
+  ratioLabel: {
+    message: '{number, number}/{total, number}',
+    context: 'Label for a ratio, such as the number of completed items out of the total.',
+  },
 });
 
 /**

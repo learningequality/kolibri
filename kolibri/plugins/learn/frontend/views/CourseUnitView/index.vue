@@ -35,7 +35,27 @@
         @next="handleNext"
       />
     </template>
-    <template #sidePanel> </template>
+    <template #sidePanelTopBar>
+      <div class="side-panel-top-bar">
+        <span class="unit-number">
+          {{ unitNumberLabel }}
+        </span>
+        <strong class="unit-title">
+          <KTextTruncator
+            :maxLines="1"
+            :text="unitTree ? unitTree.title : ''"
+          />
+        </strong>
+      </div>
+    </template>
+    <template #sidePanel>
+      <UnitTreeAccordion
+        v-if="unitTree"
+        :unitTree="unitTree"
+        :currentResourceId="currentResource?.id"
+        :currentLessonId="currentLesson?.id"
+      />
+    </template>
     <template #sidePanelFooter>
       <div class="course-side-panel-footer">
         <div></div>
@@ -63,6 +83,7 @@
   import PrevNextBar from '../PrevNextBar/index.vue';
   import { PageNames } from '../../constants.js';
   import CourseContentViewer from './CourseContentViewer.vue';
+  import UnitTreeAccordion from './UnitTreeAccordion.vue';
 
   export default {
     name: 'CourseUnitView',
@@ -70,6 +91,7 @@
       ResourceLayout,
       PrevNextBar,
       CourseContentViewer,
+      UnitTreeAccordion,
     },
     setup(props) {
       const router = useRouter();
@@ -131,6 +153,15 @@
       const error = computed(
         () => courseWithUnitsError.value || unitTreeError.value || resumeDataError.value,
       );
+
+      const currentUnitIndex = computed(() => {
+        const index = courseUnits.value?.findIndex(unit => unit.id === props.unitId);
+        if (index >= 0) {
+          return index;
+        }
+        // Shouldn't get here
+        return null;
+      });
 
       const currentLessons = computed(() => {
         return unitTree.value?.children.results.filter(
@@ -289,7 +320,14 @@
         currentResourceNumber.value = currentResourceNumber.value + 1;
       };
 
-      const { courseNameLabel$, resourcesProgressLabel$ } = coursesStrings;
+      const { courseNameLabel$, resourcesProgressLabel$, unitNumberLabel$ } = coursesStrings;
+
+      const unitNumberLabel = computed(() => {
+        if (loading.value) {
+          return '';
+        }
+        return unitNumberLabel$({ number: currentUnitIndex.value + 1 });
+      });
 
       watch(error, (newError, oldError) => {
         if (!oldError && newError) {
@@ -329,9 +367,12 @@
       return {
         course,
         loading,
+        unitTree,
+        currentLesson,
         totalResources,
         currentResourceNumber,
         currentResource,
+        unitNumberLabel,
         handlePrev,
         handleNext,
 
@@ -380,6 +421,21 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px;
+  }
+
+  .side-panel-top-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .unit-title {
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    .unit-number {
+      font-size: 12px;
+    }
   }
 
 </style>

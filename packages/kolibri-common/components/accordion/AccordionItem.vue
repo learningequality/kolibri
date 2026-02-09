@@ -1,6 +1,7 @@
 <template>
 
-  <div
+  <component
+    :is="wrapperTag"
     class="accordion-item"
     :class="{
       disabled,
@@ -32,13 +33,15 @@
             >
               <slot name="leading-actions"></slot>
             </div>
-            <span
-              :style="{
-                color: disabledTitle ? $themeTokens.textDisabled : 'inherit',
-              }"
-            >
-              {{ title }}
-            </span>
+            <slot name="title">
+              <span
+                :style="{
+                  color: disabledTitle ? $themeTokens.textDisabled : 'inherit',
+                }"
+              >
+                {{ title }}
+              </span>
+            </slot>
           </div>
           <div class="trailing-actions">
             <slot name="trailing-actions"></slot>
@@ -60,7 +63,7 @@
     >
       <slot name="content"></slot>
     </div>
-  </div>
+  </component>
 
 </template>
 
@@ -87,7 +90,8 @@
     props: {
       title: {
         type: String,
-        required: true,
+        required: false,
+        default: null,
       },
       disabledTitle: {
         type: Boolean,
@@ -113,6 +117,10 @@
         type: Boolean,
         default: false,
       },
+      wrapperTag: {
+        type: String,
+        default: 'div',
+      },
     },
     computed: {
       contentId() {
@@ -136,6 +144,9 @@
 <style lang="scss" scoped>
 
   .accordion-item {
+    padding: 0;
+    margin: 0;
+    list-style: none;
     border-bottom: 1px solid;
 
     &.disabled {
@@ -170,6 +181,10 @@
   .title-actions-wrapper {
     display: flex;
     align-items: center;
+  }
+
+  .title-actions-wrapper {
+    flex: 1;
   }
 
   .content {
