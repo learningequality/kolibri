@@ -200,14 +200,6 @@
         return currentLessons.value?.find(lesson => lesson.id === props.lessonId);
       });
 
-      const unitResources = computed(() => {
-        const resources = [];
-        for (const lesson of currentLessons.value || []) {
-          resources.push(...(lesson.children.results || []));
-        }
-        return resources;
-      });
-
       const currentResourceIndexInUnit = computed(() => {
         const index = unitResources.value?.findIndex(resource => resource.id === props.resourceId);
         if (index >= 0) {

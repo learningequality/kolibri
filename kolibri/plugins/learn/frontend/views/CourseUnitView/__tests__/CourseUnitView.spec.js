@@ -1,6 +1,7 @@
-import { render, waitFor } from '@testing-library/vue';
-import { useRouter } from 'vue-router/composables';
+import { render, waitFor, fireEvent, screen } from '@testing-library/vue';
+import { useRouter, useRoute } from 'vue-router/composables';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import LearningActivities from 'kolibri-constants/labels/LearningActivities';
 import { LearnerCourseResource } from '../../../apiResources';
 import CourseUnitView from '../index.vue';
 import { PageNames } from '../../../constants';
@@ -14,8 +15,68 @@ jest.mock('../../../apiResources', () => ({
   },
 }));
 
+jest.mock('../../../composables/useProgressTracking', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({
+    progress: { value: 0 },
+    time_spent: { value: 0 },
+    extra_fields: { value: {} },
+    initContentSession: jest.fn().mockResolvedValue(),
+    updateContentSession: jest.fn().mockResolvedValue(),
+    startTrackingProgress: jest.fn(),
+    stopTrackingProgress: jest.fn(),
+  })),
+}));
+
+const ContentViewerMock = {
+  name: 'ContentViewer',
+  template: '<div data-testid="content-viewer">{{ options && options.title }}</div>',
+  props: ['options'],
+};
+
+// Data helpers
+const createResource = (id, title, parent) => ({
+  id,
+  title,
+  parent,
+  kind: 'video',
+  files: [],
+  options: { title },
+  duration: 100,
+  learning_activities: [LearningActivities.EXPLORE],
+});
+
+const createLesson = (id, title, active, children = []) => ({
+  id,
+  title,
+  modality: 'LESSON',
+  children: { results: children },
+});
+
+const createUnit = (id, title, children = []) => ({
+  id,
+  title,
+  modality: 'UNIT',
+  children: { results: children },
+});
+
+const AccordionItemStub = {
+  template: `
+    <div data-testid="accordion-item">
+      <div data-testid="accordion-header">
+        <slot name="title" />
+      </div>
+      <div data-testid="accordion-content">
+        <slot name="content" />
+      </div>
+    </div>
+  `,
+};
+
 describe('CourseUnitView', () => {
   let router;
+  let sampleUnitTree;
+  let sampleCourseUnits;
 
   const COURSE_ID = 'course-1';
   const COURSE_CONTENT_ID = 'course-content-1';
@@ -32,15 +93,31 @@ describe('CourseUnitView', () => {
       back: jest.fn(),
     };
     useRouter.mockReturnValue(router);
+    useRoute.mockReturnValue({ params: { courseId: 'course-1' } });
     LearnerCourseResource.getResumeData.mockResolvedValue({});
     LearnerCourseResource.fetchModel.mockResolvedValue({
       title: 'Test Course',
       course_id: COURSE_CONTENT_ID,
     });
-    ContentNodeResource.fetchCollection.mockResolvedValue([{ id: UNIT_1 }, { id: UNIT_2 }]);
-    ContentNodeResource.fetchTree.mockResolvedValue({
-      children: { results: [] },
-    });
+
+    // Setup sample data for rendering/interaction tests
+    const r1 = createResource('r1', 'Resource 1', 'l1');
+    const r2 = createResource('r2', 'Resource 2', 'l1');
+    const r3 = createResource('r3', 'Resource 3', 'l2');
+
+    const l1 = createLesson('l1', 'Lesson 1', true, [r1, r2]);
+    const l2 = createLesson('l2', 'Lesson 2', false, [r3]);
+
+    sampleUnitTree = createUnit('unit-1', 'Unit 1', [l1, l2]);
+
+    // For fetchModel results (course units list)
+    sampleCourseUnits = [
+      { id: 'unit-1', title: 'Unit 1', modality: 'UNIT' },
+      { id: 'unit-2', title: 'Unit 2', modality: 'UNIT' },
+    ];
+
+    ContentNodeResource.fetchTree.mockResolvedValue(sampleUnitTree);
+    ContentNodeResource.fetchCollection.mockResolvedValue(sampleCourseUnits);
   });
 
   afterEach(() => {
@@ -52,6 +129,10 @@ describe('CourseUnitView', () => {
       props: {
         courseId: COURSE_ID,
         ...props,
+      },
+      stubs: {
+        ContentViewer: ContentViewerMock,
+        AccordionItem: AccordionItemStub,
       },
     });
   }
@@ -197,6 +278,27 @@ describe('CourseUnitView', () => {
 
       await waitFor(() => {
         expect(LearnerCourseResource.getResumeData).toHaveBeenCalled();
+        expect(router.replace).not.toHaveBeenCalled();
+      });
+    });
+
+    it('does not redirect if all params are present and valid', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: {
+          unit_id: 'unit-1',
+          lesson_id: 'l1',
+          resource_id: 'r1',
+        },
+      });
+
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l1',
+        resourceId: 'r1',
+      });
+
+      await waitFor(() => {
         expect(router.replace).not.toHaveBeenCalled();
       });
     });
@@ -528,7 +630,281 @@ describe('CourseUnitView', () => {
       });
 
       await waitFor(() => {
-        expect(wrapper.getByText(content => content.includes('Physics 101'))).toBeInTheDocument();
+        expect(wrapper.getByText('Course: Physics 101')).toBeVisible();
+      });
+    });
+  });
+
+  describe('rendering and interaction', () => {
+    beforeEach(() => {
+      // Set up resume data so that checkRedirect doesn't redirect
+      // and the component renders normally for interaction tests
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: {
+          unit_id: 'unit-1',
+          lesson_id: 'l1',
+          resource_id: 'r1',
+        },
+      });
+    });
+
+    it('renders the correct content in ContentViewer', async () => {
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l1',
+        resourceId: 'r1',
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('content-viewer')).toHaveTextContent('Resource 1');
+      });
+    });
+
+    it('renders the side panel with lessons and resources', async () => {
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l1',
+        resourceId: 'r1',
+      });
+
+      const sidePanelToggle = await screen.findByTestId('side-panel-toggle');
+      await fireEvent.click(sidePanelToggle);
+
+      await waitFor(() => {
+        expect(screen.getByText('Lesson 1')).toBeVisible();
+        expect(screen.getByText('Lesson 2')).toBeVisible();
+        // Resource 1 appears in both ContentViewer and side panel
+        expect(screen.getAllByText('Resource 1').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getByText('Resource 2')).toBeVisible();
+      });
+    });
+
+    it('navigates to a resource when clicked in side panel', async () => {
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l1',
+        resourceId: 'r1',
+      });
+
+      const sidePanelToggle = await screen.findByTestId('side-panel-toggle');
+      await fireEvent.click(sidePanelToggle);
+
+      await waitFor(() => {
+        expect(screen.getByText('Resource 2')).toBeVisible();
+      });
+
+      fireEvent.click(screen.getByText('Resource 2'));
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: PageNames.COURSE_CONTENT,
+            params: expect.objectContaining({
+              resourceId: 'r2',
+              lessonId: 'l1',
+            }),
+          }),
+        );
+      });
+    });
+
+    it('handles "Next" button navigation correctly', async () => {
+      // Start at r1 (1st of 2 in Lesson 1)
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l1',
+        resourceId: 'r1',
+      });
+
+      // Wait for content render
+      await waitFor(() => {
+        expect(screen.getByTestId('content-viewer')).toBeVisible();
+      });
+
+      const nextButton = await screen.findByRole('button', { name: /next/i });
+      expect(nextButton).toBeEnabled();
+
+      await fireEvent.click(nextButton);
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: PageNames.COURSE_CONTENT,
+            params: expect.objectContaining({
+              resourceId: 'r2',
+            }),
+          }),
+        );
+      });
+    });
+
+    it('handles "Previous" button navigation correctly', async () => {
+      // Start at r2 (2nd of 2 in Lesson 1)
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l1',
+        resourceId: 'r2',
+      });
+
+      // Wait for content render
+      await waitFor(() => {
+        expect(screen.getByTestId('content-viewer')).toBeVisible();
+      });
+
+      const prevButton = await screen.findByRole('button', { name: /previous/i });
+      expect(prevButton).toBeEnabled();
+
+      await fireEvent.click(prevButton);
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: PageNames.COURSE_CONTENT,
+            params: expect.objectContaining({
+              resourceId: 'r1',
+            }),
+          }),
+        );
+      });
+    });
+
+    it('handles "Next" button navigation on last resource of lesson', async () => {
+      // Start at r2 (2nd of 2 in Lesson 1)
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l1',
+        resourceId: 'r2',
+      });
+
+      const nextButton = await screen.findByRole('button', { name: /next/i });
+      expect(nextButton).toBeEnabled();
+
+      await fireEvent.click(nextButton);
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: PageNames.COURSE_CONTENT,
+            params: expect.objectContaining({
+              // expect to go to the next lesson
+              lessonId: 'l2',
+              resourceId: 'r3',
+            }),
+          }),
+        );
+      });
+    });
+
+    it('handles "Previous" button navigation correctly on first resource of lesson', async () => {
+      // Start at r3 (1st of 2 in Lesson 2)
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l2',
+        resourceId: 'r3',
+      });
+
+      // Wait for content render
+      await waitFor(() => {
+        expect(screen.getByTestId('content-viewer')).toBeVisible();
+      });
+
+      const prevButton = await screen.findByRole('button', { name: /previous/i });
+      expect(prevButton).toBeEnabled();
+
+      await fireEvent.click(prevButton);
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: PageNames.COURSE_CONTENT,
+            params: expect.objectContaining({
+              // expect to go to the last resource of the previous lesson
+              lessonId: 'l1',
+              resourceId: 'r2',
+            }),
+          }),
+        );
+      });
+    });
+
+    it('disables "Previous" button on the first resource of the unit', async () => {
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l1',
+        resourceId: 'r1',
+      });
+
+      const prevButton = await screen.findByRole('button', { name: /previous/i });
+      expect(prevButton).toBeDisabled();
+    });
+
+    // Note: Cross-lesson navigation via Next is not implemented in the provided code snippet logic
+    // The code only calculates index within `unitResources` which FLATTENS the unit.
+    // `unitResources` = [r1, r2, r3].
+    // nextEnabled checks `currentResourceIndexInUnit < unitResources.length - 1`.
+
+    it('enables "Next" button to cross lessons within the unit', async () => {
+      // r2 is last in Lesson 1. r3 is in Lesson 2.
+      // flattened list: r1, r2, r3.
+      // r2 index is 1. length is 3. 1 < 2 => Next Enabled.
+
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l1',
+        resourceId: 'r2',
+      });
+
+      const nextButton = await screen.findByRole('button', { name: /next/i });
+      expect(nextButton).toBeEnabled();
+
+      await fireEvent.click(nextButton);
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: PageNames.COURSE_CONTENT,
+            params: expect.objectContaining({
+              resourceId: 'r3',
+              lessonId: 'l2', // Should switch to l2
+            }),
+          }),
+        );
+      });
+    });
+
+    it('disables "Next" button on the last resource of the unit', async () => {
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l2',
+        resourceId: 'r3',
+      });
+
+      const nextButton = await screen.findByRole('button', { name: /next/i });
+      expect(nextButton).toBeDisabled();
+    });
+
+    it('displays the "Up Next" unit in the side panel footer', async () => {
+      // unit-1 is current. unit-2 is next.
+      // Ensure fetchCollection returns units with proper structure
+      ContentNodeResource.fetchCollection.mockResolvedValue([
+        { id: 'unit-1', title: 'Unit 1', modality: 'UNIT' },
+        { id: 'unit-2', title: 'Unit 2', modality: 'UNIT' },
+      ]);
+
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l1',
+        resourceId: 'r1',
+      });
+
+      // Click on side panel toggle
+      const sidePanelToggle = await screen.findByTestId('side-panel-toggle');
+      await fireEvent.click(sidePanelToggle);
+
+      await waitFor(() => {
+        // Check for Unit 2 title.
+        expect(screen.getByText('Unit 2')).toBeVisible();
       });
     });
   });
