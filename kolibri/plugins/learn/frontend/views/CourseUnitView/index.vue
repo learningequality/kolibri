@@ -48,10 +48,11 @@
 
   import store from 'kolibri/store';
   import { useRouter } from 'vue-router/composables';
-  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource.js';
   import { computed, ref, watch } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import Modalities from 'kolibri-constants/Modalities';
+  import useFetch from 'kolibri-common/composables/useFetch.js';
   import { LearnerCourseResource } from '../../apiResources';
   import ResourceLayout from '../ResourceLayout/index.vue';
   import PrevNextBar from '../PrevNextBar/index.vue';
@@ -69,9 +70,6 @@
       PrevNextBar,
     },
     setup(props) {
-      const course = ref(null);
-      const unitTree = ref(null);
-      const loading = ref(true);
       const router = useRouter();
 
       const isPrePostTest = computed(
@@ -80,6 +78,48 @@
 
       const currentResourceNumber = ref(5);
       const totalResources = ref(10);
+
+      const fetchCourseWithUnits = async () => {
+        const courseData = await LearnerCourseResource.fetchModel({
+          id: props.courseId,
+        });
+        const unitsData = await ContentNodeResource.fetchCollection({
+          getParams: {
+            parent: courseData.course_id,
+            modality: Modalities.UNIT,
+          },
+        });
+        return {
+          course: courseData,
+          units: unitsData,
+        };
+      };
+
+      const {
+        data: courseWithUnits,
+        loading: courseWithUnitsLoading,
+        error: courseWithUnitsError,
+        fetchData: fetchCourseWithUnitsData,
+      } = useFetch({
+        fetchMethod: fetchCourseWithUnits,
+      });
+
+      const {
+        data: unitTree,
+        loading: unitTreeLoading,
+        error: unitTreeError,
+        fetchData: fetchUnitTreeData,
+      } = useFetch({
+        fetchMethod: () =>
+          ContentNodeResource.fetchTree({
+            id: props.unitId,
+          }),
+      });
+
+      const course = computed(() => courseWithUnits.value?.course);
+      const courseUnits = computed(() => courseWithUnits.value?.units);
+      const loading = computed(() => courseWithUnitsLoading.value || unitTreeLoading.value);
+      const error = computed(() => courseWithUnitsError.value || unitTreeError.value);
 
       const currentLessons = computed(() => {
         return unitTree.value?.children.results.filter(
@@ -101,11 +141,13 @@
         );
       });
 
-      watch([unitTree, currentLesson, currentResource], ([newUnit, newLesson, newResource]) => {
-        // eslint-disable-next-line
-        console.log('Watching changes:', newUnit, newLesson, newResource);
-        // Additional logic can be added here if needed when unit or lesson changes
-      });
+      watch(
+        [unitTree, currentLesson, currentResource, courseUnits],
+        ([newUnit, newLesson, newResource, newCourseUnits]) => {
+          // eslint-disable-next-line
+          console.log('Watching changes:', newUnit, newLesson, newResource, newCourseUnits);
+        },
+      );
 
       const checkRedirect = async () => {
         const missingParams = !props.unitId || !props.lessonId || !props.resourceId;
@@ -152,29 +194,6 @@
         return false;
       };
 
-      const loadData = async () => {
-        try {
-          loading.value = true;
-
-          const redirected = await checkRedirect();
-          if (redirected) {
-            return;
-          }
-
-          course.value = await LearnerCourseResource.fetchModel({
-            id: props.courseId,
-          });
-
-          unitTree.value = await ContentNodeResource.fetchTree({
-            id: props.unitId,
-          });
-        } catch (error) {
-          store.dispatch('handleApiError', error);
-        } finally {
-          loading.value = false;
-        }
-      };
-
       const handlePrev = () => {
         // prev handling logic
         currentResourceNumber.value = currentResourceNumber.value - 1;
@@ -187,7 +206,30 @@
 
       const { courseNameLabel$, resourcesProgressLabel$ } = coursesStrings;
 
-      loadData();
+      watch(error, (newError, oldError) => {
+        if (!oldError && newError) {
+          store.dispatch('handleApiError', { error: newError });
+        }
+      });
+
+      watch(
+        () => props.courseId,
+        async () => {
+          await checkRedirect();
+          await fetchCourseWithUnitsData();
+        },
+        { immediate: true },
+      );
+
+      watch(
+        () => props.unitId,
+        async newUnitId => {
+          if (newUnitId) {
+            await fetchUnitTreeData();
+          }
+        },
+        { immediate: true },
+      );
 
       return {
         course,
