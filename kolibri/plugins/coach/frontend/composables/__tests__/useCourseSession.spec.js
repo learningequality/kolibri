@@ -1,7 +1,8 @@
 import { nextTick } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
-import useCourseSession, { UnitPhase } from '../useCourseSession';
+import { UnitPhase } from '../../constants/courseConstants';
+import useCourseSession from '../useCourseSession';
 
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
 jest.mock('kolibri-common/apiResources/CourseSessionResource');

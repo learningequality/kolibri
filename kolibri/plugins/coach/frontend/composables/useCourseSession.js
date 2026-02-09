@@ -2,19 +2,9 @@ import { computed, ref } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+import { UnitPhase } from '../constants/courseConstants';
 
 const { unitNLabel$ } = coursesStrings;
-
-/**
- * Unit phase constants representing the state machine for a unit's test lifecycle.
- */
-export const UnitPhase = Object.freeze({
-  PRE_TEST_PENDING: 'pre_test_pending',
-  PRE_TEST_ACTIVE: 'pre_test_active',
-  POST_TEST_PENDING: 'post_test_pending',
-  POST_TEST_ACTIVE: 'post_test_active',
-  COMPLETE: 'complete',
-});
 
 /**
  * A composable for managing course session state.
@@ -251,8 +241,5 @@ export default function useCourseSession(courseSessionId) {
     // Actions
     activateTest,
     closeTest,
-
-    // Constants
-    UnitPhase,
   };
 }
