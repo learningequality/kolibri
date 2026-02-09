@@ -18,6 +18,11 @@
         v-if="loading"
         disableDefaultTransition
       />
+      <CourseContentViewer
+        v-else-if="currentResource && !currentResource.assessmentmetadata"
+        :contentNode="currentResource"
+        :courseSessionId="courseId"
+      />
     </template>
     <template #bottomBar>
       <PrevNextBar
@@ -57,12 +62,14 @@
   import ResourceLayout from '../ResourceLayout/index.vue';
   import PrevNextBar from '../PrevNextBar/index.vue';
   import { PageNames } from '../../constants.js';
+  import CourseContentViewer from './CourseContentViewer.vue';
 
   export default {
     name: 'CourseUnitView',
     components: {
       ResourceLayout,
       PrevNextBar,
+      CourseContentViewer,
     },
     setup(props) {
       const router = useRouter();
@@ -324,6 +331,7 @@
         loading,
         totalResources,
         currentResourceNumber,
+        currentResource,
         handlePrev,
         handleNext,
 
