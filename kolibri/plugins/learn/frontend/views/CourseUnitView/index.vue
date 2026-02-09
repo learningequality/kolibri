@@ -1,5 +1,4 @@
 <template>
-
   <ResourceLayout>
     <template #topBar>
       <div class="course-title">
@@ -24,13 +23,15 @@
         :courseSessionId="courseId"
       />
     </template>
-    <template #bottomBar>
+    <template
+      v-if="currentResource"
+      #bottomBar
+    >
       <PrevNextBar
-        :currentNumber="currentResourceNumber"
-        :totalNumber="totalResources"
-        :progressLabel="
-          resourcesProgressLabel$({ current: currentResourceNumber, total: totalResources })
-        "
+        class="course-bottom-bar"
+        :progressLabel="prevNextLabel"
+        :prevEnabled="prevEnabled"
+        :nextEnabled="nextEnabled"
         @prev="handlePrev"
         @next="handleNext"
       />
@@ -52,25 +53,36 @@
       <UnitTreeAccordion
         v-if="unitTree"
         :unitTree="unitTree"
-        :currentResourceId="currentResource?.id"
-        :currentLessonId="currentLesson?.id"
+        :currentResourceId="currentResource && currentResource.id"
+        :currentLessonId="currentLesson && currentLesson.id"
       />
     </template>
-    <template #sidePanelFooter>
+    <template
+      v-if="nextUnit"
+      #sidePanelFooter
+    >
       <div class="course-side-panel-footer">
-        <div></div>
+        <div class="up-next-wrapper">
+          <span class="up-next-label">
+            {{ upNextLabel$() }}
+          </span>
+          <span class="up-next-title">
+            <KTextTruncator
+              :text="nextUnit.title"
+              :maxLines="1"
+            />
+          </span>
+        </div>
         <div>
+          <!-- TODO: Implement go to next unit -->
           <KIconButton icon="forward" />
         </div>
       </div>
     </template>
   </ResourceLayout>
-
 </template>
 
-
 <script>
-
   import store from 'kolibri/store';
   import { useRouter } from 'vue-router/composables';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource.js';
@@ -95,9 +107,6 @@
     },
     setup(props) {
       const router = useRouter();
-
-      const currentResourceNumber = ref(5);
-      const totalResources = ref(10);
 
       const fetchCourseWithUnits = async () => {
         const courseData = await LearnerCourseResource.fetchModel({
@@ -163,6 +172,16 @@
         return null;
       });
 
+      const nextUnit = computed(() => {
+        if (
+          currentUnitIndex.value === null ||
+          currentUnitIndex.value === courseUnits.value.length - 1
+        ) {
+          return null;
+        }
+        return courseUnits.value[currentUnitIndex.value + 1];
+      });
+
       const currentLessons = computed(() => {
         return unitTree.value?.children.results.filter(
           child => child.modality === Modalities.LESSON,
@@ -179,6 +198,46 @@
 
       const currentLesson = computed(() => {
         return currentLessons.value?.find(lesson => lesson.id === props.lessonId);
+      });
+
+      const unitResources = computed(() => {
+        const resources = [];
+        for (const lesson of currentLessons.value || []) {
+          resources.push(...(lesson.children.results || []));
+        }
+        return resources;
+      });
+
+      const currentResourceIndexInUnit = computed(() => {
+        const index = unitResources.value?.findIndex(resource => resource.id === props.resourceId);
+        if (index >= 0) {
+          return index;
+        }
+        // Shouldn't get here
+        return null;
+      });
+
+      const prevEnabled = computed(() => currentResourceIndexInUnit.value > 0);
+      const nextEnabled = computed(() => {
+        if (currentResourceIndexInUnit.value === null || unitResources.value === null) {
+          return false;
+        }
+        return currentResourceIndexInUnit.value < unitResources.value.length - 1;
+      });
+
+      const currentLessonResources = computed(() => {
+        return currentLesson.value?.children?.results || [];
+      });
+
+      const currentResourceIndexInLesson = computed(() => {
+        const index = currentLessonResources.value?.findIndex(
+          resource => resource.id === props.resourceId,
+        );
+        if (index >= 0) {
+          return index;
+        }
+        // Shouldn't get here
+        return null;
       });
 
       const currentResource = computed(() => {
@@ -311,16 +370,41 @@
       };
 
       const handlePrev = () => {
-        // prev handling logic
-        currentResourceNumber.value = currentResourceNumber.value - 1;
+        if (!prevEnabled.value) {
+          return;
+        }
+        const newResourceIndex = currentResourceIndexInUnit.value - 1;
+        const newResource = unitResources.value[newResourceIndex];
+        router.replace({
+          name: PageNames.COURSE_CONTENT,
+          params: {
+            courseId: props.courseId,
+            unitId: props.unitId,
+            lessonId: newResource.parent,
+            resourceId: newResource.id,
+          },
+        });
       };
 
       const handleNext = () => {
-        // next handling logic
-        currentResourceNumber.value = currentResourceNumber.value + 1;
+        if (!nextEnabled.value) {
+          return;
+        }
+        const newResourceIndex = currentResourceIndexInUnit.value + 1;
+        const newResource = unitResources.value[newResourceIndex];
+        router.replace({
+          name: PageNames.COURSE_CONTENT,
+          params: {
+            courseId: props.courseId,
+            unitId: props.unitId,
+            lessonId: newResource.parent,
+            resourceId: newResource.id,
+          },
+        });
       };
 
-      const { courseNameLabel$, resourcesProgressLabel$, unitNumberLabel$ } = coursesStrings;
+      const { courseNameLabel$, resourcesProgressLabel$, unitNumberLabel$, upNextLabel$ } =
+        coursesStrings;
 
       const unitNumberLabel = computed(() => {
         if (loading.value) {
@@ -328,6 +412,13 @@
         }
         return unitNumberLabel$({ number: currentUnitIndex.value + 1 });
       });
+
+      const prevNextLabel = computed(() =>
+        resourcesProgressLabel$({
+          current: currentResourceIndexInLesson.value + 1,
+          total: currentLessonResources.value.length,
+        }),
+      );
 
       watch(error, (newError, oldError) => {
         if (!oldError && newError) {
@@ -368,16 +459,18 @@
         course,
         loading,
         unitTree,
+        nextUnit,
         currentLesson,
-        totalResources,
-        currentResourceNumber,
         currentResource,
+        prevNextLabel,
         unitNumberLabel,
+        prevEnabled,
+        nextEnabled,
         handlePrev,
         handleNext,
 
+        upNextLabel$,
         courseNameLabel$,
-        resourcesProgressLabel$,
       };
     },
     props: {
@@ -403,24 +496,39 @@
       },
     },
   };
-
 </script>
 
-
 <style scoped lang="scss">
-
   .course-title {
     display: flex;
     gap: 12px;
     align-items: center;
     min-width: 0;
+    line-height: 1.2;
   }
 
   .course-side-panel-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px;
+    padding: 8px 8px 8px 16px;
+
+    .up-next-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+
+      .up-next-label {
+        font-size: 12px;
+      }
+
+      .up-next-title {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.2;
+      }
+    }
   }
 
   .side-panel-top-bar {
@@ -438,4 +546,11 @@
     }
   }
 
+  .course-bottom-bar {
+    height: 56px;
+    /* stylelint-disable-next-line */
+    background-color: v-bind('$themeTokens.surface');
+    /* stylelint-disable-next-line */
+    border-top: 1px solid v-bind('$themeTokens.fineLine');
+  }
 </style>

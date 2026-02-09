@@ -1,126 +1,150 @@
 <template>
 
-  <AccordionContainer
-    listWrapperTag="ul"
-    class="unit-tree-accordion-container"
-  >
-    <TreeItem
-      :title="preTestLabel$()"
-      :description="completedLabel$()"
-      :style="{
-        backgroundColor: $themePalette.grey.v_100,
-      }"
+  <nav>
+    <AccordionContainer
+      listWrapperTag="ul"
+      class="unit-tree-accordion-container"
     >
-      <template #leading-actions>
-        <KIcon
-          class="item-icon"
-          icon="exercise"
-          :color="$themePalette.blue.v_500"
-        />
-      </template>
-      <template #trailing-actions>
-        <KIcon
-          class="item-icon"
-          icon="mastered"
-          :color="$themePalette.grey.v_400"
-        />
-      </template>
-    </TreeItem>
-
-    <AccordionItem
-      v-for="lesson in lessons"
-      :key="lesson.id"
-      wrapperTag="li"
-      :class="{
-        'current-lesson': lesson.id === currentLessonId,
-      }"
-      :headerAppearanceOverrides="{
-        padding: '0px 8px 0px 16px',
-        height: '52px',
-        backgroundColor: $themePalette.grey.v_100,
-        outlineOffset: '-3px !important',
-        borderBottom: '1px solid ' + $themeTokens.fineLine,
-      }"
-      :contentAppearanceOverrides="{
-        padding: 0,
-      }"
-      :style="{
-        border: '0 !important',
-      }"
-    >
-      <template #leading-actions>
-        <KIcon
-          icon="lesson"
-          class="item-icon mr-8"
-        />
-      </template>
-      <template #title>
-        <div class="accordion-item-title">
-          <KTextTruncator
-            :text="lesson.title"
-            :maxLines="1"
-            class="title"
+      <TreeItem
+        :title="preTestLabel$()"
+        :description="completedLabel$()"
+        :style="{
+          backgroundColor: $themePalette.grey.v_100,
+        }"
+      >
+        <template #leading-actions>
+          <KIcon
+            class="item-icon"
+            icon="exercise"
+            :color="$themePalette.blue.v_500"
           />
-          <div class="description">
-            <span>
-              {{ getRatioLabel(lesson) }}
-            </span>
-            <span
-              v-if="lesson.id === currentLessonId"
-              class="current-label"
-            >{{ currentLabel$() }}</span>
-          </div>
-        </div>
-      </template>
-      <template #content>
-        <ul class="resource-list">
-          <TreeItem
-            v-for="resource in getResources(lesson)"
-            :key="resource.id"
-            :title="resource.title"
-            class="resource-item"
-            :selected="resource.id === currentResourceId"
-            @click="onResourceClick(resource)"
-          >
-            <template #leading-actions>
-              <LearningActivityIcon
-                :kind="resource.learning_activities"
-                class="item-icon"
-              />
-            </template>
-            <template #trailing-actions>
-              <KIcon
-                class="item-icon"
-                icon="notStarted"
-              />
-            </template>
-          </TreeItem>
-        </ul>
-      </template>
-    </AccordionItem>
+        </template>
+        <template #trailing-actions>
+          <KIcon
+            class="item-icon"
+            icon="mastered"
+            :color="$themePalette.grey.v_400"
+          />
+        </template>
+      </TreeItem>
 
-    <TreeItem
-      :title="postTestLabel$()"
-      :description="ratioLabel$({ number: 0, total: 5 })"
-      :style="{
-        backgroundColor: $themePalette.grey.v_100,
-      }"
-    >
-      <template #leading-actions>
-        <KIcon
-          class="item-icon"
-          icon="exercise"
-          :color="$themePalette.blue.v_500"
-        />
-      </template>
-      <template #trailing-actions>
-        <KIcon
-          class="item-icon"
-          icon="notStarted"
-        />
-      </template>
-    </TreeItem>
-  </AccordionContainer>
+      <AccordionItem
+        v-for="lesson in lessons"
+        :key="lesson.id"
+        wrapperTag="li"
+        :class="{
+          'current-lesson': lesson.id === currentLessonId,
+        }"
+        :headerAppearanceOverrides="{
+          padding: '0px 8px 0px 16px',
+          height: '52px',
+          backgroundColor: $themePalette.grey.v_100,
+          outlineOffset: '-3px !important',
+          borderBottom: '1px solid ' + $themeTokens.fineLine,
+        }"
+        :contentAppearanceOverrides="{
+          padding: 0,
+        }"
+        :style="{
+          border: '0 !important',
+        }"
+      >
+        <template #leading-actions>
+          <KIcon
+            icon="lesson"
+            class="item-icon mr-8"
+          />
+        </template>
+        <template #title>
+          <div class="accordion-item-title">
+            <KTextTruncator
+              :text="lesson.title"
+              :maxLines="1"
+              class="title"
+            />
+            <div class="description">
+              <span>
+                {{ getRatioLabel(lesson) }}
+              </span>
+              <span
+                v-if="lesson.id === currentLessonId"
+                class="current-label"
+              >{{ currentLabel$() }}</span>
+            </div>
+          </div>
+        </template>
+        <template #content>
+          <ul class="resource-list">
+            <TreeItem
+              v-for="resource in getResources(lesson)"
+              :key="resource.id"
+              :title="resource.title"
+              class="resource-item"
+              :selected="resource.id === currentResourceId"
+              @click="onResourceClick(resource)"
+            >
+              <template
+                v-if="resource.duration"
+                #description
+              >
+                <TimeDuration
+                  :seconds="resource.duration"
+                  class="duration"
+                />
+              </template>
+              <template #leading-actions>
+                <LearningActivityIcon
+                  :kind="resource.learning_activities"
+                  class="item-icon"
+                />
+              </template>
+              <template #trailing-actions>
+                <div
+                  v-if="resource.id === currentResourceId"
+                  class="selected-trailing-icons"
+                >
+                  <!-- Todo, implement these buttons -->
+                  <KIconButton icon="bookmarkEmpty" />
+                  <KIconButton icon="check" />
+                  <KIcon
+                    class="item-icon"
+                    icon="inProgress"
+                  />
+                </div>
+                <KIcon
+                  v-else
+                  class="item-icon"
+                  icon="notStarted"
+                />
+              </template>
+            </TreeItem>
+          </ul>
+        </template>
+      </AccordionItem>
+
+      <TreeItem
+        :title="postTestLabel$()"
+        :description="ratioLabel$({ number: 0, total: 5 })"
+        :style="{
+          backgroundColor: $themePalette.grey.v_100,
+        }"
+      >
+        <template #leading-actions>
+          <KIcon
+            class="item-icon"
+            icon="exercise"
+            :color="$themePalette.blue.v_500"
+          />
+        </template>
+        <template #trailing-actions>
+          <KIcon
+            class="item-icon"
+            icon="notStarted"
+          />
+        </template>
+      </TreeItem>
+    </AccordionContainer>
+  </nav>
 
 </template>
 
@@ -135,6 +159,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import { useRoute, useRouter } from 'vue-router/composables';
+  import TimeDuration from 'kolibri-common/components/TimeDuration.vue';
   import { PageNames } from '../../../constants';
   import TreeItem from './TreeItem.vue';
 
@@ -145,6 +170,7 @@
       AccordionContainer,
       AccordionItem,
       TreeItem,
+      TimeDuration,
     },
     setup(props) {
       const router = useRouter();
@@ -270,6 +296,16 @@
     padding: 0;
     margin: 0;
     list-style-type: none;
+
+    .duration {
+      font-size: 12px;
+    }
+
+    .selected-trailing-icons {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
   }
 
 </style>

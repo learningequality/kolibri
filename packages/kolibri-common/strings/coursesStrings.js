@@ -168,4 +168,8 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Current',
     context: 'Label for the current lesson in the course unit view',
   },
+  upNextLabel: {
+    message: 'Up next',
+    context: 'Label for the next unit in the course unit view',
+  },
 });

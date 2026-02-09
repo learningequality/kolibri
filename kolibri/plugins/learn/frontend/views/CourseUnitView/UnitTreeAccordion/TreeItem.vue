@@ -14,15 +14,19 @@
         </div>
 
         <div class="text-content">
-          <div class="title">
-            <KTextTruncator
-              :text="title"
-              :maxLines="1"
-            />
-          </div>
-          <div class="description">
-            {{ description }}
-          </div>
+          <slot name="title">
+            <div class="title">
+              <KTextTruncator
+                :text="title"
+                :maxLines="1"
+              />
+            </div>
+          </slot>
+          <slot name="description">
+            <div class="description">
+              {{ description }}
+            </div>
+          </slot>
         </div>
       </div>
       <div class="trailing-actions">
@@ -112,6 +116,7 @@
         min-width: 0;
 
         .title {
+          max-width: 100%;
           font-size: 14px;
           line-height: 1.2;
         }

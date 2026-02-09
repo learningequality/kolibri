@@ -147,6 +147,122 @@ describe('PrevNextBar', () => {
     });
   });
 
+  describe('prevEnabled and nextEnabled props override', () => {
+    it('enables prev button when prevEnabled is true, even at first item', () => {
+      renderPrevNextBar({
+        currentNumber: 1,
+        totalNumber: 10,
+        prevEnabled: true,
+      });
+
+      expect(screen.getByTestId('prev-button')).toBeEnabled();
+    });
+
+    it('disables prev button when prevEnabled is false, even when not at first item', () => {
+      renderPrevNextBar({
+        currentNumber: 5,
+        totalNumber: 10,
+        prevEnabled: false,
+      });
+
+      expect(screen.getByTestId('prev-button')).toBeDisabled();
+    });
+
+    it('enables next button when nextEnabled is true, even at last item', () => {
+      renderPrevNextBar({
+        currentNumber: 10,
+        totalNumber: 10,
+        nextEnabled: true,
+      });
+
+      expect(screen.getByTestId('next-button')).toBeEnabled();
+    });
+
+    it('disables next button when nextEnabled is false, even when not at last item', () => {
+      renderPrevNextBar({
+        currentNumber: 5,
+        totalNumber: 10,
+        nextEnabled: false,
+      });
+
+      expect(screen.getByTestId('next-button')).toBeDisabled();
+    });
+
+    it('emits prev event when prevEnabled is true and button is clicked', async () => {
+      const { emitted } = renderPrevNextBar({
+        currentNumber: 1,
+        totalNumber: 10,
+        prevEnabled: true,
+      });
+
+      await fireEvent.click(screen.getByTestId('prev-button'));
+
+      expect(emitted().prev).toBeTruthy();
+      expect(emitted().prev.length).toBe(1);
+    });
+
+    it('does not emit prev event when prevEnabled is false and button is clicked', async () => {
+      const { emitted } = renderPrevNextBar({
+        currentNumber: 5,
+        totalNumber: 10,
+        prevEnabled: false,
+      });
+
+      await fireEvent.click(screen.getByTestId('prev-button'));
+
+      expect(emitted().prev).toBeFalsy();
+    });
+
+    it('emits next event when nextEnabled is true and button is clicked', async () => {
+      const { emitted } = renderPrevNextBar({
+        currentNumber: 10,
+        totalNumber: 10,
+        nextEnabled: true,
+      });
+
+      await fireEvent.click(screen.getByTestId('next-button'));
+
+      expect(emitted().next).toBeTruthy();
+      expect(emitted().next.length).toBe(1);
+    });
+
+    it('does not emit next event when nextEnabled is false and button is clicked', async () => {
+      const { emitted } = renderPrevNextBar({
+        currentNumber: 5,
+        totalNumber: 10,
+        nextEnabled: false,
+      });
+
+      await fireEvent.click(screen.getByTestId('next-button'));
+
+      expect(emitted().next).toBeFalsy();
+    });
+
+    it('uses default behavior when prevEnabled and nextEnabled are null', () => {
+      renderPrevNextBar({
+        currentNumber: 1,
+        totalNumber: 10,
+        prevEnabled: null,
+        nextEnabled: null,
+      });
+
+      expect(screen.getByTestId('prev-button')).toBeDisabled();
+      expect(screen.getByTestId('next-button')).toBeEnabled();
+    });
+
+    it('can override both buttons independently', () => {
+      renderPrevNextBar({
+        currentNumber: 1,
+        totalNumber: 10,
+        prevEnabled: true,
+        nextEnabled: false,
+      });
+
+      expect(screen.getByTestId('prev-button')).toBeEnabled();
+      expect(screen.getByTestId('next-button')).toBeDisabled();
+    });
+  });
+
   describe('layout structure', () => {
     it('has prev button, progress area (when label provided), and right-area', () => {
       renderPrevNextBar(
