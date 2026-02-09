@@ -27,6 +27,6 @@ export default new Resource({
     return client({
       url: this.getUrlFunction('test_history')(id),
       method: 'GET',
-    })
-  }
+    });
+  },
 });

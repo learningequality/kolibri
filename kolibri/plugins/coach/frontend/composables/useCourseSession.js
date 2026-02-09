@@ -2,9 +2,18 @@ import { computed, ref } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+import useSnackbar from 'kolibri/composables/useSnackbar';
 import { UnitPhase } from '../constants/courseConstants';
 
-const { unitNLabel$ } = coursesStrings;
+const {
+  unitNLabel$,
+  courseVisible$,
+  courseNotVisible$,
+  preTestStartedForUnit$,
+  postTestStartedForUnit$,
+  preTestEndedForUnit$,
+  postTestEndedForUnit$,
+} = coursesStrings;
 
 /**
  * A composable for managing course session state.
@@ -15,6 +24,7 @@ const { unitNLabel$ } = coursesStrings;
  * @returns {Object} Reactive state and methods for managing the course session
  */
 export default function useCourseSession(courseSessionId) {
+  const { createSnackbar } = useSnackbar();
   // -----------
   // Raw state
   // -----------
@@ -98,8 +108,8 @@ export default function useCourseSession(courseSessionId) {
     );
 
     if (lastCompletedTest.value.test_type === 'post') {
-      // Post-test done = unit complete, move to next (or stay on last if course complete)
-      return units.value[lastTestUnitIndex + 1] || units.value[lastTestUnitIndex];
+      // Post-test done = unit complete, move to next (or null if course complete)
+      return units.value[lastTestUnitIndex + 1] || null;
     }
 
     // Pre-test done = still on this unit (lessons phase)
@@ -115,9 +125,11 @@ export default function useCourseSession(courseSessionId) {
   });
 
   /**
-   * Units that have been completed (before the active unit).
+   * Units that have been completed (before the active unit, or all units if course complete).
    */
   const completedUnits = computed(() => {
+    // Course complete - all units are completed
+    if (!activeUnit.value) return units.value;
     if (activeUnitIndex.value <= 0) return [];
     return units.value.slice(0, activeUnitIndex.value);
   });
@@ -128,6 +140,13 @@ export default function useCourseSession(courseSessionId) {
   const upcomingUnits = computed(() => {
     if (activeUnitIndex.value < 0) return [];
     return units.value.slice(activeUnitIndex.value + 1);
+  });
+
+  /**
+   * Whether the entire course is complete (all units finished).
+   */
+  const isCourseComplete = computed(() => {
+    return units.value.length > 0 && completedUnits.value.length === units.value.length;
   });
 
   // -----------
@@ -141,6 +160,9 @@ export default function useCourseSession(courseSessionId) {
    * PRE_TEST_PENDING → PRE_TEST_ACTIVE → POST_TEST_PENDING → POST_TEST_ACTIVE → COMPLETE
    */
   const unitPhase = computed(() => {
+    // Course complete - all units finished
+    if (isCourseComplete.value) return UnitPhase.COMPLETE;
+
     if (!activeUnit.value) return null;
 
     // Is there a test running right now?
@@ -188,6 +210,11 @@ export default function useCourseSession(courseSessionId) {
       },
     }).then(result => {
       activeTest.value = result;
+      if (testType === 'pre') {
+        createSnackbar(preTestStartedForUnit$({ title: activeUnit.value.numberedTitle }));
+      } else {
+        createSnackbar(postTestStartedForUnit$({ title: activeUnit.value.numberedTitle }));
+      }
     });
   }
 
@@ -205,6 +232,10 @@ export default function useCourseSession(courseSessionId) {
         test_type: activeTest.value.test_type,
       },
     }).then(result => {
+      // Get this now because activeUnit will change before we trigger snackbars
+      // if we closed the post-test
+      const title = activeUnit.value.numberedTitle;
+
       // Move the closed test to history
       testHistory.value = [
         ...testHistory.value,
@@ -214,7 +245,32 @@ export default function useCourseSession(courseSessionId) {
         },
       ];
       activeTest.value = null;
+      if (result.test_type === 'pre') {
+        createSnackbar(preTestEndedForUnit$({ title }));
+      } else {
+        createSnackbar(postTestEndedForUnit$({ title }));
+      }
     });
+  }
+
+  /**
+   * Toggles the active state of the course session.
+   * Updates the courseSession ref with the new state on success.
+   *
+   * @returns {Promise} Resolves with the updated course session
+   */
+  async function toggleCourseActive() {
+    const result = await CourseSessionResource.saveModel({
+      id: courseSession.value.id,
+      data: { active: !courseSession.value.active },
+    });
+    courseSession.value = { ...courseSession.value, active: result.active };
+    if (result.active) {
+      createSnackbar(courseVisible$());
+    } else {
+      createSnackbar(courseNotVisible$());
+    }
+    return result;
   }
 
   return {
@@ -233,6 +289,7 @@ export default function useCourseSession(courseSessionId) {
     activeUnitIndex,
     completedUnits,
     upcomingUnits,
+    isCourseComplete,
 
     // Derived test state
     lastCompletedTest,
@@ -241,5 +298,6 @@ export default function useCourseSession(courseSessionId) {
     // Actions
     activateTest,
     closeTest,
+    toggleCourseActive,
   };
 }

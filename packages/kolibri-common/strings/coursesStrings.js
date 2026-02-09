@@ -15,7 +15,7 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   },
   unitsLabel: {
     message: 'Units',
-    context: 'Label for tab that shows units on course summary page'
+    context: 'Label for tab that shows units on course summary page',
   },
   assignCourseAction: {
     message: 'Assign course',
@@ -57,6 +57,10 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   masteryLabel: {
     message: 'Mastery',
     context: 'Column header for average mastery percentage',
+  },
+  visibleToLearnersLabel: {
+    message: 'Visible to learners',
+    context: 'Label for toggle switch to make course visible (or not)',
   },
   visibleLabel: {
     message: 'Visible',
@@ -142,6 +146,14 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: '{num, number} {num, plural, one {unit} other {units}}',
     context: 'Part of subtitle shown under the course title',
   },
+  prePercent: {
+    message: 'Pre: {num, number, percent}',
+    context: 'Indicating percentage of passing learners for the pre-test',
+  },
+  postPercent: {
+    message: 'Post: {num, number, percent}',
+    context: 'Indicating percentage of passing learners for the post-test',
+  },
   courseContentLabel: {
     message: 'Course content',
     context: 'Label above list of units in course contents listing',
@@ -203,9 +215,13 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'ready to start',
     context: 'Added to indicate a status of a pre/post test being ready to start',
   },
+  completedUnitsLabel: {
+    message: 'Completed units',
+    context: 'Label for folding accordion title to list/hide units that have been completed',
+  },
   upcomingUnitsLabel: {
     message: 'Upcoming units',
-    context: 'Label for folding accordion title to list/hide units that have not yet been started'
+    context: 'Label for folding accordion title to list/hide units that have not yet been started',
   },
   lockedLabel: {
     message: 'Locked',
@@ -213,7 +229,7 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   },
   unitNLabel: {
     message: 'Unit {num, number}:',
-    context: 'Added to the beginning of the unit title to indicate which unit it is in order'
+    context: 'Added to the beginning of the unit title to indicate which unit it is in order',
   },
   startPreTestForUnitConfirmation: {
     message: 'Start pre-test for unit {num, number}?',
@@ -228,28 +244,32 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context: 'Heading for confirmation modal when user clicks to end a pre-test',
   },
   startTestForUnitDescription: {
-    message: 'All assigned learners can now start the test. You can end the test whenever you want.',
-    context: 'Description text on modal confirming start of pre-test'
+    message:
+      'All assigned learners can now start the test. You can end the test whenever you want.',
+    context: 'Description text on modal confirming start of pre-test',
   },
   endTestForUnitDescription: {
-    message: 'This action cannot be undone. Learners who haven\'t completed the test will be marked as incomplete.',
-    context: 'Description text on modal confirming ending of pre-test'
+    message:
+      "This action cannot be undone. Learners who haven't completed the test will be marked as incomplete.",
+    context: 'Description text on modal confirming ending of pre-test',
   },
   endPreTestForUnitConfirmation: {
     message: 'End pre-test for unit {num, number}?',
     context: 'Heading for confirmation modal when user clicks to end a pre-test',
   },
   startPreTestForUnitDescription: {
-    message: 'All assigned learners can now start the test. You can end the test whenever you want.',
-    context: 'Description text on modal confirming start of pre-test'
+    message:
+      'All assigned learners can now start the test. You can end the test whenever you want.',
+    context: 'Description text on modal confirming start of pre-test',
   },
   endPreTestForUnitDescription: {
-    message: 'This action cannot be undone. Learners who haven\'t completed the test will be marked as incomplete.',
-    context: 'Description text on modal confirming ending of pre-test'
+    message:
+      "This action cannot be undone. Learners who haven't completed the test will be marked as incomplete.",
+    context: 'Description text on modal confirming ending of pre-test',
   },
   keepRunning: {
     message: 'Keep test running',
-    context: 'Label for button that cancels modal for ending test'
+    context: 'Label for button that cancels modal for ending test',
   },
   nOfMLearners: {
     message: '{n, number} of {m, number} learners',
@@ -257,6 +277,38 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   },
   workingOnLessons: {
     message: 'working on lessons',
-    context: 'Placed after message "n of m learners" - separated like this for styling'
+    context: 'Placed after message "n of m learners" - separated like this for styling',
+  },
+  activeUnit: {
+    message: 'Active unit',
+    context: 'Label for an information flag in the area of the currently active unit',
+  },
+  dateAssigned: {
+    message: 'Date assigned',
+    context: 'Label in course summary showing how long it has been since the course was assigned',
+  },
+  courseVisible: {
+    message: 'Course visible to learners',
+    context: 'Snackbar message after user toggles course to be visible',
+  },
+  courseNotVisible: {
+    message: 'Course not visible to learners',
+    context: 'Snackbar message after user toggles course to be hidden',
+  },
+  preTestEndedForUnit: {
+    message: 'Pre-test ended for {title}',
+    context: 'Snackbar message upon starting the pre-test',
+  },
+  postTestEndedForUnit: {
+    message: 'Post-test ended for {title}',
+    context: 'Snackbar message upon starting the post-test',
+  },
+  preTestStartedForUnit: {
+    message: 'Pre-test started for {title}',
+    context: 'Snackbar message upon starting the pre-test',
+  },
+  postTestStartedForUnit: {
+    message: 'Post-test started for {title}',
+    context: 'Snackbar message upon starting the post-test',
   },
 });

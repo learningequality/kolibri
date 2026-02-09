@@ -6,9 +6,19 @@ import useCourseSession from '../useCourseSession';
 
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
 jest.mock('kolibri-common/apiResources/CourseSessionResource');
+jest.mock('kolibri/composables/useSnackbar', () => ({
+  __esModule: true,
+  default: () => ({ createSnackbar: jest.fn() }),
+}));
 jest.mock('kolibri-common/strings/coursesStrings', () => ({
   coursesStrings: {
     unitNLabel$: ({ num }) => `Unit ${num}:`,
+    courseVisible$: jest.fn(),
+    courseNotVisible$: jest.fn(),
+    preTestStartedForUnit$: jest.fn(),
+    postTestStartedForUnit$: jest.fn(),
+    preTestEndedForUnit$: jest.fn(),
+    postTestEndedForUnit$: jest.fn(),
   },
 }));
 
@@ -181,7 +191,7 @@ describe('useCourseSession', () => {
       expect(activeUnit.value.id).toBe('unit-2');
     });
 
-    it('should stay on last unit when course is complete', async () => {
+    it('should return null when course is complete', async () => {
       CourseSessionResource.testHistory.mockResolvedValue({
         data: [
           { id: 'test-1', unit_contentnode_id: 'unit-3', test_type: 'pre', status: 'ended' },
@@ -193,8 +203,8 @@ describe('useCourseSession', () => {
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
-      // Should stay on unit-3 since there's no unit-4
-      expect(activeUnit.value.id).toBe('unit-3');
+      // Should be null since all units are complete
+      expect(activeUnit.value).toBe(null);
     });
 
     it('should return null when no units exist', async () => {
@@ -276,6 +286,29 @@ describe('useCourseSession', () => {
       expect(completedUnits.value[0].id).toBe('unit-1');
       expect(completedUnits.value[1].id).toBe('unit-2');
     });
+
+    it('should return all units when course is complete', async () => {
+      CourseSessionResource.testHistory.mockResolvedValue({
+        data: [
+          { id: 'test-1', unit_contentnode_id: 'unit-1', test_type: 'pre', status: 'ended' },
+          { id: 'test-2', unit_contentnode_id: 'unit-1', test_type: 'post', status: 'ended' },
+          { id: 'test-3', unit_contentnode_id: 'unit-2', test_type: 'pre', status: 'ended' },
+          { id: 'test-4', unit_contentnode_id: 'unit-2', test_type: 'post', status: 'ended' },
+          { id: 'test-5', unit_contentnode_id: 'unit-3', test_type: 'pre', status: 'ended' },
+          { id: 'test-6', unit_contentnode_id: 'unit-3', test_type: 'post', status: 'ended' },
+        ],
+      });
+
+      const { completedUnits, activeUnit } = useCourseSession(mockCourseSessionId);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(activeUnit.value).toBe(null);
+      expect(completedUnits.value).toHaveLength(3);
+      expect(completedUnits.value[0].id).toBe('unit-1');
+      expect(completedUnits.value[1].id).toBe('unit-2');
+      expect(completedUnits.value[2].id).toBe('unit-3');
+    });
   });
 
   describe('upcomingUnits computed', () => {
@@ -318,6 +351,63 @@ describe('useCourseSession', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
 
       expect(upcomingUnits.value).toEqual([]);
+    });
+  });
+
+  describe('isCourseComplete computed', () => {
+    it('should return false when on first unit', async () => {
+      const { isCourseComplete } = useCourseSession(mockCourseSessionId);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(isCourseComplete.value).toBe(false);
+    });
+
+    it('should return false when some units remain', async () => {
+      CourseSessionResource.testHistory.mockResolvedValue({
+        data: [
+          { id: 'test-1', unit_contentnode_id: 'unit-1', test_type: 'pre', status: 'ended' },
+          { id: 'test-2', unit_contentnode_id: 'unit-1', test_type: 'post', status: 'ended' },
+        ],
+      });
+
+      const { isCourseComplete } = useCourseSession(mockCourseSessionId);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(isCourseComplete.value).toBe(false);
+    });
+
+    it('should return true when all units are complete', async () => {
+      CourseSessionResource.testHistory.mockResolvedValue({
+        data: [
+          { id: 'test-1', unit_contentnode_id: 'unit-1', test_type: 'pre', status: 'ended' },
+          { id: 'test-2', unit_contentnode_id: 'unit-1', test_type: 'post', status: 'ended' },
+          { id: 'test-3', unit_contentnode_id: 'unit-2', test_type: 'pre', status: 'ended' },
+          { id: 'test-4', unit_contentnode_id: 'unit-2', test_type: 'post', status: 'ended' },
+          { id: 'test-5', unit_contentnode_id: 'unit-3', test_type: 'pre', status: 'ended' },
+          { id: 'test-6', unit_contentnode_id: 'unit-3', test_type: 'post', status: 'ended' },
+        ],
+      });
+
+      const { isCourseComplete } = useCourseSession(mockCourseSessionId);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(isCourseComplete.value).toBe(true);
+    });
+
+    it('should return false when no units exist', async () => {
+      ContentNodeResource.fetchTree.mockResolvedValue({
+        id: 'course-456',
+        children: { results: [] },
+      });
+
+      const { isCourseComplete } = useCourseSession(mockCourseSessionId);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(isCourseComplete.value).toBe(false);
     });
   });
 
@@ -568,6 +658,74 @@ describe('useCourseSession', () => {
       await closeTest();
 
       expect(activeUnit.value.id).toBe('unit-2');
+    });
+  });
+
+  describe('toggleCourseActive action', () => {
+    it('should call CourseSessionResource.saveModel with toggled active state', async () => {
+      CourseSessionResource.saveModel.mockResolvedValue({ active: false });
+
+      const { toggleCourseActive, courseSession } = useCourseSession(mockCourseSessionId);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      // mockCourseSession doesn't have active, so it starts as undefined (falsy)
+      // toggling should set it to true
+      courseSession.value = { ...courseSession.value, active: true };
+
+      await toggleCourseActive();
+
+      expect(CourseSessionResource.saveModel).toHaveBeenCalledWith({
+        id: mockCourseSessionId,
+        data: { active: false },
+      });
+    });
+
+    it('should update courseSession.active after toggle', async () => {
+      CourseSessionResource.saveModel.mockResolvedValue({ active: false });
+
+      const { toggleCourseActive, courseSession } = useCourseSession(mockCourseSessionId);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      courseSession.value = { ...courseSession.value, active: true };
+
+      await toggleCourseActive();
+
+      expect(courseSession.value.active).toBe(false);
+    });
+
+    it('should toggle from false to true', async () => {
+      CourseSessionResource.saveModel.mockResolvedValue({ active: true });
+
+      const { toggleCourseActive, courseSession } = useCourseSession(mockCourseSessionId);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      courseSession.value = { ...courseSession.value, active: false };
+
+      await toggleCourseActive();
+
+      expect(CourseSessionResource.saveModel).toHaveBeenCalledWith({
+        id: mockCourseSessionId,
+        data: { active: true },
+      });
+      expect(courseSession.value.active).toBe(true);
+    });
+
+    it('should return the result from saveModel', async () => {
+      const mockResult = { id: mockCourseSessionId, active: true, title: 'Test' };
+      CourseSessionResource.saveModel.mockResolvedValue(mockResult);
+
+      const { toggleCourseActive, courseSession } = useCourseSession(mockCourseSessionId);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      courseSession.value = { ...courseSession.value, active: false };
+
+      const result = await toggleCourseActive();
+
+      expect(result).toEqual(mockResult);
     });
   });
 
