@@ -9,6 +9,14 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Courses',
     context: 'Label for courses that contain units and lessons.',
   },
+  learningObjectivesLabel: {
+    message: 'Learning objectives',
+    context: 'Label for tab to show learning objectives on course summary page',
+  },
+  unitsLabel: {
+    message: 'Units',
+    context: 'Label for tab that shows units on course summary page'
+  },
   assignCourseAction: {
     message: 'Assign course',
     context: 'Action label for assigning a course to learners.',
@@ -175,5 +183,80 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   markAsCompleteAction: {
     message: 'Mark as complete',
     context: 'Action label for marking a resource as complete',
+  startPreTest: {
+    message: 'Start pre-test',
+    context: 'Button label for starting a pre-test',
+  },
+  endPreTest: {
+    message: 'End pre-test',
+    context: 'Button label for ending a pre-test',
+  },
+  endPostTest: {
+    message: 'End post-test',
+    context: 'Button label for ending a post-test',
+  },
+  startPostTest: {
+    message: 'Start post-test',
+    context: 'Button label for starting a post-test',
+  },
+  readyToStartLabel: {
+    message: 'ready to start',
+    context: 'Added to indicate a status of a pre/post test being ready to start',
+  },
+  upcomingUnitsLabel: {
+    message: 'Upcoming units',
+    context: 'Label for folding accordion title to list/hide units that have not yet been started'
+  },
+  lockedLabel: {
+    message: 'Locked',
+    context: 'Label for a unit that is upcoming and cannot be started',
+  },
+  unitNLabel: {
+    message: 'Unit {num, number}:',
+    context: 'Added to the beginning of the unit title to indicate which unit it is in order'
+  },
+  startPreTestForUnitConfirmation: {
+    message: 'Start pre-test for unit {num, number}?',
+    context: 'Heading for confirmation modal when user clicks to activate a pre-test',
+  },
+  startPostTestForUnitConfirmation: {
+    message: 'Start post-test for unit {num, number}?',
+    context: 'Heading for confirmation modal when user clicks to activate a post-test',
+  },
+  endPostTestForUnitConfirmation: {
+    message: 'End post-test for unit {num, number}?',
+    context: 'Heading for confirmation modal when user clicks to end a pre-test',
+  },
+  startTestForUnitDescription: {
+    message: 'All assigned learners can now start the test. You can end the test whenever you want.',
+    context: 'Description text on modal confirming start of pre-test'
+  },
+  endTestForUnitDescription: {
+    message: 'This action cannot be undone. Learners who haven\'t completed the test will be marked as incomplete.',
+    context: 'Description text on modal confirming ending of pre-test'
+  },
+  endPreTestForUnitConfirmation: {
+    message: 'End pre-test for unit {num, number}?',
+    context: 'Heading for confirmation modal when user clicks to end a pre-test',
+  },
+  startPreTestForUnitDescription: {
+    message: 'All assigned learners can now start the test. You can end the test whenever you want.',
+    context: 'Description text on modal confirming start of pre-test'
+  },
+  endPreTestForUnitDescription: {
+    message: 'This action cannot be undone. Learners who haven\'t completed the test will be marked as incomplete.',
+    context: 'Description text on modal confirming ending of pre-test'
+  },
+  keepRunning: {
+    message: 'Keep test running',
+    context: 'Label for button that cancels modal for ending test'
+  },
+  nOfMLearners: {
+    message: '{n, number} of {m, number} learners',
+    context: 'First part of label to be followed by a label "completed"',
+  },
+  workingOnLessons: {
+    message: 'working on lessons',
+    context: 'Placed after message "n of m learners" - separated like this for styling'
   },
 });

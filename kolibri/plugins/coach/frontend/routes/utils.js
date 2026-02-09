@@ -38,4 +38,5 @@ export const RouteSegments = {
   ALL_QUIZZES: '/quizzes',
   ALL_COURSES: '/courses',
   COURSE: '/courses/:courseId',
+  COURSE_SESSION: '/courses/:courseSessionId',
 };

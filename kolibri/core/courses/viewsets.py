@@ -512,3 +512,41 @@ class CourseSessionViewset(ValuesViewset):
             },
             status=HTTP_200_OK,
         )
+
+    @action(detail=True, methods=["get"])
+    def test_history(self, request, pk=None):
+        """
+        We get the details about the currently active test for the course session.
+        If no active test exists, returns { "active_test": null }.
+        """
+        course_session = self.get_object()
+
+        # but first, find the tests that have been completed
+        try:
+            tests = UnitTestAssignment.objects.filter(
+                course_session=course_session, is_active=False
+            )
+        except UnitTestAssignment.DoesNotExist:
+            return Response({"test_history": list()}, status=HTTP_200_OK)
+
+        def activated_by_info(test):
+            if test.activated_by:
+                return {
+                    "id": test.activated_by.id,
+                    "username": test.activated_by.username,
+                    "full_name": test.activated_by.full_name,
+                }
+        return Response(
+            [
+                {
+                    "id": test.id,
+                    "unit_contentnode_id": str(test.unit_contentnode_id),
+                    "test_type": test.test_type,
+                    "status": test.status,
+                    "activated_by": activated_by_info(test),
+                }
+                for test
+                in tests
+            ],
+            status=HTTP_200_OK,
+        )
