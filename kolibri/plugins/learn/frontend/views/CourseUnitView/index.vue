@@ -83,7 +83,7 @@
   import PrevNextBar from '../PrevNextBar/index.vue';
   import { PageNames } from '../../constants.js';
   import CourseContentViewer from './CourseContentViewer.vue';
-  import UnitTreeAccordion from './UnitTreeAccordion.vue';
+  import UnitTreeAccordion from './UnitTreeAccordion/index.vue';
 
   export default {
     name: 'CourseUnitView',

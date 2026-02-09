@@ -181,6 +181,7 @@
   .title-actions-wrapper {
     display: flex;
     align-items: center;
+    min-width: 0;
   }
 
   .title-actions-wrapper {

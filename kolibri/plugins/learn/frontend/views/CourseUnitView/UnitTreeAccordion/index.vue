@@ -1,30 +1,32 @@
 <template>
 
-  <AccordionContainer listWrapperTag="ul">
-    <li class="tree-item">
-      <div class="item-content">
+  <AccordionContainer
+    listWrapperTag="ul"
+    class="unit-tree-accordion-container"
+  >
+    <TreeItem
+      :title="preTestLabel$()"
+      :description="completedLabel$()"
+      :style="{
+        backgroundColor: $themePalette.grey.v_100,
+      }"
+    >
+      <template #leading-actions>
         <KIcon
           class="item-icon"
           icon="exercise"
           :color="$themePalette.blue.v_500"
         />
-        <div>
-          <div class="title">
-            {{ preTestLabel$() }}
-          </div>
-          <div class="description">
-            {{ completedLabel$() }}
-          </div>
-        </div>
-      </div>
-      <div class="item-actions">
+      </template>
+      <template #trailing-actions>
         <KIcon
           class="item-icon"
           icon="mastered"
           :color="$themePalette.grey.v_400"
         />
-      </div>
-    </li>
+      </template>
+    </TreeItem>
+
     <AccordionItem
       v-for="lesson in lessons"
       :key="lesson.id"
@@ -36,6 +38,14 @@
         padding: '0px 8px 0px 16px',
         height: '52px',
         backgroundColor: $themePalette.grey.v_100,
+        outlineOffset: '-3px !important',
+        borderBottom: '1px solid ' + $themeTokens.fineLine,
+      }"
+      :contentAppearanceOverrides="{
+        padding: 0,
+      }"
+      :style="{
+        border: '0 !important',
       }"
     >
       <template #leading-actions>
@@ -46,7 +56,11 @@
       </template>
       <template #title>
         <div class="accordion-item-title">
-          <div class="title">{{ lesson.title }}</div>
+          <KTextTruncator
+            :text="lesson.title"
+            :maxLines="1"
+            class="title"
+          />
           <div class="description">
             <span>
               {{ getRatioLabel(lesson) }}
@@ -58,30 +72,54 @@
           </div>
         </div>
       </template>
+      <template #content>
+        <ul class="resource-list">
+          <TreeItem
+            v-for="resource in getResources(lesson)"
+            :key="resource.id"
+            :title="resource.title"
+            class="resource-item"
+            :selected="resource.id === currentResourceId"
+            @click="onResourceClick(resource)"
+          >
+            <template #leading-actions>
+              <LearningActivityIcon
+                :kind="resource.learning_activities"
+                class="item-icon"
+              />
+            </template>
+            <template #trailing-actions>
+              <KIcon
+                class="item-icon"
+                icon="notStarted"
+              />
+            </template>
+          </TreeItem>
+        </ul>
+      </template>
     </AccordionItem>
-    <li class="tree-item">
-      <div class="item-content">
+
+    <TreeItem
+      :title="postTestLabel$()"
+      :description="ratioLabel$({ number: 0, total: 5 })"
+      :style="{
+        backgroundColor: $themePalette.grey.v_100,
+      }"
+    >
+      <template #leading-actions>
         <KIcon
           class="item-icon"
           icon="exercise"
           :color="$themePalette.blue.v_500"
         />
-        <div>
-          <div class="title">
-            {{ postTestLabel$() }}
-          </div>
-          <div class="description">
-            {{ ratioLabel$({ number: 0, total: 5 }) }}
-          </div>
-        </div>
-      </div>
-      <div class="item-actions">
+      </template>
+      <template #trailing-actions>
         <KIcon
           class="item-icon"
           icon="notStarted"
         />
-      </div>
-    </li>
+      </template>
+    </TreeItem>
   </AccordionContainer>
 
 </template>
@@ -89,20 +127,29 @@
 
 <script>
 
+  import { computed } from 'vue';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer.vue';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem.vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import Modalities from 'kolibri-constants/Modalities';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import { computed } from 'vue';
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
+  import { useRoute, useRouter } from 'vue-router/composables';
+  import { PageNames } from '../../../constants';
+  import TreeItem from './TreeItem.vue';
 
   export default {
     name: 'UnitTreeAccordion',
     components: {
+      LearningActivityIcon,
       AccordionContainer,
       AccordionItem,
+      TreeItem,
     },
     setup(props) {
+      const router = useRouter();
+      const route = useRoute();
+
       const lessons = computed(() => {
         return props.unitTree?.children?.results?.filter(
           child => child.modality === Modalities.LESSON,
@@ -118,9 +165,26 @@
         return ratioLabel$({ number: 0, total: totalResources });
       };
 
+      const getResources = lesson => {
+        return lesson.children?.results || [];
+      };
+
+      const onResourceClick = resource => {
+        router.replace({
+          name: PageNames.COURSE_CONTENT,
+          params: {
+            ...route.params,
+            resourceId: resource.id,
+            lessonId: resource.parent,
+          },
+        });
+      };
+
       return {
         lessons,
+        getResources,
         getRatioLabel,
+        onResourceClick,
 
         ratioLabel$,
         currentLabel$,
@@ -134,6 +198,10 @@
         type: Object,
         required: true,
       },
+      currentResourceId: {
+        type: String,
+        default: null,
+      },
       currentLessonId: {
         type: String,
         default: null,
@@ -146,25 +214,8 @@
 
 <style scoped lang="scss">
 
-  .tree-item {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    justify-content: space-between;
-    height: 52px;
-    padding: 12px 16px;
-    /* stylelint-disable-next-line */
-    border-bottom: 1px solid v-bind('$themeTokens.fineLine');
-
-    .item-content {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-
-      .description {
-        font-size: 12px;
-      }
-    }
+  .unit-tree-accordion-container {
+    border: 0 !important;
   }
 
   .accordion-item-title {
@@ -172,9 +223,11 @@
     flex: 1;
     flex-direction: column;
     align-items: flex-start;
+    min-width: 0;
 
     .title {
       font-size: 14px;
+      line-height: 1.2;
     }
 
     .description {
@@ -211,6 +264,12 @@
     /* stylelint-disable-next-line */
     background-color: v-bind('$themePalette.blue.v_100');
     border-radius: 10px;
+  }
+
+  .resource-list {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
   }
 
 </style>
