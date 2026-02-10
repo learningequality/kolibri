@@ -49,7 +49,7 @@
   import store from 'kolibri/store';
   import { useRouter } from 'vue-router/composables';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource.js';
-  import { computed, ref, watch } from 'vue';
+  import { computed, nextTick, ref, watch } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import Modalities from 'kolibri-constants/Modalities';
   import useFetch from 'kolibri-common/composables/useFetch.js';
@@ -139,46 +139,89 @@
         return resources;
       });
 
-      const currentResourceIndexInUnit = computed(() => {
-        if (props.testType) {
-          // Pre/Post test content is handled differently
-          return null;
-        }
-        const index = unitResources.value?.findIndex(resource => resource.id === props.resourceId);
-        if (index >= 0) {
-          return index;
-        }
-        return null;
-      });
-
       const currentLesson = computed(() => {
         return currentLessons.value?.find(lesson => lesson.id === props.lessonId);
       });
 
       const currentResource = computed(() => {
-        if (currentResourceIndexInUnit.value === null) {
-          return null;
-        }
-        return unitResources.value[currentResourceIndexInUnit.value];
+        return currentLesson.value?.children.results.find(
+          resource => resource.id === props.resourceId,
+        );
       });
 
-      watch(
-        [unitTree, currentLesson, currentResource, courseUnits],
-        ([newUnit, newLesson, newResource, newCourseUnits]) => {
-          // eslint-disable-next-line
-          console.log('Watching changes:', newUnit, newLesson, newResource, newCourseUnits);
-        },
-      );
+      const checkValidPosition = (current, expected, data) => {
+        if (!data) {
+          // no data to make a decision
+          return true;
+        }
+        const currentIndex = data.findIndex(item => item.id === current);
+        const expectedIndex = data.findIndex(item => item.id === expected);
+        if (currentIndex < 0 || expectedIndex < 0 || currentIndex > expectedIndex) {
+          // invalid or ahead of the expected position, redirect to a valid position
+          return false;
+        }
+        return true;
+      };
+
+      const shouldRedirectToResumePosition = () => {
+        if (!props.unitId || !props.lessonId || !props.resourceId) {
+          // no data, redirect
+          return true;
+        }
+
+        if (
+          props.unitId === resumeData.value?.resume_position?.unit_id &&
+          props.lessonId === resumeData.value?.resume_position?.lesson_id &&
+          props.resourceId === resumeData.value?.resume_position?.resource_id
+        ) {
+          // already at the resume position, no need to redirect
+          return false;
+        }
+
+        if (
+          !checkValidPosition(
+            props.unitId,
+            resumeData.value?.resume_position?.unit_id,
+            courseUnits.value,
+          )
+        ) {
+          return true;
+        }
+
+        if (
+          !checkValidPosition(
+            props.lessonId,
+            resumeData.value?.resume_position?.lesson_id,
+            currentLessons.value,
+          )
+        ) {
+          return true;
+        }
+
+        if (
+          !checkValidPosition(
+            props.resourceId,
+            resumeData.value?.resume_position?.resource_id,
+            unitResources.value,
+          )
+        ) {
+          return true;
+        }
+
+        if (unitTree.value && (!currentResource.value || !currentLesson.value)) {
+          // either the lesson doesn't belong to the unit or the resource doesn't belong to the
+          // lesson, redirect to a valid position
+          return true;
+        }
+
+        return false;
+      };
 
       const checkRedirect = async () => {
         if (!resumeData.value) {
           await fetchResumeData();
         }
-        const missingParams = !props.unitId || !props.lessonId || !props.resourceId;
-        if (props.testType || !missingParams) {
-          // no need to redirect
-          return false;
-        }
+        await nextTick();
         if (!resumeData.value.started) {
           router.replace({
             name: PageNames.HOME,
@@ -186,33 +229,46 @@
           return true;
         }
 
-        if (resumeData.active_test) {
+        if (resumeData.value.active_test) {
+          if (
+            resumeData.value.active_test.unit_id === props.unitId &&
+            resumeData.value.active_test.test_type === props.testType
+          ) {
+            // already on the right page, no need to redirect
+            return false;
+          }
+
           router.replace({
             name: PageNames.COURSE_CONTENT_TEST,
             params: {
               courseId: props.courseId,
-              unitId: resumeData.active_test.unit_id,
-              testType: resumeData.active_test.test_type,
+              unitId: resumeData.value.active_test.unit_id,
+              testType: resumeData.value.active_test.test_type,
             },
           });
           return true;
         }
 
-        if (resumeData.resume_position) {
+        if (resumeData.value.resume_position) {
+          if (!shouldRedirectToResumePosition()) {
+            // already at a valid position, no need to redirect
+            return false;
+          }
+
           router.replace({
             name: PageNames.COURSE_CONTENT__RESOURCE,
             params: {
               courseId: props.courseId,
-              unitId: resumeData.resume_position.unit_id,
-              lessonId: resumeData.resume_position.lesson_id,
-              resourceId: resumeData.resume_position.resource_id,
+              unitId: resumeData.value.resume_position.unit_id,
+              lessonId: resumeData.value.resume_position.lesson_id,
+              resourceId: resumeData.value.resume_position.resource_id,
             },
           });
 
           return true;
         }
 
-        // People freely browse their completed courses
+        // People can freely browse completed courses
         return false;
       };
 
@@ -240,6 +296,8 @@
           const redirected = await checkRedirect();
           if (!redirected) {
             await fetchCourseWithUnitsData();
+            await nextTick();
+            await checkRedirect();
           }
         },
         { immediate: true },
@@ -250,10 +308,16 @@
         async newUnitId => {
           if (newUnitId) {
             await fetchUnitTreeData();
+            await nextTick();
+            await checkRedirect();
           }
         },
         { immediate: true },
       );
+
+      watch([() => props.lessonId, () => props.resourceId, () => props.testType], () => {
+        checkRedirect();
+      });
 
       return {
         course,
