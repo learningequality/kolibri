@@ -73,12 +73,11 @@ describe('CourseUnitView', () => {
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT,
+          name: PageNames.COURSE_CONTENT_TEST,
           params: {
             courseId: 'course-1',
             unitId: 'unit-1',
-            lessonId: null,
-            resourceId: 'pre',
+            testType: 'pre',
           },
         });
       });
@@ -101,7 +100,7 @@ describe('CourseUnitView', () => {
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT,
+          name: PageNames.COURSE_CONTENT__RESOURCE,
           params: {
             courseId: 'course-1',
             unitId: 'unit-1',
@@ -128,7 +127,7 @@ describe('CourseUnitView', () => {
     it('does not redirect if it is a pre/post test', async () => {
       renderComponent({
         unitId: 'unit-1',
-        resourceId: 'pre',
+        testType: 'pre',
       });
 
       await waitFor(() => {

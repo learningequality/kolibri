@@ -85,8 +85,57 @@ export default [
     component: ExamReportViewer,
   },
   {
-    name: PageNames.COURSE_CONTENT,
-    path: '/course/:courseId/u/:unitId?/l/:lessonId?/r/:resourceId?',
+    name: PageNames.COURSE_CONTENT__RESOURCE,
+    path: '/course/:courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})/l/:lessonId([a-f0-9]{32})/r/:resourceId([a-f0-9]{32})',
+    handler: () => {
+      if (noClassesGuard()) {
+        return noClassesGuard();
+      }
+    },
+    component: CourseUnitView,
+    props: true,
+  },
+  {
+    name: PageNames.COURSE_CONTENT__LESSON,
+    path: '/course/:courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})/l/:lessonId([a-f0-9]{32})',
+    handler: () => {
+      if (noClassesGuard()) {
+        return noClassesGuard();
+      }
+    },
+    component: CourseUnitView,
+    props: true,
+  },
+  {
+    name: PageNames.COURSE_CONTENT_TEST,
+    path: '/course/:courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})/t/:testType(pre|post)',
+    handler: () => {
+      if (noClassesGuard()) {
+        return noClassesGuard();
+      }
+    },
+    component: CourseUnitView,
+    props: true,
+  },
+  {
+    name: PageNames.COURSE_CONTENT__UNIT,
+    path: '/course/:courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})',
+    handler: () => {
+      if (noClassesGuard()) {
+        return noClassesGuard();
+      }
+    },
+    component: CourseUnitView,
+    props: true,
+  },
+  {
+    name: PageNames.COURSE_CONTENT__COURSE,
+    path: '/course/:courseId([a-f0-9]{32})',
+    handler: () => {
+      if (noClassesGuard()) {
+        return noClassesGuard();
+      }
+    },
     component: CourseUnitView,
     props: true,
   },

@@ -58,11 +58,6 @@
   import PrevNextBar from '../PrevNextBar/index.vue';
   import { PageNames } from '../../constants.js';
 
-  const TestType = {
-    PRE: 'pre',
-    POST: 'post',
-  };
-
   export default {
     name: 'CourseUnitView',
     components: {
@@ -71,10 +66,6 @@
     },
     setup(props) {
       const router = useRouter();
-
-      const isPrePostTest = computed(
-        () => props.unitId && [TestType.PRE, TestType.POST].includes(props.resourceId),
-      );
 
       const currentResourceNumber = ref(5);
       const totalResources = ref(10);
@@ -116,10 +107,23 @@
           }),
       });
 
+      const {
+        data: resumeData,
+        loading: resumeDataLoading,
+        error: resumeDataError,
+        fetchData: fetchResumeData,
+      } = useFetch({
+        fetchMethod: () => LearnerCourseResource.getResumeData(props.courseId),
+      });
+
       const course = computed(() => courseWithUnits.value?.course);
       const courseUnits = computed(() => courseWithUnits.value?.units);
-      const loading = computed(() => courseWithUnitsLoading.value || unitTreeLoading.value);
-      const error = computed(() => courseWithUnitsError.value || unitTreeError.value);
+      const loading = computed(
+        () => courseWithUnitsLoading.value || unitTreeLoading.value || resumeDataLoading.value,
+      );
+      const error = computed(
+        () => courseWithUnitsError.value || unitTreeError.value || resumeDataError.value,
+      );
 
       const currentLessons = computed(() => {
         return unitTree.value?.children.results.filter(
@@ -127,18 +131,35 @@
         );
       });
 
+      const unitResources = computed(() => {
+        const resources = [];
+        for (const lesson of currentLessons.value || []) {
+          resources.push(...(lesson.children.results || []));
+        }
+        return resources;
+      });
+
+      const currentResourceIndexInUnit = computed(() => {
+        if (props.testType) {
+          // Pre/Post test content is handled differently
+          return null;
+        }
+        const index = unitResources.value?.findIndex(resource => resource.id === props.resourceId);
+        if (index >= 0) {
+          return index;
+        }
+        return null;
+      });
+
       const currentLesson = computed(() => {
         return currentLessons.value?.find(lesson => lesson.id === props.lessonId);
       });
 
       const currentResource = computed(() => {
-        if (isPrePostTest.value) {
-          // Pre/Post test content is handled differently
+        if (currentResourceIndexInUnit.value === null) {
           return null;
         }
-        return currentLesson.value?.children?.results.find(
-          resource => resource.id === props.resourceId,
-        );
+        return unitResources.value[currentResourceIndexInUnit.value];
       });
 
       watch(
@@ -150,13 +171,15 @@
       );
 
       const checkRedirect = async () => {
+        if (!resumeData.value) {
+          await fetchResumeData();
+        }
         const missingParams = !props.unitId || !props.lessonId || !props.resourceId;
-        if (isPrePostTest.value || !missingParams) {
+        if (props.testType || !missingParams) {
           // no need to redirect
           return false;
         }
-        const resumeData = await LearnerCourseResource.getResumeData(props.courseId);
-        if (!resumeData.started) {
+        if (!resumeData.value.started) {
           router.replace({
             name: PageNames.HOME,
           });
@@ -165,12 +188,11 @@
 
         if (resumeData.active_test) {
           router.replace({
-            name: PageNames.COURSE_CONTENT,
+            name: PageNames.COURSE_CONTENT_TEST,
             params: {
               courseId: props.courseId,
               unitId: resumeData.active_test.unit_id,
-              lessonId: null,
-              resourceId: resumeData.active_test.test_type,
+              testType: resumeData.active_test.test_type,
             },
           });
           return true;
@@ -178,7 +200,7 @@
 
         if (resumeData.resume_position) {
           router.replace({
-            name: PageNames.COURSE_CONTENT,
+            name: PageNames.COURSE_CONTENT__RESOURCE,
             params: {
               courseId: props.courseId,
               unitId: resumeData.resume_position.unit_id,
@@ -190,7 +212,7 @@
           return true;
         }
 
-        // What to do for completed courses?
+        // People freely browse their completed courses
         return false;
       };
 
@@ -215,8 +237,10 @@
       watch(
         () => props.courseId,
         async () => {
-          await checkRedirect();
-          await fetchCourseWithUnitsData();
+          const redirected = await checkRedirect();
+          if (!redirected) {
+            await fetchCourseWithUnitsData();
+          }
         },
         { immediate: true },
       );
@@ -257,6 +281,10 @@
         default: null,
       },
       resourceId: {
+        type: String,
+        default: null,
+      },
+      testType: {
         type: String,
         default: null,
       },
