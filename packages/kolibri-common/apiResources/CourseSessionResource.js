@@ -23,6 +23,12 @@ export default new Resource({
       method: 'GET',
     }).then(response => response.data);
   },
+  lastUnitTest({ id }) {
+    return client({
+      url: this.getUrlFunction('other_last_unit_test')(id),
+      method: 'GET',
+    }).then(response => response.data);
+  },
   testHistory({ id }) {
     return client({
       url: this.getUrlFunction('test_history')(id),
