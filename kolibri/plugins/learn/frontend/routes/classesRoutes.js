@@ -8,7 +8,8 @@ import { showAllClassesPage } from '../modules/classes/handlers';
 import { showExam } from '../modules/examViewer/handlers';
 import { showExamReport } from '../modules/examReportViewer/handlers';
 import { inClasses } from '../composables/useCoreLearn';
-import ExamPage from '../views/ExamPage';
+import ExamPage from '../views/ExamPage/index.vue';
+import CourseUnitView from '../views/CourseUnitView/index.vue';
 import ExamReportViewer from '../views/LearnExamReportViewer';
 import AllClassesPage from '../views/classes/AllClassesPage';
 import ClassAssignmentsPage from '../views/classes/ClassAssignmentsPage';
@@ -82,5 +83,60 @@ export default [
       showExamReport(store, toRoute.params);
     },
     component: ExamReportViewer,
+  },
+  {
+    name: PageNames.COURSE_CONTENT__RESOURCE,
+    path: '/course/:courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})/l/:lessonId([a-f0-9]{32})/r/:resourceId([a-f0-9]{32})',
+    handler: () => {
+      if (noClassesGuard()) {
+        return noClassesGuard();
+      }
+    },
+    component: CourseUnitView,
+    props: true,
+  },
+  {
+    name: PageNames.COURSE_CONTENT__LESSON,
+    path: '/course/:courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})/l/:lessonId([a-f0-9]{32})',
+    handler: () => {
+      if (noClassesGuard()) {
+        return noClassesGuard();
+      }
+    },
+    component: CourseUnitView,
+    props: true,
+  },
+  {
+    name: PageNames.COURSE_CONTENT_TEST,
+    path: '/course/:courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})/t/:testType(pre|post)',
+    handler: () => {
+      if (noClassesGuard()) {
+        return noClassesGuard();
+      }
+    },
+    component: CourseUnitView,
+    props: true,
+  },
+  {
+    name: PageNames.COURSE_CONTENT__UNIT,
+    path: '/course/:courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})',
+    handler: () => {
+      if (noClassesGuard()) {
+        return noClassesGuard();
+      }
+    },
+    component: CourseUnitView,
+    props: true,
+  },
+  {
+    name: PageNames.COURSE_CONTENT__COURSE,
+    path: '/course/:courseId([a-f0-9]{32})',
+    handler: () => {
+      if (noClassesGuard()) {
+        return noClassesGuard();
+      }
+    },
+    component: CourseUnitView,
+    props: true,
   },
 ];

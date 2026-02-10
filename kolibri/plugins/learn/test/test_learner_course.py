@@ -15,6 +15,9 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
+from kolibri.core.courses.models import TestStatus
+from kolibri.core.courses.models import TestType
+from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.logger.models import ContentSummaryLog
 
 
@@ -23,6 +26,115 @@ DUMMY_PASSWORD = "password"
 
 class LearnerCourseTestCase(APITestCase):
     databases = "__all__"
+
+    def _create_lesson(self, unit, title, resources):
+        lesson = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=unit.channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=unit,
+            available=True,
+            kind=content_kinds.TOPIC,
+            modality=modalities.LESSON,
+            title=title,
+            description="",
+        )
+        new_resources = []
+        for i in range(resources):
+            content_id = uuid.uuid4().hex
+            resource = ContentNode.objects.create(
+                id=uuid.uuid4().hex,
+                channel_id=unit.channel_id,
+                content_id=content_id,
+                parent=lesson,
+                available=True,
+                kind=content_kinds.VIDEO,
+                title=f"Resource {i+1}",
+                description="",
+            )
+            ContentSummaryLog.objects.create(
+                user=self.learner,
+                content_id=content_id,
+                kind=content_kinds.VIDEO,
+                progress=0.0,
+                start_timestamp=now(),
+            )
+            new_resources.append(resource)
+        return lesson, new_resources
+
+    def _create_unit(self, course_session, course, title, lessons, resources):
+        unit = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=course.channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=course,
+            available=True,
+            kind=content_kinds.TOPIC,
+            modality=modalities.UNIT,
+            title=title,
+            description="",
+        )
+        new_lessons = []
+        for i in range(lessons):
+            lesson = self._create_lesson(unit, f"Lesson {i+1}", resources)
+            new_lessons.append(lesson)
+
+        pre_test = UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            is_active=False,
+            status=TestStatus.NotStarted,
+        )
+
+        post_test = UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit.id,
+            collection=self.classroom,
+            test_type=TestType.Post,
+            is_active=False,
+            status=TestStatus.NotStarted,
+        )
+
+        return unit, new_lessons, pre_test, post_test
+
+    def _create_course(self, units, lessons, resources):
+        channel_id = uuid.uuid4().hex
+        course = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            modality=modalities.COURSE,
+            title="Course With Units",
+            description="",
+        )
+        course_session = CourseSession.objects.create(
+            collection=self.classroom,
+            is_active=True,
+            created_by=self.coach,
+            course=course.id,
+            title=course.title,
+            description=course.description,
+        )
+        CourseSessionAssignment.objects.create(
+            course_session=course_session,
+            assigned_by=self.coach,
+            collection=self.classroom,
+        )
+
+        new_units = []
+        for i in range(units):
+            unit = self._create_unit(
+                course_session=course_session,
+                course=course,
+                title=f"Unit {i+1}",
+                lessons=lessons,
+                resources=resources,
+            )
+            new_units.append(unit)
+        return course, course_session, new_units
 
     def setUp(self):
         clear_process_cache()
@@ -318,3 +430,207 @@ class LearnerCourseTestCase(APITestCase):
         # Ensure unit and lesson counts are annotated correctly
         self.assertEqual(get_request.data.get("unit_count"), 1)
         self.assertEqual(get_request.data.get("lesson_count"), 2)
+
+    def test_learner_course_resume__course_not_started(self):
+        course, course_session, units = self._create_course(
+            units=3, lessons=3, resources=3
+        )
+        # no unit tests started
+
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+
+        get_request = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        )
+
+        self.assertEqual(get_request.status_code, 200)
+        response = get_request.data
+        self.assertEqual(response["started"], False)
+        self.assertEqual(response["active_test"], None)
+        self.assertEqual(response["resume_position"], None)
+
+    def test_learner_course_resume__pre_test_active(self):
+        course, course_session, units = self._create_course(
+            units=5, lessons=5, resources=5
+        )
+        # unit 3 pre test active
+        for i in range(2):
+            unit, lessons, pre_test, post_test = units[i]
+            pre_test.status = TestStatus.Ended
+            pre_test.save()
+
+            post_test.status = TestStatus.Ended
+            post_test.is_active = True
+            post_test.save()
+
+        unit, lessons, pre_test, post_test = units[2]
+        pre_test.status = TestStatus.Active
+        pre_test.is_active = True
+        pre_test.save()
+
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+
+        get_request = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        )
+
+        self.assertEqual(get_request.status_code, 200)
+        response = get_request.data
+        self.assertEqual(response["started"], True)
+        self.assertEqual(response["active_test"]["unit_id"], unit.id)
+        self.assertEqual(response["active_test"]["test_type"], TestType.Pre)
+        self.assertEqual(response["resume_position"], None)
+
+    def test_learner_course_resume__post_test_active(self):
+        course, course_session, units = self._create_course(
+            units=5, lessons=5, resources=5
+        )
+        # unit 4 post test active
+        for i in range(3):
+            unit, lessons, pre_test, post_test = units[i]
+            pre_test.status = TestStatus.Ended
+            pre_test.save()
+
+            post_test.status = TestStatus.Ended
+            post_test.is_active = True
+            post_test.save()
+
+        unit, lessons, pre_test, post_test = units[3]
+        pre_test.status = TestStatus.Ended
+        pre_test.save()
+
+        post_test.status = TestStatus.Active
+        post_test.is_active = True
+        post_test.save()
+
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+
+        get_request = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        )
+
+        self.assertEqual(get_request.status_code, 200)
+        response = get_request.data
+        self.assertEqual(response["started"], True)
+        self.assertEqual(response["active_test"]["unit_id"], unit.id)
+        self.assertEqual(response["active_test"]["test_type"], TestType.Post)
+        self.assertEqual(response["resume_position"], None)
+
+    def test_learner_course_resume__resume_position_first_resource(self):
+        course, course_session, units = self._create_course(
+            units=2, lessons=5, resources=5
+        )
+        unit, lessons, pre_test, post_test = units[0]
+        # Just first unit pre test ended, no progress on any resource, so
+        # resume position should be first resource of first lesson of first unit
+        pre_test.status = TestStatus.Ended
+        pre_test.save()
+
+        resume_lesson, lesson_resources = lessons[0]
+
+        resume_resource = lesson_resources[0]
+
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+
+        get_request = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        )
+
+        self.assertEqual(get_request.status_code, 200)
+        response = get_request.data
+        self.assertEqual(response["started"], True)
+        self.assertEqual(response["active_test"], None)
+        self.assertEqual(response["resume_position"]["unit_id"], unit.id)
+        self.assertEqual(response["resume_position"]["lesson_id"], resume_lesson.id)
+        self.assertEqual(response["resume_position"]["resource_id"], resume_resource.id)
+
+    def test_learner_course_resume__resume_position(self):
+        course, course_session, units = self._create_course(
+            units=5, lessons=5, resources=5
+        )
+        # 3 units completed
+        for i in range(3):
+            unit, lessons, pre_test, post_test = units[i]
+            pre_test.status = TestStatus.Ended
+            pre_test.save()
+
+            post_test.status = TestStatus.Ended
+            post_test.save()
+
+            for (lesson, lesson_resources) in lessons:
+                for resource in lesson_resources:
+                    log = ContentSummaryLog.objects.get(
+                        user=self.learner, content_id=resource.content_id
+                    )
+                    log.progress = 1.0
+                    log.completion_timestamp = now()
+                    log.save()
+
+        # Unit 4, lesson 1, resource 2 in progress
+        resume_unit, lessons, pre_test, post_test = units[3]
+        pre_test.status = TestStatus.Ended
+        pre_test.save()
+        resume_lesson, lesson_resources = lessons[0]
+        resource_1 = lesson_resources[0]
+
+        log = ContentSummaryLog.objects.get(
+            user=self.learner, content_id=resource_1.content_id
+        )
+        log.progress = 1.0
+        log.completion_timestamp = now()
+        log.save()
+
+        resume_resource = lesson_resources[1]
+        log = ContentSummaryLog.objects.get(
+            user=self.learner, content_id=resume_resource.content_id
+        )
+        log.progress = 0.5
+        log.save()
+
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+
+        get_request = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        )
+
+        self.assertEqual(get_request.status_code, 200)
+        response = get_request.data
+        self.assertEqual(response["started"], True)
+        self.assertEqual(response["active_test"], None)
+        self.assertEqual(response["resume_position"]["unit_id"], resume_unit.id)
+        self.assertEqual(response["resume_position"]["lesson_id"], resume_lesson.id)
+        self.assertEqual(response["resume_position"]["resource_id"], resume_resource.id)
+
+    def test_learner_course_resume__course_complete(self):
+        course, course_session, units = self._create_course(
+            units=5, lessons=5, resources=5
+        )
+        # All units completed
+        for i in range(5):
+            unit, lessons, pre_test, post_test = units[i]
+            pre_test.status = TestStatus.Ended
+            pre_test.save()
+
+            post_test.status = TestStatus.Ended
+            post_test.save()
+
+            for (lesson, lesson_resources) in lessons:
+                for resource in lesson_resources:
+                    log = ContentSummaryLog.objects.get(
+                        user=self.learner, content_id=resource.content_id
+                    )
+                    log.progress = 1.0
+                    log.completion_timestamp = now()
+                    log.save()
+
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+
+        get_request = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        )
+
+        self.assertEqual(get_request.status_code, 200)
+        response = get_request.data
+        self.assertEqual(response["started"], True)
+        self.assertEqual(response["active_test"], None)
+        self.assertEqual(response["resume_position"], None)

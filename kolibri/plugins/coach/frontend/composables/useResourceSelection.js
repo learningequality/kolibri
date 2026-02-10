@@ -3,10 +3,10 @@ import { ref, computed, getCurrentInstance, watch } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import useBaseSearch from 'kolibri-common/composables/useBaseSearch';
-import useFetch from './useFetch';
+import useFetch from 'kolibri-common/composables/useFetch.js';
 
 /**
- * @typedef {import('../../../../../../composables/useFetch').FetchObject} FetchObject
+ * @typedef {import('kolibri-common/composables/useFetch.js').FetchObject} FetchObject
  */
 
 /**

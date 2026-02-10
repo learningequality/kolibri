@@ -2,7 +2,7 @@ import Modalities from 'kolibri-constants/Modalities';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import { ref, computed, provide, inject, watch } from 'vue';
-import useFetch from '../../../composables/useFetch';
+import useFetch from 'kolibri-common/composables/useFetch.js';
 import { useCourses } from '../../../composables/useCourses';
 
 /**
@@ -85,7 +85,7 @@ export default function useAssignCourse({ classId }) {
 }
 
 /**
- * @typedef {import('../../../composables/useFetch').FetchObject} FetchObject
+ * @typedef {import('kolibri-common/composables/useFetch.js').FetchObject} FetchObject
  *
  * @typedef {Object} AssignCourseInjectObject
  * @property {import('vue').Ref<string>} classId The id of the class to which the course will
