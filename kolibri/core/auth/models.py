@@ -349,11 +349,11 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         # by default, we'll use randomly generated source IDs; this can be overridden as desired
         return None
 
-    def clean_fields(self, *args, **kwargs):
+    def clean_fields(self, exclude=None, sync_filter=None):
         # ensure that we have, or can infer, a dataset for the model instance
         if not self.dataset_id:
             self.ensure_dataset(validating=True)
-        super().clean_fields(*args, **kwargs)
+        super().clean_fields(exclude=exclude, sync_filter=sync_filter)
 
     def full_clean(self, *args, **kwargs):
         kwargs["exclude"] = kwargs.get("exclude", []) + getattr(
@@ -915,13 +915,13 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         return self.full_name.split(" ", 1)[0]
 
     @classmethod
-    def deserialize(cls, dict_model):
+    def deserialize(cls, dict_model, sync_filter=None):
         # be defensive against blank passwords, set to `NOT_SPECIFIED` if blank
         password = dict_model.get("password", "") or ""
         if len(password) == 0:
             dict_model.update(password=NOT_SPECIFIED)
 
-        return super().deserialize(dict_model)
+        return super().deserialize(dict_model, sync_filter=sync_filter)
 
     @classmethod
     def get_is_active_q(cls, relation_prefix=""):
@@ -1209,9 +1209,9 @@ class Collection(AbstractFacilityDataModel):
     def calculate_partition(self):
         return "{dataset_id}:allusers-ro".format(dataset_id=self.dataset_id)
 
-    def clean_fields(self, *args, **kwargs):
+    def clean_fields(self, exclude=None, sync_filter=None):
         self._ensure_kind()
-        super().clean_fields(*args, **kwargs)
+        super().clean_fields(exclude=exclude, sync_filter=sync_filter)
 
     def save(self, *args, **kwargs):
         self._ensure_kind()
@@ -1820,13 +1820,13 @@ class AdHocGroup(Collection):
         proxy = True
 
     @classmethod
-    def deserialize(cls, dict_model):
+    def deserialize(cls, dict_model, sync_filter=None):
         # be defensive against blank names, set to `Ad hoc` if blank
         name = dict_model.get("name", "") or ""
         if len(name) == 0:
             dict_model.update(name="Ad hoc")
 
-        return super().deserialize(dict_model)
+        return super().deserialize(dict_model, sync_filter=sync_filter)
 
     def save(self, *args, **kwargs):
         if not self.parent:

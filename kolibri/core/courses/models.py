@@ -10,7 +10,6 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.utils.sync import ClassroomPartitionFactory
-from kolibri.core.device.utils import get_device_setting
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
@@ -99,20 +98,22 @@ class CourseSession(AbstractFacilityDataModel):
         return str(filter_factory.build(classroom_collection.id))
 
     @classmethod
-    def deserialize(cls, dict_model):
-        """
-        Temporary hack to prevent deserialization of created_by_id
+    def deserialize(cls, dict_model, sync_filter=None):
 
-        A proper implementation should leverage the new sync_filter in the enhancement of
-        https://github.com/learningequality/morango/issues/281
-        """
-        # this needs to check both for the setup wizard, and another reason why this is better
-        # handled with logic based off the sync_filter
-        if get_device_setting("subset_of_users_device") or not get_device_setting(
-            "is_provisioned"
-        ):
-            del dict_model["created_by_id"]
-        return super().deserialize(dict_model)
+        if sync_filter is not None and "created_by_id" in dict_model:
+            created_by_id = dict_model["created_by_id"]
+            dataset_id = dict_model.get("dataset_id")
+            if created_by_id and dataset_id:
+                user_partition = f"{dataset_id}:user-ro:{created_by_id}"
+                super_partition = f"{dataset_id}"
+
+                if (
+                    user_partition not in sync_filter
+                    and super_partition not in sync_filter
+                ):
+                    del dict_model["created_by_id"]
+
+        return super().deserialize(dict_model, sync_filter=sync_filter)
 
 
 class CourseSessionAssignment(AbstractFacilityDataModel):
@@ -209,19 +210,21 @@ class CourseSessionAssignment(AbstractFacilityDataModel):
         return str(filter_factory.build(classroom_collection.id))
 
     @classmethod
-    def deserialize(cls, dict_model):
-        """
-        Temporary hack to prevent deserialization of assigned_by_id
+    def deserialize(cls, dict_model, sync_filter=None):
+        if sync_filter is not None and "assigned_by_id" in dict_model:
+            assigned_by_id = dict_model["assigned_by_id"]
+            dataset_id = dict_model.get("dataset_id")
+            if assigned_by_id and dataset_id:
+                user_partition = f"{dataset_id}:user-ro:{assigned_by_id}"
+                super_partition = f"{dataset_id}"
 
-        A proper implementation should leverage the new sync_filter in the enhancement of
-        https://github.com/learningequality/morango/issues/281
-        """
-        if get_device_setting("subset_of_users_device") or not get_device_setting(
-            "is_provisioned"
-        ):
-            del dict_model["assigned_by_id"]
-        return super().deserialize(dict_model)
+            if (
+                    user_partition not in sync_filter
+                    and super_partition not in sync_filter
+                ):
+                    del dict_model["assigned_by_id"]
 
+        return super().deserialize(dict_model, sync_filter=sync_filter)
 
 class UnitTestAssignment(AbstractFacilityDataModel):
     """
@@ -372,15 +375,18 @@ class UnitTestAssignment(AbstractFacilityDataModel):
             self.activated_by = None
 
     @classmethod
-    def deserialize(cls, dict_model):
-        """
-        For now lets implement a temporary hack to prevent deserialization of activated_by_id
+    def deserialize(cls, dict_model, sync_filter=None):
+        if sync_filter is not None and "activated_by_id" in dict_model:
+            activated_by_id = dict_model["activated_by_id"]
+            dataset_id = dict_model.get("dataset_id")
+            if activated_by_id and dataset_id:
+                user_partition = f"{dataset_id}:user-ro:{activated_by_id}"
+                super_partition = f"{dataset_id}"
 
-        A proper implementation should leverage the new sync_filter in the enhancement of
-        https://github.com/learningequality/morango/issues/281
-        """
-        if get_device_setting("subset_of_users_device") or not get_device_setting(
-            "is_provisioned"
-        ):
-            del dict_model["activated_by_id"]
-        return super().deserialize(dict_model)
+                if (
+                    user_partition not in sync_filter
+                    and super_partition not in sync_filter
+                ):
+                    del dict_model["activated_by_id"]
+
+        return super().deserialize(dict_model, sync_filter=sync_filter)
