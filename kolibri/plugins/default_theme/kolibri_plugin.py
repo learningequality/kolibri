@@ -21,6 +21,14 @@ class DefaultThemeHook(theme_hook.ThemeHook):
             },
             "sideNav": {
                 "title": "SAS",
+                "showKolibriFooterLogo": False,
+                "brandedFooter": {
+                    "logo": {
+                        "src": static("assets/default_theme/Semanhyiya_logo.png"),
+                        "alt": "Semanhyiya Logo",
+                        "style": "max-height: 100px;",
+                    },
+                },
             },
             "signIn": {
                 "background": static("assets/default_theme/background.jpg"),
@@ -36,8 +44,8 @@ class DefaultThemeHook(theme_hook.ThemeHook):
                     "size": "32x32",
                 },
                 {
-                    "src": static("assets/default_theme/kolibri-logo.svg"),
-                    "content_type": "image/svg+xml",
+                    "src": static("assets/default_theme/Semanhyiya_logo.png"),
+                    "content_type": "image/png",
                     # See https://web.dev/maskable-icon/ for details on what
                     # icons count as maskable. The default Kolibri logo is not,
                     # as the outer 'waves' circle gets cropped.
@@ -45,12 +53,12 @@ class DefaultThemeHook(theme_hook.ThemeHook):
                     "size": "any",
                 },
                 {
-                    "src": static("assets/default_theme/kolibri-logo-192.png"),
+                    "src": static("assets/default_theme/Semanhyiya_logo-192.png"),
                     "content_type": "image/png",
                     "size": "192x192",
                 },
                 {
-                    "src": static("assets/default_theme/kolibri-logo-512.png"),
+                    "src": static("assets/default_theme/Semanhyiya_logo-512.png"),
                     "content_type": "image/png",
                     "size": "512x512",
                 },
