@@ -6,6 +6,7 @@
   >
     <button
       class="tree-item"
+      :disabled="disabled"
       @click="$emit('click')"
     >
       <div class="item-content">
@@ -60,6 +61,10 @@
         default: null,
       },
       selected: {
+        type: Boolean,
+        default: false,
+      },
+      disabled: {
         type: Boolean,
         default: false,
       },
@@ -125,6 +130,11 @@
           font-size: 12px;
         }
       }
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.7;
     }
   }
 

@@ -1,4 +1,5 @@
 <template>
+
   <ResourceLayout>
     <template #topBar>
       <div class="course-title">
@@ -20,7 +21,7 @@
       <CourseContentViewer
         v-else-if="currentResource && !currentResource.assessmentmetadata"
         :contentNode="currentResource"
-        :courseSessionId="courseId"
+        @finished="onResourceFinished"
       />
     </template>
     <template
@@ -52,9 +53,11 @@
     <template #sidePanel>
       <UnitTreeAccordion
         v-if="unitTree"
+        :maxResourceLft="maxResourceLft"
         :unitTree="unitTree"
         :currentResourceId="currentResource && currentResource.id"
         :currentLessonId="currentLesson && currentLesson.id"
+        @finished="onResourceFinished"
       />
     </template>
     <template
@@ -80,13 +83,16 @@
       </div>
     </template>
   </ResourceLayout>
+
 </template>
 
+
 <script>
+
   import store from 'kolibri/store';
   import { useRouter } from 'vue-router/composables';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource.js';
-  import { computed, nextTick, ref, watch } from 'vue';
+  import { computed, nextTick, toRef, watch } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import Modalities from 'kolibri-constants/Modalities';
   import useFetch from 'kolibri-common/composables/useFetch.js';
@@ -96,6 +102,7 @@
   import { PageNames } from '../../constants.js';
   import CourseContentViewer from './CourseContentViewer.vue';
   import UnitTreeAccordion from './UnitTreeAccordion/index.vue';
+  import useCourseContentProgress from './useCourseContentProgressTracking';
 
   export default {
     name: 'CourseUnitView',
@@ -209,12 +216,46 @@
         return null;
       });
 
+      const maxResourceLft = computed(() => {
+        if (!unitResources.value || !resumeData.value) {
+          // No data, can't make a decision
+          return null;
+        }
+        if (resumeData.value.active_test) {
+          // when active test, can't navigate to other resources
+          return null;
+        }
+        if (resumeData.value.resume_position) {
+          const { unit_id: resumeUnitId, resource_id: resumeResourceId } =
+            resumeData.value.resume_position;
+          if (props.unitId === resumeUnitId) {
+            const resumeResource = unitResources.value.find(
+              resource => resource.id === resumeResourceId,
+            );
+            if (resumeResource) {
+              return resumeResource.lft;
+            } else {
+              // If the resume resource is not found, let's allow navigation to any resource
+              return Number.MAX_SAFE_INTEGER;
+            }
+          } else {
+            // If the unit is different, it must be a previous unit, so we allow
+            // navigation to any resource
+            return Number.MAX_SAFE_INTEGER;
+          }
+        }
+        // completed courses can navigate to any resource
+        return Number.MAX_SAFE_INTEGER;
+      });
+
       const prevEnabled = computed(() => currentResourceIndexInUnit.value > 0);
+
       const nextEnabled = computed(() => {
-        if (currentResourceIndexInUnit.value === null || unitResources.value === null) {
+        if (currentResourceIndexInUnit.value === null || maxResourceLft.value === null) {
           return false;
         }
-        return currentResourceIndexInUnit.value < unitResources.value.length - 1;
+        const currentResource = unitResources.value[currentResourceIndexInUnit.value];
+        return currentResource.lft < maxResourceLft.value;
       });
 
       const currentLessonResources = computed(() => {
@@ -237,6 +278,40 @@
           resource => resource.id === props.resourceId,
         );
       });
+
+      const onResourceFinished = () => {
+        if (
+          !resumeData.value?.resume_position ||
+          // If finished resource is not the current resource in resume position
+          // it means, this event is from a previous resource, so no need to update
+          resumeData.value.resume_position.resource_id !== props.resourceId ||
+          !unitResources.value
+        ) {
+          return;
+        }
+        const nextResourceIndex = currentResourceIndexInUnit.value + 1;
+        if (nextResourceIndex >= unitResources.value.length) {
+          // No more resources in the unit, no need to update, null
+          // resume_position to represent that there is no resource to resume within the
+          // unit, so all resources appear as completed
+          resumeData.value = {
+            ...resumeData.value,
+            resume_position: null,
+          };
+          return;
+        }
+
+        const nextResource = unitResources.value[nextResourceIndex];
+        // Update resume position to allow navigation to the next resource
+        resumeData.value = {
+          ...resumeData.value,
+          resume_position: {
+            unit_id: props.unitId,
+            lesson_id: nextResource.parent,
+            resource_id: nextResource.id,
+          },
+        };
+      };
 
       const checkValidPosition = (current, expected, data) => {
         if (!data) {
@@ -311,6 +386,10 @@
           await fetchResumeData();
         }
         await nextTick();
+        if (!resumeData.value) {
+          // no data to make a decision
+          return false;
+        }
         if (!resumeData.value.started) {
           router.replace({
             name: PageNames.HOME,
@@ -447,6 +526,12 @@
         checkRedirect();
       });
 
+      // Provide progress tracking to child components
+      useCourseContentProgress({
+        contentNode: currentResource,
+        courseSessionId: toRef(props, 'courseId'),
+      });
+
       return {
         course,
         loading,
@@ -458,8 +543,10 @@
         unitNumberLabel,
         prevEnabled,
         nextEnabled,
+        maxResourceLft,
         handlePrev,
         handleNext,
+        onResourceFinished,
 
         upNextLabel$,
         courseNameLabel$,
@@ -488,9 +575,12 @@
       },
     },
   };
+
 </script>
 
+
 <style scoped lang="scss">
+
   .course-title {
     display: flex;
     gap: 12px;
@@ -545,4 +635,5 @@
     /* stylelint-disable-next-line */
     border-top: 1px solid v-bind('$themeTokens.fineLine');
   }
+
 </style>

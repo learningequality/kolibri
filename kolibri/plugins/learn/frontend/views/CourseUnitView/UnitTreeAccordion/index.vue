@@ -35,6 +35,7 @@
         :class="{
           'current-lesson': lesson.id === currentLessonId,
         }"
+        :isOpenByDefault="lesson.id === currentLessonId"
         :headerAppearanceOverrides="{
           padding: '0px 8px 0px 16px',
           height: '52px',
@@ -64,7 +65,7 @@
             />
             <div class="description">
               <span>
-                {{ getRatioLabel(lesson) }}
+                {{ getLessonRatioLabel(lesson) }}
               </span>
               <span
                 v-if="lesson.id === currentLessonId"
@@ -81,6 +82,7 @@
               :title="resource.title"
               class="resource-item"
               :selected="resource.id === currentResourceId"
+              :disabled="resource.lft > maxResourceLft"
               @click="onResourceClick(resource)"
             >
               <template
@@ -99,23 +101,37 @@
                 />
               </template>
               <template #trailing-actions>
-                <div
-                  v-if="resource.id === currentResourceId"
-                  class="selected-trailing-icons"
-                >
-                  <!-- Todo, implement these buttons -->
-                  <KIconButton icon="bookmarkEmpty" />
-                  <KIconButton icon="check" />
+                <div class="selected-trailing-icons">
+                  <template v-if="resource.id === currentResourceId">
+                    <!-- TODO: Implement bookmark button -->
+                    <KIconButton icon="bookmarkEmpty" />
+                    <KIconButton
+                      v-if="
+                        resource.lft === maxResourceLft &&
+                          !currentResourceComplete &&
+                          currentResourceProgressSessionReady
+                      "
+                      icon="check"
+                      @click.stop="onCompleteClick()"
+                    />
+                  </template>
                   <KIcon
+                    v-if="resource.lft === maxResourceLft"
                     class="item-icon"
                     icon="inProgress"
                   />
+                  <KIcon
+                    v-else-if="resource.lft < maxResourceLft"
+                    class="item-icon"
+                    icon="mastered"
+                    :color="$themePalette.grey.v_400"
+                  />
+                  <KIcon
+                    v-else
+                    class="item-icon"
+                    icon="notStarted"
+                  />
                 </div>
-                <KIcon
-                  v-else
-                  class="item-icon"
-                  icon="notStarted"
-                />
               </template>
             </TreeItem>
           </ul>
@@ -161,6 +177,7 @@
   import { useRoute, useRouter } from 'vue-router/composables';
   import TimeDuration from 'kolibri-common/components/TimeDuration.vue';
   import { PageNames } from '../../../constants';
+  import { injectCourseContentProgress } from '../useCourseContentProgressTracking';
   import TreeItem from './TreeItem.vue';
 
   export default {
@@ -172,9 +189,15 @@
       TreeItem,
       TimeDuration,
     },
-    setup(props) {
+    setup(props, { emit }) {
       const router = useRouter();
       const route = useRoute();
+
+      const {
+        sessionReady: currentResourceProgressSessionReady,
+        complete: currentResourceComplete,
+        handleUpdateProgress: handleUpdateCurrentResourceProgress,
+      } = injectCourseContentProgress();
 
       const lessons = computed(() => {
         return props.unitTree?.children?.results?.filter(
@@ -185,10 +208,18 @@
       const { preTestLabel$, postTestLabel$, currentLabel$ } = coursesStrings;
       const { completedLabel$, ratioLabel$ } = coreStrings;
 
-      const getRatioLabel = lesson => {
-        const totalResources = lesson.children?.results?.length || 0;
+      const getLessonRatioLabel = lesson => {
+        const lessonResources = lesson.children?.results || [];
+        const totalResources = lessonResources.length || 0;
 
-        return ratioLabel$({ number: 0, total: totalResources });
+        let completedResources = 0;
+        for (const resource of lessonResources) {
+          if (resource.lft < props.maxResourceLft) {
+            completedResources++;
+          }
+        }
+
+        return ratioLabel$({ number: completedResources, total: totalResources });
       };
 
       const getResources = lesson => {
@@ -206,11 +237,19 @@
         });
       };
 
+      const onCompleteClick = () => {
+        handleUpdateCurrentResourceProgress(1);
+        emit('finished');
+      };
+
       return {
         lessons,
+        currentResourceComplete,
+        currentResourceProgressSessionReady,
         getResources,
-        getRatioLabel,
+        getLessonRatioLabel,
         onResourceClick,
+        onCompleteClick,
 
         ratioLabel$,
         currentLabel$,
@@ -230,6 +269,13 @@
       },
       currentLessonId: {
         type: String,
+        default: null,
+      },
+      /**
+       * The maximum lft of the resource that can be seen in the unit tree
+       */
+      maxResourceLft: {
+        type: Number,
         default: null,
       },
     },
