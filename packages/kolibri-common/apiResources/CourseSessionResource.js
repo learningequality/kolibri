@@ -25,7 +25,7 @@ export default new Resource({
   },
   lastUnitTest({ id }) {
     return client({
-      url: this.getUrlFunction('other_last_unit_test')(id),
+      url: this.getUrlFunction('last_unit_test')(id),
       method: 'GET',
     }).then(response => response.data);
   },

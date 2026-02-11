@@ -1,3 +1,4 @@
+// See courses.models for python-matched definitions for these constants
 /**
  * Unit phase constants representing the state machine for a unit's test lifecycle.
  *
@@ -10,4 +11,15 @@ export const UnitPhase = Object.freeze({
   POST_TEST_PENDING: 'post_test_pending',
   POST_TEST_ACTIVE: 'post_test_active',
   COMPLETE: 'complete',
+});
+
+export const TestType = Object.freeze({
+  PRE: 'pre',
+  POST: 'post',
+});
+
+export const TestStatus = Object.freeze({
+  NOT_STARTED: 'not_started',
+  ACTIVE: 'active',
+  ENDED: 'ended',
 });

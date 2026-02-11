@@ -1,9 +1,10 @@
 import { computed, ref } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import useSnackbar from 'kolibri/composables/useSnackbar';
-import { UnitPhase } from '../constants/courseConstants';
+import { TestStatus, TestType, UnitPhase } from '../constants/courseConstants';
 
 const {
   unitNLabel$,
@@ -14,6 +15,8 @@ const {
   preTestEndedForUnit$,
   postTestEndedForUnit$,
 } = coursesStrings;
+
+const { defaultErrorMessage$ } = coreStrings;
 
 /**
  * A composable for managing course session state.
@@ -30,9 +33,14 @@ export default function useCourseSession(courseSessionId) {
   // -----------
   const courseSession = ref(null);
   const course = ref(null);
-  const activeTest = ref(null);
-  const testHistory = ref([]);
-  const loading = ref(true);
+  const lastUnitTest = ref(null);
+  const activeTest = computed(() =>
+    lastUnitTest?.value?.status === TestStatus.ACTIVE ? lastUnitTest.value : null,
+  );
+  // UI blocking loading state
+  const pageLoading = ref(true);
+  // Informative loading state (ie, we're re-fetching the last unit test, activating/closing)
+  const dataLoading = ref(false);
 
   // -----------
   // Data fetching
@@ -40,19 +48,22 @@ export default function useCourseSession(courseSessionId) {
   CourseSessionResource.fetchModel({ id: courseSessionId })
     .then(session => {
       courseSession.value = session;
-      return Promise.all([
-        ContentNodeResource.fetchTree({ id: session.course }),
-        CourseSessionResource.activeTest({ id: courseSessionId }),
-        CourseSessionResource.testHistory({ id: courseSessionId }),
-      ]);
+      return ContentNodeResource.fetchTree({ id: session.course });
     })
-    .then(([courseData, activeTestData, historyData]) => {
+    .then(courseData => {
       course.value = courseData;
-      activeTest.value = activeTestData.active_test;
-      testHistory.value = historyData.data;
+      return CourseSessionResource.lastUnitTest({ id: courseSessionId });
+    })
+    .then(testData => {
+      lastUnitTest.value = testData;
+    })
+    .catch(e => {
+      // eslint-disable-next-line no-console
+      console.error(e);
+      createSnackbar(defaultErrorMessage$());
     })
     .finally(() => {
-      loading.value = false;
+      pageLoading.value = false;
     });
 
   // -----------
@@ -72,14 +83,6 @@ export default function useCourseSession(courseSessionId) {
   });
 
   /**
-   * The most recently completed test from history.
-   */
-  const lastCompletedTest = computed(() => {
-    if (!testHistory.value?.length) return null;
-    return testHistory.value[testHistory.value.length - 1];
-  });
-
-  /**
    * The unit currently being worked on, derived from activeTest and testHistory.
    *
    * Logic:
@@ -92,22 +95,22 @@ export default function useCourseSession(courseSessionId) {
   const activeUnit = computed(() => {
     if (!units.value.length) return null;
 
+    if (!activeTest.value && !lastUnitTest.value) {
+      // No active test and no last test taken, we're at the very beginning
+      return units.value[0];
+    }
+
     // Active test tells us exactly which unit we're on
     if (activeTest.value) {
       return units.value.find(u => u.id === activeTest.value.unit_contentnode_id);
     }
 
-    // No active test - derive from history
-    if (!lastCompletedTest.value) {
-      // No history = starting fresh at unit 0
-      return units.value[0];
-    }
-
+    // We don't have an active test, so we'll use the lastUnitTest to work out which is active
     const lastTestUnitIndex = units.value.findIndex(
-      u => u.id === lastCompletedTest.value.unit_contentnode_id,
+      u => u.id === lastUnitTest.value?.unit_contentnode_id,
     );
 
-    if (lastCompletedTest.value.test_type === 'post') {
+    if (lastUnitTest.value?.test_type === TestType.POST) {
       // Post-test done = unit complete, move to next (or null if course complete)
       return units.value[lastTestUnitIndex + 1] || null;
     }
@@ -163,32 +166,27 @@ export default function useCourseSession(courseSessionId) {
     // Course complete - all units finished
     if (isCourseComplete.value) return UnitPhase.COMPLETE;
 
-    if (!activeUnit.value) return null;
-
     // Is there a test running right now?
     if (activeTest.value) {
-      return activeTest.value.test_type === 'pre'
+      return activeTest.value.test_type === TestType.PRE
         ? UnitPhase.PRE_TEST_ACTIVE
         : UnitPhase.POST_TEST_ACTIVE;
     }
 
     // No active test - what was the last thing completed for this unit?
-    const lastTestForActiveUnit = [...(testHistory.value || [])]
-      .reverse()
-      .find(t => t.unit_contentnode_id === activeUnit.value.id);
-
-    if (!lastTestForActiveUnit) {
-      // No tests done for this unit yet
+    if (!lastUnitTest.value) {
+      // No tests done for this whole course session, so we're at the very start
       return UnitPhase.PRE_TEST_PENDING;
     }
 
-    if (lastTestForActiveUnit.test_type === 'pre') {
+    if (lastUnitTest.value.test_type === TestType.PRE) {
       // Pre-test done, ready for post-test (lessons phase)
       return UnitPhase.POST_TEST_PENDING;
+    } else {
+      // If the last unit test is a post test, we already know we have no active test
+      // so, we're pending the pre-test for the next unit
+      return UnitPhase.PRE_TEST_PENDING;
     }
-
-    // Post-test done for this unit
-    return UnitPhase.COMPLETE;
   });
 
   // -----------
@@ -202,20 +200,29 @@ export default function useCourseSession(courseSessionId) {
    * @returns {Promise} Resolves when the test is activated
    */
   function activateTest(testType) {
+    dataLoading.value = true;
     return CourseSessionResource.activateTest({
       id: courseSession.value.id,
       data: {
         unit_contentnode_id: activeUnit.value.id,
         test_type: testType,
       },
-    }).then(result => {
-      activeTest.value = result;
-      if (testType === 'pre') {
-        createSnackbar(preTestStartedForUnit$({ title: activeUnit.value.numberedTitle }));
-      } else {
-        createSnackbar(postTestStartedForUnit$({ title: activeUnit.value.numberedTitle }));
-      }
-    });
+    })
+      .then(() => {
+        if (testType === TestType.PRE) {
+          createSnackbar(preTestStartedForUnit$({ title: activeUnit.value.numberedTitle }));
+        } else {
+          createSnackbar(postTestStartedForUnit$({ title: activeUnit.value.numberedTitle }));
+        }
+        return CourseSessionResource.lastUnitTest({ id: courseSessionId });
+      })
+      .then(results => (lastUnitTest.value = results))
+      .catch(e => {
+        // eslint-disable-next-line no-console
+        console.error(e);
+        createSnackbar(defaultErrorMessage$());
+      })
+      .finally(() => (dataLoading.value = false));
   }
 
   /**
@@ -231,26 +238,26 @@ export default function useCourseSession(courseSessionId) {
         unit_contentnode_id: activeTest.value.unit_contentnode_id,
         test_type: activeTest.value.test_type,
       },
-    }).then(result => {
-      // Get this now because activeUnit will change before we trigger snackbars
-      // if we closed the post-test
-      const title = activeUnit.value.numberedTitle;
+    })
+      .then(result => {
+        // Get this now because activeUnit will change before we trigger snackbars
+        // if we closed the post-test
+        const title = activeUnit.value.numberedTitle;
 
-      // Move the closed test to history
-      testHistory.value = [
-        ...testHistory.value,
-        {
-          ...activeTest.value,
-          status: result.status,
-        },
-      ];
-      activeTest.value = null;
-      if (result.test_type === 'pre') {
-        createSnackbar(preTestEndedForUnit$({ title }));
-      } else {
-        createSnackbar(postTestEndedForUnit$({ title }));
-      }
-    });
+        if (result.test_type === TestType.PRE) {
+          createSnackbar(preTestEndedForUnit$({ title }));
+        } else {
+          createSnackbar(postTestEndedForUnit$({ title }));
+        }
+        return CourseSessionResource.lastUnitTest({ id: courseSessionId });
+      })
+      .then(results => (lastUnitTest.value = results))
+      .catch(e => {
+        // eslint-disable-next-line no-console
+        console.error(e);
+        createSnackbar(defaultErrorMessage$());
+      })
+      .finally(() => (dataLoading.value = false));
   }
 
   /**
@@ -259,29 +266,30 @@ export default function useCourseSession(courseSessionId) {
    *
    * @returns {Promise} Resolves with the updated course session
    */
-  async function toggleCourseActive() {
-    const result = await CourseSessionResource.saveModel({
+  function toggleCourseActive() {
+    return CourseSessionResource.saveModel({
       id: courseSession.value.id,
       data: { active: !courseSession.value.active },
+    }).then(result => {
+      courseSession.value = { ...courseSession.value, active: result.active };
+      if (result.active) {
+        createSnackbar(courseVisible$());
+      } else {
+        createSnackbar(courseNotVisible$());
+      }
+      return result;
     });
-    courseSession.value = { ...courseSession.value, active: result.active };
-    if (result.active) {
-      createSnackbar(courseVisible$());
-    } else {
-      createSnackbar(courseNotVisible$());
-    }
-    return result;
   }
 
   return {
     // Loading state
-    loading,
+    pageLoading,
+    dataLoading,
 
     // Raw data
     courseSession,
     course,
     activeTest,
-    testHistory,
 
     // Derived unit state
     units,
@@ -292,8 +300,8 @@ export default function useCourseSession(courseSessionId) {
     isCourseComplete,
 
     // Derived test state
-    lastCompletedTest,
     unitPhase,
+    lastUnitTest,
 
     // Actions
     activateTest,

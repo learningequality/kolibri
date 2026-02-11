@@ -2,7 +2,7 @@
 
   <CoachAppBarPage>
     <KPageContainer class="container">
-      <KCircularLoader v-if="loading" />
+      <KCircularLoader v-if="pageLoading" />
       <div
         v-else
         class="header"
@@ -31,11 +31,12 @@
           </template>
         </CoachHeader>
       </div>
-      <div
-        v-if="!loading"
-        class="content"
-      >
-        <section class="course-status">
+      <div class="content">
+        <KCircularLoader v-if="dataLoading" />
+        <section
+          v-else
+          class="course-status"
+        >
           <div class="course-active">
             <KLabeledIcon
               class="status-icon"
@@ -74,7 +75,7 @@
               :label="sizeLabel$()"
             />
             <div class="icon-aligned-text">
-              {{ numberOfResources$({ value: course.on_device_resources }) }}
+              {{ numberOfResources$({ value: course?.on_device_resources }) }}
             </div>
           </div>
           <div>
@@ -133,7 +134,7 @@
                 <KButton
                   primary
                   :text="unitStatusMessages.buttonLabel"
-                  :style="{ backgroundColor: activeTest ? $themeTokens.error + '!important' : '' }"
+                  :class="$computedClass(testButtonStyles)"
                   @click="onUnitButtonClick"
                 />
               </div>
@@ -328,7 +329,8 @@
 
       // Use the composable for all course session state
       const {
-        loading,
+        dataLoading,
+        pageLoading,
         course,
         activeTest,
         activeUnit,
@@ -493,9 +495,20 @@
         }
       }
 
+      const testButtonStyles = computed(() => {
+        const color = activeTest.value ? themeTokens().error : '';
+        return {
+          background: color,
+          ':hover': {
+            background: color,
+          },
+        };
+      });
+
       return {
         backRoute,
-        loading,
+        dataLoading,
+        pageLoading,
         course,
         toggleCourseActive,
 
@@ -510,6 +523,7 @@
         courseSession,
         completedUnits,
         upcomingUnits,
+        testButtonStyles,
         activeUnitStyles,
         recipientsLabel$,
         sizeLabel$,
