@@ -146,14 +146,6 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: '{num, number} {num, plural, one {unit} other {units}}',
     context: 'Part of subtitle shown under the course title',
   },
-  prePercent: {
-    message: 'Pre: {num, number, percent}',
-    context: 'Indicating percentage of passing learners for the pre-test',
-  },
-  postPercent: {
-    message: 'Post: {num, number, percent}',
-    context: 'Indicating percentage of passing learners for the post-test',
-  },
   courseContentLabel: {
     message: 'Course content',
     context: 'Label above list of units in course contents listing',
@@ -256,11 +248,6 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   endPreTestForUnitConfirmation: {
     message: 'End pre-test for unit {num, number}?',
     context: 'Heading for confirmation modal when user clicks to end a pre-test',
-  },
-  startPreTestForUnitDescription: {
-    message:
-      'All assigned learners can now start the test. You can end the test whenever you want.',
-    context: 'Description text on modal confirming start of pre-test',
   },
   endPreTestForUnitDescription: {
     message:

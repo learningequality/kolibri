@@ -166,22 +166,8 @@
                         :text="unit.numberedTitle"
                         :to="{}"
                       />
-                      <span :style="{ color: $themeTokens.annotation }">
-                        {{ prePercent$({ num: 0.21 }) }}
-                        <KIcon icon="forward" />
-                        {{ postPercent$({ num: 0.74 }) }}
-                        <KIcon
-                          icon="indeterminateCheck"
-                          color="red"
-                        />
-                        <KIcon
-                          icon="indeterminateCheck"
-                          color="yellow"
-                        />
-                        <KIcon
-                          icon="indeterminateCheck"
-                          color="green"
-                        />
+                      <span>
+                        <!-- put end items here -->
                       </span>
                     </div>
                   </template>
@@ -318,8 +304,6 @@
         completedUnitsLabel$,
         upcomingUnitsLabel$,
         nOfMLearners$,
-        prePercent$,
-        postPercent$,
         activeUnit$,
         visibleToLearnersLabel$,
       } = coursesStrings;
@@ -329,7 +313,6 @@
       const {
         classLabel$,
         learnersLabel$,
-        cancelAction$,
         completedLabel$,
         inProgressLabel$,
         goBackAction$,
@@ -459,7 +442,7 @@
               title: startPreTestForUnitConfirmation$({ num: unitNum }),
               text: startTestForUnitDescription$(),
               submitText: startPreTest$(),
-              cancelText: cancelAction$(),
+              cancelText: keepRunning$(),
               submit: () => {
                 activateTest('pre');
                 activeModal.value = null;
@@ -485,7 +468,7 @@
               title: startPostTestForUnitConfirmation$({ num: unitNum }),
               text: startTestForUnitDescription$(),
               submitText: startPostTest$(),
-              cancelText: cancelAction$(),
+              cancelText: keepRunning$(),
               submit: () => {
                 activateTest('post');
                 activeModal.value = null;
@@ -498,7 +481,7 @@
               title: endPostTestForUnitConfirmation$({ num: unitNum }),
               text: endTestForUnitDescription$(),
               submitText: endPostTest$(),
-              cancelText: cancelAction$(),
+              cancelText: keepRunning$(),
               submit: () => {
                 closeTest();
                 activeModal.value = null;
@@ -542,8 +525,6 @@
         numUnits$,
         upcomingUnitsLabel$,
         lockedLabel$,
-        prePercent$,
-        postPercent$,
         learnersLabel$,
         completedLabel$,
         inProgressLabel$,
