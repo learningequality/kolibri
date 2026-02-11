@@ -77,8 +77,16 @@
           </span>
         </div>
         <div>
-          <!-- TODO: Implement go to next unit -->
-          <KIconButton icon="forward" />
+          <KIconButton
+            v-if="canGoToNextUnit"
+            icon="forward"
+            @click="goToNextUnit"
+          />
+          <KIconButton
+            v-else
+            icon="permissions"
+            disabled
+          />
         </div>
       </div>
     </template>
@@ -189,6 +197,13 @@
         return courseUnits.value[currentUnitIndex.value + 1];
       });
 
+      const canGoToNextUnit = computed(() => {
+        if (!nextUnit.value) {
+          return false;
+        }
+        return props.unitId !== resumeData.value?.resume_position?.unit_id;
+      });
+
       const currentLessons = computed(() => {
         return unitTree.value?.children.results.filter(
           child => child.modality === Modalities.LESSON,
@@ -252,6 +267,9 @@
 
       const nextEnabled = computed(() => {
         if (currentResourceIndexInUnit.value === null || maxResourceLft.value === null) {
+          return false;
+        }
+        if (currentResourceIndexInUnit.value >= unitResources.value.length - 1) {
           return false;
         }
         const currentResource = unitResources.value[currentResourceIndexInUnit.value];
@@ -327,19 +345,102 @@
         return true;
       };
 
-      const shouldRedirectToResumePosition = () => {
-        if (!props.unitId || !props.lessonId || !props.resourceId) {
-          // no data, redirect
+      /**
+       * Redirect to a valid position if the current unit is previous to the resume position unit
+       */
+      const checkRedirectToUnitTree = () => {
+        if (props.unitId === resumeData.value?.resume_position?.unit_id) {
+          // already on the right unit, no need to redirect
+          return false;
+        }
+        if (!unitResources.value) {
+          // no data to make a decision
+          return false;
+        }
+        const missingProps = !props.lessonId || !props.resourceId;
+
+        // no resource or lesson belongs to the unit
+        const invalidProps = !currentResource.value || !currentLesson.value;
+
+        if (missingProps || invalidProps) {
+          // no resource specified, redirect to the first resource of the unit
+          const [resource] = unitResources.value;
+          if (resource) {
+            router.replace({
+              name: PageNames.COURSE_CONTENT__RESOURCE,
+              params: {
+                courseId: props.courseId,
+                unitId: props.unitId,
+                lessonId: resource.parent,
+                resourceId: resource.id,
+              },
+            });
+            return true;
+          }
+          return false;
+        }
+      };
+
+      const redirectToResumePosition = () => {
+        const {
+          unit_id: resumeUnitId,
+          lesson_id: resumeLessonId,
+          resource_id: resumeResourceId,
+        } = resumeData.value.resume_position;
+
+        if (resumeUnitId && resumeLessonId && resumeResourceId) {
+          // redirect to the resume position
+          router.replace({
+            name: PageNames.COURSE_CONTENT__RESOURCE,
+            params: {
+              courseId: props.courseId,
+              unitId: resumeUnitId,
+              lessonId: resumeLessonId,
+              resourceId: resumeResourceId,
+            },
+          });
           return true;
         }
 
-        if (
-          props.unitId === resumeData.value?.resume_position?.unit_id &&
-          props.lessonId === resumeData.value?.resume_position?.lesson_id &&
-          props.resourceId === resumeData.value?.resume_position?.resource_id
-        ) {
-          // already at the resume position, no need to redirect
-          return false;
+        if (resumeUnitId) {
+          if (unitResources.value) {
+            const lastResourceOfUnit = unitResources.value[unitResources.value.length - 1];
+            if (lastResourceOfUnit) {
+              router.replace({
+                name: PageNames.COURSE_CONTENT__RESOURCE,
+                params: {
+                  courseId: props.courseId,
+                  unitId: resumeUnitId,
+                  lessonId: lastResourceOfUnit.parent,
+                  resourceId: lastResourceOfUnit.id,
+                },
+              });
+              return true;
+            }
+          }
+          // If not, it means that unitTree is not loaded, redirect to the unit, and
+          // wait until next check redirect
+          router.replace({
+            name: PageNames.COURSE_CONTENT__UNIT,
+            params: {
+              courseId: props.courseId,
+              unitId: resumeUnitId,
+            },
+          });
+          return true;
+        }
+        // Shouldn't get here
+        return false;
+      };
+
+      /**
+       * If we need to redirect to resume_position, it is because the current route
+       * is invalid or is currently on the resume position.
+       */
+      const shouldRedirectToResumePosition = () => {
+        if (!props.unitId) {
+          // no data, redirect
+          return true;
         }
 
         if (
@@ -350,6 +451,30 @@
           )
         ) {
           return true;
+        }
+
+        if (
+          !resumeData.value?.resume_position?.lesson_id ||
+          !resumeData.value?.resume_position?.resource_id
+        ) {
+          // Unit complete, learner can navigate freely within the unit, no need to redirect
+          return false;
+        }
+
+        if (props.unitId !== resumeData.value?.resume_position?.unit_id) {
+          // Here, we can ensure that `props.unitId` is a previous unit, it shouldn't get
+          // redirected to resume position, because learners can navigate freely
+          // within completed units
+          return false;
+        }
+
+        if (
+          props.unitId === resumeData.value?.resume_position?.unit_id &&
+          props.lessonId === resumeData.value?.resume_position?.lesson_id &&
+          props.resourceId === resumeData.value?.resume_position?.resource_id
+        ) {
+          // already at the resume position, no need to redirect
+          return false;
         }
 
         if (
@@ -418,25 +543,12 @@
         }
 
         if (resumeData.value.resume_position) {
-          if (!shouldRedirectToResumePosition()) {
-            // already at a valid position, no need to redirect
-            return false;
+          if (shouldRedirectToResumePosition()) {
+            return redirectToResumePosition();
           }
-
-          router.replace({
-            name: PageNames.COURSE_CONTENT__RESOURCE,
-            params: {
-              courseId: props.courseId,
-              unitId: resumeData.value.resume_position.unit_id,
-              lessonId: resumeData.value.resume_position.lesson_id,
-              resourceId: resumeData.value.resume_position.resource_id,
-            },
-          });
-
-          return true;
+          return checkRedirectToUnitTree();
         }
 
-        // People can freely browse completed courses
         return false;
       };
 
@@ -474,6 +586,19 @@
         });
       };
 
+      const goToNextUnit = () => {
+        if (!canGoToNextUnit.value) {
+          return;
+        }
+        router.replace({
+          name: PageNames.COURSE_CONTENT__UNIT,
+          params: {
+            courseId: props.courseId,
+            unitId: nextUnit.value.id,
+          },
+        });
+      };
+
       const { courseNameLabel$, resourcesProgressLabel$, unitNumberLabel$, upNextLabel$ } =
         coursesStrings;
 
@@ -500,12 +625,8 @@
       watch(
         () => props.courseId,
         async () => {
-          const redirected = await checkRedirect();
-          if (!redirected) {
-            await fetchCourseWithUnitsData();
-            await nextTick();
-            await checkRedirect();
-          }
+          fetchCourseWithUnitsData();
+          checkRedirect();
         },
         { immediate: true },
       );
@@ -537,6 +658,7 @@
         loading,
         unitTree,
         nextUnit,
+        canGoToNextUnit,
         currentLesson,
         currentResource,
         prevNextLabel,
@@ -547,6 +669,7 @@
         handlePrev,
         handleNext,
         onResourceFinished,
+        goToNextUnit,
 
         upNextLabel$,
         courseNameLabel$,

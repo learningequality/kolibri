@@ -140,7 +140,6 @@
 
       <TreeItem
         :title="postTestLabel$()"
-        :description="ratioLabel$({ number: 0, total: 5 })"
         :style="{
           backgroundColor: $themePalette.grey.v_100,
         }"
@@ -251,7 +250,6 @@
         onResourceClick,
         onCompleteClick,
 
-        ratioLabel$,
         currentLabel$,
         preTestLabel$,
         postTestLabel$,

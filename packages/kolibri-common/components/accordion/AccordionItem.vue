@@ -127,6 +127,13 @@
         return `accordion-content-${this.uuid}`;
       },
     },
+    watch: {
+      isOpenByDefault(newVal) {
+        if (newVal && !this.isExpanded) {
+          this.toggle();
+        }
+      },
+    },
     mounted() {
       this.registerItem();
       if (this.isOpenByDefault) {
