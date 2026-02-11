@@ -103,14 +103,23 @@
               <template #trailing-actions>
                 <div class="selected-trailing-icons">
                   <template v-if="resource.id === currentResourceId">
-                    <!-- TODO: Implement bookmark button -->
-                    <KIconButton icon="bookmarkEmpty" />
+                    <KIconButton
+                      :icon="bookmarksMap[resource.id] ? 'bookmark' : 'bookmarkEmpty'"
+                      :disabled="loadingBookmarksMap[resource.id]"
+                      :color="$themePalette.grey.v_400"
+                      :tooltip="
+                        bookmarksMap[resource.id] ? removeFromBookmarks$() : saveToBookmarks$()
+                      "
+                      @click.stop="toggleBookmark(resource)"
+                    />
                     <KIconButton
                       v-if="
                         currentResourceProgressSessionReady &&
                           contentNodeProgressMap[resource.content_id] < 1
                       "
                       icon="check"
+                      :color="$themePalette.grey.v_400"
+                      :tooltip="markAsCompleteAction$()"
                       @click.stop="onCompleteClick()"
                     />
                   </template>
@@ -177,6 +186,7 @@
   import { PageNames } from '../../../constants';
   import { injectCourseContentProgress } from '../useCourseContentProgressTracking';
   import useContentNodeProgress from '../../../composables/useContentNodeProgress';
+  import useBookmarks from '../../../composables/useBookmarks';
   import TreeItem from './TreeItem.vue';
 
   export default {
@@ -198,6 +208,7 @@
       } = injectCourseContentProgress();
 
       const { contentNodeProgressMap } = useContentNodeProgress();
+      const { bookmarksMap, loadingBookmarksMap, createBookmark, removeBookmark } = useBookmarks();
 
       const lessons = computed(() => {
         return props.unitTree?.children?.results?.filter(
@@ -205,8 +216,9 @@
         );
       });
 
-      const { preTestLabel$, postTestLabel$, currentLabel$ } = coursesStrings;
-      const { completedLabel$, ratioLabel$ } = coreStrings;
+      const { preTestLabel$, postTestLabel$, currentLabel$, markAsCompleteAction$ } =
+        coursesStrings;
+      const { completedLabel$, ratioLabel$, saveToBookmarks$, removeFromBookmarks$ } = coreStrings;
 
       const getLessonRatioLabel = lesson => {
         const lessonResources = lesson.children?.results || [];
@@ -242,19 +254,33 @@
         emit('finished');
       };
 
+      const toggleBookmark = resource => {
+        if (bookmarksMap[resource.id]) {
+          removeBookmark(resource.id);
+        } else {
+          createBookmark(resource.id);
+        }
+      };
+
       return {
         lessons,
         contentNodeProgressMap,
+        bookmarksMap,
+        loadingBookmarksMap,
         currentResourceProgressSessionReady,
         getResources,
         getLessonRatioLabel,
         onResourceClick,
         onCompleteClick,
+        toggleBookmark,
 
         currentLabel$,
         preTestLabel$,
         postTestLabel$,
         completedLabel$,
+        saveToBookmarks$,
+        removeFromBookmarks$,
+        markAsCompleteAction$,
       };
     },
     props: {

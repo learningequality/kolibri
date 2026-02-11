@@ -172,4 +172,8 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Up next',
     context: 'Label for the next unit in the course unit view',
   },
+  markAsCompleteAction: {
+    message: 'Mark as complete',
+    context: 'Action label for marking a resource as complete',
+  },
 });

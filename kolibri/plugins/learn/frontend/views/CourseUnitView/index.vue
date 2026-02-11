@@ -109,6 +109,7 @@
   import PrevNextBar from '../PrevNextBar/index.vue';
   import { PageNames } from '../../constants.js';
   import useContentNodeProgress from '../../composables/useContentNodeProgress.js';
+  import useBookmarks from '../../composables/useBookmarks.js';
   import CourseContentViewer from './CourseContentViewer.vue';
   import UnitTreeAccordion from './UnitTreeAccordion/index.vue';
   import useCourseContentProgress from './useCourseContentProgressTracking';
@@ -629,6 +630,7 @@
       });
 
       const { fetchContentNodeProgress } = useContentNodeProgress();
+      const { fetchBookmarks } = useBookmarks();
 
       watch(error, (newError, oldError) => {
         if (!oldError && newError) {
@@ -654,6 +656,9 @@
             await checkRedirect();
             fetchContentNodeProgress({
               descendant_of: newUnitId,
+            });
+            fetchBookmarks({
+              descendants_of: newUnitId,
             });
           }
         },

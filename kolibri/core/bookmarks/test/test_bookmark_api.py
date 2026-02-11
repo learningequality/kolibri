@@ -159,3 +159,98 @@ class BookmarkAPITestCase(APITestCase):
 
         response_delete_theirs = delete_one(their_bookmark.id)
         self.assertEqual(response_delete_theirs.status_code, HTTP_403_FORBIDDEN)
+
+    def test_filter_by_contentnode_id(self):
+        """
+        Ensures that the contentnode_id filter returns only bookmarks
+        matching the specified content node.
+        """
+        contentnode2 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            title="other node",
+            channel_id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+        )
+
+        Bookmark.objects.create(contentnode_id=self.contentnode.id, user=self.user)
+        Bookmark.objects.create(contentnode_id=contentnode2.id, user=self.user)
+
+        response = self.client.get(
+            "/api/bookmarks/bookmarks/",
+            {"contentnode_id": self.contentnode.id},
+        )
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["contentnode_id"], self.contentnode.id)
+
+    def test_filter_by_descendant_of(self):
+        """
+        Ensures that the descendant_of filter returns only bookmarks
+        whose content nodes are descendants of the specified parent node.
+        Only leaf nodes (resources) are bookmarked since topics/folders
+        cannot be bookmarked.
+        """
+        channel_id = uuid.uuid4().hex
+
+        # Build an MPTT tree: parent (topic) -> child (topic) -> grandchild1, grandchild2 (leaves)
+        tree_nodes = ContentNode.objects.build_tree_nodes(
+            {
+                "id": uuid.uuid4().hex,
+                "title": "parent",
+                "channel_id": channel_id,
+                "content_id": uuid.uuid4().hex,
+                "children": [
+                    {
+                        "id": uuid.uuid4().hex,
+                        "title": "child",
+                        "channel_id": channel_id,
+                        "content_id": uuid.uuid4().hex,
+                        "children": [
+                            {
+                                "id": uuid.uuid4().hex,
+                                "title": "grandchild1",
+                                "channel_id": channel_id,
+                                "content_id": uuid.uuid4().hex,
+                            },
+                            {
+                                "id": uuid.uuid4().hex,
+                                "title": "grandchild2",
+                                "channel_id": channel_id,
+                                "content_id": uuid.uuid4().hex,
+                            },
+                        ],
+                    }
+                ],
+            }
+        )
+        ContentNode.objects.bulk_create(tree_nodes)
+        parent = ContentNode.objects.get(title="parent")
+        grandchild1 = ContentNode.objects.get(title="grandchild1")
+        grandchild2 = ContentNode.objects.get(title="grandchild2")
+
+        # Create a leaf node that is NOT a descendant of parent
+        unrelated_leaf = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            title="unrelated_leaf",
+            channel_id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+        )
+
+        # Only bookmark leaf nodes (resources), not topics
+        Bookmark.objects.create(contentnode_id=grandchild1.id, user=self.user)
+        Bookmark.objects.create(contentnode_id=grandchild2.id, user=self.user)
+        Bookmark.objects.create(contentnode_id=unrelated_leaf.id, user=self.user)
+
+        response = self.client.get(
+            "/api/bookmarks/bookmarks/",
+            {"descendant_of": parent.id},
+        )
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+        returned_ids = {entry["contentnode_id"] for entry in response.data}
+        self.assertSetEqual(
+            returned_ids,
+            {grandchild1.id, grandchild2.id},
+        )
+        self.assertNotIn(unrelated_leaf.id, returned_ids)
