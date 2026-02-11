@@ -109,6 +109,15 @@ async function generateAssetComment(github, context) {
       text += `\n| ${readableName} | [${artifact.name}](${repoHtmlUrl}/suites/${checkSuiteNumber}/artifacts/${artifact.id.toString()}) |`
     }
   }
+
+  const screenshotArtifact = artifacts.find(
+    (artifact) => artifact.name === 'smoke_test_screenshot' && !artifact.expired
+  )
+  if (screenshotArtifact) {
+    const screenshotUrl = `${repoHtmlUrl}/suites/${checkSuiteNumber}/artifacts/${screenshotArtifact.id.toString()}`
+    text += `\n\n<details>\n<summary>Smoke test screenshot</summary>\n\n[Download screenshot](${screenshotUrl})\n\n</details>`
+  }
+
   return text
 }
 
