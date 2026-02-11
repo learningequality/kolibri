@@ -126,6 +126,7 @@ build_tools/crowdin-cli.jar
 # Ignore pytest cache directory
 .pytest_cache/
 .pytest_kolibri_home
+.kolibri_home
 
 # ignore source font files
 *.ttf

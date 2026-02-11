@@ -1,7 +1,53 @@
 Unit testing
 ============
 
-Unit testing is carried out using `Jest <https://facebook.github.io/jest/>`__. All JavaScript code should have unit tests for all object methods and functions. All the tests are written in JavaScript. An example test is shown below:
+Frontend unit testing is carried out using `Jest <https://facebook.github.io/jest/>`__. **We strongly encourage comprehensive testing** of all frontend code.
+
+.. note::
+  For general testing principles including Test-Driven Development (TDD), see :ref:`tdd`.
+  For backend (Python) testing, see :doc:`/backend_architecture/testing`.
+
+Testing Library
+---------------
+
+**Use Vue Testing Library for all new tests.** Vue Test Utils is legacy and being phased out.
+
+- **New tests:** Use `Vue Testing Library <https://testing-library.com/docs/vue-testing-library/intro/>`__
+- **Existing tests:** vue-test-utils tests remain but should not be extended
+
+What Should Be Tested
+----------------------
+
+Nearly all frontend code is amenable to testing. You should write tests for:
+
+- Component behavior and user interactions
+- State management (composables, computed properties)
+- API calls and data transformations
+- Business logic and utility functions
+
+**Avoid testing:**
+
+- Purely declarative Vue templates (just the rendering result without logic)
+- Third-party library internals
+
+Test File Organization
+----------------------
+
+Test files are located in ``__tests__/`` directories following Jest conventions:
+
+.. code-block:: text
+
+  components/
+  ├── __tests__/
+  │   ├── MyComponent.spec.js
+  │   └── AnotherComponent.spec.js
+  ├── MyComponent.vue
+  └── AnotherComponent.vue
+
+Basic Examples
+--------------
+
+All the tests are written in JavaScript. An example test is shown below:
 
 .. code-block:: javascript
 
@@ -36,11 +82,13 @@ Unit testing is carried out using `Jest <https://facebook.github.io/jest/>`__. A
   });
 
 
-We use `Vue Testing Library (VTL) <https://testing-library.com/docs/vue-testing-library/intro/>`__ and its associated ecosystem to test Vue components, as it allows us to test UI components in a user-centric way.
+Vue Testing Library (VTL) is our standard for testing Vue components. It allows us to test UI components in a user-centric way.
 
-It is based on the philosophy that “The more your tests resemble the way your software is used, the more confidence they can give you." Rather than dealing with instances of rendered Vue components, it allows our tests to work with actual DOM nodes and simulate interactions the same way the user would. We earlier made use of `Vue Test Utils <https://v1.test-utils.vuejs.org/>`__ for the frontend testing, but have been transitioning to VTL for the same.
+VTL is based on the philosophy that "The more your tests resemble the way your software is used, the more confidence they can give you." Rather than dealing with instances of rendered Vue components, it works with actual DOM nodes and simulates interactions the same way users would.
 
-To learn more about VTL, you can check it's `examples page <https://testing-library.com/docs/vue-testing-library/examples>`__. You can also check out our `testing templates <testing_layout.html>`__ and our style guide to start writing new test suites in Kolibri.
+**Note:** Older tests may use vue-test-utils, but all new tests should use Vue Testing Library.
+
+To learn more about VTL, you can check its `examples page <https://testing-library.com/docs/vue-testing-library/examples>`__. You can also check out our `testing templates <testing_layout.html>`__ and our style guide to start writing new test suites in Kolibri.
 
 Style Guide
 -----------

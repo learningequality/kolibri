@@ -13,6 +13,7 @@ These guides are step by step guides for common tasks in getting started and wor
   pyenv_virtualenv
   nodeenv
   rebasing_a_pull_request
+  reviewing_pull_requests
   another_kolibri_instance
   development_with_kds
   preview_on_mobile
