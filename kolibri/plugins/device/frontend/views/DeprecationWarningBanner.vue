@@ -3,14 +3,14 @@
   <div
     v-show="userDevicesUsingIE11"
     class="alert"
-    :style="{ backgroundColor: $themePalette.yellow.v_100 }"
+    :style="{ backgroundColor: $themePalette.orange.v_100 }"
   >
     <div style="display: flex">
       <div>
         <KIcon
           icon="warning"
           class="icon"
-          :color="$themePalette.yellow.v_600"
+          :color="$themePalette.orange.v_600"
         />
       </div>
 

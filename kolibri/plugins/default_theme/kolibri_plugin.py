@@ -14,6 +14,14 @@ class DefaultThemeHook(theme_hook.ThemeHook):
     @property
     def theme(self):
         return {
+            "siteTitle": "SAS",
+            "appBar": {
+                "background": "#FF9600",
+                "textColor": "#FFFFFF",
+            },
+            "sideNav": {
+                "title": "SAS",
+            },
             "signIn": {
                 "background": static("assets/default_theme/background.jpg"),
                 "backgroundImgCredit": "Lewa Wildlife Conservancy",

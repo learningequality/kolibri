@@ -169,7 +169,7 @@
       markColor() {
         return {
           color: this.$themePalette.black,
-          backgroundColor: this.$themePalette.yellow.v_200,
+          backgroundColor: this.$themePalette.orange.v_200,
         };
       },
     },

@@ -5,13 +5,13 @@
       <div
         v-if="hasNoChannels && !isLoading"
         class="alert banner-spacing"
-        :style="{ backgroundColor: $themePalette.yellow.v_200 }"
+        :style="{ backgroundColor: $themePalette.orange.v_200 }"
       >
         <div>
           <KIcon
             icon="warning"
             class="warning-icon"
-            :color="$themePalette.yellow.v_600"
+            :color="$themePalette.orange.v_600"
           />
         </div>
 

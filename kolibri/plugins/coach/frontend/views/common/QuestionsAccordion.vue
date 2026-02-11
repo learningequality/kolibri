@@ -117,7 +117,7 @@
                 <div v-else>
                   <KIcon
                     icon="warning"
-                    :style="{ fill: $themePalette.yellow.v_600 }"
+                    :style="{ fill: $themePalette.orange.v_600 }"
                   />
                   {{ coreString('resourceNotFoundOnDevice') }}
                 </div>
