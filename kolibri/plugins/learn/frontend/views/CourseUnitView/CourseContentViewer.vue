@@ -50,7 +50,7 @@
    * CourseUnitView via the useCourseContentProgressTracking composable.
    */
   export default {
-    name: 'CourseContentView',
+    name: 'CourseContentViewer',
     emits: ['finished'],
     setup() {
       const {

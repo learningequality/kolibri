@@ -28,123 +28,125 @@
         </template>
       </TreeItem>
 
-      <AccordionItem
+      <li
         v-for="lesson in lessons"
         :key="lesson.id"
-        wrapperTag="li"
-        :class="{
-          'current-lesson': lesson.id === currentLessonId,
-        }"
-        :isOpenByDefault="lesson.id === currentLessonId"
-        :headerAppearanceOverrides="{
-          padding: '0px 8px 0px 16px',
-          height: '52px',
-          backgroundColor: $themePalette.grey.v_100,
-          outlineOffset: '-3px !important',
-          borderBottom: '1px solid ' + $themeTokens.fineLine,
-        }"
-        :contentAppearanceOverrides="{
-          padding: 0,
-        }"
-        :style="{
-          border: '0 !important',
-        }"
       >
-        <template #leading-actions>
-          <KIcon
-            icon="lesson"
-            class="item-icon mr-8"
-          />
-        </template>
-        <template #title>
-          <div class="accordion-item-title">
-            <KTextTruncator
-              :text="lesson.title"
-              :maxLines="1"
-              class="title"
+        <AccordionItem
+          :class="{
+            'current-lesson': lesson.id === currentLessonId,
+          }"
+          :isOpenByDefault="lesson.id === currentLessonId"
+          :headerAppearanceOverrides="{
+            padding: '0px 8px 0px 16px',
+            height: '52px',
+            backgroundColor: $themePalette.grey.v_100,
+            outlineOffset: '-3px !important',
+            borderBottom: '1px solid ' + $themeTokens.fineLine,
+          }"
+          :contentAppearanceOverrides="{
+            padding: 0,
+          }"
+          :style="{
+            border: '0 !important',
+          }"
+        >
+          <template #leading-actions>
+            <KIcon
+              icon="lesson"
+              class="item-icon mr-8"
             />
-            <div class="description">
-              <span>
-                {{ getLessonRatioLabel(lesson) }}
-              </span>
-              <span
-                v-if="lesson.id === currentLessonId"
-                class="current-label"
-              >{{ currentLabel$() }}</span>
+          </template>
+          <template #title>
+            <div class="accordion-item-title">
+              <KTextTruncator
+                :text="lesson.title"
+                :maxLines="1"
+                class="title"
+              />
+              <div class="description">
+                <span>
+                  {{ getLessonRatioLabel(lesson) }}
+                </span>
+                <span
+                  v-if="lesson.id === currentLessonId"
+                  class="current-label"
+                >{{ currentLabel$() }}</span>
+              </div>
             </div>
-          </div>
-        </template>
-        <template #content>
-          <ul class="resource-list">
-            <TreeItem
-              v-for="resource in getResources(lesson)"
-              :key="resource.id"
-              :title="resource.title"
-              class="resource-item"
-              :selected="resource.id === currentResourceId"
-              :disabled="resource.lft > maxResourceLft"
-              @click="onResourceClick(resource)"
-            >
-              <template
-                v-if="resource.duration"
-                #description
+          </template>
+          <template #content>
+            <ul class="resource-list">
+              <TreeItem
+                v-for="resource in getResources(lesson)"
+                :key="resource.id"
+                :title="resource.title"
+                class="resource-item"
+                :selected="resource.id === currentResourceId"
+                :disabled="!maxResourceLft || resource.lft > maxResourceLft"
+                @click="onResourceClick(resource)"
               >
-                <TimeDuration
-                  :seconds="resource.duration"
-                  class="duration"
-                />
-              </template>
-              <template #leading-actions>
-                <LearningActivityIcon
-                  :kind="resource.learning_activities"
-                  class="item-icon"
-                />
-              </template>
-              <template #trailing-actions>
-                <div class="selected-trailing-icons">
-                  <template v-if="resource.id === currentResourceId">
-                    <KIconButton
-                      :icon="bookmarksMap[resource.id] ? 'bookmark' : 'bookmarkEmpty'"
-                      :disabled="loadingBookmarksMap[resource.id]"
+                <template
+                  v-if="resource.duration"
+                  #description
+                >
+                  <TimeDuration
+                    :seconds="resource.duration"
+                    class="duration"
+                  />
+                </template>
+                <template #leading-actions>
+                  <LearningActivityIcon
+                    :kind="resource.learning_activities"
+                    class="item-icon"
+                  />
+                </template>
+                <template #trailing-actions>
+                  <div class="selected-trailing-icons">
+                    <template v-if="resource.id === currentResourceId">
+                      <KIconButton
+                        :icon="bookmarksMap[resource.id] ? 'bookmark' : 'bookmarkEmpty'"
+                        :disabled="loadingBookmarksMap[resource.id]"
+                        :color="$themePalette.grey.v_400"
+                        :tooltip="
+                          bookmarksMap[resource.id] ? removeFromBookmarks$() : saveToBookmarks$()
+                        "
+                        @click.stop="toggleBookmark(resource)"
+                      />
+                      <KIconButton
+                        v-if="
+                          currentResourceProgressSessionReady &&
+                            (contentNodeProgressMap[resource.content_id] || 0) < 1
+                        "
+                        icon="check"
+                        :color="$themePalette.grey.v_400"
+                        :tooltip="markAsCompleteAction$()"
+                        @click.stop="onCompleteClick()"
+                      />
+                    </template>
+                    <KIcon
+                      v-if="contentNodeProgressMap[resource.content_id] === 1"
+                      class="item-icon"
+                      icon="mastered"
                       :color="$themePalette.grey.v_400"
-                      :tooltip="
-                        bookmarksMap[resource.id] ? removeFromBookmarks$() : saveToBookmarks$()
-                      "
-                      @click.stop="toggleBookmark(resource)"
                     />
-                    <KIconButton
-                      v-if="
-                        currentResourceProgressSessionReady &&
-                          contentNodeProgressMap[resource.content_id] < 1
-                      "
-                      icon="check"
-                      :color="$themePalette.grey.v_400"
-                      :tooltip="markAsCompleteAction$()"
-                      @click.stop="onCompleteClick()"
+                    <KIcon
+                      v-else-if="contentNodeProgressMap[resource.content_id] > 0"
+                      class="item-icon"
+                      icon="inProgress"
                     />
-                  </template>
-                  <KIcon
-                    v-if="contentNodeProgressMap[resource.content_id] === 1"
-                    class="item-icon"
-                    icon="mastered"
-                    :color="$themePalette.grey.v_400"
-                  />
-                  <KIcon
-                    v-else-if="contentNodeProgressMap[resource.content_id] > 0"
-                    class="item-icon"
-                    icon="inProgress"
-                  />
-                  <KIcon
-                    v-else
-                    class="item-icon"
-                    icon="notStarted"
-                  />
-                </div>
-              </template>
-            </TreeItem>
-          </ul>
-        </template>
-      </AccordionItem>
+                    <KIcon
+                      v-else
+                      class="item-icon"
+                      icon="notStarted"
+                    />
+                  </div>
+                </template>
+              </TreeItem>
+            </ul>
+          </template>
+        </AccordionItem>
+      </li>
 
       <TreeItem
         :title="postTestLabel$()"
@@ -240,7 +242,7 @@
 
       const onResourceClick = resource => {
         router.replace({
-          name: PageNames.COURSE_CONTENT,
+          name: PageNames.COURSE_CONTENT__RESOURCE,
           params: {
             ...route.params,
             resourceId: resource.id,

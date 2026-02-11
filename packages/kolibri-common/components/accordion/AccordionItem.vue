@@ -1,7 +1,6 @@
 <template>
 
-  <component
-    :is="wrapperTag"
+  <div
     class="accordion-item"
     :class="{
       disabled,
@@ -35,6 +34,7 @@
             </div>
             <slot name="title">
               <span
+                v-if="title"
                 :style="{
                   color: disabledTitle ? $themeTokens.textDisabled : 'inherit',
                 }"
@@ -63,7 +63,7 @@
     >
       <slot name="content"></slot>
     </div>
-  </component>
+  </div>
 
 </template>
 
@@ -117,10 +117,6 @@
         type: Boolean,
         default: false,
       },
-      wrapperTag: {
-        type: String,
-        default: 'div',
-      },
     },
     computed: {
       contentId() {
@@ -140,7 +136,7 @@
         this.toggle();
       }
     },
-    componentWillUnmount() {
+    beforeDestroy() {
       this.unregisterItem();
     },
   };
@@ -151,9 +147,6 @@
 <style lang="scss" scoped>
 
   .accordion-item {
-    padding: 0;
-    margin: 0;
-    list-style: none;
     border-bottom: 1px solid;
 
     &.disabled {

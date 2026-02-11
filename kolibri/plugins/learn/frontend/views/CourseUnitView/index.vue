@@ -386,6 +386,8 @@
           }
           return false;
         }
+
+        return false;
       };
 
       const redirectToResumePosition = () => {
@@ -566,7 +568,7 @@
         const newResourceIndex = currentResourceIndexInUnit.value - 1;
         const newResource = unitResources.value[newResourceIndex];
         router.replace({
-          name: PageNames.COURSE_CONTENT,
+          name: PageNames.COURSE_CONTENT__RESOURCE,
           params: {
             courseId: props.courseId,
             unitId: props.unitId,
@@ -583,7 +585,7 @@
         const newResourceIndex = currentResourceIndexInUnit.value + 1;
         const newResource = unitResources.value[newResourceIndex];
         router.replace({
-          name: PageNames.COURSE_CONTENT,
+          name: PageNames.COURSE_CONTENT__RESOURCE,
           params: {
             courseId: props.courseId,
             unitId: props.unitId,
@@ -626,6 +628,7 @@
       // Provide progress tracking to child components
       useCourseContentProgress({
         contentNode: currentResource,
+        // route courseId refers to courseSessionId
         courseSessionId: toRef(props, 'courseId'),
       });
 
@@ -658,7 +661,7 @@
               descendant_of: newUnitId,
             });
             fetchBookmarks({
-              descendants_of: newUnitId,
+              descendant_of: newUnitId,
             });
           }
         },

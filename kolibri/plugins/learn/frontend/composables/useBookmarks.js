@@ -33,7 +33,7 @@ export function setBookmark(bookmark) {
  * @param {string} contentnodeId - The content node ID to remove from the map.
  */
 export function clearBookmark(contentnodeId) {
-  delete bookmarksMap[contentnodeId];
+  set(bookmarksMap, contentnodeId, undefined);
 }
 
 /**

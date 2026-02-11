@@ -770,7 +770,7 @@ describe('CourseUnitView', () => {
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: PageNames.COURSE_CONTENT,
+            name: PageNames.COURSE_CONTENT__RESOURCE,
             params: expect.objectContaining({
               resourceId: 'r2',
               lessonId: 'l1',
@@ -801,7 +801,7 @@ describe('CourseUnitView', () => {
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: PageNames.COURSE_CONTENT,
+            name: PageNames.COURSE_CONTENT__RESOURCE,
             params: expect.objectContaining({
               resourceId: 'r2',
             }),
@@ -831,7 +831,7 @@ describe('CourseUnitView', () => {
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: PageNames.COURSE_CONTENT,
+            name: PageNames.COURSE_CONTENT__RESOURCE,
             params: expect.objectContaining({
               resourceId: 'r1',
             }),
@@ -858,7 +858,7 @@ describe('CourseUnitView', () => {
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: PageNames.COURSE_CONTENT,
+            name: PageNames.COURSE_CONTENT__RESOURCE,
             params: expect.objectContaining({
               // expect to go to the next lesson
               lessonId: 'l2',
@@ -890,7 +890,7 @@ describe('CourseUnitView', () => {
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: PageNames.COURSE_CONTENT,
+            name: PageNames.COURSE_CONTENT__RESOURCE,
             params: expect.objectContaining({
               // expect to go to the last resource of the previous lesson
               lessonId: 'l1',
@@ -938,7 +938,7 @@ describe('CourseUnitView', () => {
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: PageNames.COURSE_CONTENT,
+            name: PageNames.COURSE_CONTENT__RESOURCE,
             params: expect.objectContaining({
               resourceId: 'r3',
               lessonId: 'l2', // Should switch to l2
