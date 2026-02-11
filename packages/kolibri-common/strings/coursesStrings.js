@@ -298,4 +298,8 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Post-test started for {title}',
     context: 'Snackbar message upon starting the post-test',
   },
+  numLearners: {
+    message: '{num, number} {num, plural, one {learner} other {learners}}',
+    context: 'Label showing a number of learners',
+  },
 });

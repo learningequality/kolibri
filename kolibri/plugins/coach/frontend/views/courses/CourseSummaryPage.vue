@@ -241,7 +241,7 @@
             {{ inProgressLabel$() }}
           </div>
           <div class="panel-message">
-            {{ '14 ' + learnersLabel$() }}
+            {{ numLearners$({ num: 100 }) }}
           </div>
         </div>
       </div>
@@ -283,6 +283,7 @@
     setup() {
       const {
         workingOnLessons$,
+        numLearners$,
         startPreTest$,
         startPostTest$,
         dateAssigned$,
@@ -516,6 +517,7 @@
         visibleToLearnersLabel$,
         unitStatusMessages,
         upcomingUnitsAccordionHeaderStyles,
+        numLearners$,
         goBackAction$,
         dateAssigned$,
         optionsLabel$,
