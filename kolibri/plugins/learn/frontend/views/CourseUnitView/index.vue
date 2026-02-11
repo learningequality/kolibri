@@ -411,15 +411,15 @@
 
         if (resumeUnitId) {
           if (unitResources.value) {
-            const lastResourceOfUnit = unitResources.value[unitResources.value.length - 1];
-            if (lastResourceOfUnit) {
+            const firstResourceOfUnit = unitResources.value[0];
+            if (firstResourceOfUnit) {
               router.replace({
                 name: PageNames.COURSE_CONTENT__RESOURCE,
                 params: {
                   courseId: props.courseId,
                   unitId: resumeUnitId,
-                  lessonId: lastResourceOfUnit.parent,
-                  resourceId: lastResourceOfUnit.id,
+                  lessonId: firstResourceOfUnit.parent,
+                  resourceId: firstResourceOfUnit.id,
                 },
               });
               return true;

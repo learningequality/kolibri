@@ -2,6 +2,7 @@ import { render, waitFor, fireEvent, screen } from '@testing-library/vue';
 import { useRouter, useRoute } from 'vue-router/composables';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import LearningActivities from 'kolibri-constants/labels/LearningActivities';
+import Modalities from 'kolibri-constants/Modalities';
 import { LearnerCourseResource } from '../../../apiResources';
 import CourseUnitView from '../index.vue';
 import { PageNames } from '../../../constants';
@@ -28,6 +29,12 @@ jest.mock('../../../composables/useProgressTracking', () => ({
   })),
 }));
 
+jest.mock('../../../composables/useContentNodeProgress');
+
+jest.mock('../../../composables/useBookmarks');
+
+jest.mock('../useCourseContentProgressTracking');
+
 const ContentViewerMock = {
   name: 'ContentViewer',
   template: '<div data-testid="content-viewer">{{ options && options.title }}</div>',
@@ -35,10 +42,11 @@ const ContentViewerMock = {
 };
 
 // Data helpers
-const createResource = (id, title, parent) => ({
+const createResource = (id, title, parent, lft = 1) => ({
   id,
   title,
   parent,
+  lft,
   kind: 'video',
   files: [],
   options: { title },
@@ -49,14 +57,14 @@ const createResource = (id, title, parent) => ({
 const createLesson = (id, title, active, children = []) => ({
   id,
   title,
-  modality: 'LESSON',
+  modality: Modalities.LESSON,
   children: { results: children },
 });
 
 const createUnit = (id, title, children = []) => ({
   id,
   title,
-  modality: 'UNIT',
+  modality: Modalities.UNIT,
   children: { results: children },
 });
 
@@ -101,9 +109,9 @@ describe('CourseUnitView', () => {
     });
 
     // Setup sample data for rendering/interaction tests
-    const r1 = createResource('r1', 'Resource 1', 'l1');
-    const r2 = createResource('r2', 'Resource 2', 'l1');
-    const r3 = createResource('r3', 'Resource 3', 'l2');
+    const r1 = createResource('r1', 'Resource 1', 'l1', 10);
+    const r2 = createResource('r2', 'Resource 2', 'l1', 20);
+    const r3 = createResource('r3', 'Resource 3', 'l2', 30);
 
     const l1 = createLesson('l1', 'Lesson 1', true, [r1, r2]);
     const l2 = createLesson('l2', 'Lesson 2', false, [r3]);
@@ -155,8 +163,10 @@ describe('CourseUnitView', () => {
           id: lessonId,
           modality: 'LESSON',
           children: {
-            results: (resourceIdsByLesson[lessonId] || []).map(rId => ({
+            results: (resourceIdsByLesson[lessonId] || []).map((rId, index) => ({
               id: rId,
+              parent: lessonId,
+              lft: index + 1, // Provide a valid lft for logic checks
             })),
           },
         })),
@@ -580,6 +590,70 @@ describe('CourseUnitView', () => {
         expect(router.replace).not.toHaveBeenCalled();
       });
     });
+
+    it('redirects to the first resource of the unit when resume_position only has unit_id', async () => {
+      const resumePosition = {
+        unit_id: UNIT_1,
+        // No lesson_id or resource_id
+      };
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: resumePosition,
+      });
+
+      setupUnitTree();
+
+      // User is on UNIT_2, should redirect to resume unit (UNIT_1)
+      renderComponent({
+        unitId: UNIT_2,
+        lessonId: LESSON_1,
+        resourceId: RESOURCE_1,
+      });
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: COURSE_ID,
+            unitId: UNIT_1,
+            // Should be first resource of UNIT_1
+            lessonId: LESSON_1,
+            resourceId: RESOURCE_1,
+          },
+        });
+      });
+    });
+
+    it('redirects to the first resource when props only have unitId', async () => {
+      // already on the right unit (matches resume), but missing lesson/resource params
+      const resumePosition = {
+        unit_id: UNIT_1,
+      };
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: resumePosition,
+      });
+
+      setupUnitTree();
+
+      renderComponent({
+        unitId: UNIT_1,
+        // missing lessonId and resourceId
+      });
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: COURSE_ID,
+            unitId: UNIT_1,
+            // Should default to first resource
+            lessonId: LESSON_1,
+            resourceId: RESOURCE_1,
+          },
+        });
+      });
+    });
   });
 
   describe('data loading', () => {
@@ -638,14 +712,11 @@ describe('CourseUnitView', () => {
   describe('rendering and interaction', () => {
     beforeEach(() => {
       // Set up resume data so that checkRedirect doesn't redirect
-      // and the component renders normally for interaction tests
+      // and the component renders normally for interaction tests.
+      // We simulate a completed unit (no resume_position) to allow full navigation.
       LearnerCourseResource.getResumeData.mockResolvedValue({
         started: true,
-        resume_position: {
-          unit_id: 'unit-1',
-          lesson_id: 'l1',
-          resource_id: 'r1',
-        },
+        // No resume_position implies completed unit/course -> free navigation
       });
     });
 
@@ -778,7 +849,9 @@ describe('CourseUnitView', () => {
       });
 
       const nextButton = await screen.findByRole('button', { name: /next/i });
-      expect(nextButton).toBeEnabled();
+      await waitFor(() => {
+        expect(nextButton).toBeEnabled();
+      });
 
       await fireEvent.click(nextButton);
 
@@ -856,7 +929,9 @@ describe('CourseUnitView', () => {
       });
 
       const nextButton = await screen.findByRole('button', { name: /next/i });
-      expect(nextButton).toBeEnabled();
+      await waitFor(() => {
+        expect(nextButton).toBeEnabled();
+      });
 
       await fireEvent.click(nextButton);
 
