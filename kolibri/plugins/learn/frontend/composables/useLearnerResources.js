@@ -12,7 +12,11 @@ import flatMapDepth from 'lodash/flatMapDepth';
 
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { deduplicateResources } from 'kolibri-common/utils/contentNode';
-import { LearnerClassroomResource, LearnerLessonResource } from '../apiResources';
+import {
+  LearnerClassroomResource,
+  LearnerLessonResource,
+  LearnerCourseResource,
+} from '../apiResources';
 import { ClassesPageNames } from '../constants';
 import useContentNodeProgress, { setContentNodeProgress } from './useContentNodeProgress';
 
@@ -21,6 +25,9 @@ const _resumableContentNodes = ref([]);
 const moreResumableContentNodes = ref(null);
 const classes = ref([]);
 const { fetchContentNodeProgress } = useContentNodeProgress();
+const courses = ref([]);
+const courseContent = ref({});
+const courseProgress = ref({});
 
 export function setResumableContentNodes(nodes, more = null) {
   set(_resumableContentNodes, nodes);
@@ -57,6 +64,27 @@ export function setClasses(classData) {
   for (const classroom of classData) {
     setClassData(classroom);
   }
+}
+
+function _cacheCourseContent(content) {
+  if (content) {
+    ContentNodeResource.cacheData([content]);
+    // Cache child nodes recursively if they exist
+    if (content.children?.results) {
+      ContentNodeResource.cacheData(content.children.results);
+      content.children.results.forEach(unit => {
+        if (unit.children?.results) {
+          ContentNodeResource.cacheData(unit.children.results);
+        }
+      });
+    }
+  }
+}
+
+function setCourseData(courseId, content, progress) {
+  set(courseContent, { ...get(courseContent), [courseId]: content });
+  set(courseProgress, { ...get(courseProgress), [courseId]: progress });
+  _cacheCourseContent(content);
 }
 
 export default function useLearnerResources() {
@@ -311,6 +339,180 @@ export default function useLearnerResources() {
     return deduplicateResources(get(_resumableContentNodes));
   });
 
+  /**
+   * @param {String} courseId
+   * @returns {Object} Course content tree
+   * @public
+   */
+  function getCourseContent(courseId) {
+    return get(courseContent)[courseId];
+  }
+
+  /**
+   * @param {String} courseId
+   * @returns {Object} Course progress data
+   * @public
+   */
+  function getCourseProgress(courseId) {
+    return get(courseProgress)[courseId];
+  }
+
+  /**
+   * @param {String} courseId
+   * @returns {Array} Course units
+   * @public
+   */
+  function getCourseUnits(courseId) {
+    return get(courseContent)[courseId]?.children?.results ?? [];
+  }
+
+  /**
+   * Fetches a course by its session ID and saves data
+   * to this composable's store
+   *
+   * @param {String} courseSessionId
+   * @param {Boolean} force Cache won't be used when `true`
+   * @returns {Promise<Object>} Course data
+   * @public
+   */
+  function fetchCourse({ courseSessionId, force = false }) {
+    return LearnerCourseResource.fetchModel({ id: courseSessionId, force }).then(async course => {
+      if (!course) {
+        throw new Error('Course not found');
+      }
+
+      // Update courses list
+      const updatedCourses = [...get(courses).filter(c => c.id !== course.id), course];
+      set(courses, updatedCourses);
+
+      let content = null;
+      let progress = null;
+
+      // Fetch course content tree
+      if (course.course_id) {
+        content = await ContentNodeResource.fetchTree({
+          id: course.course_id,
+        });
+      }
+
+      // Fetch learner course progress
+      const progressResponse = await LearnerCourseResource.getResumeData(course.id);
+      progress = progressResponse.data;
+
+      // Cache the data
+      setCourseData(course.course_id, content, progress);
+
+      return { course, content, progress };
+    });
+  }
+
+  /**
+   * Fetches current learner's courses
+   * and saves data to this composable's store
+   *
+   * @param {Boolean} force Cache won't be used when `true`
+   * @returns {Promise<Array>}
+   * @public
+   */
+  function fetchCourses({ force = false } = {}) {
+    return LearnerCourseResource.fetchCollection({ force }).then(collection => {
+      set(courses, collection);
+      return collection;
+    });
+  }
+
+  /**
+   * @param {String} testType - 'pre' or 'post'
+   * @returns {Boolean} Whether the test is currently available
+   * @public
+   */
+  function isUnitTestAvailable(courseId, unitId, testType) {
+    const progress = getCourseProgress(courseId);
+    const activeTest = progress?.active_test;
+
+    if (!activeTest) {
+      return false;
+    }
+
+    return activeTest.unit_id === unitId && activeTest.test_type === testType;
+  }
+
+  /**
+   * @param {String} courseId
+   * @param {String} unitId
+   * @param {String} lessonId
+   * @returns {Boolean} Whether the lesson resource is available
+   * @public
+   */
+  function isCourseResourceAvailable(courseId, unitId, lessonId) {
+    const progress = getCourseProgress(courseId);
+    const units = getCourseUnits(courseId);
+
+    if (!progress?.started || !progress.resume_position?.unit_id) {
+      return false;
+    }
+
+    const resumeUnitId = progress.resume_position.unit_id;
+    const resumeLessonId = progress.resume_position.lesson_id;
+
+    // Find the current unit to get its sort_order
+    const currentUnit = units.find(unit => unit.id === resumeUnitId);
+
+    if (!currentUnit) {
+      return false;
+    }
+
+    const targetUnit = units.find(unit => unit.id === unitId);
+
+    if (!targetUnit || !targetUnit.children?.results) {
+      return false;
+    }
+
+    // If this unit comes before the current unit, all lessons are available
+    if (targetUnit.sort_order < currentUnit.sort_order) {
+      return true;
+    }
+
+    // If this is the current unit
+    if (unitId === resumeUnitId) {
+      // If no resume lesson specified, no lessons available yet
+      if (!resumeLessonId) {
+        return false;
+      }
+
+      const lessons = targetUnit.children.results;
+      const resumeLesson = lessons.find(lesson => lesson.id === resumeLessonId);
+      const targetLesson = lessons.find(lesson => lesson.id === lessonId);
+
+      if (!resumeLesson || !targetLesson) {
+        return false;
+      }
+
+      // Check if target lesson's sort_order <= resume lesson's sort_order
+      return targetLesson.sort_order <= resumeLesson.sort_order;
+    }
+
+    return false;
+  }
+
+  /**
+   * @param {String} courseId
+   * @param {String} unitId
+   * @param {String} lessonId
+   * @returns {Boolean} Whether this is the current resource being worked on
+   * @public
+   */
+  function isCurrentCourseResource(courseId, unitId, lessonId) {
+    const progress = getCourseProgress(courseId);
+    const resumePosition = progress?.resume_position;
+
+    if (!resumePosition) {
+      return false;
+    }
+
+    return resumePosition.unit_id === unitId && resumePosition.lesson_id === lessonId;
+  }
+
   return {
     classes,
     activeClassesLessons,
@@ -330,5 +532,14 @@ export default function useLearnerResources() {
     fetchMoreResumableContentNodes,
     resumableContentNodes,
     moreResumableContentNodes,
+    courses,
+    getCourseContent,
+    getCourseProgress,
+    getCourseUnits,
+    fetchCourse,
+    fetchCourses,
+    isUnitTestAvailable,
+    isCourseResourceAvailable,
+    isCurrentCourseResource,
   };
 }

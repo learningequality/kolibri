@@ -11,6 +11,7 @@ import TopicsContentPage from '../views/TopicsContentPage';
 import ContentUnavailablePage from '../views/ContentUnavailablePage';
 import BookmarkPage from '../views/BookmarkPage.vue';
 import ExploreLibrariesPage from '../views/ExploreLibrariesPage';
+import CourseWelcomePage from '../views/CourseWelcomePage';
 import classesRoutes from './classesRoutes';
 
 // Conditionally import QTI sandbox routes in non-production
@@ -182,6 +183,20 @@ export default [
       store.commit('CORE_SET_PAGE_LOADING', false);
       next();
     },
+  },
+  {
+    name: PageNames.COURSE_WELCOME,
+    path: '/course/:id/welcome',
+    component: CourseWelcomePage,
+    handler: (to, from, next) => {
+      if (unassignedContentGuard(next)) {
+        return;
+      }
+      store.commit('SET_PAGE_NAME', PageNames.COURSE_WELCOME);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      next();
+    },
+    props: true,
   },
   // Add QTI sandbox routes in non-production
   ...qtiSandboxRoutes,
