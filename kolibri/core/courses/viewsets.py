@@ -2,13 +2,9 @@ import logging
 from collections import OrderedDict
 
 from django.db import transaction
-from django.db.models import Case
 from django.db.models import Exists
-from django.db.models import IntegerField
 from django.db.models import OuterRef
 from django.db.models import Subquery
-from django.db.models import Value
-from django.db.models import When
 from django_filters.rest_framework import DjangoFilterBackend
 from le_utils.constants import modalities
 from rest_framework.decorators import action
@@ -21,7 +17,6 @@ from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer
 from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_200_OK
-from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.status import HTTP_404_NOT_FOUND
 
 from .models import CourseSession
@@ -523,68 +518,6 @@ class CourseSessionViewset(ValuesViewset):
     def last_unit_test(self, request, pk=None):
         """
         Returns the most recent test, active or not, for the given course session
-        """
-        course_session = self.get_object()
-        unit_ids = ContentNode.objects.filter(parent=course_session.course).values_list(
-            "id", flat=True
-        )
-
-        if not len(unit_ids):
-            return Response(
-                "Units must be given in order to get the last unit test",
-                status=HTTP_400_BAD_REQUEST,
-            )
-        # Create position annotation: unit_ids[0] -> 0, unit_ids[1] -> 1, etc.
-        position_cases = [
-            When(unit_contentnode_id=uid, then=Value(i))
-            for i, uid in enumerate(unit_ids)
-        ]
-
-        # test_type ordering: post=1, pre=0 (so post sorts after pre in descending)
-        test_type_order = Case(
-            When(test_type="post", then=Value(1)),
-            When(test_type="pre", then=Value(0)),
-            output_field=IntegerField(),
-        )
-
-        test = (
-            UnitTestAssignment.objects.filter(
-                course_session=course_session, unit_contentnode_id__in=unit_ids
-            )
-            .annotate(
-                unit_position=Case(*position_cases, output_field=IntegerField()),
-                test_type_order=test_type_order,
-            )
-            .order_by("-unit_position", "-test_type_order")
-            .first()
-        )
-
-        def activated_by_info(test):
-            if test.activated_by:
-                return {
-                    "id": test.activated_by.id,
-                    "username": test.activated_by.username,
-                    "full_name": test.activated_by.full_name,
-                }
-
-        if not test:
-            return Response(None, status=HTTP_200_OK)
-
-        return Response(
-            {
-                "id": test.id,
-                "unit_contentnode_id": str(test.unit_contentnode_id),
-                "test_type": test.test_type,
-                "status": test.status,
-                "activated_by": activated_by_info(test),
-            },
-            status=HTTP_200_OK,
-        )
-
-    @action(detail=True, methods=["get"])
-    def other_last_unit_test(self, request, pk=None):
-        """
-        Returns the most recent test, active or not, for the given course session
         with consideration for the order of the units and the natural order in which
         tests are started & ended
         """
@@ -594,12 +527,12 @@ class CourseSessionViewset(ValuesViewset):
             UnitTestAssignment.objects.filter(course_session=course_session)
             .annotate(
                 b_lft=Subquery(
-                    ContentNode.objects.filter(parent=course_session.course).values(
-                        "lft"
-                    )
+                    ContentNode.objects.filter(
+                        id=OuterRef("unit_contentnode_id")
+                    ).values("lft")[:1]
                 )
             )
-            .order_by("b_lft")
+            .order_by("-b_lft", "test_type")
             .first()
         )
 
