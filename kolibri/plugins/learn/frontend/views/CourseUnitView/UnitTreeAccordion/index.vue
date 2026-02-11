@@ -107,24 +107,23 @@
                     <KIconButton icon="bookmarkEmpty" />
                     <KIconButton
                       v-if="
-                        resource.lft === maxResourceLft &&
-                          !currentResourceComplete &&
-                          currentResourceProgressSessionReady
+                        currentResourceProgressSessionReady &&
+                          contentNodeProgressMap[resource.content_id] < 1
                       "
                       icon="check"
                       @click.stop="onCompleteClick()"
                     />
                   </template>
                   <KIcon
-                    v-if="resource.lft === maxResourceLft"
-                    class="item-icon"
-                    icon="inProgress"
-                  />
-                  <KIcon
-                    v-else-if="resource.lft < maxResourceLft"
+                    v-if="contentNodeProgressMap[resource.content_id] === 1"
                     class="item-icon"
                     icon="mastered"
                     :color="$themePalette.grey.v_400"
+                  />
+                  <KIcon
+                    v-else-if="contentNodeProgressMap[resource.content_id] > 0"
+                    class="item-icon"
+                    icon="inProgress"
                   />
                   <KIcon
                     v-else
@@ -177,6 +176,7 @@
   import TimeDuration from 'kolibri-common/components/TimeDuration.vue';
   import { PageNames } from '../../../constants';
   import { injectCourseContentProgress } from '../useCourseContentProgressTracking';
+  import useContentNodeProgress from '../../../composables/useContentNodeProgress';
   import TreeItem from './TreeItem.vue';
 
   export default {
@@ -194,9 +194,10 @@
 
       const {
         sessionReady: currentResourceProgressSessionReady,
-        complete: currentResourceComplete,
         handleUpdateProgress: handleUpdateCurrentResourceProgress,
       } = injectCourseContentProgress();
+
+      const { contentNodeProgressMap } = useContentNodeProgress();
 
       const lessons = computed(() => {
         return props.unitTree?.children?.results?.filter(
@@ -213,7 +214,7 @@
 
         let completedResources = 0;
         for (const resource of lessonResources) {
-          if (resource.lft < props.maxResourceLft) {
+          if (contentNodeProgressMap[resource.content_id] === 1) {
             completedResources++;
           }
         }
@@ -243,7 +244,7 @@
 
       return {
         lessons,
-        currentResourceComplete,
+        contentNodeProgressMap,
         currentResourceProgressSessionReady,
         getResources,
         getLessonRatioLabel,

@@ -108,6 +108,7 @@
   import ResourceLayout from '../ResourceLayout/index.vue';
   import PrevNextBar from '../PrevNextBar/index.vue';
   import { PageNames } from '../../constants.js';
+  import useContentNodeProgress from '../../composables/useContentNodeProgress.js';
   import CourseContentViewer from './CourseContentViewer.vue';
   import UnitTreeAccordion from './UnitTreeAccordion/index.vue';
   import useCourseContentProgress from './useCourseContentProgressTracking';
@@ -347,9 +348,14 @@
 
       /**
        * Redirect to a valid position if the current unit is previous to the resume position unit
+       * or if resume position doesn't have where to resume within the unit
        */
       const checkRedirectToUnitTree = () => {
-        if (props.unitId === resumeData.value?.resume_position?.unit_id) {
+        if (
+          props.unitId === resumeData.value?.resume_position?.unit_id &&
+          resumeData.value?.resume_position?.resource_id &&
+          resumeData.value?.resume_position?.lesson_id
+        ) {
           // already on the right unit, no need to redirect
           return false;
         }
@@ -616,6 +622,14 @@
         }),
       );
 
+      // Provide progress tracking to child components
+      useCourseContentProgress({
+        contentNode: currentResource,
+        courseSessionId: toRef(props, 'courseId'),
+      });
+
+      const { fetchContentNodeProgress } = useContentNodeProgress();
+
       watch(error, (newError, oldError) => {
         if (!oldError && newError) {
           store.dispatch('handleApiError', { error: newError });
@@ -625,7 +639,7 @@
       watch(
         () => props.courseId,
         async () => {
-          fetchCourseWithUnitsData();
+          await fetchCourseWithUnitsData();
           checkRedirect();
         },
         { immediate: true },
@@ -638,6 +652,9 @@
             await fetchUnitTreeData();
             await nextTick();
             await checkRedirect();
+            fetchContentNodeProgress({
+              descendant_of: newUnitId,
+            });
           }
         },
         { immediate: true },
@@ -645,12 +662,6 @@
 
       watch([() => props.lessonId, () => props.resourceId, () => props.testType], () => {
         checkRedirect();
-      });
-
-      // Provide progress tracking to child components
-      useCourseContentProgress({
-        contentNode: currentResource,
-        courseSessionId: toRef(props, 'courseId'),
       });
 
       return {
