@@ -22,7 +22,7 @@
             : {
               backgroundColor: $themePalette.grey.v_100,
               borderBottom: `1px solid ${$themeTokens.fineLine}`,
-              padding: '24px 0px 24px 20px',
+              padding: isRtl ? '24px 20px 24px 0px' : '24px 0px 24px 20px',
             }
         "
       >
@@ -71,7 +71,7 @@
           :headerAppearanceOverrides="{
             backgroundColor: $themeTokens.surface,
             fontWeight: 'normal',
-            paddingLeft: '0.5em',
+            ['padding' + (isRtl ? 'Right' : 'Left')]: '8px',
             borderTop: '0px none',
           }"
           :style="{
@@ -109,7 +109,7 @@
               backgroundColor: $themePalette.grey.v_100,
               fontWeight: 'normal',
               border: `1px solid ${$themeTokens.fineLine}`,
-              paddingLeft: '0.5em',
+              ['padding' + (isRtl ? 'Right' : 'Left')]: '8px',
               border: '0px none',
             }"
             :contentAppearanceOverrides="{
@@ -128,8 +128,8 @@
                     class="unit-item-button"
                     :class="
                       testAvailable(unit.id, TestType.PRE)
-                        ? activeUnitItemStyle
-                        : lockedUnitItemStyle
+                        ? $computedClass(activeUnitItemStyle)
+                        : $computedClass(lockedUnitItemStyle)
                     "
                     style="background-color: unset"
                     :aria-label="preTestLabel$()"
@@ -145,8 +145,7 @@
                         <KIcon
                           icon="quiz"
                           :color="lockedColor"
-                          class="unit-icons"
-                          style="margin-right: 0.5em"
+                          class="resource-icon unit-icons"
                           :style="
                             testAvailable(unit.id, TestType.PRE)
                               ? [iconStyleFor(`${TestType.PRE}-${unit.id}`)]
@@ -182,8 +181,8 @@
                     class="unit-item-button"
                     :class="
                       resourceAvailable(unit.id, resource.id)
-                        ? activeUnitItemStyle
-                        : lockedUnitItemStyle
+                        ? $computedClass(activeUnitItemStyle)
+                        : $computedClass(lockedUnitItemStyle)
                     "
                     style="background-color: unset"
                     :aria-label="resource.title"
@@ -201,8 +200,7 @@
                         <KIcon
                           icon="lesson"
                           :color="lockedColor"
-                          class="unit-icons"
-                          style="margin-right: 0.5em"
+                          class="resource-icon unit-icons"
                           :style="
                             resourceAvailable(unit.id, resource.id)
                               ? [iconStyleFor(resource.id)]
@@ -242,8 +240,8 @@
                     class="unit-item-button"
                     :class="
                       testAvailable(unit.id, TestType.POST)
-                        ? activeUnitItemStyle
-                        : lockedUnitItemStyle
+                        ? $computedClass(activeUnitItemStyle)
+                        : $computedClass(lockedUnitItemStyle)
                     "
                     style="background-color: unset"
                     data-testid="post-test-button-item"
@@ -260,8 +258,7 @@
                         <KIcon
                           icon="quiz"
                           :color="lockedColor"
-                          class="unit-icons"
-                          style="margin-right: 0.5em"
+                          class="resource-icon unit-icons"
                           :style="
                             testAvailable(unit.id, TestType.POST)
                               ? [iconStyleFor(`${TestType.POST}-${unit.id}`)]
@@ -320,6 +317,7 @@
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { coachStrings } from '../../../coach/frontend/views/common/commonCoachStrings';
   import useLearnerResources from '../composables/useLearnerResources';
   import { PageNames } from '../constants';
@@ -337,6 +335,8 @@
       const currentInstance = getCurrentInstance().proxy;
       const { windowIsLarge } = useKResponsiveWindow();
 
+      const $themePalette = themePalette();
+
       const {
         fetchCourse,
         getCourseContent,
@@ -351,7 +351,7 @@
       const course = ref(null);
       const courseSessionId = computed(() => props.id.replace(/^:/, ''));
 
-      // For accordian items button hover and focus state styling
+      // For accordion items button hover and focus state styling
       const hoveredId = ref(null);
       const focusedId = ref(null);
       const onHover = id => (hoveredId.value = id);
@@ -360,7 +360,7 @@
       const onBlur = () => (focusedId.value = null);
       const iconStyleFor = id => {
         const active = hoveredId.value === id || focusedId.value === id;
-        const color = active ? currentInstance.$themePalette.blue.v_500 : undefined;
+        const color = active ? $themePalette.blue.v_500 : undefined;
         return { color, fill: color };
       };
 
@@ -395,6 +395,36 @@
         course.value ? getCourseProgress(course.value.course_id) : null,
       );
       const units = computed(() => (course.value ? getCourseUnits(course.value.course_id) : []));
+
+      const activeUnitItemStyle = computed(() => {
+        return {
+          cursor: 'pointer',
+          ':focus': {
+            backgroundColor: $themePalette.blue.v_100,
+            borderLeft: `3px solid`,
+            borderLeftColor: $themePalette.blue.v_500,
+            color: $themePalette.blue.v_500,
+            outline: 'unset',
+          },
+          ':focus-within': {
+            color: $themePalette.blue.v_500,
+          },
+          ':hover': {
+            backgroundColor: $themePalette.blue.v_100,
+            color: $themePalette.blue.v_500,
+          },
+        };
+      });
+
+      const lockedColor = computed(() => $themePalette.grey.v_700);
+
+      const lockedUnitItemStyle = computed(() => {
+        return {
+          color: $themePalette.grey.v_700,
+          backgroundColor: 'unset',
+          outline: 'unset',
+        };
+      });
 
       async function loadCourse() {
         try {
@@ -555,6 +585,9 @@
         courseSubtitle,
         windowIsLarge,
         homePageLink,
+        lockedColor,
+        lockedUnitItemStyle,
+        activeUnitItemStyle,
 
         // Methods & functions
         testAvailable,
@@ -590,36 +623,6 @@
       id: {
         type: String,
         required: true,
-      },
-    },
-    computed: {
-      activeUnitItemStyle() {
-        return this.$computedClass({
-          cursor: 'pointer',
-          ':focus': {
-            backgroundColor: this.$themePalette.blue.v_100,
-            borderLeft: `3px solid ${this.$themePalette.blue.v_500}`,
-            color: this.$themePalette.blue.v_500,
-            outline: 'unset',
-          },
-          ':focus-within': {
-            color: this.$themePalette.blue.v_500,
-          },
-          ':hover': {
-            backgroundColor: this.$themePalette.blue.v_100,
-            color: this.$themePalette.blue.v_500,
-          },
-        });
-      },
-      lockedColor() {
-        return this.$themePalette.grey.v_700;
-      },
-      lockedUnitItemStyle() {
-        return this.$computedClass({
-          color: this.$themePalette.grey.v_700,
-          backgroundColor: 'unset',
-          outline: 'unset',
-        });
       },
     },
   };
@@ -678,7 +681,6 @@
     display: flex;
     gap: 16px;
     justify-content: space-between;
-    padding-bottom: 16px;
     font-weight: bold;
   }
 
@@ -698,8 +700,12 @@
   }
 
   .unit-icons {
-    top: 0.3em;
+    top: 3px;
     font-size: 20px;
+  }
+
+  .resource-icon {
+    margin-right: 8px;
   }
 
   .unit-item-count {

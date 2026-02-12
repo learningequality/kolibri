@@ -66,25 +66,10 @@ export function setClasses(classData) {
   }
 }
 
-function _cacheCourseContent(content) {
-  if (content) {
-    ContentNodeResource.cacheData([content]);
-    // Cache child nodes recursively if they exist
-    if (content.children?.results) {
-      ContentNodeResource.cacheData(content.children.results);
-      content.children.results.forEach(unit => {
-        if (unit.children?.results) {
-          ContentNodeResource.cacheData(unit.children.results);
-        }
-      });
-    }
-  }
-}
-
 function setCourseData(courseId, content, progress) {
   set(courseContent, { ...get(courseContent), [courseId]: content });
   set(courseProgress, { ...get(courseProgress), [courseId]: progress });
-  _cacheCourseContent(content);
+  ContentNodeResource.cacheData(content);
 }
 
 export default function useLearnerResources() {
@@ -375,35 +360,29 @@ export default function useLearnerResources() {
    * @returns {Promise<Object>} Course data
    * @public
    */
-  function fetchCourse({ courseSessionId, force = false }) {
-    return LearnerCourseResource.fetchModel({ id: courseSessionId, force }).then(async course => {
-      if (!course) {
-        throw new Error('Course not found');
-      }
+  async function fetchCourse({ courseSessionId, force = false }) {
+    const course = await LearnerCourseResource.fetchModel({ id: courseSessionId, force });
 
-      // Update courses list
-      const updatedCourses = [...get(courses).filter(c => c.id !== course.id), course];
-      set(courses, updatedCourses);
+    if (!course) {
+      throw new Error('Course not found');
+    }
 
-      let content = null;
-      let progress = null;
+    // Update courses list
+    const updatedCourses = [...get(courses).filter(c => c.id !== course.id), course];
+    set(courses, updatedCourses);
 
-      // Fetch course content tree
-      if (course.course_id) {
-        content = await ContentNodeResource.fetchTree({
-          id: course.course_id,
-        });
-      }
+    // Fetch course content tree and learner course progress
+    const [content, progressResponse] = await Promise.all([
+      course.course_id ? ContentNodeResource.fetchTree({ id: course.course_id }) : null,
+      LearnerCourseResource.getResumeData(course.id),
+    ]);
 
-      // Fetch learner course progress
-      const progressResponse = await LearnerCourseResource.getResumeData(course.id);
-      progress = progressResponse.data;
+    const progress = progressResponse?.data || null;
 
-      // Cache the data
-      setCourseData(course.course_id, content, progress);
+    // Cache the data
+    setCourseData(course.course_id, content, progress);
 
-      return { course, content, progress };
-    });
+    return { course, content, progress };
   }
 
   /**
@@ -414,11 +393,10 @@ export default function useLearnerResources() {
    * @returns {Promise<Array>}
    * @public
    */
-  function fetchCourses({ force = false } = {}) {
-    return LearnerCourseResource.fetchCollection({ force }).then(collection => {
-      set(courses, collection);
-      return collection;
-    });
+  async function fetchCourses({ force = false } = {}) {
+    const collection = await LearnerCourseResource.fetchCollection({ force });
+    set(courses, collection);
+    return collection;
   }
 
   /**
