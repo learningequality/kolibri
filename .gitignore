@@ -56,11 +56,13 @@ kolibri/locale/.crowdin-download-marker
 .project
 # vscode files
 .vscode
-# pycharm project file
-kolibri.iml
+# pycharm / jetbrains project files
+/*.iml
 .pydevproject
-.venv
-.idea
+.idea/
+.junie/
+.aiassistant/
+.aiignore
 
 # Complexity
 output/*.html
@@ -105,6 +107,7 @@ kolibri/core/content/contentschema/migrations/*
 
 # virtual environment
 venv/
+.venv/
 .python-version
 .envrc
 .env
