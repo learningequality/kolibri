@@ -416,7 +416,7 @@
     },
     computed: {
       learnerGroups() {
-        return this.$store.getters.groups || [];
+        return this.$store.getters['classSummary/groups'] || [];
       },
       classId() {
         return this.$store.state.classSummary.id;
