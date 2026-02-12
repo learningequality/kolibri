@@ -64,7 +64,7 @@
             />
             <Recipients
               class="icon-aligned-text"
-              :groupNames="getRecipientNamesForExam(courseSession)"
+              :groupNames="getRecipientNamesForCourseSession(courseSession)"
               :hasAssignments="courseSession.assignments.length > 0"
             />
           </div>
@@ -255,7 +255,6 @@
 <script>
 
   import { computed, ref } from 'vue';
-  import { mapGetters } from 'vuex';
   import { useRoute } from 'vue-router/composables';
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
@@ -269,6 +268,7 @@
   import { coachStrings } from '../../views/common/commonCoachStrings';
   import CoachAppBarPage from '../CoachAppBarPage.vue';
   import useCourseSession from '../../composables/useCourseSession';
+  import useClassSummary from '../../composables/useClassSummary.js';
   import { UnitPhase } from '../../constants/courseConstants';
 
   export default {
@@ -343,6 +343,8 @@
         courseSession,
         toggleCourseActive,
       } = useCourseSession(route.params.courseSessionId);
+
+      const { getRecipientNamesForCourseSession } = useClassSummary();
 
       // UI-only state
       const activeModal = ref(null);
@@ -545,14 +547,12 @@
         completedLabel$,
         inProgressLabel$,
         nOfMLearners$,
+        getRecipientNamesForCourseSession,
 
         unitsPillStyles,
         statusPillStyles,
         onUnitButtonClick,
       };
-    },
-    computed: {
-      ...mapGetters('classSummary', ['getRecipientNamesForExam']),
     },
     created() {
       this.$store.dispatch('notLoading');
