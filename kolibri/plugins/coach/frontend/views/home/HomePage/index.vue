@@ -1,5 +1,4 @@
 <template>
-
   <CoachAppBarPage>
     <KGrid gutter="16">
       <KGridItem>
@@ -7,6 +6,9 @@
       </KGridItem>
       <KGridItem :layout12="{ span: 6 }">
         <KGrid gutter="16">
+          <KGridItem>
+            <AttendanceBlock />
+          </KGridItem>
           <KGridItem>
             <QuizzesBlock />
           </KGridItem>
@@ -20,14 +22,12 @@
       </KGridItem>
     </KGrid>
   </CoachAppBarPage>
-
 </template>
 
-
 <script>
-
   import CoachAppBarPage from '../../CoachAppBarPage';
   import commonCoach from '../../common';
+  import AttendanceBlock from './AttendanceBlock';
   import OverviewBlock from './OverviewBlock';
   import ActivityBlock from './ActivityBlock';
   import LessonsBlock from './LessonsBlock';
@@ -37,6 +37,7 @@
     name: 'HomePage',
     components: {
       CoachAppBarPage,
+      AttendanceBlock,
       OverviewBlock,
       ActivityBlock,
       LessonsBlock,
@@ -44,14 +45,10 @@
     },
     mixins: [commonCoach],
   };
-
 </script>
 
-
 <style lang="scss" scoped>
-
   .new-coach-block {
     min-width: 0;
   }
-
 </style>

@@ -14,6 +14,7 @@ import StatusTestPage from '../views/common/status/StatusTestPage';
 import { ClassesPageNames } from '../../../learn/frontend/constants';
 import { PageNames } from '../constants';
 import { classIdParamRequiredGuard } from './utils';
+import attendanceRoutes from './attendanceRoutes';
 import examRoutes from './examRoutes';
 import lessonsRoutes from './lessonsRoutes';
 import learnersRoutes from './learnersRoutes';
@@ -34,6 +35,7 @@ function showHomePage(toRoute) {
 }
 
 export default [
+  ...attendanceRoutes,
   ...examRoutes,
   ...lessonsRoutes,
   ...learnersRoutes,
