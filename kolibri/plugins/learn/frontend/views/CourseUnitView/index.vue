@@ -245,19 +245,19 @@
         if (resumeData.value.resume_position) {
           const { unit_id: resumeUnitId, resource_id: resumeResourceId } =
             resumeData.value.resume_position;
-          if (props.unitId === resumeUnitId) {
-            const resumeResource = unitResources.value.find(
-              resource => resource.id === resumeResourceId,
-            );
-            if (resumeResource) {
-              return resumeResource.lft;
-            } else {
-              // If the resume resource is not found, let's allow navigation to any resource
-              return Number.MAX_SAFE_INTEGER;
-            }
-          } else {
+          if (!resumeResourceId || props.unitId !== resumeUnitId) {
             // If the unit is different, it must be a previous unit, so we allow
-            // navigation to any resource
+            // navigation to any resource. If not resumeResourceId, it means that
+            // the learner has completed all their resources in the unit.
+            return Number.MAX_SAFE_INTEGER;
+          }
+          const resumeResource = unitResources.value.find(
+            resource => resource.id === resumeResourceId,
+          );
+          if (resumeResource) {
+            return resumeResource.lft;
+          } else {
+            // If the resume resource is not found, let's allow navigation to any resource
             return Number.MAX_SAFE_INTEGER;
           }
         }
@@ -299,6 +299,21 @@
         );
       });
 
+      const getNextIncompleteResource = () => {
+        for (
+          let idx = currentResourceIndexInUnit.value + 1;
+          idx < unitResources.value.length;
+          idx++
+        ) {
+          const resource = unitResources.value[idx];
+          const resourceProgress = contentNodeProgressMap[resource.content_id] || 0;
+          if (resourceProgress < 1) {
+            return resource;
+          }
+        }
+        return null;
+      };
+
       const onResourceFinished = () => {
         if (
           !resumeData.value?.resume_position ||
@@ -309,19 +324,21 @@
         ) {
           return;
         }
-        const nextResourceIndex = currentResourceIndexInUnit.value + 1;
-        if (nextResourceIndex >= unitResources.value.length) {
+
+        const nextResource = getNextIncompleteResource();
+        if (!nextResource) {
           // No more resources in the unit, no need to update, null
-          // resume_position to represent that there is no resource to resume within the
+          // lesson_id and resource_id to represent that there is no resource to resume within the
           // unit, so all resources appear as completed
           resumeData.value = {
             ...resumeData.value,
-            resume_position: null,
+            resume_position: {
+              unit_id: props.unitId,
+            },
           };
           return;
         }
 
-        const nextResource = unitResources.value[nextResourceIndex];
         // Update resume position to allow navigation to the next resource
         resumeData.value = {
           ...resumeData.value,
@@ -632,7 +649,7 @@
         courseSessionId: toRef(props, 'courseId'),
       });
 
-      const { fetchContentNodeProgress } = useContentNodeProgress();
+      const { contentNodeProgressMap, fetchContentNodeProgress } = useContentNodeProgress();
       const { fetchBookmarks } = useBookmarks();
 
       watch(error, (newError, oldError) => {
