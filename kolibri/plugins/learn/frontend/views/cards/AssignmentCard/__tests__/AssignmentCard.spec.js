@@ -104,18 +104,18 @@ describe('AssignmentCard', () => {
       expect(wrapper.findComponent({ name: 'KCard' }).props().title).toEqual('Test Course 1');
     });
 
-    it('shows the course pill with icon and label', () => {
+    it('shows the course label with icon and label', () => {
       wrapper = makeCourseWrapper();
-      const pill = wrapper.find('.course-pill');
-      expect(pill.exists()).toBe(true);
+      const label = wrapper.find('.course-label');
+      expect(label.exists()).toBe(true);
 
-      const icon = pill.findComponent({ name: 'KIcon' });
+      const icon = label.findComponent({ name: 'KIcon' });
       expect(icon.exists()).toBe(true);
       expect(icon.props().icon).toEqual('course');
 
-      const label = pill.find('.pill-label');
-      expect(label.exists()).toBe(true);
-      expect(label.text()).toEqual('Course');
+      const text = label.find('.label-text');
+      expect(text.exists()).toBe(true);
+      expect(text.text()).toEqual('Course');
     });
 
     it('shows the right link', () => {

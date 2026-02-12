@@ -42,13 +42,19 @@
           :label="coreString('folder')"
         />
       </div>
+      <KButton
+        v-if="contentNode.copies"
+        appearance="basic-link"
+        class="copies"
+        :text="coreString('copies', { num: contentNode.copies.length })"
+        @click.prevent="$emit('openCopiesModal', contentNode.copies)"
+      />
     </template>
     <template #footer>
       <div class="progress-section">
-        <ProgressBar
-          v-if="!$slots.footer"
-          :contentNode="contentNode"
-        />
+        <slot name="footer">
+          <ProgressBar :contentNode="contentNode" />
+        </slot>
       </div>
     </template>
   </KCard>
@@ -58,6 +64,7 @@
 
 <script>
 
+  import { computed } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import useChannels from 'kolibri-common/composables/useChannels';
@@ -72,9 +79,26 @@
       ProgressBar,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props) {
       const { getChannelThumbnail } = useChannels();
-      return { getChannelThumbnail };
+
+      const title = computed(() => (props.contentNode ? props.contentNode.title : ''));
+
+      const thumbnailUrl = computed(() => {
+        const thumbnail = props.contentNode.thumbnail;
+        if (!thumbnail) {
+          const parent = props.contentNode.parent;
+          if (!parent) {
+            return getChannelThumbnail(props.contentNode && props.contentNode.channel_id);
+          }
+        }
+        return thumbnail;
+      });
+
+      return {
+        title,
+        thumbnailUrl,
+      };
     },
     props: {
       contentNode: {
@@ -92,21 +116,6 @@
         type: String,
         required: false,
         default: '',
-      },
-    },
-    computed: {
-      title() {
-        return this.contentNode ? this.contentNode.title : '';
-      },
-      thumbnailUrl() {
-        const thumbnail = this.contentNode.thumbnail;
-        if (!thumbnail) {
-          const parent = this.contentNode.parent;
-          if (!parent) {
-            return this.getChannelThumbnail(this.contentNode && this.contentNode.channel_id);
-          }
-        }
-        return thumbnail;
       },
     },
   };
@@ -131,21 +140,10 @@
     font-size: 12px;
   }
 
-  .resource-card-outer {
-    position: relative;
-  }
-
-  .topic-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 10px;
-    border-radius: 8px 8px 0 0;
-  }
-
   .thumbnail-icon {
-    font-size: 48px;
+    width: 40%;
+    height: auto;
+    font-size: 40%;
   }
 
 </style>

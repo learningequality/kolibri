@@ -39,13 +39,19 @@
     },
     setup() {
       const { getClass, getClassCourseLink } = useLearnerResources();
+      const { recentCoursesHeader$, yourCoursesHeader$ } = coursesStrings;
 
       function getCourseClassName(course) {
         const courseClass = getClass(course.collection);
         return courseClass ? courseClass.name : '';
       }
 
-      return { getCourseClassName, getClassCourseLink };
+      return {
+        getCourseClassName,
+        getClassCourseLink,
+        recentCoursesHeader$,
+        yourCoursesHeader$,
+      };
     },
     props: {
       courses: {
@@ -71,11 +77,7 @@
     },
     computed: {
       header() {
-        /* eslint-disable kolibri/vue-no-undefined-string-uses */
-        return this.recent
-          ? coursesStrings.$tr('recentCoursesHeader')
-          : coursesStrings.$tr('yourCoursesHeader');
-        /* eslint-enable kolibri/vue-no-undefined-string-uses */
+        return this.recent ? this.recentCoursesHeader$() : this.yourCoursesHeader$();
       },
     },
   };

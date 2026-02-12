@@ -54,23 +54,23 @@
       </div>
     </template>
     <template #footer>
-      <!-- Course: pill badge and lesson count -->
+      <!-- Course: label badge and lesson count -->
       <div
         v-if="course"
         class="footer-content"
       >
         <div
-          class="course-pill"
-          :style="pillStyle"
+          class="course-label"
+          :style="{ backgroundColor: $themePalette.blue.v_100 }"
         >
           <KIcon
             icon="course"
-            class="pill-icon"
+            class="label-icon"
             :color="$themeTokens.primary"
           />
           <span
-            class="pill-label"
-            :style="pillLabelStyle"
+            class="label-text"
+            :style="{ color: $themeTokens.primary }"
           >{{ courseLabel }}</span>
         </div>
         <span
@@ -110,19 +110,102 @@
 
 <script>
 
+  import { computed } from 'vue';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+  import { learnStrings } from '../../commonLearnStrings';
 
   export default {
     name: 'AssignmentCard',
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props) {
       const { windowBreakpoint } = useKResponsiveWindow();
-      const { quizLabel$ } = coreStrings;
+      const { quizLabel$, inProgressLabel$, completedLabel$ } = coreStrings;
+      const { courseLabel$, courseLessonCount$ } = coursesStrings;
+      const { questionsLeft$, completedPercentLabel$ } = learnStrings;
+
+      // All computed properties
+      const assignment = computed(() => props.course || props.lesson || props.quiz);
+
+      const title = computed(() => (assignment.value ? assignment.value.title : ''));
+
+      // Course-specific
+      const courseLabel = computed(() => courseLabel$());
+
+      const lessonCountLabel = computed(() => {
+        if (!props.course) return '';
+        const count = props.course.lesson_count;
+        if (typeof count !== 'number' || count === 0) return '';
+        return courseLessonCount$({ count });
+      });
+
+      // Lesson-specific
+      const lessonProgress = computed(() => {
+        if (!props.lesson || !props.lesson.progress) return NaN;
+        const { resource_progress, total_resources } = props.lesson.progress;
+        if (resource_progress * total_resources === 0) {
+          return NaN;
+        } else {
+          return resource_progress - total_resources;
+        }
+      });
+
+      // Quiz-specific
+      const quizProgress = computed(() => (props.quiz ? props.quiz.progress : undefined));
+
+      const reportVisible = computed(() => {
+        if (!props.quiz) return true;
+        const { instant_report_visibility, archive } = props.quiz;
+        return instant_report_visibility !== false || archive;
+      });
+
+      // Shared progress labels
+      const inProgressLabel = computed(() => {
+        if (props.lesson) {
+          return lessonProgress.value < 0 ? inProgressLabel$() : '';
+        }
+        if (props.quiz && quizProgress.value) {
+          const { started, closed, answer_count } = quizProgress.value;
+          const { question_count } = props.quiz;
+          if (started && !closed) {
+            return questionsLeft$({
+              questionsLeft: Math.max(0, question_count - answer_count),
+            });
+          }
+        }
+        return '';
+      });
+
+      const completedLabel = computed(() => {
+        if (props.lesson) {
+          return lessonProgress.value >= 0 ? completedLabel$() : '';
+        }
+        if (props.quiz && quizProgress.value) {
+          const { score, closed } = quizProgress.value;
+          const { question_count } = props.quiz;
+          if (closed) {
+            let percentage = 0;
+            const nCorrect = Number(score);
+            if (nCorrect > 0) {
+              percentage = Math.round(100 * (nCorrect / question_count));
+            }
+            return completedPercentLabel$({ score: percentage });
+          }
+        }
+        return '';
+      });
+
       return {
         windowBreakpoint,
         quizLabel$,
+        assignment,
+        title,
+        courseLabel,
+        lessonCountLabel,
+        reportVisible,
+        inProgressLabel,
+        completedLabel,
       };
     },
     props: {
@@ -157,108 +240,6 @@
         type: Boolean,
         required: false,
         default: false,
-      },
-    },
-    computed: {
-      assignment() {
-        return this.course || this.lesson || this.quiz;
-      },
-      title() {
-        return this.assignment ? this.assignment.title : '';
-      },
-      // Course-specific
-      courseLabel() {
-        // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
-        return coursesStrings.$tr('courseLabel');
-      },
-      pillStyle() {
-        return {
-          backgroundColor: this.$themePalette.blue.v_100,
-        };
-      },
-      pillLabelStyle() {
-        return {
-          color: this.$themeTokens.primary,
-        };
-      },
-      lessonCountLabel() {
-        if (!this.course) {
-          return '';
-        }
-        const count = this.course.lesson_count;
-        if (typeof count !== 'number' || count === 0) {
-          return '';
-        }
-        // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
-        return coursesStrings.$tr('courseLessonCount', { count });
-      },
-      // Lesson-specific
-      lessonProgress() {
-        if (!this.lesson || !this.lesson.progress) {
-          return NaN;
-        }
-        const { resource_progress, total_resources } = this.lesson.progress;
-        if (resource_progress * total_resources === 0) {
-          return NaN;
-        } else {
-          return resource_progress - total_resources;
-        }
-      },
-      // Quiz-specific
-      quizProgress() {
-        return this.quiz ? this.quiz.progress : undefined;
-      },
-      reportVisible() {
-        if (!this.quiz) {
-          return true;
-        }
-        const { instant_report_visibility, archive } = this.quiz;
-        return instant_report_visibility !== false || archive;
-      },
-      // Shared progress labels
-      inProgressLabel() {
-        if (this.lesson) {
-          return this.lessonProgress < 0 ? this.coreString('inProgressLabel') : '';
-        }
-        if (this.quiz && this.quizProgress) {
-          const { started, closed, answer_count } = this.quizProgress;
-          const { question_count } = this.quiz;
-          if (started && !closed) {
-            return this.$tr('questionsLeft', {
-              questionsLeft: Math.max(0, question_count - answer_count),
-            });
-          }
-        }
-        return '';
-      },
-      completedLabel() {
-        if (this.lesson) {
-          return this.lessonProgress >= 0 ? this.coreString('completedLabel') : '';
-        }
-        if (this.quiz && this.quizProgress) {
-          const { score, closed } = this.quizProgress;
-          const { question_count } = this.quiz;
-          if (closed) {
-            let percentage = 0;
-            const nCorrect = Number(score);
-            if (nCorrect > 0) {
-              percentage = Math.round(100 * (nCorrect / question_count));
-            }
-            return this.$tr('completedPercentLabel', { score: percentage });
-          }
-        }
-        return '';
-      },
-    },
-    $trs: {
-      questionsLeft: {
-        message:
-          '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',
-        context: 'Indicates how many questions the learner has left to complete.',
-      },
-      completedPercentLabel: {
-        message: 'Score: {score, number, integer}%',
-        context: 'A label shown to learners on a quiz card when the quiz is completed',
       },
     },
   };
@@ -311,7 +292,7 @@
     align-items: center;
   }
 
-  .course-pill {
+  .course-label {
     display: inline-flex;
     align-items: center;
     padding: 4px 12px 4px 8px;
@@ -323,13 +304,13 @@
     font-size: 12px;
   }
 
-  .pill-icon {
+  .label-icon {
     width: 12px;
     height: 12px;
     font-size: 12px;
   }
 
-  .pill-label {
+  .label-text {
     margin-left: 4px;
     font-size: 12px;
   }
