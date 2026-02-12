@@ -219,6 +219,9 @@
       });
 
       const selectRecipients = () => {
+        if (selectCourse && course.value) {
+          selectCourse(course.value);
+        }
         router.push(
           overrideRoute(route, {
             name: PageNames.COURSES_ASSIGN_SELECT_RECIPIENTS,
@@ -238,9 +241,6 @@
       ContentNodeResource.fetchTree({ id: route.params.courseId })
         .then(results => {
           course.value = results;
-          if (selectCourse) {
-            selectCourse(results);
-          }
           loading.value = false;
         })
         .catch(() => {
