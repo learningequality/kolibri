@@ -1,4 +1,5 @@
 <template>
+
   <CoachAppBarPage>
     <KGrid gutter="16">
       <KGridItem>
@@ -22,9 +23,12 @@
       </KGridItem>
     </KGrid>
   </CoachAppBarPage>
+
 </template>
 
+
 <script>
+
   import CoachAppBarPage from '../../CoachAppBarPage';
   import commonCoach from '../../common';
   import AttendanceBlock from './AttendanceBlock';
@@ -45,10 +49,14 @@
     },
     mixins: [commonCoach],
   };
+
 </script>
 
+
 <style lang="scss" scoped>
+
   .new-coach-block {
     min-width: 0;
   }
+
 </style>

@@ -1,4 +1,5 @@
 <template>
+
   <CoachAppBarPage :appBarTitle="$tr('attendanceHistoryTitle')">
     <KPageContainer>
       <BackLink
@@ -47,9 +48,12 @@
       </div>
     </KPageContainer>
   </CoachAppBarPage>
+
 </template>
 
+
 <script>
+
   import { ref } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import KDateRange from 'kolibri-design-system/lib/KDateRange';
@@ -218,11 +222,15 @@
       },
     },
   };
+
 </script>
 
+
 <style lang="scss" scoped>
+
   .session-link {
     padding: 12px 0;
     border-bottom: 1px solid;
   }
+
 </style>

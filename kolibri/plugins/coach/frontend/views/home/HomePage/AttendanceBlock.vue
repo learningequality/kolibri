@@ -1,4 +1,5 @@
 <template>
+
   <Block
     :allLinkText="$tr('viewHistory')"
     :allLinkRoute="historyRoute"
@@ -40,14 +41,17 @@
       {{ $tr('noAttendanceYet') }}
     </p>
   </Block>
+
 </template>
 
+
 <script>
+
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../../common';
-  import Block from './Block';
   import useAttendance from '../../../composables/useAttendance';
   import { PageNames } from '../../../constants';
+  import Block from './Block';
 
   const MAX_RECENT_SESSIONS = 5;
 
@@ -124,9 +128,12 @@
       },
     },
   };
+
 </script>
 
+
 <style lang="scss" scoped>
+
   .recent-sessions {
     margin-top: 16px;
   }
@@ -135,4 +142,5 @@
     padding: 8px 0;
     border-bottom: 1px solid;
   }
+
 </style>

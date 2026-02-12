@@ -1,4 +1,5 @@
 <template>
+
   <CoachAppBarPage :appBarTitle="pageTitle">
     <KPageContainer>
       <BackLink
@@ -117,9 +118,12 @@
       <p>{{ $tr('editPastSessionConfirmation', { date: formattedSessionDate }) }}</p>
     </KModal>
   </CoachAppBarPage>
+
 </template>
 
+
 <script>
+
   import { ref } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
@@ -398,14 +402,17 @@
       },
     },
   };
+
 </script>
 
+
 <style lang="scss" scoped>
+
   .switch-cell {
     display: flex;
+    gap: 12px;
     align-items: center;
     justify-content: flex-end;
-    gap: 12px;
   }
 
   .present-label {
@@ -422,8 +429,8 @@
 
   .bottom-bar-content-small {
     flex-direction: column;
-    align-items: stretch;
     gap: 8px;
+    align-items: stretch;
     padding: 8px 0;
   }
 
@@ -436,4 +443,5 @@
     margin-top: 8px;
     text-align: right;
   }
+
 </style>
