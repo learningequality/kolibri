@@ -147,6 +147,7 @@
         />
         <KButton
           primary
+          :disabled="loading || !course"
           :text="selectRecipientsLabel$()"
           @click="selectRecipients"
         />
@@ -175,6 +176,7 @@
   import { overrideRoute } from '../../../../../utils';
   import { PageNames } from '../../../../../constants';
   import { coachStrings } from '../../../../../views/common/commonCoachStrings';
+  import { injectAssignCourse } from '../../../composables/useAssignCourse';
 
   export default {
     name: 'CourseDetailsSubpage',
@@ -203,6 +205,8 @@
       const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
 
       const { numberOfResources$ } = coachStrings;
+
+      const { selectCourse } = injectAssignCourse();
 
       const course = ref(null);
       const units = computed(() => course.value?.children?.results);
@@ -234,6 +238,9 @@
       ContentNodeResource.fetchTree({ id: route.params.courseId })
         .then(results => {
           course.value = results;
+          if (selectCourse) {
+            selectCourse(results);
+          }
           loading.value = false;
         })
         .catch(() => {
