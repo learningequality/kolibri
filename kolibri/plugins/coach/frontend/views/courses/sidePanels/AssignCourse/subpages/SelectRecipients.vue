@@ -3,7 +3,7 @@
   <SidePanelLayout
     :goBack="goBack"
     :title="selectRecipientsLabel$()"
-    :subtitle="courseNameLabel$({ name: selectedCourse.title })"
+    :subtitle="courseNameLabel$({ name: selectedCourseTitle })"
   >
     <template #default>
       <LearnersAndGroupsSelector
@@ -68,6 +68,8 @@
       const { backAction$, defaultErrorMessage$ } = coreStrings;
       const { courseNameLabel$, assignCourseAction$, selectRecipientsLabel$ } = coursesStrings;
 
+      const selectedCourseTitle = computed(() => selectedCourse.value?.title || '');
+
       const goBack = () => {
         router.push(
           overrideRoute(route, {
@@ -104,9 +106,9 @@
       return {
         isSaving,
         classId,
-        selectedCourse,
         selectedGroupIds,
         selectedLearnerIds,
+        selectedCourseTitle,
         isAssignButtonDisabled,
 
         goBack,

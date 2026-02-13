@@ -147,6 +147,7 @@
         />
         <KButton
           primary
+          :disabled="loading || !course"
           :text="selectRecipientsLabel$()"
           @click="selectRecipients"
         />
@@ -175,6 +176,7 @@
   import { overrideRoute } from '../../../../../utils';
   import { PageNames } from '../../../../../constants';
   import { coachStrings } from '../../../../../views/common/commonCoachStrings';
+  import { injectAssignCourse } from '../../../composables/useAssignCourse';
 
   export default {
     name: 'CourseDetailsSubpage',
@@ -204,6 +206,8 @@
 
       const { numberOfResources$ } = coachStrings;
 
+      const { selectCourse } = injectAssignCourse();
+
       const course = ref(null);
       const units = computed(() => course.value?.children?.results);
       const numTestQuestions = computed(() => {
@@ -215,6 +219,9 @@
       });
 
       const selectRecipients = () => {
+        if (selectCourse && course.value) {
+          selectCourse(course.value);
+        }
         router.push(
           overrideRoute(route, {
             name: PageNames.COURSES_ASSIGN_SELECT_RECIPIENTS,
