@@ -2,6 +2,7 @@ from django.urls import include
 from django.urls import re_path
 
 urlpatterns = [
+    re_path(r"^attendance/", include("kolibri.core.attendance.api_urls")),
     re_path(r"^auth/", include("kolibri.core.auth.api_urls")),
     re_path(r"^bookmarks/", include("kolibri.core.bookmarks.api_urls")),
     re_path(r"^content/", include("kolibri.core.content.api_urls")),

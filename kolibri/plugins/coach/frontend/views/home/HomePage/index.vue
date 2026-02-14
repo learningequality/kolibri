@@ -6,14 +6,13 @@
         <OverviewBlock />
       </KGridItem>
       <KGridItem :layout12="{ span: 6 }">
-        <KGrid gutter="16">
-          <KGridItem>
-            <QuizzesBlock />
-          </KGridItem>
-          <KGridItem>
-            <LessonsBlock />
-          </KGridItem>
-        </KGrid>
+        <AttendanceBlock />
+      </KGridItem>
+      <KGridItem :layout12="{ span: 6 }">
+        <QuizzesBlock />
+      </KGridItem>
+      <KGridItem :layout12="{ span: 6 }">
+        <LessonsBlock />
       </KGridItem>
       <KGridItem :layout12="{ span: 6 }">
         <ActivityBlock />
@@ -28,6 +27,7 @@
 
   import CoachAppBarPage from '../../CoachAppBarPage';
   import commonCoach from '../../common';
+  import AttendanceBlock from './AttendanceBlock';
   import OverviewBlock from './OverviewBlock';
   import ActivityBlock from './ActivityBlock';
   import LessonsBlock from './LessonsBlock';
@@ -37,6 +37,7 @@
     name: 'HomePage',
     components: {
       CoachAppBarPage,
+      AttendanceBlock,
       OverviewBlock,
       ActivityBlock,
       LessonsBlock,

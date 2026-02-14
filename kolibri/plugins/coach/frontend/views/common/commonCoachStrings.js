@@ -63,11 +63,69 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context: 'View a list of learners in a class.',
   },
 
+  viewHistoryAction: {
+    message: 'View history',
+    context: 'Link text to view the attendance history for a class.',
+  },
+  markAttendanceAction: {
+    message: 'Mark attendance',
+    context: 'Button label for coaches to start recording classroom attendance.',
+  },
+
   // labels, phrases, titles, headers...
   activityLabel: {
     message: 'Activity',
     context:
       "'Activity' refers to the section in Kolobri which provides real time notifications of what's happening with the learners in a class.",
+  },
+  attendanceLabel: {
+    message: 'Attendance',
+    context: 'Label for attendance tracking feature in the coach interface.',
+  },
+  attendanceHistoryLabel: {
+    message: 'Attendance history',
+    context: 'Label for the page showing historical attendance records.',
+  },
+  attendanceMarkAllPresent: {
+    message: 'Mark all learners present',
+    context: 'Label for the switch that marks all learners in the class as present for attendance.',
+  },
+  attendancePresentLabel: {
+    message: 'Present',
+    context: 'Label shown next to a learner who is marked as present for attendance.',
+  },
+  attendanceLearnerNameHeader: {
+    message: 'Learner name',
+    context: 'Visually hidden table header for the learner name column.',
+  },
+  attendanceStatusHeader: {
+    message: 'Attendance status',
+    context: 'Visually hidden table header for the attendance status column.',
+  },
+  attendanceTogglePresence: {
+    message: 'Mark {name} as present or absent',
+    context: 'Accessible label for the attendance toggle switch, where {name} is the learner name.',
+  },
+  attendanceContinueAction: {
+    message: 'Continue',
+    context: 'Button label to confirm leaving the page with unsaved changes.',
+  },
+  attendancePaginationLabel: {
+    message: '{start} - {end} of {total} learners',
+    context: 'Pagination label showing the range of learners currently displayed out of the total.',
+  },
+  attendanceSessionPaginationLabel: {
+    message: '{start} - {end} of {total}',
+    context:
+      'Pagination label showing the range of attendance sessions currently displayed out of the total.',
+  },
+  attendancePreviousPage: {
+    message: 'Previous page',
+    context: 'Accessible label for the previous page button in pagination.',
+  },
+  attendanceNextPage: {
+    message: 'Next page',
+    context: 'Accessible label for the next page button in pagination.',
   },
   allQuizzesLabel: {
     message: 'All quizzes',

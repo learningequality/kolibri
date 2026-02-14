@@ -19,6 +19,7 @@ import lessonsRoutes from './lessonsRoutes';
 import learnersRoutes from './learnersRoutes';
 import groupsRoutes from './groupsRoutes';
 import coursesRoutes from './coursesRoutes';
+import attendanceRoutes from './attendanceRoutes';
 
 function showHomePage(toRoute) {
   const initClassInfoPromise = store.dispatch('initClassInfo', toRoute.params.classId);
@@ -38,6 +39,7 @@ export default [
   ...lessonsRoutes,
   ...learnersRoutes,
   ...groupsRoutes,
+  ...attendanceRoutes,
   ...(plugin_data.courses_exist ? coursesRoutes : []),
   {
     name: 'AllFacilitiesPage',

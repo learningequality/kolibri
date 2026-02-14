@@ -92,6 +92,9 @@ class CoachToolsModule extends KolibriApp {
         PageNames.COURSES_ASSIGN_COURSE_DETAILS,
         PageNames.COURSES_ASSIGN_SELECT_RECIPIENTS,
         PageNames.COURSES_ASSIGN_PREVIEW_LEARNERS,
+        PageNames.ATTENDANCE_NEW,
+        PageNames.ATTENDANCE_HISTORY,
+        PageNames.ATTENDANCE_EDIT,
         HomeActivityPage.name,
       ];
 
@@ -160,6 +163,9 @@ class CoachToolsModule extends KolibriApp {
           PageNames.COURSES_ASSIGN_COURSE_DETAILS,
           PageNames.COURSES_ASSIGN_SELECT_RECIPIENTS,
           PageNames.COURSES_ASSIGN_PREVIEW_LEARNERS,
+          PageNames.ATTENDANCE_NEW,
+          PageNames.ATTENDANCE_HISTORY,
+          PageNames.ATTENDANCE_EDIT,
           HomeActivityPage.name,
         ].includes(to.name)
       ) {
