@@ -497,7 +497,7 @@ class ContentNodeAPIBase(object):
             if children:
                 child_nodes = content.ContentNode.objects.filter(
                     available=True, parent=expected
-                )
+                ).order_by("lft")
                 if children["more"] is None:
                     self.assertEqual(len(child_nodes), len(children["results"]))
                 else:
