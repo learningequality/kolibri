@@ -15,6 +15,8 @@ from morango.models import SyncSession
 from morango.models import TransferSession
 
 from kolibri.core.analytics.models import PingbackNotificationDismissed
+from kolibri.core.attendance.models import AttendanceRecord
+from kolibri.core.attendance.models import AttendanceSession
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
@@ -229,6 +231,8 @@ def _get_class_models(dataset_id):
     return GroupDeletion(
         "Class models",
         querysets=[
+            AttendanceRecord.objects.filter(dataset_id_filter),
+            AttendanceSession.objects.filter(dataset_id_filter),
             ExamAssignment.objects.filter(dataset_id_filter),
             Exam.objects.filter(dataset_id_filter),
             IndividualSyncableExam.objects.filter(dataset_id_filter),
