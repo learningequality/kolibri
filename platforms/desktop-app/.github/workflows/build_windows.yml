@@ -82,7 +82,7 @@ jobs:
       run: make dependencies
 
     - name: Install wget and Inno Setup
-      run: choco install wget innosetup --no-progress
+      run: choco install wget --no-progress && choco install innosetup --version=6.6.1 --allow-downgrade --no-progress
 
     - name: Download and install the whl from URL
       if: ${{ inputs.whl-url }}
@@ -103,7 +103,17 @@ jobs:
       run: make pyinstaller
 
     - name: Build the Windows installer
-      run: make build-installer-windows
+      shell: pwsh
+      run: |
+        # Create a junction to shorten the workspace path.
+        # Dev version strings like "0.19.1a0.dev0+git.99.gbfca81cd" make
+        # some file paths exceed Windows' 260-char MAX_PATH limit.
+        # D:\a\kolibri-app\kolibri-app (30 chars) -> D:\b (3 chars) saves 27 chars.
+        if (Test-Path "D:\b") { Remove-Item "D:\b" -Force }
+        New-Item -ItemType Junction -Path "D:\b" -Target $env:GITHUB_WORKSPACE | Out-Null
+        Push-Location "D:\b"
+        make build-installer-windows
+        Pop-Location
 
     - name: Get EXE filenames
       id: get-exe-filename
