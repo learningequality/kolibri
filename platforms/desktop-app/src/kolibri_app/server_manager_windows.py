@@ -34,6 +34,7 @@ import win32service
 import winerror
 import wx
 from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.server import stop as kolibri_stop
 
 from kolibri_app.constants import SERVICE_NAME
 from kolibri_app.logger import logging
@@ -139,21 +140,26 @@ class WindowsServerManager:
         self._cleanup_handles()
 
     def _shutdown_server_process(self):
-        """Shutdown the server process gracefully."""
+        """Shutdown the server process gracefully.
+
+        Uses Kolibri's built-in stop() to signal the server bus to walk through
+        its STOP -> EXIT -> EXITED transitions, allowing plugins to clean up
+        (HTTP server, IPC pipes, workers, PID file). The Job Object provides
+        additional cleanup when the UI process exits.
+        """
         if self.server_process and self.server_process.poll() is None:
             logging.info("Shutting down server process...")
             try:
-                # Attempt graceful shutdown first - Job Object provides backup cleanup
-                self.server_process.terminate()
-                self.server_process.wait(timeout=10)
+                kolibri_stop()
+            except OSError as e:
+                logging.warning(f"Graceful shutdown via stop() failed: {e}")
+            # kolibri_stop() handles its own timeouts and process killing
+            # internally. Reap the subprocess; the Job Object provides
+            # additional cleanup when the UI process exits.
+            try:
+                self.server_process.wait(timeout=5)
             except subprocess.TimeoutExpired:
-                logging.warning(
-                    "Server process did not terminate gracefully, forcing kill..."
-                )
-                self.server_process.kill()
-                self.server_process.wait()
-            except (OSError, subprocess.SubprocessError) as e:
-                logging.error(f"Error shutting down server process: {e}")
+                logging.warning("Server process still running after stop()")
 
     def _shutdown_pipe_thread(self):
         """Stop pipe communication thread."""
