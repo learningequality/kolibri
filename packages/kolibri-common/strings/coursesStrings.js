@@ -233,7 +233,7 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   },
   endPostTestForUnitConfirmation: {
     message: 'End post-test for unit {num, number}?',
-    context: 'Heading for confirmation modal when user clicks to end a pre-test',
+    context: 'Heading for confirmation modal when user clicks to end a post-test',
   },
   startTestForUnitDescription: {
     message:
