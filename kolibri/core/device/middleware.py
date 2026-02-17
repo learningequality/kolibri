@@ -11,7 +11,6 @@ from django.utils import translation
 from .translation import get_language_from_request_and_is_from_path
 from kolibri.core.device.hooks import SetupHook
 from kolibri.core.device.utils import device_provisioned
-from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.utils.conf import OPTIONS
 
 
@@ -93,15 +92,6 @@ class ProvisioningErrorHandler:
     def __init__(self, get_response):
         self.get_response = get_response
         self._provision_app_name = None
-
-    def process_exception(self, request, exception):
-        if (
-            isinstance(exception, DeviceNotProvisioned)
-            and SetupHook.provision_url()
-            and not request.path.startswith(SetupHook.provision_url())
-        ):
-            return redirect(SetupHook.provision_url())
-        return None
 
     def __call__(self, request):
         if not device_provisioned():
