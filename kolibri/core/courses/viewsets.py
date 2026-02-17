@@ -23,6 +23,7 @@ from .models import CourseSession
 from .models import CourseSessionAssignment
 from .models import TestStatus
 from .models import TestType
+from .models import UnitPhase
 from .models import UnitTestAssignment
 from kolibri.core import error_constants
 from kolibri.core.api import ValuesViewset
@@ -285,6 +286,66 @@ def _map_course_session_classroom(item):
     }
 
 
+def _compute_course_state(course_id, test):
+    """
+    Compute the unit phase and active unit index from the most recent test
+    and the course's unit structure.
+
+    Args:
+        course_id: UUID of the course ContentNode
+        test: The most recent UnitTestAssignment (with b_lft annotated), or None
+
+    Returns:
+        dict with 'unit_phase' and 'active_unit_index'
+    """
+    unit_qs = ContentNode.objects.filter(
+        parent_id=course_id,
+        modality=modalities.UNIT,
+    )
+    total_units = unit_qs.count()
+
+    if not test:
+        return {
+            "unit_phase": UnitPhase.PreTestPending,
+            "active_unit_index": 0 if total_units > 0 else -1,
+        }
+
+    # 0-based index of the test's unit within the course
+    test_unit_index = unit_qs.filter(lft__lt=test.b_lft).count()
+
+    if test.status == TestStatus.Active:
+        unit_phase = (
+            UnitPhase.PreTestActive
+            if test.test_type == TestType.Pre
+            else UnitPhase.PostTestActive
+        )
+        return {
+            "unit_phase": unit_phase,
+            "active_unit_index": test_unit_index,
+        }
+
+    # Test is ended
+    if test.test_type == TestType.Pre:
+        # Pre-test ended = still on this unit (lessons/post-test phase)
+        return {
+            "unit_phase": UnitPhase.PostTestPending,
+            "active_unit_index": test_unit_index,
+        }
+
+    # Post-test ended = unit complete
+    next_index = test_unit_index + 1
+    if next_index >= total_units:
+        return {
+            "unit_phase": UnitPhase.Complete,
+            "active_unit_index": -1,
+        }
+
+    return {
+        "unit_phase": UnitPhase.PreTestPending,
+        "active_unit_index": next_index,
+    }
+
+
 class CourseSessionViewset(ValuesViewset):
     serializer_class = CourseSessionSerializer
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
@@ -398,12 +459,23 @@ class CourseSessionViewset(ValuesViewset):
             unit_test_assignment.activated_by = request.user
             unit_test_assignment.save()
 
+        # Annotate with b_lft for course state computation
+        unit_test_assignment.b_lft = (
+            ContentNode.objects.filter(id=unit_contentnode_id)
+            .values_list("lft", flat=True)
+            .first()
+        )
+        course_state = _compute_course_state(
+            course_session.course, unit_test_assignment
+        )
+
         return Response(
             {
                 "id": unit_test_assignment.id,
                 "unit_contentnode_id": str(unit_contentnode_id),
                 "test_type": test_type,
                 "status": unit_test_assignment.status,
+                **course_state,
             },
             status=HTTP_200_OK,
         )
@@ -455,12 +527,21 @@ class CourseSessionViewset(ValuesViewset):
         active_test.status = TestStatus.Ended
         active_test.save()
 
+        # Annotate with b_lft for course state computation
+        active_test.b_lft = (
+            ContentNode.objects.filter(id=active_test.unit_contentnode_id)
+            .values_list("lft", flat=True)
+            .first()
+        )
+        course_state = _compute_course_state(course_session.course, active_test)
+
         return Response(
             {
                 "id": active_test.id,
                 "unit_contentnode_id": str(active_test.unit_contentnode_id),
                 "test_type": active_test.test_type,
                 "status": active_test.status,
+                **course_state,
             },
             status=HTTP_200_OK,
         )
@@ -547,6 +628,8 @@ class CourseSessionViewset(ValuesViewset):
                     "full_name": test.activated_by.full_name,
                 }
 
+        course_state = _compute_course_state(course_session.course, test)
+
         return Response(
             {
                 "id": test.id,
@@ -554,6 +637,7 @@ class CourseSessionViewset(ValuesViewset):
                 "test_type": test.test_type,
                 "status": test.status,
                 "activated_by": activated_by_info(test),
+                **course_state,
             },
             status=HTTP_200_OK,
         )

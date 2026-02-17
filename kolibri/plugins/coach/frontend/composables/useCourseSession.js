@@ -83,48 +83,24 @@ export default function useCourseSession(courseSessionId) {
   });
 
   /**
-   * The unit currently being worked on, derived from activeTest and lastUnitTest
-   *
-   * Logic:
-   * - If there's an active test, that determines the active unit
-   * - If no active test, derive from test history:
-   *   - If last completed test was a post-test, advance to next unit
-   *   - If last completed test was a pre-test, stay on that unit
-   * - If no history, start at the first unit
+   * The unit currently being worked on, derived from server-provided active_unit_index.
    */
   const activeUnit = computed(() => {
     if (!units.value.length) return null;
-
-    if (!activeTest.value && !lastUnitTest.value) {
-      // No active test and no last test taken, we're at the very beginning
-      return units.value[0];
-    }
-
-    // Active test tells us exactly which unit we're on
-    if (activeTest.value) {
-      return units.value.find(u => u.id === activeTest.value.unit_contentnode_id);
-    }
-
-    // We don't have an active test, so we'll use the lastUnitTest to work out which is active
-    const lastTestUnitIndex = units.value.findIndex(
-      u => u.id === lastUnitTest.value?.unit_contentnode_id,
-    );
-
-    if (lastUnitTest.value?.test_type === TestType.POST) {
-      // Post-test done = unit complete, move to next (or null if course complete)
-      return units.value[lastTestUnitIndex + 1] || null;
-    }
-
-    // Pre-test done = still on this unit (lessons phase)
-    return units.value[lastTestUnitIndex];
+    if (!lastUnitTest.value) return units.value[0];
+    const index = lastUnitTest.value.active_unit_index;
+    if (index < 0 || index >= units.value.length) return null;
+    return units.value[index];
   });
 
   /**
    * Index of the active unit within the units array.
    */
   const activeUnitIndex = computed(() => {
-    if (!activeUnit.value) return -1;
-    return units.value.findIndex(u => u.id === activeUnit.value.id);
+    if (!lastUnitTest.value) {
+      return units.value.length > 0 ? 0 : -1;
+    }
+    return lastUnitTest.value.active_unit_index;
   });
 
   /**
@@ -158,35 +134,11 @@ export default function useCourseSession(courseSessionId) {
 
   /**
    * The current phase of the active unit in the test lifecycle.
-   *
-   * State machine:
-   * PRE_TEST_PENDING → PRE_TEST_ACTIVE → POST_TEST_PENDING → POST_TEST_ACTIVE → COMPLETE
+   * Read directly from the server-provided unit_phase field.
    */
   const unitPhase = computed(() => {
-    // Course complete - all units finished
-    if (isCourseComplete.value) return UnitPhase.COMPLETE;
-
-    // Is there a test running right now?
-    if (activeTest.value) {
-      return activeTest.value.test_type === TestType.PRE
-        ? UnitPhase.PRE_TEST_ACTIVE
-        : UnitPhase.POST_TEST_ACTIVE;
-    }
-
-    // No active test - what was the last thing completed for this unit?
-    if (!lastUnitTest.value) {
-      // No tests done for this whole course session, so we're at the very start
-      return UnitPhase.PRE_TEST_PENDING;
-    }
-
-    if (lastUnitTest.value.test_type === TestType.PRE) {
-      // Pre-test done, ready for post-test (lessons phase)
-      return UnitPhase.POST_TEST_PENDING;
-    } else {
-      // If the last unit test is a post test, we already know we have no active test
-      // so, we're pending the pre-test for the next unit
-      return UnitPhase.PRE_TEST_PENDING;
-    }
+    if (!lastUnitTest.value) return UnitPhase.PRE_TEST_PENDING;
+    return lastUnitTest.value.unit_phase;
   });
 
   // -----------
@@ -208,15 +160,14 @@ export default function useCourseSession(courseSessionId) {
         test_type: testType,
       },
     })
-      .then(() => {
+      .then(result => {
         if (testType === TestType.PRE) {
           createSnackbar(preTestStartedForUnit$({ title: activeUnit.value.numberedTitle }));
         } else {
           createSnackbar(postTestStartedForUnit$({ title: activeUnit.value.numberedTitle }));
         }
-        return CourseSessionResource.lastUnitTest({ id: courseSessionId });
+        lastUnitTest.value = result;
       })
-      .then(results => (lastUnitTest.value = results))
       .catch(e => {
         // eslint-disable-next-line no-console
         console.error(e);
@@ -250,9 +201,8 @@ export default function useCourseSession(courseSessionId) {
         } else {
           createSnackbar(postTestEndedForUnit$({ title }));
         }
-        return CourseSessionResource.lastUnitTest({ id: courseSessionId });
+        lastUnitTest.value = result;
       })
-      .then(results => (lastUnitTest.value = results))
       .catch(e => {
         // eslint-disable-next-line no-console
         console.error(e);

@@ -54,6 +54,8 @@ describe('useCourseSession', () => {
     unit_contentnode_id: 'unit-1',
     test_type: TestType.PRE,
     status: TestStatus.ACTIVE,
+    unit_phase: UnitPhase.PRE_TEST_ACTIVE,
+    active_unit_index: 0,
   };
 
   // Active post-test on unit 1
@@ -62,6 +64,8 @@ describe('useCourseSession', () => {
     unit_contentnode_id: 'unit-1',
     test_type: TestType.POST,
     status: TestStatus.ACTIVE,
+    unit_phase: UnitPhase.POST_TEST_ACTIVE,
+    active_unit_index: 0,
   };
 
   // Completed pre-test on unit 1
@@ -70,6 +74,8 @@ describe('useCourseSession', () => {
     unit_contentnode_id: 'unit-1',
     test_type: TestType.PRE,
     status: TestStatus.ENDED,
+    unit_phase: UnitPhase.POST_TEST_PENDING,
+    active_unit_index: 0,
   };
 
   // Completed post-test on unit 1
@@ -78,6 +84,8 @@ describe('useCourseSession', () => {
     unit_contentnode_id: 'unit-1',
     test_type: TestType.POST,
     status: TestStatus.ENDED,
+    unit_phase: UnitPhase.PRE_TEST_PENDING,
+    active_unit_index: 1,
   };
 
   beforeEach(() => {
@@ -206,6 +214,7 @@ describe('useCourseSession', () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue({
         ...mockActivePreTest,
         unit_contentnode_id: 'unit-2',
+        active_unit_index: 1,
       });
 
       const { activeUnit } = useCourseSession(mockCourseSessionId);
@@ -242,6 +251,8 @@ describe('useCourseSession', () => {
         unit_contentnode_id: 'unit-3',
         test_type: TestType.POST,
         status: TestStatus.ENDED,
+        unit_phase: UnitPhase.COMPLETE,
+        active_unit_index: -1,
       });
 
       const { activeUnit } = useCourseSession(mockCourseSessionId);
@@ -314,6 +325,8 @@ describe('useCourseSession', () => {
         unit_contentnode_id: 'unit-2',
         test_type: TestType.POST,
         status: TestStatus.ENDED,
+        unit_phase: UnitPhase.PRE_TEST_PENDING,
+        active_unit_index: 2,
       });
 
       const { completedUnits } = useCourseSession(mockCourseSessionId);
@@ -331,6 +344,8 @@ describe('useCourseSession', () => {
         unit_contentnode_id: 'unit-3',
         test_type: TestType.POST,
         status: TestStatus.ENDED,
+        unit_phase: UnitPhase.COMPLETE,
+        active_unit_index: -1,
       });
 
       const { completedUnits, activeUnit } = useCourseSession(mockCourseSessionId);
@@ -373,6 +388,8 @@ describe('useCourseSession', () => {
         unit_contentnode_id: 'unit-2',
         test_type: TestType.POST,
         status: TestStatus.ENDED,
+        unit_phase: UnitPhase.PRE_TEST_PENDING,
+        active_unit_index: 2,
       });
 
       const { upcomingUnits } = useCourseSession(mockCourseSessionId);
@@ -408,6 +425,8 @@ describe('useCourseSession', () => {
         unit_contentnode_id: 'unit-3',
         test_type: TestType.POST,
         status: TestStatus.ENDED,
+        unit_phase: UnitPhase.COMPLETE,
+        active_unit_index: -1,
       });
 
       const { isCourseComplete } = useCourseSession(mockCourseSessionId);
@@ -507,6 +526,8 @@ describe('useCourseSession', () => {
         unit_contentnode_id: 'unit-3',
         test_type: TestType.POST,
         status: TestStatus.ENDED,
+        unit_phase: UnitPhase.COMPLETE,
+        active_unit_index: -1,
       });
 
       const { unitPhase } = useCourseSession(mockCourseSessionId);
@@ -520,9 +541,6 @@ describe('useCourseSession', () => {
   describe('activateTest action', () => {
     it('should call CourseSessionResource.activateTest with correct params', async () => {
       CourseSessionResource.activateTest.mockResolvedValue(mockActivePreTest);
-      CourseSessionResource.lastUnitTest
-        .mockResolvedValueOnce(null) // Initial load
-        .mockResolvedValueOnce(mockActivePreTest); // After activation
 
       const { activateTest } = useCourseSession(mockCourseSessionId);
 
@@ -541,9 +559,6 @@ describe('useCourseSession', () => {
 
     it('should update activeTest after activation', async () => {
       CourseSessionResource.activateTest.mockResolvedValue(mockActivePreTest);
-      CourseSessionResource.lastUnitTest
-        .mockResolvedValueOnce(null) // Initial load
-        .mockResolvedValueOnce(mockActivePreTest); // After activation
 
       const { activateTest, activeTest } = useCourseSession(mockCourseSessionId);
 
@@ -558,9 +573,6 @@ describe('useCourseSession', () => {
 
     it('should update unitPhase after activation', async () => {
       CourseSessionResource.activateTest.mockResolvedValue(mockActivePreTest);
-      CourseSessionResource.lastUnitTest
-        .mockResolvedValueOnce(null) // Initial load
-        .mockResolvedValueOnce(mockActivePreTest); // After activation
 
       const { activateTest, unitPhase } = useCourseSession(mockCourseSessionId);
 
@@ -577,11 +589,7 @@ describe('useCourseSession', () => {
   describe('closeTest action', () => {
     it('should call CourseSessionResource.closeTest with correct params', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockActivePreTest);
-      CourseSessionResource.closeTest.mockResolvedValue({
-        ...mockActivePreTest,
-        status: TestStatus.ENDED,
-      });
-      CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockCompletedPreTest);
+      CourseSessionResource.closeTest.mockResolvedValue(mockCompletedPreTest);
 
       const { closeTest } = useCourseSession(mockCourseSessionId);
 
@@ -600,12 +608,7 @@ describe('useCourseSession', () => {
 
     it('should clear activeTest after closing', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockActivePreTest);
-      CourseSessionResource.closeTest.mockResolvedValue({
-        ...mockActivePreTest,
-        status: TestStatus.ENDED,
-        test_type: TestType.PRE,
-      });
-      CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockCompletedPreTest);
+      CourseSessionResource.closeTest.mockResolvedValue(mockCompletedPreTest);
 
       const { closeTest, activeTest } = useCourseSession(mockCourseSessionId);
 
@@ -620,12 +623,7 @@ describe('useCourseSession', () => {
 
     it('should update unitPhase after closing pre-test', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockActivePreTest);
-      CourseSessionResource.closeTest.mockResolvedValue({
-        ...mockActivePreTest,
-        status: TestStatus.ENDED,
-        test_type: TestType.PRE,
-      });
-      CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockCompletedPreTest);
+      CourseSessionResource.closeTest.mockResolvedValue(mockCompletedPreTest);
 
       const { closeTest, unitPhase } = useCourseSession(mockCourseSessionId);
 
@@ -640,12 +638,7 @@ describe('useCourseSession', () => {
 
     it('should advance activeUnit after closing post-test', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockActivePostTest);
-      CourseSessionResource.closeTest.mockResolvedValue({
-        ...mockActivePostTest,
-        status: TestStatus.ENDED,
-        test_type: TestType.POST,
-      });
-      CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockCompletedPostTest);
+      CourseSessionResource.closeTest.mockResolvedValue(mockCompletedPostTest);
 
       const { closeTest, activeUnit } = useCourseSession(mockCourseSessionId);
 

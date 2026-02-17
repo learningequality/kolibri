@@ -1155,6 +1155,60 @@ class UnitTestActivationAPITestCase(APITestCase):
             1,
         )
 
+    def test_activate_test_returns_unit_phase(self):
+        """activate_test should return unit_phase and active_unit_index"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_phase"], "pre_test_active")
+        self.assertIn("active_unit_index", response.data)
+
+    def test_close_test_returns_unit_phase(self):
+        """close_test should return unit_phase and active_unit_index"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        # First activate a test
+        self.client.post(
+            reverse(
+                "kolibri:core:coursesession-activate-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        # Then close it
+        response = self.client.post(
+            reverse(
+                "kolibri:core:coursesession-close-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {
+                "unit_contentnode_id": self.unit.id,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_phase"], "post_test_pending")
+        self.assertIn("active_unit_index", response.data)
+
     def test_unauthenticated_user_cannot_activate_test(self):
         """Test that unauthenticated users cannot activate tests"""
         response = self.client.post(
@@ -1616,3 +1670,84 @@ class LastUnitTestAPITestCase(APITestCase):
         self.assertIn("status", response.data)
         self.assertIn("activated_by", response.data)
         self.assertEqual(response.data["id"], str(test.id))
+
+    # --- unit_phase and active_unit_index tests ---
+
+    def test_unit_phase_pre_test_active(self):
+        """unit_phase should be pre_test_active when a pre-test is running"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_test(self.unit1, "pre", "active")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.data["unit_phase"], "pre_test_active")
+        self.assertEqual(response.data["active_unit_index"], 0)
+
+    def test_unit_phase_post_test_pending(self):
+        """unit_phase should be post_test_pending after pre-test ends"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_test(self.unit1, "pre", "ended")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.data["unit_phase"], "post_test_pending")
+        self.assertEqual(response.data["active_unit_index"], 0)
+
+    def test_unit_phase_post_test_active(self):
+        """unit_phase should be post_test_active when a post-test is running"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_test(self.unit1, "pre", "ended")
+        self._create_test(self.unit1, "post", "active")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.data["unit_phase"], "post_test_active")
+        self.assertEqual(response.data["active_unit_index"], 0)
+
+    def test_unit_phase_pre_test_pending_after_post_test_ends(self):
+        """unit_phase should be pre_test_pending for next unit after post-test ends"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_test(self.unit1, "pre", "ended")
+        self._create_test(self.unit1, "post", "ended")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.data["unit_phase"], "pre_test_pending")
+        self.assertEqual(response.data["active_unit_index"], 1)
+
+    def test_unit_phase_complete_when_last_unit_post_test_ends(self):
+        """unit_phase should be complete when last unit's post-test ends"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_test(self.unit1, "pre", "ended")
+        self._create_test(self.unit1, "post", "ended")
+        self._create_test(self.unit2, "pre", "ended")
+        self._create_test(self.unit2, "post", "ended")
+        self._create_test(self.unit3, "pre", "ended")
+        self._create_test(self.unit3, "post", "ended")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.data["unit_phase"], "complete")
+        self.assertEqual(response.data["active_unit_index"], -1)
+
+    def test_active_unit_index_mid_course(self):
+        """active_unit_index should reflect the current unit position"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_test(self.unit1, "pre", "ended")
+        self._create_test(self.unit1, "post", "ended")
+        self._create_test(self.unit2, "pre", "active")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.data["active_unit_index"], 1)
+        self.assertEqual(response.data["unit_phase"], "pre_test_active")
+
+    def test_response_structure_includes_new_fields(self):
+        """Verify response includes unit_phase and active_unit_index"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_test(self.unit1, "pre", "active")
+
+        response = self._get_last_unit_test()
+
+        self.assertIn("unit_phase", response.data)
+        self.assertIn("active_unit_index", response.data)
