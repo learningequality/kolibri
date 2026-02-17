@@ -83,7 +83,7 @@ export default function useCourseSession(courseSessionId) {
   });
 
   /**
-   * The unit currently being worked on, derived from activeTest and testHistory.
+   * The unit currently being worked on, derived from activeTest and lastUnitTest
    *
    * Logic:
    * - If there's an active test, that determines the active unit

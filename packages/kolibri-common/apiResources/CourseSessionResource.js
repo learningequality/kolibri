@@ -29,10 +29,4 @@ export default new Resource({
       method: 'GET',
     }).then(response => response.data);
   },
-  testHistory({ id }) {
-    return client({
-      url: this.getUrlFunction('test_history')(id),
-      method: 'GET',
-    });
-  },
 });
