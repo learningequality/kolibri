@@ -319,6 +319,7 @@
         inProgressLabel$,
         goBackAction$,
         optionsLabel$,
+        cancelAction$,
       } = coreStrings;
 
       const route = useRoute();
@@ -447,7 +448,7 @@
               title: startPreTestForUnitConfirmation$({ num: unitNum }),
               text: startTestForUnitDescription$(),
               submitText: startPreTest$(),
-              cancelText: keepRunning$(),
+              cancelText: cancelAction$(),
               submit: () => {
                 activateTest('pre');
                 activeModal.value = null;
@@ -473,7 +474,7 @@
               title: startPostTestForUnitConfirmation$({ num: unitNum }),
               text: startTestForUnitDescription$(),
               submitText: startPostTest$(),
-              cancelText: keepRunning$(),
+              cancelText: cancelAction$(),
               submit: () => {
                 activateTest('post');
                 activeModal.value = null;
