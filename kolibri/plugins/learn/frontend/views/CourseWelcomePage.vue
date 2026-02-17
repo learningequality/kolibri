@@ -3,12 +3,14 @@
   <ImmersivePage
     :route="homePageLink"
     :appBarTitle="(course && course.title) || ''"
+    :loading="loading"
     icon="back"
     :appBarBgColor="$themeTokens.surface"
     :appBarHoverBgColor="$themePalette.grey.v_100"
     :appearanceOverrides="{ backgroundColor: $themeTokens.surface }"
   >
-    <div v-if="!loading">
+    <KCircularLoader v-if="loading" />
+    <div v-else>
       <div
         ref="header"
         class="header"
@@ -45,24 +47,23 @@
             data-testid="header-title"
           >
             <KTextTruncator
-              :text="course.title"
+              :text="(course && course.title) || ''"
               :maxLines="2"
             />
           </h1>
           <p>{{ courseSubtitle }}</p>
-          <div
-            ref="courseDescriptionRef"
-            class="course-description"
-            :style="{ maxHeight: descExpanded ? 'none' : '70px' }"
+          <SlotTruncator
+            v-if="course && course.description"
+            :maxHeight="90"
+            :showViewMore="true"
           >
-            {{ (course && course.description) || '' }}
-          </div>
-          <KButton
-            v-show="descOverflowing || descExpanded"
-            appearance="basic-link"
-            :text="descExpanded ? viewLessAction$() : viewMoreAction$()"
-            @click="descExpanded = !descExpanded"
-          />
+            <!-- eslint-disable vue/no-v-html -->
+            <p
+              dir="auto"
+              v-html="(course && course.description) || ''"
+            ></p>
+            <!-- eslint-enable -->
+          </SlotTruncator>
         </div>
       </div>
       <KPageContainer :style="windowIsLarge ? { padding: '24px 160px 64px' } : {}">
@@ -308,14 +309,13 @@
 <script>
 
   import lodashGet from 'lodash/get';
-  import { templateRef } from '@vueuse/core';
-  import { ref, onMounted, onUnmounted, getCurrentInstance, computed, nextTick } from 'vue';
-  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { ref, onMounted, getCurrentInstance, computed } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
+  import SlotTruncator from 'kolibri-common/components/SlotTruncator';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { coachStrings } from '../../../coach/frontend/views/common/commonCoachStrings';
@@ -330,9 +330,11 @@
       ChannelThumbnail,
       AccordionContainer,
       AccordionItem,
+      SlotTruncator,
     },
     setup(props) {
       const currentInstance = getCurrentInstance().proxy;
+      const store = currentInstance.$store;
       const { windowIsLarge } = useKResponsiveWindow();
 
       const $themePalette = themePalette();
@@ -343,8 +345,8 @@
         getCourseProgress,
         getCourseUnits,
         isUnitTestAvailable,
-        isCourseResourceAvailable,
-        isCurrentCourseResource,
+        isCourseLessonAvailable,
+        isCurrentCourseLesson,
       } = useLearnerResources();
 
       const loading = ref(true);
@@ -379,8 +381,6 @@
         startCourseAction$,
         resumeCourseAction$,
       } = coursesStrings;
-
-      const { viewMoreAction$, viewLessAction$ } = coreStrings;
 
       const { numberOfResources$ } = coachStrings;
 
@@ -440,6 +440,7 @@
           });
         } finally {
           loading.value = false;
+          store.dispatch('notLoading');
         }
       }
 
@@ -496,10 +497,11 @@
           return '';
         }
         const unitsText = numUnits$({ num: units.value?.length });
-        const resourcesText = numberOfResources$({
-          value: courseContent.value?.on_device_resources,
-        });
-        return `${unitsText} · ${resourcesText}`;
+        const message =
+          unitsText +
+          ' · ' +
+          numberOfResources$({ value: courseContent.value?.on_device_resources });
+        return message;
       });
 
       function testAvailable(unitId, testType) {
@@ -508,65 +510,18 @@
 
       function resourceAvailable(unitId, lessonId) {
         return course.value
-          ? isCourseResourceAvailable(course.value.course_id, unitId, lessonId)
+          ? isCourseLessonAvailable(course.value.course_id, unitId, lessonId)
           : false;
       }
 
       function isCurrentResource(unitId, lessonId) {
         return course.value
-          ? isCurrentCourseResource(course.value.course_id, unitId, lessonId)
+          ? isCurrentCourseLesson(course.value.course_id, unitId, lessonId)
           : false;
       }
 
-      // Description expansion
-      const descExpanded = ref(false);
-      const courseDescriptionRef = templateRef('courseDescriptionRef');
-      const descOverflowing = ref(false);
-      let rafId = null;
-
-      async function updateDescOverflow() {
-        if (rafId !== null) {
-          cancelAnimationFrame(rafId);
-          rafId = null;
-        }
-
-        if (loading.value || !courseDescriptionRef.value) {
-          descOverflowing.value = false;
-          return;
-        }
-
-        await nextTick();
-
-        rafId = requestAnimationFrame(() => {
-          rafId = null;
-          if (!courseDescriptionRef.value) {
-            descOverflowing.value = false;
-            return;
-          }
-          const el = courseDescriptionRef.value;
-          descOverflowing.value = el.scrollHeight > el.clientHeight;
-        });
-      }
-
-      let resizeObserver = null;
-
       onMounted(async () => {
-        await loadCourse();
-        await updateDescOverflow();
-
-        if (courseDescriptionRef.value) {
-          resizeObserver = new ResizeObserver(updateDescOverflow);
-          resizeObserver.observe(courseDescriptionRef.value);
-        }
-      });
-
-      onUnmounted(() => {
-        if (rafId !== null) {
-          cancelAnimationFrame(rafId);
-        }
-        if (resizeObserver) {
-          resizeObserver.disconnect();
-        }
+        loadCourse();
       });
 
       return {
@@ -575,9 +530,6 @@
         units,
         loading,
         courseContent,
-        descExpanded,
-        courseDescriptionRef,
-        descOverflowing,
         TestType,
 
         // Computed
@@ -612,8 +564,6 @@
         numberOfResources$,
         preTestLabel$,
         postTestLabel$,
-        viewMoreAction$,
-        viewLessAction$,
         startCourseAction$,
         resumeCourseAction$,
       };
@@ -657,13 +607,6 @@
     border-radius: 8px;
   }
 
-  .course-description {
-    position: relative;
-    margin-bottom: 10px;
-    overflow: hidden;
-    line-height: 140%;
-  }
-
   .unit-content-list {
     padding: 0;
     margin: 0;
@@ -700,7 +643,7 @@
   }
 
   .unit-icons {
-    top: 3px;
+    top: 5px;
     font-size: 20px;
   }
 
@@ -710,6 +653,14 @@
 
   .unit-item-count {
     padding-right: 10px;
+  }
+
+  /deep/ div.show-more {
+    text-align: left;
+  }
+
+  /deep/ div.overlay {
+    background: transparent;
   }
 
 </style>
