@@ -4,10 +4,13 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import is_valid_path
+from django.urls import resolve
+from django.urls import Resolver404
 from django.utils import translation
 
 from .translation import get_language_from_request_and_is_from_path
 from kolibri.core.device.hooks import SetupHook
+from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.utils.conf import OPTIONS
 
@@ -89,6 +92,7 @@ class KolibriLocaleMiddleware:
 class ProvisioningErrorHandler:
     def __init__(self, get_response):
         self.get_response = get_response
+        self._provision_app_name = None
 
     def process_exception(self, request, exception):
         if (
@@ -100,6 +104,27 @@ class ProvisioningErrorHandler:
         return None
 
     def __call__(self, request):
+        if not device_provisioned():
+            try:
+                provision_url = SetupHook.provision_url()
+            except StopIteration:
+                return self.get_response(request)
+
+            try:
+                match = resolve(request.path_info)
+            except Resolver404:
+                return self.get_response(request)
+
+            # Only redirect plugin page views, not API endpoints or core views.
+            # Page views served through i18n_patterns have 'translated' set on their callback.
+            # API endpoints and core views (like set_language) are left alone so the
+            # setup wizard can function properly.
+            if getattr(match.func, "translated", False):
+                if self._provision_app_name is None:
+                    self._provision_app_name = resolve(provision_url).app_name
+                if match.app_name != self._provision_app_name:
+                    return redirect(provision_url)
+
         return self.get_response(request)
 
 
