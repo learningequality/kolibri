@@ -218,13 +218,14 @@ class CourseSessionAssignment(AbstractFacilityDataModel):
                 user_partition = f"{dataset_id}:user-ro:{assigned_by_id}"
                 super_partition = f"{dataset_id}"
 
-            if (
+                if (
                     user_partition not in sync_filter
                     and super_partition not in sync_filter
                 ):
                     del dict_model["assigned_by_id"]
 
         return super().deserialize(dict_model, sync_filter=sync_filter)
+
 
 class UnitTestAssignment(AbstractFacilityDataModel):
     """
