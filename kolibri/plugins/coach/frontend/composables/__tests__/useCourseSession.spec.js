@@ -88,13 +88,24 @@ describe('useCourseSession', () => {
     active_unit_index: 1,
   };
 
+  // Server response when no tests have been taken
+  const mockNoTests = {
+    id: null,
+    unit_contentnode_id: null,
+    test_type: null,
+    status: null,
+    activated_by: null,
+    unit_phase: UnitPhase.PRE_TEST_PENDING,
+    active_unit_index: 0,
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
 
     // Default mock implementations - no tests taken yet
     CourseSessionResource.fetchModel.mockResolvedValue(mockCourseSession);
     ContentNodeResource.fetchTree.mockResolvedValue(mockCourse);
-    CourseSessionResource.lastUnitTest.mockResolvedValue(null);
+    CourseSessionResource.lastUnitTest.mockResolvedValue(mockNoTests);
   });
 
   describe('initialization', () => {
@@ -172,7 +183,7 @@ describe('useCourseSession', () => {
   });
 
   describe('activeTest computed', () => {
-    it('should return null when no lastUnitTest', async () => {
+    it('should return null when no tests taken', async () => {
       const { activeTest } = useCourseSession(mockCourseSessionId);
 
       await new Promise(resolve => setTimeout(resolve, 0));
@@ -267,6 +278,10 @@ describe('useCourseSession', () => {
         id: 'course-456',
         children: { results: [] },
       });
+      CourseSessionResource.lastUnitTest.mockResolvedValue({
+        ...mockNoTests,
+        active_unit_index: -1,
+      });
 
       const { activeUnit } = useCourseSession(mockCourseSessionId);
 
@@ -295,10 +310,14 @@ describe('useCourseSession', () => {
       expect(activeUnitIndex.value).toBe(1);
     });
 
-    it('should return -1 when activeUnit is null', async () => {
+    it('should return -1 when no units exist', async () => {
       ContentNodeResource.fetchTree.mockResolvedValue({
         id: 'course-456',
         children: { results: [] },
+      });
+      CourseSessionResource.lastUnitTest.mockResolvedValue({
+        ...mockNoTests,
+        active_unit_index: -1,
       });
 
       const { activeUnitIndex } = useCourseSession(mockCourseSessionId);
@@ -441,6 +460,10 @@ describe('useCourseSession', () => {
         id: 'course-456',
         children: { results: [] },
       });
+      CourseSessionResource.lastUnitTest.mockResolvedValue({
+        ...mockNoTests,
+        active_unit_index: -1,
+      });
 
       const { isCourseComplete } = useCourseSession(mockCourseSessionId);
 
@@ -451,12 +474,14 @@ describe('useCourseSession', () => {
   });
 
   describe('lastUnitTest state', () => {
-    it('should be null when no tests taken', async () => {
+    it('should have null test fields when no tests taken', async () => {
       const { lastUnitTest } = useCourseSession(mockCourseSessionId);
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
-      expect(lastUnitTest.value).toBe(null);
+      expect(lastUnitTest.value.id).toBe(null);
+      expect(lastUnitTest.value.unit_phase).toBe(UnitPhase.PRE_TEST_PENDING);
+      expect(lastUnitTest.value.active_unit_index).toBe(0);
     });
 
     it('should contain the last test data', async () => {
@@ -471,7 +496,7 @@ describe('useCourseSession', () => {
   });
 
   describe('unitPhase computed', () => {
-    it('should return PRE_TEST_PENDING when no lastUnitTest', async () => {
+    it('should return PRE_TEST_PENDING when no tests taken', async () => {
       const { unitPhase } = useCourseSession(mockCourseSessionId);
 
       await new Promise(resolve => setTimeout(resolve, 0));

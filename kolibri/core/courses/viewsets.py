@@ -286,6 +286,17 @@ def _map_course_session_classroom(item):
     }
 
 
+def _activated_by_info(user):
+    """Return a dict of user info for the activated_by field, or None."""
+    if user:
+        return {
+            "id": user.id,
+            "username": user.username,
+            "full_name": user.full_name,
+        }
+    return None
+
+
 def _compute_course_state(course_id, test):
     """
     Compute the unit phase and active unit index from the most recent test
@@ -293,7 +304,7 @@ def _compute_course_state(course_id, test):
 
     Args:
         course_id: UUID of the course ContentNode
-        test: The most recent UnitTestAssignment (with b_lft annotated), or None
+        test: The most recent UnitTestAssignment, or None
 
     Returns:
         dict with 'unit_phase' and 'active_unit_index'
@@ -304,14 +315,23 @@ def _compute_course_state(course_id, test):
     )
     total_units = unit_qs.count()
 
-    if not test:
-        return {
-            "unit_phase": UnitPhase.PreTestPending,
-            "active_unit_index": 0 if total_units > 0 else -1,
-        }
+    initial_state = {
+        "unit_phase": UnitPhase.PreTestPending,
+        "active_unit_index": 0 if total_units > 0 else -1,
+    }
+
+    if not test or test.status == TestStatus.NotStarted:
+        return initial_state
+
+    # Look up the unit's tree position for ordering
+    unit_lft = (
+        ContentNode.objects.filter(id=test.unit_contentnode_id)
+        .values_list("lft", flat=True)
+        .first()
+    )
 
     # 0-based index of the test's unit within the course
-    test_unit_index = unit_qs.filter(lft__lt=test.b_lft).count()
+    test_unit_index = unit_qs.filter(lft__lt=unit_lft).count()
 
     if test.status == TestStatus.Active:
         unit_phase = (
@@ -459,12 +479,6 @@ class CourseSessionViewset(ValuesViewset):
             unit_test_assignment.activated_by = request.user
             unit_test_assignment.save()
 
-        # Annotate with b_lft for course state computation
-        unit_test_assignment.b_lft = (
-            ContentNode.objects.filter(id=unit_contentnode_id)
-            .values_list("lft", flat=True)
-            .first()
-        )
         course_state = _compute_course_state(
             course_session.course, unit_test_assignment
         )
@@ -475,6 +489,7 @@ class CourseSessionViewset(ValuesViewset):
                 "unit_contentnode_id": str(unit_contentnode_id),
                 "test_type": test_type,
                 "status": unit_test_assignment.status,
+                "activated_by": _activated_by_info(unit_test_assignment.activated_by),
                 **course_state,
             },
             status=HTTP_200_OK,
@@ -527,12 +542,6 @@ class CourseSessionViewset(ValuesViewset):
         active_test.status = TestStatus.Ended
         active_test.save()
 
-        # Annotate with b_lft for course state computation
-        active_test.b_lft = (
-            ContentNode.objects.filter(id=active_test.unit_contentnode_id)
-            .values_list("lft", flat=True)
-            .first()
-        )
         course_state = _compute_course_state(course_session.course, active_test)
 
         return Response(
@@ -541,6 +550,7 @@ class CourseSessionViewset(ValuesViewset):
                 "unit_contentnode_id": str(active_test.unit_contentnode_id),
                 "test_type": active_test.test_type,
                 "status": active_test.status,
+                "activated_by": _activated_by_info(active_test.activated_by),
                 **course_state,
             },
             status=HTTP_200_OK,
@@ -617,18 +627,20 @@ class CourseSessionViewset(ValuesViewset):
             .first()
         )
 
-        if not test:
-            return Response(None, status=HTTP_200_OK)
-
-        def activated_by_info(test):
-            if test.activated_by:
-                return {
-                    "id": test.activated_by.id,
-                    "username": test.activated_by.username,
-                    "full_name": test.activated_by.full_name,
-                }
-
         course_state = _compute_course_state(course_session.course, test)
+
+        if not test:
+            return Response(
+                {
+                    "id": None,
+                    "unit_contentnode_id": None,
+                    "test_type": None,
+                    "status": None,
+                    "activated_by": None,
+                    **course_state,
+                },
+                status=HTTP_200_OK,
+            )
 
         return Response(
             {
@@ -636,7 +648,7 @@ class CourseSessionViewset(ValuesViewset):
                 "unit_contentnode_id": str(test.unit_contentnode_id),
                 "test_type": test.test_type,
                 "status": test.status,
-                "activated_by": activated_by_info(test),
+                "activated_by": _activated_by_info(test.activated_by),
                 **course_state,
             },
             status=HTTP_200_OK,

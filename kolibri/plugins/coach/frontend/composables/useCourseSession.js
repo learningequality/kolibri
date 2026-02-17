@@ -4,7 +4,7 @@ import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionReso
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import useSnackbar from 'kolibri/composables/useSnackbar';
-import { TestStatus, TestType, UnitPhase } from '../constants/courseConstants';
+import { TestStatus, TestType } from '../constants/courseConstants';
 
 const {
   unitNLabel$,
@@ -86,8 +86,7 @@ export default function useCourseSession(courseSessionId) {
    * The unit currently being worked on, derived from server-provided active_unit_index.
    */
   const activeUnit = computed(() => {
-    if (!units.value.length) return null;
-    if (!lastUnitTest.value) return units.value[0];
+    if (!units.value.length || !lastUnitTest.value) return null;
     const index = lastUnitTest.value.active_unit_index;
     if (index < 0 || index >= units.value.length) return null;
     return units.value[index];
@@ -97,9 +96,7 @@ export default function useCourseSession(courseSessionId) {
    * Index of the active unit within the units array.
    */
   const activeUnitIndex = computed(() => {
-    if (!lastUnitTest.value) {
-      return units.value.length > 0 ? 0 : -1;
-    }
+    if (!lastUnitTest.value) return -1;
     return lastUnitTest.value.active_unit_index;
   });
 
@@ -137,7 +134,7 @@ export default function useCourseSession(courseSessionId) {
    * Read directly from the server-provided unit_phase field.
    */
   const unitPhase = computed(() => {
-    if (!lastUnitTest.value) return UnitPhase.PRE_TEST_PENDING;
+    if (!lastUnitTest.value) return null;
     return lastUnitTest.value.unit_phase;
   });
 

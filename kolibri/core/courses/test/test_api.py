@@ -1415,13 +1415,19 @@ class LastUnitTestAPITestCase(APITestCase):
 
     # --- Edge cases ---
 
-    def test_returns_null_when_no_tests_taken(self):
-        """Test that endpoint returns null when no tests have been taken"""
+    def test_returns_initial_state_when_no_tests_taken(self):
+        """Test that endpoint returns initial course state when no tests have been taken"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
         response = self._get_last_unit_test()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsNone(response.data)
+        self.assertIsNone(response.data["id"])
+        self.assertIsNone(response.data["unit_contentnode_id"])
+        self.assertIsNone(response.data["test_type"])
+        self.assertIsNone(response.data["status"])
+        self.assertIsNone(response.data["activated_by"])
+        self.assertEqual(response.data["unit_phase"], "pre_test_pending")
+        self.assertEqual(response.data["active_unit_index"], 0)
 
     # --- Unit 1 progression ---
 
