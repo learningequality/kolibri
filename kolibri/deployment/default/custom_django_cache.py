@@ -1,3 +1,4 @@
+import pickle
 import sqlite3
 
 from diskcache import DjangoCache
@@ -13,7 +14,11 @@ class CustomDjangoCache(DjangoCache):
     https://github.com/grantjenks/python-diskcache/blob/v4.1.0/diskcache/djangocache.py
     """
 
-    ERRORS_TO_HANDLE = (sqlite3.OperationalError, AssertionError)
+    ERRORS_TO_HANDLE = (
+        sqlite3.OperationalError,
+        AssertionError,
+        pickle.UnpicklingError,
+    )
 
     def try_execute(self, method_name, error_return_value, *args, **kwargs):
         """
