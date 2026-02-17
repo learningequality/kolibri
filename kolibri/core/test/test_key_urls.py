@@ -28,6 +28,44 @@ class BeforeDeviceProvisionTests(APITestCase):
             reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard"),
         )
 
+    def test_learn_plugin_redirects_to_setup_wizard(self):
+        response = self.client.get(reverse("kolibri:kolibri.plugins.learn:learn"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"),
+            reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard"),
+        )
+
+    def test_coach_plugin_redirects_to_setup_wizard(self):
+        response = self.client.get(reverse("kolibri:kolibri.plugins.coach:coach"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"),
+            reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard"),
+        )
+
+    def test_facility_plugin_redirects_to_setup_wizard(self):
+        response = self.client.get(
+            reverse("kolibri:kolibri.plugins.facility:facility_management")
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"),
+            reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard"),
+        )
+
+    @patch("kolibri.core.webpack.hooks.WebpackBundleHook.get_by_unique_id")
+    @patch("kolibri.core.webpack.hooks.WebpackBundleHook.bundle", return_value=[])
+    def test_setup_wizard_not_redirected(self, *mocks):
+        response = self.client.get(
+            reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard")
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_api_endpoint_not_redirected(self):
+        response = self.client.get("/api/device/deviceinfo/")
+        self.assertEqual(response.status_code, 403)
+
 
 class KolibriTagNavigationTestCase(APITestCase):
     databases = "__all__"
