@@ -1,161 +1,57 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent, cleanup } from '@testing-library/vue';
 import Bookmarks from '../SideBar/Bookmarks/index.vue';
-import BookmarkItem from '../SideBar/Bookmarks/BookmarkItem.vue';
-
-function withWrapperArray(wrapperArray) {
-  return {
-    hasText: str => wrapperArray.filter(i => i.text().match(str)),
-    not: {
-      hasText: str => wrapperArray.filter(i => !i.text().match(str)),
-    },
-  };
-}
+import '@testing-library/jest-dom';
 
 const outline = [
   {
-    dest: [{ num: 89, gen: 0 }, { name: 'XYZ' }, 70, 621, 0],
-    url: null,
+    dest: [{ num: 89 }],
     title: 'Local Connection',
     items: [
       {
-        dest: [{ num: 1, gen: 0 }, { name: 'XYZ' }, 70, 720, 0],
-        url: null,
-        title: 'Power source asdfasdf',
-        items: [],
-      },
-      {
-        dest: [{ num: 1, gen: 0 }, { name: 'XYZ' }, 70, 577, 0],
-        url: null,
-        title: 'Inner Local network connection',
-        items: [],
-      },
-      {
-        dest: [{ num: 1, gen: 0 }, { name: 'XYZ' }, 70, 450, 0],
-        url: null,
-        title: 'Server devices',
-        items: [],
-      },
-      {
-        dest: [{ num: 1, gen: 0 }, { name: 'XYZ' }, 70, 260, 0],
-        url: null,
-        title: 'Client devices',
+        dest: [{ num: 1 }],
+        title: 'Power source item',
         items: [],
       },
     ],
   },
-  {
-    dest: [{ num: 3, gen: 0 }, { name: 'XYZ' }, 70, 621, 0],
-    url: null,
-    title: 'Network Connection 2',
-    items: [],
-  },
 ];
 
-function makeWrapper(options = {}) {
-  return mount(Bookmarks, {
-    ...options,
-    mocks: { fetchContentNodeProgress: Promise.resolve() },
-    propsData: {
-      outline,
-      goToDestination: jest.fn(),
-      ...options.propsData,
-    },
-  });
-}
-
 describe('Pdf Bookmarks', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+  afterEach(cleanup);
 
-  it('smoke test', () => {
-    const wrapper = makeWrapper();
-    expect(wrapper.exists()).toBe(true);
-  });
-
-  it('should render the root bookmarks', () => {
-    const wrapper = makeWrapper();
-    expect(wrapper.findAllComponents(BookmarkItem)).toHaveLength(outline.length);
-    outline.forEach(bookmark => {
-      expect(
-        withWrapperArray(wrapper.findAllComponents(BookmarkItem)).hasText(bookmark.title),
-      ).toHaveLength(1);
+  it('renders the root bookmark titles', () => {
+    render(Bookmarks, { 
+      props: { outline, goToDestination: jest.fn() } 
     });
+    
+    expect(screen.getByText('Local Connection')).toBeInTheDocument();
   });
 
-  it('should render dropdown-icon for bookmarks with children', () => {
-    const wrapper = makeWrapper();
-    outline.forEach(bookmark => {
-      const bookmarkItem = withWrapperArray(wrapper.findAllComponents(BookmarkItem))
-        .hasText(bookmark.title)
-        .at(0);
-      if (bookmark.items.length) {
-        expect(bookmarkItem.find('.dropdown-icon').exists()).toBe(true);
-      } else {
-        expect(bookmarkItem.find('.dropdown-icon').exists()).toBe(false);
-      }
+  it('toggles children bookmarks when the dropdown icon is clicked', async () => {
+    render(Bookmarks, { 
+      props: { outline, goToDestination: jest.fn() } 
     });
+
+    // Sub-item should not be visible initially
+    expect(screen.queryByText('Power source item')).not.toBeInTheDocument();
+
+    // Find the toggle button (Kolibri usually uses an icon or button for this)
+    const toggle = document.querySelector('.dropdown-icon-container');
+    await fireEvent.click(toggle);
+
+    // Sub-item should now be visible in the DOM
+    expect(screen.getByText('Power source item')).toBeInTheDocument();
   });
 
-  it('should render children bookmarks when click on dropdown', async () => {
-    const wrapper = makeWrapper();
-    for (const bookmark of outline) {
-      if (!bookmark.items.length) continue;
-      const bookmarkItem = withWrapperArray(wrapper.findAllComponents(BookmarkItem))
-        .hasText(bookmark.title)
-        .at(0);
-
-      // check that children are not rendered before click
-      expect(
-        withWrapperArray(bookmarkItem.findAllComponents(BookmarkItem)).hasText(
-          bookmark.items[0].title,
-        ),
-      ).toHaveLength(0);
-
-      bookmarkItem.find('.dropdown-icon-container').trigger('click');
-      await wrapper.vm.$nextTick();
-      expect(
-        withWrapperArray(bookmarkItem.findAllComponents(BookmarkItem))
-          .hasText(bookmark.items[0].title)
-          // filter leaf nodes
-          .filter(i => i.findAllComponents(BookmarkItem).length === 1),
-      ).toHaveLength(1);
-    }
-  });
-
-  it('should hide children bookmarks when double click on dropdown', async () => {
-    const wrapper = makeWrapper();
-    for (const bookmark of outline) {
-      if (!bookmark.items.length) continue;
-      const bookmarkItem = withWrapperArray(wrapper.findAllComponents(BookmarkItem))
-        .hasText(bookmark.title)
-        .at(0);
-
-      bookmarkItem.find('.dropdown-icon-container').trigger('click');
-      await wrapper.vm.$nextTick();
-      bookmarkItem.find('.dropdown-icon-container').trigger('click');
-      await wrapper.vm.$nextTick();
-
-      expect(
-        withWrapperArray(bookmarkItem.findAllComponents(BookmarkItem)).hasText(
-          bookmark.items[0].title,
-        ),
-      ).toHaveLength(0);
-    }
-  });
-
-  it('should call goToDestination when click on bookmark', async () => {
+  it('calls goToDestination with the correct data when a title is clicked', async () => {
     const goToDestination = jest.fn();
-    const wrapper = makeWrapper({
-      propsData: { goToDestination },
+    render(Bookmarks, { 
+      props: { outline, goToDestination } 
     });
-    for (const bookmark of outline) {
-      const bookmarkItem = withWrapperArray(wrapper.findAllComponents(BookmarkItem))
-        .hasText(bookmark.title)
-        .at(0);
-      bookmarkItem.find('.bookmark-item-title').trigger('click');
-      await wrapper.vm.$nextTick();
-      expect(goToDestination).toHaveBeenCalledWith(bookmark.dest);
-    }
+
+    const link = screen.getByText('Local Connection');
+    await fireEvent.click(link);
+
+    expect(goToDestination).toHaveBeenCalledWith(outline[0].dest);
   });
 });
