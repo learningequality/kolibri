@@ -1,293 +1,144 @@
-<!-- Generic guidance for all coding agents (Claude Code, Zed, Cursor, etc.)
-     For Claude Code specific notes, see Claude.md -->
+<!-- Generic guidance for all coding agents (Claude Code, Zed, Cursor, etc.) -->
 
 # Kolibri Development Guide for AI Coding Agents
 
 **Project:** Kolibri - Offline learning platform for low-resource communities
 **Stack:** Python/Django backend, Vue.js 2.7 frontend, pytest/Jest testing
+**Platforms:** Linux, Windows, Mac, Android (via python-for-android)
 
 ## Quick Start
 
-1. **Install Python dependencies:** `pip install -r requirements/dev.txt`
-2. **Install Node dependencies:** `pnpm install`
-3. **Install pre-commit hooks:** `pre-commit install` (required — commits will fail without this)
-4. **Set dev mode:** `export KOLIBRI_RUN_MODE=dev`
-5. **Run database migrations:** `kolibri manage migrate`
+```bash
+pip install -r requirements/dev.txt   # Python deps
+pnpm install                          # Node deps
+pre-commit install                    # Required — commits fail without this
+export KOLIBRI_RUN_MODE=dev
+kolibri manage migrate                # Database migrations
+```
 
-→ Full setup details in `docs/getting_started.rst`
+Dev servers (run in separate terminals):
+```bash
+pnpm run python-devserver  # Django on port 8000
+pnpm run watch             # Webpack watcher
+```
 
-## Documentation Map
+→ Full setup: `docs/getting_started.rst` | Architecture: `docs/stack.rst`
 
-- **Setup & Workflow:** `docs/getting_started.rst`, `docs/development_workflow.rst`
-- **Architecture:** `docs/stack.rst`, `docs/frontend_architecture/`, `docs/backend_architecture/`
-- **Testing:** `docs/testing.rst` (TDD principles), `docs/frontend_architecture/unit_testing.rst`, `docs/backend_architecture/testing.rst`
-- **How-tos:** `docs/howtos/` (specific tasks like rebasing, PR reviews)
+## Critical Gotchas
 
-## Critical Agent Gotchas
+### ⚠️ BEFORE Writing Any Vue Component, Search for Existing Ones
+Do not create a new component without first searching for an existing solution:
+1. **Kolibri Design System** ([docs](https://design-system.learningequality.org/)) — `KButton`, `KCircularLoader`, `KTextbox`, `KSelect`, `KModal`, `KCheckbox`, `KIcon`, etc.
+2. **`packages/kolibri/components/`** — `CoreTable`, `AuthMessage`, `BottomAppBar`, `AppBar`, etc.
+3. **`packages/kolibri-common/components/`** — `AccordionContainer`, `BaseToolbar`, etc.
 
-### ⚠️ Component Reuse Hierarchy
-Before creating new components, check existing ones in this order:
-1. **Kolibri Design System** (`kolibri-design-system`) — use KDS components first whenever possible
-2. **Kolibri package** (`packages/kolibri/components/`) — core app components (e.g., `AuthMessage`, `CoreTable`, `BottomAppBar`)
-3. **Kolibri-Common package** (`packages/kolibri-common/components/`) — shared components across plugins (e.g., `AccordionContainer`, `BaseToolbar`)
+Use existing components (e.g., `CoreTable` for tabular data, `KCircularLoader` for loading states). If one does 80% of what you need, wrap it — do not rewrite.
 
-### ⚠️ Use Theme Tokens for Styling
-Do not hard-code colors or core styles. Use `$themeTokens` and `$themePalette` for dynamic theming, and `$computedClass` for computed styles. See `docs/frontend_architecture/core.rst` for details.
+### ⚠️ Use Theme Tokens, Not Hard-Coded Colors
+Never use raw color values. Access theme colors via `$themeTokens` and `$themePalette`:
+```vue
+<template>
+  <div :style="{ color: $themeTokens.text, backgroundColor: $themeTokens.surface }">
+    <span :style="{ color: $themeTokens.annotation }">secondary text</span>
+  </div>
+</template>
+```
+For computed dynamic styles, use `$computedClass`. See `docs/frontend_architecture/core.rst`.
 
-### ⚠️ Prefer Style Blocks Over Inline Styles
-Put non-dynamic styles in `<style>` blocks, not inline. RTLCSS automatically flips directional styles (e.g., `padding-left` → `padding-right`) in style blocks for RTL languages, but cannot flip inline styles. If a directional style must be inline because it is dynamic, it must respond to the `isRtl` property.
-→ See `docs/i18n.rst` for full RTL guidance
+### ⚠️ Style Blocks, Not Inline — RTL Depends On It
+Non-dynamic styles go in `<style>` blocks. RTLCSS auto-flips directional properties (`padding-left` → `padding-right`) in style blocks but **cannot flip inline styles**. Dynamic directional styles must check `isRtl`. → `docs/i18n.rst`
 
-### ⚠️ Use Composition API, Not Options API
-New components should use the Composition API (`setup()`) rather than the Options API. Existing Options API components don't need to be migrated, but new code should follow the Composition API pattern.
+### ⚠️ Composition API, Not Options API
+New components must use `setup()`. Do not use Options API (`data()`, `computed:`, `methods:`).
 
-### ⚠️ Vuex is Deprecated
-**DO NOT** create new Vuex stores or extend existing ones. Use Vue composables instead.
-→ See `docs/frontend_architecture/composables.rst` and `docs/frontend_architecture/vuex.rst`
+### ⚠️ No New Vuex — Use Composables
+Vuex is deprecated. Use Vue composables for state. → `docs/frontend_architecture/composables.rst`, `docs/frontend_architecture/vuex.rst`
+
+### ⚠️ Use `responsive-window` / `responsive-element`, Not Media Queries
+Do not use CSS `@media` queries. Kolibri runs on Android and varied screen sizes. Use the `responsive-window` or `responsive-element` system for responsive layouts.
+
+### ⚠️ Internationalize All User-Visible Text
+Use `createTranslator` — never hard-code strings in templates:
+```javascript
+const strings = createTranslator('QuizStrings', {
+  title: { message: 'Quiz Results', context: 'Page heading' },
+});
+// In setup(), destructure with $ suffix:
+const { title$ } = strings;  // title$() returns translated string
+```
+
+### ⚠️ API Calls via Resource Classes Only
+Use `Resource` from `kolibri/apiResource`. Define in `apiResources.js`. Never use raw `fetch` or `axios`.
+
+### ⚠️ Backend APIs: Use ValuesViewset
+Use `ValuesViewset` (or `ReadOnlyValuesViewset`) from `kolibri.core.api` for new API endpoints — not `ModelViewSet`, `ViewSet`, or `GenericViewSet`:
+```python
+from kolibri.core.api import ReadOnlyValuesViewset
+
+class MyViewSet(ReadOnlyValuesViewset):
+    values = ("id", "title", "description")
+    # Define values tuple and annotate_queryset for computed fields
+```
+Viewset permissions use `KolibriAuthPermissions` from `kolibri.core.auth.api`. See `docs/backend_architecture/api_patterns.rst`.
 
 ### ⚠️ Testing is Required
-Nearly all code changes need tests:
-- **Python:** Use pytest, write tests for all backend code
-- **Vue:** Use Vue Testing Library (NOT vue-test-utils for new tests)
-- **TDD:** Write failing test first for bugs, build features incrementally
-
-→ See `docs/testing.rst` for TDD principles, specific testing docs for patterns
+- **Python:** pytest is the test runner. Django API tests extend `APITestCase` from `rest_framework.test`. Other Django tests extend `django.test.TestCase`. Only use bare pytest-style function tests for non-Django code.
+- **Frontend:** Jest runner + Vue Testing Library. Do NOT import from `vitest` or `@vue/test-utils`. `describe`/`it`/`expect` are Jest globals (no import needed). Use `jest.fn()` and `jest.mock()`:
+  ```javascript
+  import { render, screen } from '@testing-library/vue';
+  // describe, it, expect are Jest globals — do NOT import them
+  describe('MyComponent', () => {
+    it('renders', () => {
+      render(MyComponent, { props: { title: 'Hello' } });
+      expect(screen.getByText('Hello')).toBeTruthy();
+    });
+  });
+  ```
+- **TDD:** Write a failing test first, then make it pass. This is especially important for bug fixes — always write a test that reproduces the bug before fixing it.
 
 ### ⚠️ Pre-commit Auto-fixes Files
-When commit fails:
-1. Pre-commit auto-fixes many issues (formatting, imports)
-2. **You must `git add` the auto-fixed files again**
-3. Then re-commit
-
-→ See "Pre-commit hooks" section in `docs/getting_started.rst`
+When a commit fails: pre-commit auto-fixes files → **`git add` the fixed files** → re-commit.
 
 ## Project Structure
 
 ```
 kolibri/
-├── docs/                  # Developer documentation
-├── kolibri/               # Main Python package
-│   ├── core/              # Core modules (always enabled)
-│   │   ├── auth/          # Authentication & permissions
-│   │   ├── content/       # Content models & APIs
-│   │   ├── device/        # Device-level settings & management
-│   │   ├── lessons/       # Lesson management
-│   │   ├── exams/         # Quiz/exam system
-│   │   ├── logger/        # Activity logging
-│   │   └── tasks/         # Background task system
-│   └── plugins/           # Frontend plugins (can be disabled)
-│       ├── learn/         # Learner interface
-│       ├── coach/         # Coach/teacher interface
-│       ├── facility/      # Facility management
-│       └── ...            # Viewer plugins, setup wizard, etc.
-├── packages/              # JavaScript packages (pnpm monorepo)
-│   ├── kolibri/           # Core frontend (components, composables)
-│   ├── kolibri-common/    # Shared components & composables
-│   ├── kolibri-tools/     # Dev tooling
-│   └── ...                # Build, i18n, format, etc.
-├── requirements/          # Python dependency files
+├── kolibri/core/          # Core modules: auth/, content/, device/, lessons/, exams/, logger/, tasks/
+├── kolibri/plugins/       # Frontend plugins: learn/, coach/, facility/, ...
+│   └── <plugin>/          # api_urls.py, viewsets.py, kolibri_plugin.py, test/
+│       └── frontend/      # app.js, views/, composables/, routes/, __tests__/
+├── packages/              # JS packages: kolibri/, kolibri-common/, kolibri-tools/
+├── docs/                  # Developer docs (architecture, testing, i18n, etc.)
+├── requirements/          # Python deps
 └── test/                  # Test utilities and fixtures
 ```
 
-A typical plugin has both backend and frontend code:
-```
-kolibri/plugins/learn/
-├── api_urls.py            # API URL routes
-├── viewsets.py            # Django REST viewsets
-├── kolibri_plugin.py      # Plugin definition
-├── test/                  # Backend tests
-└── frontend/              # Frontend code
-    ├── app.js             # Entry point
-    ├── views/             # Vue components/pages
-    ├── composables/       # Vue composables
-    ├── routes/            # Vue Router routes
-    └── __tests__/         # Frontend tests (Jest)
-```
+→ See `docs/backend_architecture/plugins.rst` for plugin layout and core-vs-plugins decision guide
 
-→ See `docs/backend_architecture/plugins.rst` for core vs plugins decision guide
+## Code Quality
 
-## Finding Patterns
+→ See `docs/code_quality.rst` for detailed principles. Key: tests assert behavior not implementation, composition over inheritance, let errors propagate, don't weaken existing tests, compute don't store, tell don't ask.
 
-**Don't guess - look at existing code:**
-- API patterns → `docs/backend_architecture/api_patterns.rst` (ValuesViewset preferred)
-- Component patterns → Search recent components, check `docs/frontend_architecture/` and `packages/kolibri-common/`
-- Test patterns → Look at existing test files in `__tests__/` or `test/` directories
+## Key Conventions
 
-## Running Dev Servers
+**Python:** F-strings preferred. One import per line. `DateTimeTzField` for timestamps (not Django's `DateTimeField`). `UUIDField` from morango for syncable models. Descriptive migration names (no `_auto_`).
 
-Run the Python backend and frontend webpack watcher as separate parallel processes. This makes it easier to restart one without killing the other:
+**Vue:** PascalCase filenames. Component `name` must match filename. Use `computed()` for derived values.
 
-```bash
-pnpm run python-devserver  # Django server on port 8000
-pnpm run watch             # Webpack watcher for frontend assets
-```
+**Git:** Imperative commit messages, no conventional-commit prefixes. Logical commit ordering for review. Black/Prettier enforced by pre-commit.
 
-Both must be running for a fully functional dev environment. Alternatively, `pnpm run devserver` runs them together, but if one fails it kills both.
-
-### Custom Ports
-
-Both the webpack dev server and Kolibri server ports can be customized. When changing the webpack port, set `WEBPACK_DEV_SERVER_PORT` on the Kolibri server so its CSP headers allow script loading from the correct origin:
-
-```bash
-# Terminal 1: webpack dev server on custom port
-pnpm run watch -- --port 3001
-
-# Terminal 2: Kolibri server with matching CSP and custom server port
-WEBPACK_DEV_SERVER_PORT=3001 kolibri start --foreground --port=8001 --settings=kolibri.deployment.default.settings.dev
-```
-
-## Multi-Agent / Multi-Worktree Isolation
-
-When multiple agents run simultaneously on the same machine (e.g., in separate git worktrees), each needs an isolated environment to avoid database locking, port conflicts, and state collisions.
-
-### 1. Isolate KOLIBRI_HOME
-
-Each agent must use its own `KOLIBRI_HOME` directory. The default (`~/.kolibri`) is shared and will cause database locking conflicts.
-
-```bash
-export KOLIBRI_HOME="$(pwd)/.kolibri_home"
-```
-
-### 2. Use Unique Ports
-
-Each agent needs a unique Kolibri server port and a unique webpack dev server port with a matching `WEBPACK_DEV_SERVER_PORT` (see [Custom Ports](#custom-ports)).
-
-### 3. Provision and Seed via Load Testing Toolkit
-
-Starting the Kolibri server automatically runs database migrations, but a fresh `KOLIBRI_HOME` still needs device provisioning, users, and content to be useful. The `integration_testing/load_testing/` toolkit handles all of this via the REST API.
-
-Start the Kolibri server first, then provision and seed:
-
-```bash
-cd integration_testing/load_testing
-
-# Provision device and create facility
-python loadtest.py provision --server http://localhost:8001 --username admin --password admin
-python loadtest.py setup-facility --server http://localhost:8001 --username admin --password admin
-
-# Create learners enrolled in a classroom
-python loadtest.py import-users --server http://localhost:8001 --username admin --password admin --users 10
-
-# Import QA channel content (downloads from Studio — requires internet)
-python loadtest.py import-channel --server http://localhost:8001 --username admin --password admin
-
-# Create a lesson with mixed content types
-python loadtest.py create-lesson --server http://localhost:8001 --username admin --password admin
-```
-
-This creates a superuser (`admin`/`admin`), a "Load Test Facility" with a "Load Test Class" classroom, 10 learner accounts (`load_test_1` through `load_test_10`, password: `password`), imports the QA channel from Studio, and creates a lesson with diverse content types.
-
-See `integration_testing/load_testing/kolibri_client.py` for the API client that can also be used programmatically.
-
-### Complete Isolated Setup Example
-
-```bash
-# 1. Environment isolation
-export KOLIBRI_HOME="$(pwd)/.kolibri_home"
-export KOLIBRI_RUN_MODE=dev
-
-# 2. Start webpack dev server on a unique port
-pnpm run watch -- --port 3001
-
-# 3. In another terminal: start Kolibri server (runs migrations automatically on first start)
-export KOLIBRI_HOME="$(pwd)/.kolibri_home"
-export KOLIBRI_RUN_MODE=dev
-WEBPACK_DEV_SERVER_PORT=3001 kolibri start --foreground --port=8001 --settings=kolibri.deployment.default.settings.dev
-
-# 4. In another terminal: provision and seed
-cd integration_testing/load_testing
-python loadtest.py provision --server http://localhost:8001 --username admin --password admin
-python loadtest.py setup-facility --server http://localhost:8001 --username admin --password admin
-python loadtest.py import-users --server http://localhost:8001 --username admin --password admin --users 10
-python loadtest.py import-channel --server http://localhost:8001 --username admin --password admin
-python loadtest.py create-lesson --server http://localhost:8001 --username admin --password admin
-```
+**Don't guess — look at existing code** for patterns: `docs/backend_architecture/api_patterns.rst`, `docs/frontend_architecture/`, existing test files in `__tests__/` or `test/`.
 
 ## Running Tests
 
-**Python tests (pytest):**
 ```bash
-pytest                                          # All backend tests
-pytest kolibri/core/auth/test/test_api.py       # Specific test file
-pytest kolibri/core/auth/test/ -k test_login    # Filter by test name
-pytest kolibri/plugins/learn/test/              # Tests for a plugin
+pytest kolibri/path/to/test/                          # Python (directory)
+pytest kolibri/core/auth/test/ -k test_login          # Python (filter by name)
+pnpm run test-jest -- path/to/file.spec.js            # Frontend (single file)
+pnpm run test-jest -- --testPathPattern learn          # Frontend (filter by pattern)
+pre-commit run --all-files                            # Lint
 ```
 
-**Frontend tests (Jest):**
-```bash
-pnpm run test-jest                              # All frontend tests (single run)
-pnpm run test                                   # All frontend tests (watch mode)
-pnpm run test-jest -- --testPathPattern learn    # Tests matching "learn"
-pnpm run test-jest -- path/to/__tests__/file.spec.js  # Specific test file
-```
+## Docs Reference
 
-**Linting:**
-```bash
-pre-commit run --all-files  # Run all linting checks
-```
-
-## Coding Conventions
-
-### Python
-
-- **F-strings preferred**: Use f-strings for string formatting. Older code uses `.format()` but f-strings are now preferred for new code.
-- **One import per line**: Write `from x import a` and `from x import b` on separate lines, not `from x import a, b`. Enforced by linting.
-- **Inline imports only when necessary**: Only use inline/deferred imports to prevent circular imports or premature imports. All other imports go at the top of the file.
-- **Logging**: Use `logger = logging.getLogger(__name__)` at module level.
-- **Constants**: Define as uppercase strings in dedicated modules with `choices` tuples for Django model fields (see `kolibri/core/auth/constants/` for examples).
-- **Custom model fields**: Use `DateTimeTzField` from `kolibri.core.fields` for timestamps (not Django's `DateTimeField`). Use `UUIDField` from morango for UUIDs on syncable models.
-- **Model permissions**: Syncable models use declarative `RoleBasedPermissions` as a class attribute. Viewset permission classes extend `KolibriAuthPermissions` from `kolibri.core.auth.api`.
-- **Error constants**: API validation errors should use codes from `kolibri/core/error_constants.py`, which are mirrored in frontend constants for consistent error handling.
-- **Migration naming**: Must be descriptive (e.g., `0012_facilitydataset_allow_guest_access`). Pre-commit rejects auto-generated `_auto_` names.
-
-### JavaScript / Vue
-
-- **All user-visible text must be internationalized**: Never hard-code strings in templates. Use `createTranslator` and `$tr()` calls. In `setup()` functions, destructure the translator with `$` suffix:
-  ```javascript
-  const exampleStrings = createTranslator('ExampleStrings', {
-    greeting: { message: 'Hello', context: 'Greeting label' },
-  });
-  const { greeting$ } = exampleStrings;
-  // greeting$ is a function that returns the translated string
-  ```
-  → See `docs/i18n.rst` for full details
-- **API calls via Resource classes**: Use `Resource` from `kolibri/apiResource` for all backend API calls. Define resources in `apiResources.js` files. Never use raw fetch or axios.
-- **Component file naming**: PascalCase. Simple components: `MyComponent.vue`. Complex components with sub-components: `MyComponent/index.vue`. The component `name` property must match the file/directory name.
-
-### General Code Quality
-
-- **Keep code simple**: Prefer the simplest solution that achieves the goal. Code should be readable without extensive comments.
-- **DRY, but avoid premature abstraction**: Don't repeat yourself and follow the Single Responsibility Principle, but don't abstract too early — wait until a pattern appears at least three times (Rule of Three).
-- **Complete your refactors**: When changing a function signature, API, or pattern, update all usages — not just the one you're working on.
-- **Accessibility**: Include appropriate `aria-*` attributes on interactive elements. Ensure keyboard navigation works.
-- **Security**: API endpoints must have appropriate authentication and permissions. Validate submitted data. Don't bypass security practices (e.g., raw SQL instead of ORM queries).
-- **Responsive design**: Consider different screen sizes and deployment contexts (including the Android app). Use `responsive-window` or `responsive-element` instead of media queries.
-- **Test-Driven Development**: Whenever possible, use TDD with the Red/Green/Refactor cycle: write a failing test first (Red), write the minimum code to make it pass (Green), then clean up (Refactor). This is especially important for bug fixes — always write a test that reproduces the bug before fixing it. See `docs/testing.rst` for details.
-- **One concern, one layer**: Don't reimplement validation, error handling, or permission logic that already exists at another layer. Choose the layer that owns the concern and trust it.
-- **Preserve existing comments**: Don't strip comments to "clean up" a file. Only remove a comment if the code it describes has been deleted or the comment is provably incorrect. Update comments when modifying the code they describe.
-- **Small interfaces**: If something can be private, it must be. A growing public API surface is a design smell.
-- **Tests assert behavior, not implementation**: Test inputs and outputs. Mock only at hard boundaries (network, filesystem, external services). Don't mock internal modules to isolate units.
-- **Identical code is not always duplication**: Don't extract shared code that merely looks similar but represents different domain concepts. Only deduplicate when the knowledge is genuinely the same.
-- **Compute, don't store**: Don't add fields derivable from other fields. Use `computed()` in Vue or `annotate_queryset` in ValuesViewset for derived values.
-- **Let errors propagate**: Don't wrap calls in try/catch that just log and rethrow. Let exceptions reach the layer that can actually handle them. DRF's exception handling already catches unhandled exceptions.
-- **Tell, don't ask**: Don't inspect an object's state, make a decision, then update it. Tell the object what you want done and let it manage its own state.
-- **Whoever allocates a resource releases it**: Use context managers in Python (`with`), `onUnmounted` cleanup in Vue composables. Don't split allocation and release across different functions.
-- **Composition over inheritance**: Prefer composables over mixins, delegation over subclassing. Reserve inheritance for true "is-a" relationships with shallow hierarchies.
-- **Externalize configuration**: Don't hardcode credentials, URLs, ports, or thresholds. Use Django settings or `kolibri.utils.conf.OPTIONS`.
-- **Follow project vocabulary**: Use the same domain terms the codebase uses (`Collection`, `ContentNode`, `Facility`, `FacilityUser`). Don't introduce synonyms.
-- **Don't weaken existing tests**: Do not modify or delete existing tests unless the behavior they test has been intentionally changed. If new code breaks existing tests, fix the code, not the tests.
-- **Don't rely on undocumented behavior**: If a behavior isn't in the API contract or language spec, don't depend on it — even if it works today.
-- **Escalate unclear decisions**: If you encounter an architectural or design decision not covered by documentation or existing patterns, ask rather than deciding independently. Every undocumented decision you make silently is a decision the team didn't get to weigh in on.
-
-→ See `docs/code_quality.rst` for detailed explanations and Kolibri-specific examples of these principles
-
-### Git
-
-- **Commit messages**: Concise, imperative style (e.g., "Add search filtering to lesson list"). No conventional commit prefixes.
-- **Commit organization**: Group commits in a logical order that invites commit-by-commit review, using the minimal number of commits appropriate for the scale of changes.
-- **Formatting**: Python (Black) and JavaScript (Prettier) formatting is enforced automatically by pre-commit hooks.
-
-## External Resources
-
-- Design system: https://design-system.learningequality.org/
-- User docs: https://kolibri.readthedocs.io/
+Testing: `docs/testing.rst`, `docs/frontend_architecture/unit_testing.rst`, `docs/backend_architecture/testing.rst` | Frontend arch: `docs/frontend_architecture/` | Backend arch: `docs/backend_architecture/` | i18n: `docs/i18n.rst` | Code quality: `docs/code_quality.rst` | How-tos: `docs/howtos/` | Workflow: `docs/development_workflow.rst` | Multi-agent setup: `docs/howtos/multi_agent_setup.md` | User docs: https://kolibri.readthedocs.io/
