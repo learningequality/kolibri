@@ -377,7 +377,7 @@ export default function useLearnerResources() {
       LearnerCourseResource.getResumeData(course.id),
     ]);
 
-    const progress = progressResponse?.data || null;
+    const progress = progressResponse || null;
 
     // Cache the data
     setCourseData(course.course_id, content, progress);
@@ -422,7 +422,7 @@ export default function useLearnerResources() {
    * @returns {Boolean} Whether the lesson resource is available
    * @public
    */
-  function isCourseResourceAvailable(courseId, unitId, lessonId) {
+  function isCourseLessonAvailable(courseId, unitId, lessonId) {
     const progress = getCourseProgress(courseId);
     const units = getCourseUnits(courseId);
 
@@ -433,7 +433,7 @@ export default function useLearnerResources() {
     const resumeUnitId = progress.resume_position.unit_id;
     const resumeLessonId = progress.resume_position.lesson_id;
 
-    // Find the current unit to get its sort_order
+    // Find the current unit to get its lft
     const currentUnit = units.find(unit => unit.id === resumeUnitId);
 
     if (!currentUnit) {
@@ -447,15 +447,16 @@ export default function useLearnerResources() {
     }
 
     // If this unit comes before the current unit, all lessons are available
-    if (targetUnit.sort_order < currentUnit.sort_order) {
+    if (targetUnit.lft < currentUnit.lft) {
       return true;
     }
 
     // If this is the current unit
     if (unitId === resumeUnitId) {
-      // If no resume lesson specified, no lessons available yet
+      // If a unitId is provided without a current lesson, the unit is complete
+      // and the lesson should be available
       if (!resumeLessonId) {
-        return false;
+        return true;
       }
 
       const lessons = targetUnit.children.results;
@@ -466,8 +467,8 @@ export default function useLearnerResources() {
         return false;
       }
 
-      // Check if target lesson's sort_order <= resume lesson's sort_order
-      return targetLesson.sort_order <= resumeLesson.sort_order;
+      // Check if target lesson's lft <= resume lesson's lft
+      return targetLesson.lft <= resumeLesson.lft;
     }
 
     return false;
@@ -480,7 +481,7 @@ export default function useLearnerResources() {
    * @returns {Boolean} Whether this is the current resource being worked on
    * @public
    */
-  function isCurrentCourseResource(courseId, unitId, lessonId) {
+  function isCurrentCourseLesson(courseId, unitId, lessonId) {
     const progress = getCourseProgress(courseId);
     const resumePosition = progress?.resume_position;
 
@@ -517,7 +518,7 @@ export default function useLearnerResources() {
     fetchCourse,
     fetchCourses,
     isUnitTestAvailable,
-    isCourseResourceAvailable,
-    isCurrentCourseResource,
+    isCourseLessonAvailable,
+    isCurrentCourseLesson,
   };
 }

@@ -122,8 +122,8 @@ describe('CourseWelcomePage', () => {
         if (!active_test) return false;
         return active_test.unit_id === unitId && active_test.test_type === testType;
       }),
-      isCourseResourceAvailable: jest.fn(() => started),
-      isCurrentCourseResource: jest.fn(() => false),
+      isCourseLessonAvailable: jest.fn(() => started),
+      isCurrentCourseLesson: jest.fn(() => false),
     };
   };
 
