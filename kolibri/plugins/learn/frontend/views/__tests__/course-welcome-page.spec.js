@@ -186,7 +186,7 @@ describe('CourseWelcomePage', () => {
       router,
       store,
       props: {
-        id: 'course-session-1',
+        courseSessionId: 'course-session-1',
         ...props,
       },
       global: {
