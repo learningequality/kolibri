@@ -87,7 +87,7 @@ export default [
   },
   {
     name: PageNames.COURSE_WELCOME,
-    path: '/course/:id/welcome',
+    path: '/course/:courseSessionId([a-f0-9]{32})/welcome',
     component: CourseWelcomePage,
     handler: () => {
       if (noClassesGuard()) {

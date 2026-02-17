@@ -351,7 +351,6 @@
 
       const loading = ref(true);
       const course = ref(null);
-      const courseSessionId = computed(() => props.id.replace(/^:/, ''));
 
       // For accordion items button hover and focus state styling
       const hoveredId = ref(null);
@@ -430,7 +429,7 @@
         try {
           loading.value = true;
           const { course: fetchedCourse } = await fetchCourse({
-            courseSessionId: courseSessionId.value,
+            courseSessionId: props.courseSessionId,
           });
           course.value = fetchedCourse;
         } catch (error) {
@@ -569,8 +568,8 @@
       };
     },
     props: {
-      // Route param :id
-      id: {
+      // Route param courseSessionId
+      courseSessionId: {
         type: String,
         required: true,
       },
