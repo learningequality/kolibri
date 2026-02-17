@@ -232,6 +232,7 @@ export default function useCourseSession(courseSessionId) {
    * @returns {Promise} Resolves when the test is closed
    */
   function closeTest() {
+    dataLoading.value = true;
     return CourseSessionResource.closeTest({
       id: courseSession.value.id,
       data: {
