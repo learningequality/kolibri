@@ -9,6 +9,10 @@
       @closePanel="closeSidePanel"
       @success="onSuccess"
     />
+    <CloseConfirmationModal
+      ref="closeConfirmationGuardRef"
+      :hasUnsavedChanges="hasUnsavedChanges"
+    />
   </SidePanelModal>
 
 </template>
@@ -17,11 +21,13 @@
 <script>
 
   import { useRoute, useRouter } from 'vue-router/composables';
-  import { computed } from 'vue';
+  import { computed, ref, nextTick } from 'vue';
+  import { isNavigationFailure, NavigationFailureType } from 'vue-router';
   import SidePanelModal from 'kolibri-common/components/courses/sidePanel/SidePanelModal';
   import { CoursesModals, PageNames } from '../../../../constants';
   import { overrideRoute } from '../../../../utils';
   import useAssignCourse from '../../composables/useAssignCourse';
+  import CloseConfirmationModal from '../../modals/CloseConfirmationModal.vue';
 
   /**
    * This component will serve as the root component for the
@@ -44,27 +50,48 @@
     name: 'AssignCourseSidePanel',
     components: {
       SidePanelModal,
+      CloseConfirmationModal,
     },
     setup(props, { emit }) {
       const route = useRoute();
       const router = useRouter();
 
       const classId = computed(() => route.params.classId);
-      useAssignCourse({ classId });
+      const { selectedCourse } = useAssignCourse({ classId });
+
+      const isFinished = ref(false);
+
+      const hasUnsavedChanges = computed(() => {
+        // If course assignment process is finished, don't show confirmation
+        if (isFinished.value) {
+          return false;
+        }
+        return selectedCourse.value != null;
+      });
 
       const closeSidePanel = () => {
-        router.push(overrideRoute(route, { name: PageNames.COURSES_ROOT }));
+        router.push(overrideRoute(route, { name: PageNames.COURSES_ROOT })).catch(e => {
+          if (!isNavigationFailure(e, NavigationFailureType.aborted)) {
+            throw Error(e);
+          }
+        });
       };
 
-      const onSuccess = () => {
+      const onSuccess = async () => {
+        isFinished.value = true;
+        await nextTick();
         closeSidePanel();
         emit('showModal', CoursesModals.ASSIGN_COURSE_SUCCESS);
         emit('refreshData');
       };
       return {
+        hasUnsavedChanges,
         closeSidePanel,
         onSuccess,
       };
+    },
+    beforeRouteLeave(to, from, next) {
+      this.$refs.closeConfirmationGuardRef?.beforeRouteLeave(to, from, next);
     },
   };
 
