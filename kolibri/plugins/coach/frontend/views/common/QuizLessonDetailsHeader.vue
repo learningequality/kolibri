@@ -48,7 +48,7 @@
   import { mapState } from 'vuex';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
-  import NoResourceAlert from "kolibri-common/components/NoResourceAlert.vue";
+  import NoResourceAlert from 'kolibri-common/components/NoResourceAlert.vue';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import useChannels from 'kolibri-common/composables/useChannels';
   import BackLink from './BackLink';
