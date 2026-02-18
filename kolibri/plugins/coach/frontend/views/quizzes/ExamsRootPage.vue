@@ -186,7 +186,7 @@
   import ExamResource from 'kolibri-common/apiResources/ExamResource';
   import NoResourceAlert from 'kolibri-common/components/NoResourceAlert';
   import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
-  import MissingResourceAlert from "kolibri-common/components/MissingResourceAlert.vue";
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert.vue';
   import plugin_data from 'kolibri-plugin-data';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { mapState, mapGetters } from 'vuex';

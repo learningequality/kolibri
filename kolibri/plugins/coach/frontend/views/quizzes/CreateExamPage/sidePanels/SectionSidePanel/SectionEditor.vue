@@ -6,7 +6,7 @@
   >
     <div>
       <MissingResourceAlert v-if="hasChannels && exam.missing_resource && !loading" />
-      <NoResourceAlert v-if="!hasChannels  && !loading"/>
+      <NoResourceAlert v-if="!hasChannels && !loading" />
     </div>
 
     <KTextbox
@@ -137,11 +137,11 @@
   import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import NoResourceAlert from 'kolibri-common/components/NoResourceAlert.vue';
+  import useChannels from 'kolibri-common/composables/useChannels';
   import { PageNames } from '../../../../../constants/index';
   import { coachStrings } from '../../../../common/commonCoachStrings.js';
   import { injectQuizCreation } from '../../../../../composables/useQuizCreation.js';
-  import NoResourceAlert from "kolibri-common/components/NoResourceAlert.vue";
-  import useChannels from "kolibri-common/composables/useChannels";
 
   export default {
     name: 'SectionEditor',
@@ -379,6 +379,9 @@
       }
       next();
     },
+    async mounted() {
+      await this.loadChannels();
+    },
     methods: {
       applySettings(nextRouteName = PageNames.EXAM_CREATION_ROOT) {
         if (this.sectionTitleInvalid) {
@@ -433,9 +436,6 @@
         }
       },
     },
-    async mounted() {
-      await this.loadChannels();
-    }
   };
 
 </script>

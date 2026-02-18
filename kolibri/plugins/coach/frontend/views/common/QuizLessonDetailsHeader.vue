@@ -27,7 +27,7 @@
       </div>
     </div>
     <MissingResourceAlert v-if="hasChannels && resource.missing_resource && !loading" />
-    <NoResourceAlert v-if="!hasChannels  && !loading"/>
+    <NoResourceAlert v-if="!hasChannels && !loading" />
     <UiAlert
       v-if="isFromOldKolibri && showAlert"
       type="warning"
@@ -48,11 +48,11 @@
   import { mapState } from 'vuex';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
-  import NoResourceAlert from "kolibri-common/components/NoResourceAlert.vue";
-  import {enhancedQuizManagementStrings} from "kolibri-common/strings/enhancedQuizManagementStrings";
+  import NoResourceAlert from 'kolibri-common/components/NoResourceAlert.vue';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import useChannels from 'kolibri-common/composables/useChannels';
   import BackLink from './BackLink';
-  import useChannels from "kolibri-common/composables/useChannels";
 
   export default {
     name: 'QuizLessonDetailsHeader',
@@ -124,6 +124,9 @@
         return this.channels.length > 0;
       },
     },
+    async mounted() {
+      await this.loadChannels();
+    },
     methods: {
       async loadChannels() {
         this.loading = true;
@@ -132,11 +135,8 @@
         } finally {
           this.loading = false;
         }
-      }
+      },
     },
-    async mounted() {
-      await this.loadChannels();
-    }
   };
 
 </script>
