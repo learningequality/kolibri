@@ -73,9 +73,9 @@ describe('facility config page view', () => {
 
   describe(`in the browser mode`, () => {
     it(`shows Save changes in the bottom app bar`, () => {
-      const { container } = renderPage({ isAppContext: false });
-      const bottomBar = container.querySelector('[data-test="bottom-bar"]');
-      const pageContainer = container.querySelector('[data-test="page-container"]');
+      renderPage({ isAppContext: false });
+      const bottomBar = screen.getByTestId('bottom-bar');
+      const pageContainer = screen.getByTestId('page-container');
       expect(within(bottomBar).getByRole('button', { name: 'Save changes' })).toBeInTheDocument();
       expect(within(pageContainer).queryByRole('button', { name: 'Save changes' })).not.toBeInTheDocument();
     });
@@ -83,9 +83,9 @@ describe('facility config page view', () => {
 
   describe(`in the Android app mode`, () => {
     it(`shows Save changes in the page content instead of the bottom app bar`, () => {
-      const { container } = renderPage({ isAppContext: true });
-      const bottomBar = container.querySelector('[data-test="bottom-bar"]');
-      const pageContainer = container.querySelector('[data-test="page-container"]');
+      renderPage({ isAppContext: true });
+      const bottomBar = screen.getByTestId('bottom-bar');
+      const pageContainer = screen.getByTestId('page-container');
       expect(within(bottomBar).queryByRole('button', { name: 'Save changes' })).not.toBeInTheDocument();
       expect(within(pageContainer).getByRole('button', { name: 'Save changes' })).toBeInTheDocument();
     });

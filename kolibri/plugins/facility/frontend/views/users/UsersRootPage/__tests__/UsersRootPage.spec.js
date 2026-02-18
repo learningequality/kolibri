@@ -23,7 +23,6 @@ const router = new VueRouter({
   ],
 });
 
-UserPage.computed.newUserLink = () => ({});
 async function renderPage({ routeQuery = {}, userManagement = {} } = {}) {
   const store = makeStore();
   store.state.route = { params: {} };
@@ -33,7 +32,16 @@ async function renderPage({ routeQuery = {}, userManagement = {} } = {}) {
     }),
   );
   await router.push({ name: 'UserPage', query: routeQuery });
-  return render(UserPage, {
+  const UserPageWithStubbedNewUserLink = {
+    extends: UserPage,
+    computed: {
+      ...(UserPage.computed || {}),
+      newUserLink() {
+        return {};
+      },
+    },
+  };
+  return render(UserPageWithStubbedNewUserLink, {
     store,
     router,
   });
