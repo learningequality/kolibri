@@ -104,11 +104,13 @@ class CourseSession(AbstractFacilityDataModel):
             created_by_id = dict_model["created_by_id"]
             dataset_id = dict_model.get("dataset_id")
             if created_by_id and dataset_id:
-                user_partition = f"{dataset_id}:user-ro:{created_by_id}"
+                user_ro_partition = f"{dataset_id}:user-ro:{created_by_id}"
+                user_rw_partition = f"{dataset_id}:user-rw:{created_by_id}"
                 super_partition = f"{dataset_id}"
 
                 if (
-                    user_partition not in sync_filter
+                    user_ro_partition not in sync_filter
+                    and user_rw_partition not in sync_filter
                     and super_partition not in sync_filter
                 ):
                     del dict_model["created_by_id"]
@@ -215,11 +217,13 @@ class CourseSessionAssignment(AbstractFacilityDataModel):
             assigned_by_id = dict_model["assigned_by_id"]
             dataset_id = dict_model.get("dataset_id")
             if assigned_by_id and dataset_id:
-                user_partition = f"{dataset_id}:user-ro:{assigned_by_id}"
+                user_ro_partition = f"{dataset_id}:user-ro:{assigned_by_id}"
+                user_rw_partition = f"{dataset_id}:user-rw:{assigned_by_id}"
                 super_partition = f"{dataset_id}"
 
                 if (
-                    user_partition not in sync_filter
+                    user_ro_partition not in sync_filter
+                    and user_rw_partition not in sync_filter
                     and super_partition not in sync_filter
                 ):
                     del dict_model["assigned_by_id"]
@@ -381,11 +385,13 @@ class UnitTestAssignment(AbstractFacilityDataModel):
             activated_by_id = dict_model["activated_by_id"]
             dataset_id = dict_model.get("dataset_id")
             if activated_by_id and dataset_id:
-                user_partition = f"{dataset_id}:user-ro:{activated_by_id}"
+                user_ro_partition = f"{dataset_id}:user-ro:{activated_by_id}"
+                user_rw_partition = f"{dataset_id}:user-rw:{activated_by_id}"
                 super_partition = f"{dataset_id}"
 
                 if (
-                    user_partition not in sync_filter
+                    user_ro_partition not in sync_filter
+                    and user_rw_partition not in sync_filter
                     and super_partition not in sync_filter
                 ):
                     del dict_model["activated_by_id"]

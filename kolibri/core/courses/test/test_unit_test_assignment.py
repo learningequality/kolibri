@@ -5,6 +5,7 @@ from unittest.mock import patch
 from django.db.utils import IntegrityError
 from django.test import SimpleTestCase
 from django.test import TestCase
+from morango.models import Filter
 
 from .. import models
 from ..models import TestStatus
@@ -17,6 +18,18 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 
 DUMMY_PASSWORD = "password"
+
+
+def _patch_base_deserialize_passthrough():
+    from unittest.mock import MagicMock
+
+    from morango.models.core import SyncableModel
+
+    def _passthrough(*args, **kwargs):
+        return args[0] if len(args) == 1 else args[1]
+
+    mock = MagicMock(side_effect=_passthrough)
+    return patch.object(SyncableModel, "deserialize", mock)
 
 
 class UnitTestAssignmentModelTestCase(TestCase):
@@ -297,181 +310,102 @@ class UnitTestAssignmentModelTestCase(TestCase):
         )
 
 
-def _patch_base_deserialize_passthrough():
-    from morango.models.core import SyncableModel
+class BaseDeserializeSyncFilterMixin:
+    """
+    Shared tests for model deserialize() sync_filter logic (remove/keep user id field).
+    Subclasses set model_class and user_field_name.
+    """
 
-    def _passthrough(cls, dict_model, sync_filter=None):
-        return dict_model
+    model_class = None
+    user_field_name = None
 
-    return patch.object(SyncableModel, "deserialize", classmethod(_passthrough))
+    def setUp(self):
+        super().setUp()
+        self.dataset_id = uuid.uuid4().hex
+        self.user_id = uuid.uuid4().hex
+        self.dict_model = {
+            "dataset_id": self.dataset_id,
+            self.user_field_name: self.user_id,
+        }
+        deserialize_patcher = _patch_base_deserialize_passthrough()
+        self.mock_deserialize = deserialize_patcher.start()
+        self.addCleanup(deserialize_patcher.stop)
 
+    def test_remove_when_out_of_scope(self):
+        sync_filter = Filter(f"{self.dataset_id}:user-ro:{uuid.uuid4().hex}")
+        dict_model = self.dict_model.copy()
+        out = self.model_class.deserialize(dict_model, sync_filter=sync_filter)
+        self.assertNotIn(self.user_field_name, out)
+        self.mock_deserialize.assert_called_once()
+        call = self.mock_deserialize.call_args
+        self.assertEqual(call.kwargs.get("sync_filter"), sync_filter)
+        passed_dict = call.args[0]
+        self.assertNotIn(self.user_field_name, passed_dict)
 
-class CourseSessionDeserializeSyncFilterTestCase(SimpleTestCase):
-    def test_remove_created_by_id_when_out_of_scope(self):
-        from morango.models import Filter
+    def test_keep_when_user_ro_partition_in_scope(self):
+        sync_filter = Filter(f"{self.dataset_id}:user-ro:{self.user_id}")
+        dict_model = self.dict_model.copy()
+        out = self.model_class.deserialize(dict_model, sync_filter=sync_filter)
+        self.assertEqual(out[self.user_field_name], self.user_id)
+        self.mock_deserialize.assert_called_once()
+        call = self.mock_deserialize.call_args
+        self.assertEqual(call.kwargs.get("sync_filter"), sync_filter)
+        passed_dict = call.args[0]
+        self.assertEqual(passed_dict.get(self.user_field_name), self.user_id)
 
-        dataset_id = uuid.uuid4().hex
-        created_by_id = uuid.uuid4().hex
-        dict_model = {"dataset_id": dataset_id, "created_by_id": created_by_id}
-        sync_filter = Filter(f"{dataset_id}:user-ro:{uuid.uuid4().hex}")
+    def test_keep_when_user_rw_partition_in_scope(self):
+        """user-rw partition in scope (aligns with Morango write_filter) keeps the field."""
+        sync_filter = Filter(f"{self.dataset_id}:user-rw:{self.user_id}")
+        dict_model = self.dict_model.copy()
+        out = self.model_class.deserialize(dict_model, sync_filter=sync_filter)
+        self.assertEqual(out[self.user_field_name], self.user_id)
+        self.mock_deserialize.assert_called_once()
+        call = self.mock_deserialize.call_args
+        self.assertEqual(call.kwargs.get("sync_filter"), sync_filter)
+        passed_dict = call.args[0]
+        self.assertEqual(passed_dict.get(self.user_field_name), self.user_id)
 
-        with _patch_base_deserialize_passthrough():
-            out = models.CourseSession.deserialize(dict_model, sync_filter=sync_filter)
+    def test_keep_when_super_partition_in_scope(self):
+        sync_filter = Filter(f"{self.dataset_id}")
+        dict_model = self.dict_model.copy()
+        out = self.model_class.deserialize(dict_model, sync_filter=sync_filter)
+        self.assertEqual(out[self.user_field_name], self.user_id)
+        self.mock_deserialize.assert_called_once()
+        call = self.mock_deserialize.call_args
+        self.assertEqual(call.kwargs.get("sync_filter"), sync_filter)
+        passed_dict = call.args[0]
+        self.assertEqual(passed_dict.get(self.user_field_name), self.user_id)
 
-        self.assertNotIn("created_by_id", out)
-
-    def test_keeps_created_by_id_when_user_partition_in_scope(self):
-        from morango.models import Filter
-
-        dataset_id = uuid.uuid4().hex
-        created_by_id = uuid.uuid4().hex
-        dict_model = {"dataset_id": dataset_id, "created_by_id": created_by_id}
-        sync_filter = Filter(f"{dataset_id}:user-ro:{created_by_id}")
-
-        with _patch_base_deserialize_passthrough():
-            out = models.CourseSession.deserialize(dict_model, sync_filter=sync_filter)
-
-        self.assertEqual(out["created_by_id"], created_by_id)
-
-    def test_keeps_created_by_id_when_super_partition_in_scope(self):
-        from morango.models import Filter
-
-        dataset_id = uuid.uuid4().hex
-        created_by_id = uuid.uuid4().hex
-        dict_model = {"dataset_id": dataset_id, "created_by_id": created_by_id}
-        sync_filter = Filter(f"{dataset_id}")
-
-        with _patch_base_deserialize_passthrough():
-            out = models.CourseSession.deserialize(dict_model, sync_filter=sync_filter)
-
-        self.assertEqual(out["created_by_id"], created_by_id)
-
-    def test_noop_when_created_by_id_missing(self):
-        from morango.models import Filter
-
-        dataset_id = uuid.uuid4().hex
-        dict_model = {"dataset_id": dataset_id}
-        with _patch_base_deserialize_passthrough():
-            out = models.CourseSession.deserialize(
-                dict_model, sync_filter=Filter(f"{dataset_id}")
-            )
-        self.assertEqual(out, {"dataset_id": dataset_id})
-
-
-class CourseSessionAssignmentDeserializeSyncFilterTestCase(SimpleTestCase):
-    def test_remove_assigned_by_id_when_out_of_scope(self):
-        from morango.models import Filter
-
-        dataset_id = uuid.uuid4().hex
-        assigned_by_id = uuid.uuid4().hex
-        dict_model = {"dataset_id": dataset_id, "assigned_by_id": assigned_by_id}
-        sync_filter = Filter(f"{dataset_id}:user-ro:{uuid.uuid4().hex}")
-
-        with _patch_base_deserialize_passthrough():
-            out = models.CourseSessionAssignment.deserialize(
-                dict_model, sync_filter=sync_filter
-            )
-
-        self.assertNotIn("assigned_by_id", out)
-
-    def test_keeps_assigned_by_id_when_user_partition_in_scope(self):
-        from morango.models import Filter
-
-        dataset_id = uuid.uuid4().hex
-        assigned_by_id = uuid.uuid4().hex
-        dict_model = {"dataset_id": dataset_id, "assigned_by_id": assigned_by_id}
-        sync_filter = Filter(f"{dataset_id}:user-ro:{assigned_by_id}")
-
-        with _patch_base_deserialize_passthrough():
-            out = models.CourseSessionAssignment.deserialize(
-                dict_model, sync_filter=sync_filter
-            )
-
-        self.assertEqual(out["assigned_by_id"], assigned_by_id)
-
-    def test_keeps_assigned_by_id_when_super_partition_in_scope(self):
-        from morango.models import Filter
-
-        dataset_id = uuid.uuid4().hex
-        assigned_by_id = uuid.uuid4().hex
-        dict_model = {"dataset_id": dataset_id, "assigned_by_id": assigned_by_id}
-        sync_filter = Filter(f"{dataset_id}")
-
-        with _patch_base_deserialize_passthrough():
-            out = models.CourseSessionAssignment.deserialize(
-                dict_model, sync_filter=sync_filter
-            )
-
-        self.assertEqual(out["assigned_by_id"], assigned_by_id)
-
-    def test_noop_when_assigned_by_id_missing(self):
-        from morango.models import Filter
-
-        dataset_id = uuid.uuid4().hex
-        dict_model = {"dataset_id": dataset_id}
-        with _patch_base_deserialize_passthrough():
-            out = models.CourseSessionAssignment.deserialize(
-                dict_model, sync_filter=Filter(f"{dataset_id}")
-            )
-        self.assertEqual(out, {"dataset_id": dataset_id})
+    def test_noop_when_user_field_missing(self):
+        dict_model = {"dataset_id": self.dataset_id}
+        sync_filter = Filter(f"{self.dataset_id}")
+        out = self.model_class.deserialize(dict_model, sync_filter=sync_filter)
+        self.assertEqual(out, {"dataset_id": self.dataset_id})
+        self.mock_deserialize.assert_called_once()
+        call = self.mock_deserialize.call_args
+        self.assertEqual(call.kwargs.get("sync_filter"), sync_filter)
+        self.assertEqual(call.args[0], {"dataset_id": self.dataset_id})
 
 
-class UnitTestAssignmentDeserializeSyncFilterTestCase(SimpleTestCase):
-    def test_remove_activated_by_id_when_out_of_scope(self):
-        from morango.models import Filter
+class CourseSessionDeserializeSyncFilterTestCase(
+    BaseDeserializeSyncFilterMixin, SimpleTestCase
+):
+    model_class = models.CourseSession
+    user_field_name = "created_by_id"
 
-        dataset_id = uuid.uuid4().hex
-        activated_by_id = uuid.uuid4().hex
-        dict_model = {"dataset_id": dataset_id, "activated_by_id": activated_by_id}
-        sync_filter = Filter(f"{dataset_id}:user-ro:{uuid.uuid4().hex}")
 
-        with _patch_base_deserialize_passthrough():
-            out = models.UnitTestAssignment.deserialize(
-                dict_model, sync_filter=sync_filter
-            )
+class CourseSessionAssignmentDeserializeSyncFilterTestCase(
+    BaseDeserializeSyncFilterMixin, SimpleTestCase
+):
+    model_class = models.CourseSessionAssignment
+    user_field_name = "assigned_by_id"
 
-        self.assertNotIn("activated_by_id", out)
 
-    def test_keeps_activated_by_id_when_user_partition_in_scope(self):
-        from morango.models import Filter
-
-        dataset_id = uuid.uuid4().hex
-        activated_by_id = uuid.uuid4().hex
-        dict_model = {"dataset_id": dataset_id, "activated_by_id": activated_by_id}
-        sync_filter = Filter(f"{dataset_id}:user-ro:{activated_by_id}")
-
-        with _patch_base_deserialize_passthrough():
-            out = models.UnitTestAssignment.deserialize(
-                dict_model, sync_filter=sync_filter
-            )
-
-        self.assertEqual(out["activated_by_id"], activated_by_id)
-
-    def test_keeps_activated_by_id_when_super_partition_in_scope(self):
-        from morango.models import Filter
-
-        dataset_id = uuid.uuid4().hex
-        activated_by_id = uuid.uuid4().hex
-        dict_model = {"dataset_id": dataset_id, "activated_by_id": activated_by_id}
-        sync_filter = Filter(f"{dataset_id}")
-
-        with _patch_base_deserialize_passthrough():
-            out = models.UnitTestAssignment.deserialize(
-                dict_model, sync_filter=sync_filter
-            )
-
-        self.assertEqual(out["activated_by_id"], activated_by_id)
-
-    def test_noop_when_activated_by_id_missing(self):
-        from morango.models import Filter
-
-        dataset_id = uuid.uuid4().hex
-        dict_model = {"dataset_id": dataset_id}
-        with _patch_base_deserialize_passthrough():
-            out = models.UnitTestAssignment.deserialize(
-                dict_model, sync_filter=Filter(f"{dataset_id}")
-            )
-        self.assertEqual(out, {"dataset_id": dataset_id})
+class UnitTestAssignmentDeserializeSyncFilterTestCase(
+    BaseDeserializeSyncFilterMixin, SimpleTestCase
+):
+    model_class = models.UnitTestAssignment
+    user_field_name = "activated_by_id"
 
 
 class TestTypeEnumTestCase(TestCase):
