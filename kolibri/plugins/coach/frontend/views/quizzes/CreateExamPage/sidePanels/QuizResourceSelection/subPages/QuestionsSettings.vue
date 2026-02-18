@@ -160,13 +160,14 @@
       onMounted(() => {
         props.setContinueAction({
           handler: continueHandler,
+          disabled: addableQuestionCount.value === 0,
           text: continueText,
         });
       });
       watch(invalidSettings, () => {
         props.setContinueAction({
           handler: continueHandler,
-          disabled: invalidSettings.value,
+          disabled: invalidSettings.value || addableQuestionCount.value === 0,
           text: continueText,
         });
       });
