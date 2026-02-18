@@ -5,7 +5,8 @@
     class="section-settings-content"
   >
     <div>
-      <MissingResourceAlert v-if="exam.missing_resource" />
+      <MissingResourceAlert v-if="hasChannels && exam.missing_resource && !loading" />
+      <NoResourceAlert v-if="!hasChannels  && !loading"/>
     </div>
 
     <KTextbox
@@ -139,10 +140,13 @@
   import { PageNames } from '../../../../../constants/index';
   import { coachStrings } from '../../../../common/commonCoachStrings.js';
   import { injectQuizCreation } from '../../../../../composables/useQuizCreation.js';
+  import NoResourceAlert from "kolibri-common/components/NoResourceAlert.vue";
+  import useChannels from "kolibri-common/composables/useChannels";
 
   export default {
     name: 'SectionEditor',
     components: {
+      NoResourceAlert,
       MissingResourceAlert,
     },
     mixins: [commonCoreStrings],
@@ -151,6 +155,7 @@
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const { createSnackbar } = useSnackbar();
+      const { fetchChannels } = useChannels();
 
       const examMap = computed(() => store.state.classSummary.examMap);
 
@@ -298,6 +303,8 @@
         handleConfirmClose,
         handleCancelDelete,
         handleConfirmDelete,
+        //useChannels
+        fetchChannels,
         // useQuizCreation
         activeSectionIndex,
         activeSection,
@@ -332,6 +339,12 @@
         fixedOptionDescription$,
       };
     },
+    data() {
+      return {
+        channels: [],
+        loading: false,
+      };
+    },
     computed: {
       exam() {
         return this.examMap[this.$route.params.quizId] || {};
@@ -341,6 +354,9 @@
       },
       selectResourcesRoute() {
         return { name: PageNames.QUIZ_SELECT_RESOURCES };
+      },
+      hasChannels() {
+        return this.channels.length > 0;
       },
     },
     beforeRouteLeave(to, __, next) {
@@ -408,7 +424,18 @@
           this.$emit('closePanel');
         }
       },
+      async loadChannels() {
+        this.loading = true;
+        try {
+          this.channels = await this.fetchChannels({ contains_exercise: true });
+        } finally {
+          this.loading = false;
+        }
+      },
     },
+    async mounted() {
+      await this.loadChannels();
+    }
   };
 
 </script>

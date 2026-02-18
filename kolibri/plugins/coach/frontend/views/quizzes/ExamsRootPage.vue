@@ -2,35 +2,12 @@
 
   <CoachAppBarPage>
     <KPageContainer>
-      <div
-        v-if="hasNoChannels && !isLoading"
-        class="alert banner-spacing"
-        :style="{ backgroundColor: $themePalette.yellow.v_200 }"
-      >
-        <div>
-          <KIcon
-            icon="warning"
-            class="warning-icon"
-            :color="$themePalette.yellow.v_600"
-          />
-        </div>
-
-        <div
-          v-if="hasNoChannels"
-          class="error-message"
-        >
-          <p>{{ noResourcesAvailable$() }}</p>
-          <KExternalLink
-            v-if="deviceContentUrl"
-            :text="$tr('adminLink')"
-            :href="deviceContentUrl"
-          />
-        </div>
-      </div>
+      <MissingResourceAlert v-if="hasChannels && hasMissingResources && !isLoading" />
+      <NoResourceAlert v-if="!hasChannels && !isLoading" />
       <CoachHeader :title="quizzesLabel$()">
         <template #actions>
           <KButton
-            v-if="practiceQuizzesExist && !hasNoChannels"
+            v-if="practiceQuizzesExist && hasChannels"
             class="new-quiz-button"
             primary
             hasDropdown
@@ -46,7 +23,7 @@
             </template>
           </KButton>
           <KRouterLink
-            v-else-if="!hasNoChannels"
+            v-else-if="hasChannels"
             primary
             appearance="raised-button"
             :to="newExamRoute"
@@ -205,16 +182,15 @@
   import { getCurrentInstance, ref } from 'vue';
   import CoreTable from 'kolibri/components/CoreTable';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import urls from 'kolibri/urls';
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
   import ExamResource from 'kolibri-common/apiResources/ExamResource';
+  import NoResourceAlert from 'kolibri-common/components/NoResourceAlert';
   import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
+  import MissingResourceAlert from "kolibri-common/components/MissingResourceAlert.vue";
   import plugin_data from 'kolibri-plugin-data';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { mapState, mapGetters } from 'vuex';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import useUser from 'kolibri/composables/useUser';
-  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../constants';
   import { coachStrings } from '../common/commonCoachStrings';
   import CoachAppBarPage from '../CoachAppBarPage';
@@ -232,6 +208,7 @@
   export default {
     name: 'ExamsRootPage',
     components: {
+      MissingResourceAlert,
       CoreTable,
       CoachAppBarPage,
       Recipients,
@@ -240,6 +217,7 @@
       Score,
       StatusSummary,
       CoachHeader,
+      NoResourceAlert,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -251,8 +229,6 @@
       const showCloseConfirmationModal = ref(false);
       const activeQuiz = ref(null);
       const learnOnlyDevicesExist = ref(false);
-      const { noResourcesAvailable$ } = enhancedQuizManagementStrings;
-      const { canManageContent } = useUser();
 
       initClassInfo().then(() => store.dispatch('notLoading'));
 
@@ -334,7 +310,6 @@
         recipientsLabel$,
         sizeLabel$,
         canNoLongerEditQuizNotice$,
-        noResourcesAvailable$,
         statusLabel$,
         newQuizAction$,
         filterQuizStatus$,
@@ -344,7 +319,6 @@
         entireClassLabel$,
         quizzesLabel$,
         recipientSelected,
-        canManageContent,
       };
     },
     data() {
@@ -362,7 +336,10 @@
         'getRecipientNamesForExam',
         'getGroupNames',
       ]),
-      ...mapState('classSummary', { className: 'name' }),
+      ...mapState('classSummary', {
+        className: 'name',
+        examMap: 'examMap',
+      }),
       practiceQuizzesExist() {
         return plugin_data.practice_quizzes_exist;
       },
@@ -483,16 +460,11 @@
         const size = bytesForHumans(sum);
         return size;
       },
-      deviceContentUrl() {
-        const deviceContentUrl = urls['kolibri:kolibri.plugins.device:device_management'];
-        if (deviceContentUrl && this.canManageContent) {
-          return `${deviceContentUrl()}#/content`;
-        }
-
-        return '';
+      hasChannels() {
+        return this.channels.length > 0;
       },
-      hasNoChannels() {
-        return this.channels.length === 0;
+      hasMissingResources() {
+        return Object.values(this.examMap).some(exam => exam.missing_resource);
       },
     },
     mounted() {
@@ -599,10 +571,6 @@
         context:
           "Title that displays on a printed copy of the 'Coach' > 'Quizzes' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
       },
-      adminLink: {
-        message: 'Import channels to your device',
-        context: 'Message for admin indicating the possibility of importing channels into Kolibri.',
-      },
     },
   };
 
@@ -617,40 +585,6 @@
 
   .button-col {
     vertical-align: middle;
-  }
-
-  .class-name-icon {
-    position: relative;
-    top: 0.5em;
-    width: 1.5em;
-    height: 1.5em;
-    margin-right: 0.5em;
-  }
-
-  .alert {
-    position: relative;
-    width: 100%;
-    max-width: 1000px;
-    padding: 0.5em;
-    padding-left: 2em;
-    margin: 1em auto 0;
-  }
-
-  .warning-icon {
-    position: absolute;
-    top: 1em;
-    left: 1em;
-    width: 24px;
-    height: 24px;
-  }
-
-  .error-message {
-    margin-left: 3em;
-    font-size: 14px;
-  }
-
-  .banner-spacing {
-    margin: 0 0 1em;
   }
 
   @media print {
