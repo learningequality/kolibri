@@ -8,8 +8,11 @@ import { reactive } from 'vue';
 import { set } from '@vueuse/core';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
+import logger from 'kolibri-logging';
 import useUser from 'kolibri/composables/useUser';
 import BookmarksResource from 'kolibri-common/apiResources/BookmarksResource';
+
+const logging = logger.getLogger(__filename);
 
 // The reactive is defined in the outer scope so it can be used as a shared store
 // Maps contentnode_id to the bookmark object
@@ -112,6 +115,11 @@ export default function useBookmarks() {
     }
     return bookmarks;
   }
+
+  // warn about potential reactiveness issues with using bookmarksMap inside computed properties
+  logging.debug(
+    'Note that bookmarksMap is a reactive object, and this may cause some reactiveness issues if used inside computed properties with Vue composition API. Defining computed properties that depends on bookmarksMap using options API should not cause any issues.',
+  );
 
   return {
     fetchBookmarks,
