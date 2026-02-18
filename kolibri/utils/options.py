@@ -783,16 +783,6 @@ base_option_spec = {
             """,
         },
     },
-    "Python": {
-        "PICKLE_PROTOCOL": {
-            "type": "integer",
-            "default": 2,
-            "description": """
-                Which Python pickle protocol to use. Pinned to 2 for now to provide maximal cross-Python version compatibility.
-                Can safely be set to a higher value for deployments that will never change Python versions.
-            """,
-        }
-    },
     "Tasks": {
         "USE_WORKER_MULTIPROCESSING": {
             "type": "multiprocess_bool",

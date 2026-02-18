@@ -7,8 +7,6 @@ from kolibri.utils.options import CACHE_SHARDS
 
 cache_options = OPTIONS["Cache"]
 
-pickle_protocol = OPTIONS["Python"]["PICKLE_PROTOCOL"]
-
 diskcache_location = os.path.join(KOLIBRI_HOME, "process_cache")
 
 # Default to LocMemCache, as it has the simplest configuration
@@ -30,8 +28,6 @@ process_cache = {
     "SHARDS": CACHE_SHARDS,
     "OPTIONS": {
         "MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"],
-        # Pin pickle protocol for Python 2 compatibility
-        "disk_pickle_protocol": pickle_protocol,
     },
 }
 
@@ -45,8 +41,6 @@ if cache_options["CACHE_BACKEND"] == "redis":
         "OPTIONS": {
             "PASSWORD": cache_options["CACHE_PASSWORD"],
             "MAX_ENTRIES": cache_options["CACHE_MAX_ENTRIES"],
-            # Pin pickle protocol for Python 2 compatibility
-            "PICKLE_VERSION": pickle_protocol,
             "CONNECTION_POOL_CLASS": "redis.BlockingConnectionPool",
             "CONNECTION_POOL_CLASS_KWARGS": {
                 "max_connections": cache_options["CACHE_REDIS_MAX_POOL_SIZE"],
