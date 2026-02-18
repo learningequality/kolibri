@@ -57,10 +57,10 @@ jobs:
 
       - name: Generate App Token
         id: generate-token
-        uses: tibdex/github-app-token@v2
+        uses: actions/create-github-app-token@v2
         with:
-          app_id: ${{ secrets.LE_BOT_APP_ID }}
-          private_key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
+          app-id: ${{ secrets.LE_BOT_APP_ID }}
+          private-key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
