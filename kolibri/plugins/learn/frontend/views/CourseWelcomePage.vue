@@ -57,12 +57,7 @@
             :maxHeight="90"
             :showViewMore="true"
           >
-            <!-- eslint-disable vue/no-v-html -->
-            <p
-              dir="auto"
-              v-html="(course && course.description) || ''"
-            ></p>
-            <!-- eslint-enable -->
+            <p dir="auto">{{ (course && course.description) || '' }}</p>
           </SlotTruncator>
         </div>
       </div>
@@ -135,10 +130,6 @@
                     style="background-color: unset"
                     :aria-label="preTestLabel$()"
                     :disabled="!testAvailable(unit.id, TestType.PRE)"
-                    @mouseenter="onHover(`${TestType.PRE}-${unit.id}`)"
-                    @mouseleave="onLeave"
-                    @focus="onFocus(`${TestType.PRE}-${unit.id}`)"
-                    @blur="onBlur"
                     @click.stop="openCourseContentUnitTest(unit.id, TestType.PRE)"
                   >
                     <div class="unit-content">
@@ -146,12 +137,7 @@
                         <KIcon
                           icon="quiz"
                           :color="lockedColor"
-                          class="resource-icon unit-icons"
-                          :style="
-                            testAvailable(unit.id, TestType.PRE)
-                              ? [iconStyleFor(`${TestType.PRE}-${unit.id}`)]
-                              : {}
-                          "
+                          class="lesson-icon unit-icons"
                         />
                         {{ preTestLabel$() }}
                       </span>
@@ -163,74 +149,53 @@
                           :icon="testAvailable(unit.id, TestType.PRE) ? 'view' : 'permissions'"
                           :color="lockedColor"
                           class="unit-icons"
-                          :style="
-                            testAvailable(unit.id, TestType.PRE)
-                              ? [iconStyleFor(`${TestType.PRE}-${unit.id}`)]
-                              : {}
-                          "
                         />
                       </span>
                     </div>
                   </button>
                 </li>
                 <li
-                  v-for="resource in unit.children.results"
-                  :key="resource.id"
+                  v-for="lesson in unit.children.results"
+                  :key="lesson.id"
                   class="unit-item"
                 >
                   <button
                     class="unit-item-button"
                     :class="
-                      resourceAvailable(unit.id, resource.id)
+                      lessonAvailable(unit.id, lesson.id)
                         ? $computedClass(activeUnitItemStyle)
                         : $computedClass(lockedUnitItemStyle)
                     "
                     style="background-color: unset"
-                    :aria-label="resource.title"
-                    :disabled="!resourceAvailable(unit.id, resource.id)"
-                    @mouseenter="onHover(resource.id)"
-                    @focus="onFocus(resource.id)"
-                    @mouseleave="onLeave"
-                    @blur="onBlur"
-                    @click.stop="
-                      openCourseContentUnitResource(unit.id, resource.parent, resource.id)
-                    "
+                    :aria-label="lesson.title"
+                    :disabled="!lessonAvailable(unit.id, lesson.id)"
+                    @click.stop="openCourseContentUnitLesson(unit.id, lesson.id)"
                   >
                     <div class="unit-content">
                       <span>
                         <KIcon
                           icon="lesson"
                           :color="lockedColor"
-                          class="resource-icon unit-icons"
-                          :style="
-                            resourceAvailable(unit.id, resource.id)
-                              ? [iconStyleFor(resource.id)]
-                              : {}
-                          "
+                          class="lesson-icon unit-icons"
                         />
-                        {{ resource.title }}
+                        {{ lesson.title }}
                       </span>
                       <span>
                         <span class="unit-item-count">{{
                           numberOfResources$({
-                            value: (resource && resource.on_device_resources) || 0,
+                            value: (lesson && lesson.on_device_resources) || 0,
                           })
                         }}</span>
                         <KIcon
                           :icon="
-                            isCurrentResource(unit.id, resource.id)
+                            isCurrentLesson(unit.id, lesson.id)
                               ? 'view'
-                              : resourceAvailable(unit.id, resource.id)
+                              : lessonAvailable(unit.id, lesson.id)
                                 ? 'mastered'
                                 : 'permissions'
                           "
                           :color="lockedColor"
                           class="unit-icons"
-                          :style="
-                            resourceAvailable(unit.id, resource.id)
-                              ? [iconStyleFor(resource.id)]
-                              : {}
-                          "
                         />
                       </span>
                     </div>
@@ -248,10 +213,6 @@
                     data-testid="post-test-button-item"
                     :aria-label="postTestLabel$()"
                     :disabled="!testAvailable(unit.id, TestType.POST)"
-                    @mouseenter="onHover(`${TestType.POST}-${unit.id}`)"
-                    @mouseleave="onLeave"
-                    @focus="onFocus(`${TestType.POST}-${unit.id}`)"
-                    @blur="onBlur"
                     @click.stop="openCourseContentUnitTest(unit.id, TestType.POST)"
                   >
                     <div class="unit-content">
@@ -259,12 +220,7 @@
                         <KIcon
                           icon="quiz"
                           :color="lockedColor"
-                          class="resource-icon unit-icons"
-                          :style="
-                            testAvailable(unit.id, TestType.POST)
-                              ? [iconStyleFor(`${TestType.POST}-${unit.id}`)]
-                              : {}
-                          "
+                          class="lesson-icon unit-icons"
                         />
                         {{ postTestLabel$() }}
                       </span>
@@ -276,11 +232,6 @@
                           :icon="testAvailable(unit.id, TestType.POST) ? 'view' : 'permissions'"
                           :color="lockedColor"
                           class="unit-icons"
-                          :style="
-                            testAvailable(unit.id, TestType.POST)
-                              ? [iconStyleFor(`${TestType.POST}-${unit.id}`)]
-                              : {}
-                          "
                         />
                       </span>
                     </div>
@@ -336,7 +287,6 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const { windowIsLarge } = useKResponsiveWindow();
-
       const $themePalette = themePalette();
 
       const {
@@ -351,19 +301,6 @@
 
       const loading = ref(true);
       const course = ref(null);
-
-      // For accordion items button hover and focus state styling
-      const hoveredId = ref(null);
-      const focusedId = ref(null);
-      const onHover = id => (hoveredId.value = id);
-      const onLeave = () => (hoveredId.value = null);
-      const onFocus = id => (focusedId.value = id);
-      const onBlur = () => (focusedId.value = null);
-      const iconStyleFor = id => {
-        const active = hoveredId.value === id || focusedId.value === id;
-        const color = active ? $themePalette.blue.v_500 : undefined;
-        return { color, fill: color };
-      };
 
       const TestType = {
         PRE: 'pre',
@@ -405,12 +342,18 @@
             color: $themePalette.blue.v_500,
             outline: 'unset',
           },
+          ':focus .unit-icons': {
+            fill: $themePalette.blue.v_500,
+          },
           ':focus-within': {
             color: $themePalette.blue.v_500,
           },
           ':hover': {
             backgroundColor: $themePalette.blue.v_100,
             color: $themePalette.blue.v_500,
+          },
+          ':hover .unit-icons': {
+            fill: $themePalette.blue.v_500,
           },
         };
       });
@@ -433,7 +376,7 @@
           });
           course.value = fetchedCourse;
         } catch (error) {
-          currentInstance.$store.dispatch('handleApiError', {
+          store.dispatch('handleApiError', {
             error,
             reloadOnReconnect: true,
           });
@@ -443,9 +386,9 @@
         }
       }
 
-      function createCourseContentRoute(params) {
+      function createCourseContentRoute(pageName, params) {
         return {
-          name: PageNames.COURSE_CONTENT,
+          name: pageName,
           params: {
             courseId: course.value?.course_id,
             ...params,
@@ -455,26 +398,32 @@
 
       function openCourseContentPage() {
         if (courseStarted.value) {
-          const { unit_id, lesson_id, resource_id } = courseProgress.value?.resume_position ?? {};
-          return createCourseContentRoute({
+          const { unit_id, lesson_id } = courseProgress.value?.resume_position ?? {};
+          return createCourseContentRoute(PageNames.COURSE_CONTENT__LESSON, {
             unitId: unit_id,
             lessonId: lesson_id,
-            resourceId: resource_id,
           });
         }
 
-        return createCourseContentRoute({
+        return createCourseContentRoute(PageNames.COURSE_CONTENT_TEST, {
           unitId: units.value?.[0]?.id,
           testType: TestType.PRE,
         });
       }
 
       function openCourseContentUnitTest(unitId, testType) {
-        currentInstance.$router.push(createCourseContentRoute({ unitId, testType }));
+        currentInstance.$router.push(
+          createCourseContentRoute(PageNames.COURSE_CONTENT_TEST, { unitId, testType }),
+        );
       }
 
-      function openCourseContentUnitResource(unitId, lessonId, resourceId) {
-        currentInstance.$router.push(createCourseContentRoute({ unitId, lessonId, resourceId }));
+      function openCourseContentUnitLesson(unitId, lessonId) {
+        currentInstance.$router.push(
+          createCourseContentRoute(PageNames.COURSE_CONTENT__LESSON, {
+            unitId,
+            lessonId,
+          }),
+        );
       }
 
       const getUnitTestQuestionCount = unit => {
@@ -507,13 +456,13 @@
         return course.value ? isUnitTestAvailable(course.value.course_id, unitId, testType) : false;
       }
 
-      function resourceAvailable(unitId, lessonId) {
+      function lessonAvailable(unitId, lessonId) {
         return course.value
           ? isCourseLessonAvailable(course.value.course_id, unitId, lessonId)
           : false;
       }
 
-      function isCurrentResource(unitId, lessonId) {
+      function isCurrentLesson(unitId, lessonId) {
         return course.value
           ? isCurrentCourseLesson(course.value.course_id, unitId, lessonId)
           : false;
@@ -542,17 +491,12 @@
 
         // Methods & functions
         testAvailable,
-        resourceAvailable,
-        isCurrentResource,
+        lessonAvailable,
+        isCurrentLesson,
         getUnitTestQuestionCount,
-        onHover,
-        onLeave,
-        onFocus,
-        onBlur,
-        iconStyleFor,
         openCourseContentPage,
         openCourseContentUnitTest,
-        openCourseContentUnitResource,
+        openCourseContentUnitLesson,
 
         // String functions
         expandAll$,
@@ -646,7 +590,7 @@
     font-size: 20px;
   }
 
-  .resource-icon {
+  .lesson-icon {
     margin-right: 8px;
   }
 

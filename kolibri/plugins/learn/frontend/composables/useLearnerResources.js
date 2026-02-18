@@ -478,7 +478,7 @@ export default function useLearnerResources() {
    * @param {String} courseId
    * @param {String} unitId
    * @param {String} lessonId
-   * @returns {Boolean} Whether this is the current resource being worked on
+   * @returns {Boolean} Whether this is the current lesson being worked on
    * @public
    */
   function isCurrentCourseLesson(courseId, unitId, lessonId) {
