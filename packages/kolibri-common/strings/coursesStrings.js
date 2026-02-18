@@ -238,21 +238,16 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   startTestForUnitDescription: {
     message:
       'All assigned learners can now start the test. You can end the test whenever you want.',
-    context: 'Description text on modal confirming start of pre-test',
+    context: 'Description text on modal confirming start of pre-test or post-test',
   },
   endTestForUnitDescription: {
     message:
       "This action cannot be undone. Learners who haven't completed the test will be marked as incomplete.",
-    context: 'Description text on modal confirming ending of pre-test',
+    context: 'Description text on modal confirming ending of pre-test or post-test',
   },
   endPreTestForUnitConfirmation: {
     message: 'End pre-test for unit {num, number}?',
     context: 'Heading for confirmation modal when user clicks to end a pre-test',
-  },
-  endPreTestForUnitDescription: {
-    message:
-      "This action cannot be undone. Learners who haven't completed the test will be marked as incomplete.",
-    context: 'Description text on modal confirming ending of pre-test',
   },
   keepRunning: {
     message: 'Keep test running',
@@ -284,11 +279,11 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   },
   preTestEndedForUnit: {
     message: 'Pre-test ended for {title}',
-    context: 'Snackbar message upon starting the pre-test',
+    context: 'Snackbar message upon ending the pre-test',
   },
   postTestEndedForUnit: {
     message: 'Post-test ended for {title}',
-    context: 'Snackbar message upon starting the post-test',
+    context: 'Snackbar message upon ending the post-test',
   },
   preTestStartedForUnit: {
     message: 'Pre-test started for {title}',
