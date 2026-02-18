@@ -94,26 +94,31 @@ class ProvisioningErrorHandler:
         self._provision_app_name = None
 
     def __call__(self, request):
+        # Resolve the URL first — this is cheap in-memory pattern matching.
+        # If it's not a translated endpoint (i.e. not a plugin page view),
+        # return early without hitting the database for provisioning checks.
+        try:
+            match = resolve(request.path_info)
+        except Resolver404:
+            return self.get_response(request)
+
+        # Only redirect plugin page views, not API endpoints or core views.
+        # Page views served through i18n_patterns have 'translated' set on their callback.
+        # API endpoints and core views (like set_language) are left alone so the
+        # setup wizard can function properly.
+        if not getattr(match.func, "translated", False):
+            return self.get_response(request)
+
         if not device_provisioned():
             try:
                 provision_url = SetupHook.provision_url()
             except StopIteration:
                 return self.get_response(request)
 
-            try:
-                match = resolve(request.path_info)
-            except Resolver404:
-                return self.get_response(request)
-
-            # Only redirect plugin page views, not API endpoints or core views.
-            # Page views served through i18n_patterns have 'translated' set on their callback.
-            # API endpoints and core views (like set_language) are left alone so the
-            # setup wizard can function properly.
-            if getattr(match.func, "translated", False):
-                if self._provision_app_name is None:
-                    self._provision_app_name = resolve(provision_url).app_name
-                if match.app_name != self._provision_app_name:
-                    return redirect(provision_url)
+            if self._provision_app_name is None:
+                self._provision_app_name = resolve(provision_url).app_name
+            if match.app_name != self._provision_app_name:
+                return redirect(provision_url)
 
         return self.get_response(request)
 
