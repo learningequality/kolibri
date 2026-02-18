@@ -8,7 +8,11 @@
       :showIcon="showIcon"
       :style="{
         height: topBarHeight + 'px',
-        backgroundColor: isFullscreen ? $themeTokens.appBar : $themePalette.black,
+        backgroundColor: appBarBgColor
+          ? appBarBgColor
+          : isFullscreen
+            ? $themeTokens.appBar
+            : $themePalette.black,
       }"
       @nav-icon-click="$emit('navIconClick')"
     >
@@ -108,6 +112,16 @@
         type: Boolean,
         default: false,
       },
+      appBarBgColor: {
+        type: String,
+        required: false,
+        default: '',
+      },
+      appBarHoverBgColor: {
+        type: String,
+        required: false,
+        default: '',
+      },
     },
     computed: {
       hasRoute() {
@@ -119,9 +133,9 @@
           : this.$themePalette.grey.v_700;
         const defaultBg = this.isFullscreen ? this.$themeTokens.appBar : this.$themePalette.black;
         return {
-          backgroundColor: defaultBg,
+          backgroundColor: this.appBarBgColor ? this.appBarBgColor : defaultBg,
           ':hover': {
-            backgroundColor: hoverBg,
+            backgroundColor: this.appBarHoverBgColor ? this.appBarHoverBgColor : hoverBg,
           },
         };
       },

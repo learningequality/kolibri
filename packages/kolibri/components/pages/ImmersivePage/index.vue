@@ -8,6 +8,8 @@
         :route="route"
         :icon="icon"
         :isFullscreen="primary"
+        :appBarBgColor="appBarBgColor"
+        :appBarHoverBgColor="appBarHoverBgColor"
         @navIconClick="$emit('navIconClick')"
       >
         <template #actions>
@@ -79,6 +81,16 @@
         type: Boolean,
         required: false,
         default: true,
+      },
+      appBarBgColor: {
+        type: String,
+        required: false,
+        default: '',
+      },
+      appBarHoverBgColor: {
+        type: String,
+        required: false,
+        default: '',
       },
     },
     data() {

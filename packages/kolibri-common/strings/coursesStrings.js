@@ -152,4 +152,12 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Label showing the number of the current resource out of the total number of resources available.',
   },
+  startCourseAction: {
+    message: 'Start Course',
+    context: 'Action label for button to start a course',
+  },
+  resumeCourseAction: {
+    message: 'Resume Course',
+    context: 'Action label for button to resume a course',
+  },
 });
