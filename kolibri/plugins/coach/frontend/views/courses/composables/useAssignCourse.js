@@ -82,6 +82,10 @@ export default function useAssignCourse({ classId }) {
   provide('assignCourseSelectedLearnerIds', selectedLearnerIds);
   provide('assignCourseSelectCourse', selectCourse);
   provide('assignCourseAssignCourse', assignCourse);
+
+  return {
+    selectedCourse,
+  };
 }
 
 /**
