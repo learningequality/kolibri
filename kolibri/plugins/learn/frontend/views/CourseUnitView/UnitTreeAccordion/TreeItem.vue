@@ -2,7 +2,7 @@
 
   <li
     class="tree-item-wrapper"
-    :class="{ selected: selected }"
+    :style="treeItemWrapperStyle"
   >
     <button
       class="tree-item"
@@ -16,7 +16,13 @@
 
         <div class="text-content">
           <slot name="title">
-            <div class="title">
+            <div
+              class="title"
+              :style="{
+                color: selected ? $themePalette.blue.v_500 : 'inherit',
+                fontWeight: selected ? 600 : 'inherit',
+              }"
+            >
               <KTextTruncator
                 :text="title"
                 :maxLines="1"
@@ -41,14 +47,39 @@
 
 <script>
 
-  import { themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { currentLanguage, isRtl } from 'kolibri/utils/i18n';
+  import { computed } from 'vue';
 
   export default {
     name: 'TreeItem',
-    setup() {
-      const selectedBgColor = `${themePalette().blue.v_100}60`; // 60 to give it some opacity
+    setup(props) {
+      const $themePalette = themePalette();
+      const $themeTokens = themeTokens();
+      const selectedBgColor = `${$themePalette.blue.v_100}60`; // 60 to give it some opacity
+
+      const isRtlValue = isRtl(currentLanguage);
+      const selectedStyles = computed(() => {
+        if (!props.selected) {
+          return {};
+        }
+
+        const borderKey = isRtlValue ? 'borderRight' : 'borderLeft';
+        return {
+          [borderKey]: `3px solid ${$themePalette.blue.v_500}`,
+          backgroundColor: selectedBgColor,
+        };
+      });
+
+      const treeItemWrapperStyle = computed(() => {
+        return {
+          borderBottom: `1px solid ${$themeTokens.fineLine}`,
+          ...selectedStyles.value,
+        };
+      });
+
       return {
-        selectedBgColor,
+        treeItemWrapperStyle,
       };
     },
     props: {
@@ -75,24 +106,6 @@
 
 
 <style scoped lang="scss">
-
-  .tree-item-wrapper {
-    /* stylelint-disable-next-line */
-    border-bottom: 1px solid v-bind('$themeTokens.fineLine');
-
-    &.selected {
-      /* stylelint-disable-next-line */
-      border-left: 3px solid v-bind('$themePalette.blue.v_500');
-      /* stylelint-disable-next-line */
-      background-color: v-bind('selectedBgColor');
-
-      .text-content .title {
-        font-weight: 600;
-        /* stylelint-disable-next-line */
-        color: v-bind('$themePalette.blue.v_500');
-      }
-    }
-  }
 
   .tree-item {
     display: flex;

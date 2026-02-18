@@ -71,6 +71,10 @@
                 <span
                   v-if="lesson.id === currentLessonId"
                   class="current-label"
+                  :style="{
+                    color: $themePalette.blue.v_500,
+                    backgroundColor: $themePalette.blue.v_100,
+                  }"
                 >{{ currentLabel$() }}</span>
               </div>
             </div>
@@ -358,10 +362,6 @@
 
   .current-label {
     padding: 2px 5px;
-    /* stylelint-disable-next-line */
-    color: v-bind('$themePalette.blue.v_500');
-    /* stylelint-disable-next-line */
-    background-color: v-bind('$themePalette.blue.v_100');
     border-radius: 10px;
   }
 

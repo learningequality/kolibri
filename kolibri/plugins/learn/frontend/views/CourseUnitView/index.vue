@@ -33,6 +33,10 @@
         :progressLabel="prevNextLabel"
         :prevEnabled="prevEnabled"
         :nextEnabled="nextEnabled"
+        :style="{
+          backgroundColor: $themeTokens.background,
+          borderTop: `1px solid ${$themeTokens.fineLine}`,
+        }"
         @prev="handlePrev"
         @next="handleNext"
       />
@@ -789,10 +793,6 @@
 
   .course-bottom-bar {
     height: 56px;
-    /* stylelint-disable-next-line */
-    background-color: v-bind('$themeTokens.surface');
-    /* stylelint-disable-next-line */
-    border-top: 1px solid v-bind('$themeTokens.fineLine');
   }
 
 </style>
