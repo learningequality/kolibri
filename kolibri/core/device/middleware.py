@@ -48,7 +48,6 @@ class KolibriLocaleMiddleware:
         response = self.get_response(request)
 
         if language is not None:
-
             language = translation.get_language()
 
             if response.status_code == 404 and not language_from_path:
@@ -106,19 +105,18 @@ class ProvisioningErrorHandler:
         # Page views served through i18n_patterns have 'translated' set on their callback.
         # API endpoints and core views (like set_language) are left alone so the
         # setup wizard can function properly.
-        if not getattr(match.func, "translated", False):
+        if not getattr(match.func, "translated", False) or device_provisioned():
             return self.get_response(request)
 
-        if not device_provisioned():
-            try:
-                provision_url = SetupHook.provision_url()
-            except StopIteration:
-                return self.get_response(request)
+        try:
+            provision_url = SetupHook.provision_url()
+        except StopIteration:
+            return self.get_response(request)
 
-            if self._provision_app_name is None:
-                self._provision_app_name = resolve(provision_url).app_name
-            if match.app_name != self._provision_app_name:
-                return redirect(provision_url)
+        if self._provision_app_name is None:
+            self._provision_app_name = resolve(provision_url).app_name
+        if match.app_name != self._provision_app_name:
+            return redirect(provision_url)
 
         return self.get_response(request)
 
