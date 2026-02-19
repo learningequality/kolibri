@@ -535,5 +535,12 @@ class LearnerCourseViewset(ReadOnlyValuesViewset):
                 "lesson_id": first_incomplete_resource.parent_id,
                 "resource_id": first_incomplete_resource.id,
             }
+        else:
+            # All resources in the unit are complete, so resume at unit level
+            response_data["resume_position"] = {
+                "unit_id": unit_contentnode_id,
+                "lesson_id": None,
+                "resource_id": None,
+            }
 
         return Response(response_data)

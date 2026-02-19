@@ -160,4 +160,20 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Resume Course',
     context: 'Action label for button to resume a course',
   },
+  unitNumberLabel: {
+    message: 'Unit {number}',
+    context: 'Label for the unit number shown in the course unit view',
+  },
+  currentLabel: {
+    message: 'Current',
+    context: 'Label for the current lesson in the course unit view',
+  },
+  upNextLabel: {
+    message: 'Up next',
+    context: 'Label for the next unit in the course unit view',
+  },
+  markAsCompleteAction: {
+    message: 'Mark as complete',
+    context: 'Action label for marking a resource as complete',
+  },
 });
