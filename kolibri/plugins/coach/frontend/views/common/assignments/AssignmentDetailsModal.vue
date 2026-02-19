@@ -186,6 +186,8 @@
         titleLabel$,
         saveLessonError$,
         saveQuizError$,
+        saveLessonErrorDeletedUsers$,
+        saveQuizErrorDeletedUsers$,
         quizDuplicateTitleError$,
         lessonDuplicateTitleError$,
         reportVisibilityLabel$,
@@ -202,6 +204,8 @@
         titleLabel$,
         saveLessonError$,
         saveQuizError$,
+        saveLessonErrorDeletedUsers$,
+        saveQuizErrorDeletedUsers$,
         quizDuplicateTitleError$,
         lessonDuplicateTitleError$,
         reportVisibilityLabel$,
@@ -262,6 +266,7 @@
         adHocLearners: this.assignment.learner_ids || [],
         formIsSubmitted: false,
         showServerError: false,
+        showDeletedUsersError: false,
         showTitleError: false,
         instantReportVisibility: this.assignment.instant_report_visibility,
       };
@@ -319,6 +324,11 @@
         return 50;
       },
       submitErrorMessage() {
+        if (this.showDeletedUsersError) {
+          return this.assignmentIsQuiz
+            ? this.saveQuizErrorDeletedUsers$()
+            : this.saveLessonErrorDeletedUsers$();
+        }
         return this.assignmentIsQuiz ? this.saveQuizError$() : this.saveLessonError$();
       },
       iconName() {
@@ -404,6 +414,16 @@
        */
       handleSubmitFailure() {
         this.formIsSubmitted = false;
+        this.showDeletedUsersError = false;
+        this.showServerError = true;
+      },
+      /**
+       * Called when the save fails because one or more selected learners no longer exist.
+       * @public
+       */
+      handleSubmitDeletedUsersFailure() {
+        this.formIsSubmitted = false;
+        this.showDeletedUsersError = true;
         this.showServerError = true;
       },
       /**
@@ -422,6 +442,7 @@
       handleSubmitSuccess() {
         this.showTitleError = false;
         this.showServerError = false;
+        this.showDeletedUsersError = false;
       },
       /**
        * @public

@@ -324,6 +324,8 @@
             const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
             if (errors) {
               this.$refs.detailsModal.handleSubmitTitleFailure();
+            } else if (error.response && error.response.data && error.response.data.learner_ids) {
+              this.$refs.detailsModal.handleSubmitDeletedUsersFailure();
             } else {
               this.$refs.detailsModal.handleSubmitFailure();
             }
