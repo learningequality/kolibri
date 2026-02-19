@@ -171,7 +171,6 @@
     </KPageContainer>
 
     <BottomAppBar
-      data-test="bottom-bar"
       data-testid="bottom-bar"
     >
       <KButton
