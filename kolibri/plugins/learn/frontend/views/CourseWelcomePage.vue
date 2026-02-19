@@ -390,18 +390,25 @@
         return {
           name: pageName,
           params: {
-            courseId: course.value?.course_id,
+            courseId: course.value?.id,
             ...params,
           },
         };
       }
 
       function openCourseContentPage() {
-        if (courseStarted.value) {
-          const { unit_id, lesson_id } = courseProgress.value?.resume_position ?? {};
-          return createCourseContentRoute(PageNames.COURSE_CONTENT__LESSON, {
+        const { unit_id, lesson_id, resource_id } = courseProgress.value?.resume_position ?? {};
+
+        if (unit_id) {
+          if (lesson_id && resource_id) {
+            return createCourseContentRoute(PageNames.COURSE_CONTENT__RESOURCE, {
+              unitId: unit_id,
+              lessonId: lesson_id,
+              resourceId: resource_id,
+            });
+          }
+          return createCourseContentRoute(PageNames.COURSE_CONTENT__UNIT, {
             unitId: unit_id,
-            lessonId: lesson_id,
           });
         }
 

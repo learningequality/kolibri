@@ -155,7 +155,7 @@
       });
 
       const {
-        data: unitTree,
+        data: _unitTree,
         loading: unitTreeLoading,
         error: unitTreeError,
         fetchData: fetchUnitTreeData,
@@ -164,6 +164,17 @@
           ContentNodeResource.fetchTree({
             id: props.unitId,
           }),
+      });
+
+      const unitTree = computed(() => {
+        if (!_unitTree.value) {
+          return null;
+        }
+        // Ensure that the unit tree data is the expected unit
+        if (_unitTree.value.id !== props.unitId) {
+          return null;
+        }
+        return _unitTree.value;
       });
 
       const {
@@ -375,37 +386,48 @@
       const checkRedirectToUnitTree = () => {
         if (
           props.unitId === resumeData.value?.resume_position?.unit_id &&
+          resumeData.value?.resume_position?.lesson_id &&
+          props.lessonId === resumeData.value?.resume_position?.lesson_id &&
           resumeData.value?.resume_position?.resource_id &&
-          resumeData.value?.resume_position?.lesson_id
+          props.resourceId === resumeData.value?.resume_position?.resource_id
         ) {
           // already on the right unit, no need to redirect
           return false;
         }
-        if (!unitResources.value) {
+
+        if (!unitTree.value) {
           // no data to make a decision
           return false;
         }
-        const missingProps = !props.lessonId || !props.resourceId;
 
-        // no resource or lesson belongs to the unit
-        const invalidProps = !currentResource.value || !currentLesson.value;
-
-        if (missingProps || invalidProps) {
-          // no resource specified, redirect to the first resource of the unit
-          const [resource] = unitResources.value;
-          if (resource) {
-            router.replace({
-              name: PageNames.COURSE_CONTENT__RESOURCE,
-              params: {
-                courseId: props.courseId,
-                unitId: props.unitId,
-                lessonId: resource.parent,
-                resourceId: resource.id,
-              },
-            });
-            return true;
+        if (!props.lessonId || !props.resourceId) {
+          // Missing props, look for a resource to redirect to
+          let resourceToRedirect = null;
+          if (props.lessonId) {
+            // lesson is specified, redirect to the first resource of the lesson
+            resourceToRedirect = currentLessonResources.value?.[0];
           }
-          return false;
+
+          if (!resourceToRedirect) {
+            // no resource specified, redirect to the first resource of the unit
+            [resourceToRedirect] = unitResources.value;
+          }
+
+          if (!resourceToRedirect) {
+            // should not get here
+            throw new Error('No resource found to redirect to');
+          }
+
+          router.replace({
+            name: PageNames.COURSE_CONTENT__RESOURCE,
+            params: {
+              courseId: props.courseId,
+              unitId: props.unitId,
+              lessonId: resourceToRedirect.parent,
+              resourceId: resourceToRedirect.id,
+            },
+          });
+          return true;
         }
 
         return false;
@@ -508,6 +530,7 @@
         }
 
         if (
+          // If only unitId is present, but lessonId is not defined, redirect to resume position
           !checkValidPosition(
             props.lessonId,
             resumeData.value?.resume_position?.lesson_id,
@@ -518,6 +541,11 @@
         }
 
         if (
+          // If unitId and lessonId are present, but resourceId is not defined do not redirect to
+          // resume position, but leave it to checkRedirectToUnitTree to decide where to redirect
+          props.resourceId &&
+          // If resourceId is present, but is not valid according to the resume position, redirect
+          // to resume position
           !checkValidPosition(
             props.resourceId,
             resumeData.value?.resume_position?.resource_id,
@@ -527,10 +555,15 @@
           return true;
         }
 
-        if (unitTree.value && (!currentResource.value || !currentLesson.value)) {
-          // either the lesson doesn't belong to the unit or the resource doesn't belong to the
-          // lesson, redirect to a valid position
-          return true;
+        if (unitTree.value) {
+          // data has loaded, if props are present, computed properties should be defined,
+          // if not, it means that props are invalid and we should redirect to resume position
+          if (props.lessonId && !currentLesson.value) {
+            return true;
+          }
+          if (props.resourceId && !currentResource.value) {
+            return true;
+          }
         }
 
         return false;
@@ -547,7 +580,7 @@
         }
         if (!resumeData.value.started) {
           router.replace({
-            name: PageNames.HOME,
+            name: PageNames.COURSE_WELCOME,
           });
           return true;
         }

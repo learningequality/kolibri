@@ -92,8 +92,10 @@ describe('CourseUnitView', () => {
   const UNIT_2 = 'unit-2';
   const LESSON_1 = 'lesson-1';
   const LESSON_2 = 'lesson-2';
+  const LESSON_3 = 'lesson-3';
   const RESOURCE_1 = 'resource-1';
   const RESOURCE_2 = 'resource-2';
+  const RESOURCE_3 = 'resource-3';
 
   beforeEach(() => {
     router = {
@@ -151,13 +153,16 @@ describe('CourseUnitView', () => {
    * in the tree structure.
    */
   function setupUnitTree({
-    lessonIds = [LESSON_1, LESSON_2],
+    unitId = UNIT_1,
+    lessonIds = [LESSON_1, LESSON_2, LESSON_3],
     resourceIdsByLesson = {
       [LESSON_1]: [RESOURCE_1],
       [LESSON_2]: [RESOURCE_2],
+      [LESSON_3]: [RESOURCE_3],
     },
   } = {}) {
     ContentNodeResource.fetchTree.mockResolvedValue({
+      id: unitId,
       children: {
         results: lessonIds.map(lessonId => ({
           id: lessonId,
@@ -175,7 +180,7 @@ describe('CourseUnitView', () => {
   }
 
   describe('redirection logic', () => {
-    it('redirects to HOME if resume data indicates not started', async () => {
+    it('redirects to COURSE_WELCOME if resume data indicates not started', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({ started: false });
 
       renderComponent({
@@ -186,7 +191,7 @@ describe('CourseUnitView', () => {
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.HOME,
+          name: PageNames.COURSE_WELCOME,
         });
       });
     });
@@ -591,7 +596,7 @@ describe('CourseUnitView', () => {
       });
     });
 
-    it('redirects to the first resource of the unit when resume_position only has unit_id', async () => {
+    it('redirects to the first resource of the unit when resume_position only has unit_id, and props have invalid unit', async () => {
       const resumePosition = {
         unit_id: UNIT_1,
         // No lesson_id or resource_id
@@ -603,11 +608,21 @@ describe('CourseUnitView', () => {
 
       setupUnitTree();
 
-      // User is on UNIT_2, should redirect to resume unit (UNIT_1)
+      // User is on UNIT_2, but this is ahead of the resume UNIT_1, so should redirect to the first
+      // resource of UNIT_1
       renderComponent({
         unitId: UNIT_2,
-        lessonId: LESSON_1,
-        resourceId: RESOURCE_1,
+      });
+
+      // mock implementation of router.replace to renderComponent with the new params when called
+      router.replace.mockImplementation(({ name, params }) => {
+        if (name.startsWith('COURSE_CONTENT')) {
+          renderComponent({
+            unitId: params.unitId,
+            lessonId: params.lessonId,
+            resourceId: params.resourceId,
+          });
+        }
       });
 
       await waitFor(() => {
@@ -624,7 +639,7 @@ describe('CourseUnitView', () => {
       });
     });
 
-    it('redirects to the first resource when props only have unitId', async () => {
+    it('redirects to the first resource of the unit when props only have unitId, and resume_position only have the same unit_id', async () => {
       // already on the right unit (matches resume), but missing lesson/resource params
       const resumePosition = {
         unit_id: UNIT_1,
@@ -650,6 +665,105 @@ describe('CourseUnitView', () => {
             // Should default to first resource
             lessonId: LESSON_1,
             resourceId: RESOURCE_1,
+          },
+        });
+      });
+    });
+
+    it('redirects to the first resource of the lesson when props only have unitId and lessonId - resume position with same unit_id, completed', async () => {
+      // already on the right unit
+      const resumePosition = {
+        unit_id: UNIT_1,
+      };
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: resumePosition,
+      });
+
+      setupUnitTree();
+
+      renderComponent({
+        unitId: UNIT_1,
+        lessonId: LESSON_2,
+        // missing resourceId
+      });
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: COURSE_ID,
+            unitId: UNIT_1,
+            lessonId: LESSON_2,
+            // Should default to first resource of the lesson
+            resourceId: RESOURCE_2,
+          },
+        });
+      });
+    });
+
+    it('redirects to the first resource of the lesson when props only have unitId and lessonId - resume position with same unit_id, next lesson', async () => {
+      // already on the right unit
+      const resumePosition = {
+        unit_id: UNIT_1,
+        lesson_id: LESSON_3,
+        resource_id: RESOURCE_3,
+      };
+
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: resumePosition,
+      });
+
+      setupUnitTree();
+
+      renderComponent({
+        unitId: UNIT_1,
+        lessonId: LESSON_2,
+        // missing resourceId
+      });
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: COURSE_ID,
+            unitId: UNIT_1,
+            lessonId: LESSON_2,
+            // Should default to first resource of the lesson
+            resourceId: RESOURCE_2,
+          },
+        });
+      });
+    });
+
+    it('redirects to the first resource of the lesson when props only have unitId and lessonId - resume position with next unit_id, completed', async () => {
+      // already on the right unit
+      const resumePosition = {
+        unit_id: UNIT_2,
+      };
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: resumePosition,
+      });
+
+      setupUnitTree();
+
+      renderComponent({
+        unitId: UNIT_1,
+        lessonId: LESSON_2,
+        // missing resourceId
+      });
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: COURSE_ID,
+            unitId: UNIT_1,
+            lessonId: LESSON_2,
+            // Should default to first resource of the lesson
+            resourceId: RESOURCE_2,
           },
         });
       });
