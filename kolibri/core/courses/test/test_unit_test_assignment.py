@@ -1,10 +1,11 @@
 import hashlib
 import uuid
-from unittest.mock import patch
 
 from django.db.utils import IntegrityError
 from django.test import SimpleTestCase
 from django.test import TestCase
+from mock import MagicMock
+from mock import patch
 from morango.models import Filter
 
 from .. import models
@@ -21,8 +22,6 @@ DUMMY_PASSWORD = "password"
 
 
 def _patch_base_deserialize_passthrough():
-    from unittest.mock import MagicMock
-
     from morango.models.core import SyncableModel
 
     def _passthrough(*args, **kwargs):
@@ -334,24 +333,23 @@ class BaseDeserializeSyncFilterMixin:
     def test_remove_when_out_of_scope(self):
         sync_filter = Filter(f"{self.dataset_id}:user-ro:{uuid.uuid4().hex}")
         dict_model = self.dict_model.copy()
+        expected_dict = {"dataset_id": self.dataset_id}
         out = self.model_class.deserialize(dict_model, sync_filter=sync_filter)
         self.assertNotIn(self.user_field_name, out)
-        self.mock_deserialize.assert_called_once()
-        call = self.mock_deserialize.call_args
-        self.assertEqual(call.kwargs.get("sync_filter"), sync_filter)
-        passed_dict = call.args[0]
-        self.assertNotIn(self.user_field_name, passed_dict)
+        self.mock_deserialize.assert_called_once_with(
+            expected_dict,
+            sync_filter=sync_filter,
+        )
 
     def test_keep_when_user_ro_partition_in_scope(self):
         sync_filter = Filter(f"{self.dataset_id}:user-ro:{self.user_id}")
         dict_model = self.dict_model.copy()
         out = self.model_class.deserialize(dict_model, sync_filter=sync_filter)
         self.assertEqual(out[self.user_field_name], self.user_id)
-        self.mock_deserialize.assert_called_once()
-        call = self.mock_deserialize.call_args
-        self.assertEqual(call.kwargs.get("sync_filter"), sync_filter)
-        passed_dict = call.args[0]
-        self.assertEqual(passed_dict.get(self.user_field_name), self.user_id)
+        self.mock_deserialize.assert_called_once_with(
+            dict_model,
+            sync_filter=sync_filter,
+        )
 
     def test_keep_when_user_rw_partition_in_scope(self):
         """user-rw partition in scope (aligns with Morango write_filter) keeps the field."""
@@ -359,32 +357,30 @@ class BaseDeserializeSyncFilterMixin:
         dict_model = self.dict_model.copy()
         out = self.model_class.deserialize(dict_model, sync_filter=sync_filter)
         self.assertEqual(out[self.user_field_name], self.user_id)
-        self.mock_deserialize.assert_called_once()
-        call = self.mock_deserialize.call_args
-        self.assertEqual(call.kwargs.get("sync_filter"), sync_filter)
-        passed_dict = call.args[0]
-        self.assertEqual(passed_dict.get(self.user_field_name), self.user_id)
+        self.mock_deserialize.assert_called_once_with(
+            dict_model,
+            sync_filter=sync_filter,
+        )
 
     def test_keep_when_super_partition_in_scope(self):
         sync_filter = Filter(f"{self.dataset_id}")
         dict_model = self.dict_model.copy()
         out = self.model_class.deserialize(dict_model, sync_filter=sync_filter)
         self.assertEqual(out[self.user_field_name], self.user_id)
-        self.mock_deserialize.assert_called_once()
-        call = self.mock_deserialize.call_args
-        self.assertEqual(call.kwargs.get("sync_filter"), sync_filter)
-        passed_dict = call.args[0]
-        self.assertEqual(passed_dict.get(self.user_field_name), self.user_id)
+        self.mock_deserialize.assert_called_once_with(
+            dict_model,
+            sync_filter=sync_filter,
+        )
 
     def test_noop_when_user_field_missing(self):
         dict_model = {"dataset_id": self.dataset_id}
         sync_filter = Filter(f"{self.dataset_id}")
         out = self.model_class.deserialize(dict_model, sync_filter=sync_filter)
         self.assertEqual(out, {"dataset_id": self.dataset_id})
-        self.mock_deserialize.assert_called_once()
-        call = self.mock_deserialize.call_args
-        self.assertEqual(call.kwargs.get("sync_filter"), sync_filter)
-        self.assertEqual(call.args[0], {"dataset_id": self.dataset_id})
+        self.mock_deserialize.assert_called_once_with(
+            {"dataset_id": self.dataset_id},
+            sync_filter=sync_filter,
+        )
 
 
 class CourseSessionDeserializeSyncFilterTestCase(
