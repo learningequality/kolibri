@@ -443,7 +443,6 @@ const coachStrings = createTranslator('CommonCoachStrings', {
       'Error message shown when saving a quiz fails because one or more selected individual learners have been deleted from the facility.',
   },
 
-
   // empty states
   activityListEmptyState: {
     message: 'There is no activity',
