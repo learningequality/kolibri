@@ -6,6 +6,14 @@
     :subtitle="courseNameLabel$({ name: selectedCourseTitle })"
   >
     <template #default>
+      <UiAlert
+        v-if="errorMessage"
+        type="error"
+        :dismissible="true"
+        @dismiss="errorMessage = null"
+      >
+        {{ errorMessage }}
+      </UiAlert>
       <LearnersAndGroupsSelector
         showSelectClassOption
         :classId="classId"
@@ -43,7 +51,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { computed, onMounted, ref } from 'vue';
-  import useSnackbar from 'kolibri/composables/useSnackbar';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
   import { overrideRoute } from '../../../../../utils';
   import { PageNames } from '../../../../../constants';
@@ -55,18 +63,24 @@
     components: {
       SidePanelLayout,
       LearnersAndGroupsSelector,
+      UiAlert,
     },
     setup(props, { emit }) {
       const route = useRoute();
       const router = useRouter();
       const isSaving = ref(false);
-      const { createSnackbar } = useSnackbar();
+      const errorMessage = ref(null);
 
       const { classId, selectedCourse, assignCourse, selectedGroupIds, selectedLearnerIds } =
         injectAssignCourse();
 
       const { backAction$, defaultErrorMessage$ } = coreStrings;
-      const { courseNameLabel$, assignCourseAction$, selectRecipientsLabel$ } = coursesStrings;
+      const {
+        courseNameLabel$,
+        assignCourseAction$,
+        selectRecipientsLabel$,
+        courseAssignDeletedUsersError$,
+      } = coursesStrings;
 
       const selectedCourseTitle = computed(() => selectedCourse.value?.title || '');
 
@@ -91,7 +105,11 @@
           await assignCourse();
           emit('success');
         } catch (error) {
-          createSnackbar(defaultErrorMessage$());
+          if (error?.response?.data?.learner_ids) {
+            errorMessage.value = courseAssignDeletedUsersError$();
+          } else {
+            errorMessage.value = defaultErrorMessage$();
+          }
         } finally {
           isSaving.value = false;
         }
@@ -105,6 +123,7 @@
 
       return {
         isSaving,
+        errorMessage,
         classId,
         selectedGroupIds,
         selectedLearnerIds,
