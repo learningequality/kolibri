@@ -579,10 +579,16 @@
           return false;
         }
         if (!resumeData.value.started) {
-          router.replace({
-            name: PageNames.COURSE_WELCOME,
-          });
-          return true;
+          if (!props.unitId) {
+            // Course root — redirect to the welcome page to begin the course.
+            router.replace({
+              name: PageNames.COURSE_WELCOME,
+              params: { courseSessionId: props.courseId },
+            });
+            return true;
+          }
+          // Has a unitId — navigate to the appropriate resource within the unit.
+          return checkRedirectToUnitTree();
         }
 
         if (resumeData.value.active_test) {

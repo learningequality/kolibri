@@ -86,11 +86,8 @@
 
       const thumbnailUrl = computed(() => {
         const thumbnail = props.contentNode.thumbnail;
-        if (!thumbnail) {
-          const parent = props.contentNode.parent;
-          if (!parent) {
-            return getChannelThumbnail(props.contentNode && props.contentNode.channel_id);
-          }
+        if (!thumbnail && !props.contentNode.parent) {
+          return getChannelThumbnail(props.contentNode?.channel_id);
         }
         return thumbnail;
       });

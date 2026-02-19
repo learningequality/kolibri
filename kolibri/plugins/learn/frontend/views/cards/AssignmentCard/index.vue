@@ -111,14 +111,13 @@
 <script>
 
   import { computed } from 'vue';
-  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { learnStrings } from '../../commonLearnStrings';
 
   export default {
     name: 'AssignmentCard',
-    mixins: [commonCoreStrings],
     setup(props) {
       const { windowBreakpoint } = useKResponsiveWindow();
       const { quizLabel$, inProgressLabel$, completedLabel$ } = coreStrings;
@@ -262,10 +261,6 @@
   .quiz-label {
     display: inline-flex;
     align-items: center;
-
-    &.reversed {
-      flex-direction: row-reverse;
-    }
   }
 
   .label {

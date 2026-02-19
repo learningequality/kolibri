@@ -412,9 +412,12 @@
           });
         }
 
-        return createCourseContentRoute(PageNames.COURSE_CONTENT_TEST, {
+        // Course not yet started — navigate to the first unit.
+        // checkRedirectToUnitTree will then find the first lesson and resource.
+        // TO DO: update with proper conditional checks after course activation
+        // and pre and post test assessments are merged in
+        return createCourseContentRoute(PageNames.COURSE_CONTENT__UNIT, {
           unitId: units.value?.[0]?.id,
-          testType: TestType.PRE,
         });
       }
 

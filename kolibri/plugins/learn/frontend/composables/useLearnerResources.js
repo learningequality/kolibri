@@ -17,7 +17,7 @@ import {
   LearnerLessonResource,
   LearnerCourseResource,
 } from '../apiResources';
-import { ClassesPageNames } from '../constants';
+import { ClassesPageNames, PageNames } from '../constants';
 import useContentNodeProgress, { setContentNodeProgress } from './useContentNodeProgress';
 
 // The refs are defined in the outer scope so they can be used as a shared store
@@ -270,11 +270,10 @@ export default function useLearnerResources() {
     if (!course) {
       return undefined;
     }
-    // Placeholder route - course content pages don't exist yet
     return {
-      name: ClassesPageNames.CLASS_ASSIGNMENTS,
+      name: PageNames.COURSE_CONTENT__COURSE,
       params: {
-        classId: course.collection,
+        courseId: course.id,
       },
     };
   }

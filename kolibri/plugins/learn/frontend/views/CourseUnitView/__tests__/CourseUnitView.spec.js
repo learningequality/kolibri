@@ -183,15 +183,12 @@ describe('CourseUnitView', () => {
     it('redirects to COURSE_WELCOME if resume data indicates not started', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({ started: false });
 
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: LESSON_1,
-        resourceId: RESOURCE_1,
-      });
+      renderComponent();
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith({
           name: PageNames.COURSE_WELCOME,
+          params: { courseSessionId: COURSE_ID },
         });
       });
     });

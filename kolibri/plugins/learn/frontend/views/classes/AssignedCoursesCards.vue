@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div v-if="courses && courses.length > 0">
     <h2>
       <KLabeledIcon
         icon="course"
@@ -9,7 +9,6 @@
     </h2>
 
     <KCardGrid
-      v-if="courses && courses.length > 0"
       layout="1-2-3"
       :layoutOverride="[{ columnGap: '16px', rowGap: '16px' }]"
     >
