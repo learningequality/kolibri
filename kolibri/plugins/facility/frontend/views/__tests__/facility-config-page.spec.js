@@ -77,7 +77,9 @@ describe('facility config page view', () => {
       const bottomBar = screen.getByTestId('bottom-bar');
       const pageContainer = screen.getByTestId('page-container');
       expect(within(bottomBar).getByRole('button', { name: 'Save changes' })).toBeInTheDocument();
-      expect(within(pageContainer).queryByRole('button', { name: 'Save changes' })).not.toBeInTheDocument();
+      expect(
+        within(pageContainer).queryByRole('button', { name: 'Save changes' }),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -86,8 +88,12 @@ describe('facility config page view', () => {
       renderPage({ isAppContext: true });
       const bottomBar = screen.getByTestId('bottom-bar');
       const pageContainer = screen.getByTestId('page-container');
-      expect(within(bottomBar).queryByRole('button', { name: 'Save changes' })).not.toBeInTheDocument();
-      expect(within(pageContainer).getByRole('button', { name: 'Save changes' })).toBeInTheDocument();
+      expect(
+        within(bottomBar).queryByRole('button', { name: 'Save changes' }),
+      ).not.toBeInTheDocument();
+      expect(
+        within(pageContainer).getByRole('button', { name: 'Save changes' }),
+      ).toBeInTheDocument();
     });
   });
 });

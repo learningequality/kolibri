@@ -170,9 +170,7 @@
       />
     </KPageContainer>
 
-    <BottomAppBar
-      data-testid="bottom-bar"
-    >
+    <BottomAppBar data-testid="bottom-bar">
       <KButton
         v-if="!isAppContext"
         :primary="true"
