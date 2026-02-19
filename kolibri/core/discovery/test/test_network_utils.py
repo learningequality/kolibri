@@ -302,7 +302,9 @@ class NetworkClientTestCase(TestCase):
                     with NetworkClient("http://sadurl.qqq") as nc:
                         nc.connect()
 
-    @mock.patch.object(requests.Session, "get", mock_response(200))
+    @mock.patch.object(
+        requests.Session, "request", mock_happy_request("https://example.com")
+    )
     def test_request__user_agent(self):
         client = NetworkClient("https://example.com")
         response = client.get("/")

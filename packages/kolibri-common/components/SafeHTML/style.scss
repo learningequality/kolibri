@@ -105,13 +105,11 @@ table.safe-html {
   font-size: 16px;
   table-layout: fixed;
   border-collapse: collapse;
-  border: 1px solid var(--color-grey-300);
 }
 
 caption.safe-html {
   margin: 0 auto 12px;
   font-weight: 600;
-  color: var(--color-primary-500);
 }
 
 caption.safe-html.small-window {
@@ -120,11 +118,6 @@ caption.safe-html.small-window {
 
 thead.safe-html {
   font-weight: 600;
-  background-color: var(--color-primary-100);
-}
-
-tfoot.safe-html {
-  background-color: var(--color-grey-100);
 }
 
 th.safe-html {
@@ -136,7 +129,6 @@ th.safe-html,
 td.safe-html {
   min-width: 200px;
   padding: 16px;
-  border: 1px solid var(--color-grey-300);
 }
 
 .image-container {
@@ -166,7 +158,6 @@ img.safe-html {
   max-width: 100%;
   max-height: 80vh;
   margin: 0 auto;
-  border: 1px solid var(--color-fineline);
 }
 
 .expand-btn {

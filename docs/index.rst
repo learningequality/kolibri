@@ -25,6 +25,8 @@ Table of contents
   getting_started
   stack
   howtos/index
+  testing
+  code_quality
   frontend_architecture/index
   backend_architecture/index
   dataflow/index

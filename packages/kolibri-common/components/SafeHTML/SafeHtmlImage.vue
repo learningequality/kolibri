@@ -8,6 +8,7 @@
       <img
         :src="src"
         :alt="alt"
+        :style="imageStyle"
         v-bind="$attrs"
         @click="openLightbox"
       >
@@ -25,7 +26,6 @@
       :open="lightboxOpen"
       :src="src"
       :alt="alt"
-      :styleOverrides="styleOverrides"
       @closeLightbox="closeLightbox"
     />
   </div>
@@ -46,15 +46,18 @@
     props: {
       src: { type: String, required: true },
       alt: { type: String, default: '' },
-      styleOverrides: {
-        type: Object,
-        default: () => ({}),
-      },
     },
     data() {
       return {
         lightboxOpen: false,
       };
+    },
+    computed: {
+      imageStyle() {
+        return {
+          border: `1px solid ${this.$themeTokens.fineLine}`,
+        };
+      },
     },
     methods: {
       openLightbox() {

@@ -10,6 +10,7 @@
     "kolibri-common": "workspace:*",
     "kolibri-logging": "workspace:*",
     "kolibri-plugin-data": "workspace:*",
+    "lodash": "catalog:",
     "vue": "catalog:"
   }
 }

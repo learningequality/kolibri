@@ -71,141 +71,137 @@ const TEST_CLASSES = [
   {
     id: 'class-1',
     name: 'Class 1',
-    assignments: {
-      exams: [
-        {
-          id: 'class-1-active-quiz-in-progress',
-          title: 'Class 1 - Active Quiz In Progress',
-          active: true,
-          collection: 'class-1',
-          progress: {
-            started: true,
-            closed: false,
-          },
+    exams: [
+      {
+        id: 'class-1-active-quiz-in-progress',
+        title: 'Class 1 - Active Quiz In Progress',
+        active: true,
+        collection: 'class-1',
+        progress: {
+          started: true,
+          closed: false,
         },
-        {
-          id: 'class-1-inactive-quiz-in-progress',
-          title: 'Class 1 - Inactive Quiz In Progress',
-          active: false,
-          collection: 'class-1',
-          progress: {
-            started: true,
-            closed: false,
-          },
+      },
+      {
+        id: 'class-1-inactive-quiz-in-progress',
+        title: 'Class 1 - Inactive Quiz In Progress',
+        active: false,
+        collection: 'class-1',
+        progress: {
+          started: true,
+          closed: false,
         },
-        {
-          id: 'class-1-active-finished-quiz',
-          title: 'Class 1 - Active Finished Quiz',
-          active: true,
-          collection: 'class-1',
-          progress: {
-            started: true,
-            closed: true,
-          },
+      },
+      {
+        id: 'class-1-active-finished-quiz',
+        title: 'Class 1 - Active Finished Quiz',
+        active: true,
+        collection: 'class-1',
+        progress: {
+          started: true,
+          closed: true,
         },
-      ],
-      lessons: [
-        {
-          id: 'class-1-active-lesson-1',
-          title: 'Class 1 - Active Lesson 1',
-          active: true,
-          collection: 'class-1',
-          resources: [
-            {
-              contentnode_id: 'resource-1-in-progress',
-              progress: 0.2,
-              contentnode: { id: 'resource-1' },
-            },
-            { contentnode_id: 'resource-2', progress: 0, contentnode: { id: 'resource-2' } },
-            {
-              contentnode_id: 'resource-3-in-progress',
-              progress: 0.74,
-              contentnode: { id: 'resource-3' },
-            },
-          ],
-          progress: {
-            resource_progress: 0,
-            total_resources: 3,
+      },
+    ],
+    lessons: [
+      {
+        id: 'class-1-active-lesson-1',
+        title: 'Class 1 - Active Lesson 1',
+        active: true,
+        collection: 'class-1',
+        resources: [
+          {
+            contentnode_id: 'resource-1-in-progress',
+            progress: 0.2,
+            contentnode: { id: 'resource-1' },
           },
-        },
-        {
-          id: 'class-1-active-lesson-2',
-          title: 'Class 1 - Active Lesson 2',
-          active: true,
-          collection: 'class-1',
-          resources: [
-            {
-              contentnode_id: 'resource-1-in-progress',
-              progress: 0.2,
-              contentnode: { id: 'resource-1' },
-            },
-            { contentnode_id: 'resource-4', progress: 0, contentnode: { id: 'resource-4' } },
-            {
-              contentnode_id: 'resource-5-in-progress',
-              progress: 0.04,
-              contentnode: { id: 'resource-5' },
-            },
-          ],
-          progress: {
-            resource_progress: 1,
-            total_resources: 3,
+          { contentnode_id: 'resource-2', progress: 0, contentnode: { id: 'resource-2' } },
+          {
+            contentnode_id: 'resource-3-in-progress',
+            progress: 0.74,
+            contentnode: { id: 'resource-3' },
           },
+        ],
+        progress: {
+          resource_progress: 0,
+          total_resources: 3,
         },
-      ],
-    },
+      },
+      {
+        id: 'class-1-active-lesson-2',
+        title: 'Class 1 - Active Lesson 2',
+        active: true,
+        collection: 'class-1',
+        resources: [
+          {
+            contentnode_id: 'resource-1-in-progress',
+            progress: 0.2,
+            contentnode: { id: 'resource-1' },
+          },
+          { contentnode_id: 'resource-4', progress: 0, contentnode: { id: 'resource-4' } },
+          {
+            contentnode_id: 'resource-5-in-progress',
+            progress: 0.04,
+            contentnode: { id: 'resource-5' },
+          },
+        ],
+        progress: {
+          resource_progress: 1,
+          total_resources: 3,
+        },
+      },
+    ],
   },
   {
     id: 'class-2',
     name: 'Class 2',
-    assignments: {
-      exams: [
-        {
-          id: 'class-2-active-quiz-in-progress',
-          title: 'Class 2 - Active Quiz In Progress',
-          active: true,
-          collection: 'class-2',
-          progress: {
-            started: true,
-            closed: false,
-          },
+    exams: [
+      {
+        id: 'class-2-active-quiz-in-progress',
+        title: 'Class 2 - Active Quiz In Progress',
+        active: true,
+        collection: 'class-2',
+        progress: {
+          started: true,
+          closed: false,
         },
-        {
-          id: 'class-2-active-quiz-not-started',
-          title: 'Class 2 - Active Quiz Not Started',
-          active: true,
-          collection: 'class-2',
-          progress: {
-            closed: false,
-            started: false,
-          },
+      },
+      {
+        id: 'class-2-active-quiz-not-started',
+        title: 'Class 2 - Active Quiz Not Started',
+        active: true,
+        collection: 'class-2',
+        progress: {
+          closed: false,
+          started: false,
         },
-      ],
-      lessons: [
-        {
-          id: 'class-2-active-lesson-1',
-          title: 'Class 2 - Active Lesson 1',
-          active: true,
-          collection: 'class-2',
-          resources: [
-            {
-              contentnode_id: 'resource-6-in-progress',
-              progress: 0.1,
-              contentnode: { id: 'resource-6' },
-            },
-            { contentnode_id: 'resource-2', progress: 0, contentnode: { id: 'resource-2' } },
-            {
-              contentnode_id: 'resource-1-in-progress',
-              progress: 0.2,
-              contentnode: { id: 'resource-1' },
-            },
-          ],
-          progress: {
-            resource_progress: 1,
-            total_resources: 3,
+      },
+    ],
+    lessons: [
+      {
+        id: 'class-2-active-lesson-1',
+        title: 'Class 2 - Active Lesson 1',
+        active: true,
+        collection: 'class-2',
+        resources: [
+          {
+            contentnode_id: 'resource-6-in-progress',
+            progress: 0.1,
+            contentnode: { id: 'resource-6' },
           },
+          { contentnode_id: 'resource-2', progress: 0, contentnode: { id: 'resource-2' } },
+          {
+            contentnode_id: 'resource-1-in-progress',
+            progress: 0.2,
+            contentnode: { id: 'resource-1' },
+          },
+        ],
+        progress: {
+          resource_progress: 1,
+          total_resources: 3,
         },
-      ],
-    },
+      },
+    ],
   },
 ];
 
@@ -215,10 +211,10 @@ const TEST_CLASSES = [
 function finishClasses(classes) {
   const finishedClasses = cloneDeep(classes);
   return finishedClasses.map(c => {
-    c.assignments.exams.forEach(quiz => {
+    c.exams.forEach(quiz => {
       quiz.progress.closed = true;
     });
-    c.assignments.lessons.forEach(lesson => {
+    c.lessons.forEach(lesson => {
       lesson.progress.resource_progress = lesson.progress.total_resources;
     });
     return c;

@@ -45,3 +45,4 @@ Styling anti-patterns
 - **Complex pre-processor functionality** - use Vue `computed styles <https://vuejs.org/v2/guide/class-and-style.html>`__ instead
 - **Hard-coded values** - rely on variables defined in the core theme
 - **Left or right alignment on user-generated text** - use ``dir="auto"`` instead for RTL support
+- **Inline directional styles** - put non-dynamic styles in ``<style>`` blocks so that `RTLCSS <https://rtlcss.com/>`__ can automatically flip them for RTL languages. If a directional style must be inline because it is dynamic, it must respond to the ``isRtl`` property. See :doc:`/i18n` for full RTL guidance

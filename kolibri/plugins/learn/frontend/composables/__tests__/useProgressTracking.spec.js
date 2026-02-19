@@ -74,6 +74,20 @@ describe('useProgressTracking composable', () => {
         );
       }
     });
+    it('should throw an error if lessonId and courseSessionId provided', async () => {
+      const { initContentSession } = setUp();
+      try {
+        await initContentSession({
+          node,
+          lessonId: 'test_lesson',
+          courseSessionId: 'test_course_session',
+        });
+      } catch (error) {
+        expect(error).toEqual(
+          new TypeError('only course_session_id or lessonId can be defined, not both'),
+        );
+      }
+    });
     it.each(['id', 'content_id', 'channel_id', 'kind'])(
       'should throw an error if %s is missing from node',
       async property => {
@@ -274,6 +288,27 @@ describe('useProgressTracking composable', () => {
       });
       expect(client).toHaveBeenCalled();
     });
+    it('should not make a backend request when the session for course_session_id and node_id is already active', async () => {
+      const { initContentSession } = setUp();
+      const session_id = 'test_session_id';
+      const node_id = node.id;
+      const course_session_id = 'test_course_session_id';
+      const progress = 0.5;
+      const time_spent = 15;
+      const extra_fields = { extra: true };
+      client.__setPayload({
+        session_id,
+        context: { node_id, course_session_id },
+        progress,
+        time_spent,
+        extra_fields,
+        complete: false,
+      });
+      await initContentSession({ node, courseSessionId: course_session_id });
+      client.__reset();
+      await initContentSession({ node, courseSessionId: course_session_id });
+      expect(client).not.toHaveBeenCalled();
+    });
     it('should not make a backend request when the session for quiz_id is already active', async () => {
       const { initContentSession } = setUp();
       const session_id = 'test_session_id';
@@ -385,6 +420,24 @@ describe('useProgressTracking composable', () => {
       });
       await expect(initContentSession({ node })).rejects.toMatchObject(error);
       expect(client).toHaveBeenCalledTimes(5);
+    });
+    it('should set course_session_id when provided', async () => {
+      const { initContentSession } = setUp();
+      const session_id = 'test_session_id';
+      const node_id = node.id;
+      const course_session_id = 'test_course_session_id';
+      client.__setPayload({
+        session_id,
+        context: { node_id, course_session_id },
+      });
+      await initContentSession({ node, courseSessionId: course_session_id });
+      expect(client.mock.calls[0][0].data).toEqual({
+        node_id: node.id,
+        kind: node.kind,
+        content_id: node.content_id,
+        channel_id: node.channel_id,
+        course_session_id: course_session_id,
+      });
     });
   });
   describe('updateContentSession', () => {
