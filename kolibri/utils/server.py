@@ -566,6 +566,7 @@ class SignalHandler(BaseSignalHandler):
     def __init__(self, bus):
         super().__init__(bus)
         self.process_pid = None
+        self._shutting_down = False
 
         self.handlers.update(
             {
@@ -590,7 +591,13 @@ class SignalHandler(BaseSignalHandler):
 
     def handle_SIGINT(self):
         """Transition to the EXITED state."""
-        self.bus.log("Keyboard interrupt caught. Exiting.")
+        if self._shutting_down:
+            self.bus.log("Shutdown already in progress, forcing exit.")
+            os._exit(0)
+        self._shutting_down = True
+        self.bus.log(
+            "Gracefully shutting down. To force exit, do keyboard interrupt again."
+        )
         self.bus.transition("EXITED")
 
 

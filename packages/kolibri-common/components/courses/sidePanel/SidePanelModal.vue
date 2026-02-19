@@ -35,8 +35,11 @@
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
   import useUser from 'kolibri/composables/useUser';
   import { currentLanguage, isRtl } from 'kolibri/utils/i18n';
-  import useReturnFocusOnUnmount from '../../../composables/useReturnFocusOnUnmount';
-  import { getFirstFocusableElement, getLastFocusableElement } from '../../../utils';
+  import useReturnFocusOnUnmount from 'kolibri-common/composables/useReturnFocusOnUnmount';
+  import {
+    getFirstFocusableElement,
+    getLastFocusableElement,
+  } from 'kolibri-common/utils/focusUtils';
 
   export default {
     name: 'SidePanelModal',

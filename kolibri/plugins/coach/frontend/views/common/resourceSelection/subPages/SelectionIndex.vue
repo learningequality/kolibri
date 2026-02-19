@@ -124,7 +124,7 @@
   import QuizResourceSelectionHeader from '../QuizResourceSelectionHeader.vue';
 
   /**
-   * @typedef {import('../../../../composables/useFetch').FetchObject} FetchObject
+   * @typedef {import('kolibri-common/composables/useFetch.js').FetchObject} FetchObject
    */
 
   export default {

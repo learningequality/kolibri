@@ -11,6 +11,7 @@
         "kolibri-design-system": "catalog:",
         "lodash": "catalog:",
         "vue": "catalog:",
+        "vue-router": "catalog:",
         "vuex": "catalog:",
         "xstate": "catalog:"
     }

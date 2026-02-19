@@ -1,5 +1,5 @@
 import { nextTick } from 'vue';
-import { getFirstFocusableElement } from '../../../utils';
+import { getFirstFocusableElement } from 'kolibri-common/utils/focusUtils';
 
 export default {
   async inserted(el, binding) {

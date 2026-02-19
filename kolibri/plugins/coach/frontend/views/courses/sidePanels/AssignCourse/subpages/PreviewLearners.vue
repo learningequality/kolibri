@@ -30,7 +30,7 @@
   import { useRoute, useRouter } from 'vue-router/composables';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
-  import SidePanelLayout from '../../../../common/sidePanel/SidePanelLayout.vue';
+  import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
   import { overrideRoute } from '../../../../../utils';
   import { PageNames } from '../../../../../constants';
 

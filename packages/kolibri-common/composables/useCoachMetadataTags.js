@@ -1,6 +1,8 @@
 import useLearningActivities from 'kolibri-common/composables/useLearningActivities';
+import Modalities from 'kolibri-constants/Modalities';
 import { ActivitiesLookup, ContentNodeKinds, LearningActivities } from 'kolibri/constants';
 import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { coursesStrings } from '../strings/coursesStrings';
 
 /**
  * Create a tag Object that can be used to display metadata
@@ -28,6 +30,9 @@ export function useCoachMetadataTags(contentNode) {
   }
 
   function getKindTag() {
+    if (contentNode.modality === Modalities.COURSE) {
+      return createTag(coursesStrings.$tr('courseLabel'), 'course', 'course');
+    }
     if (contentNode.kind === ContentNodeKinds.CHANNEL) {
       return createTag(coreStrings.$tr('channel'), 'channel');
     }

@@ -573,9 +573,14 @@ class ImportChannelTestCase(TestCase):
         dummy_job.check_for_cancel.assert_called()
         self.assertFalse(os.path.exists(local_dest_path))
 
+    @patch("kolibri.utils.file_transfer.FileDownload._set_headers")
     @patch("kolibri.core.content.utils.channel_transfer.get_current_job")
     def test_remote_import_sslerror(
-        self, get_current_job_mock, start_progress_mock, import_channel_mock
+        self,
+        get_current_job_mock,
+        set_headers_mock,
+        start_progress_mock,
+        import_channel_mock,
     ):
         dummy_job = create_dummy_job()
         get_current_job_mock.return_value = dummy_job
@@ -605,11 +610,13 @@ class ImportChannelTestCase(TestCase):
         "kolibri.utils.file_transfer.FileDownload._run_download",
         side_effect=ReadTimeout("Read timed out."),
     )
+    @patch("kolibri.utils.file_transfer.FileDownload._set_headers")
     @patch("kolibri.core.content.utils.channel_transfer.get_current_job")
     def test_remote_import_readtimeout(
         self,
         get_current_job_mock,
-        sslerror_mock,
+        set_headers_mock,
+        run_download_mock,
         start_progress_mock,
         import_channel_mock,
     ):

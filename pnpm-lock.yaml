@@ -160,6 +160,9 @@ importers:
       kolibri-plugin-data:
         specifier: workspace:*
         version: link:../../packages/kolibri-plugin-data
+      lodash:
+        specifier: 'catalog:'
+        version: 4.17.21
       vue:
         specifier: 'catalog:'
         version: 2.7.16
@@ -460,6 +463,9 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
+      vue-router:
+        specifier: 'catalog:'
+        version: 3.6.5(vue@2.7.16)
       vuex:
         specifier: 'catalog:'
         version: 3.6.2(vue@2.7.16)
@@ -906,6 +912,12 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
+      vue-router:
+        specifier: 'catalog:'
+        version: 3.6.5(vue@2.7.16)
+      vuex:
+        specifier: 'catalog:'
+        version: 3.6.2(vue@2.7.16)
 
   kolibri/plugins/user_profile:
     dependencies:
@@ -930,6 +942,9 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
+      vue-router:
+        specifier: 'catalog:'
+        version: 3.6.5(vue@2.7.16)
       vuex:
         specifier: 'catalog:'
         version: 3.6.2(vue@2.7.16)
@@ -1227,6 +1242,9 @@ importers:
       eslint-plugin-kolibri:
         specifier: workspace:*
         version: link:../eslint-plugin-kolibri
+      eslint-plugin-small-import:
+        specifier: ^1.0.0
+        version: 1.0.0(eslint@8.57.1)
       eslint-plugin-vue:
         specifier: ^9.33.0
         version: 9.33.0(eslint@8.57.1)
@@ -4991,6 +5009,11 @@ packages:
         optional: true
       jest:
         optional: true
+
+  eslint-plugin-small-import@1.0.0:
+    resolution: {integrity: sha512-udQ1Eh3hP1PtAtgk5B4ie9jp4nSJjGF2ytl4OuHw8zhTBnxQ0aFCsGdY0s9RKEignYVjqtJslv8z/VQZxDziQA==}
+    peerDependencies:
+      eslint: ^6.1.0
 
   eslint-plugin-vue@9.33.0:
     resolution: {integrity: sha512-174lJKuNsuDIlLpjeXc5E2Tss8P44uIimAfGD0b90k0NoirJqpG7stLuU9Vp/9ioTOrQdWVREc4mRd1BD+CvGw==}
@@ -12909,6 +12932,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
       - typescript
+
+  eslint-plugin-small-import@1.0.0(eslint@8.57.1):
+    dependencies:
+      eslint: 8.57.1
 
   eslint-plugin-vue@9.33.0(eslint@8.57.1):
     dependencies:

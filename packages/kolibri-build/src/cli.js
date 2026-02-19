@@ -113,11 +113,11 @@ function runProductionBuild(compiler, options = {}) {
       buildLogging.error(err || stats.toString('errors-only'));
       process.exit(1);
     }
-    
+
     if (options.json) {
       writeStatsFiles(stats);
     }
-    
+
     compiler.close(closeErr => {
       if (closeErr) {
         buildLogging.error(closeErr);
@@ -152,7 +152,7 @@ function writeStatsFiles(stats) {
     timings: true, // modules timing information
     performance: true, // info about oversized assets
   });
-  
+
   fs.mkdirSync('./.stats', { recursive: true });
   for (const stat of statsJson.children) {
     fs.writeFileSync(`.stats/${stat.name}.json`, JSON.stringify(stat, null, 2), {
@@ -291,7 +291,7 @@ addBuildOptions(program.command('dev'))
     startDevServer(compiler, options);
   });
 
-// Prod command  
+// Prod command
 addBuildOptions(program.command('prod'))
   .description('Build optimized production assets')
   .option('--json', 'Output webpack stats in JSON format', false)
