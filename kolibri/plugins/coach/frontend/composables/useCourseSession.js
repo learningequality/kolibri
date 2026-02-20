@@ -218,15 +218,29 @@ export default function useCourseSession(courseSessionId) {
     return CourseSessionResource.saveModel({
       id: courseSession.value.id,
       data: { active: !courseSession.value.active },
-    }).then(result => {
-      courseSession.value = { ...courseSession.value, active: result.active };
-      if (result.active) {
-        createSnackbar(courseVisible$());
-      } else {
-        createSnackbar(courseNotVisible$());
-      }
-      return result;
-    });
+    })
+      .then(result => {
+        courseSession.value = { ...courseSession.value, active: result.active };
+        if (result.active) {
+          createSnackbar(courseVisible$());
+        } else {
+          createSnackbar(courseNotVisible$());
+        }
+        return result;
+      })
+      .then(result => {
+        // If we activate the course and the pre-test for the first unit hasn't been started,
+        // start it automatically to make things easier for the coach
+        if (!activeTest.value && activeUnitIndex.value === 0) {
+          // Can fire it off and move on as it will handle dataLoading
+          // and such internally
+          activateTest(TestType.PRE);
+        }
+        return result; // pipe the original CourseSession result back out
+      })
+      .catch(() => {
+        createSnackbar(defaultErrorMessage$());
+      });
   }
 
   return {
