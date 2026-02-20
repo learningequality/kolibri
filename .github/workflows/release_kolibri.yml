@@ -119,7 +119,7 @@ jobs:
   apk:
     name: Build Android APK
     needs: whl
-    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@v0.1.6
+    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@v0.1.7
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
       release: true
