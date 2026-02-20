@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 For usage instructions, see:
     https://kolibri-dev.readthedocs.io/en/develop/references/i18n.html

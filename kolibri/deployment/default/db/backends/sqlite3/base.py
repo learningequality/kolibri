@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Custom SQLite3 database backend for Kolibri.
 
