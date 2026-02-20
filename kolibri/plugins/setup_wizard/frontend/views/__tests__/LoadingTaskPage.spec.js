@@ -1,4 +1,6 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, waitFor } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
+import '@testing-library/jest-dom';
 import TaskResource from 'kolibri/apiResources/TaskResource';
 import LoadingTaskPage from '../LoadingTaskPage';
 
@@ -9,11 +11,6 @@ jest.mock('kolibri/apiResources/TaskResource', () => ({
   list: jest.fn(),
 }));
 
-const cancelTaskMock = TaskResource.cancel;
-const clearTasksMock = TaskResource.clearAll;
-const restartMock = TaskResource.restart;
-const listMock = TaskResource.list;
-
 const facilityMock = {
   id: '4494060ae9b746af80200faa848eb23d',
   name: 'Kolibri School',
@@ -21,100 +18,88 @@ const facilityMock = {
   password: 'password',
 };
 
-function makeWrapper() {
-  const wrapper = mount(LoadingTaskPage, {
+
+const renderComponent = () => {
+  return render(LoadingTaskPage, {
     mocks: {
-      wizardService: { state: { context: { selectedFacility: facilityMock } } },
+      wizardService: {
+        state: { context: { selectedFacility: facilityMock } },
+      },
+
+      goToRootUrl: jest.fn(),
+      $router: {
+        push: jest.fn(),
+        replace: jest.fn(),
+      },
+    },
+    stubs: {
+
+      FacilityTaskPanel: {
+        template: `<div><button @click="$emit('cancel')">Cancel Task</button></div>`,
+      },
     },
   });
-  return { wrapper };
-}
+};
 
 describe('LoadingTaskPage', () => {
   beforeEach(() => {
-    clearTasksMock.mockResolvedValue();
-  });
-
-  afterEach(() => {
-    cancelTaskMock.mockReset();
-    clearTasksMock.mockReset();
-    listMock.mockReset();
-    restartMock.mockReset();
+    jest.clearAllMocks();
+    TaskResource.clearAll.mockResolvedValue();
   });
 
   it('loads the first task in the queue and starts polling', async () => {
-    listMock.mockResolvedValue([{ status: 'RUNNING' }]);
-    const { wrapper } = makeWrapper();
-    await global.flushPromises();
-    const taskPanel = wrapper.findComponent({ name: 'FacilityTaskPanel' });
-    expect(taskPanel.exists()).toBe(true);
-    expect(wrapper.vm.isPolling).toBe(true);
-    expect(wrapper.find('h1').text()).toEqual('Import learning facility');
+    TaskResource.list.mockResolvedValue([{ status: 'RUNNING' }]);
+    renderComponent();
+
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Import learning facility' })).toBeInTheDocument();
+    });
+
+
+    expect(screen.getByRole('button', { name: 'Cancel Task' })).toBeInTheDocument();
   });
 
   it.skip('when tasks succeeds, the "continue" button is available', async () => {
-    listMock.mockResolvedValue([{ status: 'COMPLETED' }]);
-    const { wrapper } = makeWrapper();
-    const continueSpy = jest.spyOn(wrapper.vm, 'handleClickContinue');
-    await global.flushPromises();
-    const buttons = wrapper.findAllComponents({ name: 'KButton' });
-    expect(buttons).toHaveLength(1);
-    const continueButton = buttons.at(0);
-    expect(continueButton.props('text')).toEqual('Continue');
-    continueButton.trigger('click');
-    expect(continueSpy).toHaveBeenCalled();
-    expect(wrapper.emitted().click_next).toBeTruthy();
-    expect(wrapper.vm.isPolling).toBe(false);
+    TaskResource.list.mockResolvedValue([{ status: 'COMPLETED' }]);
+    const { emitted } = renderComponent();
+
+
+    const continueButton = await screen.findByRole('button', { name: 'Continue' });
+    await userEvent.click(continueButton);
+
+
+    expect(emitted().click_next).toBeTruthy();
   });
 
   it.skip('when task fails, the "retry" button is available', async () => {
-    listMock.mockResolvedValue([{ status: 'FAILED' }]);
-    const { wrapper } = makeWrapper();
-    const retrySpy = jest.spyOn(wrapper.vm, 'retryImport');
+    TaskResource.list.mockResolvedValue([{ status: 'FAILED' }]);
+    renderComponent();
 
-    await global.flushPromises();
-    const buttons = wrapper.findAllComponents({ name: 'KButton' });
-    expect(buttons).toHaveLength(2);
-    const retryButton = buttons.at(0);
-    expect(retryButton.props().text).toEqual('Retry');
+    const retryButton = await screen.findByRole('button', { name: 'Retry' });
+    await userEvent.click(retryButton);
 
-    retryButton.trigger('click');
-    await global.flushPromises();
-
-    expect(retrySpy).toHaveBeenCalledTimes(1);
-    expect(restartMock).toHaveBeenCalledTimes(1);
+    expect(TaskResource.restart).toHaveBeenCalledTimes(1);
   });
 
   it.skip('when task fails, the "start over" button is available', async () => {
-    listMock.mockResolvedValue([{ status: 'FAILED' }]);
-    const { wrapper } = makeWrapper();
-    const startOverSpy = jest.spyOn(wrapper.vm, 'startOver');
+    TaskResource.list.mockResolvedValue([{ status: 'FAILED' }]);
+    const { getByRole } = renderComponent();
 
-    // Mocking the method because the router can't be mocked
-    const goToRootSpy = jest.spyOn(wrapper.vm, 'goToRootUrl').mockResolvedValue();
+    const startOverButton = await waitFor(() => getByRole('button', { name: 'Start over' }));
+    await userEvent.click(startOverButton);
 
-    await global.flushPromises();
-    const buttons = wrapper.findAllComponents({ name: 'KButton' });
-    expect(buttons).toHaveLength(2);
-    const startOverButton = buttons.at(1);
-    expect(startOverButton.props().text).toEqual('Start over');
-
-    startOverButton.trigger('click');
-    await global.flushPromises();
-
-    expect(startOverSpy).toHaveBeenCalledTimes(1);
-    expect(clearTasksMock).toHaveBeenCalledTimes(1);
-    expect(goToRootSpy).toHaveBeenCalledTimes(1);
-    expect(wrapper.vm.isPolling).toBe(false);
+    expect(TaskResource.clearAll).toHaveBeenCalledTimes(1);
   });
 
   it('a cancel request is made when "cancel" is clicked', async () => {
-    listMock.mockResolvedValue([{ status: 'RUNNING' }]);
-    const { wrapper } = makeWrapper();
-    await global.flushPromises();
-    const taskPanel = wrapper.findComponent({ name: 'FacilityTaskPanel' });
-    // Simulating a 'cancel' event rather than clicking the cancel button within
-    taskPanel.vm.$emit('cancel');
-    expect(cancelTaskMock).toHaveBeenCalledTimes(1);
+    TaskResource.list.mockResolvedValue([{ status: 'RUNNING' }]);
+    renderComponent();
+
+
+    const cancelStubButton = await screen.findByRole('button', { name: 'Cancel Task' });
+    await userEvent.click(cancelStubButton);
+
+    expect(TaskResource.cancel).toHaveBeenCalledTimes(1);
   });
 });
