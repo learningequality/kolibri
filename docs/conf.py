@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Kolibri 'developer docs' build configuration file
 #
