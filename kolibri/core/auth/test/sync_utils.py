@@ -15,6 +15,7 @@ from django.utils.functional import wraps
 from morango.models.core import DatabaseIDModel
 from requests.exceptions import RequestException
 
+from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 
@@ -179,7 +180,7 @@ class KolibriServer(object):
             roles__isnull=True, devicepermissions=None
         )[0]
         staff = FacilityUser.objects.using(self.db_alias).filter(
-            roles__isnull=True, devicepermissions=None
+            roles__kind=role_kinds.COACH, devicepermissions=None
         )[0]
 
         return facility, learner, staff
