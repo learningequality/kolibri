@@ -125,7 +125,7 @@ COMPRESSED_FILE_FOR_REGULAR_PATH = ".compressed_file_for_regular_path"
 
 class TruncatableFileEntry(FileEntry):
     def __init__(self, path, stat_cache=None):
-        super(TruncatableFileEntry, self).__init__(path, stat_cache)
+        super().__init__(path, stat_cache)
         if self.stat.st_size == 0:
             stat_path = "{}.{}".format(path, "file_size")
             if stat_cache is None or stat_path not in stat_cache:
@@ -252,7 +252,7 @@ class StreamingStaticFile(EndRangeStaticFile):
     def __init__(self, path, headers, remote_url, encodings=None, stat_cache=None):
         self.path = path
         self.remote_url = remote_url
-        super(StreamingStaticFile, self).__init__(path, headers, encodings, stat_cache)
+        super().__init__(path, headers, encodings, stat_cache)
 
     @staticmethod
     def get_file_stats(path, encodings, stat_cache):
@@ -330,7 +330,7 @@ class DynamicWhiteNoise(WhiteNoise):
             "add_headers_function": add_headers_function,
         }
         kwargs.update(whitenoise_settings)
-        super(DynamicWhiteNoise, self).__init__(application, **kwargs)
+        super().__init__(application, **kwargs)
         self.dynamic_finder = FileFinder(dynamic_locations or [])
         # Generate a regex to check if a path matches one of our dynamic
         # location prefixes
@@ -387,7 +387,7 @@ class DynamicWhiteNoise(WhiteNoise):
                     try:
                         comp_path = "{}.{}".format(path, ext)
                         stat_cache[comp_path] = os.stat(comp_path)
-                    except (IOError, OSError):
+                    except OSError:
                         pass
                 self.add_file_to_dictionary(url, path, stat_cache=stat_cache)
         elif (
@@ -414,7 +414,7 @@ class DynamicWhiteNoise(WhiteNoise):
             pass
 
     def candidate_paths_for_url(self, url):
-        paths = super(DynamicWhiteNoise, self).candidate_paths_for_url(url)
+        paths = super().candidate_paths_for_url(url)
         for path in paths:
             yield path
         path = self.get_dynamic_path(url)

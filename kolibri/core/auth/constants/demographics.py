@@ -75,9 +75,7 @@ custom_demographics_schema = {
 @deconstructible
 class UniqueIdsValidator(NoRepeatedValueJSONArrayValidator):
     def __init__(self, custom_demographics_key):
-        super(UniqueIdsValidator, self).__init__(
-            array_key=custom_demographics_key, object_key="id"
-        )
+        super().__init__(array_key=custom_demographics_key, object_key="id")
 
 
 unique_translations_validator = NoRepeatedValueJSONArrayValidator(
@@ -164,4 +162,4 @@ class FacilityUserDemographicValidator(JSON_Schema_Validator):
                 "type": "string",
                 "enum": [enum["value"] for enum in field["enumValues"]],
             }
-        super(FacilityUserDemographicValidator, self).__init__(schema)
+        super().__init__(schema)

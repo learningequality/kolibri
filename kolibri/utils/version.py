@@ -89,8 +89,7 @@ import pkgutil
 import re
 import subprocess
 import sys
-
-from .lru_cache import lru_cache
+from functools import lru_cache
 
 logger = logging.getLogger(__name__)
 
@@ -239,7 +238,7 @@ def get_version_file():
     """
     try:
         return pkgutil.get_data("kolibri", "VERSION").decode("utf-8")
-    except IOError:
+    except OSError:
         return None
 
 

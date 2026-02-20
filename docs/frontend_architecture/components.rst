@@ -10,10 +10,16 @@ Components allow us to define new custom tags that encapsulate a piece of self-c
 Read through the :doc:`./conventions` for further guidelines on writing components.
 
 
-Design system
--------------
+Component Reuse Hierarchy
+--------------------------
 
-Our `design system <https://design-system.learningequality.org/>`__ contains reusable patterns and components that should be used whenever possible to maintain UI consistency and avoid duplication of effort.
+Before creating new components, check for existing ones in this order:
+
+1. **Kolibri Design System** (``kolibri-design-system``) — Always prefer KDS components first. Browse the catalog at https://design-system.learningequality.org/
+2. **Kolibri package** (``packages/kolibri/components/``) — Core application components such as ``AuthMessage``, ``CoreTable``, ``BottomAppBar``, and ``DownloadButton``
+3. **Kolibri-Common package** (``packages/kolibri-common/components/``) — Shared components used across plugins, such as ``AccordionContainer``, ``BaseToolbar``, and ``MetadataChips``
+
+Only create a new component if none of the above provide what you need.
 
 
 SVG Icons

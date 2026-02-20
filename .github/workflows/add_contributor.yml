@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout develop branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: 'develop'
           fetch-depth: 0
@@ -50,11 +50,11 @@ jobs:
 
       - name: GitHub App token
         if: env.new_author == 'true'
-        uses: tibdex/github-app-token@v2
+        uses: actions/create-github-app-token@v2
         id: generate-token
         with:
-          app_id: ${{ secrets.LE_BOT_APP_ID }}
-          private_key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
+          app-id: ${{ secrets.LE_BOT_APP_ID }}
+          private-key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
 
       - name: Push changes to develop
         if: env.new_author == 'true'

@@ -81,7 +81,7 @@ class MEMORYSTATUSEX(ctypes.Structure):
     def __init__(self):
         # have to initialize this to the size of MEMORYSTATUSEX
         self.dwLength = ctypes.sizeof(self)
-        super(MEMORYSTATUSEX, self).__init__()
+        super().__init__()
 
 
 class FILETIME(ctypes.Structure):

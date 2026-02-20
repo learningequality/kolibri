@@ -57,7 +57,7 @@ Feature: Groups
     Then I see the *Enroll learners into '<group>'* page
       And I see a list of all learners which are not enrolled in the group
     When I select one or several learners
-    Then I the *Confirm* button becomes active
+    Then the *Confirm* button becomes active
     When I click the *Confirm* button
     Then I am back at the group details page
       And I see the list of enrolled learners

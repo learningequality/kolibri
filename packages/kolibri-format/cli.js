@@ -45,7 +45,7 @@ program
                 return lint({ file: globbedFile, write }).catch(error => {
                   logging.error(`Error processing file: ${globbedFile}`);
                   logging.error(error.error ? error.error : error);
-                  return error.code;
+                  return typeof error.code === 'number' ? error.code : 1;
                 });
               } else {
                 return Promise.resolve(0);

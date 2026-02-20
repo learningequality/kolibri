@@ -245,7 +245,7 @@ class FacilityDataset(FacilityDataSyncableModel):
 
     def save(self, *args, **kwargs):
         self.ensure_compatibility()
-        super(FacilityDataset, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def ensure_compatibility(self, *args, **kwargs):
         if self.learner_can_login_with_no_password and self.learner_can_edit_password:
@@ -349,17 +349,17 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         # by default, we'll use randomly generated source IDs; this can be overridden as desired
         return None
 
-    def clean_fields(self, *args, **kwargs):
+    def clean_fields(self, exclude=None, sync_filter=None):
         # ensure that we have, or can infer, a dataset for the model instance
         if not self.dataset_id:
             self.ensure_dataset(validating=True)
-        super(AbstractFacilityDataModel, self).clean_fields(*args, **kwargs)
+        super().clean_fields(exclude=exclude, sync_filter=sync_filter)
 
     def full_clean(self, *args, **kwargs):
         kwargs["exclude"] = kwargs.get("exclude", []) + getattr(
             self, "FIELDS_TO_EXCLUDE_FROM_VALIDATION", []
         )
-        super(AbstractFacilityDataModel, self).full_clean(*args, **kwargs)
+        super().full_clean(*args, **kwargs)
 
     def pre_save(self):
         # before saving, ensure we have a dataset, and convert any validation errors into integrity
@@ -372,7 +372,7 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
 
     def save(self, *args, **kwargs):
         self.pre_save()
-        super(AbstractFacilityDataModel, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def ensure_dataset(self, *args, **kwargs):
         """
@@ -436,7 +436,6 @@ class KolibriBaseUserMixin:
 
     is_staff = False
     is_superuser = False
-    is_facility_user = False
 
     can_manage_content = False
 
@@ -702,11 +701,6 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
     def get_queryset(self):
         return FacilityUserQuerySet(self.model, using=self._db)
 
-
-class FacilityUserModelManager(BaseFacilityUserModelManager):
-    def get_queryset(self):
-        return super().get_queryset().filter(date_deleted__isnull=True)
-
     def create_user(self, username, email=None, password=None, **extra_fields):
         """
         Creates and saves a User with the given username.
@@ -790,6 +784,11 @@ class FacilityUserModelManager(BaseFacilityUserModelManager):
             return user
 
 
+class FacilityUserModelManager(BaseFacilityUserModelManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(date_deleted__isnull=True)
+
+
 class SoftDeletedFacilityUserModelManager(BaseFacilityUserModelManager):
     """
     Custom manager for FacilityUser that only returns users who have a non-NULL value in their date_deleted field.
@@ -847,7 +846,7 @@ def validate_role_kinds(kinds):
 
 class AllObjectsFacilityUserModelManager(BaseFacilityUserModelManager):
     def get_queryset(self):
-        return super(AllObjectsFacilityUserModelManager, self).get_queryset()
+        return super().get_queryset()
 
 
 class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataModel):
@@ -892,8 +891,6 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
 
     facility = models.ForeignKey("Facility", on_delete=models.CASCADE)
 
-    is_facility_user = True
-
     gender = models.CharField(
         max_length=16, choices=GENDER_CHOICES, default="", blank=True
     )
@@ -918,13 +915,13 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         return self.full_name.split(" ", 1)[0]
 
     @classmethod
-    def deserialize(cls, dict_model):
+    def deserialize(cls, dict_model, sync_filter=None):
         # be defensive against blank passwords, set to `NOT_SPECIFIED` if blank
         password = dict_model.get("password", "") or ""
         if len(password) == 0:
             dict_model.update(password=NOT_SPECIFIED)
 
-        return super(FacilityUser, cls).deserialize(dict_model)
+        return super().deserialize(dict_model, sync_filter=sync_filter)
 
     @classmethod
     def get_is_active_q(cls, relation_prefix=""):
@@ -1207,18 +1204,18 @@ class Collection(AbstractFacilityDataModel):
     def __init__(self, *args, **kwargs):
         if self._KIND:
             kwargs["kind"] = self._KIND
-        super(Collection, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def calculate_partition(self):
         return "{dataset_id}:allusers-ro".format(dataset_id=self.dataset_id)
 
-    def clean_fields(self, *args, **kwargs):
+    def clean_fields(self, exclude=None, sync_filter=None):
         self._ensure_kind()
-        super(Collection, self).clean_fields(*args, **kwargs)
+        super().clean_fields(exclude=exclude, sync_filter=sync_filter)
 
     def save(self, *args, **kwargs):
         self._ensure_kind()
-        super(Collection, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def _ensure_kind(self):
         """
@@ -1442,7 +1439,7 @@ class Membership(AbstractFacilityDataModel):
                 raise InvalidMembershipError(
                     "Cannot create membership for a user in a LearnerGroup or AdHocGroup when they are not a member of the parent Classrooom"
                 )
-        return super(Membership, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def delete(self, **kwargs):
         with transaction.atomic():
@@ -1454,7 +1451,7 @@ class Membership(AbstractFacilityDataModel):
                 Membership.objects.filter(
                     user=self.user, collection__in=self.collection.children.all()
                 ).delete()
-            return super(Membership, self).delete(**kwargs)
+            return super().delete(**kwargs)
 
 
 class Role(AbstractFacilityDataModel):
@@ -1542,7 +1539,7 @@ class Role(AbstractFacilityDataModel):
                         collection_id=self.collection.parent_id,
                         kind=role_kinds.ASSIGNABLE_COACH,
                     )
-            return super(Role, self).save(*args, **kwargs)
+            return super().save(*args, **kwargs)
 
     def delete(self, **kwargs):
         with transaction.atomic():
@@ -1558,16 +1555,12 @@ class Role(AbstractFacilityDataModel):
                     collection__in=self.collection.children.all(),
                     kind=role_kinds.COACH,
                 ).delete()
-            return super(Role, self).delete(**kwargs)
+            return super().delete(**kwargs)
 
 
 class CollectionProxyManager(SyncableModelManager):
     def get_queryset(self):
-        return (
-            super(CollectionProxyManager, self)
-            .get_queryset()
-            .filter(kind=self.model._KIND)
-        )
+        return super().get_queryset().filter(kind=self.model._KIND)
 
 
 class Facility(Collection):
@@ -1607,13 +1600,13 @@ class Facility(Collection):
             raise IntegrityError(
                 "Facility must be the root of a collection tree, and cannot have a parent."
             )
-        super(Facility, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def ensure_dataset(self, *args, **kwargs):
         # if we're just validating, we don't want to trigger creation of a FacilityDataset
         if kwargs.get("validating"):
             return
-        super(Facility, self).ensure_dataset(*args, **kwargs)
+        super().ensure_dataset(*args, **kwargs)
 
     def infer_dataset(self, *args, **kwargs):
         # if we don't yet have a dataset, create a new one for this facility
@@ -1718,7 +1711,7 @@ class Classroom(Collection):
                 "Classroom must be the child of a Facility"
             )
 
-        super(Classroom, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def get_facility(self):
         """
@@ -1787,7 +1780,7 @@ class LearnerGroup(Collection):
             raise InvalidCollectionHierarchy(
                 "LearnerGroup must be the child of a Classroom"
             )
-        super(LearnerGroup, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def get_classroom(self):
         """
@@ -1813,7 +1806,7 @@ class LearnerGroup(Collection):
 class AdHocGroup(Collection):
     """
     An ``AdHocGroup`` is a collection kind that can be used in an assignment
-    to create a group that is specific to a single ``Lesson`` or ``Exam``.
+    to create a group that is specific to a single ``Lesson``, ``Exam`` or ``CourseSession``.
     """
 
     morango_model_name = "adhoclearnersgroup"
@@ -1827,13 +1820,13 @@ class AdHocGroup(Collection):
         proxy = True
 
     @classmethod
-    def deserialize(cls, dict_model):
+    def deserialize(cls, dict_model, sync_filter=None):
         # be defensive against blank names, set to `Ad hoc` if blank
         name = dict_model.get("name", "") or ""
         if len(name) == 0:
             dict_model.update(name="Ad hoc")
 
-        return super(AdHocGroup, cls).deserialize(dict_model)
+        return super().deserialize(dict_model, sync_filter=sync_filter)
 
     def save(self, *args, **kwargs):
         if not self.parent:
@@ -1844,7 +1837,7 @@ class AdHocGroup(Collection):
             raise InvalidCollectionHierarchy(
                 "AdHocGroup must be the child of a Classroom"
             )
-        super(AdHocGroup, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def get_classroom(self):
         """

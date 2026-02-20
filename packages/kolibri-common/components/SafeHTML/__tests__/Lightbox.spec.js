@@ -5,7 +5,6 @@ import Lightbox from '../Lightbox.vue';
 const sampleOpen = true;
 const sampleSrc = 'test_img.jpg';
 const sampleAlt = 'Test img alt text';
-const sampleStyleOverrides = { windowSizeClass: '' };
 
 const renderComponent = () => {
   return render(Lightbox, {
@@ -13,7 +12,6 @@ const renderComponent = () => {
       open: sampleOpen,
       src: sampleSrc,
       alt: sampleAlt,
-      styleOverrides: sampleStyleOverrides,
     },
   });
 };

@@ -42,7 +42,7 @@
   "ConfirmChangeFacility.changeFacilityInfoLine1": "O ti fẹ́ gbé àkọọ́lẹ̀ rẹ àti data ilọsiwaju sí ilé-ẹ̀kọ́ '{target_facility}'. Àwọn data rẹ lọ́wọ́lọ́wọ́ yóò sì tún wà fún ọ ati pé yóò tún wà ní àrọ́wọ́tó ẹ àti àwọn alábójútó ilé-ẹ̀kọ́ yìí",
   "ConfirmChangeFacility.changeFacilityInfoLine2": "Irúfẹ́ àkọọ́lẹ̀ olùmúlò rẹ yóò yípadà láti '{role}' sí 'olùkọ́' ati pé ìwọ kì yóò ní ànfààní láti ṣàkóso àwọn orísun lórí ẹ̀rọ yìí mọ́. ìwọ yóò nílò ẹnìkan tí ó ní àwọn igbaniláàyè alábójútó ní '{facility}' láti yí irú àkọọ́lẹ̀ rẹ̀ padà sí {role}",
   "ConfirmChangeFacility.changeFacilityInfoLine3": "O tún lè se àwárí àkọọ́lẹ̀ kan ní '{target_facility}' láti dàpọ̀ pẹ̀lú rẹ̀. Àwọn data ìlọsíwájú láti àwọn àkọọ́lẹ̀ méjéèjì yóò wà ní ìdàpọ̀ sínú àkọọ́lẹ̀ kan.",
-  "ConfirmMerge.confirmMergeInfoLine": "O ti fẹ́ ṣe ìdàpọ̀ àwọn àkọọọ́lẹ̀ méjì àti data ìlọsíwájú wọn. Data ìlọsíwájú pẹ̀lú àwọn ìbáraẹnisọ̀rọ̀ rẹ̀ pẹ̀lú àwọn ohun èròjà, àkókò tí o lò, àti àwọn ààmì ìtọ́ka. Èyí kò lè ṣeé tún ṣe.",
+  "ConfirmMerge.confirmMergeInfoLine": "O ti fẹ́ ṣe ìdàpọ̀ àwọn àkọọ́lẹ̀ méjì àti data ìlọsíwájú wọn. Data ìlọsíwájú pẹ̀lú àwọn ìbáraẹnisọ̀rọ̀ rẹ̀ pẹ̀lú àwọn ohun èròjà, àkókò tí o lò, àti àwọn ààmì ìtọ́ka. Èyí kò lè ṣe é tún ṣe.",
   "ConfirmMerge.consequences": "Mo lóye nípa àwọn abájáde ìṣàkójọpọ̀ àwọn àkọọ́lẹ̀",
   "CreateAccount.description": "Àkọọ́lẹ̀ titun fún '{fullName}' ní ilé ẹ̀kọ́ '{targetFacility}'",
   "CreatePassword.description": "'{targetFacility}' nílò àwọn àkọọ́lẹ̀ láti ní àwọn ọ̀rọ̀ ìgbaniwọlé. Tẹ ọ̀rọ̀ ìgbaniwọlé tí o fẹ́ láti lò fún '{username}' ni '{targetFacility}'",

@@ -5,4 +5,4 @@
 *.woff filter=lfs diff=lfs merge=lfs -text
 # use Git LFS to track large JS fixture file
 # which is a vendored modified version of a file and doesn't need to track changes
-kolibri/plugins/qti_viewer/assets/src/components/__fixtures__/items.js filter=lfs diff=lfs merge=lfs -text
+kolibri/plugins/qti_viewer/frontend/components/__fixtures__/items.js filter=lfs diff=lfs merge=lfs -text

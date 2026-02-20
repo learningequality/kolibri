@@ -77,7 +77,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       "'Edit details' changes a set of information in Kolibri.\n\nFor example, in a list of users, selecting OPTIONS > 'Edit details' allows a user to edit other users' information like their name, username or type.",
   },
   filter: {
-    message: 'filter',
+    message: 'Filter',
     context:
       'The filter functionality allows users to find elements in Kolibri more efficiently. For example, in a list of users the filter can be used to view users by permissions, user type or facility.',
   },
@@ -484,6 +484,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   searchLabel: {
     message: 'Search',
     context: 'Test used to indicate the Kolibri search field.',
+  },
+  searchByKeyword: {
+    message: 'Search by keyword',
+    context: 'Text which appears in the search field used to search for resources by keyword.',
   },
   searchForUser: {
     message: 'Search for a user...',
@@ -1164,6 +1168,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       "Error message a user sees if they've used the wrong username or password when they sign in to Kolibri.",
   },
+  defaultErrorMessage: {
+    message: 'Sorry! Something went wrong, please try again.',
+    context: 'Default error message for API errors.',
+  },
 
   // Formatting
   nameWithIdInParens: {
@@ -1632,13 +1640,17 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'Label for the deselected state of a checkbox. Not visible in the UI.',
   },
   allNOptionsSelectedLabel: {
-    message: 'All {count, number} {count, plural, one {option} other {options}} selected',
+    message: 'All options selected',
     context: 'Label for the selected state of a checkbox. Not visible in the UI.',
   },
   noOptionsSelectedLabel: {
     message: 'No options selected',
     context:
       'Label for the state of a checkbox when no options are selected. Not visible in the UI.',
+  },
+  ratioLabel: {
+    message: '{number, number}/{total, number}',
+    context: 'Label for a ratio, such as the number of completed items out of the total.',
   },
 });
 

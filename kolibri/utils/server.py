@@ -45,11 +45,6 @@ from kolibri.utils.android import on_android
 from kolibri.utils.logger import cleanup_queue_logging
 from kolibri.utils.logger import setup_queue_logging
 
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
-
 logger = logging.getLogger(__name__)
 
 # Status codes for kolibri
@@ -110,7 +105,7 @@ class NotRunning(Exception):
 
     def __init__(self, status_code):
         self.status_code = status_code
-        super(NotRunning, self).__init__()
+        super().__init__()
 
 
 class PortOccupied(OSError):
@@ -156,7 +151,7 @@ class ServerPlugin(BaseServerPlugin):
         # in the super invocation here, results in the httpserver's `bind_addr` property being set.
         address = (conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"], port)
 
-        super(ServerPlugin, self).__init__(
+        super().__init__(
             bus,
             httpserver=Server(None, self.application, **self.server_config),
             bind_addr=address,
@@ -193,7 +188,7 @@ class ServerPlugin(BaseServerPlugin):
         # Reset httpserver bind_addr. This value changes if httpserver has
         # been started before.
         self.httpserver.bind_addr = self._default_bind_addr
-        super(ServerPlugin, self).START()
+        super().START()
 
     @property
     def interface(self):
@@ -222,7 +217,7 @@ class KolibriServerPlugin(ServerPlugin):
                 "Please use `kolibri stop` and try again."
             )
             raise RunningException("There is another Kolibri server running.")
-        super(KolibriServerPlugin, self).__init__(bus, port)
+        super().__init__(bus, port)
 
     @property
     def application(self):
@@ -231,12 +226,12 @@ class KolibriServerPlugin(ServerPlugin):
         return application
 
     def ENTER(self):
-        super(KolibriServerPlugin, self).ENTER()
+        super().ENTER()
         # Clear old sessions up
         call_command("clearsessions")
 
     def START(self):
-        super(KolibriServerPlugin, self).START()
+        super().START()
         _, bind_port = self.httpserver.bind_addr
         self.bus.publish("SERVING", bind_port)
         __, urls = get_urls(listen_port=bind_port)
@@ -254,7 +249,7 @@ class ZipContentServerPlugin(ServerPlugin):
         return alt_application
 
     def START(self):
-        super(ZipContentServerPlugin, self).START()
+        super().START()
         _, bind_port = self.httpserver.bind_addr
         self.bus.publish("ZIP_SERVING", bind_port)
 
@@ -358,7 +353,7 @@ class ZeroConfPlugin(Monitor):
         self.RUN()
 
     def STOP(self):
-        super(ZeroConfPlugin, self).STOP()
+        super().STOP()
 
         if self.broadcast is not None:
             self.broadcast.stop_broadcast()
@@ -512,7 +507,7 @@ def _port_check(port):
 class DaemonizePlugin(SimplePlugin):
     def __init__(self, bus, check_ports):
         self.check_ports = check_ports
-        super(DaemonizePlugin, self).__init__(bus)
+        super().__init__(bus)
 
     def ENTER(self):
         self.bus.publish("log", "Running Kolibri as background process", 20)
@@ -569,8 +564,9 @@ class LogPlugin(SimplePlugin):
 
 class SignalHandler(BaseSignalHandler):
     def __init__(self, bus):
-        super(SignalHandler, self).__init__(bus)
+        super().__init__(bus)
         self.process_pid = None
+        self._shutting_down = False
 
         self.handlers.update(
             {
@@ -582,12 +578,12 @@ class SignalHandler(BaseSignalHandler):
 
     def _handle_signal(self, signum=None, frame=None):
         if self.process_pid is None:
-            return super(SignalHandler, self)._handle_signal(signum, frame)
+            return super()._handle_signal(signum, frame)
         if os.getpid() == self.process_pid:
-            return super(SignalHandler, self)._handle_signal(signum, frame)
+            return super()._handle_signal(signum, frame)
 
     def subscribe(self):
-        super(SignalHandler, self).subscribe()
+        super().subscribe()
         self.bus.subscribe("ENTER", self.ENTER)
 
     def ENTER(self):
@@ -595,7 +591,13 @@ class SignalHandler(BaseSignalHandler):
 
     def handle_SIGINT(self):
         """Transition to the EXITED state."""
-        self.bus.log("Keyboard interrupt caught. Exiting.")
+        if self._shutting_down:
+            self.bus.log("Shutdown already in progress, forcing exit.")
+            os._exit(0)
+        self._shutting_down = True
+        self.bus.log(
+            "Gracefully shutting down. To force exit, do keyboard interrupt again."
+        )
         self.bus.transition("EXITED")
 
 
@@ -617,7 +619,7 @@ class ProcessControlPlugin(Monitor):
             with open(PROCESS_CONTROL_FLAG, "r") as f:
                 try:
                     command = f.read().strip()
-                except (IOError, OSError):
+                except OSError:
                     # If the file does not exist, or there is
                     # an error when reading the file, we just carry on.
                     command = ""
@@ -738,7 +740,7 @@ class BaseKolibriProcessBus(ProcessBus):
         self.port = int(port)
         self.zip_port = int(zip_port)
 
-        super(BaseKolibriProcessBus, self).__init__()
+        super().__init__()
         # This can be removed when a new version of magicbus is released that
         # includes their fix for Python 3.9 compatibility.
         self.thread_wait.unsubscribe()
@@ -861,7 +863,7 @@ class BaseKolibriProcessBus(ProcessBus):
 
 class KolibriServicesProcessBus(BaseKolibriProcessBus):
     def __init__(self, *args, **kwargs):
-        super(KolibriServicesProcessBus, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Setup plugin for services
         service_plugin = ServicesPlugin(self)
@@ -894,7 +896,7 @@ class KolibriProcessBus(KolibriServicesProcessBus):
     """
 
     def __init__(self, *args, **kwargs):
-        super(KolibriProcessBus, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         kolibri_server = KolibriServerPlugin(
             self,
@@ -944,7 +946,7 @@ def signal_restart():
     try:
         with open(PROCESS_CONTROL_FLAG, "w") as f:
             f.write(RESTART)
-    except (IOError, OSError):
+    except OSError:
         return False
     return True
 
@@ -1081,7 +1083,7 @@ def get_status():  # noqa: max-complexity=16
             response = requests.get(check_url, timeout=3)
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
             raise NotRunning(STATUS_NOT_RESPONDING)
-        except (requests.exceptions.RequestException):
+        except requests.exceptions.RequestException:
             raise NotRunning(STATUS_UNCLEAN_SHUTDOWN)
 
         if response.status_code == 404:
@@ -1099,7 +1101,7 @@ def get_status():  # noqa: max-complexity=16
             requests.get(check_url, timeout=3)
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
             raise NotRunning(STATUS_NOT_RESPONDING)
-        except (requests.exceptions.RequestException):
+        except requests.exceptions.RequestException:
             return pid, "", ""
 
     return (
@@ -1171,9 +1173,7 @@ def get_installer_version(installer_type):  # noqa: C901
         if dpkg > madison, it's dpkg otherwise it's apt
         """
         try:
-            output = check_output(["dpkg", "-s", package])
-            if hasattr(output, "decode"):  # needed in python 2.x
-                output = output.decode("utf-8")
+            output = check_output(["dpkg", "-s", package], encoding="utf-8")
             package_info = output.split("\n")
             version_info = [line for line in package_info if "Version" in line]
             if version_info:

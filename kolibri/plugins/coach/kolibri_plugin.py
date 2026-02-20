@@ -1,5 +1,7 @@
 import logging
 
+from le_utils.constants import modalities
+
 from kolibri.core.auth.constants.user_kinds import COACH
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
@@ -38,6 +40,18 @@ class CoachRedirect(RoleBasedRedirectHook):
 class CoachNavItem(NavigationHook):
     bundle_id = "side_nav"
 
+    @property
+    def plugin_data(self):
+        from kolibri.core.content.models import ContentNode
+
+        courses_exist = ContentNode.objects.filter(
+            available=True, modality=modalities.COURSE
+        ).exists()
+
+        return {
+            "courses_exist": courses_exist,
+        }
+
 
 @register_hook
 class CoachAsset(webpack_hooks.WebpackBundleHook):
@@ -48,8 +62,14 @@ class CoachAsset(webpack_hooks.WebpackBundleHook):
         from kolibri.core.content.models import ContentNode
 
         practice_quizzes_exist = ContentNode.objects.filter(
-            available=True, options__contains='"modality": "QUIZ"'
+            available=True, modality=modalities.QUIZ
         ).exists()
+
+        courses_exist = ContentNode.objects.filter(
+            available=True, modality=modalities.COURSE
+        ).exists()
+
         return {
             "practice_quizzes_exist": practice_quizzes_exist,
+            "courses_exist": courses_exist,
         }

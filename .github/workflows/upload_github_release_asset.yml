@@ -15,9 +15,9 @@ jobs:
     name: Upload to Github release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Download ${{ inputs.filename }} artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: ${{ inputs.filename }}
           path: dist

@@ -13,7 +13,7 @@ MODULE_NAME = "kolibri.core.auth.sync_event_hook_utils"
 @mock.patch("kolibri.core.auth.sync_event_hook_utils.FacilityDataSyncHook")
 class FacilityDataSyncHooksTestCase(SimpleTestCase):
     def setUp(self):
-        super(FacilityDataSyncHooksTestCase, self).setUp()
+        super().setUp()
 
         class TestHook(object):
             pre_transfer = mock.Mock()

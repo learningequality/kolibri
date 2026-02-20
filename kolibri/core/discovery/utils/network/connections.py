@@ -21,9 +21,8 @@ def check_if_port_open(base_url, timeout=1):
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
             sock.settimeout(timeout)
             return sock.connect_ex((host, port)) == 0
-    except (OSError, IOError):
+    except OSError:
         # Catch any errors in trying to connect with the socket
-        # In Python 2 all socket errors are subclasses of IOError, in Python 3 of OSError
         return False
 
 

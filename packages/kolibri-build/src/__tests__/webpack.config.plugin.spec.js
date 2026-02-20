@@ -3,8 +3,7 @@ const _ = require('lodash');
 const webpackConfigPlugin = require('../webpack.config.plugin');
 
 jest.mock('../apiSpecExportTools', () => ({
-  coreAliases: () => ({}),
-  coreExternals: () => ({}),
+  getCoreExternals: () => ({}),
 }));
 
 jest.mock('kolibri-logging', () => ({

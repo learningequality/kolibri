@@ -173,7 +173,7 @@ class KolibriInstanceTestCase(SimpleTestCase):
 
 class KolibriTestInstanceListener(KolibriInstanceListener):
     def __init__(self, *args, **kwargs):
-        super(KolibriTestInstanceListener, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.mock = mock.Mock()
 
     def register_instance(self, instance):
@@ -213,7 +213,7 @@ def test_instance_listener_events(event_name):
 
 class KolibriInstanceListenerTestCase(SimpleTestCase):
     def setUp(self):
-        super(KolibriInstanceListenerTestCase, self).setUp()
+        super().setUp()
         self.instance = KolibriInstance(MOCK_ID)
         self.broadcast = mock.Mock(spec_set=KolibriBroadcast)(self.instance)
         self.events = Bus(extra_channels=ALL_EVENTS)
@@ -229,7 +229,7 @@ class KolibriInstanceListenerTestCase(SimpleTestCase):
 
 class KolibriBroadcastTestCase(SimpleTestCase):
     def setUp(self):
-        super(KolibriBroadcastTestCase, self).setUp()
+        super().setUp()
         self.instance = mock.Mock(spec_set=KolibriInstance)(
             MOCK_ID, ip=MOCK_INTERFACE_IP, port=MOCK_PORT
         )

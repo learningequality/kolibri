@@ -7,6 +7,7 @@ import json
 import logging
 import os
 import platform
+from functools import lru_cache
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -19,7 +20,6 @@ from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.content.constants.schema_versions import MIN_CONTENT_SCHEMA_VERSION
 from kolibri.utils.android import ANDROID_PLATFORM_SYSTEM_VALUE
 from kolibri.utils.android import on_android
-from kolibri.utils.lru_cache import lru_cache
 
 logger = logging.getLogger(__name__)
 
@@ -320,7 +320,7 @@ def remove_provisioning_file(file_path):
                 file_path
             )
         )
-    except (IOError, OSError):
+    except OSError:
         logger.warning(
             "Unable to remove provisioning file {} after successful provisioning".format(
                 file_path
@@ -368,7 +368,7 @@ def provision_from_file(file_path):
     try:
         with open(file_path, "r") as f:
             options = json.load(f)
-    except IOError:
+    except OSError:
         raise ValidationError("File {} could not be opened".format(file_path))
     except ValueError:
         raise ValidationError("File {} did not contain valid JSON".format(file_path))

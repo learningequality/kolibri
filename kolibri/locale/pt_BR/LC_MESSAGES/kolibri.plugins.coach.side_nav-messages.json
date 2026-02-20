@@ -4,7 +4,7 @@
   "CommonCoachStrings.afterCoachEndsQuizDescription": "Os resultados só estarão disponíveis quando o professor terminar o teste",
   "CommonCoachStrings.afterCoachEndsQuizLabel": "Quando o professor terminar o teste",
   "CommonCoachStrings.afterLearnerSubmitsQuizDescription": "Resultados disponíveis imediatamente",
-  "CommonCoachStrings.afterLearnerSubmitsQuizLabel": "Assim que o aluno finalizar e enviar o teste",
+  "CommonCoachStrings.afterLearnerSubmitsQuizLabel": "Assim que o aluno finalizar o teste",
   "CommonCoachStrings.allQuizzesLabel": "Todos os testes",
   "CommonCoachStrings.answerLogCorrectLabel": "Esta pergunta foi respondida corretamente na tentativa anterior",
   "CommonCoachStrings.answerLogImprovedLabel": "O aluno errou da última vez, mas acertou dessa vez",

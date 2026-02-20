@@ -49,17 +49,20 @@ kolibrihome_test/
 # Translations
 kolibri/locale/**/LC_MESSAGES/*.csv
 kolibri/locale/en/LC_MESSAGES/profiles/*
+kolibri/locale/.crowdin-download-marker
 
 # Mr Developer
 .mr.developer.cfg
 .project
 # vscode files
 .vscode
-# pycharm project file
-kolibri.iml
+# pycharm / jetbrains project files
+/*.iml
 .pydevproject
-.venv
-.idea
+.idea/
+.junie/
+.aiassistant/
+.aiignore
 
 # Complexity
 output/*.html
@@ -104,13 +107,11 @@ kolibri/core/content/contentschema/migrations/*
 
 # virtual environment
 venv/
+.venv/
 .python-version
 .envrc
 .env
 Pipfile
-
-# leftover from hack day - want to ensure people don't check these in
-kolibri/plugins/learn/assets/src/demo/
 
 # ignore strange OSX icon files. (Note there are special characters after 'Icon')
 # see http://stackoverflow.com/a/30755378
@@ -128,6 +129,7 @@ build_tools/crowdin-cli.jar
 # Ignore pytest cache directory
 .pytest_cache/
 .pytest_kolibri_home
+.kolibri_home
 
 # ignore source font files
 *.ttf

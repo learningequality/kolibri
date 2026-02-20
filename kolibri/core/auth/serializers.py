@@ -79,7 +79,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         read_only_fields = ("is_superuser",)
 
     def save(self, **kwargs):
-        instance = super(FacilityUserSerializer, self).save(**kwargs)
+        instance = super().save(**kwargs)
         validated_data = dict(list(self.validated_data.items()) + list(kwargs.items()))
         password = validated_data.get("password")
         if password and password != NOT_SPECIFIED:
@@ -164,7 +164,7 @@ class MembershipSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         try:
-            return super(MembershipSerializer, self).save(**kwargs)
+            return super().save(**kwargs)
         except InvalidMembershipError as e:
             raise serializers.ValidationError(str(e))
 
@@ -193,7 +193,7 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         try:
-            return super(FacilityDatasetSerializer, self).save(**kwargs)
+            return super().save(**kwargs)
         except IncompatibleDeviceSettingError as e:
             raise serializers.ValidationError(str(e))
 
@@ -268,7 +268,7 @@ class ClassroomSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         try:
-            return super(ClassroomSerializer, self).save(**kwargs)
+            return super().save(**kwargs)
         except InvalidCollectionHierarchy as e:
             raise serializers.ValidationError(str(e))
 
@@ -286,7 +286,7 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         try:
-            return super(LearnerGroupSerializer, self).save(**kwargs)
+            return super().save(**kwargs)
         except InvalidCollectionHierarchy as e:
             raise serializers.ValidationError(str(e))
 

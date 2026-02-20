@@ -1,10 +1,5 @@
 import os
 
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
-
 
 def get_path_permission(path):
     """
@@ -14,7 +9,7 @@ def get_path_permission(path):
     """
     try:
         return os.access(resolve_path(path), os.W_OK)
-    except (IOError, OSError):
+    except OSError:
         return False
 
 
@@ -26,7 +21,7 @@ def check_is_directory(path):
     """
     try:
         return os.path.exists(resolve_path(path))
-    except (IOError, OSError):
+    except OSError:
         return False
 
 
@@ -41,17 +36,5 @@ def resolve_path(path):
 
     try:
         return os.path.realpath(os.path.expanduser(path))
-    except (IOError, OSError):
+    except OSError:
         return None
-
-
-def mkdirp(path, exist_ok=False):
-    """
-    Make a directory and any missing parent directories.
-    Do this to add the exist_ok parameter to Python 2's os.makedirs.
-    """
-    try:
-        os.makedirs(path)
-    except OSError as e:
-        if e.errno != 17 or not exist_ok:
-            raise e

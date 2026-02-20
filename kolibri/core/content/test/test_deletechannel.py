@@ -89,4 +89,4 @@ class DeleteChannelTestCase(TransactionTestCase):
 
     def tearDown(self):
         call_command("flush", interactive=False)
-        super(DeleteChannelTestCase, self).tearDown()
+        super().tearDown()

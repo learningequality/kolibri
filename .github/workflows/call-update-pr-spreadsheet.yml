@@ -1,0 +1,14 @@
+name: Update community pull requests spreadsheet
+on:
+  pull_request_target:
+    types: [assigned, unassigned, opened, closed, reopened, edited, review_requested, review_request_removed]
+jobs:
+  call-workflow:
+    name: Call shared workflow
+    uses: learningequality/.github/.github/workflows/update-pr-spreadsheet.yml@main
+    secrets:
+      LE_BOT_APP_ID: ${{ secrets.LE_BOT_APP_ID }}
+      LE_BOT_PRIVATE_KEY: ${{ secrets.LE_BOT_PRIVATE_KEY }}
+      CONTRIBUTIONS_SPREADSHEET_ID: ${{ secrets.CONTRIBUTIONS_SPREADSHEET_ID }}
+      CONTRIBUTIONS_SHEET_NAME: ${{ secrets.CONTRIBUTIONS_SHEET_NAME }}
+      GH_UPLOADER_GCP_SA_CREDENTIALS: ${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}

@@ -193,7 +193,7 @@ class UnsupportedBrowserView(TemplateView):
     template_name = "kolibri/unsupported_browser.html"
 
     def get_context_data(self, **kwargs):
-        context = super(UnsupportedBrowserView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["brand_primary_v400"] = (
             ThemeHook.get_theme()
             .get("brandColors", {})

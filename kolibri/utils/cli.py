@@ -1,4 +1,5 @@
 import logging
+import os
 import signal
 import sys
 import traceback
@@ -22,6 +23,7 @@ from kolibri.plugins.utils import iterate_plugins
 from kolibri.utils import server
 from kolibri.utils.compat import module_exists
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.constants import installation_types
 from kolibri.utils.debian_check import check_debian_user
 from kolibri.utils.main import initialize
 from kolibri.utils.main import set_django_settings_and_python_path
@@ -132,7 +134,7 @@ class KolibriCommand(click.Command):
         kwargs["params"] = base_params + (
             kwargs["params"] if "params" in kwargs else []
         )
-        super(KolibriCommand, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def invoke(self, ctx):
         # Check if the current user is the kolibri user when running kolibri from Debian installer.
@@ -145,7 +147,7 @@ class KolibriCommand(click.Command):
         set_django_settings_and_python_path(None, ctx.params.get("pythonpath"))
         for param in base_params:
             ctx.params.pop(param.name)
-        return super(KolibriCommand, self).invoke(ctx)
+        return super().invoke(ctx)
 
 
 class KolibriGroupCommand(click.Group):
@@ -162,7 +164,7 @@ class KolibriGroupCommand(click.Group):
         kwargs["params"] = base_params + (
             kwargs["params"] if "params" in kwargs else []
         )
-        super(KolibriGroupCommand, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def invoke(self, ctx):
         # Check if the current user is the kolibri user when running kolibri from Debian installer.
@@ -175,7 +177,7 @@ class KolibriGroupCommand(click.Group):
         set_django_settings_and_python_path(None, ctx.params.get("pythonpath"))
         for param in base_params:
             ctx.params.pop(param.name)
-        return super(KolibriGroupCommand, self).invoke(ctx)
+        return super().invoke(ctx)
 
 
 class KolibriDjangoCommand(click.Command):
@@ -192,7 +194,7 @@ class KolibriDjangoCommand(click.Command):
         kwargs["params"] = initialize_params + (
             kwargs["params"] if "params" in kwargs else []
         )
-        super(KolibriDjangoCommand, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def invoke(self, ctx):
         try:
@@ -203,7 +205,7 @@ class KolibriDjangoCommand(click.Command):
         # Remove parameters that are not for Django management command
         for param in initialize_params:
             ctx.params.pop(param.name)
-        return super(KolibriDjangoCommand, self).invoke(ctx)
+        return super().invoke(ctx)
 
 
 main_help = """Kolibri command-line utility
@@ -390,6 +392,33 @@ def plugin():
     pass
 
 
+def generate_pex_error():
+    """
+    Format plugin error message with additional context for PEX installations.
+    """
+    if "PEX_INHERIT_PATH" in os.environ and (
+        os.environ["PEX_INHERIT_PATH"] == "fallback"
+        or os.environ["PEX_INHERIT_PATH"] == "prefer"
+    ):
+        return ""
+
+    # Add PEX-specific help if running from PEX
+    current_installation = server.installation_type()
+    if (
+        current_installation
+        and installation_types.PEX.lower() in current_installation.lower()
+    ):
+        return (
+            "\n\nYou are running Kolibri from a PEX file. "
+            "To use externally-installed plugins with PEX, you must set the "
+            "PEX_INHERIT_PATH environment variable:\n\n"
+            "    PEX_INHERIT_PATH=fallback python kolibri.pex start\n\n"
+            "This allows the PEX file to access plugins installed in the system Python path."
+        )
+
+    return ""
+
+
 @plugin.command(cls=KolibriCommand, help="Enable Kolibri plugins")
 @click.argument("plugin_names", nargs=-1)
 @click.option("-d", "--default-plugins", default=False, is_flag=True)
@@ -399,7 +428,9 @@ def enable(plugin_names, default_plugins):
     else:
         error = enable_plugins(plugin_names)
     if error:
-        exception = click.ClickException("One or more plugins could not be enabled")
+        exception = click.ClickException(
+            "One or more plugins could not be enabled" + generate_pex_error()
+        )
         exception.exit_code = 2
         raise exception
 
@@ -428,7 +459,7 @@ def apply(plugin_names):
     error = enable_plugins(plugin_names) or error
     if error:
         exception = click.ClickException(
-            "An error occurred applying the plugin configuration"
+            "An error occurred applying the plugin configuration" + generate_pex_error()
         )
         exception.exit_code = 2
         raise exception

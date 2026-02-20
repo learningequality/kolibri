@@ -8,7 +8,7 @@ import { ref } from 'vue';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
 import { HeartBeat } from '../heartbeat.js';
 import { trs } from '../internal/disconnection';
-import coreModule from '../../../kolibri/core/assets/src/state/modules/core';
+import coreModule from '../../../kolibri/core/frontend/state/modules/core';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri/utils/redirectBrowser');

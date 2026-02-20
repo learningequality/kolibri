@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "kolibri.core.deviceadmin",
     "kolibri.core.webpack",
     "kolibri.core.exams",
+    "kolibri.core.courses",
     "kolibri.core.device",
     "kolibri.core.discovery",
     "kolibri.core.lessons",
@@ -140,9 +141,12 @@ WSGI_APPLICATION = "kolibri.deployment.default.wsgi.application"
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
+    # Using custom SQLite backend that uses BEGIN IMMEDIATE transactions.
+    # Once upgraded to Django 5.2+, revert to "django.db.backends.sqlite3" and use
+    # the transaction_mode option instead.
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.sqlite3",
+            "ENGINE": "kolibri.deployment.default.db.backends.sqlite3",
             "NAME": os.path.join(
                 conf.KOLIBRI_HOME,
                 conf.OPTIONS["Database"]["DATABASE_NAME"] or "db.sqlite3",
@@ -153,7 +157,7 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
 
     for additional_db in ADDITIONAL_SQLITE_DATABASES:
         DATABASES[additional_db] = {
-            "ENGINE": "django.db.backends.sqlite3",
+            "ENGINE": "kolibri.deployment.default.db.backends.sqlite3",
             "NAME": os.path.join(conf.KOLIBRI_HOME, "{}.sqlite3".format(additional_db)),
             "OPTIONS": {"timeout": 100},
         }

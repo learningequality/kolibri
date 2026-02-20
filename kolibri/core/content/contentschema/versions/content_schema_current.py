@@ -92,6 +92,7 @@ class ContentContentnode(Base):
     learning_activities_bitmask_0 = Column(BigInteger)
     ancestors = Column(Text)
     admin_imported = Column(Boolean)
+    modality = Column(String(50), index=True)
     parent_id = Column(CHAR(32), index=True)
 
 

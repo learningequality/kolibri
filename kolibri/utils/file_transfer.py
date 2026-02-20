@@ -19,8 +19,6 @@ from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from requests.exceptions import Timeout
 
-from kolibri.utils.filesystem import mkdirp
-
 
 try:
     # Pre-empt the PanicException that importing cryptography can cause
@@ -44,11 +42,6 @@ except BaseException as e:
     if "Python API call failed" not in str(e):
         raise
     SSLERROR = requests.exceptions.SSLError
-
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
 
 
 RETRY_STATUS_CODE = {502, 503, 504, 521, 522, 523, 524}
@@ -98,18 +91,6 @@ def retry_import(e):
         return True
 
     return False
-
-
-def replace(file_path, new_file_path):
-    """
-    Do a replace type operation.
-    This is not the same as an atomic replacement, as it could result
-    in the target file being removed before the rename happens.
-    This can be removed once Python 2.7 support is dropped
-    """
-    if os.path.exists(new_file_path):
-        os.remove(new_file_path)
-    os.rename(file_path, new_file_path)
 
 
 class ChunkedFileDoesNotExist(Exception):
@@ -246,7 +227,7 @@ class ChunkedFile(TransferFileBase):
         return Cache(self.cache_dir)
 
     def _initialize(self):
-        mkdirp(self.chunk_dir, exist_ok=True)
+        os.makedirs(self.chunk_dir, exist_ok=True)
         self.cache_dir = os.path.join(self.chunk_dir, ".cache")
         self.position = 0
 
@@ -444,7 +425,7 @@ class ChunkedFile(TransferFileBase):
                 chunk_file = self._get_chunk_file_name(chunk_index)
                 with open(chunk_file, "rb") as input_file:
                     shutil.copyfileobj(input_file, output_file)
-        replace(tmp_filepath, self.filepath)
+        os.replace(tmp_filepath, self.filepath)
 
     def _get_expected_chunk_size(self, chunk_index):
         return (
@@ -549,7 +530,7 @@ class TransferFile(TransferFileBase):
 
     def ensure_writable(self):
         # ensure the directories in the destination path exist
-        mkdirp(os.path.dirname(self.filepath), exist_ok=True)
+        os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
 
     def write(self, data):
         """Write data to the transfer file."""
@@ -580,7 +561,7 @@ class TransferFile(TransferFileBase):
             self._file_obj.close()
             self._file_obj = None
         if os.path.exists(self._tmp_filepath):
-            replace(self._tmp_filepath, self.filepath)
+            os.replace(self._tmp_filepath, self.filepath)
         self._finalized = True
 
     def delete(self):
@@ -690,7 +671,7 @@ class Transfer(ABC):
             )
 
         # ensure the directories in the destination path exist
-        mkdirp(os.path.dirname(self.dest), exist_ok=True)
+        os.makedirs(os.path.dirname(self.dest), exist_ok=True)
 
     @abstractmethod
     def start(self):
@@ -816,9 +797,7 @@ class FileDownload(Transfer):
 
         self.transfer_size = None
 
-        super(FileDownload, self).__init__(
-            source, dest, checksum=checksum, cancel_check=cancel_check
-        )
+        super().__init__(source, dest, checksum=checksum, cancel_check=cancel_check)
 
         self._initialize_dest_file()
 
@@ -878,7 +857,7 @@ class FileDownload(Transfer):
     def finalize(self):
         if not self.finalize_download:
             return
-        return super(FileDownload, self).finalize()
+        return super().finalize()
 
     def _catch_exception_and_retry(func):
         def inner(self, *args, **kwargs):
@@ -1083,7 +1062,7 @@ class FileDownload(Transfer):
     def close(self):
         if hasattr(self, "response"):
             self.response.close()
-        super(FileDownload, self).close()
+        super().close()
 
 
 class FileCopy(Transfer):
@@ -1112,7 +1091,7 @@ class FileCopy(Transfer):
 
     def close(self):
         self.source_file_obj.close()
-        super(FileCopy, self).close()
+        super().close()
 
 
 class RemoteFile(ChunkedFile):
@@ -1121,7 +1100,7 @@ class RemoteFile(ChunkedFile):
     """
 
     def __init__(self, filepath, remote_url):
-        super(RemoteFile, self).__init__(filepath)
+        super().__init__(filepath)
         self.remote_url = remote_url
         self._dest_file_handle = None
         self.transfer = None
@@ -1175,14 +1154,14 @@ class RemoteFile(ChunkedFile):
         )
         if needs_download:
             self._run_transfer()
-        return super(RemoteFile, self).read(size)
+        return super().read(size)
 
     def seek(self, offset, whence=0):
         dest_file_handle = self.dest_file_handle
         if dest_file_handle:
             return dest_file_handle.seek(offset, whence)
         self.get_file_size()
-        return super(RemoteFile, self).seek(offset, whence)
+        return super().seek(offset, whence)
 
     def close(self):
         if self.transfer:

@@ -32,6 +32,7 @@ from django.db.models import OuterRef
 from django.db.models import QuerySet
 from le_utils.constants import content_kinds
 from le_utils.constants import format_presets
+from le_utils.constants import modalities
 from morango.models.fields import UUIDField
 from mptt.managers import TreeManager
 from mptt.querysets import TreeQuerySet
@@ -127,7 +128,7 @@ class ContentNodeManager(
         Ensures that this manager always returns nodes in tree order.
         """
         return (
-            super(TreeManager, self)
+            super()
             .get_queryset(*args, **kwargs)
             .order_by(self.tree_id_attr, self.left_attr)
         )
@@ -214,6 +215,10 @@ class ContentNode(base_models.ContentNode):
     # needs a subsequent Kolibri upgrade step to backfill these values.
     admin_imported = models.BooleanField(null=True)
 
+    modality = models.CharField(
+        max_length=50, blank=True, null=True, choices=modalities.choices
+    )
+
     objects = ContentNodeManager()
 
     class Meta:
@@ -221,6 +226,9 @@ class ContentNode(base_models.ContentNode):
         index_together = [
             ["level", "channel_id", "kind"],
             ["level", "channel_id", "available"],
+        ]
+        indexes = [
+            models.Index(fields=["modality"]),
         ]
 
     def __str__(self):
@@ -451,7 +459,7 @@ class ContentRequestManager(models.Manager):
         Automatically filters on the request type for use with proxy models
         :rtype: django.db.models.QuerySet
         """
-        queryset = super(ContentRequestManager, self).get_queryset()
+        queryset = super().get_queryset()
         if self.request_type is not None:
             queryset = queryset.filter(type=self.request_type)
         return queryset
@@ -499,7 +507,7 @@ class ContentRequest(models.Model):
         Save override to set type for the proxy models
         """
         self.type = getattr(self.__class__.objects, "request_type", None)
-        return super(ContentRequest, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     @classmethod
     def build_for_user(cls, user):

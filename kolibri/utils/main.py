@@ -96,7 +96,7 @@ def get_version():
         with open(version_file(), "r") as f:
             version = f.read()
         return version.strip() if version else ""
-    except IOError:
+    except OSError:
         return ""
 
 

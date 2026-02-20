@@ -127,7 +127,7 @@
           ref="searchBox"
           style="margin-bottom: 1em"
           :disabled="searchLoading"
-          :placeholder="$tr('searchByKeyword')"
+          :placeholder="coreString('searchByKeyword')"
           :value="value.keywords || ''"
           @change="val => $emit('input', { ...value, keywords: val })"
         />
@@ -175,10 +175,10 @@
   // Usage of injectBaseSearch() in this component requires ancestor's use of useBaseSearch
   // Examples of it can be found in the following components
   // (Note: useSearch extends useBaseSearch):
-  // - kolibri/plugins/learn/assets/src/views/LibraryPage/index.vue
-  //   in https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/learn/assets/src/views/LibraryPage/index.vue#L238-L251
-  // - kolibri/plugins/learn/assets/src/views/TopicsPage/index.vue
-  //   in https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/learn/assets/src/views/TopicsPage/index.vue#L366-L378
+  // - kolibri/plugins/learn/frontend/views/LibraryPage/index.vue
+  //   in https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/learn/frontend/views/LibraryPage/index.vue#L238-L251
+  // - kolibri/plugins/learn/frontend/views/TopicsPage/index.vue
+  //   in https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/learn/frontend/views/TopicsPage/index.vue#L366-L378
   //
 
   import { NoCategories } from 'kolibri/constants';
@@ -427,10 +427,6 @@
       keywords: {
         message: 'Keywords',
         context: 'Section header label in the Library page sidebar.',
-      },
-      searchByKeyword: {
-        message: 'Search by keyword',
-        context: 'Placeholder text in the search box, which is otherwise not labelled',
       },
       categories: {
         message: 'Categories',

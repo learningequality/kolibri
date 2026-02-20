@@ -67,7 +67,7 @@ In order to access a particular REST API endpoint, a Javascript Resource has to 
 
 Here, the :code:`name` property is set to :code:`'channel'` in order to match the :code:`basename` assigned to the :code:`/channel` endpoint in `api_urls.py`.
 
-If this resource is part of the core app, it can be added to a global registry of resources inside :code:`kolibri/core/assets/src/api-resources/index.js`. Otherwise, it can be imported as needed, such as in the coach reports module.
+If this resource is part of the core app, it can be added to a global registry of resources inside :code:`packages/kolibri-common/apiResources`. Otherwise, it can be imported as needed, such as in the coach reports module.
 
 Models
 ~~~~~~

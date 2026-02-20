@@ -59,7 +59,7 @@ help:
 clean: clean-build clean-pyc clean-assets clean-staticdeps
 
 clean-assets:
-	yarn run clean
+	pnpm run clean
 
 clean-build:
 	rm -f kolibri/VERSION
@@ -101,7 +101,7 @@ test-all:
 
 %-with-postgres:
 	@echo -e "\e[33mWARNING: for testing purposes only; postgresql database backend is ephemeral\e[0m"
-	@echo -e "\e[36mINFO: run 'docker-compose -v' to remove the database volume\e[0m"
+	@echo -e "\e[36mINFO: run 'docker compose -v' to remove the database volume\e[0m"
 	export KOLIBRI_DATABASE_ENGINE=postgres; \
 	export KOLIBRI_DATABASE_NAME=default; \
 	export KOLIBRI_DATABASE_USER=postgres; \
@@ -109,23 +109,23 @@ test-all:
 	export KOLIBRI_DATABASE_HOST=127.0.0.1; \
 	export KOLIBRI_DATABASE_PORT=15432; \
 	set -ex; \
-	function _on_interrupt() { docker-compose down; }; \
+	function _on_interrupt() { docker compose down; }; \
 	trap _on_interrupt SIGINT SIGTERM SIGKILL ERR; \
-	docker-compose up --detach; \
-	until docker-compose logs --tail=1 postgres | grep -q "database system is ready to accept connections"; do \
+	docker compose up --detach; \
+	until docker compose logs --tail=1 postgres | grep -q "database system is ready to accept connections"; do \
 		echo "$(date) - waiting for postgres..."; \
 		sleep 1; \
 	done; \
 	$(MAKE) -e $(subst -with-postgres,,$@); \
-	docker-compose down -v
+	docker compose down -v
 
 start-foreground:
 	kolibri start --foreground
 
 assets:
-	yarn install
-	yarn run build
-	yarn run compress
+	pnpm install
+	pnpm run build
+	pnpm run compress
 
 coverage:
 	coverage run --source kolibri setup.py test
@@ -212,12 +212,12 @@ i18n-extract-backend:
 	cd kolibri && python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*' --all
 
 i18n-extract-frontend:
-	yarn run makemessages
+	pnpm run makemessages
 
 i18n-extract: i18n-extract-frontend i18n-extract-backend
 
 i18n-transfer-context:
-	yarn transfercontext
+	pnpm transfercontext
 
 i18n-django-compilemessages:
 	# Change working directory to kolibri/ such that compilemessages
@@ -225,20 +225,29 @@ i18n-django-compilemessages:
 	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages --skip-update
 
 i18n-upload: i18n-extract
-	yarn exec crowdin upload sources -- --branch ${CROWDIN_BRANCH}
+	pnpm exec crowdin upload sources -- --branch ${CROWDIN_BRANCH}
 
 i18n-pretranslate:
-	yarn exec crowdin pre-translate -- --branch ${CROWDIN_BRANCH} --translate-untranslated-only --method=tm
+	pnpm exec crowdin pre-translate -- --branch ${CROWDIN_BRANCH} --translate-untranslated-only --method=tm
 
 i18n-pretranslate-approve-all:
-	yarn exec crowdin pre-translate -- --branch ${CROWDIN_BRANCH} --translate-untranslated-only --method=tm --auto-approve-option=all
+	pnpm exec crowdin pre-translate -- --branch ${CROWDIN_BRANCH} --translate-untranslated-only --method=tm --auto-approve-option=all
 
-i18n-download-translations:
-	yarn exec crowdin download -- --branch ${CROWDIN_BRANCH}
+i18n-download-translations: i18n-extract-frontend
+	touch kolibri/locale/.crowdin-download-marker
+	pnpm exec crowdin download -- --branch ${CROWDIN_BRANCH}
+	@if [ -z "$$(find kolibri/locale/*/LC_MESSAGES -type f \( -name '*.po' -o -name '*.csv' \) -newer kolibri/locale/.crowdin-download-marker 2>/dev/null)" ]; then \
+		echo "❌ ERROR: No translation files were downloaded - Crowdin download may have failed silently"; \
+		echo "Check the output above for errors during the download process"; \
+		rm -f kolibri/locale/.crowdin-download-marker; \
+		exit 1; \
+	fi
+	@echo "✅ Translation files downloaded successfully"
+	rm -f kolibri/locale/.crowdin-download-marker
 	python build_tools/i18n/cleanup_unsupported_languages.py
-	yarn exec kolibri-i18n code-gen -- --output-dir ./packages/kolibri/utils/internal
+	pnpm exec kolibri-tools i18n-code-gen -- --output-dir ./packages/kolibri/utils/internal
 	$(MAKE) i18n-django-compilemessages
-	yarn exec kolibri-i18n create-message-files -- --pluginFile ./build_tools/build_plugins.txt
+	pnpm exec kolibri-tools i18n-create-message-files -- --pluginFile ./build_tools/build_plugins.txt
 
 i18n-download-source-fonts:
 	python build_tools/i18n/fonts.py download-source-fonts
@@ -247,17 +256,16 @@ i18n-regenerate-fonts:
 	python build_tools/i18n/fonts.py generate-full-fonts
 	python build_tools/i18n/fonts.py generate-subset-fonts
 
-i18n-download: i18n-download-translations i18n-regenerate-fonts i18n-transfer-context
-
+i18n-download: i18n-download-translations i18n-regenerate-fonts
 
 i18n-install-font:
 	python build_tools/i18n/fonts.py add-source-font ${name}
 
 i18n-download-glossary:
-	yarn exec crowdin glossary download
+	pnpm exec crowdin glossary download
 
 i18n-upload-glossary:
-	yarn exec crowdin glossary upload
+	pnpm exec crowdin glossary upload
 
 docker-clean:
 	rm -f *.iid *.cid
@@ -269,7 +277,7 @@ docker-whl: docker-envlist docker-clean
 	docker run \
 		--env-file ./docker/env.list \
 		--cidfile docker-whl.cid \
-		-v yarn_cache:/yarn_cache \
+		-v pnpm_cache:/pnpm_cache \
 		-v cext_cache:/cext_cache \
 		`cat docker-whl.iid`
 	docker cp `cat docker-whl.cid`:/kolibri/dist/. dist/
@@ -307,7 +315,7 @@ docker-devserver: docker-envlist
 			-p 3000:3000 \
 			--env-file ./docker/env.list \
 			"learningequality/kolibridev" \
-			yarn run devserver
+			pnpm run devserver
 	echo "Check http://localhost:8000  you should have devserver running there."
 	git checkout -- ./docker/env.list  # restore env.list file
 

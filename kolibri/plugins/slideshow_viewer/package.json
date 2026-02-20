@@ -5,6 +5,12 @@
   "version": "0.0.1",
   "dependencies": {
     "hooper": "^0.3.4",
-    "object-fit-images": "^3.2.4"
+    "kolibri": "workspace:*",
+    "kolibri-common": "workspace:*",
+    "kolibri-design-system": "catalog:",
+    "kolibri-viewer": "workspace:*",
+    "lodash": "catalog:",
+    "object-fit-images": "^3.2.4",
+    "vue": "catalog:"
   }
 }

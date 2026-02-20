@@ -35,7 +35,7 @@
   "DownloadRequests.downloadStartedLabel": "Изтеглянето е заявено",
   "DownloadRequests.goToDownloadsPage": "Отиди към изтегляния",
   "DownloadRequests.resourceRemoved": "Ресурсът е премахнат от моята библиотека",
-  "PaginatedListContainerWithBackend.nextResults": "Следващи резултати",
-  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } от { numFilteredItems, number }",
-  "PaginatedListContainerWithBackend.previousResults": "Предишни резултати"
+  "PaginationActions.nextResults": "Следващи резултати",
+  "PaginationActions.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } от { numFilteredItems, number }",
+  "PaginationActions.previousResults": "Предишни резултати"
 }

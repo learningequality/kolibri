@@ -60,6 +60,7 @@ export default {
   'kolibri/utils/objectSpecs': require('kolibri/utils/objectSpecs'),
   'kolibri/utils/onboardingSteps': require('kolibri/utils/onboardingSteps'),
   'kolibri/utils/redirectBrowser': require('kolibri/utils/redirectBrowser'),
+  'kolibri/utils/sanitizeError': require('kolibri/utils/sanitizeError'),
   'kolibri/utils/scriptLoader': require('kolibri/utils/scriptLoader'),
   'kolibri/utils/serverClock': require('kolibri/utils/serverClock'),
   'kolibri/utils/validators': require('kolibri/utils/validators'),

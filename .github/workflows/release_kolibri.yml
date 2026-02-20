@@ -54,11 +54,11 @@ jobs:
   dmg:
     name: Build DMG file
     needs: whl
-    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@v0.4.4
+    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@v0.4.5
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       release: true
-      ref: v0.4.4
+      ref: v0.4.5
     secrets:
       KOLIBRI_MAC_APP_IDENTITY: ${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}
       KOLIBRI_MAC_APP_CERTIFICATE: ${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE }}
@@ -166,7 +166,7 @@ jobs:
         ]
     steps:
     - name: Download ${{ matrix.filename }} artifact
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v7
       with:
         name: ${{ matrix.filename }}
         path: dist
@@ -187,7 +187,7 @@ jobs:
     needs: [whl]
     steps:
     - name: Download WHL artifact
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v7
       with:
         name: ${{ needs.whl.outputs.whl-file-name }}
         path: dist

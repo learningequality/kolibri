@@ -1,0 +1,17 @@
+{
+    "name": "kolibri-policies-plugin",
+    "description": "Policies Plugin for Kolibri",
+    "private": true,
+    "version": "0.0.1",
+    "dependencies": {
+        "@vueuse/core": "catalog:",
+        "kolibri": "workspace:*",
+        "kolibri-app": "workspace:*",
+        "kolibri-common": "workspace:*",
+        "kolibri-design-system": "catalog:",
+        "kolibri-plugin-data": "workspace:*",
+        "lodash": "catalog:",
+        "vue": "catalog:",
+        "vuex": "catalog:"
+    }
+}

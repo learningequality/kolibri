@@ -4,19 +4,10 @@ import json
 import logging
 import os
 from collections import namedtuple
+from json import JSONDecodeError
 
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
-
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
-
-try:
-    from json import JSONDecodeError
-except ImportError:
-    JSONDecodeError = ValueError
 
 
 logger = logging.getLogger(__name__)

@@ -2,6 +2,7 @@ import hashlib
 import logging
 import re
 from base64 import urlsafe_b64decode
+from collections import defaultdict
 from collections import OrderedDict
 from functools import reduce
 from random import sample
@@ -35,6 +36,7 @@ from django_filters.rest_framework import NumberFilter
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
+from le_utils.constants import modalities
 from rest_framework import filters
 from rest_framework import mixins
 from rest_framework import status
@@ -249,12 +251,12 @@ class RemoteViewSet(ReadOnlyValuesViewset, RemoteMixin):
             raise Http404
         if self._should_proxy_request(request):
             return self._hande_proxied_request(request)
-        return super(RemoteViewSet, self).retrieve(request, pk=pk)
+        return super().retrieve(request, pk=pk)
 
     def list(self, request, *args, **kwargs):
         if self._should_proxy_request(request):
             return self._hande_proxied_request(request)
-        return super(RemoteViewSet, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
 
 class ChannelMetadataFilter(FilterSet):
@@ -282,17 +284,18 @@ class ChannelMetadataFilter(FilterSet):
         return queryset.filter(contains_exercise=True)
 
     def filter_contains_quiz(self, queryset, name, value):
-        queryset = queryset.annotate(
-            contains_quiz=Exists(
-                models.ContentNode.objects.filter(
-                    options__contains='"modality": "QUIZ"',
-                    available=True,
-                    channel_id=OuterRef("id"),
+        if value:
+            queryset = queryset.annotate(
+                contains_quiz=Exists(
+                    models.ContentNode.objects.filter(
+                        modality=modalities.QUIZ,
+                        available=True,
+                        channel_id=OuterRef("id"),
+                    )
                 )
             )
-        )
-
-        return queryset.filter(contains_quiz=True)
+            return queryset.filter(contains_quiz=True)
+        return queryset
 
     def filter_available(self, queryset, name, value):
         return queryset.filter(root__available=value)
@@ -430,9 +433,14 @@ class CharInFilter(BaseInFilter, CharFilter):
     pass
 
 
+class ChoiceInFilter(BaseInFilter, ChoiceFilter):
+    pass
+
+
 contentnode_filter_fields = [
     "parent",
     "parent__isnull",
+    "modality",
     "prerequisite_for",
     "has_prerequisite",
     "related",
@@ -470,7 +478,7 @@ class ContentNodeFilter(FilterSet):
     parent = UUIDFilter("parent")
     parent__isnull = BooleanFilter(field_name="parent", lookup_expr="isnull")
     include_coach_content = BooleanFilter(method="filter_include_coach_content")
-    contains_quiz = CharFilter(method="filter_contains_quiz")
+    contains_quiz = BooleanFilter(method="filter_contains_quiz")
     grade_levels = CharFilter(method="bitmask_contains_and")
     resource_types = CharFilter(method="bitmask_contains_and")
     learning_activities = CharFilter(method="bitmask_contains_and")
@@ -486,6 +494,9 @@ class ContentNodeFilter(FilterSet):
     authors = CharFilter(method="filter_by_authors")
     tags = CharFilter(method="filter_by_tags")
     descendant_of = UUIDFilter(method="filter_descendant_of")
+    exclude_modalities = ChoiceInFilter(
+        field_name="modality", choices=modalities.choices, exclude=True
+    )
 
     class Meta:
         model = models.ContentNode
@@ -567,10 +578,16 @@ class ContentNodeFilter(FilterSet):
 
     def filter_contains_quiz(self, queryset, name, value):
         if value:
-            quizzes = models.ContentNode.objects.filter(
-                options__contains='"modality": "QUIZ"'
-            ).get_ancestors(include_self=True)
-            return queryset.filter(pk__in=quizzes.values_list("pk", flat=True))
+            quiz_descendants = models.ContentNode.objects.filter(
+                modality=modalities.QUIZ,
+                available=True,
+                tree_id=OuterRef("tree_id"),
+                lft__gte=OuterRef("lft"),
+                rght__lte=OuterRef("rght"),
+            )
+            return queryset.alias(_has_quiz=Exists(quiz_descendants)).filter(
+                _has_quiz=True
+            )
         return queryset
 
     def filter_keywords(self, queryset, name, value):
@@ -626,6 +643,7 @@ def map_file(file):
 contentnode_previously_omitted_fields = {
     "learner_needs": [],
     "on_device_resources": None,
+    "modality": lambda resource: (resource.get("options", {}).get("modality", None)),
 }
 
 
@@ -669,6 +687,7 @@ class BaseContentNodeMixin(object):
         "categories",
         "duration",
         "ancestors",
+        "modality",
     )
 
     field_map = {
@@ -809,12 +828,7 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
                 response_data["admin_imported"] = (
                     response_data["id"] in self.locally_admin_imported_ids
                 )
-                # As we evolve the contentnode public API, we use this to backfill
-                # values so that remote responses have consistent structure
-                # regardless of the version of Kolibri exposing the endpoint.
-                for key, default_value in contentnode_previously_omitted_fields.items():
-                    if key not in response_data:
-                        response_data[key] = default_value
+                self._fill_content_previously_omitted_fields(response_data)
                 if "children" in response_data:
                     response_data["children"] = self.update_data(
                         response_data["children"], baseurl
@@ -825,6 +839,17 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
                 data.append(self.update_data(node, baseurl))
             response_data = data
         return response_data
+
+    def _fill_content_previously_omitted_fields(self, response_data):
+        # As we evolve the contentnode public API, we use this to backfill
+        # values so that remote responses have consistent structure
+        # regardless of the version of Kolibri exposing the endpoint.
+        for key, default_value in contentnode_previously_omitted_fields.items():
+            if key not in response_data:
+                if callable(default_value):
+                    response_data[key] = default_value(response_data)
+                else:
+                    response_data[key] = default_value
 
     def add_base_url_to_node(self, node, baseurl):
         baseurl_querystring = "?{}={}".format(REMOTE_URL_PARAM, baseurl)
@@ -847,9 +872,7 @@ class OptionalContentNodePagination(OptionalPagination):
     def paginate_queryset(self, queryset, request, view=None):
         # Record the queryset for use in returning available filters
         self.queryset = queryset
-        return super(OptionalContentNodePagination, self).paginate_queryset(
-            queryset, request, view=view
-        )
+        return super().paginate_queryset(queryset, request, view=view)
 
     def get_paginated_response(self, data):
         return Response(
@@ -907,7 +930,7 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
                 # Used in the update method for remote request retrieval
                 self.locally_admin_imported_ids = set()
             return self._hande_proxied_request(request)
-        return super(ContentNodeViewset, self).retrieve(request, pk=pk)
+        return super().retrieve(request, pk=pk)
 
     def list(self, request, *args, **kwargs):
         if self._should_proxy_request(request):
@@ -917,7 +940,7 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
                 queryset.filter(admin_imported=True).values_list("id", flat=True)
             )
             return self._hande_proxied_request(request)
-        return super(ContentNodeViewset, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
     @action(detail=False)
     def random(self, request, **kwargs):
@@ -942,7 +965,9 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
                         lft__lt=OuterRef("rght"),
                         kind=content_kinds.EXERCISE,
                         available=True,
-                    ).values_list(
+                    )
+                    .exclude(modality=modalities.SURVEY)
+                    .values_list(
                         "assessmentmetadata__number_of_assessments", flat=True
                     ),
                     field="number_of_assessments",
@@ -1003,27 +1028,21 @@ class TreeQueryMixin(object):
 
         return depth, next__gt
 
-    def _get_gc_by_parent(self, child_ids):
+    def _get_gc_by_parent(self, qs, child_ids):
         # Use this to keep track of how many grand children we have accumulated per child of the parent node
-        gc_by_parent = {}
+        gc_by_parent = defaultdict(list)
         # Iterate through the grand children of the parent node in lft order so we follow the tree traversal order
         for gc in (
-            self.filter_queryset(self.get_queryset())
-            .filter(parent_id__in=child_ids)
-            .values("id", "parent_id")
-            .order_by("lft")
+            qs.filter(parent_id__in=child_ids).values("id", "parent_id").order_by("lft")
         ):
-            # If we have not already added a list of nodes to the gc_by_parent map, initialize it here
-            if gc["parent_id"] not in gc_by_parent:
-                gc_by_parent[gc["parent_id"]] = []
-            gc_by_parent[gc["parent_id"]].append(gc["id"])
+            gc_by_parent.setdefault(gc["parent_id"], []).append(gc["id"])
         return gc_by_parent
 
-    def get_grandchild_ids(self, child_ids, depth, page_size):
+    def get_grandchild_ids(self, qs, child_ids, depth, page_size):
         grandchild_ids = []
         if depth == 2:
             # Use this to keep track of how many grand children we have accumulated per child of the parent node
-            gc_by_parent = self._get_gc_by_parent(child_ids)
+            gc_by_parent = self._get_gc_by_parent(qs, child_ids)
             singletons = []
             # Now loop through each of the child_ids we passed in
             # that have any children, check if any of them have only one
@@ -1037,51 +1056,42 @@ class TreeQueryMixin(object):
                 grandchild_ids.extend(gc_ids[:page_size])
             if singletons:
                 grandchild_ids.extend(
-                    self.get_grandchild_ids(singletons, depth, page_size)
+                    self.get_grandchild_ids(qs, singletons, depth, page_size)
                 )
         return grandchild_ids
 
-    def get_child_ids(self, parent_id, next__gt):
+    def get_child_ids(self, qs, parent_id, next__gt):
         # Get a list of child_ids of the parent node up to the pagination limit
-        child_qs = self.get_queryset().filter(parent_id=parent_id)
+        child_qs = qs.filter(parent_id=parent_id)
         if next__gt is not None:
             child_qs = child_qs.filter(lft__gt=next__gt)
         return child_qs.values_list("id", flat=True).order_by("lft")[0:NUM_CHILDREN]
 
     def get_tree_queryset(self, request, pk):
-        # Get the model for the parent node here - we do this so that we trigger a 404 immediately if the node
+        base_qs = self.filter_queryset(self.get_queryset())
+        # Check that the parent node exists - we do this so that we trigger a 404 immediately if the node
         # does not exist (or exists but is not available, or is filtered).
         try:
-            parent_id = (
-                pk
-                if pk
-                and self.filter_queryset(self.get_queryset()).filter(id=pk).exists()
-                else None
-            )
+            if not pk or not base_qs.filter(id=pk).exists():
+                raise Http404
         except ValueError:
-            # If the pk is a badly formed uuid, we will get a ValueError here, so we catch it and set to None
-            # so that it raises a 404 below.
-            parent_id = None
-
-        if parent_id is None:
             raise Http404
+
         depth, next__gt = self.validate_and_return_params(request)
 
-        child_ids = self.get_child_ids(parent_id, next__gt)
+        child_ids = self.get_child_ids(base_qs, pk, next__gt)
 
         ancestor_ids = []
-
         while next__gt is None and len(child_ids) == 1:
             ancestor_ids.extend(child_ids)
-            child_ids = self.get_child_ids(child_ids[0], next__gt)
+            child_ids = self.get_child_ids(base_qs, child_ids[0], next__gt)
 
-        # Get a flat list of ids for grandchildren we will be returning
-        gc_ids = self.get_grandchild_ids(child_ids, depth, NUM_GRANDCHILDREN_PER_CHILD)
-        return self.filter_queryset(self.get_queryset()).filter(
-            Q(id=parent_id)
-            | Q(id__in=ancestor_ids)
-            | Q(id__in=child_ids)
-            | Q(id__in=gc_ids)
+        gc_ids = self.get_grandchild_ids(
+            base_qs, child_ids, depth, NUM_GRANDCHILDREN_PER_CHILD
+        )
+
+        return base_qs.filter(
+            Q(id=pk) | Q(id__in=ancestor_ids) | Q(id__in=child_ids) | Q(id__in=gc_ids)
         )
 
 
@@ -1208,7 +1218,7 @@ class ContentNodeTreeViewset(BaseContentNodeTreeViewset, RemoteMixin):
                 # Used in the update method for remote request retrieval
                 self.locally_admin_imported_ids = set()
             return self._hande_proxied_request(request)
-        return super(ContentNodeTreeViewset, self).retrieve(request, pk=pk)
+        return super().retrieve(request, pk=pk)
 
 
 # return the result of and-ing a list of queries
@@ -1392,10 +1402,10 @@ class ContentNodeBookmarksViewset(
         queryset = models.ContentNode.objects.filter(
             id__in=queryset.values_list("contentnode_id", flat=True)
         )
-        return super(ContentNodeBookmarksViewset, self).serialize(queryset)
+        return super().serialize(queryset)
 
     def consolidate(self, items, queryset):
-        items = super(ContentNodeBookmarksViewset, self).consolidate(items, queryset)
+        items = super().consolidate(items, queryset)
         sorted_items = []
         if items:
             item_lookup = {item["id"]: item for item in items}
@@ -1511,7 +1521,7 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
         )
 
     def get_serializer_context(self):
-        context = super(ContentNodeGranularViewset, self).get_serializer_context()
+        context = super().get_serializer_context()
         if hasattr(self, "channel_stats"):
             context.update({"channel_stats": self.channel_stats})
         return context
@@ -1566,11 +1576,15 @@ class UserContentNodeFilter(ContentNodeFilter):
     popular = BooleanFilter(method="filter_by_popular")
 
     def filter_by_lesson(self, queryset, name, value):
-        lesson = Lesson.objects.filter(
-            lesson_assignments__collection__membership__user=self.request.user,
-            is_active=True,
-            pk=value,
-        ).first()
+        lesson = (
+            Lesson.objects.filter(
+                lesson_assignments__collection__membership__user=self.request.user,
+                is_active=True,
+                pk=value,
+            ).first()
+            if self.request.user.is_authenticated
+            else None
+        )
         if lesson is None:
             return queryset.none()
         node_ids = list(map(lambda x: x["contentnode_id"], lesson.resources))
@@ -1579,7 +1593,7 @@ class UserContentNodeFilter(ContentNodeFilter):
     def filter_by_resume(self, queryset, name, value):
         user = self.request.user
         # if user is anonymous, don't return any nodes
-        if not user.is_facility_user:
+        if user.is_anonymous:
             return queryset.none()
         # get the most recently viewed, but not finished, content nodes
         content_ids = (
@@ -1599,7 +1613,7 @@ class UserContentNodeFilter(ContentNodeFilter):
         user = self.request.user
         # if user is anonymous, don't return any nodes
         # if person requesting is not the data they are requesting for, also return no nodes
-        if not user.is_facility_user:
+        if user.is_anonymous:
             return queryset.none()
         completed_content_ids = ContentSummaryLog.objects.filter(
             user=user, progress=1
@@ -1705,7 +1719,7 @@ class UserContentNodeViewset(
         user = self.request.user
 
         queryset = models.ContentNode.objects.filter(available=True)
-        if not user.is_facility_user:
+        if user.is_anonymous:
             user = None
 
         queryset = queryset.annotate(
@@ -1753,7 +1767,7 @@ class ContentNodeProgressViewset(TreeQueryMixin, BaseValuesViewset, ListModelMix
         user = self.request.user
 
         queryset = models.ContentNode.objects.filter(available=True)
-        if not user.is_facility_user:
+        if user.is_anonymous:
             user = None
 
         queryset = queryset.annotate(

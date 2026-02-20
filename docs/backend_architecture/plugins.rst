@@ -6,6 +6,61 @@ Kolibri plugin architecture
 The behavior of Kolibri can be extended using plugins. The following is a guide
 to developing plugins.
 
+Core vs. Plugins: When to Use Each
+-----------------------------------
+
+Kolibri's architecture separates **core functionality** from **plugin-based features**. Understanding when to add code to core versus plugins is important for maintaining a clean architecture.
+
+**Core modules** (``kolibri/core/*``)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Core modules provide essential, always-available functionality that other parts of Kolibri depend on. Add code to core when:
+
+- The functionality is fundamental to Kolibri's operation (auth, content, logger, tasks)
+- It provides shared infrastructure used across multiple plugins
+- It defines base models, APIs, or utilities that plugins extend
+- It cannot be disabled without breaking Kolibri
+
+Examples of core modules:
+
+- ``kolibri.core.auth`` - User authentication and permissions
+- ``kolibri.core.content`` - Content channel and metadata management
+- ``kolibri.core.logger`` - Event logging and analytics
+- ``kolibri.core.tasks`` - Background task queue
+- ``kolibri.core.device`` - Device-level settings and management
+
+**Plugins** (``kolibri/plugins/*``)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Plugins provide specific features or user-facing functionality that can be enabled or disabled. Add code as a plugin when:
+
+- The feature can be optionally enabled/disabled by administrators
+- It provides a specific user interface or workflow (Learn, Coach, Facility)
+- It's a self-contained feature with minimal dependencies on other plugins
+- Different deployments might want different combinations of features
+
+Examples of plugins:
+
+- ``kolibri.plugins.learn`` - Learner interface for browsing and accessing content
+- ``kolibri.plugins.coach`` - Coach tools for managing classes and assignments
+- ``kolibri.plugins.facility`` - Facility management and user administration
+- ``kolibri.plugins.device`` - Device configuration interface
+
+**Decision flowchart:**
+
+1. Is this functionality required for Kolibri to operate? → **Core**
+2. Will other plugins depend on this code? → **Core** (or shared utilities)
+3. Should administrators be able to disable this feature? → **Plugin**
+4. Does this provide a specific user interface or workflow? → **Plugin**
+5. Is this extending existing core functionality? → **Plugin**
+
+**Shared utilities:**
+
+For code that needs to be reused across multiple plugins but isn't core functionality:
+
+- Backend: Consider adding to an existing core utility module if it's truly general-purpose
+- Frontend: Use the ``kolibri-common`` package to avoid expanding the core API
+
 Enabling and disabling plugins
 ------------------------------
 
@@ -43,6 +98,19 @@ Similarly, to disable the plugin the following command can be used:
 .. code-block:: bash
 
     kolibri plugin disable kolibri.plugins.example_plugin
+
+.. note::
+    **Using externally-built plugins with PEX**
+
+    When using externally-built plugins (plugins installed separately from Kolibri's core installation) with a PEX distribution of Kolibri, you must set the environment variable ``PEX_INHERIT_PATH=fallback`` to enable the PEX file to access plugins installed in the system Python path.
+
+    For example:
+
+    .. code-block:: bash
+
+        PEX_INHERIT_PATH=1 python kolibri.pex start
+
+    This allows Kolibri to discover and use plugins that were installed via ``pip install`` outside of the PEX environment.
 
 To exactly set the currently enabled plugins (disabling all other plugins, and enabling the ones specified) you can do this:
 

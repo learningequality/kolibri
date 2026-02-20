@@ -1,4 +1,3 @@
-import io
 import json
 import os
 
@@ -8,7 +7,7 @@ stopwords_path = os.path.abspath(
         os.path.dirname(__file__), os.path.pardir, "constants", "stopwords-all.json"
     )
 )
-with io.open(stopwords_path, mode="r", encoding="utf-8") as f:
+with open(stopwords_path, mode="r", encoding="utf-8") as f:
     stopwords = json.load(f)
 
 # load into a set

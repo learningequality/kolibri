@@ -1,4 +1,4 @@
 submodules
 !static/mathjax
-!assets/dist
-!assets/dist/fonts/*.ttf
+!frontend/dist
+!frontend/dist/fonts/*.ttf

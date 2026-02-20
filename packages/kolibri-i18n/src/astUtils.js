@@ -168,8 +168,8 @@ function getObjectifiedValue(nodePropertyValue) {
     // we should let the user know and just bail for now until it gets worked out
     throw new ReferenceError(
       'Trying to get the message from an object in $trs but did not find a `message` key.\n\n' +
-      'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing. Sorry.' +
-      nodePropertyValue.properties
+        'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing. Sorry.' +
+        nodePropertyValue.properties
         ? nodePropertyValue.properties[0].value.value
         : nodePropertyValue.value,
     );

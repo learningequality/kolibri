@@ -33,7 +33,7 @@ jobs:
         python-version: [3.9, '3.10', '3.11', '3.12', '3.13']
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Set up Python ${{ matrix.python-version }}
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v6
@@ -46,7 +46,7 @@ jobs:
         pip install "tox<4"
     - name: tox env cache
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
@@ -64,7 +64,7 @@ jobs:
     container:
       image: python:${{ matrix.python-version }}-buster
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Install tox
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: |
@@ -72,7 +72,7 @@ jobs:
         pip install "tox<4"
     - name: tox env cache
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
@@ -103,7 +103,7 @@ jobs:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Set up Python 3.9 for Postgres
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v6
@@ -116,7 +116,7 @@ jobs:
         pip install "tox<4"
     - name: tox env cache
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ github.workspace }}/.tox/py3.9
         key: ${{ runner.os }}-tox-py3.9-${{ hashFiles('requirements/*.txt') }}
@@ -126,14 +126,14 @@ jobs:
   macos:
     name: Python unit tests on Mac OS
     needs: pre_job
-    runs-on: macos-13
+    runs-on: macos-14
     strategy:
       max-parallel: 5
       matrix:
         python-version: ['3.10']
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Set up Python ${{ matrix.python-version }}
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v6
@@ -146,7 +146,7 @@ jobs:
         pip install "tox<4"
     - name: tox env cache
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
@@ -163,7 +163,7 @@ jobs:
         python-version: [3.8]
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Set up Python ${{ matrix.python-version }}
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v6

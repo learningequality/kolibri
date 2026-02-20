@@ -94,7 +94,7 @@ class CaptureConnectionStateTestCase(BaseTestCase):
 
 class UpdateNetworkLocationTestCase(BaseTestCase):
     def setUp(self):
-        super(UpdateNetworkLocationTestCase, self).setUp()
+        super().setUp()
         build_from_network_location_patcher = mock.patch.object(
             NetworkClient, "build_from_network_location"
         )

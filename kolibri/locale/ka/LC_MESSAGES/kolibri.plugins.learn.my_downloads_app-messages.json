@@ -35,7 +35,7 @@
   "DownloadRequests.downloadStartedLabel": "ჩამოტვირთვა მოთხოვნილია",
   "DownloadRequests.goToDownloadsPage": "ჩამოტვირთვების ნახვა",
   "DownloadRequests.resourceRemoved": "რესურსი ამოღებულია ჩემი ბიბლიოთეკიდან",
-  "PaginatedListContainerWithBackend.nextResults": "შემდეგი შედეგები",
-  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number }, { numFilteredItems, number }-დან",
-  "PaginatedListContainerWithBackend.previousResults": "წინა შედეგები"
+  "PaginationActions.nextResults": "შემდეგი შედეგები",
+  "PaginationActions.pagination": "{ visibleStartRange, number } - { visibleEndRange, number }, { numFilteredItems, number }-დან",
+  "PaginationActions.previousResults": "წინა შედეგები"
 }

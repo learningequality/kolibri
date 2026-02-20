@@ -3,10 +3,9 @@ Kolibri Webpack hooks
 ---------------------
 
 To manage assets, we use the webpack format. In order to have assets bundled in,
-you should put them in ``yourapp/assets/src``.
+you should put them in ``yourapp/frontend``.
 """
 import codecs
-import io
 import json
 import logging
 import os
@@ -158,7 +157,7 @@ class WebpackBundleHook(hooks.KolibriHook):
                 .joinpath("{plugin}_stats.json".format(plugin=self.unique_id))
                 .read_text()
             )
-        except IOError as e:
+        except OSError as e:
             raise WebpackError(
                 "Error accessing stats file '{}': {}".format(self.unique_id, e)
             )
@@ -176,7 +175,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         lang_code = get_language()
         frontend_message_file = self.frontend_message_file(lang_code)
         if frontend_message_file:
-            with io.open(frontend_message_file, mode="r", encoding="utf-8") as f:
+            with open(frontend_message_file, mode="r", encoding="utf-8") as f:
                 message_file_content = json.load(f)
             return message_file_content
 

@@ -4,6 +4,15 @@
     "private": true,
     "version": "0.0.1",
     "dependencies": {
-      "xstate": "^4.38.3"
+        "@vueuse/core": "catalog:",
+        "kolibri": "workspace:*",
+        "kolibri-app": "workspace:*",
+        "kolibri-common": "workspace:*",
+        "kolibri-design-system": "catalog:",
+        "lockr": "0.8.5",
+        "lodash": "catalog:",
+        "vue": "catalog:",
+        "vuex": "catalog:",
+        "xstate": "catalog:"
     }
 }

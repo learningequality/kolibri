@@ -1,14 +1,16 @@
+import { ref, watch, computed, getCurrentInstance } from 'vue';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import { KolibriIcons } from 'kolibri-design-system/lib/KIcon/iconDefinitions';
+import { i18nReady } from 'kolibri/utils/i18n';
 import { get } from '@vueuse/core';
 import { UserKinds, NavComponentSections } from 'kolibri/constants';
 import logger from 'kolibri-logging';
-import { computed, getCurrentInstance } from 'vue';
 import { generateNavRoute } from './internal/generateNavRoutes';
 
 const logging = logger.getLogger(__filename);
 
-export const navItems = [];
+export const navItems = ref([]);
+const _tempNavItems = [];
 
 function checkDeclared(property) {
   return typeof property !== 'undefined' && property !== null;
@@ -65,9 +67,13 @@ function validateNavItem(component) {
 }
 
 export const registerNavItem = component => {
-  if (!navItems.includes(component)) {
+  if (!i18nReady.value) {
+    _tempNavItems.push(component);
+    return;
+  }
+  if (!navItems.value.includes(component)) {
     if (validateNavItem(component)) {
-      navItems.push(component);
+      navItems.value = [...navItems.value, component];
     } else {
       logging.error('Component has invalid url, icon, role, section, or routes');
     }
@@ -76,13 +82,23 @@ export const registerNavItem = component => {
   }
 };
 
+const _watcher = watch(i18nReady, newValue => {
+  if (newValue) {
+    for (const component of _tempNavItems) {
+      registerNavItem(component);
+    }
+    _tempNavItems.length = 0;
+    _watcher();
+  }
+});
+
 export default function useNav(store) {
   store = store || getCurrentInstance().proxy.$store;
   const route = computed(() => store.state.route);
   const { windowIsSmall } = useKResponsiveWindow();
   const topBarHeight = computed(() => (get(windowIsSmall) ? 56 : 64));
   const exportedItems = computed(() =>
-    navItems.map(item => {
+    navItems.value.map(item => {
       const output = {
         ...item,
         active: window.location.pathname == item.url,

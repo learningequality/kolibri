@@ -36,7 +36,7 @@ def json_file_contents(parser, arg):
     with open(arg, "r") as f:
         try:
             return json.load(f)
-        except ValueError as e:  # Use ValueError rather than JSONDecodeError for Py2 compatibility
+        except json.JSONDecodeError as e:
             return parser.error("The file '{}' is not valid JSON:\n{}".format(arg, e))
 
 

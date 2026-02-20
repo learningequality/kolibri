@@ -204,7 +204,7 @@ def get_public_file_checksums(request, version):
             return HttpResponseBadRequest("POST body must be either json or gzip")
         try:
             checksums = json.loads(data.decode("utf-8"))
-        except ValueError:
+        except json.JSONDecodeError:
             return HttpResponseBadRequest("POST body must be valid json")
 
         checksums = [

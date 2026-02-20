@@ -12,9 +12,8 @@ Feature: Admin copies a class
     Then I see the *Copy class* modal
     	And I see a *Class name* field
     	And I see a *Copy of <class name>* text in the field
-    	And I see a *Copy all learners (N)* checkbox
-    	And I see a *Copy all coaches (N)* checkbox
-    	And both checkboxes are not selected by default
+    	And I see a selected *Copy all learners (N)* checkbox
+    	And I see an unselected *Copy all coaches (N)* checkbox
     When I enter a new class name in the *Class name* field
     	And I select both checkboxes
       And I click the *Make a copy* button
@@ -40,9 +39,8 @@ Feature: Admin copies a class
     Then I see the *Copy class* modal
     	And I see a *Class name* field
     	And I see a *Copy of <class name>* text in the field
-    	And I see a *Copy all learners (N)* checkbox
-    	And I see a *Copy all coaches (N)* checkbox
-    	And both checkboxes are not selected by default
+    	And I see a selected *Copy all learners (N)* checkbox
+    	And I see an unselected *Copy all coaches (N)* checkbox
     When I enter a new class name in the *Class name* field
     	And I select both checkboxes
       And I click the *Make a copy* button

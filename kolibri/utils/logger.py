@@ -87,7 +87,7 @@ class EncodingStreamHandler(logging.StreamHandler):
     terminator = "\n"
 
     def __init__(self, stream=None, encoding="utf-8"):
-        super(EncodingStreamHandler, self).__init__(stream)
+        super().__init__(stream)
         self.encoding = encoding
 
     def emit(self, record):
@@ -121,7 +121,7 @@ class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
     """
 
     def __init__(self, *args, **kwargs):
-        super(KolibriTimedRotatingFileHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         dirname, basename = os.path.split(self.baseFilename)
         archive_dir = os.path.join(dirname, "archive")
 
@@ -159,7 +159,7 @@ class KolibriTimedRotatingFileHandler(TimedRotatingFileHandler):
         be renamed from KOLIBRI_HOME/logs/kolibri.txt.YYYY-MM-DD to
         KOLIBRI_HOME/logs/archive/KOLIBRI-YYYY-MM-DD.txt.
         """
-        super(KolibriTimedRotatingFileHandler, self).doRollover()
+        super().doRollover()
         filenames = os.listdir(self.dirname)
         prefix = self.basename + "."
 

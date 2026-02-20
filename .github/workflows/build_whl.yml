@@ -27,39 +27,29 @@ jobs:
         echo "Acquire::Check-Valid-Until \"false\";" > /etc/apt/apt.conf.d/99archive
         apt-get -y -qq update
         apt-get install -y gettext sudo sqlite3 binutils-aarch64-linux-gnu binutils-arm-linux-gnueabihf git-lfs
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
         lfs: true
     - name: Use Node.js
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@v6
       with:
-        node-version: '20.x'
-    - name: Install Yarn
-      run: npm install -g yarn@1
-    - name: Get yarn cache directory path
-      id: yarn-cache-dir-path
-      run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-    - name: Cache Node.js modules
-      uses: actions/cache@v4
+        node-version-file: 'package.json'
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
       with:
-        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-yarn-
+        cache: true
     - name: Install Javascript dependencies
-      run: |
-        yarn --frozen-lockfile
-        npm rebuild node-sass
+      run: pnpm install --frozen-lockfile
     - name: Cache Python dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements/*.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
     - name: Cache C extensions
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: cext_cache
         key: ${{ runner.os }}-cext-${{ hashFiles('requirements/cext*.txt') }}
@@ -72,14 +62,14 @@ jobs:
     - name: Get WHL filename
       id: get-whl-filename
       run: echo "whl-file-name=$(ls dist | grep .whl | cat)" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: ${{ steps.get-whl-filename.outputs.whl-file-name }}
         path: dist/${{ steps.get-whl-filename.outputs.whl-file-name }}
     - name: Get TAR filename
       id: get-tar-filename
       run: echo "tar-file-name=$(ls dist | grep .tar | cat)" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: ${{ steps.get-tar-filename.outputs.tar-file-name }}
         path: dist/${{ steps.get-tar-filename.outputs.tar-file-name }}

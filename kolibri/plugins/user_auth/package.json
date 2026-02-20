@@ -1,0 +1,19 @@
+{
+    "name": "kolibri-user-auth-plugin",
+    "description": "User Authentication Plugin for Kolibri",
+    "private": true,
+    "version": "0.0.1",
+    "dependencies": {
+        "@vueuse/core": "catalog:",
+        "kolibri": "workspace:*",
+        "kolibri-app": "workspace:*",
+        "kolibri-common": "workspace:*",
+        "kolibri-design-system": "catalog:",
+        "kolibri-plugin-data": "workspace:*",
+        "lockr": "0.8.5",
+        "lodash": "catalog:",
+        "vue": "catalog:",
+        "vue-router": "catalog:",
+        "vuex": "catalog:"
+    }
+}

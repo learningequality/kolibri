@@ -254,7 +254,7 @@ def check_cache_path_writable(cache_path):
             f.write("check")
         os.remove(check_file)
         return cache_path
-    except (OSError, IOError):
+    except OSError:
         new_path = os.path.realpath("cext_cache")
         logger.info(
             "The cache directory {old_path} is not writable. Changing to directory {new_path}.".format(

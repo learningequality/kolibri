@@ -2,6 +2,360 @@
 
 List of the most important changes for each release.
 
+
+## 0.19.1
+
+### High level overview
+
+This release includes HTML5 Article Renderer improvements, performance optimizations including a ~25% reduction in JS bundle size, and foundational work for upcoming features. We also addressed some tech debt and continued cleaning up Python 2.7 compatibility code with great help from the community.
+
+### Added
+
+####  Content & Rendering
+  - Adds polyfill for <dialog> to ensure browser compatibility in HTML5 Article Renderer by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13951
+  - [HTML5 Article Renderer] Refactor Table Implementation by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14002
+  - Implements simple scroll progress tracking for safe html5 renderer by @akolson in https://github.com/learningequality/kolibri/pull/13983
+  - Add modality field to ContentNode by @AlexVelezLl in  https://github.com/learningequality/kolibri/pull/14042
+  - Add modality filter query param in Content API by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14058
+
+####  Courses Feature (Foundational)
+  - Add initial core courses Django app files by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/14066
+  - Add courses_exist to the coach's plugin_data by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14068
+
+####  Developer Tooling
+  - Add ESLint rule to validate translator key destructuring by @rtibbles in https://github.com/learningequality/kolibri/pull/13932
+  - LFS File pre-commit check by @rtibbles in https://github.com/learningequality/kolibri/pull/13947
+  - Add comprehensive documentation for URL namespacing by @rtibbles in https://github.com/learningequality/kolibri/pull/13863
+  - Add documentation about plugin enabling on pex by @rtibbles in https://github.com/learningequality/kolibri/pull/13948
+
+###  Developer-facing improvements
+
+####  Performance & Build
+  - Reduce JS production build size by ~25% by @rtibbles in https://github.com/learningequality/kolibri/pull/13912
+  - Update KDS to 5.5.0 by @MisRob in https://github.com/learningequality/kolibri/pull/13999
+  - Update H5P JavaScript library by @learning-equality-bot[bot] in https://github.com/learningequality/kolibri/pull/13993
+  - remove varchar_pattern_ops index by @ozer550 in https://github.com/learningequality/kolibri/pull/14076
+
+####  Tech debt / refactors
+  - Removes the paginatedListContainerWithBackend by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13871
+  - Migrate from assets/src to frontend by @rtibbles in https://github.com/learningequality/kolibri/pull/14009
+  - Update .git-blame-ignore-revs for frontend migration changes by @rtibbles in https://github.com/learningequality/kolibri/pull/14011
+
+####  Python 2.7 Cleanup
+  - Remove Python 2.7 legacy: hasattr(output, 'decode') runtime checks by @AadarshM07 in https://github.com/learningequality/kolibri/pull/13915
+  - Remove Python 2.7: Replace mkdirp() with os.makedirs() by @AadarshM07 in https://github.com/learningequality/kolibri/pull/13927
+  - Remove Python 2.7 legacy: Simplify OSError/IOError exception by @AadarshM07 in https://github.com/learningequality/kolibri/pull/13943
+  - Refactor replace replace() with os.replace() by @AadarshM07 in https://github.com/learningequality/kolibri/pull/13949
+  - Remove Python 2.7 legacy: Remove lru_cache backport by @Prashant-thakur77 in https://github.com/learningequality/kolibri/pull/13952
+  - Remove Python 2.7 legacy: Update JSONDecodeError exception handling by @Prashant-thakur77 in https://github.com/learningequality/kolibri/pull/13950
+  - Remove Python 2.7: Simple syntax and import cleanups by @AadarshM07 in https://github.com/learningequality/kolibri/pull/13955
+  - Update super calls python3 by @Prashant-thakur77 in https://github.com/learningequality/kolibri/pull/13984
+  - Remove Python 2.7 FileNotFoundError compatibility shims by @rtibbles in https://github.com/learningequality/kolibri/pull/13985
+
+### Dependencies
+* Bump the babel group with 3 updates by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13899
+* Bump launch-editor-middleware from 2.11.1 to 2.12.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13903
+* Bump peter-evans/create-pull-request from 6 to 7 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13901
+* Bump sass-loader from 16.0.5 to 16.0.6 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13902
+* Bump axios from 1.12.2 to 1.13.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13905
+* Bump dayjs from 1.11.18 to 1.11.19 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13906
+* Bump core-js from 3.46.0 to 3.47.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13918
+* Bump eslint-plugin-jest from 29.0.1 to 29.1.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13920
+* Bump @rushstack/eslint-patch from 1.14.1 to 1.15.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13921
+* Bump ini from 5.0.0 to 6.0.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13922
+* Bump autoprefixer from 10.4.21 to 10.4.22 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13923
+* Bump js-yaml from 3.14.0 to 3.14.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13916
+* Bump webpack from 5.102.1 to 5.103.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13937
+* Bump actions/checkout from 5 to 6 in the github group by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13938
+* Bump eslint-plugin-jest from 29.1.0 to 29.2.1 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13939
+* Bump html-webpack-plugin from 5.6.4 to 5.6.5 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13940
+* Bump commander from 14.0.1 to 14.0.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13941
+* Bump node-forge from 1.3.1 to 1.3.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13946
+* Bump kolibri-design-system from 5.4.0 to 5.4.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13919
+* Bump @crowdin/cli from 4.11.0 to 4.12.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13961
+* Bump prettier from 3.6.2 to 3.7.3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13962
+* Bump peter-evans/create-pull-request from 7 to 8 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13989
+* Bump prettier from 3.7.3 to 3.7.4 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13988
+* Bump katex from 0.16.25 to 0.16.27 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13987
+* Bump dompurify from 3.3.0 to 3.3.1 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13990
+* Bump css-minimizer-webpack-plugin from 7.0.2 to 7.0.3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13991
+* Bump terser-webpack-plugin from 5.3.14 to 5.3.15 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13992
+* Bump css-minimizer-webpack-plugin from 7.0.3 to 7.0.4 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/14019
+* Bump eslint-plugin-jest from 29.2.1 to 29.5.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/14018
+* Bump the github group with 3 updates by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/14014
+* Bump terser-webpack-plugin from 5.3.15 to 5.3.16 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/14012
+* Bump autoprefixer from 10.4.22 to 10.4.23 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/14015
+* Bump webpack from 5.103.0 to 5.104.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/14016
+
+
+
+## 0.19.0
+
+### High level overview
+Release 0.19.0 updates user management capabilities to make it easier for administrators to manage user accounts. The changes reduce the number of repetitive tasks required for class enrollment and unenrollment of learners, and general account management. This makes both setting up new programs and and year-over-year user management simpler and more efficient.
+
+### Added
+
+**New Feature: Bulk User Management**
+
+Administrators can now perform actions on multiple users at once, reducing the time needed to manage users at scale. Key workflows include:
+
+- **Bulk user selection and actions**: Allows admins to select multiple users and apply actions to all of them at once, including enrollment, removal from classes, and deletion
+- **Copy classes**: Admins can now copy classes of learners and coaches
+- **Learner-only device management**: Allow admins to remove learner-only devices users from a device and import them outside of the setup wizard workflow
+- **Improved user creation workflow** Admins can now enroll a user in one or more classes during user account creation
+
+<details>
+  <summary>List of supporting PRs</summary>
+
+- [WIP] Added Sorting facility to Users KTable by @BabyElias in https://github.com/learningequality/kolibri/pull/13393
+- Implement all_objects manager class in FacilityUser by @ozer550 in https://github.com/learningequality/kolibri/pull/13433
+- Bulk User Management strings by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13424
+- Selectable list by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13460
+- Implement soft delete users in bulk by @ozer550 in https://github.com/learningequality/kolibri/pull/13483
+- Bulk User: Strings fixes w/ ICU + add Class copy strings by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13466
+- Insert checkbox column in Facility > Users KTable to allow user selection by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13479
+- Improved Object Validations with New ValidateObject by @Abhishek-Punhani in https://github.com/learningequality/kolibri/pull/13301
+- Deleted facilityuser viewset by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13502
+- Update Fundamental routing & data architecture for users page by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13515
+- Manage users in LOD by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/12228
+- BUM SidePanel: Implement Enroll (learners) to classes functionality by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13544
+- Introduce copy class functionality by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13517
+- BUM: Improved user creation by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13538
+- Setup bulk user action buttons on the Facility Users page by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13513
+- Implement repeating cleanup task for hard-deleting expired soft-deleted FacilityUsers by @ozer550 in https://github.com/learningequality/kolibri/pull/13591
+- Disable class copy submission if class name is empty by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13607
+- Remove class title in favour of class name in class copy form by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13617
+- sorts class names in the dropdown menu alphabetically by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13616
+- Add user type column to csv logs export by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13624
+- [BUM] Add filters side panel by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13608
+- Implement move to trash side panel by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13600
+- BUM SidePanel: Implement remove users from classes side panel functionality by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13651
+- Add removed users page by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13650
+- Fix error when deleting a single user in UsersTable by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13655
+- BUM SidePanel: Implement Assign (coaches) to classes functionality by @ozer550 in https://github.com/learningequality/kolibri/pull/13614
+- Update copy class to include learners and move from SidePanelModal to KModal by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13665
+- Remove white spaces from formfields by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13606
+- Refactor undo actions + consistent go back and close confirmation guards by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13674
+- Fix scroll users page by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13671
+- Fix LOD user management server sync interruptions by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13695
+- Move auth methods to the useUser composable by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13704
+- Fixes the remove icon enabled when a super admin is selected by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13700
+- Resolve error when re-enrolling the same user in multiple classes by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13681
+- Fixes the deletion of super admin by admin user. by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13666
+- Uncenter dropdown options within Users Table by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13741
+- Fix users reload after soft-deleting a user by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13739
+- Update bulk action icons to need only one TAB press for keyboard navigation by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13755
+- Standarize side panels styles by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13763
+- Handle deletion of coach from the assigned classes by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13652
+- Fixes selected users clearing before an action is completed by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13701
+- Can copy (or rename or delete) on ClassEditPage as well by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13771
+- User Table Style Updates by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13743
+- Allow class search to match text anywhere in the string by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/13773
+- Remove unused modal by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13788
+- Add empty messages on classes lists by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13785
+- [Bulk User]: Handle bad-data errors w/ `handleApiError` (+ better side panel refresh handling) by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13769
+- Filter out soft deleted users from lessons, quizzes and groups by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13806
+- Prototyping User Table Design Updates by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13808
+- [Copy a class]: Use vuex getter for facility-aware redirection by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13858
+- [BUM Side Panel]: Fix hidden android side panels by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13855
+- have copy learners in copy class workflow set to true by default by @marcellamaki in https://github.com/learningequality/kolibri/pull/13864
+- Refactor UsersTableToolbar by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13862
+- Updates empty filter state messaging by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13762
+- Manually cherry-picked rebasing of @AllanOXDi 's `filtersupdate` branch #13830 by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13860
+- Fixes Bulk User Creation Failed prop console error by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13830
+- Fix CopyClassModal handle removed coaches by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13879
+- Robustly clear sessions on user deletion to cause immediate logout by @rtibbles in https://github.com/learningequality/kolibri/pull/13757
+
+</details>
+
+
+Noteworthy technical updates include upgrading to Node.js v20, upgrading to Morango for improved sync reliability, implementing SQLite transaction improvements for better performance, and adding Django-silk support for development performance profiling.
+
+Other technical additions include upgrading Morango for improved sync performance, implementing load testing framework for learner interactions, and finalizing JS package renaming and migration in the packages directory.
+
+<details>
+  <summary>List of supporting PRs</summary>
+
+- Morango upgrade and sync queue tweaks by @rtibbles in https://github.com/learningequality/kolibri/pull/13774
+- Add load testing framework for learner lesson interactions by @rtibbles in https://github.com/learningequality/kolibri/pull/13856
+- Use BEGIN IMMEDIATE for all SQLite transactions by default by @rtibbles in https://github.com/learningequality/kolibri/pull/13878
+
+</details>
+
+### Changed
+
+Code cleanup and refactoring.
+
+<details>
+  <summary>Supporting PRs</summary>
+
+- Upgrade Node.js from v18 to v20 by @rtibbles in https://github.com/learningequality/kolibri/pull/13531
+- Remove vestigial is_facility_user flag in favour of standard Django user properties by @rtibbles in https://github.com/learningequality/kolibri/pull/13857
+- Cleanup unused dependencies for kolibri-tools by @rtibbles in https://github.com/learningequality/kolibri/pull/13877
+- Complete removal of content renderer mixin. by @rtibbles in https://github.com/learningequality/kolibri/pull/13628
+- Finalize the renaming and migration of JS packages in the packages directory by @rtibbles in https://github.com/learningequality/kolibri/pull/13869
+- Unwrapped strings rule by @rtibbles in https://github.com/learningequality/kolibri/pull/13787
+
+
+</details>
+
+
+### Fixed
+
+#### Miscellaneous UX improvements and fixes
+
+<details>
+  <summary>List of supporting PRs</summary>
+
+- handles errors at editing quiz when there are no resources by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13288
+- Learn > Library - Loading state improvements by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13341
+- Ensure lesson resources load correctly across users and roles by @ozer550 in https://github.com/learningequality/kolibri/pull/13714
+- [Bugfix]: Remove breaking h1 w/ previously removed string in quiz section editor by @nucleogenesis in https://github.com/learningequality/kolibri/pull/13768
+- Console error cleanup by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13772
+- Check unusable device on user_auth plugin by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13759
+- shows error message immediately the token entered fails by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13870
+- options button remain active after selection by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13838
+- Fix createsuperuser command failing due to email parameter by @rtibbles in https://github.com/learningequality/kolibri/pull/13898
+- Fix copy pasta error in management command argument help string by @rtibbles in https://github.com/learningequality/kolibri/pull/13679
+- Fix morango integration tests by @rtibbles in https://github.com/learningequality/kolibri/pull/13930
+- Mask sensitive fields in error reports and console logging by @rtibbles in https://github.com/learningequality/kolibri/pull/13981
+- Remove component for redirect only route. by @rtibbles in https://github.com/learningequality/kolibri/pull/13980
+
+</details>
+
+### Developer-facing improvements
+
+This release includes improvements to developer tooling and documentation.
+
+<details>
+  <summary>List of supporting PRs</summary>
+
+- Remove custom issue templates and turn on issue header automation by @MisRob in https://github.com/learningequality/kolibri/pull/13480
+- Update workflow that handles contributor comments to the latest version by @MisRob in https://github.com/learningequality/kolibri/pull/13580
+- Update manage issue header workflow events by @MisRob in https://github.com/learningequality/kolibri/pull/13554
+- Remove flake8 requirements, unpin other dev dependencies for ease of use by @rtibbles in https://github.com/learningequality/kolibri/pull/13594
+- Add Python 3.9 requirement and WSL note to setup docs by @NihalShinde4933 in https://github.com/learningequality/kolibri/pull/13463
+- Update build docs by @rtibbles in https://github.com/learningequality/kolibri/pull/13789
+- Add always on support for Django-silk in development by @rtibbles in https://github.com/learningequality/kolibri/pull/13807
+- Update macOS runner versions to avoid deprecation and removal by @rtibbles in https://github.com/learningequality/kolibri/pull/13908
+- Install dependencies for message upload and download actions by @rtibbles in https://github.com/learningequality/kolibri/pull/13931
+- Update our sqlalchemy schema generation to not include constraints by @rtibbles in https://github.com/learningequality/kolibri/pull/13161
+- Unwrapped strings rule by @rtibbles in https://github.com/learningequality/kolibri/pull/13787
+- Fix regression that caused all devserver building to use hot reload by @rtibbles in https://github.com/learningequality/kolibri/pull/13945
+- Update build tools to allow building JS on Python 3.13 by @rtibbles in https://github.com/learningequality/kolibri/pull/13577
+
+</details>
+
+### Dependencies
+
+<details>
+  <summary>List of PRs</summary>
+
+- Bump eslint-plugin-jest from 28.11.1 to 28.12.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13451
+- Bump the babel group with 2 updates by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13449
+- Bump babel-jest from 29.7.0 to 30.0.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13469
+- Bump eslint-plugin-jest from 28.12.0 to 28.13.3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13473
+- Bump core-js from 3.42.0 to 3.43.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13470
+- Bump dompurify from 3.2.4 to 3.2.6 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13452
+- Bump eslint-plugin-jest from 28.13.3 to 28.14.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13496
+- Bump axios from 1.9.0 to 1.10.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13495
+- Bump kolibri-constants from 0.2.10 to 0.2.11 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13509
+- Bump enhanced-resolve from 5.18.1 to 5.18.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13506
+- Bump @babel/core from 7.27.4 to 7.27.7 in the babel group by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13525
+- Bump the babel group with 3 updates by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13540
+- Bump prettier from 3.5.3 to 3.6.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13529
+- Bump @rushstack/eslint-patch from 1.11.0 to 1.12.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13527
+- Bump eslint-plugin-jest from 28.14.0 to 29.0.1 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13510
+- Bump jest and @types/jest by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13528
+- Bump webpack from 5.99.9 to 5.100.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13569
+- Bump kolibri-constants from 0.2.11 to 0.2.12 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13570
+- Bump core-js from 3.43.0 to 3.44.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13571
+- Bump csv-parse from 5.6.0 to 6.0.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13572
+- Bump babel-jest from 30.0.0 to 30.0.4 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13573
+- Bump form-data from 4.0.0 to 4.0.4 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13581
+- Bump jest-environment-jsdom from 29.7.0 to 30.0.4 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13541
+- Bump jest from 30.0.4 to 30.0.5 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13584
+- Bump csv-parse from 6.0.0 to 6.1.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13586
+- Bump eslint-config-prettier from 10.1.5 to 10.1.8 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13588
+- Bump kolibri-design-system from 5.2.0 to 5.2.1 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13587
+- Bump babel-jest from 30.0.4 to 30.0.5 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13585
+- Bump axios from 1.10.0 to 1.11.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13589
+- Bump webpack-dev-server from 5.2.0 to 5.2.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13453
+- Bump brace-expansion from 1.1.11 to 1.1.12 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13478
+- Bump @testing-library/jest-dom from 6.6.3 to 6.6.4 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13604
+- Bump webpack from 5.100.2 to 5.101.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13603
+- Bump tmp from 0.2.3 to 0.2.4 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13622
+- Bump actions/download-artifact from 4 to 5 in the github group by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13618
+- Bump enhanced-resolve from 5.18.2 to 5.18.3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13642
+- Bump actions/checkout from 4 to 5 in the github group by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13641
+- Bump launch-editor-middleware from 2.10.0 to 2.11.1 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13643
+- Bump core-js from 3.44.0 to 3.45.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13619
+- Bump mini-css-extract-plugin from 2.9.2 to 2.9.4 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13646
+- Bump the babel group with 3 updates by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13664
+- Bump ua-parser-js from 1.0.40 to 1.0.41 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13660
+- Bump html-webpack-plugin from 5.6.3 to 5.6.4 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13659
+- Bump core-js from 3.45.0 to 3.45.1 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13677
+- Bump kolibri-design-system from 5.2.1 to 5.2.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13658
+- Bump babel-jest from 30.0.5 to 30.1.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13711
+- Bump jest-environment-jsdom from 30.0.5 to 30.1.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13705
+- Bump google-github-actions/auth from 2 to 3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13707
+- Bump google-github-actions/setup-gcloud from 2 to 3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13709
+- Bump postcss-loader from 8.1.1 to 8.2.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13706
+- Bump jest from 30.0.5 to 30.1.3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13710
+- Bump dayjs from 1.11.13 to 1.11.18 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13708
+- Bump the github group with 4 updates by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13728
+- Bump google-github-actions/upload-cloud-storage from 2 to 3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13729
+- Bump @babel/core from 7.28.3 to 7.28.4 in the babel group by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13723
+- Bump typescript from 5.8.3 to 5.9.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13725
+- Bump webpack from 5.101.0 to 5.101.3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13663
+- Bump web-streams-polyfill from 4.1.0 to 4.2.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13661
+- Bump commander from 13.1.0 to 14.0.1 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13752
+- Bump ad-m/github-push-action from 0.8.0 to 1.0.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13748
+- Bump axios from 1.11.0 to 1.12.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13749
+- Bump kolibri-design-system from 5.2.2 to 5.3.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13751
+- Bump uuid from 8.3.2 to 13.0.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13753
+- Bump dompurify from 3.2.6 to 3.2.7 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13776
+- Bump iso8601-duration from 2.1.2 to 2.1.3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13775
+- Bump jest-environment-jsdom from 30.1.2 to 30.2.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13797
+- Bump babel-jest from 30.1.2 to 30.2.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13798
+- Bump webpack from 5.101.3 to 5.102.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13800
+- Bump typescript from 5.9.2 to 5.9.3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13802
+- Bump jest from 30.1.3 to 30.2.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13801
+- Bump @testing-library/jest-dom from 6.6.4 to 6.9.1 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13815
+- Bump core-js from 3.45.1 to 3.46.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13835
+- Bump dompurify from 3.2.7 to 3.3.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13836
+- Bump katex from 0.16.22 to 0.16.25 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13831
+- Bump webpack from 5.102.0 to 5.102.1 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13814
+- Bump min-document from 2.19.0 to 2.19.1 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13881
+- Bump the github group across 1 directory with 4 updates by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13876
+- Bump the babel group with 3 updates by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13899
+- Bump launch-editor-middleware from 2.11.1 to 2.12.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13903
+- Bump peter-evans/create-pull-request from 6 to 7 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13901
+- Bump sass-loader from 16.0.5 to 16.0.6 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13902
+- Bump axios from 1.12.2 to 1.13.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13905
+- Bump dayjs from 1.11.18 to 1.11.19 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13906
+- Bump core-js from 3.46.0 to 3.47.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13918
+- Bump eslint-plugin-jest from 29.0.1 to 29.1.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13920
+- Bump @rushstack/eslint-patch from 1.14.1 to 1.15.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13921
+- Bump ini from 5.0.0 to 6.0.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13922
+- Bump autoprefixer from 10.4.21 to 10.4.22 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13923
+- Bump js-yaml from 3.14.0 to 3.14.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13916
+- Bump webpack from 5.102.1 to 5.103.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13937
+- Bump actions/checkout from 5 to 6 in the github group by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13938
+- Bump eslint-plugin-jest from 29.1.0 to 29.2.1 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13939
+- Bump html-webpack-plugin from 5.6.4 to 5.6.5 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13940
+- Bump commander from 14.0.1 to 14.0.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13941
+- Bump node-forge from 1.3.1 to 1.3.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13946
+- Bump kolibri-design-system from 5.4.0 to 5.4.2 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13919
+- Bump @crowdin/cli from 4.11.0 to 4.12.0 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13961
+- Bump prettier from 3.6.2 to 3.7.3 by @dependabot[bot] in https://github.com/learningequality/kolibri/pull/13962
+- Bump python requests to 2.27.1 to match core requirements by @bjester in https://github.com/learningequality/kolibri/pull/13917
+
+</details>
+
+
+
 ## 0.18.4
 
 This release is a hotfix to address a bug in the QTI survey functionality (feature flagged).

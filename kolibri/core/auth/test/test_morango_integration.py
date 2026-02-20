@@ -87,10 +87,12 @@ class MultipleServerTestCase(TestCase):
     A test case to do special teardown handling to prevent errors from our additional databases.
     """
 
+    databases = "__all__"
+
     @classmethod
     def _remove_databases_failures(cls):
         for alias in connections:
-            if alias in cls.databases:
+            if alias in cls.databases or cls.databases == "__all__":
                 continue
             connection = connections[alias]
             for name, _ in cls._disallowed_connection_methods:

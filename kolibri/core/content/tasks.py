@@ -73,7 +73,7 @@ class ChannelValidator(JobValidator):
     channel_name = serializers.CharField()
 
     def validate(self, data):
-        job_data = super(ChannelValidator, self).validate(data)
+        job_data = super().validate(data)
         job_data.update(
             {
                 "kwargs": {},
@@ -91,7 +91,7 @@ class ChannelResourcesValidator(ChannelValidator):
     exclude_node_ids = serializers.ListField(child=HexOnlyUUIDField(), required=False)
 
     def validate(self, data):
-        job_data = super(ChannelResourcesValidator, self).validate(data)
+        job_data = super().validate(data)
         job_data["kwargs"].update(
             {
                 "node_ids": data.get("node_ids"),
@@ -109,7 +109,7 @@ class ChannelResourcesImportValidator(ChannelResourcesValidator):
     all_thumbnails = serializers.BooleanField(default=False)
 
     def validate(self, data):
-        job_data = super(ChannelResourcesImportValidator, self).validate(data)
+        job_data = super().validate(data)
         job_data["kwargs"].update(
             {
                 "update": data.get("update"),
@@ -138,7 +138,7 @@ class LocalMixin(metaclass=serializers.SerializerMetaclass):
     drive_id = DriveIdField()
 
     def validate(self, data):
-        job_data = super(LocalMixin, self).validate(data)
+        job_data = super().validate(data)
         job_data["extra_metadata"].update(dict(drive_id=data["drive_id"]))
         job_data["args"] += [data["drive_id"]]
         return job_data
@@ -190,7 +190,7 @@ class RemoteImportMixin(metaclass=serializers.SerializerMetaclass):
     )
 
     def validate(self, data):
-        job_data = super(RemoteImportMixin, self).validate(data)
+        job_data = super().validate(data)
         peer = data.get(
             "peer",
             {
@@ -273,7 +273,7 @@ class ResourceNodeValidator(JobValidator):
     node_name = serializers.CharField()
 
     def validate(self, data):
-        job_data = super(ResourceNodeValidator, self).validate(data)
+        job_data = super().validate(data)
         job_data.update(
             {
                 "kwargs": {},
@@ -295,7 +295,7 @@ class RemoteResourceImportValidator(ResourceNodeValidator):
     )
 
     def validate(self, data):
-        job_data = super(RemoteResourceImportValidator, self).validate(data)
+        job_data = super().validate(data)
         peer = data.get(
             "peer",
             {
@@ -377,7 +377,7 @@ def enqueue_automatic_resource_import_if_needed(instance_id=None):
 
 class AutomaticDownloadValidator(JobValidator):
     def validate(self, data):
-        job_data = super(AutomaticDownloadValidator, self).validate(data)
+        job_data = super().validate(data)
         if not automatic_download_enabled():
             raise ValidationError("Automatic download is not enabled")
         return job_data
@@ -479,7 +479,7 @@ class DeleteChannelValidator(ChannelResourcesValidator):
     force_delete = serializers.BooleanField(default=False)
 
     def validate(self, data):
-        job_data = super(DeleteChannelValidator, self).validate(data)
+        job_data = super().validate(data)
         job_data["kwargs"].update(
             {
                 "force_delete": data.get("force_delete"),
@@ -617,7 +617,7 @@ def diskchannelimport(
 
 class RemoteChannelDiffStatsValidator(RemoteChannelImportValidator):
     def validate(self, data):
-        job_data = super(RemoteChannelDiffStatsValidator, self).validate(data)
+        job_data = super().validate(data)
         # get channel version metadata
         if job_data["kwargs"]["peer_id"]:
             client = NetworkClient.build_for_address(job_data["kwargs"]["baseurl"])
@@ -658,7 +658,7 @@ def remotechanneldiffstats(
 
 class LocalChannelDiffStatsValidator(LocalChannelImportValidator, LocalMixin):
     def validate(self, data):
-        job_data = super(LocalChannelDiffStatsValidator, self).validate(data)
+        job_data = super().validate(data)
         # get channel version metadata
         drive = get_mounted_drive_by_id(data["drive_id"])
         channel_metadata = read_channel_metadata_from_db_file(

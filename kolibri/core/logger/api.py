@@ -44,6 +44,7 @@ from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import dataset_cache
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.api import OptionalPageNumberPagination
+from kolibri.core.courses.models import CourseSession
 from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -66,10 +67,10 @@ logger = logging.getLogger(__name__)
 class HexStringUUIDField(serializers.UUIDField):
     def __init__(self, **kwargs):
         self.uuid_format = "hex"
-        super(HexStringUUIDField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def to_internal_value(self, data):
-        return super(HexStringUUIDField, self).to_internal_value(data).hex
+        return super().to_internal_value(data).hex
 
 
 class MasteryModelSerializer(serializers.Serializer):
@@ -85,43 +86,60 @@ class StartSessionSerializer(serializers.Serializer):
     channel_id = HexStringUUIDField(required=False)
     kind = serializers.ChoiceField(choices=content_kinds.choices, required=False)
     mastery_model = MasteryModelSerializer(required=False)
+    course_session_id = HexStringUUIDField(required=False)
     # Do this as a special way of handling our coach generated quizzes
     quiz_id = HexStringUUIDField(required=False)
     # A flag to indicate whether to start the session over again
     repeat = serializers.BooleanField(required=False, default=False)
 
     def validate(self, data):
-        if "quiz_id" in data and ("lesson_id" in data or "node_id" in data):
-            raise ValidationError("quiz_id must not be mixed with other context")
+        self._validate_required_fields(data)
+        self._validate_context_exclusivity(data)
+        self._validate_node_id_fields(data)
+        return data
+
+    def _validate_required_fields(self, data):
         if "node_id" not in data and "quiz_id" not in data:
             raise ValidationError("node_id is required if not a coach assigned quiz")
-        if "node_id" in data:
-            errors = {}
-            if "kind" not in data:
-                errors["kind"] = ValidationError("kind is required for any node_id")
-            else:
-                if (
-                    data["kind"] == content_kinds.EXERCISE
-                    and "mastery_model" not in data
-                ):
-                    errors["mastery_model"] = ValidationError(
-                        "mastery model must be specified for exercise kinds"
-                    )
-                elif data["kind"] != content_kinds.EXERCISE and "mastery_model" in data:
-                    errors["mastery_model"] = ValidationError(
-                        "mastery model must not be specified for non-exercise kinds"
-                    )
-            if "content_id" not in data:
-                errors["content_id"] = ValidationError(
-                    "content_id is required for any node_id"
-                )
-            if "channel_id" not in data:
-                errors["channel_id"] = ValidationError(
-                    "channel_id is required for any node_id"
-                )
-            if errors:
-                raise ValidationError(errors)
-        return data
+
+    def _validate_context_exclusivity(self, data):
+        if "quiz_id" in data and ("lesson_id" in data or "node_id" in data):
+            raise ValidationError("quiz_id must not be mixed with other context")
+        if "course_session_id" in data and "lesson_id" in data:
+            raise ValidationError(
+                "The course_session_id and lesson_id are mutually exclusive identifiers"
+            )
+
+    def _validate_node_id_fields(self, data):
+        if "node_id" not in data:
+            return
+        errors = {}
+        if "kind" not in data:
+            errors["kind"] = ValidationError("kind is required for any node_id")
+        else:
+            self._validate_mastery_model(data, errors)
+        if "content_id" not in data:
+            errors["content_id"] = ValidationError(
+                "content_id is required for any node_id"
+            )
+        if "channel_id" not in data:
+            errors["channel_id"] = ValidationError(
+                "channel_id is required for any node_id"
+            )
+        if errors:
+            raise ValidationError(errors)
+
+    def _validate_mastery_model(self, data, errors):
+        is_exercise = data["kind"] == content_kinds.EXERCISE
+        has_mastery_model = "mastery_model" in data
+        if is_exercise and not has_mastery_model:
+            errors["mastery_model"] = ValidationError(
+                "mastery model must be specified for exercise kinds"
+            )
+        elif not is_exercise and has_mastery_model:
+            errors["mastery_model"] = ValidationError(
+                "mastery model must not be specified for non-exercise kinds"
+            )
 
 
 class InteractionSerializer(serializers.Serializer):
@@ -191,14 +209,15 @@ class LogContext(object):
     mastery_level - represents the current 'try' at an assessment, whether an exercise
     a practice quiz or a coach assigned quiz. Different mastery_level values
     indicate a different try at the assessment.
-
+    course_session_id - represents the id of the CourseSession model object that this
+    session is regarding (if any).
     This is used to encode the values that are sent when initializing a session
     (see its use in the _get_context method below)
     and then also used to hold the values from an existing sessionlog when
     updating a session (see _update_session method).
     """
 
-    __slots__ = "node_id", "quiz_id", "lesson_id", "mastery_level"
+    __slots__ = "node_id", "quiz_id", "lesson_id", "mastery_level", "course_session_id"
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -274,10 +293,22 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         ).exists():
             raise ValidationError("Invalid lesson_id")
 
+    def _check_course_session_permissions(self, user, course_session_id):
+        if user.is_anonymous:
+            raise PermissionDenied("Cannot access a course if not logged in")
+        if not CourseSession.objects.filter(
+            assignments__collection_id__in=user.memberships.all().values(
+                "collection_id"
+            ),
+            id=course_session_id,
+        ).exists():
+            raise ValidationError("Invalid course_session_id")
+
     def _get_context(self, user, validated_data):
         node_id = validated_data.get("node_id")
         quiz_id = validated_data.get("quiz_id")
         lesson_id = validated_data.get("lesson_id")
+        course_session_id = validated_data.get("course_session_id")
 
         context = LogContext()
 
@@ -290,6 +321,9 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             if lesson_id:
                 self._check_lesson_permissions(user, lesson_id)
                 context["lesson_id"] = lesson_id
+            if course_session_id:
+                self._check_course_session_permissions(user, course_session_id)
+                context["course_session_id"] = course_session_id
         elif quiz_id is not None:
             self._check_quiz_permissions(user, quiz_id)
             mastery_model = {"type": exercises.QUIZ, "coach_assigned": True}

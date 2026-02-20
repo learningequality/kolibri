@@ -28,7 +28,7 @@ from kolibri.core.utils.cache import process_cache
 
 class DeviceChannelMetadataSerializer(ChannelMetadataSerializer):
     def to_representation(self, instance):
-        value = super(ChannelMetadataSerializer, self).to_representation(instance)
+        value = super().to_representation(instance)
 
         # if the request includes a GET param 'include_fields', add the requested calculated fields
         if "request" in self.context:

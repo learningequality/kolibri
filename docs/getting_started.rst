@@ -162,25 +162,25 @@ To install Kolibri project-specific dependencies make sure you're in the ``kolib
 
 Note that the ``--upgrade`` flags above can usually be omitted to speed up the process.
 
-Install Node.js, Yarn and other dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Install Node.js, pnpm and other dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. Install `Node.js <https://nodejs.org/en/download/>`__ (version 20.x is required)
-#. Install `Yarn <https://yarnpkg.com/>`__
+#. Install `pnpm <https://pnpm.io/>`__
 #. Install non-python project-specific dependencies
 
 For a more detailed guide to using nodeenv see :doc:`/howtos/nodeenv`.
 
-The Python project-specific dependencies installed above will install ``nodeenv``, which is a useful tool for using specific versions of Node.js and other Node.js tools in Python environments. To setup Node.js and Yarn within the Kolibri project environment, ensure your Python virtual environment is active, then run:
+The Python project-specific dependencies installed above will install ``nodeenv``, which is a useful tool for using specific versions of Node.js and other Node.js tools in Python environments. To setup Node.js and pnpm within the Kolibri project environment, ensure your Python virtual environment is active, then run:
 
 .. code-block:: bash
 
-  # node.js, npm, and yarn
+  # node.js, npm, and pnpm
   nodeenv -p --node=18.20.7
-  npm install -g yarn
+  npm install -g pnpm
 
   # other required project dependencies
-  yarn install
+  pnpm install
 
 
 Database setup
@@ -206,7 +206,7 @@ To start up the development server and build the client-side dependencies, use t
 
 .. code-block:: bash
 
-  yarn run devserver
+  pnpm run devserver
 
 This will take some time to build the front-end assets, after which you should be able to access the server at ``http://127.0.0.1:8000/``.
 
@@ -214,7 +214,7 @@ Alternatively, you can run the devserver with `hot reload <https://vue-loader.vu
 
 .. code-block:: bash
 
-  yarn run devserver-hot
+  pnpm run devserver-hot
 
 .. tip::
 
@@ -222,13 +222,13 @@ Alternatively, you can run the devserver with `hot reload <https://vue-loader.vu
 
   .. code-block:: bash
 
-    yarn run devserver-hot learn
+    pnpm run devserver-hot learn
 
   Would build all assets that are not currently built, and run a devserver only watching the Learn plugin.
 
   .. code-block:: bash
 
-    yarn run devserver core,learn
+    pnpm run devserver core,learn
 
   Would run the devserver not in hot mode, and rebuild the core Kolibri assets and the Learn plugin.
 
@@ -252,7 +252,7 @@ In production, content is served through `Whitenoise <http://whitenoise.evans.io
 .. code-block:: bash
 
   # first build the assets
-  yarn run build
+  pnpm run build
 
   # now, run the Django production server
   kolibri start
@@ -275,22 +275,22 @@ If you are working mainly on backend code, you can build the front-end assets on
 .. code-block:: bash
 
   # first build the front-end assets
-  yarn run build
+  pnpm run build
 
   # now, run the Django devserver
-  yarn run python-devserver
+  pnpm run python-devserver
 
 You can also run the Django development server and webpack devserver independently in separate terminal windows. In the first terminal you can start the django development server:
 
 .. code-block:: bash
 
-  yarn run python-devserver
+  pnpm run python-devserver
 
 and in the second terminal, start the webpack build process for frontend assets:
 
 .. code-block:: bash
 
-  yarn run frontend-devserver
+  pnpm run frontend-devserver
 
 
 Running in App Mode
@@ -301,11 +301,11 @@ Some of Kolibri's functionality will differ when being run as a mobile app. In o
 .. code-block:: bash
 
    # run the Python "app mode" server and the frontend server together:
-   yarn run app-devserver
+   pnpm run app-devserver
 
    # you may also run the python "app mode" server by itself
    # this will require you to run the frontend server in a separate terminal
-   yarn run app-python-devserver
+   pnpm run app-python-devserver
 
 This will run the script located at ``integration_testing/scripts/run_kolibri_app_mode.py``. There you may change the port, register app capabilities (ie, ``os_user``) and make adjustments to meet your needs.
 
@@ -360,13 +360,13 @@ You can manually run the auto-formatters for the frontend using:
 
 .. code-block:: bash
 
-  yarn run lint-frontend:format
+  pnpm run lint-frontend:format
 
 Or to check the formatting without writing changes, run:
 
 .. code-block:: bash
 
-  yarn run lint-frontend
+  pnpm run lint-frontend
 
 The linting and formatting for the backend is handled using ``pre-commit`` below.
 
@@ -374,7 +374,7 @@ The linting and formatting for the backend is handled using ``pre-commit`` below
 Pre-commit hooks
 ~~~~~~~~~~~~~~~~
 
-A full set of linting and auto-formatting can also be applied by pre-commit hooks. The pre-commit hooks are identical to the automated build check by Travis CI in Pull Requests.
+**It is strongly recommended to use pre-commit hooks** to ensure code quality and consistency before committing. The pre-commit hooks are identical to the automated build checks run by CI in Pull Requests, so using them locally will help you catch issues early.
 
 `pre-commit <http://pre-commit.com/>`__ is used to apply a full set of checks and formatting automatically each time that ``git commit`` runs. If there are errors, the Git commit is aborted and you are asked to fix the error and run ``git commit`` again.
 
@@ -384,17 +384,38 @@ Pre-commit is already installed as a development dependency, but you also need t
 
   pre-commit install
 
+.. important::
+  **Always run this command after cloning the repository** to enable pre-commit hooks for your local development environment.
+
 To run all pre-commit checks in the same way that they will be run on our Github CI servers, run:
 
 .. code-block:: bash
 
   pre-commit run --all-files
 
+This is particularly useful to run before creating a pull request to ensure all files pass checks.
+
 .. tip:: As a convenience, many developers install linting and formatting plugins in their code editor (IDE). Installing ESLint, Prettier, Black, and Flake8 plugins in your editor will catch most (but not all) code-quality checks.
 
 .. tip:: Pre-commit can have issues running from alternative Git clients like GitUp. If you encounter problems while committing changes, run ``pre-commit uninstall`` to disable pre-commit.
 
-.. warning:: If you do not use any linting tools, your code is likely fail our server-side checks and you will need to update the PR in order to get it merged.
+.. warning:: If you do not use pre-commit or other linting tools, your code will likely fail our server-side checks and you will need to update the PR in order to get it merged.
+
+Recommended workflow with pre-commit
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1. Make code changes
+2. Stage your changes: ``git add <files>``
+3. Attempt commit: ``git commit -m "Your message"``
+4. If pre-commit finds issues:
+
+   - Review the errors and warnings
+   - Many formatting issues will be auto-fixed - just review and re-stage the changes
+   - Fix any remaining issues manually
+   - Stage the fixes: ``git add <files>``
+   - Retry the commit: ``git commit -m "Your message"``
+
+5. Once all checks pass, your commit will succeed
 
 
 Design system
@@ -437,7 +458,7 @@ Kolibri comes with a Javascript test suite based on `Jest <https://jestjs.io/>`_
 
 .. code-block:: bash
 
-  yarn run test
+  pnpm run test
 
 Kolibri comes with a Python test suite based on `pytest <https://docs.pytest.org/en/latest/>`__. To run all back-end tests:
 

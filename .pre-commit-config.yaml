@@ -1,11 +1,13 @@
-exclude: (\.git/|\.tox/|\.venv/|build/|static/|dist/|node_modules/|kolibripip\.pex)
+exclude: (\.git/|\.tox/|\.venv/|build/|static/(?!assets/fonts)|dist/|node_modules/|kolibripip\.pex)
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
     -   id: trailing-whitespace
     -   id: check-yaml
+        exclude: '^pnpm-lock\.yaml$'
     -   id: check-added-large-files
+        exclude: '^pnpm-lock\.yaml$'
     -   id: debug-statements
     -   id: end-of-file-fixer
         exclude: '^.+?(\.json|\.po)$'
@@ -26,18 +28,19 @@ repos:
     -   id: lint-frontend
         name: Linting of JS, Vue, SCSS and CSS files
         description: This hook handles all frontend linting for Kolibri
-        entry: yarn run lint-frontend:format
+        entry: pnpm run lint-frontend:format
         language: system
         files: \.(js|vue|scss|css)$
-        exclude: ^kolibri/plugins/qti_viewer/assets/src/components/__fixtures__/items\.js
+        exclude: (?x)^(kolibri/plugins/qti_viewer/frontend/components/__fixtures__/items\.js|packages/eslint-plugin-kolibri/tests/lib/rules/fixtures/malformed\.js)
 -   repo: local
     hooks:
     -   id: core-js-api
         name: Rebuild kolibri package
         description: Rebuilds kolibri package on changes to core js api
-        entry: node ./packages/build_kolibri_package.js
+        entry: pnpm exec node ./packages/build_kolibri_package.js
         language: system
         files: ^packages/kolibri/.*\.(js|vue)$
+        require_serial: true
 - repo: local
   hooks:
   - id: no-auto-migrations
@@ -90,6 +93,11 @@ repos:
     language: pygrep
     exclude: (^packages/kolibri-common/|moduleMapping\.js|(__tests__|__fixtures__))
     files: ^packages/.*\.(js|vue)$
+  - id: check-lfs-pointers
+    name: Check LFS files are pointers not binary data
+    description: Prevents accidentally committing binary files that should be LFS pointers (issue #7099)
+    entry: python .pre-commit-hooks/check_lfs_pointers.py
+    language: system
 -   repo: https://github.com/isidentical/teyit
     rev: 0.4.3
     hooks:

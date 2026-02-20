@@ -1,6 +1,11 @@
 var OFF = 0;
 var ERROR = 2;
 
+// Resolve config paths relative to this package so they work when run from any directory
+function resolveConfig(name) {
+  return require.resolve(name);
+}
+
 module.exports = {
   env: {
     es6: true,
@@ -64,9 +69,9 @@ module.exports = {
     'plugin:import/errors',
     'plugin:import/warnings',
     'plugin:jest-dom/recommended',
-    'prettier',
+    resolveConfig('eslint-config-prettier'),
   ],
-  plugins: ['import', 'vue', 'kolibri', 'jest-dom', 'jest'],
+  plugins: ['import', 'vue', 'kolibri', 'jest-dom', 'jest', 'small-import'],
   settings: {
     "import/resolver": {
       node: {
@@ -246,12 +251,15 @@ module.exports = {
     'import/newline-after-import': ERROR,
     'import/order': ERROR,
 
+    'small-import/no-full-import': ERROR,
+
     // Custom vue rules
     'kolibri/vue-no-unused-vuex-properties': ERROR,
     'kolibri/vue-no-unused-vuex-methods': ERROR,
     'kolibri/vue-watch-no-string': ERROR,
     'kolibri/vue-no-unused-translations': ERROR,
     'kolibri/vue-no-undefined-string-uses': ERROR,
+    'kolibri/no-undefined-translator-keys': ERROR,
     'kolibri/vue-string-objects-formatting': ERROR,
     'kolibri/vue-component-block-padding': ERROR,
     'kolibri/vue-component-block-tag-newline': ERROR,

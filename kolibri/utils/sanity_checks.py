@@ -24,7 +24,7 @@ class SanityException(RuntimeError):
 class DatabaseNotMigrated(SanityException):
     def __init__(self, *args, **kwargs):
         self.db_exception = kwargs.get("db_exception")
-        super(DatabaseNotMigrated, self).__init__(
+        super().__init__(
             "An exception occurred for which it is assumed that the "
             "database is not fully migrated.\n\n"
             "Exception: {}".format(str(self.db_exception))
@@ -34,7 +34,7 @@ class DatabaseNotMigrated(SanityException):
 class DatabaseInaccessible(SanityException):
     def __init__(self, *args, **kwargs):
         self.db_exception = kwargs.get("db_exception")
-        super(DatabaseInaccessible, self).__init__(
+        super().__init__(
             "Not able to access the database while checking it.\n\n"
             "Exception: {}".format(str(self.db_exception))
         )
@@ -138,7 +138,7 @@ def check_default_options_exist():
     if not os.path.exists(options_path):
         try:
             generate_empty_options_file()
-        except IOError:
+        except OSError:
             logger.warning(
                 "Failed to create an options.ini file at this path: {}".format(
                     options_path

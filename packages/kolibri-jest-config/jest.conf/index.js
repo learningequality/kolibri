@@ -28,7 +28,15 @@ module.exports = {
     '^.+\\.js$': 'babel-jest',
     '^.+\\.vue$': 'vue-jest',
   },
-  transformIgnorePatterns: ['/node_modules/(?!(kolibri-build|kolibri-i18n|kolibri)/).*/'],
+  transformIgnorePatterns: [
+    // Ignore all node_modules except kolibri packages
+    // Works with both yarn (node_modules/kolibri) and pnpm
+    // (node_modules/.pnpm/kolibri-*@version/...). Single pattern handles both:
+    // - pnpm first node_modules: node_modules/.pnpm/kolibri-*@version/...
+    // - pnpm nested node_modules: .../node_modules/kolibri-*/...
+    // - yarn flat structure: node_modules/kolibri-*/...
+    'node_modules/(?!(\\.pnpm/kolibri|kolibri))',
+  ],
   snapshotSerializers: ['jest-serializer-vue'],
   setupFilesAfterEnv: [path.resolve(__dirname, './setup')],
   coverageDirectory: '<rootDir>/coverage',

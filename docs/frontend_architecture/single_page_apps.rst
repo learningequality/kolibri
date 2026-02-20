@@ -18,7 +18,7 @@ Defining a new Kolibri module
 
 A Kolibri Module is initially defined in Python by sub-classing the ``WebpackBundleHook`` class (in ``kolibri.core.webpack.hooks``). The hook defines the JS entry point (conventionally called *app.js*) where the ``KolibriModule`` subclass is instantiated, and where events and callbacks on the module are registered. These are defined in the ``events`` and ``once`` properties. Each defines key-value pairs of the name of an event, and the name of the method on the ``KolibriModule`` object. When these events are triggered on the Kolibri core JavaScript app, these callbacks will be called. (If the ``KolibriModule`` is registered for asynchronous loading, the Kolibri Module will first be loaded, and then the callbacks called when it is ready. See :doc:`/frontend_architecture/frontend_build_pipeline` for more information.)
 
-All apps should extend the ``KolibriModule`` class found in `kolibri/core/assets/src/kolibri_module.js`.
+All apps should extend the ``KolibriModule`` class found in the `kolibri-module` package as the default export.
 
 The ``ready`` method will be automatically executed once the Module is loaded and registered with the Kolibri Core App. By convention, JavaScript is injected into the served HTML *after* the ``<rootvue>`` tag, meaning that this tag should be available when the ``ready`` method is called, and the root component (conventionally in *vue/index.vue*) can be mounted here.
 
@@ -83,16 +83,22 @@ For more information on using `bundle_id` and connecting it to the relevant Java
 This will create a navigation component which will be registered to appear in the navigation side bar.
 
 
-Content renderers
------------------
+Content viewers
+---------------
 
-A special kind of Kolibri Module is dedicated to rendering particular content types. All content renderers should extend the ``ContentRendererModule`` class found in `kolibri/core/assets/src/content_renderer_module.js`. In addition, rather than subclassing the ``WebpackBundleHook`` class, content renderers should be defined in the Python code using the ``ContentRendererHook`` class defined in ``kolibri.content.hooks``. In addition to the standard options for the ``WebpackBundleHook``, the ``ContentRendererHook`` also requires a ``presets`` tuple listing the format presets that it will render.
+A special kind of Kolibri Module is dedicated to rendering particular content types. All content renderers should extend the ``ContentViewer`` class found in the `kolibri-viewer` package as the default export. In addition, rather than subclassing the ``WebpackBundleHook`` class, content renderers should be defined in the Python code using the ``ContentRendererHook`` class defined in ``kolibri.content.hooks``. In addition to the standard options for the ``WebpackBundleHook``, the ``ContentRendererHook`` also requires a ``presets`` tuple listing the format presets that it will render.
 
 .. automodule:: kolibri.core.content.hooks
     :members:
     :noindex:
 
-The ``ContentRendererModule`` class has one required property ``getRendererComponent`` which should return a Vue component that wraps the content rendering code. This component will be passed ``files``, ``file``, ``itemData``, ``preset``, ``itemId``, ``answerState``, ``allowHints``, ``extraFields``, ``interactive``, ``lang``, ``showCorrectAnswer``, ``defaultItemPreset``, ``availableFiles``, ``defaultFile``, ``supplementaryFiles``, ``thumbnailFiles``, ``contentDirection``, and ``contentIsRtl`` props, defining the files associated with the piece of content, and other required data for rendering. These will be automatically mixed into any content renderer component definition when loaded. For more details of these props see the `Content Renderer documentation <https://design-system.learningequality.org/kcontentrenderer/>`__.
+The ``ContentViewer`` class has one required property ``viewerComponent`` which should return a Vue component that wraps the content rendering code. This component will be passed ``files``, ``file``, ``itemData``, ``preset``, ``itemId``, ``answerState``, ``allowHints``, ``extraFields``, ``interactive``, ``lang``, ``showCorrectAnswer``, ``defaultItemPreset``, ``availableFiles``, ``defaultFile``, ``supplementaryFiles``, ``thumbnailFiles``, ``contentDirection``, and ``contentIsRtl`` props, defining the files associated with the piece of content, and other required data for rendering.
+
+The component should use the `useContentViewer` composable and the `contentViewerProps`, importable as follows:
+
+.. code-block:: javascript
+
+  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
 
 In order to log data about users viewing content, the component should emit ``startTracking``, ``updateProgress``, and ``stopTracking`` events, using the Vue ``$emit`` method. ``startTracking`` and ``stopTracking`` are emitted without any arguments, whereas ``updateProgress`` should be emitted with a single value between 0 and 1 representing the current proportion of progress on the content.
 

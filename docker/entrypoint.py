@@ -13,13 +13,9 @@ import os
 import re
 import subprocess
 import sys
-
-
-# py2+py3 compatible imports via http://python-future.org/compatible_idioms.html
-try:
-    from urllib.request import Request, build_opener, HTTPRedirectHandler
-except ImportError:
-    from urllib2 import Request, HTTPRedirectHandler, build_opener
+from urllib.request import build_opener
+from urllib.request import HTTPRedirectHandler
+from urllib.request import Request
 
 logging.basicConfig(level=logging.INFO)
 

@@ -8,40 +8,71 @@
  *
  * Polyfill files are copied to ./polyfills/ directory to avoid external dependencies.
  */
-module.exports = function () {
-  const data = [];
-  data.push(require('vue-intl/locale-data/ar.js'));
-  data.push(require('vue-intl/locale-data/bg.js'));
-  data.push(require('vue-intl/locale-data/bn.js'));
-  data.push(require('vue-intl/locale-data/de.js'));
-  data.push(require('vue-intl/locale-data/el.js'));
-  data.push(require('vue-intl/locale-data/en.js'));
-  data.push(require('vue-intl/locale-data/es.js'));
-  data.push(require('vue-intl/locale-data/es.js'));
-  data.push(require('vue-intl/locale-data/fa.js'));
-  data.push(require('vue-intl/locale-data/fr.js'));
-  data.push(require('vue-intl/locale-data/ff.js'));
-  data.push(require('vue-intl/locale-data/gu.js'));
-  data.push(require('vue-intl/locale-data/ha.js'));
-  data.push(require('vue-intl/locale-data/hi.js'));
-  data.push(require('./polyfills/vue-intl/ht.js'));
-  data.push(require('vue-intl/locale-data/id.js'));
-  data.push(require('vue-intl/locale-data/it.js'));
-  data.push(require('vue-intl/locale-data/ka.js'));
-  data.push(require('vue-intl/locale-data/km.js'));
-  data.push(require('vue-intl/locale-data/ko.js'));
-  data.push(require('vue-intl/locale-data/mr.js'));
-  data.push(require('vue-intl/locale-data/my.js'));
-  data.push(require('vue-intl/locale-data/ny.js'));
-  data.push(require('vue-intl/locale-data/pa.js'));
-  data.push(require('vue-intl/locale-data/pt.js'));
-  data.push(require('vue-intl/locale-data/pt.js'));
-  data.push(require('vue-intl/locale-data/sw.js'));
-  data.push(require('vue-intl/locale-data/te.js'));
-  data.push(require('vue-intl/locale-data/uk.js'));
-  data.push(require('vue-intl/locale-data/ur.js'));
-  data.push(require('vue-intl/locale-data/vi.js'));
-  data.push(require('vue-intl/locale-data/yo.js'));
-  data.push(require('vue-intl/locale-data/zh.js'));
-  return data;
+module.exports = function (locale) {
+  switch (locale) {
+    case 'ar':
+      return import('vue-intl/locale-data/ar.js');
+    case 'bg':
+      return import('vue-intl/locale-data/bg.js');
+    case 'bn':
+      return import('vue-intl/locale-data/bn.js');
+    case 'de':
+      return import('vue-intl/locale-data/de.js');
+    case 'el':
+      return import('vue-intl/locale-data/el.js');
+    case 'en':
+      return import('vue-intl/locale-data/en.js');
+    case 'es':
+      return import('vue-intl/locale-data/es.js');
+    case 'fa':
+      return import('vue-intl/locale-data/fa.js');
+    case 'fr':
+      return import('vue-intl/locale-data/fr.js');
+    case 'ff':
+      return import('vue-intl/locale-data/ff.js');
+    case 'gu':
+      return import('vue-intl/locale-data/gu.js');
+    case 'ha':
+      return import('vue-intl/locale-data/ha.js');
+    case 'hi':
+      return import('vue-intl/locale-data/hi.js');
+    case 'ht':
+      return import('./polyfills/vue-intl/ht.js');
+    case 'id':
+      return import('vue-intl/locale-data/id.js');
+    case 'it':
+      return import('vue-intl/locale-data/it.js');
+    case 'ka':
+      return import('vue-intl/locale-data/ka.js');
+    case 'km':
+      return import('vue-intl/locale-data/km.js');
+    case 'ko':
+      return import('vue-intl/locale-data/ko.js');
+    case 'mr':
+      return import('vue-intl/locale-data/mr.js');
+    case 'my':
+      return import('vue-intl/locale-data/my.js');
+    case 'ny':
+      return import('vue-intl/locale-data/ny.js');
+    case 'pa':
+      return import('vue-intl/locale-data/pa.js');
+    case 'pt':
+      return import('vue-intl/locale-data/pt.js');
+    case 'sw':
+      return import('vue-intl/locale-data/sw.js');
+    case 'te':
+      return import('vue-intl/locale-data/te.js');
+    case 'uk':
+      return import('vue-intl/locale-data/uk.js');
+    case 'ur':
+      return import('vue-intl/locale-data/ur.js');
+    case 'vi':
+      return import('vue-intl/locale-data/vi.js');
+    case 'yo':
+      return import('vue-intl/locale-data/yo.js');
+    case 'zh':
+      return import('vue-intl/locale-data/zh.js');
+    default:
+      return import('vue-intl/locale-data/en.js');
+  }
 };

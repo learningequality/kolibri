@@ -29,7 +29,7 @@ class SoudContextTestCase(TestCase):
     databases = "__all__"
 
     def setUp(self):
-        super(SoudContextTestCase, self).setUp()
+        super().setUp()
         self.context = Context(uuid.uuid4().hex, uuid.uuid4().hex)
 
     def test_property__network_location(self):
@@ -64,7 +64,7 @@ class SoudRequestSyncHookHandlerTestCase(TestCase):
     databases = "__all__"
 
     def setUp(self):
-        super(SoudRequestSyncHookHandlerTestCase, self).setUp()
+        super().setUp()
         self.instance_id = uuid.uuid4().hex
         self.user_ids = [
             uuid.uuid4().hex,
@@ -176,7 +176,7 @@ class SoudExecuteSyncsTestCase(TestCase):
     databases = "__all__"
 
     def setUp(self):
-        super(SoudExecuteSyncsTestCase, self).setUp()
+        super().setUp()
         self.user_id = uuid.uuid4().hex
         self.instance_id = uuid.uuid4().hex
 
@@ -378,7 +378,7 @@ class SoudExecuteSyncTestCase(TestCase):
     databases = "__all__"
 
     def setUp(self):
-        super(SoudExecuteSyncTestCase, self).setUp()
+        super().setUp()
         self.user_id = uuid.uuid4().hex
         self.instance_id = uuid.uuid4().hex
 

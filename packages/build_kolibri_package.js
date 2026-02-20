@@ -20,7 +20,7 @@ function rebuildApiSpec() {
   const kolibriFolder = path.resolve(__dirname, './kolibri');
   const kolibriFiles = glob
     .sync(`${kolibriFolder}/**/*.{js,vue}`, {
-      ignore: ['**/internal/**', '**/__tests__/**', '**/__mocks__/**'],
+      ignore: ['**/internal/**', '**/__tests__/**', '**/__mocks__/**', '**/node_modules/**'],
     })
     .map(f => {
       const { dir, name } = path.parse(f);
@@ -46,7 +46,10 @@ function rebuildApiSpec() {
   };
   writeSourceToFile(kolibriPackageJsonFilePath, JSON.stringify(updatedKolibriPackageJson, null, 2));
   const apiSpecFilePath = path.resolve(__dirname, './kolibri/internal/apiSpec.js');
-  const updatedApiKeys = generateApiKeys(updatedKolibriPackageJson.exports);
+  const updatedApiKeys = generateApiKeys(
+    updatedKolibriPackageJson.exports,
+    updatedKolibriPackageJson.exposes || [],
+  );
   let apiSpecContent = apiSpecHeader;
   apiSpecContent += 'export default {\n';
   for (const key of updatedApiKeys) {

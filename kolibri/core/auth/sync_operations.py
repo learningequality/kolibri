@@ -2,14 +2,19 @@ import json
 import logging
 
 from morango.constants import transfer_stages
+from morango.models.certificates import Filter
 from morango.sync.operations import BaseOperation
+from morango.sync.operations import InitializeOperation
 from morango.sync.operations import LocalOperation
+from morango.sync.operations import NetworkInitializeOperation
 
+from .sync_event_hook_utils import get_dataset_id
 from .sync_event_hook_utils import get_other_side_kolibri_version
 from .sync_event_hook_utils import get_user_id_for_single_user_sync
 from .sync_event_hook_utils import other_side_using_single_user_cert
 from .sync_event_hook_utils import this_side_using_single_user_cert
 from kolibri.core.auth.hooks import FacilityDataSyncHook
+from kolibri.core.auth.utils.sync import ClassroomPartitionFilterFactory
 from kolibri.core.upgrade import matches_version
 from kolibri.utils.version import truncate_version
 
@@ -17,6 +22,99 @@ from kolibri.utils.version import truncate_version
 logger = logging.getLogger(__name__)
 SORTED_STAGES = sorted(transfer_stages.ALL, key=lambda s: transfer_stages.precedence(s))
 PREVIOUS_STAGES = dict(zip(SORTED_STAGES, [None] + SORTED_STAGES[:-1]))
+
+
+class KolibriLocalInitializeOperation(InitializeOperation):
+    """
+    Operation for initializing a local sync session. Specifically, this adds functionality to
+    dynamically add filters to a sync when this device is the server during a sync. This
+    functionality could be accomplished by simply adding another operation in the chain before the
+    already extant `InitializeOperation` (which this inherits). Although, since this is important
+    functionality to Kolibri, and Kolibri already has plugins which modify the sync behavior, it's
+    more foolproof to inherit the operation to ensure this functionality is coupled with
+    initialization.
+    """
+
+    def handle(self, context):
+        """
+        Dynamically adds partition filters when one device in the sync is a SoUD (see similar
+        logic in other extant hooks and operations), for syncing classroom partitioned records.
+
+        :param context: The sync context object containing session and filter information.
+        :type context: morango.sync.context.LocalSessionContext
+        """
+        # the server validates that a sync filter is allowed within the certificate's scope, and
+        # since the client initiates the sync, we can't add the dynamic classroom filter to the
+        # context until after the transfer session has been validated. this sync operation will
+        # be invoked before validation on the client, and after validation on the server
+        if context.is_server:
+            is_local = this_side_using_single_user_cert(context)
+            is_remote = other_side_using_single_user_cert(context)
+
+            # server is a full facility device, but syncing with a SoUD, therefore the device has
+            # the 'authority' to dynamically add the classroom partition filter
+            if not is_local and is_remote:
+                filter_factory = ClassroomPartitionFilterFactory(
+                    get_dataset_id(context)
+                )
+                single_user_id = get_user_id_for_single_user_sync(context)
+
+                # when it's a push, since this code block is restricted to the server, the
+                # client's partition filter should be restricted to what is explicitly read/write,
+                # otherwise the user can pull any data for the classroom partition
+                dynamic_filter = filter_factory.set_writeable(
+                    writeable=context.is_push
+                ).build_for_user(single_user_id)
+
+                if dynamic_filter:
+                    context.update(
+                        sync_filter=Filter.add(context.filter, dynamic_filter)
+                    )
+
+        return super().handle(context)
+
+
+class KolibriNetworkInitializeOperation(NetworkInitializeOperation):
+    """
+    Operation for initializing a sync session with a remote over the network. This specifically adds
+    functionality to handle the result of the above operation that dynamically adds filters.
+    """
+
+    def create_transfer_session(self, context):
+        """
+        Calls the super method which makes a network request to create a transfer session, then
+        updates the local transfer session filters to match the remote's using the response.
+
+        :param context: The sync context object containing session and filter information.
+        :type context: morango.sync.context.NetworkSessionContext
+        :return: The response dictionary from the remote
+        :rtype: dict
+        """
+        response_data = super().create_transfer_session(context)
+
+        is_local = this_side_using_single_user_cert(context)
+        is_remote = other_side_using_single_user_cert(context)
+
+        response_filter = (
+            Filter(response_data["filter"])
+            if response_data.get("filter", None)
+            else None
+        )
+
+        # TODO: morango's sync Filter needs defensiveness against comparing with `None`
+        if (
+            is_local
+            and not is_remote
+            and response_filter is not None
+            and response_filter != context.filter
+        ):
+            # receive the modified, dynamic, filter(s) from the server and update the transfer
+            # session and context objects to reflect the change
+            context.update(sync_filter=response_filter)
+            context.transfer_session.filter = str(response_filter)
+            context.transfer_session.save()
+
+        return response_data
 
 
 class KolibriSyncOperations(BaseOperation):

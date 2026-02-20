@@ -6,3 +6,6 @@
 
 # Reformatted all frontend code using prettier v3
 42efde27bac137734f05057278c4827168d119f2
+
+# Migrated all frontend code from assets/src to frontend
+e59c54a53fe4305700d4ced05134ab95b7436b1e
