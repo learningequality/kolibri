@@ -231,7 +231,7 @@ export default function useCourseSession(courseSessionId) {
       .then(result => {
         // If we activate the course and the pre-test for the first unit hasn't been started,
         // start it automatically to make things easier for the coach
-        if (!activeTest.value && activeUnitIndex.value === 0) {
+        if (result?.active && !activeTest.value && activeUnitIndex.value === 0) {
           // Can fire it off and move on as it will handle dataLoading
           // and such internally
           activateTest(TestType.PRE);
