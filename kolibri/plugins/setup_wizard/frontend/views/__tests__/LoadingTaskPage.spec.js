@@ -18,7 +18,6 @@ const facilityMock = {
   password: 'password',
 };
 
-
 const renderComponent = () => {
   return render(LoadingTaskPage, {
     mocks: {
@@ -33,7 +32,6 @@ const renderComponent = () => {
       },
     },
     stubs: {
-
       FacilityTaskPanel: {
         template: `<div><button @click="$emit('cancel')">Cancel Task</button></div>`,
       },
@@ -51,11 +49,9 @@ describe('LoadingTaskPage', () => {
     TaskResource.list.mockResolvedValue([{ status: 'RUNNING' }]);
     renderComponent();
 
-
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Import learning facility' })).toBeInTheDocument();
     });
-
 
     expect(screen.getByRole('button', { name: 'Cancel Task' })).toBeInTheDocument();
   });
@@ -64,10 +60,8 @@ describe('LoadingTaskPage', () => {
     TaskResource.list.mockResolvedValue([{ status: 'COMPLETED' }]);
     const { emitted } = renderComponent();
 
-
     const continueButton = await screen.findByRole('button', { name: 'Continue' });
     await userEvent.click(continueButton);
-
 
     expect(emitted().click_next).toBeTruthy();
   });
@@ -95,7 +89,6 @@ describe('LoadingTaskPage', () => {
   it('a cancel request is made when "cancel" is clicked', async () => {
     TaskResource.list.mockResolvedValue([{ status: 'RUNNING' }]);
     renderComponent();
-
 
     const cancelStubButton = await screen.findByRole('button', { name: 'Cancel Task' });
     await userEvent.click(cancelStubButton);
