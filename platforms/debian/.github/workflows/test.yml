@@ -1,0 +1,21 @@
+name: Python tests
+
+on:
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  test:
+    name: Run Python tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: pip install -e ".[test]"
+      - name: Run tests
+        run: python3 -m pytest tests/ -v
