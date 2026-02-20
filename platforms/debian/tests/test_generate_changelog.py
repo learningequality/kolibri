@@ -1,12 +1,15 @@
 import json
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from build_tools.generate_changelog import (
     parse_existing_changelog,
     parse_packaging_changelog,
     kolibri_version_key,
     is_prerelease,
     format_changelog_entry,
+    get_current_lts_codename,
     github_timestamp_to_debian,
     fetch_github_releases,
     filter_new_releases,
@@ -14,6 +17,17 @@ from build_tools.generate_changelog import (
     interleave_entries,
     generate_updated_changelog,
     main,
+)
+
+try:
+    from distro_info import UbuntuDistroInfo  # noqa: F401
+    _has_distro_info = True
+except ImportError:
+    _has_distro_info = False
+
+needs_distro_info = pytest.mark.skipif(
+    not _has_distro_info,
+    reason="python3-distro-info not installed"
 )
 
 SAMPLE_CHANGELOG = """\
@@ -206,7 +220,6 @@ def test_fetch_github_releases_fetches_all_when_no_latest():
     assert len(result) == 2
 
 
-
 def test_filter_new_releases_excludes_old():
     releases = [
         {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2026-02-06T19:46:25Z"},
@@ -260,18 +273,19 @@ def test_filter_new_releases_strips_v_prefix():
     assert len(result) == 1
 
 
+@needs_distro_info
 def test_generate_release_entries():
     releases = [
         {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2025-10-31T15:09:14Z"},
         {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2025-10-03T17:47:04Z"},
     ]
-    with patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble"):
-        entries = generate_release_entries(releases)
+    entries = generate_release_entries(releases)
 
+    codename = get_current_lts_codename()
     assert len(entries) == 2
     assert "0.19.2-0ubuntu1" in entries[0]["text"]
     assert "0.19.1-0ubuntu1" in entries[1]["text"]
-    assert "noble" in entries[0]["text"]
+    assert codename in entries[0]["text"]
     assert entries[0]["version"] == "0.19.2"
     assert entries[0]["ubuntu_revision"] == 1
 
@@ -362,19 +376,19 @@ def test_interleave_entries_no_packaging():
 
 # --- Tests for generate_updated_changelog ---
 
+@needs_distro_info
 def test_generate_updated_changelog_prepends_entries():
     """New entries are prepended to existing changelog content."""
     existing_changelog = SAMPLE_CHANGELOG
     releases = [
         {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2025-10-31T15:09:14Z"},
     ]
-    with patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble"):
-        result = generate_updated_changelog(
-            existing_content=existing_changelog,
-            releases=releases,
-            packaging_changelog="",
-            build_version="0.19.2",
-        )
+    result = generate_updated_changelog(
+        existing_content=existing_changelog,
+        releases=releases,
+        packaging_changelog="",
+        build_version="0.19.2",
+    )
     # New entry should come before existing content
     assert result.index("0.19.2-0ubuntu1") < result.index("0.19.1-0ubuntu1")
     # Existing content preserved
@@ -382,6 +396,7 @@ def test_generate_updated_changelog_prepends_entries():
     assert "0.19.0-0ubuntu1" in result
 
 
+@needs_distro_info
 def test_generate_updated_changelog_interleaves_packaging():
     """Packaging entries from CHANGELOG are interleaved with release entries."""
     existing_changelog = """\
@@ -398,13 +413,12 @@ kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
     ]
     packaging_changelog = SAMPLE_PACKAGING_CHANGELOG  # 0.19.1-0ubuntu2
 
-    with patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble"):
-        result = generate_updated_changelog(
-            existing_content=existing_changelog,
-            releases=releases,
-            packaging_changelog=packaging_changelog,
-            build_version="0.19.2",
-        )
+    result = generate_updated_changelog(
+        existing_content=existing_changelog,
+        releases=releases,
+        packaging_changelog=packaging_changelog,
+        build_version="0.19.2",
+    )
 
     # Order should be: 0.19.2, 0.19.1-0ubuntu2, 0.19.1, 0.19.0, then existing (0.18.4)
     pos_192 = result.index("0.19.2-0ubuntu1")
@@ -415,20 +429,21 @@ kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
     assert pos_192 < pos_191_u2 < pos_191_u1 < pos_190 < pos_184
 
 
+@needs_distro_info
 def test_generate_updated_changelog_preserves_existing():
     """Existing debian/changelog entries are not modified."""
     existing_changelog = SAMPLE_CHANGELOG
-    with patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble"):
-        result = generate_updated_changelog(
-            existing_content=existing_changelog,
-            releases=[],
-            packaging_changelog="",
-            build_version="0.19.1",
-        )
+    result = generate_updated_changelog(
+        existing_content=existing_changelog,
+        releases=[],
+        packaging_changelog="",
+        build_version="0.19.1",
+    )
     # With no new releases, output should be same as input
     assert result == existing_changelog
 
 
+@needs_distro_info
 def test_generate_updated_changelog_packaging_retains_distribution():
     """Packaging entries retain their original distribution, not the current LTS."""
     existing_changelog = """\
@@ -443,13 +458,12 @@ kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
     ]
     packaging_changelog = SAMPLE_PACKAGING_CHANGELOG  # 0.19.1-0ubuntu2, jammy
 
-    with patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble"):
-        result = generate_updated_changelog(
-            existing_content=existing_changelog,
-            releases=releases,
-            packaging_changelog=packaging_changelog,
-            build_version="0.19.1",
-        )
+    result = generate_updated_changelog(
+        existing_content=existing_changelog,
+        releases=releases,
+        packaging_changelog=packaging_changelog,
+        build_version="0.19.1",
+    )
 
     # The packaging entry should still say "jammy"
     lines = result.split("\n")
@@ -463,6 +477,7 @@ kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
 
 # --- Tests for main() entrypoint ---
 
+@needs_distro_info
 def test_main_writes_updated_changelog(tmp_path):
     """main() reads files, fetches releases, and writes updated debian/changelog."""
     # Set up file structure
@@ -483,8 +498,7 @@ def test_main_writes_updated_changelog(tmp_path):
         {"tag_name": "v0.19.0", "prerelease": False, "published_at": "2025-08-06T18:21:16Z"},
     ]
 
-    with patch("build_tools.generate_changelog.fetch_github_releases", return_value=releases), \
-         patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble"):
+    with patch("build_tools.generate_changelog.fetch_github_releases", return_value=releases):
         main(
             debian_changelog_path=str(changelog_path),
             version_path=str(version_path),
@@ -499,6 +513,7 @@ def test_main_writes_updated_changelog(tmp_path):
     assert "0.19.0-0ubuntu1" in result
 
 
+@needs_distro_info
 def test_main_with_packaging_changelog(tmp_path):
     """main() interleaves packaging CHANGELOG entries."""
     debian_dir = tmp_path / "debian"
@@ -525,8 +540,7 @@ kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
         {"tag_name": "v0.19.0", "prerelease": False, "published_at": "2025-08-06T18:21:16Z"},
     ]
 
-    with patch("build_tools.generate_changelog.fetch_github_releases", return_value=releases), \
-         patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble"):
+    with patch("build_tools.generate_changelog.fetch_github_releases", return_value=releases):
         main(
             debian_changelog_path=str(changelog_path),
             version_path=str(version_path),

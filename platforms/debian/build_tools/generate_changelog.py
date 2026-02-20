@@ -86,9 +86,15 @@ MAINTAINER = (
 def version_to_debian(version_str):
     """Convert a Kolibri version to Debian version format.
 
-    Prerelease separators become ~ (sorts before release in dpkg).
-    '0.19.1' -> '0.19.1'
-    '0.19.2-alpha0' -> '0.19.2~alpha0'
+    Replaces prerelease hyphens with ~ so they sort before the
+    corresponding release in dpkg (~ sorts before anything).
+    The .dev suffix is also converted to ~dev.
+
+    Examples:
+        '0.19.1'        -> '0.19.1'        (stable: unchanged)
+        '0.19.2-alpha0' -> '0.19.2~alpha0' (hyphen becomes tilde)
+        '0.19.2-rc1'    -> '0.19.2~rc1'
+        '0.20.0.dev0'   -> '0.20.0~dev0'
     """
     result = re.sub(r"-(alpha|beta|rc)", r"~\1", version_str)
     result = re.sub(r"\.dev", r"~dev", result)
@@ -128,10 +134,14 @@ def _parse_link_header(headers):
     return None
 
 
-def fetch_github_releases():
-    """Fetch all Kolibri releases from GitHub API, handling pagination."""
-    # TODO: Support GITHUB_TOKEN env var for authenticated requests (5000 req/hr
-    # vs 60 req/hr unauthenticated). GitHub Actions provides GITHUB_TOKEN automatically.
+def fetch_github_releases(latest_existing=None):
+    """Fetch Kolibri releases from GitHub API, handling pagination.
+
+    If latest_existing is provided, stops fetching once all releases on a
+    page are older than or equal to that version (GitHub returns releases
+    newest-first).
+    """
+    latest_key = kolibri_version_key(latest_existing) if latest_existing else None
     all_releases = []
     url = GITHUB_API_URL + "?per_page=100"
 
@@ -144,6 +154,18 @@ def fetch_github_releases():
         with urlopen(req) as response:
             data = json.loads(response.read())
             all_releases.extend(data)
+
+            # GitHub returns releases newest-first. If the oldest
+            # release on this page is already at or below our latest
+            # existing version, subsequent pages will only be older.
+            if latest_key and data:
+                last_tag = strip_v_prefix(data[-1]["tag_name"])
+                try:
+                    if kolibri_version_key(last_tag) <= latest_key:
+                        break
+                except InvalidVersion:
+                    pass
+
             url = _parse_link_header(response.headers)
 
     return all_releases
@@ -344,7 +366,8 @@ def main(debian_changelog_path, version_path, packaging_changelog_path):
         with open(packaging_changelog_path) as f:
             packaging_changelog = f.read()
 
-    releases = fetch_github_releases()
+    latest_existing, _, _ = parse_existing_changelog(existing_content)
+    releases = fetch_github_releases(latest_existing=latest_existing)
     updated = generate_updated_changelog(
         existing_content=existing_content,
         releases=releases,
