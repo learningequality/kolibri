@@ -269,7 +269,7 @@ class ProgressTracker:
                 self.progressbar.label = message
 
 
-class JobProgressMixin(object):
+class JobProgressMixin:
     """A mixin with convenience functions for displaying
     progress to the user, and updating progress on a job.
 

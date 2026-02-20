@@ -28,7 +28,7 @@ from kolibri.utils.urls import validator
 compressed_file_extensions = ("gz",)
 
 
-class NotFoundStaticFile(object):
+class NotFoundStaticFile:
     """
     A special static file class to give a not found response,
     rather than letting it be further handled by the wrapped WSGI server.

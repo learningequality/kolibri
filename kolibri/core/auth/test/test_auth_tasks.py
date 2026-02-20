@@ -63,7 +63,7 @@ def fake_job(**kwargs):
     return Mock(spec=Job, **fake_data)
 
 
-class dummy_orm_job_data(object):
+class dummy_orm_job_data:
     scheduled_time = datetime.datetime(year=2023, month=1, day=1, tzinfo=None)
     repeat = 5
     interval = 8600

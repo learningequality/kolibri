@@ -1,7 +1,7 @@
 DEFAULT_QUEUE = "kolibri"
 
 
-class Priority(object):
+class Priority:
     """
     This class defines the priority levels and their corresponding integer values.
 

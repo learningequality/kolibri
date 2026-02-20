@@ -301,7 +301,7 @@ class PluginUpdateException(Exception):
     pass
 
 
-class PluginUpdateManager(object):
+class PluginUpdateManager:
     def __init__(self, updated_plugins):
         # Import here as triggers django app loading
         from django.db.migrations.loader import MigrationLoader

@@ -14,7 +14,7 @@ from kolibri.utils import server
 from kolibri.utils.constants import installation_types
 
 
-class TestServerInstallation(object):
+class TestServerInstallation:
     @mock.patch("sys.argv", ["kolibri-0.9.3.pex", "start"])
     def test_pex(self):
         install_type = server.installation_type()
@@ -88,7 +88,7 @@ def job_storage():
         s.clear()
 
 
-class TestServerServices(object):
+class TestServerServices:
     @mock.patch("kolibri.core.deviceadmin.tasks.schedule_vacuum")
     @mock.patch("kolibri.core.analytics.tasks.schedule_ping")
     @mock.patch("kolibri.core.tasks.main.initialize_workers")
@@ -128,7 +128,7 @@ class TestServerServices(object):
         ]
 
 
-class TestServerDefaultScheduledTasks(object):
+class TestServerDefaultScheduledTasks:
     @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
     def test_scheduled_jobs_persist_on_restart(
         self,
@@ -176,7 +176,7 @@ class TestServerDefaultScheduledTasks(object):
             assert job_storage.get_job(STREAMED_CACHE_CLEANUP_JOB_ID) is not None
 
 
-class TestZeroConfPlugin(object):
+class TestZeroConfPlugin:
     @mock.patch("kolibri.core.discovery.utils.network.search.NetworkLocationListener")
     @mock.patch(
         "kolibri.core.discovery.utils.network.broadcast.build_broadcast_instance"

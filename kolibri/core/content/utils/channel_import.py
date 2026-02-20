@@ -197,7 +197,7 @@ def get_attribute(obj, key, default):
     return obj.get(key, default)
 
 
-class ChannelImport(object):
+class ChannelImport:
     """
     The ChannelImport class has two functions:
 

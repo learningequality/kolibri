@@ -174,7 +174,7 @@ def no_cache_on_method(view_func):
     return method_decorator(never_cache, name="dispatch")(view_func)
 
 
-class RemoteMixin(object):
+class RemoteMixin:
     def _should_proxy_request(self, request):
         return REMOTE_URL_PARAM in request.GET
 
@@ -317,7 +317,7 @@ def _split_text_field(text):
     return text.split(",") if text else []
 
 
-class BaseChannelMetadataMixin(object):
+class BaseChannelMetadataMixin:
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ChannelMetadataFilter
 
@@ -647,7 +647,7 @@ contentnode_previously_omitted_fields = {
 }
 
 
-class BaseContentNodeMixin(object):
+class BaseContentNodeMixin:
     """
     A base mixin for viewsets that need to return the same format of data
     serialization for ContentNodes.
@@ -1004,7 +1004,7 @@ NUM_CHILDREN = 12
 NUM_GRANDCHILDREN_PER_CHILD = 12
 
 
-class TreeQueryMixin(object):
+class TreeQueryMixin:
     def validate_and_return_params(self, request):
         depth = request.query_params.get("depth", 2)
         next__gt = request.query_params.get("next__gt")

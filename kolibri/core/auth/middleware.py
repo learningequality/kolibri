@@ -95,7 +95,7 @@ class CustomAuthenticationMiddleware(AuthenticationMiddleware):
         request.user = SimpleLazyObject(lambda: _get_user(request))
 
 
-class XhrPreventLoginPromptMiddleware(object):
+class XhrPreventLoginPromptMiddleware:
     """
     By default, HTTP 401 responses are sent with a ``WWW-Authenticate``
     header. Web browsers react to this header by displaying a login prompt

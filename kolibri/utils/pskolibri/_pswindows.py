@@ -201,7 +201,7 @@ def handle_from_pid(pid):
     return kernel32.OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, False, pid)
 
 
-class Process(object):
+class Process:
     """Wrapper class around underlying C implementation."""
 
     __slots__ = ["pid", "_name", "_ppid"]

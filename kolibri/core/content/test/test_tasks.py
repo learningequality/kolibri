@@ -245,7 +245,7 @@ class ValidateLocalImportTaskTestCase(TestCase):
             }
         )
 
-        class drive(object):
+        class drive:
             datafolder = "kolibri"
 
         mock_get_mounted_drive_by_id.return_value = drive

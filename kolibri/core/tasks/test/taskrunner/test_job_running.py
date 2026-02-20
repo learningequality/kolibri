@@ -73,7 +73,7 @@ def _underlying_event(f):
     return func
 
 
-class EventProxy(object):
+class EventProxy:
     """
     The tests in this file were originally written when we didn't need
     to pickle objects in storage. That way, we could use threading.Event
@@ -162,7 +162,7 @@ def update_progress_cancelable_job():
             return
 
 
-class TestJobStorage(object):
+class TestJobStorage:
     def test_does_not_enqueue_a_function(self, storage_fixture):
         try:
             storage_fixture.enqueue_job(id)

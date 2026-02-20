@@ -23,7 +23,7 @@ from kolibri.utils.translation import gettext as _
 logger = logging.getLogger(__name__)
 
 
-class State(object):
+class State:
     """
     The State object enumerates a Job's possible valid states.
 
@@ -102,7 +102,7 @@ def default_status_text(job):
 ALLOWED_RETRY_IN_KWARGS = {"priority", "repeat", "interval", "retry_interval"}
 
 
-class Job(object):
+class Job:
     """
     Job represents a function whose execution has been deferred through the Client's schedule function.
 

@@ -190,7 +190,7 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
     )
 
 
-class PreferredDevices(object):
+class PreferredDevices:
     """
     A class that produces a generator returning preferred network locations (devices), given a list
     of instance IDs, and a filter for the version of Kolibri running on the server.

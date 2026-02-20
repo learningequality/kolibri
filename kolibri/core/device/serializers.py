@@ -26,7 +26,7 @@ class NoFacilityFacilityUserSerializer(serializers.ModelSerializer):
         fields = ("username", "full_name", "password")
 
 
-class DeviceSerializerMixin(object):
+class DeviceSerializerMixin:
     def validate_language_id(self, language_id):
         """
         Check that the language_id is supported by Kolibri

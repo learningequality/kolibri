@@ -22,7 +22,7 @@ class ContentManifestParseError(ValueError):
     pass
 
 
-class ContentManifest(object):
+class ContentManifest:
     """
     A content manifest describes a selection of Kolibri content across
     multiple channels. It is usually stored as a JSON file along with exported
