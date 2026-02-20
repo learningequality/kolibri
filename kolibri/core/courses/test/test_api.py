@@ -65,6 +65,7 @@ class CourseSessionAPITestCase(APITestCase):
         )
 
     def test_logged_in_user_course_session_no_delete(self):
+
         user = FacilityUser.objects.create(username="learner", facility=self.facility)
         user.set_password("pass")
         user.save()
@@ -80,6 +81,7 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_logged_in_admin_course_session_delete(self):
+
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.delete(
@@ -91,6 +93,7 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 204)
 
     def test_logged_in_admin_course_session_create(self):
+
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -107,6 +110,7 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(created_by, self.admin.id)
 
     def test_logged_in_admin_course_session_create_with_assignments(self):
+
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -128,6 +132,7 @@ class CourseSessionAPITestCase(APITestCase):
         )
 
     def test_logged_in_admin_course_session_update_no_assignments(self):
+
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -157,6 +162,7 @@ class CourseSessionAPITestCase(APITestCase):
         )
 
     def test_logged_in_admin_course_session_update_different_assignments(self):
+
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -193,6 +199,7 @@ class CourseSessionAPITestCase(APITestCase):
         )
 
     def test_logged_in_admin_course_session_update_additional_assignments(self):
+
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -235,6 +242,7 @@ class CourseSessionAPITestCase(APITestCase):
         )
 
     def test_logged_in_admin_course_session_create_learner_assignments(self):
+
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         user = FacilityUser.objects.create(username="u", facility=self.facility)
@@ -272,6 +280,7 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(adhoc_group.kind, collection_kinds.ADHOCLEARNERSGROUP)
 
     def test_logged_in_admin_course_session_update_learner_assignments(self):
+
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -321,6 +330,7 @@ class CourseSessionAPITestCase(APITestCase):
     def test_logged_in_admin_course_session_update_learner_assignments_wrong_collection(
         self,
     ):
+
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -357,6 +367,7 @@ class CourseSessionAPITestCase(APITestCase):
             AdHocGroup.objects.get(parent=self.classroom)
 
     def test_logged_in_user_course_session_no_create(self):
+
         # user without admin nor coach rights
         user = FacilityUser.objects.create(username="learner", facility=self.facility)
         user.set_password("pass")
@@ -376,6 +387,7 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_logged_in_admin_course_session_update_basic(self):
+
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.put(
@@ -418,6 +430,7 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_can_get_course_session_list(self):
+
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.get(
@@ -440,6 +453,7 @@ class CourseSessionAPITestCase(APITestCase):
         )
 
     def test_coach_can_see_only_allowed_course_sessions(self):
+
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse("kolibri:core:coursesession-list"))
 
@@ -453,6 +467,7 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertIn(self.courseSession_2.id, course_session_ids)
 
     def test_cannot_create_course_session_with_non_existent_course_id(self):
+
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -467,6 +482,7 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_cannot_create_course_session_with_non_course_modality(self):
+
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         # Create a content node that is not a COURSE
@@ -524,6 +540,7 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertNotIn(other_course_session.id, course_session_ids)
 
     def test_coach_can_create_course_session(self):
+
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -538,6 +555,7 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 201)
 
     def test_learner_cannot_create_course_session(self):
+
         learner = FacilityUser.objects.create(
             username="learner", facility=self.facility
         )
@@ -625,6 +643,7 @@ kolibri/core/courses/test/test_api.py:805:"
 
 
 class UnitTestActivationAPITestCase(APITestCase):
+
     databases = "__all__"
 
     @classmethod
@@ -694,21 +713,39 @@ class UnitTestActivationAPITestCase(APITestCase):
             description=cls.course.description,
         )
 
-    def test_coach_can_activate_pre_test(self):
-        """Test that a coach can activate a pre-test"""
-        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
-
-        response = self.client.post(
+    def _activate_test(self, unit_id, test_type, **kwargs):
+        return self.client.post(
             reverse(
                 "kolibri:core:coursesession-activate-test",
                 kwargs={"pk": self.courseSession.id},
             ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
+            {"unit_contentnode_id": unit_id, "test_type": test_type, **kwargs},
             format="json",
         )
+
+    def _close_test(self, unit_id, test_type):
+        return self.client.post(
+            reverse(
+                "kolibri:core:coursesession-close-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {"unit_contentnode_id": unit_id, "test_type": test_type},
+            format="json",
+        )
+
+    def _get_active_test(self):
+        return self.client.get(
+            reverse(
+                "kolibri:core:coursesession-active-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+        )
+
+    def test_coach_can_activate_pre_test(self):
+        """Test that a coach can activate a pre-test"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        response = self._activate_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["unit_contentnode_id"], self.unit.id)
@@ -729,17 +766,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that a coach can activate a post-test"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "post",
-            },
-            format="json",
-        )
+        response = self._activate_test(self.unit.id, "post")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["test_type"], "post")
@@ -749,17 +776,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that an admin can activate a test"""
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._activate_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -767,17 +784,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that a non-coach cannot activate a test"""
         self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._activate_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -785,17 +792,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that activating a test with invalid test_type fails"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "invalid",
-            },
-            format="json",
-        )
+        response = self._activate_test(self.unit.id, "invalid")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -837,17 +834,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that activating a test with non-existent unit fails"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": uuid.uuid4().hex,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._activate_test(uuid.uuid4().hex, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -865,17 +852,7 @@ class UnitTestActivationAPITestCase(APITestCase):
             title="Other Unit",
         )
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": other_unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._activate_test(other_unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -884,30 +861,10 @@ class UnitTestActivationAPITestCase(APITestCase):
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
         # First activate a test
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        self._activate_test(self.unit.id, "pre")
 
         # Now close it
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._close_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["unit_contentnode_id"], self.unit.id)
@@ -928,30 +885,10 @@ class UnitTestActivationAPITestCase(APITestCase):
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
         # Activate a test
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        self._activate_test(self.unit.id, "pre")
 
         # Try to close with different unit_contentnode_id
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit2.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._close_test(self.unit2.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -960,30 +897,10 @@ class UnitTestActivationAPITestCase(APITestCase):
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
         # Activate a pre-test
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        self._activate_test(self.unit.id, "pre")
 
         # Try to close as post-test
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "post",
-            },
-            format="json",
-        )
+        response = self._close_test(self.unit.id, "post")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -991,17 +908,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that closing when no test is active returns 404"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._close_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -1009,31 +916,11 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that a non-coach cannot close a test"""
         # First, coach activates a test
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        self._activate_test(self.unit.id, "pre")
 
         # learner can not close it
         self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._close_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -1041,24 +928,9 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that active_test endpoint returns full test details"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        self._activate_test(self.unit.id, "pre")
 
-        response = self.client.get(
-            reverse(
-                "kolibri:core:coursesession-active-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-        )
+        response = self._get_active_test()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("id", response.data)
@@ -1074,12 +946,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that active_test returns null when no test is active"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
-        response = self.client.get(
-            reverse(
-                "kolibri:core:coursesession-active-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-        )
+        response = self._get_active_test()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNone(response.data["active_test"])
@@ -1088,12 +955,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that a non-coach cannot get active test details"""
         self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
 
-        response = self.client.get(
-            reverse(
-                "kolibri:core:coursesession-active-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-        )
+        response = self._get_active_test()
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -1102,44 +964,14 @@ class UnitTestActivationAPITestCase(APITestCase):
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
         # Activate a test
-        response1 = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response1 = self._activate_test(self.unit.id, "pre")
         assignment_id_1 = response1.data["id"]
 
         # Close it
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        self._close_test(self.unit.id, "pre")
 
         # Activate it again
-        response2 = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response2 = self._activate_test(self.unit.id, "pre")
         assignment_id_2 = response2.data["id"]
 
         # Should be the same assignment updated
@@ -1159,17 +991,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """activate_test should return unit_phase and active_unit_id"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._activate_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["unit_phase"], "pre_test_active")
@@ -1180,30 +1002,10 @@ class UnitTestActivationAPITestCase(APITestCase):
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
         # First activate a test
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        self._activate_test(self.unit.id, "pre")
 
         # Then close it
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._close_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["unit_phase"], "post_test_pending")
@@ -1211,44 +1013,19 @@ class UnitTestActivationAPITestCase(APITestCase):
 
     def test_unauthenticated_user_cannot_activate_test(self):
         """Test that unauthenticated users cannot activate tests"""
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._activate_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_unauthenticated_user_cannot_close_test(self):
         """Test that unauthenticated users cannot close tests"""
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._close_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_unauthenticated_user_cannot_get_active_test(self):
         """Test that unauthenticated users cannot get active test"""
-        response = self.client.get(
-            reverse(
-                "kolibri:core:coursesession-active-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-        )
+        response = self._get_active_test()
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
