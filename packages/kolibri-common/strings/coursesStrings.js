@@ -187,6 +187,7 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   markAsCompleteAction: {
     message: 'Mark as complete',
     context: 'Action label for marking a resource as complete',
+  },
   startPreTest: {
     message: 'Start pre-test',
     context: 'Button label for starting a pre-test',
