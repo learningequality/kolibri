@@ -55,7 +55,7 @@ describe('useCourseSession', () => {
     test_type: TestType.PRE,
     status: TestStatus.ACTIVE,
     unit_phase: UnitPhase.PRE_TEST_ACTIVE,
-    active_unit_index: 0,
+    active_unit_id: 'unit-1',
   };
 
   // Active post-test on unit 1
@@ -65,7 +65,7 @@ describe('useCourseSession', () => {
     test_type: TestType.POST,
     status: TestStatus.ACTIVE,
     unit_phase: UnitPhase.POST_TEST_ACTIVE,
-    active_unit_index: 0,
+    active_unit_id: 'unit-1',
   };
 
   // Completed pre-test on unit 1
@@ -75,7 +75,7 @@ describe('useCourseSession', () => {
     test_type: TestType.PRE,
     status: TestStatus.ENDED,
     unit_phase: UnitPhase.POST_TEST_PENDING,
-    active_unit_index: 0,
+    active_unit_id: 'unit-1',
   };
 
   // Completed post-test on unit 1
@@ -85,7 +85,7 @@ describe('useCourseSession', () => {
     test_type: TestType.POST,
     status: TestStatus.ENDED,
     unit_phase: UnitPhase.PRE_TEST_PENDING,
-    active_unit_index: 1,
+    active_unit_id: 'unit-2',
   };
 
   // Server response when no tests have been taken
@@ -96,7 +96,7 @@ describe('useCourseSession', () => {
     status: null,
     activated_by: null,
     unit_phase: UnitPhase.PRE_TEST_PENDING,
-    active_unit_index: 0,
+    active_unit_id: 'unit-1',
   };
 
   beforeEach(() => {
@@ -225,7 +225,7 @@ describe('useCourseSession', () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue({
         ...mockActivePreTest,
         unit_contentnode_id: 'unit-2',
-        active_unit_index: 1,
+        active_unit_id: 'unit-2',
       });
 
       const { activeUnit } = useCourseSession(mockCourseSessionId);
@@ -263,7 +263,7 @@ describe('useCourseSession', () => {
         test_type: TestType.POST,
         status: TestStatus.ENDED,
         unit_phase: UnitPhase.COMPLETE,
-        active_unit_index: -1,
+        active_unit_id: null,
       });
 
       const { activeUnit } = useCourseSession(mockCourseSessionId);
@@ -280,7 +280,7 @@ describe('useCourseSession', () => {
       });
       CourseSessionResource.lastUnitTest.mockResolvedValue({
         ...mockNoTests,
-        active_unit_index: -1,
+        active_unit_id: null,
       });
 
       const { activeUnit } = useCourseSession(mockCourseSessionId);
@@ -317,7 +317,7 @@ describe('useCourseSession', () => {
       });
       CourseSessionResource.lastUnitTest.mockResolvedValue({
         ...mockNoTests,
-        active_unit_index: -1,
+        active_unit_id: null,
       });
 
       const { activeUnitIndex } = useCourseSession(mockCourseSessionId);
@@ -345,7 +345,7 @@ describe('useCourseSession', () => {
         test_type: TestType.POST,
         status: TestStatus.ENDED,
         unit_phase: UnitPhase.PRE_TEST_PENDING,
-        active_unit_index: 2,
+        active_unit_id: 'unit-3',
       });
 
       const { completedUnits } = useCourseSession(mockCourseSessionId);
@@ -364,7 +364,7 @@ describe('useCourseSession', () => {
         test_type: TestType.POST,
         status: TestStatus.ENDED,
         unit_phase: UnitPhase.COMPLETE,
-        active_unit_index: -1,
+        active_unit_id: null,
       });
 
       const { completedUnits, activeUnit } = useCourseSession(mockCourseSessionId);
@@ -408,7 +408,7 @@ describe('useCourseSession', () => {
         test_type: TestType.POST,
         status: TestStatus.ENDED,
         unit_phase: UnitPhase.PRE_TEST_PENDING,
-        active_unit_index: 2,
+        active_unit_id: 'unit-3',
       });
 
       const { upcomingUnits } = useCourseSession(mockCourseSessionId);
@@ -445,7 +445,7 @@ describe('useCourseSession', () => {
         test_type: TestType.POST,
         status: TestStatus.ENDED,
         unit_phase: UnitPhase.COMPLETE,
-        active_unit_index: -1,
+        active_unit_id: null,
       });
 
       const { isCourseComplete } = useCourseSession(mockCourseSessionId);
@@ -462,7 +462,7 @@ describe('useCourseSession', () => {
       });
       CourseSessionResource.lastUnitTest.mockResolvedValue({
         ...mockNoTests,
-        active_unit_index: -1,
+        active_unit_id: null,
       });
 
       const { isCourseComplete } = useCourseSession(mockCourseSessionId);
@@ -481,7 +481,7 @@ describe('useCourseSession', () => {
 
       expect(lastUnitTest.value.id).toBe(null);
       expect(lastUnitTest.value.unit_phase).toBe(UnitPhase.PRE_TEST_PENDING);
-      expect(lastUnitTest.value.active_unit_index).toBe(0);
+      expect(lastUnitTest.value.active_unit_id).toBe('unit-1');
     });
 
     it('should contain the last test data', async () => {
@@ -552,7 +552,7 @@ describe('useCourseSession', () => {
         test_type: TestType.POST,
         status: TestStatus.ENDED,
         unit_phase: UnitPhase.COMPLETE,
-        active_unit_index: -1,
+        active_unit_id: null,
       });
 
       const { unitPhase } = useCourseSession(mockCourseSessionId);

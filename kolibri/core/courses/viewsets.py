@@ -299,7 +299,7 @@ def _activated_by_info(user):
 
 def _compute_course_state(course_id, test):
     """
-    Compute the unit phase and active unit index from the most recent test
+    Compute the unit phase and active unit ID from the most recent test
     and the course's unit structure.
 
     Args:
@@ -307,17 +307,18 @@ def _compute_course_state(course_id, test):
         test: The most recent UnitTestAssignment, or None
 
     Returns:
-        dict with 'unit_phase' and 'active_unit_index'
+        dict with 'unit_phase' and 'active_unit_id'
     """
     unit_qs = ContentNode.objects.filter(
         parent_id=course_id,
         modality=modalities.UNIT,
     )
-    total_units = unit_qs.count()
+
+    first_unit_id = unit_qs.order_by("lft").values_list("id", flat=True).first()
 
     initial_state = {
         "unit_phase": UnitPhase.PreTestPending,
-        "active_unit_index": 0 if total_units > 0 else -1,
+        "active_unit_id": str(first_unit_id) if first_unit_id else None,
     }
 
     if not test or test.status == TestStatus.NotStarted:
@@ -330,9 +331,6 @@ def _compute_course_state(course_id, test):
         .first()
     )
 
-    # 0-based index of the test's unit within the course
-    test_unit_index = unit_qs.filter(lft__lt=unit_lft).count()
-
     if test.status == TestStatus.Active:
         unit_phase = (
             UnitPhase.PreTestActive
@@ -341,7 +339,7 @@ def _compute_course_state(course_id, test):
         )
         return {
             "unit_phase": unit_phase,
-            "active_unit_index": test_unit_index,
+            "active_unit_id": str(test.unit_contentnode_id),
         }
 
     # Test is ended
@@ -349,20 +347,26 @@ def _compute_course_state(course_id, test):
         # Pre-test ended = still on this unit (lessons/post-test phase)
         return {
             "unit_phase": UnitPhase.PostTestPending,
-            "active_unit_index": test_unit_index,
+            "active_unit_id": str(test.unit_contentnode_id),
         }
 
     # Post-test ended = unit complete
-    next_index = test_unit_index + 1
-    if next_index >= total_units:
+    next_unit_id = (
+        unit_qs.filter(lft__gt=unit_lft)
+        .order_by("lft")
+        .values_list("id", flat=True)
+        .first()
+    )
+
+    if not next_unit_id:
         return {
             "unit_phase": UnitPhase.Complete,
-            "active_unit_index": -1,
+            "active_unit_id": None,
         }
 
     return {
         "unit_phase": UnitPhase.PreTestPending,
-        "active_unit_index": next_index,
+        "active_unit_id": str(next_unit_id),
     }
 
 

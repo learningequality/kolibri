@@ -83,21 +83,21 @@ export default function useCourseSession(courseSessionId) {
   });
 
   /**
-   * The unit currently being worked on, derived from server-provided active_unit_index.
+   * The unit currently being worked on, derived from server-provided active_unit_id.
    */
   const activeUnit = computed(() => {
     if (!units.value.length || !lastUnitTest.value) return null;
-    const index = lastUnitTest.value.active_unit_index;
-    if (index < 0 || index >= units.value.length) return null;
-    return units.value[index];
+    const id = lastUnitTest.value.active_unit_id;
+    if (!id) return null;
+    return units.value.find(u => u.id === id) || null;
   });
 
   /**
    * Index of the active unit within the units array.
    */
   const activeUnitIndex = computed(() => {
-    if (!lastUnitTest.value) return -1;
-    return lastUnitTest.value.active_unit_index;
+    if (!activeUnit.value) return -1;
+    return units.value.findIndex(u => u.id === activeUnit.value.id);
   });
 
   /**

@@ -1156,7 +1156,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         )
 
     def test_activate_test_returns_unit_phase(self):
-        """activate_test should return unit_phase and active_unit_index"""
+        """activate_test should return unit_phase and active_unit_id"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -1173,10 +1173,10 @@ class UnitTestActivationAPITestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["unit_phase"], "pre_test_active")
-        self.assertIn("active_unit_index", response.data)
+        self.assertIn("active_unit_id", response.data)
 
     def test_close_test_returns_unit_phase(self):
-        """close_test should return unit_phase and active_unit_index"""
+        """close_test should return unit_phase and active_unit_id"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
         # First activate a test
@@ -1207,7 +1207,7 @@ class UnitTestActivationAPITestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["unit_phase"], "post_test_pending")
-        self.assertIn("active_unit_index", response.data)
+        self.assertIn("active_unit_id", response.data)
 
     def test_unauthenticated_user_cannot_activate_test(self):
         """Test that unauthenticated users cannot activate tests"""
@@ -1427,7 +1427,7 @@ class LastUnitTestAPITestCase(APITestCase):
         self.assertIsNone(response.data["status"])
         self.assertIsNone(response.data["activated_by"])
         self.assertEqual(response.data["unit_phase"], "pre_test_pending")
-        self.assertEqual(response.data["active_unit_index"], 0)
+        self.assertEqual(response.data["active_unit_id"], str(self.unit1.id))
 
     # --- Unit 1 progression ---
 
@@ -1687,7 +1687,7 @@ class LastUnitTestAPITestCase(APITestCase):
         response = self._get_last_unit_test()
 
         self.assertEqual(response.data["unit_phase"], "pre_test_active")
-        self.assertEqual(response.data["active_unit_index"], 0)
+        self.assertEqual(response.data["active_unit_id"], str(self.unit1.id))
 
     def test_unit_phase_post_test_pending(self):
         """unit_phase should be post_test_pending after pre-test ends"""
@@ -1697,7 +1697,7 @@ class LastUnitTestAPITestCase(APITestCase):
         response = self._get_last_unit_test()
 
         self.assertEqual(response.data["unit_phase"], "post_test_pending")
-        self.assertEqual(response.data["active_unit_index"], 0)
+        self.assertEqual(response.data["active_unit_id"], str(self.unit1.id))
 
     def test_unit_phase_post_test_active(self):
         """unit_phase should be post_test_active when a post-test is running"""
@@ -1708,7 +1708,7 @@ class LastUnitTestAPITestCase(APITestCase):
         response = self._get_last_unit_test()
 
         self.assertEqual(response.data["unit_phase"], "post_test_active")
-        self.assertEqual(response.data["active_unit_index"], 0)
+        self.assertEqual(response.data["active_unit_id"], str(self.unit1.id))
 
     def test_unit_phase_pre_test_pending_after_post_test_ends(self):
         """unit_phase should be pre_test_pending for next unit after post-test ends"""
@@ -1719,7 +1719,7 @@ class LastUnitTestAPITestCase(APITestCase):
         response = self._get_last_unit_test()
 
         self.assertEqual(response.data["unit_phase"], "pre_test_pending")
-        self.assertEqual(response.data["active_unit_index"], 1)
+        self.assertEqual(response.data["active_unit_id"], str(self.unit2.id))
 
     def test_unit_phase_complete_when_last_unit_post_test_ends(self):
         """unit_phase should be complete when last unit's post-test ends"""
@@ -1734,7 +1734,7 @@ class LastUnitTestAPITestCase(APITestCase):
         response = self._get_last_unit_test()
 
         self.assertEqual(response.data["unit_phase"], "complete")
-        self.assertEqual(response.data["active_unit_index"], -1)
+        self.assertIsNone(response.data["active_unit_id"])
 
     def test_active_unit_index_mid_course(self):
         """active_unit_index should reflect the current unit position"""
@@ -1745,7 +1745,7 @@ class LastUnitTestAPITestCase(APITestCase):
 
         response = self._get_last_unit_test()
 
-        self.assertEqual(response.data["active_unit_index"], 1)
+        self.assertEqual(response.data["active_unit_id"], str(self.unit2.id))
         self.assertEqual(response.data["unit_phase"], "pre_test_active")
 
     def test_response_structure_includes_new_fields(self):
@@ -1756,4 +1756,4 @@ class LastUnitTestAPITestCase(APITestCase):
         response = self._get_last_unit_test()
 
         self.assertIn("unit_phase", response.data)
-        self.assertIn("active_unit_index", response.data)
+        self.assertIn("active_unit_id", response.data)
