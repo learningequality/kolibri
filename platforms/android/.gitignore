@@ -1,44 +1,64 @@
-# A generated source file
-src/strings.py
+# Generated source files
+app/src/main/python/strings.py
+app/src/main/res/values-*/strings.xml
+
+# Temporary files
 tmpenv
-tar
-python-for-android/build/
-python-for-android/packages/**
-python-for-android/dists/kolibri/_python*
-python-for-android/dists/kolibri/.gradle
-python-for-android/dists/kolibri/build
-python-for-android/dists/kolibri/gradle/*
-python-for-android/dists/kolibri/jni
-python-for-android/dists/kolibri/libs
-python-for-android/dists/kolibri/templates
-python-for-android/dists/kolibri/obj
-python-for-android/dists/kolibri/src/res_initial
-python-for-android/dists/kolibri/src/main/assets/private.tar
-python-for-android/dists/kolibri/webview_includes
-python-for-android/dists/kolibri/*.*
-python-for-android/dists/kolibri/gradlew
-python-for-android/dists/kolibri/src/main/res/*/html_content.xml
-python-for-android/dists/kolibri/src/main/res/values-*/strings.xml
-!python-for-android/dists/kolibri/build.gradle
-!python-for-android/dists/kolibri/gradle.properties
+tmphome/
 
-# File format for signing key
+# Kolibri tar files and extracted source
+tar/
+tar/extracted/
+
+# File format for signing keys
 *.jks
+*.keystore
 
-# output folder
+# Output folder
 dist/
 
+# Version code file
+.version-code
+
+# Python
 __pycache__
 *.pyc
-build_docker
-bin/
-build.log
-tmphome/
-android_root/
 
+# Android build artifacts
+android_root/
 *.apk
-.env
-.version-code
-*.keystore
-.envrc
+bin/
+build/
+.gradle/
+.cxx
+.externalNativeBuild
+captures/
+local.properties
+
+# IDE
 .idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Claude Code sandbox artifacts
+.bash_profile
+.bashrc
+.profile
+.zprofile
+.zshrc
+.gitconfig
+.ripgreprc
+.mcp.json
+.claude/
+HEAD
+config
+hooks/
+objects/
+refs/
+
+# Environment
+.env
+.envrc
+build_docker
+build.log

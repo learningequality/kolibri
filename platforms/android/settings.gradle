@@ -1,0 +1,25 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+// Resolves and downloads JDK toolchains (see the java toolchain block in app/build.gradle
+// and gradle/gradle-daemon-jvm.properties) so builds don't depend on the system JDK.
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.10.0'
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = "https://chaquo.com/maven" }
+    }
+}
+
+rootProject.name = "Kolibri"
+include ':app'

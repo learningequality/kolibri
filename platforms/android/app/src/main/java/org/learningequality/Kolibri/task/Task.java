@@ -1,199 +1,119 @@
-package org.learningequality;
+package org.learningequality.Kolibri.task;
 
 import android.content.Context;
 import android.util.Log;
-
-import androidx.core.content.ContextCompat;
+import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkInfo;
-import androidx.work.WorkQuery;
 import androidx.work.multiprocess.RemoteWorkManager;
+import java.util.concurrent.TimeUnit;
+import org.learningequality.Kolibri.util.ContextUtil;
+import org.learningequality.Kolibri.workers.BackgroundWorker;
+import org.learningequality.Kolibri.workers.ForegroundWorker;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
-import org.learningequality.Kolibri.sqlite.JobStorage;
-import org.learningequality.Kolibri.task.Builder;
-import org.learningequality.Kolibri.task.Reconciler;
-import org.learningequality.Kolibri.task.Sentinel;
-import org.learningequality.Kolibri.task.StateMap;
-import org.learningequality.notification.Manager;
-import org.learningequality.notification.NotificationRef;
-import org.learningequality.task.Worker;
-
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import java9.util.concurrent.CompletableFuture;
-
-
+/**
+ * Thin Java wrapper for WorkManager task enqueueing. Called from Python
+ * (android_app_plugin/kolibri_plugin.py) to schedule Kolibri tasks.
+ *
+ * <p>This class is intentionally minimal - all database access and reconciliation logic is handled
+ * in Python to avoid recursive Python->Java->Python calls.
+ */
 public class Task {
-    public static final String TAG = "Kolibri.Task";
+  public static final String TAG = "Kolibri.Task";
 
-    public static String enqueueOnce(String id, int delay, boolean expedite, String jobFunc, boolean longRunning) {
-        RemoteWorkManager workManager = RemoteWorkManager.getInstance(ContextUtil.getApplicationContext());
-        Builder.TaskRequest builder = new Builder.TaskRequest(id);
-        builder.setDelay(delay)
-                .setExpedite(expedite)
-                .setJobFunc(jobFunc)
-                .setLongRunning(longRunning);
+  /**
+   * Enqueue a task with WorkManager from Python
+   *
+   * @param id Job ID (UUID string)
+   * @param delay Delay in seconds before task should run
+   * @param expedite Whether to expedite (high priority) this task
+   * @param jobFunc Kolibri job function name (for logging)
+   * @param longRunning Whether this is a long-running task
+   * @return Work request ID (different from job ID)
+   */
+  public static String enqueueOnce(
+      String id, double delay, boolean expedite, String jobFunc, boolean longRunning) {
+    try {
+      Context context = ContextUtil.getApplicationContext();
+      RemoteWorkManager workManager = RemoteWorkManager.getInstance(context);
 
-        OneTimeWorkRequest workRequest = builder.build();
-        workManager.enqueueUniqueWork(id, ExistingWorkPolicy.APPEND_OR_REPLACE, workRequest);
-        // return the work request ID, different from the task ID passed in
-        return workRequest.getId().toString();
+      // Build work data
+      Data inputData =
+          new Data.Builder()
+              .putString("job_id", id)
+              .putString("task_id", id)
+              .putString("job_func", jobFunc)
+              .build();
+
+      // Select worker class based on long_running flag
+      Class<? extends androidx.work.Worker> workerClass;
+      if (longRunning) {
+        workerClass = ForegroundWorker.class;
+      } else {
+        workerClass = BackgroundWorker.class;
+      }
+
+      // Build work request with delay and priority
+      OneTimeWorkRequest.Builder requestBuilder =
+          new OneTimeWorkRequest.Builder(workerClass)
+              .setInputData(inputData)
+              .addTag("kolibri:job:" + id);
+
+      // Set initial delay if specified
+      if (delay > 0) {
+        long delayMillis = (long) (delay * 1000);
+        requestBuilder.setInitialDelay(delayMillis, TimeUnit.MILLISECONDS);
+      }
+
+      // Set expedite flag for high priority tasks (only if no delay - can't expedite delayed jobs)
+      if (expedite && delay <= 0) {
+        requestBuilder.setExpedited(
+            androidx.work.OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST);
+      }
+
+      OneTimeWorkRequest workRequest = requestBuilder.build();
+
+      // Use unique work to prevent duplicate task execution
+      // REPLACE policy ensures the latest schedule takes effect
+      workManager.enqueueUniqueWork(id, ExistingWorkPolicy.REPLACE, workRequest);
+
+      String workRequestId = workRequest.getId().toString();
+      Log.d(
+          TAG,
+          "Enqueued unique task "
+              + id
+              + " (func="
+              + jobFunc
+              + ", delay="
+              + delay
+              + "s, expedite="
+              + expedite
+              + ", longRunning="
+              + longRunning
+              + ") -> "
+              + workRequestId);
+
+      return workRequestId;
+
+    } catch (Exception e) {
+      Log.e(TAG, "Failed to enqueue task " + id, e);
+      return null;
     }
+  }
 
-    public static void clear(String id) {
-        Context context = ContextUtil.getApplicationContext();
-        RemoteWorkManager workManager = RemoteWorkManager.getInstance(context);
-        WorkQuery workQuery = Builder.TaskQuery.from(id).build();
-        ListenableFuture<List<WorkInfo>> workInfosFuture = workManager.getWorkInfos(workQuery);
-
-        workInfosFuture.addListener(() -> {
-            try {
-                List<WorkInfo> workInfos = workInfosFuture.get();
-                if (workInfos != null) {
-                    // Track whether the work infos are telling us this is clearable
-                    boolean clearable = true;
-                    // As clearable defaults to true to repeatedly &&
-                    // also make sure we actually saw any info at all
-                    boolean anyInfo = false;
-                    for (WorkInfo workInfo : workInfos) {
-                        anyInfo = true;
-                        WorkInfo.State state = workInfo.getState();
-                        // Clearing a task while it is still running causes some
-                        // not great things to happen, so we should wait until
-                        // WorkManager has determined it is not running.
-                        clearable = clearable && state != WorkInfo.State.RUNNING;
-                    }
-                    if (anyInfo && clearable) {
-                        // If the tasks are marked as completed we
-                        workManager.cancelUniqueWork(id);
-                    }
-                }
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            }
-        }, new MainThreadExecutor());
+  /**
+   * Cancel a task by job ID
+   *
+   * @param id Job ID to cancel
+   */
+  public static void clear(String id) {
+    try {
+      Context context = ContextUtil.getApplicationContext();
+      RemoteWorkManager workManager = RemoteWorkManager.getInstance(context);
+      workManager.cancelAllWorkByTag("kolibri:job:" + id);
+      Log.d(TAG, "Cancelled task " + id);
+    } catch (Exception e) {
+      Log.e(TAG, "Failed to cancel task " + id, e);
     }
-
-    public static CompletableFuture<Boolean> reconcile(Context context, Executor executor) {
-        if (executor == null) {
-            executor = ContextCompat.getMainExecutor(context);
-        }
-
-        final AtomicBoolean didReconcile = new AtomicBoolean(false);
-        final JobStorage db = JobStorage.readwrite(context);
-        final Reconciler reconciler = Reconciler.from(context, db, executor);
-
-        if (db == null) {
-            Log.e(Sentinel.TAG, "Failed to open job storage database");
-            return CompletableFuture.completedFuture(false);
-        }
-
-        // If we can't acquire the lock, then reconciliation is already running
-        if (!reconciler.begin()) {
-            return CompletableFuture.completedFuture(false);
-        }
-
-        final Sentinel sentinel = Sentinel.from(context, db, executor);
-        final CompletableFuture<Boolean> future = new CompletableFuture<>();
-        CompletableFuture<AtomicBoolean> chain = CompletableFuture.completedFuture(didReconcile);
-
-        // Run through all the states and check them, then process the results
-        for (StateMap stateRef : StateMap.forReconciliation()) {
-            chain = chain.thenComposeAsync((_didReconcile) -> {
-                // Avoid checking if future is cancelled
-                synchronized (future) {
-                    if (future.isCancelled()) {
-                        return CompletableFuture.completedFuture(_didReconcile);
-                    }
-                }
-
-                Log.i(TAG, "Requesting sentinel check state " + stateRef);
-                return sentinel.check(stateRef)
-                        .exceptionally((e) -> {
-                            Log.e(TAG, "Failed to check state for reconciliation " + stateRef, e);
-                            return null;
-                        })
-                        .thenCompose((results) -> {
-                            if (results != null && results.length > 0) {
-                                Log.d(TAG, "Received results for sentinel checking " + stateRef);
-                                _didReconcile.set(true);
-                                return reconciler.process(stateRef, results)
-                                        .thenApply((r) -> _didReconcile);
-                            }
-                            return CompletableFuture.completedFuture(_didReconcile);
-                        });
-            }, executor);
-        }
-
-        final CompletableFuture<AtomicBoolean> finalChain
-                = chain.orTimeout(15, java.util.concurrent.TimeUnit.SECONDS);
-
-        finalChain.whenCompleteAsync((result, error) -> {
-            try {
-                reconciler.end();
-                db.close();
-            } catch (Exception e) {
-                Log.e(TAG, "Failed cleaning up reconciliation", e);
-            } finally {
-                synchronized (future) {
-                    if (!future.isCancelled()) {
-                        if (error instanceof TimeoutException) {
-                            Log.e(TAG, "Timed out waiting for reconciliation chain", error);
-                            future.completeExceptionally(error);
-                        } else if (error != null) {
-                            Log.e(TAG, "Failed during reconciliation chain", error);
-                            future.completeExceptionally(error);
-                        } else if (result != null) {
-                            if (result.get()) {
-                                Log.i(TAG, "Reconciliation completed successfully");
-                            } else {
-                                Log.i(TAG, "No reconciliation performed");
-                            }
-                            future.complete(result.get());
-                        } else {
-                            future.complete(false);
-                        }
-                    }
-                }
-            }
-        }, executor);
-
-        // Propagate cancellation to the chain
-        future.whenCompleteAsync((result, error) -> {
-            synchronized (future) {
-                if (future.isCancelled()) {
-                    finalChain.cancel(true);
-                }
-            }
-        }, executor);
-
-        return future;
-    }
-
-    /**
-     * @param id                The task request ID
-     * @param notificationTitle The notification title
-     * @param notificationText  The notification text
-     * @param progress          The task progress
-     * @param total             The total of completed task progress
-     */
-    public static void updateProgress(
-            String id, String notificationTitle, String notificationText, int progress, int total
-    ) {
-        NotificationRef ref = Worker.buildNotificationRef(id);
-        try {
-            Context context = ContextUtil.getApplicationContext();
-            Manager manager = new Manager(context, ref);
-            manager.send(notificationTitle, notificationText, progress, total);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to update progress", e);
-        }
-    }
+  }
 }

@@ -1,65 +1,56 @@
-package org.learningequality.Kolibri;
+package org.learningequality.Kolibri.workers;
 
-import android.app.Notification;
+import android.content.Context;
 import android.content.pm.ServiceInfo;
-import android.util.Log;
-
+import android.os.Build;
 import androidx.annotation.NonNull;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.work.ForegroundInfo;
+import androidx.work.WorkerParameters;
+import org.learningequality.Kolibri.notification.Manager;
 
-import com.google.common.util.concurrent.ListenableFuture;
+/**
+ * Foreground worker for long-running/high-priority Kolibri tasks
+ *
+ * <p>Shows persistent notification and uses foreground service to prevent system from killing the
+ * worker during execution.
+ */
+public class ForegroundWorker extends BaseTaskWorker {
+  private static final String TAG = "ForegroundWorker";
 
-import org.learningequality.Kolibri.task.TaskWorkerImpl;
-import org.learningequality.notification.Builder;
-import org.learningequality.notification.NotificationRef;
-import org.learningequality.task.Worker;
+  public ForegroundWorker(@NonNull Context context, @NonNull WorkerParameters params) {
+    super(context, params);
+  }
 
-final public class ForegroundWorker extends Worker {
-    private static final String TAG = "Kolibri.ForegroundWorker";
+  @Override
+  protected String getWorkerType() {
+    return "foreground";
+  }
 
-    public ForegroundWorker(
-            @NonNull android.content.Context context,
-            @NonNull androidx.work.WorkerParameters workerParams
-    ) {
-        super(context, workerParams);
+  @NonNull
+  @Override
+  public Result doWork() {
+    try {
+      setForegroundAsync(getForegroundInfo());
+    } catch (Exception e) {
+      android.util.Log.w(TAG, "Failed to set foreground", e);
     }
+    return super.doWork();
+  }
 
-    protected TaskWorkerImpl getWorkerImpl() {
-        Log.d(TAG, "Starting foreground task: " + getId());
-        return new TaskWorkerImpl(getId(), getApplicationContext());
-    }
+  @NonNull
+  @Override
+  public ForegroundInfo getForegroundInfo() {
+    // Get job ID for notification
+    String jobId = getInputData().getString("job_id");
 
-    @Override
-    @NonNull
-    public Result doWork() {
-        Log.d(TAG, "Setting task as foreground: " + getId());
-        setForegroundAsync(getForegroundInfo());
-        return super.doWork();
-    }
+    // Create notification via Manager
+    return Manager.createForegroundInfo(getApplicationContext(), jobId, getForegroundServiceType());
+  }
 
-    @NonNull
-    public ForegroundInfo getForegroundInfo() {
-        NotificationRef ref = getNotificationRef();
-        Notification lastNotification = this.getLastNotification();
-        if (lastNotification == null) {
-            // build default notification
-            lastNotification = new Builder(getApplicationContext(), ref).build();
-        }
-        // If API level is at least 29
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            return new ForegroundInfo(
-                    ref.getId(),
-                    lastNotification,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST
-            );
-        }
-        return new ForegroundInfo(ref.getId(), lastNotification);
+  private int getForegroundServiceType() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      return ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
     }
-
-    @Override
-    @NonNull
-    public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
-        return CallbackToFutureAdapter.getFuture(completer -> completer.set(getForegroundInfo()));
-    }
+    return 0;
+  }
 }

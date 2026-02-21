@@ -1,33 +1,22 @@
-package org.learningequality.Kolibri;
-
+package org.learningequality.Kolibri.workers;
 
 import android.content.Context;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
 
-import org.learningequality.notification.Manager;
-import org.learningequality.notification.NotificationRef;
-import org.learningequality.task.Worker;
-
-import org.learningequality.Kolibri.task.TaskWorkerImpl;
-
 /**
- * Background worker that runs a Python task in a background thread. This will likely be run by the
- * SystemJobService.
+ * Background worker for short/low-priority Kolibri tasks
+ *
+ * <p>No persistent notification, can be killed by system if resources needed.
  */
-final public class BackgroundWorker extends Worker {
-    private static final String TAG = "Kolibri.BackgroundWorker";
+public class BackgroundWorker extends BaseTaskWorker {
 
-    public BackgroundWorker(
-            @NonNull Context context, @NonNull WorkerParameters workerParams
-    ) {
-        super(context, workerParams);
-    }
+  public BackgroundWorker(@NonNull Context context, @NonNull WorkerParameters params) {
+    super(context, params);
+  }
 
-    protected TaskWorkerImpl getWorkerImpl() {
-        Log.d(TAG, "Starting background task: " + getId());
-        return new TaskWorkerImpl(getId(), getApplicationContext());
-    }
+  @Override
+  protected String getWorkerType() {
+    return "background";
+  }
 }

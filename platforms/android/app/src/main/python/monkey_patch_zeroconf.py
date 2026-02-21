@@ -3,13 +3,16 @@ import sys
 # kolibri import must come first: it puts its dist folder (zeroconf) on sys.path
 import kolibri  # noqa: F401  # isort: skip
 import zeroconf
-from jnius import autoclass
+from java import jclass
 
-NetworkUtils = autoclass("org.learningequality.NetworkUtils")
+NetworkUtils = jclass("org.learningequality.Kolibri.util.NetworkUtils")
 
 
 def get_all_addresses():
-    return list(NetworkUtils.getActiveIPv4Addresses())
+    # Get Java List and convert to Python list
+    # Chaquopy Java collections need explicit conversion via toArray()
+    java_list = NetworkUtils.getActiveIPv4Addresses()
+    return [str(addr) for addr in java_list.toArray()]
 
 
 # kolibri.utils.server binds get_all_addresses at import time; a stale (ifaddr)
