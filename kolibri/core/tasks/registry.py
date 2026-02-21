@@ -129,7 +129,7 @@ class _registry(dict):
 TaskRegistry = _registry()
 
 
-class RegisteredTask(object):
+class RegisteredTask:
     """
     This class acts as a transparent wrapper around the `func` argument.
 

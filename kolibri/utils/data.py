@@ -47,7 +47,7 @@ def bytes_from_humans(size, suffix="B"):
     raise ValueError("Could not parse bytes value from {}".format(size))
 
 
-class ChoicesEnum(object):
+class ChoicesEnum:
     @classmethod
     def choices(cls):
         choices_list = [

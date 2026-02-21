@@ -36,7 +36,7 @@ TUPLE_TYPES = tuple, set, frozenset, list
 VALID_TYPES = int, float, str, bool
 
 
-class ParamValidator(object):
+class ParamValidator:
     # the name of the param in the request, e.g. 'user_id' (even if we pass 'user' to the Fn)
     param_name = None
 

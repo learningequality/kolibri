@@ -94,7 +94,7 @@ class ORMJob(Base):
 NO_VALUE = object()
 
 
-class Storage(object):
+class Storage:
     def __init__(self, connection, Base=Base):
         self.engine = connection
         if self.engine.name == "sqlite":

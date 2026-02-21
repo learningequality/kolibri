@@ -19,7 +19,7 @@ def job_storage():
         s.clear(force=True)
 
 
-class TestScheduler(object):
+class TestScheduler:
     @pytest.fixture
     def job(self):
         return Job(id)

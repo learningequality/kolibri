@@ -297,7 +297,7 @@ def _generate_request(request, query_params, method="GET"):
     return ret
 
 
-class ListModelMixin(object):
+class ListModelMixin:
     def _get_list_queryset(self):
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -326,7 +326,7 @@ class ListModelMixin(object):
         return response.data
 
 
-class RetrieveModelMixin(object):
+class RetrieveModelMixin:
     def retrieve(self, request, *args, **kwargs):
         return Response(self.serialize_object())
 

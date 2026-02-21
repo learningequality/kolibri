@@ -36,7 +36,7 @@ def Queue(*args, **kwargs):
     return ThreadingQueue(*args, **kwargs)
 
 
-class _Local(object):
+class _Local:
     """
     Dummy class to use for a local object for multiprocessing
     """

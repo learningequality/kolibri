@@ -168,7 +168,7 @@ def learner_canonicalized_assignments(resource_name, assignments):
     )
 
 
-class ClassroomPartitionFactory(object):
+class ClassroomPartitionFactory:
     """
     A factory class to create partitions for syncable models related to the classroom partition
     structure.

@@ -12,7 +12,7 @@ from kolibri.core.auth.constants import role_kinds
 q_none = Q(pk__in=[])
 
 
-class BasePermissions(object):
+class BasePermissions:
     """
     Base Permission class from which all other Permission classes should inherit.
 

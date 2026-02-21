@@ -41,7 +41,7 @@ def choices(sequence, k):
     return [random.choice(sequence) for _ in range(0, k)]
 
 
-class ChannelBuilder(object):
+class ChannelBuilder:
     """
     This class is purely to generate all the relevant data for a single
     channel for use during testing.

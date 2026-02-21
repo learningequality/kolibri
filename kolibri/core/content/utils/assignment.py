@@ -19,7 +19,7 @@ DeletedAssignment = namedtuple("ContentAssignment", ["source_model", "source_id"
 CONTENT_ASSIGNMENT_MANAGER_REGISTRY = {}
 
 
-class ContentAssignmentManager(object):
+class ContentAssignmentManager:
     """
     The ContentAssignmentManager is attached to a model, similar to a Django manager, but it's
     purpose is to allow introspection of changes to the model that occur during a sync, and to

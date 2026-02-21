@@ -12,7 +12,7 @@ from kolibri.core.device.utils import DeviceNotProvisioned
 from kolibri.utils.conf import OPTIONS
 
 
-class KolibriLocaleMiddleware(object):
+class KolibriLocaleMiddleware:
     """
     Copied and then modified into a new style middleware from:
     https://github.com/django/django/blob/stable/3.2.x/django/middleware/locale.py#L10
@@ -86,7 +86,7 @@ class KolibriLocaleMiddleware(object):
         return response
 
 
-class ProvisioningErrorHandler(object):
+class ProvisioningErrorHandler:
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -103,7 +103,7 @@ class ProvisioningErrorHandler(object):
         return self.get_response(request)
 
 
-class DatabaseBusyErrorHandler(object):
+class DatabaseBusyErrorHandler:
     """
     A middleware class to raise a 503 when the database is under heavy load
     For SQLite this will trigger for database locked errors.

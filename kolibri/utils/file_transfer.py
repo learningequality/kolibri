@@ -134,7 +134,7 @@ class TransferFileBase(BufferedIOBase, ABC):
         pass
 
 
-class ChunkedFileDirectoryManager(object):
+class ChunkedFileDirectoryManager:
     """
     A class to manage all chunked files in a directory and all its descendant directories.
     Its main purpose is to allow for the deletion of chunked files based on a least recently used

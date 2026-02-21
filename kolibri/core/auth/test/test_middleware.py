@@ -8,7 +8,7 @@ from ..middleware import get_anonymous_user_model
 from ..models import KolibriAnonymousUser
 
 
-class DummyRequestObject(object):
+class DummyRequestObject:
     def __init__(self):
         self.session = {}
 

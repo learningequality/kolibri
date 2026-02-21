@@ -84,7 +84,7 @@ def parse_installed_app_entry(app):
     return app
 
 
-class Registry(object):
+class Registry:
     __slots__ = ("_apps",)
 
     def __init__(self):

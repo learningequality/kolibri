@@ -59,7 +59,7 @@ def execute_job_with_python_worker(job_id, log_queue=None):
     )
 
 
-class Worker(object):
+class Worker:
     def __init__(self, connection, regular_workers=2, high_workers=1, log_queue=None):
         # Internally, we use concurrent.future.Future to run and track
         # job executions. We need to keep track of which future maps to which

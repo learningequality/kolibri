@@ -91,7 +91,7 @@ def cherrypy_access_log_middleware(get_response):
     return middleware
 
 
-class Metrics(object):
+class Metrics:
     def __init__(self):
         """
         Save the initial values when the request comes in

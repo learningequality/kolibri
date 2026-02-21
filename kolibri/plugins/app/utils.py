@@ -19,7 +19,7 @@ CAPABILITES = (
 )
 
 
-class AppInterface(object):
+class AppInterface:
     __slot__ = "_capabilities"
 
     def __init__(self):

@@ -1223,7 +1223,7 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
         self.client.logout()
 
 
-class UpdateSessionBase(object):
+class UpdateSessionBase:
     def _make_request(self, data):
         data["context"] = {"node_id": self.node.id}
         return self.client.put(
@@ -1526,7 +1526,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionTestCase(
         self.client.logout()
 
 
-class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
+class ProgressTrackingViewSetUpdateSessionAssessmentBase:
     def _make_request(self, data):
         return self.client.put(
             reverse(

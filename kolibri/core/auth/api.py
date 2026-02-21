@@ -501,7 +501,7 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
         return output
 
 
-class FacilityUserConsolidateMixin(object):
+class FacilityUserConsolidateMixin:
     """
     Mixin for FacilityUser ViewSets to handle consolidate logic
     """

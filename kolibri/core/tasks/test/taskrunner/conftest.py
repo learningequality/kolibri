@@ -11,7 +11,7 @@ def mock_compat(request, monkeypatch):
         from multiprocessing import Event  # noqa
         from concurrent.futures import ProcessPoolExecutor as PoolExecutor  # noqa
 
-        class local(object):
+        class local:
             """
             Dummy class to use for a local object for multiprocessing
             """

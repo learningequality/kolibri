@@ -194,7 +194,7 @@ def boot_time():
         raise RuntimeError("line 'btime' not found in %s" % path)
 
 
-class Process(object):
+class Process:
     """Linux process implementation."""
 
     __slots__ = ["pid", "_name", "_ppid", "_procfs_path"]

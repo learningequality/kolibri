@@ -194,7 +194,7 @@ attemptlog_fields = [
 ]
 
 
-class LogContext(object):
+class LogContext:
     """
     Object used to provide a limited dict like interface for encoding the
     context that can be stored in the sessionlog, and which is then
