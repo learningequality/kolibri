@@ -13,18 +13,21 @@ jobs:
       
       - name: Extract version from release tag
         id: version
-        run: 
+        run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
-      
+          echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
+
       - name: Extract version from changelog
         id: changelog_version
         run: |
-        CHANGELOG_VERSION=$(dpkg-parsechangelog -S Version)
-        echo "CHANGELOG_VERSION=${CHANGELOG_VERSION}" >> $GITHUB_OUTPUT
+          CHANGELOG_VERSION=$(dpkg-parsechangelog -S Version)
+          echo "CHANGELOG_VERSION=${CHANGELOG_VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Validate Version consistency
         id: version_check
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
+          CHANGELOG_VERSION: ${{ steps.changelog_version.outputs.CHANGELOG_VERSION }}
         run: |
           if [ "${VERSION}" != "${CHANGELOG_VERSION}" ]; then
             echo "Version mismatch: ${VERSION} != ${CHANGELOG_VERSION}"
@@ -49,7 +52,7 @@ jobs:
       - name: sign and upload package
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          Key ID: ${{ secrets.GPG_KEY_ID }}
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
         run: |
           echo "Signing package..."
           make sign-and-upload
@@ -78,7 +81,11 @@ jobs:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
         run: |
           python3 scripts/copy_to_other_distributions.py
-  
+
+      - name: Cleanup Launchpad credentials
+        if: always()
+        run: rm -f /tmp/lp-creds.txt
+
   block_release_step:
     if: ${{ !github.event.release.prerelease }}
     name: Job to block publish of a release until it has been manually approved
@@ -113,3 +120,7 @@ jobs:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
         run: |
           python3 scripts/copy_package_proposed_to_ppa.py
+
+      - name: Cleanup Launchpad credentials
+        if: always()
+        run: rm -f /tmp/lp-creds.txt
