@@ -1,0 +1,14 @@
+[project]
+name = "kolibri-installer-debian"
+version = "0.1.0"
+description = "Kolibri installer source for Debian"
+requires-python = ">=3.8"
+dependencies = [
+    "distro-info",
+    "packaging",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+]

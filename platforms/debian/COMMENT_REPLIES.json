@@ -1,0 +1,18 @@
+[
+  {
+    "comment_id": 2836309163,
+    "body": "Fixed — expanded the docstring with explicit examples showing the hyphen-to-tilde conversion for each suffix type, plus annotated the stable case as unchanged."
+  },
+  {
+    "comment_id": 2836309926,
+    "body": "Removed the stale TODO."
+  },
+  {
+    "comment_id": 2836310785,
+    "body": "Fixed — `fetch_github_releases()` now accepts `latest_existing` and stops pagination once the oldest release on a page is at or below that version. Called from `main()` with the latest version from `debian/changelog`."
+  },
+  {
+    "comment_id": 2836312292,
+    "body": "Fixed — `python3-distro-info` is now installed in both the test CI and build CI workflows. Tests no longer mock `get_current_lts_codename`; they use the real package (skipping gracefully when not installed locally). Build CI also installs `packaging` for the changelog script."
+  }
+]
