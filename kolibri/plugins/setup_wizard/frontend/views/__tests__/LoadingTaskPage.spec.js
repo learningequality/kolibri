@@ -3,12 +3,15 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import TaskResource from 'kolibri/apiResources/TaskResource';
 import LoadingTaskPage from '../LoadingTaskPage';
+import makeStore from '../../__tests__/utils/makeStore';
+
+const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
 
 jest.mock('kolibri/apiResources/TaskResource', () => ({
-  cancel: jest.fn(),
-  clearAll: jest.fn(),
-  restart: jest.fn(),
-  list: jest.fn(),
+  cancel: jest.fn().mockResolvedValue({}),
+  clearAll: jest.fn().mockResolvedValue({}),
+  restart: jest.fn().mockResolvedValue({}),
+  list: jest.fn().mockResolvedValue([]),
 }));
 
 const facilityMock = {
@@ -19,21 +22,23 @@ const facilityMock = {
 };
 
 const renderComponent = () => {
+  const store = makeStore();
+  store.dispatch = jest.fn().mockResolvedValue({});
+
   return render(LoadingTaskPage, {
-    mocks: {
+    store,
+    provide: {
       wizardService: {
+        send: jest.fn(),
         state: { context: { selectedFacility: facilityMock } },
       },
-
-      goToRootUrl: jest.fn(),
-      $router: {
-        push: jest.fn(),
-        replace: jest.fn(),
-      },
+    },
+    props: {
+      footerMessageType: 'IMPORT_FACILITY',
     },
     stubs: {
       FacilityTaskPanel: {
-        template: `<div><button @click="$emit('cancel')">Cancel Task</button></div>`,
+        template: '<div data-testid="task-panel"><button data-testid="stub-cancel" @click="$emit(\'cancel\')">Cancel Task</button></div>',
       },
     },
   });
@@ -42,57 +47,73 @@ const renderComponent = () => {
 describe('LoadingTaskPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    TaskResource.clearAll.mockResolvedValue();
   });
 
   it('loads the first task in the queue and starts polling', async () => {
-    TaskResource.list.mockResolvedValue([{ status: 'RUNNING' }]);
+    TaskResource.list.mockResolvedValue([{ id: 'task_1', status: 'RUNNING' }]);
     renderComponent();
 
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Import learning facility' })).toBeInTheDocument();
-    });
+    await flushPromises();
 
-    expect(screen.getByRole('button', { name: 'Cancel Task' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /import learning facility/i })).toBeInTheDocument();
+    expect(screen.getByTestId('task-panel')).toBeInTheDocument();
   });
 
-  it.skip('when tasks succeeds, the "continue" button is available', async () => {
-    TaskResource.list.mockResolvedValue([{ status: 'COMPLETED' }]);
+  it('when tasks succeeds, the "continue" button is available', async () => {
+    TaskResource.list.mockResolvedValue([{ id: 'task_1', status: 'COMPLETED' }]);
     const { emitted } = renderComponent();
 
-    const continueButton = await screen.findByRole('button', { name: 'Continue' });
+    await flushPromises();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /continue/i })).toBeInTheDocument();
+    });
+
+    const continueButton = screen.getByRole('button', { name: /continue/i });
     await userEvent.click(continueButton);
 
     expect(emitted().click_next).toBeTruthy();
   });
 
-  it.skip('when task fails, the "retry" button is available', async () => {
-    TaskResource.list.mockResolvedValue([{ status: 'FAILED' }]);
+  it('when task fails, the "retry" button is available', async () => {
+    TaskResource.list.mockResolvedValue([{ id: 'task_1', status: 'FAILED' }]);
     renderComponent();
 
-    const retryButton = await screen.findByRole('button', { name: 'Retry' });
+    await flushPromises();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
+    });
+
+    const retryButton = screen.getByRole('button', { name: /retry/i });
     await userEvent.click(retryButton);
 
     expect(TaskResource.restart).toHaveBeenCalledTimes(1);
   });
 
-  it.skip('when task fails, the "start over" button is available', async () => {
-    TaskResource.list.mockResolvedValue([{ status: 'FAILED' }]);
-    const { getByRole } = renderComponent();
+  it('when task fails, the "start over" button is available', async () => {
+    TaskResource.list.mockResolvedValue([{ id: 'task_1', status: 'FAILED' }]);
+    renderComponent();
 
-    const startOverButton = await waitFor(() => getByRole('button', { name: 'Start over' }));
+    await flushPromises();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /start over/i })).toBeInTheDocument();
+    });
+
+    const startOverButton = screen.getByRole('button', { name: /start over/i });
     await userEvent.click(startOverButton);
 
     expect(TaskResource.clearAll).toHaveBeenCalledTimes(1);
   });
 
   it('a cancel request is made when "cancel" is clicked', async () => {
-    TaskResource.list.mockResolvedValue([{ status: 'RUNNING' }]);
+    TaskResource.list.mockResolvedValue([{ id: 'task_1', status: 'RUNNING' }]);
     renderComponent();
 
-    const cancelStubButton = await screen.findByRole('button', { name: 'Cancel Task' });
-    await userEvent.click(cancelStubButton);
+    await flushPromises();
+    const cancelButton = await screen.findByTestId('stub-cancel');
+    await userEvent.click(cancelButton);
 
-    expect(TaskResource.cancel).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(TaskResource.cancel).toHaveBeenCalledTimes(1);
+    });
   });
 });
