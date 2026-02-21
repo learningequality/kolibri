@@ -47,7 +47,7 @@ jobs:
     - uses: actions/cache@v5
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'build_requires.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
         restore-keys: |
           ${{ runner.os }}-pip-
     - name: Download the tarfile from URL
@@ -64,7 +64,7 @@ jobs:
     - name: Install Debian build package dependencies
       run: sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf python3-setuptools python3-pip python3-distro-info build-essential
     - name: Install Python dependencies for changelog generation
-      run: pip install packaging
+      run: pip install .
     - name: Run the build
       run: make kolibri.deb
     - name: Get DEB filename

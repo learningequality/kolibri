@@ -8,7 +8,11 @@ dependencies = [
     "packaging",
 ]
 
+[tool.setuptools]
+packages = []
+
 [project.optional-dependencies]
 test = [
     "pytest",
+    "vcrpy",
 ]
