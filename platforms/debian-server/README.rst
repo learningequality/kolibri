@@ -28,12 +28,27 @@ Working in the repo
 
 You can also make changes in the cloned repository in the following workflow:
 
+#. Install pre-commit hooks (see `Pre-commit`_ below)
 #. Make your changes
-#. Run ``dch``, carefully noting your release notes. 
+#. Run ``dch``, carefully noting your release notes.
 #. Build the package with ``make deb``
 #. Test the package with  ``sudo dpkg -i ../kolibri-server_VERSION.deb``
 #. If you have further changes, you can keep editing and invoking ``make dist``
 #. Finally, commit your changes and open a PR, including your entry in ``debian/changelog``
+
+Pre-commit
+~~~~~~~~~~
+
+This repository uses `pre-commit <https://pre-commit.com/>`__ to run linting checks (yamlfmt, actionlint, trailing whitespace, etc.) before each commit.
+
+To set up pre-commit locally::
+
+  pip install pre-commit
+  pre-commit install
+
+After this, pre-commit hooks will run automatically on ``git commit``. To run all hooks manually against all files::
+
+  pre-commit run --all-files
 
 Releasing
 ---------

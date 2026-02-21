@@ -52,4 +52,3 @@ RUN echo "kolibri-server kolibri-server/port select 8080" | debconf-set-selectio
 COPY --from=build /app/kolibri-server_*.deb /app/kolibri-server.deb
 
 RUN apt update && apt install -y /app/kolibri-server.deb
-
