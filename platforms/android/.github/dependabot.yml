@@ -19,7 +19,7 @@ updates:
           - "actions/*"
   # Maintain dependencies for Gradle
   - package-ecosystem: "gradle"
-    directory: "python-for-android/dists/kolibri"
+    directory: "/app"
     schedule:
       interval: "monthly"
       time: "00:00"

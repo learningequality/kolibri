@@ -35,17 +35,12 @@ jobs:
         with:
           repository: learningequality/kolibri-installer-android
           ref: ${{ inputs.ref }}
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v6
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version: 3.9
-      - uses: actions/cache@v5
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          enable-cache: true
+          cache-python: true
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: uv sync --extra build
       - name: Release APK
-        run: python scripts/play_store_api.py release "${{ inputs.version-code }}"
+        run: uv run python scripts/play_store_api.py release "${{ inputs.version-code }}"

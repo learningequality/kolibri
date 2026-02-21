@@ -1,23 +1,24 @@
 repos:
-    -   repo: https://github.com/python/black
-        rev: 22.3.0
+    -   repo: https://github.com/astral-sh/ruff-pre-commit
+        rev: v0.9.6
         hooks:
-            -   id: black
-                types_or: [ python, pyi ]
-    -   repo: https://github.com/pycqa/flake8
-        rev: 4.0.1
-        hooks:
-            -   id: flake8
+            -   id: ruff
+                args: [--fix]
+            -   id: ruff-format
     -   repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v4.1.0
+        rev: v6.0.0
         hooks:
             -   id: trailing-whitespace
             -   id: check-yaml
+                args: ['--allow-multiple-documents']
             -   id: check-added-large-files
             -   id: debug-statements
             -   id: end-of-file-fixer
-
-    -   repo: https://github.com/asottile/reorder_python_imports
-        rev: v2.6.0
+    -   repo: local
         hooks:
-            -   id: reorder-python-imports
+            -   id: spotless
+                name: spotless (Java/Gradle formatting)
+                entry: ./gradlew spotlessCheck --no-daemon
+                language: system
+                pass_filenames: false
+                files: \.(java|gradle)$
