@@ -1,7 +1,6 @@
-import json
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import pytest
+from vcr_config import my_vcr
 
 from build_tools.generate_changelog import (
     parse_existing_changelog,
@@ -17,17 +16,6 @@ from build_tools.generate_changelog import (
     interleave_entries,
     generate_updated_changelog,
     main,
-)
-
-try:
-    from distro_info import UbuntuDistroInfo  # noqa: F401
-    _has_distro_info = True
-except ImportError:
-    _has_distro_info = False
-
-needs_distro_info = pytest.mark.skipif(
-    not _has_distro_info,
-    reason="python3-distro-info not installed"
 )
 
 SAMPLE_CHANGELOG = """\
@@ -125,99 +113,55 @@ def test_github_timestamp_to_debian_another():
     assert result == "Fri, 31 Oct 2025 15:09:14 +0000"
 
 
-def _mock_urlopen_pages(pages):
-    """Create a mock for urllib that returns paginated results.
-
-    pages: list of (response_body, next_link_or_none)
-    """
-    responses = []
-    for body, next_link in pages:
-        mock_response = MagicMock()
-        mock_response.read.return_value = json.dumps(body).encode()
-        mock_response.__enter__ = lambda s: s
-        mock_response.__exit__ = MagicMock(return_value=False)
-        if next_link:
-            mock_response.headers = {"Link": f'<{next_link}>; rel="next"'}
-        else:
-            mock_response.headers = {}
-        responses.append(mock_response)
-    return responses
+@my_vcr.use_cassette("releases_full")
+def test_fetch_github_releases_returns_releases():
+    """Fetching releases returns a non-empty list with expected structure."""
+    result = fetch_github_releases()
+    assert len(result) == 152
+    # Each release has the expected keys from the real GitHub API
+    for release in result:
+        assert "tag_name" in release
+        assert "prerelease" in release
+        assert "published_at" in release
+    # Results are ordered newest-first (as GitHub returns them)
+    assert result[0]["tag_name"] == "0.19.2-alpha0"
+    assert result[1]["tag_name"] == "v0.19.1"
 
 
-def test_fetch_github_releases_single_page():
-    releases = [
-        {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2026-01-20T16:54:38Z"},
-        {"tag_name": "v0.19.0", "prerelease": False, "published_at": "2025-12-10T16:26:58Z"},
-    ]
-    mock_responses = _mock_urlopen_pages([(releases, None)])
-
-    with patch("build_tools.generate_changelog.urlopen", side_effect=mock_responses):
-        result = fetch_github_releases()
-
-    assert len(result) == 2
-    assert result[0]["tag_name"] == "v0.19.1"
-
-
+@my_vcr.use_cassette("releases_full")
 def test_fetch_github_releases_pagination():
-    page1 = [
-        {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2026-01-20T16:54:38Z"},
-    ]
-    page2 = [
-        {"tag_name": "v0.19.0", "prerelease": False, "published_at": "2025-12-10T16:26:58Z"},
-    ]
-    mock_responses = _mock_urlopen_pages([
-        (page1, "https://api.github.com/repos/learningequality/kolibri/releases?page=2"),
-        (page2, None),
-    ])
-
-    with patch("build_tools.generate_changelog.urlopen", side_effect=mock_responses):
-        result = fetch_github_releases()
-
-    assert len(result) == 2
-    assert result[0]["tag_name"] == "v0.19.1"
-    assert result[1]["tag_name"] == "v0.19.0"
+    """Pagination is followed correctly across multiple pages."""
+    result = fetch_github_releases()
+    # Cassette has 2 pages: 100 + 52 releases
+    assert len(result) == 152
+    # Releases from page 2 are included (v0.13.1 is the first on page 2)
+    tags = [r["tag_name"] for r in result]
+    assert "v0.13.1" in tags
 
 
+@my_vcr.use_cassette("releases_full")
 def test_fetch_github_releases_stops_early_when_all_old():
     """When latest_existing is provided, stop fetching once all releases on a page are older."""
-    page1 = [
-        {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2026-02-06T19:46:25Z"},
-        {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2026-01-20T16:54:38Z"},
-    ]
-    page2 = [
-        {"tag_name": "v0.18.0", "prerelease": False, "published_at": "2025-06-01T00:00:00Z"},
-    ]
-    mock_responses = _mock_urlopen_pages([
-        (page1, "https://api.github.com/repos/learningequality/kolibri/releases?page=2"),
-        (page2, None),
-    ])
-
-    with patch("build_tools.generate_changelog.urlopen", side_effect=mock_responses):
-        result = fetch_github_releases(latest_existing="0.19.1")
-
-    # Should fetch page 1 (has v0.19.2 which is newer) but stop before page 2
-    # because v0.19.1 <= latest_existing means remaining pages are all older
-    assert len(result) == 2
-    assert result[0]["tag_name"] == "v0.19.2"
+    # v0.19.0 is on page 1 — once the oldest release on page 1 (v0.13.2)
+    # is seen to be <= latest_existing="0.19.0", pagination stops.
+    result = fetch_github_releases(latest_existing="0.19.0")
+    # Should only fetch page 1 (100 releases), not follow to page 2
+    assert len(result) == 100
+    assert result[0]["tag_name"] == "0.19.2-alpha0"
+    # Page 2 releases should NOT be present
+    tags = [r["tag_name"] for r in result]
+    assert "v0.13.1" not in tags
 
 
+@my_vcr.use_cassette("releases_full")
 def test_fetch_github_releases_fetches_all_when_no_latest():
     """Without latest_existing, all pages are fetched."""
-    page1 = [
-        {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2026-01-20T16:54:38Z"},
-    ]
-    page2 = [
-        {"tag_name": "v0.19.0", "prerelease": False, "published_at": "2025-12-10T16:26:58Z"},
-    ]
-    mock_responses = _mock_urlopen_pages([
-        (page1, "https://api.github.com/repos/learningequality/kolibri/releases?page=2"),
-        (page2, None),
-    ])
-
-    with patch("build_tools.generate_changelog.urlopen", side_effect=mock_responses):
-        result = fetch_github_releases()
-
-    assert len(result) == 2
+    result = fetch_github_releases()
+    assert len(result) == 152
+    # Includes releases from both pages
+    tags = [r["tag_name"] for r in result]
+    assert "v0.19.1" in tags  # page 1
+    assert "v0.13.1" in tags  # page 2
 
 
 def test_filter_new_releases_excludes_old():
@@ -273,7 +217,6 @@ def test_filter_new_releases_strips_v_prefix():
     assert len(result) == 1
 
 
-@needs_distro_info
 def test_generate_release_entries():
     releases = [
         {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2025-10-31T15:09:14Z"},
@@ -376,7 +319,6 @@ def test_interleave_entries_no_packaging():
 
 # --- Tests for generate_updated_changelog ---
 
-@needs_distro_info
 def test_generate_updated_changelog_prepends_entries():
     """New entries are prepended to existing changelog content."""
     existing_changelog = SAMPLE_CHANGELOG
@@ -396,7 +338,6 @@ def test_generate_updated_changelog_prepends_entries():
     assert "0.19.0-0ubuntu1" in result
 
 
-@needs_distro_info
 def test_generate_updated_changelog_interleaves_packaging():
     """Packaging entries from CHANGELOG are interleaved with release entries."""
     existing_changelog = """\
@@ -429,7 +370,6 @@ kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
     assert pos_192 < pos_191_u2 < pos_191_u1 < pos_190 < pos_184
 
 
-@needs_distro_info
 def test_generate_updated_changelog_preserves_existing():
     """Existing debian/changelog entries are not modified."""
     existing_changelog = SAMPLE_CHANGELOG
@@ -443,7 +383,6 @@ def test_generate_updated_changelog_preserves_existing():
     assert result == existing_changelog
 
 
-@needs_distro_info
 def test_generate_updated_changelog_packaging_retains_distribution():
     """Packaging entries retain their original distribution, not the current LTS."""
     existing_changelog = """\
@@ -477,7 +416,6 @@ kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
 
 # --- Tests for main() entrypoint ---
 
-@needs_distro_info
 def test_main_writes_updated_changelog(tmp_path):
     """main() reads files, fetches releases, and writes updated debian/changelog."""
     # Set up file structure
@@ -513,7 +451,6 @@ def test_main_writes_updated_changelog(tmp_path):
     assert "0.19.0-0ubuntu1" in result
 
 
-@needs_distro_info
 def test_main_with_packaging_changelog(tmp_path):
     """main() interleaves packaging CHANGELOG entries."""
     debian_dir = tmp_path / "debian"
