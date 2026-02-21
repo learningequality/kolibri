@@ -1,44 +1,40 @@
 name: Build Debian source package
-
 on:
   release:
     types: [published]
-
 jobs:
   check_version:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v4
-      
       - name: Extract version from release tag
         id: version
-        run: 
+        run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
-      
+          echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
       - name: Extract version from changelog
         id: changelog_version
         run: |
-        CHANGELOG_VERSION=$(dpkg-parsechangelog -S Version)
-        echo "CHANGELOG_VERSION=${CHANGELOG_VERSION}" >> $GITHUB_OUTPUT
-
+          CHANGELOG_VERSION=$(dpkg-parsechangelog -S Version)
+          echo "CHANGELOG_VERSION=${CHANGELOG_VERSION}" >> "$GITHUB_OUTPUT"
       - name: Validate Version consistency
         id: version_check
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
+          CHANGELOG_VERSION: ${{ steps.changelog_version.outputs.CHANGELOG_VERSION }}
         run: |
           if [ "${VERSION}" != "${CHANGELOG_VERSION}" ]; then
             echo "Version mismatch: ${VERSION} != ${CHANGELOG_VERSION}"
             exit 1
           fi
           echo "Version check passed: ${VERSION}"
-  
   build_package:
     runs-on: ubuntu-latest
     needs: check_version
     steps:
       - name: checkout codebase
         uses: actions/checkout@v4
-
       - name: Install build dependencies and launchpadlib
         run: |
           sudo apt-get update
@@ -49,36 +45,34 @@ jobs:
       - name: sign and upload package
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          Key ID: ${{ secrets.GPG_KEY_ID }}
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
         run: |
           echo "Signing package..."
           make sign-and-upload
           echo "upload completed successfully!"
-
   copy_to_other_distributions:
     needs: build_package
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v4
-
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-launchpadlib ubuntu-distro-info
-
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
         run: |
           echo "$LP_CREDENTIALS" > /tmp/lp-creds.txt
-
       - name: Copy from jammy to supported series
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
         run: |
           python3 scripts/copy_to_other_distributions.py
-  
+      - name: Cleanup Launchpad credentials
+        if: always()
+        run: rm -f /tmp/lp-creds.txt
   block_release_step:
     if: ${{ !github.event.release.prerelease }}
     name: Job to block publish of a release until it has been manually approved
@@ -87,7 +81,6 @@ jobs:
     environment: release
     steps:
       - run: echo "Release approved — proceeding to promote to kolibri PPA."
-
   copy_package_from_proposed_to_ppa:
     if: ${{ !github.event.release.prerelease }}
     name: Promote packages from kolibri-proposed to kolibri
@@ -96,20 +89,20 @@ jobs:
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v4
-
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-launchpadlib
-
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
         run: |
           echo "$LP_CREDENTIALS" > /tmp/lp-creds.txt
-
       - name: Copy package from kolibri-proposed to kolibri
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
         run: |
           python3 scripts/copy_package_proposed_to_ppa.py
+      - name: Cleanup Launchpad credentials
+        if: always()
+        run: rm -f /tmp/lp-creds.txt

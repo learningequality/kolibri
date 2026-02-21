@@ -1,7 +1,7 @@
 kolibri-server (0.5.0-0ubuntu2) jammy; urgency=medium
 
   * Addresses issue attempting to copy Kolibri options.ini prior to
-    initialization 
+    initialization
 
  -- Blaine <blaine@learningequality.org>  Wed, 05 Mar 2025 11:47:19 -0800
 
@@ -10,7 +10,7 @@ kolibri-server (0.5.0-0ubuntu1) jammy; urgency=medium
   * kolibri_server_setup.py : local nginx conf error pages changes
   * nginx.conf: error pages filenames changes
   * debian/rules: removed unneeded error pages generation
-  * Makefile: 
+  * Makefile:
     - modified to automate error pages creation
     - no need to download translations from crowdin
 

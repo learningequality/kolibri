@@ -9,5 +9,3 @@ CONFIG_FILE=/etc/default/kolibri
 [ "$KOLIBRI_USER"=="" ] || { echo "$KOLIBRI_USER not set" && exit 1 ;}
 
 su $KOLIBRI_USER -c "cd /usr/share/kolibri-server/; python3 -c 'import kolibri_server_setup;kolibri_server_setup.delete_redis_cache()'"
-
-
