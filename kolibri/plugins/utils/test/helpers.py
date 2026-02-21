@@ -1,12 +1,5 @@
 from contextlib import contextmanager
-
-try:
-    from importlib import reload
-except ImportError:
-    # This will happen on Python 2.7
-    # use built in reload.
-    reload = reload
-
+from importlib import reload
 import sys
 
 from django.conf import settings

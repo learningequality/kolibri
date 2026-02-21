@@ -25,11 +25,7 @@ class TestNothing(TestCase):
         try:
             x = Nothing()
             pickled_nothingness = pickle.dumps(x)
-            pickled_nothingness_py2_7 = pickle.dumps(x, protocol=2)
             y = pickle.loads(pickled_nothingness)
-            z = pickle.loads(pickled_nothingness_py2_7)
             assert x == y
-            assert x == z
-            assert y == z
         except Exception:
             self.fail("we couldn't get `Nothing()` back after pickling it")
