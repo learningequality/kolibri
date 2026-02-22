@@ -21,16 +21,33 @@ const facilityMock = {
   password: 'password',
 };
 
+const makeTask = status => ({
+  id: 'task_1',
+  status,
+  type: 'facility_import',
+  started_by: 'username',
+  clearable: false,
+  cancellable: true,
+  extra_metadata: { started_by: 'tester' },
+});
+
 const renderComponent = () => {
   const store = makeStore();
   store.dispatch = jest.fn().mockResolvedValue({});
 
-  return render(LoadingTaskPage, {
+  const sendMock = jest.fn();
+
+  const utils = render(LoadingTaskPage, {
     store,
     provide: {
       wizardService: {
-        send: jest.fn(),
-        state: { context: { selectedFacility: facilityMock } },
+        send: sendMock,
+        state: {
+          context: {
+            selectedFacility: facilityMock,
+            importedUsers: [],
+          },
+        },
       },
     },
     props: {
@@ -38,10 +55,14 @@ const renderComponent = () => {
     },
     stubs: {
       FacilityTaskPanel: {
-        template: '<div data-testid="task-panel"><button data-testid="stub-cancel" @click="$emit(\'cancel\')">Cancel Task</button></div>',
+        name: 'FacilityTaskPanel',
+        template:
+          '<div data-testid="task-panel"><button data-testid="stub-cancel" @click="$emit(\'cancel\')">Cancel Task</button></div>',
       },
     },
   });
+
+  return { ...utils, sendMock };
 };
 
 describe('LoadingTaskPage', () => {
@@ -50,65 +71,66 @@ describe('LoadingTaskPage', () => {
   });
 
   it('loads the first task in the queue and starts polling', async () => {
-    TaskResource.list.mockResolvedValue([{ id: 'task_1', status: 'RUNNING' }]);
+    TaskResource.list.mockResolvedValue([makeTask('RUNNING')]);
     renderComponent();
 
     await flushPromises();
 
     expect(screen.getByRole('heading', { name: /import learning facility/i })).toBeInTheDocument();
-    expect(screen.getByTestId('task-panel')).toBeInTheDocument();
+
+    const panel = await screen.findByTestId('task-panel');
+    expect(panel).toBeInTheDocument();
   });
 
   it('when tasks succeeds, the "continue" button is available', async () => {
-    TaskResource.list.mockResolvedValue([{ id: 'task_1', status: 'COMPLETED' }]);
-    const { emitted } = renderComponent();
+    TaskResource.list.mockResolvedValue([makeTask('COMPLETED')]);
+    const { sendMock } = renderComponent();
 
     await flushPromises();
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /continue/i })).toBeInTheDocument();
-    });
 
-    const continueButton = screen.getByRole('button', { name: /continue/i });
+    const continueButton = await screen.findByRole('button', { name: /continue/i });
+    expect(continueButton).toBeInTheDocument();
+
     await userEvent.click(continueButton);
 
-    expect(emitted().click_next).toBeTruthy();
+    expect(sendMock).toHaveBeenCalledWith('CONTINUE');
+    expect(TaskResource.clearAll).toHaveBeenCalledTimes(1);
   });
 
   it('when task fails, the "retry" button is available', async () => {
-    TaskResource.list.mockResolvedValue([{ id: 'task_1', status: 'FAILED' }]);
+    TaskResource.list.mockResolvedValue([makeTask('FAILED')]);
     renderComponent();
 
     await flushPromises();
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
-    });
 
-    const retryButton = screen.getByRole('button', { name: /retry/i });
+    const retryButton = await screen.findByRole('button', { name: /retry/i });
+    expect(retryButton).toBeInTheDocument();
+
     await userEvent.click(retryButton);
 
     expect(TaskResource.restart).toHaveBeenCalledTimes(1);
   });
 
   it('when task fails, the "start over" button is available', async () => {
-    TaskResource.list.mockResolvedValue([{ id: 'task_1', status: 'FAILED' }]);
+    TaskResource.list.mockResolvedValue([makeTask('FAILED')]);
     renderComponent();
 
     await flushPromises();
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /start over/i })).toBeInTheDocument();
-    });
 
-    const startOverButton = screen.getByRole('button', { name: /start over/i });
+    const startOverButton = await screen.findByRole('button', { name: /start over/i });
+    expect(startOverButton).toBeInTheDocument();
+
     await userEvent.click(startOverButton);
 
     expect(TaskResource.clearAll).toHaveBeenCalledTimes(1);
   });
 
   it('a cancel request is made when "cancel" is clicked', async () => {
-    TaskResource.list.mockResolvedValue([{ id: 'task_1', status: 'RUNNING' }]);
+    TaskResource.list.mockResolvedValue([makeTask('RUNNING')]);
     renderComponent();
 
     await flushPromises();
+
     const cancelButton = await screen.findByTestId('stub-cancel');
     await userEvent.click(cancelButton);
 

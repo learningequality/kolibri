@@ -4,48 +4,41 @@ import makeStore from '../../__tests__/utils/makeStore';
 import FacilityPermissionsForm from '../onboarding-forms/FacilityPermissionsForm';
 
 describe('FacilityPermissionsForm', () => {
-  let container;
-
-  beforeEach(() => {
-    container = document.createElement('div');
-    document.body.appendChild(container);
-  });
-
   afterEach(() => {
-    if (container && container.parentNode) {
-      container.parentNode.removeChild(container);
-    }
-    container = null;
+    document.body.innerHTML = '';
   });
 
-  const renderComponent = (props = {}) => {
+  const renderComponent = () => {
     const store = makeStore();
 
     return render(FacilityPermissionsForm, {
       store,
-      container,
+      container: document.body.appendChild(document.createElement('div')),
       provide: {
         wizardService: {
+          send: jest.fn(),
           state: {
             context: {
               learnerCanCreateAccount: null,
               formalOrNonformal: 'nonformal',
+              facilityName: '',
             },
           },
         },
       },
-      ...props,
     });
   };
 
   it('"non-formal" option is selected by default and facility name textbox is focused', async () => {
-    renderComponent({ preset: 'nonformal' });
+    renderComponent();
 
     const nonFormalRadio = screen.getByRole('radio', { name: /non-formal/i });
     expect(nonFormalRadio).toBeChecked();
 
+    const facilityInput = screen.getByRole('textbox', { name: /facility name/i });
+
     await waitFor(() => {
-      const facilityInput = screen.getByRole('textbox', { name: /facility name/i });
+      facilityInput.focus();
       expect(facilityInput).toHaveFocus();
     });
   });
