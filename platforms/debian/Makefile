@@ -61,3 +61,15 @@ get-tar: clean-tar
 	$(eval DLFILE = $(shell wget --content-disposition -P build_src/ "${tar}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
 	$(eval TARFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
 	[ "${DLFILE}" = "${TARFILE}" ] || mv "${DLFILE}" "${TARFILE}"
+
+.PHONY: clean-deb
+clean-deb:
+	rm -rf incoming
+	mkdir incoming
+
+.PHONY: get-deb
+get-deb: clean-deb
+# Download a .deb file from a URL, handling content disposition headers.
+	$(eval DLFILE = $(shell wget --content-disposition -P incoming/ "${deb}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
+	$(eval DEBFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
+	[ "${DLFILE}" = "${DEBFILE}" ] || mv "${DLFILE}" "${DEBFILE}"
