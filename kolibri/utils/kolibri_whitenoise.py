@@ -97,7 +97,7 @@ class SlicedFile(BufferedIOBase):
     and to return no further output once the end byte of a range request has
     been reached.
     Vendored from https://github.com/evansd/whitenoise/blob/master/whitenoise/responders.py
-    as we cannot upgrade whitenoise due to Python 2.7 compatibility issues.
+    as we cannot upgrade whitenoise due to Python 3.6 compatibility issues.
     """
 
     def __init__(self, fileobj, start, end):

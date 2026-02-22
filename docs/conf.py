@@ -70,21 +70,21 @@ def process_docstring(app, what, name, obj, options, lines):
             if help_text:
                 # Add the model field to the end of the docstring as a param
                 # using the help text as the description
-                lines.append(u":param %s: %s" % (field.attname, help_text))
+                lines.append(":param %s: %s" % (field.attname, help_text))
             else:
                 # Add the model field to the end of the docstring as a param
                 # using the verbose name as the description
-                lines.append(u":param %s: %s" % (field.attname, verbose_name))
+                lines.append(":param %s: %s" % (field.attname, verbose_name))
 
             # Add the field's type to the docstring
             if isinstance(field, models.ForeignKey):
                 to = field.remote_field.model
                 lines.append(
-                    u":type %s: %s to :class:`~%s`"
+                    ":type %s: %s to :class:`~%s`"
                     % (field.attname, type(field).__name__, to)
                 )
             else:
-                lines.append(u":type %s: %s" % (field.attname, type(field).__name__))
+                lines.append(":type %s: %s" % (field.attname, type(field).__name__))
 
     return lines
 
@@ -115,8 +115,8 @@ source_suffix = [".rst", ".md"]
 master_doc = "index"
 
 # General information about the project.
-project = u"Kolibri developer documentation"
-copyright = u"{year:d}, Learning Equality".format(year=datetime.now().year)
+project = "Kolibri developer documentation"
+copyright = "{year:d}, Learning Equality".format(year=datetime.now().year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

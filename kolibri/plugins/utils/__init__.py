@@ -186,10 +186,7 @@ def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):
         )
 
     except ImportError as e:
-        # Python 2: message, Python 3: msg
         exc_message = getattr(e, "message", getattr(e, "msg", None))
-        # On Python 3, the message is the full path to the module
-        # On Python 2, the message is the last part of the path
         if (
             exc_message == "No module named '{}'".format(plugin_module_name)
             or exc_message == "No module named kolibri_plugin"
