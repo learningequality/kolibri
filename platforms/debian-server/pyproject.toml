@@ -1,3 +1,18 @@
+[project]
+name = "kolibri-server"
+version = "0.0.0"
+requires-python = ">=3.10"
+dependencies = [
+    "launchpadlib",
+    "keyring",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "vcrpy",
+]
+
 [tool.ruff]
 target-version = "py310"
 line-length = 120

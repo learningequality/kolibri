@@ -27,6 +27,25 @@ PACKAGE_WHITELIST = ["kolibri-server"]
 POCKET = "Release"
 APP_NAME = "ppa-kolibri-server-copy-packages"
 
+TERMINAL_BUILD_STATES = frozenset(
+    {
+        "Successfully built",
+        "Failed to build",
+        "Chroot problem",
+        "Failed to upload",
+        "Cancelled build",
+    }
+)
+
+FAILED_BUILD_STATES = frozenset(
+    {
+        "Failed to build",
+        "Chroot problem",
+        "Failed to upload",
+        "Cancelled build",
+    }
+)
+
 log = logging.getLogger(APP_NAME)
 
 STARTUP_TIME = LAST_LOG_TIME = time.time()
@@ -288,6 +307,79 @@ class LaunchpadWrapper:
         log.debug("All done")
         return 0
 
+    def wait_for_builds(self, package, version, ppa_name=None, timeout=1800, interval=60):
+        """Wait for all builds of a source package to reach a terminal state.
+
+        Returns 0 if all builds succeed, 1 on failure or timeout.
+        """
+        ppa_name = ppa_name or PROPOSED_PPA_NAME
+        ppa = self.get_ppa(ppa_name)
+        deadline = time.time() + timeout
+
+        # Phase 1: Wait for source to appear
+        log.info("Waiting for %s %s to appear in %s...", package, version, ppa_name)
+        sources = []
+        while time.time() < deadline:
+            published = ppa.getPublishedSources(
+                source_name=package,
+                version=version,
+                order_by_date=True,
+            )
+            sources = [s for s in published if s.status not in ("Deleted", "Superseded", "Obsolete")]
+            if sources:
+                log.info("Found %d source(s) for %s %s", len(sources), package, version)
+                break
+            remaining = int(deadline - time.time())
+            log.info("Source not yet available. Retrying in %ds (%ds remaining)...", interval, remaining)
+            time.sleep(interval)
+        else:
+            log.error("Timeout: %s %s did not appear in %s within %ds", package, version, ppa_name, timeout)
+            return 1
+
+        # Phase 2: Wait for all builds to complete
+        return self._poll_builds(sources, package, version, deadline, interval)
+
+    def _poll_builds(self, sources, package, version, deadline, interval):
+        """Poll builds for all sources until terminal state or timeout."""
+        log.info("Waiting for builds to complete...")
+        while time.time() < deadline:
+            all_terminal = True
+            total = 0
+            succeeded = 0
+            failed = []
+            building = 0
+
+            for source in sources:
+                builds = source.getBuilds()
+                for build in builds:
+                    total += 1
+                    state = build.buildstate
+                    if state == "Successfully built":
+                        succeeded += 1
+                    elif state in FAILED_BUILD_STATES:
+                        failed.append((build.arch_tag, state, build.web_link))
+                    else:
+                        building += 1
+                        all_terminal = False
+
+            if failed:
+                log.error("Build failures detected:")
+                for arch, state, link in failed:
+                    log.error("  %s: %s - %s", arch, state, link)
+                return 1
+
+            if total > 0 and all_terminal:
+                log.info("All %d build(s) completed successfully.", total)
+                return 0
+
+            log.info("Waiting for builds: %d/%d complete, %d building...", succeeded, total, building)
+            remaining = int(deadline - time.time())
+            log.info("Retrying in %ds (%ds remaining)...", interval, remaining)
+            time.sleep(interval)
+
+        log.error("Timeout: builds for %s %s did not complete within timeout", package, version)
+        return 1
+
     def promote(self):
         """Promote published packages from kolibri-proposed to kolibri PPA."""
         log.info("Promoting packages from %s to %s", PROPOSED_PPA_NAME, RELEASE_PPA_NAME)
@@ -362,6 +454,18 @@ def build_parser():
         help="Promote published packages from kolibri-proposed to kolibri PPA.",
     )
 
+    wait_parser = subparsers.add_parser(
+        "wait-for-builds",
+        help="Wait for Launchpad builds to complete for a source package.",
+    )
+    wait_parser.add_argument("--package", required=True, help="Source package name.")
+    wait_parser.add_argument("--version", required=True, help="Expected version string.")
+    wait_parser.add_argument("--ppa", default=PROPOSED_PPA_NAME, help="PPA name to poll (default: %(default)s).")
+    wait_parser.add_argument("--timeout", type=int, default=1800, help="Max wait in seconds (default: %(default)s).")
+    wait_parser.add_argument(
+        "--interval", type=int, default=60, help="Polling interval in seconds (default: %(default)s)."
+    )
+
     return parser
 
 
@@ -385,6 +489,18 @@ def cmd_copy_to_series(args):
     return lp.copy_to_series()
 
 
+def cmd_wait_for_builds(args):
+    """Wait for Launchpad builds to complete."""
+    lp = LaunchpadWrapper()
+    return lp.wait_for_builds(
+        package=args.package,
+        version=args.version,
+        ppa_name=args.ppa,
+        timeout=args.timeout,
+        interval=args.interval,
+    )
+
+
 def cmd_promote(args):
     """Promote published packages from kolibri-proposed to kolibri PPA."""
     lp = LaunchpadWrapper()
@@ -400,6 +516,8 @@ def main():
         return cmd_copy_to_series(args)
     elif args.command == "promote":
         return cmd_promote(args)
+    elif args.command == "wait-for-builds":
+        return cmd_wait_for_builds(args)
 
 
 if __name__ == "__main__":

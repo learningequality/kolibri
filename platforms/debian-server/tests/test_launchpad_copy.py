@@ -51,6 +51,69 @@ class TestBuildParser:
         with pytest.raises(SystemExit):
             parser.parse_args([])
 
+    def test_wait_for_builds_subcommand_parsed(self):
+        parser = build_parser()
+        args = parser.parse_args(["wait-for-builds", "--package", "kolibri-server", "--version", "1.0"])
+        assert args.command == "wait-for-builds"
+
+    def test_wait_for_builds_package_required(self):
+        parser = build_parser()
+        with pytest.raises(SystemExit):
+            parser.parse_args(["wait-for-builds", "--version", "1.0"])
+
+    def test_wait_for_builds_version_required(self):
+        parser = build_parser()
+        with pytest.raises(SystemExit):
+            parser.parse_args(["wait-for-builds", "--package", "kolibri-server"])
+
+    def test_wait_for_builds_ppa_defaults_to_kolibri_proposed(self):
+        parser = build_parser()
+        args = parser.parse_args(["wait-for-builds", "--package", "kolibri-server", "--version", "1.0"])
+        assert args.ppa == "kolibri-proposed"
+
+    def test_wait_for_builds_timeout_defaults_to_1800(self):
+        parser = build_parser()
+        args = parser.parse_args(["wait-for-builds", "--package", "kolibri-server", "--version", "1.0"])
+        assert args.timeout == 1800
+
+    def test_wait_for_builds_interval_defaults_to_60(self):
+        parser = build_parser()
+        args = parser.parse_args(["wait-for-builds", "--package", "kolibri-server", "--version", "1.0"])
+        assert args.interval == 60
+
+    def test_wait_for_builds_custom_timeout_and_interval(self):
+        parser = build_parser()
+        args = parser.parse_args(
+            [
+                "wait-for-builds",
+                "--package",
+                "kolibri-server",
+                "--version",
+                "1.0",
+                "--timeout",
+                "3600",
+                "--interval",
+                "30",
+            ]
+        )
+        assert args.timeout == 3600
+        assert args.interval == 30
+
+    def test_wait_for_builds_custom_ppa(self):
+        parser = build_parser()
+        args = parser.parse_args(
+            [
+                "wait-for-builds",
+                "--package",
+                "kolibri-server",
+                "--version",
+                "1.0",
+                "--ppa",
+                "kolibri",
+            ]
+        )
+        assert args.ppa == "kolibri"
+
     def test_quiet_flag(self):
         parser = build_parser()
         args = parser.parse_args(["-q", "promote"])
@@ -232,6 +295,26 @@ class TestMainDispatch:
         mock_cmd.assert_called_once()
         assert result == 0
 
+    def test_dispatches_to_wait_for_builds(self):
+        with (
+            patch("launchpad_copy.cmd_wait_for_builds", return_value=0) as mock_cmd,
+            patch(
+                "sys.argv",
+                [
+                    "launchpad_copy.py",
+                    "wait-for-builds",
+                    "--package",
+                    "kolibri-server",
+                    "--version",
+                    "1.0",
+                ],
+            ),
+        ):
+            result = main()
+
+        mock_cmd.assert_called_once()
+        assert result == 0
+
     def test_dispatches_to_promote(self):
 
         with (
@@ -391,6 +474,278 @@ class TestPromote:
 
         mock_dest_ppa.copyPackage.assert_not_called()
         assert result == 0
+
+
+# --- wait-for-builds tests ---
+
+
+class TestWaitForBuilds:
+    """Test LaunchpadWrapper.wait_for_builds polling logic."""
+
+    def setup_method(self):
+        log.handlers.clear()
+
+    def _make_source(self, name="kolibri-server", version="1.0", status="Published"):
+        src = MagicMock()
+        src.source_package_name = name
+        src.source_package_version = version
+        src.status = status
+        return src
+
+    def _make_build(self, state="Successfully built", arch="amd64"):
+        build = MagicMock()
+        build.buildstate = state
+        build.arch_tag = arch
+        build.web_link = f"https://launchpad.net/build/{arch}"
+        return build
+
+    def test_source_appears_immediately(self):
+        wrapper = LaunchpadWrapper()
+        mock_ppa = MagicMock()
+        source = self._make_source()
+        build = self._make_build("Successfully built")
+        source.getBuilds.return_value = [build]
+        mock_ppa.getPublishedSources.return_value = [source]
+
+        with (
+            patch.object(wrapper, "get_ppa", return_value=mock_ppa),
+            patch("launchpad_copy.time") as mock_time,
+        ):
+            mock_time.time.side_effect = [0, 0, 0]
+            mock_time.sleep = MagicMock()
+            result = wrapper.wait_for_builds("kolibri-server", "1.0")
+
+        assert result == 0
+
+    def test_timeout_when_source_never_appears(self):
+        wrapper = LaunchpadWrapper()
+        mock_ppa = MagicMock()
+        mock_ppa.getPublishedSources.return_value = []
+
+        with (
+            patch.object(wrapper, "get_ppa", return_value=mock_ppa),
+            patch("launchpad_copy.time") as mock_time,
+        ):
+            mock_time.time.side_effect = [0, 0, 0, 1801]
+            mock_time.sleep = MagicMock()
+            result = wrapper.wait_for_builds("kolibri-server", "1.0", timeout=1800)
+
+        assert result == 1
+
+    def test_source_appears_after_retry(self):
+        wrapper = LaunchpadWrapper()
+        mock_ppa = MagicMock()
+        source = self._make_source()
+        build = self._make_build("Successfully built")
+        source.getBuilds.return_value = [build]
+        mock_ppa.getPublishedSources.side_effect = [[], [source]]
+
+        with (
+            patch.object(wrapper, "get_ppa", return_value=mock_ppa),
+            patch("launchpad_copy.time") as mock_time,
+        ):
+            mock_time.time.side_effect = [0, 0, 100, 100, 100]
+            mock_time.sleep = MagicMock()
+            result = wrapper.wait_for_builds("kolibri-server", "1.0")
+
+        assert result == 0
+        mock_time.sleep.assert_called()
+
+    def test_filters_deleted_and_superseded_sources(self):
+        wrapper = LaunchpadWrapper()
+        mock_ppa = MagicMock()
+        deleted = self._make_source(status="Deleted")
+        superseded = self._make_source(status="Superseded")
+        mock_ppa.getPublishedSources.return_value = [deleted, superseded]
+
+        with (
+            patch.object(wrapper, "get_ppa", return_value=mock_ppa),
+            patch("launchpad_copy.time") as mock_time,
+        ):
+            mock_time.time.side_effect = [0, 0, 0, 1801]
+            mock_time.sleep = MagicMock()
+            result = wrapper.wait_for_builds("kolibri-server", "1.0", timeout=1800)
+
+        assert result == 1  # treated as not found
+
+    def test_all_builds_succeed(self):
+        wrapper = LaunchpadWrapper()
+        mock_ppa = MagicMock()
+        source = self._make_source()
+        build1 = self._make_build("Successfully built", "amd64")
+        build2 = self._make_build("Successfully built", "arm64")
+        source.getBuilds.return_value = [build1, build2]
+        mock_ppa.getPublishedSources.return_value = [source]
+
+        with (
+            patch.object(wrapper, "get_ppa", return_value=mock_ppa),
+            patch("launchpad_copy.time") as mock_time,
+        ):
+            mock_time.time.side_effect = [0, 0, 0]
+            mock_time.sleep = MagicMock()
+            result = wrapper.wait_for_builds("kolibri-server", "1.0")
+
+        assert result == 0
+
+    def test_checks_all_build_records(self):
+        """Acceptance criterion: checks all build records, not just the first."""
+        wrapper = LaunchpadWrapper()
+        mock_ppa = MagicMock()
+        source = self._make_source()
+        build_ok = self._make_build("Successfully built", "amd64")
+        build_fail = self._make_build("Failed to build", "arm64")
+        source.getBuilds.return_value = [build_ok, build_fail]
+        mock_ppa.getPublishedSources.return_value = [source]
+
+        with (
+            patch.object(wrapper, "get_ppa", return_value=mock_ppa),
+            patch("launchpad_copy.time") as mock_time,
+        ):
+            mock_time.time.side_effect = [0, 0, 0]
+            mock_time.sleep = MagicMock()
+            result = wrapper.wait_for_builds("kolibri-server", "1.0")
+
+        assert result == 1
+
+    def test_build_failure_returns_nonzero(self):
+        wrapper = LaunchpadWrapper()
+        mock_ppa = MagicMock()
+        source = self._make_source()
+        build = self._make_build("Failed to build", "amd64")
+        source.getBuilds.return_value = [build]
+        mock_ppa.getPublishedSources.return_value = [source]
+
+        with (
+            patch.object(wrapper, "get_ppa", return_value=mock_ppa),
+            patch("launchpad_copy.time") as mock_time,
+        ):
+            mock_time.time.side_effect = [0, 0, 0]
+            mock_time.sleep = MagicMock()
+            result = wrapper.wait_for_builds("kolibri-server", "1.0")
+
+        assert result == 1
+
+    def test_builds_complete_after_retry(self):
+        wrapper = LaunchpadWrapper()
+        mock_ppa = MagicMock()
+        source = self._make_source()
+        building = self._make_build("Currently building", "amd64")
+        built = self._make_build("Successfully built", "amd64")
+        source.getBuilds.side_effect = [[building], [built]]
+        mock_ppa.getPublishedSources.return_value = [source]
+
+        with (
+            patch.object(wrapper, "get_ppa", return_value=mock_ppa),
+            patch("launchpad_copy.time") as mock_time,
+        ):
+            mock_time.time.side_effect = [0, 0, 0, 0, 100, 100]
+            mock_time.sleep = MagicMock()
+            result = wrapper.wait_for_builds("kolibri-server", "1.0")
+
+        assert result == 0
+        mock_time.sleep.assert_called()
+
+    def test_build_timeout(self):
+        wrapper = LaunchpadWrapper()
+        mock_ppa = MagicMock()
+        source = self._make_source()
+        building = self._make_build("Currently building", "amd64")
+        source.getBuilds.return_value = [building]
+        mock_ppa.getPublishedSources.return_value = [source]
+
+        with (
+            patch.object(wrapper, "get_ppa", return_value=mock_ppa),
+            patch("launchpad_copy.time") as mock_time,
+        ):
+            mock_time.time.side_effect = [0, 0, 0, 0, 1801]
+            mock_time.sleep = MagicMock()
+            result = wrapper.wait_for_builds("kolibri-server", "1.0", timeout=1800)
+
+        assert result == 1
+
+    def test_multiple_sources_all_checked(self):
+        """After copy-to-series, multiple sources exist across series."""
+        wrapper = LaunchpadWrapper()
+        mock_ppa = MagicMock()
+        source1 = self._make_source()
+        source2 = self._make_source()
+        build1 = self._make_build("Successfully built", "amd64")
+        build2 = self._make_build("Successfully built", "amd64")
+        source1.getBuilds.return_value = [build1]
+        source2.getBuilds.return_value = [build2]
+        mock_ppa.getPublishedSources.return_value = [source1, source2]
+
+        with (
+            patch.object(wrapper, "get_ppa", return_value=mock_ppa),
+            patch("launchpad_copy.time") as mock_time,
+        ):
+            mock_time.time.side_effect = [0, 0, 0]
+            mock_time.sleep = MagicMock()
+            result = wrapper.wait_for_builds("kolibri-server", "1.0")
+
+        assert result == 0
+        source1.getBuilds.assert_called()
+        source2.getBuilds.assert_called()
+
+    def test_no_builds_yet_keeps_waiting(self):
+        wrapper = LaunchpadWrapper()
+        mock_ppa = MagicMock()
+        source = self._make_source()
+        built = self._make_build("Successfully built", "amd64")
+        source.getBuilds.side_effect = [[], [built]]
+        mock_ppa.getPublishedSources.return_value = [source]
+
+        with (
+            patch.object(wrapper, "get_ppa", return_value=mock_ppa),
+            patch("launchpad_copy.time") as mock_time,
+        ):
+            mock_time.time.side_effect = [0, 0, 0, 0, 100, 100]
+            mock_time.sleep = MagicMock()
+            result = wrapper.wait_for_builds("kolibri-server", "1.0")
+
+        assert result == 0
+
+    def test_logs_progress(self, caplog):
+        """Acceptance criterion: logs progress like 'Waiting for builds: 2/3 complete, 1 building...'"""
+        wrapper = LaunchpadWrapper()
+        mock_ppa = MagicMock()
+        source = self._make_source()
+        build1 = self._make_build("Successfully built", "amd64")
+        build2 = self._make_build("Currently building", "arm64")
+        build3 = self._make_build("Successfully built", "i386")
+        built2 = self._make_build("Successfully built", "arm64")
+        source.getBuilds.side_effect = [[build1, build2, build3], [build1, built2, build3]]
+        mock_ppa.getPublishedSources.return_value = [source]
+
+        with (
+            patch.object(wrapper, "get_ppa", return_value=mock_ppa),
+            patch("launchpad_copy.time") as mock_time,
+            caplog.at_level(logging.INFO, logger=log.name),
+        ):
+            mock_time.time.side_effect = [0, 0, 0, 0, 100, 100]
+            mock_time.sleep = MagicMock()
+            result = wrapper.wait_for_builds("kolibri-server", "1.0")
+
+        assert result == 0
+        assert any("2/3 complete" in r.message and "1 building" in r.message for r in caplog.records)
+
+    def test_uses_custom_ppa(self):
+        wrapper = LaunchpadWrapper()
+        mock_ppa = MagicMock()
+        source = self._make_source()
+        build = self._make_build("Successfully built")
+        source.getBuilds.return_value = [build]
+        mock_ppa.getPublishedSources.return_value = [source]
+
+        with (
+            patch.object(wrapper, "get_ppa", return_value=mock_ppa) as mock_get_ppa,
+            patch("launchpad_copy.time") as mock_time,
+        ):
+            mock_time.time.side_effect = [0, 0, 0]
+            mock_time.sleep = MagicMock()
+            wrapper.wait_for_builds("kolibri-server", "1.0", ppa_name="kolibri")
+
+        mock_get_ppa.assert_called_with("kolibri")
 
     def test_handles_obsolete_series_gracefully(self):
         wrapper = LaunchpadWrapper()
