@@ -32,7 +32,7 @@ describe('Bottom bar', () => {
   });
   it('should set the correct value on the slider', () => {
     const sliderValue = 100;
-    renderBottomBar({ sliderValue});
+    renderBottomBar({ sliderValue });
     expect(screen.getByRole('slider')).toHaveValue('100');
   });
   it('should set the correct step on the slider', () => {

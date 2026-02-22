@@ -21,16 +21,14 @@ describe('Top bar', () => {
     const title = 'Book title';
     renderTopBar({ title });
 
-    expect(
-      screen.getByRole('heading', { name: title })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: title })).toBeInTheDocument();
   });
 
   it('allows parent to focus on table of contents button', () => {
     renderTopBar();
     const tocButton = screen.getByRole('button', { name: /toggle table of contents/i });
     tocButton.focus();
-    expect(document.activeElement).toBe(tocButton);
+    expect(tocButton).toHaveFocus();
   });
 
   it('allows parent to focus on settings button', () => {
@@ -39,7 +37,7 @@ describe('Top bar', () => {
     const settingsButton = screen.getByRole('button', { name: /toggle settings/i });
     settingsButton.focus();
 
-    expect(document.activeElement).toBe(settingsButton);
+    expect(settingsButton).toHaveFocus();
   });
 
   it('allows parent to focus on search button', () => {
@@ -48,7 +46,7 @@ describe('Top bar', () => {
     const searchButton = screen.getByRole('button', { name: /toggle search/i });
     searchButton.focus();
 
-    expect(document.activeElement).toBe(searchButton);
+    expect(searchButton).toHaveFocus();
   });
 
   it('emits event when table of contents button is clicked', async () => {
