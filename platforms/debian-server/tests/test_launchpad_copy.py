@@ -18,7 +18,6 @@ from launchpad_copy import configure_logging
 from launchpad_copy import get_current_series
 from launchpad_copy import get_supported_series
 from launchpad_copy import log
-from launchpad_copy import main
 
 # --- Argparse tests ---
 
@@ -222,6 +221,7 @@ class TestMainDispatch:
     """Test that main dispatches to the correct subcommand."""
 
     def test_dispatches_to_copy_to_series(self):
+        from launchpad_copy import main
 
         with (
             patch("launchpad_copy.cmd_copy_to_series", return_value=0) as mock_cmd,
@@ -233,6 +233,7 @@ class TestMainDispatch:
         assert result == 0
 
     def test_dispatches_to_promote(self):
+        from launchpad_copy import main
 
         with (
             patch("launchpad_copy.cmd_promote", return_value=0) as mock_cmd,
@@ -272,6 +273,7 @@ class TestCopyToSeries:
         ):
             wrapper.copy_to_series()
 
+        wrapper.queue_copy.assert_not_called  # queue_copy is a real method
         assert ("jammy", "noble", "Release") in wrapper.queue
         assert "kolibri-server" in wrapper.queue[("jammy", "noble", "Release")]
 
