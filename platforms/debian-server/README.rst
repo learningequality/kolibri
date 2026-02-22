@@ -21,7 +21,7 @@ To fetch and build a new version of this package, the following workflow is sugg
 
 You can optimize this workflow according to your own needs.
 
-Changes can be built and released in ``kolibri-proposed`` by the `Learning Equality Launchpad team <https://launchpad.net/~learningequality/>`__.
+Changes can be built and released in ``kolibri-proposed`` by the `Learning Equality Launchpad team <https://launchpad.net/~learningequality>`__.
 
 Working in the repo
 -------------------
@@ -53,13 +53,89 @@ After this, pre-commit hooks will run automatically on ``git commit``. To run al
 Releasing
 ---------
 
-Push new changes to ``kolibri-proposed`` and test them there.
+Automated release workflow
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To build packages for all current Ubuntu release series:
+Publishing a GitHub release triggers the ``build_debian.yml`` workflow, which:
 
-#. Install Launchpadlib: ``sudo apt install python-launchpadlib``
-#. Run ``ppa-copy-packages.py`` script to copy the builds for Xenial to all other currently active and supported Ubuntu releases on Launchpad. The script is run from command line with ``python2 ppa-copy-packages.py``. After this, you should be prompted to create an API key for your Launchpad account.
-#. When a release in ``kolibri-proposed`` should be released as a stable release, use the binary copy function on Launchpad to copy builds from ``kolibri-proposed``.
+#. Validates the release tag version against ``debian/changelog``
+#. Builds, signs, and uploads the source package to the ``kolibri-proposed`` PPA via ``dput``
+#. Waits for Launchpad to build the source package
+#. Copies the built package to all supported Ubuntu series
+#. Waits for all copy builds to complete
+#. (Non-prerelease only) Requires manual approval via the ``release`` environment
+#. Promotes packages from ``kolibri-proposed`` to ``kolibri`` PPA
+
+Launchpad credentials setup
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The workflow requires Launchpad API credentials stored as a GitHub Actions secret.
+
+To generate credentials:
+
+#. Install launchpadlib: ``pip install launchpadlib``
+#. Run the credentials helper script::
+
+     python3 scripts/create_lp_creds.py
+
+#. Approve the authorization request in your browser. This writes a credentials file (default: ``launchpad.credentials``).
+#. Copy the full content of the credentials file.
+#. In GitHub, go to the repository **Settings > Secrets and variables > Actions > New repository secret**.
+#. Create a secret named ``LP_CREDENTIALS`` and paste the credentials file content.
+
+The workflow writes this secret to a temporary file at runtime and cleans it up after each job.
+
+Manual dry-run testing
+~~~~~~~~~~~~~~~~~~~~~~
+
+The workflow supports a ``workflow_dispatch`` trigger for manual dry-run testing. This allows validating the full workflow (auth, API queries, version checks, copy logic) without any mutating API calls.
+
+To trigger from the GitHub UI:
+
+#. Go to **Actions > Build Debian source package > Run workflow**
+#. The ``dry_run`` input defaults to ``true``
+#. Click **Run workflow**
+
+To trigger from the command line::
+
+  gh workflow run build_debian.yml --field dry_run=true
+
+When ``dry_run`` is ``true``:
+
+- The ``build_package`` job is skipped (no ``dput`` upload)
+- The ``wait_for_source_builds`` job is skipped
+- The ``block_release_step`` manual approval gate is skipped
+- All script invocations receive the ``--dry-run`` flag
+- Read-only Launchpad API calls (auth, PPA lookup, source listing) execute normally
+- Write operations (``copyPackage``, ``syncSources``) are replaced with log messages
+
+Launchpad copy script
+~~~~~~~~~~~~~~~~~~~~~
+
+The ``scripts/launchpad_copy.py`` script manages Launchpad PPA operations with three subcommands:
+
+``copy-to-series``
+  Copies packages from the source Ubuntu series to all other supported series within the ``kolibri-proposed`` PPA::
+
+    python3 scripts/launchpad_copy.py copy-to-series
+
+``promote``
+  Promotes all published packages from ``kolibri-proposed`` to the ``kolibri`` PPA::
+
+    python3 scripts/launchpad_copy.py promote
+
+``wait-for-builds``
+  Polls Launchpad until all builds for a source package reach a terminal state::
+
+    python3 scripts/launchpad_copy.py wait-for-builds --package kolibri-server --version 1.0.0
+
+All subcommands accept the ``--dry-run`` flag, which logs what would happen without making any mutating API calls::
+
+  python3 scripts/launchpad_copy.py --dry-run copy-to-series
+  python3 scripts/launchpad_copy.py --dry-run promote
+  python3 scripts/launchpad_copy.py --dry-run wait-for-builds --package kolibri-server --version 1.0.0
+
+Additional flags: ``-v`` / ``-vv`` for verbosity, ``-q`` for quiet mode, ``--debug`` for HTTP-level debugging.
 
 Overview
 --------
