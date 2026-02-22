@@ -5,6 +5,8 @@ on:
 jobs:
   check_version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v4
@@ -50,8 +52,35 @@ jobs:
           echo "Signing package..."
           make sign-and-upload
           echo "upload completed successfully!"
+  wait_for_source_builds:
+    needs:
+      - check_version
+      - build_package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-launchpadlib
+      - name: Write Launchpad credentials
+        env:
+          LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
+        run: |
+          echo "$LP_CREDENTIALS" > /tmp/lp-creds.txt
+      - name: Wait for source package builds
+        env:
+          LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+        run: |
+          python3 scripts/launchpad_copy.py wait-for-builds \
+            --package kolibri-server \
+            --version "${{ needs.check_version.outputs.version }}"
+      - name: Cleanup Launchpad credentials
+        if: always()
+        run: rm -f /tmp/lp-creds.txt
   copy_to_other_distributions:
-    needs: build_package
+    needs: wait_for_source_builds
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
@@ -73,10 +102,37 @@ jobs:
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
+  wait_for_copy_builds:
+    needs:
+      - check_version
+      - copy_to_other_distributions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-launchpadlib
+      - name: Write Launchpad credentials
+        env:
+          LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
+        run: |
+          echo "$LP_CREDENTIALS" > /tmp/lp-creds.txt
+      - name: Wait for copy builds to complete
+        env:
+          LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+        run: |
+          python3 scripts/launchpad_copy.py wait-for-builds \
+            --package kolibri-server \
+            --version "${{ needs.check_version.outputs.version }}"
+      - name: Cleanup Launchpad credentials
+        if: always()
+        run: rm -f /tmp/lp-creds.txt
   block_release_step:
     if: ${{ !github.event.release.prerelease }}
     name: Job to block publish of a release until it has been manually approved
-    needs: copy_to_other_distributions
+    needs: wait_for_copy_builds
     runs-on: ubuntu-latest
     environment: release
     steps:
