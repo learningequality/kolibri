@@ -3,7 +3,7 @@ target-version = "py310"
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
+select = ["E", "F", "I", "PLC0415"]
 ignore = ["E501"]
 
 [tool.ruff.lint.isort]
