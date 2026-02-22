@@ -4,13 +4,11 @@ import os
 import subprocess
 
 import kolibri.utils.pskolibri as psutil
-
-from kolibri.core.content.utils.paths import get_content_dir_path
 from kolibri.core.utils.cache import RedisSettingsHelper
 from kolibri.core.utils.cache import process_cache
-from kolibri.utils.options import update_options_file
-from kolibri.utils.conf import OPTIONS
 from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.conf import OPTIONS
+from kolibri.utils.options import update_options_file
 
 # read the config file options
 port = OPTIONS["Deployment"]["HTTP_PORT"]
@@ -64,11 +62,13 @@ def set_port(port):
     """
     update_options_file("Deployment", "HTTP_PORT", port)
 
+
 def set_zip_content_port(port):
     """
     Modify Kolibri options to set the TCP port the hashi files will be served on
     """
     update_options_file("Deployment", "ZIP_CONTENT_PORT", port)
+
 
 def delete_redis_cache():
     """
@@ -141,7 +141,7 @@ def check_redis_service():
 
 def save_nginx_conf_port(port, zip_port, listen_address="0.0.0.0", nginx_conf=None):
     """
-     Adds the port for nginx to run to an existing config file.
+    Adds the port for nginx to run to an existing config file.
     """
 
     if nginx_conf is None:
@@ -210,9 +210,7 @@ if __name__ == "__main__":
         help="Port to run hashi iframes used when installing/reconfiguring kolibri-server package",
     )
     args = parser.parse_args()
-    if (
-        args.debconfport
-    ):  # To be executed only when installing/reconfiguring the Debian package
+    if args.debconfport:  # To be executed only when installing/reconfiguring the Debian package
         set_port(args.debconfport)
         if args.debconfzipport:
             set_zip_content_port(args.debconfzipport)

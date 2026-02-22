@@ -1,6 +1,6 @@
-from launchpadlib.launchpad import Launchpad
 import os
 
+from launchpadlib.launchpad import Launchpad
 
 # 1) One-time: generate credentials locally
 # Install launchpadlib:
@@ -13,7 +13,6 @@ import os
 # GitHub → repo → Settings → Secrets and variables → Actions → New repository secret:
 # Name: LP_CREDENTIALS
 # Paste the credentials file content.
-
 
 
 # Exact APP name should be passed in build workflow
