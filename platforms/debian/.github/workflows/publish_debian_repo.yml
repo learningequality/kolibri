@@ -14,6 +14,12 @@ on:
     secrets:
       DEBIAN_REPO_SIGNING_KEY:
         required: true
+      LE_BOT_APP_ID:
+        description: 'GitHub App ID for cross-repo authentication'
+        required: true
+      LE_BOT_PRIVATE_KEY:
+        description: 'GitHub App Private Key for cross-repo authentication'
+        required: true
   workflow_dispatch:
     inputs:
       deb-url:
@@ -26,7 +32,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   publish:
@@ -97,6 +103,15 @@ jobs:
           # Export public key for users
           gpg --armor --export "${{ steps.gpg.outputs.key-id }}" > repo/pubkey.asc
 
+      - name: Generate GitHub token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.LE_BOT_APP_ID }}
+          private-key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
+          owner: learningequality
+          repositories: kolibri-installer-debian
+
       - name: Deploy to GitHub Pages
         run: |
           cd repo
@@ -106,5 +121,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Update Debian repository"
-          git remote add origin "https://x-access-token:${{ github.token }}@github.com/learningequality/kolibri-installer-debian.git"
+          git remote add origin "https://x-access-token:${{ steps.generate-token.outputs.token }}@github.com/learningequality/kolibri-installer-debian.git"
           git push --force origin gh-pages
