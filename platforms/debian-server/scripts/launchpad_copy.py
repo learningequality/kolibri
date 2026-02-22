@@ -123,6 +123,7 @@ class LaunchpadWrapper:
 
     def __init__(self):
         self.queue = defaultdict(set)
+        self.dry_run = False
 
     @functools.cached_property
     def lp(self):
@@ -246,14 +247,17 @@ class LaunchpadWrapper:
             if first:
                 log.info("")
                 first = False
-            log.info("Copying %s to %s", ", ".join(sorted(names)), target_series)
-            ppa.syncSources(
-                from_archive=ppa,
-                to_series=target_series,
-                to_pocket=pocket,
-                include_binaries=True,
-                source_names=sorted(names),
-            )
+            if self.dry_run:
+                log.info("DRY-RUN: would copy %s from %s to %s", ", ".join(sorted(names)), source_series, target_series)
+            else:
+                log.info("Copying %s to %s", ", ".join(sorted(names)), target_series)
+                ppa.syncSources(
+                    from_archive=ppa,
+                    to_series=target_series,
+                    to_pocket=pocket,
+                    include_binaries=True,
+                    source_names=sorted(names),
+                )
 
     def copy_to_series(self):
         """Copy packages from source series to all other supported Ubuntu series."""
@@ -394,20 +398,29 @@ class LaunchpadWrapper:
             if pkg.source_package_name not in PACKAGE_WHITELIST:
                 continue
             try:
-                log.info(
-                    "Copying %s %s (%s) to %s",
-                    pkg.source_package_name,
-                    pkg.source_package_version,
-                    pkg.distro_series_link,
-                    RELEASE_PPA_NAME,
-                )
-                dest_ppa.copyPackage(
-                    from_archive=source_ppa,
-                    include_binaries=True,
-                    to_pocket=pkg.pocket,
-                    source_name=pkg.source_package_name,
-                    version=pkg.source_package_version,
-                )
+                if self.dry_run:
+                    log.info(
+                        "DRY-RUN: would copy %s %s (%s) to %s",
+                        pkg.source_package_name,
+                        pkg.source_package_version,
+                        pkg.distro_series_link,
+                        RELEASE_PPA_NAME,
+                    )
+                else:
+                    log.info(
+                        "Copying %s %s (%s) to %s",
+                        pkg.source_package_name,
+                        pkg.source_package_version,
+                        pkg.distro_series_link,
+                        RELEASE_PPA_NAME,
+                    )
+                    dest_ppa.copyPackage(
+                        from_archive=source_ppa,
+                        include_binaries=True,
+                        to_pocket=pkg.pocket,
+                        source_name=pkg.source_package_name,
+                        version=pkg.source_package_version,
+                    )
                 copied_any = True
             except lre.BadRequest as e:
                 if "is obsolete and will not accept new uploads" in str(e):
@@ -441,6 +454,7 @@ def build_parser():
     )
     parser.add_argument("-q", "--quiet", action="store_true", help="Suppress info output.")
     parser.add_argument("--debug", action="store_true", help="Enable HTTP debug output.")
+    parser.add_argument("--dry-run", action="store_true", default=False, help="Log actions without making changes.")
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -486,12 +500,14 @@ def configure_logging(args):
 def cmd_copy_to_series(args):
     """Copy packages from source series to all other supported Ubuntu series."""
     lp = LaunchpadWrapper()
+    lp.dry_run = args.dry_run
     return lp.copy_to_series()
 
 
 def cmd_wait_for_builds(args):
     """Wait for Launchpad builds to complete."""
     lp = LaunchpadWrapper()
+    lp.dry_run = args.dry_run
     return lp.wait_for_builds(
         package=args.package,
         version=args.version,
@@ -504,6 +520,7 @@ def cmd_wait_for_builds(args):
 def cmd_promote(args):
     """Promote published packages from kolibri-proposed to kolibri PPA."""
     lp = LaunchpadWrapper()
+    lp.dry_run = args.dry_run
     return lp.promote()
 
 
