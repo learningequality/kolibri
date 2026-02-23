@@ -14,9 +14,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
 from launchpad_copy import LaunchpadWrapper
 from launchpad_copy import build_parser
-from launchpad_copy import cmd_copy_to_series
-from launchpad_copy import cmd_promote
-from launchpad_copy import cmd_wait_for_builds
 from launchpad_copy import configure_logging
 from launchpad_copy import get_current_series
 from launchpad_copy import get_supported_series
@@ -127,26 +124,6 @@ class TestBuildParser:
         args = parser.parse_args(["--debug", "promote"])
         assert args.debug is True
 
-    def test_dry_run_flag_defaults_to_false(self):
-        parser = build_parser()
-        args = parser.parse_args(["copy-to-series"])
-        assert args.dry_run is False
-
-    def test_dry_run_flag_accepted(self):
-        parser = build_parser()
-        args = parser.parse_args(["--dry-run", "copy-to-series"])
-        assert args.dry_run is True
-
-    def test_dry_run_flag_with_promote(self):
-        parser = build_parser()
-        args = parser.parse_args(["--dry-run", "promote"])
-        assert args.dry_run is True
-
-    def test_dry_run_flag_with_wait_for_builds(self):
-        parser = build_parser()
-        args = parser.parse_args(["--dry-run", "wait-for-builds", "--package", "kolibri-server", "--version", "1.0"])
-        assert args.dry_run is True
-
 
 # --- Series discovery tests ---
 
@@ -238,6 +215,47 @@ class TestLaunchpadWrapper:
 
         mock_ppa.syncSources.assert_not_called()
 
+    def test_perform_queued_copies_handles_already_synced(self):
+        """Idempotency: syncSources errors for already-copied packages are handled gracefully."""
+        wrapper = LaunchpadWrapper()
+        wrapper.queue_copy("kolibri-server", "jammy", "noble", "Release")
+
+        class MockBadRequest(Exception):
+            pass
+
+        mock_ppa = MagicMock()
+        mock_ppa.syncSources.side_effect = MockBadRequest(
+            "kolibri-server 0.9.0 in noble (same version already published)"
+        )
+
+        with patch("launchpad_copy.lre") as mock_lre:
+            mock_lre.BadRequest = MockBadRequest
+            wrapper.perform_queued_copies(mock_ppa)
+
+        # Should not raise — the error is handled gracefully
+
+    def test_perform_queued_copies_logs_already_synced(self, caplog):
+        """Idempotency: logs a message when syncSources finds package already exists."""
+        wrapper = LaunchpadWrapper()
+        wrapper.queue_copy("kolibri-server", "jammy", "noble", "Release")
+
+        class MockBadRequest(Exception):
+            pass
+
+        mock_ppa = MagicMock()
+        mock_ppa.syncSources.side_effect = MockBadRequest(
+            "kolibri-server 0.9.0 in noble (same version already published)"
+        )
+
+        with (
+            patch("launchpad_copy.lre") as mock_lre,
+            caplog.at_level(logging.INFO, logger=log.name),
+        ):
+            mock_lre.BadRequest = MockBadRequest
+            wrapper.perform_queued_copies(mock_ppa)
+
+        assert any("already" in r.message.lower() for r in caplog.records)
+
     def test_get_usable_sources_filters_by_whitelist(self):
         wrapper = LaunchpadWrapper()
         mock_ppa = MagicMock()
@@ -271,133 +289,6 @@ class TestLaunchpadWrapper:
             result = LaunchpadWrapper.get_usable_sources.__wrapped__(wrapper, mock_ppa, ("kolibri-server",), "jammy")
 
         assert len(result) == 0
-
-
-# --- dry-run tests ---
-
-
-class TestDryRunPromote:
-    """Test that --dry-run prevents mutating calls in promote."""
-
-    def test_dry_run_skips_copy_package(self):
-        wrapper = LaunchpadWrapper()
-        wrapper.dry_run = True
-        mock_source_ppa = MagicMock()
-        mock_dest_ppa = MagicMock()
-
-        mock_pkg = MagicMock()
-        mock_pkg.source_package_name = "kolibri-server"
-        mock_pkg.source_package_version = "0.9.0"
-        mock_pkg.distro_series_link = "https://lp/ubuntu/jammy"
-        mock_pkg.pocket = "Release"
-
-        mock_source_ppa.getPublishedSources.return_value = [mock_pkg]
-
-        with (
-            patch.object(
-                type(wrapper),
-                "proposed_ppa",
-                new_callable=lambda: property(lambda self: mock_source_ppa),
-            ),
-            patch.object(
-                type(wrapper),
-                "release_ppa",
-                new_callable=lambda: property(lambda self: mock_dest_ppa),
-            ),
-        ):
-            result = wrapper.promote()
-
-        mock_dest_ppa.copyPackage.assert_not_called()
-        assert result == 0
-
-    def test_dry_run_logs_what_would_be_promoted(self, caplog):
-        wrapper = LaunchpadWrapper()
-        wrapper.dry_run = True
-        mock_source_ppa = MagicMock()
-        mock_dest_ppa = MagicMock()
-
-        mock_pkg = MagicMock()
-        mock_pkg.source_package_name = "kolibri-server"
-        mock_pkg.source_package_version = "0.9.0"
-        mock_pkg.distro_series_link = "https://lp/ubuntu/jammy"
-        mock_pkg.pocket = "Release"
-
-        mock_source_ppa.getPublishedSources.return_value = [mock_pkg]
-
-        with (
-            patch.object(
-                type(wrapper),
-                "proposed_ppa",
-                new_callable=lambda: property(lambda self: mock_source_ppa),
-            ),
-            patch.object(
-                type(wrapper),
-                "release_ppa",
-                new_callable=lambda: property(lambda self: mock_dest_ppa),
-            ),
-            caplog.at_level(logging.INFO, logger=log.name),
-        ):
-            wrapper.promote()
-
-        assert any(
-            "DRY-RUN" in r.message and "kolibri-server" in r.message and "0.9.0" in r.message for r in caplog.records
-        )
-
-
-class TestDryRunWaitForBuilds:
-    """Test that wait-for-builds works normally in dry-run mode (it's already read-only)."""
-
-    def test_dry_run_wait_for_builds_still_works(self):
-        wrapper = LaunchpadWrapper()
-        wrapper.dry_run = True
-        mock_ppa = MagicMock()
-        source = MagicMock()
-        source.source_package_name = "kolibri-server"
-        source.source_package_version = "1.0"
-        source.status = "Published"
-        build = MagicMock()
-        build.buildstate = "Successfully built"
-        build.arch_tag = "amd64"
-        build.web_link = "https://launchpad.net/build/amd64"
-        source.getBuilds.return_value = [build]
-        mock_ppa.getPublishedSources.return_value = [source]
-
-        with (
-            patch.object(wrapper, "get_ppa", return_value=mock_ppa),
-            patch("launchpad_copy.time") as mock_time,
-        ):
-            mock_time.time.side_effect = [0, 0, 0]
-            mock_time.sleep = MagicMock()
-            result = wrapper.wait_for_builds("kolibri-server", "1.0")
-
-        assert result == 0
-
-
-class TestDryRunCopyToSeries:
-    """Test that --dry-run prevents mutating calls in copy-to-series."""
-
-    def test_dry_run_skips_sync_sources(self):
-        wrapper = LaunchpadWrapper()
-        wrapper.dry_run = True
-        wrapper.queue_copy("kolibri-server", "jammy", "noble", "Release")
-
-        mock_ppa = MagicMock()
-        wrapper.perform_queued_copies(mock_ppa)
-
-        mock_ppa.syncSources.assert_not_called()
-
-    def test_dry_run_logs_what_would_be_copied(self, caplog):
-        wrapper = LaunchpadWrapper()
-        wrapper.dry_run = True
-        wrapper.queue_copy("kolibri-server", "jammy", "noble", "Release")
-
-        mock_ppa = MagicMock()
-        with caplog.at_level(logging.INFO, logger=log.name):
-            wrapper.perform_queued_copies(mock_ppa)
-
-        assert any(
-            "DRY-RUN" in r.message and "kolibri-server" in r.message and "noble" in r.message for r in caplog.records
-        )
 
 
 # --- configure_logging tests ---
@@ -475,59 +366,6 @@ class TestMainDispatch:
 
         mock_cmd.assert_called_once()
         assert result == 0
-
-    def test_dry_run_flag_passed_to_copy_to_series(self):
-        with (
-            patch("launchpad_copy.cmd_copy_to_series", return_value=0) as mock_cmd,
-            patch("sys.argv", ["launchpad_copy.py", "--dry-run", "copy-to-series"]),
-        ):
-            main()
-
-        mock_cmd.assert_called_once()
-        args = mock_cmd.call_args[0][0]
-        assert args.dry_run is True
-
-    def test_dry_run_flag_passed_to_promote(self):
-        with (
-            patch("launchpad_copy.cmd_promote", return_value=0) as mock_cmd,
-            patch("sys.argv", ["launchpad_copy.py", "--dry-run", "promote"]),
-        ):
-            main()
-
-        mock_cmd.assert_called_once()
-        args = mock_cmd.call_args[0][0]
-        assert args.dry_run is True
-
-
-class TestDryRunIntegration:
-    """Test that --dry-run is threaded from CLI to LaunchpadWrapper."""
-
-    def test_cmd_copy_to_series_sets_dry_run_on_wrapper(self):
-        parser = build_parser()
-        args = parser.parse_args(["--dry-run", "copy-to-series"])
-        with patch("launchpad_copy.LaunchpadWrapper") as MockWrapper:
-            instance = MockWrapper.return_value
-            instance.copy_to_series.return_value = 0
-            cmd_copy_to_series(args)
-            assert instance.dry_run is True
-
-    def test_cmd_promote_sets_dry_run_on_wrapper(self):
-        parser = build_parser()
-        args = parser.parse_args(["--dry-run", "promote"])
-        with patch("launchpad_copy.LaunchpadWrapper") as MockWrapper:
-            instance = MockWrapper.return_value
-            instance.promote.return_value = 0
-            cmd_promote(args)
-            assert instance.dry_run is True
-
-    def test_cmd_wait_for_builds_sets_dry_run_on_wrapper(self):
-        parser = build_parser()
-        args = parser.parse_args(["--dry-run", "wait-for-builds", "--package", "kolibri-server", "--version", "1.0"])
-        with patch("launchpad_copy.LaunchpadWrapper") as MockWrapper:
-            instance = MockWrapper.return_value
-            instance.wait_for_builds.return_value = 0
-            cmd_wait_for_builds(args)
-            assert instance.dry_run is True
 
 
 # --- copy-to-series subcommand tests ---
@@ -677,6 +515,85 @@ class TestPromote:
 
         mock_dest_ppa.copyPackage.assert_not_called()
         assert result == 0
+
+    def test_handles_already_published_package_gracefully(self):
+        """Idempotency: promote skips packages already copied to dest PPA."""
+        wrapper = LaunchpadWrapper()
+        mock_source_ppa = MagicMock()
+        mock_dest_ppa = MagicMock()
+
+        mock_pkg = MagicMock()
+        mock_pkg.source_package_name = "kolibri-server"
+        mock_pkg.source_package_version = "0.9.0"
+        mock_pkg.distro_series_link = "https://lp/ubuntu/jammy"
+        mock_pkg.pocket = "Release"
+
+        mock_source_ppa.getPublishedSources.return_value = [mock_pkg]
+
+        class MockBadRequest(Exception):
+            pass
+
+        mock_dest_ppa.copyPackage.side_effect = MockBadRequest(
+            "kolibri-server 0.9.0 in jammy (same version already published in the target archive)"
+        )
+
+        with (
+            patch.object(
+                type(wrapper),
+                "proposed_ppa",
+                new_callable=lambda: property(lambda self: mock_source_ppa),
+            ),
+            patch.object(
+                type(wrapper),
+                "release_ppa",
+                new_callable=lambda: property(lambda self: mock_dest_ppa),
+            ),
+            patch("launchpad_copy.lre") as mock_lre,
+        ):
+            mock_lre.BadRequest = MockBadRequest
+            result = wrapper.promote()
+
+        assert result == 0
+
+    def test_already_published_logs_skip_message(self, caplog):
+        """Idempotency: promote logs that a package was already promoted."""
+        wrapper = LaunchpadWrapper()
+        mock_source_ppa = MagicMock()
+        mock_dest_ppa = MagicMock()
+
+        mock_pkg = MagicMock()
+        mock_pkg.source_package_name = "kolibri-server"
+        mock_pkg.source_package_version = "0.9.0"
+        mock_pkg.distro_series_link = "https://lp/ubuntu/jammy"
+        mock_pkg.pocket = "Release"
+
+        mock_source_ppa.getPublishedSources.return_value = [mock_pkg]
+
+        class MockBadRequest(Exception):
+            pass
+
+        mock_dest_ppa.copyPackage.side_effect = MockBadRequest(
+            "kolibri-server 0.9.0 in jammy (same version already published in the target archive)"
+        )
+
+        with (
+            patch.object(
+                type(wrapper),
+                "proposed_ppa",
+                new_callable=lambda: property(lambda self: mock_source_ppa),
+            ),
+            patch.object(
+                type(wrapper),
+                "release_ppa",
+                new_callable=lambda: property(lambda self: mock_dest_ppa),
+            ),
+            patch("launchpad_copy.lre") as mock_lre,
+            caplog.at_level(logging.INFO, logger=log.name),
+        ):
+            mock_lre.BadRequest = MockBadRequest
+            wrapper.promote()
+
+        assert any("already published" in r.message.lower() and "kolibri-server" in r.message for r in caplog.records)
 
 
 # --- wait-for-builds tests ---

@@ -85,29 +85,26 @@ To generate credentials:
 
 The workflow writes this secret to a temporary file at runtime and cleans it up after each job.
 
-Manual dry-run testing
-~~~~~~~~~~~~~~~~~~~~~~
+Manual workflow dispatch
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-The workflow supports a ``workflow_dispatch`` trigger for manual dry-run testing. This allows validating the full workflow (auth, API queries, version checks, copy logic) without any mutating API calls.
+The workflow supports a ``workflow_dispatch`` trigger for manual reruns. This is useful when a release workflow fails partway through — you can fix the issue and rerun the workflow without it breaking because earlier steps already succeeded.
 
 To trigger from the GitHub UI:
 
 #. Go to **Actions > Build Debian source package > Run workflow**
-#. The ``dry_run`` input defaults to ``true``
 #. Click **Run workflow**
 
 To trigger from the command line::
 
-  gh workflow run build_debian.yml --field dry_run=true
+  gh workflow run build_debian.yml
 
-When ``dry_run`` is ``true``:
+When triggered via ``workflow_dispatch``:
 
-- The ``build_package`` job is skipped (no ``dput`` upload)
-- The ``wait_for_source_builds`` job is skipped
+- The ``build_package`` and ``wait_for_source_builds`` jobs are skipped (no release artifact to upload)
+- The version is read from ``debian/changelog`` instead of the release tag
 - The ``block_release_step`` manual approval gate is skipped
-- All script invocations receive the ``--dry-run`` flag
-- Read-only Launchpad API calls (auth, PPA lookup, source listing) execute normally
-- Write operations (``copyPackage``, ``syncSources``) are replaced with log messages
+- All copy and promote steps run normally — they are idempotent and safely handle packages that were already copied in a previous run
 
 Launchpad copy script
 ~~~~~~~~~~~~~~~~~~~~~
@@ -129,11 +126,7 @@ The ``scripts/launchpad_copy.py`` script manages Launchpad PPA operations with t
 
     python3 scripts/launchpad_copy.py wait-for-builds --package kolibri-server --version 1.0.0
 
-All subcommands accept the ``--dry-run`` flag, which logs what would happen without making any mutating API calls::
-
-  python3 scripts/launchpad_copy.py --dry-run copy-to-series
-  python3 scripts/launchpad_copy.py --dry-run promote
-  python3 scripts/launchpad_copy.py --dry-run wait-for-builds --package kolibri-server --version 1.0.0
+All subcommands are idempotent — rerunning them after a partial success safely skips packages that were already copied or promoted.
 
 Additional flags: ``-v`` / ``-vv`` for verbosity, ``-q`` for quiet mode, ``--debug`` for HTTP-level debugging.
 
