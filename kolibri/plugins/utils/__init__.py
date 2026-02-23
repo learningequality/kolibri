@@ -186,11 +186,8 @@ def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):
         )
 
     except ImportError as e:
-        exc_message = getattr(e, "message", getattr(e, "msg", None))
-        if (
-            exc_message == "No module named '{}'".format(plugin_module_name)
-            or exc_message == "No module named kolibri_plugin"
-        ):
+        exc_message = str(e)
+        if "No module named '{}'".format(plugin_module_name) in exc_message:
             msg = (
                 "Plugin '{}' exists but does not have an importable kolibri_plugin module"
             ).format(plugin_name)
