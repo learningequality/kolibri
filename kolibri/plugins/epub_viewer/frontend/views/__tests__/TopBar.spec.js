@@ -46,7 +46,7 @@ describe('Top bar', () => {
     const searchButton = screen.getByRole('button', { name: /toggle search/i });
     searchButton.focus();
 
-    expect(searchButton).toHaveFocus();
+    expect(document.activeElement).toBe(searchButton);
   });
 
   it('emits event when table of contents button is clicked', async () => {
@@ -60,7 +60,7 @@ describe('Top bar', () => {
   it('emits event when settings button is clicked', async () => {
     const { emitted } = renderTopBar();
 
-    await fireEvent.click(screen.getAllByRole('button')[1]);
+    await fireEvent.click(screen.getByRole('button', { name: /toggle settings/i }));
 
     expect(emitted().settingsButtonClicked).toBeTruthy();
   });
@@ -68,7 +68,7 @@ describe('Top bar', () => {
   it('emits event when search button is clicked', async () => {
     const { emitted } = renderTopBar();
 
-    await fireEvent.click(screen.getAllByRole('button')[2]);
+    await fireEvent.click(screen.getByRole('button', { name: /toggle search/i }));
 
     expect(emitted().searchButtonClicked).toBeTruthy();
   });
@@ -76,7 +76,7 @@ describe('Top bar', () => {
   it('emits event when fullscreen button is clicked', async () => {
     const { emitted } = renderTopBar();
 
-    await fireEvent.click(screen.getAllByRole('button')[3]);
+    await fireEvent.click(screen.getByRole('button', { name: /toggle fullscreen/i }));
 
     expect(emitted().fullscreenButtonClicked).toBeTruthy();
   });
