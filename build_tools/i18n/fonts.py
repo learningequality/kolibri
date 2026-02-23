@@ -5,6 +5,8 @@ For usage instructions, see:
 import argparse
 import base64
 import functools
+import hashlib
+import io
 import json
 import logging
 import mimetypes
@@ -75,6 +77,12 @@ NOTO_SANS_LATIN = "NotoSans"
 SCOPE_FULL = "noto-full"
 SCOPE_SUBSET = "noto-subset"
 SCOPE_COMMON = "noto-common"
+
+# In-memory manifest for CSS file hashes, written at end of generation
+_FONT_CSS_HASHES = {}
+
+# In-memory mapping of original WOFF filenames to hashed filenames (used during generation only)
+_WOFF_HASHES = {}
 
 """
 Shared helpers
@@ -182,15 +190,68 @@ def _font_glyphs(font_path):
     return glyphs
 
 
-def _clean_up(scope):
+def _clean_up_fonts_directory():
     """
-    Delete all files in OUTPUT_PATH that match the scope
+    Delete all generated font files.
     """
-    css_pattern = r"{}.*?\.css".format(scope)
-    woff_pattern = r"{}.*?\.woff".format(scope)
     for name in os.listdir(OUTPUT_PATH):
-        if re.match(css_pattern, name) or re.match(woff_pattern, name):
+        if name.endswith(".css") or name.endswith(".woff"):
             os.unlink(os.path.join(OUTPUT_PATH, name))
+    logging.info("Cleaned fonts directory")
+
+
+def _compute_file_hash(file_path):
+    """
+    Compute SHA256 hash of a file.
+    Returns first 32 characters of hex digest.
+    """
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()[:32]
+
+
+def _get_hashed_filename(original_filename, file_path):
+    """
+    Generate hashed filename for a file.
+    Format: {name}-{hash}.{extension}
+    """
+    name, ext = os.path.splitext(original_filename)
+    file_hash = _compute_file_hash(file_path)
+    return f"{name}-{file_hash}{ext}"
+
+
+def _register_hashed_css(original_name, hashed_name):
+    """
+    Add CSS file mapping to in-memory manifest.
+    """
+    _FONT_CSS_HASHES[original_name] = hashed_name
+
+
+def _write_css_hash_manifest():
+    """
+    Write the font CSS hash manifest.
+    """
+    manifest_path = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            os.pardir,
+            os.pardir,
+            "kolibri",
+            "core",
+            "constants",
+            "font_css_hashes.json",
+        )
+    )
+
+    os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
+
+    with io.open(manifest_path, mode="w", encoding="utf-8") as f:
+        json.dump(_FONT_CSS_HASHES, f, sort_keys=True, indent=2)
+
+    logging.info(f"Wrote font CSS hash manifest with {len(_FONT_CSS_HASHES)} entries")
+    _FONT_CSS_HASHES.clear()
 
 
 """
@@ -258,11 +319,18 @@ def _full_font_face(font_family, font_name, weight, omit_glyphs=None):
     if omit_glyphs is None:
         omit_glyphs = set()
     file_path = _woff_font_path(_scoped(SCOPE_FULL, font_name), weight)
-    file_name = os.path.basename(file_path)
-    glyphs = _font_glyphs(file_path) - omit_glyphs
+    original_filename = os.path.basename(file_path)
+
+    # Look up hashed filename
+    hashed_filename = _WOFF_HASHES.get(original_filename, original_filename)
+    hashed_path = os.path.join(OUTPUT_PATH, hashed_filename)
+
+    glyphs = _font_glyphs(hashed_path) - omit_glyphs
     if not glyphs:
         return ""
-    return _gen_font_face(font_family, file_name, weight, unicodes=_fmt_range(glyphs))
+    return _gen_font_face(
+        font_family, hashed_filename, weight, unicodes=_fmt_range(glyphs)
+    )
 
 
 def _gen_full_css_modern(lang_info):
@@ -284,45 +352,89 @@ def _gen_full_css_modern(lang_info):
             )
 
         # Assumes all four variants have the same glyphs, from the content Regular font
-        previous_glyphs |= _font_glyphs(
-            _woff_font_path(_scoped(SCOPE_FULL, font_name), "Regular")
-        )
+        regular_path = _woff_font_path(_scoped(SCOPE_FULL, font_name), "Regular")
+        original_filename = os.path.basename(regular_path)
+        hashed_filename = _WOFF_HASHES.get(original_filename, original_filename)
+        hashed_path = os.path.join(OUTPUT_PATH, hashed_filename)
+        previous_glyphs |= _font_glyphs(hashed_path)
 
-    output_name = os.path.join(
-        OUTPUT_PATH,
-        "{}.modern.css".format(_scoped(SCOPE_FULL, lang_info[utils.KEY_INTL_CODE])),
+    original_filename = "{}.modern.css".format(
+        _scoped(SCOPE_FULL, lang_info[utils.KEY_INTL_CODE])
     )
-    logging.info("Writing {}".format(output_name))
-    with open(output_name, "w") as f:
+    temp_path = os.path.join(OUTPUT_PATH, original_filename + ".tmp")
+
+    # Write to temporary file
+    with open(temp_path, "w") as f:
         f.write(CSS_HEADER)
         f.write("".join(font_faces))
 
+    # Hash and rename
+    hashed_filename = _get_hashed_filename(original_filename, temp_path)
+    hashed_path = os.path.join(OUTPUT_PATH, hashed_filename)
+    os.rename(temp_path, hashed_path)
+
+    # Register in manifest
+    _register_hashed_css(original_filename, hashed_filename)
+
+    logging.info("Writing {}".format(hashed_path))
+
 
 def _gen_full_css_basic(lang_info):
-    output_name = os.path.join(
-        OUTPUT_PATH,
-        "{}.basic.css".format(_scoped(SCOPE_FULL, lang_info[utils.KEY_INTL_CODE])),
+    original_filename = "{}.basic.css".format(
+        _scoped(SCOPE_FULL, lang_info[utils.KEY_INTL_CODE])
     )
-    logging.info("Writing {}".format(output_name))
-    with open(output_name, "w") as f:
+    temp_path = os.path.join(OUTPUT_PATH, original_filename + ".tmp")
+
+    # Write to temporary file
+    with open(temp_path, "w") as f:
         f.write(CSS_HEADER)
         default_font = lang_info[utils.KEY_DEFAULT_FONT]
         for weight in noto_source.WEIGHTS:
             f.write(_full_font_face(SCOPE_FULL, default_font, weight))
 
+    # Hash and rename
+    hashed_filename = _get_hashed_filename(original_filename, temp_path)
+    hashed_path = os.path.join(OUTPUT_PATH, hashed_filename)
+    os.rename(temp_path, hashed_path)
+
+    # Register in manifest
+    _register_hashed_css(original_filename, hashed_filename)
+
+    logging.info("Writing {}".format(hashed_path))
+
 
 def _write_full_font(font_name, weight):
     font = _load_font(noto_source.get_path(font_name, weight))
-    output_name = _woff_font_path(_scoped(SCOPE_FULL, font_name), weight)
-    logging.info("Writing {}".format(output_name))
-    font.save(output_name)
+    output_path = _woff_font_path(_scoped(SCOPE_FULL, font_name), weight)
+
+    # Save to temporary file first
+    temp_path = output_path + ".tmp"
+    font.save(temp_path)
+
+    # Generate hashed filename
+    original_filename = os.path.basename(output_path)
+    hashed_filename = _get_hashed_filename(original_filename, temp_path)
+    hashed_path = os.path.join(OUTPUT_PATH, hashed_filename)
+
+    # Rename to hashed filename
+    os.rename(temp_path, hashed_path)
+
+    # Store mapping for CSS generation
+    _WOFF_HASHES[original_filename] = hashed_filename
+
+    logging.info("Writing {}".format(hashed_path))
 
 
-def command_gen_full_fonts():
-    logging.info("generating full fonts...")
+def command_generate_fonts():
+    """
+    Generate all font files (full and subset) and create the hash manifest.
+    """
+    logging.info("Generating fonts...")
 
-    _clean_up(SCOPE_FULL)
+    # Clean up all old fonts
+    _clean_up_fonts_directory()
 
+    # Generate full fonts
     for font_name in noto_source.FONT_MANIFEST:
         for weight in noto_source.WEIGHTS:
             _write_full_font(font_name, weight)
@@ -332,7 +444,34 @@ def command_gen_full_fonts():
         _gen_full_css_modern(lang_info)
         _gen_full_css_basic(lang_info)
 
-    logging.info("finished generating full fonts")
+    # Generate subset fonts
+    _subset_and_merge_fonts(
+        text=" ".join(_get_common_strings()),
+        default_font=NOTO_SANS_LATIN,
+        scope=SCOPE_COMMON,
+    )
+
+    for lang_info in languages:
+        logging.info(f"Generating subset for {lang_info[utils.KEY_ENG_NAME]}")
+        strings = _get_lang_strings(utils.local_locale_path(lang_info))
+        _subset_and_merge_fonts(
+            text=" ".join(strings),
+            default_font=lang_info[utils.KEY_DEFAULT_FONT],
+            scope=_scoped(SCOPE_SUBSET, lang_info[utils.KEY_INTL_CODE]),
+        )
+
+    _generate_inline_font_css(name=SCOPE_COMMON, font_family=SCOPE_COMMON)
+
+    for lang in languages:
+        _generate_inline_font_css(
+            name=_scoped(SCOPE_SUBSET, lang[utils.KEY_INTL_CODE]),
+            font_family=SCOPE_SUBSET,
+        )
+
+    # Write manifest with all hashed file mappings
+    _write_css_hash_manifest()
+
+    logging.info("Finished generating fonts")
 
 
 """
@@ -375,14 +514,26 @@ def _generate_inline_font_css(name, font_family):
     Generate CSS and clean up inlined woff files
     """
 
-    output_name = os.path.join(OUTPUT_PATH, "{}.css".format(name))
-    logging.info("Writing {}".format(output_name))
-    with open(output_name, "w") as f:
+    original_filename = "{}.css".format(name)
+    temp_path = os.path.join(OUTPUT_PATH, original_filename + ".tmp")
+
+    # Write to temporary file
+    with open(temp_path, "w") as f:
         f.write(CSS_HEADER)
         for weight in noto_source.WEIGHTS:
             font_path = _woff_font_path(name, weight)
             _write_inline_font(f, font_path, font_family, weight)
             os.unlink(font_path)
+
+    # Hash and rename
+    hashed_filename = _get_hashed_filename(original_filename, temp_path)
+    hashed_path = os.path.join(OUTPUT_PATH, hashed_filename)
+    os.rename(temp_path, hashed_path)
+
+    # Register in manifest
+    _register_hashed_css(original_filename, hashed_filename)
+
+    logging.info("Writing {}".format(hashed_path))
 
 
 def _get_subset_font(source_file_path, text):
@@ -513,11 +664,19 @@ def _subset_and_merge_fonts(text, default_font, scope):
 
         for weight in noto_source.WEIGHTS:
             full_path = _woff_font_path(_scoped(SCOPE_FULL, font_name), weight)
-            subset = _get_subset_font(full_path, text)
+            # Look up hashed filename for the full font
+            original_filename = os.path.basename(full_path)
+            hashed_filename = _WOFF_HASHES.get(original_filename, original_filename)
+            hashed_path = os.path.join(OUTPUT_PATH, hashed_filename)
+            subset = _get_subset_font(hashed_path, text)
             subsets[weight].append(subset)
 
         full_reg_path = _woff_font_path(_scoped(SCOPE_FULL, font_name), "Regular")
-        new_glyphs = _font_glyphs(full_reg_path)
+        # Look up hashed filename for the regular font
+        original_filename = os.path.basename(full_reg_path)
+        hashed_filename = _WOFF_HASHES.get(original_filename, original_filename)
+        hashed_path = os.path.join(OUTPUT_PATH, hashed_filename)
+        new_glyphs = _font_glyphs(hashed_path)
         remaining_glyphs -= new_glyphs
         if not remaining_glyphs:
             break
@@ -528,54 +687,6 @@ def _subset_and_merge_fonts(text, default_font, scope):
         subset_path = _woff_font_path(scope, weight)
         subset = subsets[weight]
         _merge_fonts(subset, os.path.join(OUTPUT_PATH, subset_path))
-
-
-def command_gen_subset_fonts():
-    """
-    Creates custom fonts that attempt to contain all the glyphs and other font features
-    that are used in user-facing text for the translation in each language.
-
-    We make a separate subset font for common strings, which generally overaps somewhat
-    with the individual language subsets. This slightly increases how much the client
-    needs to download on first request, but reduces Kolibri's distribution size by a
-    couple megabytes.
-    """
-    logging.info("generating subset fonts...")
-
-    _clean_up(SCOPE_COMMON)
-    _clean_up(SCOPE_SUBSET)
-
-    _subset_and_merge_fonts(
-        text=" ".join(_get_common_strings()),
-        default_font=NOTO_SANS_LATIN,
-        scope=SCOPE_COMMON,
-    )
-
-    languages = utils.available_languages()
-    for lang_info in languages:
-        logging.info("gen subset for {}".format(lang_info[utils.KEY_ENG_NAME]))
-        strings = []
-        strings.extend(_get_lang_strings(utils.local_locale_path(lang_info)))
-
-        name = lang_info[utils.KEY_INTL_CODE]
-        _subset_and_merge_fonts(
-            text=" ".join(strings),
-            default_font=lang_info[utils.KEY_DEFAULT_FONT],
-            scope=_scoped(SCOPE_SUBSET, name),
-        )
-
-    # generate common subset file
-    _generate_inline_font_css(name=SCOPE_COMMON, font_family=SCOPE_COMMON)
-
-    # generate language-specific subset font files
-    languages = utils.available_languages()
-    for lang in languages:
-        _generate_inline_font_css(
-            name=_scoped(SCOPE_SUBSET, lang[utils.KEY_INTL_CODE]),
-            font_family=SCOPE_SUBSET,
-        )
-
-    logging.info("subsets created")
 
 
 """
@@ -656,11 +767,7 @@ def main():
         help="Download sources from https://github.com/notofonts/notofonts.github.io",
     )
 
-    subparsers.add_parser(
-        "generate-subset-fonts", help="Generate subset fonts based on app text"
-    )
-
-    subparsers.add_parser("generate-full-fonts", help="Generate full fonts")
+    subparsers.add_parser("generate-fonts", help="Generate all font files")
 
     args = parser.parse_args()
 
@@ -670,10 +777,8 @@ def main():
         command_show_all_available_typefaces()
     elif args.command == "download-source-fonts":
         command_download_source_fonts()
-    elif args.command == "generate-subset-fonts":
-        command_gen_subset_fonts()
-    elif args.command == "generate-full-fonts":
-        command_gen_full_fonts()
+    elif args.command == "generate-fonts":
+        command_generate_fonts()
     else:
         logging.warning("Unknown command\n")
         parser.print_help(sys.stderr)

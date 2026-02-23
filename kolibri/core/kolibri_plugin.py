@@ -1,3 +1,7 @@
+import io
+import json
+import os
+
 from django.conf import settings
 from django.templatetags.static import static
 from django.urls import get_resolver
@@ -8,7 +12,6 @@ from django.utils.translation import get_language_bidi
 from django.utils.translation import get_language_info
 from django_js_reverse.core import generate_json
 
-import kolibri
 from kolibri.core.content.utils.paths import get_content_storage_url
 from kolibri.core.content.utils.paths import get_sandbox_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
@@ -23,6 +26,14 @@ from kolibri.plugins.app.utils import interface
 from kolibri.plugins.hooks import register_hook
 from kolibri.utils import i18n
 from kolibri.utils.conf import OPTIONS
+
+# Load font CSS hash manifest
+_font_css_manifest_file = os.path.join(
+    os.path.dirname(__file__), "constants", "font_css_hashes.json"
+)
+
+with io.open(_font_css_manifest_file, mode="r", encoding="utf-8") as f:
+    FONT_CSS_HASHES = json.load(f)
 
 
 @register_hook
@@ -52,8 +63,12 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
     @property
     def plugin_data(self):
         language_code = get_language()
-        static_root = static("assets/fonts/noto-full")
-        full_file = "{}.{}.{}.css?v={}"
+
+        # Get hashed CSS filenames from manifest
+        modern_original = f"noto-full.{language_code}.modern.css"
+        basic_original = f"noto-full.{language_code}.basic.css"
+        modern_hashed = FONT_CSS_HASHES[modern_original]
+        basic_hashed = FONT_CSS_HASHES[basic_original]
 
         default_urlresolver = get_resolver(None)
 
@@ -84,12 +99,8 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             }
         )
         return {
-            "fullCSSFileModern": full_file.format(
-                static_root, language_code, "modern", kolibri.__version__
-            ),
-            "fullCSSFileBasic": full_file.format(
-                static_root, language_code, "basic", kolibri.__version__
-            ),
+            "fullCSSFileModern": static(f"assets/fonts/{modern_hashed}"),
+            "fullCSSFileBasic": static(f"assets/fonts/{basic_hashed}"),
             "allowRemoteAccess": allow_other_browsers_to_connect()
             or not interface.enabled,
             "appCapabilities": interface.capabilities,
@@ -136,19 +147,18 @@ class FrontendHeadAssetsHook(FrontEndBaseHeadHook):
 
     def language_font_file_tags(self):
         language_code = get_language()
-        common_file = static("assets/fonts/noto-common.css")
-        subset_file = static("assets/fonts/noto-subset.{}.css".format(language_code))
+
+        # Get hashed CSS filenames from manifest
+        common_hashed = FONT_CSS_HASHES["noto-common.css"]
+        subset_original = f"noto-subset.{language_code}.css"
+        subset_hashed = FONT_CSS_HASHES[subset_original]
+
+        common_file = static(f"assets/fonts/{common_hashed}")
+        subset_file = static(f"assets/fonts/{subset_hashed}")
+
         return [
-            '<link type="text/css" href="{common_css_file}?v={version}" rel="preload" as="style"/>'.format(
-                common_css_file=common_file, version=kolibri.__version__
-            ),
-            '<link type="text/css" href="{common_css_file}?v={version}" rel="stylesheet"/>'.format(
-                common_css_file=common_file, version=kolibri.__version__
-            ),
-            '<link type="text/css" href="{common_css_file}?v={version}" rel="preload" as="style"/>'.format(
-                common_css_file=subset_file, version=kolibri.__version__
-            ),
-            '<link type="text/css" href="{subset_css_file}?v={version}" rel="stylesheet"/>'.format(
-                subset_css_file=subset_file, version=kolibri.__version__
-            ),
+            f'<link type="text/css" href="{common_file}" rel="preload" as="style"/>',
+            f'<link type="text/css" href="{common_file}" rel="stylesheet"/>',
+            f'<link type="text/css" href="{subset_file}" rel="preload" as="style"/>',
+            f'<link type="text/css" href="{subset_file}" rel="stylesheet"/>',
         ]
