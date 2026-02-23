@@ -184,7 +184,7 @@ def _make_singleton(subclass):
 
 def _add_kolibri_hook_meta(subclass):
     """
-    Vendored from six add_metaclass.
+    Add the KolibriHookMeta metaclass to the subclass.
     """
     orig_vars = subclass.__dict__.copy()
     slots = orig_vars.get("__slots__")
