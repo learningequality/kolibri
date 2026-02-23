@@ -1,6 +1,6 @@
+import sys
 from contextlib import contextmanager
 from importlib import reload
-import sys
 
 from django.conf import settings
 from django.urls import clear_url_caches
