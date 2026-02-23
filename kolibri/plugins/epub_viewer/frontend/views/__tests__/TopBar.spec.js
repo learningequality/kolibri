@@ -52,7 +52,7 @@ describe('Top bar', () => {
   it('emits event when table of contents button is clicked', async () => {
     const { emitted } = renderTopBar();
 
-    await fireEvent.click(screen.getAllByRole('button')[0]);
+    await fireEvent.click(screen.getByRole('button', { name: /toggle table of contents/i }));
 
     expect(emitted().tableOfContentsButtonClicked).toBeTruthy();
   });
