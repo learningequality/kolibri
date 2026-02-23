@@ -1,17 +1,10 @@
 import os
-
-try:
-    from importlib import reload
-except ImportError:
-    # This will happen on Python 2.7
-    # use built in reload.
-    reload = reload
-
 import sys
+from importlib import reload
 
 from django.conf import settings
-from django.urls import clear_url_caches
 from django.test.utils import TestContextDecorator
+from django.urls import clear_url_caches
 
 from kolibri.utils import conf
 from kolibri.utils.options import option_spec

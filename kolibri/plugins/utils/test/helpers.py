@@ -1,13 +1,6 @@
-from contextlib import contextmanager
-
-try:
-    from importlib import reload
-except ImportError:
-    # This will happen on Python 2.7
-    # use built in reload.
-    reload = reload
-
 import sys
+from contextlib import contextmanager
+from importlib import reload
 
 from django.conf import settings
 from django.urls import clear_url_caches
