@@ -130,9 +130,7 @@ jobs:
         name: ${{ inputs.tar-file-name }}
         path: tar
     - name: Install dependencies
-      run: uv pip install --system --extra build -r requirements.txt
-    - name: Ensure that Android SDK dependencies are installed
-      run: make setup
+      run: uv sync --extra build && uv pip install -r requirements.txt
     - name: Build the aab
       if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
       env:
