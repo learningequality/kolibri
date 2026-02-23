@@ -28,7 +28,7 @@
 
 <script>
 
-  import { computed, onMounted, ref } from 'vue';
+  import { computed, onMounted, onUnmounted, ref } from 'vue';
   import Backdrop from 'kolibri/components/Backdrop';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
@@ -109,6 +109,11 @@
 
       onMounted(() => {
         sidePanel.value?.focus();
+        document.documentElement.style['overflow-y'] = 'hidden';
+      });
+
+      onUnmounted(() => {
+        document.documentElement.style['overflow-y'] = 'auto';
       });
 
       return {
