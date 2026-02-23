@@ -1,3 +1,14 @@
+"""
+Kolibri Core API URL Configuration.
+
+WARNING: These APIs are internal and designed for Kolibri's own frontend.
+They may change without notice between releases. Do not build external
+applications that depend on these endpoints.
+
+For stable APIs, use only the /public/ endpoints defined in
+kolibri.core.public.api_urls - these are maintained with backwards
+compatibility for external integrations.
+"""
 from django.urls import include
 from django.urls import re_path
 

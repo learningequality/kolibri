@@ -5,6 +5,9 @@ Getting started
 
 First of all, thank you for your interest in contributing to Kolibri! The project was founded by volunteers dedicated to helping make educational materials more accessible to those in need, and every contribution makes a difference. The instructions below should get you up and running the code in no time!
 
+.. note::
+  **Planning to integrate with Kolibri?** Most APIs are internal and unstable, designed for Kolibri's own use. Only ``/public/`` endpoints are maintained with backwards compatibility. See the :doc:`backend_architecture/index` for details on API stability.
+
 Prerequisites
 -------------
 
