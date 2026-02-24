@@ -170,7 +170,6 @@
           @clearSelectedUsers="clearSelectedUsers"
           @change="onChange"
         />
-        <!-- For sidepanels -->
         <router-view
           :selectedUsers="selectedUsers"
           :classes="classes"
@@ -179,7 +178,6 @@
           @clearSelection="clearSelectedUsers"
         />
 
-        <!-- Modals -->
         <MoveToTrashModal
           v-if="isMoveToTrashModalOpen"
           :selectedUsers="selectedUsers"
@@ -268,6 +266,7 @@
         onChange,
         fetchClasses,
         resetFilters,
+        clearSelectedUsers,
       } = useUserManagement({ activeFacilityId });
 
       // Use our new composables
@@ -278,10 +277,6 @@
       onMounted(() => {
         fetchClasses();
       });
-
-      function clearSelectedUsers() {
-        selectedUsers.value = new Set();
-      }
 
       function onModalBlur() {
         selectedUsers.value.clear();
