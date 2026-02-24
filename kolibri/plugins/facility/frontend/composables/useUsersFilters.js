@@ -3,6 +3,7 @@ import { useRoute, useRouter } from 'vue-router/composables';
 
 import { UserKinds } from 'kolibri/constants';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { localeCompare } from 'kolibri/utils/i18n';
 import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
 import { DateRangeFilters } from '../constants';
@@ -71,7 +72,7 @@ export default function useUsersFilters({ classes }) {
         id: cls.id,
         label: cls.name,
       }))
-      .sort((a, b) => a.label.localeCompare(b.label)),
+      .sort((a, b) => localeCompare(a.label, b.label)),
   );
 
   const creationDateOptions = [

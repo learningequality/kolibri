@@ -509,7 +509,13 @@
         }
         // Still no difference?
         // Sort by the URL to ensure consistent ordering
-        return navItemA.url.localeCompare(navItemB.url);
+        if (navItemA.url < navItemB.url) {
+          return -1;
+        }
+        if (navItemA.url > navItemB.url) {
+          return 1;
+        }
+        return 0;
       },
       filterByFullFacilityOnly(item) {
         return !this.isLearnerOnlyImport || !item.fullFacilityOnly;

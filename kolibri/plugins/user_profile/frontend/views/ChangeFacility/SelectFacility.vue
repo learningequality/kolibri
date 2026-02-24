@@ -86,6 +86,7 @@
   import useDevices from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
   import useDeviceDeletion from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDeviceDeletion';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { localeCompare } from 'kolibri/utils/i18n';
   import commonProfileStrings from '../commonProfileStrings';
 
   export default {
@@ -170,16 +171,10 @@
               }
             }
           }
-          // Sort alphabetically for predictable ordering
-          return Object.values(facilities).sort((facilityA, facilityB) => {
-            if (facilityA.name < facilityB.name) {
-              return -1;
-            }
-            if (facilityA.name > facilityB.name) {
-              return 1;
-            }
-            return 0;
-          });
+          // Sort alphabetically for predictable ordering using locale-aware comparison
+          return Object.values(facilities).sort((facilityA, facilityB) =>
+            localeCompare(facilityA.name, facilityB.name),
+          );
         },
         [],
         { evaluating: isLoading, shallow: false },

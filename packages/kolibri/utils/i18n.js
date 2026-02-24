@@ -265,11 +265,34 @@ export async function i18nSetup(skipPolyfill = false) {
   }
 }
 
-export function localeCompare(str1, str2) {
-  // Catch if browser does not support extended localeCompare arguments
+/**
+ * Locale-aware string comparison wrapper for proper internationalization.
+ *
+ * This wrapper exists primarily for iOS 9.3 compatibility, which does not
+ * fully support the locale and options parameters of String.prototype.localeCompare.
+ * All other supported browsers (Chrome 49+, Firefox 52+, Safari 11.1+, etc.)
+ * have full support.
+ *
+ * @param {string} str1 - First string to compare
+ * @param {string} str2 - Second string to compare
+ * @param {string} [locale] - BCP 47 locale code (defaults to currentLanguage)
+ * @param {object} [options] - Comparison options
+ * @param {string} [options.usage='sort'] - 'sort' for sorting, 'search' for case-insensitive search
+ * @param {string} [options.sensitivity] - 'base', 'accent', 'case', or 'variant'
+ * @param {boolean} [options.ignorePunctuation] - Whether to ignore punctuation
+ * @param {string} [options.numeric] - Whether numeric collation should be used
+ * @param {string} [options.caseFirst] - Whether upper or lower case should sort first
+ * @returns {number} -1 if str1 < str2, 0 if equal, 1 if str1 > str2
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare
+ */
+export function localeCompare(str1, str2, locale, options) {
+  const compareLocale = locale || currentLanguage;
+  const compareOptions = { usage: 'sort', ...options };
+
+  // Catch if browser does not support extended localeCompare arguments (iOS 9.3)
   try {
-    // use 'search' option to ignore case rather than use locale defaults
-    return String(str1).localeCompare(String(str2), 'default', { usage: 'search' });
+    return String(str1).localeCompare(String(str2), compareLocale, compareOptions);
   } catch (e) {
     return String(str1).localeCompare(String(str2));
   }
@@ -313,12 +336,14 @@ export function sortLanguages(availableLanguages, currentLanguageId) {
   return sortedLanguages;
 }
 
+/**
+ * Compares two language objects by their lang_name property using locale-aware comparison.
+ * Used for sorting language lists in the language switcher.
+ *
+ * @param {object} a - First language object with lang_name property
+ * @param {object} b - Second language object with lang_name property
+ * @returns {number} -1 if a < b, 0 if equal, 1 if a > b
+ */
 export function compareLanguages(a, b) {
-  if (a.lang_name.toLowerCase() < b.lang_name.toLowerCase()) {
-    return -1;
-  }
-  if (b.lang_name.toLowerCase() < a.lang_name.toLowerCase()) {
-    return 1;
-  }
-  return 0;
+  return localeCompare(a.lang_name, b.lang_name);
 }
