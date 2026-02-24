@@ -1,18 +1,21 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent } from '@testing-library/vue';
+import '@testing-library/jest-dom';
 import PreviousButton from '../PreviousButton';
 
-function createWrapper() {
-  return mount(PreviousButton);
-}
+const renderComponent = () => {
+  return render(PreviousButton, {
+    props: { color: 'black' },
+  });
+};
 
 describe('Previous button', () => {
-  it('should mount', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.exists()).toBe(true);
+  it('renders a button accessible as go to previous page', () => {
+    renderComponent();
+    expect(screen.getByRole('button', { name: 'Go to previous page' })).toBeInTheDocument();
   });
-  it('should emit an event when the button is clicked', () => {
-    const wrapper = createWrapper();
-    wrapper.find('button').trigger('click');
-    expect(wrapper.emitted().goToPreviousPage).toBeTruthy();
+  it('emits goToPreviousPage when clicked', async () => {
+    const { emitted } = renderComponent();
+    await fireEvent.click(screen.getByRole('button', { name: 'Go to previous page' }));
+    expect(emitted()).toHaveProperty('goToPreviousPage');
   });
 });
