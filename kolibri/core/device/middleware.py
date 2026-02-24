@@ -121,7 +121,7 @@ class ProvisioningErrorHandler:
         # so the setup wizard can function (e.g. changing language during setup).
         if (
             match.app_name != self._provision_app_name
-            and "kolibri.plugins." in match.app_name
+            and "kolibri:core" not in match.app_name
         ):
             return redirect(provision_url)
 
