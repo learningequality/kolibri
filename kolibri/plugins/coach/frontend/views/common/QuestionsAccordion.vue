@@ -100,7 +100,7 @@
                 :style="{ userSelect: dragActive ? 'none !important' : 'text' }"
               >
                 <ContentViewer
-                  v-if="getQuestionContent(question)"
+                  v-if="questionContentExists(question)"
                   :ref="`contentRenderer-${question.item}`"
                   :lang="getQuestionContent(question).lang"
                   :files="getQuestionContent(question).files"
@@ -355,6 +355,10 @@
       },
       getDisplayQuestionTitle(question, title) {
         return title || this.coreString('resourceNotFoundOnDevice');
+      },
+      questionContentExists(question) {
+        const content = this.getQuestionContent(question);
+        return content && content.available;
       },
     },
   };

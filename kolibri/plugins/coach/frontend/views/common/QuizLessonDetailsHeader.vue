@@ -26,7 +26,8 @@
         <slot name="dropdown"></slot>
       </div>
     </div>
-    <MissingResourceAlert v-if="resource.missing_resource" />
+    <MissingResourceAlert v-if="hasChannels && resource.missing_resource && !loading" />
+    <NoResourceAlert v-if="!hasChannels && !loading" />
     <UiAlert
       v-if="isFromOldKolibri && showAlert"
       type="warning"
@@ -47,7 +48,9 @@
   import { mapState } from 'vuex';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
+  import NoResourceAlert from 'kolibri-common/components/NoResourceAlert.vue';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import useChannels from 'kolibri-common/composables/useChannels';
   import BackLink from './BackLink';
 
   export default {
@@ -56,10 +59,14 @@
       MissingResourceAlert,
       BackLink,
       UiAlert,
+      NoResourceAlert,
     },
     setup() {
+      const { fetchChannels } = useChannels();
       const { warningForQuizFromOldKolibri$ } = searchAndFilterStrings;
       return {
+        fetchChannels,
+
         warningForQuizFromOldKolibri$,
       };
     },
@@ -83,6 +90,8 @@
     data() {
       return {
         showAlert: true,
+        channels: [],
+        loading: false,
       };
     },
     computed: {
@@ -107,6 +116,22 @@
       },
       isFromOldKolibri() {
         return this.isExamOldVersion && !this.isExamDraft && !this.isActive;
+      },
+      hasChannels() {
+        return this.channels.length > 0;
+      },
+    },
+    async mounted() {
+      await this.loadChannels();
+    },
+    methods: {
+      async loadChannels() {
+        this.loading = true;
+        try {
+          this.channels = await this.fetchChannels({ contains_exercise: true });
+        } finally {
+          this.loading = false;
+        }
       },
     },
   };
