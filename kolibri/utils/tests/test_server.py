@@ -9,7 +9,6 @@ import pytest
 
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.storage import Storage
-from kolibri.core.tasks.test.base import connection
 from kolibri.utils import server
 from kolibri.utils.constants import installation_types
 
@@ -81,11 +80,10 @@ class TestServerInstallation:
 
 @pytest.fixture
 def job_storage():
-    with connection() as c:
-        s = Storage(connection=c)
-        s.clear()
-        yield s
-        s.clear()
+    s = Storage()
+    s.clear()
+    yield s
+    s.clear()
 
 
 class TestServerServices:
@@ -128,6 +126,7 @@ class TestServerServices:
         ]
 
 
+@pytest.mark.django_db(databases="__all__", transaction=True)
 class TestServerDefaultScheduledTasks:
     @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
     def test_scheduled_jobs_persist_on_restart(

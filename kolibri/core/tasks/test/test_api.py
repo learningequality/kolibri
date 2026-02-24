@@ -2,11 +2,9 @@ import datetime
 
 import pytz
 from django.urls import reverse
-from django.utils.timezone import make_aware
 from mock import call
 from mock import Mock
 from mock import patch
-from pytz import utc
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -53,10 +51,11 @@ def fake_job(**kwargs):
 
 
 class dummy_orm_job_data:
-    scheduled_time = datetime.datetime(year=2023, month=1, day=1, tzinfo=None)
+    scheduled_time = datetime.datetime(year=2023, month=1, day=1)
     repeat = 5
     interval = 8600
     retry_interval = 5
+    max_retries = 3
 
 
 class BaseAPITestCase(APITestCase):
@@ -281,12 +280,11 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             "kwargs": {},
             "extra_metadata": {},
             "facility_id": None,
-            "scheduled_datetime": make_aware(
-                dummy_orm_job_data.scheduled_time, utc
-            ).isoformat(),
+            "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
             "repeat": dummy_orm_job_data.repeat,
             "repeat_interval": dummy_orm_job_data.interval,
             "retry_interval": dummy_orm_job_data.retry_interval,
+            "max_retries": dummy_orm_job_data.max_retries,
         }
 
         # Did API return the right stuff?
@@ -342,12 +340,11 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "kwargs": {},
                 "extra_metadata": {},
                 "facility_id": None,
-                "scheduled_datetime": make_aware(
-                    dummy_orm_job_data.scheduled_time, utc
-                ).isoformat(),
+                "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
             {
                 "id": "test",
@@ -362,12 +359,11 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "kwargs": {},
                 "extra_metadata": {},
                 "facility_id": None,
-                "scheduled_datetime": make_aware(
-                    dummy_orm_job_data.scheduled_time, utc
-                ).isoformat(),
+                "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
         ]
 
@@ -448,12 +444,11 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             "extra_metadata": {
                 "facility": "kolibri HQ",
             },
-            "scheduled_datetime": make_aware(
-                dummy_orm_job_data.scheduled_time, utc
-            ).isoformat(),
+            "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
             "repeat": dummy_orm_job_data.repeat,
             "repeat_interval": dummy_orm_job_data.interval,
             "retry_interval": dummy_orm_job_data.retry_interval,
+            "max_retries": dummy_orm_job_data.max_retries,
         }
 
         # Did API return the right stuff?
@@ -542,12 +537,11 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "extra_metadata": {
                     "facility": "kolibri HQ",
                 },
-                "scheduled_datetime": make_aware(
-                    dummy_orm_job_data.scheduled_time, utc
-                ).isoformat(),
+                "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
             {
                 "id": "test",
@@ -564,12 +558,11 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "extra_metadata": {
                     "facility": "kolibri HQ",
                 },
-                "scheduled_datetime": make_aware(
-                    dummy_orm_job_data.scheduled_time, utc
-                ).isoformat(),
+                "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
         ]
 
@@ -1230,12 +1223,11 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "args": (),
                 "kwargs": {},
                 "extra_metadata": {},
-                "scheduled_datetime": make_aware(
-                    dummy_orm_job_data.scheduled_time, utc
-                ).isoformat(),
+                "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
             {
                 "status": State.QUEUED,
@@ -1250,12 +1242,11 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "args": (),
                 "kwargs": {},
                 "extra_metadata": {},
-                "scheduled_datetime": make_aware(
-                    dummy_orm_job_data.scheduled_time, utc
-                ).isoformat(),
+                "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
             {
                 "status": State.QUEUED,
@@ -1270,12 +1261,11 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "args": (),
                 "kwargs": {},
                 "extra_metadata": {},
-                "scheduled_datetime": make_aware(
-                    dummy_orm_job_data.scheduled_time, utc
-                ).isoformat(),
+                "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
+                "max_retries": dummy_orm_job_data.max_retries,
             },
         ]
 

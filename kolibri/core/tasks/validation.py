@@ -33,6 +33,11 @@ def validate_timedelay(value):
         raise TypeError("time delay must be a datetime.timedelta object")
 
 
+def validate_exception(value):
+    if not isinstance(value, BaseException):
+        raise TypeError("exception must be an error object")
+
+
 class EnqueueArgsSerializer(serializers.Serializer):
     """
     A serializer for `enqueue_args` object of incoming user request data.
@@ -45,6 +50,7 @@ class EnqueueArgsSerializer(serializers.Serializer):
     retry_interval = serializers.IntegerField(
         required=False, allow_null=True, min_value=0
     )
+    max_retries = serializers.IntegerField(required=False, allow_null=True, min_value=0)
     priority = serializers.ChoiceField(choices=Priority.Priorities, required=False)
 
     def validate(self, data):

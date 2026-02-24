@@ -13,6 +13,8 @@ from kolibri.core.content.models import ContentRequestStatus
 
 
 class ContentDownloadRequestSerializerTestCase(TestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -107,6 +109,8 @@ class ContentDownloadRequestSerializerTestCase(TestCase):
 
 
 class ContentDownloadRequestViewsetTest(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()

@@ -142,17 +142,14 @@ def test_restore_from_latest():
 
         # Restore it into a new test database setting
         with override_settings(DATABASES=MOCK_DATABASES):
-            from django import db
-
-            # Destroy current connections and create new ones:
-            db.connections.close_all()
-            db.connections = db.ConnectionHandler()
-            call_command("dbrestore", "-l")
-            # Test that the user has been restored!
-            assert (
-                Facility.objects.filter(name="test latest", kind=FACILITY).count() == 1
-            )
-        _clear_backups(default_backup_folder())
+            with patch("django.db.connections", ConnectionHandler()):
+                call_command("dbrestore", "-l")
+                # Test that the user has been restored!
+                assert (
+                    Facility.objects.filter(name="test latest", kind=FACILITY).count()
+                    == 1
+                )
+    _clear_backups(default_backup_folder())
 
 
 @pytest.mark.django_db(transaction=True)
@@ -203,9 +200,6 @@ def test_restore_from_file_to_file():
         dest_folder = tempfile.mkdtemp()
         # Purposefully destroy the connection pointer, which is the default
         # state of an unopened connection
-        from django import db
-
-        db.connections["default"].connection = None
         backup = dbbackup(kolibri.__version__, dest_folder=dest_folder)
 
         # Restore it into a new test database setting

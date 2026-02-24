@@ -362,6 +362,8 @@ class Job:
 
         args, kwargs = copy.copy(self.args), copy.copy(self.kwargs)
 
+        exception = None
+
         try:
             # First check whether the job has been cancelled
             self.check_for_cancel()
@@ -370,6 +372,7 @@ class Job:
         except UserCancelledError:
             self.storage.mark_job_as_canceled(self.job_id)
         except Exception as e:
+            exception = e
             # If any error occurs, mark the job as failed and save the exception
             traceback_str = traceback.format_exc()
             e.traceback = traceback_str
@@ -377,9 +380,11 @@ class Job:
                 "Job {} raised an exception: {}".format(self.job_id, traceback_str)
             )
             self.storage.mark_job_as_failed(self.job_id, e, traceback_str)
-
         self.storage.reschedule_finished_job_if_needed(
-            self.job_id, delay=self._retry_in_delay, **self._retry_in_kwargs
+            self.job_id,
+            delay=self._retry_in_delay,
+            exception=exception,
+            **self._retry_in_kwargs,
         )
         setattr(current_state_tracker, "job", None)
 

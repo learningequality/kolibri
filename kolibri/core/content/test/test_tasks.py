@@ -297,12 +297,12 @@ class AutomaticDownloadTestCase(TestCase):
     @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
     def test_enqueue_helper__no_reqs(self, mock_task):
         enqueue_automatic_resource_import_if_needed()
-        mock_task.enqueue_if_not.assert_not_called()
+        mock_task.enqueue_if_not_active.assert_not_called()
 
     @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
     def test_enqueue_helper__instance_id__no_reqs(self, mock_task):
         enqueue_automatic_resource_import_if_needed(instance_id=uuid.uuid4().hex)
-        mock_task.enqueue_if_not.assert_not_called()
+        mock_task.enqueue_if_not_active.assert_not_called()
 
     @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
     def test_enqueue_helper__completed_req(self, mock_task):
@@ -315,7 +315,7 @@ class AutomaticDownloadTestCase(TestCase):
             status=ContentRequestStatus.Completed,
         ).save()
         enqueue_automatic_resource_import_if_needed()
-        mock_task.enqueue_if_not.assert_not_called()
+        mock_task.enqueue_if_not_active.assert_not_called()
 
     @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
     def test_enqueue_helper__instance_id__completed_req(self, mock_task):
@@ -330,7 +330,7 @@ class AutomaticDownloadTestCase(TestCase):
         )
         req.save()
         enqueue_automatic_resource_import_if_needed(instance_id=req.source_instance_id)
-        mock_task.enqueue_if_not.assert_not_called()
+        mock_task.enqueue_if_not_active.assert_not_called()
 
     @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
     def test_enqueue_helper__incomplete_req(self, mock_task):
@@ -343,7 +343,7 @@ class AutomaticDownloadTestCase(TestCase):
             status=ContentRequestStatus.Pending,
         ).save()
         enqueue_automatic_resource_import_if_needed()
-        mock_task.enqueue_if_not.assert_called_once()
+        mock_task.enqueue_if_not_active.assert_called_once()
 
     @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
     def test_enqueue_helper__instance_id__incomplete_req(self, mock_task):
@@ -358,4 +358,4 @@ class AutomaticDownloadTestCase(TestCase):
         )
         req.save()
         enqueue_automatic_resource_import_if_needed(instance_id=req.source_instance_id)
-        mock_task.enqueue_if_not.assert_called_once()
+        mock_task.enqueue_if_not_active.assert_called_once()

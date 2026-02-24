@@ -67,6 +67,7 @@
           v-if="showBackArrow"
           icon="back"
           style="margin-left: -12px"
+          :disabled="backArrowDisabled"
           @click="wizardService.send(eventOnGoBack)"
         />
 
@@ -185,6 +186,10 @@
         default: () => ({ type: 'BACK' }),
       },
       showBackArrow: {
+        type: Boolean,
+        default: false,
+      },
+      backArrowDisabled: {
         type: Boolean,
         default: false,
       },

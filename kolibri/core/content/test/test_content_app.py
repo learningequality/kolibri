@@ -2551,6 +2551,7 @@ class KolibriStudioAPITestCase(APITestCase):
 
 
 class ProxyContentMetadataTestCase(ContentNodeAPIBase, LiveServerTestCase):
+    databases = "__all__"
     maxDiff = None
 
     @property

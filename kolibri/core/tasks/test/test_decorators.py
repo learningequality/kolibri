@@ -26,6 +26,7 @@ class TestTaskDecorators(TestCase):
             cancellable=True,
             track_progress=True,
             status_fn=status_fn,
+            retry_on=[],
         )(add)
 
         MockRegisteredTask.assert_called_once_with(
@@ -39,6 +40,7 @@ class TestTaskDecorators(TestCase):
             track_progress=True,
             long_running=False,
             status_fn=status_fn,
+            retry_on=[],
         )
 
     def test_register_decorator_registers_without_args(self):
