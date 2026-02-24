@@ -123,6 +123,32 @@ describe('AssignmentCard', () => {
       const routerLink = wrapper.findComponent(RouterLinkStub);
       expect(routerLink.props().to).toEqual({ path: '/course' });
     });
+
+    it('does not show counts when unit_count and lesson_count are absent', () => {
+      wrapper = makeCourseWrapper();
+      expect(wrapper.find('.course-counts').exists()).toBe(false);
+    });
+
+    it('shows unit and resource counts when both are provided', () => {
+      wrapper = makeCourseWrapper({
+        course: { ...baseCourse, unit_count: 3, lesson_count: 12 },
+      });
+      expect(wrapper.find('.course-counts').text()).toEqual('3 units · 12 resources');
+    });
+
+    it('shows only unit count when lesson_count is 0', () => {
+      wrapper = makeCourseWrapper({
+        course: { ...baseCourse, unit_count: 1, lesson_count: 0 },
+      });
+      expect(wrapper.find('.course-counts').text()).toEqual('1 unit');
+    });
+
+    it('shows only resource count when unit_count is 0', () => {
+      wrapper = makeCourseWrapper({
+        course: { ...baseCourse, unit_count: 0, lesson_count: 5 },
+      });
+      expect(wrapper.find('.course-counts').text()).toEqual('5 resources');
+    });
   });
 
   describe('when rendering a lesson', () => {

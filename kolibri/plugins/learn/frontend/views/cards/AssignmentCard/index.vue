@@ -74,9 +74,9 @@
           >{{ courseLabel }}</span>
         </div>
         <span
-          v-if="lessonCountLabel"
-          class="lesson-count"
-        >{{ lessonCountLabel }}</span>
+          v-if="courseCountsLabel"
+          class="course-counts"
+        >{{ courseCountsLabel }}</span>
       </div>
       <!-- Lesson or Quiz: progress indicators -->
       <div
@@ -121,7 +121,7 @@
     setup(props) {
       const { windowBreakpoint } = useKResponsiveWindow();
       const { quizLabel$, inProgressLabel$, completedLabel$ } = coreStrings;
-      const { courseLabel$, courseLessonCount$ } = coursesStrings;
+      const { courseLabel$, numUnits$, numResources$ } = coursesStrings;
       const { questionsLeft$, completedPercentLabel$ } = learnStrings;
 
       // All computed properties
@@ -132,11 +132,18 @@
       // Course-specific
       const courseLabel = computed(() => courseLabel$());
 
-      const lessonCountLabel = computed(() => {
+      const courseCountsLabel = computed(() => {
         if (!props.course) return '';
-        const count = props.course.lesson_count;
-        if (typeof count !== 'number' || count === 0) return '';
-        return courseLessonCount$({ count });
+        const parts = [];
+        const unitNum = props.course.unit_count;
+        if (typeof unitNum === 'number' && unitNum > 0) {
+          parts.push(numUnits$({ num: unitNum }));
+        }
+        const resourceNum = props.course.lesson_count;
+        if (typeof resourceNum === 'number' && resourceNum > 0) {
+          parts.push(numResources$({ num: resourceNum }));
+        }
+        return parts.join(' · ');
       });
 
       // Lesson-specific
@@ -201,7 +208,7 @@
         assignment,
         title,
         courseLabel,
-        lessonCountLabel,
+        courseCountsLabel,
         reportVisible,
         inProgressLabel,
         completedLabel,
@@ -294,7 +301,7 @@
     border-radius: 16px;
   }
 
-  .lesson-count {
+  .course-counts {
     margin-left: 8px;
     font-size: 12px;
   }
