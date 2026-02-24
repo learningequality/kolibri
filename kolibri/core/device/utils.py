@@ -33,10 +33,6 @@ DEVICE_UNUSABLE_NO_SUPERUSERS = "NO_SUPERUSERS"
 DEVICE_UNUSABLE_SUPERUSERS_SOFT_DELETED = "SUPERUSERS_SOFT_DELETED"
 
 
-class DeviceNotProvisioned(Exception):
-    pass
-
-
 class DeviceAlreadyProvisioned(Exception):
     pass
 
