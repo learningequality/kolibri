@@ -38,9 +38,8 @@ describe('FacilityPermissionsForm', () => {
     const facilityInput = screen.getByRole('textbox', { name: /facility name/i });
 
     await waitFor(() => {
-      // Hack for VTL/Vue 2: The component does  auto-focus on mount.
-      // However, VTL mounts things detached initially, so JSDOM drops the focus event.
-      // Firing .focus() manually here to bypass the timing issue so we can actually test it.
+      // Firing .focus() manually here bypasses the timing issue.
+      // NOTE: This does NOT verify the component's actual auto-focus behavior.
       facilityInput.focus();
       expect(facilityInput).toHaveFocus();
     });
