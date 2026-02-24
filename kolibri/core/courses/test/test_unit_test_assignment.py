@@ -102,6 +102,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="pre",
             closed=False,
+            activated_by=self.coach,
         )
 
         # Try to create duplicate - should fail
@@ -112,6 +113,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
                 collection=self.classroom,
                 test_type="pre",  # Same combination
                 closed=False,
+                activated_by=self.coach,
             )
 
     def test_unique_together_allows_different_test_types(self):
@@ -123,6 +125,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="pre",
             closed=True,
+            activated_by=self.coach,
         )
 
         # Create post-test - should succeed
@@ -132,6 +135,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="post",  # Different test type
             closed=False,
+            activated_by=self.coach,
         )
 
         self.assertIsNotNone(pre_test.id)
@@ -154,6 +158,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
                 collection=other_classroom,  # From facility 2 - different dataset
                 test_type="pre",
                 closed=False,
+                activated_by=self.coach,
             )
 
         self.assertIn("same dataset", str(context.exception))
@@ -166,6 +171,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="pre",
             closed=False,
+            activated_by=self.coach,
         )
 
         key = "{}:{}:{}:{}".format(
@@ -191,6 +197,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="pre",
             closed=True,
+            activated_by=self.coach,
         )
 
         unit_id_2 = uuid.uuid4().hex
@@ -200,6 +207,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="pre",
             closed=False,
+            activated_by=self.coach,
         )
 
         self.assertNotEqual(
@@ -211,6 +219,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="post",  # Different test type
             closed=False,
+            activated_by=self.coach,
         )
 
         # Different test types should generate different source_ids
@@ -227,6 +236,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,  # Same as course_session.collection
             test_type="pre",
             closed=False,
+            activated_by=self.coach,
         )
 
         self.assertIsNotNone(assignment.id)
@@ -241,6 +251,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.learner_group,  # Child of course_session.collection
             test_type="pre",
             closed=False,
+            activated_by=self.coach,
         )
 
         self.assertIsNotNone(assignment.id)
@@ -263,6 +274,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
                 collection=other_classroom,  # Different classroom, not a child
                 test_type="pre",
                 closed=False,
+                activated_by=self.coach,
             )
 
         self.assertIn(
@@ -288,6 +300,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
                 collection=other_learner_group,  # Child of other_classroom, not self.classroom
                 test_type="pre",
                 closed=False,
+                activated_by=self.coach,
             )
 
         self.assertIn(

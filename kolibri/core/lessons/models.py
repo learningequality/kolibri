@@ -94,8 +94,8 @@ class Lesson(AbstractFacilityDataModel):
     def __str__(self):
         return "Lesson {} for Classroom {}".format(self.title, self.collection.name)
 
-    def pre_save(self):
-        super().pre_save()
+    def pre_save(self, **kwargs):
+        super().pre_save(**kwargs)
 
         # maintain stricter enforcement on when assigned_by is allowed to be null
         if self._state.adding and self.created_by is None:
@@ -165,8 +165,8 @@ class LessonAssignment(AbstractFacilityDataModel):
     # Morango fields
     morango_model_name = "lessonassignment"
 
-    def pre_save(self):
-        super().pre_save()
+    def pre_save(self, **kwargs):
+        super().pre_save(**kwargs)
 
         # this shouldn't happen
         if (
