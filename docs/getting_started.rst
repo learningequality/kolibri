@@ -176,7 +176,7 @@ The Python project-specific dependencies installed above will install ``nodeenv`
 .. code-block:: bash
 
   # node.js, npm, and pnpm
-  nodeenv -p --node=18.20.7
+  nodeenv -p --node=20.19.0
   npm install -g pnpm
 
   # other required project dependencies
