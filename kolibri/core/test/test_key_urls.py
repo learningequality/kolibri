@@ -66,6 +66,29 @@ class BeforeDeviceProvisionTests(APITestCase):
         response = self.client.get("/api/device/deviceinfo/")
         self.assertEqual(response.status_code, 403)
 
+    def test_set_language_not_redirected(self):
+        response = self.client.post(
+            reverse("kolibri:core:set_language"),
+            {"language": "es"},
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_logout_not_redirected_by_middleware(self):
+        response = self.client.get(reverse("kolibri:core:logout"))
+        # logout_view redirects to redirect_user, not directly to setup wizard.
+        # If the middleware intercepted this, it would redirect straight to
+        # the setup wizard URL instead.
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("redirectuser", response.get("location"))
+
+    def test_unsupported_browser_not_redirected(self):
+        response = self.client.get(reverse("kolibri:core:unsupported"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_unknown_url_not_redirected(self):
+        response = self.client.get("/nonexistent/path/that/does/not/resolve/")
+        self.assertEqual(response.status_code, 404)
+
 
 class KolibriTagNavigationTestCase(APITestCase):
     databases = "__all__"

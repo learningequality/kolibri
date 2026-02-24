@@ -101,10 +101,9 @@ class ProvisioningErrorHandler:
         except Resolver404:
             return self.get_response(request)
 
-        # Only redirect plugin page views, not API endpoints or core views.
+        # Only redirect plugin page views, not API endpoints.
         # Page views served through i18n_patterns have 'translated' set on their callback.
-        # API endpoints and core views (like set_language) are left alone so the
-        # setup wizard can function properly.
+        # API endpoints are not translated and are always filtered out here.
         if not getattr(match.func, "translated", False) or device_provisioned():
             return self.get_response(request)
 
@@ -115,7 +114,15 @@ class ProvisioningErrorHandler:
 
         if self._provision_app_name is None:
             self._provision_app_name = resolve(provision_url).app_name
-        if match.app_name != self._provision_app_name:
+
+        # Redirect only other plugins' page views to the provisioning URL.
+        # Core views like set_language are also translated (they're inside
+        # i18n_patterns for language prefix routing) but must remain accessible
+        # so the setup wizard can function (e.g. changing language during setup).
+        if (
+            match.app_name != self._provision_app_name
+            and "kolibri.plugins." in match.app_name
+        ):
             return redirect(provision_url)
 
         return self.get_response(request)
