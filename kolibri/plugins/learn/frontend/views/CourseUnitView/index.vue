@@ -19,8 +19,10 @@
         disableDefaultTransition
       />
       <CourseContentViewer
-        v-else-if="currentResource && !currentResource.assessmentmetadata"
+        v-else-if="currentResource"
         :contentNode="currentResource"
+        :hasNext="nextEnabled"
+        @next="handleNext"
         @finished="onResourceFinished"
       />
     </template>
@@ -34,7 +36,7 @@
         :prevEnabled="prevEnabled"
         :nextEnabled="nextEnabled"
         :style="{
-          backgroundColor: $themeTokens.background,
+          backgroundColor: $themeTokens.surface,
           borderTop: `1px solid ${$themeTokens.fineLine}`,
         }"
         @prev="handlePrev"

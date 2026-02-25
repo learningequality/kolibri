@@ -8,11 +8,15 @@ const SessionReadyKey = Symbol('SessionReady');
 const ProgressKey = Symbol('Progress');
 const TimeSpentKey = Symbol('TimeSpent');
 const ExtraFieldsKey = Symbol('ExtraFields');
+const PastAttemptsKey = Symbol('PastAttempts');
+const CompleteKey = Symbol('Complete');
+const TotalAttemptsKey = Symbol('TotalAttempts');
 const StartTrackingProgressKey = Symbol('StartTrackingProgress');
 const StopTrackingProgressKey = Symbol('StopTrackingProgress');
 const HandleUpdateProgressKey = Symbol('HandleUpdateProgress');
 const HandleAddProgressKey = Symbol('HandleAddProgress');
 const HandleUpdateContentStateKey = Symbol('HandleUpdateContentState');
+const HandleUpdateInteractionKey = Symbol('HandleUpdateInteraction');
 const OnErrorKey = Symbol('OnError');
 
 /**
@@ -31,6 +35,9 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
     progress,
     time_spent,
     extra_fields,
+    pastattempts,
+    complete,
+    totalattempts,
     initContentSession,
     updateContentSession,
     startTrackingProgress,
@@ -75,6 +82,10 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
 
   const handleUpdateContentState = contentState => {
     return wrappedUpdateContentSession({ contentState });
+  };
+
+  const handleUpdateInteraction = ({ progress, interaction }) => {
+    return wrappedUpdateContentSession({ progress, interaction });
   };
 
   const onError = error => {
@@ -128,11 +139,15 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
   provide(ProgressKey, progress);
   provide(TimeSpentKey, time_spent);
   provide(ExtraFieldsKey, extra_fields);
+  provide(PastAttemptsKey, pastattempts);
+  provide(CompleteKey, complete);
+  provide(TotalAttemptsKey, totalattempts);
   provide(StartTrackingProgressKey, startTrackingProgress);
   provide(StopTrackingProgressKey, stopTrackingProgress);
   provide(HandleUpdateProgressKey, handleUpdateProgress);
   provide(HandleAddProgressKey, handleAddProgress);
   provide(HandleUpdateContentStateKey, handleUpdateContentState);
+  provide(HandleUpdateInteractionKey, handleUpdateInteraction);
   provide(OnErrorKey, onError);
 }
 
@@ -148,6 +163,11 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
  * @property {import('vue').Ref<number|null>} progress The current progress value (0 to 1).
  * @property {import('vue').Ref<number|null>} time_spent The time spent on the content in seconds.
  * @property {Object} extra_fields Reactive object containing extra fields from the session.
+ * @property {import('vue').Ref<Array>} pastattempts An array of past attempts for the content.
+ * @property {import('vue').Ref<boolean|null>} complete Whether the content is marked as
+ *                                                      complete.
+ * @property {import('vue').Ref<number|null>} totalattempts The total number of attempts for the
+ *                                                          content.
  * @property {() => void} startTrackingProgress Starts the interval timer for progress tracking.
  * @property {() => Promise<void>} stopTrackingProgress Stops the interval timer and saves
  *                                                      final progress.
@@ -157,6 +177,8 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
  *                                                                        current progress.
  * @property {(contentState: Object) => Promise<void>} handleUpdateContentState Updates the
  *                                                                              content state.
+ * @property {(interaction: Object) => Promise<void>} handleUpdateInteraction Updates the
+ *                                                                          interaction state.
  * @property {(error: Error) => void} onError Handles errors by flagging the session as errored
  *                                            and dispatching to the store.
  *
@@ -169,11 +191,15 @@ export function injectCourseContentProgress() {
     progress: inject(ProgressKey),
     time_spent: inject(TimeSpentKey),
     extra_fields: inject(ExtraFieldsKey),
+    pastattempts: inject(PastAttemptsKey),
+    complete: inject(CompleteKey),
+    totalattempts: inject(TotalAttemptsKey),
     startTrackingProgress: inject(StartTrackingProgressKey),
     stopTrackingProgress: inject(StopTrackingProgressKey),
     handleUpdateProgress: inject(HandleUpdateProgressKey),
     handleAddProgress: inject(HandleAddProgressKey),
     handleUpdateContentState: inject(HandleUpdateContentStateKey),
+    handleUpdateInteraction: inject(HandleUpdateInteractionKey),
     onError: inject(OnErrorKey),
   };
 }
