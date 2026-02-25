@@ -8,18 +8,19 @@
       />
     </h2>
 
-    <CardGrid
+    <KCardGrid
       v-if="visibleQuizzes.length > 0"
-      :gridType="1"
+      layout="1-2-3"
+      :layoutOverride="[{ columnGap: '16px', rowGap: '16px' }]"
     >
-      <QuizCard
+      <AssignmentCard
         v-for="quiz in visibleQuizzes"
         :key="quiz.id"
         :quiz="quiz"
         :to="getClassQuizLink(quiz)"
         :collectionTitle="displayClassName ? getQuizClassName(quiz) : ''"
       />
-    </CardGrid>
+    </KCardGrid>
     <p v-else>
       {{ $tr('noQuizzesMessage') }}
     </p>
@@ -32,14 +33,12 @@
 
   import { computed } from 'vue';
   import useLearnerResources from '../../composables/useLearnerResources';
-  import QuizCard from '../cards/QuizCard';
-  import CardGrid from '../cards/CardGrid';
+  import AssignmentCard from '../cards/AssignmentCard';
 
   export default {
     name: 'AssignedQuizzesCards',
     components: {
-      CardGrid,
-      QuizCard,
+      AssignmentCard,
     },
     setup(props) {
       const { getClass, getClassQuizLink } = useLearnerResources();

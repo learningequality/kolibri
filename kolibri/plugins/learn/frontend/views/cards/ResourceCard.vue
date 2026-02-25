@@ -1,74 +1,102 @@
 <template>
 
-  <div
-    v-if="contentNode"
-    class="resource-card-outer"
+  <KCard
+    :to="to"
+    :title="title"
+    :headingLevel="3"
+    orientation="vertical"
+    thumbnailDisplay="large"
+    :thumbnailSrc="thumbnailUrl"
+    thumbnailAlign="left"
   >
-    <div
-      v-if="!contentNode.is_leaf"
-      class="topic-bar"
-      :style="{ backgroundColor: $themeTokens.text }"
-    ></div>
-    <BaseCard
-      v-bind="{ to, title, collectionTitle }"
-      class="resource-card"
-    >
-      <template #topLeft>
-        <ContentNodeThumbnail
-          :contentNode="contentNode"
-          rounded
-        />
-      </template>
-      <template #topRight>
+    <template #thumbnailPlaceholder>
+      <LearningActivityIcon
+        v-if="contentNode.is_leaf"
+        :kind="contentNode.learning_activities"
+        class="thumbnail-icon"
+      />
+      <KIcon
+        v-else
+        icon="topic"
+        :color="$themePalette.grey.v_700"
+        class="thumbnail-icon"
+      />
+    </template>
+    <template #aboveTitle>
+      <div class="above-title">
+        <div
+          v-if="collectionTitle"
+          class="collection-title"
+          :style="{ color: $themeTokens.annotation }"
+        >
+          {{ collectionTitle }}
+        </div>
         <LearningActivityLabel
           v-if="contentNode.is_leaf"
           :contentNode="contentNode"
+          hideDuration
         />
         <KLabeledIcon
           v-else
           iconAfter="topic"
           :label="coreString('folder')"
         />
-        <KButton
-          v-if="contentNode.copies"
-          appearance="basic-link"
-          class="copies"
-          :text="coreString('copies', { num: contentNode.copies.length })"
-          @click.prevent="$emit('openCopiesModal', contentNode.copies)"
-        />
-      </template>
-
-      <template #progress>
-        <!-- only show if we're not also showing a footer !-->
-        <ProgressBar
-          v-if="!$slots.footer"
-          :contentNode="contentNode"
-        />
-      </template>
-    </BaseCard>
-    <slot name="footer"></slot>
-  </div>
+      </div>
+      <KButton
+        v-if="contentNode.copies"
+        appearance="basic-link"
+        class="copies"
+        :text="coreString('copies', { num: contentNode.copies.length })"
+        @click.prevent="$emit('openCopiesModal', contentNode.copies)"
+      />
+    </template>
+    <template #footer>
+      <div class="progress-section">
+        <slot name="footer">
+          <ProgressBar :contentNode="contentNode" />
+        </slot>
+      </div>
+    </template>
+  </KCard>
 
 </template>
 
 
 <script>
 
+  import { computed } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import ContentNodeThumbnail from '../thumbnails/ContentNodeThumbnail';
+  import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
+  import useChannels from 'kolibri-common/composables/useChannels';
   import ProgressBar from '../ProgressBar';
   import LearningActivityLabel from '../LearningActivityLabel';
-  import BaseCard from './BaseCard';
 
   export default {
     name: 'ResourceCard',
     components: {
-      BaseCard,
-      ContentNodeThumbnail,
+      LearningActivityIcon,
       LearningActivityLabel,
       ProgressBar,
     },
     mixins: [commonCoreStrings],
+    setup(props) {
+      const { getChannelThumbnail } = useChannels();
+
+      const title = computed(() => (props.contentNode ? props.contentNode.title : ''));
+
+      const thumbnailUrl = computed(() => {
+        const thumbnail = props.contentNode.thumbnail;
+        if (!thumbnail && !props.contentNode.parent) {
+          return getChannelThumbnail(props.contentNode?.channel_id);
+        }
+        return thumbnail;
+      });
+
+      return {
+        title,
+        thumbnailUrl,
+      };
+    },
     props: {
       contentNode: {
         type: Object,
@@ -87,11 +115,6 @@
         default: '',
       },
     },
-    data() {
-      return {
-        title: this.contentNode ? this.contentNode.title : '',
-      };
-    },
   };
 
 </script>
@@ -104,21 +127,20 @@
     padding-top: 4px;
   }
 
-  .resource-card-outer {
-    position: relative;
+  .above-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
-  .topic-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 10px;
-    border-radius: 8px 8px 0 0;
+  .collection-title {
+    font-size: 12px;
   }
 
-  .resource-card {
-    padding-top: 26px;
+  .thumbnail-icon {
+    width: 40%;
+    height: auto;
+    font-size: 40%;
   }
 
 </style>

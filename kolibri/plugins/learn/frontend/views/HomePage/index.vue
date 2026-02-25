@@ -34,6 +34,14 @@
               : 'continueLearningOnYourOwn'
           "
         />
+        <AssignedCoursesCards
+          v-if="hasActiveClassesCourses"
+          class="section"
+          :courses="activeClassesCourses"
+          displayClassName
+          recent
+          data-test="recentCourses"
+        />
         <AssignedLessonsCards
           v-if="hasActiveClassesLessons"
           class="section"
@@ -58,6 +66,7 @@
           :short="
             Boolean(
               displayClasses ||
+                hasActiveClassesCourses ||
                 continueLearning ||
                 hasActiveClassesLessons ||
                 hasActiveClassesQuizzes,
@@ -89,6 +98,7 @@
   import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
   import { inClasses } from '../../composables/useCoreLearn';
   import { PageNames } from '../../constants';
+  import AssignedCoursesCards from '../classes/AssignedCoursesCards';
   import AssignedLessonsCards from '../classes/AssignedLessonsCards';
   import AssignedQuizzesCards from '../classes/AssignedQuizzesCards';
   import YourClasses from '../YourClasses';
@@ -108,6 +118,7 @@
   export default {
     name: 'HomePage',
     components: {
+      AssignedCoursesCards,
       AssignedLessonsCards,
       AssignedQuizzesCards,
       YourClasses,
@@ -128,6 +139,7 @@
       const { localChannelsCache, fetchChannels } = useChannels();
       const {
         classes,
+        activeClassesCourses,
         activeClassesLessons,
         activeClassesQuizzes,
         resumableClassesQuizzes,
@@ -153,6 +165,10 @@
         () => get(continueLearningFromClasses) || get(continueLearningOnYourOwn),
       );
 
+      const hasActiveClassesCourses = computed(
+        () =>
+          get(isUserLoggedIn) && get(activeClassesCourses) && get(activeClassesCourses).length > 0,
+      );
       const hasActiveClassesLessons = computed(
         () =>
           get(isUserLoggedIn) && get(activeClassesLessons) && get(activeClassesLessons).length > 0,
@@ -223,8 +239,10 @@
       return {
         channels: localChannelsCache,
         classes,
+        activeClassesCourses,
         activeClassesLessons,
         activeClassesQuizzes,
+        hasActiveClassesCourses,
         hasActiveClassesLessons,
         hasActiveClassesQuizzes,
         continueLearningFromClasses,

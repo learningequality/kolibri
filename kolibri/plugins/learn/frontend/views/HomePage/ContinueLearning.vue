@@ -8,7 +8,7 @@
       />
     </h2>
 
-    <CardGrid :gridType="1">
+    <KCardGrid layout="1-2-3">
       <template v-if="fromClasses">
         <ResourceCard
           v-for="(resource, idx) in uniqueResumableClassesResources"
@@ -17,7 +17,7 @@
           :to="genContentLinkBackLinkCurrentPage(resource.contentNode.id, true)"
           :collectionTitle="getResourceClassName(resource)"
         />
-        <QuizCard
+        <AssignmentCard
           v-for="(quiz, idx) in resumableClassesQuizzes"
           :key="`quiz-${idx}`"
           :quiz="quiz"
@@ -36,7 +36,7 @@
           @openCopiesModal="openCopiesModal"
         />
       </template>
-    </CardGrid>
+    </KCardGrid>
     <KButton
       v-if="moreResumableContentNodes"
       style="margin-top: 16px"
@@ -62,8 +62,7 @@
   import { computed } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { get } from '@vueuse/core';
-  import CardGrid from '../cards/CardGrid';
-  import QuizCard from '../cards/QuizCard';
+  import AssignmentCard from '../cards/AssignmentCard';
   import ResourceCard from '../cards/ResourceCard';
   import CopiesModal from '../CopiesModal';
   import useLearnerResources from '../../composables/useLearnerResources';
@@ -75,9 +74,8 @@
   export default {
     name: 'ContinueLearning',
     components: {
-      CardGrid,
       ResourceCard,
-      QuizCard,
+      AssignmentCard,
       CopiesModal,
     },
     mixins: [commonCoreStrings],

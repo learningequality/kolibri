@@ -269,7 +269,6 @@
   import SlotTruncator from 'kolibri-common/components/SlotTruncator';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
-  import { coachStrings } from '../../../coach/frontend/views/common/commonCoachStrings';
   import useLearnerResources from '../composables/useLearnerResources';
   import { PageNames } from '../constants';
   import ChannelThumbnail from './ChannelThumbnail.vue';
@@ -317,8 +316,6 @@
         startCourseAction$,
         resumeCourseAction$,
       } = coursesStrings;
-
-      const { numberOfResources$ } = coachStrings;
 
       const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
 
@@ -412,9 +409,12 @@
           });
         }
 
-        return createCourseContentRoute(PageNames.COURSE_CONTENT_TEST, {
+        // Course not yet started — navigate to the first unit.
+        // checkRedirectToUnitTree will then find the first lesson and resource.
+        // TO DO: update with proper conditional checks after course activation
+        // and pre and post test assessments are merged in
+        return createCourseContentRoute(PageNames.COURSE_CONTENT__UNIT, {
           unitId: units.value?.[0]?.id,
-          testType: TestType.PRE,
         });
       }
 
@@ -452,10 +452,8 @@
           return '';
         }
         const unitsText = numUnits$({ num: units.value?.length });
-        const message =
-          unitsText +
-          ' · ' +
-          numberOfResources$({ value: courseContent.value?.on_device_resources });
+        const lessonNum = course.value.lesson_count;
+        const message = unitsText + ' · ' + numLessons$({ num: lessonNum });
         return message;
       });
 
@@ -511,7 +509,6 @@
         courseContentLabel$,
         numLessons$,
         numQuestions$,
-        numberOfResources$,
         preTestLabel$,
         postTestLabel$,
         startCourseAction$,

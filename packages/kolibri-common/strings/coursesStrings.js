@@ -5,6 +5,10 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Course',
     context: 'Label for a single course that contains units and lessons.',
   },
+  courseLessonCount: {
+    message: '{count, number} {count, plural, one {lesson} other {lessons}}',
+    context: 'Displays the number of lessons in a course, shown on course cards.',
+  },
   coursesLabel: {
     message: 'Courses',
     context: 'Label for courses that contain units and lessons.',
@@ -37,6 +41,16 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message:
       'Learners in the assigned group will take a pre-test before starting this course. You can adjust assessment availability in the course settings.',
     context: 'Message for the modal that confirms a course has been assigned.',
+  },
+  recentCoursesHeader: {
+    message: 'Recent courses',
+    context:
+      "Section header on the learner's Home page, displaying the most recent courses that the coaches assigned to them.",
+  },
+  yourCoursesHeader: {
+    message: 'Your courses',
+    context:
+      "Heading on the 'Learn > Home' page for a section where a learner can see which courses have been assigned to them.",
   },
   noCoursesAssigned: {
     message: 'You do not have any courses assigned',
