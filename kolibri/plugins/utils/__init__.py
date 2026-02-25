@@ -30,7 +30,7 @@ from kolibri.plugins import ConfigDict
 from kolibri.plugins import DEFAULT_PLUGINS
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import KolibriHook
-from kolibri.utils.compat import module_exists
+from kolibri.utils.modules import module_exists
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.version import normalize_version_to_semver
 

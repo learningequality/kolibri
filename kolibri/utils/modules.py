@@ -1,5 +1,6 @@
 """
-Compatibility layer for Python 2+3
+Utility functions for working with Python modules.
+Currently provides a helper function to check if a module exists without importing it.
 """
 from importlib.util import find_spec
 
