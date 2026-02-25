@@ -225,17 +225,17 @@ i18n-django-compilemessages:
 	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" python -m kolibri manage compilemessages --skip-update
 
 i18n-upload: i18n-extract
-	pnpm exec crowdin upload sources -- --branch ${CROWDIN_BRANCH}
+	pnpm exec crowdin upload sources --branch ${CROWDIN_BRANCH}
 
 i18n-pretranslate:
-	pnpm exec crowdin pre-translate -- --branch ${CROWDIN_BRANCH} --translate-untranslated-only --method=tm
+	pnpm exec crowdin pre-translate --branch ${CROWDIN_BRANCH} --translate-untranslated-only --method=tm
 
 i18n-pretranslate-approve-all:
-	pnpm exec crowdin pre-translate -- --branch ${CROWDIN_BRANCH} --translate-untranslated-only --method=tm --auto-approve-option=all
+	pnpm exec crowdin pre-translate --branch ${CROWDIN_BRANCH} --translate-untranslated-only --method=tm --auto-approve-option=all
 
 i18n-download-translations: i18n-extract-frontend
 	touch kolibri/locale/.crowdin-download-marker
-	pnpm exec crowdin download -- --branch ${CROWDIN_BRANCH}
+	pnpm exec crowdin download --branch ${CROWDIN_BRANCH}
 	@if [ -z "$$(find kolibri/locale/*/LC_MESSAGES -type f \( -name '*.po' -o -name '*.csv' \) -newer kolibri/locale/.crowdin-download-marker 2>/dev/null)" ]; then \
 		echo "❌ ERROR: No translation files were downloaded - Crowdin download may have failed silently"; \
 		echo "Check the output above for errors during the download process"; \
@@ -245,9 +245,9 @@ i18n-download-translations: i18n-extract-frontend
 	@echo "✅ Translation files downloaded successfully"
 	rm -f kolibri/locale/.crowdin-download-marker
 	python build_tools/i18n/cleanup_unsupported_languages.py
-	pnpm exec kolibri-tools i18n-code-gen -- --output-dir ./packages/kolibri/utils/internal
+	pnpm exec kolibri-i18n code-gen --output-dir ./packages/kolibri/utils/internal
 	$(MAKE) i18n-django-compilemessages
-	pnpm exec kolibri-tools i18n-create-message-files -- --pluginFile ./build_tools/build_plugins.txt
+	pnpm exec kolibri-i18n create-message-files --pluginFile ./build_tools/build_plugins.txt --ignore '**/node_modules/!(kolibri-common)/**','**/static/**'
 
 i18n-download-source-fonts:
 	python build_tools/i18n/fonts.py download-source-fonts
