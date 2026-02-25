@@ -5,7 +5,7 @@
       v-if="isSearchable"
       v-model="searchQuery"
       :placeholder="searchForUser$()"
-      :style="{ marginBottom: '16px', marginLeft: 'auto', display: 'block' }"
+      class="search-filter"
     />
     <ul
       v-if="filteredUsers.length"
@@ -20,11 +20,7 @@
         <div class="user-info">
           <KIcon
             icon="person"
-            :style="{
-              height: '24px',
-              width: '24px',
-              marginRight: '16px',
-            }"
+            class="user-icon"
           />
           <div>
             <div>
@@ -39,9 +35,7 @@
             <div v-if="isSuperuser(user)">
               <KIcon
                 icon="superadmin"
-                :style="{
-                  marginRight: '4px',
-                }"
+                class="superadmin-icon"
               />
               <span :style="annotationStyle"> {{ superAdminLabel$() }}</span>
             </div>
@@ -54,8 +48,8 @@
         ></slot>
         <KCircularLoader
           v-else-if="user.isImporting"
+          class="importing-loader"
           :size="24"
-          style="margin-right: 0"
         />
         <p
           v-else
@@ -179,6 +173,26 @@
     padding-right: 16px;
     padding-bottom: 4px;
     margin: 0;
+  }
+
+  .search-filter {
+    display: block;
+    margin-bottom: 16px;
+    margin-left: auto;
+  }
+
+  .user-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 16px;
+  }
+
+  .superadmin-icon {
+    margin-right: 4px;
+  }
+
+  .importing-loader {
+    margin-right: 0;
   }
 
 </style>

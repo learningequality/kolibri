@@ -2,7 +2,7 @@
 
   <KIcon
     icon="bookmark"
-    style="top: 50px; left: 75px; width: 34px; height: 34px"
+    class="bookmark-icon"
   />
 
 </template>
@@ -17,4 +17,13 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .bookmark-icon {
+    top: 50px;
+    left: 75px;
+    width: 34px;
+    height: 34px;
+  }
+
+</style>

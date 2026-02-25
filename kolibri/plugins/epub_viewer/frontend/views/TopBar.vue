@@ -4,7 +4,7 @@
     class="top-bar"
     :style="{ backgroundColor: $themePalette.grey.v_300 }"
   >
-    <KGrid :style="{ marginTop: '2px', marginLeft: '3px', marginRight: '3px' }">
+    <KGrid class="top-bar-grid">
       <KGridItem
         :layout4="{ span: 1 }"
         :layout8="{ span: 2 }"
@@ -126,6 +126,12 @@
 
   .top-bar {
     z-index: 1;
+  }
+
+  .top-bar-grid {
+    margin-top: 2px;
+    margin-right: 3px;
+    margin-left: 3px;
   }
 
   .top-bar-title {

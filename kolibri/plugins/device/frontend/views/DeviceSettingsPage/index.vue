@@ -81,10 +81,7 @@
               @input="handleLandingPageChange"
             />
 
-            <div
-              class="fieldset"
-              style="margin-left: 32px"
-            >
+            <div class="fieldset left-margin">
               <KRadioButton
                 data-test="allowGuestAccessButton"
                 :label="$tr('allowGuestAccess')"

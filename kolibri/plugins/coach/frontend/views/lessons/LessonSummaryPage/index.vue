@@ -15,7 +15,7 @@
               :to="lessonSelectionRootPage"
               :text="coachString('manageResourcesAction')"
               appearance="raised-button"
-              style="margin-right: 8px"
+              class="manage-resources-button"
             />
             <LessonOptionsDropdownMenu @select="handleSelectOption" />
           </template>
@@ -382,6 +382,10 @@
   .no-resources-message {
     padding: 48px 0;
     text-align: center;
+  }
+
+  .manage-resources-button {
+    margin-right: 8px;
   }
 
 </style>

@@ -22,9 +22,9 @@
         <div class="filter-list-title">
           <KIcon
             :icon="icon(key)"
+            class="category-icon"
             size="large"
             :color="$themeTokens.primary"
-            :style="{ marginLeft: '8px' }"
           />
           <h3>
             <KButton
@@ -191,6 +191,10 @@
   h3 {
     margin-top: 0;
     margin-bottom: 8px;
+  }
+
+  .category-icon {
+    margin-left: 8px;
   }
 
   /deep/ svg {

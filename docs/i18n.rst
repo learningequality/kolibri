@@ -160,6 +160,8 @@ Kolibri has full support for right-to-left languages, and all functionality shou
 
 There are a number of important considerations to take into account with RTL content. `Material Design has an excellent article <https://material.io/design/usability/bidirectionality.html>`_ that covers most important topics at a high level.
 
+.. _rtl-warning:
+
 .. warning::
 
   Right-to-left support is broken when running the development server with hot reloading enabled (``pnpm run devserver-hot``)
@@ -176,6 +178,102 @@ A rule of thumb for inline bidirectional text:
 
 * if user-generated text is on its own in a block-level DOM element, it should be aligned based on the text's language using ``dir="auto"`` on the block-level element.
 * if user-generated text is displayed inline with application text (such as "App Label: user text"), it should be aligned using CSS ``text-align`` on the block-level element, and ``dir="auto"`` on a ``span`` wrapping the inline user text.
+
+
+Inline styles and RTL compatibility
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Important:** Avoid using inline styles with directional CSS properties, as they cannot be automatically flipped by the RTLCSS framework and will break RTL language support.
+
+The ``kolibri/vue-no-rtl-breaking-inline-styles`` ESLint rule will flag the following patterns:
+
+**Anti-patterns (will break RTL):**
+
+.. code-block:: html
+
+  <!-- Static inline styles -->
+  <div style="margin-left: 8px">...</div>
+  <div style="text-align: right">...</div>
+  <div style="float: left">...</div>
+
+  <!-- Dynamic inline styles -->
+  <div :style="{ marginLeft: '8px' }">...</div>
+  <div :style="{ paddingRight: '16px' }">...</div>
+  <div :style="{ textAlign: 'right' }">...</div>
+
+**RTL-friendly alternatives:**
+
+1. **Use CSS classes (recommended)** - The RTLCSS webpack plugin will automatically flip directional properties in CSS files:
+
+.. code-block:: html
+
+  <!-- In template -->
+  <div class="small-left-margin">...</div>
+
+.. code-block:: scss
+
+  /* In scoped <style> section */
+  .small-left-margin {
+    margin-left: 8px;  // Automatically becomes margin-right: 8px in RTL builds
+  }
+
+2. **Use CSS Logical Properties** - Modern CSS properties that are inherently direction-agnostic:
+
+.. code-block:: scss
+
+  .container {
+    margin-inline-start: 8px;  // Left in LTR, right in RTL
+    margin-inline-end: 16px;   // Right in LTR, left in RTL
+    text-align: start;         // Left in LTR, right in RTL
+  }
+
+3. **Use conditional RTL-aware computed styles** - For truly dynamic values:
+
+.. code-block:: javascript
+
+  computed: {
+    iconStyle() {
+      return {
+        [this.isRtl ? 'marginRight' : 'marginLeft']: '8px'
+      };
+    }
+  }
+
+.. code-block:: html
+
+  <KIcon :style="iconStyle" />
+
+4. **Use non-directional inline styles** - Properties like ``color``, ``opacity``, ``maxWidth``, etc. are safe in inline styles since they are not direction-dependent:
+
+.. code-block:: html
+
+  <div :style="{ maxWidth: calculatedWidth + 'px' }">...</div>
+
+**Directional properties to avoid in inline styles:**
+
+* ``margin-left``, ``margin-right`` (use ``margin-inline-start/end`` or CSS classes)
+* ``padding-left``, ``padding-right`` (use ``padding-inline-start/end`` or CSS classes)
+* ``left``, ``right`` positioning (use ``inset-inline-start/end`` or CSS classes)
+* ``text-align: left/right`` (use ``text-align: start/end`` or CSS classes)
+* ``float: left/right`` (use ``KGrid`` for layout instead)
+* ``border-left``, ``border-right`` (use ``border-inline-start/end`` or CSS classes)
+
+.. note::
+  This restriction only applies to **inline** styles (``style=""`` or ``:style=""``) in templates. The rule does not inspect computed or method-returned style objects in the ``<script>`` section — developers should manually review those for directional properties.
+
+.. note::
+  The linting rule recognises RTL-aware ternary patterns like ``:style="{ [isRtl ? 'marginRight' : 'marginLeft']: '8px' }"`` in templates and will not flag them. However, for cleaner templates, consider using a computed property instead.
+
+**Disabling the rule (rare cases):**
+
+In the rare case where you have a legitimate reason to use inline directional styles, you can disable the linting rule:
+
+.. code-block:: html
+
+  <!-- eslint-disable-next-line kolibri/vue-no-rtl-breaking-inline-styles -->
+  <div :style="{ marginLeft: specialCalculation() }">...</div>
+
+However, this should be avoided whenever possible. Consider whether your use case can be solved with one of the alternatives above.
 
 
 Behavior
@@ -243,6 +341,40 @@ In situations where we are using third-party libraries it might be necessary to 
       });
     },
   };
+
+
+RTL testing checklist
+~~~~~~~~~~~~~~~~~~~~~
+
+When developing or reviewing features, use this checklist to ensure RTL compatibility:
+
+**Pre-commit:**
+
+1. Run ``pnpm run lint-frontend`` and fix any ``kolibri/vue-no-rtl-breaking-inline-styles`` errors
+2. Review your code for directional assumptions (left/right, previous/next navigation)
+3. Ensure layout components use ``KGrid`` instead of floats or manual flexbox
+
+**Manual testing:**
+
+1. Change your Kolibri language to Arabic (العربية) or another RTL language in Settings
+2. Navigate through your feature and verify:
+
+   * All text aligns correctly (interface text to the right, proper margins/padding)
+   * Icons that should flip are flipped (forward/back arrows, directional indicators)
+   * Icons that shouldn't flip are not flipped (time indicators, play buttons)
+   * Layout flows right-to-left (navigation, cards, lists)
+   * User-generated content uses ``dir="auto"`` and displays correctly
+   * No visual overlap or clipping occurs
+   * Scrolling behavior works correctly (horizontal scroll directions)
+
+3. Test mixed content scenarios:
+
+   * RTL interface with LTR content (e.g., English content in Arabic interface)
+   * LTR interface with RTL content (e.g., Arabic content in English interface)
+   * Mixed inline content (app labels with user text)
+
+.. note::
+  See the :ref:`RTL hot-reload warning <rtl-warning>` above regarding development server limitations.
 
 
 .. _crowdin:

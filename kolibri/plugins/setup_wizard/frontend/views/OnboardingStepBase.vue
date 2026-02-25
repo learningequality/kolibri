@@ -66,7 +66,7 @@
         <KIconButton
           v-if="showBackArrow"
           icon="back"
-          style="margin-left: -12px"
+          class="back-button"
           :disabled="backArrowDisabled"
           @click="wizardService.send(eventOnGoBack)"
         />
@@ -425,6 +425,10 @@
 
     /* This will effect the entire onboarding experience */
     white-space: normal;
+  }
+
+  .back-button {
+    margin-left: -12px;
   }
 
 </style>

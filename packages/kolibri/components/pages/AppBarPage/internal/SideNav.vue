@@ -44,7 +44,7 @@
             >
               <div
                 v-if="showAppNavView"
-                style="margin-bottom: 10px; margin-left: -15px"
+                class="close-button-wrapper"
               >
                 <KIconButton
                   ref="closeButton"
@@ -725,6 +725,11 @@
   .logo {
     max-width: 100%;
     height: auto;
+  }
+
+  .close-button-wrapper {
+    margin-bottom: 10px;
+    margin-left: -15px;
   }
 
 </style>
