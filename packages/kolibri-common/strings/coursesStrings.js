@@ -312,4 +312,8 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: '{num, number} {num, plural, one {learner} other {learners}}',
     context: 'Label showing a number of learners',
   },
+  practiceAction: {
+    message: 'Practice',
+    context: 'Action label for practicing an assessment that has already been completed',
+  },
 });

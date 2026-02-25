@@ -808,14 +808,10 @@
   /deep/ .perseus > div {
     box-sizing: border-box;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    // Use min(400px, 100%) to ensure that columns are at most 400px wide,
+    // but can shrink to fit smaller screens
+    grid-template-columns: repeat(auto-fit, minmax(#{'min(400px, 100%)'}, 1fr));
     gap: 10px; /* Optional: space between the grid items */
-  }
-
-  @media (max-width: 600px) {
-    /deep/ .perseus > div {
-      grid-template-columns: 1fr;
-    }
   }
 
   /deep/ .perseus {
