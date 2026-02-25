@@ -121,7 +121,7 @@
     setup(props) {
       const { windowBreakpoint } = useKResponsiveWindow();
       const { quizLabel$, inProgressLabel$, completedLabel$ } = coreStrings;
-      const { courseLabel$, numUnits$, numResources$ } = coursesStrings;
+      const { courseLabel$, numUnits$, numLessons$ } = coursesStrings;
       const { questionsLeft$, completedPercentLabel$ } = learnStrings;
 
       // All computed properties
@@ -139,9 +139,9 @@
         if (typeof unitNum === 'number' && unitNum > 0) {
           parts.push(numUnits$({ num: unitNum }));
         }
-        const resourceNum = props.course.lesson_count;
-        if (typeof resourceNum === 'number' && resourceNum > 0) {
-          parts.push(numResources$({ num: resourceNum }));
+        const lessonNum = props.course.lesson_count;
+        if (typeof lessonNum === 'number' && lessonNum > 0) {
+          parts.push(numLessons$({ num: lessonNum }));
         }
         return parts.join(' · ');
       });

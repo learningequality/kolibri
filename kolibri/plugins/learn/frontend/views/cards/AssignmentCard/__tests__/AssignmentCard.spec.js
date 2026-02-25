@@ -133,7 +133,7 @@ describe('AssignmentCard', () => {
       wrapper = makeCourseWrapper({
         course: { ...baseCourse, unit_count: 3, lesson_count: 12 },
       });
-      expect(wrapper.find('.course-counts').text()).toEqual('3 units · 12 resources');
+      expect(wrapper.find('.course-counts').text()).toEqual('3 units · 12 lessons');
     });
 
     it('shows only unit count when lesson_count is 0', () => {
@@ -147,7 +147,7 @@ describe('AssignmentCard', () => {
       wrapper = makeCourseWrapper({
         course: { ...baseCourse, unit_count: 0, lesson_count: 5 },
       });
-      expect(wrapper.find('.course-counts').text()).toEqual('5 resources');
+      expect(wrapper.find('.course-counts').text()).toEqual('5 lessons');
     });
   });
 
