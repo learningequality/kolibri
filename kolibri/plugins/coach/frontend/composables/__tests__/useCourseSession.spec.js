@@ -1,3 +1,4 @@
+import { ref } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import { TestStatus, TestType, UnitPhase } from '../../constants/courseConstants';
@@ -27,10 +28,10 @@ jest.mock('kolibri/uiText/commonCoreStrings', () => ({
 }));
 
 describe('useCourseSession', () => {
-  const mockCourseSessionId = 'session-123';
+  const mockCourseSessionId = ref('session-123');
 
   const mockCourseSession = {
-    id: mockCourseSessionId,
+    id: mockCourseSessionId.value,
     course: 'course-456',
     title: 'Test Course Session',
     collection: 'class-789',
@@ -116,7 +117,9 @@ describe('useCourseSession', () => {
 
     it('should fetch course session on initialization', () => {
       useCourseSession(mockCourseSessionId);
-      expect(CourseSessionResource.fetchModel).toHaveBeenCalledWith({ id: mockCourseSessionId });
+      expect(CourseSessionResource.fetchModel).toHaveBeenCalledWith({
+        id: mockCourseSessionId.value,
+      });
     });
 
     it('should fetch course and lastUnitTest after session is loaded', async () => {
@@ -125,7 +128,9 @@ describe('useCourseSession', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
 
       expect(ContentNodeResource.fetchTree).toHaveBeenCalledWith({ id: mockCourseSession.course });
-      expect(CourseSessionResource.lastUnitTest).toHaveBeenCalledWith({ id: mockCourseSessionId });
+      expect(CourseSessionResource.lastUnitTest).toHaveBeenCalledWith({
+        id: mockCourseSessionId.value,
+      });
     });
 
     it('should set pageLoading=false after all data is loaded', async () => {
@@ -574,7 +579,7 @@ describe('useCourseSession', () => {
       await activateTest(TestType.PRE);
 
       expect(CourseSessionResource.activateTest).toHaveBeenCalledWith({
-        id: mockCourseSessionId,
+        id: mockCourseSessionId.value,
         data: {
           unit_contentnode_id: 'unit-1',
           test_type: TestType.PRE,
@@ -623,7 +628,7 @@ describe('useCourseSession', () => {
       await closeTest();
 
       expect(CourseSessionResource.closeTest).toHaveBeenCalledWith({
-        id: mockCourseSessionId,
+        id: mockCourseSessionId.value,
         data: {
           unit_contentnode_id: 'unit-1',
           test_type: TestType.PRE,
@@ -690,7 +695,7 @@ describe('useCourseSession', () => {
       await toggleCourseActive();
 
       expect(CourseSessionResource.saveModel).toHaveBeenCalledWith({
-        id: mockCourseSessionId,
+        id: mockCourseSessionId.value,
         data: { active: false },
       });
     });
@@ -721,14 +726,14 @@ describe('useCourseSession', () => {
       await toggleCourseActive();
 
       expect(CourseSessionResource.saveModel).toHaveBeenCalledWith({
-        id: mockCourseSessionId,
+        id: mockCourseSessionId.value,
         data: { active: true },
       });
       expect(courseSession.value.active).toBe(true);
     });
 
     it('should return the result from saveModel', async () => {
-      const mockResult = { id: mockCourseSessionId, active: true, title: 'Test' };
+      const mockResult = { id: mockCourseSessionId.value, active: true, title: 'Test' };
       CourseSessionResource.saveModel.mockResolvedValue(mockResult);
 
       const { toggleCourseActive, courseSession } = useCourseSession(mockCourseSessionId);
