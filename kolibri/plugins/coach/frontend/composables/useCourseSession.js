@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -23,7 +23,7 @@ const { defaultErrorMessage$ } = coreStrings;
  * Handles fetching course session data, course content, active tests, and test history.
  * Provides derived state for units and unit phase.
  *
- * @param {string} courseSessionId - The ID of the course session to load
+ * @param {Ref<string>} courseSessionId - The ID of the course session to load
  * @returns {Object} Reactive state and methods for managing the course session
  */
 export default function useCourseSession(courseSessionId) {
@@ -45,26 +45,42 @@ export default function useCourseSession(courseSessionId) {
   // -----------
   // Data fetching
   // -----------
-  CourseSessionResource.fetchModel({ id: courseSessionId })
-    .then(session => {
-      courseSession.value = session;
-      return ContentNodeResource.fetchTree({ id: session.course });
-    })
-    .then(courseData => {
-      course.value = courseData;
-      return CourseSessionResource.lastUnitTest({ id: courseSessionId });
-    })
-    .then(testData => {
-      lastUnitTest.value = testData;
-    })
-    .catch(e => {
-      // eslint-disable-next-line no-console
-      console.error(e);
-      createSnackbar(defaultErrorMessage$());
-    })
-    .finally(() => {
+  function fetchCourseSession() {
+    pageLoading.value = true;
+    if (!courseSessionId.value) {
+      // Reset to avoid stale data
+      courseSession.value = null;
+      course.value = null;
+      lastUnitTest.value = null;
       pageLoading.value = false;
-    });
+      return;
+    }
+    CourseSessionResource.fetchModel({ id: courseSessionId.value })
+      .then(session => {
+        courseSession.value = session;
+        return ContentNodeResource.fetchTree({ id: session.course });
+      })
+      .then(courseData => {
+        course.value = courseData;
+        return CourseSessionResource.lastUnitTest({ id: courseSessionId.value });
+      })
+      .then(testData => {
+        lastUnitTest.value = testData;
+      })
+      .catch(e => {
+        // eslint-disable-next-line no-console
+        console.error(e);
+        createSnackbar(defaultErrorMessage$());
+      })
+      .finally(() => {
+        pageLoading.value = false;
+      });
+  }
+
+  fetchCourseSession();
+
+  // When courseSessionId changes, we update all of our data
+  watch(courseSessionId, () => fetchCourseSession());
 
   // -----------
   // Derived unit state
@@ -75,6 +91,7 @@ export default function useCourseSession(courseSessionId) {
    * Original title is preserved, numberedTitle adds the "Unit N:" prefix.
    */
   const units = computed(() => {
+    if (!courseSessionId.value) return [];
     const children = course.value?.children?.results || [];
     return children.map((unit, i) => ({
       ...unit,
@@ -122,6 +139,7 @@ export default function useCourseSession(courseSessionId) {
    * Whether the entire course is complete (all units finished).
    */
   const isCourseComplete = computed(() => {
+    if (!courseSessionId.value) return null;
     return units.value.length > 0 && completedUnits.value.length === units.value.length;
   });
 

@@ -328,6 +328,8 @@
         return { ...route, name: PageNames.COURSES_ROOT };
       });
 
+      const courseSessionId = computed(() => route.params.courseSessionId);
+
       // Use the composable for all course session state
       const {
         dataLoading,
@@ -343,7 +345,7 @@
         closeTest,
         courseSession,
         toggleCourseActive,
-      } = useCourseSession(route.params.courseSessionId);
+      } = useCourseSession(courseSessionId);
 
       const { getRecipientNamesForCourseSession } = useClassSummary();
 
@@ -555,8 +557,10 @@
         onUnitButtonClick,
       };
     },
-    created() {
-      this.$store.dispatch('notLoading');
+    watch: {
+      courseSession() {
+        this.$store.dispatch('notLoading');
+      },
     },
   };
 
