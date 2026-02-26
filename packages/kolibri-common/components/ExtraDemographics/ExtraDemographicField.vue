@@ -46,7 +46,10 @@
         }));
       },
       optionValue() {
-        return this.options.find(option => option.value === this.value) || {};
+        if (!this.value || !this.value.trim()) {
+          return { value: '', label: '' };
+        }
+        return this.options.find(option => option.value === this.value) || { value: '', label: '' };
       },
       description() {
         if (!this.field) {

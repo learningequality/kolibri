@@ -75,7 +75,10 @@
     },
     computed: {
       selected() {
-        return this.options.find(o => o.value === this.value) || {};
+        if (!this.value || !this.value.trim()) {
+          return { value: '', label: '' };
+        }
+        return this.options.find(o => o.value === this.value) || { value: '', label: '' };
       },
       options() {
         // The backend validation actually lets you pick years up to 3000, so we'll
