@@ -46,4 +46,6 @@ jobs:
       - name: Extract and upload strings to Crowdin
         env:
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_API_KEY }}
-        run: make i18n-upload
+        run: |
+          make i18n-upload
+          make i18n-pretranslate-approve-all
