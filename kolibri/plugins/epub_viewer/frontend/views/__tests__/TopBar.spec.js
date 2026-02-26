@@ -46,7 +46,7 @@ describe('Top bar', () => {
     const searchButton = screen.getByRole('button', { name: /toggle search/i });
     searchButton.focus();
 
-    expect(document.activeElement).toBe(searchButton);
+    expect(searchButton).toHaveFocus();
   });
 
   it('emits event when table of contents button is clicked', async () => {
