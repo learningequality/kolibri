@@ -58,33 +58,31 @@ describe('signInPage component', () => {
     expect(await screen.findByRole('textbox', { name: /username/i })).toBeInTheDocument();
   });
 
-  it('will set the username as invalid if it contains punctuation and is blurred', async () => {
+  it('will set the username as invalid if it contains punctuation', async () => {
     renderComponent();
     const user = userEvent.setup();
 
     const usernameInput = await screen.findByRole('textbox', { name: /username/i });
 
     await user.type(usernameInput, '?');
-    await user.tab();
 
     await waitFor(() => {
-      const wrapper = usernameInput.closest('.ui-textbox');
-      expect(wrapper).toHaveClass('is-touched');
+      expect(screen.getByText(/Username can only contain/i)).toBeInTheDocument();
     });
   });
 
-  it('will set the validation text to required if the username is empty and blurred', async () => {
+  it('will set the validation text to required if the username is empty', async () => {
     renderComponent();
     const user = userEvent.setup();
 
     const usernameInput = await screen.findByRole('textbox', { name: /username/i });
 
     await user.click(usernameInput);
-    await user.tab();
+    await user.type(usernameInput, 'a');
+    await user.clear(usernameInput);
 
     await waitFor(() => {
-      const wrapper = usernameInput.closest('.ui-textbox');
-      expect(wrapper).toHaveClass('is-touched');
+      expect(screen.getByText(/required/i)).toBeInTheDocument();
     });
   });
 
