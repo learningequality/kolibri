@@ -31,7 +31,10 @@
           </template>
         </CoachHeader>
       </div>
-      <div class="content">
+      <div
+        v-if="courseSession"
+        class="content"
+      >
         <KCircularLoader v-if="dataLoading" />
         <section
           v-else
@@ -93,6 +96,7 @@
           <KTabsList
             ref="tabList"
             tabsId="courseTabs"
+            :ariaLabel="unitsLabel$()"
             :activeTabId="activeTabId"
             :tabs="tabs"
             @click="id => (activeTabId = id)"
@@ -543,6 +547,7 @@
         activeUnit$,
         numberOfResources$,
         completedUnitsLabel$,
+        unitsLabel$,
         numUnits$,
         upcomingUnitsLabel$,
         lockedLabel$,
