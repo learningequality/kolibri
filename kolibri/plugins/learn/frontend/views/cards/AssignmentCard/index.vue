@@ -114,6 +114,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+  import useContentNodeProgress from '../../../composables/useContentNodeProgress';
   import { learnStrings } from '../../commonLearnStrings';
 
   export default {
@@ -123,6 +124,7 @@
       const { quizLabel$, inProgressLabel$, completedLabel$ } = coreStrings;
       const { courseLabel$, numUnits$, numLessons$ } = coursesStrings;
       const { questionsLeft$, completedPercentLabel$ } = learnStrings;
+      const { contentNodeProgressMap } = useContentNodeProgress();
 
       // All computed properties
       const assignment = computed(() => props.course || props.lesson || props.quiz);
@@ -146,15 +148,22 @@
         return parts.join(' · ');
       });
 
-      // Lesson-specific
+      // Lesson-specific: use contentNodeProgressMap for real-time progress,
+      // falling back to API-provided progress for each resource
       const lessonProgress = computed(() => {
-        if (!props.lesson || !props.lesson.progress) return NaN;
-        const { resource_progress, total_resources } = props.lesson.progress;
-        if (resource_progress * total_resources === 0) {
-          return NaN;
-        } else {
-          return resource_progress - total_resources;
-        }
+        if (!props.lesson) return NaN;
+        const resources = props.lesson.resources || [];
+        const total_resources = resources.length;
+        if (total_resources === 0) return NaN;
+        const resource_progress = resources.reduce((sum, resource) => {
+          const contentId = resource.contentnode && resource.contentnode.content_id;
+          const progress = contentId
+            ? Math.max(contentNodeProgressMap[contentId] || 0, resource.progress || 0)
+            : resource.progress || 0;
+          return sum + progress;
+        }, 0);
+        if (resource_progress * total_resources === 0) return NaN;
+        return resource_progress - total_resources;
       });
 
       // Quiz-specific

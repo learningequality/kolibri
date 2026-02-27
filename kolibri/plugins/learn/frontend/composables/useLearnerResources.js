@@ -24,7 +24,7 @@ import useContentNodeProgress, { setContentNodeProgress } from './useContentNode
 const _resumableContentNodes = ref([]);
 const moreResumableContentNodes = ref(null);
 const classes = ref([]);
-const { fetchContentNodeProgress } = useContentNodeProgress();
+const { fetchContentNodeProgress, contentNodeProgressMap } = useContentNodeProgress();
 const courses = ref([]);
 const courseContent = ref({});
 const courseProgress = ref({});
@@ -144,7 +144,13 @@ export default function useLearnerResources() {
    */
   const resumableClassesResources = computed(() => {
     return get(_classesResources).filter(resource => {
-      return resource.progress && resource.progress < 1 && resource.contentNode;
+      if (!resource.contentNode) return false;
+      const contentId = resource.contentNode.content_id;
+      const progress = Math.max(
+        resource.progress || 0,
+        (contentId && contentNodeProgressMap[contentId]) || 0,
+      );
+      return progress > 0 && progress < 1;
     });
   });
 
