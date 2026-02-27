@@ -141,6 +141,7 @@
         extra_fields,
         pastattempts,
         complete,
+        context,
         totalattempts,
         initContentSession,
         updateContentSession,
@@ -165,6 +166,7 @@
         extra_fields,
         pastattempts,
         complete,
+        context,
         totalattempts,
         initContentSession,
         updateContentSession: wrappedUpdateContentSession,
@@ -262,7 +264,7 @@
         return get(this, ['content', 'options', 'modality']) === Modalities.SURVEY;
       },
       masteryLevel() {
-        return get(this, ['context', 'mastery_level']);
+        return this.context?.mastery_level;
       },
     },
     watch: {
