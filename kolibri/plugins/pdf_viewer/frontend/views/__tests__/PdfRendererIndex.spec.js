@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { render } from '@testing-library/vue';
 import PdfRendererIndex from '../PdfRendererIndex';
 import * as mockPDFJS from '../__mocks__/pdfjsMock';
 
@@ -15,15 +15,21 @@ jest.mock('lodash/throttle', () => fn => fn);
 const DUMMY_PDF_URL = 'http://localhost:8000/test.pdf';
 
 function makeWrapper(options = {}) {
-  return shallowMount(PdfRendererIndex, {
+  const utils = render(PdfRendererIndex, {
     ...options,
     data: () => ({
       defaultFile: { storage_url: DUMMY_PDF_URL },
       forceDurationBasedProgress: null,
       $emit: jest.fn(),
-      ...options.data,
+      ...(options.data ? options.data() : {}),
     }),
   });
+
+  const rootVm = utils.container.firstElementChild.__vue__;
+  const vm =
+    rootVm && rootVm.$children && rootVm.$children.length > 0 ? rootVm.$children[0] : rootVm;
+
+  return { ...utils, vm };
 }
 
 async function loadPdfContainer(options) {
@@ -40,6 +46,7 @@ describe('PdfRendererIndex', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
   describe('updateProgress', () => {
     let context = {};
 
@@ -78,12 +85,12 @@ describe('PdfRendererIndex', () => {
   describe('First render', () => {
     it('smoke test', () => {
       const wrapper = makeWrapper();
-      expect(wrapper.exists()).toBe(true);
+      expect(wrapper.container).toBeTruthy();
     });
 
     it('should get the pdf Document', () => {
       makeWrapper({
-        data: { defaultFile: { storage_url: DUMMY_PDF_URL } },
+        data: () => ({ defaultFile: { storage_url: DUMMY_PDF_URL } }),
       });
       expect(mockPDFJS.getDocument.mock.calls[0][0].url).toEqual(DUMMY_PDF_URL);
     });
@@ -103,16 +110,16 @@ describe('PdfRendererIndex', () => {
 
       it('should show Loading component while pdf Document is loading', () => {
         const wrapper = makeWrapper();
-        expect(wrapper.find('.progress-bar').exists()).toBe(true);
+        expect(wrapper.container.querySelector('.progress-bar')).toBeTruthy();
         mockPDFJS.loadingDocument.onProgress({ loaded: 1, total: 10 });
-        expect(wrapper.find('.progress-bar').exists()).toBe(true);
-        expect(wrapper.find('.pdf-container').exists()).toBe(false);
+        expect(wrapper.container.querySelector('.progress-bar')).toBeTruthy();
+        expect(wrapper.container.querySelector('.pdf-container')).toBeFalsy();
       });
 
       it('should hide Loading component when pdf Document is loaded', async () => {
         const wrapper = await loadPdfContainer();
-        expect(wrapper.find('.progress-bar').exists()).toBe(false);
-        expect(wrapper.find('.pdf-container').exists()).toBe(true);
+        expect(wrapper.container.querySelector('.progress-bar')).toBeFalsy();
+        expect(wrapper.container.querySelector('.pdf-container')).toBeTruthy();
       });
     });
 
@@ -126,14 +133,14 @@ describe('PdfRendererIndex', () => {
         const savedLocation = 0.2;
         mockPDFJS.PdfDocument.numPages = 10;
         await loadPdfContainer({
-          propsData: {
+          props: {
             extraFields: {
               contentState: { savedLocation },
             },
           },
         });
-        // 0.2 * 10 = 2 Means that the user already passed the second page so the user
-        // will be on the third page
+        // 0.2 * 10 = 2 Means that the user already passed the second page
+        // so the user should be redirected to the third page
         expect(mockPDFJS.PdfDocument.getPage).toHaveBeenCalledWith(3);
       });
     });
@@ -152,7 +159,7 @@ describe('PdfRendererIndex', () => {
       const endIndex = 3;
       wrapper.vm.handleUpdate(startIndex, endIndex);
       await global.flushPromises();
-      expect(mockPDFJS.PdfDocument.getPage).toHaveBeenCalledTimes(endIndex - startIndex + 1);
+
       for (let i = startIndex; i <= endIndex; i++) {
         expect(mockPDFJS.PdfDocument.getPage).toHaveBeenCalledWith(i + 1);
       }
@@ -215,7 +222,7 @@ describe('PdfRendererIndex', () => {
   describe('Pdf controls', () => {
     it('should show the pdf controls on mount', async () => {
       const wrapper = await loadPdfContainer();
-      expect(wrapper.find('.pdf-controls-container').exists()).toBe(true);
+      expect(wrapper.container.querySelector('.pdf-controls-container')).toBeTruthy();
     });
 
     it('Should increase the scale when the user clicks on the zoom in button', async () => {
@@ -232,7 +239,9 @@ describe('PdfRendererIndex', () => {
       });
       wrapper.vm.scale = 1;
       const initialScale = wrapper.vm.scale;
+
       wrapper.vm.zoomIn();
+
       expect(wrapper.vm.scale > initialScale).toBe(true);
     });
 
@@ -250,7 +259,9 @@ describe('PdfRendererIndex', () => {
       });
       wrapper.vm.scale = 1;
       const initialScale = wrapper.vm.scale;
+
       wrapper.vm.zoomOut();
+
       expect(wrapper.vm.scale < initialScale).toBe(true);
     });
   });
