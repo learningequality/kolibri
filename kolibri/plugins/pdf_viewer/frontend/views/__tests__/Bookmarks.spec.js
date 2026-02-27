@@ -1,15 +1,5 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import Bookmarks from '../SideBar/Bookmarks/index.vue';
-import BookmarkItem from '../SideBar/Bookmarks/BookmarkItem.vue';
-
-function withWrapperArray(wrapperArray) {
-  return {
-    hasText: str => wrapperArray.filter(i => i.text().match(str)),
-    not: {
-      hasText: str => wrapperArray.filter(i => !i.text().match(str)),
-    },
-  };
-}
 
 const outline = [
   {
@@ -52,13 +42,13 @@ const outline = [
 ];
 
 function makeWrapper(options = {}) {
-  return mount(Bookmarks, {
+  return render(Bookmarks, {
     ...options,
     mocks: { fetchContentNodeProgress: Promise.resolve() },
-    propsData: {
+    props: {
       outline,
       goToDestination: jest.fn(),
-      ...options.propsData,
+      ...(options.propsData || options.props),
     },
   });
 }
@@ -70,91 +60,78 @@ describe('Pdf Bookmarks', () => {
 
   it('smoke test', () => {
     const wrapper = makeWrapper();
-    expect(wrapper.exists()).toBe(true);
+    expect(wrapper.container).toBeTruthy();
   });
 
   it('should render the root bookmarks', () => {
-    const wrapper = makeWrapper();
-    expect(wrapper.findAllComponents(BookmarkItem)).toHaveLength(outline.length);
+    makeWrapper();
+
     outline.forEach(bookmark => {
-      expect(
-        withWrapperArray(wrapper.findAllComponents(BookmarkItem)).hasText(bookmark.title),
-      ).toHaveLength(1);
+      expect(screen.getByText(bookmark.title)).toBeInTheDocument();
     });
   });
 
   it('should render dropdown-icon for bookmarks with children', () => {
-    const wrapper = makeWrapper();
+    makeWrapper();
     outline.forEach(bookmark => {
-      const bookmarkItem = withWrapperArray(wrapper.findAllComponents(BookmarkItem))
-        .hasText(bookmark.title)
-        .at(0);
+      const titleEl = screen.getByText(bookmark.title);
+
+      const bookmarkContainer = titleEl.parentElement.parentElement;
+
       if (bookmark.items.length) {
-        expect(bookmarkItem.find('.dropdown-icon').exists()).toBe(true);
+        expect(bookmarkContainer.querySelector('.dropdown-icon')).toBeTruthy();
       } else {
-        expect(bookmarkItem.find('.dropdown-icon').exists()).toBe(false);
+        expect(bookmarkContainer.querySelector('.dropdown-icon')).toBeFalsy();
       }
     });
   });
 
   it('should render children bookmarks when click on dropdown', async () => {
-    const wrapper = makeWrapper();
+    makeWrapper();
     for (const bookmark of outline) {
       if (!bookmark.items.length) continue;
-      const bookmarkItem = withWrapperArray(wrapper.findAllComponents(BookmarkItem))
-        .hasText(bookmark.title)
-        .at(0);
 
-      // check that children are not rendered before click
-      expect(
-        withWrapperArray(bookmarkItem.findAllComponents(BookmarkItem)).hasText(
-          bookmark.items[0].title,
-        ),
-      ).toHaveLength(0);
+      const titleEl = screen.getByText(bookmark.title);
+      const dropdownBtn = titleEl.parentElement.parentElement.querySelector(
+        '.dropdown-icon-container',
+      );
 
-      bookmarkItem.find('.dropdown-icon-container').trigger('click');
-      await wrapper.vm.$nextTick();
-      expect(
-        withWrapperArray(bookmarkItem.findAllComponents(BookmarkItem))
-          .hasText(bookmark.items[0].title)
-          // filter leaf nodes
-          .filter(i => i.findAllComponents(BookmarkItem).length === 1),
-      ).toHaveLength(1);
+      expect(screen.queryByText(bookmark.items[0].title)).not.toBeInTheDocument();
+
+      await fireEvent.click(dropdownBtn);
+
+      expect(screen.getByText(bookmark.items[0].title)).toBeInTheDocument();
     }
   });
 
   it('should hide children bookmarks when double click on dropdown', async () => {
-    const wrapper = makeWrapper();
+    makeWrapper();
     for (const bookmark of outline) {
       if (!bookmark.items.length) continue;
-      const bookmarkItem = withWrapperArray(wrapper.findAllComponents(BookmarkItem))
-        .hasText(bookmark.title)
-        .at(0);
 
-      bookmarkItem.find('.dropdown-icon-container').trigger('click');
-      await wrapper.vm.$nextTick();
-      bookmarkItem.find('.dropdown-icon-container').trigger('click');
-      await wrapper.vm.$nextTick();
+      const titleEl = screen.getByText(bookmark.title);
+      const dropdownBtn = titleEl.parentElement.parentElement.querySelector(
+        '.dropdown-icon-container',
+      );
 
-      expect(
-        withWrapperArray(bookmarkItem.findAllComponents(BookmarkItem)).hasText(
-          bookmark.items[0].title,
-        ),
-      ).toHaveLength(0);
+      await fireEvent.click(dropdownBtn);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+      await fireEvent.click(dropdownBtn);
+
+      expect(screen.queryByText(bookmark.items[0].title)).not.toBeInTheDocument();
     }
   });
 
   it('should call goToDestination when click on bookmark', async () => {
     const goToDestination = jest.fn();
-    const wrapper = makeWrapper({
-      propsData: { goToDestination },
+    makeWrapper({
+      props: { goToDestination },
     });
+
     for (const bookmark of outline) {
-      const bookmarkItem = withWrapperArray(wrapper.findAllComponents(BookmarkItem))
-        .hasText(bookmark.title)
-        .at(0);
-      bookmarkItem.find('.bookmark-item-title').trigger('click');
-      await wrapper.vm.$nextTick();
+      const titleEl = screen.getByText(bookmark.title);
+      await fireEvent.click(titleEl);
       expect(goToDestination).toHaveBeenCalledWith(bookmark.dest);
     }
   });
