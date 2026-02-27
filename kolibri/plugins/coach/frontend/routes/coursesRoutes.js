@@ -8,12 +8,12 @@ import SelectRecipientsSubpage from '../views/courses/sidePanels/AssignCourse/su
 import AssignCourseIndexSubpage from '../views/courses/sidePanels/AssignCourse/subpages/AssignCourseIndex.vue';
 import { classIdParamRequiredGuard, RouteSegments } from './utils';
 
-const { OPTIONAL_CLASS, ALL_COURSES, CLASS, COURSE } = RouteSegments;
+const { OPTIONAL_CLASS, ALL_COURSES, CLASS, COURSE_SESSION } = RouteSegments;
 
 export default [
   {
     name: PageNames.COURSE_SUMMARY,
-    path: CLASS + COURSE,
+    path: CLASS + COURSE_SESSION,
     component: CourseSummaryPage,
     meta: {
       titleParts: ['COURSE_NAME', 'CLASS_NAME'],

@@ -4,6 +4,7 @@ from collections import OrderedDict
 from django.db import transaction
 from django.db.models import Exists
 from django.db.models import OuterRef
+from django.db.models import Subquery
 from django_filters.rest_framework import DjangoFilterBackend
 from le_utils.constants import modalities
 from rest_framework.decorators import action
@@ -22,6 +23,7 @@ from .models import CourseSession
 from .models import CourseSessionAssignment
 from .models import TestStatus
 from .models import TestType
+from .models import UnitPhase
 from .models import UnitTestAssignment
 from kolibri.core import error_constants
 from kolibri.core.api import ValuesViewset
@@ -284,6 +286,90 @@ def _map_course_session_classroom(item):
     }
 
 
+def _activated_by_info(user):
+    """Return a dict of user info for the activated_by field, or None."""
+    if user:
+        return {
+            "id": user.id,
+            "username": user.username,
+            "full_name": user.full_name,
+        }
+    return None
+
+
+def _compute_course_state(course_id, test):
+    """
+    Compute the unit phase and active unit ID from the most recent test
+    and the course's unit structure.
+
+    Args:
+        course_id: UUID of the course ContentNode
+        test: The most recent UnitTestAssignment, or None
+
+    Returns:
+        dict with 'unit_phase' and 'active_unit_id'
+    """
+    unit_qs = ContentNode.objects.filter(
+        parent_id=course_id,
+        modality=modalities.UNIT,
+    )
+
+    first_unit_id = unit_qs.order_by("lft").values_list("id", flat=True).first()
+
+    initial_state = {
+        "unit_phase": UnitPhase.PreTestPending,
+        "active_unit_id": str(first_unit_id) if first_unit_id else None,
+    }
+
+    if not test or test.status == TestStatus.NotStarted:
+        return initial_state
+
+    # Look up the unit's tree position for ordering
+    unit_lft = (
+        ContentNode.objects.filter(id=test.unit_contentnode_id)
+        .values_list("lft", flat=True)
+        .first()
+    )
+
+    if test.status == TestStatus.Active:
+        unit_phase = (
+            UnitPhase.PreTestActive
+            if test.test_type == TestType.Pre
+            else UnitPhase.PostTestActive
+        )
+        return {
+            "unit_phase": unit_phase,
+            "active_unit_id": str(test.unit_contentnode_id),
+        }
+
+    # Test is ended
+    if test.test_type == TestType.Pre:
+        # Pre-test ended = still on this unit (lessons/post-test phase)
+        return {
+            "unit_phase": UnitPhase.PostTestPending,
+            "active_unit_id": str(test.unit_contentnode_id),
+        }
+
+    # Post-test ended = unit complete
+    next_unit_id = (
+        unit_qs.filter(lft__gt=unit_lft)
+        .order_by("lft")
+        .values_list("id", flat=True)
+        .first()
+    )
+
+    if not next_unit_id:
+        return {
+            "unit_phase": UnitPhase.Complete,
+            "active_unit_id": None,
+        }
+
+    return {
+        "unit_phase": UnitPhase.PreTestPending,
+        "active_unit_id": str(next_unit_id),
+    }
+
+
 class CourseSessionViewset(ValuesViewset):
     serializer_class = CourseSessionSerializer
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
@@ -397,12 +483,18 @@ class CourseSessionViewset(ValuesViewset):
             unit_test_assignment.activated_by = request.user
             unit_test_assignment.save()
 
+        course_state = _compute_course_state(
+            course_session.course, unit_test_assignment
+        )
+
         return Response(
             {
                 "id": unit_test_assignment.id,
                 "unit_contentnode_id": str(unit_contentnode_id),
                 "test_type": test_type,
                 "status": unit_test_assignment.status,
+                "activated_by": _activated_by_info(unit_test_assignment.activated_by),
+                **course_state,
             },
             status=HTTP_200_OK,
         )
@@ -454,12 +546,16 @@ class CourseSessionViewset(ValuesViewset):
         active_test.status = TestStatus.Ended
         active_test.save()
 
+        course_state = _compute_course_state(course_session.course, active_test)
+
         return Response(
             {
                 "id": active_test.id,
                 "unit_contentnode_id": str(active_test.unit_contentnode_id),
                 "test_type": active_test.test_type,
                 "status": active_test.status,
+                "activated_by": _activated_by_info(active_test.activated_by),
+                **course_state,
             },
             status=HTTP_200_OK,
         )
@@ -509,6 +605,55 @@ class CourseSessionViewset(ValuesViewset):
                 "test_type": active_test.test_type,
                 "status": active_test.status,
                 "activated_by": activated_by_info,
+            },
+            status=HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=["get"])
+    def last_unit_test(self, request, pk=None):
+        """
+        Returns the most recent test, active or not, for the given course session
+        with consideration for the order of the units and the natural order in which
+        tests are started & ended
+        """
+        course_session = self.get_object()
+
+        test = (
+            UnitTestAssignment.objects.filter(course_session=course_session)
+            .annotate(
+                b_lft=Subquery(
+                    ContentNode.objects.filter(
+                        id=OuterRef("unit_contentnode_id")
+                    ).values("lft")[:1]
+                )
+            )
+            .order_by("-b_lft", "test_type")
+            .first()
+        )
+
+        course_state = _compute_course_state(course_session.course, test)
+
+        if not test:
+            return Response(
+                {
+                    "id": None,
+                    "unit_contentnode_id": None,
+                    "test_type": None,
+                    "status": None,
+                    "activated_by": None,
+                    **course_state,
+                },
+                status=HTTP_200_OK,
+            )
+
+        return Response(
+            {
+                "id": test.id,
+                "unit_contentnode_id": str(test.unit_contentnode_id),
+                "test_type": test.test_type,
+                "status": test.status,
+                "activated_by": _activated_by_info(test.activated_by),
+                **course_state,
             },
             status=HTTP_200_OK,
         )

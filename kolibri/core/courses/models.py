@@ -26,6 +26,14 @@ class TestStatus(ChoicesEnum):
     Ended = "ended"
 
 
+class UnitPhase(ChoicesEnum):
+    PreTestPending = "pre_test_pending"
+    PreTestActive = "pre_test_active"
+    PostTestPending = "post_test_pending"
+    PostTestActive = "post_test_active"
+    Complete = "complete"
+
+
 class CourseSession(AbstractFacilityDataModel):
 
     # UUID reference to the course ContentNode (not FK due to sync constraints)

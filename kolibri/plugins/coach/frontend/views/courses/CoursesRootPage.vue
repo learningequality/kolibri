@@ -72,16 +72,9 @@
                 <td>
                   <div class="course-title">
                     <KRouterLink
-                      v-if="course.contentNode"
                       :to="courseSummaryLink(course)"
                       :text="course.title"
                       icon="course"
-                    />
-                    <KTextTruncator
-                      v-else
-                      :text="course.title"
-                      :maxLines="1"
-                      class="course-title-text"
                     />
                   </div>
                   <KTextTruncator
@@ -304,7 +297,7 @@
           name: PageNames.COURSE_SUMMARY,
           params: {
             classId: route.params.classId,
-            courseId: course.id,
+            courseSessionId: course.id,
           },
         };
       };
