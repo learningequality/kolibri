@@ -1,173 +1,154 @@
 <template>
 
-  <div>
-    <KCircularLoader v-if="submitting" />
-    <QuizReport
-      v-else-if="mastered"
-      :userId="userId"
-      :userName="userFullName"
-      :content="content"
-      @repeat="repeat"
-    />
-    <KGrid
-      v-else
-      :gridStyle="gridStyle"
-    >
-      <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
-      <KGridItem
-        v-if="windowIsLarge"
-        ref="questionListWrapper"
-        :layout12="{ span: 4 }"
-        class="column-pane"
+  <ResourceLayout>
+    <template #default>
+      <div
+        class="content-wrapper"
+        :style="{
+          backgroundColor: $themeTokens.surface,
+        }"
       >
-        <div class="column-contents-wrapper">
-          <KPageContainer>
-            <AnswerHistory
-              :pastattempts="pastattempts"
-              :questionNumber="questionNumber"
-              :wrapperComponentRefs="$refs"
-              :questions="itemIdArray"
-              :currentQuestionAnswered="currentQuestionAnswered"
-              @goToQuestion="goToQuestion"
-            />
-          </KPageContainer>
-        </div>
-      </KGridItem>
-      <KGridItem
-        :layout12="{ span: 8 }"
-        class="column-pane"
-      >
-        <div :class="{ 'column-contents-wrapper': !windowIsSmall }">
-          <KPageContainer>
-            <h1>
-              {{ $tr('question', { num: questionNumber + 1, total: questionsTotal }) }}
-            </h1>
-            <ContentViewer
-              v-if="itemId"
-              ref="contentViewer"
-              :lang="content.lang"
-              :files="content.files"
-              :extraFields="extraFields"
-              :itemId="itemId"
-              :assessment="true"
-              :allowHints="false"
-              :answerState="currentAttempt.answer"
-              :progress="progress"
-              :userId="userId"
-              :userFullName="userFullName"
-              :timeSpent="timeSpent"
-              @interaction="interactionHandler"
-              @updateProgress="updateProgress"
-              @updateContentState="updateContentState"
-              @error="err => $emit('error', err)"
-            />
-            <UiAlert
-              v-else
-              :dismissible="false"
-              type="error"
-            >
-              {{ $tr('noItemId') }}
-            </UiAlert>
-          </KPageContainer>
-
-          <BottomAppBar
-            :dir="bottomBarLayoutDirection"
-            :maxWidth="null"
+        <KCircularLoader v-if="submitting" />
+        <QuizReport
+          v-else-if="mastered"
+          :userId="userId"
+          :userName="userFullName"
+          :content="content"
+          @repeat="repeat"
+        />
+        <div v-else>
+          <h1>
+            {{ $tr('question', { num: questionNumber + 1, total: questionsTotal }) }}
+          </h1>
+          <ContentViewer
+            v-if="itemId"
+            ref="contentViewer"
+            :lang="content.lang"
+            :files="content.files"
+            :extraFields="extraFields"
+            :itemId="itemId"
+            :assessment="true"
+            :allowHints="false"
+            :answerState="currentAttempt.answer"
+            :progress="progress"
+            :userId="userId"
+            :userFullName="userFullName"
+            :timeSpent="timeSpent"
+            @interaction="interactionHandler"
+            @updateProgress="updateProgress"
+            @updateContentState="updateContentState"
+            @error="err => $emit('error', err)"
+          />
+          <UiAlert
+            v-else
+            :dismissible="false"
+            type="error"
           >
-            <component :is="windowIsSmall ? 'div' : 'KButtonGroup'">
-              <KButton
-                :disabled="questionNumber === questionsTotal - 1"
-                :primary="true"
-                :dir="layoutDirReset"
-                :aria-label="$tr('nextQuestion')"
-                :appearanceOverrides="navigationButtonStyle"
-                @click="goToQuestion(questionNumber + 1)"
-              >
-                <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
-                <template #iconAfter>
-                  <KIcon
-                    icon="forward"
-                    color="white"
-                    :style="navigationIconStyleNext"
-                  />
-                </template>
-              </KButton>
-              <KButton
-                :disabled="questionNumber === 0"
-                :primary="true"
-                :dir="layoutDirReset"
-                :appearanceOverrides="navigationButtonStyle"
-                :aria-label="$tr('previousQuestion')"
-                :class="{ 'left-align': windowIsSmall }"
-                @click="goToQuestion(questionNumber - 1)"
-              >
-                <template #icon>
-                  <KIcon
-                    icon="back"
-                    color="white"
-                    :style="navigationIconStylePrevious"
-                  />
-                </template>
-                <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
-              </KButton>
-            </component>
-
-            <!-- below prev/next buttons in tab and DOM order, in footer -->
-            <div
-              v-if="windowIsLarge"
-              :dir="layoutDirReset"
-              class="left-align"
-            >
-              <div class="answered">
-                {{ answeredText }}
-              </div>
-              <KButton
-                :text="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
-                :primary="false"
-                appearance="flat-button"
-                @click="toggleModal"
-              />
-            </div>
-          </BottomAppBar>
-
-          <!-- below prev/next buttons in tab and DOM order, in page -->
-          <KPageContainer
-            v-if="!windowIsLarge"
-            style="margin-bottom: 45px"
+            {{ $tr('noItemId') }}
+          </UiAlert>
+          <KModal
+            v-if="submitModalOpen"
+            :title="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
+            :submitText="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
+            :cancelText="coreString('goBackAction')"
+            @submit="finishExam"
+            @cancel="toggleModal"
           >
-            <div
-              class="bottom-block"
-              :class="{ 'window-is-small': windowIsSmall }"
-            >
-              <div class="answered">
-                {{ answeredText }}
-              </div>
-              <KButton
-                :text="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
-                :primary="false"
-                appearance="flat-button"
-                @click="toggleModal"
-              />
-            </div>
-          </KPageContainer>
+            <p>{{ $tr('areYouSure') }}</p>
+            <p v-if="questionsUnanswered">
+              {{ $tr('unanswered', { numLeft: questionsUnanswered }) }}
+            </p>
+          </KModal>
         </div>
-      </KGridItem>
-    </KGrid>
-
-    <KModal
-      v-if="submitModalOpen"
-      :title="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
-      :submitText="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
-      :cancelText="coreString('goBackAction')"
-      @submit="finishExam"
-      @cancel="toggleModal"
+      </div>
+    </template>
+    <template
+      v-if="!mastered"
+      #bottomBar
     >
-      <p>{{ $tr('areYouSure') }}</p>
-      <p v-if="questionsUnanswered">
-        {{ $tr('unanswered', { numLeft: questionsUnanswered }) }}
-      </p>
-    </KModal>
-  </div>
+      <div
+        class="bottom-bar"
+        :style="{
+          background: $themeTokens.surface,
+          borderTop: `1px solid ${$themeTokens.fineLine}`,
+        }"
+      >
+        <div class="navigation-buttons-wrapper">
+          <KButton
+            :disabled="questionNumber === questionsTotal - 1"
+            :primary="true"
+            :aria-label="$tr('nextQuestion')"
+            :appearanceOverrides="navigationButtonStyle"
+            @click="goToQuestion(questionNumber + 1)"
+          >
+            <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
+            <template #iconAfter>
+              <KIcon
+                icon="forward"
+                color="white"
+                :style="navigationIconStyleNext"
+              />
+            </template>
+          </KButton>
+          <KButton
+            :disabled="questionNumber === 0"
+            :primary="true"
+            :appearanceOverrides="navigationButtonStyle"
+            :aria-label="$tr('previousQuestion')"
+            @click="goToQuestion(questionNumber - 1)"
+          >
+            <template #icon>
+              <KIcon
+                icon="back"
+                color="white"
+                :style="navigationIconStylePrevious"
+              />
+            </template>
+            <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
+          </KButton>
+        </div>
+
+        <!-- below prev/next buttons in tab and DOM order, in footer -->
+        <div class="submit-info-wrapper">
+          <div class="answered">
+            {{ answeredText }}
+          </div>
+          <KButton
+            :text="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
+            :primary="false"
+            appearance="flat-button"
+            class="submit-button"
+            @click="toggleModal"
+          />
+        </div>
+      </div>
+    </template>
+    <template
+      v-if="!mastered"
+      #sidePanel
+    >
+      <nav
+        :id="answerHistoryWrapperId"
+        class="answer-history-wrapper"
+      >
+        <AnswerHistory
+          :style="{ margin: 0 }"
+          :pastattempts="pastattempts"
+          :questionNumber="questionNumber"
+          :overflowableParentId="answerHistoryWrapperId"
+          :questions="itemIdArray"
+          :currentQuestionAnswered="currentQuestionAnswered"
+          @goToQuestion="goToQuestion"
+        />
+      </nav>
+    </template>
+    <template
+      v-if="$slots.sidePanelFooter && !mastered"
+      #sidePanelFooter
+    >
+      <slot name="sidePanelFooter"></slot>
+    </template>
+  </ResourceLayout>
 
 </template>
 
@@ -175,32 +156,33 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import BottomAppBar from 'kolibri/components/BottomAppBar';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import shuffled from 'kolibri-common/utils/shuffled';
   import { LearnerClassroomResource } from '../../../apiResources';
+  import ResourceLayout from '../../ResourceLayout/index.vue';
   import AnswerHistory from './AnswerHistory';
   import QuizReport from './QuizReport';
+
+  let _uid = 0;
 
   export default {
     name: 'QuizRenderer',
     components: {
       AnswerHistory,
       UiAlert,
-      UiIconButton,
-      BottomAppBar,
       QuizReport,
+      ResourceLayout,
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { windowBreakpoint, windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+      const { windowBreakpoint } = useKResponsiveWindow();
+      const answerHistoryWrapperId = `answer-history-wrapper-${_uid++}`;
+
       return {
+        answerHistoryWrapperId,
         windowBreakpoint,
-        windowIsLarge,
-        windowIsSmall,
       };
     },
     props: {
@@ -265,18 +247,6 @@
       };
     },
     computed: {
-      gridStyle() {
-        if (!this.windowIsSmall) {
-          return {
-            position: 'fixed',
-            top: '64px',
-            right: '16px',
-            bottom: '72px',
-            left: '16px',
-          };
-        }
-        return {};
-      },
       answeredText() {
         return this.$tr('questionsAnswered', {
           numAnswered: this.questionsAnswered,
@@ -325,15 +295,6 @@
       questionsTotal() {
         return this.content.assessmentmetadata.assessment_item_ids.length;
       },
-      bottomBarLayoutDirection() {
-        // Allows contents to be displayed visually in reverse-order,
-        // but semantically in correct order.
-        return this.isRtl ? 'ltr' : 'rtl';
-      },
-      layoutDirReset() {
-        // Overrides bottomBarLayoutDirection reversal
-        return this.isRtl ? 'rtl' : 'ltr';
-      },
       displayNavigationButtonLabel() {
         return this.windowBreakpoint > 0;
       },
@@ -349,7 +310,7 @@
       },
       navigationIconStylePrevious() {
         return this.displayNavigationButtonLabel
-          ? { position: 'relative', top: '3px', left: '-4px' }
+          ? { position: 'relative', top: '0px', left: '-4px' }
           : {};
       },
     },
@@ -534,22 +495,58 @@
 
 <style lang="scss" scoped>
 
-  .answered {
-    display: inline-block;
-    margin-right: 8px;
-    margin-left: 8px;
-    white-space: nowrap;
+  .bottom-bar {
+    display: flex;
+    // Using row-reverse to make the navigation buttons come first in the DOM order for better
+    // accessibility, but still have it appear on the right side visually.
+    flex-direction: row-reverse;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+  }
+
+  .navigation-buttons-wrapper {
+    display: flex;
+    // Using row-reverse to make the "next" button come first in the DOM order for better
+    // accessibility, but still have it appear on the right side visually.
+    flex-direction: row-reverse;
+    flex-grow: 1;
+    gap: 16px;
+    justify-content: space-between;
+  }
+
+  .submit-info-wrapper {
+    display: flex;
+    // Adding a very big flex-grow here to push the navigation buttons to the right, and
+    // avoid the navigation-buttons-wrapper to grow if they are on the same row. This is needed
+    // because that node has a `justify-content: space-between` but we just want this style to
+    // apply when the navigation buttons are on a different row (wrapped into a new line).
+    flex-grow: 999;
+    gap: 16px;
+    align-items: center;
+
+    .submit-button {
+      flex-shrink: 0;
+    }
+  }
+
+  .content-wrapper {
+    height: 100%;
+    padding: 24px;
+    overflow: auto;
   }
 
   .column-pane {
     height: 100%;
-    padding-bottom: 32px;
     overflow-y: auto;
   }
 
-  .column-contents-wrapper {
-    padding-top: 16px;
-    padding-bottom: 16px;
+  .answer-history-wrapper {
+    height: 100%;
+    padding: 8px;
+    overflow-y: auto;
   }
 
   .bottom-block {
@@ -558,12 +555,6 @@
 
   .bottom-block.window-is-small {
     text-align: center;
-  }
-
-  .left-align {
-    position: absolute;
-    left: 16px;
-    display: inline-block;
   }
 
 </style>

@@ -30,12 +30,22 @@
 
 <script>
 
-  function isAboveContainer(element, container) {
-    return element.offsetTop < container.scrollTop;
+  function isAboveContainer(child, parent) {
+    const childRect = child.getBoundingClientRect();
+    const parentRect = parent.getBoundingClientRect();
+
+    // If the top of the child is less than the top of the parent,
+    // it is partially hidden above the scroll view.
+    return childRect.top < parentRect.top;
   }
 
-  function isBelowContainer(element, container) {
-    return element.offsetTop + element.offsetHeight > container.offsetHeight + container.scrollTop;
+  function isBelowContainer(child, parent) {
+    const childRect = child.getBoundingClientRect();
+    const parentRect = parent.getBoundingClientRect();
+
+    // If the bottom of the child is greater than the bottom of the parent,
+    // it is partially hidden below the scroll view.
+    return childRect.bottom > parentRect.bottom;
   }
 
   export default {
@@ -57,9 +67,13 @@
         type: Boolean,
         required: true,
       },
-      // hack to get access to the scrolling pane
-      wrapperComponentRefs: {
-        type: Object,
+      /**
+       * Id of the scrollable parent element that contains the question list. This is needed to
+       * compute if we need to use `scrollIntoView` to scroll a question into view when navigating
+       * through the question history.
+       */
+      overflowableParentId: {
+        type: String,
         required: true,
       },
     },
@@ -67,8 +81,9 @@
       questionNumber(index) {
         // If possible, scroll it into view
         const element = this.$refs[`item-${index}`][0];
-        if (element && element.scrollIntoView && this.wrapperComponentRefs.questionListWrapper) {
-          const container = this.wrapperComponentRefs.questionListWrapper.$el;
+        const overflowableParent = document.getElementById(this.overflowableParentId);
+        if (element && element.scrollIntoView && overflowableParent) {
+          const container = overflowableParent;
           if (isAboveContainer(element, container)) {
             element.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
           } else if (isBelowContainer(element, container)) {
