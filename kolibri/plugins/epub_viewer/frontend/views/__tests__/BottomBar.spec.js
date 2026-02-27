@@ -1,59 +1,51 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import BottomBar from '../BottomBar';
 
-function createWrapper({
-  heading,
-  sliderValue = 0,
-  sliderStep = 1,
-  locationsAreReady = true,
-} = {}) {
-  return mount(BottomBar, {
-    propsData: {
-      heading,
-      sliderValue,
-      sliderStep,
-      locationsAreReady,
+function renderBottomBar(props = {}) {
+  return render(BottomBar, {
+    props: {
+      sliderValue: 0,
+      sliderStep: 1,
+      locationsAreReady: true,
+      ...props,
     },
   });
 }
 
 describe('Bottom bar', () => {
-  it('should mount', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.exists()).toBe(true);
-  });
   it('should not display a heading if none is provided', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.find('h3').element).toBeFalsy();
+    renderBottomBar();
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
   });
   it('should display a heading if one is provided', () => {
     const heading = 'Chapter 1';
-    const wrapper = createWrapper({ heading });
-    expect(wrapper.find('h3').element).toBeTruthy();
+    renderBottomBar({ heading });
+    expect(screen.getByRole('heading', { name: heading })).toBeInTheDocument();
   });
   it('should not display slider if locations are not ready', () => {
-    const wrapper = createWrapper({ locationsAreReady: false });
-    expect(wrapper.find('input').element).toBeFalsy();
+    renderBottomBar({ locationsAreReady: false });
+    expect(screen.queryByRole('slider')).not.toBeInTheDocument();
   });
   it('should display slider if locations are ready', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.find('input').element).toBeTruthy();
+    renderBottomBar();
+    expect(screen.getByRole('slider')).toBeInTheDocument();
   });
   it('should set the correct value on the slider', () => {
     const sliderValue = 100;
-    const wrapper = createWrapper({ sliderValue });
-    expect(wrapper.find('input').element.value).toBe(String(sliderValue));
+    renderBottomBar({ sliderValue });
+    expect(screen.getByRole('slider')).toHaveValue('100');
   });
   it('should set the correct step on the slider', () => {
     const sliderStep = 10;
-    const wrapper = createWrapper({ sliderStep });
-    expect(wrapper.find('input').element.step).toBe(String(sliderStep));
+    renderBottomBar({ sliderStep });
+    expect(screen.getByRole('slider')).toHaveAttribute('step', String(sliderStep));
   });
-  it("should emit an event when the slider's value is changed", () => {
-    const newValue = 50;
-    const wrapper = createWrapper();
-    wrapper.find('input').element.value = newValue;
-    wrapper.find('input').trigger('change');
-    expect(wrapper.emitted().sliderChanged[0][0]).toBe(newValue);
+  it("should emit an event when the slider's value is changed", async () => {
+    const newValue = '50';
+    const { emitted } = renderBottomBar();
+    const slider = screen.getByRole('slider');
+    slider.value = newValue;
+    await fireEvent.change(slider);
+    expect(emitted().sliderChanged[0][0]).toBe(Number(newValue));
   });
 });
