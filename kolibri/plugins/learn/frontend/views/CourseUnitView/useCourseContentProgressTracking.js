@@ -11,12 +11,15 @@ const ExtraFieldsKey = Symbol('ExtraFields');
 const PastAttemptsKey = Symbol('PastAttempts');
 const CompleteKey = Symbol('Complete');
 const TotalAttemptsKey = Symbol('TotalAttempts');
+const ContextKey = Symbol('Context');
 const StartTrackingProgressKey = Symbol('StartTrackingProgress');
 const StopTrackingProgressKey = Symbol('StopTrackingProgress');
+const RestartContentSessionKey = Symbol('RestartContentSession');
 const HandleUpdateProgressKey = Symbol('HandleUpdateProgress');
 const HandleAddProgressKey = Symbol('HandleAddProgress');
 const HandleUpdateContentStateKey = Symbol('HandleUpdateContentState');
 const HandleUpdateInteractionKey = Symbol('HandleUpdateInteraction');
+const UpdateContentSessionKey = Symbol('UpdateContentSession');
 const OnErrorKey = Symbol('OnError');
 
 /**
@@ -37,6 +40,7 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
     extra_fields,
     pastattempts,
     complete,
+    context,
     totalattempts,
     initContentSession,
     updateContentSession,
@@ -96,7 +100,7 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
   /**
    * Initialize the content session for progress tracking
    */
-  const initSession = async () => {
+  const initSession = async (repeat = false) => {
     const node = contentNode.value;
     if (!node) {
       return;
@@ -109,6 +113,7 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
       await initContentSession({
         node,
         courseSessionId: courseSessionId.value,
+        repeat,
       });
       sessionReady.value = true;
       // Set progress into the content node progress store
@@ -116,6 +121,11 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
     } catch (error) {
       store.dispatch('handleApiError', { error });
     }
+  };
+
+  const restartContentSession = async () => {
+    await stopTrackingProgress();
+    await initSession(true);
   };
 
   // Watch for progress changes to keep cache up to date
@@ -142,12 +152,15 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
   provide(PastAttemptsKey, pastattempts);
   provide(CompleteKey, complete);
   provide(TotalAttemptsKey, totalattempts);
+  provide(ContextKey, context);
   provide(StartTrackingProgressKey, startTrackingProgress);
   provide(StopTrackingProgressKey, stopTrackingProgress);
+  provide(RestartContentSessionKey, restartContentSession);
   provide(HandleUpdateProgressKey, handleUpdateProgress);
   provide(HandleAddProgressKey, handleAddProgress);
   provide(HandleUpdateContentStateKey, handleUpdateContentState);
   provide(HandleUpdateInteractionKey, handleUpdateInteraction);
+  provide(UpdateContentSessionKey, wrappedUpdateContentSession);
   provide(OnErrorKey, onError);
 }
 
@@ -168,9 +181,13 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
  *                                                      complete.
  * @property {import('vue').Ref<number|null>} totalattempts The total number of attempts for the
  *                                                          content.
+ * @property {import('vue').Ref<Object>} context The context object containing additional
+ *                                              information about the content session.
  * @property {() => void} startTrackingProgress Starts the interval timer for progress tracking.
  * @property {() => Promise<void>} stopTrackingProgress Stops the interval timer and saves
  *                                                      final progress.
+ * @property {() => Promise<void>} restartContentSession Restarts the content session, resetting
+ *                                                       progress and time spent.
  * @property {(progressValue: number) => Promise<void>} handleUpdateProgress Updates progress
  *                                                                           to an absolute value.
  * @property {(progressDelta: number) => Promise<void>} handleAddProgress Adds a delta to the
@@ -179,6 +196,7 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
  *                                                                              content state.
  * @property {(interaction: Object) => Promise<void>} handleUpdateInteraction Updates the
  *                                                                          interaction state.
+ * @property {(data: any) => Promise<void>} updateContentSession Updates the content session.
  * @property {(error: Error) => void} onError Handles errors by flagging the session as errored
  *                                            and dispatching to the store.
  *
@@ -194,12 +212,15 @@ export function injectCourseContentProgress() {
     pastattempts: inject(PastAttemptsKey),
     complete: inject(CompleteKey),
     totalattempts: inject(TotalAttemptsKey),
+    context: inject(ContextKey),
     startTrackingProgress: inject(StartTrackingProgressKey),
     stopTrackingProgress: inject(StopTrackingProgressKey),
+    restartContentSession: inject(RestartContentSessionKey),
     handleUpdateProgress: inject(HandleUpdateProgressKey),
     handleAddProgress: inject(HandleAddProgressKey),
     handleUpdateContentState: inject(HandleUpdateContentStateKey),
     handleUpdateInteraction: inject(HandleUpdateInteractionKey),
+    updateContentSession: inject(UpdateContentSessionKey),
     onError: inject(OnErrorKey),
   };
 }

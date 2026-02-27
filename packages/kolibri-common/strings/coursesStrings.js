@@ -320,4 +320,12 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Practice',
     context: 'Action label for practicing an assessment that has already been completed',
   },
+  nextResourceLabel: {
+    message: 'Next resource',
+    context: 'Action label for navigating to the next resource in a course unit',
+  },
+  previousResourceLabel: {
+    message: 'Previous resource',
+    context: 'Action label for navigating to the previous resource in a course unit',
+  },
 });

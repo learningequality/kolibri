@@ -24,9 +24,43 @@
         @addProgress="handleAddProgress"
         @updateContentState="handleUpdateContentState"
         @error="onError"
-        @finished="$emit('finished')"
+        @finished="onFinished"
       />
-      <div v-else-if="isPracticeQuiz || isSurvey"></div>
+      <QuizRenderer
+        v-else-if="isPracticeQuiz || isSurvey"
+        class="content-viewer"
+        :content="contentNode"
+        :extraFields="extra_fields"
+        :progress="progress"
+        :userId="currentUserId"
+        :userFullName="fullName"
+        :timeSpent="time_spent"
+        :pastattempts="pastattempts"
+        :mastered="complete"
+        :masteryLevel="masteryLevel"
+        :updateContentSession="updateContentSession"
+        :isSurvey="isSurvey"
+        @startTracking="startTrackingProgress"
+        @stopTracking="stopTrackingProgress"
+        @updateInteraction="handleUpdateInteraction"
+        @updateProgress="handleUpdateProgress"
+        @updateContentState="handleUpdateContentState"
+        @repeat="restartContentSession"
+        @error="onError"
+        @finished="onFinished"
+      >
+        <template
+          v-if="nextResource || previousResource"
+          #sidePanelFooter
+        >
+          <UpNextNavigationFooter
+            nextEnabled
+            :label="nextResource ? nextResourceLabel$() : previousResourceLabel$()"
+            :nextNode="nextResource || previousResource"
+            @next="nextResource ? $emit('next') : $emit('prev')"
+          />
+        </template>
+      </QuizRenderer>
       <AssessmentWrapper
         v-else
         class="content-viewer"
@@ -43,7 +77,7 @@
         :pastattempts="pastattempts"
         :mastered="complete"
         :totalattempts="totalattempts"
-        :hasNextResource="hasNext"
+        :hasNextResource="Boolean(nextResource)"
         @startTracking="startTrackingProgress"
         @stopTracking="stopTrackingProgress"
         @updateInteraction="handleUpdateInteraction"
@@ -51,7 +85,7 @@
         @updateContentState="handleUpdateContentState"
         @nextResource="$emit('next')"
         @error="onError"
-        @finished="$emit('finished')"
+        @finished="onFinished"
       />
     </template>
   </div>
@@ -64,8 +98,11 @@
   import useUser from 'kolibri/composables/useUser';
   import Modalities from 'kolibri-constants/Modalities';
   import { computed } from 'vue';
+  import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import AssessmentWrapper from '../courses/AssessmentWrapper/index.vue';
+  import QuizRenderer from '../courses/QuizRenderer/index.vue';
   import { injectCourseContentProgress } from './useCourseContentProgressTracking';
+  import UpNextNavigationFooter from './UpNextNavigationFooter.vue';
 
   /**
    * CourseContentView renders non-assessment content (videos, PDFs, articles, HTML5)
@@ -85,9 +122,11 @@
     name: 'CourseContentViewer',
     emits: ['finished', 'next'],
     components: {
+      QuizRenderer,
       AssessmentWrapper,
+      UpNextNavigationFooter,
     },
-    setup(props) {
+    setup(props, { emit }) {
       const {
         sessionReady,
         progress,
@@ -95,13 +134,16 @@
         extra_fields,
         pastattempts,
         complete,
+        context,
         totalattempts,
         handleUpdateInteraction,
         startTrackingProgress,
         stopTrackingProgress,
+        restartContentSession,
         handleUpdateProgress,
         handleAddProgress,
         handleUpdateContentState,
+        updateContentSession,
         onError,
       } = injectCourseContentProgress();
 
@@ -114,6 +156,16 @@
       const isSurvey = computed(() => {
         return props.contentNode.modality === Modalities.SURVEY;
       });
+
+      const masteryLevel = computed(() => {
+        return context.value?.mastery_level;
+      });
+
+      const onFinished = () => {
+        emit('finished');
+      };
+
+      const { nextResourceLabel$, previousResourceLabel$ } = coursesStrings;
 
       return {
         // State
@@ -128,17 +180,25 @@
         totalattempts,
 
         // computed
-        isPracticeQuiz,
         isSurvey,
+        masteryLevel,
+        isPracticeQuiz,
 
         // Methods
         startTrackingProgress,
         stopTrackingProgress,
+        restartContentSession,
         handleUpdateProgress,
         handleAddProgress,
         handleUpdateInteraction,
         handleUpdateContentState,
+        updateContentSession,
         onError,
+        onFinished,
+
+        // strings
+        nextResourceLabel$,
+        previousResourceLabel$,
       };
     },
     props: {
@@ -146,9 +206,23 @@
         type: Object,
         required: true,
       },
-      hasNext: {
-        type: Boolean,
-        default: false,
+      /**
+       * Next available resource in the course unit. If provided, it means
+       * that the resource is available to be navigated, which may enable a "next" button
+       * on the content viewers.
+       */
+      nextResource: {
+        type: Object,
+        default: null,
+      },
+      /**
+       * Previous resource in the course unit. Used mainly as navigation fallback in case there
+       * isn't any other way to get out of the current viewer (e.g. no next resource available,but
+       * no other way to get out of the current resource except going back to the previous one).
+       */
+      previousResource: {
+        type: Object,
+        default: null,
       },
     },
   };
