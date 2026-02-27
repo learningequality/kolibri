@@ -66,6 +66,40 @@ jobs:
     with:
       deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
       ref: v1.0.0
+  browser_smoke_test:
+    name: Browser smoke test
+    needs: whl
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v7
+        with:
+          name: ${{ needs.whl.outputs.whl-file-name }}
+          path: dist
+      - name: Install WHL file
+        run: pip install dist/${{ needs.whl.outputs.whl-file-name }}
+      - name: Install Playwright
+        run: |
+          pip install "playwright<2"
+          playwright install --with-deps chromium
+      - name: Run browser smoke test
+        env:
+          KOLIBRI_HOME: ${{ runner.temp }}/kolibri_home
+          SCREENSHOT_PATH: ${{ runner.temp }}/smoke_test_screenshot.png
+        working-directory: ${{ runner.temp }}
+        run: python ${{ github.workspace }}/integration_testing/smoke_test.py
+      - name: Upload screenshot
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: smoke_test_screenshot
+          path: ${{ runner.temp }}/smoke_test_screenshot.png
+          if-no-files-found: ignore
   test_whl_file:
     name: Test WHL file
     needs: whl
