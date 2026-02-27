@@ -1,18 +1,21 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent } from '@testing-library/vue';
+import '@testing-library/jest-dom';
 import NextButton from '../NextButton';
 
-function createWrapper() {
-  return mount(NextButton);
-}
+const renderComponent = () => {
+  return render(NextButton, {
+    props: { color: 'black' },
+  });
+};
 
 describe('Next button', () => {
-  it('should mount', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.exists()).toBe(true);
+  it('renders a button accessible as go to next page', () => {
+    renderComponent();
+    expect(screen.getByRole('button', { name: 'Go to next page' })).toBeInTheDocument();
   });
-  it('should emit an event when the button is clicked', () => {
-    const wrapper = createWrapper();
-    wrapper.find('.next-button').trigger('click');
-    expect(wrapper.emitted().goToNextPage).toBeTruthy();
+  it('emits goToNextPage when clicked', async () => {
+    const { emitted } = renderComponent();
+    await fireEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+    expect(emitted()).toHaveProperty('goToNextPage');
   });
 });
