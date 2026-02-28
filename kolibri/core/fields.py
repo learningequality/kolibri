@@ -43,8 +43,8 @@ def parse_timezonestamp(value):
 
 
 def create_timezonestamp(value):
-    if value.tzinfo and hasattr(value.tzinfo, "zone"):
-        # We have a pytz timezone, we can work with this
+    if value.tzinfo and hasattr(value.tzinfo, "zone") and value.tzinfo.zone is not None:
+        # We have a pytz timezone with a named zone, we can work with this
         tz = value.tzinfo.zone
     elif value.tzinfo:
         # Got some timezone data, but it's not a pytz timezone

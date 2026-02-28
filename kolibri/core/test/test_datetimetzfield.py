@@ -3,6 +3,7 @@ from django.test import override_settings
 from django.test import TestCase
 from django.utils import timezone
 
+from kolibri.core.fields import create_timezonestamp
 from kolibri.core.fields import DateTimeTzField as DateTimeTzModelField
 from kolibri.core.fields import parse_timezonestamp
 from kolibri.core.serializers import DateTimeTzField as DateTimeTzSerializerField
@@ -70,6 +71,29 @@ class AwareDateTimeTzFieldTestCase(TestCase):
             )
         finally:
             timezone.deactivate()
+
+    def test_create_timezonestamp_with_non_utc_fixed_offset(self):
+        """
+        Regression test for pytz.FixedOffset with non-zero offset.
+
+        pytz.FixedOffset(180).zone is None (only FixedOffset(0) returns
+        pytz.UTC with zone='UTC'). If a datetime with a non-UTC FixedOffset
+        tzinfo reaches create_timezonestamp, the stored suffix must not
+        become '(None)'.
+        """
+        # A datetime with a non-UTC FixedOffset (e.g., +03:00)
+        tz = pytz.FixedOffset(180)
+        dt = timezone.now().astimezone(tz)
+
+        # Round-trip through create → parse
+        stored = create_timezonestamp(dt)
+
+        # Should fall back to UTC storage since FixedOffset has no named zone
+        self.assertTrue(stored.endswith("(UTC)"))
+
+        # Must be parseable back to the same instant
+        parsed = parse_timezonestamp(stored)
+        self.assertEqual(dt, parsed)
 
     def test_get_prep_value_roundtrips_str_datetime_format(self):
         """

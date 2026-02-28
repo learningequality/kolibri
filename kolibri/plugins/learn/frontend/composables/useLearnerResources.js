@@ -32,13 +32,11 @@ const courseProgress = ref({});
 export function setResumableContentNodes(nodes, more = null) {
   set(_resumableContentNodes, nodes);
   set(moreResumableContentNodes, more);
-  ContentNodeResource.cacheData(nodes);
 }
 
 function addResumableContentNodes(nodes, more = null) {
   set(_resumableContentNodes, [...get(_resumableContentNodes), ...nodes]);
   set(moreResumableContentNodes, more);
-  ContentNodeResource.cacheData(nodes);
 }
 
 function _cacheLessonResources(lesson) {
@@ -69,7 +67,6 @@ export function setClasses(classData) {
 function setCourseData(courseId, content, progress) {
   set(courseContent, { ...get(courseContent), [courseId]: content });
   set(courseProgress, { ...get(courseProgress), [courseId]: progress });
-  ContentNodeResource.cacheData(content);
 }
 
 export default function useLearnerResources() {
@@ -351,6 +348,8 @@ export default function useLearnerResources() {
     fetchContentNodeProgress(params);
     return ContentNodeResource.fetchResume(params).then(({ results, more }) => {
       if (!results || !results.length) {
+        // Clear the more params so the "View more" button is hidden
+        set(moreResumableContentNodes, null);
         return [];
       }
       addResumableContentNodes(results, more);
