@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/vue';
+import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import Bookmarks from '../SideBar/Bookmarks/index.vue';
 
 const outline = [
@@ -76,7 +76,7 @@ describe('Pdf Bookmarks', () => {
     outline.forEach(bookmark => {
       const titleEl = screen.getByText(bookmark.title);
 
-      const bookmarkContainer = titleEl.parentElement.parentElement;
+      const bookmarkContainer = titleEl.closest('li');
 
       if (bookmark.items.length) {
         expect(bookmarkContainer.querySelector('.dropdown-icon')).toBeTruthy();
@@ -92,9 +92,7 @@ describe('Pdf Bookmarks', () => {
       if (!bookmark.items.length) continue;
 
       const titleEl = screen.getByText(bookmark.title);
-      const dropdownBtn = titleEl.parentElement.parentElement.querySelector(
-        '.dropdown-icon-container',
-      );
+      const dropdownBtn = titleEl.closest('li').querySelector('.dropdown-icon-container');
 
       expect(screen.queryByText(bookmark.items[0].title)).not.toBeInTheDocument();
 
@@ -110,16 +108,19 @@ describe('Pdf Bookmarks', () => {
       if (!bookmark.items.length) continue;
 
       const titleEl = screen.getByText(bookmark.title);
-      const dropdownBtn = titleEl.parentElement.parentElement.querySelector(
-        '.dropdown-icon-container',
-      );
+      const dropdownBtn = titleEl.closest('li').querySelector('.dropdown-icon-container');
 
       await fireEvent.click(dropdownBtn);
 
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await waitFor(() => {
+        expect(screen.getByText(bookmark.items[0].title)).toBeInTheDocument();
+      });
+
       await fireEvent.click(dropdownBtn);
 
-      expect(screen.queryByText(bookmark.items[0].title)).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByText(bookmark.items[0].title)).not.toBeInTheDocument();
+      });
     }
   });
 
