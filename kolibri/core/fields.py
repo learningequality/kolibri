@@ -12,19 +12,33 @@ from jsonfield import JSONField as JSONFieldBase
 date_time_format = "%Y-%m-%d %H:%M:%S.%f"
 tz_format = "({tz})"
 tz_regex = re.compile(r"\(([^\)]+)\)")
+offset_regex = re.compile(r"([+-])(\d{2}):(\d{2})$")
 db_storage_string = "{date_time_string}{tz_string}"
 
 
 def parse_timezonestamp(value):
+    # Track what timezone the naive datetime (after typecast_timestamp
+    # strips tz info) should be interpreted as.
+    naive_tz = pytz.utc
     if tz_regex.search(value):
         tz = pytz.timezone(tz_regex.search(value).groups()[0])
     else:
-        tz = timezone.get_current_timezone()
+        offset_match = offset_regex.search(value)
+        if offset_match:
+            # Handle +HH:MM / -HH:MM offset format (produced by str(datetime))
+            sign = 1 if offset_match.group(1) == "+" else -1
+            hours = int(offset_match.group(2))
+            minutes = int(offset_match.group(3))
+            tz = pytz.FixedOffset(sign * (hours * 60 + minutes))
+            naive_tz = tz
+            value = value[: offset_match.start()]
+        else:
+            tz = timezone.get_current_timezone()
     utc_value = tz_regex.sub("", value)
     value = typecast_timestamp(utc_value)
     if value.tzinfo is None:
         # Naive datetime, make aware
-        value = timezone.make_aware(value, pytz.utc)
+        value = timezone.make_aware(value, naive_tz)
     return value.astimezone(tz)
 
 
