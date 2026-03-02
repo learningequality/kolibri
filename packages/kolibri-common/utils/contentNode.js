@@ -25,10 +25,10 @@ export function deduplicateResources(contentNodes) {
       // Everything else
       return 2;
     });
-    const primaryNode = sortedNodes[0];
-    // Include self in copies
-    primaryNode.copies = sortedNodes;
-    return primaryNode;
+    // Return a shallow copy with copies set, so we don't mutate the original
+    // objects stored in reactive refs. Mutating originals causes copies to
+    // accumulate when the computed re-runs after new nodes are appended.
+    return { ...sortedNodes[0], copies: sortedNodes };
   });
 }
 

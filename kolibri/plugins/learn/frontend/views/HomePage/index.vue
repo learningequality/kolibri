@@ -88,6 +88,7 @@
   import urls from 'kolibri/urls';
   import useUser from 'kolibri/composables/useUser';
   import useChannels from 'kolibri-common/composables/useChannels';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { mapState } from 'vuex';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useDeviceSettings from '../../composables/useDeviceSettings';
@@ -206,10 +207,12 @@
             // Update our hydrated class membership boolean in case it has changed
             // since the learn page was opened.
             set(inClasses, Boolean(response.data.classrooms.length));
+            const resumableResults = response.data.resumable_resources.results || [];
             setResumableContentNodes(
-              response.data.resumable_resources.results || [],
+              resumableResults,
               response.data.resumable_resources.more || null,
             );
+            ContentNodeResource.cacheData(resumableResults);
             for (const progress of response.data.resumable_resources_progress) {
               setContentNodeProgress(progress);
             }
