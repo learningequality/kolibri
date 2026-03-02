@@ -3,6 +3,88 @@
 List of the most important changes for each release.
 
 
+## 0.19.2
+
+### High level overview
+
+This release introduces the Courses feature, enabling coaches to create structured course-based learning pathways with units, pre/post-tests, and recipient assignments. The release also migrates the JavaScript package manager from yarn to pnpm, continues Python 2.7 cleanup efforts with community contributions, and includes various bug fixes and developer tooling improvements.
+
+### Added
+
+####  Courses Feature
+  - Courses frontend setup by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14077
+  - Create courses models and viewset by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14091
+  - Add select courses and recipients subpages by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14103
+  - Add Course Session Context to Progress Tracking by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/14116
+  - Learn Course Assignments API Endpoints by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/14113
+  - Add UnitTestAssignment model for managing pre/post tests in course units by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14115
+  - Implement Course list data loading and display by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14114
+  - ResourceLayout component architecture for course content display by @rtibbles in https://github.com/learningequality/kolibri/pull/14109
+  - Add API endpoints for activating/closing quizzes & returning active quiz by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14121
+  - Course Preview by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14117
+  - Add course unit view by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14128
+  - Course unit view 2 by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14145
+  - Course welcome view by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/14146
+  - Course cards homepage by @marcellamaki in https://github.com/learningequality/kolibri/pull/14122
+  - Pre/Post-Tests Activation UI by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14147
+  - Add confirmation modal to prevent accidental closure of Course Assignment Side Panel by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/14150
+
+####  Sync & Backend
+  - Add sync operations and filter utilities for classroom partitioning by @bjester in https://github.com/learningequality/kolibri/pull/14070
+  - Implement new deserialization logic according to sync_filter by @ozer550 in https://github.com/learningequality/kolibri/pull/14148
+
+####  Developer Tooling
+  - Add AI agent documentation and multi-agent isolation support by @rtibbles in https://github.com/learningequality/kolibri/pull/14144
+  - Add documentation indicating that APIs are internal by @rtibbles in https://github.com/learningequality/kolibri/pull/14090
+  - Add ESLint rule to prevent RTL-breaking inline styles by @rtibbles in https://github.com/learningequality/kolibri/pull/14093
+  - Add linting to prevent non-scoped lodash/dateFn imports by @rtibbles in https://github.com/learningequality/kolibri/pull/14125
+  - Add browser smoke test to PR build workflow by @rtibbles in https://github.com/learningequality/kolibri/pull/14153
+  - Add hashing to font CSS and WOFF generation by @rtibbles in https://github.com/learningequality/kolibri/pull/14088
+
+###  Developer-facing improvements
+
+####  Build & Infrastructure
+  - Migrate from yarn to pnpm by @rtibbles in https://github.com/learningequality/kolibri/pull/14086
+  - Restore frontend linting and fix issues that happened in the interim by @rtibbles in https://github.com/learningequality/kolibri/pull/14126
+  - Prevent traversal of symlinks in node_modules during egg info generation by @rtibbles in https://github.com/learningequality/kolibri/pull/14127
+  - Migrate from tibdex/github-app-token to actions/create-github-app-token by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14206
+  - Update ignores for worktrees and JetBrains features by @bjester in https://github.com/learningequality/kolibri/pull/14162
+  - Slim down agents.md with progressive disclosure and moving more into Claude.md by @rtibbles in https://github.com/learningequality/kolibri/pull/14164
+  - Install kolibri in i18n-upload workflow by @rtibbles in https://github.com/learningequality/kolibri/pull/14239
+  - Fix invocations of i18n commands and ignores by @rtibbles in https://github.com/learningequality/kolibri/pull/14247
+
+####  Tech debt / refactors
+  - Replace CSS Variables in favor of theme variable for css styling by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14089
+  - Removes residue style overrides prop code by @akolson in https://github.com/learningequality/kolibri/pull/14112
+  - Remove no longer needed overflow: unset by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14202
+  - Clean up localeCompare usage for proper internationalization (fixes #3888) by @rtibbles in https://github.com/learningequality/kolibri/pull/14087
+  - Update kolibri-zip with support for css import statements, fix browser compatibility by @rtibbles in https://github.com/learningequality/kolibri/pull/14085
+
+####  Python 2.7 Cleanup
+  - Remove unnecessary UTF-8 coding declarations from Python files by @manocormen in https://github.com/learningequality/kolibri/pull/14215
+  - Remove explicit object base class from Python classes by @manocormen in https://github.com/learningequality/kolibri/pull/14224
+  - Clean up outdated Python 2.7 comments and unicode string literals by @curiouscoder-cmd in https://github.com/learningequality/kolibri/pull/14227
+  - Remove Python 2 compatibility shims by @sharma-anushka in https://github.com/learningequality/kolibri/pull/14226
+
+####  Translations
+  - Update translations from Crowdin for release-v0.19.x by @learning-equality-bot[bot] in https://github.com/learningequality/kolibri/pull/14249
+
+### Fixed
+  - Better handle unclean server shutdown by @rtibbles in https://github.com/learningequality/kolibri/pull/14123
+  - Fix missing dep in Coach by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14098
+  - Fix flaky Python tests: ordering, network mocking, and missing request mocks by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14177
+  - Fixes notification for no resources on the device being shown when no exercises exist by @akolson in https://github.com/learningequality/kolibri/pull/14288
+  - "Resume" card display and progress fixes by @marcellamaki in https://github.com/learningequality/kolibri/pull/14289
+  - Resume pagination fixes by @rtibbles in https://github.com/learningequality/kolibri/pull/14313
+  - Better missing resources handling by @akolson in https://github.com/learningequality/kolibri/pull/14201
+  - Unprovisioned URL Redirect (+ remove dead code) by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14200
+  - Prevent double scrollbar in side panel modal by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14228
+  - Reset selection after applying filter by @AllanOXDi in https://github.com/learningequality/kolibri/pull/13880
+  - Retry peeruserimport task on Database or connection errors by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/13821
+  - Fix The 'Recipients' drop-down to show groups list by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14156
+  - Fixes TypeError on clicking 'Select recipients' from the course details page by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14160
+
+
 ## 0.19.1
 
 ### High level overview
