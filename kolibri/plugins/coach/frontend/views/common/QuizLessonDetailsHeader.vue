@@ -14,7 +14,7 @@
         <h1 class="exam-title">
           <!-- KLabeledIcon does not have an 'exam' token, but rather 'quiz' -->
           <KLabeledIcon
-            :icon="examOrLesson === 'exam' ? 'quiz' : 'lesson'"
+            :icon="icon"
             :label="resource.title"
           />
         </h1>
@@ -103,7 +103,7 @@
         return this.lessonMap[this.$route.params.lessonId] || {};
       },
       resource() {
-        return this.examOrLesson === 'lesson' ? this.lesson : this.exam;
+        return this.isExam ? this.exam : this.lesson;
       },
       isActive() {
         return this.exam.active;
@@ -120,6 +120,12 @@
       hasChannels() {
         return this.channels.length > 0;
       },
+      isExam() {
+        return this.examOrLesson === 'exam';
+      },
+      icon() {
+        return this.isExam ? 'quiz' : 'lesson';
+      },
     },
     async mounted() {
       await this.loadChannels();
@@ -128,7 +134,8 @@
       async loadChannels() {
         this.loading = true;
         try {
-          this.channels = await this.fetchChannels({ contains_exercise: true });
+          const params = this.isExam ? { contains_exercise: true } : {};
+          this.channels = await this.fetchChannels(params);
         } finally {
           this.loading = false;
         }
