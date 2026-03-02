@@ -750,7 +750,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["unit_contentnode_id"], self.unit.id)
         self.assertEqual(response.data["test_type"], "pre")
-        self.assertEqual(response.data["status"], "active")
+        self.assertEqual(response.data["closed"], False)
 
         # Verify UnitTestAssignment was created
         assignment = models.UnitTestAssignment.objects.get(
@@ -758,8 +758,7 @@ class UnitTestActivationAPITestCase(APITestCase):
             unit_contentnode_id=self.unit.id,
             test_type="pre",
         )
-        self.assertTrue(assignment.is_active)
-        self.assertEqual(assignment.status, "active")
+        self.assertFalse(assignment.closed)
         self.assertEqual(assignment.activated_by, self.coach)
 
     def test_coach_can_activate_post_test(self):
@@ -770,7 +769,7 @@ class UnitTestActivationAPITestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["test_type"], "post")
-        self.assertEqual(response.data["status"], "active")
+        self.assertEqual(response.data["closed"], False)
 
     def test_admin_can_activate_test(self):
         """Test that an admin can activate a test"""
@@ -869,7 +868,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["unit_contentnode_id"], self.unit.id)
         self.assertEqual(response.data["test_type"], "pre")
-        self.assertEqual(response.data["status"], "ended")
+        self.assertEqual(response.data["closed"], True)
 
         # Verify the test is no longer active
         assignment = models.UnitTestAssignment.objects.get(
@@ -877,8 +876,7 @@ class UnitTestActivationAPITestCase(APITestCase):
             unit_contentnode_id=self.unit.id,
             test_type="pre",
         )
-        self.assertFalse(assignment.is_active)
-        self.assertEqual(assignment.status, "ended")
+        self.assertTrue(assignment.closed)
 
     def test_close_test_validation_mismatch_unit(self):
         """Test that closing a test with mismatched unit_contentnode_id fails"""
@@ -937,7 +935,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         self.assertEqual(response.data["unit_contentnode_id"], self.unit.id)
         self.assertEqual(response.data["unit_title"], "Test Unit")
         self.assertEqual(response.data["test_type"], "pre")
-        self.assertEqual(response.data["status"], "active")
+        self.assertEqual(response.data["closed"], False)
         self.assertIsNotNone(response.data["activated_by"])
         self.assertEqual(response.data["activated_by"]["username"], "coach")
         self.assertEqual(response.data["activated_by"]["id"], self.coach.id)
