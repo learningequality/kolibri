@@ -4,7 +4,7 @@ import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionReso
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import useSnackbar from 'kolibri/composables/useSnackbar';
-import { TestStatus, TestType } from '../constants/courseConstants';
+import { TestType } from '../constants/courseConstants';
 
 const {
   unitNLabel$,
@@ -34,9 +34,13 @@ export default function useCourseSession(courseSessionId) {
   const courseSession = ref(null);
   const course = ref(null);
   const lastUnitTest = ref(null);
-  const activeTest = computed(() =>
-    lastUnitTest?.value?.status === TestStatus.ACTIVE ? lastUnitTest.value : null,
-  );
+  // A test is active if it exists and is not closed
+  const activeTest = computed(() => {
+    const test = lastUnitTest.value;
+    if (!test || !test.id) return null;
+    return test.closed === false ? test : null;
+  });
+
   // UI blocking loading state
   const pageLoading = ref(true);
   // Informative loading state (ie, we're re-fetching the last unit test, activating/closing)
