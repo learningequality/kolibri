@@ -635,6 +635,7 @@ class CourseSessionViewset(ValuesViewset):
                     "id": None,
                     "unit_contentnode_id": None,
                     "test_type": None,
+                    "closed": None,
                     "activated_by": None,
                     **course_state,
                 },

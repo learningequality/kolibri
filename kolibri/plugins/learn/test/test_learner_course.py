@@ -78,28 +78,6 @@ class LearnerCourseTestCase(APITestCase):
             lesson = self._create_lesson(unit, f"Lesson {i+1}", resources)
             new_lessons.append(lesson)
 
-        # if test_type and test_type is TestType.Pre:
-        #     pre_test = UnitTestAssignment.objects.create(
-        #         course_session=course_session,
-        #         unit_contentnode_id=unit.id,
-        #         collection=self.classroom,
-        #         test_type=TestType.Pre,
-        #         closed=False,
-        #     )
-        # else:
-        #     pre_test = None
-
-        # if test_type and test_type is TestType.Post:
-        #     post_test = UnitTestAssignment.objects.create(
-        #         course_session=course_session,
-        #         unit_contentnode_id=unit.id,
-        #         collection=self.classroom,
-        #         test_type=TestType.Post,
-        #         closed=False,
-        #     )
-        # else:
-        #     post_test = None
-
         return unit, new_lessons
 
     def _create_course(self, units, lessons, resources):

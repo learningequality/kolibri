@@ -1175,11 +1175,11 @@ class LastUnitTestAPITestCase(APITestCase):
     def _create_tests_to(self, unit, test_type):
         """Create all UnitTestAssignments up to and including the given step.
 
-        All steps before the target are created as "ended"; the target step
-        is created with ``status_val``.  Returns the last created assignment.
+        All steps before the target are created with closed=True; the target step
+        is created with closed=False.  Returns the last created assignment.
 
         e.g. _create_tests_to(self.unit2, "post") creates:
-          unit1/pre=ended, unit1/post=ended, unit2/pre=ended, unit2/post=active
+        unit1/pre=closed, unit1/post=closed, unit2/pre=closed, unit2/post=active
         """
         steps = [
             (self.unit1, "pre"),
@@ -1442,11 +1442,12 @@ class LastUnitTestAPITestCase(APITestCase):
         self.assertIn("unit_contentnode_id", response.data)
         self.assertIn("test_type", response.data)
         self.assertIn("closed", response.data)
+        self.assertIn("activated_by", response.data)
         self.assertEqual(response.data["id"], str(test.id))
 
     # --- unit_phase and active_unit_index tests ---
 
-    def test_unit_phase_(self):
+    def test_unit_phase_pre_test_active(self):
         """unit_phase should be pre_test_active when a pre-test is running"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
         self._create_tests_to(self.unit1, "pre")
