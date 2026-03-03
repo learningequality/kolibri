@@ -143,6 +143,27 @@ def forward_port_cgi_module():
     sys.modules["cgi"] = module
 
 
+def monkey_patch_pkgutil():
+    """
+    Monkey patch pkgutil.find_loader which was removed in Python 3.14.
+    django-filter 21.1 uses it at import time.
+    This can be removed when we upgrade to a version of django-filter
+    that is Python 3.14 compatible.
+    """
+    if sys.version_info < (3, 14):
+        return
+    import importlib.util
+    import pkgutil
+
+    def _find_loader(fullname):
+        spec = importlib.util.find_spec(fullname)
+        if spec is None:
+            return None
+        return spec.loader
+
+    pkgutil.find_loader = _find_loader
+
+
 def set_env():
     """
     Sets the Kolibri environment for the CLI or other application worker
@@ -155,6 +176,7 @@ def set_env():
 
     monkey_patch_markdown()
     monkey_patch_distutils()
+    monkey_patch_pkgutil()
 
     from kolibri import dist as kolibri_dist  # noqa
 
