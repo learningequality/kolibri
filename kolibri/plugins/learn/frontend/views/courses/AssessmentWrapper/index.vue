@@ -1,4 +1,4 @@
-<template v-if="ready">
+<template>
 
   <ResourceLayout>
     <template #default>

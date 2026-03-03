@@ -83,7 +83,7 @@
    */
   export default {
     name: 'CourseContentViewer',
-    emits: ['finished'],
+    emits: ['finished', 'next'],
     components: {
       AssessmentWrapper,
     },
