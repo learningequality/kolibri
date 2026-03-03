@@ -187,9 +187,7 @@
   import Modalities from 'kolibri-constants/Modalities';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
-  import { useRoute, useRouter } from 'vue-router/composables';
   import TimeDuration from 'kolibri-common/components/TimeDuration.vue';
-  import { PageNames } from '../../../constants';
   import { injectCourseContentProgress } from '../useCourseContentProgressTracking';
   import useContentNodeProgress from '../../../composables/useContentNodeProgress';
   import useBookmarks from '../../../composables/useBookmarks';
@@ -205,9 +203,6 @@
       TimeDuration,
     },
     setup(props, { emit }) {
-      const router = useRouter();
-      const route = useRoute();
-
       const {
         sessionReady: currentResourceProgressSessionReady,
         handleUpdateProgress: handleUpdateCurrentResourceProgress,
@@ -245,14 +240,7 @@
       };
 
       const onResourceClick = resource => {
-        router.replace({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            ...route.params,
-            resourceId: resource.id,
-            lessonId: resource.parent,
-          },
-        });
+        emit('navigateToResource', resource);
       };
 
       const onCompleteClick = () => {

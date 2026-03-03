@@ -1,6 +1,6 @@
 <script>
 
-  import { h, ref } from 'vue';
+  import { computed, h, ref } from 'vue';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import SidePanelModal from 'kolibri-common/components/courses/sidePanel/SidePanelModal';
@@ -27,13 +27,17 @@
    * @slot bottomBar      - Bottom bar content (claimable by nested ResourceLayouts)
    * @slot sidePanelTopBar   - Side panel header/title area (non-claimable)
    * @slot sidePanelFooter   - Side panel footer (claimable by nested ResourceLayouts)
+   *
+   * Exposes:
+   * - onSidePanelNavigation() - to be called by parent components when navigation occurs due to
+   *   an action on the side panel, so the panel can be closed in modal mode.
    */
   export default {
     name: 'ResourceLayout',
     components: {
       SidePanelModal,
     },
-    setup(props, { slots }) {
+    setup(props, { slots, expose }) {
       const { windowBreakpoint } = useKResponsiveWindow();
       const $themeTokens = themeTokens();
 
@@ -168,6 +172,21 @@
         }
       }
 
+      const isSidePanelModalMode = computed(() => windowBreakpoint.value <= 2);
+
+      /**
+       * Public method to close the side panel if open and in modal mode.
+       * Called by parent components when navigation occurs due to an action on the
+       * side panel.
+       */
+      function onSidePanelNavigation() {
+        if (sidePanelOpen.value && isSidePanelModalMode.value) {
+          closeSidePanel();
+        }
+      }
+
+      expose({ onSidePanelNavigation });
+
       return () => {
         // Nested ResourceLayouts: register slots with parent and render only default content
         if (isNested) {
@@ -193,9 +212,9 @@
         // === TOP-LEVEL RENDERING ===
         const hasSidePanelContent = sidePanel.hasContent();
         const showPushPanel =
-          hasSidePanelContent && sidePanelOpen.value && windowBreakpoint.value > 2;
+          hasSidePanelContent && sidePanelOpen.value && !isSidePanelModalMode.value;
         const showModalPanel =
-          hasSidePanelContent && sidePanelOpen.value && windowBreakpoint.value <= 2;
+          hasSidePanelContent && sidePanelOpen.value && isSidePanelModalMode.value;
         const hasTopBar = slots.topBar || hasSidePanelContent;
 
         // === TOP BAR with KToolbar ===
