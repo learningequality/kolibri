@@ -76,7 +76,10 @@ def get_remote_users_info(baseurl, facility_id, username, password, client=None)
                     detail="Password is required", code=error_constants.MISSING_PASSWORD
                 )
         else:
-            raise ResourceGoneError()
+            raise AuthenticationFailed(
+                detail="Authentication failed",
+                code=error_constants.AUTHENTICATION_FAILED,
+            )
     auth_info = response.json()
     if len(auth_info) > 1:
         user_info = [u for u in response.json() if u["username"] == username][0]
