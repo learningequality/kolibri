@@ -43,16 +43,9 @@ describe('Settings side bar', () => {
   it('renders expected theme options', () => {
     renderSettingsSideBar();
 
-    const themeLabels = [
-      'Set white theme',
-      'Set beige theme',
-      'Set grey theme',
-      'Set black theme',
-    ];
+    const themeLabels = ['Set white theme', 'Set beige theme', 'Set grey theme', 'Set black theme'];
 
-    const renderedThemes = themeLabels.filter(label =>
-      screen.queryByLabelText(label)
-    );
+    const renderedThemes = themeLabels.filter(label => screen.queryByLabelText(label));
 
     expect([2, 3, 4, 6]).toContain(renderedThemes.length);
   });
