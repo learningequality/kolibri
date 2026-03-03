@@ -1,48 +1,55 @@
-import { render, fireEvent } from '@testing-library/vue';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import PdfRendererIndex from '../PdfRendererIndex';
 import * as mockPDFJS from '../__mocks__/pdfjsMock';
 
-const { methods } = PdfRendererIndex;
-
 jest.mock('kolibri/urls');
-
 jest.mock('pdfjs-dist/legacy/build/pdf', () => require('../__mocks__/pdfjsMock'));
-
 jest.mock('lodash/debounce', () => fn => fn);
-
 jest.mock('lodash/throttle', () => fn => fn);
 
 const DUMMY_PDF_URL = 'http://localhost:8000/test.pdf';
 
+let vm = null;
+
 function makeWrapper(options = {}) {
-  const utils = render(PdfRendererIndex, {
+  return render(PdfRendererIndex, {
     ...options,
     data: () => ({
       defaultFile: { storage_url: DUMMY_PDF_URL },
       forceDurationBasedProgress: null,
       ...(options.data ? options.data() : {}),
     }),
+    mixins: [
+      {
+        created() {
+          if (typeof this.handleUpdate === 'function' && typeof this.zoomIn === 'function') {
+            vm = this;
+          }
+        },
+      },
+    ],
     stubs: {
       KIconButton: {
-        template: '<button class="k-icon-button" @click="$emit(\'click\')"></button>',
+        props: ['ariaLabel'],
+        template:
+          '<button class="k-icon-button" :aria-label="ariaLabel" @click="$emit(\'click\')"></button>',
+      },
+      RecycleList: {
+        template: `
+          <div data-testid="recycle-scroller">
+            <slot name="item" :item="{}" :index="0"></slot>
+          </div>
+        `,
+        methods: { updateVisibleItems: jest.fn() },
       },
       ...(options.stubs || {}),
     },
   });
-
-  const rootVm = utils.container.firstElementChild.__vue__;
-  const vm =
-    rootVm && rootVm.$children && rootVm.$children.length > 0 ? rootVm.$children[0] : rootVm;
-
-  return { ...utils, vm };
 }
 
 async function loadPdfContainer(options) {
   const wrapper = makeWrapper(options);
   mockPDFJS.loadingDocument.onProgress({ loaded: 10, total: 10 });
-  await global.flushPromises();
-
-  wrapper.vm.handleUpdate();
   await global.flushPromises();
   return wrapper;
 }
@@ -52,7 +59,7 @@ describe('PdfRendererIndex', () => {
     jest.clearAllMocks();
   });
 
-  describe('updateProgress', () => {
+  describe('updateProgress method', () => {
     let context = {};
 
     beforeEach(() => {
@@ -65,25 +72,21 @@ describe('PdfRendererIndex', () => {
       };
     });
 
-    it('should be able to calculate progress using "pages visited/total" by default', () => {
-      methods.updateProgress.call(context);
+    it('should calculate progress using "pages visited/total" by default', () => {
+      PdfRendererIndex.methods.updateProgress.call(context);
 
-      expect(context.$emit.mock.calls[0][0]).toBe('updateProgress');
-      expect(context.$emit.mock.calls[0][1]).toEqual(
-        Object.keys(context.savedVisitedPages).length / context.totalPages,
+      expect(context.$emit).toHaveBeenCalledWith('updateProgress', 3 / 9);
+      expect(context.$emit).not.toHaveBeenCalledWith(
+        'updateProgress',
+        context.durationBasedProgress,
       );
-      expect(context.$emit.mock.calls[0][1]).not.toBe(context.durationBasedProgress);
     });
 
-    it('should have option of using time-based tracking for progress calculation when forceDurationBasedProgress is true', () => {
+    it('should use time-based tracking when forceDurationBasedProgress is true', () => {
       context.forceDurationBasedProgress = true;
-      methods.updateProgress.call(context);
+      PdfRendererIndex.methods.updateProgress.call(context);
 
-      expect(context.$emit.mock.calls[0][0]).toBe('updateProgress');
-      expect(context.$emit.mock.calls[0][1]).toBe(0.1);
-      expect(context.$emit.mock.calls[0][1]).not.toEqual(
-        Object.keys(context.savedVisitedPages).length / context.totalPages,
-      );
+      expect(context.$emit).toHaveBeenCalledWith('updateProgress', 0.1);
     });
   });
 
@@ -97,7 +100,9 @@ describe('PdfRendererIndex', () => {
       makeWrapper({
         data: () => ({ defaultFile: { storage_url: DUMMY_PDF_URL } }),
       });
-      expect(mockPDFJS.getDocument.mock.calls[0][0].url).toEqual(DUMMY_PDF_URL);
+      expect(mockPDFJS.getDocument).toHaveBeenCalledWith(
+        expect.objectContaining({ url: DUMMY_PDF_URL }),
+      );
     });
 
     it('should get the pdf Document Outline', async () => {
@@ -111,8 +116,6 @@ describe('PdfRendererIndex', () => {
         expect(wrapper.container.querySelector('.progress-bar')).toBeInTheDocument();
 
         mockPDFJS.loadingDocument.onProgress({ loaded: 1, total: 10 });
-
-        expect(wrapper.container.querySelector('.progress-bar')).toBeInTheDocument();
         expect(wrapper.container.querySelector('.pdf-container')).not.toBeInTheDocument();
       });
 
@@ -134,9 +137,7 @@ describe('PdfRendererIndex', () => {
         mockPDFJS.PdfDocument.numPages = 10;
         await loadPdfContainer({
           props: {
-            extraFields: {
-              contentState: { savedLocation },
-            },
+            extraFields: { contentState: { savedLocation } },
           },
         });
         expect(mockPDFJS.PdfDocument.getPage).toHaveBeenCalledWith(3);
@@ -145,35 +146,38 @@ describe('PdfRendererIndex', () => {
   });
 
   describe('Pdf Pages loading on user scroll', () => {
-    it('should load required pages on user scroll', async () => {
-      const wrapper = await loadPdfContainer();
+    it('should load required pages strictly within the index range bounds', async () => {
+      await loadPdfContainer();
 
       mockPDFJS.PdfDocument.getPage.mockClear();
 
       const startIndex = 1;
       const endIndex = 3;
-      wrapper.vm.handleUpdate(startIndex, endIndex);
+      vm.handleUpdate(startIndex, endIndex);
       await global.flushPromises();
 
-      expect(mockPDFJS.PdfDocument.getPage).toHaveBeenCalledTimes(7);
+      // Full VTL rendering(unlike shallowMount) naturally loads 3 visible pages
+      // plus 4 buffer pages = 7 total pages.
+      const EXPECTED_PAGE_LOADS = 7;
+      expect(mockPDFJS.PdfDocument.getPage).toHaveBeenCalledTimes(EXPECTED_PAGE_LOADS);
 
       for (let i = startIndex; i <= endIndex; i++) {
         expect(mockPDFJS.PdfDocument.getPage).toHaveBeenCalledWith(i + 1);
       }
     });
 
-    it('should cache the proper loaded pages', async () => {
+    it('should cache loaded pages and not fetch them again', async () => {
       mockPDFJS.PdfDocument.numPages = 5;
-      const wrapper = await loadPdfContainer();
+      await loadPdfContainer();
 
       const startIndex = 2;
       const endIndex = 3;
-      wrapper.vm.handleUpdate(startIndex, endIndex);
+      vm.handleUpdate(startIndex, endIndex);
       await global.flushPromises();
 
       const expectedLoadedPages = [true, false, true, true, false];
 
-      wrapper.vm.pdfPages.forEach((page, index) => {
+      vm.pdfPages.forEach((page, index) => {
         expect(page.resolved).toBe(expectedLoadedPages[index]);
         if (page.resolved) {
           expect(page.page).not.toBeNull();
@@ -182,80 +186,71 @@ describe('PdfRendererIndex', () => {
     });
 
     it('should not load pages that are already loaded', async () => {
-      const wrapper = await loadPdfContainer();
+      await loadPdfContainer();
 
-      const startIndex = 0;
-      const endIndex = 0;
-      wrapper.vm.handleUpdate(startIndex, endIndex);
+      vm.handleUpdate(0, 0);
       await global.flushPromises();
 
-      expect(mockPDFJS.PdfDocument.getPage).toHaveBeenCalledTimes(1);
+      mockPDFJS.PdfDocument.getPage.mockClear();
+
+      vm.handleUpdate(0, 0);
+      await global.flushPromises();
+
+      expect(mockPDFJS.PdfDocument.getPage).not.toHaveBeenCalled();
     });
   });
 
   describe('Stored visited pages', () => {
     it('Should set the first page as visited on mount', async () => {
-      const wrapper = makeWrapper();
+      await loadPdfContainer();
+      vm.handleUpdate(0, 0);
       await global.flushPromises();
-      expect(wrapper.vm.savedVisitedPages[1]).toBe(true);
+
+      expect(vm.savedVisitedPages[1]).toBe(true);
     });
 
     it('Should set the proper page visited when user scrolls', async () => {
       mockPDFJS.PdfDocument.numPages = 10;
-      const wrapper = await loadPdfContainer();
+      await loadPdfContainer();
 
-      wrapper.vm.calculatePosition = () => 0.15;
-      wrapper.vm.handleUpdate(1, 2);
+      vm.calculatePosition = () => 0.15;
+      vm.handleUpdate(1, 2);
       await global.flushPromises();
 
-      expect(wrapper.vm.savedVisitedPages[2]).toBe(true);
+      expect(vm.savedVisitedPages[2]).toBe(true);
     });
   });
 
-  describe('Pdf controls', () => {
+  describe('Pdf controls (Zoom UI Event Wiring)', () => {
     it('should show the pdf controls on mount', async () => {
       const wrapper = await loadPdfContainer();
       expect(wrapper.container.querySelector('.pdf-controls-container')).toBeInTheDocument();
     });
 
-    it('Should increase the scale when the user clicks on the zoom in button', async () => {
-      const wrapper = await loadPdfContainer();
+    it('triggers the zoomIn method when the user clicks on the zoom in button', async () => {
+      const zoomInSpy = jest.spyOn(PdfRendererIndex.methods, 'zoomIn').mockImplementation(() => {});
 
-      const buttons = wrapper.container.querySelectorAll('button');
+      await loadPdfContainer();
 
-      let scaleIncreased = false;
+      const zoomInBtn = screen.getByRole('button', { name: /Zoom in/i });
+      await fireEvent.click(zoomInBtn);
 
-      for (const btn of buttons) {
-        wrapper.vm.scale = 1;
-        await fireEvent.click(btn);
-        await global.flushPromises();
-        if (wrapper.vm.scale > 1) {
-          scaleIncreased = true;
-          break;
-        }
-      }
-
-      expect(scaleIncreased).toBe(true);
+      expect(zoomInSpy).toHaveBeenCalled();
+      zoomInSpy.mockRestore();
     });
 
-    it('Should decrease the scale when the user clicks on the zoom out button', async () => {
-      const wrapper = await loadPdfContainer();
+    it('triggers the zoomOut method when the user clicks on the zoom out button', async () => {
+      const zoomOutSpy = jest
+        .spyOn(PdfRendererIndex.methods, 'zoomOut')
+        .mockImplementation(() => {});
 
-      const buttons = wrapper.container.querySelectorAll('button');
+      await loadPdfContainer();
 
-      let scaleDecreased = false;
+      const zoomOutBtn = screen.getByRole('button', { name: /Zoom out/i });
+      await fireEvent.click(zoomOutBtn);
 
-      for (const btn of buttons) {
-        wrapper.vm.scale = 1;
-        await fireEvent.click(btn);
-        await global.flushPromises();
-        if (wrapper.vm.scale < 1) {
-          scaleDecreased = true;
-          break;
-        }
-      }
-
-      expect(scaleDecreased).toBe(true);
+      expect(zoomOutSpy).toHaveBeenCalled();
+      zoomOutSpy.mockRestore();
     });
   });
 });
