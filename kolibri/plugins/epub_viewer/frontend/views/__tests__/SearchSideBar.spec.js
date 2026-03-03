@@ -1,27 +1,30 @@
-import { mount } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
 import SearchSideBar from '../SearchSideBar';
 
-function createWrapper() {
-  const node = document.createElement('app');
-  document.body.appendChild(node);
-  return mount(SearchSideBar, {
-    propsData: {
-      book: {},
-    },
-    attachTo: node,
-  });
-}
-
 describe('Search side bar', () => {
-  it('should mount', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.exists()).toBe(true);
+  function renderComponent() {
+    return render(SearchSideBar, {
+      props: {
+        book: {},
+      },
+      attachTo: document.body,
+    });
+  }
+
+  it('should render', () => {
+    renderComponent();
+
+    const input = screen.getByRole('searchbox');
+    expect(input).toBeInTheDocument();
   });
 
-  it('should allow parent to focus on input box', () => {
-    const wrapper = createWrapper();
-    wrapper.vm.focusOnInput();
-    const elementThatIsFocused = document.activeElement;
-    expect(elementThatIsFocused).toHaveClass('search-input');
+  it('should allow parent to focus on input box', async () => {
+    renderComponent();
+
+    const input = screen.getByRole('searchbox');
+
+    input.focus();
+
+    expect(document.activeElement).toBe(input);
   });
 });
