@@ -779,6 +779,36 @@ class ProgressTrackingPrePostTestSessionTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    def test_mastery_log_has_negative_mastery_level(self):
+        """Pre/post tests use negative mastery_level like quizzes."""
+        self._start_pre_post_session("pre")
+        mastery_log = MasteryLog.objects.get()
+        self.assertLess(mastery_log.mastery_level, 0)
+
+    def test_session_resumption_returns_existing_mastery_log(self):
+        """Re-starting the same test resumes the existing mastery log."""
+        r1 = self._start_pre_post_session("pre")
+        mastery_level_1 = r1.json()["context"]["mastery_level"]
+        r2 = self._start_pre_post_session("pre")
+        mastery_level_2 = r2.json()["context"]["mastery_level"]
+        self.assertEqual(mastery_level_1, mastery_level_2)
+        self.assertEqual(MasteryLog.objects.count(), 1)
+
+    def test_pre_and_post_create_separate_mastery_logs(self):
+        """Pre-test and post-test create separate mastery logs (different content_ids)."""
+        self._start_pre_post_session("pre")
+        self._start_pre_post_session("post")
+        self.assertEqual(MasteryLog.objects.count(), 2)
+
+    def test_response_includes_pastattempts_and_totalattempts(self):
+        """Response includes attempt tracking fields."""
+        response = self._start_pre_post_session("pre")
+        result = response.json()
+        self.assertIn("pastattempts", result)
+        self.assertIn("totalattempts", result)
+        self.assertEqual(result["totalattempts"], 0)
+        self.assertEqual(result["complete"], False)
+
 
 class ProgressTrackingViewSetStartSessionResumeTestCase(APITestCase):
     databases = "__all__"

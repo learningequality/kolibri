@@ -580,7 +580,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         start_timestamp,
         context,
     ):
-        is_quiz = mastery_model["type"] == exercises.QUIZ
+        is_quiz = mastery_model["type"] in (exercises.QUIZ, exercises.PRE_POST_TEST)
         masterylogs = MasteryLog.objects.filter(
             summarylog=summarylog,
             user=user,
@@ -667,7 +667,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             attemptlogs = attemptlogs[: mastery_criterion["n"]]
         elif exercise_type in MAPPING:
             attemptlogs = attemptlogs[: MAPPING[exercise_type]]
-        elif exercise_type == exercises.QUIZ:
+        elif exercise_type in (exercises.QUIZ, exercises.PRE_POST_TEST):
             attemptlogs = attemptlogs.order_by()
         else:
             attemptlogs = attemptlogs[:10]
