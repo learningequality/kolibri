@@ -21,7 +21,6 @@ from rest_framework.status import HTTP_404_NOT_FOUND
 
 from .models import CourseSession
 from .models import CourseSessionAssignment
-from .models import TestStatus
 from .models import TestType
 from .models import UnitPhase
 from .models import UnitTestAssignment
@@ -321,7 +320,7 @@ def _compute_course_state(course_id, test):
         "active_unit_id": str(first_unit_id) if first_unit_id else None,
     }
 
-    if not test or test.status == TestStatus.NotStarted:
+    if not test:
         return initial_state
 
     # Look up the unit's tree position for ordering
@@ -331,7 +330,7 @@ def _compute_course_state(course_id, test):
         .first()
     )
 
-    if test.status == TestStatus.Active:
+    if test.closed is False:
         unit_phase = (
             UnitPhase.PreTestActive
             if test.test_type == TestType.Pre
@@ -463,11 +462,11 @@ class CourseSessionViewset(ValuesViewset):
 
         with transaction.atomic():
             UnitTestAssignment.objects.filter(
-                course_session=course_session, is_active=True
+                course_session=course_session, closed=False
             ).exclude(
                 unit_contentnode_id=unit_contentnode_id, test_type=test_type
             ).update(
-                is_active=False, status=TestStatus.Ended
+                closed=True
             )
 
             unit_test_assignment, created = UnitTestAssignment.objects.get_or_create(
@@ -477,9 +476,7 @@ class CourseSessionViewset(ValuesViewset):
                 collection=course_session.collection,
             )
 
-            # Set as active
-            unit_test_assignment.is_active = True
-            unit_test_assignment.status = TestStatus.Active
+            unit_test_assignment.closed = False
             unit_test_assignment.activated_by = request.user
             unit_test_assignment.save()
 
@@ -492,8 +489,8 @@ class CourseSessionViewset(ValuesViewset):
                 "id": unit_test_assignment.id,
                 "unit_contentnode_id": str(unit_contentnode_id),
                 "test_type": test_type,
-                "status": unit_test_assignment.status,
                 "activated_by": _activated_by_info(unit_test_assignment.activated_by),
+                "closed": unit_test_assignment.closed,
                 **course_state,
             },
             status=HTTP_200_OK,
@@ -503,7 +500,7 @@ class CourseSessionViewset(ValuesViewset):
     def close_test(self, request, pk=None):
         """
         Closes the currently active test for the course session.
-        Sets is_active=False and status='ended' for the active test.
+        Sets closed=True for the active test.
         """
         course_session = self.get_object()
 
@@ -520,7 +517,7 @@ class CourseSessionViewset(ValuesViewset):
         # Find the currently active test
         try:
             active_test = UnitTestAssignment.objects.get(
-                course_session=course_session, is_active=True
+                course_session=course_session, closed=False
             )
         except UnitTestAssignment.DoesNotExist:
             return Response(
@@ -542,8 +539,7 @@ class CourseSessionViewset(ValuesViewset):
             )
 
         # Close the active test
-        active_test.is_active = False
-        active_test.status = TestStatus.Ended
+        active_test.closed = True
         active_test.save()
 
         course_state = _compute_course_state(course_session.course, active_test)
@@ -553,8 +549,8 @@ class CourseSessionViewset(ValuesViewset):
                 "id": active_test.id,
                 "unit_contentnode_id": str(active_test.unit_contentnode_id),
                 "test_type": active_test.test_type,
-                "status": active_test.status,
                 "activated_by": _activated_by_info(active_test.activated_by),
+                "closed": active_test.closed,
                 **course_state,
             },
             status=HTTP_200_OK,
@@ -571,7 +567,7 @@ class CourseSessionViewset(ValuesViewset):
         # but first, find the currently active test
         try:
             active_test = UnitTestAssignment.objects.get(
-                course_session=course_session, is_active=True
+                course_session=course_session, closed=False
             )
         except UnitTestAssignment.DoesNotExist:
             return Response({"active_test": None}, status=HTTP_200_OK)
@@ -603,7 +599,7 @@ class CourseSessionViewset(ValuesViewset):
                 "unit_contentnode_id": str(active_test.unit_contentnode_id),
                 "unit_title": unit_title,
                 "test_type": active_test.test_type,
-                "status": active_test.status,
+                "closed": active_test.closed,
                 "activated_by": activated_by_info,
             },
             status=HTTP_200_OK,
@@ -639,7 +635,7 @@ class CourseSessionViewset(ValuesViewset):
                     "id": None,
                     "unit_contentnode_id": None,
                     "test_type": None,
-                    "status": None,
+                    "closed": None,
                     "activated_by": None,
                     **course_state,
                 },
@@ -651,7 +647,7 @@ class CourseSessionViewset(ValuesViewset):
                 "id": test.id,
                 "unit_contentnode_id": str(test.unit_contentnode_id),
                 "test_type": test.test_type,
-                "status": test.status,
+                "closed": test.closed,
                 "activated_by": _activated_by_info(test.activated_by),
                 **course_state,
             },

@@ -15,7 +15,6 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
-from kolibri.core.courses.models import TestStatus
 from kolibri.core.courses.models import TestType
 from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.logger.models import ContentSummaryLog
@@ -79,25 +78,7 @@ class LearnerCourseTestCase(APITestCase):
             lesson = self._create_lesson(unit, f"Lesson {i+1}", resources)
             new_lessons.append(lesson)
 
-        pre_test = UnitTestAssignment.objects.create(
-            course_session=course_session,
-            unit_contentnode_id=unit.id,
-            collection=self.classroom,
-            test_type=TestType.Pre,
-            is_active=False,
-            status=TestStatus.NotStarted,
-        )
-
-        post_test = UnitTestAssignment.objects.create(
-            course_session=course_session,
-            unit_contentnode_id=unit.id,
-            collection=self.classroom,
-            test_type=TestType.Post,
-            is_active=False,
-            status=TestStatus.NotStarted,
-        )
-
-        return unit, new_lessons, pre_test, post_test
+        return unit, new_lessons
 
     def _create_course(self, units, lessons, resources):
         channel_id = uuid.uuid4().hex
@@ -455,18 +436,31 @@ class LearnerCourseTestCase(APITestCase):
         )
         # unit 3 pre test active
         for i in range(2):
-            unit, lessons, pre_test, post_test = units[i]
-            pre_test.status = TestStatus.Ended
-            pre_test.save()
+            unit, lessons = units[i]
+            UnitTestAssignment.objects.create(
+                course_session=course_session,
+                unit_contentnode_id=unit.id,
+                collection=self.classroom,
+                test_type=TestType.Pre,
+                closed=True,
+            )
 
-            post_test.status = TestStatus.Ended
-            post_test.is_active = True
-            post_test.save()
+            UnitTestAssignment.objects.create(
+                course_session=course_session,
+                unit_contentnode_id=unit.id,
+                collection=self.classroom,
+                test_type=TestType.Post,
+                closed=True,
+            )
 
-        unit, lessons, pre_test, post_test = units[2]
-        pre_test.status = TestStatus.Active
-        pre_test.is_active = True
-        pre_test.save()
+        unit, lessons = units[2]
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=False,
+        )
 
         self.client.login(username="learner", password=DUMMY_PASSWORD)
 
@@ -487,21 +481,39 @@ class LearnerCourseTestCase(APITestCase):
         )
         # unit 4 post test active
         for i in range(3):
-            unit, lessons, pre_test, post_test = units[i]
-            pre_test.status = TestStatus.Ended
-            pre_test.save()
+            unit, lessons = units[i]
+            UnitTestAssignment.objects.create(
+                course_session=course_session,
+                unit_contentnode_id=unit.id,
+                collection=self.classroom,
+                test_type=TestType.Pre,
+                closed=True,
+            )
 
-            post_test.status = TestStatus.Ended
-            post_test.is_active = True
-            post_test.save()
+            UnitTestAssignment.objects.create(
+                course_session=course_session,
+                unit_contentnode_id=unit.id,
+                collection=self.classroom,
+                test_type=TestType.Post,
+                closed=True,
+            )
 
-        unit, lessons, pre_test, post_test = units[3]
-        pre_test.status = TestStatus.Ended
-        pre_test.save()
+        unit, lessons = units[3]
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+        )
 
-        post_test.status = TestStatus.Active
-        post_test.is_active = True
-        post_test.save()
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit.id,
+            collection=self.classroom,
+            test_type=TestType.Post,
+            closed=False,
+        )
 
         self.client.login(username="learner", password=DUMMY_PASSWORD)
 
@@ -520,11 +532,16 @@ class LearnerCourseTestCase(APITestCase):
         course, course_session, units = self._create_course(
             units=2, lessons=5, resources=5
         )
-        unit, lessons, pre_test, post_test = units[0]
+        unit, lessons = units[0]
         # Just first unit pre test ended, no progress on any resource, so
         # resume position should be first resource of first lesson of first unit
-        pre_test.status = TestStatus.Ended
-        pre_test.save()
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+        )
 
         resume_lesson, lesson_resources = lessons[0]
 
@@ -550,14 +567,24 @@ class LearnerCourseTestCase(APITestCase):
         )
         # 3 units completed
         for i in range(3):
-            unit, lessons, pre_test, post_test = units[i]
-            pre_test.status = TestStatus.Ended
-            pre_test.save()
+            unit, lessons = units[i]
 
-            post_test.status = TestStatus.Ended
-            post_test.save()
+            UnitTestAssignment.objects.create(
+                course_session=course_session,
+                unit_contentnode_id=unit.id,
+                collection=self.classroom,
+                test_type=TestType.Pre,
+                closed=True,
+            )
+            UnitTestAssignment.objects.create(
+                course_session=course_session,
+                unit_contentnode_id=unit.id,
+                collection=self.classroom,
+                test_type=TestType.Post,
+                closed=True,
+            )
 
-            for (lesson, lesson_resources) in lessons:
+            for lesson, lesson_resources in lessons:
                 for resource in lesson_resources:
                     log = ContentSummaryLog.objects.get(
                         user=self.learner, content_id=resource.content_id
@@ -567,9 +594,15 @@ class LearnerCourseTestCase(APITestCase):
                     log.save()
 
         # Unit 4, lesson 1, resource 2 in progress
-        resume_unit, lessons, pre_test, post_test = units[3]
-        pre_test.status = TestStatus.Ended
-        pre_test.save()
+        resume_unit, lessons = units[3]
+
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=resume_unit.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+        )
         resume_lesson, lesson_resources = lessons[0]
         resource_1 = lesson_resources[0]
 
@@ -607,14 +640,24 @@ class LearnerCourseTestCase(APITestCase):
         )
         # All units completed
         for i in range(5):
-            unit, lessons, pre_test, post_test = units[i]
-            pre_test.status = TestStatus.Ended
-            pre_test.save()
+            unit, lessons = units[i]
 
-            post_test.status = TestStatus.Ended
-            post_test.save()
+            UnitTestAssignment.objects.create(
+                course_session=course_session,
+                unit_contentnode_id=unit.id,
+                collection=self.classroom,
+                test_type=TestType.Pre,
+                closed=True,
+            )
+            UnitTestAssignment.objects.create(
+                course_session=course_session,
+                unit_contentnode_id=unit.id,
+                collection=self.classroom,
+                test_type=TestType.Post,
+                closed=True,
+            )
 
-            for (lesson, lesson_resources) in lessons:
+            for lesson, lesson_resources in lessons:
                 for resource in lesson_resources:
                     log = ContentSummaryLog.objects.get(
                         user=self.learner, content_id=resource.content_id

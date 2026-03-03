@@ -9,7 +9,6 @@ from mock import patch
 from morango.models import Filter
 
 from .. import models
-from ..models import TestStatus
 from ..models import TestType
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
@@ -102,8 +101,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             unit_contentnode_id=self.unit_id,
             collection=self.classroom,
             test_type="pre",
-            is_active=False,
-            status="not_started",
+            closed=False,
         )
 
         # Try to create duplicate - should fail
@@ -113,8 +111,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
                 unit_contentnode_id=self.unit_id,
                 collection=self.classroom,
                 test_type="pre",  # Same combination
-                is_active=False,
-                status="not_started",
+                closed=False,
             )
 
     def test_unique_together_allows_different_test_types(self):
@@ -125,8 +122,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             unit_contentnode_id=self.unit_id,
             collection=self.classroom,
             test_type="pre",
-            is_active=False,
-            status="not_started",
+            closed=True,
         )
 
         # Create post-test - should succeed
@@ -135,8 +131,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             unit_contentnode_id=self.unit_id,
             collection=self.classroom,
             test_type="post",  # Different test type
-            is_active=False,
-            status="not_started",
+            closed=False,
         )
 
         self.assertIsNotNone(pre_test.id)
@@ -158,8 +153,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
                 unit_contentnode_id=self.unit_id,
                 collection=other_classroom,  # From facility 2 - different dataset
                 test_type="pre",
-                is_active=False,
-                status="not_started",
+                closed=False,
             )
 
         self.assertIn("same dataset", str(context.exception))
@@ -171,8 +165,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             unit_contentnode_id=self.unit_id,
             collection=self.classroom,
             test_type="pre",
-            is_active=False,
-            status="not_started",
+            closed=False,
         )
 
         key = "{}:{}:{}:{}".format(
@@ -197,8 +190,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             unit_contentnode_id=self.unit_id,
             collection=self.classroom,
             test_type="pre",
-            is_active=False,
-            status="not_started",
+            closed=True,
         )
 
         unit_id_2 = uuid.uuid4().hex
@@ -207,8 +199,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             unit_contentnode_id=unit_id_2,  # Different unit
             collection=self.classroom,
             test_type="pre",
-            is_active=False,
-            status="not_started",
+            closed=False,
         )
 
         self.assertNotEqual(
@@ -219,8 +210,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             unit_contentnode_id=self.unit_id,
             collection=self.classroom,
             test_type="post",  # Different test type
-            is_active=False,
-            status="not_started",
+            closed=False,
         )
 
         # Different test types should generate different source_ids
@@ -236,8 +226,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             unit_contentnode_id=self.unit_id,
             collection=self.classroom,  # Same as course_session.collection
             test_type="pre",
-            is_active=False,
-            status="not_started",
+            closed=False,
         )
 
         self.assertIsNotNone(assignment.id)
@@ -251,8 +240,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             unit_contentnode_id=self.unit_id,
             collection=self.learner_group,  # Child of course_session.collection
             test_type="pre",
-            is_active=False,
-            status="not_started",
+            closed=False,
         )
 
         self.assertIsNotNone(assignment.id)
@@ -274,8 +262,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
                 unit_contentnode_id=self.unit_id,
                 collection=other_classroom,  # Different classroom, not a child
                 test_type="pre",
-                is_active=False,
-                status="not_started",
+                closed=False,
             )
 
         self.assertIn(
@@ -300,8 +287,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
                 unit_contentnode_id=self.unit_id,
                 collection=other_learner_group,  # Child of other_classroom, not self.classroom
                 test_type="pre",
-                is_active=False,
-                status="not_started",
+                closed=False,
             )
 
         self.assertIn(
@@ -419,22 +405,3 @@ class TestTypeEnumTestCase(TestCase):
         # Should contain tuples of (value, label)
         self.assertIn(("post", "Post"), choices)
         self.assertIn(("pre", "Pre"), choices)
-
-
-class TestStatusEnumTestCase(TestCase):
-    """Test suite for TestStatus enum"""
-
-    def test_test_status_enum_values(self):
-        """Test that TestStatus enum has correct values"""
-        self.assertEqual(TestStatus.NotStarted, "not_started")
-        self.assertEqual(TestStatus.Active, "active")
-        self.assertEqual(TestStatus.Ended, "ended")
-
-    def test_test_status_enum_choices(self):
-        """Test that TestStatus.choices() returns correct format"""
-        choices = TestStatus.choices()
-        self.assertIsInstance(choices, tuple)
-        # Should contain tuples of (value, label)
-        self.assertIn(("active", "Active"), choices)
-        self.assertIn(("ended", "Ended"), choices)
-        self.assertIn(("not_started", "NotStarted"), choices)

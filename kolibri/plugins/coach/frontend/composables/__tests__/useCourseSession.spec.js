@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
-import { TestStatus, TestType, UnitPhase } from '../../constants/courseConstants';
+import { TestType, UnitPhase } from '../../constants/courseConstants';
 import useCourseSession from '../useCourseSession';
 
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
@@ -54,7 +54,7 @@ describe('useCourseSession', () => {
     id: 'test-1',
     unit_contentnode_id: 'unit-1',
     test_type: TestType.PRE,
-    status: TestStatus.ACTIVE,
+    closed: false,
     unit_phase: UnitPhase.PRE_TEST_ACTIVE,
     active_unit_id: 'unit-1',
   };
@@ -64,7 +64,7 @@ describe('useCourseSession', () => {
     id: 'test-2',
     unit_contentnode_id: 'unit-1',
     test_type: TestType.POST,
-    status: TestStatus.ACTIVE,
+    closed: false,
     unit_phase: UnitPhase.POST_TEST_ACTIVE,
     active_unit_id: 'unit-1',
   };
@@ -74,7 +74,7 @@ describe('useCourseSession', () => {
     id: 'test-1',
     unit_contentnode_id: 'unit-1',
     test_type: TestType.PRE,
-    status: TestStatus.ENDED,
+    closed: true,
     unit_phase: UnitPhase.POST_TEST_PENDING,
     active_unit_id: 'unit-1',
   };
@@ -84,7 +84,7 @@ describe('useCourseSession', () => {
     id: 'test-2',
     unit_contentnode_id: 'unit-1',
     test_type: TestType.POST,
-    status: TestStatus.ENDED,
+    closed: true,
     unit_phase: UnitPhase.PRE_TEST_PENDING,
     active_unit_id: 'unit-2',
   };
@@ -94,7 +94,7 @@ describe('useCourseSession', () => {
     id: null,
     unit_contentnode_id: null,
     test_type: null,
-    status: null,
+    closed: null,
     activated_by: null,
     unit_phase: UnitPhase.PRE_TEST_PENDING,
     active_unit_id: 'unit-1',
@@ -111,19 +111,19 @@ describe('useCourseSession', () => {
 
   describe('initialization', () => {
     it('should start with pageLoading=true', () => {
-      const { pageLoading } = useCourseSession(mockCourseSessionId);
+      const { pageLoading } = useCourseSession(ref(mockCourseSessionId));
       expect(pageLoading.value).toBe(true);
     });
 
     it('should fetch course session on initialization', () => {
-      useCourseSession(mockCourseSessionId);
+      useCourseSession(ref(mockCourseSessionId));
       expect(CourseSessionResource.fetchModel).toHaveBeenCalledWith({
         id: mockCourseSessionId.value,
       });
     });
 
     it('should fetch course and lastUnitTest after session is loaded', async () => {
-      useCourseSession(mockCourseSessionId);
+      useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -134,7 +134,7 @@ describe('useCourseSession', () => {
     });
 
     it('should set pageLoading=false after all data is loaded', async () => {
-      const { pageLoading } = useCourseSession(mockCourseSessionId);
+      const { pageLoading } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -142,7 +142,7 @@ describe('useCourseSession', () => {
     });
 
     it('should populate courseSession after fetch', async () => {
-      const { courseSession } = useCourseSession(mockCourseSessionId);
+      const { courseSession } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -150,7 +150,7 @@ describe('useCourseSession', () => {
     });
 
     it('should populate course after fetch', async () => {
-      const { course } = useCourseSession(mockCourseSessionId);
+      const { course } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -160,12 +160,12 @@ describe('useCourseSession', () => {
 
   describe('units computed', () => {
     it('should return empty array when course is null', () => {
-      const { units } = useCourseSession(mockCourseSessionId);
+      const { units } = useCourseSession(ref(mockCourseSessionId));
       expect(units.value).toEqual([]);
     });
 
     it('should return units with numberedTitle', async () => {
-      const { units } = useCourseSession(mockCourseSessionId);
+      const { units } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -176,7 +176,7 @@ describe('useCourseSession', () => {
     });
 
     it('should preserve original title and other properties', async () => {
-      const { units } = useCourseSession(mockCourseSessionId);
+      const { units } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -189,17 +189,17 @@ describe('useCourseSession', () => {
 
   describe('activeTest computed', () => {
     it('should return null when no tests taken', async () => {
-      const { activeTest } = useCourseSession(mockCourseSessionId);
+      const { activeTest } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
       expect(activeTest.value).toBe(null);
     });
 
-    it('should return null when lastUnitTest status is not active', async () => {
+    it('should return null when lastUnitTest is not active', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPreTest);
 
-      const { activeTest } = useCourseSession(mockCourseSessionId);
+      const { activeTest } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -209,7 +209,7 @@ describe('useCourseSession', () => {
     it('should return lastUnitTest when status is active', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue(mockActivePreTest);
 
-      const { activeTest } = useCourseSession(mockCourseSessionId);
+      const { activeTest } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -219,7 +219,7 @@ describe('useCourseSession', () => {
 
   describe('activeUnit computed', () => {
     it('should return first unit when no lastUnitTest', async () => {
-      const { activeUnit } = useCourseSession(mockCourseSessionId);
+      const { activeUnit } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -233,7 +233,7 @@ describe('useCourseSession', () => {
         active_unit_id: 'unit-2',
       });
 
-      const { activeUnit } = useCourseSession(mockCourseSessionId);
+      const { activeUnit } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -243,7 +243,7 @@ describe('useCourseSession', () => {
     it('should stay on same unit after pre-test is completed', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPreTest);
 
-      const { activeUnit } = useCourseSession(mockCourseSessionId);
+      const { activeUnit } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -253,7 +253,7 @@ describe('useCourseSession', () => {
     it('should advance to next unit after post-test is completed', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPostTest);
 
-      const { activeUnit } = useCourseSession(mockCourseSessionId);
+      const { activeUnit } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -266,12 +266,12 @@ describe('useCourseSession', () => {
         id: 'test-6',
         unit_contentnode_id: 'unit-3',
         test_type: TestType.POST,
-        status: TestStatus.ENDED,
+        closed: true,
         unit_phase: UnitPhase.COMPLETE,
         active_unit_id: null,
       });
 
-      const { activeUnit } = useCourseSession(mockCourseSessionId);
+      const { activeUnit } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -288,7 +288,7 @@ describe('useCourseSession', () => {
         active_unit_id: null,
       });
 
-      const { activeUnit } = useCourseSession(mockCourseSessionId);
+      const { activeUnit } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -298,7 +298,7 @@ describe('useCourseSession', () => {
 
   describe('activeUnitIndex computed', () => {
     it('should return 0 for first unit', async () => {
-      const { activeUnitIndex } = useCourseSession(mockCourseSessionId);
+      const { activeUnitIndex } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -308,7 +308,7 @@ describe('useCourseSession', () => {
     it('should return correct index after advancing', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPostTest);
 
-      const { activeUnitIndex } = useCourseSession(mockCourseSessionId);
+      const { activeUnitIndex } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -325,7 +325,7 @@ describe('useCourseSession', () => {
         active_unit_id: null,
       });
 
-      const { activeUnitIndex } = useCourseSession(mockCourseSessionId);
+      const { activeUnitIndex } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -335,7 +335,7 @@ describe('useCourseSession', () => {
 
   describe('completedUnits computed', () => {
     it('should return empty array when on first unit', async () => {
-      const { completedUnits } = useCourseSession(mockCourseSessionId);
+      const { completedUnits } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -348,12 +348,12 @@ describe('useCourseSession', () => {
         id: 'test-4',
         unit_contentnode_id: 'unit-2',
         test_type: TestType.POST,
-        status: TestStatus.ENDED,
+        closed: true,
         unit_phase: UnitPhase.PRE_TEST_PENDING,
         active_unit_id: 'unit-3',
       });
 
-      const { completedUnits } = useCourseSession(mockCourseSessionId);
+      const { completedUnits } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -367,12 +367,12 @@ describe('useCourseSession', () => {
         id: 'test-6',
         unit_contentnode_id: 'unit-3',
         test_type: TestType.POST,
-        status: TestStatus.ENDED,
+        closed: true,
         unit_phase: UnitPhase.COMPLETE,
         active_unit_id: null,
       });
 
-      const { completedUnits, activeUnit } = useCourseSession(mockCourseSessionId);
+      const { completedUnits, activeUnit } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -386,7 +386,7 @@ describe('useCourseSession', () => {
 
   describe('upcomingUnits computed', () => {
     it('should return all units except first when starting', async () => {
-      const { upcomingUnits } = useCourseSession(mockCourseSessionId);
+      const { upcomingUnits } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -398,7 +398,7 @@ describe('useCourseSession', () => {
     it('should return fewer units as course progresses', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPostTest);
 
-      const { upcomingUnits } = useCourseSession(mockCourseSessionId);
+      const { upcomingUnits } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -411,12 +411,12 @@ describe('useCourseSession', () => {
         id: 'test-4',
         unit_contentnode_id: 'unit-2',
         test_type: TestType.POST,
-        status: TestStatus.ENDED,
+        closed: true,
         unit_phase: UnitPhase.PRE_TEST_PENDING,
         active_unit_id: 'unit-3',
       });
 
-      const { upcomingUnits } = useCourseSession(mockCourseSessionId);
+      const { upcomingUnits } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -426,7 +426,7 @@ describe('useCourseSession', () => {
 
   describe('isCourseComplete computed', () => {
     it('should return false when on first unit', async () => {
-      const { isCourseComplete } = useCourseSession(mockCourseSessionId);
+      const { isCourseComplete } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -436,7 +436,7 @@ describe('useCourseSession', () => {
     it('should return false when some units remain', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPostTest);
 
-      const { isCourseComplete } = useCourseSession(mockCourseSessionId);
+      const { isCourseComplete } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -448,12 +448,12 @@ describe('useCourseSession', () => {
         id: 'test-6',
         unit_contentnode_id: 'unit-3',
         test_type: TestType.POST,
-        status: TestStatus.ENDED,
+        closed: true,
         unit_phase: UnitPhase.COMPLETE,
         active_unit_id: null,
       });
 
-      const { isCourseComplete } = useCourseSession(mockCourseSessionId);
+      const { isCourseComplete } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -470,7 +470,7 @@ describe('useCourseSession', () => {
         active_unit_id: null,
       });
 
-      const { isCourseComplete } = useCourseSession(mockCourseSessionId);
+      const { isCourseComplete } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -480,7 +480,7 @@ describe('useCourseSession', () => {
 
   describe('lastUnitTest state', () => {
     it('should have null test fields when no tests taken', async () => {
-      const { lastUnitTest } = useCourseSession(mockCourseSessionId);
+      const { lastUnitTest } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -492,7 +492,7 @@ describe('useCourseSession', () => {
     it('should contain the last test data', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPreTest);
 
-      const { lastUnitTest } = useCourseSession(mockCourseSessionId);
+      const { lastUnitTest } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -502,7 +502,7 @@ describe('useCourseSession', () => {
 
   describe('unitPhase computed', () => {
     it('should return PRE_TEST_PENDING when no tests taken', async () => {
-      const { unitPhase } = useCourseSession(mockCourseSessionId);
+      const { unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -512,7 +512,7 @@ describe('useCourseSession', () => {
     it('should return PRE_TEST_ACTIVE when pre-test is running', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue(mockActivePreTest);
 
-      const { unitPhase } = useCourseSession(mockCourseSessionId);
+      const { unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -522,7 +522,7 @@ describe('useCourseSession', () => {
     it('should return POST_TEST_PENDING after pre-test is completed', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPreTest);
 
-      const { unitPhase } = useCourseSession(mockCourseSessionId);
+      const { unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -532,7 +532,7 @@ describe('useCourseSession', () => {
     it('should return POST_TEST_ACTIVE when post-test is running', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue(mockActivePostTest);
 
-      const { unitPhase } = useCourseSession(mockCourseSessionId);
+      const { unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -542,7 +542,7 @@ describe('useCourseSession', () => {
     it('should return PRE_TEST_PENDING after post-test is completed (next unit)', async () => {
       CourseSessionResource.lastUnitTest.mockResolvedValue(mockCompletedPostTest);
 
-      const { unitPhase } = useCourseSession(mockCourseSessionId);
+      const { unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -555,12 +555,12 @@ describe('useCourseSession', () => {
         id: 'test-6',
         unit_contentnode_id: 'unit-3',
         test_type: TestType.POST,
-        status: TestStatus.ENDED,
+        closed: true,
         unit_phase: UnitPhase.COMPLETE,
         active_unit_id: null,
       });
 
-      const { unitPhase } = useCourseSession(mockCourseSessionId);
+      const { unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -572,7 +572,7 @@ describe('useCourseSession', () => {
     it('should call CourseSessionResource.activateTest with correct params', async () => {
       CourseSessionResource.activateTest.mockResolvedValue(mockActivePreTest);
 
-      const { activateTest } = useCourseSession(mockCourseSessionId);
+      const { activateTest } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -588,13 +588,13 @@ describe('useCourseSession', () => {
     });
 
     it('should update activeTest after activation', async () => {
-      CourseSessionResource.activateTest.mockResolvedValue(mockActivePreTest);
-
-      const { activateTest, activeTest } = useCourseSession(mockCourseSessionId);
+      const { activateTest, activeTest } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
       expect(activeTest.value).toBe(null);
+
+      CourseSessionResource.activateTest.mockResolvedValue(mockActivePreTest);
 
       await activateTest(TestType.PRE);
 
@@ -604,7 +604,7 @@ describe('useCourseSession', () => {
     it('should update unitPhase after activation', async () => {
       CourseSessionResource.activateTest.mockResolvedValue(mockActivePreTest);
 
-      const { activateTest, unitPhase } = useCourseSession(mockCourseSessionId);
+      const { activateTest, unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -621,7 +621,7 @@ describe('useCourseSession', () => {
       CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockActivePreTest);
       CourseSessionResource.closeTest.mockResolvedValue(mockCompletedPreTest);
 
-      const { closeTest } = useCourseSession(mockCourseSessionId);
+      const { closeTest } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -640,7 +640,7 @@ describe('useCourseSession', () => {
       CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockActivePreTest);
       CourseSessionResource.closeTest.mockResolvedValue(mockCompletedPreTest);
 
-      const { closeTest, activeTest } = useCourseSession(mockCourseSessionId);
+      const { closeTest, activeTest } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -655,7 +655,7 @@ describe('useCourseSession', () => {
       CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockActivePreTest);
       CourseSessionResource.closeTest.mockResolvedValue(mockCompletedPreTest);
 
-      const { closeTest, unitPhase } = useCourseSession(mockCourseSessionId);
+      const { closeTest, unitPhase } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -670,7 +670,7 @@ describe('useCourseSession', () => {
       CourseSessionResource.lastUnitTest.mockResolvedValueOnce(mockActivePostTest);
       CourseSessionResource.closeTest.mockResolvedValue(mockCompletedPostTest);
 
-      const { closeTest, activeUnit } = useCourseSession(mockCourseSessionId);
+      const { closeTest, activeUnit } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -686,7 +686,7 @@ describe('useCourseSession', () => {
     it('should call CourseSessionResource.saveModel with toggled active state', async () => {
       CourseSessionResource.saveModel.mockResolvedValue({ active: false });
 
-      const { toggleCourseActive, courseSession } = useCourseSession(mockCourseSessionId);
+      const { toggleCourseActive, courseSession } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -703,7 +703,7 @@ describe('useCourseSession', () => {
     it('should update courseSession.active after toggle', async () => {
       CourseSessionResource.saveModel.mockResolvedValue({ active: false });
 
-      const { toggleCourseActive, courseSession } = useCourseSession(mockCourseSessionId);
+      const { toggleCourseActive, courseSession } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -717,7 +717,7 @@ describe('useCourseSession', () => {
     it('should toggle from false to true', async () => {
       CourseSessionResource.saveModel.mockResolvedValue({ active: true });
 
-      const { toggleCourseActive, courseSession } = useCourseSession(mockCourseSessionId);
+      const { toggleCourseActive, courseSession } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -736,7 +736,7 @@ describe('useCourseSession', () => {
       const mockResult = { id: mockCourseSessionId.value, active: true, title: 'Test' };
       CourseSessionResource.saveModel.mockResolvedValue(mockResult);
 
-      const { toggleCourseActive, courseSession } = useCourseSession(mockCourseSessionId);
+      const { toggleCourseActive, courseSession } = useCourseSession(ref(mockCourseSessionId));
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -766,13 +766,6 @@ describe('useCourseSession', () => {
     it('should export test type constants', () => {
       expect(TestType.PRE).toBe('pre');
       expect(TestType.POST).toBe('post');
-    });
-  });
-
-  describe('TestStatus constants', () => {
-    it('should export test status constants', () => {
-      expect(TestStatus.ACTIVE).toBe('active');
-      expect(TestStatus.ENDED).toBe('ended');
     });
   });
 });

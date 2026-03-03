@@ -17,9 +17,3 @@ export const TestType = Object.freeze({
   PRE: 'pre',
   POST: 'post',
 });
-
-export const TestStatus = Object.freeze({
-  NOT_STARTED: 'not_started',
-  ACTIVE: 'active',
-  ENDED: 'ended',
-});
