@@ -164,6 +164,35 @@ def monkey_patch_pkgutil():
     pkgutil.find_loader = _find_loader
 
 
+def fix_django_template_context_copy():
+    """
+    Fix BaseContext.__copy__ in Django 3.2 for Python 3.14 compatibility.
+    Python 3.14 changed the behavior of copy(super()), which breaks the
+    original implementation in django/template/context.py.
+    This backports the fix from Django's main branch.
+    This can be removed when we upgrade to a version of Django that is
+    Python 3.14 compatible.
+    """
+    if sys.version_info < (3, 14):
+        return
+    try:
+        from copy import copy as _copy
+
+        from django.template.context import BaseContext
+    except ImportError:
+        # Django may not be installed yet (e.g. during pip install).
+        return
+
+    def _base_context_copy(self):
+        duplicate = BaseContext()
+        duplicate.__class__ = self.__class__
+        duplicate.__dict__ = _copy(self.__dict__)
+        duplicate.dicts = self.dicts[:]
+        return duplicate
+
+    BaseContext.__copy__ = _base_context_copy
+
+
 def set_env():
     """
     Sets the Kolibri environment for the CLI or other application worker
@@ -188,6 +217,7 @@ def set_env():
 
     # Depends on Django, so we need to wait until our dist has been registered.
     forward_port_cgi_module()
+    fix_django_template_context_copy()
 
     # Set default env
     for key, value in ENVIRONMENT_VARIABLES.items():
