@@ -50,10 +50,11 @@ def get_remote_users_info(baseurl, facility_id, username, password, client=None)
                 password,
             ),
         )
+    except NetworkLocationConnectionFailure:
+        raise ResourceGoneError()
     except (
         CommandError,
         NetworkLocationResponseFailure,
-        NetworkLocationConnectionFailure,
     ):
         if password == NOT_SPECIFIED or not password:
             facility_info_url = reverse_path(
