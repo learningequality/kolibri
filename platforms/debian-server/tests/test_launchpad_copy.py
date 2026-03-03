@@ -215,6 +215,47 @@ class TestLaunchpadWrapper:
 
         mock_ppa.syncSources.assert_not_called()
 
+    def test_perform_queued_copies_handles_already_synced(self):
+        """Idempotency: syncSources errors for already-copied packages are handled gracefully."""
+        wrapper = LaunchpadWrapper()
+        wrapper.queue_copy("kolibri-server", "jammy", "noble", "Release")
+
+        class MockBadRequest(Exception):
+            pass
+
+        mock_ppa = MagicMock()
+        mock_ppa.syncSources.side_effect = MockBadRequest(
+            "kolibri-server 0.9.0 in noble (same version already published)"
+        )
+
+        with patch("launchpad_copy.lre") as mock_lre:
+            mock_lre.BadRequest = MockBadRequest
+            wrapper.perform_queued_copies(mock_ppa)
+
+        # Should not raise — the error is handled gracefully
+
+    def test_perform_queued_copies_logs_already_synced(self, caplog):
+        """Idempotency: logs a message when syncSources finds package already exists."""
+        wrapper = LaunchpadWrapper()
+        wrapper.queue_copy("kolibri-server", "jammy", "noble", "Release")
+
+        class MockBadRequest(Exception):
+            pass
+
+        mock_ppa = MagicMock()
+        mock_ppa.syncSources.side_effect = MockBadRequest(
+            "kolibri-server 0.9.0 in noble (same version already published)"
+        )
+
+        with (
+            patch("launchpad_copy.lre") as mock_lre,
+            caplog.at_level(logging.INFO, logger=log.name),
+        ):
+            mock_lre.BadRequest = MockBadRequest
+            wrapper.perform_queued_copies(mock_ppa)
+
+        assert any("already" in r.message.lower() for r in caplog.records)
+
     def test_get_usable_sources_filters_by_whitelist(self):
         wrapper = LaunchpadWrapper()
         mock_ppa = MagicMock()
@@ -474,6 +515,85 @@ class TestPromote:
 
         mock_dest_ppa.copyPackage.assert_not_called()
         assert result == 0
+
+    def test_handles_already_published_package_gracefully(self):
+        """Idempotency: promote skips packages already copied to dest PPA."""
+        wrapper = LaunchpadWrapper()
+        mock_source_ppa = MagicMock()
+        mock_dest_ppa = MagicMock()
+
+        mock_pkg = MagicMock()
+        mock_pkg.source_package_name = "kolibri-server"
+        mock_pkg.source_package_version = "0.9.0"
+        mock_pkg.distro_series_link = "https://lp/ubuntu/jammy"
+        mock_pkg.pocket = "Release"
+
+        mock_source_ppa.getPublishedSources.return_value = [mock_pkg]
+
+        class MockBadRequest(Exception):
+            pass
+
+        mock_dest_ppa.copyPackage.side_effect = MockBadRequest(
+            "kolibri-server 0.9.0 in jammy (same version already published in the target archive)"
+        )
+
+        with (
+            patch.object(
+                type(wrapper),
+                "proposed_ppa",
+                new_callable=lambda: property(lambda self: mock_source_ppa),
+            ),
+            patch.object(
+                type(wrapper),
+                "release_ppa",
+                new_callable=lambda: property(lambda self: mock_dest_ppa),
+            ),
+            patch("launchpad_copy.lre") as mock_lre,
+        ):
+            mock_lre.BadRequest = MockBadRequest
+            result = wrapper.promote()
+
+        assert result == 0
+
+    def test_already_published_logs_skip_message(self, caplog):
+        """Idempotency: promote logs that a package was already promoted."""
+        wrapper = LaunchpadWrapper()
+        mock_source_ppa = MagicMock()
+        mock_dest_ppa = MagicMock()
+
+        mock_pkg = MagicMock()
+        mock_pkg.source_package_name = "kolibri-server"
+        mock_pkg.source_package_version = "0.9.0"
+        mock_pkg.distro_series_link = "https://lp/ubuntu/jammy"
+        mock_pkg.pocket = "Release"
+
+        mock_source_ppa.getPublishedSources.return_value = [mock_pkg]
+
+        class MockBadRequest(Exception):
+            pass
+
+        mock_dest_ppa.copyPackage.side_effect = MockBadRequest(
+            "kolibri-server 0.9.0 in jammy (same version already published in the target archive)"
+        )
+
+        with (
+            patch.object(
+                type(wrapper),
+                "proposed_ppa",
+                new_callable=lambda: property(lambda self: mock_source_ppa),
+            ),
+            patch.object(
+                type(wrapper),
+                "release_ppa",
+                new_callable=lambda: property(lambda self: mock_dest_ppa),
+            ),
+            patch("launchpad_copy.lre") as mock_lre,
+            caplog.at_level(logging.INFO, logger=log.name),
+        ):
+            mock_lre.BadRequest = MockBadRequest
+            wrapper.promote()
+
+        assert any("already published" in r.message.lower() and "kolibri-server" in r.message for r in caplog.records)
 
 
 # --- wait-for-builds tests ---

@@ -247,13 +247,19 @@ class LaunchpadWrapper:
                 log.info("")
                 first = False
             log.info("Copying %s to %s", ", ".join(sorted(names)), target_series)
-            ppa.syncSources(
-                from_archive=ppa,
-                to_series=target_series,
-                to_pocket=pocket,
-                include_binaries=True,
-                source_names=sorted(names),
-            )
+            try:
+                ppa.syncSources(
+                    from_archive=ppa,
+                    to_series=target_series,
+                    to_pocket=pocket,
+                    include_binaries=True,
+                    source_names=sorted(names),
+                )
+            except lre.BadRequest as e:
+                if "same version already published" in str(e):
+                    log.info("Already copied to %s — skipping", target_series)
+                else:
+                    raise
 
     def copy_to_series(self):
         """Copy packages from source series to all other supported Ubuntu series."""
@@ -410,9 +416,16 @@ class LaunchpadWrapper:
                 )
                 copied_any = True
             except lre.BadRequest as e:
-                if "is obsolete and will not accept new uploads" in str(e):
+                msg = str(e)
+                if "is obsolete and will not accept new uploads" in msg:
                     log.info(
                         "Skip obsolete series for %s %s",
+                        pkg.source_package_name,
+                        pkg.source_package_version,
+                    )
+                elif "same version already published" in msg:
+                    log.info(
+                        "Already published %s %s — skipping",
                         pkg.source_package_name,
                         pkg.source_package_version,
                     )
@@ -441,7 +454,6 @@ def build_parser():
     )
     parser.add_argument("-q", "--quiet", action="store_true", help="Suppress info output.")
     parser.add_argument("--debug", action="store_true", help="Enable HTTP debug output.")
-
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     subparsers.add_parser(

@@ -2,6 +2,7 @@ name: Build Debian source package
 on:
   release:
     types: [published]
+  workflow_dispatch:
 jobs:
   check_version:
     runs-on: ubuntu-latest
@@ -10,17 +11,22 @@ jobs:
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v4
-      - name: Extract version from release tag
-        id: version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
       - name: Extract version from changelog
         id: changelog_version
         run: |
           CHANGELOG_VERSION=$(dpkg-parsechangelog -S Version)
           echo "CHANGELOG_VERSION=${CHANGELOG_VERSION}" >> "$GITHUB_OUTPUT"
+      - name: Extract version from release tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "VERSION=${{ steps.changelog_version.outputs.CHANGELOG_VERSION }}" >> "$GITHUB_OUTPUT"
+          else
+            TAG_VERSION=${GITHUB_REF#refs/tags/v}
+            echo "VERSION=${TAG_VERSION}" >> "$GITHUB_OUTPUT"
+          fi
       - name: Validate Version consistency
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         id: version_check
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
@@ -32,6 +38,7 @@ jobs:
           fi
           echo "Version check passed: ${VERSION}"
   build_package:
+    if: ${{ github.event_name != 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     needs: check_version
     steps:
@@ -53,6 +60,7 @@ jobs:
           make sign-and-upload
           echo "upload completed successfully!"
   wait_for_source_builds:
+    if: ${{ github.event_name != 'workflow_dispatch' }}
     needs:
       - check_version
       - build_package
@@ -80,7 +88,13 @@ jobs:
         if: always()
         run: rm -f /tmp/lp-creds.txt
   copy_to_other_distributions:
-    needs: wait_for_source_builds
+    needs:
+      - check_version
+      - wait_for_source_builds
+    if: |
+      always() &&
+      needs.check_version.result == 'success' &&
+      (needs.wait_for_source_builds.result == 'success' || needs.wait_for_source_builds.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
@@ -130,7 +144,7 @@ jobs:
         if: always()
         run: rm -f /tmp/lp-creds.txt
   block_release_step:
-    if: ${{ !github.event.release.prerelease }}
+    if: ${{ !github.event.release.prerelease && github.event_name != 'workflow_dispatch' }}
     name: Job to block publish of a release until it has been manually approved
     needs: wait_for_copy_builds
     runs-on: ubuntu-latest
@@ -138,9 +152,17 @@ jobs:
     steps:
       - run: echo "Release approved — proceeding to promote to kolibri PPA."
   copy_package_from_proposed_to_ppa:
-    if: ${{ !github.event.release.prerelease }}
+    if: |
+      always() &&
+      needs.wait_for_copy_builds.result == 'success' &&
+      (
+        (!github.event.release.prerelease && needs.block_release_step.result == 'success') ||
+        (github.event_name == 'workflow_dispatch')
+      )
     name: Promote packages from kolibri-proposed to kolibri
-    needs: block_release_step
+    needs:
+      - wait_for_copy_builds
+      - block_release_step
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
