@@ -565,6 +565,77 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
 
         self.assertEqual(response.status_code, 400)
 
+    def test_start_session_unit_id_without_test_type_fails(self):
+        course_session = create_assigned_course_for_user(
+            self.user, channel_id=self.channel_id, content_id=self.content_id
+        )
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={
+                "unit_id": uuid.uuid4().hex,
+                "course_session_id": course_session.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_unit_id_without_course_session_id_fails(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={
+                "unit_id": uuid.uuid4().hex,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_unit_id_with_node_id_fails(self):
+        course_session = create_assigned_course_for_user(
+            self.user, channel_id=self.channel_id, content_id=self.content_id
+        )
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request(
+            {
+                "unit_id": uuid.uuid4().hex,
+                "test_type": "pre",
+                "course_session_id": course_session.id,
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_unit_id_with_quiz_id_fails(self):
+        quiz = create_assigned_quiz_for_user(self.user)
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={
+                "unit_id": uuid.uuid4().hex,
+                "test_type": "pre",
+                "quiz_id": quiz.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
     def test_start_session_node_id_has_mastery_model_not_exercise_fails(self):
         self.client.login(
             username=self.user.username,

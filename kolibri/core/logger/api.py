@@ -89,6 +89,11 @@ class StartSessionSerializer(serializers.Serializer):
     course_session_id = HexStringUUIDField(required=False)
     # Do this as a special way of handling our coach generated quizzes
     quiz_id = HexStringUUIDField(required=False)
+    # Pre/post test fields
+    unit_id = HexStringUUIDField(required=False)
+    test_type = serializers.ChoiceField(
+        choices=[("pre", "Pre"), ("post", "Post")], required=False
+    )
     # A flag to indicate whether to start the session over again
     repeat = serializers.BooleanField(required=False, default=False)
 
@@ -96,11 +101,12 @@ class StartSessionSerializer(serializers.Serializer):
         self._validate_required_fields(data)
         self._validate_context_exclusivity(data)
         self._validate_node_id_fields(data)
+        self._validate_unit_id_fields(data)
         return data
 
     def _validate_required_fields(self, data):
-        if "node_id" not in data and "quiz_id" not in data:
-            raise ValidationError("node_id is required if not a coach assigned quiz")
+        if "node_id" not in data and "quiz_id" not in data and "unit_id" not in data:
+            raise ValidationError("One of node_id, quiz_id, or unit_id is required")
 
     def _validate_context_exclusivity(self, data):
         if "quiz_id" in data and ("lesson_id" in data or "node_id" in data):
@@ -108,6 +114,10 @@ class StartSessionSerializer(serializers.Serializer):
         if "course_session_id" in data and "lesson_id" in data:
             raise ValidationError(
                 "The course_session_id and lesson_id are mutually exclusive identifiers"
+            )
+        if "unit_id" in data and ("node_id" in data or "quiz_id" in data):
+            raise ValidationError(
+                "unit_id must not be combined with node_id or quiz_id"
             )
 
     def _validate_node_id_fields(self, data):
@@ -140,6 +150,21 @@ class StartSessionSerializer(serializers.Serializer):
             errors["mastery_model"] = ValidationError(
                 "mastery model must not be specified for non-exercise kinds"
             )
+
+    def _validate_unit_id_fields(self, data):
+        if "unit_id" not in data:
+            return
+        errors = {}
+        if "test_type" not in data:
+            errors["test_type"] = ValidationError(
+                "test_type is required when unit_id is provided"
+            )
+        if "course_session_id" not in data:
+            errors["course_session_id"] = ValidationError(
+                "course_session_id is required when unit_id is provided"
+            )
+        if errors:
+            raise ValidationError(errors)
 
 
 class InteractionSerializer(serializers.Serializer):
