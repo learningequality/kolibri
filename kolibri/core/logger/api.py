@@ -1,4 +1,6 @@
+import hashlib
 import logging
+import uuid as uuid_module
 from datetime import timedelta
 from itertools import groupby
 from math import ceil
@@ -236,13 +238,21 @@ class LogContext:
     indicate a different try at the assessment.
     course_session_id - represents the id of the CourseSession model object that this
     session is regarding (if any).
+    unit_id - represents the id of the unit ContentNode for pre/post test sessions.
     This is used to encode the values that are sent when initializing a session
     (see its use in the _get_context method below)
     and then also used to hold the values from an existing sessionlog when
     updating a session (see _update_session method).
     """
 
-    __slots__ = "node_id", "quiz_id", "lesson_id", "mastery_level", "course_session_id"
+    __slots__ = (
+        "node_id",
+        "quiz_id",
+        "lesson_id",
+        "mastery_level",
+        "course_session_id",
+        "unit_id",
+    )
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -356,6 +366,38 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             channel_id = None
             kind = content_kinds.QUIZ
             context["quiz_id"] = quiz_id
+        else:
+            # Pre/post test branch — unit_id is guaranteed present by validation
+            unit_id = validated_data["unit_id"]
+            test_type = validated_data["test_type"]
+            self._check_course_session_permissions(user, course_session_id)
+
+            # Deterministic hash for A/B split
+            raw = "{}:{}:{}".format(user.id, course_session_id, unit_id)
+            deterministic_hash = hashlib.md5(raw.encode()).hexdigest()
+
+            # A/B version: last hex digit even -> pre=A/post=B; odd -> reverse
+            last_digit = int(deterministic_hash[-1], 16)
+            if last_digit % 2 == 0:
+                version = "A" if test_type == "pre" else "B"
+            else:
+                version = "B" if test_type == "pre" else "A"
+
+            mastery_model = {
+                "type": exercises.PRE_POST_TEST,
+                "version": version,
+                "test_type": test_type,
+            }
+
+            # Synthetic content_id: UUID5 so pre and post are distinct
+            content_id = uuid_module.uuid5(
+                uuid_module.UUID(deterministic_hash), test_type
+            ).hex
+            channel_id = None
+            kind = content_kinds.QUIZ
+
+            context["unit_id"] = unit_id
+            context["course_session_id"] = course_session_id
         return content_id, channel_id, kind, mastery_model, context
 
     def _get_or_create_summarylog(
