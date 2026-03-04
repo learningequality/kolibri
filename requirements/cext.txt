@@ -4,5 +4,7 @@
 # in other files to ensure they are properly
 # installed - as these dependencies are installed
 # without their dependencies.
-cffi==1.15.1
-cryptography==40.0.2
+cffi==1.15.1; python_version < "3.14"
+cffi>=2.0; python_version >= "3.14"
+cryptography==40.0.2; python_version < "3.14"
+cryptography>=42.0; python_version >= "3.14"
