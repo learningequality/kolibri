@@ -334,4 +334,12 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Previous resource',
     context: 'Action label for navigating to the previous resource in a course unit',
   },
+  courseDetailsAction: {
+    message: 'Course details',
+    context: 'Action label to view course details',
+  },
+  editRecipientsAction: {
+    message: 'Edit Recipients',
+    context: 'Action label for editing which learners are assigned to a course.',
+  },
 });
