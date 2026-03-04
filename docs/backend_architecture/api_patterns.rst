@@ -34,130 +34,241 @@ Overview
 Basic Usage
 ~~~~~~~~~~~
 
-A minimal ``ValuesViewset`` requires defining the ``values`` tuple:
+Define a DRF serializer as the single source of truth for the API shape. The viewset automatically derives the ``values()`` query and field transformations from the serializer's field definitions:
 
 .. code-block:: python
 
+  from rest_framework import serializers
   from kolibri.core.api import ValuesViewset
   from kolibri.core.auth.api import KolibriAuthPermissions
   from .models import Lesson
 
-  # Permissions are typically defined in the same file as the viewset
-  class LessonPermissions(KolibriAuthPermissions):
-      pass
+  class LessonSerializer(serializers.ModelSerializer):
+      class Meta:
+          model = Lesson
+          fields = ("id", "title", "description", "is_active", "created_by", "date_created")
 
   class LessonViewset(ValuesViewset):
+      serializer_class = LessonSerializer
       queryset = Lesson.objects.all()
-      permission_classes = (LessonPermissions,)
+      permission_classes = (KolibriAuthPermissions,)
 
-      # Tuple of fields to fetch from database
-      values = (
-          "id",
-          "title",
-          "description",
-          "is_active",
-          "created_by",
-          "date_created",
-      )
+From this, the viewset automatically derives:
 
-Key Attributes and Methods
+- **values tuple**: ``("id", "title", "description", "is_active", "created_by", "date_created")``
+- **field transformations**: Each field's ``to_representation()`` method handles type coercion where needed
+
+The model should define a default ``ordering`` in its ``Meta``, or the viewset's ``queryset`` should set an explicit ``order_by()`` — response ordering (and pagination) is nondeterministic otherwise.
+
+How Derivation Works
+~~~~~~~~~~~~~~~~~~~~
+
+The viewset introspects the serializer's fields to build the values tuple and field mappings. The rules are:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - Serializer Pattern
+     - Derived Behavior
+   * - ``field = CharField()``
+     - Add ``'field'`` to values
+   * - ``field = CharField(source='other')``
+     - Add ``'other'`` to values, rename to ``'field'`` in output
+   * - ``field = BooleanField(source='x.y')``
+     - Add ``'x__y'`` to values, ``field.to_representation()`` handles coercion
+   * - ``field = CharField(write_only=True)``
+     - Skip (not in read output)
+   * - ``nested = NestedSerializer(many=True)``
+     - Flatten nested fields with prefix, auto-consolidate child rows into a list per parent
+   * - ``nested = NestedSerializer()``
+     - Flatten nested fields with prefix, extract as dict per row
+   * - Custom field with ``to_representation()``
+     - Custom transformation applied automatically
+   * - ``field = ValuesMethodField(sources=(...))``
+     - Add declared sources to values; invoke ``get_<field>`` per row over a proxy of those sources
+   * - ``field = SerializerMethodField()``
+     - Rejected at viewset init — use ``ValuesMethodField`` so sources are explicit
+
+Computed and Derived Fields
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``values`` (required)
-^^^^^^^^^^^^^^^^^^^^^
+When an output value isn't a direct column read, the table below covers the common shapes. ``ValuesMethodField`` is fine as the default for one-off per-row computation; promote to a custom ``Field`` subclass only when the same transform recurs across serializers.
 
-Tuple of database field names to fetch. Supports foreign key lookups using ``__`` notation:
+.. list-table::
+   :header-rows: 1
+   :widths: 50 50
 
-.. code-block:: python
+   * - Intent
+     - Do this
+   * - Expose a (possibly null) related attribute
+     - ``BooleanField(source="dataset.x", default=False)``
+   * - Constant value
+     - ``ReadOnlyField(default=...)``
+   * - M2M PK collection
+     - Nested ``many=True`` serializer, or ``ArrayAgg`` annotation
+   * - Count/aggregate over relation
+     - ``annotate_queryset``
+   * - Per-row transform or computation (one-off)
+     - ``ValuesMethodField(sources=(...))``
+   * - Per-row transform reused across serializers
+     - Custom ``Field`` subclass with ``to_representation`` (e.g. ``SplitTextField``)
+   * - Per-row computation that needs request context
+     - ``ValuesMethodField(sources=(...))`` + ``self.context["request"]``
 
-  values = (
-      "id",
-      "title",
-      "collection__id",        # FK lookup: classroom ID
-      "collection__name",      # FK lookup: classroom name
-      "collection__parent_id", # FK lookup: facility ID
-  )
+ValuesMethodField
+^^^^^^^^^^^^^^^^^
 
-``field_map`` (optional)
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Dictionary mapping API field names to database fields or transformation functions:
-
-.. code-block:: python
-
-  # Simple string mapping (rename fields)
-  field_map = {
-      "active": "is_active",              # API: active, DB: is_active
-      "classroom_id": "collection__id",   # Rename FK field
-  }
-
-  # Callable mapping (transform data)
-  def _transform_classroom(item):
-      """Restructure classroom data from flat to nested"""
-      return {
-          "id": item.pop("collection__id"),
-          "name": item.pop("collection__name"),
-          "parent": item.pop("collection__parent_id"),
-      }
-
-  field_map = {
-      "classroom": _transform_classroom,  # Returns nested object
-  }
-
-``annotate_queryset(queryset)`` (optional)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Method to add computed/aggregated fields before serialization:
+A plain ``SerializerMethodField`` is rejected at viewset init — the viewset cannot infer which columns the method reads. Declare them with ``ValuesMethodField(sources=(...))``:
 
 .. code-block:: python
 
-  from kolibri.core.query import annotate_array_aggregate
+  from kolibri.core.api import ValuesMethodField
 
-  class MyViewset(ValuesViewset):
-      # ...
+  class UserSerializer(serializers.ModelSerializer):
+      contact_label = ValuesMethodField(sources=("full_name", "email"))
 
-      def annotate_queryset(self, queryset):
-          """Add aggregated learner IDs"""
-          return annotate_array_aggregate(
-              queryset,
-              learner_ids="lesson_assignments__collection__membership__user_id"
+      def get_contact_label(self, row):
+          return "{} <{}>".format(row.full_name, row.email)
+
+- ``sources`` are added to the ``values()`` call. Dotted sources (``"publisher.name"``) are walked: ``row.publisher.name`` reads the ``publisher__name`` column.
+- ``row`` is a proxy exposing only the declared paths; anything else raises ``AttributeError``.
+- Values are Python types after Django's coercion, not serialized strings — a ``DateTimeField`` source is a ``datetime``.
+- Sources referenced *only* by the method are stripped from the output — method inputs, not outputs.
+- ``self.context`` carries per-request state (``request``, ``view``, ``format``) for the duration of each ``serialize()`` call.
+
+Nested Serializers
+~~~~~~~~~~~~~~~~~~
+
+Nested serializers can be handled in two ways: **joined** (default) or **deferred**.
+
+Joined (Default) — Auto-Consolidated
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When a nested serializer is not listed in ``deferred_fields``, its fields are included in the main ``values()`` call with a prefix. The resulting flat rows are automatically consolidated back into nested structures:
+
+.. code-block:: python
+
+  class RoleSerializer(serializers.ModelSerializer):
+      class Meta:
+          model = Role
+          fields = ("id", "kind", "collection")
+
+  class UserSerializer(serializers.ModelSerializer):
+      roles = RoleSerializer(many=True, read_only=True)
+
+      class Meta:
+          model = FacilityUser
+          fields = ("id", "username", "roles")
+
+  class UserViewSet(ReadOnlyValuesViewset):
+      serializer_class = UserSerializer
+      queryset = FacilityUser.objects.all()
+
+The viewset fetches ``("id", "username", "roles__id", "roles__kind", "roles__collection")`` and auto-consolidates:
+
+.. code-block:: python
+
+  # Raw values() output (multiple rows per user due to LEFT JOIN):
+  [
+      {"id": "user1", "username": "alice", "roles__id": "r1", "roles__kind": "admin", ...},
+      {"id": "user1", "username": "alice", "roles__id": "r2", "roles__kind": "coach", ...},
+      {"id": "user2", "username": "bob",   "roles__id": "r3", "roles__kind": "learner", ...},
+  ]
+
+  # After auto-consolidation (grouped by primary key):
+  [
+      {"id": "user1", "username": "alice", "roles": [
+          {"id": "r1", "kind": "admin", ...},
+          {"id": "r2", "kind": "coach", ...},
+      ]},
+      {"id": "user2", "username": "bob", "roles": [
+          {"id": "r3", "kind": "learner", ...},
+      ]},
+  ]
+
+Auto-consolidation handles:
+
+- Grouping rows by parent primary key
+- Deduplicating nested items (e.g., from annotation JOINs)
+- NULL handling for LEFT JOINs (null FK → ``None`` for single nested, empty list for ``many=True``)
+- Preserving original queryset ordering
+
+**Constraints:**
+
+- Only one ``many=True`` nested serializer may be joined per viewset (multiple would create a cartesian product). Additional ``many=True`` fields must be deferred.
+- Deep nesting (nested serializers within nested serializers) is not supported for joined fields. Use ``deferred_fields`` and a custom ``consolidate()`` method instead.
+
+These constraints are checked at viewset instantiation time when ``DEBUG=True``.
+
+Deferred — Fetched Separately in consolidate()
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For nested data that should be fetched with separate queries (for performance reasons, to avoid cartesian products, or when the relation is complex), list the field in ``deferred_fields`` and use ``serialize_queryset()`` in ``consolidate()``:
+
+.. code-block:: python
+
+  class FileSerializer(serializers.ModelSerializer):
+      class Meta:
+          model = File
+          fields = ("id", "filename", "file_size")
+
+  class ContentNodeSerializer(serializers.ModelSerializer):
+      files = FileSerializer(many=True, read_only=True)
+      tags = TagSerializer(many=True, read_only=True)
+
+      class Meta:
+          model = ContentNode
+          fields = ("id", "title", "kind", "files", "tags")
+
+  class ContentNodeViewSet(ReadOnlyValuesViewset):
+      serializer_class = ContentNodeSerializer
+      queryset = ContentNode.objects.all()
+      deferred_fields = ("files", "tags")
+
+      def consolidate(self, items, queryset):
+          if not items:
+              return items
+
+          node_ids = [item["id"] for item in items]
+
+          files_map = self.serialize_queryset(
+              File.objects.filter(contentnode_id__in=node_ids),
+              "files",
+              group_by="contentnode_id",
           )
 
-``consolidate(items, queryset)`` (optional)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Method to post-process the serialized items. Useful for adding related data that would be inefficient to fetch via ``values()`` (e.g., data that would cause complex subqueries worse for performance than a separate query).
-
-**Important:** Use ``__in`` lookups on the IDs of the fetched items, not on the original queryset, for efficient batch fetching:
-
-.. code-block:: python
-
-  def consolidate(self, items, queryset):
-      """Add related assignment data"""
-      if items:
-          # Extract IDs from the already-fetched items
-          lesson_ids = [item["id"] for item in items]
-
-          # Fetch related data in a separate efficient query using __in
-          assignments = Assignment.objects.filter(
-              lesson_id__in=lesson_ids
-          ).select_related('collection')
-
-          assignments_by_lesson = {
-              a.lesson_id: a for a in assignments
-          }
+          tags_map = self.serialize_queryset(
+              ContentTag.objects.filter(tagged_content_id__in=node_ids),
+              "tags",
+              group_by="tagged_content_id",
+          )
 
           for item in items:
-              item["assignment"] = assignments_by_lesson.get(item["id"])
-              item["resources"] = item.get("resources") or []
+              item["files"] = files_map.get(item["id"], [])
+              item["tags"] = tags_map.get(item["id"], [])
 
-      return items
+          return items
+
+The ``serialize_queryset()`` method applies the values pattern using the nested serializer's field definitions. It accepts a ``group_by`` parameter to return a dict mapping group keys to item lists, which is convenient for mapping back to parent items.
+
+Dev-Mode Validation
+~~~~~~~~~~~~~~~~~~~~
+
+When ``DEBUG=True``, ``serialize()`` validates that the output matches the serializer contract after ``consolidate()`` runs. This catches:
+
+- Missing fields (field in serializer but not in output)
+- Extra fields (field in output but not in serializer)
+- Nested field mismatches
+
+This validation only runs in development and has no production overhead. If your ``consolidate()`` modifies the output shape, the serializer must declare all output fields.
 
 Complete Example
 ~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
+  from rest_framework import serializers
   from django_filters.rest_framework import DjangoFilterBackend
   from kolibri.core.api import ValuesViewset
   from kolibri.core.auth.api import KolibriAuthPermissions
@@ -165,48 +276,37 @@ Complete Example
   from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
   from kolibri.core.query import annotate_array_aggregate
   from .models import Lesson, LessonAssignment
-  from .serializers import LessonSerializer
 
 
-  class LessonPermissions(KolibriAuthPermissions):
-      # Defined in the same file as the viewset (not a separate permissions module)
-      pass
+  class ClassroomSerializer(serializers.ModelSerializer):
+      class Meta:
+          model = Classroom
+          fields = ("id", "name", "parent_id")
 
 
-  def _map_lesson_classroom(item):
-      """Transform flat classroom fields to nested object"""
-      return {
-          "id": item.pop("collection__id"),
-          "name": item.pop("collection__name"),
-          "parent": item.pop("collection__parent_id"),
-      }
+  class LessonSerializer(serializers.ModelSerializer):
+      active = serializers.BooleanField(source="is_active")
+      classroom = ClassroomSerializer(source="collection", read_only=True)
+      learner_ids = serializers.ListField(read_only=True)
+      lesson_assignment_collections = serializers.ListField(read_only=True)
+
+      class Meta:
+          model = Lesson
+          fields = (
+              "id", "title", "description", "resources",
+              "active", "classroom",
+              "created_by", "date_created",
+              "learner_ids", "lesson_assignment_collections",
+          )
 
 
   class LessonViewset(ValuesViewset):
       serializer_class = LessonSerializer
       queryset = Lesson.objects.all().order_by("-date_created")
-      permission_classes = (LessonPermissions,)
+      permission_classes = (KolibriAuthPermissions,)
       filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
       filterset_fields = ("collection", "id")
-
-      values = (
-          "id",
-          "title",
-          "description",
-          "resources",
-          "is_active",
-          "collection",           # Classroom FK (as ID, used for filtering)
-          "collection__id",       # Classroom ID (used by _map_lesson_classroom)
-          "collection__name",     # Classroom name (used by _map_lesson_classroom)
-          "collection__parent_id",# Facility ID (used by _map_lesson_classroom)
-          "created_by",
-          "date_created",
-      )
-
-      field_map = {
-          "active": "is_active",              # Rename field
-          "classroom": _map_lesson_classroom, # Transform to nested object
-      }
+      deferred_fields = ("classroom",)
 
       def annotate_queryset(self, queryset):
           """Add aggregated assignment collections"""
@@ -216,29 +316,35 @@ Complete Example
           )
 
       def consolidate(self, items, queryset):
-          """Add learner IDs for ad-hoc assignments"""
-          if items:
-              # Extract IDs from fetched items for efficient batch query
-              lesson_ids = [item["id"] for item in items]
+          """Add classroom data and learner IDs for ad-hoc assignments"""
+          if not items:
+              return items
 
-              adhoc_assignments = LessonAssignment.objects.filter(
-                  lesson_id__in=lesson_ids,
-                  collection__kind=ADHOCLEARNERSGROUP
-              )
-              adhoc_assignments = annotate_array_aggregate(
-                  adhoc_assignments,
-                  learner_ids="collection__membership__user_id"
-              )
-              adhoc_map = {
-                  a["lesson"]: a
-                  for a in adhoc_assignments.values("lesson", "learner_ids")
-              }
+          lesson_ids = [item["id"] for item in items]
 
-              for item in items:
-                  if item["id"] in adhoc_map:
-                      item["learner_ids"] = adhoc_map[item["id"]]["learner_ids"]
-                  else:
-                      item["learner_ids"] = []
+          # Use serialize_queryset for deferred nested data
+          classroom_map = self.serialize_queryset(
+              Classroom.objects.filter(lesson__id__in=lesson_ids),
+              "classroom",
+              group_by="id",
+          )
+
+          adhoc_assignments = LessonAssignment.objects.filter(
+              lesson_id__in=lesson_ids,
+              collection__kind=ADHOCLEARNERSGROUP,
+          )
+          adhoc_assignments = annotate_array_aggregate(
+              adhoc_assignments,
+              learner_ids="collection__membership__user_id",
+          )
+          adhoc_map = {
+              a["lesson"]: a
+              for a in adhoc_assignments.values("lesson", "learner_ids")
+          }
+
+          for item in items:
+              item["classroom"] = classroom_map.get(item["collection"], [None])[0]
+              item["learner_ids"] = adhoc_map.get(item["id"], {}).get("learner_ids", [])
 
           return items
 
@@ -289,34 +395,71 @@ Full CRUD operations (Create, Retrieve, Update, Delete, List):
 Best Practices
 ~~~~~~~~~~~~~~
 
-1. **Only fetch needed fields**: Keep the ``values`` tuple minimal. Don't fetch fields you won't use.
+1. **Serializer as source of truth**: Define the API shape in the serializer. Don't duplicate field definitions between serializer and viewset.
 
-2. **Use field_map for clarity**: Rename fields in ``field_map`` rather than in templates/frontend to keep API consistent.
+2. **Use source for renames**: Use ``source`` on serializer fields rather than ``field_map`` for renaming.
 
-3. **Batch related queries in consolidate**: If you need related data, fetch it efficiently in ``consolidate`` using ``__in`` lookups on the IDs from already-fetched items.
+3. **Defer wisely**: Use ``deferred_fields`` for ``many=True`` relations that would create large cartesian products, or for relations that require complex queries. Keep simple FK lookups as joined.
 
-4. **Use annotate_queryset for aggregations**: Add computed fields via ``annotate_queryset`` rather than post-processing.
+4. **Batch related queries in consolidate**: Fetch deferred data efficiently using ``serialize_queryset()`` with ``group_by`` and ``__in`` lookups on IDs from already-fetched items.
 
-5. **Keep transformations simple**: Complex transformations in ``field_map`` callables can negate performance benefits.
+5. **Use annotate_queryset for aggregations**: Add computed fields via ``annotate_queryset`` rather than post-processing.
 
-6. **Test query performance**: Use Django Silk to profile your endpoints and verify query counts, execution time, and identify N+1 query issues. This is essential for ensuring your ValuesViewset implementation is actually performant.
+6. **Test query performance**: Use Django Silk to profile your endpoints and verify query counts, execution time, and identify N+1 query issues.
 
 Common Pitfalls
 ~~~~~~~~~~~~~~~
 
-**Forgetting to include FK fields in values**
+**Multiple many=True nested serializers without deferring**
 
 .. code-block:: python
 
-  # Wrong: field_map references collection__name but it's not in values
-  values = ("id", "title")
-  field_map = {"classroom": lambda x: x.pop("collection__name")}  # KeyError!
+  # Wrong: cartesian product — two many=True JOINs multiply rows
+  class UserSerializer(serializers.ModelSerializer):
+      roles = RoleSerializer(many=True)
+      groups = GroupSerializer(many=True)
 
-  # Correct: include all referenced fields
-  values = ("id", "title", "collection__name")
-  field_map = {"classroom": lambda x: x.pop("collection__name")}
+      class Meta:
+          model = FacilityUser
+          fields = ("id", "roles", "groups")
 
-**Modifying items without returning them in consolidate**
+  class UserViewSet(ReadOnlyValuesViewset):
+      serializer_class = UserSerializer  # Raises TypeError in DEBUG
+
+  # Correct: defer one of them
+  class UserViewSet(ReadOnlyValuesViewset):
+      serializer_class = UserSerializer
+      deferred_fields = ("groups",)
+
+      def consolidate(self, items, queryset):
+          # Fetch groups separately
+          ...
+
+**Deep nesting without deferring**
+
+.. code-block:: python
+
+  # Wrong: nested serializer within nested serializer
+  class GrandchildSerializer(serializers.ModelSerializer):
+      class Meta:
+          fields = ("id", "name")
+
+  class ChildSerializer(serializers.ModelSerializer):
+      grandchildren = GrandchildSerializer(many=True)
+      class Meta:
+          fields = ("id", "grandchildren")
+
+  class ParentSerializer(serializers.ModelSerializer):
+      children = ChildSerializer(many=True)
+      class Meta:
+          fields = ("id", "children")
+
+  # Correct: defer deeply nested fields
+  class ParentViewSet(ReadOnlyValuesViewset):
+      serializer_class = ParentSerializer
+      deferred_fields = ("children",)  # Fetch children (and grandchildren) in consolidate
+
+**Forgetting to return items from consolidate**
 
 .. code-block:: python
 
@@ -332,18 +475,109 @@ Common Pitfalls
           item["foo"] = "bar"
       return items
 
-**Using pop() in field_map callables without checking existence**
+Migrating from Explicit Values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Existing viewsets that use explicit ``values`` tuples and ``field_map`` dicts continue to work. To migrate to the serializer-derived pattern:
+
+1. **Ensure API tests exist** for the viewset. Write them if missing — they must pass before and after migration.
+
+2. **Capture a performance baseline** before making any changes. The benchmark script measures serialization timing, memory usage, and query count:
+
+   .. code-block:: bash
+
+     python integration_testing/scripts/viewset_serialization_benchmark.py \
+         kolibri.core.auth.api.FacilityUserViewSet \
+         -o baseline.json
+
+   This saves timing, memory, query count, and a data hash to ``baseline.json``.
+
+3. **Update the serializer** to declare all read fields with correct ``source`` attributes:
+
+   .. code-block:: python
+
+     # Before: separate values/field_map
+     class MyViewSet(ValuesViewset):
+         serializer_class = MySerializer  # may be write-only
+         values = ("id", "full_name", "devicepermissions__is_superuser")
+         field_map = {
+             "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser")),
+         }
+
+     # After: serializer defines everything
+     class MySerializer(serializers.ModelSerializer):
+         is_superuser = serializers.BooleanField(
+             source="devicepermissions.is_superuser",
+             read_only=True,
+         )
+
+         class Meta:
+             model = FacilityUser
+             fields = ("id", "full_name", "is_superuser")
+
+     class MyViewSet(ValuesViewset):
+         serializer_class = MySerializer
+         # No values or field_map needed
+
+4. **Convert ``field_map`` callables** to one of:
+
+   - A serializer field with ``source`` (for simple renames)
+   - A custom field class with ``to_representation()`` (for transforms repeated across serializers)
+   - A ``ValuesMethodField(sources=(...))`` (for one-off computation from one or more columns)
+   - Deferred field handling in ``consolidate()`` (for complex restructuring)
+
+5. **Convert manual consolidation** of nested data:
+
+   - If the viewset manually does ``groupby`` to build nested lists, define a nested serializer with ``many=True`` and let auto-consolidation handle it
+   - If the nested data is fetched separately, add it to ``deferred_fields`` and use ``serialize_queryset()``
+
+6. **Remove** the explicit ``values`` tuple and ``field_map`` dict.
+
+7. **Run tests** and verify output is identical.
+
+8. **Compare performance against the baseline**:
+
+   .. code-block:: bash
+
+     python integration_testing/scripts/viewset_serialization_benchmark.py \
+         kolibri.core.auth.api.FacilityUserViewSet \
+         --compare baseline.json
+
+   The script compares timing and memory against the baseline and flags regressions that exceed configurable thresholds (default: 5% timing, 10% memory). It also compares data hashes to confirm output equivalence.
+
+   If a regression is detected, investigate before proceeding — the serializer-derived path should be at least as fast as the explicit pattern. Common causes include unnecessary ``to_representation`` calls on fields that could use inferred types, or missing ``select_related``/``prefetch_related`` on the queryset.
+
+Explicit Values (Legacy)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+
+   The explicit ``values``/``field_map`` pattern described below is being replaced by the serializer-derived pattern above. Existing viewsets using this pattern continue to work, but new viewsets should use serializer derivation.
+
+A ``ValuesViewset`` can define an explicit ``values`` tuple and ``field_map`` dict:
 
 .. code-block:: python
 
-  # Wrong: KeyError if field doesn't exist
-  field_map = {"classroom": lambda x: x.pop("collection__name")}
+  class LessonViewset(ValuesViewset):
+      queryset = Lesson.objects.all()
+      values = ("id", "title", "is_active", "collection__name")
+      field_map = {
+          "active": "is_active",
+          "classroom": lambda x: x.pop("collection__name"),
+      }
 
-  # Better: check existence
-  def _map_classroom(item):
-      return item.pop("collection__name", None)
+``values``
+^^^^^^^^^^^
 
-  field_map = {"classroom": _map_classroom}
+Tuple of database field names to fetch. Supports foreign key lookups using ``__`` notation.
+
+``field_map``
+^^^^^^^^^^^^^^
+
+Dictionary mapping output field names to either:
+
+- **String**: simple rename (``"api_name": "db_field"``)
+- **Callable**: transformation function receiving the item dict
 
 Related Documentation
 ~~~~~~~~~~~~~~~~~~~~~
