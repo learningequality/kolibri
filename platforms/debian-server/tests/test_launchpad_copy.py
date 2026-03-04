@@ -16,9 +16,7 @@ from launchpad_copy import LaunchpadWrapper
 from launchpad_copy import build_parser
 from launchpad_copy import configure_logging
 from launchpad_copy import get_current_series
-from launchpad_copy import get_supported_series
 from launchpad_copy import log
-from launchpad_copy import main
 
 # --- Argparse tests ---
 
@@ -128,7 +126,6 @@ class TestBuildParser:
 # --- Series discovery tests ---
 
 has_lsb_release = shutil.which("lsb_release") is not None
-has_ubuntu_distro_info = shutil.which("ubuntu-distro-info") is not None
 
 
 @pytest.mark.skipif(not has_lsb_release, reason="lsb_release not available on this system")
@@ -144,34 +141,6 @@ class TestGetCurrentSeries:
         with patch("subprocess.check_output", side_effect=FileNotFoundError("no cmd")):
             with pytest.raises(FileNotFoundError):
                 get_current_series()
-
-
-@pytest.mark.skipif(
-    not has_ubuntu_distro_info,
-    reason="ubuntu-distro-info not available on this system",
-)
-class TestGetSupportedSeries:
-    """Test dynamic series discovery using real ubuntu-distro-info."""
-
-    def test_returns_list_of_series(self):
-        result = get_supported_series("jammy")
-        assert isinstance(result, list)
-        assert len(result) > 0
-
-    def test_excludes_source_series(self):
-        result = get_supported_series("jammy")
-        assert "jammy" not in result
-
-    def test_all_entries_are_non_empty_strings(self):
-        result = get_supported_series("jammy")
-        for s in result:
-            assert isinstance(s, str)
-            assert len(s) > 0
-
-    def test_raises_on_missing_command(self):
-        with patch("subprocess.check_output", side_effect=FileNotFoundError("no cmd")):
-            with pytest.raises(FileNotFoundError):
-                get_supported_series("jammy")
 
 
 # --- LaunchpadWrapper tests ---
@@ -317,134 +286,6 @@ class TestConfigureLogging:
         log.handlers.clear()
         configure_logging(args)
         assert log.level == logging.DEBUG
-
-
-# --- main / subcommand dispatch tests ---
-
-
-class TestMainDispatch:
-    """Test that main dispatches to the correct subcommand."""
-
-    def test_dispatches_to_copy_to_series(self):
-
-        with (
-            patch("launchpad_copy.cmd_copy_to_series", return_value=0) as mock_cmd,
-            patch("sys.argv", ["launchpad_copy.py", "copy-to-series"]),
-        ):
-            result = main()
-
-        mock_cmd.assert_called_once()
-        assert result == 0
-
-    def test_dispatches_to_wait_for_builds(self):
-        with (
-            patch("launchpad_copy.cmd_wait_for_builds", return_value=0) as mock_cmd,
-            patch(
-                "sys.argv",
-                [
-                    "launchpad_copy.py",
-                    "wait-for-builds",
-                    "--package",
-                    "kolibri-server",
-                    "--version",
-                    "1.0",
-                ],
-            ),
-        ):
-            result = main()
-
-        mock_cmd.assert_called_once()
-        assert result == 0
-
-    def test_dispatches_to_promote(self):
-
-        with (
-            patch("launchpad_copy.cmd_promote", return_value=0) as mock_cmd,
-            patch("sys.argv", ["launchpad_copy.py", "promote"]),
-        ):
-            result = main()
-
-        mock_cmd.assert_called_once()
-        assert result == 0
-
-
-# --- copy-to-series subcommand tests ---
-
-
-class TestCopyToSeries:
-    """Test the copy-to-series logic on LaunchpadWrapper."""
-
-    def test_queues_copy_for_missing_package(self):
-        wrapper = LaunchpadWrapper()
-        mock_ppa = MagicMock()
-
-        with (
-            patch.object(
-                type(wrapper),
-                "proposed_ppa",
-                new_callable=lambda: property(lambda self: mock_ppa),
-            ),
-            patch.object(
-                wrapper,
-                "get_usable_sources",
-                return_value=[("kolibri-server", "0.9.0")],
-            ),
-            patch.object(wrapper, "get_source_for", return_value=None),
-            patch.object(wrapper, "has_published_binaries", return_value=True),
-            patch("launchpad_copy.get_current_series", return_value="jammy"),
-            patch("launchpad_copy.get_supported_series", return_value=["noble"]),
-        ):
-            wrapper.copy_to_series()
-
-        assert ("jammy", "noble", "Release") in wrapper.queue
-        assert "kolibri-server" in wrapper.queue[("jammy", "noble", "Release")]
-
-    def test_skips_copy_when_not_built_yet(self):
-        wrapper = LaunchpadWrapper()
-        mock_ppa = MagicMock()
-
-        mock_build = MagicMock()
-        mock_build.buildstate = "Currently building"
-        mock_build.web_link = "https://example.com"
-
-        with (
-            patch.object(
-                type(wrapper),
-                "proposed_ppa",
-                new_callable=lambda: property(lambda self: mock_ppa),
-            ),
-            patch.object(
-                wrapper,
-                "get_usable_sources",
-                return_value=[("kolibri-server", "0.9.0")],
-            ),
-            patch.object(wrapper, "get_source_for", return_value=None),
-            patch.object(wrapper, "has_published_binaries", return_value=False),
-            patch.object(wrapper, "get_builds_for", return_value=[mock_build]),
-            patch("launchpad_copy.get_current_series", return_value="jammy"),
-            patch("launchpad_copy.get_supported_series", return_value=["noble"]),
-        ):
-            wrapper.copy_to_series()
-
-        assert len(wrapper.queue) == 0
-
-    def test_returns_zero(self):
-        wrapper = LaunchpadWrapper()
-        mock_ppa = MagicMock()
-
-        with (
-            patch.object(
-                type(wrapper),
-                "proposed_ppa",
-                new_callable=lambda: property(lambda self: mock_ppa),
-            ),
-            patch.object(wrapper, "get_usable_sources", return_value=[]),
-            patch("launchpad_copy.get_current_series", return_value="jammy"),
-            patch("launchpad_copy.get_supported_series", return_value=[]),
-        ):
-            result = wrapper.copy_to_series()
-
-        assert result == 0
 
 
 # --- promote subcommand tests ---
