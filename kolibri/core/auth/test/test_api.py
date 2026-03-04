@@ -673,6 +673,42 @@ class FacilityAPITestCase(APITestCase):
                 item["facility"],
             )
 
+    def test_public_facilityuser_roles_are_flat_strings(self):
+        """Roles must be a flat list of kind strings, not nested objects.
+
+        Consumers (RemoteFacilityUserAuthenticatedViewset, peer import
+        validation, frontend JS) do ``role in roles`` checks against plain
+        strings like "admin", so the shape must stay ["admin", ...].
+        """
+        # Give user1 an admin role on the facility
+        models.Role.objects.create(
+            user=self.user1, collection=self.facility1, kind="admin"
+        )
+        credentials = base64.b64encode(
+            str.encode(
+                "username={}&{}={}:{}".format(
+                    self.superuser.username,
+                    FACILITY_CREDENTIAL_KEY,
+                    self.facility1.id,
+                    DUMMY_PASSWORD,
+                )
+            )
+        ).decode("ascii")
+        self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
+        response = self.client.get(
+            reverse("kolibri:core:publicuser-list"),
+            {"facility_id": self.facility1.id},
+            format="json",
+        )
+        user1_data = next(u for u in response.data if u["id"] == self.user1.id)
+        self.assertEqual(user1_data["roles"], ["admin"])
+        # Regular user with no roles gets an empty list
+        user2_data = next(
+            (u for u in response.data if u["roles"] == []),
+            None,
+        )
+        self.assertIsNotNone(user2_data)
+
     def test_create_new_facility_non_superuser_permission_denied(self):
         self.client.login(
             username=self.user1.username,

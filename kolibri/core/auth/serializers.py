@@ -144,8 +144,22 @@ class RoleSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class FacilityUserRoleSerializer(serializers.ModelSerializer):
+    """Read-only role serializer for FacilityUser API responses.
+
+    Excludes 'user' since it's redundant when nested inside a user response.
+    """
+
+    class Meta:
+        model = Role
+        fields = ("id", "kind", "collection")
+
+
 class FacilityUserSerializer(serializers.ModelSerializer):
-    roles = RoleSerializer(many=True, read_only=True)
+    roles = FacilityUserRoleSerializer(many=True, read_only=True)
+    is_superuser = serializers.BooleanField(
+        source="devicepermissions.is_superuser", default=False, read_only=True
+    )
     facility = serializers.PrimaryKeyRelatedField(
         queryset=Facility.objects.all(),
         default=Facility.get_default_facility,
@@ -170,6 +184,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             "birth_year",
             "extra_demographics",
             "picture_password",
+            "date_joined",
         )
         read_only_fields = ("is_superuser", "picture_password")
 
@@ -247,6 +262,34 @@ class FacilityUserSerializer(serializers.ModelSerializer):
                 "An account with that username already exists.",
                 code=error_constants.USERNAME_ALREADY_EXISTS,
             )
+
+
+class DeletedFacilityUserSerializer(FacilityUserSerializer):
+    class Meta(FacilityUserSerializer.Meta):
+        fields = FacilityUserSerializer.Meta.fields + ("date_deleted",)
+
+
+class PublicFacilityUserSerializer(serializers.ModelSerializer):
+    """Read-only serializer for the public (device-to-device) user API."""
+
+    roles = serializers.CharField(source="roles.kind", read_only=True)
+    is_superuser = serializers.BooleanField(
+        source="devicepermissions.is_superuser", default=False, read_only=True
+    )
+
+    class Meta:
+        model = FacilityUser
+        fields = (
+            "id",
+            "username",
+            "full_name",
+            "facility",
+            "roles",
+            "is_superuser",
+            "id_number",
+            "gender",
+            "birth_year",
+        )
 
 
 class MembershipListSerializer(serializers.ListSerializer):

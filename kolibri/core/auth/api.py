@@ -68,6 +68,7 @@ from .models import Membership
 from .models import Role
 from .serializers import ClassroomSerializer
 from .serializers import CreateFacilitySerializer
+from .serializers import DeletedFacilityUserSerializer
 from .serializers import ExtraFieldsSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
@@ -75,6 +76,7 @@ from .serializers import FacilityUserSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
+from .serializers import PublicFacilityUserSerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ReadOnlyValuesViewset
@@ -533,23 +535,10 @@ class FacilityUserFilter(FilterSet):
 
 
 class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
-    queryset = FacilityUser.objects.all()
+    queryset = FacilityUser.objects.all().order_by("id")
+    serializer_class = PublicFacilityUserSerializer
     authentication_classes = [BasicMultiArgumentAuthentication]
     permission_classes = [IsAuthenticated]
-    values = (
-        "id",
-        "username",
-        "full_name",
-        "facility",
-        "roles__kind",
-        "devicepermissions__is_superuser",
-        "id_number",
-        "gender",
-        "birth_year",
-    )
-    field_map = {
-        "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser")),
-    }
 
     def get_queryset(self):
         if self.request.user.is_anonymous:
@@ -572,60 +561,8 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
 
         return queryset
 
-    def consolidate(self, items, queryset):
-        output = []
-        items = sorted(items, key=lambda x: x["id"])
-        for key, group in groupby(items, lambda x: x["id"]):
-            roles = []
-            for item in group:
-                role = item.pop("roles__kind")
-                if role is not None:
-                    roles.append(role)
-            item["roles"] = roles
-            output.append(item)
-        return output
 
-
-class FacilityUserConsolidateMixin:
-    """
-    Mixin for FacilityUser ViewSets to handle consolidate logic
-    """
-
-    def consolidate(self, items, queryset):
-        output = []
-        items = sorted(items, key=lambda x: x["id"])
-        ordering_param = self.request.query_params.get("ordering", self.order_by_field)
-        reverse = False
-        for key, group in groupby(items, lambda x: x["id"]):
-            roles = []
-            for item in group:
-                role = {
-                    "collection": item.pop("roles__collection"),
-                    "kind": item.pop("roles__kind"),
-                    "id": item.pop("roles__id"),
-                }
-                if role["collection"]:
-                    # Our values call will return null for users with no assigned roles
-                    # So filter them here.
-                    roles.append(role)
-            item["roles"] = roles
-            output.append(item)
-            if ordering_param.startswith("-"):
-                ordering_param = ordering_param[1:]
-                reverse = True
-        output = sorted(
-            output,
-            key=lambda x: (
-                x[ordering_param].lower()
-                if isinstance(x[ordering_param], str)
-                else x[ordering_param]
-            ),
-            reverse=reverse,
-        )
-        return output
-
-
-class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDeleteMixin):
+class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):
     permission_classes = (KolibriAuthPermissions,)
     pagination_class = OptionalPageNumberPagination
     filter_backends = (
@@ -642,23 +579,6 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
 
     search_fields = ("username", "full_name")
 
-    values = (
-        "id",
-        "username",
-        "full_name",
-        "facility",
-        "roles__kind",
-        "roles__collection",
-        "roles__id",
-        "devicepermissions__is_superuser",
-        "id_number",
-        "gender",
-        "birth_year",
-        "extra_demographics",
-        "date_joined",
-        "picture_password",
-    )
-
     ordering_fields = (
         "id",
         "username",
@@ -668,10 +588,6 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         "birth_year",
         "date_joined",
     )
-
-    field_map = {
-        "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
-    }
 
     def destroy(self, request, *args, **kwargs):
         if kwargs.get("pk"):
@@ -701,7 +617,6 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
 
 
 class DeletedFacilityUserViewSet(
-    FacilityUserConsolidateMixin,
     ReadOnlyValuesViewset,
     DestroyModelMixin,
     BulkDeleteMixin,
@@ -719,13 +634,11 @@ class DeletedFacilityUserViewSet(
 
     order_by_field = "date_deleted"
     queryset = FacilityUser.soft_deleted_objects.all().order_by(order_by_field)
-    serializer_class = FacilityUserSerializer
+    serializer_class = DeletedFacilityUserSerializer
     filterset_class = FacilityUserFilter
 
     search_fields = FacilityUserViewSet.search_fields
-    values = FacilityUserViewSet.values + ("date_deleted",)
     ordering_fields = FacilityUserViewSet.ordering_fields + ("date_deleted",)
-    field_map = FacilityUserViewSet.field_map
 
     @decorators.action(detail=False, methods=["post"])
     def restore(self, request):
