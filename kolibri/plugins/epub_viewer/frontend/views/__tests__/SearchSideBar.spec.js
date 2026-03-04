@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/vue';
+import { defineComponent, ref } from 'vue';
 import SearchSideBar from '../SearchSideBar';
 
 describe('Search side bar', () => {
@@ -19,12 +20,31 @@ describe('Search side bar', () => {
   });
 
   it('should allow parent to focus on input box', async () => {
-    renderComponent();
+    // renderComponent();
+    const Parent = defineComponent({
+      components: { SearchSideBar },
+      setup() {
+        const sidebarRef = ref(null);
+
+        function focusInput() {
+          sidebarRef.value.focusOnInput();
+        }
+
+        return { sidebarRef, focusInput };
+      },
+      template: 
+      ` <div>
+          <SearchSideBar ref="sidebarRef" :book="{}" />
+          <button @click="focusInput">Focus</button>
+        </div> `,
+    });
+
+    render(Parent, { attachTo: document.body });
+
+    const button = screen.getByRole('button', { name: 'Focus' });
+    button.click();
 
     const input = screen.getByRole('searchbox');
-
-    input.focus();
-
     expect(document.activeElement).toBe(input);
   });
 });
