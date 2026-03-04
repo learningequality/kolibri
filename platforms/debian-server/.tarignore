@@ -5,4 +5,7 @@
 .tarignore
 .vscode
 *.iml
+*.egg-info
+__pycache__
+.venv
 test
