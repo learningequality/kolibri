@@ -7,28 +7,56 @@ on:
       - 'v*'
   pull_request:
 jobs:
-  install_test:
-    name: Run installation of kolibri-server in docker image
+  build:
+    name: Build kolibri-server .deb package
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 5
-      matrix:
-        target-image: ['ubuntu:20.04', 'ubuntu:22.04', 'debian:bullseye', 'debian:bookworm']
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v4
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Run installation on ${{ matrix.target-image }}
-        uses: docker/build-push-action@v6
+      - name: Install build dependencies
+        run: make install-build-deps
+      - name: Install Kolibri
+        run: make install-kolibri
+      - name: Build .deb package
+        run: |
+          make deb
+          cp ../kolibri-server_*.deb ./kolibri-server.deb
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@v4
         with:
-          build-args: |
-            TARGET_IMAGE=${{ matrix.target-image }}
-          context: ./
-          file: ./test/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: false
-          target: test
-          provenance: false
+          name: kolibri-server-deb
+          path: kolibri-server.deb
+  install_test:
+    name: Install on ${{ matrix.target-image }} (${{ matrix.runner }})
+    needs: build
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.target-image }}
+    strategy:
+      max-parallel: 10
+      matrix:
+        target-image: ['ubuntu:20.04', 'ubuntu:22.04', 'ubuntu:24.04', 'debian:bullseye', 'debian:bookworm']
+        runner: ['ubuntu-latest', 'ubuntu-24.04-arm']
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+      - name: Setup environment
+        run: |
+          apt-get update
+          apt-get install -y gpg tzdata
+          rm -f /etc/localtime
+          ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
+          dpkg-reconfigure -f noninteractive tzdata
+      - name: Setup Kolibri PPA
+        run: ./test/setup_ppa.sh
+      - name: Configure debconf selections
+        run: |
+          echo "kolibri kolibri/init boolean false" | debconf-set-selections
+          echo "kolibri kolibri/user string kolibri" | debconf-set-selections
+          echo "kolibri-server kolibri-server/port select 8080" | debconf-set-selections
+          echo "kolibri-server kolibri-server/zip_content_port select 8081" | debconf-set-selections
+      - name: Download .deb artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: kolibri-server-deb
+      - name: Install kolibri-server
+        run: apt-get update && apt-get install -y ./kolibri-server.deb
