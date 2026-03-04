@@ -43,6 +43,11 @@ jobs:
     steps:
       - name: checkout codebase
         uses: actions/checkout@v4
+      - name: Set changelog distribution to runner series
+        run: |
+          SERIES=$(. /etc/os-release && echo "$VERSION_CODENAME")
+          sed -i "1s/) [a-z]*;/) ${SERIES};/" debian/changelog
+          echo "Targeting series: ${SERIES}"
       - name: Install build and upload dependencies
         run: make install-upload-deps
       - name: Install Kolibri
@@ -68,6 +73,8 @@ jobs:
         if: steps.check_source.outputs.already_uploaded != 'true'
         run: |
           echo -n "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode | gpg --import --no-tty --batch --yes
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          gpgconf --kill gpg-agent
       - name: Sign and upload package
         if: steps.check_source.outputs.already_uploaded != 'true'
         env:
@@ -119,7 +126,7 @@ jobs:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
         run: |
           echo "$LP_CREDENTIALS" > /tmp/lp-creds.txt
-      - name: Copy from jammy to supported series
+      - name: Copy to other supported series
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
         run: |

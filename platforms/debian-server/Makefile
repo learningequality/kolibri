@@ -53,10 +53,13 @@ dist: error-pages orig
 	dpkg-buildpackage -S -us -uc
 	mv ../kolibri-server_$(VERSION)* dist/
 	@echo "Package built successfully!"
-# build and sign (signing uses environment GPG_PASSPHRASE and KEYID)
+# build and sign (signing uses environment GPG_KEY_ID and GPG_PASSPHRASE)
 sign-and-upload: dist
 	@echo "Signing and uploading package..."
-	debsign -p"gpg --batch --yes --pinentry-mode loopback --passphrase $(GPG_PASSPHRASE)" dist/*.changes
+	@printf '%s' "$$GPG_PASSPHRASE" > /tmp/.gpg-passphrase
+	debsign -p"gpg --batch --pinentry-mode loopback --passphrase-file /tmp/.gpg-passphrase" \
+		-k"$$GPG_KEY_ID" dist/*.changes
+	@rm -f /tmp/.gpg-passphrase
 	@echo "Uploading to PPA..."
 	dput --unchecked ppa:learningequality/kolibri-proposed dist/*.changes
 	@echo "Upload completed successfully!"
