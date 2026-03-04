@@ -715,3 +715,131 @@ class TestLocalEventHandler(TestCase):
         context = CompositeSessionContext([network_context1, network_context2])
         _local_event_handler(self.method)(context)
         self.mock_method.assert_not_called()
+
+
+class GetRemoteUserInfoErrorPathsTestCase(TestCase):
+    """
+    Tests error handling in get_remote_user_info for different failure types.
+    """
+
+    def setUp(self):
+        self.client = mock.Mock()
+        self.facility_id = "test-facility-id"
+        self.admin_username = "admin"
+        self.admin_password = "password"
+        self.user_id = "test-user-id"
+
+    def _call(self):
+        from kolibri.core.auth.utils.users import get_remote_user_info
+
+        return get_remote_user_info(
+            self.client,
+            self.facility_id,
+            self.admin_username,
+            self.admin_password,
+            self.user_id,
+        )
+
+    def test_connection_failure_raises_resource_gone(self):
+        from kolibri.core.discovery.utils.network.errors import (
+            NetworkLocationConnectionFailure,
+        )
+        from kolibri.core.discovery.utils.network.errors import ResourceGoneError
+
+        self.client.get.side_effect = NetworkLocationConnectionFailure("unreachable")
+        with self.assertRaises(ResourceGoneError):
+            self._call()
+
+    def test_response_failure_401_raises_authentication_failed(self):
+        from rest_framework.exceptions import AuthenticationFailed
+
+        from kolibri.core.discovery.utils.network.errors import (
+            NetworkLocationResponseFailure,
+        )
+
+        response = mock.Mock(status_code=401)
+        self.client.get.side_effect = NetworkLocationResponseFailure(
+            "auth failed", response=response
+        )
+        with self.assertRaises(AuthenticationFailed):
+            self._call()
+
+    def test_response_failure_403_raises_authentication_failed(self):
+        from rest_framework.exceptions import AuthenticationFailed
+
+        from kolibri.core.discovery.utils.network.errors import (
+            NetworkLocationResponseFailure,
+        )
+
+        response = mock.Mock(status_code=403)
+        self.client.get.side_effect = NetworkLocationResponseFailure(
+            "forbidden", response=response
+        )
+        with self.assertRaises(AuthenticationFailed):
+            self._call()
+
+    def test_response_failure_500_raises_resource_gone(self):
+        from kolibri.core.discovery.utils.network.errors import (
+            NetworkLocationResponseFailure,
+        )
+        from kolibri.core.discovery.utils.network.errors import ResourceGoneError
+
+        response = mock.Mock(status_code=500)
+        self.client.get.side_effect = NetworkLocationResponseFailure(
+            "server error", response=response
+        )
+        with self.assertRaises(ResourceGoneError):
+            self._call()
+
+    def test_command_error_raises_resource_gone(self):
+        from kolibri.core.discovery.utils.network.errors import ResourceGoneError
+
+        self.client.get.side_effect = CommandError("command failed")
+        with self.assertRaises(ResourceGoneError):
+            self._call()
+
+
+class GetRemoteUsersInfoErrorPathsTestCase(TestCase):
+    """
+    Tests error handling in get_remote_users_info for different failure types.
+    """
+
+    def setUp(self):
+        self.client = mock.Mock()
+        self.facility_id = "test-facility-id"
+        self.username = "testuser"
+
+    def _call(self, password="testpassword"):
+        from kolibri.core.auth.utils.users import get_remote_users_info
+
+        return get_remote_users_info(
+            "http://test.example.com",
+            self.facility_id,
+            self.username,
+            password,
+            client=self.client,
+        )
+
+    def test_connection_failure_raises_resource_gone(self):
+        from kolibri.core.discovery.utils.network.errors import (
+            NetworkLocationConnectionFailure,
+        )
+        from kolibri.core.discovery.utils.network.errors import ResourceGoneError
+
+        self.client.get.side_effect = NetworkLocationConnectionFailure("unreachable")
+        with self.assertRaises(ResourceGoneError):
+            self._call()
+
+    def test_response_failure_with_password_raises_authentication_failed(self):
+        from rest_framework.exceptions import AuthenticationFailed
+
+        from kolibri.core.discovery.utils.network.errors import (
+            NetworkLocationResponseFailure,
+        )
+
+        response = mock.Mock(status_code=401)
+        self.client.get.side_effect = NetworkLocationResponseFailure(
+            "auth failed", response=response
+        )
+        with self.assertRaises(AuthenticationFailed):
+            self._call(password="wrongpassword")
