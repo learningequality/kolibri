@@ -60,11 +60,12 @@ def get_current_series():
     return subprocess.check_output(["lsb_release", "-cs"], text=True).strip()
 
 
-def get_supported_series(source_series):
-    """Discover supported Ubuntu series dynamically, including ESM/ELTS."""
-    out = subprocess.check_output(["ubuntu-distro-info", "--supported-esm"], text=True).strip()
-    all_series = out.split()
-    series = [s for s in all_series if s and s != source_series]
+def get_supported_series(distribution, source_series):
+    """Discover supported Ubuntu series from Launchpad, excluding source_series."""
+    supported_statuses = ("Supported", "Current Stable Release")
+    series = [
+        s.name for s in distribution.series if s.active and s.status in supported_statuses and s.name != source_series
+    ]
     log.info("Dynamic series discovery:")
     log.info("  Target series (will copy to): %s", ", ".join(series))
     return series
@@ -275,7 +276,7 @@ class LaunchpadWrapper:
         for name, version in self.get_usable_sources(ppa, tuple(PACKAGE_WHITELIST), source_series):
             mentioned = False
             notices = []
-            target_series_names = get_supported_series(source_series)
+            target_series_names = get_supported_series(ppa.distribution, source_series)
             for target_series_name in target_series_names:
                 source = self.get_source_for(ppa, name, version, target_series_name)
                 if source is None:
@@ -312,6 +313,24 @@ class LaunchpadWrapper:
         self.perform_queued_copies(ppa)
         log.debug("All done")
         return 0
+
+    def check_source(self, package, version, ppa_name=None):
+        """Check if a source package version exists in a PPA.
+        Returns 0 if found (already uploaded), 1 if missing.
+        """
+        ppa_name = ppa_name or PROPOSED_PPA_NAME
+        ppa = self.get_ppa(ppa_name)
+        published = ppa.getPublishedSources(
+            source_name=package,
+            version=version,
+            order_by_date=True,
+        )
+        active = [s for s in published if s.status not in ("Deleted", "Superseded", "Obsolete")]
+        if active:
+            log.info("%s %s already exists in %s (status: %s)", package, version, ppa_name, active[0].status)
+            return 0
+        log.info("%s %s not found in %s", package, version, ppa_name)
+        return 1
 
     def wait_for_builds(self, package, version, ppa_name=None, timeout=1800, interval=60):
         """Wait for all builds of a source package to reach a terminal state.
@@ -478,6 +497,14 @@ def build_parser():
         "--interval", type=int, default=60, help="Polling interval in seconds (default: %(default)s)."
     )
 
+    check_parser = subparsers.add_parser(
+        "check-source",
+        help="Check if a source package version already exists in a PPA.",
+    )
+    check_parser.add_argument("--package", required=True, help="Source package name.")
+    check_parser.add_argument("--version", required=True, help="Expected version string.")
+    check_parser.add_argument("--ppa", default=PROPOSED_PPA_NAME, help="PPA name to check (default: %(default)s).")
+
     return parser
 
 
@@ -513,6 +540,16 @@ def cmd_wait_for_builds(args):
     )
 
 
+def cmd_check_source(args):
+    """Check if a source package version already exists in a PPA."""
+    lp = LaunchpadWrapper()
+    return lp.check_source(
+        package=args.package,
+        version=args.version,
+        ppa_name=args.ppa,
+    )
+
+
 def cmd_promote(args):
     """Promote published packages from kolibri-proposed to kolibri PPA."""
     lp = LaunchpadWrapper()
@@ -526,6 +563,8 @@ def main():
 
     if args.command == "copy-to-series":
         return cmd_copy_to_series(args)
+    elif args.command == "check-source":
+        return cmd_check_source(args)
     elif args.command == "promote":
         return cmd_promote(args)
     elif args.command == "wait-for-builds":

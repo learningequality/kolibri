@@ -38,7 +38,6 @@ jobs:
           fi
           echo "Version check passed: ${VERSION}"
   build_package:
-    if: ${{ github.event_name != 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     needs: check_version
     steps:
@@ -48,10 +47,29 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential devscripts debhelper dpkg-dev dput python3-launchpadlib
+      - name: Write Launchpad credentials
+        env:
+          LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
+        run: |
+          echo "$LP_CREDENTIALS" > /tmp/lp-creds.txt
+      - name: Check if source already uploaded
+        id: check_source
+        env:
+          LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+        run: |
+          if python3 scripts/launchpad_copy.py check-source \
+            --package kolibri-server \
+            --version "${{ needs.check_version.outputs.version }}"; then
+            echo "already_uploaded=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_uploaded=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Import GPG key
+        if: steps.check_source.outputs.already_uploaded != 'true'
         run: |
           echo -n "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode | gpg --import --no-tty --batch --yes
       - name: sign and upload package
+        if: steps.check_source.outputs.already_uploaded != 'true'
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
@@ -59,8 +77,10 @@ jobs:
           echo "Signing package..."
           make sign-and-upload
           echo "upload completed successfully!"
+      - name: Cleanup Launchpad credentials
+        if: always()
+        run: rm -f /tmp/lp-creds.txt
   wait_for_source_builds:
-    if: ${{ github.event_name != 'workflow_dispatch' }}
     needs:
       - check_version
       - build_package
@@ -88,13 +108,7 @@ jobs:
         if: always()
         run: rm -f /tmp/lp-creds.txt
   copy_to_other_distributions:
-    needs:
-      - check_version
-      - wait_for_source_builds
-    if: |
-      always() &&
-      needs.check_version.result == 'success' &&
-      (needs.wait_for_source_builds.result == 'success' || needs.wait_for_source_builds.result == 'skipped')
+    needs: wait_for_source_builds
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
@@ -102,7 +116,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-launchpadlib ubuntu-distro-info
+          sudo apt-get install -y python3-launchpadlib
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
@@ -144,7 +158,6 @@ jobs:
         if: always()
         run: rm -f /tmp/lp-creds.txt
   block_release_step:
-    if: ${{ !github.event.release.prerelease && github.event_name != 'workflow_dispatch' }}
     name: Job to block publish of a release until it has been manually approved
     needs: wait_for_copy_builds
     runs-on: ubuntu-latest
@@ -152,17 +165,8 @@ jobs:
     steps:
       - run: echo "Release approved — proceeding to promote to kolibri PPA."
   copy_package_from_proposed_to_ppa:
-    if: |
-      always() &&
-      needs.wait_for_copy_builds.result == 'success' &&
-      (
-        (!github.event.release.prerelease && needs.block_release_step.result == 'success') ||
-        (github.event_name == 'workflow_dispatch')
-      )
     name: Promote packages from kolibri-proposed to kolibri
-    needs:
-      - wait_for_copy_builds
-      - block_release_step
+    needs: block_release_step
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
