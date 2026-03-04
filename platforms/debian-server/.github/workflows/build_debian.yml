@@ -43,10 +43,10 @@ jobs:
     steps:
       - name: checkout codebase
         uses: actions/checkout@v4
-      - name: Install build dependencies and launchpadlib
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential devscripts debhelper dpkg-dev dput python3-launchpadlib
+      - name: Install build and upload dependencies
+        run: make install-upload-deps
+      - name: Install Kolibri
+        run: make install-kolibri
       - name: Write Launchpad credentials
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
@@ -68,15 +68,12 @@ jobs:
         if: steps.check_source.outputs.already_uploaded != 'true'
         run: |
           echo -n "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode | gpg --import --no-tty --batch --yes
-      - name: sign and upload package
+      - name: Sign and upload package
         if: steps.check_source.outputs.already_uploaded != 'true'
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
-        run: |
-          echo "Signing package..."
-          make sign-and-upload
-          echo "upload completed successfully!"
+        run: make sign-and-upload
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
