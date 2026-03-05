@@ -49,26 +49,26 @@ jobs:
       run: make get-deb deb=${{ inputs.deb-url }}
     - name: Download the debfile from artifacts
       if: ${{ inputs.deb-file-name }}
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: ${{ inputs.deb-file-name }}
         path: dist
     - name: Cache source image
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: 'images/source.img'
         key: ${{ runner.OS }}-source-${{ hashFiles('Makefile') }}
         restore-keys: |
           ${{ runner.OS }}-source-
     - name: Cache base image
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: 'images/base.img'
         key: ${{ runner.OS }}-base-${{ hashFiles('base.Pifile', 'files/*') }}
         restore-keys: |
           ${{ runner.OS }}-base-
     - name: Cache pimod
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: pimod
         key: ${{ runner.OS }}-pimod-${{ hashFiles('Makefile') }}
@@ -79,7 +79,7 @@ jobs:
     - name: Get ZIP filename
       id: get-zip-filename
       run: echo "zip-file-name=$(ls dist | grep .zip | cat)" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: ${{ steps.get-zip-filename.outputs.zip-file-name }}
         path: dist/${{ steps.get-zip-filename.outputs.zip-file-name }}
