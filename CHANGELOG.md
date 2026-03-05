@@ -7,11 +7,11 @@ List of the most important changes for each release.
 
 ### High level overview
 
-This release introduces the Courses feature, enabling coaches to create structured course-based learning pathways with units, pre/post-tests, and recipient assignments. The release also migrates the JavaScript package manager from yarn to pnpm, continues Python 2.7 cleanup efforts with community contributions, and includes various bug fixes and developer tooling improvements.
+This release makes some upgrades to the developer experience, fixes various bugs, and includes foundational work for the upcoming courses feature, including API endpoints and frontend architecture for course listing and course session management. We also continued to make progress on cleaning up Python 2.7 compatibility code.
 
 ### Added
 
-####  Courses Feature
+####  Courses Features (Foundational)
   - Courses frontend setup by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14077
   - Create courses models and viewset by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14091
   - Add select courses and recipients subpages by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14103
