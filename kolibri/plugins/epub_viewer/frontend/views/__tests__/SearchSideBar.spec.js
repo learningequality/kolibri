@@ -20,7 +20,6 @@ describe('Search side bar', () => {
   });
 
   it('should allow parent to focus on input box', async () => {
-    // renderComponent();
     const Parent = defineComponent({
       components: { SearchSideBar },
       setup() {
