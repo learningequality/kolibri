@@ -3,7 +3,7 @@
 DIST_DIR := dist
 
 SOURCE_FILE = images/source.xz
-SOURCE_URL = https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-10-28/2024-10-22-raspios-bookworm-arm64-lite.img.xz
+SOURCE_URL = https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2025-05-13/2025-05-13-raspios-bookworm-arm64-lite.img.xz
 
 clean: clean-deb clean-images clean-tools
 	@echo "Deleted all build targets"
@@ -38,7 +38,7 @@ images/source.img:
 	rm $(SOURCE_FILE)
 
 pimod:
-	git clone --depth=1 https://github.com/Nature40/pimod.git -b v0.6.1
+	git clone --depth=1 https://github.com/Nature40/pimod.git -b v0.9.1
 
 install-dependencies:
 	sudo apt-get update -y

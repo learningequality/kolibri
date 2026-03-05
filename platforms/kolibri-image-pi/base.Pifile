@@ -44,7 +44,11 @@ RUN chown -R ${user}:${user} /home/${user}
 RUN chmod -R +rwx /home/${user}
 
 RUN apt-get update
-RUN apt-get install -y nginx-full uwsgi uwsgi-plugin-python3 redis-server dnsmasq hostapd
+RUN apt-get install -y ifupdown nginx-full uwsgi uwsgi-plugin-python3 redis-server dnsmasq hostapd
+
+# Disable NetworkManager to prevent conflicts with ifupdown+hostapd WiFi hotspot
+RUN systemctl disable NetworkManager
+RUN systemctl mask NetworkManager
 
 RUN debconf-set-selections <<EOF
 $(cat files/debconf)
