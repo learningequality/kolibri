@@ -10,7 +10,6 @@ else
 	PYTHON_EXEC_WITH_PATH := PYTHONPATH="./src:./kolibrisrc:$$PYTHONPATH" $(PYTHON_EXEC)
 endif
 
-NSSM_VERSION := 2.24
 
 guard-%:
 	@ if [ "${${*}}" = "" ]; then \
@@ -76,9 +75,6 @@ build-mac-app:
 	test -f ${LIBPYTHON_FOLDER}/libpython3.10.dylib || ln -s ${LIBPYTHON_FOLDER}/libpython3.10m.dylib ${LIBPYTHON_FOLDER}/libpython3.10.dylib
 	$(MAKE) pyinstaller
 
-ifeq ($(OS),Windows_NT)
-pyinstaller: nssm
-endif
 pyinstaller: clean
 	mkdir -p logs
 	pip install .
@@ -104,34 +100,9 @@ webview2:
 		echo "WebView2 full installer already present."; \
 	fi
 
-.PHONY: nssm
-# Download NSSM for Windows service management
-nssm:
-	@if [ ! -f nssm.exe ]; then \
-		echo "Downloading NSSM..."; \
-		( \
-			trap 'echo "Interrupted. Cleaning up..."; rm -f nssm.zip; rm -rf nssm; exit 1' INT TERM; \
-			mkdir -p nssm && \
-			wget https://nssm.cc/release/nssm-$(NSSM_VERSION).zip -O nssm.zip || { \
-				echo "Download failed. Cleaning up..."; \
-				rm -f nssm.zip; rm -rf nssm; \
-				exit 1; \
-			}; \
-			unzip -n nssm.zip -d nssm || { \
-				echo "Unzip failed. Cleaning up..."; \
-				rm -f nssm.zip; rm -rf nssm; \
-				exit 1; \
-			}; \
-			cp nssm/nssm-$(NSSM_VERSION)/win64/nssm.exe . && \
-			rm -rf nssm nssm.zip \
-		); \
-	else \
-		echo "NSSM already present."; \
-	fi
-
 # Windows Installer Build
 .PHONY: build-installer-windows
-build-installer-windows: needs-version nssm webview2
+build-installer-windows: needs-version webview2
 ifeq ($(OS),Windows_NT)
 	# Assumes Inno Setup is installed in the default location.
 	# MSYS_NO_PATHCONV=1 prevents Git Bash/MINGW from converting the /D flag into a file path.
