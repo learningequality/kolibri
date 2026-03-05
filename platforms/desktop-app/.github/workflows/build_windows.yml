@@ -130,7 +130,7 @@ jobs:
 
     - name: Sign installer with Azure Trusted Signing
       if: ${{ inputs.release }}
-      uses: azure/trusted-signing-action@v0
+      uses: azure/trusted-signing-action@v1
       with:
         azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
