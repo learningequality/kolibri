@@ -1,27 +1,14 @@
-import { mount, createLocalVue } from '@vue/test-utils';
-import VueRouter from 'vue-router';
-import Vuex from 'vuex';
+import { render } from '@testing-library/vue';
+import '@testing-library/jest-dom';
 import UserAuthIndex from '../UserAuthIndex';
 import makeStore from '../../__tests__/utils/makeStore';
 
-const localVue = createLocalVue();
-
-localVue.use(VueRouter);
-localVue.use(Vuex);
-
-const router = new VueRouter();
-
-function makeWrapper() {
-  return mount(UserAuthIndex, {
-    localVue,
-    store: makeStore(),
-    router,
-  });
-}
-
 describe('user index page component', () => {
   it('smoke test', () => {
-    const wrapper = makeWrapper();
-    expect(wrapper.exists()).toEqual(true);
+    const { container } = render(UserAuthIndex, {
+      store: makeStore(),
+      routes: [],
+    });
+    expect(container).toBeInTheDocument();
   });
 });
