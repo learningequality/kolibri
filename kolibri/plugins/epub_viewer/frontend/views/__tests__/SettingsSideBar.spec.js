@@ -1,38 +1,61 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import SettingsSideBar from '../SettingsSideBar';
 import { THEMES } from '../EpubConstants';
 
-function createWrapper({ theme = THEMES.BEIGE } = {}) {
-  return mount(SettingsSideBar, {
-    propsData: {
-      theme,
+function renderSettingsSideBar(props = {}) {
+  return render(SettingsSideBar, {
+    props: {
+      theme: THEMES.BEIGE,
+      ...props,
     },
   });
 }
 
 describe('Settings side bar', () => {
-  it('should mount', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.exists()).toBe(true);
+  it('renders font size controls and theme options', () => {
+    renderSettingsSideBar();
+
+    // Font buttons
+    expect(screen.getByText('Decrease')).toBeInTheDocument();
+    expect(screen.getByText('Increase')).toBeInTheDocument();
+
+    // Theme buttons (check a few representative ones)
+    expect(screen.getByLabelText('Set white theme')).toBeInTheDocument();
+    expect(screen.getByLabelText('Set beige theme')).toBeInTheDocument();
   });
 
-  it('should emit an event if the decrease font size button is clicked', () => {
-    const wrapper = createWrapper();
-    wrapper.findComponent({ ref: 'decreaseFontSizeButton' }).trigger('click');
-    expect(wrapper.emitted().decreaseFontSize).toBeTruthy();
+  it('emits event when decrease font size button is clicked', async () => {
+    const { emitted } = renderSettingsSideBar();
+
+    await fireEvent.click(screen.getByText('Decrease'));
+
+    expect(emitted().decreaseFontSize).toBeTruthy();
   });
-  it('should emit an event if the increase font size button is clicked', () => {
-    const wrapper = createWrapper();
-    wrapper.findComponent({ ref: 'increaseFontSizeButton' }).trigger('click');
-    expect(wrapper.emitted().increaseFontSize).toBeTruthy();
+
+  it('emits event when increase font size button is clicked', async () => {
+    const { emitted } = renderSettingsSideBar();
+
+    await fireEvent.click(screen.getByText('Increase'));
+
+    expect(emitted().increaseFontSize).toBeTruthy();
   });
-  it('should have 2, 3, 4, or 6 themes', () => {
-    const wrapper = createWrapper();
-    expect([2, 3, 4, 6]).toContain(Object.keys(wrapper.vm.themes).length);
+
+  it('renders expected theme options', () => {
+    renderSettingsSideBar();
+
+    const themeLabels = ['Set white theme', 'Set beige theme', 'Set grey theme', 'Set black theme'];
+
+    const renderedThemes = themeLabels.filter(label => screen.queryByLabelText(label));
+
+    expect([2, 3, 4, 6]).toContain(renderedThemes.length);
   });
-  it('should emit an event when a theme is selected', () => {
-    const wrapper = createWrapper();
-    wrapper.find('.theme-button').trigger('click');
-    expect(wrapper.emitted().setTheme[0][0]).toBe(THEMES.WHITE);
+
+  it('emits event when a theme is selected', async () => {
+    const { emitted } = renderSettingsSideBar();
+
+    await fireEvent.click(screen.getByLabelText('Set white theme'));
+
+    expect(emitted().setTheme).toBeTruthy();
+    expect(emitted().setTheme[0][0]).toBe(THEMES.WHITE);
   });
 });
