@@ -31,8 +31,7 @@ describe('Search side bar', () => {
 
         return { sidebarRef, focusInput };
       },
-      template: 
-      ` <div>
+      template: ` <div>
           <SearchSideBar ref="sidebarRef" :book="{}" />
           <button @click="focusInput">Focus</button>
         </div> `,
@@ -44,6 +43,6 @@ describe('Search side bar', () => {
     button.click();
 
     const input = screen.getByRole('searchbox');
-    expect(document.activeElement).toBe(input);
+    expect(input).toHaveFocus();
   });
 });
