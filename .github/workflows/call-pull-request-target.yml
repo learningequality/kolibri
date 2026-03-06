@@ -1,0 +1,11 @@
+name: Handle pull request events
+on:
+  pull_request_target:
+    types: [review_requested, labeled]
+jobs:
+  call-workflow:
+    name: Call shared workflow
+    uses: learningequality/.github/.github/workflows/pull-request-target.yml@main
+    secrets:
+      LE_BOT_APP_ID: ${{ secrets.LE_BOT_APP_ID }}
+      LE_BOT_PRIVATE_KEY: ${{ secrets.LE_BOT_PRIVATE_KEY }}
