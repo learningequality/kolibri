@@ -160,6 +160,10 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: '{num, number} {num, plural, one {unit} other {units}}',
     context: 'Part of subtitle shown under the course title',
   },
+  numResources: {
+    message: '{num, number} {num, plural, one {resource} other {resources}}',
+    context: 'Part of course details on the heading for each lesson showing how many resources',
+  },
   courseContentLabel: {
     message: 'Course content',
     context: 'Label above list of units in course contents listing',
