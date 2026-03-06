@@ -1,26 +1,19 @@
-import VueRouter from 'vue-router';
-import { mount, createLocalVue } from '@vue/test-utils';
+import { render, screen, configure } from '@testing-library/vue';
+import '@testing-library/jest-dom';
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
-import { ref, nextTick } from 'vue';
+import { ref } from 'vue';
 import SignUpPage from '../SignUpPage';
 import makeStore from '../../__tests__/utils/makeStore';
 
+configure({ testIdAttribute: 'data-test' });
+
 jest.mock('kolibri-common/composables/useFacilities');
-
-const localVue = createLocalVue();
-localVue.use(VueRouter);
-
-const router = new VueRouter({
-  routes: [{ name: 'SIGN_IN', path: '/signin' }],
-});
-router.getRoute = () => {
-  return { name: 'SIGN_IN', path: '/signin' };
-};
 
 const selectedFacility = ref({ id: 1, name: 'Facility 1' });
 
-function makeWrapper() {
+function renderComponent() {
   const store = makeStore();
+
   useFacilities.mockImplementation(() =>
     useFacilitiesMock({
       facilities: {
@@ -32,26 +25,33 @@ function makeWrapper() {
       selectedFacility: selectedFacility,
     }),
   );
-  return mount(SignUpPage, {
-    store,
-    router,
-  });
+
+  return render(
+    SignUpPage,
+    {
+      store,
+      routes: [{ name: 'SIGN_IN', path: '/signin' }],
+    },
+    (_vue, _store, router) => {
+      router.getRoute = () => {
+        return { name: 'SIGN_IN', path: '/signin' };
+      };
+    },
+  );
 }
 
 describe('signUpPage component', () => {
   it('smoke test', () => {
-    const wrapper = makeWrapper();
-    expect(wrapper.exists()).toBeTruthy();
+    renderComponent();
+    expect(screen.getByTestId('facilityLabel')).toBeInTheDocument();
   });
 });
 
 describe('multiFacility signUpPage component', () => {
   it('right facility', async () => {
-    const wrapper = makeWrapper();
-    const facilityLabel = wrapper.find('[data-test="facilityLabel"]').element;
-    expect(facilityLabel).toHaveTextContent(/Facility 1/);
+    renderComponent();
+    expect(screen.getByTestId('facilityLabel')).toHaveTextContent('Facility 1');
     selectedFacility.value = { id: 2, name: 'Facility 2' };
-    await nextTick();
-    expect(facilityLabel).toHaveTextContent(/Facility 2/);
+    expect(await screen.findByText(/Facility 2/)).toBeInTheDocument();
   });
 });

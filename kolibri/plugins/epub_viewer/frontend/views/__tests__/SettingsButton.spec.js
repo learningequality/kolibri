@@ -1,18 +1,18 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import SettingsButton from '../SettingsButton';
 
-function createWrapper() {
-  return mount(SettingsButton);
-}
-
 describe('Settings button', () => {
-  it('should mount', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.exists()).toBe(true);
+  it('renders a button', () => {
+    render(SettingsButton);
+
+    expect(screen.getByRole('button')).toBeInTheDocument();
   });
-  it('should emit an event when the button is clicked', () => {
-    const wrapper = createWrapper();
-    wrapper.find('button').trigger('click');
-    expect(wrapper.emitted().click).toBeTruthy();
+
+  it('emits a click event when the user clicks the button', async () => {
+    const { emitted } = render(SettingsButton);
+
+    await fireEvent.click(screen.getByRole('button'));
+
+    expect(emitted().click).toBeTruthy();
   });
 });

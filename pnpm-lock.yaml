@@ -227,8 +227,8 @@ importers:
         specifier: 'catalog:'
         version: 4.17.23
       markdown-it:
-        specifier: 14.1.0
-        version: 14.1.0
+        specifier: 14.1.1
+        version: 14.1.1
       truncate-utf8-bytes:
         specifier: ^1.0.2
         version: 1.0.2
@@ -577,7 +577,7 @@ importers:
     dependencies:
       '@khanacademy/kas':
         specifier: ^0.3.8
-        version: 0.3.16(underscore@1.4.4)
+        version: 0.3.16(underscore@1.13.8)
       '@khanacademy/math-input':
         specifier: 19.2.1
         version: 19.2.1(0da84ede4a3ed570c5512d4c418e5ad7)
@@ -586,7 +586,7 @@ importers:
         version: 2.2.1
       '@khanacademy/perseus':
         specifier: 22.7.0
-        version: 22.7.0(7cb748cd62025154a6e4adaea9979961)
+        version: 22.7.0(9b7a5d954d98b63e038e3920e7bdcdae)
       '@khanacademy/perseus-core':
         specifier: ^1.5.2
         version: 1.5.3
@@ -729,8 +729,8 @@ importers:
         specifier: ^1.8.11
         version: 1.8.11(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
       underscore:
-        specifier: 1.4.4
-        version: 1.4.4
+        specifier: 1.13.8
+        version: 1.13.8
       vue:
         specifier: 'catalog:'
         version: 2.7.16
@@ -1012,8 +1012,8 @@ importers:
         specifier: 1.9.0
         version: 1.9.0
       qs:
-        specifier: ^6.14.0
-        version: 6.14.1
+        specifier: ^6.14.2
+        version: 6.15.0
       tippy.js:
         specifier: ^6.3.7
         version: 6.3.7
@@ -1136,7 +1136,7 @@ importers:
         version: 4.1.1(webpack@5.104.1)
       vue-loader:
         specifier: ^15.11.1
-        version: 15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(css-loader@7.1.2(webpack@5.104.1))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(vue-template-compiler@2.7.16)(webpack@5.104.1)
+        version: 15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(css-loader@7.1.2(webpack@5.104.1))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.104.1)
       vue-style-loader:
         specifier: ^4.1.3
         version: 4.1.3
@@ -1171,8 +1171,8 @@ importers:
         specifier: ^1.28.2
         version: 1.30.1
       dompurify:
-        specifier: ^3.3.1
-        version: 3.3.1
+        specifier: ^3.3.2
+        version: 3.3.2
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
@@ -1605,7 +1605,7 @@ importers:
         version: 3.0.7(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(vue-template-compiler@2.7.16)(vue@2.7.16)
       vue-loader:
         specifier: ^15.11.1
-        version: 15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(css-loader@7.1.2(webpack@5.104.1))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(vue-template-compiler@2.7.16)(webpack@5.104.1)
+        version: 15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(css-loader@7.1.2(webpack@5.104.1))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.104.1)
       vue-sfc-descriptor-to-string:
         specifier: 1.0.0
         version: 1.0.0
@@ -4783,8 +4783,9 @@ packages:
     resolution: {integrity: sha512-l32Xp/TLgWb8ReqbVJAFIvXmY7go4nTxxlWiAFyhoQw9RKEOHBZNnyGvJWqDVSPmq3Y9HlM4npqF/T6VMOXhww==}
     deprecated: dommatrix is no longer maintained. Please use @thednp/dommatrix.
 
-  dompurify@3.3.1:
-    resolution: {integrity: sha512-qkdCKzLNtrgPFP1Vo+98FRzJnBRGe4ffyCea9IwHB1fyxPOeNTHpLKYGd4Uk9xvNoH0ZoOjwZxNptyMwqrId1Q==}
+  dompurify@3.3.2:
+    resolution: {integrity: sha512-6obghkliLdmKa56xdbLOpUZ43pAR6xFy1uOrxBaIDjT+yaRuuybLjGS9eVBoSR/UPU5fq3OXClEHLJNGvbxKpQ==}
+    engines: {node: '>=20'}
 
   domutils@2.8.0:
     resolution: {integrity: sha512-w96Cjofp72M5IIhpjgobBimYEfoPjx1Vx0BSX9P30WBdZW2WIKU0T1Bd0kz2eNZ9ikjKgHbEyKx8BB6H1L3h3A==}
@@ -6430,8 +6431,8 @@ packages:
   mark.js@8.11.1:
     resolution: {integrity: sha512-1I+1qpDt4idfgLQG+BNWmrqku+7/2bi5nLf4YwF8y8zXvmfiTBY3PV3ZibfrjBueCByROpuBjLLFCajqkgYoLQ==}
 
-  markdown-it@14.1.0:
-    resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
+  markdown-it@14.1.1:
+    resolution: {integrity: sha512-BuU2qnTti9YKgK5N+IeMubp14ZUKUUw7yeJbkjtosvHiP0AZ5c8IAgEMk79D0eC8F23r4Ac/q8cAIFdm2FtyoA==}
     hasBin: true
 
   marks-pane@1.0.9:
@@ -7337,8 +7338,12 @@ packages:
     resolution: {integrity: sha512-KTqnxsgGiQ6ZAzZCVlJH5eOjSnvlyEgx1m8bkRJfOhmGRqfo5KLvmAlACQkrjEtOQ4B7wF9TdSLIs9O90MX9xA==}
     engines: {node: '>=16.0.0'}
 
-  qs@6.14.1:
-    resolution: {integrity: sha512-4EK3+xJl8Ts67nLYNwqw/dsFVnCf+qR7RgXSK9jEEm9unao3njwMDdmsdvoKBKHzxd7tCYz5e5M+SnMjdtXGQQ==}
+  qs@6.14.2:
+    resolution: {integrity: sha512-V/yCWTTF7VJ9hIh18Ugr2zhJMP01MY7c5kh4J870L7imm6/DIzBsNLTXzMwUA3yZ5b/KBqLx8Kp3uRvd7xSe3Q==}
+    engines: {node: '>=0.6'}
+
+  qs@6.15.0:
+    resolution: {integrity: sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==}
     engines: {node: '>=0.6'}
 
   query-ast@1.0.5:
@@ -8381,8 +8386,8 @@ packages:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
     engines: {node: '>= 0.4'}
 
-  underscore@1.4.4:
-    resolution: {integrity: sha512-ZqGrAgaqqZM7LGRzNjLnw5elevWb5M8LEoDMadxIW3OWbcv72wMMgKdwOKpd5Fqxe8choLD8HN3iSj3TUh/giQ==}
+  underscore@1.13.8:
+    resolution: {integrity: sha512-DXtD3ZtEQzc7M8m4cXotyHR+FAS18C64asBYY5vqZexfYryNNnDc02W4hKg3rdQuqOYas1jkseX0+nZXjTXnvQ==}
 
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
@@ -10188,15 +10193,15 @@ snapshots:
 
   '@juggle/resize-observer@3.4.0': {}
 
-  '@khanacademy/kas@0.3.16(underscore@1.4.4)':
+  '@khanacademy/kas@0.3.16(underscore@1.13.8)':
     dependencies:
       '@khanacademy/perseus-core': 1.5.3
-      underscore: 1.4.4
+      underscore: 1.13.8
 
-  '@khanacademy/kmath@0.1.24(underscore@1.4.4)':
+  '@khanacademy/kmath@0.1.24(underscore@1.13.8)':
     dependencies:
       '@khanacademy/perseus-core': 3.0.5
-      underscore: 1.4.4
+      underscore: 1.13.8
 
   '@khanacademy/math-input@19.2.1(0da84ede4a3ed570c5512d4c418e5ad7)':
     dependencies:
@@ -10248,10 +10253,10 @@ snapshots:
     transitivePeerDependencies:
       - '@khanacademy/wonder-stuff-core'
 
-  '@khanacademy/perseus@22.7.0(7cb748cd62025154a6e4adaea9979961)':
+  '@khanacademy/perseus@22.7.0(9b7a5d954d98b63e038e3920e7bdcdae)':
     dependencies:
-      '@khanacademy/kas': 0.3.16(underscore@1.4.4)
-      '@khanacademy/kmath': 0.1.24(underscore@1.4.4)
+      '@khanacademy/kas': 0.3.16(underscore@1.13.8)
+      '@khanacademy/kmath': 0.1.24(underscore@1.13.8)
       '@khanacademy/math-input': 19.2.1(0da84ede4a3ed570c5512d4c418e5ad7)
       '@khanacademy/perseus-core': 1.4.2
       '@khanacademy/perseus-linter': 0.4.0(@khanacademy/wonder-stuff-core@1.5.5)(prop-types@15.8.1)
@@ -10288,7 +10293,7 @@ snapshots:
       react: 16.14.0
       react-dom: 16.14.0(react@16.14.0)
       react-popper: 2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
-      underscore: 1.4.4
+      underscore: 1.13.8
     transitivePeerDependencies:
       - '@khanacademy/mathjax-renderer'
       - '@khanacademy/wonder-blocks-timing'
@@ -11246,9 +11251,9 @@ snapshots:
     optionalDependencies:
       prettier: 2.8.8
 
-  '@vue/component-compiler-utils@3.3.0(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)':
+  '@vue/component-compiler-utils@3.3.0(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)':
     dependencies:
-      consolidate: 0.15.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      consolidate: 0.15.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
       hash-sum: 1.0.2
       lru-cache: 4.1.5
       merge-source-map: 1.1.0
@@ -11877,7 +11882,7 @@ snapshots:
       http-errors: 2.0.1
       iconv-lite: 0.4.24
       on-finished: 2.4.1
-      qs: 6.14.1
+      qs: 6.14.2
       raw-body: 2.5.3
       type-is: 1.6.18
       unpipe: 1.0.0
@@ -12212,7 +12217,7 @@ snapshots:
 
   console-control-strings@1.1.0: {}
 
-  consolidate@0.15.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
+  consolidate@0.15.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8):
     dependencies:
       bluebird: 3.7.2
     optionalDependencies:
@@ -12220,6 +12225,7 @@ snapshots:
       lodash: 4.17.23
       react: 16.14.0
       react-dom: 16.14.0(react@16.14.0)
+      underscore: 1.13.8
 
   content-disposition@0.5.4:
     dependencies:
@@ -12630,7 +12636,7 @@ snapshots:
 
   dommatrix@1.0.3: {}
 
-  dompurify@3.3.1:
+  dompurify@3.3.2:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
@@ -13155,7 +13161,7 @@ snapshots:
       parseurl: 1.3.3
       path-to-regexp: 0.1.12
       proxy-addr: 2.0.7
-      qs: 6.14.1
+      qs: 6.14.2
       range-parser: 1.2.1
       safe-buffer: 5.2.1
       send: 0.19.2
@@ -14717,7 +14723,7 @@ snapshots:
 
   mark.js@8.11.1: {}
 
-  markdown-it@14.1.0:
+  markdown-it@14.1.1:
     dependencies:
       argparse: 2.0.1
       entities: 4.5.0
@@ -15619,7 +15625,11 @@ snapshots:
 
   pvutils@1.1.5: {}
 
-  qs@6.14.1:
+  qs@6.14.2:
+    dependencies:
+      side-channel: 1.1.0
+
+  qs@6.15.0:
     dependencies:
       side-channel: 1.1.0
 
@@ -16767,7 +16777,7 @@ snapshots:
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
 
-  underscore@1.4.4: {}
+  underscore@1.13.8: {}
 
   undici-types@7.16.0: {}
 
@@ -16850,7 +16860,7 @@ snapshots:
   url@0.11.4:
     dependencies:
       punycode: 1.4.1
-      qs: 6.14.1
+      qs: 6.15.0
 
   use-resize-observer@9.1.0(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
     dependencies:
@@ -16962,9 +16972,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vue-loader@15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(css-loader@7.1.2(webpack@5.104.1))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(vue-template-compiler@2.7.16)(webpack@5.104.1):
+  vue-loader@15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(css-loader@7.1.2(webpack@5.104.1))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.104.1):
     dependencies:
-      '@vue/component-compiler-utils': 3.3.0(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      '@vue/component-compiler-utils': 3.3.0(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
       css-loader: 7.1.2(webpack@5.104.1)
       hash-sum: 1.0.2
       loader-utils: 1.4.2
