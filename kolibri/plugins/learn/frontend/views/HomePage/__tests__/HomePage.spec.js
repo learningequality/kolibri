@@ -43,6 +43,9 @@ function makeWrapper() {
     actions: {
       handleApiError: jest.fn(),
     },
+    mutations: {
+      SET_WELCOME_MODAL_VISIBLE: jest.fn(),
+    },
   });
 
   const router = new VueRouter({

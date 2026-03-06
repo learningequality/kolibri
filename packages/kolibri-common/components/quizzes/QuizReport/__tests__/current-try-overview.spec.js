@@ -105,10 +105,15 @@ describe('ExamReport/CurrentTryOverview', () => {
       // mastery_criterion: null fails tryValidator so it cannot
       // be tested, but the same should happen with {}
       it('is null when currentTry prop has no mastery_criterion', () => {
+        // Passing mastery_criterion: {} intentionally triggers a validation error
+        // from masteryModelValidator ("Invalid mastery model type: undefined")
+        const spy = jest.spyOn(console, 'error').mockImplementation();
         const wrapper = shallowMount(CurrentTryOverview, {
           propsData: defaultPropsWith({}, { mastery_criterion: {} }),
         });
         expect(wrapper.vm.masteryModel).toBeNull();
+        expect(spy).toHaveBeenCalledWith(expect.stringContaining('Invalid mastery model type'));
+        spy.mockRestore();
       });
 
       it('is null when currentTry.mastery_criterion.type is "quiz"', () => {

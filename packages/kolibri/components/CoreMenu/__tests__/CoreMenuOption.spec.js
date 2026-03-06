@@ -172,9 +172,16 @@ describe('CoreMenuOption', () => {
         ];
 
         test.each(testcases)('%s [Mouse Click]', async ({ disabled, link, expected }) => {
+          // When a link is provided, clicking it triggers jsdom's "Not implemented: navigation"
+          // console.error. Suppress it since this is an expected jsdom limitation.
+          let spy;
+          if (link) {
+            spy = jest.spyOn(console, 'error').mockImplementation(() => {}); // eslint-disable-line no-console
+          }
           const { emitted } = renderComponent({ link, disabled, subRoutes: [] });
 
           await userEvent.click(screen.getByRole('menuitem'));
+          if (spy) spy.mockRestore();
           if (expected) {
             expect(emitted()).toHaveProperty('select');
             expect(emitted().select).toHaveLength(1);
