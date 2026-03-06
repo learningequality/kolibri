@@ -67,11 +67,9 @@ describe('SparklineBar', () => {
   });
 
   it('keeps counts non-negative through prop validation', () => {
-    const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-    renderSparkline({ lowCount: -1 });
-
-    expect(consoleWarn).toHaveBeenCalled();
-    consoleWarn.mockRestore();
+    const { validator } = SparklineBar.props.lowCount;
+    expect(validator(0)).toBe(true);
+    expect(validator(5)).toBe(true);
+    expect(validator(-1)).toBe(false);
   });
 });

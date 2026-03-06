@@ -226,7 +226,7 @@
                   >
                     <template #trailing-actions>
                       <div
-                        class="pill"
+                        class="pill mastery-pill"
                         :style="{
                           backgroundColor: getUnitMasteryColor(unit),
                           borderColor: getUnitMasteryBorderColor(unit),
@@ -245,12 +245,11 @@
                         v-for="objective in getUnitObjectives(unit)"
                         :key="objective.id"
                         class="objective-row"
+                        :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
                       >
                         <div class="objective-info">
-                          <KRouterLink
-                            :text="objective.title"
-                            :to="{}"
-                          />
+                          <!-- TODO: Replace with KRouterLink once objective detail route is available -->
+                          <span>{{ objective.title }}</span>
                         </div>
                         <div class="objective-sparkline">
                           <SparklineBar
@@ -764,12 +763,15 @@
     display: inline-flex;
     align-items: center;
     gap: 3px;
+    border-radius: 16px;
+  }
+
+  .mastery-pill {
     height: 22px;
     padding: 2px 8px 2px 3px;
     font-weight: 100;
     font-size: 12px;
     border: 0.75px solid;
-    border-radius: 16px;
   }
 
   .unit-status {
@@ -823,7 +825,6 @@
     justify-content: space-between;
     gap: 16px;
     padding: 16px;
-    border-bottom: 1px;
   }
 
   .objective-info {
