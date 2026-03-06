@@ -1,6 +1,6 @@
 <template>
 
-  <ResourceLayout>
+  <ResourceLayout ref="resourceLayoutRef">
     <template #topBar>
       <div class="course-title">
         <KIconButton
@@ -64,6 +64,7 @@
         :currentResourceId="currentResource && currentResource.id"
         :currentLessonId="currentLesson && currentLesson.id"
         @finished="onResourceFinished"
+        @navigateToResource="handleNavigateToResource"
       />
     </template>
     <template
@@ -106,7 +107,7 @@
   import store from 'kolibri/store';
   import { useRouter } from 'vue-router/composables';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource.js';
-  import { computed, nextTick, toRef, watch } from 'vue';
+  import { computed, nextTick, ref, toRef, watch } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import Modalities from 'kolibri-constants/Modalities';
   import useFetch from 'kolibri-common/composables/useFetch.js';
@@ -130,6 +131,7 @@
     },
     setup(props) {
       const router = useRouter();
+      const resourceLayoutRef = ref(null);
 
       const fetchCourseWithUnits = async () => {
         const courseData = await LearnerCourseResource.fetchModel({
@@ -623,6 +625,12 @@
         return false;
       };
 
+      const onSidePanelNavigation = () => {
+        if (resourceLayoutRef.value) {
+          resourceLayoutRef.value.onSidePanelNavigation();
+        }
+      };
+
       const handlePrev = () => {
         if (!prevEnabled.value) {
           return;
@@ -638,6 +646,7 @@
             resourceId: newResource.id,
           },
         });
+        onSidePanelNavigation();
       };
 
       const handleNext = () => {
@@ -655,6 +664,20 @@
             resourceId: newResource.id,
           },
         });
+        onSidePanelNavigation();
+      };
+
+      const handleNavigateToResource = resource => {
+        router.replace({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: props.courseId,
+            unitId: props.unitId,
+            resourceId: resource.id,
+            lessonId: resource.parent,
+          },
+        });
+        onSidePanelNavigation();
       };
 
       const goToNextUnit = () => {
@@ -668,6 +691,7 @@
             unitId: nextUnit.value.id,
           },
         });
+        onSidePanelNavigation();
       };
 
       const { courseNameLabel$, resourcesProgressLabel$, unitNumberLabel$, upNextLabel$ } =
@@ -747,10 +771,12 @@
         prevEnabled,
         nextEnabled,
         maxResourceLft,
+        resourceLayoutRef,
         handlePrev,
         handleNext,
         onResourceFinished,
         goToNextUnit,
+        handleNavigateToResource,
 
         upNextLabel$,
         courseNameLabel$,
