@@ -44,30 +44,30 @@ RUN chown -R ${user}:${user} /home/${user}
 RUN chmod -R +rwx /home/${user}
 
 RUN apt-get update
-RUN apt-get install -y ifupdown nginx-full uwsgi uwsgi-plugin-python3 redis-server dnsmasq hostapd
-
-# Disable NetworkManager to prevent conflicts with ifupdown+hostapd WiFi hotspot
-RUN systemctl disable NetworkManager
-RUN systemctl mask NetworkManager
+RUN apt-get install -y nginx-full uwsgi uwsgi-plugin-python3 redis-server dnsmasq
 
 RUN debconf-set-selections <<EOF
 $(cat files/debconf)
 EOF
 
-INSTALL files/wlan0 /etc/network/interfaces.d/wlan0
-RUN systemctl restart networking
+# Set WiFi regulatory domain (required on 2025+ RPi OS for rfkill unblock)
+# Write config files directly rather than using raspi-config, which does not
+# work correctly inside the pimod chroot environment
+RUN bash -c 'echo "REGDOMAIN=US" > /etc/default/crda'
+RUN bash -c 'mkdir -p /etc/wpa_supplicant && cat > /etc/wpa_supplicant/wpa_supplicant.conf << WPAEOF
+country=US
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+WPAEOF'
+
+# Install NetworkManager connection profile for WiFi hotspot AP
+INSTALL 600 files/kolibri-hotspot.nmconnection /etc/NetworkManager/system-connections/kolibri-hotspot.nmconnection
 
 INSTALL files/dnsmasq_hotspot.conf /etc/dnsmasq.d/hotspot.conf
-INSTALL files/hostapd.conf /etc/hostapd/hostapd.conf
-INSTALL files/hostapd_5ghz.conf /etc/hostapd/hostapd_5ghz.conf
 
 INSTALL 644 files/99-usb.rules /etc/udev/rules.d/99-usb.rules
 INSTALL 755 files/usb-mount.sh /usr/local/bin/usb-mount.sh
 INSTALL 755 files/usb-mount@.service /etc/systemd/system/usb-mount@.service
-
-RUN tee /etc/default/hostapd <<EOF
-DAEMON_CONF="/etc/hostapd/hostapd.conf"
-EOF
 
 RUN tee /etc/default/dnsmasq <<EOF
 DNSMASQ_EXCEPT=lo
@@ -78,7 +78,6 @@ RUN bash -c "sed -i 's/^#conf-dir=\\/etc\\/dnsmasq.d\\/,.*/conf-dir=\\/etc\\/dns
 
 RUN rm /etc/nginx/sites-enabled/default
 
-RUN systemctl enable hostapd
 RUN systemctl enable dnsmasq
 RUN systemctl enable nginx
 RUN systemctl enable ssh
