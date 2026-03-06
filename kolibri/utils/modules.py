@@ -1,5 +1,5 @@
 """
-Compatibility layer for Python 2+3
+Utility function for checking module availability.
 """
 from importlib.util import find_spec
 
