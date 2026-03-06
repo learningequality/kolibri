@@ -23,8 +23,10 @@ describe('Search side bar', () => {
     const Parent = defineComponent({
       components: { SearchSideBar },
       setup() {
+        // eslint-disable-next-line vue/no-unused-properties
         const sidebarRef = ref(null);
 
+        // eslint-disable-next-line vue/no-unused-properties
         function focusInput() {
           sidebarRef.value.focusOnInput();
         }
