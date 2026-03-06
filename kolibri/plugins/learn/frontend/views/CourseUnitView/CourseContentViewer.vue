@@ -5,26 +5,55 @@
       v-if="!sessionReady"
       disableDefaultTransition
     />
-    <ContentViewer
-      v-else
-      class="content-viewer"
-      :lang="contentNode.lang"
-      :files="contentNode.files"
-      :options="contentNode.options"
-      :duration="contentNode.duration"
-      :extraFields="extra_fields"
-      :progress="progress"
-      :userId="currentUserId"
-      :userFullName="fullName"
-      :timeSpent="time_spent"
-      @startTracking="startTrackingProgress"
-      @stopTracking="stopTrackingProgress"
-      @updateProgress="handleUpdateProgress"
-      @addProgress="handleAddProgress"
-      @updateContentState="handleUpdateContentState"
-      @error="onError"
-      @finished="$emit('finished')"
-    />
+    <template v-else>
+      <ContentViewer
+        v-if="!contentNode.assessmentmetadata"
+        class="content-viewer"
+        :lang="contentNode.lang"
+        :files="contentNode.files"
+        :options="contentNode.options"
+        :duration="contentNode.duration"
+        :extraFields="extra_fields"
+        :progress="progress"
+        :userId="currentUserId"
+        :userFullName="fullName"
+        :timeSpent="time_spent"
+        @startTracking="startTrackingProgress"
+        @stopTracking="stopTrackingProgress"
+        @updateProgress="handleUpdateProgress"
+        @addProgress="handleAddProgress"
+        @updateContentState="handleUpdateContentState"
+        @error="onError"
+        @finished="$emit('finished')"
+      />
+      <div v-else-if="isPracticeQuiz || isSurvey"></div>
+      <AssessmentWrapper
+        v-else
+        class="content-viewer"
+        :files="contentNode.files"
+        :lang="contentNode.lang"
+        :randomize="contentNode.assessmentmetadata.randomize"
+        :masteryModel="contentNode.assessmentmetadata.mastery_model"
+        :assessmentIds="contentNode.assessmentmetadata.assessment_item_ids"
+        :extraFields="extra_fields"
+        :progress="progress"
+        :userId="currentUserId"
+        :userFullName="fullName"
+        :timeSpent="time_spent"
+        :pastattempts="pastattempts"
+        :mastered="complete"
+        :totalattempts="totalattempts"
+        :hasNextResource="hasNext"
+        @startTracking="startTrackingProgress"
+        @stopTracking="stopTrackingProgress"
+        @updateInteraction="handleUpdateInteraction"
+        @updateProgress="handleUpdateProgress"
+        @updateContentState="handleUpdateContentState"
+        @nextResource="$emit('next')"
+        @error="onError"
+        @finished="$emit('finished')"
+      />
+    </template>
   </div>
 
 </template>
@@ -33,6 +62,9 @@
 <script>
 
   import useUser from 'kolibri/composables/useUser';
+  import Modalities from 'kolibri-constants/Modalities';
+  import { computed } from 'vue';
+  import AssessmentWrapper from '../courses/AssessmentWrapper/index.vue';
   import { injectCourseContentProgress } from './useCourseContentProgressTracking';
 
   /**
@@ -51,13 +83,20 @@
    */
   export default {
     name: 'CourseContentViewer',
-    emits: ['finished'],
-    setup() {
+    emits: ['finished', 'next'],
+    components: {
+      AssessmentWrapper,
+    },
+    setup(props) {
       const {
         sessionReady,
         progress,
         time_spent,
         extra_fields,
+        pastattempts,
+        complete,
+        totalattempts,
+        handleUpdateInteraction,
         startTrackingProgress,
         stopTrackingProgress,
         handleUpdateProgress,
@@ -68,6 +107,14 @@
 
       const { currentUserId, full_name: fullName } = useUser();
 
+      const isPracticeQuiz = computed(() => {
+        return props.contentNode.modality === Modalities.QUIZ;
+      });
+
+      const isSurvey = computed(() => {
+        return props.contentNode.modality === Modalities.SURVEY;
+      });
+
       return {
         // State
         sessionReady,
@@ -76,12 +123,20 @@
         extra_fields,
         currentUserId,
         fullName,
+        pastattempts,
+        complete,
+        totalattempts,
+
+        // computed
+        isPracticeQuiz,
+        isSurvey,
 
         // Methods
         startTrackingProgress,
         stopTrackingProgress,
         handleUpdateProgress,
         handleAddProgress,
+        handleUpdateInteraction,
         handleUpdateContentState,
         onError,
       };
@@ -90,6 +145,10 @@
       contentNode: {
         type: Object,
         required: true,
+      },
+      hasNext: {
+        type: Boolean,
+        default: false,
       },
     },
   };

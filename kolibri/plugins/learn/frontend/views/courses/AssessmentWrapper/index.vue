@@ -1,141 +1,154 @@
 <template>
 
-  <div>
-    <LessonMasteryBar :requiredCorrectAnswers="totalCorrectRequiredM">
-      <template #hint>
-        <div
-          v-if="totalHints > 0"
-          class="hint-btn-container"
-          :class="{ rtl: isRtl }"
-        >
-          <KButton
-            v-if="availableHints > 0"
-            class="hint-btn"
-            appearance="basic-link"
-            :text="hint$tr('hint', { hintsLeft: availableHints })"
-            :primary="false"
-            @click="takeHint"
-          />
-          <KButton
-            v-else
-            class="hint-btn"
-            appearance="basic-link"
-            :text="hint$tr('noMoreHint')"
-            :primary="false"
-            :disabled="true"
-          />
-          <CoreInfoIcon
-            class="info-icon"
-            tooltipPlacement="bottom left"
-            :iconAriaLabel="hint$tr('hintExplanation')"
-            :tooltipText="hint$tr('hintExplanation')"
-          />
-        </div>
-      </template>
-    </LessonMasteryBar>
-    <div class="content-attempts-wrapper">
-      <UiAlert
-        v-if="itemError"
-        :dismissible="false"
-        type="error"
-      >
-        {{ $tr('itemError') }}
-        <KButton
-          appearance="basic-link"
-          :text="$tr('tryDifferentQuestion')"
-          @click="nextQuestion"
-        />
-      </UiAlert>
-      <div
-        class="content-wrapper"
-        :style="{ backgroundColor: $themePalette.grey.v_100 }"
-      >
-        <ContentViewer
-          ref="contentViewer"
-          :lang="lang"
-          :files="files"
-          :extraFields="extraFields"
-          :assessment="true"
-          :itemId="currentItemId"
-          :progress="progress"
-          :userId="userId"
-          :userFullName="userFullName"
-          :timeSpent="timeSpent"
-          @answerGiven="answerGiven"
-          @hintTaken="hintTaken"
-          @itemError="handleItemError"
-          @startTracking="startTracking"
-          @stopTracking="stopTracking"
-          @updateProgress="updateProgress"
-          @updateContentState="updateContentState"
-          @error="err => $emit('error', err)"
-        />
-      </div>
-
-      <BottomAppBar
-        class="attempts-container"
-        :class="{ mobile: windowIsSmall }"
-      >
-        <div
-          class="overall-status"
-          :style="{ color: $themeTokens.text }"
-        >
-          <KIcon
-            icon="mastered"
-            :color="success ? $themeTokens.mastered : $themePalette.grey.v_300"
-          />
-          <div class="overall-status-text">
-            <span
-              v-if="success"
-              class="completed"
-              :style="{ color: $themeTokens.annotation }"
+  <ResourceLayout>
+    <template #default>
+      <div class="assesment-wrapper-content">
+        <LessonMasteryBar :requiredCorrectAnswers="totalCorrectRequiredM">
+          <template #hint>
+            <div
+              v-if="totalHints > 0"
+              class="hint-btn-container"
+              :class="{ rtl: isRtl }"
             >
-              {{ coreString('completedLabel') }}
-            </span>
-            <span>
-              {{ $tr('goal', { count: totalCorrectRequiredM }) }}
-            </span>
+              <KButton
+                v-if="availableHints > 0"
+                class="hint-btn"
+                appearance="basic-link"
+                :text="hint$tr('hint', { hintsLeft: availableHints })"
+                :primary="false"
+                @click="takeHint"
+              />
+              <KButton
+                v-else
+                class="hint-btn"
+                appearance="basic-link"
+                :text="hint$tr('noMoreHint')"
+                :primary="false"
+                :disabled="true"
+              />
+              <CoreInfoIcon
+                class="info-icon"
+                tooltipPlacement="bottom left"
+                :iconAriaLabel="hint$tr('hintExplanation')"
+                :tooltipText="hint$tr('hintExplanation')"
+              />
+            </div>
+          </template>
+        </LessonMasteryBar>
+        <div class="content-attempts-wrapper">
+          <UiAlert
+            v-if="itemError"
+            :dismissible="false"
+            type="error"
+          >
+            {{ $tr('itemError') }}
+            <KButton
+              appearance="basic-link"
+              :text="$tr('tryDifferentQuestion')"
+              @click="nextQuestion"
+            />
+          </UiAlert>
+          <div
+            class="content-wrapper"
+            :style="{ backgroundColor: $themePalette.grey.v_100 }"
+          >
+            <ContentViewer
+              ref="contentViewer"
+              :lang="lang"
+              :files="files"
+              :extraFields="extraFields"
+              :assessment="true"
+              :itemId="currentItemId"
+              :progress="progress"
+              :userId="userId"
+              :userFullName="userFullName"
+              :timeSpent="timeSpent"
+              @answerGiven="answerGiven"
+              @hintTaken="hintTaken"
+              @itemError="handleItemError"
+              @startTracking="startTracking"
+              @stopTracking="stopTracking"
+              @updateProgress="updateProgress"
+              @updateContentState="updateContentState"
+              @error="err => $emit('error', err)"
+            />
           </div>
         </div>
-        <div class="table">
-          <div class="row">
-            <div class="left">
-              <transition mode="out-in">
-                <KButton
-                  v-if="!complete"
-                  appearance="raised-button"
-                  :text="$tr('check')"
-                  :primary="true"
-                  :class="{ shaking: shake }"
-                  :disabled="checkingAnswer"
-                  @click="checkAnswer"
-                />
-                <KButton
-                  v-else
-                  ref="nextButton"
-                  appearance="raised-button"
-                  :text="$tr('next')"
-                  :primary="true"
-                  @click="nextQuestion"
-                />
-              </transition>
+      </div>
+    </template>
+    <template #bottomBar>
+      <div
+        class="bottom-bar"
+        :style="{
+          backgroundColor: $themeTokens.surface,
+          borderTop: `1px solid ${$themeTokens.fineLine}`,
+        }"
+      >
+        <div class="attempts-container">
+          <div>
+            <KIcon
+              icon="mastered"
+              :color="success ? $themeTokens.mastered : $themePalette.grey.v_300"
+            />
+            <div class="overall-status-text">
+              <span
+                v-if="success"
+                class="completed"
+                :style="{ color: $themeTokens.annotation }"
+              >
+                {{ coreString('completedLabel') }}
+              </span>
+              <span>
+                {{ $tr('goal', { count: totalCorrectRequiredM }) }}
+              </span>
             </div>
-
-            <div class="right">
+          </div>
+          <div class="attempts-details">
+            <div class="flex-grow">
               <ExerciseAttempts
                 :waitingForAttempt="firstAttemptAtQuestion || itemError"
                 :numSpaces="attemptsWindowN"
                 :log="recentAttempts"
               />
-              <p class="current-status">
+              <p
+                class="current-status"
+                data-testid="current-status"
+              >
                 {{ currentStatus }}
               </p>
             </div>
           </div>
         </div>
-      </BottomAppBar>
-    </div>
-  </div>
+        <div class="bottom-bar-actions">
+          <div>
+            <transition mode="out-in">
+              <KButton
+                v-if="!complete"
+                :text="$tr('check')"
+                :primary="!hasNextResource"
+                :class="{ shaking: shake }"
+                :disabled="checkingAnswer"
+                @click="checkAnswer"
+              />
+              <KButton
+                v-else
+                ref="nextButton"
+                :text="hasNextResource ? practiceAction$() : $tr('next')"
+                :primary="!hasNextResource"
+                @click="nextQuestion"
+              />
+            </transition>
+          </div>
+          <KButton
+            v-if="hasNextResource"
+            primary
+            :text="nextLabel$()"
+            @click="$emit('nextResource')"
+          />
+        </div>
+      </div>
+    </template>
+  </ResourceLayout>
 
 </template>
 
@@ -147,11 +160,11 @@
   import { contentViewerProps } from 'kolibri/composables/useContentViewer';
   import shuffled from 'kolibri-common/utils/shuffled';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import BottomAppBar from 'kolibri/components/BottomAppBar';
   import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
   import { createTranslator } from 'kolibri/utils/i18n';
   import useUser from 'kolibri/composables/useUser';
+  import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
+  import ResourceLayout from '../../ResourceLayout/index.vue';
   import LessonMasteryBar from './LessonMasteryBar';
   import ExerciseAttempts from './ExerciseAttempts';
 
@@ -176,17 +189,18 @@
     components: {
       ExerciseAttempts,
       UiAlert,
-      BottomAppBar,
       LessonMasteryBar,
       CoreInfoIcon,
+      ResourceLayout,
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { windowIsSmall } = useKResponsiveWindow();
       const { currentUserId } = useUser();
+      const { practiceAction$, nextLabel$ } = coursesStrings;
       return {
-        windowIsSmall,
         currentUserId,
+        practiceAction$,
+        nextLabel$,
       };
     },
     props: {
@@ -214,6 +228,10 @@
       totalattempts: {
         type: Number,
         default: 0,
+      },
+      hasNextResource: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -516,26 +534,40 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  .content-attempts-wrapper {
-    // Make the wrapper for the content and attempts the full height of the parent
-    // minus the height of the mastery bar above: 56px.
-    height: calc(100% - 56px);
+  .assesment-wrapper-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .content-attempts-wrapper {
+      flex: 1;
+      overflow: hidden;
+    }
   }
 
   .content-wrapper {
-    // Make the content wrapper the full height of the parent content attempts wrapper
-    // minus the height of the attempts container below: 111px.
-    height: calc(100% - 111px);
+    height: 100%;
+  }
+
+  .bottom-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 16px 8px;
+  }
+
+  .bottom-bar-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
   }
 
   .attempts-container {
-    height: 111px;
-    text-align: left;
-  }
-
-  .overall-status {
-    margin-bottom: 8px;
-    margin-left: 12px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .overall-status-text {
@@ -547,26 +579,15 @@
     font-size: 12px;
   }
 
-  .table {
-    display: table;
-    padding-left: 12px;
+  .flex-grow {
+    flex-grow: 1;
   }
 
-  .row {
-    display: table-row;
-  }
-
-  .left,
-  .right {
-    display: table-cell;
-    vertical-align: top;
-  }
-
-  .right {
-    width: 99%;
-    padding-left: 8px;
-    overflow-x: auto;
-    overflow-y: hidden;
+  .attempts-details {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    justify-content: flex-start;
   }
 
   // checkAnswer btn animation
@@ -631,6 +652,10 @@
     /deep/ .link-text {
       text-align: right;
     }
+  }
+
+  /deep/ .framework-perseus {
+    margin: 0 !important;
   }
 
 </style>
