@@ -762,6 +762,7 @@
     display: inline-flex;
     align-items: center;
     gap: 3px;
+    padding: 4px 12px;
     border-radius: 16px;
   }
 
