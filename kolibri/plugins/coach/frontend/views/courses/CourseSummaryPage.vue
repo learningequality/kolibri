@@ -689,7 +689,6 @@
         getUnitMasteryColor,
         getUnitMasteryBorderColor,
         courseObjectiveheaderstyle,
-        learningObjectivesLabel$,
       };
     },
     watch: {
