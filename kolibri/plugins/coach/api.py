@@ -195,6 +195,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
             queryset = self.filter_queryset(self.get_queryset())
         except (OperationalError, DatabaseError):
             repair_sqlite_db(connections[NOTIFICATIONS])
+            queryset = self.get_queryset().none()
 
         # L
         logging_interval = datetime.datetime.now() - datetime.timedelta(minutes=5)
