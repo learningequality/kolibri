@@ -104,3 +104,22 @@ class ClassroomNotificationsTestCase(APITestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+
+
+    def test_database_error_does_not_crash(self):
+        from unittest.mock import patch
+        from django.db.utils import DatabaseError
+
+        self.client.login(
+            username=self.classroom_coach.username, password=DUMMY_PASSWORD
+        )
+
+        with patch(
+            "kolibri.plugins.coach.api.ClassroomNotificationsViewset.filter_queryset",
+            side_effect=DatabaseError,
+        ):
+            response = self.client.get(
+                reverse(self.list_name), {"classroom_id": self.classroom.id}
+            )
+
+        self.assertEqual(response.status_code, 200)
