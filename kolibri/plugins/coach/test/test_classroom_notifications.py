@@ -1,10 +1,12 @@
 from django.urls import reverse
+from django.db.utils import DatabaseError
 from rest_framework.test import APITestCase
-
+from unittest.mock import patch
 from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.test.helpers import provision_device
+
 
 DUMMY_PASSWORD = "password"
 
@@ -107,9 +109,6 @@ class ClassroomNotificationsTestCase(APITestCase):
 
 
     def test_database_error_does_not_crash(self):
-        from unittest.mock import patch
-        from django.db.utils import DatabaseError
-
         self.client.login(
             username=self.classroom_coach.username, password=DUMMY_PASSWORD
         )
