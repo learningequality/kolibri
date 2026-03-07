@@ -5,8 +5,6 @@ import TaskResource from 'kolibri/apiResources/TaskResource';
 import LoadingTaskPage from '../LoadingTaskPage';
 import makeStore from '../../__tests__/utils/makeStore';
 
-const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
-
 jest.mock('kolibri/apiResources/TaskResource', () => ({
   cancel: jest.fn().mockResolvedValue({}),
   clearAll: jest.fn().mockResolvedValue({}),
@@ -77,7 +75,7 @@ describe('LoadingTaskPage', () => {
     // Counter to prevent infinite loops (test hanging)
     let pollCount = 0;
 
-    // 2. Short-circuit the delay using a mock as recommended
+    // 2. Short-circuit the delay using a mock as the maintainer recommended
     const timeoutSpy = jest.spyOn(global, 'setTimeout').mockImplementation((cb, delay) => {
       // If it's a long polling delay, short circuit it!
       if (delay > 0) {
@@ -104,8 +102,8 @@ describe('LoadingTaskPage', () => {
     const { unmount } = renderComponent();
 
     // 3. Flush promises twice to allow the initial mount AND the mocked short-circuit to finish
-    await flushPromises();
-    await flushPromises();
+    await global.flushPromises();
+    await global.flushPromises();
 
     expect(screen.getByRole('heading', { name: /import learning facility/i })).toBeInTheDocument();
 
@@ -126,7 +124,7 @@ describe('LoadingTaskPage', () => {
     TaskResource.list.mockResolvedValue([makeTask('COMPLETED')]);
     const { sendMock } = renderComponent();
 
-    await flushPromises();
+    await global.flushPromises();
 
     const continueButton = await screen.findByRole('button', { name: /continue/i });
     expect(continueButton).toBeInTheDocument();
@@ -141,7 +139,7 @@ describe('LoadingTaskPage', () => {
     TaskResource.list.mockResolvedValue([makeTask('FAILED')]);
     renderComponent();
 
-    await flushPromises();
+    await global.flushPromises();
 
     const retryButton = await screen.findByRole('button', { name: /retry/i });
     expect(retryButton).toBeInTheDocument();
@@ -155,7 +153,7 @@ describe('LoadingTaskPage', () => {
     TaskResource.list.mockResolvedValue([makeTask('FAILED')]);
     renderComponent();
 
-    await flushPromises();
+    await global.flushPromises();
 
     const startOverButton = await screen.findByRole('button', { name: /start over/i });
     expect(startOverButton).toBeInTheDocument();
@@ -169,7 +167,7 @@ describe('LoadingTaskPage', () => {
     TaskResource.list.mockResolvedValue([makeTask('RUNNING')]);
     renderComponent();
 
-    await flushPromises();
+    await global.flushPromises();
 
     const cancelButton = await screen.findByTestId('stub-cancel');
     await userEvent.click(cancelButton);
