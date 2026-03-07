@@ -21,8 +21,6 @@ sandbox_injection = '<script type="text/javascript">{}</script>'.format(
 empty_content = "<html><head>{}</head><body></body></html>".format(sandbox_injection)
 
 # datetime.datetime(2016, 9, 10, 19, 14, 7) in time from EPOCH
-# do this to avoid having to backport `timestamp` method of datetime
-# to Python 2.7
 caching_http_date = http_date(1473560047.0)
 
 
