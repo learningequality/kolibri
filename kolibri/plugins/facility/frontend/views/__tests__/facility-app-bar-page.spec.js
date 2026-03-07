@@ -4,17 +4,6 @@ import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResp
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
 import FacilityAppBarPage from '../FacilityAppBarPage';
 
-function makeWrapper({ propsData = {}, getters = {} }) {
-  const store = new Store(getters);
-  store.getters = {
-    isPageLoading: false,
-    ...getters,
-  };
-  return mount(FacilityAppBarPage, {
-    propsData,
-    store,
-  });
-}
 jest.mock('kolibri/urls');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 jest.mock('kolibri-common/composables/useFacilities');

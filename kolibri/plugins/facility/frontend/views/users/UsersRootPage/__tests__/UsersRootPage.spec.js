@@ -3,9 +3,8 @@ import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-import useUserManagement, {
-  useUserManagementMock,
-} from '../../../../composables/useUserManagement'; // eslint-disable-line
+import useUserManagement from '../../../../composables/useUserManagement';
+import { useUserManagementMock } from '../../../../composables/__mocks__/useUserManagement';
 import makeStore from '../../../../__tests__/utils/makeStore';
 import UserPage from '../index';
 
@@ -19,6 +18,14 @@ const router = new VueRouter({
     {
       path: '/userpage/',
       name: 'UserPage',
+    },
+    {
+      path: '/userpage/new/',
+      name: 'ADD_NEW_USER_SIDE_PANEL__NEW_USERS',
+    },
+    {
+      path: '/userpage/filters/',
+      name: 'FILTER_USERS_SIDE_PANEL',
     },
   ],
 });
