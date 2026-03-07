@@ -138,6 +138,26 @@ describe('CourseWelcomePage', () => {
           name: PageNames.COURSE_CONTENT,
           path: '/course/:courseId/content',
         },
+        {
+          name: PageNames.COURSE_CONTENT_TEST,
+          path: '/course/:courseId/unit/:unitId/test/:testType',
+        },
+        {
+          name: PageNames.COURSE_CONTENT__LESSON,
+          path: '/course/:courseId/unit/:unitId/lesson/:lessonId',
+        },
+        {
+          name: PageNames.COURSE_CONTENT__UNIT,
+          path: '/course/:courseId/unit/:unitId',
+        },
+        {
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          path: '/course/:courseId/unit/:unitId/lesson/:lessonId/resource/:resourceId',
+        },
+        {
+          name: PageNames.COURSE_CONTENT__COURSE,
+          path: '/course/:courseId',
+        },
       ],
     });
 
@@ -154,6 +174,7 @@ describe('CourseWelcomePage', () => {
       },
       actions: {
         handleApiError: jest.fn(),
+        notLoading: jest.fn(),
       },
       mutations: {
         CORE_SET_ERROR: jest.fn(),

@@ -2,8 +2,26 @@ import Mediator from '../src/mediator';
 
 describe('Mediator', () => {
   let mediator;
+  let boundHandler;
   beforeEach(() => {
+    // Capture the bound handleMessage listener so we can clean it up in afterEach.
+    // The Mediator constructor calls window.addEventListener('message', ...) but does not
+    // store the bound reference, so without this, listeners leak across tests.
+    const origAddEventListener = window.addEventListener.bind(window);
+    jest.spyOn(window, 'addEventListener').mockImplementation((event, handler, ...args) => {
+      if (event === 'message') {
+        boundHandler = handler;
+      }
+      return origAddEventListener(event, handler, ...args);
+    });
     mediator = new Mediator(window);
+    window.addEventListener.mockRestore();
+  });
+  afterEach(() => {
+    if (boundHandler) {
+      window.removeEventListener('message', boundHandler);
+      boundHandler = null;
+    }
   });
   describe('handleMessage method', () => {
     it('should return undefined when an event not matching the data schema is received', () => {
@@ -21,7 +39,7 @@ describe('Mediator', () => {
       expect(callback).toHaveBeenCalledWith(data);
     });
     it('should call a registered callback even if another callback registered for the same event errors', () => {
-      console.debug = jest.fn(); // eslint-disable-line no-console
+      jest.spyOn(console, 'debug').mockImplementation(() => {}); // eslint-disable-line no-console
       const callback = jest.fn();
       const callbackError = jest.fn(() => {
         throw new Error();
@@ -36,7 +54,7 @@ describe('Mediator', () => {
       expect(callback).toHaveBeenCalledWith(data);
     });
     it('should debug log if a callback registered for the same event errors', () => {
-      console.debug = jest.fn(); // eslint-disable-line no-console
+      jest.spyOn(console, 'debug').mockImplementation(() => {}); // eslint-disable-line no-console
       const callbackError = jest.fn(() => {
         throw new Error();
       });
