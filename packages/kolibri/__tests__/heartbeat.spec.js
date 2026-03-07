@@ -331,11 +331,13 @@ describe('HeartBeat', function () {
       it('should set snackbar to trying to reconnect', function () {
         // xhr-mock logs a console.error when no handler matches the request;
         // suppress it since this test only checks synchronous snackbar state.
-        // Not restored here because the xhr error fires asynchronously after assertions.
-        jest.spyOn(console, 'error').mockImplementation(() => {}); // eslint-disable-line no-console
-        heartBeat._checkSession();
+        // The spy is restored via the returned promise's finally block so it
+        // stays active until the async xhr-mock callback completes.
+        const spy = jest.spyOn(console, 'error').mockImplementation(() => {}); // eslint-disable-line no-console
+        const session = heartBeat._checkSession();
         expect(get(snackbar.snackbarIsVisible)).toEqual(true);
         expect(get(snackbar.snackbarOptions).text).toEqual(trs.$tr('tryingToReconnect'));
+        return session.finally(() => spy.mockRestore());
       });
       DisconnectionErrorCodes.filter(code => code !== 0).forEach(errorCode => {
         it('should set snackbar to disconnected for error code ' + errorCode, function () {
