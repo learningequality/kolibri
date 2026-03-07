@@ -2704,3 +2704,67 @@ class DeleteImportedUserTestCase(APITransactionTestCase):
         # as we should not propagate deletion of these models to remote devices
         self.assertFalse(DeletedModels.objects.exists())
         self.assertFalse(HardDeletedModels.objects.exists())
+
+
+class RemoteAccessSessionTestCase(APITestCase):
+    """Tests for allow_other_browsers_to_connect enforcement in SessionViewSet.create()"""
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
+
+    def _login(self):
+        return self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "username": self.user.username,
+                "password": DUMMY_PASSWORD,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+
+    @patch("kolibri.core.auth.api.valid_app_key_on_request", return_value=False)
+    @patch("kolibri.core.auth.api.allow_other_browsers_to_connect", return_value=False)
+    @patch("kolibri.core.auth.api.interface")
+    def test_login_blocked_when_remote_access_disabled_in_app_context(
+        self, mock_interface, mock_allow, mock_app_key
+    ):
+        mock_interface.enabled = True
+        response = self._login()
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data[0]["id"], error_constants.INVALID_CREDENTIALS)
+
+    @patch("kolibri.core.auth.api.valid_app_key_on_request", return_value=False)
+    @patch("kolibri.core.auth.api.allow_other_browsers_to_connect", return_value=True)
+    @patch("kolibri.core.auth.api.interface")
+    def test_login_allowed_when_remote_access_enabled_in_app_context(
+        self, mock_interface, mock_allow, mock_app_key
+    ):
+        mock_interface.enabled = True
+        response = self._login()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @patch("kolibri.core.auth.api.valid_app_key_on_request", return_value=True)
+    @patch("kolibri.core.auth.api.allow_other_browsers_to_connect", return_value=False)
+    @patch("kolibri.core.auth.api.interface")
+    def test_login_allowed_with_app_key_when_remote_access_disabled(
+        self, mock_interface, mock_allow, mock_app_key
+    ):
+        mock_interface.enabled = True
+        response = self._login()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @patch("kolibri.core.auth.api.valid_app_key_on_request", return_value=False)
+    @patch("kolibri.core.auth.api.allow_other_browsers_to_connect", return_value=False)
+    @patch("kolibri.core.auth.api.interface")
+    def test_login_allowed_when_not_in_app_context(
+        self, mock_interface, mock_allow, mock_app_key
+    ):
+        mock_interface.enabled = False
+        response = self._login()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

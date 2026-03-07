@@ -39,7 +39,6 @@ from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.tests.helpers import override_option
 
-
 DUMMY_PASSWORD = "password"
 
 
@@ -104,6 +103,28 @@ class DeviceSettingsTestCase(APITestCase):
         self.assertFalse(device_settings.allow_guest_access)
         self.assertTrue(device_settings.allow_peer_unlisted_channel_import)
         self.assertFalse(device_settings.allow_learner_unassigned_resource_access)
+
+    def test_patch_allow_other_browsers_to_connect(self):
+        device_settings = DeviceSettings.objects.get()
+        self.assertFalse(device_settings.allow_other_browsers_to_connect)
+
+        response = self.client.patch(
+            reverse("kolibri:core:devicesettings"),
+            {"allow_other_browsers_to_connect": True},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        device_settings.refresh_from_db()
+        self.assertTrue(device_settings.allow_other_browsers_to_connect)
+
+    def test_get_includes_allow_other_browsers_to_connect(self):
+        response = self.client.get(
+            reverse("kolibri:core:devicesettings"),
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data["allow_other_browsers_to_connect"])
 
 
 class DevicePermissionsTestCase(APITestCase):
