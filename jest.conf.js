@@ -10,8 +10,16 @@ module.exports = Object.assign(baseConfig, {
   ],
   collectCoverageFrom: [
     'kolibri/**/frontend/**/*.{js,vue}',
-    '!**/node_modules/**',
-    'kolibri/**/**/frontend/**/*.{js,vue}',
     'packages/*/src/*.js',
+    '!**/node_modules/**',
+    '!**/__fixtures__/**',
+    // Exclude Vue SFCs that use optional chaining (?.) in templates — buble
+    // (used by vue-template-es2015-compiler during coverage instrumentation)
+    // cannot parse this syntax.
+    '!kolibri/plugins/coach/frontend/views/common/QuestionsAccordion.vue',
+    '!kolibri/plugins/coach/frontend/views/common/resourceSelection/subPages/**',
+    '!kolibri/plugins/coach/frontend/views/courses/sidePanels/AssignCourse/subpages/CourseDetails.vue',
+    '!kolibri/plugins/coach/frontend/views/quizzes/CreateExamPage/sidePanels/QuizResourceSelection/subPages/SelectFromQuizSearchResults.vue',
+    '!kolibri/plugins/qti_viewer/frontend/components/interactions/TextEntryInteraction.vue',
   ],
 });
