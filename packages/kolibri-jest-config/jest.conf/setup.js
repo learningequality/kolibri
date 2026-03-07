@@ -4,6 +4,7 @@ import 'intl';
 import 'intl/locale-data/jsonp/en.js';
 import * as Aphrodite from 'aphrodite';
 import * as AphroditeNoImportant from 'aphrodite/no-important';
+import failOnConsole from 'jest-fail-on-console';
 
 import Vue from 'vue';
 import VueMeta from 'vue-meta';
@@ -14,6 +15,15 @@ import { i18nSetup } from 'kolibri/utils/i18n';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 
 /* eslint-disable vue/one-component-per-file */
+
+failOnConsole({
+  shouldFailOnAssert: true,
+  shouldFailOnDebug: true,
+  shouldFailOnError: true,
+  shouldFailOnInfo: true,
+  shouldFailOnLog: true,
+  shouldFailOnWarn: true,
+});
 
 global.beforeEach(() => {
   return new Promise(resolve => {
@@ -56,13 +66,22 @@ Vue.config.silent = true;
 Vue.config.devtools = false;
 Vue.config.productionTip = false;
 
+// Flush Vue's one-time devtools/production tip that is scheduled via
+// setTimeout(fn, 0) at import time (before config flags can be set).
+// This global beforeAll drains that timer so it doesn't fire during tests
+// and trigger jest-fail-on-console.
+global.beforeAll(async () => {
+  await new Promise(resolve => setTimeout(resolve, 0));
+});
+
 Object.defineProperty(window, 'scrollTo', { value: () => {}, writable: true });
 
 // Shows better NodeJS unhandled promise rejection errors
 process.on('unhandledRejection', (reason, p) => {
-  /* eslint-disable no-console */
-  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
-  console.log(reason.stack);
+  process.stderr.write(`Unhandled Rejection at: Promise ${p}, reason: ${reason}\n`);
+  if (reason && reason.stack) {
+    process.stderr.write(`${reason.stack}\n`);
+  }
 });
 
 const scheduler = typeof setImmediate === 'function' ? setImmediate : setTimeout;

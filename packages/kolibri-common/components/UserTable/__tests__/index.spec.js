@@ -4,7 +4,11 @@ import { coreStoreFactory } from 'kolibri/store';
 import UserTable from '../index';
 
 function makeWrapper({ propsData } = {}) {
-  const store = coreStoreFactory({});
+  const store = coreStoreFactory({
+    actions: {
+      notLoading() {},
+    },
+  });
   store.dispatch('notLoading');
   return mount(UserTable, {
     store,

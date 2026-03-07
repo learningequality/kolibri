@@ -21,6 +21,22 @@ jest.mock('kolibri/heartbeat', () => ({
   },
 }));
 
+jest.mock('kolibri/router', () => {
+  const VueRouter = require('vue-router');
+  return {
+    _vueRouter: null,
+    initRouter() {
+      if (!this._vueRouter) {
+        this._vueRouter = new VueRouter();
+      }
+    },
+    initRoutes() {
+      this.initRouter();
+      return this._vueRouter;
+    },
+  };
+});
+
 class TestApp extends KolibriApp {
   get pluginModule() {
     return {

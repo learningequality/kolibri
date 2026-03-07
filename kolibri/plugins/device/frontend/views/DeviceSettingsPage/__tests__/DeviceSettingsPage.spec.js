@@ -55,8 +55,20 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 const store = new Store({
   state: {},
+  getters: {
+    isPageLoading: () => false,
+  },
   actions: {
     createSnackbar() {},
+    notLoading() {},
+  },
+  modules: {
+    deviceInfo: {
+      namespaced: true,
+      getters: {
+        isRemoteContent: () => false,
+      },
+    },
   },
 });
 

@@ -230,6 +230,10 @@ describe('PdfRendererIndex', () => {
           },
         },
       });
+      wrapper.vm.$refs.recycleList = {
+        updateVisibleItems: mockUpdateVisibleItems,
+        $el: { scrollHeight: 0, scrollTop: 0 },
+      };
       wrapper.vm.scale = 1;
       const initialScale = wrapper.vm.scale;
       wrapper.vm.zoomIn();
@@ -248,6 +252,10 @@ describe('PdfRendererIndex', () => {
           },
         },
       });
+      wrapper.vm.$refs.recycleList = {
+        updateVisibleItems: mockUpdateVisibleItems,
+        $el: { scrollHeight: 0, scrollTop: 0 },
+      };
       wrapper.vm.scale = 1;
       const initialScale = wrapper.vm.scale;
       wrapper.vm.zoomOut();
