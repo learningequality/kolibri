@@ -50,15 +50,20 @@ RUN debconf-set-selections <<EOF
 $(cat files/debconf)
 EOF
 
-# Set WiFi regulatory domain (required on 2025+ RPi OS for rfkill unblock)
-# Write config files directly rather than using raspi-config, which does not
-# work correctly inside the pimod chroot environment
-RUN bash -c 'echo "REGDOMAIN=US" > /etc/default/crda'
-RUN bash -c 'mkdir -p /etc/wpa_supplicant && cat > /etc/wpa_supplicant/wpa_supplicant.conf << WPAEOF
-country=US
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-update_config=1
-WPAEOF'
+# Set WiFi regulatory domain on the kernel command line (authoritative on Bookworm).
+# This is exactly what raspi-config nonint do_wifi_country does — we write it
+# directly because raspi-config's runtime commands (iw reg set, rfkill unblock)
+# cannot run inside the pimod chroot.  The actual sed is consolidated with the
+# debconf=low append at the bottom of this file.
+
+# Override raspberrypi-sys-mods rfkill default (default_state=0 = blocked).
+# Since we configure a known regulatory domain above, it is safe to default
+# WiFi to unblocked.
+RUN sed -i 's/default_state=0/default_state=1/' /etc/modprobe.d/rfkill_default.conf
+
+# Pre-seed NetworkManager state so WiFi is enabled on first boot
+RUN mkdir -p /var/lib/NetworkManager
+INSTALL 644 files/NetworkManager.state /var/lib/NetworkManager/NetworkManager.state
 
 # Install NetworkManager connection profile for WiFi hotspot AP
 INSTALL 600 files/kolibri-hotspot.nmconnection /etc/NetworkManager/system-connections/kolibri-hotspot.nmconnection
@@ -88,8 +93,9 @@ RUN bash -c 'echo pi:\$6\$OUzfiWw5K8RdwdFV\$7Skel9ojIekqNSE/KVPIhemg9D.tQqoOF2Bw
 
 # avoid keyboard setup questions blocking first boot:
 RUN sh -c 'echo "keyboard-configuration keyboard-configuration/layout select English (US)" | sudo debconf-set-selections'
-RUN tee -a /boot/firmware/cmdline.txt<<EOF
-debconf=low
-EOF
+# Append kernel command line parameters (cmdline.txt must be a single line):
+#  - cfg80211.ieee80211_regdom=US: set WiFi regulatory domain (see WiFi section above)
+#  - debconf=low: suppress keyboard setup questions on first boot
+RUN sed -i '1s/$/ cfg80211.ieee80211_regdom=US debconf=low/' /boot/firmware/cmdline.txt
 
 ENV DEBIAN_FRONTEND
