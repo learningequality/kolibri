@@ -71,15 +71,55 @@ describe('LoadingTaskPage', () => {
   });
 
   it('loads the first task in the queue and starts polling', async () => {
-    TaskResource.list.mockResolvedValue([makeTask('RUNNING')]);
-    renderComponent();
+    // 1. Save original timeout so standard execution isn't entirely broken
+    const originalSetTimeout = global.setTimeout;
 
+    // Counter to prevent infinite loops (test hanging)
+    let pollCount = 0;
+
+    // 2. Short-circuit the delay using a mock as recommended
+    const timeoutSpy = jest.spyOn(global, 'setTimeout').mockImplementation((cb, delay) => {
+      // If it's a long polling delay, short circuit it!
+      if (delay > 0) {
+        if (pollCount < 1) {
+          pollCount++;
+          // Defer the execution by 0ms to ensure Vue's state updates properly before the next poll
+          originalSetTimeout(cb, 0);
+        }
+        return 123; // Dummy ID
+      }
+      return originalSetTimeout(cb, delay);
+    });
+
+    const intervalSpy = jest.spyOn(global, 'setInterval').mockImplementation(cb => {
+      if (pollCount < 1) {
+        pollCount++;
+        originalSetTimeout(cb, 0);
+      }
+      return 123;
+    });
+
+    TaskResource.list.mockResolvedValue([makeTask('RUNNING')]);
+
+    const { unmount } = renderComponent();
+
+    // 3. Flush promises twice to allow the initial mount AND the mocked short-circuit to finish
+    await flushPromises();
     await flushPromises();
 
     expect(screen.getByRole('heading', { name: /import learning facility/i })).toBeInTheDocument();
 
-    const panel = await screen.findByTestId('task-panel');
+    const panel = screen.getByTestId('task-panel');
     expect(panel).toBeInTheDocument();
+
+    // 4. Prove the polling works!
+    // The API was called once on mount, and once by our short-circuited timer
+    expect(TaskResource.list).toHaveBeenCalledTimes(2);
+
+    // 5. Clean up
+    timeoutSpy.mockRestore();
+    intervalSpy.mockRestore();
+    unmount();
   });
 
   it('when tasks succeeds, the "continue" button is available', async () => {

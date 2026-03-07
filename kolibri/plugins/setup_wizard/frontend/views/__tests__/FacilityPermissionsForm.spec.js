@@ -4,16 +4,25 @@ import makeStore from '../../__tests__/utils/makeStore';
 import FacilityPermissionsForm from '../onboarding-forms/FacilityPermissionsForm';
 
 describe('FacilityPermissionsForm', () => {
+  let focusSpy;
+
+  beforeEach(() => {
+    // 1. Spy on the browser's native focus method before the component even mounts.
+    // This allows us to catch the component in the act of calling .focus() internally.
+    focusSpy = jest.spyOn(HTMLElement.prototype, 'focus');
+  });
+
   afterEach(() => {
+    // 2. Always clean up spies after the test
+    focusSpy.mockRestore();
     document.body.innerHTML = '';
   });
 
-  const renderComponent = () => {
+  it('"non-formal" option is selected by default and facility name textbox is auto-focused', async () => {
     const store = makeStore();
 
-    return render(FacilityPermissionsForm, {
+    render(FacilityPermissionsForm, {
       store,
-      container: document.body.appendChild(document.createElement('div')),
       provide: {
         wizardService: {
           send: jest.fn(),
@@ -27,10 +36,8 @@ describe('FacilityPermissionsForm', () => {
         },
       },
     });
-  };
 
-  it('"non-formal" option is selected by default and facility name textbox is focused', async () => {
-    renderComponent();
+    await global.flushPromises();
 
     const nonFormalRadio = screen.getByRole('radio', { name: /non-formal/i });
     expect(nonFormalRadio).toBeChecked();
@@ -38,10 +45,12 @@ describe('FacilityPermissionsForm', () => {
     const facilityInput = screen.getByRole('textbox', { name: /facility name/i });
 
     await waitFor(() => {
-      // Firing .focus() manually here bypasses the timing issue.
-      // NOTE: This does NOT verify the component's actual auto-focus behavior.
-      facilityInput.focus();
-      expect(facilityInput).toHaveFocus();
+      // 3. Assert that the component's internal logic successfully fired the focus command
+      expect(focusSpy).toHaveBeenCalled();
+
+      // 4. Prove that the focus command was specifically targeted at our input element
+      const elementsThatWereFocused = focusSpy.mock.instances;
+      expect(elementsThatWereFocused).toContain(facilityInput);
     });
   });
 });
