@@ -111,7 +111,8 @@
       "vue-demi"
     ],
     "overrides": {
-      "@khanacademy/math-input>mathquill": "github:Khan/mathquill#v1.0.0"
+      "@khanacademy/math-input>mathquill": "github:Khan/mathquill#v1.0.0",
+      "vue-jest>vue-template-es2015-compiler": "npm:vue-template-babel-compiler@^2.0.0"
     }
   }
 }
