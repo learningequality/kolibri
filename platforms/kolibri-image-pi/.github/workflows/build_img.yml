@@ -65,8 +65,6 @@ jobs:
       with:
         path: 'images/base.img'
         key: ${{ runner.OS }}-base-${{ hashFiles('base.Pifile', 'files/*') }}
-        restore-keys: |
-          ${{ runner.OS }}-base-
     - name: Cache pimod
       uses: actions/cache@v5
       with:
@@ -76,6 +74,73 @@ jobs:
           ${{ runner.OS }}-pimod-
     - name: Build Pi image
       run: make zipfile
+    - name: Verify image WiFi configuration
+      run: |
+        set -euo pipefail
+        ZIP=$(ls dist/*.zip)
+        IMG="${ZIP%.zip}.img"
+        unzip -o "$ZIP" -d dist/
+        LOOP=$(sudo losetup --find --show --partscan "$IMG")
+        MNT=$(mktemp -d)
+        cleanup() {
+          sudo umount "$MNT/boot/firmware" 2>/dev/null || true
+          sudo umount "$MNT" 2>/dev/null || true
+          sudo losetup -d "$LOOP" 2>/dev/null || true
+          rmdir "$MNT" 2>/dev/null || true
+          rm -f "$IMG"
+        }
+        trap cleanup EXIT
+        sudo mount "${LOOP}p2" "$MNT"
+        sudo mount "${LOOP}p1" "$MNT/boot/firmware"
+        fail=0
+        echo "=== Checking kernel cmdline ==="
+        sudo cat "$MNT/boot/firmware/cmdline.txt"
+        if sudo grep -q 'cfg80211.ieee80211_regdom=US' "$MNT/boot/firmware/cmdline.txt"; then
+          echo "PASS: regulatory domain set on kernel cmdline"
+        else
+          echo "FAIL: cfg80211.ieee80211_regdom=US missing from cmdline.txt"
+          fail=1
+        fi
+        echo "=== Checking rfkill default state ==="
+        sudo cat "$MNT/etc/modprobe.d/rfkill_default.conf"
+        if sudo grep -q 'default_state=1' "$MNT/etc/modprobe.d/rfkill_default.conf"; then
+          echo "PASS: rfkill default_state=1"
+        else
+          echo "FAIL: rfkill default_state not set to 1"
+          fail=1
+        fi
+        echo "=== Checking NetworkManager hotspot profile ==="
+        if sudo test -f "$MNT/etc/NetworkManager/system-connections/kolibri-hotspot.nmconnection"; then
+          sudo cat "$MNT/etc/NetworkManager/system-connections/kolibri-hotspot.nmconnection"
+          if sudo grep -q 'mode=ap' "$MNT/etc/NetworkManager/system-connections/kolibri-hotspot.nmconnection"; then
+            echo "PASS: NM hotspot profile present with mode=ap"
+          else
+            echo "FAIL: NM hotspot profile missing mode=ap"
+            fail=1
+          fi
+        else
+          echo "FAIL: kolibri-hotspot.nmconnection not found"
+          fail=1
+        fi
+        echo "=== Checking NetworkManager state ==="
+        if sudo grep -q 'WirelessEnabled=true' "$MNT/var/lib/NetworkManager/NetworkManager.state"; then
+          echo "PASS: NetworkManager WirelessEnabled=true"
+        else
+          echo "FAIL: NetworkManager WirelessEnabled not true"
+          fail=1
+        fi
+        echo "=== Checking hostapd is NOT installed ==="
+        if sudo test -f "$MNT/etc/hostapd/hostapd.conf"; then
+          echo "FAIL: old hostapd.conf still present"
+          fail=1
+        else
+          echo "PASS: hostapd.conf removed"
+        fi
+        if [ "$fail" -ne 0 ]; then
+          echo "SMOKE TEST FAILED: WiFi configuration is incorrect"
+          exit 1
+        fi
+        echo "All WiFi smoke tests passed."
     - name: Get ZIP filename
       id: get-zip-filename
       run: echo "zip-file-name=$(ls dist | grep .zip | cat)" >> $GITHUB_OUTPUT
