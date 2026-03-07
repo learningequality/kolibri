@@ -1,7 +1,9 @@
-from django.urls import reverse
-from django.db.utils import DatabaseError
-from rest_framework.test import APITestCase
 from unittest.mock import patch
+
+from django.db.utils import DatabaseError
+from django.urls import reverse
+from rest_framework.test import APITestCase
+
 from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
@@ -106,7 +108,6 @@ class ClassroomNotificationsTestCase(APITestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-
 
     def test_database_error_does_not_crash(self):
         self.client.login(
