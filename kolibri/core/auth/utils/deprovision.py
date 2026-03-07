@@ -1,47 +1,38 @@
-from morango.models import Certificate
 from morango.models import DatabaseIDModel
-from morango.models import DatabaseMaxCounter
-from morango.models import DeletedModels
 from morango.models import HardDeletedModels
-from morango.models import Store
 
-from kolibri.core.auth.models import FacilityDataset
-from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import dataset_cache
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.utils.delete import clean_up_legacy_counters
 from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
-from kolibri.core.device.models import DevicePermissions
+from kolibri.core.auth.utils.delete import get_delete_group_for_facility
 from kolibri.core.device.models import DeviceSettings
-from kolibri.core.logger.models import AttemptLog
-from kolibri.core.logger.models import ContentSessionLog
-from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.tasks.main import job_storage
-
-MODELS_TO_DELETE = [
-    AttemptLog,
-    ContentSessionLog,
-    ContentSummaryLog,
-    FacilityUser,
-    FacilityDataset,
-    HardDeletedModels,
-    Certificate,
-    DatabaseIDModel,
-    Store,
-    DevicePermissions,
-    DeletedModels,
-    DeviceSettings,
-    DatabaseMaxCounter,
-]
 
 
 def deprovision(progress_update=None):
     with DisablePostDeleteSignal():
-        for Model in MODELS_TO_DELETE:
-            Model.objects.all().delete()
+        facilities = Facility.objects.all()
+        for facility in facilities:
+            delete_group = get_delete_group_for_facility(facility)
+            delete_group.delete()
             if progress_update:
                 progress_update(1)
+
+        clean_up_legacy_counters()
+        dataset_cache.clear()
+
+        # Delete device-level models not covered by facility deletion
+        HardDeletedModels.objects.all().delete()
+        DatabaseIDModel.objects.all().delete()
+        DeviceSettings.objects.all().delete()
 
         # Clear all completed, failed or cancelled jobs
         job_storage.clear()
 
+        if progress_update:
+            progress_update(1)
+
 
 def get_deprovision_progress_total():
-    return len(MODELS_TO_DELETE)
+    return Facility.objects.count() + 1  # +1 for cleanup step
