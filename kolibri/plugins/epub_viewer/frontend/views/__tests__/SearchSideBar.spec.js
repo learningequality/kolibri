@@ -31,12 +31,13 @@ describe('Search side bar', () => {
           sidebarRef.value.focusOnInput();
         }
 
+        // eslint-disable-next-line vue/no-unused-properties
         return { sidebarRef, focusInput };
       },
       template: ` <div>
-          <SearchSideBar ref="sidebarRef" :book="{}" />
-          <button @click="focusInput">Focus</button>
-        </div> `,
+        <SearchSideBar ref="sidebarRef" :book="{}" />
+        <button @click="focusInput">Focus</button>
+      </div> `,
     });
 
     render(Parent, { attachTo: document.body });
