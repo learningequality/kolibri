@@ -3,8 +3,7 @@ import { UserKinds } from 'kolibri/constants';
 import useNav, { useNavMock } from 'kolibri/composables/useNav'; // eslint-disable-line
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import SideNav from '../SideNav';
-// eslint-disable-next-line import/named
-// eslint-disable-next-line import/named
+// eslint-disable-next-line import-x/named
 import LearnOnlyDeviceNotice from '../LearnOnlyDeviceNotice';
 import SyncStatusDisplay from '../../../../SyncStatusDisplay';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line

@@ -12,7 +12,7 @@
  * with  `mockImplementation` as follows:
  *
  * ```
- * // eslint-disable-next-line import/named
+ * // eslint-disable-next-line import-x/named
  * import useSnackbar, { useSnackbarMock } from '<useSnackbar file path>';
  *
  * jest.mock('<useSnackbar file path>')

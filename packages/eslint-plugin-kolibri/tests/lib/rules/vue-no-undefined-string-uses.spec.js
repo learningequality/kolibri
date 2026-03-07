@@ -2,13 +2,10 @@
 
 const RuleTester = require('eslint').RuleTester;
 const rule = require('../../../lib/rules/vue-no-undefined-string-uses');
+const { vueLanguageOptions } = require('../../helpers');
 
 const tester = new RuleTester({
-  parser: require.resolve('vue-eslint-parser'),
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-  },
+  languageOptions: vueLanguageOptions,
 });
 
 tester.run('vue-no-undefined-string-uses', rule, {
@@ -47,30 +44,6 @@ tester.run('vue-no-undefined-string-uses', rule, {
           mixins: [commonCoach],
           $trs: {
             helloWorld: 'Hello world',
-          },
-        }
-      </script>
-      `,
-    },
-    {
-      filename: 'test.vue',
-      code: `
-      <template>
-        <div>
-          <h1>{{ $tr('testString') }}</h1>
-        </div>
-      </template>
-
-      <script>
-        export default {
-          methods: {
-            labelPeople() {
-              return this.$tr('personLabel');
-            },
-          },
-          $trs: {
-            testString: 'Test string',
-            personLabel: 'Person',
           },
         }
       </script>

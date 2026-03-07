@@ -6,10 +6,10 @@
 
 const RuleTester = require('eslint').RuleTester;
 const rule = require('../../../lib/rules/vue-component-block-tag-newline');
+const { vueLanguageOptions } = require('../../helpers');
 
 const tester = new RuleTester({
-  parser: require.resolve('vue-eslint-parser'),
-  parserOptions: { ecmaVersion: 2015 },
+  languageOptions: vueLanguageOptions,
 });
 
 tester.run('block-tag-newline', rule, {

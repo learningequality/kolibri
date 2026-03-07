@@ -11,7 +11,7 @@
  * with  `mockImplementation` as follows:
  *
  * ```
- * // eslint-disable-next-line import/named
+ * // eslint-disable-next-line import-x/named
  * import useBaseSearch, { useBaseSearch } from '<useBaseSearch file path>';
  *
  * jest.mock('<useBaseSearch file path>')

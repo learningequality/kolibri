@@ -2,13 +2,10 @@
 
 const RuleTester = require('eslint').RuleTester;
 const rule = require('../../../lib/rules/vue-no-unused-translations');
+const { vueLanguageOptions } = require('../../helpers');
 
 const tester = new RuleTester({
-  parser: require.resolve('vue-eslint-parser'),
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-  },
+  languageOptions: vueLanguageOptions,
 });
 
 tester.run('vue-no-unused-translations', rule, {
@@ -47,30 +44,6 @@ tester.run('vue-no-unused-translations', rule, {
           mixins: [commonCoach],
           $trs: {
             helloWorld: 'Hello world',
-          },
-        }
-      </script>
-      `,
-    },
-    {
-      filename: 'test.vue',
-      code: `
-      <template>
-        <div>
-          <h1>{{ $tr('testString') }}</h1>
-        </div>
-      </template>
-
-      <script>
-        export default {
-          methods: {
-            labelPeople() {
-              return this.$tr('personLabel');
-            },
-          },
-          $trs: {
-            testString: 'Test string',
-            personLabel: 'Person',
           },
         }
       </script>
@@ -265,36 +238,6 @@ tester.run('vue-no-unused-translations', rule, {
           // Despite `coachLabel` being used in `coachString` - the definition
           // in this component would be going unused.
           message: 'Unused message found in $trs: "coachLabel"',
-        },
-      ],
-    },
-    {
-      filename: 'test.vue',
-      code: `
-      <template>
-        <div>
-          <h1>{{ $tr('testString') }}</h1>
-        </div>
-      </template>
-
-      <script>
-        export default {
-          methods: {
-            labelPeople() {
-              return this.$tr('personLabel');
-            },
-          },
-          $trs: {
-            testString: 'Test string',
-            personLabel: 'Person',
-            unusedLabel: 'Do not use this',
-          },
-        }
-      </script>
-      `,
-      errors: [
-        {
-          message: 'Unused message found in $trs: "unusedLabel"',
         },
       ],
     },

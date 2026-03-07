@@ -11,7 +11,7 @@
  * with  `mockImplementation` as follows:
  *
  * ```
- * // eslint-disable-next-line import/named
+ * // eslint-disable-next-line import-x/named
  * import useLearnerResources, { useLearnerResourcesMock } from '<useLearnerResources file path>';
  *
  * jest.mock('<useLearnerResources file path>')

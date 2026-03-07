@@ -6,10 +6,10 @@
 
 const RuleTester = require('eslint').RuleTester;
 const rule = require('../../../lib/rules/vue-component-block-padding');
+const { vueLanguageOptions } = require('../../helpers');
 
 const tester = new RuleTester({
-  parser: require.resolve('vue-eslint-parser'),
-  parserOptions: { ecmaVersion: 2020 },
+  languageOptions: vueLanguageOptions,
 });
 
 tester.run('vue-component-block-padding', rule, {

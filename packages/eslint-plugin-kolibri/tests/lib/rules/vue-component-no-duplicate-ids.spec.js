@@ -2,10 +2,10 @@
 
 const RuleTester = require('eslint').RuleTester;
 const rule = require('../../../lib/rules/vue-component-no-duplicate-ids');
+const { vueLanguageOptions } = require('../../helpers');
 
 const ruleTester = new RuleTester({
-  parser: require.resolve('vue-eslint-parser'),
-  parserOptions: { ecmaVersion: 2020, sourceType: 'module' },
+  languageOptions: vueLanguageOptions,
 });
 
 ruleTester.run('no-duplicate-ids', rule, {

@@ -11,7 +11,7 @@
  * with  `mockImplementation` as follows:
  *
  * ```
- * // eslint-disable-next-line import/named
+ * // eslint-disable-next-line import-x/named
  * import useDevices, { useDevicesMock } from '<useDevices file path>';
  *
  * jest.mock('<useDevices file path>')

@@ -5,6 +5,7 @@
  */
 'use strict';
 const utils = require('eslint-plugin-vue/lib/utils');
+const kolibriUtils = require('../utils');
 
 /**
  * @param {string} text Source code as a string.
@@ -51,13 +52,16 @@ module.exports = {
   },
   /** @param {RuleContext} context */
   create(context) {
-    const df =
-      context.parserServices.getDocumentFragment && context.parserServices.getDocumentFragment();
+    const parserServices = kolibriUtils.getParserServices(context);
+    if (!parserServices || !parserServices.getDocumentFragment) {
+      return {};
+    }
+    const df = parserServices.getDocumentFragment();
     if (!df) {
       return {};
     }
 
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
 
     /**
      * @param {VStartTag} startTag
