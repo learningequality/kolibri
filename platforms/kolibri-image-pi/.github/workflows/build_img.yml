@@ -67,9 +67,7 @@ jobs:
       uses: actions/cache@v5
       with:
         path: pimod
-        key: ${{ runner.OS }}-pimod-${{ hashFiles('Makefile') }}
-        restore-keys: |
-          ${{ runner.OS }}-pimod-
+        key: ${{ runner.OS }}-pimod-v2-${{ hashFiles('Makefile') }}
     - name: Build Pi image
       run: make zipfile
     - name: Verify image WiFi configuration
@@ -97,7 +95,7 @@ jobs:
           local content
           content=$(sudo cat "$file") || { echo "FAIL: $file not found"; fail=1; return; }
           echo "$content"
-          if echo "$content" | grep -q "$pattern"; then
+          if echo "$content" | grep -qF "$pattern"; then
             echo "PASS: $description"
           else
             echo "FAIL: $description"

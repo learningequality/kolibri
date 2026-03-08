@@ -54,7 +54,7 @@ EOF
 # This is exactly what raspi-config nonint do_wifi_country does — we write it
 # directly because raspi-config's runtime commands (iw reg set, rfkill unblock)
 # cannot run inside the pimod chroot.  The actual sed is consolidated with the
-# debconf=low append at the bottom of this file.
+# debconf=low substitution at the bottom of this file.
 
 # Override raspberrypi-sys-mods rfkill default (default_state=0 = blocked).
 # Since we configure a known regulatory domain above, it is safe to default
