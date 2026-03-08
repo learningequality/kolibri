@@ -34,7 +34,8 @@ function makeWrapper(options = {}) {
         template:
           '<button class="k-icon-button" :aria-label="ariaLabel" @click="$emit(\'click\')"></button>',
       },
-
+      // We removed the RecycleList stub. The real component renders perfectly in the test
+      // environment, allowing us to test its real event wiring and behavior directly!
       ...(options.stubs || {}),
     },
   });
@@ -50,6 +51,7 @@ async function loadPdfContainer(options) {
 describe('PdfRendererIndex', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    vm = null; // Explicitly reset module-level state to prevent test leakage
   });
 
   describe('updateProgress method', () => {
@@ -120,7 +122,7 @@ describe('PdfRendererIndex', () => {
     });
 
     describe('Pdf Pages loading', () => {
-      it('should load first the page one if there is the first time opening the pdf and there is no saved Location', async () => {
+      it('should load first page if there is no saved Location', async () => {
         await loadPdfContainer();
         expect(mockPDFJS.PdfDocument.getPage).toHaveBeenCalledWith(1);
       });
@@ -147,11 +149,13 @@ describe('PdfRendererIndex', () => {
       const startIndex = 1;
       const endIndex = 3;
 
+      // Note: RecycleList uses virtual scrolling which cannot be reliably simulated via
+      // DOM events in JSDOM. Emitting the @update event directly from the ref ensures
+      // we test the integration path without relying on fragile scroll simulation.
       vm.$refs.recycleList.$emit('update', startIndex, endIndex);
       await global.flushPromises();
 
-      // Full VTL rendering(unlike shallowMount)
-      // naturally loads 3 visible pages
+      // Full VTL rendering(unlike shallowMount) naturally loads 3 visible pages
       // plus 4 buffer pages = 7 total pages.
       const EXPECTED_PAGE_LOADS = 7;
       expect(mockPDFJS.PdfDocument.getPage).toHaveBeenCalledTimes(EXPECTED_PAGE_LOADS);
@@ -207,6 +211,7 @@ describe('PdfRendererIndex', () => {
       mockPDFJS.PdfDocument.numPages = 10;
       await loadPdfContainer();
 
+      // calculatePosition relies on actual DOM layout heights which JSDOM lacks.
       // We pragmatically override it here to verify the specific page-saving logic.
       vm.calculatePosition = () => 0.15;
 
@@ -226,6 +231,9 @@ describe('PdfRendererIndex', () => {
     it('increases the scale when the user clicks the zoom in button', async () => {
       await loadPdfContainer();
 
+      // Override JSDOM's failed layout math (0/0 = NaN) with a valid starting number.
+      // Asserting against vm.scale is a pragmatic compromise because JSDOM lacks a visual
+      // layout engine to verify CSS transform scale changes directly on the DOM.
       vm.scale = 1;
       const initialScale = vm.scale;
 
