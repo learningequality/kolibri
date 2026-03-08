@@ -83,6 +83,7 @@ RUN bash -c "sed -i 's/^#conf-dir=\\/etc\\/dnsmasq.d\\/,.*/conf-dir=\\/etc\\/dns
 
 RUN rm /etc/nginx/sites-enabled/default
 
+RUN systemctl enable NetworkManager
 RUN systemctl enable dnsmasq
 RUN systemctl enable nginx
 RUN systemctl enable ssh

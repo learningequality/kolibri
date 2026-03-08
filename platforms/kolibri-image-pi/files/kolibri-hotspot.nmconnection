@@ -12,9 +12,6 @@ ssid=kolibri
 band=bg
 channel=7
 
-[wifi-security]
-key-mgmt=none
-
 [ipv4]
 method=manual
 address1=10.10.10.10/24

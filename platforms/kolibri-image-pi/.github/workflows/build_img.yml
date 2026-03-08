@@ -106,10 +106,35 @@ jobs:
           'cfg80211.ieee80211_regdom=US' 'regulatory domain set on kernel cmdline'
         check_file "$MNT/etc/modprobe.d/rfkill_default.conf" \
           'default_state=1' 'rfkill default_state=1'
-        check_file "$MNT/etc/NetworkManager/system-connections/kolibri-hotspot.nmconnection" \
+        NM_CONN="$MNT/etc/NetworkManager/system-connections/kolibri-hotspot.nmconnection"
+        check_file "$NM_CONN" \
           'mode=ap' 'NM hotspot profile present with mode=ap'
         check_file "$MNT/var/lib/NetworkManager/NetworkManager.state" \
           'WirelessEnabled=true' 'NetworkManager WirelessEnabled=true'
+        echo "=== Checking NM connection file ownership/permissions ==="
+        NM_PERMS=$(sudo stat -c '%U:%G %a' "$NM_CONN")
+        echo "Ownership/perms: $NM_PERMS"
+        if [ "$NM_PERMS" = "root:root 600" ]; then
+          echo "PASS: NM connection file ownership and permissions correct"
+        else
+          echo "FAIL: expected root:root 600, got $NM_PERMS"
+          fail=1
+        fi
+        echo "=== Checking NetworkManager service is enabled ==="
+        NM_SYMLINK="$MNT/etc/systemd/system/multi-user.target.wants/NetworkManager.service"
+        if sudo test -L "$NM_SYMLINK"; then
+          echo "PASS: NetworkManager service is enabled"
+        else
+          echo "FAIL: NetworkManager service is not enabled (symlink missing: $NM_SYMLINK)"
+          fail=1
+        fi
+        echo "=== Checking wpa_supplicant is installed ==="
+        if sudo test -x "$MNT/usr/sbin/wpa_supplicant"; then
+          echo "PASS: wpa_supplicant binary present"
+        else
+          echo "FAIL: wpa_supplicant binary not found (required by NM for WiFi AP mode)"
+          fail=1
+        fi
         echo "=== Checking hostapd is NOT installed ==="
         if sudo test -f "$MNT/etc/hostapd/hostapd.conf"; then
           echo "FAIL: old hostapd.conf still present"
