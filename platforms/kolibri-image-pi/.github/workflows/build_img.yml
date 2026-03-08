@@ -58,8 +58,6 @@ jobs:
       with:
         path: 'images/source.img'
         key: ${{ runner.OS }}-source-${{ hashFiles('Makefile') }}
-        restore-keys: |
-          ${{ runner.OS }}-source-
     - name: Cache base image
       uses: actions/cache@v5
       with:
@@ -93,42 +91,27 @@ jobs:
         sudo mount "${LOOP}p2" "$MNT"
         sudo mount "${LOOP}p1" "$MNT/boot/firmware"
         fail=0
-        echo "=== Checking kernel cmdline ==="
-        sudo cat "$MNT/boot/firmware/cmdline.txt"
-        if sudo grep -q 'cfg80211.ieee80211_regdom=US' "$MNT/boot/firmware/cmdline.txt"; then
-          echo "PASS: regulatory domain set on kernel cmdline"
-        else
-          echo "FAIL: cfg80211.ieee80211_regdom=US missing from cmdline.txt"
-          fail=1
-        fi
-        echo "=== Checking rfkill default state ==="
-        sudo cat "$MNT/etc/modprobe.d/rfkill_default.conf"
-        if sudo grep -q 'default_state=1' "$MNT/etc/modprobe.d/rfkill_default.conf"; then
-          echo "PASS: rfkill default_state=1"
-        else
-          echo "FAIL: rfkill default_state not set to 1"
-          fail=1
-        fi
-        echo "=== Checking NetworkManager hotspot profile ==="
-        if sudo test -f "$MNT/etc/NetworkManager/system-connections/kolibri-hotspot.nmconnection"; then
-          sudo cat "$MNT/etc/NetworkManager/system-connections/kolibri-hotspot.nmconnection"
-          if sudo grep -q 'mode=ap' "$MNT/etc/NetworkManager/system-connections/kolibri-hotspot.nmconnection"; then
-            echo "PASS: NM hotspot profile present with mode=ap"
+        check_file() {
+          local file="$1" pattern="$2" description="$3"
+          echo "=== Checking $description ==="
+          local content
+          content=$(sudo cat "$file") || { echo "FAIL: $file not found"; fail=1; return; }
+          echo "$content"
+          if echo "$content" | grep -q "$pattern"; then
+            echo "PASS: $description"
           else
-            echo "FAIL: NM hotspot profile missing mode=ap"
+            echo "FAIL: $description"
             fail=1
           fi
-        else
-          echo "FAIL: kolibri-hotspot.nmconnection not found"
-          fail=1
-        fi
-        echo "=== Checking NetworkManager state ==="
-        if sudo grep -q 'WirelessEnabled=true' "$MNT/var/lib/NetworkManager/NetworkManager.state"; then
-          echo "PASS: NetworkManager WirelessEnabled=true"
-        else
-          echo "FAIL: NetworkManager WirelessEnabled not true"
-          fail=1
-        fi
+        }
+        check_file "$MNT/boot/firmware/cmdline.txt" \
+          'cfg80211.ieee80211_regdom=US' 'regulatory domain set on kernel cmdline'
+        check_file "$MNT/etc/modprobe.d/rfkill_default.conf" \
+          'default_state=1' 'rfkill default_state=1'
+        check_file "$MNT/etc/NetworkManager/system-connections/kolibri-hotspot.nmconnection" \
+          'mode=ap' 'NM hotspot profile present with mode=ap'
+        check_file "$MNT/var/lib/NetworkManager/NetworkManager.state" \
+          'WirelessEnabled=true' 'NetworkManager WirelessEnabled=true'
         echo "=== Checking hostapd is NOT installed ==="
         if sudo test -f "$MNT/etc/hostapd/hostapd.conf"; then
           echo "FAIL: old hostapd.conf still present"
