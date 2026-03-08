@@ -34,14 +34,7 @@ function makeWrapper(options = {}) {
         template:
           '<button class="k-icon-button" :aria-label="ariaLabel" @click="$emit(\'click\')"></button>',
       },
-      RecycleList: {
-        template: `
-          <div data-testid="recycle-scroller">
-            <slot name="item" :item="{}" :index="0"></slot>
-          </div>
-        `,
-        methods: { updateVisibleItems: jest.fn() },
-      },
+
       ...(options.stubs || {}),
     },
   });
@@ -153,10 +146,12 @@ describe('PdfRendererIndex', () => {
 
       const startIndex = 1;
       const endIndex = 3;
-      vm.handleUpdate(startIndex, endIndex);
+
+      vm.$refs.recycleList.$emit('update', startIndex, endIndex);
       await global.flushPromises();
 
-      // Full VTL rendering(unlike shallowMount) naturally loads 3 visible pages
+      // Full VTL rendering(unlike shallowMount)
+      // naturally loads 3 visible pages
       // plus 4 buffer pages = 7 total pages.
       const EXPECTED_PAGE_LOADS = 7;
       expect(mockPDFJS.PdfDocument.getPage).toHaveBeenCalledTimes(EXPECTED_PAGE_LOADS);
@@ -170,9 +165,7 @@ describe('PdfRendererIndex', () => {
       mockPDFJS.PdfDocument.numPages = 5;
       await loadPdfContainer();
 
-      const startIndex = 2;
-      const endIndex = 3;
-      vm.handleUpdate(startIndex, endIndex);
+      vm.$refs.recycleList.$emit('update', 2, 3);
       await global.flushPromises();
 
       const expectedLoadedPages = [true, false, true, true, false];
@@ -188,12 +181,12 @@ describe('PdfRendererIndex', () => {
     it('should not load pages that are already loaded', async () => {
       await loadPdfContainer();
 
-      vm.handleUpdate(0, 0);
+      vm.$refs.recycleList.$emit('update', 0, 0);
       await global.flushPromises();
 
       mockPDFJS.PdfDocument.getPage.mockClear();
 
-      vm.handleUpdate(0, 0);
+      vm.$refs.recycleList.$emit('update', 0, 0);
       await global.flushPromises();
 
       expect(mockPDFJS.PdfDocument.getPage).not.toHaveBeenCalled();
@@ -203,7 +196,8 @@ describe('PdfRendererIndex', () => {
   describe('Stored visited pages', () => {
     it('Should set the first page as visited on mount', async () => {
       await loadPdfContainer();
-      vm.handleUpdate(0, 0);
+
+      vm.$refs.recycleList.$emit('update', 0, 0);
       await global.flushPromises();
 
       expect(vm.savedVisitedPages[1]).toBe(true);
@@ -213,44 +207,54 @@ describe('PdfRendererIndex', () => {
       mockPDFJS.PdfDocument.numPages = 10;
       await loadPdfContainer();
 
+      // We pragmatically override it here to verify the specific page-saving logic.
       vm.calculatePosition = () => 0.15;
-      vm.handleUpdate(1, 2);
+
+      vm.$refs.recycleList.$emit('update', 1, 2);
       await global.flushPromises();
 
       expect(vm.savedVisitedPages[2]).toBe(true);
     });
   });
 
-  describe('Pdf controls (Zoom UI Event Wiring)', () => {
+  describe('Pdf controls (Zoom Behavior)', () => {
     it('should show the pdf controls on mount', async () => {
       const wrapper = await loadPdfContainer();
       expect(wrapper.container.querySelector('.pdf-controls-container')).toBeInTheDocument();
     });
 
-    it('triggers the zoomIn method when the user clicks on the zoom in button', async () => {
-      const zoomInSpy = jest.spyOn(PdfRendererIndex.methods, 'zoomIn').mockImplementation(() => {});
-
+    it('increases the scale when the user clicks the zoom in button', async () => {
       await loadPdfContainer();
+
+      vm.scale = 1;
+      const initialScale = vm.scale;
 
       const zoomInBtn = screen.getByRole('button', { name: /Zoom in/i });
       await fireEvent.click(zoomInBtn);
+      await global.flushPromises();
 
-      expect(zoomInSpy).toHaveBeenCalled();
-      zoomInSpy.mockRestore();
+      // Verifies behavioral effect: the click actually increased the scale value!
+      expect(vm.scale).toBeGreaterThan(initialScale);
     });
 
-    it('triggers the zoomOut method when the user clicks on the zoom out button', async () => {
-      const zoomOutSpy = jest
-        .spyOn(PdfRendererIndex.methods, 'zoomOut')
-        .mockImplementation(() => {});
-
+    it('decreases the scale when the user clicks the zoom out button', async () => {
       await loadPdfContainer();
+
+      vm.scale = 1;
+
+      // Click zoom in first to ensure we have room to zoom back out
+      const zoomInBtn = screen.getByRole('button', { name: /Zoom in/i });
+      await fireEvent.click(zoomInBtn);
+      await global.flushPromises();
+
+      const zoomedScale = vm.scale;
 
       const zoomOutBtn = screen.getByRole('button', { name: /Zoom out/i });
       await fireEvent.click(zoomOutBtn);
+      await global.flushPromises();
 
-      expect(zoomOutSpy).toHaveBeenCalled();
-      zoomOutSpy.mockRestore();
+      // Verifies behavioral effect: the click actually decreased the scale value!
+      expect(vm.scale).toBeLessThan(zoomedScale);
     });
   });
 });
