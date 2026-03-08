@@ -8,6 +8,7 @@ import FacilityAppBarPage from '../FacilityAppBarPage';
 function makeWrapper({ propsData = {}, getters = {} }) {
   const store = new Store(getters);
   store.getters = {
+    isPageLoading: false,
     ...getters,
   };
   return mount(FacilityAppBarPage, {

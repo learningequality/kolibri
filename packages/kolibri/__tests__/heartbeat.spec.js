@@ -318,6 +318,9 @@ describe('HeartBeat', function () {
     describe('when not connected', function () {
       let snackbar;
       beforeEach(function () {
+        // xhr-mock logs console.error when no handler matches or a handler
+        // rejects; suppress it for all disconnection tests.
+        jest.spyOn(console, 'error').mockImplementation(() => {}); // eslint-disable-line no-console
         snackbar = {
           snackbarIsVisible: ref(false),
           snackbarOptions: ref({
@@ -328,10 +331,14 @@ describe('HeartBeat', function () {
         useSnackbar.mockImplementation(() => useSnackbarMock(snackbar));
         heartBeat.monitorDisconnect();
       });
+      afterEach(function () {
+        console.error.mockRestore(); // eslint-disable-line no-console
+      });
       it('should set snackbar to trying to reconnect', function () {
-        heartBeat._checkSession();
+        const session = heartBeat._checkSession();
         expect(get(snackbar.snackbarIsVisible)).toEqual(true);
         expect(get(snackbar.snackbarOptions).text).toEqual(trs.$tr('tryingToReconnect'));
+        return session;
       });
       DisconnectionErrorCodes.filter(code => code !== 0).forEach(errorCode => {
         it('should set snackbar to disconnected for error code ' + errorCode, function () {

@@ -38,8 +38,14 @@ describe('SCORM shim', () => {
   describe('shim management and instance methods', () => {
     let shim;
     beforeEach(() => {
+      // SCORM.js uses `const logger = console`, so all shim methods call console.debug.
+      // Silence these to prevent jest-fail-on-console from failing the tests.
+      jest.spyOn(console, 'debug').mockImplementation(() => {}); // eslint-disable-line no-console
       shim = scorm.__setShimInterface();
       scorm.stateUpdated = jest.fn();
+    });
+    afterEach(() => {
+      console.debug.mockRestore(); // eslint-disable-line no-console
     });
     describe('__setShimInterface method', () => {
       it('should set scorm shim property', () => {

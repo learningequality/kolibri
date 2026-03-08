@@ -97,6 +97,7 @@ export function makeAvailableChannelsPageStore() {
 // contentTreeViewer
 export function makeSelectContentPageStore() {
   const store = coreStoreFactory(cloneDeep(pluginModule));
+  store.registerModule('core', coreModule);
   Object.assign(store.state.manageContent, {
     channelList: channelsOnDevice,
     taskList: [],

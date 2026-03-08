@@ -316,8 +316,6 @@ def cache_option(value):
 class LazyImportFunction(object):
     """
     A function wrapper that will import a module when called.
-    We may be able to drop this when Python 2.7 support is dropped
-    and use Python LazyLoader module machinery instead.
     """
 
     def __init__(self, module_name):

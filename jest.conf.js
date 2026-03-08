@@ -10,8 +10,8 @@ module.exports = Object.assign(baseConfig, {
   ],
   collectCoverageFrom: [
     'kolibri/**/frontend/**/*.{js,vue}',
-    '!**/node_modules/**',
-    'kolibri/**/**/frontend/**/*.{js,vue}',
     'packages/*/src/*.js',
+    '!**/node_modules/**',
+    '!**/__fixtures__/**',
   ],
 });

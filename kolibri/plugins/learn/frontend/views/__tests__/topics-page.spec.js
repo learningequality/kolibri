@@ -8,8 +8,12 @@ import { useDevicesWithFilter } from 'kolibri-common/components/syncComponentSet
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import plugin_data from 'kolibri-plugin-data';
-// eslint-disable-next-line import/named
-import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
+/* eslint-disable import/named */
+import useBaseSearch, {
+  useBaseSearchMock,
+  injectBaseSearch,
+} from 'kolibri-common/composables/useBaseSearch';
+/* eslint-enable import/named */
 // eslint-disable-next-line import/named
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
 import makeStore from '../../__tests__/utils/makeStore';
@@ -306,10 +310,45 @@ describe('TopicsPage', () => {
           }),
         );
 
+        // Re-mock injectBaseSearch after clearAllMocks so SearchChips
+        // can access availableLanguages.value without TypeError.
+        injectBaseSearch.mockReturnValue({
+          availableLearningActivities: { value: [] },
+          availableLibraryCategories: { value: [] },
+          availableResourcesNeeded: { value: [] },
+          availableGradeLevels: { value: [] },
+          availableAccessibilityOptions: { value: [] },
+          availableLanguages: { value: [] },
+          availableChannels: { value: [] },
+          searchableLabels: { value: [] },
+          activeSearchTerms: { value: [] },
+          searchLoading: { value: false },
+        });
+
+        useChannels.mockImplementation(() =>
+          useChannelsMock({
+            channelsMap: {
+              [CHANNEL_ID]: CHANNEL,
+            },
+            fetchChannels: jest.fn(() => Promise.resolve([CHANNEL])),
+          }),
+        );
+
+        ContentNodeResource.fetchTree.mockResolvedValue(DEFAULT_TOPIC);
+
         useKResponsiveWindow.mockImplementation(() => ({
           windowIsSmall: true,
           windowIsLarge: false,
         }));
+
+        useDevicesWithFilter.mockReturnValue({
+          devices: [
+            {
+              id: '1',
+              available: true,
+            },
+          ],
+        });
 
         wrapper = mount(TopicsPage, {
           store: store,

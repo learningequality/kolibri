@@ -21,10 +21,36 @@ const facilityMock = {
   password: 'password',
 };
 
+function makeMockTask(overrides = {}) {
+  return {
+    status: 'RUNNING',
+    type: '',
+    sync_state: '',
+    extra_metadata: {
+      started_by: null,
+    },
+    ...overrides,
+  };
+}
+
 function makeWrapper() {
   const wrapper = mount(LoadingTaskPage, {
-    mocks: {
-      wizardService: { state: { context: { selectedFacility: facilityMock } } },
+    propsData: {
+      footerMessageType: 'importFacility',
+    },
+    provide: {
+      wizardService: {
+        state: {
+          context: {
+            selectedFacility: facilityMock,
+            facilitiesOnDeviceCount: 1,
+            fullOrLOD: null,
+            lodImportOrJoin: null,
+            importedUsers: [],
+          },
+        },
+        send: jest.fn(),
+      },
     },
   });
   return { wrapper };
@@ -43,7 +69,7 @@ describe('LoadingTaskPage', () => {
   });
 
   it('loads the first task in the queue and starts polling', async () => {
-    listMock.mockResolvedValue([{ status: 'RUNNING' }]);
+    listMock.mockResolvedValue([makeMockTask({ status: 'RUNNING' })]);
     const { wrapper } = makeWrapper();
     await global.flushPromises();
     const taskPanel = wrapper.findComponent({ name: 'FacilityTaskPanel' });
@@ -53,7 +79,7 @@ describe('LoadingTaskPage', () => {
   });
 
   it.skip('when tasks succeeds, the "continue" button is available', async () => {
-    listMock.mockResolvedValue([{ status: 'COMPLETED' }]);
+    listMock.mockResolvedValue([makeMockTask({ status: 'COMPLETED' })]);
     const { wrapper } = makeWrapper();
     const continueSpy = jest.spyOn(wrapper.vm, 'handleClickContinue');
     await global.flushPromises();
@@ -68,7 +94,7 @@ describe('LoadingTaskPage', () => {
   });
 
   it.skip('when task fails, the "retry" button is available', async () => {
-    listMock.mockResolvedValue([{ status: 'FAILED' }]);
+    listMock.mockResolvedValue([makeMockTask({ status: 'FAILED' })]);
     const { wrapper } = makeWrapper();
     const retrySpy = jest.spyOn(wrapper.vm, 'retryImport');
 
@@ -86,7 +112,7 @@ describe('LoadingTaskPage', () => {
   });
 
   it.skip('when task fails, the "start over" button is available', async () => {
-    listMock.mockResolvedValue([{ status: 'FAILED' }]);
+    listMock.mockResolvedValue([makeMockTask({ status: 'FAILED' })]);
     const { wrapper } = makeWrapper();
     const startOverSpy = jest.spyOn(wrapper.vm, 'startOver');
 
@@ -109,7 +135,7 @@ describe('LoadingTaskPage', () => {
   });
 
   it('a cancel request is made when "cancel" is clicked', async () => {
-    listMock.mockResolvedValue([{ status: 'RUNNING' }]);
+    listMock.mockResolvedValue([makeMockTask({ status: 'RUNNING' })]);
     const { wrapper } = makeWrapper();
     await global.flushPromises();
     const taskPanel = wrapper.findComponent({ name: 'FacilityTaskPanel' });

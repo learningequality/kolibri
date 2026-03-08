@@ -4,11 +4,6 @@ import CreateLearnerAccountForm from '../onboarding-forms/CreateLearnerAccountFo
 
 function makeWrapper(options) {
   const store = makeStore();
-  if (options.preset === 'formal') {
-    store.dispatch('setFormalUsageDefaults');
-  } else {
-    store.dispatch('setNonformalUsageDefaults');
-  }
   if (options.previousChoice !== undefined) {
     store.commit('SET_LEARNER_CAN_SIGN_UP', options.previousChoice);
   }

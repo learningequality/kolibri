@@ -4,6 +4,15 @@ import VueRouter from 'vue-router';
 import CompletionModal from '../CompletionModal';
 
 jest.mock('../../composables/useContentLink');
+jest.mock('../../composables/useDeviceSettings');
+jest.mock('../../composables/useLearnerResources');
+jest.mock('../../composables/useDevices');
+jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow', () => ({
+  __esModule: true,
+  default: () => ({ windowBreakpoint: 2, windowHeight: 768, windowWidth: 1024 }),
+}));
+jest.mock('kolibri-common/apiResources/ContentNodeResource');
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -27,13 +36,16 @@ function makeWrapper({ propsData, data } = {}) {
   return mount(CompletionModal, {
     localVue,
     router,
-    propsData,
-    data,
-    methods: {
-      loadNextContent: jest.fn().mockResolvedValue(null),
-      loadRecommendedContent: jest.fn().mockResolvedValue([]),
-      loadNextLessonContent: jest.fn().mockResolvedValue(null),
+    propsData: {
+      contentNode: {
+        id: 'test-content-node',
+        ancestors: [],
+        parent: 'test-parent',
+      },
+      isUserLoggedIn: false,
+      ...propsData,
     },
+    data,
   });
 }
 
