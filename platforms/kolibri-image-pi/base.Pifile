@@ -44,26 +44,35 @@ RUN chown -R ${user}:${user} /home/${user}
 RUN chmod -R +rwx /home/${user}
 
 RUN apt-get update
-RUN apt-get install -y nginx-full uwsgi uwsgi-plugin-python3 redis-server dnsmasq hostapd
+RUN apt-get install -y nginx-full uwsgi uwsgi-plugin-python3 redis-server dnsmasq
 
 RUN debconf-set-selections <<EOF
 $(cat files/debconf)
 EOF
 
-INSTALL files/wlan0 /etc/network/interfaces.d/wlan0
-RUN systemctl restart networking
+# Set WiFi regulatory domain using raspi-config (the canonical tool).
+# In the pimod chroot, raspi-config detects ischroot and skips runtime-only
+# commands (iw reg set, nmcli radio wifi on).  The persistent file writes
+# still succeed: cfg80211.ieee80211_regdom=US on the kernel command line.
+RUN raspi-config nonint do_wifi_country US
+
+# Override raspberrypi-sys-mods rfkill default (default_state=0 = blocked).
+# Since we configure a known regulatory domain above, it is safe to default
+# WiFi to unblocked.
+RUN sed -i 's/default_state=0/default_state=1/' /etc/modprobe.d/rfkill_default.conf
+
+# Pre-seed NetworkManager state so WiFi is enabled on first boot
+RUN mkdir -p /var/lib/NetworkManager
+INSTALL 644 files/NetworkManager.state /var/lib/NetworkManager/NetworkManager.state
+
+# Install NetworkManager connection profile for WiFi hotspot AP
+INSTALL 600 files/kolibri-hotspot.nmconnection /etc/NetworkManager/system-connections/kolibri-hotspot.nmconnection
 
 INSTALL files/dnsmasq_hotspot.conf /etc/dnsmasq.d/hotspot.conf
-INSTALL files/hostapd.conf /etc/hostapd/hostapd.conf
-INSTALL files/hostapd_5ghz.conf /etc/hostapd/hostapd_5ghz.conf
 
 INSTALL 644 files/99-usb.rules /etc/udev/rules.d/99-usb.rules
 INSTALL 755 files/usb-mount.sh /usr/local/bin/usb-mount.sh
 INSTALL 755 files/usb-mount@.service /etc/systemd/system/usb-mount@.service
-
-RUN tee /etc/default/hostapd <<EOF
-DAEMON_CONF="/etc/hostapd/hostapd.conf"
-EOF
 
 RUN tee /etc/default/dnsmasq <<EOF
 DNSMASQ_EXCEPT=lo
@@ -74,7 +83,7 @@ RUN bash -c "sed -i 's/^#conf-dir=\\/etc\\/dnsmasq.d\\/,.*/conf-dir=\\/etc\\/dns
 
 RUN rm /etc/nginx/sites-enabled/default
 
-RUN systemctl enable hostapd
+RUN systemctl enable NetworkManager
 RUN systemctl enable dnsmasq
 RUN systemctl enable nginx
 RUN systemctl enable ssh
@@ -85,8 +94,8 @@ RUN bash -c 'echo pi:\$6\$OUzfiWw5K8RdwdFV\$7Skel9ojIekqNSE/KVPIhemg9D.tQqoOF2Bw
 
 # avoid keyboard setup questions blocking first boot:
 RUN sh -c 'echo "keyboard-configuration keyboard-configuration/layout select English (US)" | sudo debconf-set-selections'
-RUN tee -a /boot/firmware/cmdline.txt<<EOF
-debconf=low
-EOF
+# Append debconf=low to suppress keyboard setup questions on first boot
+# (cmdline.txt must be a single line; regulatory domain is set by raspi-config above)
+RUN sed -i '1s/$/ debconf=low/' /boot/firmware/cmdline.txt
 
 ENV DEBIAN_FRONTEND
