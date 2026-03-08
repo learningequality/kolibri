@@ -50,11 +50,11 @@ RUN debconf-set-selections <<EOF
 $(cat files/debconf)
 EOF
 
-# Set WiFi regulatory domain on the kernel command line (authoritative on Bookworm).
-# This is exactly what raspi-config nonint do_wifi_country does — we write it
-# directly because raspi-config's runtime commands (iw reg set, rfkill unblock)
-# cannot run inside the pimod chroot.  The actual sed is consolidated with the
-# debconf=low substitution at the bottom of this file.
+# Set WiFi regulatory domain using raspi-config (the canonical tool).
+# In the pimod chroot, raspi-config detects ischroot and skips runtime-only
+# commands (iw reg set, nmcli radio wifi on).  The persistent file writes
+# still succeed: cfg80211.ieee80211_regdom=US on the kernel command line.
+RUN raspi-config nonint do_wifi_country US
 
 # Override raspberrypi-sys-mods rfkill default (default_state=0 = blocked).
 # Since we configure a known regulatory domain above, it is safe to default
@@ -94,9 +94,8 @@ RUN bash -c 'echo pi:\$6\$OUzfiWw5K8RdwdFV\$7Skel9ojIekqNSE/KVPIhemg9D.tQqoOF2Bw
 
 # avoid keyboard setup questions blocking first boot:
 RUN sh -c 'echo "keyboard-configuration keyboard-configuration/layout select English (US)" | sudo debconf-set-selections'
-# Append kernel command line parameters (cmdline.txt must be a single line):
-#  - cfg80211.ieee80211_regdom=US: set WiFi regulatory domain (see WiFi section above)
-#  - debconf=low: suppress keyboard setup questions on first boot
-RUN sed -i '1s/$/ cfg80211.ieee80211_regdom=US debconf=low/' /boot/firmware/cmdline.txt
+# Append debconf=low to suppress keyboard setup questions on first boot
+# (cmdline.txt must be a single line; regulatory domain is set by raspi-config above)
+RUN sed -i '1s/$/ debconf=low/' /boot/firmware/cmdline.txt
 
 ENV DEBIAN_FRONTEND

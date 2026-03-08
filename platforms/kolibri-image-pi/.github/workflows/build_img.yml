@@ -135,6 +135,14 @@ jobs:
           echo "FAIL: wpa_supplicant binary not found (required by NM for WiFi AP mode)"
           fail=1
         fi
+        echo "=== Checking wpa_supplicant D-Bus service file ==="
+        WPA_DBUS="$MNT/usr/share/dbus-1/system-services/fi.w1.wpa_supplicant1.service"
+        if sudo test -f "$WPA_DBUS"; then
+          echo "PASS: wpa_supplicant D-Bus service file present (NM can activate wpa_supplicant)"
+        else
+          echo "FAIL: wpa_supplicant D-Bus service file missing (NM cannot start wpa_supplicant for AP mode)"
+          fail=1
+        fi
         echo "=== Checking hostapd is NOT installed ==="
         if sudo test -f "$MNT/etc/hostapd/hostapd.conf"; then
           echo "FAIL: old hostapd.conf still present"
