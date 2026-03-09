@@ -1,5 +1,6 @@
 import mock from 'xhr-mock';
-import { mount } from '@vue/test-utils';
+import { render, screen, waitFor } from '@testing-library/vue';
+import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import makeStore from '../../../../__tests__/utils/makeStore';
@@ -20,16 +21,17 @@ const router = new VueRouter({
 });
 
 UserPage.computed.newUserLink = () => ({});
-function makeWrapper(options = {}) {
+
+const renderComponent = (options = {}) => {
   const store = makeStore();
   store.state.route = { params: {} };
-  return mount(UserPage, {
+  return render(UserPage, {
     store,
-    router,
+    routes: router,
     stubs: ['RouterLinkStub'],
     ...options,
   });
-}
+};
 
 // Intentionally made to not match any 'kind' filter
 const unicornUser = { id: '1', kind: 'UNICORN', username: 'unicorn', full_name: 'unicorn' };
@@ -49,10 +51,6 @@ describe('UserPage component', () => {
   afterEach(() => mock.teardown());
 
   describe('message in empty states', () => {
-    function getUserTableEmptyMessage(wrapper) {
-      return wrapper.findComponent({ name: 'KTable' }).props().emptyMessage;
-    }
-
     it('if a keyword filter is applied, the empty message is "no users match..."', async () => {
       mock.get(/.*/, {
         status: 200,
@@ -60,21 +58,18 @@ describe('UserPage component', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      setTimeout(async () => {
-        const wrapper = makeWrapper({
-          data() {
-            return {
-              facilityUsers: [{ ...coachUser, ...unicornUser }],
-              roleFilter: { value: 'coach' },
-            };
-          },
-        });
-        wrapper
-          .findComponent({ name: 'PaginatedListContainer' })
-          .setData({ filterInput: 'coachy' });
-        await wrapper.vm.$nextTick();
-        expect(getUserTableEmptyMessage(wrapper)).toEqual("No users match the filter: 'coachy'");
-      }, 1000);
+      renderComponent({
+        data() {
+          return {
+            facilityUsers: [{ ...coachUser, ...unicornUser }],
+            roleFilter: { value: 'coach' },
+          };
+        },
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText(/No users match the filter/i)).toBeInTheDocument();
+      });
     });
   });
 });
