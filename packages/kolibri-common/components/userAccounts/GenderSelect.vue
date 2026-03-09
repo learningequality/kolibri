@@ -30,9 +30,6 @@
     },
     computed: {
       selected() {
-        if (!this.value || !this.value.trim()) {
-          return { value: '', label: '' };
-        }
         return this.options.find(o => o.value === this.value) || { value: '', label: '' };
       },
       options() {
